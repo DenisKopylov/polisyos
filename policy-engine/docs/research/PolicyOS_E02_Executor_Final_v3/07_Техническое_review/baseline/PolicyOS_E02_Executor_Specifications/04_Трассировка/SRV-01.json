@@ -1,0 +1,377 @@
+{
+  "packet_id": "SRV-01",
+  "lane": "LANE-02",
+  "title": "Атомарное принятие tell и явный split-service контракт",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "LA-014"
+  ],
+  "audit_reports": [
+    "02_Пакеты/SRV-01.md"
+  ],
+  "audit_report_sha256": "c1facc07f47d5d12381cbe7e949436379009bc465c39811dd2e526277430541d",
+  "sourceplan_lines": [
+    1850,
+    1944
+  ],
+  "practical_goal": "Один ответ принимается ровно один раз, цель запроса не теряется, а lightweight contracts и законные исторические адреса продолжают работать.",
+  "requirements": [
+    {
+      "id": "REQ-SRV-01-01",
+      "text": "Pending→applying→completed и owner state commit должны быть единым run-affine exactly-once переходом; overlapping/reentrant tell не мутирует state дважды и не выдаёт KeyError после повторной записи.",
+      "source_ids": [
+        "LA-014"
+      ],
+      "audit_ids": [
+        "remaining:0378",
+        "preserve:0615",
+        "preserve:0616",
+        "preserve:0617",
+        "audit-residual:C14_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-SRV-01-01"
+      ]
+    },
+    {
+      "id": "REQ-SRV-01-02",
+      "text": "Explicit goal/search_space в ask не могут молча игнорироваться: поддержанный профиль передаёт их actual generator с правилом конфликтов; unsupported explicit input отвергается до работы.",
+      "source_ids": [
+        "LA-014"
+      ],
+      "audit_ids": [
+        "remaining:0379",
+        "audit-residual:C14_остатки:1"
+      ],
+      "test_ids": [
+        "TEST-SRV-01-02"
+      ]
+    },
+    {
+      "id": "REQ-SRV-01-03",
+      "text": "Manual ask/tell должен иметь объявленного владельца generation/work accounting и нового resource admission; приём уже выполненного допустимого ответа не запрещается только поздним exhaustion.",
+      "source_ids": [
+        "LA-014"
+      ],
+      "audit_ids": [
+        "remaining:0380",
+        "audit-residual:C14_остатки:2"
+      ],
+      "test_ids": [
+        "TEST-SRV-01-03"
+      ]
+    },
+    {
+      "id": "REQ-SRV-01-04",
+      "text": "Contracts-only import, DTO identity/lazy aliases и historical serialization должны оставаться совместимыми в реальной поставке; adapter не становится вторым редактором history/best.",
+      "source_ids": [
+        "LA-014"
+      ],
+      "audit_ids": [
+        "remaining:0381",
+        "preserve:0613",
+        "preserve:0614",
+        "preserve:0615",
+        "preserve:0617",
+        "audit-residual:C14_остатки:3"
+      ],
+      "test_ids": [
+        "TEST-SRV-01-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-SRV-01-01",
+      "requirement_ids": [
+        "REQ-SRV-01-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Actual owner/DTO, две threads с barrier и samecandidate, callbackreentry, twodifferentIDs, generationreplace; invalid payload beforecommit.",
+      "action": "Пройти оба overlap witnesses, затем законный последовательный duplicate/retry и reversed completion разныхIDs.",
+      "oracle": "Ровно1history/count/transition для одного token, второй явный duplicate/inflight outcome доmutation; два разных subject сохраняются; pending восстановим при precommit invalid.",
+      "expected": "Не заявлять два физических расчёта или billing effects по count; admission reset/epoch sharedCTL01.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-SRV-01-02",
+      "requirement_ids": [
+        "REQ-SRV-01-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Две разные цели/непересекающиеся space при samecontext; None; conflictingcontext; actual generator observing accepted normalized input.",
+      "action": "Вызвать native ask, materialize proposal и пройти selected consumer.",
+      "oracle": "Supported goal/space меняет эффективный generator input и результат/constraints, конфликт не silent override; Nonecompat unchanged.",
+      "expected": "Одного context.update недостаточно; LLM proposal не доказательство source truth.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-SRV-01-03",
+      "requirement_ids": [
+        "REQ-SRV-01-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Actual split caller, full-run comparison, persistentempty/sentinels, бюджет exhausted доask и послеactualevaluation передtell.",
+      "action": "Сравнить одинаковый admitted workload через APIs и позднее принятие завершённого результата.",
+      "oracle": "Счётчики имеют одну declared unit, newwork запрещён когда нельзя, late validtell сохраняет knowledge без extra work; reason/pending/partial читаемы.",
+      "expected": "Manual3asks не автоматически бесконечныйloop, однако generationcost/attempts не0; no implied full-run parity без owner.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-SRV-01-04",
+      "requirement_ids": [
+        "REQ-SRV-01-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Existing tests/unit/remediation/test_srv_01.py и tests/unit/scientist/search/test_contracts.py; supported wheel/environment, oldrecordfixtures.",
+      "action": "Coldimport contracts доaliasaccess; затем aliases/roundtrip/actualasktell и malformedtyped feedback.",
+      "oracle": "Concrete runtime не eager по contract-only path; identity та же, old histories читаются, unknown/duplicate/invalidtyped не bypass best.",
+      "expected": "Rootpackage может иметь свои dependencies: проверять заявленную границу, не обещать любойimport лёгким; no newSearchService framework.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C14_остатки:0",
+      "requirement_ids": [
+        "REQ-SRV-01-01"
+      ],
+      "rationale": "Reservation/prepare/commit у общего owner.",
+      "disposition": "fix",
+      "audit_id": "C14-R01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C14_остатки:1",
+      "requirement_ids": [
+        "REQ-SRV-01-02"
+      ],
+      "rationale": "Не терять explicit args.",
+      "disposition": "fix",
+      "audit_id": "C14-G01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C14_остатки:2",
+      "requirement_ids": [
+        "REQ-SRV-01-03"
+      ],
+      "rationale": "Достижимый split admission/accounting.",
+      "disposition": "capability",
+      "audit_id": "C14-G02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C14_остатки:3",
+      "requirement_ids": [
+        "REQ-SRV-01-04"
+      ],
+      "rationale": "Actual cold/installed identity scope.",
+      "disposition": "qualify",
+      "audit_id": "C14-G03",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "LA-014",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-SRV-01-01",
+        "REQ-SRV-01-02",
+        "REQ-SRV-01-03",
+        "REQ-SRV-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0378",
+      "requirement_ids": [
+        "REQ-SRV-01-01"
+      ],
+      "rationale": "Atomic acceptance вместе с CTL01runaffinity.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0379",
+      "requirement_ids": [
+        "REQ-SRV-01-02"
+      ],
+      "rationale": "Явный goal/space contract.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0380",
+      "requirement_ids": [
+        "REQ-SRV-01-03"
+      ],
+      "rationale": "Shared primitives/реальный external owner, not implied parity.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0381",
+      "requirement_ids": [
+        "REQ-SRV-01-04"
+      ],
+      "rationale": "Native installed/import/consumer census.",
+      "disposition": "qualify"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0613",
+      "requirement_ids": [
+        "REQ-SRV-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Contracts-only import, DTO identity/lazy aliases и historical serialization должны оставаться совместимыми в реальной поставке; adapter не становится вторым редактором history/best.",
+      "test_ids": [
+        "TEST-SRV-01-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0614",
+      "requirement_ids": [
+        "REQ-SRV-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Contracts-only import, DTO identity/lazy aliases и historical serialization должны оставаться совместимыми в реальной поставке; adapter не становится вторым редактором history/best.",
+      "test_ids": [
+        "TEST-SRV-01-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0615",
+      "requirement_ids": [
+        "REQ-SRV-01-01",
+        "REQ-SRV-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Pending→applying→completed и owner state commit должны быть единым run-affine exactly-once переходом; overlapping/reentrant tell не мутирует state дважды и не выдаёт KeyError после повторной записи.; Contracts-only import, DTO identity/lazy aliases и historical serialization должны оставаться совместимыми в реальной поставке; adapter не становится вторым редактором history/best.",
+      "test_ids": [
+        "TEST-SRV-01-01",
+        "TEST-SRV-01-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0616",
+      "requirement_ids": [
+        "REQ-SRV-01-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: Pending→applying→completed и owner state commit должны быть единым run-affine exactly-once переходом; overlapping/reentrant tell не мутирует state дважды и не выдаёт KeyError после повторной записи.",
+      "test_ids": [
+        "TEST-SRV-01-01"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0617",
+      "requirement_ids": [
+        "REQ-SRV-01-01",
+        "REQ-SRV-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Pending→applying→completed и owner state commit должны быть единым run-affine exactly-once переходом; overlapping/reentrant tell не мутирует state дважды и не выдаёт KeyError после повторной записи.; Contracts-only import, DTO identity/lazy aliases и historical serialization должны оставаться совместимыми в реальной поставке; adapter не становится вторым редактором history/best.",
+      "test_ids": [
+        "TEST-SRV-01-01",
+        "TEST-SRV-01-04"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I02-A"
+  ],
+  "dependencies": [
+    "SRV-01 owns atomic acceptance API; CTL-01 owns run-generation replacement. Реализовать одним согласованным shared-owner patch, не два locks.",
+    "CTL-03 supplies work/cost/typed eligibility semantics; SRV-03 validates actual autotune split/full consumer and LA015 closure.",
+    "LA014 closed only after ownactualcontracts/caller/evidence; protocol presence не acceptance."
+  ],
+  "preservation": [
+    "DTO/protocol owner and lazy compatibility aliases",
+    "historical serialized record identities",
+    "shared lifecycle/run_state; no duplicated history/best mutation",
+    "detached proposals/results; unknown and sequential duplicate refusal",
+    "malformed typed input cannot silently become scalar best"
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    "Исправление расширяет надёжное продолжение содержательного поиска и не требует нового планировщика. Поздний полезный результат сохраняется без выдачи права на новый расход."
+  ],
+  "open_decisions": [],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "symbol_or_anchor": "def tell",
+      "lines": [
+        111,
+        143
+      ],
+      "sha256": "782fb7b060955c6139db7ed6d9d77740ce5453f0fe6f31d3be44224ddd67e907",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/service.py#L111-L143"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "symbol_or_anchor": "def ask",
+      "lines": [
+        46,
+        78
+      ],
+      "sha256": "782fb7b060955c6139db7ed6d9d77740ce5453f0fe6f31d3be44224ddd67e907",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/service.py#L46-L78"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "symbol_or_anchor": "def _accept_tell",
+      "lines": [
+        254,
+        286
+      ],
+      "sha256": "f4615f237197b7f03195d63aabd9d115df0865165b5c897a6928c3fc52f29d53",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/lifecycle.py#L254-L286"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "symbol_or_anchor": "def __getattr__",
+      "lines": [
+        609,
+        631
+      ],
+      "sha256": "b95d17e62e55a5e16e7d76bc42a2a5dd2d07d95ea3febc589a7cbb7b050bef6d",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/contracts.py#L609-L631"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adapters.py",
+      "symbol_or_anchor": "class LegacySearchServiceAdapter",
+      "lines": [
+        28,
+        60
+      ],
+      "sha256": "41607306fbde2e0f5b0e3797fc0844a0fddcc19560b60d287e25462cb8bf7d0f",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/adapters.py#L28-L60"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-SRV-01-01",
+      "text": "SRV-01 owns общий atomic acceptance у lifecycle/service: под owner synchronization проверить CTL-01generation и зарезервировать pending token; callback/validation готовят immutable delta без history mutation; commit под тем же owner проверяет reservation+generation и применяет SearchRunState transition один раз, затемcompleted. Reentry того же token отказан до callback; different IDs допускаются согласно declared serialization policy. При failure доcommit release/retry policy явна, послеcommit возврат/повтор видит committed outcome. Не держать не-reentrant lock вокруг внешнего callback и не просто менять del наpop."
+    },
+    {
+      "requirement_id": "REQ-SRV-01-02",
+      "text": "Finite caller census по SearchService.ask определить supported typed goal/space shapes. Предпочесть existing config/context semantic owner: normalize и validate explicit arguments, сравнить с context/config; конфликт адресный, provenance сохраняется в service envelope. Compatibility None/None остаётся. Если конкретный adapter договором допускает толькоNone — явный narrow refusal, не скрытая потеря; положительный supported route задаёт meaningful цель без нового goalowner."
+    },
+    {
+      "requirement_id": "REQ-SRV-01-03",
+      "text": "Не копировать full loop. В existing lifecycle expose shared prepare-generation/check/account/finalize primitives CTL01/03. Split profile либо uses them, либо требует explicit external orchestrator owner/contract, проверяемый фактическим caller. Ask до нового paid work проверяет cap/budget; tell принимает source-bound выполненную работу, сверяя run/token/eligibility и не authorizing новый расход."
+    },
+    {
+      "requirement_id": "REQ-SRV-01-04",
+      "text": "Extraction уже есть: contracts.py DTO/protocols, adapters.py concrete, lifecycle/run_state mutation. Сохранить historical __module__ и resolved dataclass annotations. Finite import/string/public consumer census; fresh subprocess trap controller/funnel, supported installed imports и preserved pickle fixtures. Удаление aliases только после explicit retirement evidence, не по словуlegacy."
+    }
+  ]
+}

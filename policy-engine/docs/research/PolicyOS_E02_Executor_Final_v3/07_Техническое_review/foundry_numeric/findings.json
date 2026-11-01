@@ -1,0 +1,330 @@
+{
+  "review_date": "2026-11-01",
+  "scope": [
+    "LANE-03",
+    "LANE-04",
+    "LANE-10"
+  ],
+  "status": "REVIEW_COMPLETE_NOT_ACCEPTANCE",
+  "product_tests": "NOT_RUN",
+  "findings": [
+    {
+      "id": "FN-CAL-MASK",
+      "severity": "high",
+      "classification": "verified_specification_defect",
+      "blocking_scope": "Не принимать CAL-02 split-isolation/native derivative claim и E02-I10-A до исправления порядка операций.",
+      "packets": [
+        "CAL-02"
+      ],
+      "requirements": [
+        "REQ-CAL-02-02",
+        "REQ-CAL-02-04",
+        "REQ-CAL-02-06"
+      ],
+      "tests": [
+        "TEST-CAL-02-02",
+        "TEST-CAL-02-03",
+        "TEST-CAL-02-06"
+      ],
+      "scenarios": [
+        "E02-I10-A"
+      ],
+      "faulty_proposition": "§5: quality*fit_mask в measurement_support/_base_vec_from_traces считается достаточным исключением evaluation observations из training objective.",
+      "evidence": [
+        "P/02_Пакеты/CAL-02.md §5 и TEST02: mutation10→30 не затрагивает overflow regime.",
+        "src/polisyos/foundry/calibration/loss.py:33–54 и70–85: float32 pointwise nonlinear loss и global finiteness до reduction.",
+        "src/polisyos/foundry/calibration/calibrator.py:2806–2835: pointwise loss предшествует quality reducer.",
+        "src/polisyos/foundry/execute/_internal/numeric/__init__.py:161–165: finite_loss_or_inf проверяет весь array."
+      ],
+      "counterexample": "Фиксировать train10, prediction[10,10], train-only scale10, fit mask[1,0]. Заменить только heldout10 на3e38. Это finite float32, но squared normalized residual≈9e74 не представим вfloat32. Late mask не отменяет inf/global guard; даже умножение inf*0 не0. Вfloat64 данный square представим: dtype существенно указан. Training support/model unchanged, fit обязано остаться finite и неизменным.",
+      "alternatives": [
+        "Existing loss owner: нейтрализовать excluded observed/residual operands до nonlinear primitive; отдельно сохранить nonfinite-prediction admission.",
+        "Gather supported points при устойчивой static-shape policy; может усложнить JIT.",
+        "where над уже computed loss: недостаточная AD гарантия.",
+        "Глобальный x64: не решает support contract и меняет unrelated law."
+      ],
+      "preferred_solution": "Одна effective fit-support closure для scale, base loss, GradNorm, обоих Hessian consumers и final report; inactive operands безопасны до square/Huber. Explicit model-finiteness check не маскируется. Evaluation diagnostics считаются отдельно с собственным range reason.",
+      "tradeoffs": "Небольшой дополнительный masked operand buffer; static shapes сохраняются. Обязательна явная политика nonfinite model vs excluded observations, иначе можно незаметно ослабить существующий guard.",
+      "replacement_requirement": "При неизменных training support, parameters, scale и model outputs изменение только excluded evaluation observations, включая любые разрешённые конечные значения selected dtype, не меняет training primal, gradient, Hessian и optimizer update. Исключение выполняется до nonlinear primitives; nonfinite prediction обрабатывается отдельным прежним admission rule. Unsupported evaluation metric range не отравляет fit.",
+      "replacement_test": "Расширить TEST02/06: actual compiler/splitter→Calibrator, float32 heldout10/3e38 при одинаковых train/model/keys; compare finite loss, gradients, физический Hessian и один native Optax update eager/JIT. Active train mutation остаётся различающим контролем. Полностью masked finite extreme target даёт0/zero derivatives только как contribution отдельной цели при наличии допустимого fit support другой цели; полностью пустой fit corpus остаётся no-fit/refusal, не successful zero-loss. Nonfinite prediction сохраняет declared отказ. Отдельно наблюдать evaluation range limitation. Не подменять forward/AD/optimizer.",
+      "shared_owner": "CAL-02 loss/base-vector owner; interfaces CAL-01/03/04/05, не новый numeric framework.",
+      "preservation_risks": [
+        "Не скрыть model NaN при zero quality.",
+        "Не изменить priority-after-sample reduction, penalty law, split role.",
+        "Не менять float32→float64 молча."
+      ],
+      "validation_plan": [
+        "Native selected backend/dtype recorded; compare exact fit partition and frozen weights.",
+        "Independent analytic train-only quadratic oracle; old late-mask mutation must fail new test.",
+        "Report persistence/fresh consumer distinguishes fit and descriptive diagnostics."
+      ],
+      "uncertainty": "Source-level/specification counterexample confirmed; product/native execution NOT_RUN, exact runtime failure mode inf/NaN/rejection must be observed during implementation.",
+      "sources": [
+        "JAX-WHERE",
+        "JAX-DTYPE"
+      ]
+    },
+    {
+      "id": "FN-BKT-RANGE",
+      "severity": "medium",
+      "classification": "verified_specification_overrestriction",
+      "blocking_scope": "Пересмотреть BKT-02 row-admission/numerical-range acceptance; не блокирует прочие honest partial backtest paths.",
+      "packets": [
+        "BKT-02"
+      ],
+      "requirements": [
+        "REQ-BKT-02-01",
+        "REQ-BKT-02-02"
+      ],
+      "tests": [
+        "TEST-BKT-02-01",
+        "TEST-BKT-02-02",
+        "TEST-BKT-02-05",
+        "TEST-BKT-02-07"
+      ],
+      "scenarios": [
+        "E02-I03-C"
+      ],
+      "faulty_proposition": "REQ01/§5 и TEST01 разрешают объявить individual row invalid только потому, что squared residual не представим; TEST01 закрепляет потерю второй useful row1e308.",
+      "evidence": [
+        "P/02_Пакеты/BKT-02.md:REQ01/02, §5, TEST01/02.",
+        "src/polisyos/scientist/methods/backtesting/evaluator.py:98–104: abs_err**2 до append;139–149: OutcomeComparison хранит absolute_error, не square.",
+        "src/polisyos/scientist/methods/backtesting/orchestrator.py:1378–1435: aggregate sufficient-stat calculations."
+      ],
+      "counterexample": "Одна finite ошибка1e308 имеет MAE=RMSE=1e308. Square/SSE переполняет binary64, но comparison row и обе основные метрики представимы. Для двух одинаковых ошибок ситуация та же. Это не случай max_float−(−max_float), где сам residual непредставим.",
+      "alternatives": [
+        "Сохранять valid residual rows и separately unavailable SSE; scaled RMS из rows в existing evaluator/IR.",
+        "Расширить sufficient stats на scale+sum-of-squares при доказанной необходимости incremental merge.",
+        "Invalid entire row по square overflow — безопасно от fake trust, но ненужно сужает полезную способность.",
+        "math.hypot/naive numpy.linalg.norm без scaling/n normalization не универсальны: norm может overflow при representable RMS."
+      ],
+      "preferred_solution": "Отделить comparison validity от availability конкретной sufficient statistic. Общий numerical policy, независимый fresh row reconciliation; scaled RMS и устойчивое MAE, unavailable SSE с причиной. Не давать full trust там, где обязательная статистика недоступна.",
+      "tradeoffs": "Если persisted schema требует finite mandatory SSE, нужен узкий nullable/status versioning, не замена finite scalar наinf. Scale/ssq pair добавлять лишь при реальной потребности merge; row replay проще.",
+      "replacement_requirement": "Finite representable residual/absolute_error остаётся полезной comparison row независимо от representability residual²/SSE. Все representable MAE/RMSE вычисляются устойчиво. Непредставимые derived statistics имеют отдельную unavailable reason; requested denominator не уменьшается и trust не усиливается. Непредставимый сам residual остаётся адресно invalid.",
+      "replacement_test": "TEST01 сохранить обе rows для [1,1e308] versus[1,0]; single1e308 и pair[1e308,1e308] дают finite RMSE/MAE по analytic oracle, SSE unavailable. Отдельный subtraction overflow остаётся invalid. Actual serialization→fresh IR recomputes rows; техническое sharding сохраняет micro results/counts. Запретить0/inf substitutes и fraudulent eligible.",
+      "shared_owner": "PredictionEvaluator + backtesting aggregate + existing IR row reconciler; shared exact mean FED только если нужен, без Foundry import.",
+      "preservation_risks": [
+        "Не смешать scientific unit pooling с numerical range.",
+        "Не назвать unavailable SSE нулевой ошибкой.",
+        "Не уронить requested denominator и provenance."
+      ],
+      "validation_plan": [
+        "Analytic scaling oracle на actually representable floats.",
+        "Native owner→CAS/JSON→fresh IR positive/negative controls.",
+        "Versioned legacy limited read сохраняется."
+      ],
+      "uncertainty": "Это обоснованное устранение ненужного ограничения ТЗ, не утверждение что все extreme residuals обязаны стать trusted. Producttests NOT_RUN.",
+      "sources": [
+        "PY-MEAN"
+      ]
+    },
+    {
+      "id": "FN-UQS-STDLIB",
+      "severity": "medium",
+      "classification": "optimization_suggestion_not_correctness_defect",
+      "blocking_scope": "Не release blocker numerical correctness; пересмотреть обязательность самописного exact accumulator до реализации FED/UQS.",
+      "packets": [
+        "UQS-01"
+      ],
+      "requirements": [
+        "REQ-UQS-01-02"
+      ],
+      "tests": [
+        "TEST-UQS-01-02"
+      ],
+      "scenarios": [
+        "E02-I10-B"
+      ],
+      "faulty_proposition": "§5 предписывает собственный exact integer accumulator для finite binary64 mean, хотя целевой stdlib уже реализует нужный порядок exact sum/division/conversion.",
+      "evidence": [
+        "P/02_Пакеты/UQS-01.md §5: exact finite mean shared owner FED-01.",
+        "src/polisyos/foundry/uncertainty/aggregator.py:227–389: existing _widest mean/clamp and precision fusion; не предлагается переносить statistical fusion semantics в stdlib.",
+        "CPythonv3.14.0 statistics.mean146–165/_sum1322–1373: exact ratios grouped by denominator, Fraction total divided byn before float conversion."
+      ],
+      "counterexample": "Проблема не ошибочность собственного exact algorithm. Это лишняя duplicate arithmetic surface: statistics.mean([max_float,max_float]) должен вернуть max_float там, где fsum затем /n может overflow. Cancellation с subnormal midpoint требует exact oracle. Host3.12 stdlib arithmetic было проверено отдельно; это не native3.14 acceptance.",
+      "alternatives": [
+        "Thin finite-validated common statistics.mean wrapper + mean((a,b)) midpoint.",
+        "Оставить собственный exact integer accumulator после доказанной причины performance/contract.",
+        "fmean/fsum/n либо statistics.median для even midpoint: неэквивалентные extreme guarantees."
+      ],
+      "preferred_solution": "Поведенческий requirement exact finite result оставить; implementation preference — common FED/Core helper поверх statistics.mean под pinned CPython3.14 qualification. Foundry и Fabric используют одного owner, не импортируют друг друга.",
+      "tradeoffs": "CPython implementation detail version-bound; performance exact rational reduction нужно измерить на bounded production summary lengths. Если иной Python runtime входит в scope — квалифицировать либо сохранять explicit fallback.",
+      "replacement_requirement": "Общий finite-binary64 mean/midpoint сохраняет точный арифметический смысл и final rounding без intermediate overflow для representable result. Допускается квалифицированная stdlib statistics.mean; собственный accumulator не обязателен. Empty/nonfinite admission явно сохранён.",
+      "replacement_test": "Native CPython3.14: max/max, opposite extremes+cancellation, subnormal midpoint, signed zero policy, permutation and repeated-concatenation metamorphisms (do not average rounded subgroup means) against separately constructed Fraction oracle plus Decimal.from_float precision1200 cross-check on bounded fixtures; no expected value computed by same helper; Fraction backend overlap with stdlib mean explicitly disclosed. Bounded length/time/memory measurement separate from numerical proof.",
+      "shared_owner": "FED-01 common finite numeric helper, coordinated with Fabric reviewer; UQS owner owns summary law only.",
+      "preservation_risks": [
+        "Не подменить mean median/hull clamp.",
+        "Не переносить Python Fraction helper в JIT traced path.",
+        "Не изменить joint draw corpus и source independence requirements."
+      ],
+      "validation_plan": [
+        "Freeze helper profile/version and finite boundary.",
+        "Run native exact-oracle matrix and existing summary persisted reconciliation.",
+        "Compare cost with custom accumulator only if measured sizes justify it."
+      ],
+      "uncertainty": "Optimization recommendation backed by pinned source; target runtime NOT_RUN. Existing proposed custom exact algorithm may be fully correct.",
+      "sources": [
+        "PY-MEAN"
+      ]
+    },
+    {
+      "id": "FN-PLG-ORACLE",
+      "severity": "medium",
+      "classification": "verified_acceptance_gap",
+      "blocking_scope": "Перед claim genuine PPO learning дополнить PLG-03 native update witness независимой loss/gradient semantics проверкой.",
+      "packets": [
+        "PLG-03"
+      ],
+      "requirements": [
+        "REQ-PLG-03-02",
+        "REQ-PLG-03-04"
+      ],
+      "tests": [
+        "TEST-PLG-03-02"
+      ],
+      "scenarios": [
+        "E02-I04-C"
+      ],
+      "faulty_proposition": "Finite nonzero raw gradient + actual Optax + parameter/action delta относительно no-update считается достаточным oracle корректного PPO update.",
+      "evidence": [
+        "P/02_Пакеты/PLG-03.md REQ02/TEST02 требуют effect, но не направление/correct clipped objective.",
+        "src/polisyos/foundry/agent_sim/rl.py:106–168: actual clipped-min policy loss имеет правильный вид; defect текущего знака НЕ заявляется.",
+        "src/polisyos/foundry/agent_sim/jit_training.py:409–453: actual update route.",
+        "src/polisyos/foundry/plugins/training_adapter.py:686–813: native effect/publication witness."
+      ],
+      "counterexample": "Заменить policy_loss на его отрицание, сохранить настоящие jax.grad/Optax и telemetry. Получится ненулевой finite gradient, parameter delta, next-action effect и same-seed replay; текущий эффект-only oracle допускает обучение в обратную сторону.",
+      "alternatives": [
+        "Добавить small independent analytic PPO/GAE oracle при сохранении native end-to-end update.",
+        "Требовать welfare improvement после1–2updates — неверное scientific обещание.",
+        "Подключить готовый RL framework — лишняя migration, не заменяет adapter law evidence."
+      ],
+      "preferred_solution": "Проверять policy/value/entropy components отдельно, clip branches для обоих signs advantage и pre-Optax gradient direction. Old policy/advantages/returns являются fixed targets по chosen training contract. Затем original Optax и fresh policy artifact.",
+      "tradeoffs": "Небольшая unit matrix не доказывает RL convergence; сохраняется отдельная empirical evaluation. Native tiny update остаётся обязательным, analytic fixture не заменяет collector/executor.",
+      "replacement_requirement": "Genuine PPO update должен соответствовать объявленному clipped surrogate, value/entropy weights и GAE termination/bootstrap convention. Nonzero action effect необходим, но недостаточен; independent analytic oracle обязан различать reversed sign, unclipped objective и incorrect target differentiation.",
+      "replacement_test": "Добавить raw advantages[+1,−1], independent normalization включая declared epsilon, epsilon_clip=.2. Для ratios[1.3,.7] policy loss≈−.2 и clipped derivatives0 в открытых окрестностях; ratios[.9,1.1] loss≈.1 и derivatives по log ratios[−.45,+.55] с normalization factor. Проверить opposite bad-side clipping separately, isolate value/entropy coefficients, generic GAE tiny trajectory with terminal/bootstrap. Native profile terminal refusal сохраняется; original1–2updates и no-update control остаются.",
+      "shared_owner": "Existing agent_sim.rl numeric loss and training_adapter collector/Optax boundary; no duplicate RL framework.",
+      "preservation_risks": [
+        "Не потребовать монотонного welfare gain от stochastic PPO.",
+        "Не сравнить physical action gradient с unrelated network coordinate.",
+        "Не расширить HARD training без likelihood contract."
+      ],
+      "validation_plan": [
+        "Analytic scalar computation independently from product helper, controlled inputs not precomputed product output.",
+        "Mutation test sign flip and clip removal must fail.",
+        "Native JAX/Equinox/Optax update and source-bound fresh load still required."
+      ],
+      "uncertainty": "Пропуск acceptance проверен; actual current PPO sign correct by source. Nativeexecution NOT_RUN.",
+      "sources": [
+        "PPO",
+        "OPTAX"
+      ]
+    },
+    {
+      "id": "FN-PLG-INACTIVE",
+      "severity": "medium",
+      "classification": "source_derived_runtime_hypothesis_and_test_gap",
+      "blocking_scope": "Квалификация обещанного inactive-padding native profile; не объявлять confirmed runtime bug до native witness.",
+      "packets": [
+        "PLG-03"
+      ],
+      "requirements": [
+        "REQ-PLG-03-02"
+      ],
+      "tests": [
+        "TEST-PLG-03-02"
+      ],
+      "scenarios": [
+        "E02-I04-C"
+      ],
+      "faulty_proposition": "Общее “inactive padding allowed” в TEST02 без конкретного nonfinite inactive end-to-end witness может быть удовлетворено profile assessment/Gini тестом при unsafe native loss path.",
+      "evidence": [
+        "tests/unit/remediation/test_plg_03.py:973–997,1193–1219: inactive bad values проверяются через assessment/Gini, не данный actual optimizer trajectory.",
+        "src/polisyos/foundry/plugins/training_adapter.py:566–578: inactive income copied.",
+        "src/polisyos/foundry/agent_sim/temporal.py:42–51: unmasked observation features.",
+        "src/polisyos/foundry/agent_sim/actor_critic.py:185–209: neural forward of row.",
+        "src/polisyos/foundry/agent_sim/rl.py:139–155: multiplications by mask after advantage/nonlinear computations; source-derived NaN*0 concern."
+      ],
+      "counterexample": "Одинаковая shape/active index/key assignment, активные агенты полностью valid; изменить только income неактивной padding row finite→NaN. Profile допускает padding, но raw NaN может пройти в actor/GAE и mask multiplication отравить whole gradient. Shape не менять: это исключает легитимную смену PRNG draw arrangement.",
+      "alternatives": [
+        "Sanitize/neutralize inactive computational observation/reward/target operands before nonlinear operations within native adapter/rl owner.",
+        "Supported fixed active gather with explicit scattering/key contract.",
+        "Reject any nonfinite stored row — сужает обещанный профиль и не является выполнением inactive support."
+      ],
+      "preferred_solution": "Сначала native paired witness. Если подтвердится, нейтрализовать только вычислительный inactive view, не stored state; active guard и промежуточный terminal check сохранить. Same-shape same-key pair должен иметь одинаковую active behavior/update по declared tolerance.",
+      "tradeoffs": "Не обещать append-padding exact RNG invariance без per-agent key semantics. Inactive rows могут нести исторические данные, их нельзя destructive rewrite. Дополнительная masking matrix мала, но safety нужна доAD.",
+      "replacement_requirement": "Разрешённый inactive padding не влияет на активную native training objective/gradient/update через payload, включая declared допустимые nonfinite inactive fields. Stored payload не переписывается. Active negative/nonfinite values и intermediate terminal violations по-прежнему отклоняются до update/publication.",
+      "replacement_test": "TEST02: paired actual training runs с одинаковой shape, active indices, supplied seed, initial actor/optimizer; только inactive income finite/NaN различается. Реальные collector→executor→GAE→PPO→Optax1–2updates, finite metrics and same active action/update under predeclared tolerance. Active-row NaN — отказ; final recovery не скрывает intermediate failure. Observer only delegates original update.",
+      "shared_owner": "training_adapter native projection + temporal observation + rl masks; coordinate PLG-03 only, no process-wide sanitization.",
+      "preservation_risks": [
+        "Не скрыть active model violations.",
+        "Не mutate persisted inactive state.",
+        "Не сравнить разные PRNG shape layouts как одно и то же испытание."
+      ],
+      "validation_plan": [
+        "First demonstrate/native-refute source-derived path on locked stack.",
+        "If safe by another existing boundary, document exact source and retain discriminating acceptance; do not force redundant patch.",
+        "Fresh artifact same active inference with exact selected ref."
+      ],
+      "uncertainty": "Runtime hypothesis, NOT_RUN. Source path supports concern but no native failure claimed; finding primarily strengthens acceptance for already promised scope.",
+      "sources": [
+        "JAX-WHERE"
+      ]
+    },
+    {
+      "id": "FN-DOE-PCA-RNG",
+      "severity": "medium",
+      "classification": "verified_source_level_pipeline_omission",
+      "blocking_scope": "Не принимать DOE-02 full-request RNG isolation для multioutput и E02-I10-C до PCA-stage qualification.",
+      "packets": [
+        "DOE-02",
+        "DOE-03"
+      ],
+      "requirements": [
+        "REQ-DOE-02-02",
+        "REQ-DOE-03-03"
+      ],
+      "tests": [
+        "TEST-DOE-02-02",
+        "TEST-DOE-03-03"
+      ],
+      "scenarios": [
+        "E02-I10-C"
+      ],
+      "faulty_proposition": "Full stage RNG contract охватывает sampler/analyzer/model/UQ, но solution/test fixtures не привязывают stochastic PCA stage; tiny3×5/6×5 matrices не активируют randomized solver.",
+      "evidence": [
+        "P/02_Пакеты/DOE-02.md REQ02/TEST02; DOE-03 TEST03.",
+        "src/polisyos/scientist/methods/doe/multi_output.py:175–215, особенно190: PCA(n_components=n_components), default auto/random_state=None.",
+        "Pinned sklearn1.8.0 _pca.py:479–491 auto threshold;661,682–693 randomized seed path.",
+        "Pinned sklearn1.8.0 utils/validation.py:1324–1351: check_random_state(None) returns global NumPy singleton.",
+        "tests/unit/remediation/test_doe_03.py:178–245: only small deterministic auto branches."
+      ],
+      "counterexample": "Supported two-parameter Morris200 trajectories с num_levels=8 для обеих axes дают600 rows;100 output columns, max_components5. Вlocked1.8.0:600<10*100, maxdim>500,5<.8*100 => randomized solver. None seed consumes ambient NumPy state; output can depend on unrelated request/global seed. Matrix с rank существенно больше oversampling избегает тривиальной exact-low-rank masking проблемы. Even if outputs happen close, external-state mutation already violates contract.",
+      "alternatives": [
+        "Explicit full solver bounded small + randomized solver with independently derived local stage seed large.",
+        "Always full SVD — deterministic but unnecessary large-data cost.",
+        "Keep auto but always explicit random_state and persist resolved solver — acceptable if profile records threshold/backend version.",
+        "Separate distributed PCA engine — unjustified."
+      ],
+      "preferred_solution": "Один existing MultiOutputAnalyzer owns PCA profile/seed, domain-separated from sampling/analysis/model/UQ streams; сохранять resolved solver, backend version и derived seed в current source record. Preserve centered rank/subspace caveats.",
+      "tradeoffs": "Новый metadata field/profile version может требовать compatibility handling. Large randomized arithmetic stays approximate; tolerances/residual bounds не bitwise crossbackend promise. Input600×100 float64≈480KB, workspace отдельно.",
+      "replacement_requirement": "Full-request reproducibility включает preprocessing/PCA. Каждый stochastic stage получает explicit local derived stream; ни один stage не читает/сбрасывает ambient NumPy RNG. Producer record содержит actual PCA backend/version/resolved solver/seed/profile; replay/new replica следуют declared identity.",
+      "replacement_test": "Добавить bounded actual sklearn1.8.0 600×100, k=5 case: two-parameter Morris200 trajectories, num_levels=8 обеих axes; fixed deterministic compatible model output matrix с separated spectrum и проверенным centered rank>15. Не предполагать rank>15 для default4-level двухмерного deterministic grid (там максимум16unique points). Выполнить full PCA→Morris indices для A/B вAB/BA, replay и new replica; external NumPy state unchanged. Не monkeypatch PCA/randomized_svd. Независимый projector/reconstruction residual/reference SVD oracle с tolerance; eigenvector signs и tied partial eigenspaces не сравнивать. Save→fresh read checks actual solver/seed provenance. Small existing fixtures retained.",
+      "shared_owner": "DOE-02 stream/profile owner + DOE-03 MultiOutputAnalyzer; one shared metadata/seed mechanism, not duplicated sampler RNG.",
+      "preservation_risks": [
+        "Не менять source matrix labels или silently force full SVD on large workloads.",
+        "Не требовать identical eigenvectors in tied spectra.",
+        "Не снимать seeded FAST pending по факту исправления PCA."
+      ],
+      "validation_plan": [
+        "Locked native backend trace/metadata confirms solver choice.",
+        "Run external RNG state invariant even where PCA numeric output accidentally stable.",
+        "Two shapes around profile threshold and whole pipeline readback; cost recorded."
+      ],
+      "uncertainty": "Source-level control flow and ambient RNG dependence confirmed from pinned library. Actual numerical divergence/native timing not executed (NOT_RUN).",
+      "sources": [
+        "SK-PCA",
+        "SK-RNG"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "packet_partition": 127,
+  "lanes": 12,
+  "deferred_entries": 8,
+  "exact_binding_subsets_checked": 34,
+  "requirement_and_test_references": "PASS against final v3",
+  "starter_consistency": "PASS",
+  "native_execution": "NOT_RUN",
+  "sha256": {
+    "execution_plan.md": "998e3af43c8684bdc2d8677ad0578e066c7cf8d195eab76e6185f83997df22fd",
+    "execution_plan.json": "921ef67745eed71ce0810b373d60e6b2fc16934ecb60dda2372479c2cd02beaa"
+  }
+}

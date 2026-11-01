@@ -1,0 +1,16 @@
+{
+  "status": "COMPLETE",
+  "phase": "FULL_READ_ASSESSMENT_AND_READBACK_COMPLETE",
+  "updated_at": "2026-11-01T12:58:45.297831+00:00",
+  "packets_assessed": 17,
+  "assigned": 17,
+  "criteria_per_packet": 70,
+  "criterion_dispositions": 1190,
+  "required_gaps": 0,
+  "optional_clarifications": [
+    "CM-001"
+  ],
+  "product_native_tests": "NOT_RUN",
+  "blockers": [],
+  "validation": "validation.json"
+}

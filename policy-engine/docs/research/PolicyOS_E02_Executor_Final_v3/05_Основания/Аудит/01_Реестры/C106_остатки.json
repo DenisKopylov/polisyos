@@ -1,0 +1,64 @@
+{
+  "pass_id": "C106",
+  "bundle": "LLM-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C106-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "source_ids": [
+        "B65"
+      ],
+      "title": "Optional histogram во внешнем budget wrapper всё ещё скрывает полученный ответ",
+      "evidence": [
+        "P03",
+        "S07:394–412,424–471",
+        "S07:232–294",
+        "S14:187–233",
+        "S15:117–167"
+      ],
+      "remaining": "Довести existing optional-observability isolation до LLMBudgetEnforcer: сохранять полученный response/settlement, выполнять обязательный учёт независимо от histogram export и не превращать экспортный отказ в provider failure. Не глотать обязательный audit/ledger и не менять cost origin. Применить также sync invoke, проверяя его отдельно.",
+      "limits": "Actual async generate: latency sink падает до _post_record, outer spent=0/reserved=0; cost sink падает после local spend=.02. Оба скрывают return, provider вызван 1 раз. Inner actual durable ledger в обоих случаях сохраняет .02. Нет утверждения потери durable receipts, automatic retry, реального денежного списания или частоты deployed OTel сбоев. Sync invoke только source-inspected."
+    },
+    {
+      "id": "C106-R02",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "source_ids": [
+        "B65"
+      ],
+      "title": "Injected optional span может скрыть ответ и замаскировать typed accounting failure",
+      "evidence": [
+        "P04",
+        "S01:1325–1358",
+        "S01:1598–1617"
+      ],
+      "remaining": "Оградить optional span/status/exception publication на existing tracing boundary, не ослабляя mandatory settlement/security errors. Сохранить typed accounting error с уже полученным response и исходной причиной; не пытаться вылечить observability новым provider call.",
+      "limits": "Контролируемый configured tracer: set_attribute после provider даёт RuntimeError без response при сохранённой ledger charge; set_status в accounting-error ветке заменяет верхний тип ошибки, хотя LLMAccountingError и response остаются в __context__. Стандартный OTel SDK/exporter здесь не установлен и его failure semantics не измерены."
+    },
+    {
+      "id": "C106-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B64",
+        "B65",
+        "B66"
+      ],
+      "title": "Поддерживаемая среда и полный runtime admission после unsettled outcome требуют квалификации",
+      "evidence": [
+        "commands.json",
+        "P01–P06",
+        "S17:1–45"
+      ],
+      "remaining": "В поддерживаемой среде выполнить native suite и оба optional-sink regression paths, включая sync/async entry, настоящую configured observability integration и удержание дальнейшего расхода после mandatory/unknown outcome на actual runtime owner. Сохранить existing LANE-09 общую producer→consumer интеграцию; detailed reuse/cancellation/current authorization остаются LLM-02.",
+      "limits": "В этом проходе native imports работают без shim; 15 existing cases исполнены, не только прочитаны. Но pytest отсутствует, Python/Pydantic не совпадают с declared lock, полный runtime/real HTTP не запускался. Unknown ledger record доказан, дальнейший full-runtime spending gate не проверен. Synthetic usage/response не эмпирическая или финансовая authority."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C106-R01",
+    "C106-R02"
+  ],
+  "decision": "Исходные prompt и reuse accounting repairs действуют; optional metrics guard в TracedLLMClient полезен, но не охватывает внешний budget histogram и injected span boundaries."
+}

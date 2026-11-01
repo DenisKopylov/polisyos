@@ -1,0 +1,47 @@
+{
+  "pass_id": "C96",
+  "bundle": "EMB-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C96-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "source_ids": [
+        "LA-039"
+      ],
+      "title": "Выбор complete предшествует semantic index-to-matrix admission",
+      "evidence": [
+        "S01:349–460",
+        "S01:1118–1180",
+        "S01:1272–1380",
+        "P05",
+        "run03/preselection_output_admission.json"
+      ],
+      "remaining": "Расширить существующий staged validation до уже имеющегося semantic matrix/index admission до замены selector, либо явно разделить candidate и admitted output status. Не создавать второй reader или новый framework; сохранить reader recheck, typed empty и postcommit compatibility-copy semantics.",
+      "limits": "Подтверждён actual publisher control flow с контролируемым JSON index writer, который вернул нормально после изменения одного vector. Оба domain builders возвращают успех и выбирают complete; actual reader затем отказывает index_mismatch. Старое поколение сохранено; неправильные search results, уничтожение старого snapshot, native corruption frequency и production occurrence не установлены."
+    },
+    {
+      "id": "C96-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-039"
+      ],
+      "title": "Малый native индекс и полная consumer цепочка не квалифицированы",
+      "evidence": [
+        "S06–S13",
+        "P01–P04",
+        "native_academic_reader.stdout",
+        "native_catalog_reader.stdout",
+        "native_hnsw.stderr"
+      ],
+      "remaining": "В supported Python environment исполнить существующие small native HNSW/DuckDB tests с лёгким encoder: оба reader guards, empty/nonempty, model revision, failure, corrupted/missing members, row permutation, old selected generation, final search/readiness/publish. Связать с C95 compute corpus, не удваивая LA039. DFI03 отдельно отвечает за LA041 resume.",
+      "limits": "Native dependencies отсутствуют, whole reader imports BLOCKED на транзитивном3.14 syntax. Controlled .hnsw JSON не доказывает native binary format, ANN recall/normalization behavior, crash durability, model quality или guarded DB session. Native import kernel PASS не заменяет их."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C96-R01"
+  ],
+  "decision": "Versioned generation publisher и selected-reader guards реально реализованы. Сохранить их; узкий preselection admission остаток и native qualification не закрыты."
+}

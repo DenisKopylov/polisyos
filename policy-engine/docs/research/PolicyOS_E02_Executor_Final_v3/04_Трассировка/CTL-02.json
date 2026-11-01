@@ -1,0 +1,480 @@
+{
+  "packet_id": "CTL-02",
+  "lane": "LANE-02",
+  "title": "Содержательный subject и атомарный воспроизводимый checkpoint",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B124",
+    "B125",
+    "B126"
+  ],
+  "audit_reports": [
+    "02_Пакеты/CTL-02.md"
+  ],
+  "audit_report_sha256": "79b604314819dc292681c252881e9f70296078173ee8175a1dab9d2e96a4c8d1",
+  "sourceplan_lines": [
+    2045,
+    2160
+  ],
+  "practical_goal": "Сохранённое исследование продолжается тем же RNG/Sobol потоком; невалидный restore не портит живой state, а предметные даты не исчезают из идентичности.",
+  "requirements": [
+    {
+      "id": "REQ-CTL-02-01",
+      "text": "Generic subject hash должен включать все JSON-native substantive поля; только типизированный service/strategy envelope исключает известную transport metadata.",
+      "source_ids": [
+        "B124"
+      ],
+      "audit_ids": [
+        "remaining:0206",
+        "remaining:0207",
+        "preserve:0325",
+        "preserve:0326",
+        "audit-residual:C16_остатки:2"
+      ],
+      "test_ids": [
+        "TEST-CTL-02-01"
+      ]
+    },
+    {
+      "id": "REQ-CTL-02-02",
+      "text": "Python RNG checkpoint restore должен полностью валидировать schema/version/state words/final cursor/finite gauss и применяться атомарно ко всему strategy state.",
+      "source_ids": [
+        "B125"
+      ],
+      "audit_ids": [
+        "remaining:0208",
+        "remaining:0209",
+        "preserve:0327",
+        "preserve:0328",
+        "audit-residual:C16_остатки:1"
+      ],
+      "test_ids": [
+        "TEST-CTL-02-02"
+      ]
+    },
+    {
+      "id": "REQ-CTL-02-03",
+      "text": "Missing/incompatible Sobol state должен оставаться missing/incompatible после любого export/import; новый fresh stream отличим от неизвестной истории.",
+      "source_ids": [
+        "B126"
+      ],
+      "audit_ids": [
+        "remaining:0210",
+        "preserve:0329",
+        "preserve:0330",
+        "audit-residual:C16_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-CTL-02-03"
+      ]
+    },
+    {
+      "id": "REQ-CTL-02-04",
+      "text": "Sobol prefix должен совпадать при incremental/batch/restore и actual backend/version; устранение повторной подготовки допускается без смены эксперимента и измеряется на выбранном workload.",
+      "source_ids": [
+        "B126"
+      ],
+      "audit_ids": [
+        "remaining:0211",
+        "remaining:0212",
+        "preserve:0329",
+        "preserve:0330",
+        "audit-residual:C16_остатки:3"
+      ],
+      "test_ids": [
+        "TEST-CTL-02-04"
+      ]
+    },
+    {
+      "id": "REQ-CTL-02-05",
+      "text": "Каждый заявленный concrete strategy/model state должен пройти persisted native new-process roundtrip и быть реально потреблён следующим предложением/оцениванием.",
+      "source_ids": [
+        "B124",
+        "B125",
+        "B126"
+      ],
+      "audit_ids": [
+        "remaining:0207",
+        "remaining:0209",
+        "remaining:0212",
+        "preserve:0327",
+        "preserve:0328",
+        "audit-residual:C16_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-CTL-02-05"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-CTL-02-01",
+      "requirement_ids": [
+        "REQ-CTL-02-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Current test_candidate_identity_semantics/test_frontier; реальные starts_at и raw underscore/date fields, typed trace/service iteration controls.",
+      "action": "Изменить только дату действия, затем только typed transport ID; сохранить два несравнимых front points и перечитать.",
+      "oracle": "Даты дают разные субъекты/два points; transport changes не subject; forged hash/payload mismatch refused; JSON key order инвариантен.",
+      "expected": "Научный seed сохраняется в своей basis; no arbitrary volatile name heuristic.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CTL-02-02",
+      "requirement_ids": [
+        "REQ-CTL-02-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Checkpoint после uniform и gauss с непустым cache, invalid cursor 625, NaN/inf gauss, foreign version/model state; actual native Python 3.14.",
+      "action": "set_state failure then getstate/next uniform/next gauss; valid JSON→новый процесс restore.",
+      "oracle": "После отказа bytes state/следующие числа равны контролю, valid restore точно совпадает uniform+gauss+iteration/model metadata.",
+      "expected": "Unversioned legacy JSON не тихий replay; допустимый direct legacy tuple сохраняет явный профиль.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CTL-02-03",
+      "requirement_ids": [
+        "REQ-CTL-02-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Versioned Python-only checkpoint, direct legacy tuple, invalid Sobol и genuine fresh unused strategy.",
+      "action": "Restore→Sobol refusal→get_state→JSON→new strategy restore→Sobol; отдельно fresh positive.",
+      "oracle": "Повторный round trip не launders compatibility; exact reason сохраняется; genuine fresh работает.",
+      "expected": "Не запрещать все legacy/Random states, не новый seed под старой меткой.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CTL-02-04",
+      "requirement_ids": [
+        "REQ-CTL-02-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Existing test_space_codec SciPy/PyTorch supported locked versions;32 sequential vs one batch, checkpoint after 3, backend drift и true Random fallback.",
+      "action": "Сравнить первые 32/next point, count generated points/calls, corrupt prefix/cursor/space.",
+      "oracle": "Sequence identical, changed backend denied for replay; relevant improvement не O(n²) prefix preparation; policy calls неизменны.",
+      "expected": "Не обещать 2^m balance для неполного prefix, не запускать дополнительные policy jobs ради степени 2.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CTL-02-05",
+      "requirement_ids": [
+        "REQ-CTL-02-05"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Supported random и используемый Bayesian/model checkpoint, temporary artifact store, input space/source fingerprint.",
+      "action": "Произвести/checkpoint/exit/restore и сравнить следующие реальные proposals/consumed inputs с continuous run; corrupted foreign model negative.",
+      "oracle": "Точная continuation в declared profile и meaningful consumer, not just JSON parse; несовместимость не переименовывается в fresh.",
+      "expected": "Isolated 3.13 sampler наблюдения унаследованы, но native 3.14 acceptance отдельна.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C16_остатки:0",
+      "requirement_ids": [
+        "REQ-CTL-02-03"
+      ],
+      "rationale": "Export сохраняет unknownSobol.",
+      "disposition": "fix",
+      "audit_id": "C16-R01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C16_остатки:1",
+      "requirement_ids": [
+        "REQ-CTL-02-02"
+      ],
+      "rationale": "Validate before commit.",
+      "disposition": "fix",
+      "audit_id": "C16-R02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C16_остатки:2",
+      "requirement_ids": [
+        "REQ-CTL-02-01"
+      ],
+      "rationale": "Tests догоняют typed subject contract.",
+      "disposition": "qualify",
+      "audit_id": "C16-T01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C16_остатки:3",
+      "requirement_ids": [
+        "REQ-CTL-02-04"
+      ],
+      "rationale": "Измеренно убрать quadratic prefix для релевантного профиля.",
+      "disposition": "capability",
+      "audit_id": "C16-G01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C16_остатки:4",
+      "requirement_ids": [
+        "REQ-CTL-02-05"
+      ],
+      "rationale": "Actual concrete producer/consumer.",
+      "disposition": "qualify",
+      "audit_id": "C16-G02",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B124",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CTL-02-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B125",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CTL-02-02",
+        "REQ-CTL-02-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B126",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CTL-02-03",
+        "REQ-CTL-02-04",
+        "REQ-CTL-02-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0206",
+      "requirement_ids": [
+        "REQ-CTL-02-01"
+      ],
+      "rationale": "Согласовать rawsubjecttests, не restorestripping.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0207",
+      "requirement_ids": [
+        "REQ-CTL-02-01",
+        "REQ-CTL-02-05"
+      ],
+      "rationale": "Actualtypedproducer/reader.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0208",
+      "requirement_ids": [
+        "REQ-CTL-02-02"
+      ],
+      "rationale": "Full cursor/gauss validation и atomic commit.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0209",
+      "requirement_ids": [
+        "REQ-CTL-02-02",
+        "REQ-CTL-02-05"
+      ],
+      "rationale": "Concrete/checkpoint на supported runtime.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0210",
+      "requirement_ids": [
+        "REQ-CTL-02-03"
+      ],
+      "rationale": "No compatibility laundering.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0211",
+      "requirement_ids": [
+        "REQ-CTL-02-04"
+      ],
+      "rationale": "Relevant prefix performance, не claim global cost.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0212",
+      "requirement_ids": [
+        "REQ-CTL-02-04",
+        "REQ-CTL-02-05"
+      ],
+      "rationale": "Actual backend/consumer.",
+      "disposition": "qualify"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0325",
+      "requirement_ids": [
+        "REQ-CTL-02-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: Generic subject hash должен включать все JSON-native substantive поля; только типизированный service/strategy envelope исключает известную transport metadata.",
+      "test_ids": [
+        "TEST-CTL-02-01"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0326",
+      "requirement_ids": [
+        "REQ-CTL-02-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: Generic subject hash должен включать все JSON-native substantive поля; только типизированный service/strategy envelope исключает известную transport metadata.",
+      "test_ids": [
+        "TEST-CTL-02-01"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0327",
+      "requirement_ids": [
+        "REQ-CTL-02-02",
+        "REQ-CTL-02-05"
+      ],
+      "rationale": "Конкретный контракт и oracle: Python RNG checkpoint restore должен полностью валидировать schema/version/state words/final cursor/finite gauss и применяться атомарно ко всему strategy state.; Каждый заявленный concrete strategy/model state должен пройти persisted native new-process roundtrip и быть реально потреблён следующим предложением/оцениванием.",
+      "test_ids": [
+        "TEST-CTL-02-02",
+        "TEST-CTL-02-05"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0328",
+      "requirement_ids": [
+        "REQ-CTL-02-02",
+        "REQ-CTL-02-05"
+      ],
+      "rationale": "Конкретный контракт и oracle: Python RNG checkpoint restore должен полностью валидировать schema/version/state words/final cursor/finite gauss и применяться атомарно ко всему strategy state.; Каждый заявленный concrete strategy/model state должен пройти persisted native new-process roundtrip и быть реально потреблён следующим предложением/оцениванием.",
+      "test_ids": [
+        "TEST-CTL-02-02",
+        "TEST-CTL-02-05"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0329",
+      "requirement_ids": [
+        "REQ-CTL-02-03",
+        "REQ-CTL-02-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Missing/incompatible Sobol state должен оставаться missing/incompatible после любого export/import; новый fresh stream отличим от неизвестной истории.; Sobol prefix должен совпадать при incremental/batch/restore и actual backend/version; устранение повторной подготовки допускается без смены эксперимента и измеряется на выбранном workload.",
+      "test_ids": [
+        "TEST-CTL-02-03",
+        "TEST-CTL-02-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0330",
+      "requirement_ids": [
+        "REQ-CTL-02-03",
+        "REQ-CTL-02-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Missing/incompatible Sobol state должен оставаться missing/incompatible после любого export/import; новый fresh stream отличим от неизвестной истории.; Sobol prefix должен совпадать при incremental/batch/restore и actual backend/version; устранение повторной подготовки допускается без смены эксперимента и измеряется на выбранном workload.",
+      "test_ids": [
+        "TEST-CTL-02-03",
+        "TEST-CTL-02-04"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I02-B"
+  ],
+  "dependencies": [
+    "OPT-02 исполняемый параметр/identity до checkpoint consumer; OPT03model state owner.",
+    "CTL-02 owns общий codec/atomic restore, не independent RNG fixes в стратегиях; SRV-03 проверяет actual resume."
+  ],
+  "preservation": [
+    "Все JSON-native предметные поля, включая dates и underscore names.",
+    "Явный typed strategy/service envelope; recomputed identity и payload reconciliation.",
+    "Версионный Python codec и нормальный JSON/new-process replay.",
+    "Отдельные metadata/model shapes и независимые потоки.",
+    "Фиксированный seed, actual backend/version, space/cache/cursor and prefix validation.",
+    "True fresh stream и явно маркированный fallback."
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    "Детерминизм — свойство повторяемости, не независимость samples иликачествоисследования. Новый compatiblebackend требует честной version/profilequalification, а не запрет всех новых методов."
+  ],
+  "open_decisions": [],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "symbol_or_anchor": "def set_state",
+      "lines": [
+        117,
+        200
+      ],
+      "sha256": "03509e648e38abe043906da542fc077129e1e998086fc3da2db259a289e0cf00",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py#L117-L200"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "symbol_or_anchor": "def _validate_python_random_state",
+      "lines": [
+        438,
+        460
+      ],
+      "sha256": "03509e648e38abe043906da542fc077129e1e998086fc3da2db259a289e0cf00",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py#L438-L460"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "symbol_or_anchor": "def _sobol_state",
+      "lines": [
+        256,
+        288
+      ],
+      "sha256": "03509e648e38abe043906da542fc077129e1e998086fc3da2db259a289e0cf00",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py#L256-L288"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "symbol_or_anchor": "def policy_candidate_hash",
+      "lines": [
+        175,
+        207
+      ],
+      "sha256": "d9ef05678efc7b6cb59e32cb6be1ff94bf778ece6a0de394605771bb1040cd72",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/frontier.py#L175-L207"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-CTL-02-01",
+      "text": "Сохранить policy_candidate_hash/current frontier и CandidateStrategyContext. Обновить stale test_frontier raw trace/_debug/generated_at expectations: raw dict сам subject, нельзя восстановить suffix stripping. Actual PolicyCandidateSchema producer/evaluation/reader проверяет materialized payload identity; unsupported metadata адресно ошибочна, не молча сброшена."
+    },
+    {
+      "requirement_id": "REQ-CTL-02-02",
+      "text": "В _validate_python_random_state отдельно state words uint32 и final index в диапазоне конкретной поддержанной версии; gauss_next finite numeric или None, не bool. Decode/temporary Random.setstate и остальные model/Sobol shape checks выполняются до commit живого объекта. Только успех меняет _rng/iteration/cache/model; failure сохраняет весь pre-state. Не reseed, не gauss0, не lists→tuples в metadata."
+    },
+    {
+      "requirement_id": "REQ-CTL-02-03",
+      "text": "get_state/_sobol_state обязаны сохранять _sobol_checkpoint_compatible=False через existing versioned codec explicit availability/reason либо отсутствие Sobol block. Не выпускать пустой valid cache/cursor 0 за восстановленную историю. Python stream можно продолжать отдельно; explicit new stream operation имеет новую identity и не replay."
+    },
+    {
+      "requirement_id": "REQ-CTL-02-04",
+      "text": "Сохранить fixed seed/full space/cache/cursor/backend/scramble contract. При relevant sequential growth использовать живой sampler continuation выбранного бэкенда, восстановить/verify prefix один раз, затем draw недостающий хвост; не recreate/fast-forward from zero каждый раз. Cache bounded memory profile явен; backend failure fallback маркируется, не silent replay. Измерить prepared points отдельно policy calls."
+    },
+    {
+      "requirement_id": "REQ-CTL-02-05",
+      "text": "Конечный census используемых strategies; base Random/Sobol не proof GP model. OPT-03 owns model/conditioning checkpoint; CTL-02 общий RNG codec/atomic restore. Сохранить metadata/model shapes и независимые streams, provenance backend. Actual StrategyAdapter→MethodJob/spec binding через OPT-02, no fake point only."
+    }
+  ]
+}

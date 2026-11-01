@@ -1,0 +1,213 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          88,
+          123
+        ],
+        [
+          272,
+          322
+        ],
+        [
+          1340,
+          1762
+        ]
+      ],
+      "evidence_level": "Полные actual aggregate/bias/test methods и source profile прочитаны; exact definitions исполнены в audit wrapper",
+      "git_blob": "bcf32f0beab30a28c36979fac4f79a5c12bca037",
+      "sha256": "b8da4c1aa45c6cd22576c34e6360fc2c34de29a4a6cfaaa9fa85cace9d51a46c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          858
+        ]
+      ],
+      "evidence_level": "Полный IR ранее прочитан на том же SHA; шесть actual classes снова исполнены и JSON roundtrip проверен",
+      "git_blob": "00cb21226f292127497c8c818b16ff2b65081fed",
+      "sha256": "5fc6db3c90220efd194175e6a6cab7d0a11f1a526a0e4182e011d4a3b42c7480",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          363
+        ]
+      ],
+      "evidence_level": "Полные source-bound/fresh diagnostic и trust verifiers прочитаны и исполнены",
+      "git_blob": "74502da3834c16a0dfc1db0bbb02489747a21606",
+      "sha256": "bae5165b80e26b1ba4479512b47e78fe748528505e46989c453d27dd1ee888fe",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/outcome_sections.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/outcome_sections.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          255,
+          350
+        ]
+      ],
+      "evidence_level": "Полная actual _build_backtest_section прочитана и исполнена с контролируемой загрузкой already-validated report",
+      "git_blob": "bbd28f2218520e6cb6fdff3656b0a21ad959a483",
+      "sha256": "aa4a5d818e804807e557b0114382869d94ec8237922d9fbcebab4f697b07ad15",
+      "local_file": null,
+      "note": "Reference DTO, context and load function — explicit fixtures. No native CAS, full packet node or nested C5b execution."
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          209
+        ]
+      ],
+      "evidence_level": "Полный actual evaluator прочитан C33 и вновь исполнен",
+      "git_blob": "641fdc644857a6ac5eedf003a3fc4d2bb0f40b45",
+      "sha256": "d60ea4b569b28e64187842bb191c9541d64cf83d548f5fd2008c69d68ced66be",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/trust_scorer.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/trust_scorer.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          108
+        ]
+      ],
+      "evidence_level": "Полный actual scorer прочитан C33 и вновь исполнен",
+      "git_blob": "c3d6f1d9251ce44a51a90e528447bb7df4d2262b",
+      "sha256": "1cb1651302b2a0c23b0a113642f729506236e59c0049b90ec6564a2dfd7101c9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/core/evaluation/scoring.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/evaluation/scoring.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          114
+        ]
+      ],
+      "evidence_level": "Полные actual shared scorers прочитаны C33 и вновь исполнены",
+      "git_blob": "4acee704d74d80f815c2951ca5f9a36af48f7da1",
+      "sha256": "8fbd6b25f05ec169b479a69572fdf5b6c45bb3fd54131ac33791085357bcab91",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/tests/unit/remediation/test_bkt_03.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_bkt_03.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          312
+        ]
+      ],
+      "evidence_level": "Полный найденный test прочитан; native attempt BLOCKED до collection",
+      "git_blob": "add42fe4a3fbfd511ff88340145dd7973e0e2236",
+      "sha256": "2d6e387b2464c3b8bb3a5a5bf13919d960a384102a3331d84f8c562d84d7d537",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          4066,
+          4622
+        ]
+      ],
+      "evidence_level": "Полный selected C5b/packet fresh-recompute/forgery regression прочитан; UNRUN",
+      "git_blob": "893660216bbea86c1e94e14f75e72c4a2c5624e0",
+      "sha256": "11e9237b98349c4570391bb65d390ee12da8dcd5ba8231f1ec5668f21009c326",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1733,
+          1760
+        ]
+      ],
+      "evidence_level": "Полный selected nonsignificant method identity CAS roundtrip test прочитан; UNRUN",
+      "git_blob": "b1873f09a460b5587d077b21bd6f8f3a0eb56d8f",
+      "sha256": "5052ded2db80238d69360ce390b1fdc0499a66473c2e61e1ae4691554e1e53cb",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          663,
+          717
+        ]
+      ],
+      "evidence_level": "Actual readout consumer source trace inherited C33 same SHA; UNRUN",
+      "git_blob": "bb3815caaf4c87f8b9c7a57a53b64d6a100ade0a",
+      "sha256": "7e66a8fa856506d6b1dc14fee18522dafa29d16b36447771faa519270c10e9af",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      4221,
+      4308
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "discovery": {
+    "census": false,
+    "scope": "Residual producer, actual SciPy status, strict IR reconciliation, fresh verifier and actual packet section; selected complete native tests read"
+  }
+}

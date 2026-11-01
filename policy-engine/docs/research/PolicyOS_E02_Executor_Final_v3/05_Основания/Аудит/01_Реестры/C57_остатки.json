@@ -1,0 +1,68 @@
+{
+  "pass": "C57",
+  "bundle": "SCM-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C57-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B221",
+        "B222"
+      ],
+      "title": "Selected fit→CAS→fresh reader→Scientist chain остаётся непроверенной",
+      "evidence": [
+        "S01:292–540",
+        "S04",
+        "S12",
+        "S13:195–315",
+        "S14",
+        "native_pytest.log",
+        "native_import.log"
+      ],
+      "remaining": "В поддержанных parent Python3.14 и locked worker Python3.12 окружениях выполнить настоящие selected source-bound fit/query/fresh-reader/Scientist tests без подмены worker, registry, store и envelope. Сверить текущие schema contracts с asserted values.",
+      "limits": "Pytest и DoWhy отсутствуют, native import останавливается на Python3.14 syntax. S13:199 ожидает SCM schema1.1, actual owner current1.2; S12:105 уже ожидает1.2. Это source-level inconsistency, не выполненный native FAIL и не доказательство сломанного product reader."
+    },
+    {
+      "id": "C57-R01",
+      "kind": "confirmed_local_defect",
+      "source_ids": [
+        "B221"
+      ],
+      "title": "Outcome-only twin отказывает из-за disconnected missing root, не влияющего на ответ",
+      "evidence": [
+        "S02:1238–1491",
+        "S03:198–318",
+        "S03:450–467",
+        "P07",
+        "P08"
+      ],
+      "remaining": "Для outcome-only twin применять существующий active ancestor plan к admission и обходу, сохраняя factual ancestors, обе interventions и shared-U. Проверить removal-control: unrelated root отсутствует / имеет несовместимые законы, requested output одинаков. Не ослаблять проверку действительно нужных корней.",
+      "limits": "Exact public pure_step body: X→Y плюс disconnected Z, Y=X², do arms1/2. Без Z отказ; с Z=0 и Z=1e9 полные requested twin outputs, кроме wall time, совпадают, ITE≈3. GCM active query работает без Z. Это bounded availability defect, не свидетельство неверной эмпирической оценки, не native registry/CAS test и не проблема общих partial SCM.",
+      "severity": "medium",
+      "confidence": "high_bounded"
+    },
+    {
+      "id": "C57-G03",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B222"
+      ],
+      "title": "Declared polynomial execution не равен automatic fitting или общей nonlinear posterior-abduction",
+      "evidence": [
+        "S01:89–166",
+        "S01:707–716",
+        "S02:172–230",
+        "S02:628–741",
+        "P04–P06"
+      ],
+      "remaining": "Сохранить explicit simple polynomial carrier и общую функцию prediction для query/twin/residual. Отдельно квалифицировать заявленные профили abduction и family producer/admission; текущие selected empirical/linear и native OLS routes не переименовывать в универсальный nonlinear fitter.",
+      "limits": "Проверены separate parent powers без cross terms, ручное включение реального fitter payload, fully observed residual и twin shared noise. Выбор family/graph/assumptions и empirical causal authority не установлены; отсутствие universal deterministic model inventor само по себе не дефект."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C57-R01"
+  ],
+  "decision": "Observed/joint roots и polynomial regression в заданном профиле исправлены. Подтверждён bounded отказ outcome-only twin из-за не влияющего disconnected missing root. Native chain/general qualification остаются открытыми."
+}

@@ -1,0 +1,157 @@
+{
+  "packet_id": "PLG-02",
+  "lane": "LANE-04",
+  "source_ids": [
+    "LA-023"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/PLG-02.md",
+    "../05_Основания/Аудит/01_Реестры/C40_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C40-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-PLG-02-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Conservative unmarked role/default и explicit current producer marker; CLI не выводит PPO/trained по class fallback.",
+      "inventory_id": "audit-residual:C40_остатки:0"
+    },
+    {
+      "audit_id": "C40-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-PLG-02-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Native actual state/process CLI unsupported + ordinary run; fixture result handoff не learning proof.",
+      "inventory_id": "audit-residual:C40_остатки:1"
+    },
+    {
+      "audit_id": "C40-G02",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-PLG-02-03"
+      ],
+      "shared_owner": "PLG-03",
+      "rationale": "Earlier source-review этап2 выполнен C41; оставшаяся native learning/artifact обязанность REQ-PLG-03-02/-03, не duplicate PPO.",
+      "inventory_id": "audit-residual:C40_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-PLG-02-01",
+      "text": "TrainingResult сохраняет первые3 positional поля, но отсутствие explicit current producer role/version означает historical/evaluation/unknown, не trained. Новый native train success явно устанавливает qualified training role/status после adapter outcome; CLI success/PPO label возможны только для этой роли, non-null policy и отсутствия reason. Legacy trace/actor сохраняются без loss relabeling. Old-layout instance fallback к dataclass class default также conservative. CAS artifact не обязателен для поддержанного in-memory outcome.",
+      "source_ids": [
+        "LA-023"
+      ],
+      "audit_ids": [
+        "C40-R01"
+      ],
+      "test_ids": [
+        "TEST-PLG-02-01"
+      ]
+    },
+    {
+      "id": "REQ-PLG-02-02",
+      "text": "Unsupported actual state/profile/selector возвращает typed bridge_pending без actor/update/persistence и без нового output каталога; process CLI exit1, usage exit2. Existing simulator state/policy не заменяются failed outcome. Ordinary run остаётся доступен, установленная policy передаётся adapter для evaluation, collect_trajectory=False соблюдается; unexpected internal RuntimeError не success.",
+      "source_ids": [
+        "LA-023"
+      ],
+      "audit_ids": [
+        "C40-G01"
+      ],
+      "test_ids": [
+        "TEST-PLG-02-02"
+      ]
+    },
+    {
+      "id": "REQ-PLG-02-03",
+      "text": "Явно маркированный supported result принимается только после настоящей producer chain PLG-03: optimizer metrics не rewards, policy action/parameter effect и selected artifact/readback при выбранной persistence. Этап1 не считается реализованным learning от одного marker; C40-G02 historical source-review obligation заменена C41 native acceptance, трассировка остаётся.",
+      "source_ids": [
+        "LA-023"
+      ],
+      "audit_ids": [
+        "C40-G02"
+      ],
+      "test_ids": [
+        "TEST-PLG-02-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-PLG-02-01",
+      "requirement_ids": [
+        "REQ-PLG-02-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Actual constructor старых3 fields actor,[2,2,2],state с0updates; None,[] case; trusted synthetic old-layout instance lacking new fields; explicit current producer positive.",
+      "action": "CLI cmd_train/result presentation and plotting gate; safe local serialization compatibility only trusted fixtures.",
+      "oracle": "Legacy remains accessible but exit1/unqualified-training (или отдельный non-training presentation), no Training complete/PPO loss/training plot. Empty actor never success. Explicit genuine in-memory result can exit0 без CAS; malformed marker/reason refusal. Old default fallback не trained.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-PLG-02-02",
+      "requirement_ids": [
+        "REQ-PLG-02-02"
+      ],
+      "level": "native package + process CLI",
+      "setup": "Canonical unsupported multi-domain/interaction/config/boolean-selector fixtures; existing initialized simulator.",
+      "action": "train unsupported, ordinary run before/after, main parser misuse.",
+      "oracle": "Pending precise code, no actor/update/write/output; old policy/state intact; normal run produces trajectory/current state. CLI1 vs usage2; unexpected error retains failure cause.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-PLG-02-03",
+      "requirement_ids": [
+        "REQ-PLG-02-03"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Shared tiny PLG-03 native witness and actual TrainingResult projection.",
+      "action": "Obtain genuine outcome, pass API→CLI; evaluate with no update/store calls.",
+      "oracle": "Explicit training role originates current successful producer, loss exactly optimizer history; evaluation не retrain. Marker alone не evidence и не заменяет PLG-03 tests.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I04-C"
+  ],
+  "dependencies": [],
+  "preservation": [
+    "Typed bridge_pending reasons, refusal до actor/rollout/store для несовместимого adapter.",
+    "Ordinary run/trajectory/metrics и previous simulator policy/state при typed training refusal.",
+    "Actual narrow trainer bridge существует; in-memory genuine training допускается без обязательного CAS."
+  ],
+  "design_alignment": [
+    "Исторический output сохраняется, текущий смысл/authority не выдаются class default.",
+    "Полезное evaluation и honest pending остаются первоклассными, не требуют универсального trainer."
+  ],
+  "open_decisions": [
+    "Выбрать minimal status-vs-role API расширение после caller census; exact legacy fallback должен быть unqualified и проверяться отдельным negative test."
+  ],
+  "source_obligations": [
+    "LA-023 этап1: truthful result/CLI отдельно от этап2 actual learning. Accountable closure PLG-03; один source ID, не две независимые миграции.",
+    "Исторический reward-only train уже заменён; исправить нынешний unmarked result default, не возвращать старую orchestration.",
+    "C40-G02 source-review этап2 superseded выполненным C41 разбором; current replacement native gradient/artifact acceptance в PLG-03, не повтор чтения."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/foundry/plugins/api.py: TrainingResult, PolisySimulator.train/run",
+    "policy-engine/src/polisyos/foundry/plugins/cli.py: cmd_train",
+    "policy-engine/src/polisyos/foundry/plugins/training_adapter.py: EconomicsTrainingAdapter.assess/train"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_plg_02.py",
+    "policy-engine/tests/unit/remediation/test_plg_03.py"
+  ],
+  "obligation_dispositions": [],
+  "preservation_bindings": []
+}
+

@@ -1,0 +1,40 @@
+{
+  "pass_id": "C110",
+  "bundle": "CAL-04",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C110-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "title": "Неизменившийся последний state теряет уже рассчитанный final forward при равном loss",
+      "evidence": [
+        "P03",
+        "P02",
+        "S01:3219–3233",
+        "S01:3313–3326"
+      ],
+      "remaining": "При точной совместимости выбранного state/objective с уже оценённым candidate сохранять его forward snapshot даже когда tie policy оставляет прежний state. Не считать равенство loss доказательством идентичности точки, не менять tie policy случайно, не использовать detached trace для derivatives; новый глобальный cache не нужен.",
+      "limits": "Exact finalization/projection statements с deterministic forward fixture: 2 одинаковых final calls при одинаковых point/weights/step. Full optimizer не запускался; wall time и частота stationary updates не измерены. Разные точки с равным loss отдельно проверены и требуют сохранения прежней точки."
+    },
+    {
+      "id": "C110-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Native parameter-connected optimizer/gradient/Hessian integration не выполнена",
+      "evidence": [
+        "S07",
+        "P02",
+        "P05",
+        "commands.json"
+      ],
+      "remaining": "В поддерживаемой среде выполнить существующие actual-Calibrator witnesses: last improvement/overshoot/nonfinite, step/fixed replica, shared final projections, N Hessians versus identity-mismatch recompute. Lane-level integration должен сохранить parameter dependence и ограниченные результаты при невозможности новой оценки. Не превращать счётчики в обещание ускорения.",
+      "limits": "P02/P03 используют controlled forward; P05 — quartic parameter-connected NumPy forward и actual finite-difference fallback с явно недоступным autodiff. Это не настоящий JAX/optax/full report run. Сравнение двух финалистов не доказывает глобальный минимум всей stochastic history."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C110-R01"
+  ],
+  "decision": "Основные last-iterate/shared-forward/Hessian-reuse ремонты подтверждены ограниченно. Остались stationary tie duplicate и native integration qualification."
+}

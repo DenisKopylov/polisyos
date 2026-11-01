@@ -1,0 +1,323 @@
+{
+  "schema": "e02.final-review.findings.v1",
+  "reviewer": "fabric_acquisition",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "product_tests": "NOT_RUN",
+  "findings": [
+    {
+      "id": "FA-01",
+      "classification": "verified_specification_defect",
+      "severity": "medium",
+      "blocking_scope": [
+        "REQ-UDF-05-02",
+        "TEST-UDF-05-02",
+        "E02-I07-B-B01"
+      ],
+      "packets": [
+        "UDF-05"
+      ],
+      "faulty_proposition": "§5.3 помещает exact-integer validation в model _validate_shapes как будто до него не было lossy coercion.",
+      "evidence": [
+        "P/02_Пакеты/UDF-05.md:63",
+        "src/polisyos/data_forge/domains/ukraine/demography/__init__.py:197–211 (_coerce_numpy before validator)",
+        "same:230–270 (_validate_shapes/int64 casts)",
+        "src/polisyos/data_forge/domains/ukraine/static_aging.py:36–39"
+      ],
+      "counterexample": "donor_record_index=[9007199254740993,1.0] ещё до after-validator становится общим float array; первый ID округляется к9007199254740992, оставаясь integral/int64-representable. [9223372036854775807,1.0] округляет valid max к2**63 и может дать false refusal. Homogeneous max tests этого не различают.",
+      "alternatives": [
+        "Только после np.asarray проверять finite/integral/range — недостаточно",
+        "Отвергать все integral floats — нарушает сохранение",
+        "Original scalar validation в dedicated before field validator либо bounded object-preserving staging, затем int64"
+      ],
+      "preferred_solution": "Разделить числовые arrays и index fields в before coercion; exact source scalar validation без float(int), далее canonical int64 и существующие pair/shape/state-domain guards. Для уже float-array доступная identity — его actual float, не выдуманное исходное integer значение.",
+      "replacement_requirement": "REQ-UDF-05-02 дополнить: «Дискретные индексы проверяются на исходных scalar values ДО любого inferred/common float dtype. Смешанные допустимые integer/integral-float последовательности сохраняют каждый int64 ID точно; дальнейший dtype materialization не изменяет идентичность».",
+      "replacement_test": "TEST-UDF-05-02 добавить record mixed [2**53+1,1.0], [int64max,1.0], [int64min,-1.0] через raw JSON→historical reader, candidate reader и direct DTO; expected IDs заданы Python ints. Negative соседние2**63/-2**63-1, fractions/NaN и standalone record. Downstream state equality точная, не allclose.",
+      "shared_owner": "UDF-05 demography DTO/assembler; UDF-01 не второй writer.",
+      "preservation_risks": "Сохранить signed record domain, integer-valued floats, optional donor и typed error translation. Не пытаться восстановить точность уже float input.",
+      "validation_plan": "Native3.14 NumPy2.3.5/Pydantic2.12.5; failing-before mixed-ID witness + homogeneous matrix; product tests NOT_RUN.",
+      "uncertainty": "Verified source/spec placement mismatch. Binary64 rounding reproduced stdlib independently; actual NumPy/Pydantic paths not executed.",
+      "sources": [
+        {
+          "url": "https://numpy.org/doc/2.3/reference/generated/numpy.asarray.html",
+          "section": "dtype parameter / inferred from input",
+          "checked": "2026-11-01",
+          "applicability": "NumPy2.3.5 lock; same2.3 API."
+        }
+      ]
+    },
+    {
+      "id": "FA-02",
+      "classification": "verified_specification_defect",
+      "severity": "medium",
+      "blocking_scope": [
+        "REQ-DFI-03-02",
+        "TEST-DFI-03-02",
+        "E02-I08-A-B03"
+      ],
+      "packets": [
+        "DFI-03"
+      ],
+      "faulty_proposition": "§5 предлагает существующий run_content_stage_with_receipt для harvest; запасной off-only config change не закрывает normative direct-smart currentness.",
+      "evidence": [
+        "P/02_Пакеты/DFI-03.md:75",
+        "src/polisyos/data_forge/domains/catalog/batch/pipeline.py:1240–1277 (sync, benchmark/qc/publish only)",
+        "same:1392–1404 (actual async harvest policy)",
+        "src/polisyos/data_forge/domains/catalog/batch/cli.py:79–106",
+        "src/polisyos/data_forge/domains/catalog/batch/harvester.py:1075–1134,1255–1278"
+      ],
+      "counterexample": "Буквальный helper(config,\"harvest\") всегда ValueError. Если выбрать только off patch, smart при том же source.name, coherent previous payload/hash и изменившемся endpoint/profile может выполнить inner existence-based resume без current input-basis admission. Post-read checks доказывают payload integrity, не соответствие новому request.",
+      "alternatives": [
+        "Расширять sync content helper для async acquisition — лишний API/semantics риск",
+        "Только off resumeFalse — частичный ремонт",
+        "Existing async pipeline с stages={harvest}, либо узкий общий harvest dispatcher, использующий тот же admission"
+      ],
+      "preferred_solution": "Явно выбрать existing async finite-stage route. На smart hit current content receipt разрешает reuse; на off/miss отключить внутренний stat/existence checkpoint и реально harvest; сохранить single-stage ABI. Если используется factor helper, он принадлежит pipeline и вызывается обоими routes.",
+      "replacement_requirement": "REQ-DFI-03-02 дополнить: «Direct single-stage harvest использует тот же current input/output-basis admission и completion writer, что full pipeline. На off либо smart miss inner resume=False. run_content_stage_with_receipt не используется для неподдержанного harvest».",
+      "replacement_test": "TEST-DFI-03-02: initial valid→smart current hit network0; изменить только endpoint/config/registry bytes при прежнем source.name и coherent old payload→fresh counted acquisition. Off --resume всё равно fresh. Missing/malformed receipt→fresh. Actual new receipt+fresh reader, не одно observed config поле.",
+      "shared_owner": "DFI-03 owns harvest dispatch/receipt. DFI-02 counters и EMB-02 publisher freeze before shared pipeline edit.",
+      "preservation_risks": "Не выключить отдельно разрешённый HTTP cache; не запускать unrelated pipeline stages; сохранить errors/results/CLI contract и old complete generation.",
+      "validation_plan": "Native parser→config→actual async stage, local allowed connector; compare full/direct outcomes and receipts. NOT_RUN.",
+      "uncertainty": "Current source path verified; endpoint/profile scenario is source-derived counterexample, not executed production incident. Minimal helper extraction may require caller-owner review.",
+      "sources": []
+    },
+    {
+      "id": "FA-03",
+      "classification": "verified_specification_ambiguity",
+      "severity": "medium",
+      "blocking_scope": [
+        "REQ-SCL-01-01",
+        "TEST-SCL-01-01",
+        "TEST-SCL-01-02",
+        "E02-I09-A-B02"
+      ],
+      "packets": [
+        "SCL-01",
+        "SCL-03"
+      ],
+      "faulty_proposition": "SCL-01 §5.1 говорит добавить offline cached admission «после initial guard», не устраняя live resolution перед cache lookup.",
+      "evidence": [
+        "P/02_Пакеты/SCL-01.md:53 (solution point1)",
+        "src/polisyos/scholar/search/fetcher.py:42–45",
+        "src/polisyos/scholar/search/security.py:76–116",
+        "tests/unit/scholar/search/test_fetcher_security_cache.py:60–106 fixes successful DNS for both calls"
+      ],
+      "counterexample": "Persisted permitted page с достаточными exact raw/profile facts; DNS сейчас unavailable либо endpoint более не существует. Existing _resolve_fetch_target raises до cache.get, поэтому законное offline reuse не выполняется. Existing positive cache test фиксирует successful DNS и пропускает такую неверную реализацию.",
+      "alternatives": [
+        "Сохранить live DNS на cached reads — availability/dependency regression",
+        "Пропустить все checks на hit — запрещённый bypass",
+        "Разделить pure URL policy и live target resolution в existing security owner"
+      ],
+      "preferred_solution": "Порядок: offline initial URL admission→cache lookup/current saved-chain MIME/size/profile admission→return eligible cached; только при permitted fresh fetch выполнять live DNS→pinned transport. Pure policy checks literal private IP, syntax/domain/port without DNS; access policy продолжает действовать.",
+      "replacement_requirement": "REQ-SCL-01-01 уточнить: «Проверка пригодного saved snapshot не зависит от нового DNS/network access; current offline URL/domain/literal-IP/MIME/size/reuse policy применяется до выдачи. Live resolver вызывается только на разрешённом fresh fetch».",
+      "replacement_test": "Persist cache через actual producer/reload; DNS/socket/transport callbacks затем raise-on-call. Unchanged permitted page returns cached exact text/rawref и network0. Изменённая domain/MIME/size policy отказывает тоже network0. Miss/explicit refresh сохраняют live DNS/peer/redirect negative controls.",
+      "shared_owner": "SCL-01 security/admission, SCL-03 sole coordinated fetch_profile writer.",
+      "preservation_risks": "Не использовать DNS today как historical peer proof; не разрешать live private fetch; не стирать весь cache по одному unusable entry. Public-web label не rights.",
+      "validation_plan": "Native async public fetch/find + real persisted cache; separate allowed local TLS qualification. NOT_RUN.",
+      "uncertainty": "Intent пакета уже верен; finding об incomplete placement instruction. Не заявляется SSRF exploit или обязанность автоматически fetch при cache gap.",
+      "sources": [
+        {
+          "url": "https://www.python-httpx.org/advanced/transports/",
+          "section": "HTTP transport / custom transports / retries",
+          "checked": "2026-11-01",
+          "applicability": "Current primary docs; generic client not drop-in proof of project DNS-pinned peer/SNI contract."
+        }
+      ]
+    },
+    {
+      "id": "FA-04",
+      "classification": "optimization_suggestion",
+      "severity": "low",
+      "blocking_scope": [
+        "FED-01 §5",
+        "DEC-FED-01-01",
+        "E02-I07-B-B02"
+      ],
+      "packets": [
+        "FED-01",
+        "UQS-01"
+      ],
+      "faulty_proposition": "Custom exact binary-rational production accumulator выбран без явного сравнения с подходящим statistics.mean в locked Python.",
+      "evidence": [
+        "P/02_Пакеты/FED-01.md:80–82,110",
+        "src/polisyos/fabric/connectors/federation/composer.py:1715–1727",
+        "src/polisyos/fabric/connectors/federation/resolver.py:323–365",
+        "CPython v3.14.0 statistics source cited in LIB-FA-01"
+      ],
+      "counterexample": "Не дефект результата предложенного exact algorithm: тот корректен при реализации. Но новый integer rounding/normalization код может повторить существующую stdlib, создать ownership/test burden и второй numerical implementation.",
+      "alternatives": [
+        "Custom scaled numerator accumulator",
+        "Fraction per row reference",
+        "statistics.mean behind finite float wrapper",
+        "numpy mean/scaled fsum/fmean — не full-domain replacement"
+      ],
+      "preferred_solution": "Common finite_binary64_mean валидирует допустимые конечные Python float значения и использует statistics.mean; midpoint тот же owner на двух central floats. Keep independent rational oracle (не statistics.mean в expected). Custom algorithm оставить лишь при измеренном выгодном tradeoff+equivalence.",
+      "replacement_requirement": "DEC-FED-01-01: «Сначала квалифицировать CPython3.14 statistics.mean для narrow finite-binary64 API. Собственный accumulator допускается при документированной correctness/performance причине; API/owner/consumer semantics остаются прежними».",
+      "replacement_test": "Existing TEST-FED-01-01 numeric matrix дополнить stdlib-vs-independent rational comparison, permutations и group-size timing/allocations; reject nonfinite before library; no underflow zero hidden by finite-only fallback.",
+      "shared_owner": "FED-01 sole common/numeric_reductions.py writer; independently coordinated with foundry_numeric reviewer for UQS.",
+      "preservation_risks": "statistics.median и fmean не substitute; preserve absence/categorical/cell lineage and scalar MEDIAN selection rather than synthesized source.",
+      "validation_plan": "Independent host3.12 calculator saved; target3.14 native test and performance pending. No new dependency.",
+      "uncertainty": "Recommendation, not blocker. Cost superiority not measured; Python implementation-specific exact behavior must remain pinned/tested.",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/python/cpython/v3.14.0/Lib/statistics.py",
+          "section": "mean146–165; fmean168–205; median304–324; _sum1322–1373",
+          "checked": "2026-11-01",
+          "applicability": "Точная CPython3.14.0 implementation; target project Python>=3.14,<3.15. Source inspection, not target runtime execution."
+        }
+      ]
+    },
+    {
+      "id": "FA-05",
+      "classification": "optimization_qualification",
+      "severity": "low",
+      "blocking_scope": [
+        "REQ-EMB-02-03",
+        "REQ-DFI-03-04",
+        "E02-I08-B"
+      ],
+      "packets": [
+        "EMB-01",
+        "EMB-02",
+        "EMB-03",
+        "DFI-03"
+      ],
+      "faulty_proposition": "Native warm selected-query acceptance не требует разделить semantic correctness от стоимости full content revalidation; нельзя выводить scalable free-grow только из cached index.",
+      "evidence": [
+        "src/polisyos/data_forge/domains/catalog/knowledge/store.py:301–345,428–476,637–660",
+        "src/polisyos/data_forge/kernel/embeddings.py:1217–1236,1250–1340",
+        "src/polisyos/data_forge/domains/legal/runtime_material.py:271–301,649–739"
+      ],
+      "counterexample": "Warm _dataset_index is reused лишь после whole catalog text projection и selected-generation file hashes/NPZ work. При растущем N query может иметь линейную validation cost даже если ANN быстрое. Это code-derived cost bound, не измеренный SLA breach.",
+      "alternatives": [
+        "Сохранить текущую полную revalidation",
+        "mtime/size-only hash cache — неприемлемо для данного threat model",
+        "Immutable owned opened-generation lease/read session с bounded trusted lifetime",
+        "Переход на другой vector database — не устраняет identity obligation"
+      ],
+      "preferred_solution": "Только measurement-first: снять cold/warm breakdown IO/hash/projection/encode/knn на workload ladder. Никакого нового lease implementation mandate. При установленной performance цели отдельно оценить существующий immutable owned opened-generation/read-session lifetime; если immutability не доказана, оставить полные content checks.",
+      "replacement_requirement": "Дополнение к cost qualification: «Публиковать cold/warm costs и bytes read, отдельно identity revalidation и ANN. Ускорение не заменяет content-bound identity на stat-only; выбранный trusted immutable lifetime и invalidators должны быть явными».",
+      "replacement_test": "Same query repeated at N,2N,4N; cold process and warm handle; read-byte/hash-call counters+RSS/wall. Same-stat replace, in-place mutation, delete/withdrawal, selector swap during query still denied/renewed; unrelated stable generation remains useful.",
+      "shared_owner": "EMB-02 common reader/publisher; DFI-03 receipt cost; Legal runtime owner сохраняет свой более узкий trusted-process scope.",
+      "preservation_risks": "Не скрывать freshness checks в memoization; не увеличивать capability claim из-за speed. No unmeasured SLO/automatic redesign.",
+      "validation_plan": "Future controlled benchmark native3.14 only; no benchmark executed. Operation count evidence separate from actual throughput.",
+      "uncertainty": "Observed algorithmic work, empirical severity unknown. Existing read guard implementation may enable safe amortization, must inspect exact lease guarantee before change.",
+      "sources": [
+        {
+          "url": "https://github.com/nmslib/hnswlib",
+          "section": "Python API: set_ef; get_items cosine normalized; thread safety; M/ef_construction",
+          "checked": "2026-11-01",
+          "applicability": "Project hnswlib0.8.0 optional vector-search; current maintainer API requires native qualification on lock."
+        },
+        {
+          "url": "https://github.com/facebookresearch/faiss/wiki/Guidelines-to-choose-an-index",
+          "section": "Few searches; exact Flat; HNSW memory/accuracy tradeoff",
+          "checked": "2026-11-01",
+          "applicability": "Alternative only, not existing approved dependency. No recommendation to install/upgrade."
+        }
+      ]
+    },
+    {
+      "id": "FA-06",
+      "classification": "capability_acceptance_gap",
+      "severity": "medium_for_stronger_retrieval_claim_not_repair",
+      "blocking_scope": [
+        "TEST-EMB-01-01",
+        "TEST-EMB-02-03",
+        "TEST-EMB-03-02",
+        "E02-I08-B"
+      ],
+      "packets": [
+        "EMB-01",
+        "EMB-02",
+        "EMB-03"
+      ],
+      "faulty_proposition": "«Полезные search_candidate results» в owned serving witness не имеет finite relevance oracle; native vector correspondence и один self-query не доказывают search capability на новых compatible ресурсах.",
+      "evidence": [
+        "P/02_Пакеты/EMB-01.md:32–40 explicitly excludes ANN recall/model quality",
+        "P/02_Пакеты/EMB-03.md:40–46",
+        "tests/unit/remediation/test_emb_02.py:399–488 single ds-1 self-query",
+        "Vision §8.2 T7 and §5 Rule12"
+      ],
+      "counterexample": "Всегда возвращать первый admitted ID или выбирать только lexical overlap: одноэлементный corpus и статус search_candidate проходят, но новый релевантный resource не находится. Correct stored vectors также не исключают query-independent routing/top-k bug.",
+      "alternatives": [
+        "Ограничить claim только index wiring/custody",
+        "Добавить независимый exact cosine topology witness + finite semantic retrieval qualification",
+        "Требовать универсальное legal understanding — несоразмерно"
+      ],
+      "preferred_solution": "Два уровня: (a) deterministic non-tied vectors с независимым exact dot/cosine expected ranking через actual binary HNSW/public reader; (b) маленький заранее размеченный actual-model corpus с distractors, paraphrases, multilingual/long-text cases внутри declared profile, frozen holdout. Новый compatible resource добавляется только data+metadata, без case-ID code. Exact cosine является ground-truth reference; конкретный expected HNSW result принимается лишь для finite non-tied corpus≥3, k<N и объявленного ef/native profile, не как universal exact ANN guarantee. Reuse existing GL/G5 recall/freshness evidence pattern (legal_mandate_search.py:1867–1990; tests:905–960) и E02-X03/X04 join where contract supports; не создавать GL legal ledger из embedding output. Это не gate для локального publisher repair.",
+      "replacement_requirement": "E02-I08-B дополнить: «Native index integrity принимается отдельно от retrieval utility. Для utility объявить corpus/query scope, заранее fixed relevance labels и threshold, держать holdout вне настройки. Отказ known-groundable seed учитывается как missed retrieval, не доказательство отсутствия знания».",
+      "replacement_test": "Three+ docs, nontrivial order with k<N; insert new relevant doc after build via normal reissue and fresh consumer finds it. Independent exact top-k oracle for synthetic vectors. Actual-model known-answer labels set before run; perturb irrelevant IDs/order; record recall@k, false abstention, latency. Withdrawal removes only dependent hit, text fallback still exercised.",
+      "shared_owner": "EMB-01 compute, EMB-02 reader, EMB-03 owned legal serving; shared E02-I08-B avoids three model loads.",
+      "preservation_risks": "Не превращать semantic proximity в verified legal relation; no all-model/all-domain gate for local publisher fix. Existing explicit exclusion remains honest if no quality witness available.",
+      "validation_plan": "Mechanism tests native; semantic qualification with provided local assets and authorized corpus only. Both NOT_RUN; no proposed arbitrary universal numeric threshold.",
+      "uncertainty": "Packet explicitly bounds recall claim; this is stronger capability evidence gap, not concealed breach of current repair acceptance.",
+      "sources": [
+        {
+          "url": "https://github.com/nmslib/hnswlib",
+          "section": "Python API: set_ef; get_items cosine normalized; thread safety; M/ef_construction",
+          "checked": "2026-11-01",
+          "applicability": "Project hnswlib0.8.0 optional vector-search; current maintainer API requires native qualification on lock."
+        },
+        {
+          "url": "https://github.com/facebookresearch/faiss/wiki/Guidelines-to-choose-an-index",
+          "section": "Few searches; exact Flat; HNSW memory/accuracy tradeoff",
+          "checked": "2026-11-01",
+          "applicability": "Alternative only, not existing approved dependency. No recommendation to install/upgrade."
+        },
+        {
+          "url": "https://raw.githubusercontent.com/UKPLab/sentence-transformers/v2.7.0/sentence_transformers/SentenceTransformer.py",
+          "section": "constructor46–85; encode normalize_embeddings; get_max_seq_length530–537",
+          "checked": "2026-11-01",
+          "applicability": "Exact locked2.7.0 optional rag-local; do not prescribe modern backend/local_files_only constructor keywords absent in this version."
+        }
+      ]
+    },
+    {
+      "id": "FA-07",
+      "classification": "profile_qualification_correction",
+      "severity": "low",
+      "blocking_scope": [
+        "LANE-08 P-SEARCH",
+        "E02-I08-B"
+      ],
+      "packets": [
+        "EMB-01",
+        "EMB-02",
+        "EMB-03"
+      ],
+      "faulty_proposition": "LANE-08 P-SEARCH упоминает GP backend/test_gp_resume_witness, но native embedding profile требует HNSW и отдельно rag-local/model assets; общий research/all не гарантирует последний.",
+      "evidence": [
+        "P/03_Интеграция/LANE-08.md:18",
+        "policy-engine/pyproject.toml optional vector-search/rag-local/research/all",
+        "policy-engine/uv.lock hnswlib0.8.0 sdist, sentence-transformers2.7.0",
+        "src/polisyos/data_forge/domains/legal/runtime_material.py:655–706"
+      ],
+      "counterexample": "Runner с P-CORE+research может иметь hnswlib, но не ST2.7/локальные assets; GP backend не делает legal encoder available. Такой missing environment не должен выглядеть как behavioral FAIL или silently replaced fake encoder.",
+      "alternatives": [
+        "Один универсальный P-SEARCH со всеми extras",
+        "Отдельные finite P-INDEX/P-LEGAL-OWNED profiles"
+      ],
+      "preferred_solution": "Уточнить profile manifest без установки: P-INDEX native hnswlib0.8 build ABI/platform; P-LEGAL-OWNED adds rag-local exact runtime+local model inventory. GP удалить из lane8 prerequisites если ни одна выбранная проверка его не использует.",
+      "replacement_requirement": "Profile requirement: «Записывать фактические lock groups/native backend versions/platform; owned Legal witness требует заранее доступные проверенные local assets. Missing prerequisite→NOT_QUALIFIED, не PASS fixture и не product defect».",
+      "replacement_test": "Preflight read-only inventory actual imports/runtime files plus native tests later; fake encoder qualifies only compute wiring. At least one separately declared supported3.14 native environment.",
+      "shared_owner": "Lane8 integrator; EMB-03 runtime material owner; packaging owner for native ABI if required.",
+      "preservation_risks": "Не навязывать все platforms/OS или install/download; не считать отсутствие wheel доказательством несовместимости.",
+      "validation_plan": "Read-only package/asset provenance preflight; execution not authorized in this review.",
+      "uncertainty": "Lock parsed; native build compatibility not tested; exact environment may already be provisioned elsewhere.",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/UKPLab/sentence-transformers/v2.7.0/sentence_transformers/SentenceTransformer.py",
+          "section": "constructor46–85; encode normalize_embeddings; get_max_seq_length530–537",
+          "checked": "2026-11-01",
+          "applicability": "Exact locked2.7.0 optional rag-local; do not prescribe modern backend/local_files_only constructor keywords absent in this version."
+        },
+        {
+          "url": "https://github.com/nmslib/hnswlib",
+          "section": "Python API: set_ef; get_items cosine normalized; thread safety; M/ef_construction",
+          "checked": "2026-11-01",
+          "applicability": "Project hnswlib0.8.0 optional vector-search; current maintainer API requires native qualification on lock."
+        }
+      ]
+    }
+  ]
+}

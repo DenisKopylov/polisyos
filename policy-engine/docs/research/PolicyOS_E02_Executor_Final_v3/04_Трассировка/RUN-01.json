@@ -1,0 +1,242 @@
+{
+  "packet_id": "RUN-01",
+  "lane": "LANE-06",
+  "source_ids": [
+    "B14",
+    "B40",
+    "B69",
+    "B95",
+    "LA-057"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/RUN-01.md",
+    "../05_Основания/Аудит/01_Реестры/C68_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C68-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-RUN-01-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Закрыть только owned fresh coroutine при доказанном pre-submit refusal.",
+      "inventory_id": "audit-residual:C68_остатки:0"
+    },
+    {
+      "audit_id": "C68-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-RUN-01-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Actual context/CAS/claim/deadline/retry/native nesting.",
+      "inventory_id": "audit-residual:C68_остатки:1"
+    },
+    {
+      "audit_id": "C68-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-RUN-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Supported typecheck/installed consumers, finite census не произвольные внешние plugins.",
+      "inventory_id": "audit-residual:C68_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-RUN-01-01",
+      "text": "Если run_coro_sync получил fresh coroutine и shared submit отказал до admission, coroutine закрывается без запуска body и исходный typed backpressure/reentrancy propagates. Уже running/suspended Task/Future или чужая admitted работа не закрывается этим cleanup.",
+      "source_ids": [
+        "B14",
+        "B69"
+      ],
+      "audit_ids": [
+        "C68-R01"
+      ],
+      "test_ids": [
+        "TEST-RUN-01-01"
+      ]
+    },
+    {
+      "id": "REQ-RUN-01-02",
+      "text": "Direct sync, genuine async и permitted thread fallback используют единый invocation deadline, учитывая queue/backoff/publication. Owner без deadline не получает скрытый helper-default. A/B contexts не протекают; noncooperative timeout возвращает unknown и отзывает поздние protected writes, не утверждает hard stop. Nested unavailable capacity явно отказывает либо использует существующий async ingress без deadlock.",
+      "source_ids": [
+        "B14",
+        "B40",
+        "B69",
+        "B95"
+      ],
+      "audit_ids": [
+        "C68-G01"
+      ],
+      "test_ids": [
+        "TEST-RUN-01-02"
+      ]
+    },
+    {
+      "id": "REQ-RUN-01-03",
+      "text": "В supported installed Common сохраняются четыре независимых function-local generic parameters и корректный get_type_hints; incidental module T/TypeVar не возвращается без поддержанного consumer. Existing bridge functions, ContextVar, exceptions, cancellation/finally и shutdown остаются рабочими.",
+      "source_ids": [
+        "LA-057"
+      ],
+      "audit_ids": [
+        "C68-G02"
+      ],
+      "test_ids": [
+        "TEST-RUN-01-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-RUN-01-01",
+      "requirement_ids": [
+        "REQ-RUN-01-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Running loop, actual pool1/queue0 occupied; fresh coroutine with observable body; separate admitted Task/Future.",
+      "action": "run_coro_sync→submit refusal; inspect coroutine state/warnings. Repeat nested reentrancy and already-owned controls.",
+      "oracle": "Fresh CORO_CLOSED/frame=None, body calls0, original typed refusal. Running Task/Future remains owned by original loop; no forced close. Positive admitted coroutine result/finally unchanged.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-RUN-01-02",
+      "requirement_ids": [
+        "REQ-RUN-01-02"
+      ],
+      "level": "native owner integration",
+      "setup": "Actual context façade/CAS/claim, deterministic barriers; A then B same worker; short owner deadline/long helper default and no-deadline inverse.",
+      "action": "Execute queue→retry/backoff→publication; release noncooperative worker after timeout; actual ingestion async path.",
+      "oracle": "One nonextended deadline; unknown not success/hard-stop; late current writes refused; no duplicate attempt on unknown. A/B/neutral exact context, unrelated new request proceeds.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-RUN-01-03",
+      "requirement_ids": [
+        "REQ-RUN-01-03"
+      ],
+      "level": "native typing/installed",
+      "setup": "P-CORE package and supported consumer list, direct/star/reflection imports.",
+      "action": "get_type_hints with proper namespaces + existing Common tests + separate before/inside-loop process.",
+      "oracle": "Four distinct local T identities; no module residue; same values/errors/context/cleanup; supported imports succeed, unknown external consumers explicitly scoped.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-C"
+  ],
+  "dependencies": [],
+  "preservation": [
+    "Single deadline/minimum remaining и explicit unbounded только от owner без deadline.",
+    "copy_context A→B→neutral без leakage; context не создаёт прав.",
+    "Unknown external outcome и revoked late-write authority; finite physical-capacity guards.",
+    "LK36: working bridge/cleanup/cancellation, не hard real-time preemption. LA-057 четыре function-local generics уже сохранены."
+  ],
+  "design_alignment": [
+    "policy-design-execution-topology.md §3–6: actual execution outcome и continuation раздельны.",
+    "design_direction.md §4.4/§4.7; LK36: cancellation semantics scoped, not hard real-time or authority by context copy."
+  ],
+  "open_decisions": [],
+  "source_obligations": [
+    "B14/B40 → REQ-RUN-01-02: deadline/unknown completion/late write, не обещать убийство потока.",
+    "B69 → REQ-RUN-01-01/-02: clean refusal и existing async ingress вместо saturated nesting.",
+    "B95 → REQ-RUN-01-02: actual context capture и отсутствие request leakage.",
+    "LA-057/LK36 → REQ-RUN-01-03: cleanup уже сделан, supported imports/types/package квалифицировать без повторного удаления bridge."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/common/async_tools/__init__.py: run_coro_sync, _run_coro_in_fresh_loop, _SharedExecutor",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py: _submit_thread_attempt, _AttemptAuthority, deadline helpers",
+    "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py: sync/async ingress"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/common/test_async_tools.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0035",
+      "requirement_ids": [
+        "REQ-RUN-01-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Закрыть только owned fresh coroutine при доказанном pre-submit refusal."
+    },
+    {
+      "inventory_id": "remaining:0036",
+      "requirement_ids": [
+        "REQ-RUN-01-02"
+      ],
+      "disposition": "qualify",
+      "rationale": "Actual context/CAS/claim/deadline/retry/native nesting."
+    },
+    {
+      "inventory_id": "remaining:0037",
+      "requirement_ids": [
+        "REQ-RUN-01-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Supported typecheck/installed consumers, finite census не произвольные внешние plugins."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0040",
+      "requirement_ids": [
+        "REQ-RUN-01-02"
+      ],
+      "test_ids": [
+        "TEST-RUN-01-02"
+      ],
+      "rationale": "Single invocation deadline and explicit unbounded owner bridge — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0041",
+      "requirement_ids": [
+        "REQ-RUN-01-02"
+      ],
+      "test_ids": [
+        "TEST-RUN-01-02"
+      ],
+      "rationale": "Actual contextvars copy with no A/B leakage — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0042",
+      "requirement_ids": [
+        "REQ-RUN-01-02"
+      ],
+      "test_ids": [
+        "TEST-RUN-01-02"
+      ],
+      "rationale": "Typed unknown completion and revoked late-write authority — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0043",
+      "requirement_ids": [
+        "REQ-RUN-01-01",
+        "REQ-RUN-01-02"
+      ],
+      "test_ids": [
+        "TEST-RUN-01-01",
+        "TEST-RUN-01-02"
+      ],
+      "rationale": "Finite physical-capacity re-entrancy refusal — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0044",
+      "requirement_ids": [
+        "REQ-RUN-01-03"
+      ],
+      "test_ids": [
+        "TEST-RUN-01-03"
+      ],
+      "rationale": "Four function-local generic parameters; no module TypeVar residue — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

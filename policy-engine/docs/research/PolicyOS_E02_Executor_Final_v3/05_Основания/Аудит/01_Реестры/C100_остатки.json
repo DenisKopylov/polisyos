@@ -1,0 +1,49 @@
+{
+  "pass_id": "C100",
+  "bundle": "ING-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C100-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "source_ids": [
+        "B81",
+        "B82"
+      ],
+      "title": "Первый аварийный diagnostic checkpoint не возобновляется с тем же admitted source owner",
+      "evidence": [
+        "S01:2490–2507",
+        "S01:3049–3109",
+        "S02:460–484",
+        "P03",
+        "run05/first_frontier_failures.json"
+      ],
+      "remaining": "Согласовать existing first-frontier error writer и recovery admission: не превращать неполную диагностику в невосстановимый latest checkpoint; сохранить достаточную проверяемую identity/clock/witness для пустой границы либо отдельный безопасный путь восстановления без продвижения. Не удалять owner/clock guards, не сохранять pending dedupe как committed, не пропускать chunk0.",
+      "limits": "Три ordinary RuntimeError после poll/dedupe до первого commit, включая после raw/window persistence, воспроизведены actual process→CursorStore→fresh reopen. Ошибка не продвигает cursor и не доказала потерю данных: повтор явно отказывает из-за отсутствующего ingestion_clock_profile; source witness тоже отсутствует, но его следующий отказ не имитировался. BaseException до raw и Exception после первого commit имеют успешные positive controls. CAS custody fixture; native prevalence и внешние connectors не измерены."
+    },
+    {
+      "id": "C100-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B81",
+        "B82",
+        "B85"
+      ],
+      "title": "Native writer→reader, withdrawal/revalidation и внешние source commit/rewind остаются неквалифицированы",
+      "evidence": [
+        "S01–S17",
+        "P01–P04",
+        "native_streaming.stdout",
+        "native_cursor_store.stdout"
+      ],
+      "remaining": "В supported environment выполнить existing oracle и regression для R01 с настоящим CAS, whole modes/evidence/fresh consumer. Проверить отзыв/удаление contributor A через штатную revalidation: сохранённый B не должен скрывать зависимость. Проверить конкретные native rewind/token implementations отдельно; согласовать crash/cancel/index-failure cases с владельцами NET/CAS без нового параллельного storage engine.",
+      "limits": "Присутствие обоих InputRef и точное совпадение payload→contributors подтверждены bounded; это не равно executed native graph invalidation. ProcessDeath — локальная BaseException injection, не OS kill/power loss. 41-row tests показывают сохранение выбранной window semantics, не production SLA. Finite owner authority явно synthetic/replay_only. Дополнение C99 содержит source-only existing integrations, не ретроспективный PASS."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C100-R01"
+  ],
+  "decision": "Большая часть B81/B82/B85 сохранена и связана: pending state/ordinal/order/contributor refs реально используются. Один first-frontier recovery availability остаток; native acceptance и withdrawal остаются G."
+}

@@ -1,0 +1,239 @@
+{
+  "packet_id": "WIRE-01",
+  "lane": "LANE-06",
+  "source_ids": [
+    "B94"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/WIRE-01.md",
+    "../05_Основания/Аудит/01_Реестры/C73_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C73-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-WIRE-01-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Согласовать semantic tree depth с technical tags; guards не удалять.",
+      "inventory_id": "audit-residual:C73_остатки:0"
+    },
+    {
+      "audit_id": "C73-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-WIRE-01-02",
+        "REQ-WIRE-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Actual stdlib/orjson и worker/attempt, не два fake backend labels.",
+      "inventory_id": "audit-residual:C73_остатки:1"
+    },
+    {
+      "audit_id": "C73-G02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-WIRE-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Current v2 assertion value.inputs, отдельный legacy read corpus.",
+      "inventory_id": "audit-residual:C73_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-WIRE-01-01",
+      "text": "Для всех значений в объявленном supported depth profile successful serialize_state/outcome/safe гарантирует successful соответствующий decode с теми же типами/значениями. Escaped user _type mapping расходует ту же semantic depth, что plain mapping; technical wrappers не удваивают её. Слишком глубокие/циклические значения явно отвергаются до публикации.",
+      "source_ids": [
+        "B94"
+      ],
+      "audit_ids": [
+        "C73-R01"
+      ],
+      "test_ids": [
+        "TEST-WIRE-01-01"
+      ]
+    },
+    {
+      "id": "REQ-WIRE-01-02",
+      "text": "Оба настоящих JSON backend сохраняют finite Decimal в budgets/Any/union, bytes, actual refs/selectors, OutputAware subtype и journal. Unknown model/tag, duplicate mapping entry, malformed/nonfinite/untyped v2 budget и corrupted safe digest отказываются; digest не заменяет access/tenant admission.",
+      "source_ids": [
+        "B94"
+      ],
+      "audit_ids": [
+        "C73-G01"
+      ],
+      "test_ids": [
+        "TEST-WIRE-01-02"
+      ]
+    },
+    {
+      "id": "REQ-WIRE-01-03",
+      "text": "Current writer tests проверяют v2 envelope value.inputs, а legacy raw reader tests остаются независимыми. Actual process worker потребляет Decimal outcome; deterministic serialization refusal не приводит к лишнему physical attempt. Historical bytes продолжают читаться своим declared profile.",
+      "source_ids": [
+        "B94"
+      ],
+      "audit_ids": [
+        "C73-G01",
+        "C73-G02"
+      ],
+      "test_ids": [
+        "TEST-WIRE-01-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-WIRE-01-01",
+      "requirement_ids": [
+        "REQ-WIRE-01-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Depth sweep вокруг actual limit plain/escaped/model/list mixtures; pinned64 escaped counterexample; cycles.",
+      "action": "Encode/decode state/outcome/safe в каждом actual backend.",
+      "oracle": "Каждый accepted writer input roundtrips; plain/escaped имеют одинаковую semantic boundary; too-deep typed refusal до publication. 64 escaped positive больше не own-reader failure либо writer explicitly refuses по объявленному общий backend contract.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-WIRE-01-02",
+      "requirement_ids": [
+        "REQ-WIRE-01-02"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Actual ExperimentState budgets Decimal('-0.00'), Decimal union, bytes, selected refs/outputaware/journal; malicious tag corpus.",
+      "action": "Both real backend cold/warm roundtrip and tamper.",
+      "oracle": "Decimal.as_tuple exact, bytes equal, actual classes/selectors/subtype/journal retained; invalid inputs refused without coercion to str/0/null; safe digest equals exact transmitted body.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-WIRE-01-03",
+      "requirement_ids": [
+        "REQ-WIRE-01-03"
+      ],
+      "level": "native tests + process integration",
+      "setup": "Updated v2 assertion + literal legacy fixture; actual bound worker and attempt counter.",
+      "action": "Native tests, Decimal process result, unsupported deterministic input.",
+      "oracle": "Current value.inputs tags verified, legacy still readable; exact output through process. Serialization rejection yields no additional computation/retry and no accepted receipt.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-C"
+  ],
+  "dependencies": [],
+  "preservation": [
+    "Exact Decimal tuple/scale/negative zero и bytes tags; v2 payload отдельно от v1 integrity frame.",
+    "Closed model registry, actual ArtifactRef/ArtifactID/manifest selector.",
+    "OutputAware subtype и ordered mutation journal sidecar.",
+    "Nonfinite/unsupported/cycles refuse, legacy readers и hash exact wire bytes."
+  ],
+  "design_alignment": [
+    "design_direction.md §4.1/§4.7: type/identity сохранены на границе; hash не authority.",
+    "policy-design-custody-time-model.md §2–5: family-native semantics не заменять общей универсальной envelope ради удобства."
+  ],
+  "open_decisions": [],
+  "source_obligations": [
+    "B94 → REQ-WIRE-01-01…-03: state/outcome/safe exact typed transport across both real backends, positive accepted-writer→reader, no float/default=str."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py: _encode_wire_value, _decode_wire_tag, _decode_wire_value, serialize_state/outcome/safe",
+    "policy-engine/tests/unit/remediation/test_wire_01.py: current artifact tag assertion",
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py: current v2/worker controls"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_wire_01.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0158",
+      "requirement_ids": [
+        "REQ-WIRE-01-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Согласовать semantic tree depth с technical tags; guards не удалять."
+    },
+    {
+      "inventory_id": "remaining:0159",
+      "requirement_ids": [
+        "REQ-WIRE-01-02",
+        "REQ-WIRE-01-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Actual stdlib/orjson и worker/attempt, не два fake backend labels."
+    },
+    {
+      "inventory_id": "remaining:0160",
+      "requirement_ids": [
+        "REQ-WIRE-01-03"
+      ],
+      "disposition": "fix",
+      "rationale": "Current v2 assertion value.inputs, отдельный legacy read corpus."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0256",
+      "requirement_ids": [
+        "REQ-WIRE-01-01",
+        "REQ-WIRE-01-02"
+      ],
+      "test_ids": [
+        "TEST-WIRE-01-01",
+        "TEST-WIRE-01-02"
+      ],
+      "rationale": "Точные Decimal/bytes tags и v2 envelope — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0257",
+      "requirement_ids": [
+        "REQ-WIRE-01-02"
+      ],
+      "test_ids": [
+        "TEST-WIRE-01-02"
+      ],
+      "rationale": "Closed registry и actual artifact selectors — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0258",
+      "requirement_ids": [
+        "REQ-WIRE-01-02"
+      ],
+      "test_ids": [
+        "TEST-WIRE-01-02"
+      ],
+      "rationale": "OutputAware outcome и journal sidecar — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0259",
+      "requirement_ids": [
+        "REQ-WIRE-01-01",
+        "REQ-WIRE-01-02"
+      ],
+      "test_ids": [
+        "TEST-WIRE-01-01",
+        "TEST-WIRE-01-02"
+      ],
+      "rationale": "Strict non-finite/unsupported refusal — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0260",
+      "requirement_ids": [
+        "REQ-WIRE-01-02",
+        "REQ-WIRE-01-03"
+      ],
+      "test_ids": [
+        "TEST-WIRE-01-02",
+        "TEST-WIRE-01-03"
+      ],
+      "rationale": "Legacy read compatibility и exact-byte safe digest — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

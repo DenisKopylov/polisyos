@@ -1,0 +1,295 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1158
+        ]
+      ],
+      "evidence_level": "Весь transfer owner прочитан заново; whole module реально исполнен с callback seams. Intake/snapshot/staging/inventory/publication/report различены.",
+      "git_blob": "ed88da56fca581f063622aaee6bab23b9a456117",
+      "sha256": "ce8004a1ab0ea0ad94e71b3ed99c104247eb0ad5c576a8d14bef33b3613d4df1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/store.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          206,
+          214
+        ],
+        [
+          1276,
+          1545
+        ],
+        [
+          1665,
+          1672
+        ],
+        [
+          3916,
+          3969
+        ],
+        [
+          4126,
+          4197
+        ],
+        [
+          4289,
+          5323
+        ],
+        [
+          5885,
+          5943
+        ]
+      ],
+      "evidence_level": "Полные selected transfer/admission/publication methods и public stream owner прочитаны заново. Методы исполняются unchanged над fixture receiver/index; open_member только прочитан, в run заменён явно описанным byte-stream fixture.",
+      "git_blob": "f855f9f023d8152b67bb4c1e71a8b9568d0c6994",
+      "sha256": "208b9aa6867c2303e5444ce6d7e446af2fcf2e9ca60e43c6205d68cf45a0ccc7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/tests/unit/remediation/test_cas_02.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_cas_02.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          614
+        ]
+      ],
+      "evidence_level": "Весь regression прочитан. 10 unchanged bodies / 11 cases исполнены изолированно; signing, tenant и durable recovery bodies UNRUN.",
+      "git_blob": "fa89496b4836f37a7b29cf01a91fee4c640975b7",
+      "sha256": "e93cc5988daa523bc75c7080c33c9d7370427d524262c413d26f5f2f0f045eea",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/store.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          709,
+          716
+        ],
+        [
+          744,
+          952
+        ],
+        [
+          970,
+          1117
+        ],
+        [
+          1259,
+          1261
+        ],
+        [
+          1656,
+          1664
+        ],
+        [
+          2162,
+          2225
+        ],
+        [
+          2349,
+          2392
+        ],
+        [
+          3056,
+          3062
+        ],
+        [
+          3358,
+          3707
+        ],
+        [
+          3709,
+          3814
+        ],
+        [
+          3876,
+          3914
+        ],
+        [
+          3971,
+          4124
+        ],
+        [
+          6167,
+          6193
+        ]
+      ],
+      "evidence_level": "Повторное использование прочитанного C74 base на неизменном SHA: complete publication/read/profile/staging helpers реально повторно исполнены. Не новый native constructor run.",
+      "git_blob": "f855f9f023d8152b67bb4c1e71a8b9568d0c6994",
+      "sha256": "208b9aa6867c2303e5444ce6d7e446af2fcf2e9ca60e43c6205d68cf45a0ccc7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          165
+        ]
+      ],
+      "evidence_level": "Полный lifecycle прочитан C74 на том же SHA, повторно исполнен C75.",
+      "git_blob": "513f375b40c4366e26f1e31999b24bce2c78ca18",
+      "sha256": "89c231e69ec95c1223d3a2637ca2ba79bc1048ac2644e266216a8f1cb8fdea08",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/core/artifacts/_atomic_write.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/_atomic_write.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          128
+        ]
+      ],
+      "evidence_level": "Полные atomic helpers прочитаны C74 на том же SHA, повторно исполнены C75. Power-loss не проверен.",
+      "git_blob": "4f355498b5a615865c5c190bba9f2510316b93ad",
+      "sha256": "afa41fe64aa388d65ec89db504d2f651447c5a92b5a8cea0384a6793c924ebcf",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/ownership.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          256,
+          566
+        ]
+      ],
+      "evidence_level": "Root coordinator/lease прочитан C74 на том же SHA, реально исполнен. Durable index заменён fixture; owner-generation authority не проверена.",
+      "git_blob": "414124a009fdadee52a5dbdde2e32fc6289d582f",
+      "sha256": "11feb86117d5e06261fea8555d024d46611c5ba40e1b90cc8b6bd5c6b81c6ad2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          56
+        ],
+        [
+          210,
+          492
+        ]
+      ],
+      "evidence_level": "Relevant complete integrity owners прочитаны C74 на том же SHA, повторно исполнены C75.",
+      "git_blob": "d02787381d9077219b36941ccee8674bc2746e5f",
+      "sha256": "a21d484f2f861b4e6e160b84e5aeeb06f9c37c75c12ce8f9a35c1d26d4ec7d32",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          403
+        ]
+      ],
+      "evidence_level": "DTO/identity/profile fields прочитаны C73/C74 на том же SHA, реальные классы повторно исполнены.",
+      "git_blob": "f1b3372d9e209cf823bacf7dc38eecd76b6780bb",
+      "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/core/artifacts/_layout.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/_layout.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          55
+        ]
+      ],
+      "evidence_level": "Layout целиком прочитан C74, реально исполнен C75.",
+      "git_blob": "0554ae8afcd0096f8cdb994dcfc84cec1825b7ff",
+      "sha256": "688924855ffaf7fcdb1b635991ebaf4db07bbe5285f03c42d003562fd6236512",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          41
+        ]
+      ],
+      "evidence_level": "Write options целиком прочитан C74, реально исполнен C75.",
+      "git_blob": "610a563ce506be29c3606b4229ae4ab427920d5f",
+      "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          30
+        ]
+      ],
+      "evidence_level": "Supported runtime и dependency bounds; actual environment записан отдельно.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      8688,
+      8780
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "scope": "Fresh C75 replay after recovered C74. Reconstructed harness is not evidence of lost execution. Base helper reads explicitly inherit source-qualified C74, transfer owners/tests freshly reread."
+}

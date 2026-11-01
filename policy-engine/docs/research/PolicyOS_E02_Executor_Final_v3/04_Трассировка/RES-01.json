@@ -1,0 +1,259 @@
+{
+  "packet_id": "RES-01",
+  "lane": "LANE-06",
+  "source_ids": [
+    "B63",
+    "B70",
+    "B71"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/RES-01.md",
+    "../05_Основания/Аудит/01_Реестры/C65_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C65-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-RES-01-01",
+        "REQ-RES-01-02",
+        "REQ-RES-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Actual CAS/lock/head/history/runner/fresh process вместо storage fixtures.",
+      "inventory_id": "audit-residual:C65_остатки:0"
+    },
+    {
+      "audit_id": "C65-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-RES-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Dedupe принят как механизм; tail только если measurement доказывает пользу и history binding сохранён.",
+      "inventory_id": "audit-residual:C65_остатки:1"
+    },
+    {
+      "audit_id": "C65-G03",
+      "disposition": "capability",
+      "requirement_ids": [
+        "REQ-RES-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Конечный census actual residual consumers/declarations и согласование grammar; отсутствующее чтение нельзя закрыть простым test run.",
+      "inventory_id": "audit-residual:C65_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-RES-01-01",
+      "text": "A→B→C с остановом после A и после B возобновляется исходным workflow: каждая invocation исполняется один раз, origin fingerprint неизменён, residual fingerprints отражают B→C/C. Functional parameter/dependency change отказывает, operational timeout-only change не меняет functional fingerprint; completed reopen возвращает durable state без нового node lookup.",
+      "source_ids": [
+        "B70"
+      ],
+      "audit_ids": [
+        "C65-G01"
+      ],
+      "test_ids": [
+        "TEST-RES-01-01"
+      ]
+    },
+    {
+      "id": "REQ-RES-01-02",
+      "text": "При восстановлении одного cache owner exact successful ref читается для admission один раз через trace+checkpoint; different selected profile/ref одного key проверяется отдельно, conflict не подменяет first accepted. Failed load retry разрешён, eviction/discard очищает memo. Scope/proof/corruption guards выполняются и при actual get.",
+      "source_ids": [
+        "B63"
+      ],
+      "audit_ids": [
+        "C65-G01"
+      ],
+      "test_ids": [
+        "TEST-RES-01-02"
+      ]
+    },
+    {
+      "id": "REQ-RES-01-03",
+      "text": "Resume проверяет реальные required reads остатка, typed external ArtifactRef verify+read и declared grammar, а не количество refs. Полное valid state без cache seed продолжается; missing required input отказывает либо при explicit allow_replay возвращает original plan с degraded reason. Actual supported consumer с незаявленным read/nullable/list contract должен получить исправленную декларацию/общий accessor либо явное ограничение до acceptance.",
+      "source_ids": [
+        "B71"
+      ],
+      "audit_ids": [
+        "C65-G01",
+        "C65-G03"
+      ],
+      "test_ids": [
+        "TEST-RES-01-03"
+      ]
+    },
+    {
+      "id": "REQ-RES-01-04",
+      "text": "Qualification report содержит calls/bytes/time-to-first-useful-result для duplicate-heavy и distinct-ref workload на real backend. Если tail optimisation выбран, offset привязан к подтверждённым run/attempt/history/head; потеря/подмена хвоста не даёт accepted continuation. Без доказанной выгоды достаточно текущего full scan с честным измерением.",
+      "source_ids": [
+        "B63"
+      ],
+      "audit_ids": [
+        "C65-G02"
+      ],
+      "test_ids": [
+        "TEST-RES-01-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-RES-01-01",
+      "requirement_ids": [
+        "REQ-RES-01-01"
+      ],
+      "level": "native persistence integration",
+      "setup": "Tmp protected CAS, A/B/C actual nodes, original functional spec, stop barriers на durable checkpoints.",
+      "action": "Cold A→stop; fresh resume B→stop; fresh resume C; completed reopen; functional change negative.",
+      "oracle": "Calls a=b=c=1 durable identities; final values/refs равны uninterrupted control; origin stable, residual distinct; changed input WorkflowMismatchError; reopen no new producer/lookup.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-RES-01-02",
+      "requirement_ids": [
+        "REQ-RES-01-02"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Real v2 entries A/B, 100 copies A из trace+checkpoint; failed transient read, profile mismatch, same-key different ref; LRU1.",
+      "action": "Seed same owner, get, eviction/reseed.",
+      "oracle": "Два unique admission reads для A/B; get отдельно проверяет usable entry; failed attempt не memoized; changed profile прочитан/validated, conflict keeps first; LRU forces read again.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-RES-01-03",
+      "requirement_ids": [
+        "REQ-RES-01-03"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Completed A/B, residual C reads params.b и typed ref; full state/no seeds, duplicate A refs/missing b, missing/corrupt/denied blob; selected consumer declaration inventory.",
+      "action": "Strict resume и explicit allow_replay; grammar/null controls по реальным callers.",
+      "oracle": "Full valid state идёт C; duplicate refs не закрывают b; unavailable ref refused; replay executes A,B,C с reason. Supported declarations покрывают каждый actual read; unknown grammar не false available.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-RES-01-04",
+      "requirement_ids": [
+        "REQ-RES-01-04"
+      ],
+      "level": "measurement + optional regression",
+      "setup": "Два объявленных workloads, real current backend; existing full scan baseline.",
+      "action": "Measure bytes/calls/time и optional bound tail при обоснованном решении.",
+      "oracle": "Таблица воспроизводимых значений без SLA; same accepted index/result. Tampered run/attempt/head tail refusal; без tail честно сохранить full-scan scope.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-B"
+  ],
+  "dependencies": [
+    "STA-02",
+    "RES-02"
+  ],
+  "preservation": [
+    "Immutable origin fingerprint отдельно от residual workflow; functional change refused.",
+    "Exact successful-ref memo (ID/kind/media/profile), failed load не memoized, eviction/discard invalidate.",
+    "State/typed artifact availability вместо count cache refs; allow_replay реально запускает полный original plan.",
+    "Полный completed reopen не требует removed-node registry. LK/S дополнительных нет."
+  ],
+  "design_alignment": [
+    "policy-design-execution-topology.md §6: replay сохраняет actual inputs/decisions, не обещает одинаковые токены.",
+    "design_direction.md §2.6/§4.7–9: durable полезность и historical/current distinction; оптимизация не ослабляет custody."
+  ],
+  "open_decisions": [
+    "DEC-RES-01-01: actual consumer census определяет поддержку list/null grammar. Выход до acceptance — finite table path/type/null semantics + tests; не объявлять arbitrary JSON graph поддержанным.",
+    "DEC-RES-01-02: tail выбирается только по measurement; отсутствие tail не дефект при выполненном exact-dedupe контракте."
+  ],
+  "source_obligations": [
+    "B63 → REQ-RES-01-02/-04: exact dedupe реализован; измерить реальный I/O, не старую v1 модель entry+outcome=2reads.",
+    "B70 → REQ-RES-01-01: native double resume, changed functional input, completed reopen.",
+    "B71 → REQ-RES-01-03: достаточные реальные входы остатка, meaningful null/grammar/declarations; full replay только явно."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py: resume_from_checkpoint, compute_workflow_fingerprint, _state_path_available, _missing_completed_state_paths",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py: _cache_ref_identity, load_entry, seed_from_trace/entry_refs",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_runner.py: LocalWorkflowRunner"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_res_01.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0127",
+      "requirement_ids": [
+        "REQ-RES-01-01",
+        "REQ-RES-01-02",
+        "REQ-RES-01-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Actual CAS/lock/head/history/runner/fresh process вместо storage fixtures."
+    },
+    {
+      "inventory_id": "remaining:0128",
+      "requirement_ids": [
+        "REQ-RES-01-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Dedupe принят как механизм; tail только если measurement доказывает пользу и history binding сохранён."
+    },
+    {
+      "inventory_id": "remaining:0129",
+      "requirement_ids": [
+        "REQ-RES-01-03"
+      ],
+      "disposition": "capability",
+      "rationale": "Конечный census actual residual consumers/declarations и согласование grammar; отсутствующее чтение нельзя закрыть простым test run."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0181",
+      "requirement_ids": [
+        "REQ-RES-01-01"
+      ],
+      "test_ids": [
+        "TEST-RES-01-01"
+      ],
+      "rationale": "Separate immutable origin fingerprint and derived residual plan — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0182",
+      "requirement_ids": [
+        "REQ-RES-01-02"
+      ],
+      "test_ids": [
+        "TEST-RES-01-02"
+      ],
+      "rationale": "Exact successful-ref memo with scope/proof and invalidation — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0183",
+      "requirement_ids": [
+        "REQ-RES-01-03"
+      ],
+      "test_ids": [
+        "TEST-RES-01-03"
+      ],
+      "rationale": "State availability instead of cache-ref cardinality — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0184",
+      "requirement_ids": [
+        "REQ-RES-01-03"
+      ],
+      "test_ids": [
+        "TEST-RES-01-03"
+      ],
+      "rationale": "Actual observable full-plan replay only when explicitly allowed — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

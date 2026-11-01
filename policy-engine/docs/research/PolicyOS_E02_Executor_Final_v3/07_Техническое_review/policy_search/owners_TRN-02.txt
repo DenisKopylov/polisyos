@@ -1,0 +1,130 @@
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py:184-220
+  184     def find_similar_runs(
+  185         self,
+  186         fingerprint: RunFingerprint,
+  187         top_k: int = 5,
+  188     ) -> list[RunFingerprint]:
+  189         """Find the most similar past runs based on embedding similarity.
+  190 
+  191         Returns up to ``top_k`` fingerprints, sorted by similarity (most
+  192         similar first).  Only returns runs with the same objective names.
+  193         """
+  194         if not fingerprint.embedding or not self._has_complete_binding_basis(fingerprint):
+  195             return []
+  196 
+  197         results = self._index.query(fingerprint.embedding, top_k=top_k * 2)
+  198         similar: list[RunFingerprint] = []
+  199 
+  200         for key, _, meta in results:
+  201             if key == fingerprint.run_id:
+  202                 continue
+  203             history_ref = self._history_ref_from_metadata(meta)
+  204             if history_ref is None:
+  205                 logger.warning("Skipping run %s without a valid history ArtifactRef", key)
+  206                 continue
+  207             # Similarity is discovery only; numeric reuse requires the complete
+  208             # typed index basis and a later payload-header reconciliation.
+  209             try:
+  210                 source = self._fingerprint_from_index_metadata(key, meta, history_ref)
+  211             except (TypeError, ValueError) as exc:
+  212                 logger.warning("Skipping run %s with invalid transfer metadata: %s", key, exc)
+  213                 continue
+  214             if not self._binding_matches(fingerprint, source):
+  215                 continue
+  216             similar.append(source)
+  217             if len(similar) >= top_k:
+  218                 break
+  219 
+  220         return similar
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py:465-479
+  465     def _history_cache_key(cls, history_ref: ArtifactRef, run_fingerprint: RunFingerprint) -> str:
+  466         """Bind cache entries to the full selected ref and complete run identity."""
+  467         artifact_id, kind, media_type, profile_sha256 = artifact_ref_identity_key(history_ref)
+  468         return fingerprint(
+  469             {
+  470                 "artifact_ref": {
+  471                     "artifact_id": artifact_id,
+  472                     "kind": kind,
+  473                     "media_type": media_type,
+  474                     "manifest_profile_sha256": profile_sha256,
+  475                 },
+  476                 "run_identity": cls._identity_payload(run_fingerprint),
+  477             },
+  478             canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+  479         )
+
+### e02_repository/policy-engine/src/polisyos/scientist/agent/vector_memory.py:362-424
+  362     def add(self, key: str, embedding: list[float], metadata: dict[str, Any] | None = None) -> None:
+  363         """Add or update one vector with an owned built-in JSON metadata object.
+  364 
+  365         Subclasses, arbitrary objects, cycles, non-string keys, the reserved
+  366         canonical key ``_type`` at any depth and non-finite numbers are refused
+  367         before the generation is touched.
+  368         """
+  369         if type(key) is not str:
+  370             raise TypeError("Vector memory key must be a built-in string")
+  371         vector = _owned_vector(embedding)
+  372         owned_metadata = _owned_metadata(metadata if metadata is not None else {})
+  373         with self._generation_lock:
+  374             generation = self._get_generation()
+  375             if len(vector) != generation.dim:
+  376                 raise ValueError(
+  377                     f"Embedding dimension mismatch: expected {generation.dim}, got {len(vector)}"
+  378                 )
+  379             idx = generation.key_to_idx.get(key)
+  380             if idx is None and len(generation.keys) >= generation.max_elements:
+  381                 raise RuntimeError(
+  382                     "Vector memory capacity exhausted; resize before adding another element"
+  383                 )
+  384             is_new = idx is None
+  385             if idx is None:
+  386                 idx = len(generation.keys)
+  387             next_keys = list(generation.keys)
+  388             next_metadata = list(generation.metadata)
+  389             next_key_to_idx = dict(generation.key_to_idx)
+  390             if is_new:
+  391                 next_keys.append(key)
+  392                 next_metadata.append(owned_metadata)
+  393                 next_key_to_idx[key] = idx
+  394             else:
+  395                 next_metadata[idx] = owned_metadata
+  396             status = generation.index_binding_status
+  397             if status == "exact_selected":
+  398                 status = "modified_after_exact"
+  399             elif status == "legacy_default_at_read":
+  400                 status = "modified_after_legacy"
+  401             elif status == "rows_selected":
+  402                 status = "modified_after_rows"
+  403             next_generation = replace(
+  404                 generation,
+  405                 keys=tuple(next_keys),
+  406                 metadata=tuple(next_metadata),
+  407                 key_to_idx=next_key_to_idx,
+  408                 index_binding_status=status,
+  409             )
+  410             snapshot = self._save_index_bytes()
+  411             # Poison before the native mutation; exceptions can never expose a mixed generation.
+  412             self._generation = None
+  413             try:
+  414                 generation.index.add_items([vector], [idx])
+  415                 self._generation = next_generation
+  416             except BaseException:
+  417                 try:
+  418                     restored = self._restore_index_bytes(snapshot, generation)
+  419                     self._generation = replace(generation, index=restored)
+  420                 except BaseException as exc:
+  421                     raise RuntimeError(
+  422                         "vector_memory_generation_unavailable_after_failed_rollback"
+  423                     ) from exc
+  424                 raise
+
+### e02_repository/policy-engine/src/polisyos/scientist/agent/vector_memory.py:317-323
+  317     def from_portable_artifact(cls, store: ArtifactStore, ref: ArtifactRef) -> VectorMemoryStore:
+  318         """Reopen a bounded row bundle without constructing a native index first."""
+  319         instance = cls.__new__(cls)
+  320         instance._generation_lock = threading.RLock()
+  321         instance._generation = None
+  322         instance.load_from_artifact(store, ref)
+  323         return instance

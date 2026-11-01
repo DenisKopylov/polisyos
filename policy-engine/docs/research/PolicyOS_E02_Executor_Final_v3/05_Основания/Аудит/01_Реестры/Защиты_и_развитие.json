@@ -1,0 +1,1058 @@
+{
+  "protected_distinction_count": 36,
+  "development_direction_count": 8,
+  "items": [
+    {
+      "id": "LK01",
+      "kind": "LK",
+      "title": "K01. polisyos.calibration и foundry/calibration",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 3817,
+          "source_end_line": 3824,
+          "content_sha256": "89d0818b2db110a412b322b49cfe5d3c368fb004e52026dbcde3c287eee9ccf6"
+        },
+        {
+          "source_start_line": 3946,
+          "source_end_line": 3953,
+          "content_sha256": "89d0818b2db110a412b322b49cfe5d3c368fb004e52026dbcde3c287eee9ccf6"
+        },
+        {
+          "source_start_line": 4193,
+          "source_end_line": 4200,
+          "content_sha256": "89d0818b2db110a412b322b49cfe5d3c368fb004e52026dbcde3c287eee9ccf6"
+        },
+        {
+          "source_start_line": 10830,
+          "source_end_line": 10837,
+          "content_sha256": "89d0818b2db110a412b322b49cfe5d3c368fb004e52026dbcde3c287eee9ccf6"
+        },
+        {
+          "source_start_line": 14289,
+          "source_end_line": 14296,
+          "content_sha256": "89d0818b2db110a412b322b49cfe5d3c368fb004e52026dbcde3c287eee9ccf6"
+        },
+        {
+          "source_start_line": 14503,
+          "source_end_line": 14510,
+          "content_sha256": "89d0818b2db110a412b322b49cfe5d3c368fb004e52026dbcde3c287eee9ccf6"
+        },
+        {
+          "source_start_line": 15612,
+          "source_end_line": 15619,
+          "content_sha256": "89d0818b2db110a412b322b49cfe5d3c368fb004e52026dbcde3c287eee9ccf6"
+        }
+      ]
+    },
+    {
+      "id": "LK02",
+      "kind": "LK",
+      "title": "K02. foundry/data_plane и fabric/data_plane",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 282,
+          "source_end_line": 289,
+          "content_sha256": "d38de01f86bddd217c102f0c4773c97da0a5908b83c0792f22773e2b71184b64"
+        },
+        {
+          "source_start_line": 15624,
+          "source_end_line": 15631,
+          "content_sha256": "d38de01f86bddd217c102f0c4773c97da0a5908b83c0792f22773e2b71184b64"
+        }
+      ]
+    },
+    {
+      "id": "LK03",
+      "kind": "LK",
+      "title": "K03. schemas/abi_models.py",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 4569,
+          "source_end_line": 4576,
+          "content_sha256": "b8a66b494aadb994f7b2a9063fdfa77c92af418841b2e281dd029aea8ae2b68f"
+        },
+        {
+          "source_start_line": 14886,
+          "source_end_line": 14893,
+          "content_sha256": "b8a66b494aadb994f7b2a9063fdfa77c92af418841b2e281dd029aea8ae2b68f"
+        },
+        {
+          "source_start_line": 15636,
+          "source_end_line": 15643,
+          "content_sha256": "b8a66b494aadb994f7b2a9063fdfa77c92af418841b2e281dd029aea8ae2b68f"
+        }
+      ]
+    },
+    {
+      "id": "LK04",
+      "kind": "LK",
+      "title": "K04. fabric/numerics/finite.py",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 4862,
+          "source_end_line": 4869,
+          "content_sha256": "9004a06570fa7a6bcd092d0f5fac0531af549df6c40c76e96ac82c6740a2211a"
+        },
+        {
+          "source_start_line": 10583,
+          "source_end_line": 10590,
+          "content_sha256": "9004a06570fa7a6bcd092d0f5fac0531af549df6c40c76e96ac82c6740a2211a"
+        },
+        {
+          "source_start_line": 15648,
+          "source_end_line": 15655,
+          "content_sha256": "9004a06570fa7a6bcd092d0f5fac0531af549df6c40c76e96ac82c6740a2211a"
+        }
+      ]
+    },
+    {
+      "id": "LK05",
+      "kind": "LK",
+      "title": "K05. foundry/methods/catalog/causal/id_engine/",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 6014,
+          "source_end_line": 6021,
+          "content_sha256": "1bfd04fd3380629a18ff417d3cd1deed91b0c2cce3ec5f1336ca5095a65bd6c5"
+        },
+        {
+          "source_start_line": 6303,
+          "source_end_line": 6310,
+          "content_sha256": "1bfd04fd3380629a18ff417d3cd1deed91b0c2cce3ec5f1336ca5095a65bd6c5"
+        },
+        {
+          "source_start_line": 6474,
+          "source_end_line": 6481,
+          "content_sha256": "1bfd04fd3380629a18ff417d3cd1deed91b0c2cce3ec5f1336ca5095a65bd6c5"
+        },
+        {
+          "source_start_line": 15660,
+          "source_end_line": 15667,
+          "content_sha256": "1bfd04fd3380629a18ff417d3cd1deed91b0c2cce3ec5f1336ca5095a65bd6c5"
+        }
+      ]
+    },
+    {
+      "id": "LK06",
+      "kind": "LK",
+      "title": "K06. foundry/_registry.py и catalog/mechanism/runtime.py",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 1574,
+          "source_end_line": 1582,
+          "content_sha256": "81b2558452343499d59b40bba76520431b4e60f96e55512e168eb0e49e6d099b"
+        },
+        {
+          "source_start_line": 4578,
+          "source_end_line": 4586,
+          "content_sha256": "81b2558452343499d59b40bba76520431b4e60f96e55512e168eb0e49e6d099b"
+        },
+        {
+          "source_start_line": 4689,
+          "source_end_line": 4697,
+          "content_sha256": "81b2558452343499d59b40bba76520431b4e60f96e55512e168eb0e49e6d099b"
+        },
+        {
+          "source_start_line": 4871,
+          "source_end_line": 4879,
+          "content_sha256": "81b2558452343499d59b40bba76520431b4e60f96e55512e168eb0e49e6d099b"
+        },
+        {
+          "source_start_line": 15672,
+          "source_end_line": 15680,
+          "content_sha256": "81b2558452343499d59b40bba76520431b4e60f96e55512e168eb0e49e6d099b"
+        }
+      ]
+    },
+    {
+      "id": "LK07",
+      "kind": "LK",
+      "title": "K07. Runtime JSON и строгий канон — разные контракты",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 9108,
+          "source_end_line": 9113,
+          "content_sha256": "c7239601ff24632dbc15f0a04a3679375d6576eda1329dd26d4923bc93aa5059"
+        },
+        {
+          "source_start_line": 15685,
+          "source_end_line": 15690,
+          "content_sha256": "c7239601ff24632dbc15f0a04a3679375d6576eda1329dd26d4923bc93aa5059"
+        }
+      ]
+    },
+    {
+      "id": "LK08",
+      "kind": "LK",
+      "title": "K08. DomainPlugin не равен FoundryMethodPlugin",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 4699,
+          "source_end_line": 4704,
+          "content_sha256": "7587526a899010fa57f0b5881d7a0a427346a5993d55f33f6d91ca76926e2c0f"
+        },
+        {
+          "source_start_line": 4881,
+          "source_end_line": 4886,
+          "content_sha256": "7587526a899010fa57f0b5881d7a0a427346a5993d55f33f6d91ca76926e2c0f"
+        },
+        {
+          "source_start_line": 4983,
+          "source_end_line": 4988,
+          "content_sha256": "7587526a899010fa57f0b5881d7a0a427346a5993d55f33f6d91ca76926e2c0f"
+        },
+        {
+          "source_start_line": 5188,
+          "source_end_line": 5193,
+          "content_sha256": "7587526a899010fa57f0b5881d7a0a427346a5993d55f33f6d91ca76926e2c0f"
+        },
+        {
+          "source_start_line": 15695,
+          "source_end_line": 15700,
+          "content_sha256": "7587526a899010fa57f0b5881d7a0a427346a5993d55f33f6d91ca76926e2c0f"
+        }
+      ]
+    },
+    {
+      "id": "LK09",
+      "kind": "LK",
+      "title": "K09. Поиск, seed acquisition и enrichment не являются тремя копиями поиска",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 12388,
+          "source_end_line": 12397,
+          "content_sha256": "5486fd3a2d5f5077e7879bb8cd6bd9bb3577189913d79631c404551ce35b660d"
+        },
+        {
+          "source_start_line": 12503,
+          "source_end_line": 12512,
+          "content_sha256": "5486fd3a2d5f5077e7879bb8cd6bd9bb3577189913d79631c404551ce35b660d"
+        },
+        {
+          "source_start_line": 15705,
+          "source_end_line": 15714,
+          "content_sha256": "5486fd3a2d5f5077e7879bb8cd6bd9bb3577189913d79631c404551ce35b660d"
+        }
+      ]
+    },
+    {
+      "id": "LK10",
+      "kind": "LK",
+      "title": "K10. Малый materialize.py выполняет настоящую функцию",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 9831,
+          "source_end_line": 9836,
+          "content_sha256": "5d364ce7d369155ec79742a65a0332997886f950385140904e775fc1dde8e046"
+        },
+        {
+          "source_start_line": 10111,
+          "source_end_line": 10116,
+          "content_sha256": "5d364ce7d369155ec79742a65a0332997886f950385140904e775fc1dde8e046"
+        },
+        {
+          "source_start_line": 14895,
+          "source_end_line": 14900,
+          "content_sha256": "5d364ce7d369155ec79742a65a0332997886f950385140904e775fc1dde8e046"
+        },
+        {
+          "source_start_line": 15719,
+          "source_end_line": 15724,
+          "content_sha256": "5d364ce7d369155ec79742a65a0332997886f950385140904e775fc1dde8e046"
+        }
+      ]
+    },
+    {
+      "id": "LK11",
+      "kind": "LK",
+      "title": "K11. Academic shadow — не обязательно остаток, который пора выбросить",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 10118,
+          "source_end_line": 10123,
+          "content_sha256": "2948376b15f13b97d01235f8bac4d2a045d4cf07fda932030bcea8922e9b306b"
+        },
+        {
+          "source_start_line": 15729,
+          "source_end_line": 15734,
+          "content_sha256": "2948376b15f13b97d01235f8bac4d2a045d4cf07fda932030bcea8922e9b306b"
+        }
+      ]
+    },
+    {
+      "id": "LK12",
+      "kind": "LK",
+      "title": "K12. read_api содержит проверки, а не только forwarding",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 9838,
+          "source_end_line": 9843,
+          "content_sha256": "455604c4415345011ef7717d90cbc1c814f5155223cf05c82d05c8bc9f202311"
+        },
+        {
+          "source_start_line": 9984,
+          "source_end_line": 9989,
+          "content_sha256": "455604c4415345011ef7717d90cbc1c814f5155223cf05c82d05c8bc9f202311"
+        },
+        {
+          "source_start_line": 10125,
+          "source_end_line": 10130,
+          "content_sha256": "455604c4415345011ef7717d90cbc1c814f5155223cf05c82d05c8bc9f202311"
+        },
+        {
+          "source_start_line": 10201,
+          "source_end_line": 10206,
+          "content_sha256": "455604c4415345011ef7717d90cbc1c814f5155223cf05c82d05c8bc9f202311"
+        },
+        {
+          "source_start_line": 10430,
+          "source_end_line": 10435,
+          "content_sha256": "455604c4415345011ef7717d90cbc1c814f5155223cf05c82d05c8bc9f202311"
+        },
+        {
+          "source_start_line": 15739,
+          "source_end_line": 15744,
+          "content_sha256": "455604c4415345011ef7717d90cbc1c814f5155223cf05c82d05c8bc9f202311"
+        }
+      ]
+    },
+    {
+      "id": "LK13",
+      "kind": "LK",
+      "title": "K13. BERL — не целиком legacy; раскрытый fallback может быть полезен",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 6023,
+          "source_end_line": 6028,
+          "content_sha256": "f02fc6646c6b3388eba464ed6eb93e9129b38520ca6608d330fb1e4f20e275fe"
+        },
+        {
+          "source_start_line": 6312,
+          "source_end_line": 6317,
+          "content_sha256": "f02fc6646c6b3388eba464ed6eb93e9129b38520ca6608d330fb1e4f20e275fe"
+        },
+        {
+          "source_start_line": 14173,
+          "source_end_line": 14178,
+          "content_sha256": "f02fc6646c6b3388eba464ed6eb93e9129b38520ca6608d330fb1e4f20e275fe"
+        },
+        {
+          "source_start_line": 15749,
+          "source_end_line": 15754,
+          "content_sha256": "f02fc6646c6b3388eba464ed6eb93e9129b38520ca6608d330fb1e4f20e275fe"
+        }
+      ]
+    },
+    {
+      "id": "LK14",
+      "kind": "LK",
+      "title": "K14. DDM monitoring и N11 confidence accounting не являются заменами",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 14298,
+          "source_end_line": 14305,
+          "content_sha256": "96b5d62b7cc93c081e5cd374bf67e1715b665fd8f0cfd5844faebda80edd7186"
+        },
+        {
+          "source_start_line": 14512,
+          "source_end_line": 14519,
+          "content_sha256": "96b5d62b7cc93c081e5cd374bf67e1715b665fd8f0cfd5844faebda80edd7186"
+        },
+        {
+          "source_start_line": 15759,
+          "source_end_line": 15766,
+          "content_sha256": "96b5d62b7cc93c081e5cd374bf67e1715b665fd8f0cfd5844faebda80edd7186"
+        }
+      ]
+    },
+    {
+      "id": "LK15",
+      "kind": "LK",
+      "title": "K15. Старый RunManifest сохраняет самостоятельный on-disk контракт",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 8996,
+          "source_end_line": 9001,
+          "content_sha256": "d4998da07ff896a4a846b824c49797894a941b2057d154d3577efb315eee744f"
+        },
+        {
+          "source_start_line": 9410,
+          "source_end_line": 9415,
+          "content_sha256": "d4998da07ff896a4a846b824c49797894a941b2057d154d3577efb315eee744f"
+        },
+        {
+          "source_start_line": 15771,
+          "source_end_line": 15776,
+          "content_sha256": "d4998da07ff896a4a846b824c49797894a941b2057d154d3577efb315eee744f"
+        }
+      ]
+    },
+    {
+      "id": "LK16",
+      "kind": "LK",
+      "title": "K16. Runtime Reference Shell — отдельный diagnostic consumer, не прежний frontend redirect",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 15275,
+          "source_end_line": 15282,
+          "content_sha256": "008404be467fdb93b229c3a70d93b9b0287d66ab3ed49c3bbbffa6709b410b85"
+        },
+        {
+          "source_start_line": 15445,
+          "source_end_line": 15452,
+          "content_sha256": "008404be467fdb93b229c3a70d93b9b0287d66ab3ed49c3bbbffa6709b410b85"
+        },
+        {
+          "source_start_line": 15781,
+          "source_end_line": 15788,
+          "content_sha256": "008404be467fdb93b229c3a70d93b9b0287d66ab3ed49c3bbbffa6709b410b85"
+        }
+      ]
+    },
+    {
+      "id": "LK17",
+      "kind": "LK",
+      "title": "K17. Явно публичный OPA facade не обязан исчезать вместе со всеми aliases",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 291,
+          "source_end_line": 296,
+          "content_sha256": "eb4b1e0c218f4e0a42491868525e4e49e7d4d7c6e214865815eccf88b83044d6"
+        },
+        {
+          "source_start_line": 15081,
+          "source_end_line": 15086,
+          "content_sha256": "eb4b1e0c218f4e0a42491868525e4e49e7d4d7c6e214865815eccf88b83044d6"
+        },
+        {
+          "source_start_line": 15793,
+          "source_end_line": 15798,
+          "content_sha256": "eb4b1e0c218f4e0a42491868525e4e49e7d4d7c6e214865815eccf88b83044d6"
+        }
+      ]
+    },
+    {
+      "id": "LK18",
+      "kind": "LK",
+      "title": "K18. Корневой evidence — не доказанный дубль Scientist evidence",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 15088,
+          "source_end_line": 15095,
+          "content_sha256": "88efe2e14c46f67a80a6501fd43777fe27b861eb46bf48899e44dde80c1c3847"
+        },
+        {
+          "source_start_line": 15803,
+          "source_end_line": 15810,
+          "content_sha256": "88efe2e14c46f67a80a6501fd43777fe27b861eb46bf48899e44dde80c1c3847"
+        }
+      ]
+    },
+    {
+      "id": "LK19",
+      "kind": "LK",
+      "title": "K19. Catalog ingestion уже переиспользует Fabric — не всякая дополнительная стадия является вторым acquisition",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 10959,
+          "source_end_line": 10966,
+          "content_sha256": "378932e8dc10c6d4caa4df012bb65cd2d388acdbf052e27509443802f7f1b89c"
+        },
+        {
+          "source_start_line": 11075,
+          "source_end_line": 11082,
+          "content_sha256": "378932e8dc10c6d4caa4df012bb65cd2d388acdbf052e27509443802f7f1b89c"
+        },
+        {
+          "source_start_line": 11184,
+          "source_end_line": 11191,
+          "content_sha256": "378932e8dc10c6d4caa4df012bb65cd2d388acdbf052e27509443802f7f1b89c"
+        },
+        {
+          "source_start_line": 15815,
+          "source_end_line": 15822,
+          "content_sha256": "378932e8dc10c6d4caa4df012bb65cd2d388acdbf052e27509443802f7f1b89c"
+        }
+      ]
+    },
+    {
+      "id": "LK20",
+      "kind": "LK",
+      "title": "K20. Content identity и контрольная сумма не являются сами по себе разрешением на reuse или closeout",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 8674,
+          "source_end_line": 8681,
+          "content_sha256": "35b9000b2d223522c7ad349b4fa09a59e29948770ef415166a41e7a65db05424"
+        },
+        {
+          "source_start_line": 9115,
+          "source_end_line": 9122,
+          "content_sha256": "35b9000b2d223522c7ad349b4fa09a59e29948770ef415166a41e7a65db05424"
+        },
+        {
+          "source_start_line": 10437,
+          "source_end_line": 10444,
+          "content_sha256": "35b9000b2d223522c7ad349b4fa09a59e29948770ef415166a41e7a65db05424"
+        },
+        {
+          "source_start_line": 10968,
+          "source_end_line": 10975,
+          "content_sha256": "35b9000b2d223522c7ad349b4fa09a59e29948770ef415166a41e7a65db05424"
+        },
+        {
+          "source_start_line": 11305,
+          "source_end_line": 11312,
+          "content_sha256": "35b9000b2d223522c7ad349b4fa09a59e29948770ef415166a41e7a65db05424"
+        },
+        {
+          "source_start_line": 11428,
+          "source_end_line": 11435,
+          "content_sha256": "35b9000b2d223522c7ad349b4fa09a59e29948770ef415166a41e7a65db05424"
+        },
+        {
+          "source_start_line": 11584,
+          "source_end_line": 11591,
+          "content_sha256": "35b9000b2d223522c7ad349b4fa09a59e29948770ef415166a41e7a65db05424"
+        },
+        {
+          "source_start_line": 11701,
+          "source_end_line": 11708,
+          "content_sha256": "35b9000b2d223522c7ad349b4fa09a59e29948770ef415166a41e7a65db05424"
+        },
+        {
+          "source_start_line": 12514,
+          "source_end_line": 12521,
+          "content_sha256": "35b9000b2d223522c7ad349b4fa09a59e29948770ef415166a41e7a65db05424"
+        },
+        {
+          "source_start_line": 15827,
+          "source_end_line": 15834,
+          "content_sha256": "35b9000b2d223522c7ad349b4fa09a59e29948770ef415166a41e7a65db05424"
+        }
+      ]
+    },
+    {
+      "id": "LK21",
+      "kind": "LK",
+      "title": "K21. Полная generated-output freshness-проверка уже существует",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 15454,
+          "source_end_line": 15461,
+          "content_sha256": "f87f5aab30dd04f9d2e8807e0cac36b117037f3979dd69c15bc6b71b5ffadbc7"
+        },
+        {
+          "source_start_line": 15839,
+          "source_end_line": 15846,
+          "content_sha256": "f87f5aab30dd04f9d2e8807e0cac36b117037f3979dd69c15bc6b71b5ffadbc7"
+        }
+      ]
+    },
+    {
+      "id": "LK22",
+      "kind": "LK",
+      "title": "K22. Канонизатор и recursive normalizer не равны лишней копии клиента",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 15463,
+          "source_end_line": 15468,
+          "content_sha256": "9b059a428dfcf2b00efaacf59f572a654cc10b94252d0731c203dce8f24661d1"
+        },
+        {
+          "source_start_line": 15851,
+          "source_end_line": 15856,
+          "content_sha256": "9b059a428dfcf2b00efaacf59f572a654cc10b94252d0731c203dce8f24661d1"
+        }
+      ]
+    },
+    {
+      "id": "LK23",
+      "kind": "LK",
+      "title": "K23. Небольшой terminal styleguide и RuntimeMiddlewarePlugin — не мёртвые CLI/плагины",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 15284,
+          "source_end_line": 15291,
+          "content_sha256": "7f400a5dbb942c4e2f8a2e538cbe1d2374103758ceab5138270e1f22c5d34eb8"
+        },
+        {
+          "source_start_line": 15470,
+          "source_end_line": 15477,
+          "content_sha256": "7f400a5dbb942c4e2f8a2e538cbe1d2374103758ceab5138270e1f22c5d34eb8"
+        },
+        {
+          "source_start_line": 15861,
+          "source_end_line": 15868,
+          "content_sha256": "7f400a5dbb942c4e2f8a2e538cbe1d2374103758ceab5138270e1f22c5d34eb8"
+        }
+      ]
+    },
+    {
+      "id": "LK24",
+      "kind": "LK",
+      "title": "K24. Неиспользуемый extractor не делает неиспользуемыми исторические readers и resolver guards",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 489,
+          "source_end_line": 494,
+          "content_sha256": "2b6f043667ccc9bfe3ac6932fecfd464499cb91741a8e902e5635ccfeb6f5787"
+        },
+        {
+          "source_start_line": 760,
+          "source_end_line": 765,
+          "content_sha256": "2b6f043667ccc9bfe3ac6932fecfd464499cb91741a8e902e5635ccfeb6f5787"
+        },
+        {
+          "source_start_line": 15873,
+          "source_end_line": 15878,
+          "content_sha256": "2b6f043667ccc9bfe3ac6932fecfd464499cb91741a8e902e5635ccfeb6f5787"
+        }
+      ]
+    },
+    {
+      "id": "LK25",
+      "kind": "LK",
+      "title": "K25. Data Forge graph migration не равен двум линейным runners",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 9653,
+          "source_end_line": 9658,
+          "content_sha256": "62e3c59a3dfdf82a27ebc4bfcca49b143f69b51b86db1d281ae275aef409811c"
+        },
+        {
+          "source_start_line": 14902,
+          "source_end_line": 14907,
+          "content_sha256": "62e3c59a3dfdf82a27ebc4bfcca49b143f69b51b86db1d281ae275aef409811c"
+        },
+        {
+          "source_start_line": 15883,
+          "source_end_line": 15888,
+          "content_sha256": "62e3c59a3dfdf82a27ebc4bfcca49b143f69b51b86db1d281ae275aef409811c"
+        }
+      ]
+    },
+    {
+      "id": "LK26",
+      "kind": "LK",
+      "title": "K26. Текущий Trinity loader действительно вызывает validator",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 9284,
+          "source_end_line": 9289,
+          "content_sha256": "fccbab8afc011d1e3c0bd5bf263be18232280919b1bf8b69a78f3468c3384e53"
+        },
+        {
+          "source_start_line": 15893,
+          "source_end_line": 15898,
+          "content_sha256": "fccbab8afc011d1e3c0bd5bf263be18232280919b1bf8b69a78f3468c3384e53"
+        }
+      ]
+    },
+    {
+      "id": "LK27",
+      "kind": "LK",
+      "title": "K27. Path containment и operational binding — полезные, но другие проверки",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 9291,
+          "source_end_line": 9296,
+          "content_sha256": "9e07c5d58d0324e9b76c09945fb4ca76fd4ccabfbb523b955c74f462002cfd50"
+        },
+        {
+          "source_start_line": 9417,
+          "source_end_line": 9422,
+          "content_sha256": "9e07c5d58d0324e9b76c09945fb4ca76fd4ccabfbb523b955c74f462002cfd50"
+        },
+        {
+          "source_start_line": 15903,
+          "source_end_line": 15908,
+          "content_sha256": "9e07c5d58d0324e9b76c09945fb4ca76fd4ccabfbb523b955c74f462002cfd50"
+        }
+      ]
+    },
+    {
+      "id": "LK28",
+      "kind": "LK",
+      "title": "K28. Маленький manifest converter не является пустым placeholder",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 9532,
+          "source_end_line": 9537,
+          "content_sha256": "5d32b4de16b6c6ae2e028ad4d09276fc78856b055b92e49cac113a6db6124fab"
+        },
+        {
+          "source_start_line": 15913,
+          "source_end_line": 15918,
+          "content_sha256": "5d32b4de16b6c6ae2e028ad4d09276fc78856b055b92e49cac113a6db6124fab"
+        }
+      ]
+    },
+    {
+      "id": "LK29",
+      "kind": "LK",
+      "title": "K29. S10-запись, численная диагностика и production admission — разные уровни",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 3651,
+          "source_end_line": 3656,
+          "content_sha256": "7e96f961a46e3f7ee9347dc433bc942186e96b792313e1f9b454c3fc701213e6"
+        },
+        {
+          "source_start_line": 3955,
+          "source_end_line": 3960,
+          "content_sha256": "7e96f961a46e3f7ee9347dc433bc942186e96b792313e1f9b454c3fc701213e6"
+        },
+        {
+          "source_start_line": 4202,
+          "source_end_line": 4207,
+          "content_sha256": "7e96f961a46e3f7ee9347dc433bc942186e96b792313e1f9b454c3fc701213e6"
+        },
+        {
+          "source_start_line": 15923,
+          "source_end_line": 15928,
+          "content_sha256": "7e96f961a46e3f7ee9347dc433bc942186e96b792313e1f9b454c3fc701213e6"
+        }
+      ]
+    },
+    {
+      "id": "LK30",
+      "kind": "LK",
+      "title": "K30. Shared calibration — работающий вычислительный владелец, но не готовая полная замена N8 calibration",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 3658,
+          "source_end_line": 3663,
+          "content_sha256": "fd985d5f804d37f9c3f509eab5cfab011e673d00fb0f74a57c9a2917ea918aff"
+        },
+        {
+          "source_start_line": 3826,
+          "source_end_line": 3831,
+          "content_sha256": "fd985d5f804d37f9c3f509eab5cfab011e673d00fb0f74a57c9a2917ea918aff"
+        },
+        {
+          "source_start_line": 3962,
+          "source_end_line": 3967,
+          "content_sha256": "fd985d5f804d37f9c3f509eab5cfab011e673d00fb0f74a57c9a2917ea918aff"
+        },
+        {
+          "source_start_line": 4209,
+          "source_end_line": 4214,
+          "content_sha256": "fd985d5f804d37f9c3f509eab5cfab011e673d00fb0f74a57c9a2917ea918aff"
+        },
+        {
+          "source_start_line": 15933,
+          "source_end_line": 15938,
+          "content_sha256": "fd985d5f804d37f9c3f509eab5cfab011e673d00fb0f74a57c9a2917ea918aff"
+        }
+      ]
+    },
+    {
+      "id": "LK31",
+      "kind": "LK",
+      "title": "K31. N7 уже имеет реальные пути явного требования; fallback не означает, что весь acquisition устарел",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 496,
+          "source_end_line": 501,
+          "content_sha256": "b610f942395323faa86e9adfcda7abd85bf0664529ee3bfaa006be8318a2531e"
+        },
+        {
+          "source_start_line": 767,
+          "source_end_line": 772,
+          "content_sha256": "b610f942395323faa86e9adfcda7abd85bf0664529ee3bfaa006be8318a2531e"
+        },
+        {
+          "source_start_line": 15943,
+          "source_end_line": 15948,
+          "content_sha256": "b610f942395323faa86e9adfcda7abd85bf0664529ee3bfaa006be8318a2531e"
+        }
+      ]
+    },
+    {
+      "id": "LK32",
+      "kind": "LK",
+      "title": "K32. TruthfulnessReceipt исполняет reconciliation, а не повторную калибровку",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 3833,
+          "source_end_line": 3839,
+          "content_sha256": "e854155502fc775412ef48e38642541f124a229a8f2144d5f65c0425eb3a08c4"
+        },
+        {
+          "source_start_line": 15953,
+          "source_end_line": 15959,
+          "content_sha256": "e854155502fc775412ef48e38642541f124a229a8f2144d5f65c0425eb3a08c4"
+        }
+      ]
+    },
+    {
+      "id": "LK33",
+      "kind": "LK",
+      "title": "K33. Существующая validity-проверка нужна; исторический FP pass не равен текущей применимости",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 14307,
+          "source_end_line": 14312,
+          "content_sha256": "b3d516d059332e71ac36b45eab944d03d82632a5a671f1bdc0b87070152f58d1"
+        },
+        {
+          "source_start_line": 14521,
+          "source_end_line": 14526,
+          "content_sha256": "b3d516d059332e71ac36b45eab944d03d82632a5a671f1bdc0b87070152f58d1"
+        },
+        {
+          "source_start_line": 15964,
+          "source_end_line": 15969,
+          "content_sha256": "b3d516d059332e71ac36b45eab944d03d82632a5a671f1bdc0b87070152f58d1"
+        }
+      ]
+    },
+    {
+      "id": "LK34",
+      "kind": "LK",
+      "title": "K34. R2 signoff, diagnostic-only и drift-only ограничения — намеренные полезные различия",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 14314,
+          "source_end_line": 14319,
+          "content_sha256": "a5f17245b0d5da2784cdfb995591d5d7a95dc1f1f9dc355df2cedb2bb91cf123"
+        },
+        {
+          "source_start_line": 14528,
+          "source_end_line": 14533,
+          "content_sha256": "a5f17245b0d5da2784cdfb995591d5d7a95dc1f1f9dc355df2cedb2bb91cf123"
+        },
+        {
+          "source_start_line": 15974,
+          "source_end_line": 15979,
+          "content_sha256": "a5f17245b0d5da2784cdfb995591d5d7a95dc1f1f9dc355df2cedb2bb91cf123"
+        }
+      ]
+    },
+    {
+      "id": "LK35",
+      "kind": "LK",
+      "title": "K35. Ручная DDM JSON-schema — не пустой generated-дубль",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 14321,
+          "source_end_line": 14328,
+          "content_sha256": "13e631d29e293a14b42ae5cbe6ab8f2b0a6dc56b3a63f5a372c42f99272c00e0"
+        },
+        {
+          "source_start_line": 14535,
+          "source_end_line": 14542,
+          "content_sha256": "13e631d29e293a14b42ae5cbe6ab8f2b0a6dc56b3a63f5a372c42f99272c00e0"
+        },
+        {
+          "source_start_line": 15984,
+          "source_end_line": 15991,
+          "content_sha256": "13e631d29e293a14b42ae5cbe6ab8f2b0a6dc56b3a63f5a372c42f99272c00e0"
+        }
+      ]
+    },
+    {
+      "id": "LK36",
+      "kind": "LK",
+      "title": "K36. Async bridge работает; маленькая типовая очистка не отменяет его исполнительный контракт",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": false,
+      "source_occurrences": [
+        {
+          "source_start_line": 8140,
+          "source_end_line": 8145,
+          "content_sha256": "633c26f0cb09b5d0860008b40773de73a445c8e028f6e153a096c496420555d0"
+        },
+        {
+          "source_start_line": 15996,
+          "source_end_line": 16001,
+          "content_sha256": "633c26f0cb09b5d0860008b40773de73a445c8e028f6e153a096c496420555d0"
+        }
+      ]
+    },
+    {
+      "id": "S01",
+      "kind": "S",
+      "title": "S01. Гибридное получение приоров по потребности",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": true,
+      "source_occurrences": [
+        {
+          "source_start_line": 15489,
+          "source_end_line": 15502,
+          "content_sha256": "e92485e45c2417ca2d48b5d3e318221e25d08fd4ae662693035f563464acf324"
+        }
+      ]
+    },
+    {
+      "id": "S02",
+      "kind": "S",
+      "title": "S02. Модельный контекст под вопрос вместо обязательной сборки «всего мира»",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": true,
+      "source_occurrences": [
+        {
+          "source_start_line": 15506,
+          "source_end_line": 15515,
+          "content_sha256": "5979d80cfd910a83d54960bd21f3698b38e233f567b1b5900eb20936b9206db3"
+        }
+      ]
+    },
+    {
+      "id": "S03",
+      "kind": "S",
+      "title": "S03. Полноценная исследовательская ветвь без выдачи предположений за authority",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": true,
+      "source_occurrences": [
+        {
+          "source_start_line": 15519,
+          "source_end_line": 15528,
+          "content_sha256": "722f11341a17ff439e9a6d1805c7d1a6921379cf380eebf7dca32632e02b71c0"
+        }
+      ]
+    },
+    {
+      "id": "S04",
+      "kind": "S",
+      "title": "S04. Несколько допустимых объяснений и анализ чувствительности",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": true,
+      "source_occurrences": [
+        {
+          "source_start_line": 15532,
+          "source_end_line": 15543,
+          "content_sha256": "b3a902753b899916a510490a97e20592d4b63fb7d127af97c94b6fdc7ff1ed3b"
+        }
+      ]
+    },
+    {
+      "id": "S05",
+      "kind": "S",
+      "title": "S05. Поиск различающих и опровергающих оснований",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": true,
+      "source_occurrences": [
+        {
+          "source_start_line": 15547,
+          "source_end_line": 15556,
+          "content_sha256": "04acbfecd2d4d074d2172b5a7829169c6c203bff258f21f926237f4659ca2d27"
+        }
+      ]
+    },
+    {
+      "id": "S06",
+      "kind": "S",
+      "title": "S06. Последовательное уточнение вычислений вместо максимальной точности сразу",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": true,
+      "source_occurrences": [
+        {
+          "source_start_line": 15560,
+          "source_end_line": 15569,
+          "content_sha256": "d1f07c3c9df53d3388fa7b04ff56f4bb908711d907bda1cfafc2179943b717a7"
+        }
+      ]
+    },
+    {
+      "id": "S07",
+      "kind": "S",
+      "title": "S07. Доказательная достаточность относительно конкретного утверждения",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": true,
+      "source_occurrences": [
+        {
+          "source_start_line": 15573,
+          "source_end_line": 15586,
+          "content_sha256": "a3299d18914301ac166f1798dd4452bb34dd3b9f1c3b717a06282588d864082d"
+        }
+      ]
+    },
+    {
+      "id": "S08",
+      "kind": "S",
+      "title": "S08. Польза и стоимость доказываются на реальном проходе и втором случае",
+      "status": "original_reference_not_independently_verified",
+      "not_a_new_product_defect": true,
+      "source_occurrences": [
+        {
+          "source_start_line": 15590,
+          "source_end_line": 15601,
+          "content_sha256": "6ba51c8be0b9abc453a3e7702afd8ca2aebdda1b8ef2b7cc878f322ee36cd036"
+        }
+      ]
+    }
+  ],
+  "note": "S-направления учитываются при оценке цели; не объявлены исходными B-дефектами или автоматически реализованным scope."
+}

@@ -1,0 +1,161 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "search_census": "Only targeted source search; not exhaustive repository/installed/external consumer census",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "git_blob_sha": "93768dd16c915f96488bfde09cae606be3e0b658",
+      "read_ranges": [
+        [
+          1,
+          330
+        ],
+        [
+          330,
+          425
+        ],
+        [
+          420,
+          null
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "scope": "Fresh sections read; only lazy export tail and CandidateProposal class excerpt executed; native full module import UNRUN."
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adapters.py",
+      "git_blob_sha": "781e14fd5e50bc4cd2d000eb99fadeb876ef1dfd",
+      "read_ranges": [
+        [
+          1,
+          null
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/adapters.py",
+      "scope": "Complete source recreated exactly and Git blob matched, executed with declared external dependencies."
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "git_blob_sha": "bcc87e32cc1903888845a557a729f6dcf6b182b2",
+      "read_ranges": [
+        [
+          1,
+          180
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "scope": "Fresh boundary read; preserved complete C12 file Git blob matched, entire module executed with fixtures."
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "git_blob_sha": "754e942a21b3198c3989ac9175c54342b6c67ab3",
+      "read_ranges": [
+        [
+          200,
+          540
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "scope": "Fresh accept_tell/prepare/snapshot source; same-SHA prior excerpt bodies executed; no full native owner imports."
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "git_blob_sha": "b4f980de235263513c7ad7e5771e1ccfbb3d8b3d",
+      "read_ranges": [
+        [
+          1,
+          28
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "scope": "Fresh blob identity; preserved complete source hash matched and entire state body executed."
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/__init__.py",
+      "git_blob_sha": "dfd0f9057db3666bce512d654a69fc9057cbad5d",
+      "read_ranges": [
+        [
+          1,
+          150
+        ],
+        [
+          260,
+          440
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/__init__.py",
+      "scope": "Read only: eager dependencies and lazy supported surface. Native cold import UNRUN."
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/tests/unit/remediation/test_srv_01.py",
+      "git_blob_sha": "5a52ea0584e7844d1dea31afacc9cfebaf3db4ce",
+      "read_ranges": [
+        [
+          1,
+          400
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_srv_01.py",
+      "scope": "Full read, no execution of project pytest or child cold import."
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/tests/unit/scientist/search/test_contracts.py",
+      "git_blob_sha": "b2e5b84d0179af0221c71752536446fcc69b9501",
+      "read_ranges": [
+        [
+          1,
+          360
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/search/test_contracts.py",
+      "scope": "Read adapter/identity/pickle tests; real funnel method not executed; test stage mocked."
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/README.md",
+      "git_blob_sha": null,
+      "read_ranges": [
+        [
+          1,
+          180
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/README.md",
+      "scope": "Context read, only relevant received sections used; documentation claims not substitutes for execution."
+    },
+    {
+      "id": "S10",
+      "path": "AGENTS.md",
+      "git_blob_sha": "5f144a27e35130b60e2c3537d97f0c7bbcda57f5",
+      "read_ranges": [
+        [
+          1,
+          45
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/AGENTS.md",
+      "scope": "Repository rules read; read-only audit not implementation."
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/CONTRIBUTING.md",
+      "git_blob_sha": "8ff414198e306e671abff1f76f31330a1f29d765",
+      "read_ranges": [
+        [
+          1,
+          20
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/CONTRIBUTING.md",
+      "scope": "Python 3.14 supported baseline; cloud diagnostic Python 3.13.5."
+    }
+  ]
+}

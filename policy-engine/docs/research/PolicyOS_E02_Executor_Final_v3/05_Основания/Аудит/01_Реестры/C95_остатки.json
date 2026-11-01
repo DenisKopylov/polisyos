@@ -1,0 +1,40 @@
+{
+  "pass_id": "C95",
+  "bundle": "EMB-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C95-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-039"
+      ],
+      "title": "Требуемый малый native HNSW / DuckDB corpus ещё не выполнен",
+      "evidence": [
+        "S01–S06",
+        "P01–P04",
+        "native_hnsw.stderr"
+      ],
+      "remaining": "В supported environment исполнить existing NumPy/HNSW profile test с реальным HNSW и малой реальной DB, но лёгким bounded encoder. Сверить IDs/text/model/device, batching/normalization, float32, labels/M/ef и оба result profiles. Отдельно квалифицировать качество реальной модели/ANN только когда это требуется продуктовым claims; не скачивать большую модель ради wiring smoke.",
+      "limits": "Native kernel import и настоящая NumPy/NPZ/file цепочка успешны; HNSW/DuckDB отсутствуют. JSON index и SQL recorder не подтверждают native ANN, бинарную совместимость, recall, performance или model quality."
+    },
+    {
+      "id": "C95-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-039"
+      ],
+      "title": "Generation publication и selected reader являются отдельным этапом EMB-02",
+      "evidence": [
+        "S05:168–599",
+        "S06:335–544",
+        "P03–P05"
+      ],
+      "remaining": "В следующем EMB-02 отдельно проверить selected empty/nonempty, failure между стадиями и после selection, old flat compatibility, currentness, inventory/matrix/native-index binding и actual Academic/Catalog readers. Совместный lane witness должен учитывать намеренную canonical ID sorting, не выдавая её за побайтовую эквивалентность historical flat format.",
+      "limits": "Current wrappers уже используют versioned generation owner. Legacy primitive сохраняет input order и пустую прежнюю пару; selected generation сортирует IDs и валидирует membership. Это разные контракты. Four existing test passes, including flat empty retention, не доказывают selected reader reuse/admission."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "Общий encode/index owner и отдельные domain text profiles реально существуют и работают в bounded orchestration. Новых R по этой фазе не установлено; native compute boundary и EMB-02 closure остаются."
+}

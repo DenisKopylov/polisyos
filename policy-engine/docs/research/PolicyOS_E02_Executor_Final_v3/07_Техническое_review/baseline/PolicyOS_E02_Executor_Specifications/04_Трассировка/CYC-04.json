@@ -1,0 +1,482 @@
+{
+  "packet_id": "CYC-04",
+  "lane": "LANE-01",
+  "title": "Пригодная следующая альтернатива и настоящий ресурсный допуск",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B10",
+    "B11"
+  ],
+  "audit_reports": [
+    "02_Пакеты/CYC-04.md"
+  ],
+  "audit_report_sha256": "3fbe2acf89f8b8350f611af83cac2d14ec1a26ff0bb196aaee180bb8f900c884",
+  "sourceplan_lines": [
+    779,
+    866
+  ],
+  "practical_goal": "После локального отказа первого кандидата система может выполнить уже предложенный пригодный второй; информативный шаг не теряется из-за денежной эвристики, но не обходится бюджет.",
+  "requirements": [
+    {
+      "id": "REQ-CYC-04-01",
+      "text": "Post-grounding selector должен реально исполнять пригодного кандидата и сохранять полный набор summaries/blockers; численный результат относится только к выбранной occurrence.",
+      "source_ids": [
+        "B10",
+        "B11"
+      ],
+      "audit_ids": [
+        "remaining:0024",
+        "preserve:0028",
+        "preserve:0029",
+        "audit-residual:C05_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-CYC-04-01"
+      ]
+    },
+    {
+      "id": "REQ-CYC-04-02",
+      "text": "Тестовый state обязан содержать согласованный DesignProblem и настоящие required inputs; исправление fixture не ослабляет product type guard.",
+      "source_ids": [
+        "B10",
+        "B11"
+      ],
+      "audit_ids": [
+        "remaining:0025",
+        "audit-residual:C05_остатки:1"
+      ],
+      "test_ids": [
+        "TEST-CYC-04-02"
+      ]
+    },
+    {
+      "id": "REQ-CYC-04-03",
+      "text": "После candidate-local N5/N8 failure N6 должен лениво выбрать следующую допустимую операцию среди уже произведённых кандидатов без повторной generation; global rights/budget/base failure не обходится сменой кандидата.",
+      "source_ids": [
+        "B10",
+        "B11"
+      ],
+      "audit_ids": [
+        "remaining:0026",
+        "preserve:0028",
+        "preserve:0029",
+        "audit-residual:C05_остатки:2"
+      ],
+      "test_ids": [
+        "TEST-CYC-04-03"
+      ]
+    },
+    {
+      "id": "REQ-CYC-04-04",
+      "text": "Положительный information gain может разрешить исследовательский шаг ниже ROI-порога только в пределах actual resource admission; unknown monetary value не выдаётся за измеренный ноль.",
+      "source_ids": [
+        "B10",
+        "B11"
+      ],
+      "audit_ids": [
+        "remaining:0027",
+        "preserve:0030",
+        "preserve:0031",
+        "audit-residual:C05_остатки:3"
+      ],
+      "test_ids": [
+        "TEST-CYC-04-04"
+      ]
+    },
+    {
+      "id": "REQ-CYC-04-05",
+      "text": "Стоимость и admission численной работы должны иметь явную единицу и основание; remaining allocation не называется per-call reservation, пока соответствующее резервирование не реализовано.",
+      "source_ids": [
+        "B10",
+        "B11"
+      ],
+      "audit_ids": [
+        "remaining:0028",
+        "preserve:0029",
+        "preserve:0031",
+        "audit-residual:C05_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-CYC-04-05"
+      ]
+    },
+    {
+      "id": "REQ-CYC-04-06",
+      "text": "Если профиль обещает защищённую исследовательскую квоту, реальные counterevidence/diagnostic операции должны потреблять её в существующей allocation policy; без такой политики обещание явно отсутствует.",
+      "source_ids": [
+        "B10",
+        "B11"
+      ],
+      "audit_ids": [
+        "remaining:0029",
+        "preserve:0031",
+        "audit-residual:C05_остатки:5"
+      ],
+      "test_ids": [
+        "TEST-CYC-04-06"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-CYC-04-01",
+      "requirement_ids": [
+        "REQ-CYC-04-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Тот же declared procurement/model profile, что в test_configured_candidate_simulation_served.py::test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift (его actual NCM, target baseline и materialization, не скопированный численный output). Два кандидата: высокий preliminary score blocked; второй grounded и owner-selected. Подключить этот profile к существующему test_cyc_04 route, не заменяя simulation recording-stub.",
+      "action": "Вызвать GenerationCycleController.run, разрешить persisted result.",
+      "oracle": "Для этого неизменённого profile expected_effect = outcome_per_target_unit * (materialization.value - target_baseline) = 0.5 (algebraic assertion abs_tol=1e-12); все actual replication effects должны укладываться в уже установленный для этого NCM допуск 0.02. Допуск не переносится на другой model/profile. Физический N5 выполнен для второго; первый blocker и обе occurrences сохранены.",
+      "expected": "All-blocked сохраняет адресные причины, нет нулей для непроверенных и нет authority от порядка.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-04-02",
+      "requirement_ids": [
+        "REQ-CYC-04-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Нынешний test_generation_cycle_executes_next_grounded_candidate_after_first_blocker и public_run selector.",
+      "action": "Исполнить repaired fixture через actual controller; отдельный object() negative.",
+      "oracle": "Тест достигает проверяемого selector, а malformed problem по-прежнему generation_cycle_design_problem_untyped.",
+      "expected": "Не считать repair фикстуры реализацией позднего fallback.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-04-03",
+      "requirement_ids": [
+        "REQ-CYC-04-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Два grounded candidates и реальные selected inputs: у первого адресно отсутствует local model/input, второй исполним. Отдельно local N8 limitation и общий истёкший budget/lease.",
+      "action": "Выполнить цепочку без дополнительного gateway generation, проверить all-blocked и повтор identical operation.",
+      "oracle": "После локального отказа actual N5 второго вызван ровно один раз; первый failure сохранён; result bound ко второму; счётчик generation неизменен.",
+      "expected": "Global denial останавливает соответствующую работу; all-blocked конечен; exhaustion после первого запрещает второй; no fabricated fallback.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-04-04",
+      "requirement_ids": [
+        "REQ-CYC-04-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Existing scheduler tests плюс tests/unit/runtime/quality/test_c49_n6_budget_binding.py; actual producer ledger и tiny NCM.",
+      "action": "Исполнить low ROI+positive information в бюджете, затем exhausted/reserved/timeout; actual spend между seeds.",
+      "oracle": "Разрешённый информационный шаг выполняется; после первого seed exhaustion второй не идёт, persisted n5_current_budget_exhausted и выполненная работа сохранены.",
+      "expected": "Большая заявленная information не снимает lease/бюджет; score не публикуется денежной VOI или вероятностью.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-04-05",
+      "requirement_ids": [
+        "REQ-CYC-04-05"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Один actual numerical route с разрешённой ценовой/вычислительной политикой; unknown price, known estimate и reported spend; сбой между reserve/execute/settle.",
+      "action": "Пройти positive bounded execution и recovery; попытаться увеличить work сверх принятой единицы.",
+      "oracle": "Цена/единица/origin/лимит доступны reader, расходы и резервы согласованы; unknown не бесплатный unlimited, duplicate operation не doublecharge.",
+      "expected": "Поддержанный compute-quota путь допустим без выдуманного USD курса; денежная гарантия не утверждается при unknown price.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-04-06",
+      "requirement_ids": [
+        "REQ-CYC-04-06"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Existing allocation policy и два work purposes: exploitation/counterevidence; explicit owner-authorized quota либо explicit no-guarantee profile.",
+      "action": "Исчерпать обычную allocation и предложить разрешённую диагностическую операцию; затем исчерпать её собственную квоту.",
+      "oracle": "При configured quota диагностика реально исполняется и затем останавливается по её лимиту; no-guarantee profile не ложно сообщает protected exploration.",
+      "expected": "Новая normative budget величина задаётся полномочным owner, не ассистентом; не blanket платный расход.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C05_остатки:0",
+      "requirement_ids": [
+        "REQ-CYC-04-01"
+      ],
+      "rationale": "Связать настоящий numerical owner.",
+      "disposition": "qualify",
+      "audit_id": "C05_остатки:item-1",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C05_остатки:1",
+      "requirement_ids": [
+        "REQ-CYC-04-02"
+      ],
+      "rationale": "Типизированная фикстура.",
+      "disposition": "fix",
+      "audit_id": "C05_остатки:item-2",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C05_остатки:2",
+      "requirement_ids": [
+        "REQ-CYC-04-03"
+      ],
+      "rationale": "Положительный переход к следующему пригодному кандидату.",
+      "disposition": "capability",
+      "audit_id": "C05_остатки:item-3",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C05_остатки:3",
+      "requirement_ids": [
+        "REQ-CYC-04-04"
+      ],
+      "rationale": "Существующий info route и budget controls.",
+      "disposition": "qualify",
+      "audit_id": "C05_остатки:item-4",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C05_остатки:4",
+      "requirement_ids": [
+        "REQ-CYC-04-05"
+      ],
+      "rationale": "Не выдавать current ledger за future per-call reserve.",
+      "disposition": "capability",
+      "audit_id": "C05_остатки:item-5",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C05_остатки:5",
+      "requirement_ids": [
+        "REQ-CYC-04-06"
+      ],
+      "rationale": "Конечный owner decision и configured guarantee test.",
+      "disposition": "lifecycle",
+      "audit_id": "C05_остатки:item-6",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B10",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CYC-04-01",
+        "REQ-CYC-04-02",
+        "REQ-CYC-04-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B11",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CYC-04-04",
+        "REQ-CYC-04-05",
+        "REQ-CYC-04-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0024",
+      "requirement_ids": [
+        "REQ-CYC-04-01"
+      ],
+      "rationale": "Actual controller/N5/readback.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0025",
+      "requirement_ids": [
+        "REQ-CYC-04-02"
+      ],
+      "rationale": "Исправить fixture, не guard.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0026",
+      "requirement_ids": [
+        "REQ-CYC-04-03"
+      ],
+      "rationale": "Ограниченный late-local fallback.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0027",
+      "requirement_ids": [
+        "REQ-CYC-04-04"
+      ],
+      "rationale": "Information и actual spend вместе.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0028",
+      "requirement_ids": [
+        "REQ-CYC-04-05"
+      ],
+      "rationale": "Единица/ценовое основание и existing reservation при требуемой гарантии.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0029",
+      "requirement_ids": [
+        "REQ-CYC-04-06"
+      ],
+      "rationale": "Явное решение реальной allocation policy, не claim по слову exploration.",
+      "disposition": "qualify"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0028",
+      "requirement_ids": [
+        "REQ-CYC-04-01",
+        "REQ-CYC-04-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Post-grounding selector должен реально исполнять пригодного кандидата и сохранять полный набор summaries/blockers; численный результат относится только к выбранной occurrence.; После candidate-local N5/N8 failure N6 должен лениво выбрать следующую допустимую операцию среди уже произведённых кандидатов без повторной generation; global rights/budget/base failure не обходится сменой кандидата.",
+      "test_ids": [
+        "TEST-CYC-04-01",
+        "TEST-CYC-04-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0029",
+      "requirement_ids": [
+        "REQ-CYC-04-01",
+        "REQ-CYC-04-03",
+        "REQ-CYC-04-05"
+      ],
+      "rationale": "Конкретный контракт и oracle: Post-grounding selector должен реально исполнять пригодного кандидата и сохранять полный набор summaries/blockers; численный результат относится только к выбранной occurrence.; После candidate-local N5/N8 failure N6 должен лениво выбрать следующую допустимую операцию среди уже произведённых кандидатов без повторной generation; global rights/budget/base failure не обходится сменой кандидата.; Стоимость и admission численной работы должны иметь явную единицу и основание; remaining allocation не называется per-call reservation, пока соответствующее резервирование не реализовано.",
+      "test_ids": [
+        "TEST-CYC-04-01",
+        "TEST-CYC-04-03",
+        "TEST-CYC-04-05"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0030",
+      "requirement_ids": [
+        "REQ-CYC-04-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Положительный information gain может разрешить исследовательский шаг ниже ROI-порога только в пределах actual resource admission; unknown monetary value не выдаётся за измеренный ноль.",
+      "test_ids": [
+        "TEST-CYC-04-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0031",
+      "requirement_ids": [
+        "REQ-CYC-04-04",
+        "REQ-CYC-04-05",
+        "REQ-CYC-04-06"
+      ],
+      "rationale": "Конкретный контракт и oracle: Положительный information gain может разрешить исследовательский шаг ниже ROI-порога только в пределах actual resource admission; unknown monetary value не выдаётся за измеренный ноль.; Стоимость и admission численной работы должны иметь явную единицу и основание; remaining allocation не называется per-call reservation, пока соответствующее резервирование не реализовано.; Если профиль обещает защищённую исследовательскую квоту, реальные counterevidence/diagnostic операции должны потреблять её в существующей allocation policy; без такой политики обещание явно отсутствует.",
+      "test_ids": [
+        "TEST-CYC-04-04",
+        "TEST-CYC-04-05",
+        "TEST-CYC-04-06"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I01-C",
+    "E02-X01"
+  ],
+  "dependencies": [
+    "CYC-04 единственный owner late-candidate queue в N6; SIM-01 — альтернативные engine plans внутри одного N5 request, не дублировать эти уровни.",
+    "ACQ-01 сохраняет data acquisition action; shared failure не превращать в обход через новую acquisition.",
+    "Budget owner/middleware изменения согласовать с RES/ответственными integration lanes; CYC-04 owns consumer purpose/admission контракт."
+  ],
+  "preservation": [
+    "Post-grounding selection and complete blocker/history denominator.",
+    "Existing owner constraints and candidate-occurrence result binding.",
+    "Information gain may advance below ROI threshold.",
+    "Budget/reserve/timeout controls and current producer owner."
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    "LLM предлагает содержательные альтернативы; bounded queue сохраняет возможность их проверить без новой генерации и не приписывает вычислительному порядку нормативный выбор."
+  ],
+  "open_decisions": [],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "symbol_or_anchor": "def _joint_value_node_impl",
+      "lines": [
+        13562,
+        13594
+      ],
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L13562-L13594"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "symbol_or_anchor": "def _grounded_candidate_for_evaluation",
+      "lines": [
+        18979,
+        19011
+      ],
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L18979-L19011"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py",
+      "symbol_or_anchor": "def _recommended_action",
+      "lines": [
+        890,
+        922
+      ],
+      "sha256": "0eee002679b09d85cd4b9a4e235d3e4f94abe09645692c9c41014197b4a5ebab",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py#L890-L922"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/producer_budget.py",
+      "symbol_or_anchor": "class ProducerBudgetObserver",
+      "lines": [
+        122,
+        154
+      ],
+      "sha256": "4df7b278314117b05e49ee17157cb3c1dd41fbcff614540ac9479a84813ea420",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/producer_budget.py#L122-L154"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-CYC-04-01",
+      "text": "Сохранить _ground_node→_grounded_candidate_for_evaluation: current_valid/grounded_shadow без acquisition requirement, VOI затем surrogate и stable tie. Не переписывать уже исправленный preliminary-max путь. Связать существующий selector с actual N5/store readback вместо sole _RecordingSimulation."
+    },
+    {
+      "requirement_id": "REQ-CYC-04-02",
+      "text": "Заменить problem=object() в _grounded_two_candidate_state existing typed fixture или минимальным валидным DesignProblem, сохранив реальный путь _generate_node. Разделить flow-only recording-port тест и numerical acceptance из TEST-01."
+    },
+    {
+      "requirement_id": "REQ-CYC-04-03",
+      "text": "В _joint_value_node_impl организовать bounded ordered remainder над current grounded candidates, сохраняя существующий ranking/tie. Каждую attempted (occurrence, method/input basis, operation) учитывать один раз; сохранять отказ и actual cost. Ввести/использовать typed failure scope local-vs-shared у existing result/owner, не распознавать substring произвольной reason. Для нового кандидата заново _schedule_candidate_for_execution и canonical context/input binding; возвращать его точные simulation/value refs. N8-local absence не стирает полезный N5 первого."
+    },
+    {
+      "requirement_id": "REQ-CYC-04-04",
+      "text": "Сохранить SimpleVOIScheduler._recommended_action advance_by_information_value и prior budget/dominance/timeout checks. _schedule_candidate_for_execution передаёт owner-reconciled state. Не менять unknown на0 для доказательства universal utility: явный missing monetary proxy/ограничение остаётся видимым в ticket/report."
+    },
+    {
+      "requirement_id": "REQ-CYC-04-05",
+      "text": "Existing ProducerBudgetObserver/ledger сохранить. Для выбранного supported N5 route определить проверяемый work unit (например bounded replica quota) и owner price/estimate origin либо explicit unknown. Если для запуска требуется гарантированное денежное резервирование — расширить существующий reservation middleware: reserve до физического шага, reconcile фактическую стоимость/освободить остаток, связать operation ID и retry-idempotency. Stage costs0.5/1.0 остаются эвристикой, не price proof; отдельного ledger не создавать."
+    },
+    {
+      "requirement_id": "REQ-CYC-04-06",
+      "text": "Зафиксировать у accountable resource owner конечный выбор: отдельная доля/лимит существующего бюджета для объявленного purpose либо отсутствие гарантии с честной projection. При выбранной гарантии reserve/reconcile те же owners TEST-05, не новый scheduler; обычные высокие priorities не могут израсходовать выделенную квоту. Не выводить это из calibration reserve уровня4 для N6 stage3 и не придумывать размер бюджета."
+    }
+  ]
+}

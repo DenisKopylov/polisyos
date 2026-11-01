@@ -1,0 +1,2742 @@
+{
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "phase1_zip_sha256": "d4cfde8c6d5b65acd09f3352b4f0c74e2e35b0b2230d21ab4636de569076d550",
+  "note": "Audit source copies are immutable evidence, not executed phase2 results. Full probes delivered separately in Phase1 archive.",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "c522bf7a7e1226b8e39cf41e89c08c8fb11a2e25b5f6036bb586b5521f580282",
+      "bytes": 2648
+    },
+    {
+      "path": "Архитектура/README.md",
+      "sha256": "9e759eb17b5b57b178e2b3e6bddb103bf90a4466485a202a93f384495c6f7942",
+      "bytes": 15161
+    },
+    {
+      "path": "Архитектура/honest-diagnostics-substrate-decision-log.md",
+      "sha256": "50718961ac73d261dd649e93494f1e0c7daaecb836cc5388723c0f212a8c4fdb",
+      "bytes": 17720
+    },
+    {
+      "path": "Архитектура/honest-diagnostics-substrate.md",
+      "sha256": "b083ba18af2ced88f360ef74f75c64cdf5c1a840ee2fb25b1f9e4353e8ff01d7",
+      "bytes": 46553
+    },
+    {
+      "path": "Архитектура/int-r7-r8-public-verification-and-disclosure-ratification.md",
+      "sha256": "cec0658a3df7828e19a9f2c3e20b56629f8bc8e0db32aa703d1ed215214fd7fe",
+      "bytes": 28402
+    },
+    {
+      "path": "Архитектура/int-wave-claim-semantics-ratification.md",
+      "sha256": "04a7aeb685ba210d2a5d1477ef840d9b7e75b3a04d39d7b29504d5fb2e7af201",
+      "bytes": 23774
+    },
+    {
+      "path": "Архитектура/policy-design-best-in-class-operating-model.md",
+      "sha256": "f1910b0aadc4758a6b08b9976df6926f43974267dbabfedddae2eb251787dc9e",
+      "bytes": 86690
+    },
+    {
+      "path": "Архитектура/policy-design-case-decision-log.md",
+      "sha256": "a3c43d8e99452826145d14e606a9fd3d3d4ac84860983a4135d8928ca4b20b58",
+      "bytes": 49188
+    },
+    {
+      "path": "Архитектура/policy-design-causal-grounding-firewall.md",
+      "sha256": "2ec8b6d1351027ae7476e42a5c7d3443679a3c20f1ec39da790b2e4712ed03be",
+      "bytes": 11006
+    },
+    {
+      "path": "Архитектура/policy-design-causal-operating-system-north-star.md",
+      "sha256": "46f6502a1a29c160d99a258ea3a6209e08ae55dfcb95836790403ec26c8998e2",
+      "bytes": 9789
+    },
+    {
+      "path": "Архитектура/policy-design-custody-time-model.md",
+      "sha256": "0691783add6af224e5f09e3aa9645622c1283ce9e17376df258d7a9b81338229",
+      "bytes": 14810
+    },
+    {
+      "path": "Архитектура/policy-design-execution-topology.md",
+      "sha256": "686ed2ced9c0db4f5fc5efd31f08370e5c76fc300b163d85420cca4fdd0e97e3",
+      "bytes": 17738
+    },
+    {
+      "path": "Архитектура/policy-design-search-target-spec.md",
+      "sha256": "253e062814827adc0467866d2c60aec4d9777824f707f6d96782a6b87f7c0ba8",
+      "bytes": 11732
+    },
+    {
+      "path": "Архитектура/policyos-atlas-surface-constitution-and-frontend-vision.md",
+      "sha256": "ad3a19c641a97d5d3593f63ec7596c48cd338b20c78956f145537c5268bdbe4b",
+      "bytes": 30009
+    },
+    {
+      "path": "Архитектура/policyos-identity-and-custody-boundary.md",
+      "sha256": "f9b3776032e88190ac8d29f60d9623450f4d734e163cc16ae53f49b0f2a77bce",
+      "bytes": 21556
+    },
+    {
+      "path": "Архитектура/stage0-custody-kernel-ratification.md",
+      "sha256": "a8410cddf3e2c8b7f4c194d06d0c38523fb64634f247e6baf96dfd6359197ea7",
+      "bytes": 16120
+    },
+    {
+      "path": "Архитектура/universal-policy-design-system-vision-and-organizing-rules.md",
+      "sha256": "791d7028932d0b8097c8d6b1962e068b956136ae5d314ae0c7f60d5863d8b44d",
+      "bytes": 32695
+    },
+    {
+      "path": "Архитектура/universal-policy-design-target-architecture-and-gap.md",
+      "sha256": "000736b6d70f52f4d3aeb8550f34bacf539e8d22fb8e4e926ec6eb5d78610a79",
+      "bytes": 181491
+    },
+    {
+      "path": "Архитектура/wave4-decision-evidence-ratification.md",
+      "sha256": "ee20f0569cb0bab69be4094fb4aafd07d131d245d0c5993e54420fa412820819",
+      "bytes": 30297
+    },
+    {
+      "path": "Архитектура/wave5-evidence-substitution-ratification.md",
+      "sha256": "e3e9265b9a48a9cf1b7110f657616c61770e3a73ed812da5de4853291ab7338a",
+      "bytes": 41016
+    },
+    {
+      "path": "Архитектура/withheld-propositions-register.md",
+      "sha256": "f026e87b7c028cfcc853eb2232de491c03cc8d73ea6c13ae576a7afc1cea5115",
+      "bytes": 27629
+    },
+    {
+      "path": "Аудит/01_Реестры/C03_C04_остатки.json",
+      "sha256": "eda6d91e93a30410dd9d97af8f757544aab6542dabe7df4bf797a9378dfba0bd",
+      "bytes": 4216
+    },
+    {
+      "path": "Аудит/01_Реестры/C05_остатки.json",
+      "sha256": "bf9660a26a2728dc662c2f11b28e7a71be956a56735c0ce715aa49c7fcfdbf5d",
+      "bytes": 3176
+    },
+    {
+      "path": "Аудит/01_Реестры/C06_остатки.json",
+      "sha256": "6ed5337316b54863d5720ee3bfad9499126b025540c85f0ed0358be62a1f6f92",
+      "bytes": 2707
+    },
+    {
+      "path": "Аудит/01_Реестры/C07_остатки.json",
+      "sha256": "97c78add8f767e62d80b7e4cc39c2d74600235ddb0c3236a0fd310f3194c7c82",
+      "bytes": 3573
+    },
+    {
+      "path": "Аудит/01_Реестры/C08_остатки.json",
+      "sha256": "e883f0ac670dcc4168721d846f33a762179d79f105300772558d9b75dca49a65",
+      "bytes": 2667
+    },
+    {
+      "path": "Аудит/01_Реестры/C09_остатки.json",
+      "sha256": "2aebf14811ce154fc666c284847d5556ddd7f22a00074a10aed5b10f082b5c5f",
+      "bytes": 5349
+    },
+    {
+      "path": "Аудит/01_Реестры/C100_остатки.json",
+      "sha256": "65db22fb0e167365def5f5d3581623a5318c63315419548296a7831343a7fd39",
+      "bytes": 3963
+    },
+    {
+      "path": "Аудит/01_Реестры/C101_остатки.json",
+      "sha256": "f3bee57be8567bd6ce65c0889b75f584f68fd4b130fabfb8af56dcb523edf5b6",
+      "bytes": 4619
+    },
+    {
+      "path": "Аудит/01_Реестры/C102_остатки.json",
+      "sha256": "b4a601404792c1a3276d6151985d8cddd47b576180edcbcc72c14122824723b5",
+      "bytes": 4392
+    },
+    {
+      "path": "Аудит/01_Реестры/C103_остатки.json",
+      "sha256": "4afe18819ed2bb74f86f74518dcd1de9e8548c24daffb2ba7d04d56fca7633e4",
+      "bytes": 3383
+    },
+    {
+      "path": "Аудит/01_Реестры/C104_остатки.json",
+      "sha256": "93f7b8b44830c0efef899d252350df9ed7f669c9c3ee8ffe7cabd3e657f63c7b",
+      "bytes": 4377
+    },
+    {
+      "path": "Аудит/01_Реестры/C105_остатки.json",
+      "sha256": "51c6a8c1748ca7b60cfe7c3f899f660f75b238196a7f7499771b603124231ba1",
+      "bytes": 4567
+    },
+    {
+      "path": "Аудит/01_Реестры/C106_остатки.json",
+      "sha256": "2d145d3a858e3c8b5fccba87e9f860934ce485c49929700a4b6ef72e184ed945",
+      "bytes": 4619
+    },
+    {
+      "path": "Аудит/01_Реестры/C107_остатки.json",
+      "sha256": "e5f2142cab6f257d50ff1e5d3e15148579b574c45907a2b2502d237f625a092d",
+      "bytes": 5004
+    },
+    {
+      "path": "Аудит/01_Реестры/C108_остатки.json",
+      "sha256": "67725d536d9bfef1c7a8bd80d032b9c00041435a9ff3a1f629b03dd936e9e841",
+      "bytes": 4027
+    },
+    {
+      "path": "Аудит/01_Реестры/C109_остатки.json",
+      "sha256": "c5c2ffc0f90b1ac8b2d6feb886d84992682116397cad36acda624eefb508005e",
+      "bytes": 2851
+    },
+    {
+      "path": "Аудит/01_Реестры/C10_остатки.json",
+      "sha256": "103573406b2d37d30a87a5dbdc10855348298d38974e96ce4a5e05f0daeda48a",
+      "bytes": 3188
+    },
+    {
+      "path": "Аудит/01_Реестры/C110_остатки.json",
+      "sha256": "31151932581362a2628d34df286a06876984f4ef223fc598dff0b1daf110b92f",
+      "bytes": 3008
+    },
+    {
+      "path": "Аудит/01_Реестры/C111_остатки.json",
+      "sha256": "d1f9db6072cd8fbd87366d1d16ef57a1f3fcea1b22602a8595f109d2be5a3f57",
+      "bytes": 3144
+    },
+    {
+      "path": "Аудит/01_Реестры/C112_остатки.json",
+      "sha256": "3139b76c152dc12853d71f43056621812eca6e765a7d19c29c230ebdcc039e3a",
+      "bytes": 4130
+    },
+    {
+      "path": "Аудит/01_Реестры/C113_остатки.json",
+      "sha256": "ec4c4c65ac7e386eb1cfd575f9b9fd1f4db37a5f771bcf0dc97023d6578608de",
+      "bytes": 2919
+    },
+    {
+      "path": "Аудит/01_Реестры/C114_остатки.json",
+      "sha256": "503e9b51004f02c9a9e961719676a8dd3ce976e68cc2125919a77227ea40bf6c",
+      "bytes": 3805
+    },
+    {
+      "path": "Аудит/01_Реестры/C115_остатки.json",
+      "sha256": "9fc8f47cbe8688c79298509cfb0dc48a99e632b0902815fdec3a33d57998581f",
+      "bytes": 3083
+    },
+    {
+      "path": "Аудит/01_Реестры/C116_остатки.json",
+      "sha256": "b444b732a4d55e59d061cc81a044869dc02f0dda745a89a7ba559292949f01f2",
+      "bytes": 2858
+    },
+    {
+      "path": "Аудит/01_Реестры/C117_остатки.json",
+      "sha256": "1ed16ee3b559450753fb3e4bc6e98bbe92b4f8c46937724b7c2037bdbe5ea63e",
+      "bytes": 2884
+    },
+    {
+      "path": "Аудит/01_Реестры/C118_остатки.json",
+      "sha256": "65e50f8b820b46390f0c79fd493dac1c61495501abeda11730a43e526be7ee96",
+      "bytes": 4254
+    },
+    {
+      "path": "Аудит/01_Реестры/C119_остатки.json",
+      "sha256": "bfacd1a0c044399424b5e0a49cdf5d0d42ead38d93964207f326e251da89a9f5",
+      "bytes": 3722
+    },
+    {
+      "path": "Аудит/01_Реестры/C11_остатки.json",
+      "sha256": "2b02fabda1843489965e82ed5540d3de7994d2a9fe972bf70fa51221de294c70",
+      "bytes": 3661
+    },
+    {
+      "path": "Аудит/01_Реестры/C120_остатки.json",
+      "sha256": "c185b46fb4e9d327d587d58336c0bc326c11c50bbc409bee7bf18514d3614819",
+      "bytes": 3715
+    },
+    {
+      "path": "Аудит/01_Реестры/C121_остатки.json",
+      "sha256": "dabc72b3fba59f7ba5eb64d4bd202d7661bc7f0629ab4b7b888fccfc49e06b06",
+      "bytes": 2815
+    },
+    {
+      "path": "Аудит/01_Реестры/C122_остатки.json",
+      "sha256": "fa8c980c453accd06ac5133f71ca99d4af2318886da80e9c27ae0469ba7fe6a0",
+      "bytes": 4040
+    },
+    {
+      "path": "Аудит/01_Реестры/C123_остатки.json",
+      "sha256": "f940f561083465a2ae2eac871cc876495485779bc191d80c9e5d6361817cdf7a",
+      "bytes": 3182
+    },
+    {
+      "path": "Аудит/01_Реестры/C124_остатки.json",
+      "sha256": "10d911cb1fef4fce894fae9a5e88e645fc04e1be9f767845d3fb716df15e14bd",
+      "bytes": 3499
+    },
+    {
+      "path": "Аудит/01_Реестры/C125_остатки.json",
+      "sha256": "7d4bf7810292f45de6edbac03750eb5a172624aba002ec50b1fa63465e5841ab",
+      "bytes": 3752
+    },
+    {
+      "path": "Аудит/01_Реестры/C126_остатки.json",
+      "sha256": "011420c58a88b642a13e9c76c4e8067cd0a7fbd75628e633c6bf8a6234fa7465",
+      "bytes": 3872
+    },
+    {
+      "path": "Аудит/01_Реестры/C127_остатки.json",
+      "sha256": "0b443474f358ce2252fd377030690c2ccd238978ce170a57a178e771cc569cb5",
+      "bytes": 5109
+    },
+    {
+      "path": "Аудит/01_Реестры/C12_остатки.json",
+      "sha256": "806eed3d3a60f34df98456cfb3176a1f72efb6a4aaa40c416719fa64dd729cff",
+      "bytes": 5141
+    },
+    {
+      "path": "Аудит/01_Реестры/C13_остатки.json",
+      "sha256": "28823df0f65cc147ce0604d5a6de031450e557811163154b605749e17bcef7ec",
+      "bytes": 3437
+    },
+    {
+      "path": "Аудит/01_Реестры/C14_остатки.json",
+      "sha256": "088c251f4e343667ddfc0db8b95eaff7fccbda922a0badecceadde97b336f9c3",
+      "bytes": 2921
+    },
+    {
+      "path": "Аудит/01_Реестры/C15_остатки.json",
+      "sha256": "3ab89d6fc41915facbec67578c39d5ed692538947768ced7ce68502ca3d937bb",
+      "bytes": 3447
+    },
+    {
+      "path": "Аудит/01_Реестры/C16_остатки.json",
+      "sha256": "ef85b694535547ff578beca7299b5994507e28064b7f7ec2d106d7548f80ca9b",
+      "bytes": 3620
+    },
+    {
+      "path": "Аудит/01_Реестры/C17_остатки.json",
+      "sha256": "086baf773c522447a2525caa21e58078c9594b0fa3f8ec2eec81dbdb3f797f5a",
+      "bytes": 4066
+    },
+    {
+      "path": "Аудит/01_Реестры/C18_остатки.json",
+      "sha256": "f74ba692c5bd0cb8b385cbc93ea8e4a79d597fe8153df554e47829a6b45e3e82",
+      "bytes": 3293
+    },
+    {
+      "path": "Аудит/01_Реестры/C19_остатки.json",
+      "sha256": "5b269d9f60097b40c4924810ee89827752b11ca2712ce2ba82c6358070dcd98d",
+      "bytes": 3580
+    },
+    {
+      "path": "Аудит/01_Реестры/C20_остатки.json",
+      "sha256": "47afe2254253075ed2140d4d4f0e9f9a7506c907f446627be072d75afe7459b6",
+      "bytes": 3024
+    },
+    {
+      "path": "Аудит/01_Реестры/C21_остатки.json",
+      "sha256": "94f8fe6bcf627234fab8b562611ad26f90375063289f96df56a32128c33f5059",
+      "bytes": 2752
+    },
+    {
+      "path": "Аудит/01_Реестры/C22_остатки.json",
+      "sha256": "76630fe6a4c221f7779b930aafbc41049930b507da28b90184958f87b9ac865a",
+      "bytes": 3560
+    },
+    {
+      "path": "Аудит/01_Реестры/C23_остатки.json",
+      "sha256": "eb8b6268ecb4fc48c12b9c44bb2ed14bd9f05737422b0c756b17946e45f766d1",
+      "bytes": 3252
+    },
+    {
+      "path": "Аудит/01_Реестры/C24_остатки.json",
+      "sha256": "3148ff3732bac0360f7d5f7a8fe9b16c075335878fe26cde1c08299bda568f4b",
+      "bytes": 3938
+    },
+    {
+      "path": "Аудит/01_Реестры/C25_остатки.json",
+      "sha256": "46a3c872f5d818c428c2bd5295d76612585e90c7a725727cb0dbfae559051795",
+      "bytes": 2878
+    },
+    {
+      "path": "Аудит/01_Реестры/C26_остатки.json",
+      "sha256": "997e9d99d98f3317fb1af9b4487b8ab6a47fa524aebdc5c2e4bb9537d004a846",
+      "bytes": 2355
+    },
+    {
+      "path": "Аудит/01_Реестры/C27_остатки.json",
+      "sha256": "36e732813283f9cf3fb5738338d95d9bed0227768ff550825954a468cabce631",
+      "bytes": 2836
+    },
+    {
+      "path": "Аудит/01_Реестры/C28_остатки.json",
+      "sha256": "2f77f07dcf3b79c7bd3e8d79a74c1bdb5d2ffa78b13f5b4f5632d8882d825d30",
+      "bytes": 3703
+    },
+    {
+      "path": "Аудит/01_Реестры/C29_остатки.json",
+      "sha256": "18da0ccc58a68befa35143ef479f649ace1995bdb7b3f5bdf83f69928a9b43e3",
+      "bytes": 3653
+    },
+    {
+      "path": "Аудит/01_Реестры/C30_остатки.json",
+      "sha256": "55633d5964aec89a99646272f318d0e256ddbbe07c0f726f3332e2fd28d58511",
+      "bytes": 3282
+    },
+    {
+      "path": "Аудит/01_Реестры/C31_остатки.json",
+      "sha256": "267594f0cd1e2014bfd6c08805ab844acb1bb5afe48406dc1a4a2b2638a30abc",
+      "bytes": 3662
+    },
+    {
+      "path": "Аудит/01_Реестры/C32_остатки.json",
+      "sha256": "e6f44b47cc1187dcd6a7b3f5c96f4355567533ea9c250e1fa7cfd1381961db13",
+      "bytes": 5909
+    },
+    {
+      "path": "Аудит/01_Реестры/C33_остатки.json",
+      "sha256": "b1c199aa27e321a3a71976082d561fe86dc318675e7eaf41a2f4972286ee7037",
+      "bytes": 3332
+    },
+    {
+      "path": "Аудит/01_Реестры/C34_остатки.json",
+      "sha256": "99e7401587bdf3fc12a3da6ac4743adcac7a2b65babe59114ddfcc747b1653fb",
+      "bytes": 3121
+    },
+    {
+      "path": "Аудит/01_Реестры/C35_остатки.json",
+      "sha256": "0df6aa1d87b33898603fb11be5cae308d096bd849da2e71e7c72d4bc1ec36861",
+      "bytes": 2989
+    },
+    {
+      "path": "Аудит/01_Реестры/C36_остатки.json",
+      "sha256": "64024e54215a93a890126893f4df6f1329b40fda53fc5349b63986ce53cbc239",
+      "bytes": 3509
+    },
+    {
+      "path": "Аудит/01_Реестры/C37_остатки.json",
+      "sha256": "a1550810dc07c651d4d14238a9d4aaf583473d64113ec7dd7065436b3b660165",
+      "bytes": 3320
+    },
+    {
+      "path": "Аудит/01_Реестры/C38_остатки.json",
+      "sha256": "4482273884be83ac4f272b5038ecb52d1ccbe01677dcfc2bcc8b00cefac0831a",
+      "bytes": 3308
+    },
+    {
+      "path": "Аудит/01_Реестры/C39_остатки.json",
+      "sha256": "548a5320f0e68fabe2450c93fc651f14d9e7467c30d81a3376daf1d462319f31",
+      "bytes": 4591
+    },
+    {
+      "path": "Аудит/01_Реестры/C40_остатки.json",
+      "sha256": "761fe5174ae33c81ab659575eea7f4b4291c9da768fa6a74e51cf81d25b39152",
+      "bytes": 3562
+    },
+    {
+      "path": "Аудит/01_Реестры/C41_остатки.json",
+      "sha256": "73af5487d797a678361a1969253f6e876737d4a89bdd02ff9c8e77ac028e462d",
+      "bytes": 4177
+    },
+    {
+      "path": "Аудит/01_Реестры/C42_остатки.json",
+      "sha256": "0cdd3dd20a5a80dd2e7fb7d31ee082ceb97bd887690703feea1581a1f9d5ef4c",
+      "bytes": 3926
+    },
+    {
+      "path": "Аудит/01_Реестры/C43_остатки.json",
+      "sha256": "af4cd313edb55612680c9765144d9c5105cc845d7de275daa1252f9deab33153",
+      "bytes": 3673
+    },
+    {
+      "path": "Аудит/01_Реестры/C44_остатки.json",
+      "sha256": "3d94ff28257011920ace4fb4f455cf110a2320181b653d200f95440285de1573",
+      "bytes": 5336
+    },
+    {
+      "path": "Аудит/01_Реестры/C45_остатки.json",
+      "sha256": "c51fee5b62c5706b60d487cc56ceeab7281b5149cdf48e56d04d3b6d90670a9a",
+      "bytes": 4318
+    },
+    {
+      "path": "Аудит/01_Реестры/C46_остатки.json",
+      "sha256": "016fdaa805ee2de9c4499bc4de556615d86025d3d2f02cedbf7c33a701d02b19",
+      "bytes": 6299
+    },
+    {
+      "path": "Аудит/01_Реестры/C47_остатки.json",
+      "sha256": "52ee815093c96f75e3c40b10cb6a2a54dd2ce22d0f538603fc99a2771c170e87",
+      "bytes": 4084
+    },
+    {
+      "path": "Аудит/01_Реестры/C48_остатки.json",
+      "sha256": "b91857c31d385b41dee2a365592c5340d87a2702e5538cee76d9dda3c80e47b4",
+      "bytes": 4407
+    },
+    {
+      "path": "Аудит/01_Реестры/C49_остатки.json",
+      "sha256": "7d86b76316e5cbd58bd7d9203376330cf7b0f4f1555f6e52bad7e0ebbcbfc8c2",
+      "bytes": 5545
+    },
+    {
+      "path": "Аудит/01_Реестры/C50_остатки.json",
+      "sha256": "4221e7462fc996c128fee48a8ed5ee6a9a3626f6e2457023161b6837f411e632",
+      "bytes": 4222
+    },
+    {
+      "path": "Аудит/01_Реестры/C51_остатки.json",
+      "sha256": "cb1a6d546a76beb1a0a5f8a582a3c0b1ce5d7715f57f05d9e729244f9e87b693",
+      "bytes": 3292
+    },
+    {
+      "path": "Аудит/01_Реестры/C52_остатки.json",
+      "sha256": "fdedba978b37a489ffa339a6ca5eac3e582cc691f909f4ce20b1cb233fb6009e",
+      "bytes": 6014
+    },
+    {
+      "path": "Аудит/01_Реестры/C53_остатки.json",
+      "sha256": "e19262ca58d47b97d5b64eca0f49b0768d687aed3b3dd3533834825a887a3bd1",
+      "bytes": 4132
+    },
+    {
+      "path": "Аудит/01_Реестры/C54_остатки.json",
+      "sha256": "fa919c73f9c6188f9de58b13b629451c30eb2e5dfc484ab87149d02f815114b5",
+      "bytes": 5603
+    },
+    {
+      "path": "Аудит/01_Реестры/C55_остатки.json",
+      "sha256": "2422193ba05ada353a1d12d4e32f967f2b4b15a4749fd51f0cae006a6bd54551",
+      "bytes": 4324
+    },
+    {
+      "path": "Аудит/01_Реестры/C56_остатки.json",
+      "sha256": "e1bc3dceeb90efd861781c62866f710c0e109af5a75b59902267d7dcb99eab3c",
+      "bytes": 3760
+    },
+    {
+      "path": "Аудит/01_Реестры/C57_остатки.json",
+      "sha256": "39fce5aca274a80721eda54d5d0a1e2a444f66f5f9b87397c267ef915963d24b",
+      "bytes": 4250
+    },
+    {
+      "path": "Аудит/01_Реестры/C58_остатки.json",
+      "sha256": "a16b4f0e85122c0d4f4695ca4b49a0717b4b23ed8b4af059a6f6508fed37c2ef",
+      "bytes": 5199
+    },
+    {
+      "path": "Аудит/01_Реестры/C59_остатки.json",
+      "sha256": "6db43a2d722494aaf3e73ead4f93ff6228cde7cdb03800dbaecf288b797ea9d8",
+      "bytes": 5088
+    },
+    {
+      "path": "Аудит/01_Реестры/C60_остатки.json",
+      "sha256": "a68625a02f86c7a3981f0ad42a85106fb1631b8aaf844a417216251430595618",
+      "bytes": 2790
+    },
+    {
+      "path": "Аудит/01_Реестры/C61_остатки.json",
+      "sha256": "8b69941682cd17684333169814a9be33401fa14685a5ae75a9521cc40528c9a5",
+      "bytes": 3998
+    },
+    {
+      "path": "Аудит/01_Реестры/C62_остатки.json",
+      "sha256": "21dc97aec217d55a76f107c45fa963208450a9270bb628ff08bd1753644434d7",
+      "bytes": 4046
+    },
+    {
+      "path": "Аудит/01_Реестры/C63_остатки.json",
+      "sha256": "574f827b11b90058ff3a2067506fb3b364cd60a73288a57828493a4178a37ac8",
+      "bytes": 3963
+    },
+    {
+      "path": "Аудит/01_Реестры/C64_остатки.json",
+      "sha256": "78e5508009366bcc839f1e7e3bed62d60388f9cb3e73f3c2c70e3fa8068cdbe4",
+      "bytes": 4002
+    },
+    {
+      "path": "Аудит/01_Реестры/C65_остатки.json",
+      "sha256": "db6aca0c23062814d4953e9109aadbbe11e3cb299356a99dd8cf31e803f11162",
+      "bytes": 4486
+    },
+    {
+      "path": "Аудит/01_Реестры/C66_остатки.json",
+      "sha256": "9bffce651a56e56a588541202bfa31665de6185cee79b9f371f826a9b4b39b6b",
+      "bytes": 3197
+    },
+    {
+      "path": "Аудит/01_Реестры/C67_остатки.json",
+      "sha256": "a370ad73db0bd3e1d404227c2137d5bbd1de3332492df3c30345cf97c9e9f53f",
+      "bytes": 3846
+    },
+    {
+      "path": "Аудит/01_Реестры/C68_остатки.json",
+      "sha256": "a990ddc9b1b46eeed7e0738167b6dd0e64b2dc4d1bd6bfeaf3ec36e34f9b8cf4",
+      "bytes": 5205
+    },
+    {
+      "path": "Аудит/01_Реестры/C69_остатки.json",
+      "sha256": "46a1eca2b5b113b29a605e76126ef42c8076d7c7ad71d8bef3321a8d768cfdc6",
+      "bytes": 4681
+    },
+    {
+      "path": "Аудит/01_Реестры/C70_остатки.json",
+      "sha256": "d0f1ef18787876df7153484f7f8f59670ee23571dba62557253aea163092f8db",
+      "bytes": 5167
+    },
+    {
+      "path": "Аудит/01_Реестры/C71_остатки.json",
+      "sha256": "dc7e4be4584d20a9e5a67583182ede3cac9e66997cd078d731e1b813e21c6667",
+      "bytes": 5334
+    },
+    {
+      "path": "Аудит/01_Реестры/C72_остатки.json",
+      "sha256": "5e6058da3fc235c20efd913deb91f38fa304e7c2325619cd3f2bbae47c0e18ce",
+      "bytes": 4596
+    },
+    {
+      "path": "Аудит/01_Реестры/C73_остатки.json",
+      "sha256": "b6f1525abeaf4d8a2c5ecce9f20acf74e44da7222a992d4cbdd7ad2aeb6305ee",
+      "bytes": 4472
+    },
+    {
+      "path": "Аудит/01_Реестры/C74_остатки.json",
+      "sha256": "2589a504758e11e910a492afe452f5822731840514f5717e1bdf445604f2d0d9",
+      "bytes": 4102
+    },
+    {
+      "path": "Аудит/01_Реестры/C75_остатки.json",
+      "sha256": "0564dc976e676067677219905890a7867413f1d34aac6abc6b51236037c74254",
+      "bytes": 5646
+    },
+    {
+      "path": "Аудит/01_Реестры/C76_остатки.json",
+      "sha256": "de01d49798968079bb4d965dd82f31306fa8040d33cc5d86ac1cd9686574ad24",
+      "bytes": 5459
+    },
+    {
+      "path": "Аудит/01_Реестры/C77_остатки.json",
+      "sha256": "ae4318a2a709101d3f03d8ec6aac3f62a07b10dd8ab034a1e791ecb456703280",
+      "bytes": 3909
+    },
+    {
+      "path": "Аудит/01_Реестры/C78_остатки.json",
+      "sha256": "3543278211cd5c2c22a9e45afc90e86e8615b8fa2922201c4ba31bd2bd5150b9",
+      "bytes": 4471
+    },
+    {
+      "path": "Аудит/01_Реестры/C79_остатки.json",
+      "sha256": "cfa1724af5bddf70c201fd3380a293e69ca1a7fda6fcb5152776a85dfd483988",
+      "bytes": 6287
+    },
+    {
+      "path": "Аудит/01_Реестры/C80_остатки.json",
+      "sha256": "ce529d6781abd66a51f33cc300d317aa17fc3c282dda8211c7145f5b0b9e6beb",
+      "bytes": 4428
+    },
+    {
+      "path": "Аудит/01_Реестры/C81_остатки.json",
+      "sha256": "c5d3b2f014bbbff1d1e140d25d03c7c53f61adf62339f32340e3caee67844611",
+      "bytes": 4430
+    },
+    {
+      "path": "Аудит/01_Реестры/C82_остатки.json",
+      "sha256": "04b66208037eab43c6d674e8e207d6661662370e847c5bffd77c556fadb62296",
+      "bytes": 4658
+    },
+    {
+      "path": "Аудит/01_Реестры/C83_остатки.json",
+      "sha256": "ee33b6b2819e510fc3b2c94f54511ea0b0db2f0ad67144fd93a64244d446235a",
+      "bytes": 4574
+    },
+    {
+      "path": "Аудит/01_Реестры/C84_остатки.json",
+      "sha256": "c90c4e8427f10063e3f8da370013e0934fcd9964c86feacdcb5be050d5e565b8",
+      "bytes": 4222
+    },
+    {
+      "path": "Аудит/01_Реестры/C85_остатки.json",
+      "sha256": "4f81ade32a320664df33e8c4de0f3135b2bd19aaf01f5aa72301f753cde6d440",
+      "bytes": 4178
+    },
+    {
+      "path": "Аудит/01_Реестры/C86_остатки.json",
+      "sha256": "30da133c6027b47fa74c140b835342ab97cee71736210ef86c02890120ea55b0",
+      "bytes": 3176
+    },
+    {
+      "path": "Аудит/01_Реестры/C87_остатки.json",
+      "sha256": "ba7117b50dba8f972b9bc1a6118d2caa998611a73c9d7f71216d26d56fc63a0a",
+      "bytes": 4577
+    },
+    {
+      "path": "Аудит/01_Реестры/C88_остатки.json",
+      "sha256": "9cd9a2d1bdf073917758257cf6bb2047bb90caa3c8c8e3bf2c33d5022b041361",
+      "bytes": 5962
+    },
+    {
+      "path": "Аудит/01_Реестры/C89_остатки.json",
+      "sha256": "d67677260fea65321b0fdd9be3cdcf3933170cd7bf6fb568aa78d8f09ccd8e0c",
+      "bytes": 6136
+    },
+    {
+      "path": "Аудит/01_Реестры/C90_остатки.json",
+      "sha256": "d046a7a183c1312167ffc3fc4cdb44eaa012483a2cdd25e53dcb75e1957bc409",
+      "bytes": 4392
+    },
+    {
+      "path": "Аудит/01_Реестры/C91_остатки.json",
+      "sha256": "3700e91487cde7b0e90b6b29b184d6ef1c4ecb1ef9cf786387f52b2380eefa0d",
+      "bytes": 5897
+    },
+    {
+      "path": "Аудит/01_Реестры/C92_остатки.json",
+      "sha256": "d9a943ee46a204ae9a2b4eab1c2b28ecd95dba6bfb2d24d3ddf7dcfe0a84f220",
+      "bytes": 4648
+    },
+    {
+      "path": "Аудит/01_Реестры/C93_остатки.json",
+      "sha256": "2264eb86012845f0623181e65d48f32f7b3b2cfd43c4cdee05a565335da1dbbb",
+      "bytes": 2773
+    },
+    {
+      "path": "Аудит/01_Реестры/C94_остатки.json",
+      "sha256": "6882c8cae78edcbef6a61b0b760bf31765186debec1313e7cac1c27e9cfc37e4",
+      "bytes": 4759
+    },
+    {
+      "path": "Аудит/01_Реестры/C95_остатки.json",
+      "sha256": "6ce79bb6a30ebbbf2ef29613545dc553eb033215f96a7b5da84f5efc88f8eaa3",
+      "bytes": 2916
+    },
+    {
+      "path": "Аудит/01_Реестры/C96_остатки.json",
+      "sha256": "5745c0020497689747182821c9a0db18e46c512ac9911b8f2f9a288428846a05",
+      "bytes": 3082
+    },
+    {
+      "path": "Аудит/01_Реестры/C97_остатки.json",
+      "sha256": "9222b481f2d5183b5020a795736daec0bcc9ed7ec6fa0aa3c257598eba4ba7f7",
+      "bytes": 3409
+    },
+    {
+      "path": "Аудит/01_Реестры/C98_остатки.json",
+      "sha256": "bce1c23f2f86e23d446f4fc6cacb4e32d97ae8269f60f352c933765c2857516d",
+      "bytes": 4143
+    },
+    {
+      "path": "Аудит/01_Реестры/C99_остатки.json",
+      "sha256": "41222a1a0d1e984901ee25dad9ef29fc035a25ae42fc96feaa319e8515b112ff",
+      "bytes": 3583
+    },
+    {
+      "path": "Аудит/01_Реестры/Защиты_и_развитие.json",
+      "sha256": "43846e63d0a809e54056aea2dd661de2882444e0465a3422c1ec3cf1a8b84855",
+      "bytes": 39075
+    },
+    {
+      "path": "Аудит/01_Реестры/Исходные_B_LA.json",
+      "sha256": "433d9a7f5b529cf7e8b6dbf92850b7dca8334c8a6b8efe2e782e0d5921d326dd",
+      "bytes": 420155
+    },
+    {
+      "path": "Аудит/01_Реестры/Пакеты_E02.json",
+      "sha256": "27850723fa6e65bdf0ed728c128d223961774d6d71c6ce53cbd871a063d27857",
+      "bytes": 170218
+    },
+    {
+      "path": "Аудит/02_Пакеты/ACQ-01.md",
+      "sha256": "681eda2debe1aea687f466c4243cb93c6f6204135e223399cd8ba4733090e2ce",
+      "bytes": 32377
+    },
+    {
+      "path": "Аудит/02_Пакеты/API-01.md",
+      "sha256": "4dc5e150969ed31f6be8913a42f123a153f32fb512887684d451f80ee81e9479",
+      "bytes": 15059
+    },
+    {
+      "path": "Аудит/02_Пакеты/BER-01.md",
+      "sha256": "9eb00c846eb4c38d10c6f06600e3c1369613c2d2256f0e32483735c418435932",
+      "bytes": 9426
+    },
+    {
+      "path": "Аудит/02_Пакеты/BKT-01.md",
+      "sha256": "0729ce2499114ceb78b8216ed58b3c6887f7f1f5a8254fe5d70d7888d5306243",
+      "bytes": 18307
+    },
+    {
+      "path": "Аудит/02_Пакеты/BKT-02.md",
+      "sha256": "efc31a48ed16d9f74c5afc8c7a4485bd2a16207a0db21f4f99f738f55f4992df",
+      "bytes": 15950
+    },
+    {
+      "path": "Аудит/02_Пакеты/BKT-03.md",
+      "sha256": "84cd0c9f23f1b3afac964de31b656f0944bd91ac9f3c09eb834378197f634996",
+      "bytes": 12808
+    },
+    {
+      "path": "Аудит/02_Пакеты/BKT-04.md",
+      "sha256": "487deb386f1ad7fd5629e2decccb137ea2fb9da6552e307126a811fa2b673b5f",
+      "bytes": 14311
+    },
+    {
+      "path": "Аудит/02_Пакеты/CAL-01.md",
+      "sha256": "1a17a596b257bc4770cf0803f980f7ba4d78338a1bec7a3b75398a1bccd34995",
+      "bytes": 11725
+    },
+    {
+      "path": "Аудит/02_Пакеты/CAL-02.md",
+      "sha256": "82eb6b155cddc50d8f64b1703f131a7785ea64bdb96a797d53a6b2b08359e2c2",
+      "bytes": 11696
+    },
+    {
+      "path": "Аудит/02_Пакеты/CAL-03.md",
+      "sha256": "f384ae2633f9ae155839cef5aa5fd648ab4e2367adbaf984741ed947638643f4",
+      "bytes": 9868
+    },
+    {
+      "path": "Аудит/02_Пакеты/CAL-04.md",
+      "sha256": "cd48bbc39988b760009408d2170017ccb04506eba644d7ea393ac983bea84780",
+      "bytes": 10495
+    },
+    {
+      "path": "Аудит/02_Пакеты/CAL-05.md",
+      "sha256": "bd7c85a4d601719e1e9ba9177b7a2c30cafe9051513a15cd01758b1013ed4dfb",
+      "bytes": 12368
+    },
+    {
+      "path": "Аудит/02_Пакеты/CAL-06.md",
+      "sha256": "7ea0aef733c004f233389c191666dc1167fc1465186ee3acc4919110c2e1247a",
+      "bytes": 10341
+    },
+    {
+      "path": "Аудит/02_Пакеты/CAN-01.md",
+      "sha256": "9128aa253fb6b1ffef574b84bdef9576f7336a376337552b1435a3025a02e803",
+      "bytes": 13453
+    },
+    {
+      "path": "Аудит/02_Пакеты/CAS-01.md",
+      "sha256": "7df155bdb076eea8bd7a731fbd8efd00115d8ed166e17de6529aeb3d055088b8",
+      "bytes": 15304
+    },
+    {
+      "path": "Аудит/02_Пакеты/CAS-02.md",
+      "sha256": "b164dde6e7b8a058d790ce65164d332b7e56d914ec1b8285545f942e03683143",
+      "bytes": 11986
+    },
+    {
+      "path": "Аудит/02_Пакеты/CAS-03.md",
+      "sha256": "31e54ed0148bfb0ec9f5da4d2e40c4496c973ccace93d8c676fc52023515e9f7",
+      "bytes": 12123
+    },
+    {
+      "path": "Аудит/02_Пакеты/CAU-01.md",
+      "sha256": "f5171fa4d2eef781a5458920d0c66a25660abbd673831bb60832674b1c8482f4",
+      "bytes": 16325
+    },
+    {
+      "path": "Аудит/02_Пакеты/CAU-02.md",
+      "sha256": "86c9e7b71b2790f62e69e2df40121f9b653e390bb3e6d18c0a6a7c3ace9378b3",
+      "bytes": 15701
+    },
+    {
+      "path": "Аудит/02_Пакеты/CAU-03.md",
+      "sha256": "94800674f941de660bddc9da0249ba415b2b29423d3243cf36d7c836a88e3fa3",
+      "bytes": 15424
+    },
+    {
+      "path": "Аудит/02_Пакеты/CAU-04.md",
+      "sha256": "27592ebed1c58b7aacba5e7f84db7434ce6dd62afbb90102cd1d82a59fcbcb80",
+      "bytes": 12920
+    },
+    {
+      "path": "Аудит/02_Пакеты/CAU-05.md",
+      "sha256": "eb9b2aa92ccbc719e56bf45a92b848a77691d2eceb266aa07364dcaff3098937",
+      "bytes": 13299
+    },
+    {
+      "path": "Аудит/02_Пакеты/CLI-01.md",
+      "sha256": "fa34dd8d52b35c2e2a0df61e06b143ccd07b98f6752c8124d82ee6c7faa1b0d1",
+      "bytes": 13319
+    },
+    {
+      "path": "Аудит/02_Пакеты/CMP-01.md",
+      "sha256": "2669ceb8be67e53b1a64f25fba7ae448db7e0172b0b22ea986807f98717eb51d",
+      "bytes": 14952
+    },
+    {
+      "path": "Аудит/02_Пакеты/CMP-02.md",
+      "sha256": "5ceecb4e844271728a38d6689781130976bf23f18ce02fa44eb9d4ec275526d8",
+      "bytes": 13184
+    },
+    {
+      "path": "Аудит/02_Пакеты/CMP-03.md",
+      "sha256": "0e4faf4631518af0ed2096ddf45bb1548d0a6e82138a47914b0d21ec0eeca1a3",
+      "bytes": 14757
+    },
+    {
+      "path": "Аудит/02_Пакеты/CTL-01.md",
+      "sha256": "aa848cdf7983f6b041e6604a0f7ca8a60f0266f1a0ff0715777d0ea18e23b5af",
+      "bytes": 35798
+    },
+    {
+      "path": "Аудит/02_Пакеты/CTL-02.md",
+      "sha256": "79b604314819dc292681c252881e9f70296078173ee8175a1dab9d2e96a4c8d1",
+      "bytes": 32526
+    },
+    {
+      "path": "Аудит/02_Пакеты/CTL-03.md",
+      "sha256": "03dc19037f1a0cdea6840457db871956411bd60fbad0cbaa21b24d0d129535af",
+      "bytes": 29429
+    },
+    {
+      "path": "Аудит/02_Пакеты/CYC-01.md",
+      "sha256": "3ef2fd6750ed45defb89b5b839547dc46492bc150ba557d01c9a4a5e3cc0a725",
+      "bytes": 47939
+    },
+    {
+      "path": "Аудит/02_Пакеты/CYC-02.md",
+      "sha256": "cabc45067dd3a217241f4a4785a7ec034cc6ffe1796e075746ea24f5c7db0db5",
+      "bytes": 39853
+    },
+    {
+      "path": "Аудит/02_Пакеты/CYC-03.md",
+      "sha256": "d88d97012690b9f1f829831474c6b718b18a29b5a99e4d7c792668fa123d05ea",
+      "bytes": 35075
+    },
+    {
+      "path": "Аудит/02_Пакеты/CYC-04.md",
+      "sha256": "3fbe2acf89f8b8350f611af83cac2d14ec1a26ff0bb196aaee180bb8f900c884",
+      "bytes": 27666
+    },
+    {
+      "path": "Аудит/02_Пакеты/CYC-05.md",
+      "sha256": "3fa417be785890317d18999a3205521b532d5954288b117a5d10472385cff315",
+      "bytes": 35177
+    },
+    {
+      "path": "Аудит/02_Пакеты/DDM-01.md",
+      "sha256": "c2d1ae7f76c608165e5c2762c6dc96a4dbad795d41084d9311ec6691d82b256d",
+      "bytes": 7247
+    },
+    {
+      "path": "Аудит/02_Пакеты/DDM-02.md",
+      "sha256": "f448a40523d66f43624f055b946dfe151463b88f9f8e25ca2ea04f9a3e078ba1",
+      "bytes": 8952
+    },
+    {
+      "path": "Аудит/02_Пакеты/DFI-01.md",
+      "sha256": "165398f22e6765536c8a7e93ee249a5da74a7b770f2295938fdd9f0355a8798f",
+      "bytes": 10523
+    },
+    {
+      "path": "Аудит/02_Пакеты/DFI-02.md",
+      "sha256": "07aea1ce9fe628289b0e98536a1a4250d61cb1dd0733bef7b4bb8d94291cf57c",
+      "bytes": 12031
+    },
+    {
+      "path": "Аудит/02_Пакеты/DFI-03.md",
+      "sha256": "b21a1a9a24fe2a5ad4d1d7a7c34e7e82db34f85ce1d3877479ec6c86473bced3",
+      "bytes": 14368
+    },
+    {
+      "path": "Аудит/02_Пакеты/DFK-01.md",
+      "sha256": "41eec4ad3d93f596bfa4808b1b4cde4213991dc02f713a0bf7e8ee4d218924cb",
+      "bytes": 9423
+    },
+    {
+      "path": "Аудит/02_Пакеты/DFK-02.md",
+      "sha256": "2b5b5bd7099275ec501bba615443c28b5fe83b504a619542c2dfc0bd188120eb",
+      "bytes": 11192
+    },
+    {
+      "path": "Аудит/02_Пакеты/DOE-01.md",
+      "sha256": "5e6b1ed08e35c8c8948d33d6a77e588ca436ce290dbfc5644f299c960235fa11",
+      "bytes": 7659
+    },
+    {
+      "path": "Аудит/02_Пакеты/DOE-02.md",
+      "sha256": "c4e44515c9426f5005b7398fa45e2b365469a93ca8b273df29c3fa4520b07e6e",
+      "bytes": 7666
+    },
+    {
+      "path": "Аудит/02_Пакеты/DOE-03.md",
+      "sha256": "0d0497730deca954b50b473cceb789239017d4e7b83bdfe8f9387026c4919747",
+      "bytes": 8075
+    },
+    {
+      "path": "Аудит/02_Пакеты/DUR-01.md",
+      "sha256": "429615d586a4b05023fb7518779f6069ec4389d48df23fd11ea6d994a44204f3",
+      "bytes": 17894
+    },
+    {
+      "path": "Аудит/02_Пакеты/DUR-02.md",
+      "sha256": "aadd972967f7166a8ca2edfe95eedb8835a7c1cec14ad78787acf74956b55c74",
+      "bytes": 14895
+    },
+    {
+      "path": "Аудит/02_Пакеты/ECO-01.md",
+      "sha256": "7f0aed5032c9153ff09e4a4474914762e6b92e46b152bf37f5610cf5a69ec7e8",
+      "bytes": 14557
+    },
+    {
+      "path": "Аудит/02_Пакеты/EMB-01.md",
+      "sha256": "06775fb0f1c926f2dbf7ca1845a65a37ec6afb6615ed893551964f61ffb2b7f6",
+      "bytes": 9740
+    },
+    {
+      "path": "Аудит/02_Пакеты/EMB-02.md",
+      "sha256": "2b0bbb44ac18d2949e66f0687aea4c8ce3b4240746e30ffd562720e976f2b8fb",
+      "bytes": 13063
+    },
+    {
+      "path": "Аудит/02_Пакеты/EMB-03.md",
+      "sha256": "d3ef7e73f48768e8f8a9282b218eca030017f4a99cbc3bcb5268a116f5267a3e",
+      "bytes": 12966
+    },
+    {
+      "path": "Аудит/02_Пакеты/EMP-01.md",
+      "sha256": "3d614f982af037d800387f946a6cd7c43c9687533d607b5a88a70f8cbc73ab12",
+      "bytes": 20809
+    },
+    {
+      "path": "Аудит/02_Пакеты/EXE-01.md",
+      "sha256": "13bda643046a932864b70cfaf9922b85b83b113f3d885fbc7007288ad9f1a9ea",
+      "bytes": 15705
+    },
+    {
+      "path": "Аудит/02_Пакеты/EXE-02.md",
+      "sha256": "22f2fef4d26fbc2bddb6bf652b342c4c73dc2f1971db3443c50b0d650c5c06e9",
+      "bytes": 15247
+    },
+    {
+      "path": "Аудит/02_Пакеты/FED-01.md",
+      "sha256": "68c88929d653347fed25b3a20ad33af9e4a22a5dc432f1bdf4c7c200ca5f945b",
+      "bytes": 13043
+    },
+    {
+      "path": "Аудит/02_Пакеты/FED-02.md",
+      "sha256": "d95df0a63ce6f693a44b72589b85167c0fc97cf264945a34825c7398c44b5e27",
+      "bytes": 10003
+    },
+    {
+      "path": "Аудит/02_Пакеты/FIT-01.md",
+      "sha256": "cb0c7fea5b6869b142ec24f67bdfdac510aa60f26be5dde017673807ff0bab7e",
+      "bytes": 14455
+    },
+    {
+      "path": "Аудит/02_Пакеты/FRC-01.md",
+      "sha256": "9cf01f7dfd6c1f8899ce7d9f6b9488d0a1f4a2e145da615268e51a48f5e7012e",
+      "bytes": 17214
+    },
+    {
+      "path": "Аудит/02_Пакеты/FRC-02.md",
+      "sha256": "42a115f10909d6b5a242c8fafc8242f61bf087268b533367f192f5ef05d03222",
+      "bytes": 18112
+    },
+    {
+      "path": "Аудит/02_Пакеты/FRY-01.md",
+      "sha256": "ca5cae6810e3c252eb8b44ea2c57efbc68800f0309f2b14a63b7b2fb71a20486",
+      "bytes": 15357
+    },
+    {
+      "path": "Аудит/02_Пакеты/FRY-03.md",
+      "sha256": "633c491e938302b05ba20878e8cb9219470173a40e36532beaede8ce4ea983d5",
+      "bytes": 14753
+    },
+    {
+      "path": "Аудит/02_Пакеты/FUN-01.md",
+      "sha256": "6498ee1c4d99937775695bc13e68ef151a395fe4fa3de1cda9f5774da84c155c",
+      "bytes": 21059
+    },
+    {
+      "path": "Аудит/02_Пакеты/FUN-02.md",
+      "sha256": "175cff603764a8ce8d4be0e14afe3dc4264c766b23031a5c6da52146a3bfbeed",
+      "bytes": 18161
+    },
+    {
+      "path": "Аудит/02_Пакеты/FUN-03.md",
+      "sha256": "ece3fec1ec21eae6510c264e7cf031512b98f6f0bf319db1f6c5db61d62c11fe",
+      "bytes": 20792
+    },
+    {
+      "path": "Аудит/02_Пакеты/GRF-01.md",
+      "sha256": "061cfee160c2d73dea13f9a9d539ddfccdeea0e38893abc6367f97104140de51",
+      "bytes": 16453
+    },
+    {
+      "path": "Аудит/02_Пакеты/GRF-02.md",
+      "sha256": "8119ef4b2947e49c46e2aa4bd23a4c1dfe9222fc56deb8a4a0d4d767d857cb61",
+      "bytes": 16806
+    },
+    {
+      "path": "Аудит/02_Пакеты/GRF-03.md",
+      "sha256": "dea49b52cb111c4a4055ad5922ea4e6b50ef83411017a6c2f2dc7b661e12085b",
+      "bytes": 14883
+    },
+    {
+      "path": "Аудит/02_Пакеты/HYG-02.md",
+      "sha256": "b307d35ffcb66368e68033d483d05db43c990e0654c0e93655f3bdf2a4790f51",
+      "bytes": 9244
+    },
+    {
+      "path": "Аудит/02_Пакеты/HYG-04.md",
+      "sha256": "771698beb82d6b92f18124c4134a8d79fe429cad3d9fb72377dc0b8862f9beb9",
+      "bytes": 9108
+    },
+    {
+      "path": "Аудит/02_Пакеты/ING-01.md",
+      "sha256": "a23cdd39fc856ef30b4275b06b20f3d080e2e6e52c0c065defe0934e003c6486",
+      "bytes": 13975
+    },
+    {
+      "path": "Аудит/02_Пакеты/ING-02.md",
+      "sha256": "e0abaade73fe68119fa51f6d3b41b827b1595d12d0d2df2a2d8bcac58e8854e2",
+      "bytes": 13662
+    },
+    {
+      "path": "Аудит/02_Пакеты/ING-03.md",
+      "sha256": "80ba7b94fe415fbe00173f10aa96e6855d391df835d1a2f072d75bde60b98c8b",
+      "bytes": 13336
+    },
+    {
+      "path": "Аудит/02_Пакеты/JIT-01.md",
+      "sha256": "40ac9db0fc2fa0b884441e467077ac6577f0389b881ee2c8b368b8a7783f8bb7",
+      "bytes": 14742
+    },
+    {
+      "path": "Аудит/02_Пакеты/LEX-01.md",
+      "sha256": "e3c2222ed05fb070c34d2f480cc7dd525f715173ec914f529675ec040b04028b",
+      "bytes": 8479
+    },
+    {
+      "path": "Аудит/02_Пакеты/LLM-01.md",
+      "sha256": "4d9c58a7cd5d82fea05177ab7000239cb05b9ec27b77d1c8ade064cabb5757f0",
+      "bytes": 13369
+    },
+    {
+      "path": "Аудит/02_Пакеты/LLM-02.md",
+      "sha256": "5027f171fa8a32eb415bae2115a8b5baf931d4ed0c6eb34c9da3286dba277740",
+      "bytes": 13437
+    },
+    {
+      "path": "Аудит/02_Пакеты/MIG-01.md",
+      "sha256": "76c17c13955627d2353ceec8291130db17b7f2fcfe10c0dc532cd148ec911a44",
+      "bytes": 13104
+    },
+    {
+      "path": "Аудит/02_Пакеты/MIG-02.md",
+      "sha256": "4386310835b6610c5e7fd8641709f5ddd8ad0977f5e6d93cd4ffda78c78ad614",
+      "bytes": 11108
+    },
+    {
+      "path": "Аудит/02_Пакеты/MIG-04.md",
+      "sha256": "4e068b0e00513f9219c6b9363d67c1430f8a6829b8e1adaf96e49c3fad2ee8a6",
+      "bytes": 10743
+    },
+    {
+      "path": "Аудит/02_Пакеты/MIG-05.md",
+      "sha256": "26c988730c7d0221318a98c1af91e832dac11d4ffcaceb98cc59707e3ceebafc",
+      "bytes": 11488
+    },
+    {
+      "path": "Аудит/02_Пакеты/NET-01.md",
+      "sha256": "b770b36a04c32297fd726496c9547c293baa77a5698717857f425f5d16e2c336",
+      "bytes": 11695
+    },
+    {
+      "path": "Аудит/02_Пакеты/NET-02.md",
+      "sha256": "e0f7aabe9816f9626ffce83a0b4d92d9fc4ace6adba88b1a8c8a2cb693e53300",
+      "bytes": 10623
+    },
+    {
+      "path": "Аудит/02_Пакеты/OBS-01.md",
+      "sha256": "075350dfb2e916735dc91776a8e7b36577b06ea871c2b143adca412e68b8d75c",
+      "bytes": 10003
+    },
+    {
+      "path": "Аудит/02_Пакеты/OBS-02.md",
+      "sha256": "af96b215c08da6d2c04c23a0f64b14cadbe10d54c1186cd3b8bc5b400461f3c2",
+      "bytes": 10125
+    },
+    {
+      "path": "Аудит/02_Пакеты/OPT-01.md",
+      "sha256": "1c657929a0bd65872f81909d7b91fda715333e687acaf4ec05cac3e1bb5930b3",
+      "bytes": 30204
+    },
+    {
+      "path": "Аудит/02_Пакеты/OPT-02.md",
+      "sha256": "39481161e116ed5f2143ec341a00150c3876c094f11b1d05890a8587d68e3fd3",
+      "bytes": 22058
+    },
+    {
+      "path": "Аудит/02_Пакеты/OPT-03.md",
+      "sha256": "3d02752e5ba27d3d8d34f787ce18ac6ec64ea6634e00257de54e2e79e7836b26",
+      "bytes": 20530
+    },
+    {
+      "path": "Аудит/02_Пакеты/OPT-04.md",
+      "sha256": "ea34111cee3a3a4c2dd0dd38c6b5b6cbb31da8891a88921c67046565d94a2ca3",
+      "bytes": 20515
+    },
+    {
+      "path": "Аудит/02_Пакеты/PCL-01.md",
+      "sha256": "2138e470f8320c98bfbc3149f61c718261e14e9f903e1eb8d91a2d3a6d9d00f6",
+      "bytes": 16614
+    },
+    {
+      "path": "Аудит/02_Пакеты/PLG-01.md",
+      "sha256": "2d909c297f83d4d8509f8379214aa28527dd9482259e2214351d465716de3675",
+      "bytes": 13274
+    },
+    {
+      "path": "Аудит/02_Пакеты/PLG-02.md",
+      "sha256": "2dd62ae8f7d3899446fe1007f5e96d7ed0e541b2c7f795fb1c41f425013c2f5b",
+      "bytes": 11574
+    },
+    {
+      "path": "Аудит/02_Пакеты/PLG-03.md",
+      "sha256": "c33e7730477ae74719343c422156b83773147ed5a9de9694e619c68a27259792",
+      "bytes": 16673
+    },
+    {
+      "path": "Аудит/02_Пакеты/REP-01.md",
+      "sha256": "ca3ebf507e0e2edda73eb9b7fa197463a9e5d437d43fdbd266fe77f7a4599bef",
+      "bytes": 10898
+    },
+    {
+      "path": "Аудит/02_Пакеты/REQ-01.md",
+      "sha256": "861363b105fd9f90abe9f89c9015cb85a9f7334a3ff9900dbd8b7a4abb6b1fbd",
+      "bytes": 21175
+    },
+    {
+      "path": "Аудит/02_Пакеты/RES-01.md",
+      "sha256": "5cf118c31eb5af3cabd0921f2ce5e2f326d383ac6519b1106623ddab1fff9493",
+      "bytes": 16719
+    },
+    {
+      "path": "Аудит/02_Пакеты/RES-02.md",
+      "sha256": "5ad6a20b883236740ebc4f363506bbfc1ebb0cdf964f76a42f83c23505f66bbd",
+      "bytes": 16182
+    },
+    {
+      "path": "Аудит/02_Пакеты/RES-03.md",
+      "sha256": "853a9496bcd39f481eece51db13d7979922e8415f39ab63660b1f1a41ae168e0",
+      "bytes": 16659
+    },
+    {
+      "path": "Аудит/02_Пакеты/RES-04.md",
+      "sha256": "0266eecb50c9360137d5cde4375c77667699da12944d333a8c77c70ccf675dd1",
+      "bytes": 13580
+    },
+    {
+      "path": "Аудит/02_Пакеты/RUN-01.md",
+      "sha256": "c57bd4172289b8922c32b5d263d99acbc4d1454dfbe9005433a28986e7dd9adf",
+      "bytes": 17435
+    },
+    {
+      "path": "Аудит/02_Пакеты/RUN-02.md",
+      "sha256": "2c4b2b4b4c9956a73016d081c4894a1881d0f773dd1b9e3bc4512234ac1e41eb",
+      "bytes": 15750
+    },
+    {
+      "path": "Аудит/02_Пакеты/RUN-03.md",
+      "sha256": "a3506f632dc6969f284c453f883d61ead92baef14d1067da74f6fa46e0b94f55",
+      "bytes": 16434
+    },
+    {
+      "path": "Аудит/02_Пакеты/SCL-01.md",
+      "sha256": "85e81b69bf909ecf56fb2c4f7ed04b1ce887c7aeedd00e33df6d5218a6487ffe",
+      "bytes": 14264
+    },
+    {
+      "path": "Аудит/02_Пакеты/SCL-03.md",
+      "sha256": "3c51a3c73209a24dd038c6894899c2ad731efc5775a7f2512ae04fd544b6a3b4",
+      "bytes": 13413
+    },
+    {
+      "path": "Аудит/02_Пакеты/SCM-01.md",
+      "sha256": "e9a991c772db5817ca36728b3cae1669d87dc9f3425dfb49a3a8ff91ca948d33",
+      "bytes": 17194
+    },
+    {
+      "path": "Аудит/02_Пакеты/SCM-02.md",
+      "sha256": "0d8c37e156f7d60afe19f8bac0415bf40976ab766492924c34c995a5d0185e74",
+      "bytes": 15248
+    },
+    {
+      "path": "Аудит/02_Пакеты/SCM-03.md",
+      "sha256": "c51c3eaaf05a065eea44f83834ba91f208691765fa6fcafc9ec3ef201ee74b49",
+      "bytes": 15055
+    },
+    {
+      "path": "Аудит/02_Пакеты/SEL-01.md",
+      "sha256": "9474d061a780600470e82b2a890e0e916644cd696a468c9ffae85be47d8ff2ab",
+      "bytes": 32818
+    },
+    {
+      "path": "Аудит/02_Пакеты/SIM-01.md",
+      "sha256": "3ecffd971c41fa651cdb847ea69468c0c024ea759510b95e1b39f46d32bb6d85",
+      "bytes": 27720
+    },
+    {
+      "path": "Аудит/02_Пакеты/SIM-02.md",
+      "sha256": "54549cfffd8fb5a9825569e55e4d2024d30c22b656a7f96f1d91ff838f374416",
+      "bytes": 34458
+    },
+    {
+      "path": "Аудит/02_Пакеты/SIM-03.md",
+      "sha256": "8172e5a2943fa1b615f120ab9ed580126b1ebcf5d4f7970e01a4fab7c7a1d9cd",
+      "bytes": 39686
+    },
+    {
+      "path": "Аудит/02_Пакеты/SRV-01.md",
+      "sha256": "c1facc07f47d5d12381cbe7e949436379009bc465c39811dd2e526277430541d",
+      "bytes": 32935
+    },
+    {
+      "path": "Аудит/02_Пакеты/SRV-03.md",
+      "sha256": "8e64f635c03855ce1213b6f7286ef16dcbe50afbf6a001f452b82adddaf52e08",
+      "bytes": 34522
+    },
+    {
+      "path": "Аудит/02_Пакеты/STA-01.md",
+      "sha256": "2933d508a629021e4e04ded151a55845d69c4a2778eb25e9316cb37c73d226d7",
+      "bytes": 16460
+    },
+    {
+      "path": "Аудит/02_Пакеты/STA-02.md",
+      "sha256": "e10b20d16f0a56c2e4e8a13829d0394864e0fc40e879d9364030a3fdf1790b66",
+      "bytes": 18090
+    },
+    {
+      "path": "Аудит/02_Пакеты/STP-01.md",
+      "sha256": "14600e49d0d080b5e76fb017cbc46d6f95ade0b8890648ed51269d07fc1922ed",
+      "bytes": 25869
+    },
+    {
+      "path": "Аудит/02_Пакеты/STR-01.md",
+      "sha256": "183809ad17033fbe8682479eb0673ea89863fed65c14a8906ac1a0144322cf57",
+      "bytes": 7677
+    },
+    {
+      "path": "Аудит/02_Пакеты/TRN-01.md",
+      "sha256": "236bcfd3e21e6a45eb51a698858c52cd432b4ce2031bbeaafb6b0a1a0fa7c017",
+      "bytes": 18899
+    },
+    {
+      "path": "Аудит/02_Пакеты/TRN-02.md",
+      "sha256": "81541101ac75170228069d4baae1d823984d73bde237ce3226edd10cf1e7c7f3",
+      "bytes": 18991
+    },
+    {
+      "path": "Аудит/02_Пакеты/TRN-03.md",
+      "sha256": "f984372d2400762213d2df56b972cec6add2755159c4df2c7810a455b76fde77",
+      "bytes": 19361
+    },
+    {
+      "path": "Аудит/02_Пакеты/UDF-01.md",
+      "sha256": "2d0b37e63dad18e68b32261cce47ee6cbc9431437ddb861bdcddee4801291db8",
+      "bytes": 11221
+    },
+    {
+      "path": "Аудит/02_Пакеты/UDF-02.md",
+      "sha256": "59b27150397147032f1189e07b1eca80d22c412241b72269ae9ad724c1958ec7",
+      "bytes": 10687
+    },
+    {
+      "path": "Аудит/02_Пакеты/UDF-04.md",
+      "sha256": "5a0ed3962611da1275c8f64f06030a6721ec7648edaaf7a86d06337316c64267",
+      "bytes": 9856
+    },
+    {
+      "path": "Аудит/02_Пакеты/UDF-05.md",
+      "sha256": "e51b99cf31548fdb726be114b3249b38ebe94e99084eddd7356eb5e7aaddbd80",
+      "bytes": 11865
+    },
+    {
+      "path": "Аудит/02_Пакеты/UQP-01.md",
+      "sha256": "957cba1f939886cf22e2f5b724a3d186c9beb65ea3bcc5183cf82bfb8ad6c6a3",
+      "bytes": 9260
+    },
+    {
+      "path": "Аудит/02_Пакеты/UQP-02.md",
+      "sha256": "7d1c84df3494ed68fb1154fa2a199e6ab19835ee9ab1a78847fcdc3324cf8ade",
+      "bytes": 10091
+    },
+    {
+      "path": "Аудит/02_Пакеты/UQP-03.md",
+      "sha256": "64dbe7df482c208a1bb47034144a388a8d000db9efa38addde43f01e7c7f058a",
+      "bytes": 9252
+    },
+    {
+      "path": "Аудит/02_Пакеты/UQS-01.md",
+      "sha256": "1d95931c14e323c17e057ed728be498337f26251750e3ea0ce19110d1da1a68d",
+      "bytes": 10987
+    },
+    {
+      "path": "Аудит/02_Пакеты/WIRE-01.md",
+      "sha256": "7abfd7d89c72be35b09919b6301e04698fa409af14bf50c67192f5f1f14e46a8",
+      "bytes": 14426
+    },
+    {
+      "path": "Аудит/03_Основания/C03_C04_переоценка_ремонта.md",
+      "sha256": "d5006cf0825031384f7c7762c44c1d4ff883f9754a371403ae78202e3f0062c9",
+      "bytes": 4425
+    },
+    {
+      "path": "Аудит/03_Основания/Переоценка_исходных_решений.md",
+      "sha256": "897b5e17e1153f88ce5967de50649c70c47faf4b0cf4bd50f8c8cd6069271da5",
+      "bytes": 8651
+    },
+    {
+      "path": "Аудит/03_Основания/Рабочая_установка_LLM_2026-10-31.md",
+      "sha256": "23b712c0184c5f268fec70eeea9ac2da926a4c0e8cbe032c9dc9d3ea84aaf5bf",
+      "bytes": 4464
+    },
+    {
+      "path": "Аудит/03_Основания/Уточнение_C76_в_C78.md",
+      "sha256": "6ff952a439c5a7d96371bcb2e3fff78e5dbe01ceaa1fd3afaa2ebccc9d148e4d",
+      "bytes": 1750
+    },
+    {
+      "path": "Аудит/05_Источники/ACQ-01_исходные_строки.txt",
+      "sha256": "913e6180fb971dc261f99ceb9734d59769c6e831868d295bbd6902bdc5b3cf0f",
+      "bytes": 25594
+    },
+    {
+      "path": "Аудит/05_Источники/API-01_исходные_строки.txt",
+      "sha256": "5c82adc38350eb89f4428194fc3d22878f597d0121f254199d065ebf2f9320de",
+      "bytes": 10963
+    },
+    {
+      "path": "Аудит/05_Источники/BER-01_исходные_строки.txt",
+      "sha256": "5abc37acf91999c54fd0c243ab2bccce8899aff3e986a564d802ffd775e423a1",
+      "bytes": 23769
+    },
+    {
+      "path": "Аудит/05_Источники/BKT-01_исходные_строки.txt",
+      "sha256": "2b14e0080ffc97207f0f4a18d342639389844bacb822355d673c710f13fe7c0d",
+      "bytes": 15992
+    },
+    {
+      "path": "Аудит/05_Источники/BKT-02_исходные_строки.txt",
+      "sha256": "227d5b3576af2a5182a35202733e96ccfae6097a1714c63e53690fc82e3b8592",
+      "bytes": 18481
+    },
+    {
+      "path": "Аудит/05_Источники/BKT-03_исходные_строки.txt",
+      "sha256": "c306723681ae72de73f1ff12ea0d462fa4f34fcf3c8cc299c729b6548db58be6",
+      "bytes": 11447
+    },
+    {
+      "path": "Аудит/05_Источники/BKT-04_исходные_строки.txt",
+      "sha256": "8e27b268a4c2185af0bdca5290686ad480830f0f36d282484644ca63c168eec9",
+      "bytes": 11521
+    },
+    {
+      "path": "Аудит/05_Источники/C03_C04_дополнительные_основания.md",
+      "sha256": "f87ef375e2b127c55571feef9772b10f04a518bd86e3f94014e2c1d87a9c45d1",
+      "bytes": 1465
+    },
+    {
+      "path": "Аудит/05_Источники/C03_C04_источники.json",
+      "sha256": "ed595644f494e387dc332b86672cdc887ebd8830d702a6b791efbb728768e9b6",
+      "bytes": 22141
+    },
+    {
+      "path": "Аудит/05_Источники/C05_источники.json",
+      "sha256": "9b2ba9f360605967aa1b16209f207c9b1b8212774b91306842fa118403040adb",
+      "bytes": 10021
+    },
+    {
+      "path": "Аудит/05_Источники/C06_источники.json",
+      "sha256": "6ef524eb591442ac26577d2684d013b0157e6f4c5d307462ca77ca6a834e575e",
+      "bytes": 9715
+    },
+    {
+      "path": "Аудит/05_Источники/C07_источники.json",
+      "sha256": "7084f2ea4cce004c47541298f7d5153b7213c48065b2fc5bf06b3c0fbfa7394c",
+      "bytes": 9111
+    },
+    {
+      "path": "Аудит/05_Источники/C08_источники.json",
+      "sha256": "c12dcada781d7a5cdaf6c3286346bdb80bcd528e5d54834815a7846312f8484a",
+      "bytes": 7525
+    },
+    {
+      "path": "Аудит/05_Источники/C09_источники.json",
+      "sha256": "7c71a34702ab250f2ac87cf007fe868e4709582a5f98254d9101d2e80a672c69",
+      "bytes": 7756
+    },
+    {
+      "path": "Аудит/05_Источники/C100_источники.json",
+      "sha256": "338f103fbbde98e2dbf4c99bec18351182d2ef751da4a532d46db5df5ecb6ba9",
+      "bytes": 16791
+    },
+    {
+      "path": "Аудит/05_Источники/C101_источники.json",
+      "sha256": "bb6202a8afe1be66f9b55ad33210cb5d564f49476c33024d476f57be2c3bf3c2",
+      "bytes": 15833
+    },
+    {
+      "path": "Аудит/05_Источники/C102_источники.json",
+      "sha256": "06a8f71dab0bdcf60c58ab0cc3979d0b0bf60b7e419d2ca17e46549af01aeda2",
+      "bytes": 13844
+    },
+    {
+      "path": "Аудит/05_Источники/C103_источники.json",
+      "sha256": "12b37c29f93e5ebe24e5e4d679b5b42858656fa9ccfedfd4285f9d19480a95a6",
+      "bytes": 10854
+    },
+    {
+      "path": "Аудит/05_Источники/C104_источники.json",
+      "sha256": "46d9ed270a963543fd1969081de0ec5f1ea437235ece023b57fd1de2738f8088",
+      "bytes": 17055
+    },
+    {
+      "path": "Аудит/05_Источники/C105_источники.json",
+      "sha256": "2f4094c786acfde5548e4052a172ac833052873a9e37f2eaf254c33c0bf8f359",
+      "bytes": 18406
+    },
+    {
+      "path": "Аудит/05_Источники/C106_источники.json",
+      "sha256": "d70da0b89371ec79ab18033fc40f89ef258f499fbe6834dbb8c8ef20105083b2",
+      "bytes": 14890
+    },
+    {
+      "path": "Аудит/05_Источники/C107_источники.json",
+      "sha256": "dc5044f49d68742f7a11ba812c52a21c5963d91455eb075a470278163dc47c3a",
+      "bytes": 17783
+    },
+    {
+      "path": "Аудит/05_Источники/C108_источники.json",
+      "sha256": "3c1482bb88184bc3186396bb9a5f94f98d0265557cc718b818acaa7f0cc4211c",
+      "bytes": 10952
+    },
+    {
+      "path": "Аудит/05_Источники/C109_источники.json",
+      "sha256": "a47a0cfc0182a982bd01ea19e22af8df57341020c8a2570addaddb19706b389e",
+      "bytes": 9488
+    },
+    {
+      "path": "Аудит/05_Источники/C10_источники.json",
+      "sha256": "094956f8470e109936edc32f1be79206f99ab90f1370e9a6033f8964c8144aec",
+      "bytes": 9699
+    },
+    {
+      "path": "Аудит/05_Источники/C110_источники.json",
+      "sha256": "e3df1983eea9c8863795f284a3e201f0db4ad5c0642da0ad1f7d75f8283d1212",
+      "bytes": 7585
+    },
+    {
+      "path": "Аудит/05_Источники/C111_источники.json",
+      "sha256": "e0782549382bc628c7d0cea9910eb95887a687bf678f9d03bdf50963506cd77f",
+      "bytes": 10614
+    },
+    {
+      "path": "Аудит/05_Источники/C112_источники.json",
+      "sha256": "fa110a462d5881884e84df69c462b43a7fe19404a00550da1599de62b0d7df2c",
+      "bytes": 8966
+    },
+    {
+      "path": "Аудит/05_Источники/C113_источники.json",
+      "sha256": "c8ac2dfda5e8499955dab12846f5840aa89187411fdf39b40278c5bc069cc218",
+      "bytes": 11901
+    },
+    {
+      "path": "Аудит/05_Источники/C114_источники.json",
+      "sha256": "f3c0bb4023f1e22a0ee8af8fae0eff3d998310a35526cd0ab8c09c779b50b479",
+      "bytes": 10338
+    },
+    {
+      "path": "Аудит/05_Источники/C115_источники.json",
+      "sha256": "b5b3fbc25823c2ef46b917eec6607732e8c821c8ac8dfa6955e51387e58adf9d",
+      "bytes": 16468
+    },
+    {
+      "path": "Аудит/05_Источники/C116_источники.json",
+      "sha256": "88679d77940a8f8150b5de29a6b9eba70dd66d92235d3ec5713c12b90bd0b3dc",
+      "bytes": 6349
+    },
+    {
+      "path": "Аудит/05_Источники/C117_источники.json",
+      "sha256": "9fe83deb2819df9fd9a47f32ea0f1caef22e6b8f0c5ad935d7e81e8b78436cf9",
+      "bytes": 6934
+    },
+    {
+      "path": "Аудит/05_Источники/C118_источники.json",
+      "sha256": "c2cc48b1317226dea0a5260a9660649118550d54c8ab18229de1d306d5d3a7db",
+      "bytes": 7299
+    },
+    {
+      "path": "Аудит/05_Источники/C119_источники.json",
+      "sha256": "3d92ca232247dfa5c2157998291afba1f0b6d8a2ab6954a43778ea267f858a8c",
+      "bytes": 8506
+    },
+    {
+      "path": "Аудит/05_Источники/C11_источники.json",
+      "sha256": "4b88dea69f6472e3ce9370fffd67d8d9c31f9d8ccf1887d3ec8fecf7739f380d",
+      "bytes": 8689
+    },
+    {
+      "path": "Аудит/05_Источники/C120_источники.json",
+      "sha256": "aaeefecc61e4b6352a7e742695342ee409e274474aa943cff92e0da7ea894f95",
+      "bytes": 16864
+    },
+    {
+      "path": "Аудит/05_Источники/C121_источники.json",
+      "sha256": "f4811559058c19c40ebcb2f36f82438dc85e69e652c6e3e02c676214e333c2fd",
+      "bytes": 12677
+    },
+    {
+      "path": "Аудит/05_Источники/C122_источники.json",
+      "sha256": "12dda254363742bdb4bc298676dcfa2448dd402d95af5362740cebd6943c1db2",
+      "bytes": 12907
+    },
+    {
+      "path": "Аудит/05_Источники/C123_источники.json",
+      "sha256": "4387169fc88ad7f250de12da980a4fc871ed9e236c115945f6b9f3f3bc8043b8",
+      "bytes": 16461
+    },
+    {
+      "path": "Аудит/05_Источники/C124_источники.json",
+      "sha256": "6fcb84bac44c6041d442fce000d3dbf3b0b9d4a1c72ad8a8628ef52df467e3d6",
+      "bytes": 19745
+    },
+    {
+      "path": "Аудит/05_Источники/C125_источники.json",
+      "sha256": "976fa06712857386878af829e6208f924c04567d980ef21963459d2e572bcb7d",
+      "bytes": 22683
+    },
+    {
+      "path": "Аудит/05_Источники/C126_источники.json",
+      "sha256": "963c7acd52028c6edebbad267588f1b02b6b6dee04772be58ea08329d0f0f020",
+      "bytes": 23501
+    },
+    {
+      "path": "Аудит/05_Источники/C127_источники.json",
+      "sha256": "97e1db99b3d34c8615aadfdba2b301b65c55ad4cacd52fafbcf11daddd9ba92e",
+      "bytes": 18780
+    },
+    {
+      "path": "Аудит/05_Источники/C12_источники.json",
+      "sha256": "ead182d8b62641ff5141ebbb33fc985e15c5304da3eb72b4c420e87fbc2b531c",
+      "bytes": 11092
+    },
+    {
+      "path": "Аудит/05_Источники/C13_источники.json",
+      "sha256": "b7ad39d8445324ab4d6a6b0d444028c771d36100b55a06b0746b35d442934467",
+      "bytes": 6990
+    },
+    {
+      "path": "Аудит/05_Источники/C14_источники.json",
+      "sha256": "7638daa1518f86cb5a24dd98a33ba2a7fb0893f67338e7e59a755d5cfed8af36",
+      "bytes": 5954
+    },
+    {
+      "path": "Аудит/05_Источники/C15_источники.json",
+      "sha256": "2f350a6dbe4f70a59b558ccefbf67ca7a8462f8df5b2c37056f1ae78dc06c6a9",
+      "bytes": 6782
+    },
+    {
+      "path": "Аудит/05_Источники/C16_источники.json",
+      "sha256": "eb5658b770cc36be4045b880c0bcae8ce0c9a00924cca0dad302ff75e828e88e",
+      "bytes": 9471
+    },
+    {
+      "path": "Аудит/05_Источники/C17_источники.json",
+      "sha256": "0ca72a18a1e6cac73aad36d650105a7e0fd3a3dd9e6e6f8e4068a74d66ae4cca",
+      "bytes": 4449
+    },
+    {
+      "path": "Аудит/05_Источники/C18_источники.json",
+      "sha256": "838c28218b1766d715019eb208e00c323a2340a9aca2d5a9fe1d05fbfa5ae149",
+      "bytes": 6789
+    },
+    {
+      "path": "Аудит/05_Источники/C19_источники.json",
+      "sha256": "250639ab80d3b73ad9a7eaa664938a42b39e6038ea4882f53a2411b3a20f4ac2",
+      "bytes": 12074
+    },
+    {
+      "path": "Аудит/05_Источники/C20_источники.json",
+      "sha256": "84dd55b3c0aa5c2939780b70ecc12bfd8e075d71fd94565309bb2bba020fa966",
+      "bytes": 10978
+    },
+    {
+      "path": "Аудит/05_Источники/C21_источники.json",
+      "sha256": "b32c1f42118097c24c1fa8683de450321a24b47fb77334ba3d18ed58fc76e111",
+      "bytes": 6987
+    },
+    {
+      "path": "Аудит/05_Источники/C22_источники.json",
+      "sha256": "992707bda6e6b6cce20266ff83bbbf5a04519bc8c250e8253ab7a41d41683c7b",
+      "bytes": 11291
+    },
+    {
+      "path": "Аудит/05_Источники/C23_источники.json",
+      "sha256": "d512177cf16f3bb6935ec835e3f5a86a67aadc0aa5468957d19c08e29874b7ca",
+      "bytes": 15566
+    },
+    {
+      "path": "Аудит/05_Источники/C24_источники.json",
+      "sha256": "31527e65503359cde262217240c2723024fe7ab9afbe2b4b4a9ba4feb5157bd0",
+      "bytes": 15775
+    },
+    {
+      "path": "Аудит/05_Источники/C25_источники.json",
+      "sha256": "f6968eafdf77d4af3aaab29c4548c0ffdd857015c68ab2605ae0362138ab2dce",
+      "bytes": 9483
+    },
+    {
+      "path": "Аудит/05_Источники/C26_источники.json",
+      "sha256": "9d59ccf9e089f2215ae6b8808cea88f1bfd195a818c2c9a133110e7b40acde47",
+      "bytes": 11440
+    },
+    {
+      "path": "Аудит/05_Источники/C27_источники.json",
+      "sha256": "475f643710a3d1a564b6c741a1dc81748faef1eff7f95074f5858edd3e007c57",
+      "bytes": 8196
+    },
+    {
+      "path": "Аудит/05_Источники/C28_источники.json",
+      "sha256": "7f40164711467403390c60f0d1081d8de166053158b9636a789b484a94352d40",
+      "bytes": 6628
+    },
+    {
+      "path": "Аудит/05_Источники/C29_источники.json",
+      "sha256": "be2b2bdc1c61d35dd3d715faad2bd76ed1768f96f6af6a11d09e411ecd9a890f",
+      "bytes": 10475
+    },
+    {
+      "path": "Аудит/05_Источники/C30_источники.json",
+      "sha256": "2c05ea468546f0e15759c6c8292d1084c3284a9e0b2b66b53aab925283932dc9",
+      "bytes": 12700
+    },
+    {
+      "path": "Аудит/05_Источники/C31_источники.json",
+      "sha256": "dbf80640bcc102a7612e03bb73fe531ae20f6422af041714ea0cb18b5e743c75",
+      "bytes": 10658
+    },
+    {
+      "path": "Аудит/05_Источники/C32_источники.json",
+      "sha256": "dc5d021517cfd41134536f50c029703196d30f2a168bf78f9e754ef7078e4a5b",
+      "bytes": 10997
+    },
+    {
+      "path": "Аудит/05_Источники/C33_источники.json",
+      "sha256": "a4f3871efa99b273573bdf5abe43f3c76e5d70cfcdd02b515ab2f92b316313e2",
+      "bytes": 8606
+    },
+    {
+      "path": "Аудит/05_Источники/C34_источники.json",
+      "sha256": "21a537a671c50e57440900256aaf59825faa45a2e90f7928f6250f57383d60fa",
+      "bytes": 9019
+    },
+    {
+      "path": "Аудит/05_Источники/C35_источники.json",
+      "sha256": "fee368b865adfc54d1e0a8c442efdf494ab0feb2bf0e8fba5f7a9bfecac2fdab",
+      "bytes": 7372
+    },
+    {
+      "path": "Аудит/05_Источники/C36_источники.json",
+      "sha256": "7561164d937b02616ba369a97045915eccf4329158a400ce30c913d12fcf29e7",
+      "bytes": 27341
+    },
+    {
+      "path": "Аудит/05_Источники/C37_источники.json",
+      "sha256": "9b7d780ab642d8bc9557d30b7f276db275970ebdfe09ff245a65bacea9b007bf",
+      "bytes": 20500
+    },
+    {
+      "path": "Аудит/05_Источники/C38_источники.json",
+      "sha256": "8c9b1448c3b9bfcc48288cf52c60e09759821412f5b13e1bfd02757c6ef694a2",
+      "bytes": 18582
+    },
+    {
+      "path": "Аудит/05_Источники/C39_источники.json",
+      "sha256": "1e783ac6ff7c96f0fdc942981f7ed642f8bfa2f04227db3ab27f8df3a6144861",
+      "bytes": 11684
+    },
+    {
+      "path": "Аудит/05_Источники/C40_источники.json",
+      "sha256": "2e5b4e4da6a4d9474186f3bb081f134e38602c7f5d338e06e6693571a31fe2a0",
+      "bytes": 6691
+    },
+    {
+      "path": "Аудит/05_Источники/C41_источники.json",
+      "sha256": "2d2306e6765e57ca18c77d469aa4d86623597c9659b6a98bb2b3a968dff5b078",
+      "bytes": 12136
+    },
+    {
+      "path": "Аудит/05_Источники/C42_источники.json",
+      "sha256": "ccf7c91a6dcb1f1cc1ac8cc6692d0adf96e540ef3288f02906f01217a8d92f56",
+      "bytes": 14478
+    },
+    {
+      "path": "Аудит/05_Источники/C43_источники.json",
+      "sha256": "f44a3f2edeef44cda229f436d4080a96034ce3373f4680d9f522ac9a13878f04",
+      "bytes": 10303
+    },
+    {
+      "path": "Аудит/05_Источники/C44_источники.json",
+      "sha256": "2dbb1109262901427bc8dd4e9bcf92541cd3ae2854949817fd04b2926da2bf96",
+      "bytes": 11310
+    },
+    {
+      "path": "Аудит/05_Источники/C45_источники.json",
+      "sha256": "1fc780c876e13c839f25116ce467c25ea53155e87be2bafa396fa331f8f47a76",
+      "bytes": 10772
+    },
+    {
+      "path": "Аудит/05_Источники/C46_источники.json",
+      "sha256": "4901bdc7160706805ddb94456845950ddca2a00371b4b4478bc0502cfe32c0f6",
+      "bytes": 15518
+    },
+    {
+      "path": "Аудит/05_Источники/C47_источники.json",
+      "sha256": "b3f2b6ac5a609cc4ee8efd3830fbed9abeb9e7787606a7522919491c2a38b25a",
+      "bytes": 10986
+    },
+    {
+      "path": "Аудит/05_Источники/C48_источники.json",
+      "sha256": "5693a02ed40c68a05ea8dcb722609d9ad2a6d16df4d015a52e35af74b647a6bb",
+      "bytes": 11746
+    },
+    {
+      "path": "Аудит/05_Источники/C49_источники.json",
+      "sha256": "5d701e7112e8b4a71adcd6fdca04ab6c7d47f22ac31d75de35097cd53f78835a",
+      "bytes": 9347
+    },
+    {
+      "path": "Аудит/05_Источники/C50_источники.json",
+      "sha256": "132c6ca74862a401575379fb2d1ac67a5d1c773bcf7ae0eed1e31edb80c4ff16",
+      "bytes": 11685
+    },
+    {
+      "path": "Аудит/05_Источники/C51_источники.json",
+      "sha256": "08521c43eb9ccf05449a1454f0ebf5649e96c7faba9a5a02a8deea21946f95c8",
+      "bytes": 12345
+    },
+    {
+      "path": "Аудит/05_Источники/C52_источники.json",
+      "sha256": "67a53aafa53fd65837abdbe6e17109cc1997bd79f91243a100a29233e9ebda97",
+      "bytes": 11789
+    },
+    {
+      "path": "Аудит/05_Источники/C53_источники.json",
+      "sha256": "eed3ee326331c14d12d185566cb354baf98a5f7637345052946596431d5293df",
+      "bytes": 11219
+    },
+    {
+      "path": "Аудит/05_Источники/C54_источники.json",
+      "sha256": "17c42b1e4c6fa9a26a6b316107f694504f637775743a23164c9a0fa6e300a0d0",
+      "bytes": 12518
+    },
+    {
+      "path": "Аудит/05_Источники/C55_источники.json",
+      "sha256": "8371369046416609356752582d126e08ba397298cd37f80fae360a48eaa55c90",
+      "bytes": 17142
+    },
+    {
+      "path": "Аудит/05_Источники/C56_источники.json",
+      "sha256": "2b599f6d08314fa73bb241bea748fec7c08ceb2753c3f0a4a48fc9389c102a1c",
+      "bytes": 21379
+    },
+    {
+      "path": "Аудит/05_Источники/C57_источники.json",
+      "sha256": "547b320a696b5d97f69280b918b29d9372d6359eaab8c3f2e87a0ac2a57ece39",
+      "bytes": 15075
+    },
+    {
+      "path": "Аудит/05_Источники/C58_источники.json",
+      "sha256": "99bed940905b577566846dd0e6d7fe2d114efc2e7cf5702472be7bd44e3be511",
+      "bytes": 12155
+    },
+    {
+      "path": "Аудит/05_Источники/C59_источники.json",
+      "sha256": "f24d33fcc7e82785c080f2154c993752e2dac1c99f931c91b2d6929644e762c7",
+      "bytes": 11301
+    },
+    {
+      "path": "Аудит/05_Источники/C60_источники.json",
+      "sha256": "c926aff8ca0277e7dd329f13e932cdfc2cae0f0295d0034795a35e047d1a7aa1",
+      "bytes": 12240
+    },
+    {
+      "path": "Аудит/05_Источники/C61_источники.json",
+      "sha256": "a655ca51e1d4e4c286ef77e3caf8094e05b12ac6251a2dab8af9dd48cb863fa6",
+      "bytes": 16702
+    },
+    {
+      "path": "Аудит/05_Источники/C62_источники.json",
+      "sha256": "ba37499f07e28d70a76e75898138164aefd7a2a58875c453d50d12fe27345843",
+      "bytes": 20046
+    },
+    {
+      "path": "Аудит/05_Источники/C63_источники.json",
+      "sha256": "77758c1b7b2624c53cfed8a04134737ba7d2320bfab59e7e073bb9ab2a935df3",
+      "bytes": 16103
+    },
+    {
+      "path": "Аудит/05_Источники/C64_источники.json",
+      "sha256": "525462150a5727962983d2c6fb03a6fc571783bb5760fb14cd5fb272557114c6",
+      "bytes": 11254
+    },
+    {
+      "path": "Аудит/05_Источники/C65_источники.json",
+      "sha256": "90c4ee33598885c2b829b539a4adb8b1e72504a5e779e52b955dfc5b06d33f6c",
+      "bytes": 13443
+    },
+    {
+      "path": "Аудит/05_Источники/C66_источники.json",
+      "sha256": "d0c30919cedc15486617633c62bb0d49a7275a0e6830573588dc563c07ee36a2",
+      "bytes": 13569
+    },
+    {
+      "path": "Аудит/05_Источники/C67_источники.json",
+      "sha256": "12167303bcb47475387e0f93f9460a9e596c11f1f7a0c65f06915a6c6aebd594",
+      "bytes": 14066
+    },
+    {
+      "path": "Аудит/05_Источники/C68_источники.json",
+      "sha256": "37379dc66b7964bd00cf41af25389f1020cd4d75a43355cb7b7d5437feb95f1f",
+      "bytes": 10705
+    },
+    {
+      "path": "Аудит/05_Источники/C69_источники.json",
+      "sha256": "d9bc4a6a50c950e2778b89308cc8b2bf75690b39ebac742a37076ea3af41e40a",
+      "bytes": 7902
+    },
+    {
+      "path": "Аудит/05_Источники/C70_источники.json",
+      "sha256": "aabcaa2c2d937e82cfb04297651ee9973fdc8b12e90921c99890e8df7fc6ccba",
+      "bytes": 10110
+    },
+    {
+      "path": "Аудит/05_Источники/C71_источники.json",
+      "sha256": "529e79d1ade27d9260773d25ce920ab16343fb8ee04277acc3fe067954d49ab4",
+      "bytes": 8102
+    },
+    {
+      "path": "Аудит/05_Источники/C72_источники.json",
+      "sha256": "12dd9f2a5019d395052f26690c5da973072e9eb47f010747cfd1dc83c9c3d944",
+      "bytes": 11807
+    },
+    {
+      "path": "Аудит/05_Источники/C73_источники.json",
+      "sha256": "7ce0f30f33c3e7c24878412a6afd7b6ccd6a3cd78c91dd8b193cdbbdd9893ebe",
+      "bytes": 12297
+    },
+    {
+      "path": "Аудит/05_Источники/C74_источники.json",
+      "sha256": "073a222f1452c2a0a81e2db12889d96f7bbc92c541f2859752ae0ef15c8c2d42",
+      "bytes": 12451
+    },
+    {
+      "path": "Аудит/05_Источники/C75_источники.json",
+      "sha256": "a86e025ff462835042cde27c631461679863e5f8a84aa0c91e4a46e2c0e29140",
+      "bytes": 10785
+    },
+    {
+      "path": "Аудит/05_Источники/C76_источники.json",
+      "sha256": "e7260f33b4ef6bde18b3e289894797e3c3535670058ca53a3b003f848d1df778",
+      "bytes": 12499
+    },
+    {
+      "path": "Аудит/05_Источники/C77_источники.json",
+      "sha256": "e9a7eab4878774e9a9269b361977482bf1106d62a53ec8e2f79eaccf887feaea",
+      "bytes": 15066
+    },
+    {
+      "path": "Аудит/05_Источники/C78_источники.json",
+      "sha256": "dfb60d59f7ec73f70f0f6f44381736e8b6094c027c833a2e2f106709f719a40c",
+      "bytes": 16880
+    },
+    {
+      "path": "Аудит/05_Источники/C79_источники.json",
+      "sha256": "8c493c9801e449d1991cb6b41f41f2dba9b84cdd0f3b9434815530f5950234b1",
+      "bytes": 21269
+    },
+    {
+      "path": "Аудит/05_Источники/C80_источники.json",
+      "sha256": "bb1232b2de2fb422e678ae86770cac98591e3a4a96cba818e11750ca3886cae1",
+      "bytes": 9853
+    },
+    {
+      "path": "Аудит/05_Источники/C81_источники.json",
+      "sha256": "e50e3a6f907e9f65aeb4faf6b0653511b7cd2c8f52009fa96ef356c6d99667d9",
+      "bytes": 14775
+    },
+    {
+      "path": "Аудит/05_Источники/C82_источники.json",
+      "sha256": "62b4cf825f6d8c5e0028681915c20fc9e540d4bbb57c00483e10b41bec989c9c",
+      "bytes": 15612
+    },
+    {
+      "path": "Аудит/05_Источники/C83_источники.json",
+      "sha256": "d9d85b102f541ecd2153a773d54638b0f115e1a7bc78599344a0dc9915b1572b",
+      "bytes": 20464
+    },
+    {
+      "path": "Аудит/05_Источники/C84_источники.json",
+      "sha256": "7fe369aca0bbd1ef34c1fdb4ac5be92dcef7ffe6f64ce03868e766b87882dc21",
+      "bytes": 12730
+    },
+    {
+      "path": "Аудит/05_Источники/C85_источники.json",
+      "sha256": "cba564c7bdb77d76b80e9286097e05a1338983f1bb34a4f569b460a1b8908c15",
+      "bytes": 17234
+    },
+    {
+      "path": "Аудит/05_Источники/C86_источники.json",
+      "sha256": "8e5dafc95c905cf92e6f74558f273d156232974f3cece8fe93ae5c29c2cd6ac8",
+      "bytes": 11881
+    },
+    {
+      "path": "Аудит/05_Источники/C87_источники.json",
+      "sha256": "be17f5650b6f5f9ca7ed0aca7b0fc01a1b17d7ef4da2d854d768e3c5f048c8be",
+      "bytes": 15539
+    },
+    {
+      "path": "Аудит/05_Источники/C88_источники.json",
+      "sha256": "7c6f0ff0201cb2d30139eef02492c2b5729c9a032a7c0bbb025f6bff02c0aa95",
+      "bytes": 12191
+    },
+    {
+      "path": "Аудит/05_Источники/C89_источники.json",
+      "sha256": "c6dd2678b2c79637762112df66e36f57b88a418d4962779b2b38279efe0e6d31",
+      "bytes": 11900
+    },
+    {
+      "path": "Аудит/05_Источники/C90_источники.json",
+      "sha256": "0c293eea12dbccc6835bb0e9dec0c7f6fa224b29f8d6bc23dff59f4751ad6ab6",
+      "bytes": 8329
+    },
+    {
+      "path": "Аудит/05_Источники/C91_источники.json",
+      "sha256": "8ca2a94108e1a623a4c8fd0dd11e36a1e2738b0a4c93c417665d6a3c4285f428",
+      "bytes": 12911
+    },
+    {
+      "path": "Аудит/05_Источники/C92_источники.json",
+      "sha256": "06a809f118d8ca6a185b4c10c7e3c06953ba341e4f683b2b473d9913eb60fc2e",
+      "bytes": 18272
+    },
+    {
+      "path": "Аудит/05_Источники/C93_источники.json",
+      "sha256": "aa24ae87fb3dfd27e56f93fe8bf13190f5958375eaee12ad13506282b073d2f6",
+      "bytes": 15550
+    },
+    {
+      "path": "Аудит/05_Источники/C94_источники.json",
+      "sha256": "cc8e13ffd73f37f5bf3fb7074cd2f597b3f26bf1f34be40e1964fa18f2f34e12",
+      "bytes": 18752
+    },
+    {
+      "path": "Аудит/05_Источники/C95_источники.json",
+      "sha256": "5b813601cd27e9a9b7e3881ecc4cc70c8b28b2e5130fb6dac84042fd534ed498",
+      "bytes": 11764
+    },
+    {
+      "path": "Аудит/05_Источники/C96_источники.json",
+      "sha256": "564fc9f48868bbbca929c8ec8f411c3ef3d0f14ea6a5a5a85badec8afdb752e6",
+      "bytes": 15253
+    },
+    {
+      "path": "Аудит/05_Источники/C97_источники.json",
+      "sha256": "866938fe968684739fc9281acfc19ab4673cf3e6a8676f510bd1c04b6ccab9d1",
+      "bytes": 16504
+    },
+    {
+      "path": "Аудит/05_Источники/C98_источники.json",
+      "sha256": "58bdb3fa3d24a7f4536cf3b849b300a091c02956dde0d7aa504364a1c6d5f04f",
+      "bytes": 12880
+    },
+    {
+      "path": "Аудит/05_Источники/C99_источники.json",
+      "sha256": "7ef8ef1ba8f8c481c3f5303fb9219b487518708db97ec71cefadcf85302f8548",
+      "bytes": 22000
+    },
+    {
+      "path": "Аудит/05_Источники/CAL-01_исходные_строки.txt",
+      "sha256": "bbc765d6b7afcc07fcced9718a09c5773751f8620f3dddc2436f23d5cc55782c",
+      "bytes": 16564
+    },
+    {
+      "path": "Аудит/05_Источники/CAL-02_исходные_строки.txt",
+      "sha256": "4cea7fa71a04d481f9bbfc88db6ddd697ed0f81b00935adf3125e59f23cf4fbe",
+      "bytes": 18152
+    },
+    {
+      "path": "Аудит/05_Источники/CAL-03_исходные_строки.txt",
+      "sha256": "2054896e7c7528cc40faa7cc6f72b0e8df910992e6eaff8181f3c46d7796136f",
+      "bytes": 12393
+    },
+    {
+      "path": "Аудит/05_Источники/CAL-04_исходные_строки.txt",
+      "sha256": "dac5630d71984193680151b2c53a03d22c6a81370aa6c86a2ed5c6b7ecb7fb4e",
+      "bytes": 16105
+    },
+    {
+      "path": "Аудит/05_Источники/CAL-05_исходные_строки.txt",
+      "sha256": "fad2e4599f6012b3bce058c260897b191e995f6ebbfd76a3b4eacc29830672a3",
+      "bytes": 8444
+    },
+    {
+      "path": "Аудит/05_Источники/CAL-06_исходные_строки.txt",
+      "sha256": "4a9e4f27cb7b5f8c6382aa762fb2663a9928567b78c737cf689682b807f081e6",
+      "bytes": 12081
+    },
+    {
+      "path": "Аудит/05_Источники/CAN-01_исходные_строки.txt",
+      "sha256": "87066da00c040fa8d94de59e3d31efe0ce1753f9cd3768305b91272f250d14db",
+      "bytes": 12521
+    },
+    {
+      "path": "Аудит/05_Источники/CAS-01_исходные_строки.txt",
+      "sha256": "caf2c49b346ae5d5ec4174c95a68fee3e518f29fa56e7b0180e6f254bd9eeb7e",
+      "bytes": 17176
+    },
+    {
+      "path": "Аудит/05_Источники/CAS-02_исходные_строки.txt",
+      "sha256": "4f889e33f75bbc661be155eac804c96761bc76d75eb4f370ab132882075b3111",
+      "bytes": 12394
+    },
+    {
+      "path": "Аудит/05_Источники/CAS-03_исходные_строки.txt",
+      "sha256": "97e95eeea1c9f85a2bf01de3a43d9d4f2cdbf5a624a01acbc8741a91baaf5c7b",
+      "bytes": 15697
+    },
+    {
+      "path": "Аудит/05_Источники/CAU-01_исходные_строки.txt",
+      "sha256": "ba8e0b06e59b69df2c96a9e8067804489ac90292c58c77cabc6f551d5be04457",
+      "bytes": 20724
+    },
+    {
+      "path": "Аудит/05_Источники/CAU-02_исходные_строки.txt",
+      "sha256": "d984a52fc5fae7234be50a46211fc4adca6b652118054facba12cdd81b6510b4",
+      "bytes": 15002
+    },
+    {
+      "path": "Аудит/05_Источники/CAU-03_исходные_строки.txt",
+      "sha256": "72490b7de72cd88a399f92f72c9325092b0e8c4b32ff39e536d0a849acc4e15f",
+      "bytes": 11310
+    },
+    {
+      "path": "Аудит/05_Источники/CAU-04_исходные_строки.txt",
+      "sha256": "129d6ac91207ad1c4769eb69ee22afc4516f1d15e288b14779efbaf033cc4917",
+      "bytes": 10700
+    },
+    {
+      "path": "Аудит/05_Источники/CAU-05_исходные_строки.txt",
+      "sha256": "698bef397defd33e42ae04b7f3c5eea39dfd358b2639e829f83d1ef84ece0c50",
+      "bytes": 8149
+    },
+    {
+      "path": "Аудит/05_Источники/CLI-01_исходные_строки.txt",
+      "sha256": "349c8f4c47e34fdc3d80177bca6f65a9b806cf0200ae5c4979d97c529b241e39",
+      "bytes": 27101
+    },
+    {
+      "path": "Аудит/05_Источники/CMP-01_исходные_строки.txt",
+      "sha256": "4d84fd91e424d73a59d6f1732289c492e1ac5cce9cf2b44676facdf5c9321ce0",
+      "bytes": 16474
+    },
+    {
+      "path": "Аудит/05_Источники/CMP-02_исходные_строки.txt",
+      "sha256": "e2565ca14b8936b1fc5b32b2b7e261c9013c5cf569286eaf18d5398064ad55fd",
+      "bytes": 11796
+    },
+    {
+      "path": "Аудит/05_Источники/CMP-03_исходные_строки.txt",
+      "sha256": "23fb2bb45f3c5a5a204725f02f0a4ec478cff6e7d0aa1ec915bc8e73c2b76df0",
+      "bytes": 12693
+    },
+    {
+      "path": "Аудит/05_Источники/CTL-01_исходные_строки.txt",
+      "sha256": "6e37610e3f27e080b4c40bb03008ab586c10968b64e2223a28b721a7d12a5672",
+      "bytes": 18455
+    },
+    {
+      "path": "Аудит/05_Источники/CTL-02_исходные_строки.txt",
+      "sha256": "4bdfbce7c745aaed034188dfa77a3311338faf73ccbe47738fd3fdcf37527d0d",
+      "bytes": 16304
+    },
+    {
+      "path": "Аудит/05_Источники/CTL-03_исходные_строки.txt",
+      "sha256": "aa05d9ab067316c6828831df8730cb6b93bd1fb6701f776947a43b0571cef37f",
+      "bytes": 17434
+    },
+    {
+      "path": "Аудит/05_Источники/CYC-01_исходные_строки.txt",
+      "sha256": "b2349cff56f5b7d392f71b4fa07fc87a975ad33f35452de672277885b7638b8f",
+      "bytes": 15337
+    },
+    {
+      "path": "Аудит/05_Источники/CYC-02_исходные_строки.txt",
+      "sha256": "16bd8e08bf14674155449064790b03af786581463ef25f97e2caa4115e1e91f1",
+      "bytes": 13856
+    },
+    {
+      "path": "Аудит/05_Источники/CYC-03_исходные_строки.txt",
+      "sha256": "2c3a3220b849f366ffac940d2e4e8feeb0d0941c93518a41bf2bc0edb1b3f804",
+      "bytes": 13024
+    },
+    {
+      "path": "Аудит/05_Источники/CYC-04_исходные_строки.txt",
+      "sha256": "0537c16da8294931570301294150787275ee9e57af0abe85b7097d06775fff15",
+      "bytes": 10253
+    },
+    {
+      "path": "Аудит/05_Источники/CYC-05_исходные_строки.txt",
+      "sha256": "66efb9352a276b68a42fc03b7c242e0e25b737e227a79a09ae56071bb3e07ed5",
+      "bytes": 13194
+    },
+    {
+      "path": "Аудит/05_Источники/DDM-01_исходные_строки.txt",
+      "sha256": "8f33474347ae67f460eae3bf5cddf782cf3676d9a2f3d52b5f52746b3534c30f",
+      "bytes": 20497
+    },
+    {
+      "path": "Аудит/05_Источники/DDM-02_исходные_строки.txt",
+      "sha256": "8b10d18d6a6439baf4148b59d02d7647f811fb756bc8c983192277ae3ce23059",
+      "bytes": 35912
+    },
+    {
+      "path": "Аудит/05_Источники/DFI-01_исходные_строки.txt",
+      "sha256": "2b0a44c5116be96c295f487d636355ad1d2525a617129374f2c8ecac56ba2ce4",
+      "bytes": 14999
+    },
+    {
+      "path": "Аудит/05_Источники/DFI-02_исходные_строки.txt",
+      "sha256": "bd51dbe39bc425be9d9988d1ca4577b4e5646729a061ca67f9fe0f139811717b",
+      "bytes": 15061
+    },
+    {
+      "path": "Аудит/05_Источники/DFI-03_исходные_строки.txt",
+      "sha256": "cd66f39736999297aa1a6e12649183dfea152a38999f361ed5533937c7d4ee85",
+      "bytes": 17038
+    },
+    {
+      "path": "Аудит/05_Источники/DFK-01_исходные_строки.txt",
+      "sha256": "741bd85c3066e1051fc5ec57cbfd4ac1a1e26cb7418c4bfc3d94ce9d9bded4d7",
+      "bytes": 24410
+    },
+    {
+      "path": "Аудит/05_Источники/DFK-02_исходные_строки.txt",
+      "sha256": "f24707131a7933c8116f255b7ce596edbb843ec67edde1d2380ffeea40128e15",
+      "bytes": 14337
+    },
+    {
+      "path": "Аудит/05_Источники/DOE-01_исходные_строки.txt",
+      "sha256": "ca86729a0a7cf8c6d43cdc2bb3574fa82be57ea7ab00d1e977d5fee94d63df90",
+      "bytes": 14896
+    },
+    {
+      "path": "Аудит/05_Источники/DOE-02_исходные_строки.txt",
+      "sha256": "1ee06b9148e2b3e36ee3d895a8ea06416dd9d7688116a565c8588ec2d194657a",
+      "bytes": 11101
+    },
+    {
+      "path": "Аудит/05_Источники/DOE-03_исходные_строки.txt",
+      "sha256": "f511cc9e81d62493d6768e97f4f82fd827fdb22c89d6d228dcbf232df8c6480d",
+      "bytes": 18058
+    },
+    {
+      "path": "Аудит/05_Источники/DUR-01_исходные_строки.txt",
+      "sha256": "a65ab1ea5a3e188d501d11968c63c26611e713c51838594154723a5e394e890e",
+      "bytes": 9308
+    },
+    {
+      "path": "Аудит/05_Источники/DUR-02_исходные_строки.txt",
+      "sha256": "05c7f301032c7224d796cecf7f161f540a0c788ccc577815ee023cd0c8876503",
+      "bytes": 14609
+    },
+    {
+      "path": "Аудит/05_Источники/E02_исходный_план.md",
+      "sha256": "a786081953e0d6d4e59bd469dd3b5fb976f4924e1b10df407abde15b924dc865",
+      "bytes": 2900970
+    },
+    {
+      "path": "Аудит/05_Источники/ECO-01_исходные_строки.txt",
+      "sha256": "b3a42268716d30a733b718c89eb3453efd49547bd0167f9150d020b6813ee954",
+      "bytes": 19684
+    },
+    {
+      "path": "Аудит/05_Источники/EMB-01_исходные_строки.txt",
+      "sha256": "dd75877609ed6d9cd80aa7180730e4ede0f071cb4960c6576fb339a19f2326f7",
+      "bytes": 16453
+    },
+    {
+      "path": "Аудит/05_Источники/EMB-02_исходные_строки.txt",
+      "sha256": "8528b91e08a1dda65cc25aedc51bc66c91b2353ca9a953e7a80be70b6bfc0d18",
+      "bytes": 16753
+    },
+    {
+      "path": "Аудит/05_Источники/EMB-03_исходные_строки.txt",
+      "sha256": "6c6857833f80ec11455f75778a7b5e06020681cad72ce7ea16de7dc2bcb21d69",
+      "bytes": 22605
+    },
+    {
+      "path": "Аудит/05_Источники/EMP-01_исходные_строки.txt",
+      "sha256": "d30f239443031dd343921400bb8b44b74f0f9017c073441d8a185d463134cdf3",
+      "bytes": 13820
+    },
+    {
+      "path": "Аудит/05_Источники/EXE-01_исходные_строки.txt",
+      "sha256": "128a5f9465a5fcde446ba8de6b80225c26ecdb82af7e09876065f28cb4a44c7a",
+      "bytes": 17699
+    },
+    {
+      "path": "Аудит/05_Источники/EXE-02_исходные_строки.txt",
+      "sha256": "09c2cbea97b851cbd8c4b9a56f7783be11086d165e2c7443b3306975bffb280d",
+      "bytes": 9150
+    },
+    {
+      "path": "Аудит/05_Источники/FED-01_исходные_строки.txt",
+      "sha256": "29a91cd19243c36582840e34e9340f5920c58bbf11fe3e25ea7c6b09ce07e442",
+      "bytes": 22082
+    },
+    {
+      "path": "Аудит/05_Источники/FED-02_исходные_строки.txt",
+      "sha256": "e4b1931e095521473a0170a8b20f6c70bcc1b54baa14064ad0a9f71e78e5fae2",
+      "bytes": 19000
+    },
+    {
+      "path": "Аудит/05_Источники/FIT-01_исходные_строки.txt",
+      "sha256": "139657bf9ee4bece9d83d55fb3e635c513a5adee075c948d19f89cfe7e99b2a3",
+      "bytes": 14722
+    },
+    {
+      "path": "Аудит/05_Источники/FRC-01_исходные_строки.txt",
+      "sha256": "ba60ce13a95d578ccc586b353672257c9c390f6b50ab48e245bc8c0fc268066c",
+      "bytes": 20585
+    },
+    {
+      "path": "Аудит/05_Источники/FRC-02_исходные_строки.txt",
+      "sha256": "5e36a7b1d51dd201c63846d909533c763375028f75a378b5e658af8290eb8007",
+      "bytes": 19063
+    },
+    {
+      "path": "Аудит/05_Источники/FRY-01_исходные_строки.txt",
+      "sha256": "31bd5d954a2b2ce6ad582f2a16da48e98884d7fbcf80185479ec99bf985432a1",
+      "bytes": 19782
+    },
+    {
+      "path": "Аудит/05_Источники/FRY-03_исходные_строки.txt",
+      "sha256": "b267e134445a974efe0e91a2baa6f1b784d100e123a40c63a3c4fb062a3d3ab2",
+      "bytes": 10245
+    },
+    {
+      "path": "Аудит/05_Источники/FUN-01_исходные_строки.txt",
+      "sha256": "48c8d72eebb11c298a9b52d6f57588825df24704c1dca56902edb8661d36af4b",
+      "bytes": 15794
+    },
+    {
+      "path": "Аудит/05_Источники/FUN-02_исходные_строки.txt",
+      "sha256": "c0bfa91e930f7c1ad9d523acdf9b0954f4108505af3bb6a6b8675b3ada185400",
+      "bytes": 18417
+    },
+    {
+      "path": "Аудит/05_Источники/FUN-03_исходные_строки.txt",
+      "sha256": "b08b8d79cbb5c33cc493558047aafc0fe2b00c2eeeaa9da9f68a5b269fd4b3a5",
+      "bytes": 15898
+    },
+    {
+      "path": "Аудит/05_Источники/GRF-01_исходные_строки.txt",
+      "sha256": "a60ca261f0c24db2726bae8aa944577d7038c6d7e20db4b66a3042694ea9da70",
+      "bytes": 23630
+    },
+    {
+      "path": "Аудит/05_Источники/GRF-02_исходные_строки.txt",
+      "sha256": "a4b1dc4183b208792a652040ea5a0655096042a651c8823f507715d02423f016",
+      "bytes": 12104
+    },
+    {
+      "path": "Аудит/05_Источники/GRF-03_исходные_строки.txt",
+      "sha256": "235ec3008abb2a73d2608cdb019033f960bdf981a699bf610c9b6362c173fbc1",
+      "bytes": 12857
+    },
+    {
+      "path": "Аудит/05_Источники/HYG-02_исходные_строки.txt",
+      "sha256": "ab37fb3cc52a92ddef2c6d657a4449380741fc896f8ceb8154c0705b8b0b7ea3",
+      "bytes": 16586
+    },
+    {
+      "path": "Аудит/05_Источники/HYG-04_исходные_строки.txt",
+      "sha256": "d80bb12fc8db732d7054492f00c401e2c5623ae897b40125955ed6617808767d",
+      "bytes": 17529
+    },
+    {
+      "path": "Аудит/05_Источники/ING-01_исходные_строки.txt",
+      "sha256": "fa6e29936d004cb43aada5ec5f22fbbc4ed46032cce32a9d19fd1386e63082b0",
+      "bytes": 17105
+    },
+    {
+      "path": "Аудит/05_Источники/ING-02_исходные_строки.txt",
+      "sha256": "7a6aa21d3d691ed9af3e916c8bcebc9f82426855f185fe9efcac667b89a42701",
+      "bytes": 15578
+    },
+    {
+      "path": "Аудит/05_Источники/ING-03_исходные_строки.txt",
+      "sha256": "f58af63c54045f34e7b4d1239a7d987bd99fa974b6ddbf7a923af5fcba6531c7",
+      "bytes": 17322
+    },
+    {
+      "path": "Аудит/05_Источники/JIT-01_исходные_строки.txt",
+      "sha256": "36231718358e56f0888d39903274d1afc9b80164665645a70a6a0f1d0c428092",
+      "bytes": 19984
+    },
+    {
+      "path": "Аудит/05_Источники/LEX-01_исходные_строки.txt",
+      "sha256": "5a60503b496f932563dbcbc3919ef978b3b31922961489acfc528700d358029a",
+      "bytes": 9254
+    },
+    {
+      "path": "Аудит/05_Источники/LLM-01_исходные_строки.txt",
+      "sha256": "de4a71838f628bd3a0716578a0c2568dbaf3b675cceb5a4db8f085a46321fee1",
+      "bytes": 18509
+    },
+    {
+      "path": "Аудит/05_Источники/LLM-02_исходные_строки.txt",
+      "sha256": "466ac0e36c8ff2f3c26fbafd88d3787d376afc0f55cc3a9b7c1ec6b442292f8d",
+      "bytes": 13461
+    },
+    {
+      "path": "Аудит/05_Источники/MIG-01_исходные_строки.txt",
+      "sha256": "f8842f918f576afdfa0b88c235a88cbe1618df7cc993efc7da0e3ad874982e57",
+      "bytes": 21758
+    },
+    {
+      "path": "Аудит/05_Источники/MIG-02_исходные_строки.txt",
+      "sha256": "03515c819a77af8bf8cf52359832704151ef9579b24135e500e2dd527c3e76d1",
+      "bytes": 17623
+    },
+    {
+      "path": "Аудит/05_Источники/MIG-04_исходные_строки.txt",
+      "sha256": "d94f3138a794a0685047d30b99e7b8a71371bc07794a63480719aa0fc5d92f7b",
+      "bytes": 15576
+    },
+    {
+      "path": "Аудит/05_Источники/MIG-05_исходные_строки.txt",
+      "sha256": "e9afbb24caba179cf920a34bc9c7b45a51279589f32279fb777d81c0dc51e15d",
+      "bytes": 16326
+    },
+    {
+      "path": "Аудит/05_Источники/NET-01_исходные_строки.txt",
+      "sha256": "4bc2c0988f93290751362afaea4336e86bad07c633ca653aaf3b453e3b272b6d",
+      "bytes": 17220
+    },
+    {
+      "path": "Аудит/05_Источники/NET-02_исходные_строки.txt",
+      "sha256": "d7aff2ab14a124e96811f9422f519c84af67a368f03cb69f645ea3685303cb62",
+      "bytes": 16656
+    },
+    {
+      "path": "Аудит/05_Источники/OBS-01_исходные_строки.txt",
+      "sha256": "e2d20ea70ca724055c2b1281ea42c31a8c68f900ddde41b86dd283627cd73990",
+      "bytes": 15553
+    },
+    {
+      "path": "Аудит/05_Источники/OBS-02_исходные_строки.txt",
+      "sha256": "eaea9adad9633b52c6914f936010cdab11b7a90f6a6aab3a25f3193f1481dbc8",
+      "bytes": 10527
+    },
+    {
+      "path": "Аудит/05_Источники/OPT-01_исходные_строки.txt",
+      "sha256": "7fe1872aff10fb92a375f525884a0c1df321ad4ca8057bdfc1708035ae676b04",
+      "bytes": 20704
+    },
+    {
+      "path": "Аудит/05_Источники/OPT-02_исходные_строки.txt",
+      "sha256": "3315c39976eb344e3f5cf1cbbce53b81e1fab8c259c27679b6c8c45a7ede5c53",
+      "bytes": 16816
+    },
+    {
+      "path": "Аудит/05_Источники/OPT-03_исходные_строки.txt",
+      "sha256": "74f2627bc756db76d0612e12db01ff0aa2e12aa5cbfd285f0fcf6379d6107228",
+      "bytes": 12197
+    },
+    {
+      "path": "Аудит/05_Источники/OPT-04_исходные_строки.txt",
+      "sha256": "fc6168bccee7e6e3e21db7276683bab60dad546965bdb35d0a95871cb17354c1",
+      "bytes": 13062
+    },
+    {
+      "path": "Аудит/05_Источники/PCL-01_исходные_строки.txt",
+      "sha256": "2c012d7a41a1719b452cbc09b322e0c64bfc6e78f70247e0b788ce83d2f9c10b",
+      "bytes": 24982
+    },
+    {
+      "path": "Аудит/05_Источники/PLG-01_исходные_строки.txt",
+      "sha256": "efc5cf1e0904d8d1eb7d45d81d691c53a5cb3d2d99e26bd1f5907f75a530f530",
+      "bytes": 9901
+    },
+    {
+      "path": "Аудит/05_Источники/PLG-02_исходные_строки.txt",
+      "sha256": "29f8eae04b347ec39046d14de335c67b3fab3c2a9306725911a952518d6ebb6b",
+      "bytes": 9296
+    },
+    {
+      "path": "Аудит/05_Источники/PLG-03_исходные_строки.txt",
+      "sha256": "b12a21afdf73e063315c65f4a9658befcc025e01b2361e77cef1a8c0e95b00ce",
+      "bytes": 10722
+    },
+    {
+      "path": "Аудит/05_Источники/REP-01_исходные_строки.txt",
+      "sha256": "51137a077eea8be56b05c3bb39fb5785858222fb0772e3c9d5cec95e6b7e4523",
+      "bytes": 12848
+    },
+    {
+      "path": "Аудит/05_Источники/REQ-01_исходные_строки.txt",
+      "sha256": "9f3a7fb28484d826436f325dbfd3b4fc672580876fb4d840b30d6ee3d5432178",
+      "bytes": 32687
+    },
+    {
+      "path": "Аудит/05_Источники/RES-01_исходные_строки.txt",
+      "sha256": "4929b6be8a6c0ec66efdb5197766f39472fd006d9fa8397570cd00ff6f7b29cd",
+      "bytes": 20439
+    },
+    {
+      "path": "Аудит/05_Источники/RES-02_исходные_строки.txt",
+      "sha256": "15734f822c794b1b07966f9d04b61139794dcd75d52a91e55f6bb4dc92151a9e",
+      "bytes": 13947
+    },
+    {
+      "path": "Аудит/05_Источники/RES-03_исходные_строки.txt",
+      "sha256": "2fcba21ac271986d934c7a93cf48506b2f35ffd01efa234a48ce6595d07820c0",
+      "bytes": 8106
+    },
+    {
+      "path": "Аудит/05_Источники/RES-04_исходные_строки.txt",
+      "sha256": "c2d32bd39277b6d5006d86d2550727699c91c6ecef48ad8a5e6c0618a7fdbb7c",
+      "bytes": 19635
+    },
+    {
+      "path": "Аудит/05_Источники/RUN-01_исходные_строки.txt",
+      "sha256": "d47c298d28c16ed92ddad0a8ebc93f5e980ccf06967b37465879f3b81e52e779",
+      "bytes": 29272
+    },
+    {
+      "path": "Аудит/05_Источники/RUN-02_исходные_строки.txt",
+      "sha256": "d6b92b353116a0bab51b56ca5432fa53136e8a5088d22822491f9429e6752286",
+      "bytes": 7836
+    },
+    {
+      "path": "Аудит/05_Источники/RUN-03_исходные_строки.txt",
+      "sha256": "006934a70c6c3e949349d843456e5e9462b8efa7a321243f1e4299b87e76211c",
+      "bytes": 12727
+    },
+    {
+      "path": "Аудит/05_Источники/SCL-01_исходные_строки.txt",
+      "sha256": "0ff0dd1d5c15af0bc2935f9a474115f03ab7155abc3f60cad01eaa29a8c4a79a",
+      "bytes": 13572
+    },
+    {
+      "path": "Аудит/05_Источники/SCL-03_исходные_строки.txt",
+      "sha256": "e4b813a188ed77a50a37919239b31297a0d7c421e62aaedbfb5603b4fb3af024",
+      "bytes": 12872
+    },
+    {
+      "path": "Аудит/05_Источники/SCM-01_исходные_строки.txt",
+      "sha256": "ef7030a2d8a420b75215174e6a985a78bbd992ed32f0de95360ad12042232487",
+      "bytes": 12048
+    },
+    {
+      "path": "Аудит/05_Источники/SCM-02_исходные_строки.txt",
+      "sha256": "5f6145af3953db0bdf46533c781a22baeb2b9cef769c3e7d7d1cd6062d0e3e85",
+      "bytes": 12146
+    },
+    {
+      "path": "Аудит/05_Источники/SCM-03_исходные_строки.txt",
+      "sha256": "b26c1c9385d55ba0b276e34617530eff90a926b2c79ec18e14eaeb17eaa142bd",
+      "bytes": 13186
+    },
+    {
+      "path": "Аудит/05_Источники/SEL-01_исходные_строки.txt",
+      "sha256": "efe2069fef39d1c13818229f204eef2af06c5d7fffce954c09592171ee6b1eb7",
+      "bytes": 18149
+    },
+    {
+      "path": "Аудит/05_Источники/SIM-01_исходные_строки.txt",
+      "sha256": "5d2a967e81c0790f30264d5e15528c0956d6e96705517d8c492a0565611daa9e",
+      "bytes": 9301
+    },
+    {
+      "path": "Аудит/05_Источники/SIM-02_исходные_строки.txt",
+      "sha256": "0aa7d3a2ca52ae59ea8a1e52c1518747ff3ba335bf994fb6c66c610032b5084a",
+      "bytes": 13641
+    },
+    {
+      "path": "Аудит/05_Источники/SIM-03_исходные_строки.txt",
+      "sha256": "8e36d7f30c2e2a43590fbbb50040f8b3602ca054b751d3e118a663c04307009d",
+      "bytes": 20857
+    },
+    {
+      "path": "Аудит/05_Источники/SRV-01_исходные_строки.txt",
+      "sha256": "43b751b1e94100f27b7b0d8988075fe4c30096a00805dd16491c72339517c7b7",
+      "bytes": 8554
+    },
+    {
+      "path": "Аудит/05_Источники/SRV-03_исходные_строки.txt",
+      "sha256": "50908decabdb38c797fb6079b2a5b8a08fdd93ef80e1ee62a38f67b5a531522f",
+      "bytes": 10092
+    },
+    {
+      "path": "Аудит/05_Источники/STA-01_исходные_строки.txt",
+      "sha256": "a9a441fc37b894a7f54db5153b5728d85fd696505fcaf04fc1fe5ebedfddbc6a",
+      "bytes": 19865
+    },
+    {
+      "path": "Аудит/05_Источники/STA-02_исходные_строки.txt",
+      "sha256": "d5222cb19d591dc121082f49de3847311eb2c91152f4f2030cc6e6a0fb21d0e1",
+      "bytes": 18018
+    },
+    {
+      "path": "Аудит/05_Источники/STP-01_исходные_строки.txt",
+      "sha256": "db9b285d8255abd48fcca6f0a821507b3e54e2d95dc332368bcc3d990025ddc1",
+      "bytes": 11027
+    },
+    {
+      "path": "Аудит/05_Источники/STR-01_исходные_строки.txt",
+      "sha256": "254ac83b23a3dbade99d34a2f5565d25f40baf46ab25081bdf6f19fec646fe62",
+      "bytes": 10950
+    },
+    {
+      "path": "Аудит/05_Источники/TRN-01_исходные_строки.txt",
+      "sha256": "1ab25cf7a65470a02c94b59d89260bb8b20f0826a5751d868d002d4eb13906f0",
+      "bytes": 21289
+    },
+    {
+      "path": "Аудит/05_Источники/TRN-02_исходные_строки.txt",
+      "sha256": "c1930fec289490762186304800b2d41e2dea221eb72a2c359410296231355c19",
+      "bytes": 17639
+    },
+    {
+      "path": "Аудит/05_Источники/TRN-03_исходные_строки.txt",
+      "sha256": "2d364fd3f7b5c8d60a28ea459325a4ef94131d703c4c50b8b6724ce7363e41ce",
+      "bytes": 16455
+    },
+    {
+      "path": "Аудит/05_Источники/UDF-01_исходные_строки.txt",
+      "sha256": "183ed003cad6491dc1fb3a38e21f796b93541681b058136a7436d50c6db6e114",
+      "bytes": 16723
+    },
+    {
+      "path": "Аудит/05_Источники/UDF-02_исходные_строки.txt",
+      "sha256": "aabb09d7fec29fec06479fe24327fcf3db13899dc00960733aa9b9fff326b407",
+      "bytes": 14008
+    },
+    {
+      "path": "Аудит/05_Источники/UDF-04_исходные_строки.txt",
+      "sha256": "29fe6a60b9bf1fa2f24d3f4cb7075d859eb21b8dd36eef7301010c1243e483d0",
+      "bytes": 9958
+    },
+    {
+      "path": "Аудит/05_Источники/UDF-05_исходные_строки.txt",
+      "sha256": "4dd3bb4ddf57b7baee016fd0294b8d1bd95473e38c5f6805457f78d61f544f4f",
+      "bytes": 13447
+    },
+    {
+      "path": "Аудит/05_Источники/UQP-01_исходные_строки.txt",
+      "sha256": "7257769065840effbe1b464149b36e125bec833ab6df330d8f66958293c662f7",
+      "bytes": 17509
+    },
+    {
+      "path": "Аудит/05_Источники/UQP-02_исходные_строки.txt",
+      "sha256": "6ad69bbf1eaa4b5e88d42f8328232e0c6ef19e7179bc5b4a9171b8e7191a5aad",
+      "bytes": 14835
+    },
+    {
+      "path": "Аудит/05_Источники/UQP-03_исходные_строки.txt",
+      "sha256": "f279d9e742cd7c4886f2b818cc5c690d8e2091e04f1cfe55e8fb24e9071809f9",
+      "bytes": 12438
+    },
+    {
+      "path": "Аудит/05_Источники/UQS-01_исходные_строки.txt",
+      "sha256": "379fcaa46fbb517a9faf80446b857be0d7e37468cb81131220691bb014f9288e",
+      "bytes": 20638
+    },
+    {
+      "path": "Аудит/05_Источники/WIRE-01_исходные_строки.txt",
+      "sha256": "0ca31cb18c98baf76765b9092181022652c9741e9753d2fbb97e61eea4b11b96",
+      "bytes": 9321
+    },
+    {
+      "path": "Аудит/05_Источники/Репозиторные_основания.json",
+      "sha256": "7c3342105c75ac41e34ed6bc1724a3f49635515eab4d46553a474345c5c119f9",
+      "bytes": 14695
+    },
+    {
+      "path": "Дополнительное_CI/canary_matrix_result.json",
+      "sha256": "5b1ff1ff8e55cc6c046ba91a4b759478099e327bdd32f4d210420e7d8c05cb40",
+      "bytes": 5747
+    },
+    {
+      "path": "Дополнительное_CI/nightly_41296488485_qualification.json",
+      "sha256": "c5676b384461a7d56eaa96d54d69ee68bf546618f2865dc04bdb3a2ec5632eb0",
+      "bytes": 12673
+    },
+    {
+      "path": "Дополнительное_CI/nightly_41296488485_qualification.md",
+      "sha256": "0da1a3bde7e03f837b464b6a7cdbe5d955f3131b42ccbc86e26c1329c35a702a",
+      "bytes": 4829
+    },
+    {
+      "path": "Дополнительное_CI/qualification_note.md",
+      "sha256": "919d7a46e95a0051899cf4961d9d06ddc200b1d8f15b8fa0a8a662d3f3dc7f36",
+      "bytes": 1619
+    },
+    {
+      "path": "Исследование/audit_to_work_inventory.json",
+      "sha256": "66f94b462f8092e34f714be58d7c74575ba8f9ef8f4f096447208772d63f4113",
+      "bytes": 11933120
+    },
+    {
+      "path": "Исследование/audit_to_work_inventory_README.md",
+      "sha256": "66544deca292b90c858c0817876a152c8a3a822ee661f2a995db2b92d741676f",
+      "bytes": 10801
+    },
+    {
+      "path": "Исследование/audit_to_work_inventory_validation.json",
+      "sha256": "3d85649bdc9ddda81137e7d36c1891bbb4e136cd8538d92d8276f96d032e784e",
+      "bytes": 2037
+    },
+    {
+      "path": "Исследование/design_direction.md",
+      "sha256": "1d26f1502403971a0366aaec305c5109913ea42d54a47982f6063d19f38ebf7c",
+      "bytes": 54486
+    },
+    {
+      "path": "Исследование/design_source_inventory.json",
+      "sha256": "56854dad3404e2fe7530d00e7ace1f8d9e70ddc46db494956998b1a6859572e7",
+      "bytes": 44552
+    },
+    {
+      "path": "Исследование/inherited18_spec_readiness.json",
+      "sha256": "8d7d0f83a4f4ff6c51d9e8c10a505690d1248f140f03dd1a02949f42473884fa",
+      "bytes": 233740
+    },
+    {
+      "path": "Исследование/inherited18_spec_readiness.md",
+      "sha256": "e4999c75dd3c0747fcaac3daa317e2c1397265309ecdd760301e081f3d97d754",
+      "bytes": 43314
+    },
+    {
+      "path": "Исследование/ratification_inventory.json",
+      "sha256": "f97515361918dc8d7dbf63428c1631b090b9526b3ed90a5c2e34767fcd5a27f9",
+      "bytes": 21155
+    },
+    {
+      "path": "Исследование/ratification_reading.md",
+      "sha256": "b43d1005c8c77578521aaa00e731cf6f6ca12ff0287a1ff61270b0e88c0d6013",
+      "bytes": 31574
+    },
+    {
+      "path": "Исследование/spec_practices.md",
+      "sha256": "fdff682d08bb5889ec9bfda3dfb8558f94b55cc20bcf3526bc26c12353505c65",
+      "bytes": 19753
+    }
+  ]
+}

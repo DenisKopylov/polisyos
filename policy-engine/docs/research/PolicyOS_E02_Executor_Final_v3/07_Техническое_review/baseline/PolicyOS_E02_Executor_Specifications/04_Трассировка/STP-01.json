@@ -1,0 +1,367 @@
+{
+  "packet_id": "STP-01",
+  "lane": "LANE-02",
+  "title": "Атомарный актуальный сигнал и устойчивое plateau сравнение",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B41",
+    "B122"
+  ],
+  "audit_reports": [
+    "02_Пакеты/STP-01.md"
+  ],
+  "audit_report_sha256": "14600e49d0d080b5e76fb017cbc46d6f95ade0b8890648ed51269d07fc1922ed",
+  "sourceplan_lines": [
+    2161,
+    2250
+  ],
+  "practical_goal": "Исследование не останавливается по отвергнутому embedding или переполнению; настоящая эвристическая стабильность и ресурсный stop остаются полезными и явно ограниченными.",
+  "requirements": [
+    {
+      "id": "REQ-STP-01-01",
+      "text": "Rejected numeric observation не должно оставлять embedding с будущим accepted iteration; metric/embedding принимаются атомарно.",
+      "source_ids": [
+        "B41"
+      ],
+      "audit_ids": [
+        "remaining:0101",
+        "preserve:0132",
+        "audit-residual:C17_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-STP-01-01"
+      ]
+    },
+    {
+      "id": "REQ-STP-01-02",
+      "text": "Plateau comparison для принятых finite inputs/tolerances должен оставаться арифметически определённым и согласованным с объявленной scale/direction, либо возвращать exact unavailable, не ложный stop.",
+      "source_ids": [
+        "B122"
+      ],
+      "audit_ids": [
+        "remaining:0203",
+        "remaining:0204",
+        "preserve:0320",
+        "preserve:0321",
+        "audit-residual:C17_остатки:1",
+        "audit-residual:C17_остатки:3"
+      ],
+      "test_ids": [
+        "TEST-STP-01-02"
+      ]
+    },
+    {
+      "id": "REQ-STP-01-03",
+      "text": "Cosine для поддержанного finite vector диапазона должен иметь finite bounded diagnostic либо явный unavailable, не NaN переписанныйв JSONnull безпричины.",
+      "source_ids": [
+        "B41"
+      ],
+      "audit_ids": [
+        "remaining:0102",
+        "preserve:0132",
+        "audit-residual:C17_остатки:2"
+      ],
+      "test_ids": [
+        "TEST-STP-01-03"
+      ]
+    },
+    {
+      "id": "REQ-STP-01-04",
+      "text": "Реальный consumer должен сохранять current-observation identity и различать heuristic/resource/scientific outcomes; text-path reachability устанавливается конечным caller census.",
+      "source_ids": [
+        "B41",
+        "B122"
+      ],
+      "audit_ids": [
+        "remaining:0102",
+        "remaining:0204",
+        "preserve:0133",
+        "audit-residual:C17_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-STP-01-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-STP-01-01",
+      "requirement_ids": [
+        "REQ-STP-01-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Actual ConvergenceDetector/Pydantic; accepted10/text1→NaN/text2→20/None; inf и encoder failure, MULTI_SIGNAL semantic-only.",
+      "action": "Запустить sequence, inspect internal accepted records и serialized ConvergenceState; затем два настоящих current vectors.",
+      "oracle": "Rejected call не меняет accepted basis; следующий missing не heuristic stop; два valid compatible current vectors дают ограниченную stability.",
+      "expected": "Scientific_convergedFalse; ordinarymissing без reject тоже не reuse старой пары.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-STP-01-02",
+      "requirement_ids": [
+        "REQ-STP-01-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Истории[0,1,1],[0,-1,-1],[-1,-2,-2], [1,-1,-1] и ×1e308,rel_tol1.8; maximize зеркало; Decimal.from_float independent oracle.",
+      "action": "Пройти actual stop/lifecycle/profile и readback; scale abs_tol соответственно.",
+      "oracle": "Нормальные знаки сохраняются; extreme continue как oracle либоявный arithmetic unknown,никогда false plateau; resource limit может отдельно остановить.",
+      "expected": "None/NaN висториине фильтруются задним числом; не увеличивать patience ради bug.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-STP-01-03",
+      "requirement_ids": [
+        "REQ-STP-01-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Parallel[1e200,0]→cos1, ordinary orthogonal→0,zero/nonfinite/mismatch; actual configured encoder positive отдельно.",
+      "action": "Helper→typedstate→JSON→consumer.",
+      "oracle": "Finite parallel дает 1 или declared unsupported range с reason,не NaN; zero/malformed не positive stop.",
+      "expected": "Это rangequalification, не доказанный productioncallerbug; heuristic не scientifictruth.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-STP-01-04",
+      "requirement_ids": [
+        "REQ-STP-01-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Actualdrafter с controlled traced LLM response и actual detector; replay/reuse/pass/modeldrift, missing current pass и budget stop; source-reconciled GDP objective units.",
+      "action": "Пройти producer→detector→finalDraftResult/реальный consumer; отдельно text caller еслиподдержан.",
+      "oracle": "Positive useful draft доступен; current compatible heuristic stop ограничен, replay/stale неоснование; resource при unknown может stop без scientific converged.",
+      "expected": "51isolated tests настаром runtime не native acceptance; no blanket запретэвристик илидоказательство глобальной оптимальности.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C17_остатки:0",
+      "requirement_ids": [
+        "REQ-STP-01-01"
+      ],
+      "rationale": "Validate/stage before embedding commit.",
+      "disposition": "fix",
+      "audit_id": "C17-R01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C17_остатки:1",
+      "requirement_ids": [
+        "REQ-STP-01-02"
+      ],
+      "rationale": "No inf<=inf stop.",
+      "disposition": "fix",
+      "audit_id": "C17-R02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C17_остатки:2",
+      "requirement_ids": [
+        "REQ-STP-01-03"
+      ],
+      "rationale": "Range/status contract.",
+      "disposition": "fix",
+      "audit_id": "C17-G01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C17_остатки:3",
+      "requirement_ids": [
+        "REQ-STP-01-02"
+      ],
+      "rationale": "Whole-history invariant сохранён; новый window толькоявно.",
+      "disposition": "lifecycle",
+      "audit_id": "C17-G02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C17_остатки:4",
+      "requirement_ids": [
+        "REQ-STP-01-04"
+      ],
+      "rationale": "Native actual producer/consumer.",
+      "disposition": "qualify",
+      "audit_id": "C17-G03",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B41",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-STP-01-01",
+        "REQ-STP-01-03",
+        "REQ-STP-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B122",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-STP-01-02",
+        "REQ-STP-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0101",
+      "requirement_ids": [
+        "REQ-STP-01-01"
+      ],
+      "rationale": "Rejected observation atomicity.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0102",
+      "requirement_ids": [
+        "REQ-STP-01-03",
+        "REQ-STP-01-04"
+      ],
+      "rationale": "Actual caller/readback и finite cosine.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0203",
+      "requirement_ids": [
+        "REQ-STP-01-02"
+      ],
+      "rationale": "Stable derived arithmetic.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0204",
+      "requirement_ids": [
+        "REQ-STP-01-02",
+        "REQ-STP-01-04"
+      ],
+      "rationale": "Actual normalization/consumer; явная whole-history policy.",
+      "disposition": "qualify"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0132",
+      "requirement_ids": [
+        "REQ-STP-01-01",
+        "REQ-STP-01-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Rejected numeric observation не должно оставлять embedding с будущим accepted iteration; metric/embedding принимаются атомарно.; Cosine для поддержанного finite vector диапазона должен иметь finite bounded diagnostic либо явный unavailable, не NaN переписанныйв JSONnull безпричины.",
+      "test_ids": [
+        "TEST-STP-01-01",
+        "TEST-STP-01-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0133",
+      "requirement_ids": [
+        "REQ-STP-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Реальный consumer должен сохранять current-observation identity и различать heuristic/resource/scientific outcomes; text-path reachability устанавливается конечным caller census.",
+      "test_ids": [
+        "TEST-STP-01-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0320",
+      "requirement_ids": [
+        "REQ-STP-01-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Plateau comparison для принятых finite inputs/tolerances должен оставаться арифметически определённым и согласованным с объявленной scale/direction, либо возвращать exact unavailable, не ложный stop.",
+      "test_ids": [
+        "TEST-STP-01-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0321",
+      "requirement_ids": [
+        "REQ-STP-01-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Plateau comparison для принятых finite inputs/tolerances должен оставаться арифметически определённым и согласованным с объявленной scale/direction, либо возвращать exact unavailable, не ложный stop.",
+      "test_ids": [
+        "TEST-STP-01-02"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I02-A"
+  ],
+  "dependencies": [
+    "STP-01 ownsdetector/plateau; CTL-01/CTL-03 owns run/cost/counters, не второй stop framework.",
+    "SRV-03 complex resume сохраняет declared stop basis; OPT01actual objective units/source до meaningful plateau."
+  ],
+  "preservation": [
+    "Iteration/input/model/version/dimension binding; ordinary failed current embedding not reused.",
+    "Typed candidate confidence and resource/heuristic stop remain distinct from science.",
+    "Signed gain around zero; explicit min/max unit and abs/rel tolerance.",
+    "Missing/nonfinite rows not silently turned into a converged series."
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    "LLM формулирует содержательные гипотезы, этот owner проверяет действительное операционное основание остановки. Ресурсная экономия не переименовывается в научную сходимость."
+  ],
+  "open_decisions": [],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+      "symbol_or_anchor": "def check_with_text",
+      "lines": [
+        354,
+        386
+      ],
+      "sha256": "9beda13c8b3d06c230ec698f93a165495b347587b1d92f90e83029da24ae96f1",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py#L354-L386"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+      "symbol_or_anchor": "def _current_embedding_pair",
+      "lines": [
+        588,
+        620
+      ],
+      "sha256": "9beda13c8b3d06c230ec698f93a165495b347587b1d92f90e83029da24ae96f1",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py#L588-L620"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "symbol_or_anchor": "class ImprovementPlateau",
+      "lines": [
+        150,
+        182
+      ],
+      "sha256": "d34d8ccd041ac2b6372346e956bd489be7e1500c7f10e94e15bc5c1dc98d21d0",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/stopping.py#L150-L182"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-STP-01-01",
+      "text": "В check_with_text валидировать metric до дорогого embed-вызова/мутации либо staging всей _EmbeddingRecord с commit только после успеха _do_check. Сохранить номер/input SHA/model/version/dimension и freshness пару; failed embed не старый current. Не очищать всю историю/не отключать recovery."
+    },
+    {
+      "requirement_id": "REQ-STP-01-02",
+      "text": "У ImprovementPlateau использовать устойчиво отмасштабированное compare gain/threshold или проверенный bounded арифметический helper; detect intermediate overflow до inf<=inf. Не clip/не 0/не менять tol. Сохранить signed gain и PlateauToleranceProfile units/minmax. Непригодное baseline окно остаётся unknown; новый recovery window только через явный scope/epoch contract."
+    },
+    {
+      "requirement_id": "REQ-STP-01-03",
+      "text": "У existing cosine helper нормализовать вектор через scale-safe norm/максимальный модуль до dot, validate zero/dimension/finite; ограничить roundoff только обоснованным [-1,1] range, не clip реальную ошибку. Raw diagnostic/status сериализуется честно. Actual encoder profile определяет supported range, не утверждать все векторы испорчены."
+    },
+    {
+      "requirement_id": "REQ-STP-01-04",
+      "text": "Использовать MultiPassLLMDrafter.check_candidate_observation с subject/request/response bytes/event/pass/model version, не подменять его check_with_text. Existing test_convergence_c49/test_stopping_c49 + test_plateau_lifecycle_c49 actual source objective; finite census text callers. DraftResult/finalization/readback сохраняют stop kind/limitations и invalid config не провоцирует лишний LLM call."
+    }
+  ]
+}

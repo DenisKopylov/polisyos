@@ -1,0 +1,147 @@
+{
+  "pass_id": "C116",
+  "bundle": "DOE-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          109
+        ]
+      ],
+      "evidence_level": "Полный read; actual GRID_EXTREME с NumPy выполнен. SALib sampling не выполнен.",
+      "git_blob": "c2a4b105c122ca3d2c20d5ab80710844894ecc65",
+      "sha256": "8cd056fde7b64825baa33c440ec0f05e96b2b12313355a4228e00279ce36e596",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/adaptive.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/doe/adaptive.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          306
+        ]
+      ],
+      "evidence_level": "Полный read и actual leaf module execution с явными synthetic sampler/analyzer seams.",
+      "git_blob": "fe0399c95c086be73f4dbc6f404df33f3728b6fe",
+      "sha256": "37535ed7077b17575a96dc9cf7cd54ef0b58f154ff39f276a198ec79d9a60314",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          401
+        ]
+      ],
+      "evidence_level": "Полный read; actual Pydantic models, validator и estimated_runs_for исполнены.",
+      "git_blob": "1108150cbc0c64a635bbe2d7de585177308fe412",
+      "sha256": "b8420f14abb36aa0e1e4423c8215aec836f637e69060992308ef47b12ffe9a8f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/tests/unit/remediation/test_doe_01.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_doe_01.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          462
+        ]
+      ],
+      "evidence_level": "Полный read; 6 unchanged bodies / 11 cases выполнены. Все real-SALib tests только прочитаны.",
+      "git_blob": "9c9efd16e7e27faf43f0b94dbe204e5ea18061a6",
+      "sha256": "ff011b78e081941498c4ade5c10ae44ba7a7a46a28f13f6b5e675bcb358de78a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/uncertainty.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/doe/uncertainty.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          140
+        ]
+      ],
+      "evidence_level": "Прочитаны actual DTO dependencies. Leaf module импортирован полностью; остальные scientific functions не заявлены прочитанными или выполненными.",
+      "git_blob": "fa005049fa051a5a38284ef93e921e4d202e15bb",
+      "sha256": "7972fc93335e2104cab133c92f040d68a67183fd71971fc10c5c4c59d74bb5be",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          37
+        ]
+      ],
+      "evidence_level": "Прочитан dependency declaration; imported leaf, morphology validation не проверялась в C116.",
+      "git_blob": "c12a5d1f5e183fa9f955b16912e487402596b03c",
+      "sha256": "77cff9546611cfe83e7bda8d62d7ebdf16f3c742b1149cc9a23ca2e8d7c7b51b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          667,
+          825
+        ],
+        [
+          920,
+          1125
+        ]
+      ],
+      "evidence_level": "Actual caller initial generation/evaluator loop и finite outcome/report persistence прочитаны. SEARCH_LOOP middle и native stress chain не квалифицированы.",
+      "git_blob": "da0e5e8098ceaf0a11ea4e3997763e06dad85a89",
+      "sha256": "3eb6740376acad7af30de5fd6b548363b52ff7e33e59719600227e4ebf254a8d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/doe/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          172
+        ]
+      ],
+      "evidence_level": "Прочитан public facade; native import блокируется transitively Core store.py:2118. В isolated runner facade заменён package shell, leaf source не переписан.",
+      "git_blob": "1f1d5b6ea3728d9b7aba141bb0680644d358673f",
+      "sha256": "ed880fe654d655f4a4bc849f614f3d09daded7cfef268de99885d35623cfcd37",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

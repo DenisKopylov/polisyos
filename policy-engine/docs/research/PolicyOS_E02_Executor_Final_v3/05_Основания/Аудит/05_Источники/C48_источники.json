@@ -1,0 +1,260 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          307
+        ],
+        [
+          368,
+          801
+        ],
+        [
+          1201,
+          1274
+        ]
+      ],
+      "evidence_level": "Прочитаны canonical admission, cache, directed/bidirected adjacency, ancestors, perfect-do, separator и S-node augmentation. Реальные функции исполнены; другие части файла не аттестуются.",
+      "git_blob": "f526b98385052d219b28e223a1236af88f3196eb",
+      "sha256": "27cdde2cdfe43631d4b087ab446c80f5b444200cc959a2913d2dd6b71c6d61ff",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          460
+        ]
+      ],
+      "evidence_level": "Прочитан весь owner. Реальные Rules 1–3 исполнены с настоящими IR DTO; whole rewrite pipeline и counterfactual post-pass не исполнялись.",
+      "git_blob": "25928c01ce5606e3cc7331d5dcd738be7c285f84",
+      "sha256": "e21c54a8c30758d260eac1b021cb0d0f8c413573e24a62269f730d5e8627d5a7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          211
+        ]
+      ],
+      "evidence_level": "Прочитаны build sigma graph и три правила. Два конкретных sigma consumers исполнены; полный transport/selection inference не аттестован.",
+      "git_blob": "30ee7bc17903f31733e767757be69eba8b45300d",
+      "sha256": "61e9d6bfa969591b2b70b111ad5a7dfaaa20b1a9f1c35c40e2761899625bcadf",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          255
+        ],
+        [
+          391,
+          718
+        ],
+        [
+          911,
+          936
+        ]
+      ],
+      "evidence_level": "Прочитаны каноническое восстановление, endpoint/type definitions, immutable metadata, CausalEdge/Graph validators и cycle helper. Реальные DTO исполнены; файл не заявляется прочитанным целиком.",
+      "git_blob": "cd207643eba4a4a975beedda59d06bbe339a8105",
+      "sha256": "2facb531db2ea4bbb6361f9bd7ccf66c14a7f0213d7647b92620a879efa4db5a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          164
+        ]
+      ],
+      "evidence_level": "Полный тест прочитан; три неизменённых тела исполнены через importlib без pytest. Независимый finite latent-DAG moralization oracle, не NetworkX и не real-data authority.",
+      "git_blob": "4535a540ddeca9632b8e254848e28eddd352e941",
+      "sha256": "4ea4c07555000dee55d3b1b4d7ed15b07862899b3776c8362485322a9e64a253",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          92
+        ],
+        [
+          1081,
+          1253
+        ]
+      ],
+      "evidence_level": "Прочитаны зависимости и complete IDC route: numerator/denominator ID calls, positivity proof, ratio. Full ID/IDC execution не выполнено.",
+      "git_blob": "c829d89ddf2529177b99065ebbe35d85d9736713",
+      "sha256": "6621df83ef7838c967460598231033354ac0973be8b8cb3013676885ae3e6dbe",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          26
+        ]
+      ],
+      "evidence_level": "Прочитан весь compatibility facade; package сохранён. Bounded import остановлен на Python 3.14 syntax в uncertainty, не PASS.",
+      "git_blob": "663aad80e7a79ebe068e9dab108495d0d48cad17",
+      "sha256": "9b6f8249171c8fd9b5d9d3fbf987fc37a02b787fc9028bb6c59398a97a081d6c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          42
+        ]
+      ],
+      "evidence_level": "Прочитан весь facade. Bounded import остановлен на Python 3.14 syntax в ArtifactStore, не PASS.",
+      "git_blob": "b4fd2b96ff1a3f1ad6389ba00cf9bd8bbddf21a9",
+      "sha256": "bee3c5d4996e31f9d3808d489a6dbecf26cff686e06c5e42e9ff8a944c6a2feb",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/interference/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/interference/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          67
+        ]
+      ],
+      "evidence_level": "Прочитан весь facade. Bounded import остановлен на отсутствующем export в нашем analytics namespace shell; это ограничение harness, не дефект продукта.",
+      "git_blob": "cb28869da6d3695e65c771fc20b8c8bae695484c",
+      "sha256": "2fe2af3d15064c0aeb03b1a8d0f37e82ebf9aeb20b5e77f3dddc1490c1583f85",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/ir/_internal/runtime_protocols.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/_internal/runtime_protocols.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          86
+        ]
+      ],
+      "evidence_level": "Прочитан runtime protocol helper. Для Python 3.12 явно использован typing_extensions.get_protocol_members; native import без адаптера не прошёл.",
+      "git_blob": "6c87284796d79638f58c38bbd77aae33e1ae8816",
+      "sha256": "4c98736be3ddca0da7818b197721b40edc3db4fe1d2411cdcc6f5ed142f48e68",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/ir/analytics/estimand.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/estimand.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          53,
+          63
+        ],
+        [
+          143,
+          204
+        ]
+      ],
+      "evidence_level": "Прочитаны DistributionDomain и actual DistributionRef contract. DTO не подменялся fixture-классом.",
+      "git_blob": "640cecb0b4c14b1c6798c1232e6b1a53b8b5cd04",
+      "sha256": "a1720128b93b70bbaa3b23877cc376c4f84709f5627d409896091d050c8a082a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/ir/analytics/evidence_bundle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/evidence_bundle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          120,
+          177
+        ]
+      ],
+      "evidence_level": "Прочитан actual ProofStep DTO до конца класса. Его создание не означает независимой проверки причинной структуры или эмпирической валидности.",
+      "git_blob": "f87ac0fb9084a61da0ce7a25543634b92b9262f7",
+      "sha256": "8f1701bd2474d14b89e968abd3c3304d4668901dcdefe4815ed7709a77ae2292",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          35
+        ]
+      ],
+      "evidence_level": "Прочитаны build backend, поддерживаемый Python 3.14 и dependency constraints. Установки и build не выполнялись.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      5840,
+      6034
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "scope": "Свежий повторный аудит после восстановления C47. Потерянные прежние C48–C75 не служат доказательствами."
+}

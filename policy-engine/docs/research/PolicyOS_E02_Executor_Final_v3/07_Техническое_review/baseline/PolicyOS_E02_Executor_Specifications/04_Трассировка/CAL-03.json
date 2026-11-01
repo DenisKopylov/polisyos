@@ -1,0 +1,314 @@
+{
+  "packet_id": "CAL-03",
+  "title": "Одинаковая finite admission для одного и нескольких стартов",
+  "goal": "Доставить потребителю проверенный конечный fit с честной причиной выбора, сохранив diagnostics каждого старта.",
+  "work_type": "C109-R01 fix; C109-G01 native qualification",
+  "preservation": [
+    "Fresh per-start span factory и независимый no-op context; attributes не мутируют.",
+    "Finite loss admission, missing/known-bad Hessian distinction, explicit fallback, deterministic ties и histories.",
+    "Raw Hessian condition не заменять repaired condition; best_identifiability — отдельная ranking policy, не best_loss threshold."
+  ],
+  "technical_solution": [
+    "В calibrator.py вынести построение SingleRunResult и вызов select_best из len(multi_start_runs)>1, применять и к одному run; общий selected_run extraction оставить одним блоком. Нулевой список и no-finite ValueError оформить существующим failure/lifecycle путём, сохраняя diagnostics и histories; не вводить второй selector.",
+    "Не менять _condition_status, _select_best_loss и _select_best_identifiability ради single fix. Не менять raw Hessian calculation: repaired matrix и raw condition решают разные задачи.",
+    "Существующий _calibration_span_context уже фабрика; менять только при реальном native несоответствии. Расширить test_cal_03/test_multi_start и calibration_lifecycle вместо новой telemetry системы."
+  ],
+  "owners": [
+    "src/polisyos/foundry/calibration/calibrator.py",
+    "src/polisyos/foundry/calibration/multi_start.py",
+    "src/polisyos/foundry/calibration/hessian.py",
+    "tests/unit/remediation/test_cal_03.py",
+    "tests/unit/foundry/calibration/test_multi_start.py",
+    "tests/unit/foundry/calibration/test_calibration_lifecycle.py"
+  ],
+  "shared_scenarios": [
+    "E02-I10-A"
+  ],
+  "coordination": "CAL-02/04/06 сериализуют запись calibrator.py. CP4 — согласованная calibration acceptance, не полный CI gate. CAL-04 selected snapshot/Hessian record не потерять при общем extraction.",
+  "compatibility": "Normal finite single_run reason сохраняется; nonfinite formerly-selected result теперь явный failure, historical reports не переписываются. Finite limited results остаются читаемыми; rollback не должен вновь разрешать invalid ordinary success.",
+  "design_alignment": [
+    "[Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md#d25-epistemic-regime-architecture): полезный ограниченный numerical result сохраняется без присвоения empirical authority. [Синтез §4](../05_Основания/Исследование/design_direction.md): общий механизм вместо отдельной ветки на каждый кейс."
+  ],
+  "open_decisions": [],
+  "acceptance": "Предъявить regression на actual single caller, two-start native OTel и raw-Hessian consumer. Табличный test_global_minimum не доказывает глобальный минимум или scientific identifiability.",
+  "lane": "LANE-10",
+  "source_ids": [
+    "B183",
+    "B195"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/CAL-03.md"
+  ],
+  "requirements": [
+    {
+      "text": "Один и несколько runtime runs должны проходить select_best finite-loss admission до final projection; при отсутствии finite run обычный успешный report не создаётся.",
+      "source_ids": [
+        "B195"
+      ],
+      "audit_ids": [
+        "C109-R01"
+      ],
+      "id": "REQ-CAL-03-01",
+      "test_ids": [
+        "TEST-CAL-03-01",
+        "TEST-CAL-03-04"
+      ]
+    },
+    {
+      "text": "Finite, но ill-conditioned кандидат должен оставаться доступным как ограниченный результат с точным fallback reason; missing Hessian не равен inf/NaN/negative/malformed condition.",
+      "source_ids": [
+        "B195"
+      ],
+      "audit_ids": [],
+      "id": "REQ-CAL-03-02",
+      "test_ids": [
+        "TEST-CAL-03-01",
+        "TEST-CAL-03-02"
+      ]
+    },
+    {
+      "text": "Каждый restart должен получить свежий context и start index; telemetry и no-op routes сохраняют primary exception, истории и фактический lifecycle status.",
+      "source_ids": [
+        "B183"
+      ],
+      "audit_ids": [
+        "C109-G01"
+      ],
+      "id": "REQ-CAL-03-03",
+      "test_ids": [
+        "TEST-CAL-03-03",
+        "TEST-CAL-03-04"
+      ]
+    },
+    {
+      "text": "Native two-start fit должен передать выбранные state/weights/history/Hessian и reason из одного runtime record; native raw degeneracy должна достигнуть реального selector.",
+      "source_ids": [
+        "B183",
+        "B195"
+      ],
+      "audit_ids": [
+        "C109-G01"
+      ],
+      "id": "REQ-CAL-03-04",
+      "test_ids": [
+        "TEST-CAL-03-02",
+        "TEST-CAL-03-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "actual Calibrator selection + selector table",
+      "setup": "Single inf/NaN/malformed loss; finite 0.5; пары в обоих порядках.",
+      "action": "Вызвать runtime orchestration до projection и actual selector для обеих policies.",
+      "oracle": "No-finite: явный failure с сохранёнными diagnostics, final report не успешен; finite выбирается независимо от положения NaN. All-limited finite возвращается с fallback; ties детерминированы.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-CAL-03-01",
+      "requirement_ids": [
+        "REQ-CAL-03-01",
+        "REQ-CAL-03-02"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "native Hessian → selection",
+      "setup": "f(x)=0 и f(x)=x² при x=0; threshold=1e8; loss 0.1/0.5 соответственно.",
+      "action": "Вычислить настоящие JAX Hessians и передать в select_best.",
+      "oracle": "Raw eigenvalues 0/2 (atol=1e-6), condition inf/1; best_loss выбирает finite acceptable 0.5. Damping не превращает inf в missing; missing сохраняет loss-only режим.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-CAL-03-02",
+      "requirement_ids": [
+        "REQ-CAL-03-02",
+        "REQ-CAL-03-04"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "real OTel lifecycle",
+      "setup": "In-memory OTel SDK exporter, два starts; затем no-op; controlled exporter exception отдельно от model failure.",
+      "action": "Запустить оба режима и проверить emitted spans/exception chain.",
+      "oracle": "Два distinct child spans с indices 0/1, корректный end/status, общий attributes не изменён. Primary model failure не заменён telemetry failure; существующая объявленная best-effort policy соблюдена.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-CAL-03-03",
+      "requirement_ids": [
+        "REQ-CAL-03-03"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "E02-I10-A native integration",
+      "setup": "Tiny actual parameter-connected model, JAX/optax, два starts и single control.",
+      "action": "Run → actual final report → consumer; controlled nonfinite initial route.",
+      "oracle": "Selected params/loss/weights/reason принадлежат одной записи; finite useful report доступен, invalid single не доходит обычным success. Нельзя подменять optimizer/scan для native claim.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-CAL-03-04",
+      "requirement_ids": [
+        "REQ-CAL-03-01",
+        "REQ-CAL-03-03",
+        "REQ-CAL-03-04"
+      ],
+      "status": "NOT_RUN"
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "B183",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Factory исправлена; подтвердить actual SDK/lifecycle на двух native starts.",
+      "requirement_ids": [
+        "REQ-CAL-03-03",
+        "REQ-CAL-03-04"
+      ]
+    },
+    {
+      "audit_id": "B195",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Selector исправлен, single runtime caller ещё обходит admission.",
+      "requirement_ids": [
+        "REQ-CAL-03-01",
+        "REQ-CAL-03-02",
+        "REQ-CAL-03-04"
+      ]
+    },
+    {
+      "audit_id": "C109-R01",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Убрать len>1 admission bypass, не уничтожать ограниченный finite результат.",
+      "requirement_ids": [
+        "REQ-CAL-03-01"
+      ],
+      "inventory_id": "audit-residual:C109_остатки:0"
+    },
+    {
+      "audit_id": "C109-G01",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Stdlib context и NumPy fallback не заменяют native optimizer/OTel/Hessian.",
+      "requirement_ids": [
+        "REQ-CAL-03-03",
+        "REQ-CAL-03-04"
+      ],
+      "inventory_id": "audit-residual:C109_остатки:1"
+    }
+  ],
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "SPECIFICATION_NOT_IMPLEMENTED",
+  "dependencies": [
+    "CAL-02"
+  ],
+  "protected_distinction_ids": [],
+  "original_source": "../05_Основания/Аудит/05_Источники/CAL-03_исходные_строки.txt",
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0304",
+      "requirement_ids": [
+        "REQ-CAL-03-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Убрать len>1 admission bypass, не уничтожать ограниченный finite результат."
+    },
+    {
+      "inventory_id": "remaining:0305",
+      "requirement_ids": [
+        "REQ-CAL-03-03",
+        "REQ-CAL-03-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Stdlib context и NumPy fallback не заменяют native optimizer/OTel/Hessian."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0462",
+      "requirement_ids": [
+        "REQ-CAL-03-03"
+      ],
+      "test_ids": [
+        "TEST-CAL-03-03",
+        "TEST-CAL-03-04"
+      ],
+      "rationale": "Fresh per-start span context — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0463",
+      "requirement_ids": [
+        "REQ-CAL-03-03"
+      ],
+      "test_ids": [
+        "TEST-CAL-03-03",
+        "TEST-CAL-03-04"
+      ],
+      "rationale": "Start identity и no-op path — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0464",
+      "requirement_ids": [
+        "REQ-CAL-03-01"
+      ],
+      "test_ids": [
+        "TEST-CAL-03-01",
+        "TEST-CAL-03-04"
+      ],
+      "rationale": "Finite loss admission в selector — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0465",
+      "requirement_ids": [
+        "REQ-CAL-03-02"
+      ],
+      "test_ids": [
+        "TEST-CAL-03-01",
+        "TEST-CAL-03-02"
+      ],
+      "rationale": "Missing/known-bad condition distinction — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0466",
+      "requirement_ids": [
+        "REQ-CAL-03-02"
+      ],
+      "test_ids": [
+        "TEST-CAL-03-01",
+        "TEST-CAL-03-02"
+      ],
+      "rationale": "Explicit limited-result fallback — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0467",
+      "requirement_ids": [
+        "REQ-CAL-03-02",
+        "REQ-CAL-03-04"
+      ],
+      "test_ids": [
+        "TEST-CAL-03-01",
+        "TEST-CAL-03-02",
+        "TEST-CAL-03-04"
+      ],
+      "rationale": "Histories и deterministic ties — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0468",
+      "requirement_ids": [
+        "REQ-CAL-03-02",
+        "REQ-CAL-03-04"
+      ],
+      "test_ids": [
+        "TEST-CAL-03-01",
+        "TEST-CAL-03-02",
+        "TEST-CAL-03-04"
+      ],
+      "rationale": "Raw Hessian condition — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    }
+  ]
+}

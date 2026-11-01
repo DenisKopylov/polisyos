@@ -1,0 +1,301 @@
+{
+  "packet_id": "LEX-01",
+  "title": "Структурная identity issue paths и честные impact topics",
+  "goal": "Не терять compliance transitions из-за slash collision и сохранить реальное правовое сравнение отдельно от количественного эффекта.",
+  "work_type": "C123-R01 narrow identity fix; C123-G01 native compatibility; C123-G02 scoped domain validation",
+  "preservation": [
+    "Lex norm diff/compliance owners и исторические simulator aliases.",
+    "Schema1.0 historical/unbound, opt-in1.1 selected binding и reader-first CLI.",
+    "Candidate topics не measured effects; backend/context/jurisdiction limitations сохраняются."
+  ],
+  "technical_solution": [
+    "В _group_issues заменить slash string key на immutable tuple of typed segments, например ((str,segment),(int,segment)); display formatting отдельно. Согласовать _issue_fingerprint: сейчас str(segment) теряет int/string distinction; сохранить historical profile и ввести explicit new identity profile только если emitted fingerprints меняются. Для narrow slash regression можно сначала исправить internal grouping без смены historical ID, но new typed identity contract должен иметь compatibility mapping.",
+    "Не менять normpack/diff и pass plan ownership ради move: реальные current paths уже правильны. Preserve multiset sorting/severity и renderer topic wording.",
+    "Selected reader/CLI existing guards квалифицировать native; causal effects передавать через существующие Scientist/Foundry evidence, не расширять Lex tag heuristic до фиктивного simulator."
+  ],
+  "owners": [
+    "src/polisyos/lex/legal_evaluation/impact_diff.py",
+    "src/polisyos/lex/normpack/diff.py",
+    "src/polisyos/lex/simulator/cli.py",
+    "src/polisyos/core/components/_cli_lex.py",
+    "tests/unit/remediation/test_lex_01.py",
+    "tests/unit/remediation/test_lex_impact_semantics.py",
+    "tests/unit/lex/legal_evaluation/test_impact_diff.py",
+    "tests/unit/lex/simulator/test_diff.py"
+  ],
+  "shared_scenarios": [
+    "E02-I11-C"
+  ],
+  "coordination": "Existing Lex comparison owner; no transfer of legal logic to Foundry. Quantitative downstream contract separate; MOVE-21 already applied.",
+  "compatibility": "Historical report IDs/schema1.0/1.1 не переписывать. Internal grouping fix separate from versioned fingerprint semantics; old reader supports old identity, new profile requires declared migration. Conservative rollback preserves legacy read, not silent loss of new transitions.",
+  "design_alignment": [
+    "[Stage-0 §4.3](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md#43-k06--fail-closed-binds-the-protected-action-not-the-computation) и [синтез §4](../05_Основания/Исследование/design_direction.md): защищённый claim ограничивается своим основанием; useful diagnostic computation не блокируется целиком.",
+    "[North Star §2](../05_Основания/Архитектура/policy-design-causal-operating-system-north-star.md#2-everything-reduces-to-data--but-the-causal-structure-is-not-data): causal structure не выводится из названия impact topic."
+  ],
+  "open_decisions": [
+    "DEC-LEX-01-01: finite fingerprint/report reader census; выбрать internal-only slash fix с explicit typed-fingerprint follow-through либо versioned typed path identity. Критерии: no boundary/type collision, immutable historical bytes, fresh reconciliation поддерживает declared profile."
+  ],
+  "acceptance": "Structural regression + actual CAS/read-first display. Repair acceptance не legal advice/coverage или measured economic effect validation.",
+  "lane": "LANE-11",
+  "source_ids": [
+    "LA-017"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/LEX-01.md"
+  ],
+  "requirements": [
+    {
+      "text": "Issue grouping должен сохранять границы и типы path segments; разные structural paths не становятся unchanged из-за одинакового slash display.",
+      "source_ids": [
+        "LA-017"
+      ],
+      "audit_ids": [
+        "C123-R01"
+      ],
+      "id": "REQ-LEX-01-01",
+      "test_ids": [
+        "TEST-LEX-01-01"
+      ]
+    },
+    {
+      "text": "Norm diff/pass plan должны сохранять added/removed/modified/unchanged, issue multiset/severity и фактические compared NormPacks, не caller-substituted context.",
+      "source_ids": [
+        "LA-017"
+      ],
+      "audit_ids": [
+        "C123-G01"
+      ],
+      "id": "REQ-LEX-01-02",
+      "test_ids": [
+        "TEST-LEX-01-02"
+      ]
+    },
+    {
+      "text": "Native selected1.1 reader/CLI должен сверять diff/manifest/counts/topics/issues перед display, сохраняя explicit1.0 historical compatibility и actual CAS identity.",
+      "source_ids": [
+        "LA-017"
+      ],
+      "audit_ids": [
+        "C123-G01"
+      ],
+      "id": "REQ-LEX-01-03",
+      "test_ids": [
+        "TEST-LEX-01-03"
+      ]
+    },
+    {
+      "text": "Candidate impact topics должны оставаться qualitative unknown-direction suggestions; legal source/applicability/coverage и causal/economic effects требуют своих existing evidence owners.",
+      "source_ids": [
+        "LA-017"
+      ],
+      "audit_ids": [
+        "C123-G02"
+      ],
+      "id": "REQ-LEX-01-04",
+      "test_ids": [
+        "TEST-LEX-01-02",
+        "TEST-LEX-01-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "actual analyzer grouping",
+      "setup": "Same code/message/severity; paths [norm_pack,n.income,a/b] и [norm_pack,n.income,a,b]; int1 vs string1; exact duplicate control.",
+      "action": "Old/new issue grouping→compliance deltas, fingerprint/reconciliation.",
+      "oracle": "Разные typed paths дают removed+added transitions, не empty delta; exact duplicates сохраняют multiplicity/severity. Display slash не identity; historical fingerprint profile не silently changed.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-LEX-01-01",
+      "requirement_ids": [
+        "REQ-LEX-01-01"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "real NormPack/AST pass",
+      "setup": "Unchanged/added/removed/modified; income2 old rule>=1,new>=3; caller injects foreign norm_pack.",
+      "action": "Actual analyzer and LegalPass; empty/deduplicated/invalid pass plans; stub control.",
+      "oracle": "Compared packs govern result, new blocker expected; unchanged failing rule no false transition. Stub honestly not evaluated; custom backend not source-authorized by label.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-LEX-01-02",
+      "requirement_ids": [
+        "REQ-LEX-01-02",
+        "REQ-LEX-01-04"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "E02-I11-C native CAS/CLI",
+      "setup": "Historical1.0 and opt-in1.1, actual store/manifest/diff ref, fresh CLI.",
+      "action": "Persist→read→render; tamper count/topic/issue/source; rollback reader profile.",
+      "oracle": "Fresh reader rejects mismatch before display, valid output useful; self-reference omission and bytes/refs match actual store. Legacy1.0 remains readable/unbound; report_id not content hash.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-LEX-01-03",
+      "requirement_ids": [
+        "REQ-LEX-01-03"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "public meaning/domain boundary",
+      "setup": "OBLIGATION/PROHIBITION/other tags, missing jurisdiction/backend/source coverage; existing causal evidence reference if quantitative request.",
+      "action": "Render report and route quantitative request to existing Scientist/Foundry owner.",
+      "oracle": "Candidate topics, direction unknown, not measured explicit. No effect number from tag. Actual source/context/coverage absence restricts legal claim, not comparison computation; no invented external law corpus.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-LEX-01-04",
+      "requirement_ids": [
+        "REQ-LEX-01-04"
+      ],
+      "status": "NOT_RUN"
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "LA-017",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Смысловой move выполнен; identity residual и native/domain qualification остаются.",
+      "requirement_ids": [
+        "REQ-LEX-01-01",
+        "REQ-LEX-01-02",
+        "REQ-LEX-01-03",
+        "REQ-LEX-01-04"
+      ]
+    },
+    {
+      "audit_id": "C123-R01",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Slash join теряет boundaries; не новый legal engine.",
+      "requirement_ids": [
+        "REQ-LEX-01-01"
+      ],
+      "inventory_id": "audit-residual:C123_остатки:0"
+    },
+    {
+      "audit_id": "C123-G01",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Helper reconciliation не actual selected CAS/CLI.",
+      "requirement_ids": [
+        "REQ-LEX-01-02",
+        "REQ-LEX-01-03"
+      ],
+      "inventory_id": "audit-residual:C123_остатки:1"
+    },
+    {
+      "audit_id": "C123-G02",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Сохранить честные limitations, при claim отдельно existing domain evidence, не invented numeric effect.",
+      "requirement_ids": [
+        "REQ-LEX-01-04"
+      ],
+      "inventory_id": "audit-residual:C123_остатки:2"
+    }
+  ],
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "SPECIFICATION_NOT_IMPLEMENTED",
+  "dependencies": [],
+  "protected_distinction_ids": [],
+  "original_source": "../05_Основания/Аудит/05_Источники/LEX-01_исходные_строки.txt",
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0390",
+      "requirement_ids": [
+        "REQ-LEX-01-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Slash join теряет boundaries; не новый legal engine."
+    },
+    {
+      "inventory_id": "remaining:0391",
+      "requirement_ids": [
+        "REQ-LEX-01-02",
+        "REQ-LEX-01-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Helper reconciliation не actual selected CAS/CLI."
+    },
+    {
+      "inventory_id": "remaining:0392",
+      "requirement_ids": [
+        "REQ-LEX-01-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Сохранить честные limitations, при claim отдельно existing domain evidence, не invented numeric effect."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0627",
+      "requirement_ids": [
+        "REQ-LEX-01-02"
+      ],
+      "test_ids": [
+        "TEST-LEX-01-02"
+      ],
+      "rationale": "Lex norm diff/compliance ownership — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0628",
+      "requirement_ids": [
+        "REQ-LEX-01-03"
+      ],
+      "test_ids": [
+        "TEST-LEX-01-03"
+      ],
+      "rationale": "Historical aliases and schema1.0 — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0629",
+      "requirement_ids": [
+        "REQ-LEX-01-03"
+      ],
+      "test_ids": [
+        "TEST-LEX-01-03"
+      ],
+      "rationale": "Explicit opt-in1.1 selected binding — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0630",
+      "requirement_ids": [
+        "REQ-LEX-01-03"
+      ],
+      "test_ids": [
+        "TEST-LEX-01-03"
+      ],
+      "rationale": "Reader-first CLI — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0631",
+      "requirement_ids": [
+        "REQ-LEX-01-04"
+      ],
+      "test_ids": [
+        "TEST-LEX-01-02",
+        "TEST-LEX-01-04"
+      ],
+      "rationale": "Candidate topics not measured effects — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0632",
+      "requirement_ids": [
+        "REQ-LEX-01-04"
+      ],
+      "test_ids": [
+        "TEST-LEX-01-02",
+        "TEST-LEX-01-04"
+      ],
+      "rationale": "Backend/context/jurisdiction limitations — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    }
+  ]
+}

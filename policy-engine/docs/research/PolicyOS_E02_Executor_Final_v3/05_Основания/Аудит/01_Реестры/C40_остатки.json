@@ -1,0 +1,62 @@
+{
+  "pass": "C40",
+  "bundle": "PLG-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "phase": "LA-023 этап 1/2",
+  "findings": [
+    {
+      "id": "C40-R01",
+      "type": "unmarked_legacy_compatible_result_defaults_to_trained",
+      "severity": "medium",
+      "source_ids": [
+        "LA-023"
+      ],
+      "phase": "1/2",
+      "evidence": [
+        "P09",
+        "P10",
+        "P11",
+        "S01:402–418",
+        "S02:138–159"
+      ],
+      "remaining": "В существующем result/reader compatibility контракте не назначать unmarked historical/legacy-shaped output подтверждённую роль trained. Сохранить исходный actor/reward trace с честной historical/evaluation/unknown ролью, а текущий настоящий training producer маркировать явно. CLI должен использовать квалифицированную роль, не один default dataclass status; не требовать обязательно persisted CAS при допустимом in-memory native результате.",
+      "limits": "Exact TrainingResult constructor с прежними тремя fields и exact CLI воспроизводят trained/PPO loss при fixture trace [2,2,2] и нуле optimizer updates. Synthetic old-layout pickle только подтверждает class-default fallback; реальный historical архив не читался. Не утверждается, что нынешний native train выдаёт rewards как loss."
+    },
+    {
+      "id": "C40-G01",
+      "type": "native_capability_cli_qualification",
+      "source_ids": [
+        "LA-023"
+      ],
+      "phase": "1/2",
+      "evidence": [
+        "P01–P08",
+        "P12–P18",
+        "S07",
+        "S08"
+      ],
+      "remaining": "В поддерживаемой среде выполнить найденные native unsupported-profile и process-level CLI tests, включая сохранение обычного run и отсутствие output artifacts на отказе. Проверить actual canonical state/types вместо identity fixtures.",
+      "limits": "18 bounded MATCH, 0 ERROR; pytest отсутствует до collection. Native JAX, real package imports, simulation и optimizer не исполнены; actual CLI branch/parser и API handoff исполнены с явными seams."
+    },
+    {
+      "id": "C40-G02",
+      "type": "phase_two_native_learning_and_artifact_scope",
+      "source_ids": [
+        "LA-023"
+      ],
+      "phase": "1/2 → PLG-03",
+      "evidence": [
+        "P06",
+        "P15",
+        "S03:686–815",
+        "S06:291–375"
+      ],
+      "remaining": "Последовательно проверить PLG-03: actual policy→actions→gradient/update, parameter/action effects, train/eval и persisted readback. Существующий narrow Economics adapter и canonical trainer признаны, но source reading/fixture success не считаются обучением.",
+      "limits": "Honest bridge_pending уже полезен и не требует удаления DomainPlugin. В C40 не квалифицированы zero-gradient semantics, native update metrics, scientific learning quality или real data. LA-023 учитывается один раз, этап 1 не означает закрытие этапа 2."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C40-R01"
+  ]
+}

@@ -1,0 +1,304 @@
+{
+  "schema_version": "1.0",
+  "language": "ru",
+  "phase": "source_research_only",
+  "created_at_utc": "2026-11-01",
+  "baseline_not_audited": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2",
+  "expected_later_scope": {
+    "packets": 127,
+    "lanes": 12,
+    "scenarios": "38+4"
+  },
+  "repository_reference_not_audited": "e02_repository@20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "method": "Прочитаны выбранные содержательные разделы первичных интернет-источников через web.open/find. Критерии — вывод исследователя, не автоматические требования ко всем платформам.",
+  "scope_exclusions": [
+    "Не читались и не аудировались спецификации E02 в рамках этого подзадания.",
+    "Не изменялись продукт, спецификации или репозиторий.",
+    "Не выполнялись native/runtime/интеграционные тесты, установки или внешние мутации.",
+    "Ни один предлагаемый discriminator не помечен как выполненный тест."
+  ],
+  "applicability_rule": "Применять критерий только после подтверждения его trigger в конкретном пакете или lane; отсутствие технологии/обещания даёт not_applicable с основанием, а не finding.",
+  "finding_rule": "Для finding нужны точная цитата/путь E02, нарушенное обещание, достижимая история и наблюдаемый oracle. Пробел спецификации, отсутствие теста и подтверждённый дефект — разные классы.",
+  "access_limit": "DRS-X01: HTTP 403, текст POSIX не прочитан, повторов/обхода не было; остальные источники прочитаны в указанных разделах.",
+  "read_source_count": 14,
+  "excluded_source_count": 1,
+  "sources": [
+    {
+      "accessed_at_utc": "2026-11-01",
+      "source_kind": "первичный официальный",
+      "access_status": "read_selected_sections",
+      "id": "DRS-01",
+      "title": "Making retries safe with idempotent APIs",
+      "organization": "Amazon Builders' Library",
+      "url": "https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/",
+      "published_or_updated": "Дата публикации не показана в прочитанном тексте.",
+      "sections": [
+        "Retrying and side effects",
+        "Reducing client complexity",
+        "Retries and semantic equivalence",
+        "Late arriving requests",
+        "Same client request ID, different intent",
+        "Conclusion"
+      ],
+      "read_evidence": "Прочитаны содержательные абзацы 227–256, 371–379, 423, 466–476; примеры CLI не исполнялись.",
+      "scope_limit": "Практика AWS для определённых API, не универсальная гарантия exactly-once."
+    },
+    {
+      "accessed_at_utc": "2026-11-01",
+      "source_kind": "первичный официальный",
+      "access_status": "read_selected_sections",
+      "id": "DRS-02",
+      "title": "Timeouts, retries, and backoff with jitter",
+      "organization": "Amazon Builders' Library / AWS Builder Center",
+      "url": "https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/",
+      "resolved_url": "https://builder.aws.com/content/3EumjoZascWd1oZiEgL8ORlv3qE/timeouts-retries-and-backoff-with-jitter",
+      "published_or_updated": "2019-12-05; на странице Published и Last modified.",
+      "sections": [
+        "Failures Happen",
+        "Timeouts",
+        "Retries and backoff",
+        "Jitter",
+        "Conclusion"
+      ],
+      "read_evidence": "Прочитаны разделы в строках 54–108.",
+      "scope_limit": "Практические рекомендации; числовые примеры не целевые параметры E02."
+    },
+    {
+      "accessed_at_utc": "2026-11-01",
+      "source_kind": "первичный официальный",
+      "access_status": "read_selected_sections",
+      "id": "DRS-03",
+      "title": "Site Reliability Engineering, Chapter 21: Handling Overload",
+      "organization": "Google SRE",
+      "url": "https://sre.google/sre-book/handling-overload/",
+      "published_or_updated": "Дата главы не показана; copyright страницы 2017.",
+      "sections": [
+        "The Pitfalls of \"Queries per Second\"",
+        "Per-Customer Limits",
+        "Client-Side Throttling",
+        "Criticality",
+        "Utilization Signals",
+        "Handling Overload Errors / Deciding to Retry",
+        "Load from Connections",
+        "Conclusions"
+      ],
+      "read_evidence": "Прочитаны разделы 56–185, включая контекст ограничений адаптивного throttling.",
+      "scope_limit": "Google описывает собственную топологию и нагрузку; три попытки, 10% и классы criticality не норматив для E02."
+    },
+    {
+      "accessed_at_utc": "2026-11-01",
+      "source_kind": "первичный официальный",
+      "access_status": "read_selected_sections",
+      "id": "DRS-04",
+      "title": "Site Reliability Engineering, Chapter 22: Addressing Cascading Failures",
+      "organization": "Google SRE",
+      "url": "https://sre.google/sre-book/addressing-cascading-failures/",
+      "published_or_updated": "Дата главы не показана в прочитанном тексте.",
+      "sections": [
+        "Causes of Cascading Failures and Designing to Avoid Them",
+        "Resource Exhaustion",
+        "Service Unavailability",
+        "Queue Management",
+        "Load Shedding and Graceful Degradation",
+        "Retries",
+        "Latency and Deadlines"
+      ],
+      "read_evidence": "Прочитаны смысловые абзацы 62–180 и 213–280; кодовый пример не исполнялся.",
+      "scope_limit": "Глава о serving systems; конкретные размеры очередей и числовые нагрузки — иллюстрации."
+    },
+    {
+      "accessed_at_utc": "2026-11-01",
+      "source_kind": "первичный официальный",
+      "access_status": "read_selected_sections",
+      "id": "DRS-05",
+      "title": "RFC 9110: HTTP Semantics",
+      "organization": "IETF / RFC Editor",
+      "url": "https://www.rfc-editor.org/rfc/rfc9110.html",
+      "published_or_updated": "2022-06",
+      "sections": [
+        "9.2.2 Idempotent Methods",
+        "13.1.1 If-Match",
+        "15.3.3 202 Accepted"
+      ],
+      "read_evidence": "Прочитаны 1984–1994, 2728–2760, 3327–3331, не весь RFC.",
+      "scope_limit": "Нормативно для соответствующего HTTP-контракта; перенос на другие протоколы — отдельный инженерный вывод."
+    },
+    {
+      "accessed_at_utc": "2026-11-01",
+      "source_kind": "первичный официальный",
+      "access_status": "read_selected_sections",
+      "id": "DRS-06",
+      "title": "RFC 9293: Transmission Control Protocol (TCP)",
+      "organization": "IETF / RFC Editor",
+      "url": "https://www.rfc-editor.org/rfc/rfc9293.html",
+      "published_or_updated": "2022-08",
+      "sections": [
+        "3.1 Header Format — Acknowledgment Number"
+      ],
+      "read_evidence": "Прочитано определение ACK/sequence в строках 263–275 и контекст заголовка.",
+      "scope_limit": "Транспортный уровень TCP; не спецификация приложения, БД или брокера."
+    },
+    {
+      "accessed_at_utc": "2026-11-01",
+      "source_kind": "первичный официальный",
+      "access_status": "read_selected_sections",
+      "id": "DRS-07",
+      "title": "Cancellation",
+      "organization": "gRPC project",
+      "url": "https://grpc.io/docs/guides/cancellation/",
+      "published_or_updated": "2024-02-29, Last modified.",
+      "sections": [
+        "Overview",
+        "Cancelling an RPC Call on the Client Side",
+        "Language Support"
+      ],
+      "read_evidence": "Прочитаны строки 115–154.",
+      "scope_limit": "Поддержка propagation различается по языкам; cancel не является протоколом бизнес-компенсации."
+    },
+    {
+      "accessed_at_utc": "2026-11-01",
+      "source_kind": "первичный официальный",
+      "access_status": "read_selected_sections",
+      "id": "DRS-08",
+      "title": "Deadlines",
+      "organization": "gRPC project",
+      "url": "https://grpc.io/docs/guides/deadlines/",
+      "published_or_updated": "2025-07-07, Last modified.",
+      "sections": [
+        "Overview",
+        "Deadlines on the Client",
+        "Deadlines on the Server",
+        "Deadline Propagation",
+        "Language Support"
+      ],
+      "read_evidence": "Прочитаны строки 115–169.",
+      "scope_limit": "Конкретное поведение gRPC; на иной RPC переносится только проверка явно объявленного бюджета."
+    },
+    {
+      "accessed_at_utc": "2026-11-01",
+      "source_kind": "первичный официальный",
+      "access_status": "read_selected_sections",
+      "id": "DRS-09",
+      "title": "PostgreSQL 18, 13.2 Transaction Isolation",
+      "organization": "PostgreSQL Global Development Group",
+      "url": "https://www.postgresql.org/docs/18/transaction-iso.html",
+      "published_or_updated": "Версия документации 18; дата изменения страницы не показана.",
+      "sections": [
+        "13.2 Transaction Isolation, Table 13.1",
+        "13.2.1 Read Committed Isolation Level",
+        "13.2.2 Repeatable Read Isolation Level",
+        "13.2.3 Serializable Isolation Level"
+      ],
+      "read_evidence": "Прочитаны определения и содержательные абзацы 23–66, 92–110, 128–137.",
+      "scope_limit": "Семантика PostgreSQL 18, не требование выбрать PostgreSQL или SERIALIZABLE повсюду."
+    },
+    {
+      "accessed_at_utc": "2026-11-01",
+      "source_kind": "первичный официальный",
+      "access_status": "read_selected_sections",
+      "id": "DRS-10",
+      "title": "PostgreSQL 18, 28.4 Asynchronous Commit",
+      "organization": "PostgreSQL Global Development Group",
+      "url": "https://www.postgresql.org/docs/18/wal-async-commit.html",
+      "published_or_updated": "Версия документации 18; дата изменения страницы не показана.",
+      "sections": [
+        "28.4 Asynchronous Commit",
+        "Caution"
+      ],
+      "read_evidence": "Прочитан основной текст 20–38.",
+      "scope_limit": "Durability зависит от выбранного режима и модели отказа; async commit не тождествен fsync=off."
+    },
+    {
+      "accessed_at_utc": "2026-11-01",
+      "source_kind": "первичный официальный",
+      "access_status": "read_selected_sections",
+      "id": "DRS-11",
+      "title": "PostgreSQL 18, 26.2 Log-Shipping Standby Servers",
+      "organization": "PostgreSQL Global Development Group",
+      "url": "https://www.postgresql.org/docs/18/warm-standby.html",
+      "published_or_updated": "Версия документации 18; дата изменения страницы не показана.",
+      "sections": [
+        "26.2 Log-Shipping Standby Servers",
+        "26.2.8 Synchronous Replication",
+        "26.2.8.4 Planning for High Availability"
+      ],
+      "read_evidence": "Прочитаны 29–35, 152–166, 191–201.",
+      "scope_limit": "Различия remote_write/on/remote_apply используются как конкретный контрпример смешению persistence и visibility, не как универсальные названия режимов."
+    },
+    {
+      "accessed_at_utc": "2026-11-01",
+      "source_kind": "первичный официальный",
+      "access_status": "read_selected_sections",
+      "id": "DRS-12",
+      "title": "Leader Election in Distributed Systems",
+      "organization": "Amazon Builders' Library / AWS Builder Center",
+      "url": "https://aws.amazon.com/builders-library/leader-election-in-distributed-systems/",
+      "resolved_url": "https://builder.aws.com/content/3Ev0vH0hfkcUizISUWYTvHibtcp/leader-election-in-distributed-systems",
+      "published_or_updated": "2019-12-05; Published и Last modified.",
+      "sections": [
+        "How Amazon elects a leader",
+        "What happens when the leader fails?",
+        "Best practices for leader election",
+        "Conclusion"
+      ],
+      "read_evidence": "Прочитаны 74–112 и контекст 53–73.",
+      "scope_limit": "Практический источник о lease-паузах; не доказательство невозможности безопасного лидерства и не требование ввести election."
+    },
+    {
+      "accessed_at_utc": "2026-11-01",
+      "source_kind": "первичный официальный",
+      "access_status": "read_selected_sections",
+      "id": "DRS-13",
+      "title": "etcd v3.6 API guarantees",
+      "organization": "etcd project",
+      "url": "https://etcd.io/docs/v3.6/learning/api_guarantees/",
+      "published_or_updated": "2025-09-26, Last modified.",
+      "sections": [
+        "APIs to consider",
+        "KV APIs / Durability / Strict serializability",
+        "Watch APIs",
+        "etcd specific definitions / Operation completed / Revision"
+      ],
+      "read_evidence": "Прочитано содержательное тело 824–869, не навигационные списки версий.",
+      "scope_limit": "Гарантии etcd ограничены API/режимом и окном истории; нельзя переносить гарантии KV на watch или весь E02."
+    },
+    {
+      "accessed_at_utc": "2026-11-01",
+      "source_kind": "первичный официальный",
+      "access_status": "read_selected_sections",
+      "id": "DRS-14",
+      "title": "Consumer Acknowledgements and Publisher Confirms",
+      "organization": "RabbitMQ project",
+      "url": "https://www.rabbitmq.com/docs/confirms",
+      "published_or_updated": "Прочитанная страница помечена Version: 4.4; дата изменения не показана.",
+      "sections": [
+        "Are Publisher Confirms Related to Consumer Delivery Acknowledgements?",
+        "Delivery Identifiers: Delivery Tags",
+        "Consumer Acknowledgement Modes and Data Safety Considerations",
+        "Negative Acknowledgement and Requeuing of Deliveries",
+        "Channel Prefetch Setting (QoS)",
+        "When Consumers Fail or Lose Connection: Automatic Requeueing",
+        "When Will Published Messages Be Confirmed by the Broker?",
+        "Ordering Considerations for Publisher Confirms",
+        "Publisher Confirms and Guaranteed Delivery"
+      ],
+      "read_evidence": "Прочитаны 50–91, 344–346, 408–447, 464–483; клиентские примеры не исполнялись.",
+      "scope_limit": "Особенности AMQP 0-9-1/RabbitMQ; эквивалентные границы другого брокера требуют его документации."
+    },
+    {
+      "accessed_at_utc": "2026-11-01",
+      "source_kind": "первичный официальный",
+      "access_status": "denied_http_403",
+      "id": "DRS-X01",
+      "title": "POSIX clock_gettime",
+      "organization": "The Open Group",
+      "url": "https://pubs.opengroup.org/onlinepubs/9799919799/functions/clock_gettime.html",
+      "published_or_updated": "Не установлена: текст недоступен.",
+      "sections": [],
+      "read_evidence": "web.open вернул 403 Forbidden; текст не прочитан.",
+      "scope_limit": "Не используется как доказательство.",
+      "retry_status": "Повторных попыток не было; обхода или escalation не предпринималось."
+    }
+  ]
+}
+

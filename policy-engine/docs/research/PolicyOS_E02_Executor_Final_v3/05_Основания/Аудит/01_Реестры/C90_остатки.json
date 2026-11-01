@@ -1,0 +1,74 @@
+{
+  "pass_id": "C90",
+  "bundle": "FED-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C90-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "confidence": "high",
+      "source_ids": [
+        "B142"
+      ],
+      "title": "Пустой UNION сохраняет только колонки первого compatible input, а не общий schema union",
+      "evidence": [
+        "S01:830–833",
+        "S01:634–702",
+        "S05:560–605",
+        "P05"
+      ],
+      "remaining": "В existing empty branch строить typed empty по согласованной схеме всех admitted inputs/explicit request, а не по sources[0] alone. Проверить zero-row id/x + id/y, обратный порядок, совместимые dtype joins, empty+nonempty и selected persistence/replay. Не добавлять фиктивные строки и не превращать source failure в empty success.",
+      "limits": "Actual public compose для пустых id:int64/x:float64 и id:int64/y:float64 даёт id/x; reverse даёт id/y. Nonempty control даёт id/x/y, actual selected JSON replay сохраняет урезанную схему. Наблюдаемые строки не потеряны, оба inputs пустые. Это остаток schema compatibility, не первоначальный KeyError и не scientific absence proof. Runtime syntax-only adaptation явная."
+    },
+    {
+      "id": "C90-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B139",
+        "B142",
+        "B143",
+        "B144"
+      ],
+      "title": "Native runtime, full typed-schema/SQL consumer и service delivery qualification остаются открыты",
+      "evidence": [
+        "S05",
+        "S06",
+        "S07",
+        "S08",
+        "S09",
+        "P01",
+        "P05"
+      ],
+      "remaining": "В supported Python3.14 исполнить existing native corpus и cold selected-artifact/registered-SQL test, проверить typed-empty consumption после успешного нулевого источника отдельно от failed/no-source. Расширить explicit schema/dtype/empty permutations без synthetic replacement actual DataSchema.",
+      "limits": "Native import blocked TypeVar(default) на Python3.12; pytest/DuckDB/Parquet engines отсутствуют. Actual pandas query и JSON replay исполнены, но registered SQL/cold installed process/service delivery нет. Три syntax-only except adaptations не native acceptance."
+    },
+    {
+      "id": "C90-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B143",
+        "B144"
+      ],
+      "title": "Снижение retained details и indexing подтверждено, реальная latency/peak memory не измерены",
+      "evidence": [
+        "S01:333–412",
+        "S01:708–842",
+        "S01:1202–1364",
+        "P03",
+        "P04"
+      ],
+      "remaining": "На representative разрешённом workload измерить wall time/peak memory с fixed source/input/backend и тем же численным oracle. Сохранить per-composition lazy indexing и bounded log ownership, не вводить global mutable-frame cache. Если нужен дальнейший SUMMARY optimization, отдельно оценить стоимость создания временных discarded entries.",
+      "limits": "80 generated conflicts: живые подробные записи ограничены, но FULL/SUMMARY всё ещё создают80 temporary entries; это не hidden unbounded retention. OVERLAY2set_index вместо per-column repetition, NONE0entries. Коэффициент ускорения, общий O(1), production scale и полная streaming capability не установлены."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C90-R01"
+  ],
+  "carried_related_residuals": [
+    "C89-R01",
+    "C89-R02"
+  ],
+  "decision": "B139/B143/B144 основные bounded repairs подтверждены. B142 single-schema empty repair работает, но heterogeneous-compatible empty schema теряет columns. Native/performance qualification остаётся."
+}

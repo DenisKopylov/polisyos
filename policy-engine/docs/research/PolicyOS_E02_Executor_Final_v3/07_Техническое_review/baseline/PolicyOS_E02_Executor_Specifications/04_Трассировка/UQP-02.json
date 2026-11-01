@@ -1,0 +1,359 @@
+{
+  "packet_id": "UQP-02",
+  "title": "Сохранение point mass и малых empirical масс",
+  "goal": "Backend меняет вычислительную стратегию, но не входной joint law.",
+  "work_type": "C114-R01/R02 narrow fixes; C114-G01 native qualification",
+  "preservation": [
+    "Named covariance axes, marginal/symmetry/PSD checks до repair; full cross terms и singular null space.",
+    "Analytical wᵀΣw, shared Gaussian transforms; empirical atoms/weights/shared row IDs.",
+    "Typed incompatibility refusal; declared joint identity не verified authority."
+  ],
+  "technical_solution": [
+    "В _sample_from_envelope и QMC Normal branch после validated fit: if std==0 return full(mean) до PRNG/ppf; positive std без max(std,1e-12). Negative/nonfinite std по-прежнему отвергаются admission. Не вводить jitter в declared law.",
+    "В _empirical_indices_from_uniform validate finite domain [0,1), проверить normalized cumulative finite/monotone и для каждого исходного positive weight строгое увеличение соседних CDF boundaries после выбранной арифметики. Затем searchsorted(side=right), tail floating-roundoff cap только до last positive atom. Если публичный helper принимает1, явно обработать endpoint последним positive atom; zero weights не оживлять. Gaussian ppf protection оставить в его ветке. Для collapsed positive interval выбранный по умолчанию bounded outcome — typed numeric-resolution refusal до выдачи draws/persisted success, сохраняя admitted carrier; не обещать arbitrary-precision sampler. Empty interval и отсутствие достижимой точки конечной uniform lattice различать: детерминированный inverse-CDF проверяет представимые u, native random/QMC не гарантирует наблюдение любого редкого atom в конечной выборке.",
+    "Сохранить preparation owner и named covariance builder. Actual CAS/profile/joint carrier tests использовать с UQS/CAL-06; no second sampler."
+  ],
+  "owners": [
+    "src/polisyos/foundry/uncertainty/monte_carlo.py",
+    "src/polisyos/foundry/uncertainty/covariance.py",
+    "src/polisyos/foundry/uncertainty/analytical.py",
+    "tests/unit/remediation/test_uqp_02.py"
+  ],
+  "shared_scenarios": [
+    "E02-I10-B"
+  ],
+  "coordination": "UQP-01 fixed invocation и UQP-03 result ledger уже те же consumers; write mutex MC. CAL-06 supplies tied law; UQS supplies exact draws.",
+  "compatibility": "Degenerate law behaviour intentionally corrected; seeded positive-std streams не менять без причины. Historical samples не переписывать. Endpoint convention documented with numeric profile, не невидимый schema change.",
+  "design_alignment": [
+    "[Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md#d25-epistemic-regime-architecture) и [синтез §4](../05_Основания/Исследование/design_direction.md): uncertainty/conditional outputs полезны без незаслуженной authority; новый совместимый law использует общий механизм, не доменную ветку."
+  ],
+  "open_decisions": [],
+  "acceptance": "Два distinguishing regressions и native successful persistence/repropagation. Covariance не универсальный nonlinear joint law; scientific source assumptions отдельно. Numeric-resolution refusal допустим для collapsed intervals; он не заменяет positive 1e-12 endpoint regression. Arbitrary-precision/approximate sampling не входит в пакет.",
+  "lane": "LANE-10",
+  "source_ids": [
+    "B187",
+    "B188",
+    "B192"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/UQP-02.md"
+  ],
+  "requirements": [
+    {
+      "text": "Marginal random/QMC Normal со std0 должен давать точную point mass без искусственного scale floor.",
+      "source_ids": [
+        "B188"
+      ],
+      "audit_ids": [
+        "C114-R01"
+      ],
+      "id": "REQ-UQP-02-01",
+      "test_ids": [
+        "TEST-UQP-02-01"
+      ]
+    },
+    {
+      "text": "Empirical inverse-CDF не применяет Gaussian endpoint clipping и сохраняет каждый положительный непустой interval принятой floating-point CDF; zero-weight atoms не выбираются. Положительный source weight, interval которого схлопнулся при normalization/cumsum, должен до sampling вызвать typed numeric-resolution refusal либо явно заявленный limited result; молча менять law запрещено. Наличие положительного float64 weight само по себе не гарантирует представимый CDF interval или достижимость на native uniform lattice.",
+      "source_ids": [
+        "B192"
+      ],
+      "audit_ids": [
+        "C114-R02"
+      ],
+      "id": "REQ-UQP-02-02",
+      "test_ids": [
+        "TEST-UQP-02-02"
+      ]
+    },
+    {
+      "text": "Именованные covariance axes и полный совместный Gaussian law должны одинаково потребляться analytical/delta/random/QMC, сохраняя singular directions.",
+      "source_ids": [
+        "B187",
+        "B188"
+      ],
+      "audit_ids": [
+        "C114-G01"
+      ],
+      "id": "REQ-UQP-02-03",
+      "test_ids": [
+        "TEST-UQP-02-03"
+      ]
+    },
+    {
+      "text": "Empirical carriers должны сохранять atoms/weights/shared rows и exact selected source через persistence/re-propagation; несовместимый joint contract даёт typed limited/refusal, не независимые marginals.",
+      "source_ids": [
+        "B192"
+      ],
+      "audit_ids": [
+        "C114-G01"
+      ],
+      "id": "REQ-UQP-02-04",
+      "test_ids": [
+        "TEST-UQP-02-02",
+        "TEST-UQP-02-04"
+      ]
+    },
+    {
+      "text": "Повторный resampling не создаёт empirical evidence или verified joint authority; successful native result должен сохранять declared limitations.",
+      "source_ids": [
+        "B188",
+        "B192"
+      ],
+      "audit_ids": [
+        "C114-G01"
+      ],
+      "id": "REQ-UQP-02-05",
+      "test_ids": [
+        "TEST-UQP-02-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "actual random/QMC + threshold",
+      "setup": "Normal mean0/std0, затем mean2/std0, positive std1 control; equivalent covariance[[0]].",
+      "action": "Оба native sampling routes → y=1[a>0] и identity.",
+      "oracle": "All draws exactly mean; threshold mean0 даёт все0; equivalent singular route совпадает. Positive std сохраняет variance; не проверять случайный mean равным точному математическому.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-UQP-02-01",
+      "requirement_ids": [
+        "REQ-UQP-02-01"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "deterministic inverse-CDF",
+      "setup": "Atoms[-1,1], weights[1e-12,1−1e-12]; u=0,5e-13,1e-12,nextafter(1,0); zero-weight first/last controls. Boundary: positive float64 weights[1,1e-20] имеют normalized/cumulative boundaries[1,1] на обычном float64 path — последний interval пуст; carrier сохраняет исходную положительную массу.",
+      "action": "Actual _empirical_indices_from_uniform и paired columns.",
+      "oracle": "Для right-continuous [0,1) convention первые два u выбирают−1, boundary1e-12 выбирает+1; indices shared. u вне domain/NaN отказ; u=1 либо документированный endpoint last-positive, либо явный отказ; никакого clipping1e-10. Для [1,1e-20] actual numeric-resolution check обязан обнаружить collapsed positive tail и дать typed refusal до successful sample/result publication; не считать молчаливое отсутствие atom правильным law. Original carrier/weights не переписываются. Выборка native random/QMC не обязана увидеть редкий atom: это не oracle; проверяются конкретные достижимые u, interval semantics и честная граница resolution.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-UQP-02-02",
+      "requirement_ids": [
+        "REQ-UQP-02-02",
+        "REQ-UQP-02-04"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "native named-law equivalence",
+      "setup": "Covariance diag1/9 с reversed columns; 3-axis all6 permutations; a=b covariance ones, y=a−b.",
+      "action": "Actual builder/analytical/delta/random/QMC; indefinite/duplicate/marginal mismatch controls.",
+      "oracle": "Axes reconstruct exact expected matrix (atol=1e-9); singular y variance0 and every draw difference0 (float32 atol=1e-6). Independent formula control variance2; invalid matrix не repair-ится jitter10.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-UQP-02-03",
+      "requirement_ids": [
+        "REQ-UQP-02-03"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "E02-I10-B persist/repropagate",
+      "setup": "Carrier[-1,0,0,1], weighted9:1 case, aligned columns and wrong-axis negative; actual tmp store/profile.",
+      "action": "Native propagator→actual result builder→persist/load→second propagation.",
+      "oracle": "Only source atoms, weights and joint pairing retained; profile/source mismatch refuses affected path. Declared ID не gate proof; resampling n не становится новым sample evidence count.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-UQP-02-04",
+      "requirement_ids": [
+        "REQ-UQP-02-04",
+        "REQ-UQP-02-05"
+      ],
+      "status": "NOT_RUN"
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "B187",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Named axes repaired; сохранить malformed refusals.",
+      "requirement_ids": [
+        "REQ-UQP-02-03"
+      ]
+    },
+    {
+      "audit_id": "B188",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Joint repaired, marginal std0 ещё меняет law.",
+      "requirement_ids": [
+        "REQ-UQP-02-01",
+        "REQ-UQP-02-03",
+        "REQ-UQP-02-05"
+      ]
+    },
+    {
+      "audit_id": "B192",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Carrier consumed, endpoint clip теряет tail atom.",
+      "requirement_ids": [
+        "REQ-UQP-02-02",
+        "REQ-UQP-02-04"
+      ]
+    },
+    {
+      "audit_id": "C114-R01",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "std floor не error model.",
+      "requirement_ids": [
+        "REQ-UQP-02-01"
+      ],
+      "inventory_id": "audit-residual:C114_остатки:0"
+    },
+    {
+      "audit_id": "C114-R02",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Finite empirical endpoints не Gaussian infinities.",
+      "requirement_ids": [
+        "REQ-UQP-02-02"
+      ],
+      "inventory_id": "audit-residual:C114_остатки:1"
+    },
+    {
+      "audit_id": "C114-G01",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Native successful builder/store пока не доказан.",
+      "requirement_ids": [
+        "REQ-UQP-02-03",
+        "REQ-UQP-02-04",
+        "REQ-UQP-02-05"
+      ],
+      "inventory_id": "audit-residual:C114_остатки:2"
+    }
+  ],
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "SPECIFICATION_NOT_IMPLEMENTED",
+  "dependencies": [
+    "UQP-01"
+  ],
+  "protected_distinction_ids": [],
+  "original_source": "../05_Основания/Аудит/05_Источники/UQP-02_исходные_строки.txt",
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0313",
+      "requirement_ids": [
+        "REQ-UQP-02-01"
+      ],
+      "disposition": "fix",
+      "rationale": "std floor не error model."
+    },
+    {
+      "inventory_id": "remaining:0314",
+      "requirement_ids": [
+        "REQ-UQP-02-02"
+      ],
+      "disposition": "fix",
+      "rationale": "Finite empirical endpoints не Gaussian infinities."
+    },
+    {
+      "inventory_id": "remaining:0315",
+      "requirement_ids": [
+        "REQ-UQP-02-03",
+        "REQ-UQP-02-04",
+        "REQ-UQP-02-05"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native successful builder/store пока не доказан."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0489",
+      "requirement_ids": [
+        "REQ-UQP-02-03"
+      ],
+      "test_ids": [
+        "TEST-UQP-02-03"
+      ],
+      "rationale": "Named covariance axes — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0490",
+      "requirement_ids": [
+        "REQ-UQP-02-03"
+      ],
+      "test_ids": [
+        "TEST-UQP-02-03"
+      ],
+      "rationale": "PSD/marginal validation before repair — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0491",
+      "requirement_ids": [
+        "REQ-UQP-02-01",
+        "REQ-UQP-02-03"
+      ],
+      "test_ids": [
+        "TEST-UQP-02-01",
+        "TEST-UQP-02-03"
+      ],
+      "rationale": "Singular null space — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0492",
+      "requirement_ids": [
+        "REQ-UQP-02-03"
+      ],
+      "test_ids": [
+        "TEST-UQP-02-03"
+      ],
+      "rationale": "wᵀΣw — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0493",
+      "requirement_ids": [
+        "REQ-UQP-02-03"
+      ],
+      "test_ids": [
+        "TEST-UQP-02-03"
+      ],
+      "rationale": "Shared Gaussian transforms — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0494",
+      "requirement_ids": [
+        "REQ-UQP-02-02",
+        "REQ-UQP-02-04"
+      ],
+      "test_ids": [
+        "TEST-UQP-02-02",
+        "TEST-UQP-02-04"
+      ],
+      "rationale": "Empirical atoms/weights/shared indices — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0495",
+      "requirement_ids": [
+        "REQ-UQP-02-03",
+        "REQ-UQP-02-04"
+      ],
+      "test_ids": [
+        "TEST-UQP-02-02",
+        "TEST-UQP-02-03",
+        "TEST-UQP-02-04"
+      ],
+      "rationale": "Typed incompatibility refusal — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0496",
+      "requirement_ids": [
+        "REQ-UQP-02-05"
+      ],
+      "test_ids": [
+        "TEST-UQP-02-04"
+      ],
+      "rationale": "Declared identity not authority — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    }
+  ]
+}

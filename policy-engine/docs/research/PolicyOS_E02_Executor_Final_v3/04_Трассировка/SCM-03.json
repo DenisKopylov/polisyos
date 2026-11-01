@@ -1,0 +1,539 @@
+{
+  "packet_id": "SCM-03",
+  "lane": "LANE-05",
+  "status": "AUTHORED_PENDING_FINAL_QA",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "test_status": "NOT_RUN",
+  "audit_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "source_ids": [
+    "B224",
+    "B225"
+  ],
+  "audit_reports": [
+    "05_Основания/Аудит/02_Пакеты/SCM-03.md"
+  ],
+  "source_plan_lines": [
+    7060,
+    7155
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C59_остатки:0",
+      "audit_id": "C59-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-SCM-03-01",
+        "REQ-SCM-03-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Canonical existing graph owner применяется к manual consumer, selected producer не обвиняется.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C59_остатки.json",
+        "sha256": "6db43a2d722494aaf3e73ead4f93ff6228cde7cdb03800dbaecf288b797ea9d8",
+        "json_pointer": "/findings/0"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C59_остатки:1",
+      "audit_id": "C59-R02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-SCM-03-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Canonical posterior coordinate mapping, covariance сохранена; low replay issue не numerical bias.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C59_остатки.json",
+        "sha256": "6db43a2d722494aaf3e73ead4f93ff6228cde7cdb03800dbaecf288b797ea9d8",
+        "json_pointer": "/findings/1"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C59_остатки:2",
+      "audit_id": "C59-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-SCM-03-04",
+        "REQ-SCM-03-05",
+        "REQ-SCM-03-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Actual custody и representative measurement, bounded counters не native app acceptance.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C59_остатки.json",
+        "sha256": "6db43a2d722494aaf3e73ead4f93ff6228cde7cdb03800dbaecf288b797ea9d8",
+        "json_pointer": "/findings/2"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C59_остатки:3",
+      "audit_id": "C59-G02",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-SCM-03-04",
+        "REQ-SCM-03-05",
+        "REQ-SCM-03-07"
+      ],
+      "shared_owner": "SCM-01/SCM-02",
+      "rationale": "Соседние conditional-law repairs и scientific/refit boundaries явно распределены.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C59_остатки.json",
+        "sha256": "6db43a2d722494aaf3e73ead4f93ff6228cde7cdb03800dbaecf288b797ea9d8",
+        "json_pointer": "/findings/3"
+      }
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0353",
+      "requirement_ids": [
+        "REQ-SCM-03-01",
+        "REQ-SCM-03-02"
+      ],
+      "disposition": "fix",
+      "rationale": "Manual unresolved/raw-endpoint entry закрыт existing canonical admission.",
+      "source_ids": [
+        "B224",
+        "B225"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0354",
+      "requirement_ids": [
+        "REQ-SCM-03-03"
+      ],
+      "disposition": "fix",
+      "rationale": "Joint posterior logical replicas стабильны при equivalent representation.",
+      "source_ids": [
+        "B224",
+        "B225"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0355",
+      "requirement_ids": [
+        "REQ-SCM-03-06"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native source/output consumers и honest performance measurements.",
+      "source_ids": [
+        "B224",
+        "B225"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0356",
+      "requirement_ids": [
+        "REQ-SCM-03-05",
+        "REQ-SCM-03-07"
+      ],
+      "disposition": "shared",
+      "rationale": "Law/scientific boundaries и SCM-01/02 closeout, не новая неопределённая универсальность.",
+      "source_ids": [
+        "B224",
+        "B225"
+      ]
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0568",
+      "requirement_ids": [
+        "REQ-SCM-03-04"
+      ],
+      "test_ids": [
+        "TEST-SCM-03-05"
+      ],
+      "rationale": "Perfect replacement before natural sampler"
+    },
+    {
+      "inventory_id": "preserve:0569",
+      "requirement_ids": [
+        "REQ-SCM-03-04"
+      ],
+      "test_ids": [
+        "TEST-SCM-03-05"
+      ],
+      "rationale": "Active/factual closure and full-trace opt-in"
+    },
+    {
+      "inventory_id": "preserve:0570",
+      "requirement_ids": [
+        "REQ-SCM-03-03",
+        "REQ-SCM-03-04"
+      ],
+      "test_ids": [
+        "TEST-SCM-03-03",
+        "TEST-SCM-03-04",
+        "TEST-SCM-03-05"
+      ],
+      "rationale": "Immutable graph/per-node logical streams and mutant control"
+    },
+    {
+      "inventory_id": "preserve:0571",
+      "requirement_ids": [
+        "REQ-SCM-03-05"
+      ],
+      "test_ids": [
+        "TEST-SCM-03-06"
+      ],
+      "rationale": "One stochastic-law parse, strict failure without hidden atomic alternative"
+    },
+    {
+      "inventory_id": "preserve:0572",
+      "requirement_ids": [
+        "REQ-SCM-03-05"
+      ],
+      "test_ids": [
+        "TEST-SCM-03-06"
+      ],
+      "rationale": "Actual conditional tail sampler and separate clipping semantics"
+    }
+  ],
+  "requirements": [
+    {
+      "text": "Каждый static SCM query entry, включая manual/no-source-disposition, планируется только по заново проверенному directed DAG или canonical projection существующего owner. Raw src/dst при endpoint marks не служат causal orientation. Unresolved PAG/temporal graph не получает static numerical success; корректные manual DAG и known-direction equivalent spellings остаются полезными.",
+      "source_ids": [
+        "B224"
+      ],
+      "audit_ids": [
+        "C59-R01"
+      ],
+      "id": "REQ-SCM-03-01",
+      "test_ids": [
+        "TEST-SCM-03-01",
+        "TEST-SCM-03-02"
+      ]
+    },
+    {
+      "text": "Projected graph, mechanism parents и source/disposition связываются согласованно до traversal. Если projection требует отсутствующих latent mechanisms или family semantics, вернуть точный unsupported capability, не придумать mechanisms. Не мутировать source graph и не ослаблять selected fit guard.",
+      "source_ids": [
+        "B224"
+      ],
+      "audit_ids": [
+        "C59-R01"
+      ],
+      "id": "REQ-SCM-03-02",
+      "test_ids": [
+        "TEST-SCM-03-01",
+        "TEST-SCM-03-02",
+        "TEST-SCM-03-07"
+      ]
+    },
+    {
+      "text": "Joint Gaussian posterior имеет canonical logical coordinate order и stream identity, не зависящие от permutation equivalent nodes/edges/mechanism storage. В одном accepted runtime/backend одинаковые effective SCM/query/seed дают соответствующие replicas в declared tolerance; joint covariance и shared-U сохраняются. Это reproducibility contract, не утверждение о ранее biased marginals.",
+      "source_ids": [
+        "B224"
+      ],
+      "audit_ids": [
+        "C59-R02"
+      ],
+      "id": "REQ-SCM-03-03",
+      "test_ids": [
+        "TEST-SCM-03-03",
+        "TEST-SCM-03-04"
+      ]
+    },
+    {
+      "text": "ATOMIC/STOCHASTIC replacement происходит до natural mechanism; SHIFTED/TRUNCATED сохраняют нужное natural value. Active scope включает все необходимые arm/factual/joint-law dependencies и full-trace лишь по explicit запросу. Immutable graph и per-node streams сохраняются при irrelevant insertion/pruning.",
+      "source_ids": [
+        "B224"
+      ],
+      "audit_ids": [
+        "C59-G01",
+        "C59-G02"
+      ],
+      "id": "REQ-SCM-03-04",
+      "test_ids": [
+        "TEST-SCM-03-04",
+        "TEST-SCM-03-05"
+      ]
+    },
+    {
+      "text": "Supported stochastic law normal/uniform/truncnorm разрешается один раз до draws, проверяет finite args/arity/positive scale и исполняет исходный тип политики. Malformed/unsupported law отказывает даже при fallback_treatment_value, не меняется на atomic. Conditional truncnorm и TRUNCATED clipping различаются; degenerate declared interval имеет собственный явный смысл.",
+      "source_ids": [
+        "B225"
+      ],
+      "audit_ids": [
+        "C59-G01",
+        "C59-G02"
+      ],
+      "id": "REQ-SCM-03-05",
+      "test_ids": [
+        "TEST-SCM-03-06"
+      ]
+    },
+    {
+      "text": "Native registered query→persisted result→fresh Scientist reader сохраняет graph/law/target/comparator/seed profile и whole-output bindings. Работа с counters не равна доказанному wall-time/RSS speedup; performance claim требует representative measured workload и denominators.",
+      "source_ids": [
+        "B224",
+        "B225"
+      ],
+      "audit_ids": [
+        "C59-G01"
+      ],
+      "id": "REQ-SCM-03-06",
+      "test_ids": [
+        "TEST-SCM-03-07",
+        "TEST-SCM-03-08"
+      ]
+    },
+    {
+      "text": "Новый compatible graph/law profile подключается через existing graph projection и law owner, не special-case по имени узла. Неизвестные law/empirical authority/estimator coverage остаются ограничениями; C57 twin и C58 posterior/conditional-law repairs входят в shared closeout. Refit qualification принадлежит SCM-02 и не засчитывается tail test.",
+      "source_ids": [
+        "B224",
+        "B225"
+      ],
+      "audit_ids": [
+        "C59-G02"
+      ],
+      "id": "REQ-SCM-03-07",
+      "test_ids": [
+        "TEST-SCM-03-02",
+        "TEST-SCM-03-06",
+        "TEST-SCM-03-07",
+        "TEST-SCM-03-08"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "native manual admission distinguishing regression",
+      "setup": "Manual PAG X o→Y с mechanisms, querydoX2; knownY→X в двух spellings (X,Y,arrow,tail) и(Y,X,tail,arrow), Y5,X2Y, querydoY2→X.",
+      "action": "Public query route выполняет canonical admission/projector перед active plan; positive plain manual DAG control.",
+      "oracle": "Unresolved PAG не возвращает success7; known equivalent directions дают X4 в обеих записях, не KeyError. Полный original source сохранён, derived DAG/disposition согласованы с mechanisms.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "gcm_query.py public pure_step; ir/analytics/causal_graph.py::project_graph_to_dag/graph_for_analysis",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-SCM-03-01",
+      "requirement_ids": [
+        "REQ-SCM-03-01",
+        "REQ-SCM-03-02"
+      ]
+    },
+    {
+      "level": "native supported-boundary control",
+      "setup": "Manual temporal edge, cycle, stale/forged disposition, graph projection с introduced latent node без mechanism; valid ordinary manual DAG.",
+      "action": "Admit before topological traversal and execute valid case.",
+      "oracle": "Temporal/cycle/unresolved/missing required mechanism получают адресный refusal до sampling, не raw orientation или тайный latent law. Valid manual model работает; selected source-bound fit protections не ослаблены.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "structural_causal_model.py; GRF-03 canonical projection owner",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-SCM-03-02",
+      "requirement_ids": [
+        "REQ-SCM-03-01",
+        "REQ-SCM-03-02",
+        "REQ-SCM-03-07"
+      ]
+    },
+    {
+      "level": "native posterior permutation regression",
+      "setup": "Existing _b224_reordered_active_models, same seed31,n512; conditionsY4 иB1, controlsR1 иB1,C2; permutation edges/nodes/mechanism storage.",
+      "action": "Actual counterfactual GCM posterior simulation и shared draw owner; map samples по canonical variable labels.",
+      "oracle": "Все corresponding replicas совпадают в фиксированной runtime tolerance(atol1e-12/rtol1e-12 для fixture), включая ранее различавшиеся cases. Mean/cov аналитически те же. Independent per-node replacement вместо correlated vector должен провалить covariance/sharedU control.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_scm_03.py; gcm_query.py::_linear_gaussian_posterior/_LogicalStreamFactory",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-SCM-03-03",
+      "requirement_ids": [
+        "REQ-SCM-03-03"
+      ]
+    },
+    {
+      "level": "native stream/pruning removal controls",
+      "setup": "Existing interventional sibling reorder и irrelevant root insertion; explicit generator input; posterior correlated control из SCM-02.",
+      "action": "Выполнить current per-node stream tests и mutant shared mutable RNG control; измерить consumption root token explicit generator.",
+      "oracle": "Relevant per-node replicas инвариантны reorder/pruning; mutant обнаружен. Root entropy берётся фиксированным token, не меняется от размера плана. Joint posterior сохраняет off-diagonal covariance/sharedU, не превращается в independent noises.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_scm_03.py:190–309",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-SCM-03-04",
+      "requirement_ids": [
+        "REQ-SCM-03-03",
+        "REQ-SCM-03-04"
+      ]
+    },
+    {
+      "level": "native replacement/counters",
+      "setup": "X,Y плюс20 irrelevant roots,10draws; broken naturalX tripwire; U→X→Y с missingU; shift natural5+2 и factual ancestor case.",
+      "action": "Execute active и full_trace routes; instrument actual node calls/retained arrays, snapshot graph before/after.",
+      "oracle": "PerfectdoX2→Y7 без naturalX; active10calls/20values vs full_trace210calls/220values на этом fixture, Y replicas одинаковы. Shift требует natural5→7 и нужныйU; factual/joint-law dependencies не удалены. Source graph неизменён. Это counters, не benchmark speedup.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_scm_03.py; SCM-01/02 dependency controls",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-SCM-03-05",
+      "requirement_ids": [
+        "REQ-SCM-03-04"
+      ]
+    },
+    {
+      "level": "native SciPy law oracle",
+      "setup": "truncnorm(0,1,8,9),n2048,seed23; normal/uniform positive; typo/emptyarg/zero-negative scale/NaN с fallback7; explicit degenerate[8,8], separate clipping.",
+      "action": "Count resolver calls; sample actual SciPy, compare independent quadrature of exp(-(x²−64)/2) on[8,9]; repeat seed.",
+      "oracle": "Parser один раз; nondegenerate tail values строго внутри(8,9), разнообразны; mean8.12118899 within6sqrt(.01414854/2048), variance согласована в заранее установленном finite tolerance. Invalid law отказывает, не десять7; clipped natural0→8 и declared degenerate8 отдельно valid. Same-runtime seeded repeat сохраняется.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_scm_03.py; _resolve_stochastic_distribution/_sample_stochastic_distribution",
+      "allowed_doubles_and_prohibitions": "Real SciPy sampler не подменять готовыми numbers. Quadrature oracle не вызывает тот же truncnorm.rvs.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-SCM-03-06",
+      "requirement_ids": [
+        "REQ-SCM-03-05",
+        "REQ-SCM-03-07"
+      ]
+    },
+    {
+      "level": "native E02-I05-C source→query→reader",
+      "setup": "Actual selected static fitted SCM плюс manual admitted DAG fixture, declared stochastic query/contrast, real CAS/profile-selected fresh reader.",
+      "action": "Registry/dispatcher→whole canonical output→Scientist reconciliation; mutate source, projection, law, arms, metadata or profile with valid new payload serialization.",
+      "oracle": "Valid numerical candidate достигает consumer; semantic substitutions refused относительно source/request, не только peer equality. Conservative envelope/limits сохранены, unknown law не upgraded. C57/C58 repairs подтверждены тем же agreed revision.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "scientist/nodes/builtins/causal/run_causal_queries.py; actual selected source-bound test_gcm_backend_contract.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-SCM-03-07",
+      "requirement_ids": [
+        "REQ-SCM-03-02",
+        "REQ-SCM-03-06",
+        "REQ-SCM-03-07"
+      ]
+    },
+    {
+      "level": "bounded performance/scientific qualification",
+      "setup": "Один заранее объявленный representative graph/query corpus с active/full_trace variants; pinned environment, n_samples, warmup/repeats/RSS method.",
+      "action": "Если нужен performance claim, измерить wall-time/RSS и numerical equivalence отдельно; составить supported law/graph/scientific scope table.",
+      "oracle": "Нет обещания общего speedup из10/210 counters. Regression/overhead и denominators видимы. Tail/law correctness не считается refit CI/empirical policy authority; source-bound refit evidence ссылается на SCM-02, не дублируется.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "Actual query application owner; E02-I05-C",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-SCM-03-08",
+      "requirement_ids": [
+        "REQ-SCM-03-06",
+        "REQ-SCM-03-07"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I05-C"
+  ],
+  "dependencies": [
+    {
+      "packet": "SCM-02",
+      "relation": "Оригинальный predecessor: posterior factor/joint conditioning; canonical coordinate fix согласован с numerical change."
+    },
+    {
+      "packet": "GRF-01",
+      "relation": "Оригинальный predecessor: intervention surgery и graph semantics."
+    },
+    {
+      "packet": "GRF-02",
+      "relation": "Оригинальный predecessor: immutable canonical identity/prepared adjacency."
+    },
+    {
+      "packet": "GRF-03",
+      "relation": "Existing canonical projection/disposition reuse, static/temporal boundary."
+    },
+    {
+      "packet": "SCM-01",
+      "relation": "Twin query-specific closure использует тот же supported-plan semantics, не отдельный parser."
+    }
+  ],
+  "preservation": [
+    "Perfect replacement before natural sampler",
+    "Active/factual closure and full-trace opt-in",
+    "Immutable graph/per-node logical streams and mutant control",
+    "One stochastic-law parse, strict failure without hidden atomic alternative",
+    "Actual conditional tail sampler and separate clipping semantics"
+  ],
+  "protected_distinction_ids": [],
+  "design_alignment": [
+    {
+      "source": "policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+      "section": "D0",
+      "application": "Общий canonical graph/plan и law owner позволяют новым compatible inputs работать без новых веток; positive manual DAG сохраняется рядом с refusal."
+    },
+    {
+      "source": "policy-engine/docs/system-design-decisions/policy-design-execution-topology.md",
+      "section": "Applicability versus semantic judgment",
+      "application": "Исполняется именно предложенный и admitted law; LLM proposal не источник empirical authority, но useful conditional calculation не блокируется blanket."
+    }
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-SCM-03-REPLAY",
+      "question": "Как закрепить исправленную posterior coordinate policy в existing replay provenance?",
+      "owner": "SCM-03 — canonical stream coordinates writer; SCM-02 numerical reviewer",
+      "bounded_action": "Проверить current schema/stream version fields и downstream readers; выбрать существующий computation-profile marker или минимальное versioned extension. Зафиксировать same-runtime tolerance, changed draws и unchanged target law, genuine historical bytes не менять.",
+      "default": "Canonical within accepted runtime; не обещать equivalence исторических draws или cross-version BLAS."
+    }
+  ],
+  "technical_solution": "**Admission.** Сформировать один validated static query view до `_parents_by_node/_topological_order`, используя текущие `project_graph_to_dag`, typed disposition и `graph_for_analysis`. Для manual DAG — strict canonical revalidation; для known-direction non-DAG storage — canonical projection и consistency с mechanism parents. Не изменять оригинальный SCM/source in place: prepared view относится к exact admitted graph/mechanism identity. Неразрешённый PAG, temporal edge или projection с отсутствующим latent mechanism остаются explicit unsupported, а не raw adjacency. Selected fit уже имеет guard; ремонт на manual consumer boundary не дублирует fitter.\n\n**Posterior replicas.** При подготовке posterior строить affine matrix в canonical topological order (tie-break по stable variable identity, parent accumulation также canonical), затем сохранять явный canonical coordinate tuple. Factor/draw/map используют один tuple. Это локальное свойство posterior preparation; не обязательно менять внешний `_topological_order` только ради сортировки: существующий test намеренно демонстрирует разные sibling orders и полезен как distinguishing input. Shared factor согласовать со scale-aware repair SCM-02. Stable namespace/label existing `_LogicalStreamFactory` сохранить; не подменять joint vector набором независимых noises. Within fixed runtime canonical matrix обеспечивает воспроизводимость; cross-BLAS/version bitwise guarantee отдельно не обещать.\n\n**Plan/law reuse.** Perfect replacement и parse-once уже правильны, сохранить counters/tripwires. Если вводится кэш prepared plan, ключ включает canonical graph/mechanisms, query type/arms, evidence dependency pattern и full_trace semantics; кэш по одному outcome недопустим. Не создавать cache, если текущая query-local подготовка достаточна: измеренный дорогой repeat — prerequisite оптимизации. Truncnorm остаётся actual conditional sampler со standardized a,b; clipping — другой intervention type.",
+  "compatibility_and_rollback": "Manual valid DAG preserved; unresolved/raw reverse behavior intentional correction. New canonical posterior mapping меняет ошибочно representation-sensitive replicas, но не объявляет старый marginal law biased. Зафиксировать replay profile/version и old/new seed mapping через existing provenance, historical bytes не переписывать. Strong cross-version reproducibility не заявлять без отдельного pinned backend evidence. Rollback не возвращает silent atomic fallback.",
+  "source_locators": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "first_line": 52,
+      "last_line": 146,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py#L52-L146"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "first_line": 277,
+      "last_line": 437,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py#L277-L437"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "first_line": 893,
+      "last_line": 1015,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py#L893-L1015"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "first_line": 1238,
+      "last_line": 1489,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py#L1238-L1489"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+      "first_line": 208,
+      "last_line": 242,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/structural_causal_model.py#L208-L242"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "first_line": 340,
+      "last_line": 390,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/causal_graph.py#L340-L390"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "first_line": 1078,
+      "last_line": 1177,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/causal_graph.py#L1078-L1177"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_scm_03.py",
+      "first_line": 190,
+      "last_line": 309,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_scm_03.py#L190-L309"
+    }
+  ]
+}

@@ -1,0 +1,305 @@
+{
+  "review": "LANE-05/LANE-11 technical capability review",
+  "date": "2026-11-01",
+  "status": "COMPLETE",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "findings": [
+    {
+      "id": "CS-001",
+      "severity": "high; блокирует научную квалификацию conventional RDD, не point/transport repair",
+      "classification": "verified_specification_defect",
+      "packets": [
+        "CAU-03"
+      ],
+      "requirement_ids": [
+        "REQ-CAU-03-02",
+        "REQ-CAU-03-05"
+      ],
+      "test_ids": [
+        "TEST-CAU-03-02",
+        "TEST-CAU-03-06"
+      ],
+      "scenario_ids": [
+        "E02-I05-B",
+        "E02-I05-B-B03"
+      ],
+      "faulty_proposition": "REQ-02 и oracle TEST-02 требуют сохранить weighted-residual homoskedastic covariance как правильный conventional kernel RDD SE. Kernel localization weights не являются inverse-error-variance weights.",
+      "evidence": [
+        "P/02_Пакеты/CAU-03.md, REQ-02 и solution/TEST-02; JSON /requirements/1/text,/tests/1/action",
+        "src/polisyos/foundry/methods/catalog/causal/rdd.py:69–121: kernel w, raw polynomial, covariance sigma2*pinv(XtWX), sigma2=sum(w*r²)/(n-p)."
+      ],
+      "counterexample": "При X=[1,u], u_i=i/13 (i=1..12), triangular w=1-u, линейном среднем E[Y|u]=1+2u и независимых homoskedastic errors Var=1 истинная Var(intercept)=127/286=.4440559441. Для сохранённой формулы E[reported variance]=63/220=.2863636364 (64.49% истинной). Обе стороны одинакового sharp design удваивают эти variances; ratio остаётся. Независимая точная Fraction-алгебра, не выполнение продукта. Даже верный normalized SVD оставляет эту ошибку.",
+      "alternatives": [
+        "Оставить формулу исключительно versioned legacy inverse-variance-WLS profile с явно условной моделью Var(e_i)=sigma²/w_i; не выдавать за generic kernel-RD inference.",
+        "Для conventional kernel RDD реализовать явный HC0/HC1 sandwich/equivalent-kernel profile в текущем owner; коэффициенты без RBC остаются conventional.",
+        "rdrobust как отдельно pinned methodological/reference profile: совпадение cutoff/kernel/h/b/p/q/vce обязательно; не скрытая замена всего runtime."
+      ],
+      "preferred_solution": "Сохранить coordinate/rank repair; разделить localization kernel и variance model. Выбрать явный conventional kernel sandwich profile, сохранить историческую covariance только по compatibility disposition. Для homoskedastic модели использовать sigma² B XᵀW²X B, B=(XᵀWX)^−1, с отдельно заявленным estimator sigma²; для HC0 использовать B Xᵀdiag(w² r²)X B. Нельзя автоматически называть HC0 конечновыборочно unbiased. RBC — другой correction profile, не исправление этого дефекта флагом.",
+      "replacement_requirement": "Conventional local-polynomial point сохраняется без bias correction. Report фиксирует kernel, cutoff, h, p, variance_model и variance_estimator/version. Localization weights не считаются inverse-variance weights без отдельного explicit observational variance assumption. Новый kernel profile использует соответствующий sandwich/equivalent-kernel covariance; legacy covariance читается как исторический профиль. Один economy rank-revealing factorization обеспечивает solve/weights, без N×N. RBC сохраняет свой sharp/fixed h,b/q=p+1/HC0 контракт.",
+      "replacement_test": "Добавить независимый малый exact-rational oracle приведённого 12-row design: коэффициенты functional weights ell и известная noise covariance дают ellᵀSigma ell. Затем сравнить residual-based HC0/HC1 с отдельной формулой, отдельно от known-sigma oracle. Проверить triangular/epanechnikov/uniform, nonzero cutoff, units rescaling, both sides и неодинаковые noise variances. Negative mutant с sigma2*(XtWX)^−1 обязан провалиться для kernel profile, но его исторический readback остаётся допустимым при legacy label. CI coverage — отдельная предзаданная DGP campaign, не exact algebra.",
+      "shared_owner": "CAU-03 rdd.py; CAU-05 whole-report owner потребляет, не пересчитывает.",
+      "preservation_risks": [
+        "Нельзя молча поменять старые numeric bytes или назвать conventional correction RBC.",
+        "Сохранять effective counts, support, cutoff, rank refusal, union h/b для RBC, non-gating report."
+      ],
+      "validation_plan": [
+        "Точная независимая алгебра уже выполнена stdlib; arithmetic_counterexamples.json.",
+        "Будущий actual method→whole report→CAS→fresh reader для нового и legacy profile; native tests NOT_RUN."
+      ],
+      "uncertainty": "Модель Var(e)=sigma²/w оправдывает старую формулу математически, но такой source contract не установлен. Контрпример опровергает homoskedastic observation-error трактовку; не доказывает конкретную величину empirical undercoverage.",
+      "primary_sources": [
+        "https://www.statsmodels.org/v0.14.6/generated/statsmodels.regression.linear_model.WLS.html",
+        "https://numpy.org/doc/2.3/reference/generated/numpy.linalg.svd.html",
+        "https://github.com/rdpackages/rdrobust/blob/main/README.md"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "id": "CS-002",
+      "severity": "medium; блокирует claim independent numerical oracle, не adapter acceptance",
+      "classification": "verified_oracle_independence_defect",
+      "packets": [
+        "CAU-04"
+      ],
+      "requirement_ids": [
+        "REQ-CAU-04-05"
+      ],
+      "test_ids": [
+        "TEST-CAU-04-02",
+        "TEST-CAU-04-06"
+      ],
+      "scenario_ids": [
+        "E02-I05-B",
+        "E02-I05-B-B04"
+      ],
+      "faulty_proposition": "REQ-05/TEST-02 называют Statsmodels OLS независимым numerical oracle для DoWhy LinearRegressionEstimator.",
+      "evidence": [
+        "P/02_Пакеты/CAU-04.md:52–54,89–95,121–127.",
+        "workers/dowhy-014/pyproject.toml:4–5 pins Python3.12 and DoWhy0.14; worker.py:69–150 invokes backdoor.linear_regression.",
+        "workers/dowhy-014/tests/test_worker.py:64–88: sm.OLS .fit() reference;91–117 coverage.",
+        "Official DoWhy v0.14 source imports statsmodels at31, calls sm.OLS(...).fit() at155–158; confidence interval and SE use self.model."
+      ],
+      "counterexample": "Общий дефект/изменение sm.OLS covariance/CI в worker environment затронет producer и reference одинаково. Они по-прежнему совпадут до1e-12. Сравнение различает adapter ordering/contrast/request ошибки, но не независимую реализацию OLS. DGP coverage против известного truth независима от backend и остаётся полезной.",
+      "alternatives": [
+        "Сохранить тест как same-backend adapter parity, честно переименовать.",
+        "Добавить небольшой orthogonal balanced design с rational closed-form treatment coefficient, RSS, degrees of freedom и SE; Student-t CI quantile проверить отдельным тестовым numerical integration/inversion или зафиксированным high-precision reference.",
+        "Новый full causal estimator framework не нужен; NumPy lstsq более независимо от statsmodels но всё ещё общий LAPACK, что следует обозначить."
+      ],
+      "preferred_solution": "Два уровня oracle: существующий Statsmodels parity плюс независимый closed-form fixture; отдельная coverage campaign против аналитического truth. Проверять именно worker DoWhy0.14, не parent conditional<0.14 dependency.",
+      "replacement_requirement": "DoWhy worker numerical acceptance состоит из (a) adapter parity с underlying Statsmodels, (b) independent analytic finite-design point/SE/CI test, (c) separately declared finite-DGP coverage. Ни один уровень не подменяет остальные; runtime inventory включает actual worker package versions и Linux/Python3.12 profile.",
+      "replacement_test": "Не удалять существующий TEST-02. Назвать его adapter parity. Добавить balanced full-rank design [1,A,X], treatment orthogonal centered X, ненулевой residual в orthogonal complement: вычислить tau, SSE/(n-3), SE и t interval без sm.OLS/DoWhy/product helper. Перестановки колонок/строк, treatment relabel 0↔1, translated X должны иметь аналитический ожидаемый результат. CI coverage 200 seeds1000..1199 сохранить отдельно и показывать accepted/failed denominator. Конкретный design rows(A,X,Y): (0,-1,-3),(0,1,3),(0,-1,-1),(0,1,5),(1,-1,-1),(1,1,5),(1,-1,1),(1,1,7); graph X→A, X→Y, A→Y, adjustment[X]. Expected beta[intercept,A,X]=[1,2,3], SSE=8, df=5, variance(A)=.8, SE=.8944271909999159, t(.975,5)=2.570581835636312, CI95=[-.299198290483594,4.299198290483593]. Independent t reference from closed-form df5 CDF with atan/sin+bisection, no scipy/statsmodels/DoWhy; script independent_oracles.py. Point/SE atol1e-12, CI atol1e-10 for this well-conditioned small design. Fixture is exact arithmetic, not iid Gaussian empirical evidence.",
+      "shared_owner": "CAU-04 worker qualification; I05-B shared source/report transport остаётся CAU-05.",
+      "preservation_risks": [
+        "Не потерять полезную adapter parity.",
+        "Не выдавать аналитический корректный fit за causal identification/positivity/real-data validity.",
+        "Не требовать parent install DoWhy0.14 на Python3.14."
+      ],
+      "validation_plan": [
+        "Official version-specific source inspected; product not executed.",
+        "Будущий independent fixture плюс реальный subprocess worker→parent→CAS→fresh consumer."
+      ],
+      "uncertainty": "Подтверждён shared implementation, не обнаружен реальный дефект Statsmodels OLS. Coverage уже имеет независимый truth; корректируем только уровень доказательства.",
+      "primary_sources": [
+        "https://www.pywhy.org/dowhy/v0.14/_modules/dowhy/causal_estimators/linear_regression_estimator.html"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "id": "CS-003",
+      "severity": "high for continuous cross-fit scientific qualification; cache/worker repair может приниматься отдельно",
+      "classification": "verified_source_gap_omitted_by_acceptance",
+      "packets": [
+        "FIT-01"
+      ],
+      "requirement_ids": [
+        "REQ-FIT-01-08"
+      ],
+      "test_ids": [
+        "TEST-FIT-01-08",
+        "TEST-FIT-01-09"
+      ],
+      "scenario_ids": [
+        "E02-I05-C",
+        "E02-I05-C-B04"
+      ],
+      "faulty_proposition": "FIT-01 правильно ограничивает binary pilot, но его native scientific path не проверяет train-only outcome preprocessing; actual continuous nuisance cross-fit использует held-out Y при fit scaler.",
+      "evidence": [
+        "src/polisyos/foundry/methods/catalog/causal/tmle_core.py:878–890 fits global scaler before fold split;822–867 receives global Y_scaled/scaler;450–456 ElasticNet(alpha=.01,l1_ratio=.5).",
+        "src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py:331–359 computes mean/std on all supplied outcomes.",
+        "P/02_Пакеты/FIT-01.md:162–169 binary iid pilot; tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:332–366 same pilot."
+      ],
+      "counterexample": "Фиксированные training x=(-1,1), y=(-1,1), ElasticNet с intercept. Если общий scaler s включает held-out y=M, raw slope=(1−.005*s)/1.005 пока soft-threshold positive. Для массива outcomes(-1,1,M), s=sqrt(2/3+2*M²/9): изменение только held-out M=0→30 меняет training fitted predictor. Это аналитический partial path, не native result. Повторяемость/cache content hash и binary coverage могут пройти.",
+      "alternatives": [
+        "Fold-owned scaler fitted only on permitted training outcome indices, inverse transform тем же fold scaler.",
+        "Для выбранного backend outcome_scaling=raw избегает этой конкретной зависимости, но не является общей заменой train-only contract.",
+        "sklearn Pipeline/TransformedTargetRegressor могут владеть преобразованием, но существующий fold owner проще и не требует новый dependency/framework."
+      ],
+      "preferred_solution": "Перенести fit preprocessing внутрь fold и явно определить fit/calibration ownership. Held-out outcomes не должны влиять на nuisance fit/selection/preprocessing данного fold. Учитывать fold-specific scaler in fit-core provenance; final EIF/targeting legitimately consumes held-out outcomes и не обязан быть invariant.",
+      "replacement_requirement": "Для каждого cross-fit fold nuisance model, hyperparameter selection и outcome preprocessing зависят только от разрешённых fit/calibration данных; test-fold Y не используется до evaluation/targeting. Fit-core сохраняет fold-specific preprocessing и split identity. Изменение test-fold Y может изменить final estimator, но не out-of-fold nuisance predictions этого fold при фиксированных X,T,splits и train data.",
+      "replacement_test": "Добавить continuous-outcome fixture с реально выбранным elastic_net и outcome_scaling=standardized/raw+standardized; фиксировать splits и fit indices. Два запроса отличаются только Y[test_idx]. Наблюдая actual fold, проверить identical mu0/mu1 predictions для этого fold, selected backend и fit preprocessing; final ATE не требовать identical. Negative mutant global scaler должен fail. Дополнительно train-Y mutation меняет predictions, raw-scaling control, cold/warm/current-view invariance. Binary pilot сохранить как отдельный bounded profile.",
+      "shared_owner": "FIT-01 tmle_core fold owner + nuisance_layer scaler; не новый scheduler.",
+      "preservation_risks": [
+        "Fold-specific preprocess changes fit identity and historic numerical outputs: invalidate current cache, не переиспользовать старый core как новый.",
+        "Не заморозить final targeting/EIF на heldout Y; это необходимое legitimate использование.",
+        "Сохранить all folds/repeats, serial-inner, immutable backing/current-view."
+      ],
+      "validation_plan": [
+        "Source inspection + independent ElasticNet closed-form arithmetic, NOT product tests.",
+        "Будущий exact fold perturbation anti-leakage native test; continuous coverage только отдельной campaign после repair."
+      ],
+      "uncertainty": "Не утверждается, что binary-only reported ATE уже некорректен или что данный leakage всегда вызывает материальный bias. Подтверждена зависимость continuous regularized fit от heldout outcomes.",
+      "primary_sources": [
+        "https://scikit-learn.org/stable/common_pitfalls.html",
+        "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ElasticNet.html"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "id": "CS-004",
+      "severity": "high for source-backed FP qualification; finite helper smoke retain",
+      "classification": "verified_source_and_method_provenance_gap",
+      "packets": [
+        "DDM-02"
+      ],
+      "requirement_ids": [
+        "REQ-DDM-02-06",
+        "REQ-DDM-02-03"
+      ],
+      "test_ids": [
+        "TEST-DDM-02-07",
+        "TEST-DDM-02-04"
+      ],
+      "scenario_ids": [
+        "E02-I11-B",
+        "E02-I11-B-B04"
+      ],
+      "faulty_proposition": "Actual calibration producer не обеспечивает отдельный holdout и truthful calibration_method: default MBB label не подтверждается computation; CLI fallback может повторить training source в holdout. TEST-07 проверяет другую, намеренно синтетическую ветвь и этот дефект не ловит.",
+      "evidence": [
+        "src/polisyos/ddm/calibration/calibrate.py:118 labels moving_block_bootstrap_quantile;123–182 only quantile/holdout/Wilson, seed/block metadata;185–230 отдельные bootstrap helpers.",
+        "calibrate.py:423–435 CLI split by stream order; holdout_streams=streams[split:] or streams[:split].",
+        "tests/unit/ddm/test_stationary_replay.py:51–77 repeated synthetic streams; P/02_Пакеты/DDM-02.md:144–154 intentionally bounded arithmetic/provenance smoke."
+      ],
+      "counterexample": "Один input stream: split=1, calibration=streams[:1], holdout fallback=streams[:1]. Данные калибровки повторно проверяют собственный threshold; при >=73 повторно заявленных no-alert units Wilson upper<=.05 может выглядеть убедительно, но это не независимый holdout. Отдельно вызов calibrate_detector c любыми заранее данными streams меняет seed/block metadata без resampling, сохраняя method label MBB. Не утверждается, что production gate сейчас пропускает finite source: существующий guard сохраняется.",
+      "alternatives": [
+        "Текущий raw empirical maxima quantile остаётся полезным, но получает truthful method label и exact input-generation provenance.",
+        "Если заявлен MBB, существующий bootstrap_stationary_streams либо locked arch MovingBlockBootstrap производит resampling с исходным row/time identity; empirical validation всё равно на отдельном source holdout.",
+        "Не добавлять обязательный bootstrap ради каждого helper smoke; не смешивать DDM с predictive calibration."
+      ],
+      "preferred_solution": "Исправить producer: нет fallback reuse при пустом holdout, source IDs/time-selection должны доказуемо разделять calibration и holdout. Не проверять disjointness по unequal values: независимые наблюдения могут численно совпадать. Method identity выводить из исполненного preparation route; raw-stream quantile не называется MBB без связанного producer evidence.",
+      "replacement_requirement": "Source-backed FP qualification требует непустой separately selected holdout с проверяемыми source observation identities/time windows и отсутствием calibration selection/tuning leakage. При недостаточном источнике полезный threshold можно вернуть как unqualified/conditional, не empirical FP certificate. Calibration method, resampling seed/block length и source generator соответствуют действительно выполненному алгоритму. Повторные synthetic streams остаются arithmetic fixture, не stationary evidence. Trusted observation identity resolves to the selected source artifact plus observation/time coordinates; arbitrary caller stream labels are not ownership evidence. External MBB preparation is allowed if actual producer lineage/index plan is bound and verified; bootstrap need not execute inside calibrate_detector.",
+      "replacement_test": "Сохранить TEST-07 с его exact Wilson arithmetic. Добавить actual CLI/source-producer тест одного stream: typed insufficient_holdout/no certificate, без fallback. Добавить два source windows с одинаковыми числовыми значениями, но разными trusted IDs (допустимы), затем один reused ID под новыми stream labels (не допускается для independent qualification). Raw method label vs actual MBB producer записываются различно; изменение resampling seed должно менять index plan, не только metadata. Tuning на holdout запрещён; row/time identity проверяется до expensive calibration и после fresh readback. Resolve both IDs against actual selected source artifact and coordinates before declaring them distinct; relabelled copies cannot manufacture independence. External precomputed MBB producer is a valid positive path when linked index lineage is available.",
+      "shared_owner": "DDM-02 existing calibration/source owner; DDM-01 только DTO/compatibility.",
+      "preservation_risks": [
+        "Не превращать отсутствие production source в запрет synthetic/research threshold.",
+        "Не выдавать Wilson arithmetic за independence/ERT/FDR proof.",
+        "Не снимать finite_replay_only guard; не создавать authority token по marker."
+      ],
+      "validation_plan": [
+        "Source confirmed; actual CLI/native calibration NOT_RUN.",
+        "Будущий source preparation→calibration→audit→validity→monitor→fresh registry test отдельно от finite arithmetic."
+      ],
+      "uncertainty": "Один reused stream сам по себе даёт Wilson upper>.05 и не успешный certificate; дефект — leakage и false method identity, а не доказанный обход gate. Пример большого reused denominator — потенциальная ошибочная source qualification, не выполненная атака.",
+      "primary_sources": [
+        "https://bashtage.github.io/arch/bootstrap/generated/arch.bootstrap.MovingBlockBootstrap.html"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "id": "CS-005",
+      "severity": "medium; усиление estimator-interval acceptance, не опровержение текущего refit",
+      "classification": "test_strengthening",
+      "packets": [
+        "SCM-02"
+      ],
+      "requirement_ids": [
+        "REQ-SCM-02-07",
+        "REQ-SCM-02-08"
+      ],
+      "test_ids": [
+        "TEST-SCM-02-08",
+        "TEST-SCM-02-09"
+      ],
+      "scenario_ids": [
+        "E02-I05-C"
+      ],
+      "faulty_proposition": "Refit counts, source reconstruction и width shrink сами по себе не проверяют, что каждый replica оценивает правильный contrast и что interval quantiles вычислены по ним.",
+      "evidence": [
+        "P/02_Пакеты/SCM-02.md:147–159 width-ratio/target binding tests.",
+        "gcm_query.py:1069–1099 computes target means and interval;1165–1238 validator reconstructs source but calls same interval function.",
+        "gcm_fit.py:300–450 independently verifies per-model source-row OLS; tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py:491–527 checks shrink and predictive span."
+      ],
+      "counterexample": "Wrong interval target: per-replica point shifted by constant or correct target multiplied by common factor сохраняет width shrink ratio. Source-row model coefficients can be correct, yet target aggregation wrong. Shared producer/validator helper повторит ошибку. Это не утверждение обнаруженной actual target error.",
+      "alternatives": [
+        "Независимый маленький closed-form linear SCM per-replica contrast/quantile oracle поверх уже проверенных resampling indices.",
+        "Одна optional differential GCM library comparison при совпадающей root-law semantics, но stock independent roots не oracle для aligned joint-root extensions.",
+        "Не заменять existing actual-worker bootstrap приближённым fake refit."
+      ],
+      "preferred_solution": "Добавить независимый finite exact target audit каждого replica и ordered percentile endpoints; shrink и predictive distinction оставить.",
+      "replacement_requirement": "Для supported iid-observation-row interventional/attribution refit каждый replica связан с actual selected rows и independently computed target; persisted interval соответствует объявленному quantile convention по полному accepted replica corpus. Shrink fixture — отдельный diagnostic, не coverage theorem.",
+      "replacement_test": "На небольшом линейном SCM с analytic intervention mean пересчитать по каждому сохранённому bootstrap row index набору coefficients/contrast независимым test algebra; проверить complete replica points и quantiles, не только width. Два разных contrasts, ненулевые root means/residual mean, reversed arm sign; mutant constant offset/scale и shuffled replica-source mapping fail. Width test400/800 retain; coverage отдельным holdout DGP только если заявляется.",
+      "shared_owner": "SCM-02 refit owner; SCM-01 fit validation и SCM-03 shared plan не дублировать.",
+      "preservation_risks": [
+        "Не переносить iid bootstrap на panels/time series.",
+        "Predictive/posterior/ITE spread не estimator CI.",
+        "Не требовать новое library/backend ради tiny analytic test."
+      ],
+      "validation_plan": [
+        "Source-only oracle dependency established; native NOT_RUN."
+      ],
+      "uncertainty": "Классификация test strengthening: спецификация уже честно не обещает coverage, и source-row OLS проверка существенна.",
+      "primary_sources": [],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "id": "CS-006",
+      "severity": "medium qualification; не блокирует import/storage repair",
+      "classification": "technology_profile_qualification",
+      "packets": [
+        "GRF-02",
+        "GRF-03",
+        "CAU-04",
+        "SCM-01",
+        "SCM-02",
+        "SCM-03"
+      ],
+      "requirement_ids": [],
+      "test_ids": [],
+      "scenario_ids": [
+        "E02-I05-A",
+        "E02-I05-B",
+        "E02-I05-C"
+      ],
+      "faulty_proposition": "Native backend profile должен быть реально воспроизводимым, а не суммой названий adapters; текущие конкретные ограничения недостаточно видны в общем planned acceptance.",
+      "evidence": [
+        "workers/dowhy-014/worker.py:231–255 hard requires Linux/Python3.12/DoWhy0.14.",
+        "parent pyproject.toml:9,75–109 Python3.14, optional kuzu; conditional dowhy<.14 marker python<3.13 not reachable in parent.",
+        "parent uv.lock: Kuzu0.11.3, NetworkX3.6.1; rustworkx отсутствует; worker uv.lock separately DoWhy.14.",
+        "Official kuzudb/kuzu repository archived Oct10,2025."
+      ],
+      "counterexample": "Один Python3.14/macOS process с установленным research extra не является actual Linux3.12 worker qualification. Optional rustworkx import in adapter не доказывает locked native backend. Расширенный new occurrence-aware Kuzu путь увеличивает инвестицию в archived backend без продемонстрированной потребности.",
+      "alternatives": [
+        "Existing canonical NX/MultiDiGraph path как primary model/reference и current lossless bulk Kuzu adapter для подтверждённых потребителей.",
+        "Minimal simple-only preflight repair в Kuzu; миграция store отдельным decision после caller/performance census.",
+        "rustworkx explicit optional pinned profile только при реальной benefit/need; не blind lock mutation в этом review."
+      ],
+      "preferred_solution": "Дописать точные existing platform/backend qualification profiles. Сохранить минимальный GRF-02 ремонт; не объявлять ни installed capability, ни обязательную миграцию из одного archive status.",
+      "replacement_requirement": "Evidence manifest каждого native backend фиксирует OS/architecture/interpreter/lock hash/selected extras/actual inventory. DoWhy selected worker — existing Linux/Python3.12/DoWhy0.14; parent remains Python3.14. Kuzu compatibility narrow repair не расширяется без actual caller need. Rustworkx квалифицируется только при отдельно разрешённом declared dependency profile; absence=NOT_QUALIFIED, не backend PASS.",
+      "replacement_test": "Native test запускается в каждом реально selected profile отдельно; missing interpreter/backend даёт BLOCKED/NOT_QUALIFIED и сохраняет прошедшие другие profiles. Отдельный test подтверждает worker rejection на unsupported profile, но не заменяет positive Linux run. Предъявить backend multiset, source/metadata/copy/reopen, не import success.",
+      "shared_owner": "Shared environment qualification owner; domain code остаётся GRF/SCM/CAU owners.",
+      "preservation_risks": [
+        "Не требовать all-platform support как prerequisite малого repair.",
+        "Archive status не означает немедленную несовместимость/уязвимость.",
+        "Lock wheels — доступность artifacts, не runtime success."
+      ],
+      "validation_plan": [
+        "Locks and worker guards read; current official maintenance state checked; no installs/native tests."
+      ],
+      "uncertainty": "Нет measured performance/security/license finding. Mandatory migration не обоснована.",
+      "primary_sources": [
+        "https://github.com/kuzudb/kuzu/",
+        "https://networkx.org/documentation/stable/reference/algorithms/d_separation.html"
+      ],
+      "product_test_status": "NOT_RUN"
+    }
+  ]
+}

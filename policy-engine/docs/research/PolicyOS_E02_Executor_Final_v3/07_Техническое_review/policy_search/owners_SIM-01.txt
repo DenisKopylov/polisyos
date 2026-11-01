@@ -1,0 +1,185 @@
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py:2455-2486
+ 2455     def _select_coupled_engine(
+ 2456         self,
+ 2457         plan: EnginePlan,
+ 2458         record: WorldModelRecord,
+ 2459     ) -> EngineDecision:
+ 2460         ensure_simulation_methods_registered(self._registry)
+ 2461         method_fqn = self._registry_method_fqn(
+ 2462             tags={"coupled", "agent-based", "discrete-event"},
+ 2463             input_slot="initial_income",
+ 2464             output_slot="result",
+ 2465         )
+ 2466         if method_fqn is None:
+ 2467             return _unsupported(plan, "engine_registry_candidate_missing")
+ 2468         entry = self._registry.get_entry(method_fqn)
+ 2469         assumptions = dict(entry.metadata.assumptions) if entry is not None else {}
+ 2470         supported_domains = _csv_set(assumptions.get("joint_simulation_policy_domains"))
+ 2471         required_structure = _csv_set(assumptions.get("joint_simulation_required_structure"))
+ 2472         conditions = {item.strip().casefold() for item in plan.eligibility_conditions}
+ 2473         if supported_domains and record.policy_domain.casefold() not in supported_domains:
+ 2474             return _unsupported(plan, "engine_eligibility_failed", ("policy_domain_mismatch",))
+ 2475         if required_structure and not required_structure.issubset(conditions):
+ 2476             return _unsupported(plan, "engine_eligibility_failed", ("required_structure_missing",))
+ 2477         return EngineDecision(
+ 2478             engine_kind=plan.engine_kind,
+ 2479             objective_ref=plan.objective_ref,
+ 2480             decision="selected",
+ 2481             method_fqn=method_fqn,
+ 2482             equilibrium_semantics="agent_based_model",
+ 2483             temporal_capability="multi_period",
+ 2484             output_shape="time_series_trajectory",
+ 2485             reason="engine_eligibility_satisfied",
+ 2486         )
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py:2175-2225
+ 2175     def _select_engine(self, request: JointSimulationRequest) -> _SelectedEngine:
+ 2176         selectors = self._engine_selectors(request.world_model_record)
+ 2177         decisions: list[EngineDecision] = []
+ 2178         requested_steps = request.horizon.steps()
+ 2179         requires_multi_period = len(requested_steps) > 1
+ 2180         fallback_plan = request.engine_plan[0]
+ 2181         for plan in request.engine_plan:
+ 2182             selector = selectors.get(plan.engine_kind, self._select_registry_method_engine)
+ 2183             decision = selector(plan)
+ 2184             decision = self._resolve_engine_semantics(plan, decision)
+ 2185             if decision.decision == "selected":
+ 2186                 coupling_support = _resolve_coupling_support(
+ 2187                     request=request,
+ 2188                     engine_kind=decision.engine_kind,
+ 2189                     gate_disabled=self._settings.disable_coupling_gate,
+ 2190                 )
+ 2191                 if not coupling_support.engine_supported:
+ 2192                     decision = _unsupported(
+ 2193                         plan,
+ 2194                         "coupling_composition_gate_unsupported",
+ 2195                         coupling_support.blockers,
+ 2196                     )
+ 2197             if (
+ 2198                 decision.decision == "selected"
+ 2199                 and requires_multi_period
+ 2200                 and decision.temporal_capability != "multi_period"
+ 2201             ):
+ 2202                 reason = (
+ 2203                     "static_engine_cannot_ground_dynamic_horizon"
+ 2204                     if decision.temporal_capability == "static"
+ 2205                     else "engine_temporal_capability_unavailable"
+ 2206                 )
+ 2207                 blocker = (
+ 2208                     "static_engine_temporal_capability"
+ 2209                     if decision.temporal_capability == "static"
+ 2210                     else "engine_temporal_capability_unsupported"
+ 2211                 )
+ 2212                 decision = _unsupported(plan, reason, (blocker,))
+ 2213             if decision.decision == "selected":
+ 2214                 try:
+ 2215                     _validate_atom_composition(plan, request.intervention_atoms)
+ 2216                 except JointSimulationControllerError as exc:
+ 2217                     decision = _unsupported(plan, exc.code, (exc.code,))
+ 2218             decisions.append(decision)
+ 2219             if decision.decision == "selected":
+ 2220                 return _SelectedEngine(decision=decision, plan=plan, decisions=tuple(decisions))
+ 2221         return _SelectedEngine(
+ 2222             decision=decisions[0],
+ 2223             plan=fallback_plan,
+ 2224             decisions=tuple(decisions),
+ 2225         )
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py:2227-2303
+ 2227     def validate_selected_result(
+ 2228         self, *, request: JointSimulationRequest, result: JointSimulationResult
+ 2229     ) -> None:
+ 2230         """Recompute the selected physical-plan binding for a produced N5 result.
+ 2231 
+ 2232         This is a candidate-only consistency check against the actual request and
+ 2233         the same engine-selection and physical-ref owners used by ``run``. It
+ 2234         does not establish scientific truth or authenticate a foreign producer.
+ 2235         """
+ 2236         if type(request) is not JointSimulationRequest or type(result) is not JointSimulationResult:
+ 2237             raise JointSimulationControllerError("selected_plan_execution_binding_missing")
+ 2238         try:
+ 2239             # model_copy can bypass Pydantic validation; revisit the same
+ 2240             # actual work/event owner used by fresh result construction.
+ 2241             _ = result.physical_work_observations
+ 2242             actual = result.model_dump(mode="json", exclude={"receipt"})
+ 2243             payload = result.content_bound_payload()
+ 2244             if not payload:
+ 2245                 # Freshly decoded nested results have no private payload cache.
+ 2246                 # Reconstruct and verify their complete serialized projection.
+ 2247                 payload = actual
+ 2248             verify_simulation_receipt(result.receipt, payload)
+ 2249             if gy_content_hash(payload) != gy_content_hash(actual):
+ 2250                 raise ValueError("result_model_receipt_payload_mismatch")
+ 2251             if (
+ 2252                 result.world_model_record_ref != request.world_model_record_ref
+ 2253                 or result.world_model_record_content_hash != request.world_model_record.content_hash
+ 2254                 or result.atom_ids
+ 2255                 != tuple(atom.intervention_id for atom in request.intervention_atoms)
+ 2256                 or result.selected_outcomes != request.selected_outcomes
+ 2257                 or result.horizon != request.horizon
+ 2258                 or result.diagnostics.get("requested_replications") != request.replications
+ 2259                 or result.diagnostics.get("replication_seeds") != list(_replication_seeds(request))
+ 2260                 or not result.trajectories
+ 2261             ):
+ 2262                 raise ValueError("result_request_binding_mismatch")
+ 2263             selected = self._select_engine(request)
+ 2264             if (
+ 2265                 selected.decision.decision != "selected"
+ 2266                 or selected.decisions != result.engine_decisions
+ 2267                 or result.receipt.engine_kind != selected.decision.engine_kind
+ 2268             ):
+ 2269                 raise ValueError("selected_engine_owner_mismatch")
+ 2270             self._validate_selected_trajectories(
+ 2271                 request=request,
+ 2272                 plan=selected.plan,
+ 2273                 decision=selected.decision,
+ 2274                 trajectories=result.trajectories,
+ 2275             )
+ 2276             for trajectory in result.trajectories:
+ 2277                 for point in trajectory.points:
+ 2278                     for outcome in request.selected_outcomes:
+ 2279                         expected = _effect_for_outcome(request, outcome, point.outcomes[outcome])
+ 2280                         if not math.isclose(
+ 2281                             point.effect[outcome], expected, rel_tol=1e-12, abs_tol=1e-12
+ 2282                         ):
+ 2283                             raise ValueError("selected_effect_basis_mismatch")
+ 2284                     if point.replication_sampling is not None:
+ 2285                         for sample in point.replication_sampling.samples:
+ 2286                             for outcome in request.selected_outcomes:
+ 2287                                 expected = _effect_for_outcome(
+ 2288                                     request, outcome, sample.outcomes[outcome]
+ 2289                                 )
+ 2290                                 if not math.isclose(
+ 2291                                     sample.effects[outcome], expected, rel_tol=1e-12, abs_tol=1e-12
+ 2292                                 ):
+ 2293                                     raise ValueError("selected_sample_effect_basis_mismatch")
+ 2294         except (
+ 2295             ProofReceiptError,
+ 2296             JointSimulationControllerError,
+ 2297             TypeError,
+ 2298             ValueError,
+ 2299             KeyError,
+ 2300         ) as exc:
+ 2301             raise JointSimulationControllerError(
+ 2302                 "selected_plan_execution_binding_missing", str(exc)
+ 2303             ) from exc
+
+### e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py:33-49
+   33 def _vector(
+   34     state: Mapping[str, Any],
+   35     key: str,
+   36     *,
+   37     n_agents: int | None = None,
+   38     default: float | None = None,
+   39 ) -> np.ndarray:
+   40     if key not in state:
+   41         if n_agents is None or default is None:
+   42             raise ValueError(f"{key} is required")
+   43         return np.full((n_agents,), default, dtype=float)
+   44     arr = np.asarray(state[key], dtype=float)
+   45     if arr.ndim != 1:
+   46         raise ValueError(f"{key} must be a 1D vector")
+   47     if n_agents is not None and arr.shape != (n_agents,):
+   48         raise ValueError(f"{key} must have shape ({n_agents},)")
+   49     return arr

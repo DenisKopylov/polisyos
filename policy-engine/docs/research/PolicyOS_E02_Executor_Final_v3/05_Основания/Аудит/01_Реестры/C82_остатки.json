@@ -1,0 +1,72 @@
+{
+  "pass_id": "C82",
+  "bundle": "MIG-05",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C82-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high",
+      "source_ids": [
+        "LA-047"
+      ],
+      "title": "Неподдержанная closure identity ошибочно маскируется под empty cell и скрывает конфликт callback",
+      "evidence": [
+        "S03:24–33",
+        "S03:508–559",
+        "S03:561–592",
+        "S03:594–626",
+        "P05",
+        "native_closure_control.stdout"
+      ],
+      "remaining": "В существующем fingerprint owner сузить обработку ValueError до чтения действительно пустого cell.cell_contents; ошибки stable encoding должны распространяться как refusal. Сохранить strict IR conflict/cycle policy и добавить различающий corpus: empty cell, unsupported captured object, supported scalar/dict, identical repeat и conflicting repeat. Не откатывать на Common overwrite semantics.",
+      "limits": "Два callback одного code с разными captured Config objects принимаются как identical; регистрация возвращает second, execution сохраняет first. Это bounded native registry correctness defect, а не криптографическая коллизия SHA256. Реальные установленные callbacks с таким capture, release snapshot impact и порча production payloads не установлены."
+    },
+    {
+      "id": "C82-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-047"
+      ],
+      "title": "Observable profiles и исторический callback corpus требуют отдельной release квалификации",
+      "evidence": [
+        "S01",
+        "S02",
+        "S03:1100–1183",
+        "S13",
+        "P01",
+        "run02/native_initial_registry.json"
+      ],
+      "remaining": "Сохранить матрицу copy/stamp/no-op/errors и квалифицировать реальные поддержанные import/registration compositions, внешние extensions и historical payloads. IR live nested mutation и Common deepcopy нельзя незаметно унифицировать. Strict IR registration сейчас является намеренной сменой старого overwrite поведения; не восстанавливать старое правило ради буквального совпадения с карточкой.",
+      "limits": "19 MIG bodies, actual legacy manifest callback и actual Trinity identity helper выполнены. Fresh imported baseline не содержит IR migration edges; это не census всех install-time plugins и не отсутствие capability. Synthetic callbacks не доказали повреждение реальных данных."
+    },
+    {
+      "id": "C82-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-047"
+      ],
+      "title": "Общий loop не аттестует всю compatibility/admission цепь и native release",
+      "evidence": [
+        "S07",
+        "S08",
+        "S09",
+        "P02",
+        "P03",
+        "P04",
+        "native_verification.json"
+      ],
+      "remaining": "В supported Python3.14 окружении выполнить native pytest/installed consumer tests и согласованный LANE-06/CP2 migration corpus. IR direct-read declarations/owner registry/actual DTO admission проверять отдельно; DataForge branching registry оставить своим owner. Переиспользовать existing conversion/reader/compatibility owners, не новый framework.",
+      "limits": "Сейчас30/30 unchanged bodies через внешний helper; product modules настоящие. Selected4 compatibility bodies и один DataForge body не равны целым suites. Version stamp, одинаковые bytes или successful migration не дают semantic validity/provenance/authority policy outputs."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C82-R01"
+  ],
+  "protected_distinctions": [
+    "LK25"
+  ],
+  "decision": "Shared linear executor и profiles реализованы; найден bounded IR callback fingerprint residual. Historical/installed/native release и content authority не закрыты."
+}

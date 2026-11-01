@@ -1,0 +1,167 @@
+{
+  "status": "INDEPENDENT_STDLIB_ARITHMETIC_ONLY_NOT_PRODUCT_TEST",
+  "confusion": {
+    "TP": 0,
+    "FP": 0,
+    "FN": 10,
+    "TN": 990,
+    "declared_window": 1000,
+    "FOR": 0.01,
+    "FNR": 1.0
+  },
+  "zero_errors_five_iid_bernoulli": {
+    "one_sided_confidence_illustration": 0.95,
+    "upper_bound": 0.4507197283469412,
+    "policy_confidence_not_assigned": true
+  },
+  "finite_proposal_search": {
+    "domain_size": 100,
+    "seen": 99,
+    "uniform_attempts": 20,
+    "miss_remaining_probability": 0.8179069375972308
+  },
+  "hypervolume": {
+    "reference": [
+      0,
+      0,
+      0
+    ],
+    "maximize": true,
+    "A": [
+      [
+        10,
+        1,
+        1
+      ],
+      [
+        1,
+        10,
+        1
+      ],
+      [
+        1,
+        1,
+        10
+      ]
+    ],
+    "B": [
+      [
+        4,
+        4,
+        4
+      ]
+    ],
+    "A_bbox": 1000,
+    "A_exact": 28,
+    "B_bbox": 64,
+    "B_exact": 64
+  },
+  "score_zero": {
+    "declared_predictions": [
+      0,
+      1,
+      2
+    ],
+    "truth": [
+      0,
+      1,
+      2
+    ],
+    "objective_fallback": [
+      3,
+      1,
+      2
+    ],
+    "correct_rho": 1.0,
+    "truthiness_fallback_rho": -0.5
+  },
+  "heterogeneous_pairs": {
+    "u": [
+      -1,
+      0,
+      1
+    ],
+    "model": "Y=U+(2+U)*a",
+    "baseline": [
+      -1,
+      0,
+      1
+    ],
+    "policy": [
+      0,
+      2,
+      4
+    ],
+    "paired_effects": [
+      1,
+      2,
+      3
+    ],
+    "mean": 2,
+    "SE": 0.5773502691896258,
+    "wrong_reversed_baseline_effects": [
+      -1,
+      2,
+      5
+    ],
+    "wrong_SE": 1.7320508075688774
+  },
+  "hnsw_snapshot_scaling": {
+    "assumption": "serialized size B(k) proportional to k for append-only rows",
+    "N_calls_cumulative_units": "N*(N-1)/2",
+    "not_measured_runtime_or_memory": true
+  },
+  "deterministic_normal_quantile": {
+    "status": "STDLIB_ONLY_NOT_NATIVE_PRODUCT",
+    "rows": [
+      {
+        "confidence": 0.5,
+        "lower_tail": 0.25,
+        "quantile": 0.6744897501960817,
+        "independent_erfc_tail": 0.25,
+        "tail_relative_residual": 0.0,
+        "upper_probability_would_be": 0.75
+      },
+      {
+        "confidence": 0.8,
+        "lower_tail": 0.09999999999999998,
+        "quantile": 1.2815515655446008,
+        "independent_erfc_tail": 0.09999999999999996,
+        "tail_relative_residual": 1.387778780781446e-16,
+        "upper_probability_would_be": 0.9
+      },
+      {
+        "confidence": 0.95,
+        "lower_tail": 0.025000000000000022,
+        "quantile": 1.9599639845400536,
+        "independent_erfc_tail": 0.02500000000000004,
+        "tail_relative_residual": 6.938893903907222e-16,
+        "upper_probability_would_be": 0.975
+      },
+      {
+        "confidence": 0.99,
+        "lower_tail": 0.0050000000000000044,
+        "quantile": 2.5758293035489,
+        "independent_erfc_tail": 0.005000000000000014,
+        "tail_relative_residual": 1.9081958235744862e-15,
+        "upper_probability_would_be": 0.995
+      },
+      {
+        "confidence": 0.9999999999999999,
+        "lower_tail": 5.551115123125783e-17,
+        "quantile": 8.292361075813595,
+        "independent_erfc_tail": 5.551115123125807e-17,
+        "tail_relative_residual": 4.440892098500626e-15,
+        "upper_probability_would_be": 1.0
+      },
+      {
+        "confidence": 5e-324,
+        "lower_tail": 0.5,
+        "status": "positive_confidence_lost_in_float_tail_projection",
+        "quantile": null,
+        "mean_trajectory_not_invalidated": true
+      }
+    ],
+    "float_profile": "host Python math/statistics; not a claim of target native execution or population CI coverage"
+  }
+}

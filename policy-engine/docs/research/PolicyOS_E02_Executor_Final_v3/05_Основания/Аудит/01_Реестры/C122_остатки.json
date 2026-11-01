@@ -1,0 +1,58 @@
+{
+  "pass_id": "C122",
+  "bundle": "DDM-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C122-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "title": "Direct registry builder не сверяет model identity раннего consumed shift",
+      "evidence": [
+        "P03",
+        "S03:437–476",
+        "S03:718–730",
+        "S04:159–187",
+        "run01/foreign_earlier_candidate.json"
+      ],
+      "remaining": "В existing applicability/identity owner сверять subject всех consumed shifts и других используемых nested source events, а не только last-event projection. Сохранить exact-source basis reconciliation, actual checker evidence и finite-only refusal; не требовать новый registry или менять conditional R2 table.",
+      "limits": "Actual public builder с legitimately issued finite-source checker evidence получает earlier shift another-model и good last target: applicability is_bound=true, reasons empty. Actual monitor тот же вход отвергает. Public final gate всё равно отказывает finite_replay_observation_not_production_authority; production bypass, ложное развёртывание и remote exploit не заявлены."
+    },
+    {
+      "id": "C122-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Production observation precondition и полная contextual policy qualification не установлены",
+      "evidence": [
+        "P01",
+        "P02",
+        "P04",
+        "S02:119–172",
+        "S03:361–374",
+        "S09"
+      ],
+      "remaining": "Подключать/квалифицировать легитимный existing observation owner при появлении достаточного source context: selection, completeness, subject/window/currentness. До этого сохранить current not-established/finite-replay-only disposition. Signoff authority проверять у реального institutional owner, не по bool.",
+      "limits": "Единственный admitted exact concrete source здесь finite replay. Его valid calibration projection не даёт production permission. Conditional R2 helper PASS не end-to-end positive admission. Missing universal deterministic detector/LLM grounding не объявляется самостоятельной ошибкой."
+    },
+    {
+      "id": "C122-G02",
+      "kind": "qualification_gap",
+      "severity": "low",
+      "title": "Policy-version, native suite и scientific certification требуют отдельной квалификации",
+      "evidence": [
+        "P05",
+        "S07",
+        "S08",
+        "S12",
+        "commands.json"
+      ],
+      "remaining": "Квалифицировать supported toolchain/native suites, actual calibration report provenance и допустимые production freshness windows. Уточнить existing policy version binding/serialization для решений, не создавать универсальный DSL и не парсить free-text conditions как код.",
+      "limits": "YAML policy_id существует, actual RegistryGateDecision не сохраняет policy version; default actions совпадают. Конфликт двух реально поддержанных версий не воспроизведён, поэтому это G, не новый R. Report/FP/delay numbers — explicit synthetic fixtures; statistical FDR/FP theorem, calibrate_detector и реальные stationary streams UNRUN."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C122-R01"
+  ],
+  "decision": "Report/time/observed-source binding и veto/R2 repairs подтверждены bounded; production precondition честно закрыт refusal. Low direct-builder earlier-subject R01 и G01/G02 остаются."
+}

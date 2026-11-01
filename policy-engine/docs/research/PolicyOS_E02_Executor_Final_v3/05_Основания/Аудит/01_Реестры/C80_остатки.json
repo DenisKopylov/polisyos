@@ -1,0 +1,70 @@
+{
+  "pass_id": "C80",
+  "bundle": "MIG-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C80-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-048"
+      ],
+      "title": "Native registered CLI/Runtime activation и общий output owner ещё не квалифицированы",
+      "evidence": [
+        "S02:1–90",
+        "S03:1–22",
+        "S10:80–104",
+        "P01",
+        "P03",
+        "native_runtime_api.stderr"
+      ],
+      "remaining": "В общей LANE-06/CP2 проверке на supported runtime провести actual registered CLI -> Runtime persisted manifest -> consumer roundtrip, JSON/YAML и negative publication cases. Включить общий atomic writer failure coverage C79-R01, не дублировать новый дефект/runner для каждого пакета.",
+      "limits": "Actual converter и real filesystem controls выполнены; DTO/API реальные за import bridge. Whole native Runtime graph, installed entry/preflight и active SecureOutputRoot UNRUN. C79 cleanup finding сохранён, C80 happy path не закрывает его."
+    },
+    {
+      "id": "C80-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-048"
+      ],
+      "title": "Ограниченный path-only контракт не означает relocation, snapshot custody или произвольный rebase",
+      "evidence": [
+        "S01:20–54",
+        "S01:105–165",
+        "S03:546–582",
+        "S07:45–59",
+        "P03",
+        "P05"
+      ],
+      "remaining": "Сохранить narrow normalization относительно заявленного root и явный отказ external/--to. Для relative run_root явно удерживать caller/CWD binding; не обещать переносимость новой позиции manifest без согласованного root. Если возникнет отдельная потребность physical relocation/rebase, определить её в существующем Runtime owner с явной authority и проверкой object identity; не копировать внешние файлы автоматически.",
+      "limits": "Relative root spelling намеренно сохраняется и зависит от CWD; same-bytes проверен при том же root. Проверка существующего resolved path — point-in-time, не immutable snapshot/lease/cryptographic attestation для конкурентно изменяемого дерева. Такой более сильный контракт здесь не заявлен, поэтому отсутствие relocation engine не отдельный product defect."
+    },
+    {
+      "id": "C80-G03",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-048"
+      ],
+      "title": "Исторический format/consumer corpus и точный смысл byte identity",
+      "evidence": [
+        "S04:1–54",
+        "S05:1–241",
+        "S06:1–86",
+        "P02",
+        "P03"
+      ],
+      "remaining": "Сохранить самостоятельный on-disk RunManifest1.0 и historical readers. На реальном поддержанном historical corpus проверить родные consumers/разные layouts до format retirement; не подменять его похожим Core DTO. Containment, operational binding, same addressed bytes и release/scientific validity должны оставаться разными утверждениями.",
+      "limits": "Собственный newly written Runtime run и синтетические collision/escape fixtures не пользовательские runs и не полный исторический corpus. Journal recovery/pickle compatibility и production admission не переаттестованы этим path test."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "carried_related_residuals": [
+    "C79-R01"
+  ],
+  "protected_distinctions": [
+    "LK15",
+    "LK27"
+  ],
+  "decision": "Основной basename/root/--to repair подтверждён actual owner/consumer. Новый product defect не установлен; native/historical/profile qualification остаются."
+}

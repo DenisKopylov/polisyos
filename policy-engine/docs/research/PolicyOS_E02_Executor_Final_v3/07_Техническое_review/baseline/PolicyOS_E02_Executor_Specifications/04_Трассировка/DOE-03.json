@@ -1,0 +1,379 @@
+{
+  "packet_id": "DOE-03",
+  "title": "Не повышать median-imputed trajectory до обычного CI",
+  "goal": "Сохранить полезный exploratory analysis и точные failed counts, не скрывая модель восстановления.",
+  "work_type": "C118-R01 semantic fix; C118-G01/G02 native/source/scientific qualification",
+  "preservation": [
+    "Whole trajectory filtering, original denominator/failure reasons, pre-PCA shared policy.",
+    "Limited selection posture и centered-rank cap; unmet threshold не success.",
+    "Normalized EE и storage convention одинаковы для point/UQ."
+  ],
+  "technical_solution": [
+    "В _prepare_analysis_inputs при actual imputed rows добавить explicit imputation_applied, row IDs/method=observed_median и qualification not_established в existing preparation metadata. MultiOutputAnalyzer уже передаёт context каждому component — сохранить его.",
+    "В _attach_morris_uncertainty рядом с selection_bias guard проверять imputation posture: без qualified model _append_uncertainty_warning(...imputation_model_not_established), сохранить point/complete observations. Не запрещать exploratory imputation целиком и не invent correction variance. Проверить соседние uncertainty attachments, чтобы общий prepared context не терялся; расширение beyond Morris только при actual affected route.",
+    "Existing source trajectory/storage и normalized EE owners остаются одними. Whole-block drop не устраняет selection bias. PCA units/ranking — ограниченное предметное решение фактического consumer, не автоматическая стандартизация всех outputs."
+  ],
+  "owners": [
+    "src/polisyos/scientist/methods/doe/analysis.py",
+    "src/polisyos/scientist/methods/doe/multi_output.py",
+    "src/polisyos/scientist/methods/doe/uncertainty.py",
+    "tests/unit/remediation/test_doe_03.py"
+  ],
+  "shared_scenarios": [
+    "E02-I10-C"
+  ],
+  "coordination": "DOE-02 source design binding; один writer analysis.py. Shared native SALib/retained fixture.",
+  "compatibility": "Existing imputation explicitly allowed for exploratory point; new limitation intentional semantic correction. Historical ok не retroactively certified; fresh consumer current qualification отдельно. Qualified restoration model возможна только отдельным typed profile с validation.",
+  "design_alignment": [
+    "[North Star §5](../05_Основания/Архитектура/policy-design-causal-operating-system-north-star.md#5-data-acquisition-and-the-real-product) и [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md#d25-epistemic-regime-architecture): ограниченный поиск даёт полезный результат и следующий запрос данных, не ложную полноту. [Синтез §4](../05_Основания/Исследование/design_direction.md): развивать существующий общий механизм."
+  ],
+  "open_decisions": [
+    "DEC-DOE-03-01: actual PCA consumer задаёт units/metric/ranking assumptions и partial-output scope; выход короткая declared contract table, не всеобщая normalization policy. Missingness correction требует предметного основания и не блокирует narrow limitation fix."
+  ],
+  "acceptance": "R01 regression должен различать ordinary CI promotion; native SALib и fresh artifact separately. Shape/rank admissibility не sample sufficiency/coverage.",
+  "lane": "LANE-10",
+  "source_ids": [
+    "B102",
+    "B103",
+    "B104",
+    "B105"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/DOE-03.md"
+  ],
+  "requirements": [
+    {
+      "text": "При failed outputs и explicit median imputation ordinary Morris CI не получает status ok без квалифицированной missingness/imputation model; exploratory point/result сохраняется с limitation.",
+      "source_ids": [
+        "B102",
+        "B103"
+      ],
+      "audit_ids": [
+        "C118-R01"
+      ],
+      "id": "REQ-DOE-03-01",
+      "test_ids": [
+        "TEST-DOE-03-01"
+      ]
+    },
+    {
+      "text": "Scalar/multi-output preparation должны одинаково применять failure policy до PCA, сохранять original counts/reasons/whole block IDs и selection limitations.",
+      "source_ids": [
+        "B102",
+        "B103"
+      ],
+      "audit_ids": [
+        "C118-G02"
+      ],
+      "id": "REQ-DOE-03-02",
+      "test_ids": [
+        "TEST-DOE-03-02"
+      ]
+    },
+    {
+      "text": "PCA component count должен соблюдать centered rank до backend choice; unmet variance threshold и малый sample scope не называются scientific sufficiency.",
+      "source_ids": [
+        "B104"
+      ],
+      "audit_ids": [
+        "C118-G02"
+      ],
+      "id": "REQ-DOE-03-03",
+      "test_ids": [
+        "TEST-DOE-03-03"
+      ]
+    },
+    {
+      "text": "Native Morris point и uncertainty должны использовать одну declared normalized effect convention и source trajectory basis; unsupported transformed coordinate UQ не угадывается.",
+      "source_ids": [
+        "B105"
+      ],
+      "audit_ids": [
+        "C118-G01"
+      ],
+      "id": "REQ-DOE-03-04",
+      "test_ids": [
+        "TEST-DOE-03-04"
+      ]
+    },
+    {
+      "text": "Fresh consumer должен сохранить original/retained trajectory binding, units, failure/imputation/selection limitations и допустимый partial-output scope.",
+      "source_ids": [
+        "B102",
+        "B103",
+        "B105"
+      ],
+      "audit_ids": [
+        "C118-G01",
+        "C118-G02"
+      ],
+      "id": "REQ-DOE-03-05",
+      "test_ids": [
+        "TEST-DOE-03-01",
+        "TEST-DOE-03-05"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "actual preparation→uncertainty",
+      "setup": "48-row Morris fixture, один failed output, explicit IMPUTE_BASELINE; complete control.",
+      "action": "Actual bootstrap attachment через scalar и multi-output; persist/read.",
+      "oracle": "Point provisional доступен, failed count1 сохранён; uncertainty unavailable/limited с imputation reason, не ordinary ok. Complete control может дать supported CI. Удаление guard воспроизводит R01.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DOE-03-01",
+      "requirement_ids": [
+        "REQ-DOE-03-01",
+        "REQ-DOE-03-05"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "policy/block matrix",
+      "setup": "12 rows/4 two-param trajectories; failures[1] и[1,4,5], FAIL_FAST/min_success_rate/IMPUTE controls.",
+      "action": "Scalar/multi actual preparation before PCA.",
+      "oracle": "Retained IDs [1,2,3] и[2,3], no survivor splice; original N12 и failures preserved. Same policy refusal before backend; geometry проверяет coordinate changes.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DOE-03-02",
+      "requirement_ids": [
+        "REQ-DOE-03-02"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "real sklearn + NumPy",
+      "setup": "Float64 fixed matrix из tests/unit/remediation/test_doe_03.py:178–219: X=[[0,0,0,0,1],[1,2,3,4,0],[2,4,6,8,1]], max_components5, min_variance_explained1. Centered nonzero singular-value squares60 и2/3 (разделённый spectrum); retain оба. Отдельный cap fixture из :222–245: 6×5 matrix [I5; zero row], max_components1, threshold0.95. Constant/zero-centered public inputs — отдельные negative controls.",
+      "action": "Run actual sklearn и NumPy fallback (единственный fallback seam — controlled sklearn import failure по existing test); те же данные, centering и retained rank. Для full-rank2 case сравнить полный retained feature projector VᵀV, не ориентацию знаков/eigenvectors; cap case проверять отдельно.",
+      "oracle": "Для X оба backends дают2 centered components, variance ratios[90/91,1/91] с atol=1e-8, rtol=1e-8. Полный projector сравнить с независимым analytic block diag(vvᵀ/30,1), v=[1,2,3,4], atol=1e-8, rtol=1e-8; это full retained subspace, не обрезанный tied eigenspace. Для cap fixture ровно1 component, explained ratio6/25=0.24 (<0.95), status unmet_limited с тем же metadata; leading eigenspace здесь tied, поэтому НЕ требовать одинаковый rank1 projector/vector между backends. Constant/zero public input отказывает до ложного successful PCA.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DOE-03-03",
+      "requirement_ids": [
+        "REQ-DOE-03-03"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "SALib1.5.2 point/bootstrap",
+      "setup": "y=2x on[0,10], transformed units x′=100x with y=.02x′; output×1000.",
+      "action": "Real sampler/analyzer and retained EE bootstrap with fixed seed.",
+      "oracle": "Normalized EE/point20 (rtol=1e-6 atol=1e-8), unit change invariant; output×1000 scales point/CI×1000. Unsupported nonuniform/grouped/scaled profile returns UQ unavailable, не universal multiplier.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DOE-03-04",
+      "requirement_ids": [
+        "REQ-DOE-03-04"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "E02-I10-C persisted trajectory",
+      "setup": "Existing retained matrix/artifact owner, actual fresh reader; source row/axis/unit mismatch controls.",
+      "action": "Save→load→recompute supported point/UQ; consume explicit partial outputs.",
+      "oracle": "Exact source and limitations survive, source mismatch rejects affected claim; restored JSON parity не empirical coverage proof.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DOE-03-05",
+      "requirement_ids": [
+        "REQ-DOE-03-05"
+      ],
+      "status": "NOT_RUN"
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "B102",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Whole-block repair сохранить; imputation не measured baseline.",
+      "requirement_ids": [
+        "REQ-DOE-03-01",
+        "REQ-DOE-03-02",
+        "REQ-DOE-03-05"
+      ]
+    },
+    {
+      "audit_id": "B103",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Counts repaired, unqualified CI остаётся.",
+      "requirement_ids": [
+        "REQ-DOE-03-01",
+        "REQ-DOE-03-02",
+        "REQ-DOE-03-05"
+      ]
+    },
+    {
+      "audit_id": "B104",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Rank repair проверяется на обоих backends.",
+      "requirement_ids": [
+        "REQ-DOE-03-03"
+      ]
+    },
+    {
+      "audit_id": "B105",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Normalized EE source/native parity открыта.",
+      "requirement_ids": [
+        "REQ-DOE-03-04",
+        "REQ-DOE-03-05"
+      ]
+    },
+    {
+      "audit_id": "C118-R01",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Count не заменяет imputation uncertainty model.",
+      "requirement_ids": [
+        "REQ-DOE-03-01"
+      ],
+      "inventory_id": "audit-residual:C118_остатки:0"
+    },
+    {
+      "audit_id": "C118-G01",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Real SALib point + retained artifact consumer.",
+      "requirement_ids": [
+        "REQ-DOE-03-04",
+        "REQ-DOE-03-05"
+      ],
+      "inventory_id": "audit-residual:C118_остатки:1"
+    },
+    {
+      "audit_id": "C118-G02",
+      "disposition": "lifecycle",
+      "shared_owner": null,
+      "rationale": "Geometry/positional IDs не source и не selection-bias solution.",
+      "requirement_ids": [
+        "REQ-DOE-03-02",
+        "REQ-DOE-03-03",
+        "REQ-DOE-03-05"
+      ],
+      "inventory_id": "audit-residual:C118_остатки:2"
+    }
+  ],
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "SPECIFICATION_NOT_IMPLEMENTED",
+  "dependencies": [
+    "DOE-02"
+  ],
+  "protected_distinction_ids": [],
+  "original_source": "../05_Основания/Аудит/05_Источники/DOE-03_исходные_строки.txt",
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0165",
+      "requirement_ids": [
+        "REQ-DOE-03-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Count не заменяет imputation uncertainty model."
+    },
+    {
+      "inventory_id": "remaining:0166",
+      "requirement_ids": [
+        "REQ-DOE-03-04",
+        "REQ-DOE-03-05"
+      ],
+      "disposition": "qualify",
+      "rationale": "Real SALib point + retained artifact consumer."
+    },
+    {
+      "inventory_id": "remaining:0167",
+      "requirement_ids": [
+        "REQ-DOE-03-02",
+        "REQ-DOE-03-03",
+        "REQ-DOE-03-05"
+      ],
+      "disposition": "lifecycle",
+      "rationale": "Geometry/positional IDs не source и не selection-bias solution."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0273",
+      "requirement_ids": [
+        "REQ-DOE-03-02"
+      ],
+      "test_ids": [
+        "TEST-DOE-03-02"
+      ],
+      "rationale": "Whole trajectory filtering — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0274",
+      "requirement_ids": [
+        "REQ-DOE-03-02"
+      ],
+      "test_ids": [
+        "TEST-DOE-03-02"
+      ],
+      "rationale": "Original denominator and failure reasons — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0275",
+      "requirement_ids": [
+        "REQ-DOE-03-02"
+      ],
+      "test_ids": [
+        "TEST-DOE-03-02"
+      ],
+      "rationale": "Pre-PCA shared policy — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0276",
+      "requirement_ids": [
+        "REQ-DOE-03-01",
+        "REQ-DOE-03-02"
+      ],
+      "test_ids": [
+        "TEST-DOE-03-01",
+        "TEST-DOE-03-02"
+      ],
+      "rationale": "Limited selection posture — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0277",
+      "requirement_ids": [
+        "REQ-DOE-03-03"
+      ],
+      "test_ids": [
+        "TEST-DOE-03-03"
+      ],
+      "rationale": "Centered-rank cap — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0278",
+      "requirement_ids": [
+        "REQ-DOE-03-03"
+      ],
+      "test_ids": [
+        "TEST-DOE-03-03"
+      ],
+      "rationale": "Unmet variance threshold metadata — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0279",
+      "requirement_ids": [
+        "REQ-DOE-03-04",
+        "REQ-DOE-03-05"
+      ],
+      "test_ids": [
+        "TEST-DOE-03-01",
+        "TEST-DOE-03-04",
+        "TEST-DOE-03-05"
+      ],
+      "rationale": "Normalized EE/storage consistency — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    }
+  ]
+}

@@ -1,0 +1,236 @@
+{
+  "packet_id": "DUR-01",
+  "lane": "LANE-06",
+  "source_ids": [
+    "B37"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/DUR-01.md",
+    "../05_Основания/Аудит/01_Реестры/C71_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C71-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-DUR-01-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Повтор/resolve должны подтверждать durability, а downstream не повышать readable до committed.",
+      "inventory_id": "audit-residual:C71_остатки:0"
+    },
+    {
+      "audit_id": "C71-G01",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-DUR-01-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Поддержанный filesystem/ancestor directory/restore procedure; отказ corruption не заменяет восстановление.",
+      "inventory_id": "audit-residual:C71_остатки:1"
+    },
+    {
+      "audit_id": "C71-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-DUR-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Authorized producer→exact settlement→durable ack→budget consumer.",
+      "inventory_id": "audit-residual:C71_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-DUR-01-01",
+      "text": "После replace с persistent directory fsync failure settle/replay/resolve spend и producer сохраняют outcome_unknown; readable exact bytes не дают durability=ledger. После восстановления sync тот же event подтверждается с прежней revision/amount без второго charge. Conflicting event identity отказывает.",
+      "source_ids": [
+        "B37"
+      ],
+      "audit_ids": [
+        "C71-R01"
+      ],
+      "test_ids": [
+        "TEST-DUR-01-01"
+      ]
+    },
+    {
+      "id": "REQ-DUR-01-02",
+      "text": "Reader/writer используют стабильный lock; crash оставляет полный old/new либо явное отсутствие первой публикации, не unlimited из existing empty/corrupt. Для заявленного filesystem существует проверенная процедура восстановления из достоверного snapshot/history с сохранением limits, spend, receipts/revisions; неизвестный backup отказывает. Подлинность snapshot недостаточна: authentic-but-stale backup не может уменьшить уже подтверждённый spend/revision или удалить later confirmed receipts. Restore сверяет актуальное authoritative поколение и полный набор подтверждённых receipts; при недоказанной актуальности/reconciliation отказ, не восстановление старого доступного бюджета.",
+      "source_ids": [
+        "B37"
+      ],
+      "audit_ids": [
+        "C71-G01"
+      ],
+      "test_ids": [
+        "TEST-DUR-01-02"
+      ]
+    },
+    {
+      "id": "REQ-DUR-01-03",
+      "text": "Actual authorized producer intent, known/unknown outcome, exact-event settlement и acknowledgment доходят до fresh current budget consumer без дублирования расходов; unknown amount и reuse origin сохраняются, memory-only receipt не получает durable гарантию.",
+      "source_ids": [
+        "B37"
+      ],
+      "audit_ids": [
+        "C71-G02"
+      ],
+      "test_ids": [
+        "TEST-DUR-01-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-DUR-01-01",
+      "requirement_ids": [
+        "REQ-DUR-01-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Real ledger/middleware; injected persistent _fsync_dir failure после replace; exact spend и producer; actual acknowledgment methods.",
+      "action": "First settle→retry/resolve→ack при продолжающемся fault, затем восстановить fsync и повторить same ID.",
+      "oracle": "До восстановления unknown и попытка sync при каждом durable confirmation; ack не committed/ledger. После success exact прежний receipt/revision, aggregate charge однажды; conflicting amount/key/provider/digest refusal.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-DUR-01-02",
+      "requirement_ids": [
+        "REQ-DUR-01-02"
+      ],
+      "level": "filesystem/process + operational recovery",
+      "setup": "Supported tmp filesystem, stable lock, concurrent reader/writer; known-good snapshot и corrupted copy, own crash barriers. Дополнительно подлинный snapshot r, после которого подтверждён расход/receipt в r+1.",
+      "action": "Fault до/после replace, fresh reload; выполнить утверждённый restore под lock.",
+      "oracle": "Old/new valid bytes, reader не видит blank; lock inode stable; restored limits/spend/receipts exact known-good, неизвестный backup refusal. Power-loss/multi-host непроверенные гарантии отдельно NOT_RUN. Restore authentic r поверх подтверждённого r+1 отказан либо reconciled с сохранением r+1 spend/receipts; бюджет не увеличен и повтор event не оплачивается заново. Если current generation нельзя установить из доверенного источника, restore остаётся blocked.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-DUR-01-03",
+      "requirement_ids": [
+        "REQ-DUR-01-03"
+      ],
+      "level": "native producer integration",
+      "setup": "Authorized small local producer, typed run/attempt intent, real ledger, no paid external provider.",
+      "action": "Known failure/cancel/reuse→settlement→fresh budget read; lost ack same-event retry.",
+      "oracle": "Actual event provenance/attempt retained; known costs once, unknown not zero; read budget отражает confirmed state; synthetic producer не выдаётся за external billing authority.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-C"
+  ],
+  "dependencies": [],
+  "preservation": [
+    "Отдельный стабильный lockfile; strict existing wire и explicit bootstrap.",
+    "Same-directory temp→file fsync→replace→directory fsync; old/new, не blank unlimited.",
+    "Exact event receipt отдельно от bounded journal; legacy record_spend остаётся additive.",
+    "Producer unknown/reuse/attempt attribution и current BudgetMiddleware reload."
+  ],
+  "design_alignment": [
+    "policyos-identity-and-custody-boundary.md §1: владеем ровно заявленной гарантией, readable не durable.",
+    "design_direction.md §2.6/§4.7: restore нужен для полезного продолжения; отсутствие trusted source не лечится fabricated budget."
+  ],
+  "open_decisions": [
+    "DEC-DUR-01-01: release owner объявляет поддержанные filesystem/coordination profiles и trusted recovery source. Выход — исполнимая restore процедура и witness; без источника blocked только restore claim, известный ack fix выполняется."
+  ],
+  "source_obligations": [
+    "B37 → REQ-DUR-01-01…-03: atomic publication уже действует; исправить durable ack, квалифицировать supported filesystem и реальное restore без reset расходов."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py: _confirm_compute_durability, settle_spend, settle_producer_event, resolve_spend, resolve_producer_event",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py: settlement/resolve consumer",
+    "policy-engine/src/polisyos/core/llm/traced_client.py: _persist_producer_event",
+    "policy-engine/src/polisyos/core/artifacts/_atomic_write.py: существующий directory durability ориентир"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0092",
+      "requirement_ids": [
+        "REQ-DUR-01-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Повтор/resolve должны подтверждать durability, а downstream не повышать readable до committed."
+    },
+    {
+      "inventory_id": "remaining:0093",
+      "requirement_ids": [
+        "REQ-DUR-01-02"
+      ],
+      "disposition": "qualify",
+      "rationale": "Поддержанный filesystem/ancestor directory/restore procedure; отказ corruption не заменяет восстановление."
+    },
+    {
+      "inventory_id": "remaining:0094",
+      "requirement_ids": [
+        "REQ-DUR-01-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Authorized producer→exact settlement→durable ack→budget consumer."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0117",
+      "requirement_ids": [
+        "REQ-DUR-01-02"
+      ],
+      "test_ids": [
+        "TEST-DUR-01-02"
+      ],
+      "rationale": "Stable separate lockfile — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0118",
+      "requirement_ids": [
+        "REQ-DUR-01-02"
+      ],
+      "test_ids": [
+        "TEST-DUR-01-02"
+      ],
+      "rationale": "Strict existing-wire admission и explicit bootstrap — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0119",
+      "requirement_ids": [
+        "REQ-DUR-01-01",
+        "REQ-DUR-01-02"
+      ],
+      "test_ids": [
+        "TEST-DUR-01-01",
+        "TEST-DUR-01-02"
+      ],
+      "rationale": "Same-directory atomic temp/replace/fsync publication — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0120",
+      "requirement_ids": [
+        "REQ-DUR-01-01",
+        "REQ-DUR-01-03"
+      ],
+      "test_ids": [
+        "TEST-DUR-01-01",
+        "TEST-DUR-01-03"
+      ],
+      "rationale": "Exact receipt identity независимо от bounded journal — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0121",
+      "requirement_ids": [
+        "REQ-DUR-01-03"
+      ],
+      "test_ids": [
+        "TEST-DUR-01-03"
+      ],
+      "rationale": "Producer unknown/reuse и attempt attribution contracts — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

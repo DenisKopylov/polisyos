@@ -1,0 +1,490 @@
+{
+  "pass_id": "C124",
+  "bundle": "DFK-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/foundry/domain/schema.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/domain/schema.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          34
+        ]
+      ],
+      "evidence_level": "Native DTOs и synthetic JSON roundtrip; full read.",
+      "git_blob": "098c04de8a8fa4987b78fa0d7e3cb0af25ef5616",
+      "sha256": "9795fe24efddc4cd27ceb537c82a3663d8f4052bf063b65cf7b70d4e348ee347",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/foundry/domain/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/domain/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          3
+        ]
+      ],
+      "evidence_level": "Full read; empty exports, не новый runtime owner.",
+      "git_blob": "f2c01966b9322ec75cdea7632c0df63b584e9fa4",
+      "sha256": "0ede3009879ce878c571051239fba1f4c7ee42eae091a3672bbaf89d89521f71",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          16
+        ]
+      ],
+      "evidence_level": "Full read; descriptor3fields, native import/roundtrip; code generation не заявлена.",
+      "git_blob": "ac44baf02ab49e496631617060f32bbfde3add0e",
+      "sha256": "2e4d9bf7791b0cccce090fd80afde9bb51809506a51666dfd9fde2a8ef4c685e",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          11
+        ]
+      ],
+      "evidence_level": "Full read; exact initializer executed against actual canonical classes, не native pipeline parent import.",
+      "git_blob": "09439357496c6e30c16444d8a5e7c15d5a3c09f3",
+      "sha256": "0ab76067bbdd73818cda5d79fbac01c24c4b6f8ac03c80835ead6403ea80b9bf",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          4
+        ]
+      ],
+      "evidence_level": "Full read; compatibility import point.",
+      "git_blob": "14960b46e17bebfafcd832f90f09af6ac4820a78",
+      "sha256": "13c80371b35999deb45f8fd1251cf79e9ea51039100167aa433189055409225e",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/schemas/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          35
+        ]
+      ],
+      "evidence_level": "Full read; canonical exports identity executed natively.",
+      "git_blob": "033094124e8cbb925fe05f13dad652b24cbe7bb3",
+      "sha256": "a1699faed4cc01753760dfe569e667526e7d5ab8e01189666df99193924844ad",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/registry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/schemas/registry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          71
+        ]
+      ],
+      "evidence_level": "Full read71lines; actual registry/version order and duplicate controls.",
+      "git_blob": "5288301443d3cddc76a9edf9b3ef9febcba09060",
+      "sha256": "4dedf30cb437833c3e27be21a765c03f546c84860e92139b8f930906c126a165",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/evolution.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/schemas/evolution.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          280
+        ]
+      ],
+      "evidence_level": "Full read280lines; actual declared field-change checks and explicit rules.",
+      "git_blob": "afd2c58881b713721145aa9bdc532284da9e85eb",
+      "sha256": "d342099817d0ac50c73727bc0ed0b24fe6793ed8c3d921e764eaa9731fb2d44c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/migrations.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/schemas/migrations.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          147
+        ]
+      ],
+      "evidence_level": "Full read147lines; actual graph deterministic shortest path, duplicates, application.",
+      "git_blob": "f5928d81d4950fe3afe82cb7a9239060483238c9",
+      "sha256": "51fc6ebacfdbe3c310ccc45ac152fd484c9d97fd13dd3e5c4f5107531051d4b2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/_base.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/_base.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          21
+        ]
+      ],
+      "evidence_level": "Full read; native immutable strict model base.",
+      "git_blob": "c143399841e23a45866ffa00f839505831d77072",
+      "sha256": "9444c27fd52f03e8ee54861046f4a07ce5e85254c8bf324138138758eede4918",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          31
+        ]
+      ],
+      "evidence_level": "Full read; native errors and read_api boundary.",
+      "git_blob": "95ee03979a25b74da9e5d4cc1f9d27c629a223a0",
+      "sha256": "0004f31df43e4dd65662bf555250b80e8cae07cc2110340903ab43821eadceb1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/materialize.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/pipeline/materialize.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          99
+        ]
+      ],
+      "evidence_level": "Full read; useful AssetDefinition/decorator/planner preserved source-only in this packet.",
+      "git_blob": "c0685ed77aced323be9d6abb1eee3681a1151142",
+      "sha256": "082c106822e67702556afa0af52fae803fe13b96e8e69279fbb444c12d5719d3",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/schemas/abi_models/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/schemas/abi_models/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          94
+        ]
+      ],
+      "evidence_level": "Full read; actual package owner replaces old abi_models.py address, references table not duplicate DTOs.",
+      "git_blob": "97dd710ada1e298a64043703930393566a3a31e1",
+      "sha256": "af07ead6baa59d9964b23e34b5e6d5bd2296bb89ee70cfa8ba143cf41b62fe68",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/data_forge/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          90
+        ],
+        [
+          120,
+          149
+        ]
+      ],
+      "evidence_level": "Canonical public schema mappings and lazy resolution read; actual identity checks executed.",
+      "git_blob": "44b7fd3b40a3e049050820c1a97b812f16fa548f",
+      "sha256": "42974e9895c2b8367e04e0a2b9ba7ca1344956b83e31d79c58126eefcfe2ef0d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/src/polisyos/schemas/abi_models/catalog.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/schemas/abi_models/catalog.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          35
+        ]
+      ],
+      "evidence_level": "Sample typed entries reference actual DTO FQNs and schema files; not entire table review.",
+      "git_blob": "a0150e60f07ea9d6de53c45ea42ec6bf6aaf0b50",
+      "sha256": "3815238a8bf6a3b54c4f768ac8537998b871f2da24976024e9480135f11ab40d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1418
+        ]
+      ],
+      "evidence_level": "Full read; complete implementation imported unchanged with only tools.lib.fs read-measurement dependency extracted. Real Git/byte census and finite controls, not native CLI.",
+      "git_blob": "247f7d3517146a04bf908b6167e835f020f6c9b9",
+      "sha256": "c12cefb7dda1b82ef0f7e309421c5cbccc6804a3ab60bf27d1aa674f43df7e1a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/tools/lib/fs.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/lib/fs.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          145
+        ],
+        [
+          762,
+          863
+        ]
+      ],
+      "evidence_level": "Selected read owner definitions762–851 extracted exactly; whole module native import blocked857. Other fs machinery not retested.",
+      "git_blob": "e0c3311b75bf07863695b9b6220fa8c1ec26869e",
+      "sha256": "0ddf42f824ddfe55386f5d5d63b39cacfb53f73dad03d8d2158f19a6b9a15119",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S18",
+      "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_dfk_01.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          836
+        ],
+        [
+          953,
+          985
+        ],
+        [
+          1285,
+          1331
+        ]
+      ],
+      "evidence_level": "Read listed ranges completely, including JAX consumer source-only. Only first5 functions executed (7cases); census tests source-only, own bounded analogues do not count as their execution. Helpers that commit fixture were not run.",
+      "git_blob": "297dd59c40110f32e572c1194dff39c0a85c5658",
+      "sha256": "2a472d9c21c9a58dcf4bb2a80f18812d63c40f44476533b86de1b06af15454b0",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S19",
+      "path": "policy-engine/tests/unit/foundry/hygiene/test_no_compat_facade_imports.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/hygiene/test_no_compat_facade_imports.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          26
+        ]
+      ],
+      "evidence_level": "Full read;2 bodies/7cases negative imports executed unchanged.",
+      "git_blob": "8443498d0da2fd3860b049a58e2ce7e12e1384d0",
+      "sha256": "8597717d4d8e24d3a0fd6d882a6c7159f927e556d9448031193213986752f50a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S20",
+      "path": "policy-engine/tests/unit/data_forge/test_phase7_schema_quality_observability.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/data_forge/test_phase7_schema_quality_observability.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          234
+        ],
+        [
+          373,
+          390
+        ]
+      ],
+      "evidence_level": "Only2 schema-evolution/migration bodies plus _schema_version helper executed; broader manifests/OTel tests not executed.",
+      "git_blob": "baed59ace000219d0f70bb67e7685370e4799535",
+      "sha256": "f0f9d778a0510111ba50bda4ed8a22a554ae760e5a29a72d7563647604129d96",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S21",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-orch02-r2-c06-dfk-census.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/release-fragments/unreleased/2026-10-08-orch02-r2-c06-dfk-census.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          30
+        ]
+      ],
+      "evidence_level": "Full read; explicit public v3 delta, unknown ignored/external inputs, no retirement authorization.",
+      "git_blob": "aab1fe2f886f0f8003c316d04704298e83c8d74a",
+      "sha256": "57ec23983b4369cf923dbce15180994be3cfaf717d632bc3e1625d99cc8817fd",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S22",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-28-e02-c97-installed-census-oracle.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/release-fragments/unreleased/2026-10-28-e02-c97-installed-census-oracle.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          12
+        ]
+      ],
+      "evidence_level": "Full read; installed proposal explicitly UNRUN; not adopted as our proof.",
+      "git_blob": "cc407fbe25f6b8ba5117912dcecb27553e1adf5d",
+      "sha256": "d09c5a54de700228c0b183221d8e407bea643cd8ea3ad26faf7acaa5efd4e351",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S23",
+      "path": "policy-engine/hatch.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/hatch.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          53
+        ]
+      ],
+      "evidence_level": "Full read; declared wheel/sdist selection, no build/install.",
+      "git_blob": "1355bf80299b4d3f37cdf915d75c00987742ae1d",
+      "sha256": "b30a89dcdcfba3e94915be920d2a060fe991f7364c4501a66e529b4bed812bef",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S24",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          105
+        ],
+        [
+          169,
+          179
+        ]
+      ],
+      "evidence_level": "Supported environment contract inherited/read; dependencies not changed.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S26",
+      "path": "policy-engine/src/polisyos/foundry/plugins/api.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/plugins/api.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          85
+        ]
+      ],
+      "evidence_level": "Actual non-legacy SimulationConfig owner read; lexical same name не legacy caller.",
+      "git_blob": "baf7a5ba5b334f6fc1a7294677f9a391c9b4f0bd",
+      "sha256": "9148f082534ba061d0703987f317b80332bf9567ff8f0a3c7b218b3536c270a2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S27",
+      "path": "policy-engine/src/polisyos/core/contracts/provenance.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/contracts/provenance.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          72
+        ]
+      ],
+      "evidence_level": "Separate provenance AgentType owner; lexical name collision не caller legacy enum.",
+      "git_blob": "0ba019cf91636ea4be93ccc2afb880a2d5aed1fb",
+      "sha256": "7ddd190110f8226643d902d5c8a278e1141550ca35ee2f02df1fbd167e184ad7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S25",
+      "path": "policy-engine/tests/repo_quality/tools/test_e02_installed_census_contract.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/repo_quality/tools/test_e02_installed_census_contract.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          130
+        ]
+      ],
+      "evidence_level": "Only installed consumer preconditions/origin observer read; full test file and installed execution UNRUN.",
+      "git_blob": "8b4db9b39648a268b3bdcd752fd02d3786277eec",
+      "sha256": "0d36dcb94628fde07f9857691fad718d25d34d1ab0c9afd045054de8e63d73f8",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

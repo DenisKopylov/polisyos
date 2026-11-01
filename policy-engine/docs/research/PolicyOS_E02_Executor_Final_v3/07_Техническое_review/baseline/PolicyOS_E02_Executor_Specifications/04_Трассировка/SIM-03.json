@@ -1,0 +1,676 @@
+{
+  "packet_id": "SIM-03",
+  "lane": "LANE-01",
+  "title": "Связанный контраст и честная численная неопределённость",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B19",
+    "B21",
+    "B23",
+    "B25",
+    "B26"
+  ],
+  "audit_reports": [
+    "02_Пакеты/SIM-03.md"
+  ],
+  "audit_report_sha256": "8172e5a2943fa1b615f120ab9ed580126b1ebcf5d4f7970e01a4fab7c7a1d9cd",
+  "sourceplan_lines": [
+    1289,
+    1443
+  ],
+  "practical_goal": "Пользователь получает действительно выполненное модельное сравнение и проверяемые samples/ошибку; SMM не выигрывает потерей момента, а joint interaction не объявляется свойством всего мира.",
+  "requirements": [
+    {
+      "id": "REQ-SIM-03-01",
+      "text": "Парный Monte Carlo не должен возвращать nonfinite endpoint/difference/mean/SE как estimated; singleton сохраняет SE=None и точный not_estimated статус.",
+      "source_ids": [
+        "B21"
+      ],
+      "audit_ids": [
+        "remaining:0052",
+        "remaining:0054",
+        "preserve:0068",
+        "audit-residual:C10_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-SIM-03-01"
+      ]
+    },
+    {
+      "id": "REQ-SIM-03-02",
+      "text": "Один supported estimand должен иметь фактически исполненный model-bound comparator с согласованными scope/horizon/units/evidence и paired identity; caller ref или вычитание scalar не establishes basis.",
+      "source_ids": [
+        "B19"
+      ],
+      "audit_ids": [
+        "remaining:0048",
+        "remaining:0049",
+        "preserve:0062",
+        "preserve:0063",
+        "preserve:0064",
+        "audit-residual:C10_остатки:2"
+      ],
+      "test_ids": [
+        "TEST-SIM-03-02"
+      ]
+    },
+    {
+      "id": "REQ-SIM-03-03",
+      "text": "Requested replications должны совпадать с actual seed work/samples, а interruption сохранять выполненные роли без ложного полного aggregate.",
+      "source_ids": [
+        "B21"
+      ],
+      "audit_ids": [
+        "remaining:0053",
+        "remaining:0054",
+        "preserve:0067",
+        "preserve:0068",
+        "preserve:0069",
+        "audit-residual:C10_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-SIM-03-03"
+      ]
+    },
+    {
+      "id": "REQ-SIM-03-04",
+      "text": "Одинаковая physical specification внутри одного invocation может обслуживать несколько roles, но иной seed/plan/evidence не cache-hit; effect projection проверяется отдельно от raw identity.",
+      "source_ids": [
+        "B23"
+      ],
+      "audit_ids": [
+        "remaining:0057",
+        "remaining:0058",
+        "preserve:0064",
+        "preserve:0072",
+        "preserve:0073",
+        "preserve:0074"
+      ],
+      "test_ids": [
+        "TEST-SIM-03-04"
+      ]
+    },
+    {
+      "id": "REQ-SIM-03-05",
+      "text": "Effective moment IDs должны быть уникальны до dict(zip) и producer; SMM сравнивает все candidates на заранее объявленном required set с полными repeat denominators.",
+      "source_ids": [
+        "B25"
+      ],
+      "audit_ids": [
+        "remaining:0062",
+        "remaining:0063",
+        "preserve:0080",
+        "preserve:0081",
+        "preserve:0082",
+        "audit-residual:C10_остатки:1"
+      ],
+      "test_ids": [
+        "TEST-SIM-03-05"
+      ]
+    },
+    {
+      "id": "REQ-SIM-03-06",
+      "text": "Joint classification должен учитывать фактический полный joint residual, общий seed denominator, scale/units/tolerance и заявленную область inference; authored compound требует actual совместного расчёта.",
+      "source_ids": [
+        "B26"
+      ],
+      "audit_ids": [
+        "remaining:0049",
+        "remaining:0064",
+        "remaining:0065",
+        "preserve:0083",
+        "preserve:0084",
+        "preserve:0085",
+        "audit-residual:C10_остатки:3"
+      ],
+      "test_ids": [
+        "TEST-SIM-03-06"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-SIM-03-01",
+      "requirement_ids": [
+        "REQ-SIM-03-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Actual paired helper и CoupledPairedMonteCarloEstimator; finite differences[1,3], singleton, constant[2,2,2], NaN/±inf, ±1e308 overflow, aggregate overflow.",
+      "action": "Вызвать native helper/adapter, затем persist/read допускаемого result; injected numerical endpoint допустим для boundary, плюс tiny actual model.",
+      "oracle": "Finite[1,3]→mean2,SE1; n1→None/not_estimated; invalid этап адресно отказан, никогда estimated NaN/inf.",
+      "expected": "Constant finite observedSE0 не мировая certainty; incomplete draws не уменьшают знаменатель.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-SIM-03-02",
+      "requirement_ids": [
+        "REQ-SIM-03-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Реальный зарегистрированный NCM через существующий structural_equations/noise_expression producer: y = u + 2*a + 3*b + k*a*b, k=4; a,b baseline 0, policy a=1 и/или b=1; horizon один step, y в declared outcome units, a/b dimensionless. Float64, Для каждого u∈{0,1,-1} передать actual evidence a=0,b=0,y=u через существующую evidence/abduction границу NCM: она устанавливает exogenous residual u; тот же exact evidence и paired seed использовать в baseline/intervention. В test проверить resolved evidence и abducted residual; один ExogenousSpec/seed сам по себе не фиксирует Gaussian draw этими целыми числами. No-op отдельный вызов с a=b=0. Не подставлять готовые effects в engine/result.",
+      "action": "Выполнить baseline/policy, сохранить оба основания, свежий N5→CAS→conditional consumer; заменить comparator model/time/seed/evidence.",
+      "oracle": "Независимая подстановка даёт no-op=0, effect A=2, B=3, joint=9, interaction=9-2-3=4 для каждого u; при k=0 joint=5 и residual=0. Малые целочисленные +/* в float64 точны: expected integers сравниваются точно в этом контроле; rounding/stochastic/general model tolerance им не определяется. Mismatched comparator model/time/seed/evidence rejected либо basis not_established, не чужой established.",
+      "expected": "Missing baseline не0; None evidence и explicit{} различимы; changing baseline при fixed evidence меняет projection, не старую effect cache.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-SIM-03-03",
+      "requirement_ids": [
+        "REQ-SIM-03-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "tests/unit/remediation/test_sim_03.py, два atoms и1/2/3replicates; tiny actual NCM, controlled second-draw failure.",
+      "action": "Посчитать physical calls, изменить seeds, прервать вторую реплику либо следующую роль; CAS/new reader.",
+      "oracle": "Для two-atoms distinct physical subsets3 →3/6/9calls; samples/seeds и счёт совпадают; incomplete aggregate не completed; prior full role сохранена.",
+      "expected": "Outer loop реально исполняется, n_samples1 внутри не ошибка само по себе; role reuse не independent extra sample.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-SIM-03-04",
+      "requirement_ids": [
+        "REQ-SIM-03-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Один/two atoms с actual producer counter; same evidence и baseline100/102 при rawY107; altered seed/variable map.",
+      "action": "Дважды исполнить отдельные requests, проверить role refs и readback каждого result, затем подставить первую effect projection как вторую.",
+      "oracle": "Внутри invocation one/two atoms имеют1/3physical subsets на seed; оба roles refs сохранены; separate request reruns; effects7/5 и разные result refs.",
+      "expected": "Нельзя сливать независимые повторения по atom IDs; hash не scientific correctness.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-SIM-03-05",
+      "requirement_ids": [
+        "REQ-SIM-03-05"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Duplicates(completed_count,completed_count) values0/100, reversed order; distinct coordinates; required easy/hard с missing hard в одном repeat; optionalcounts1/3vs3/3.",
+      "action": "Пройти actual adapter/helper, наблюдать zero expensive calls для malformed IDs; unique permutation и real small grid.",
+      "oracle": "Duplicates адресно rejected до потери данных; unique input invariant к перестановке пар; incomplete не выигрывает, optional не влияет тайно на required objective.",
+      "expected": "Не подставлять произвольный finite penalty вместо inf sentinel; не запретить законные повторные display labels с разными identities.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-SIM-03-06",
+      "requirement_ids": [
+        "REQ-SIM-03-06"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Реальный зарегистрированный NCM через существующий structural_equations/noise_expression producer: y = u + 2*a + 3*b + k*a*b, k=4; a,b baseline 0, policy a=1 и/или b=1; horizon один step, y в declared outcome units, a/b dimensionless. Float64, Для каждого u∈{0,1,-1} передать actual evidence a=0,b=0,y=u через существующую evidence/abduction границу NCM: она устанавливает exogenous residual u; тот же exact evidence и paired seed использовать в baseline/intervention. В test проверить resolved evidence и abducted residual; один ExogenousSpec/seed сам по себе не фиксирует Gaussian draw этими целыми числами. No-op отдельный вызов с a=b=0. Не подставлять готовые effects в engine/result. Затем additive control k=0; отдельная существующая three-atom модель y=x1*x2*x3 при baseline all0 и intervention all1 даёт third-order residual1. Дополнительные zero-mean ±1, missing seed, 4+ cancellation и unit-rescaling cases выполняются по DEC-SIM-03-01.",
+      "action": "Выполнить joint/singles/pairs с общими seeds, persist/read via actual consumer и сравнить явный tolerance profile.",
+      "oracle": "Независимая подстановка даёт no-op=0, effect A=2, B=3, joint=9, interaction=9-2-3=4 для каждого u; при k=0 joint=5 и residual=0. Малые целочисленные +/* в float64 точны: expected integers сравниваются точно в этом контроле; rounding/stochastic/general model tolerance им не определяется. Third-order residual1 не additive; missing samples/positive SE остаются unsupported; 4+ результат только aggregate_order_three_plus. Scale-equivalent oracle и допуск устанавливаются до запуска по DEC-SIM-03-01.",
+      "expected": "Не экспоненциальный перебор и не глобальная causal truth; authored compound не сумма independently evaluated alternatives.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C10_остатки:0",
+      "requirement_ids": [
+        "REQ-SIM-03-01"
+      ],
+      "rationale": "Finite helper/adapter and consumer guard.",
+      "disposition": "fix",
+      "audit_id": "C10-R01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C10_остатки:1",
+      "requirement_ids": [
+        "REQ-SIM-03-05"
+      ],
+      "rationale": "Уникальность effective IDs до lossy dict.",
+      "disposition": "fix",
+      "audit_id": "C10-R02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C10_остатки:2",
+      "requirement_ids": [
+        "REQ-SIM-03-02"
+      ],
+      "rationale": "Реальное model-bound положительное сравнение.",
+      "disposition": "capability",
+      "audit_id": "C10-G01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C10_остатки:3",
+      "requirement_ids": [
+        "REQ-SIM-03-06"
+      ],
+      "rationale": "Конечный numerical/inference profile; не снятие variation guards.",
+      "disposition": "capability",
+      "audit_id": "C10-G02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C10_остатки:4",
+      "requirement_ids": [
+        "REQ-SIM-03-03"
+      ],
+      "rationale": "Retained interruption и specific SIM-02 reason.",
+      "disposition": "qualify",
+      "audit_id": "C10-T01",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B19",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-SIM-03-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B21",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-SIM-03-01",
+        "REQ-SIM-03-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B23",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-SIM-03-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B25",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-SIM-03-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B26",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-SIM-03-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0048",
+      "requirement_ids": [
+        "REQ-SIM-03-02"
+      ],
+      "rationale": "Положительный model-bound comparator, не просто status test.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0049",
+      "requirement_ids": [
+        "REQ-SIM-03-02",
+        "REQ-SIM-03-06"
+      ],
+      "rationale": "Actual CAS/conditional consumer без authority upgrade.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0052",
+      "requirement_ids": [
+        "REQ-SIM-03-01"
+      ],
+      "rationale": "Finite на всех численных этапах.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0053",
+      "requirement_ids": [
+        "REQ-SIM-03-03"
+      ],
+      "rationale": "SIM-02 exact cause; current retained test expectation.",
+      "disposition": "shared",
+      "shared_owner": "SIM-02"
+    },
+    {
+      "inventory_id": "remaining:0054",
+      "requirement_ids": [
+        "REQ-SIM-03-01",
+        "REQ-SIM-03-03"
+      ],
+      "rationale": "Native adapter/replication/readback.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0057",
+      "requirement_ids": [
+        "REQ-SIM-03-04"
+      ],
+      "rationale": "Selected ref и changed projection.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0058",
+      "requirement_ids": [
+        "REQ-SIM-03-04"
+      ],
+      "rationale": "Invocation-local scope, не global cache.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0062",
+      "requirement_ids": [
+        "REQ-SIM-03-05"
+      ],
+      "rationale": "Moment uniqueness до dict.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0063",
+      "requirement_ids": [
+        "REQ-SIM-03-05"
+      ],
+      "rationale": "Native adapter и optional diagnostics.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0064",
+      "requirement_ids": [
+        "REQ-SIM-03-06"
+      ],
+      "rationale": "Actual model/consumer.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0065",
+      "requirement_ids": [
+        "REQ-SIM-03-06"
+      ],
+      "rationale": "Declared tolerance/units/inference, no weakened guard.",
+      "disposition": "capability"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0062",
+      "requirement_ids": [
+        "REQ-SIM-03-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Один supported estimand должен иметь фактически исполненный model-bound comparator с согласованными scope/horizon/units/evidence и paired identity; caller ref или вычитание scalar не establishes basis.",
+      "test_ids": [
+        "TEST-SIM-03-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0063",
+      "requirement_ids": [
+        "REQ-SIM-03-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Один supported estimand должен иметь фактически исполненный model-bound comparator с согласованными scope/horizon/units/evidence и paired identity; caller ref или вычитание scalar не establishes basis.",
+      "test_ids": [
+        "TEST-SIM-03-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0064",
+      "requirement_ids": [
+        "REQ-SIM-03-02",
+        "REQ-SIM-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Один supported estimand должен иметь фактически исполненный model-bound comparator с согласованными scope/horizon/units/evidence и paired identity; caller ref или вычитание scalar не establishes basis.; Одинаковая physical specification внутри одного invocation может обслуживать несколько roles, но иной seed/plan/evidence не cache-hit; effect projection проверяется отдельно от raw identity.",
+      "test_ids": [
+        "TEST-SIM-03-02",
+        "TEST-SIM-03-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0067",
+      "requirement_ids": [
+        "REQ-SIM-03-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Requested replications должны совпадать с actual seed work/samples, а interruption сохранять выполненные роли без ложного полного aggregate.",
+      "test_ids": [
+        "TEST-SIM-03-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0068",
+      "requirement_ids": [
+        "REQ-SIM-03-01",
+        "REQ-SIM-03-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Парный Monte Carlo не должен возвращать nonfinite endpoint/difference/mean/SE как estimated; singleton сохраняет SE=None и точный not_estimated статус.; Requested replications должны совпадать с actual seed work/samples, а interruption сохранять выполненные роли без ложного полного aggregate.",
+      "test_ids": [
+        "TEST-SIM-03-01",
+        "TEST-SIM-03-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0069",
+      "requirement_ids": [
+        "REQ-SIM-03-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Requested replications должны совпадать с actual seed work/samples, а interruption сохранять выполненные роли без ложного полного aggregate.",
+      "test_ids": [
+        "TEST-SIM-03-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0072",
+      "requirement_ids": [
+        "REQ-SIM-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Одинаковая physical specification внутри одного invocation может обслуживать несколько roles, но иной seed/plan/evidence не cache-hit; effect projection проверяется отдельно от raw identity.",
+      "test_ids": [
+        "TEST-SIM-03-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0073",
+      "requirement_ids": [
+        "REQ-SIM-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Одинаковая physical specification внутри одного invocation может обслуживать несколько roles, но иной seed/plan/evidence не cache-hit; effect projection проверяется отдельно от raw identity.",
+      "test_ids": [
+        "TEST-SIM-03-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0074",
+      "requirement_ids": [
+        "REQ-SIM-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Одинаковая physical specification внутри одного invocation может обслуживать несколько roles, но иной seed/plan/evidence не cache-hit; effect projection проверяется отдельно от raw identity.",
+      "test_ids": [
+        "TEST-SIM-03-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0080",
+      "requirement_ids": [
+        "REQ-SIM-03-05"
+      ],
+      "rationale": "Конкретный контракт и oracle: Effective moment IDs должны быть уникальны до dict(zip) и producer; SMM сравнивает все candidates на заранее объявленном required set с полными repeat denominators.",
+      "test_ids": [
+        "TEST-SIM-03-05"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0081",
+      "requirement_ids": [
+        "REQ-SIM-03-05"
+      ],
+      "rationale": "Конкретный контракт и oracle: Effective moment IDs должны быть уникальны до dict(zip) и producer; SMM сравнивает все candidates на заранее объявленном required set с полными repeat denominators.",
+      "test_ids": [
+        "TEST-SIM-03-05"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0082",
+      "requirement_ids": [
+        "REQ-SIM-03-05"
+      ],
+      "rationale": "Конкретный контракт и oracle: Effective moment IDs должны быть уникальны до dict(zip) и producer; SMM сравнивает все candidates на заранее объявленном required set с полными repeat denominators.",
+      "test_ids": [
+        "TEST-SIM-03-05"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0083",
+      "requirement_ids": [
+        "REQ-SIM-03-06"
+      ],
+      "rationale": "Конкретный контракт и oracle: Joint classification должен учитывать фактический полный joint residual, общий seed denominator, scale/units/tolerance и заявленную область inference; authored compound требует actual совместного расчёта.",
+      "test_ids": [
+        "TEST-SIM-03-06"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0084",
+      "requirement_ids": [
+        "REQ-SIM-03-06"
+      ],
+      "rationale": "Конкретный контракт и oracle: Joint classification должен учитывать фактический полный joint residual, общий seed denominator, scale/units/tolerance и заявленную область inference; authored compound требует actual совместного расчёта.",
+      "test_ids": [
+        "TEST-SIM-03-06"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0085",
+      "requirement_ids": [
+        "REQ-SIM-03-06"
+      ],
+      "rationale": "Конкретный контракт и oracle: Joint classification должен учитывать фактический полный joint residual, общий seed denominator, scale/units/tolerance и заявленную область inference; authored compound требует actual совместного расчёта.",
+      "test_ids": [
+        "TEST-SIM-03-06"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I01-A"
+  ],
+  "dependencies": [
+    "SIM-02 owns exact cause/temporal contract; SIM-03 does finite/statistics/comparator/interaction.",
+    "CYC-05 owns authored relationships, SIM-03 owns actual joint numerical semantics; neither soleowner всего compound meaning.",
+    "CYC-02 exposes conditional result; no empirical/N9 proof от этой приёмки."
+  ],
+  "preservation": [
+    "Missing baseline не равен нулю",
+    "None/empty evidence различимы",
+    "Projection effect проверяется отдельно от raw identity",
+    "Реальный цикл по seeds и сохранённые samples",
+    "n=1 даёт None/standard_error_not_estimated",
+    "Неполная группа не маскируется меньшим знаменателем",
+    "Один физический набор на несколько ролей",
+    "Seed/plan/evidence участвуют в физической идентичности",
+    "Нет слияния разных запросов в текущем invocation-local кэше",
+    "Required set неизменен в сравнении",
+    "Отсутствующий repeat-момент не выбирается победителем",
+    "Optional counts/status передаются caller",
+    "Тройной residual не теряется за парами",
+    "Zero mean при variation не объявлен additive",
+    "Для 4+ только aggregate residual, без глобальной additive гарантии"
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    "Positive capability — один реальный правильный контраст и совместный эффект, а не только отказ сомнительным числам. Новая совместимая модель через общие estimand/plan contracts расширяет проверяемый envelope."
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-SIM-03-01",
+      "question": "Каков ограниченный numerical tolerance profile для noninteger/unit-rescaling fixtures и поддержанного NCM backend?",
+      "owner": "SIM-03, согласование numerical owner",
+      "options": [
+        "analytic absolute bound из float dtype, числа операций и scale с отдельно заданными единицами",
+        "существующий model-specific numerical error contract, если его assumptions совпадают"
+      ],
+      "selection_evidence": "До execution зафиксировать dtype, model expression, units, horizon, sample count и независимый high-precision/algebraic oracle; выбирать минимальную обоснованную bound, не cutoff по удобному observed output. Stochastic significance требует отдельного inference profile, не numerical tolerance",
+      "required_output": "Таблица fixture→formula/input→exact expected→derived bound и различающий mutation. Пока profile не выбран, соответствующие scale cases BLOCKED/NOT_RUN, packet не принят; integer additive/interaction controls уже полностью определены"
+    }
+  ],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/coupling/estimation.py",
+      "symbol_or_anchor": "def paired_monte_carlo_effect",
+      "lines": [
+        438,
+        470
+      ],
+      "sha256": "5b1def0424a30640175cb9602d77ab3d28870eb6da1f39df9799c1e1aeb9e584",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/coupling/estimation.py#L438-L470"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+      "symbol_or_anchor": "class CoupledSMMEstimator",
+      "lines": [
+        353,
+        385
+      ],
+      "sha256": "f607a9e1d78157fb9e53475280b129a04c8d7400a76ad24771b0c70268038e60",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py#L353-L385"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "symbol_or_anchor": "def _higher_order_residuals_from_fields",
+      "lines": [
+        4438,
+        4470
+      ],
+      "sha256": "333deedcd2d85bf4a75f58d698a0d487a8a163256609d0825f2063fb087a2454",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L4438-L4470"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "symbol_or_anchor": "def _effective_evidence_state",
+      "lines": [
+        908,
+        940
+      ],
+      "sha256": "333deedcd2d85bf4a75f58d698a0d487a8a163256609d0825f2063fb087a2454",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L908-L940"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-SIM-03-01",
+      "text": "В existing paired_monte_carlo_effect проверить каждый requested metric endpoint до subtraction, разность после операции, mean и sampleSE после aggregation. Использовать finite-aware stable arithmetic где применимо, но overflow не обрезать и не превращать в0. Ошибка имеет metric/seed/stage и проходит existing coupled adapter/retained cause contract SIM-02. Dataclass/output должен отвергать forged estimated nonfinite при входе consumer, не рассчитывать на JSON failure."
+    },
+    {
+      "requirement_id": "REQ-SIM-03-02",
+      "text": "Расширить existing request/result comparator projection у N5: для выбранного paired conditional contrast использовать existing paired_monte_carlo_effect и same-model baseline/policy calls с общими seeds, отдельным explicit evidence. Persist comparator request/input/result refs и declared estimand, model/WMR/time/outcome/units и версии; consumer перечитывает и сравнивает. Только покрытый profile повышает effect_basis/comparator status. Остальные caller-baseline arithmetic остаются not_established. Уровень outcome и counterfactual при evidence не принуждать к популяционному baseline-run."
+    },
+    {
+      "requirement_id": "REQ-SIM-03-03",
+      "text": "Сохранить _replication_seeds/_run_cached_replicates/aggregate DTO checks. Исправить test_replication_failure_aborts_before_an_aggregate_result_exists на retained-result contract, не generic no_run. Specific failure producer единый SIM-02; planned/completed/failed seeds и paired alignment остаются в result. Наблюдающая wrapper делегирует actual backend."
+    },
+    {
+      "requirement_id": "REQ-SIM-03-04",
+      "text": "Сохранить local cache, полный key модели/plan/runtime refs/horizon/outcomes/evidence/seed/atoms; role не включать, когда физика одинакова. Использовать existing test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request и fixed_evidence_changed_baseline_rebinds_effect_on_fresh_cas. Не делать persistent cross-run cache ради B23."
+    },
+    {
+      "requirement_id": "REQ-SIM-03-05",
+      "text": "В CoupledSMMEstimator.pure_step проверить normalized moment identities/length/finite observations до словаря и _run_coupled_policy; использовать existing required-moment validation, не новый SMM. Разные координаты одноимённого display label требуют distinct full IDs; repeated observations нуждаются в declared aggregation, last-write не правило. Сохранить optional diagnostics counts и no_comparable/best_paramsNone."
+    },
+    {
+      "requirement_id": "REQ-SIM-03-06",
+      "text": "Сохранить _higher_order_residuals_from_fields/_paired_replication_summary и bounded finite_checked_model_point_estimate_only. Явно версионировать tolerance policy для выбранных units/scale; deterministic numerical tolerance не stochastic significance. Если нужен stochastic decision, выбрать обоснованный existing estimator/inference profile и тест coverage; до этого positiveSE остаётся unsupported, не arbitrary cutoff. CYC-05 поставляет authored relationships, здесь actual combined intervention/model comparator и independent joint oracle. Для4+ aggregate_order_three_plus не global additive."
+    }
+  ]
+}

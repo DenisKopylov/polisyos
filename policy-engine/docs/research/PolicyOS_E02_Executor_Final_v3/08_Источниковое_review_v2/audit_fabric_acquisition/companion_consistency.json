@@ -1,0 +1,262 @@
+[
+  {
+    "packet_id": "UDF-01",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "OBS-01",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "UDF-02",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "OBS-02",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "UDF-04",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "UDF-05",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": [
+      "title"
+    ]
+  },
+  {
+    "packet_id": "FED-01",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "FED-02",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "CAL-01",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "DFK-02",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "DFI-01",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "DFI-02",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "EMB-01",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "EMB-02",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "EMB-03",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "DFI-03",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "ING-01",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "ING-02",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "ING-03",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "NET-01",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "NET-02",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": []
+  },
+  {
+    "packet_id": "SCL-01",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": [
+      "title"
+    ]
+  },
+  {
+    "packet_id": "SCL-03",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": [
+      "title"
+    ]
+  },
+  {
+    "packet_id": "LLM-01",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": [
+      "title"
+    ]
+  },
+  {
+    "packet_id": "LLM-02",
+    "requirement_and_test_semantics_match_md_whitespace_normalized": true,
+    "unique_metadata_reviewed": [
+      "open_decisions",
+      "obligation_dispositions",
+      "preservation_bindings"
+    ],
+    "extra_keys": [
+      "title"
+    ]
+  }
+]

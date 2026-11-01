@@ -1,0 +1,277 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "C12-S01",
+      "repository": "DenisKopylov/polisyos",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "ranges_read": [
+        [
+          1,
+          126
+        ]
+      ],
+      "git_blob": "b4f980de235263513c7ad7e5771e1ccfbb3d8b3d",
+      "role": "Единственный run-state; счётчики и deep snapshot",
+      "evidence": "full_read; exact_git_blob_verified; executed_with_explicit_contract_fixtures",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "delivered_source": "04_Проверки/C12_CTL01/run_state.py"
+    },
+    {
+      "id": "C12-S02",
+      "repository": "DenisKopylov/polisyos",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "ranges_read": [
+        [
+          1,
+          326
+        ]
+      ],
+      "git_blob": "bcc87e32cc1903888845a557a729f6dcf6b182b2",
+      "role": "Native driver, ask/tell, full loop, pending, guard, empty",
+      "evidence": "full_read; exact_git_blob_verified; executed_with_explicit_owner_fixtures",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "delivered_source": "04_Проверки/C12_CTL01/service.py"
+    },
+    {
+      "id": "C12-S03",
+      "repository": "DenisKopylov/polisyos",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "ranges_read": [
+        [
+          1,
+          830
+        ],
+        [
+          840,
+          1260
+        ],
+        [
+          1410,
+          1770
+        ]
+      ],
+      "git_blob": "754e942a21b3198c3989ac9175c54342b6c67ab3",
+      "role": "Конфигурация, reset/warm, snapshots, accept_tell, actual generation/evaluation and identity",
+      "evidence": "targeted_reads; 400-830 response tail truncated; no full-module census; selected exact-body transcription executed",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "delivered_source": "04_Проверки/C12_CTL01/lifecycle_excerpt.py"
+    },
+    {
+      "id": "C12-S04",
+      "repository": "DenisKopylov/polisyos",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "ranges_read": [
+        [
+          1,
+          360
+        ],
+        [
+          1000,
+          1720
+        ]
+      ],
+      "git_blob": "4b25698f56165167e10b7f79a97753ec1d84f342",
+      "role": "Совместимый facade, config и traced generator",
+      "evidence": "targeted_read_only; production imports and provider UNRUN",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/controller.py"
+    },
+    {
+      "id": "C12-S05",
+      "repository": "DenisKopylov/polisyos",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "ranges_read": [
+        [
+          1,
+          260
+        ],
+        [
+          300,
+          500
+        ]
+      ],
+      "git_blob": "93768dd16c915f96488bfde09cae606be3e0b658",
+      "role": "CandidateProposal, результат, статусы и протоколы",
+      "evidence": "targeted_read; CandidateProposal field body with actual Pydantic; other DTOs replaced by declared fixtures",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/contracts.py"
+    },
+    {
+      "id": "C12-S06",
+      "repository": "DenisKopylov/polisyos",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adapters.py",
+      "ranges_read": [
+        [
+          1,
+          64
+        ]
+      ],
+      "git_blob": "781e14fd5e50bc4cd2d000eb99fadeb876ef1dfd",
+      "role": "Public compatibility bridge shares lifecycle owner",
+      "evidence": "full_read_only; no product module import",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/adapters.py"
+    },
+    {
+      "id": "C12-S07",
+      "repository": "DenisKopylov/polisyos",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "ranges_read": [
+        [
+          1,
+          200
+        ]
+      ],
+      "git_blob": "dda3875d68e1dd43002835ee332270cf3d4e23b5",
+      "role": "MaxIterations counts evaluation_iterations; timer context",
+      "evidence": "targeted_read_only; stopping in probe is explicit fixture",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/stopping.py"
+    },
+    {
+      "id": "C12-S08",
+      "repository": "DenisKopylov/polisyos",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "ranges_read": [
+        [
+          1,
+          330
+        ],
+        [
+          1850,
+          2100
+        ]
+      ],
+      "git_blob": "dcc27af39812c88b0abb9ddfcac1a76f83ca5826",
+      "role": "Actual caller composes lifecycle/native driver directly",
+      "evidence": "targeted_read_only; no caller/native execution",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+    },
+    {
+      "id": "C12-S09",
+      "repository": "DenisKopylov/polisyos",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_controller_batch.py",
+      "ranges_read": [
+        [
+          1,
+          245
+        ]
+      ],
+      "git_blob": "59e832e3e668f2287bc58045ab3b1f54066f1173",
+      "role": "Persistent/transient empty, batch, arbiter, cost controls",
+      "evidence": "full_read_only; native pytest UNRUN",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/search/strategies/test_controller_batch.py"
+    },
+    {
+      "id": "C12-S10",
+      "repository": "DenisKopylov/polisyos",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+      "ranges_read": [
+        [
+          1,
+          350
+        ],
+        [
+          700,
+          1320
+        ],
+        [
+          1800,
+          2110
+        ]
+      ],
+      "git_blob": "9f595575ea54d2b2cd22802363c100eac0aecce3",
+      "role": "Fresh snapshot, real concurrency events, diversity; real budget owner with synthetic provider transport",
+      "evidence": "targeted_read_only; not whole test-file census; native pytest UNRUN",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/search/test_search_loop.py"
+    },
+    {
+      "id": "C12-S11",
+      "repository": "DenisKopylov/polisyos",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/scientist/search/test_controller_api.py",
+      "ranges_read": [
+        [
+          1,
+          80
+        ]
+      ],
+      "git_blob": "5c7dcf76d259f6b699c49ef87eaa8ba05294c307",
+      "role": "Facade/evaluator API-shape; missing-evaluator fixture",
+      "evidence": "full_read_only; native pytest UNRUN; source-level fixture mismatch",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/search/test_controller_api.py"
+    },
+    {
+      "id": "C12-S12",
+      "repository": "DenisKopylov/polisyos",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_srv_03.py",
+      "ranges_read": [
+        [
+          1,
+          340
+        ]
+      ],
+      "git_blob": "9a752a4e72400548590a48861d1aea9351e11e5e",
+      "role": "Migration characterization, explicit raised evaluator failure, ask/tell shared owner, CAS test setup",
+      "evidence": "targeted_read_only; native pytest UNRUN",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_srv_03.py"
+    },
+    {
+      "id": "C12-S13",
+      "repository": "DenisKopylov/polisyos",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "AGENTS.md",
+      "ranges_read": [
+        [
+          1,
+          null
+        ]
+      ],
+      "git_blob": "5f144a27e35130b60e2c3537d97f0c7bbcda57f5",
+      "role": "North Star, scope, independent verification and existing owners",
+      "evidence": "full_read_only",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/AGENTS.md"
+    },
+    {
+      "id": "C12-S14",
+      "repository": "DenisKopylov/polisyos",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/CONTRIBUTING.md",
+      "ranges_read": [
+        [
+          1,
+          115
+        ]
+      ],
+      "git_blob": "8ff414198e306e671abff1f76f31330a1f29d765",
+      "role": "Supported environment and commands",
+      "evidence": "targeted_read_only",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/CONTRIBUTING.md"
+    }
+  ],
+  "local_source_integrity": "04_Проверки/C12_CTL01/source_integrity.json",
+  "method": "Connector reads; no reconstructed checkout, search snippets only navigation. Line endpoints describe requested read windows, not assertion that short files have that many lines. Full Git-blob qualification only S01/S02.",
+  "unavailable_paths": [
+    {
+      "path": "policy-engine/tests/unit/remediation/test_ctl_01.py",
+      "status": "404; proposed historical path not found on pinned SHA; tests exist at S09-S12"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+      "status": "404; historical selector not used as actual native command"
+    }
+  ],
+  "main_end_recheck": {
+    "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+    "tree": "2c9d8e1a94b1e83d63137e971a5825a2c48c532e",
+    "response": "turn169file0"
+  }
+}

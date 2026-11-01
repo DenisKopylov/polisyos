@@ -1,0 +1,522 @@
+{
+  "packet_id": "GRF-03",
+  "lane": "LANE-05",
+  "status": "AUTHORED_PENDING_FINAL_QA",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "test_status": "NOT_RUN",
+  "audit_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "source_ids": [
+    "B214",
+    "B218"
+  ],
+  "audit_reports": [
+    "05_Основания/Аудит/02_Пакеты/GRF-03.md"
+  ],
+  "source_plan_lines": [
+    6129,
+    6220
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C50_остатки:0",
+      "audit_id": "C50-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-GRF-03-01",
+        "REQ-GRF-03-02",
+        "REQ-GRF-03-03",
+        "REQ-GRF-03-07"
+      ],
+      "shared_owner": null,
+      "rationale": "Native fit/query/source/CAS и separate selected worker.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C50_остатки.json",
+        "sha256": "4221e7462fc996c128fee48a8ed5ee6a9a3626f6e2457023161b6837f411e632",
+        "json_pointer": "/findings/0"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C50_остатки:1",
+      "audit_id": "C50-G02",
+      "disposition": "capability",
+      "requirement_ids": [
+        "REQ-GRF-03-03",
+        "REQ-GRF-03-04",
+        "REQ-GRF-03-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Один реально полезный temporal route/data-time binding; static refusal alone недостаточен для заявленного temporal use.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C50_остатки.json",
+        "sha256": "4221e7462fc996c128fee48a8ed5ee6a9a3626f6e2457023161b6837f411e632",
+        "json_pointer": "/findings/1"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C50_остатки:2",
+      "audit_id": "C50-G03",
+      "disposition": "capability",
+      "requirement_ids": [
+        "REQ-GRF-03-01",
+        "REQ-GRF-03-05",
+        "REQ-GRF-03-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Qualified family semantics либо explicit conditional hypothesis/route limitation, не arbitrary DAG.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C50_остатки.json",
+        "sha256": "4221e7462fc996c128fee48a8ed5ee6a9a3626f6e2457023161b6837f411e632",
+        "json_pointer": "/findings/2"
+      }
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0337",
+      "requirement_ids": [
+        "REQ-GRF-03-01",
+        "REQ-GRF-03-02",
+        "REQ-GRF-03-03",
+        "REQ-GRF-03-07"
+      ],
+      "disposition": "qualify",
+      "rationale": "Current native lifecycle с exact source/projection.",
+      "source_ids": [
+        "B214",
+        "B218"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0338",
+      "requirement_ids": [
+        "REQ-GRF-03-03",
+        "REQ-GRF-03-04",
+        "REQ-GRF-03-06"
+      ],
+      "disposition": "capability",
+      "rationale": "Finite temporal consumer с initial/data/time mapping.",
+      "source_ids": [
+        "B214",
+        "B218"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0339",
+      "requirement_ids": [
+        "REQ-GRF-03-01",
+        "REQ-GRF-03-05",
+        "REQ-GRF-03-06"
+      ],
+      "disposition": "capability",
+      "rationale": "Условная useful модель или qualified family owner, preserving unresolved source.",
+      "source_ids": [
+        "B214",
+        "B218"
+      ]
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0543",
+      "requirement_ids": [
+        "REQ-GRF-03-01"
+      ],
+      "test_ids": [
+        "TEST-GRF-03-01"
+      ],
+      "rationale": "Canonical direction normalization with original marks"
+    },
+    {
+      "inventory_id": "preserve:0544",
+      "requirement_ids": [
+        "REQ-GRF-03-01",
+        "REQ-GRF-03-05"
+      ],
+      "test_ids": [
+        "TEST-GRF-03-01",
+        "TEST-GRF-03-02"
+      ],
+      "rationale": "Validated DAG construction и typed partial-profile refusal"
+    },
+    {
+      "inventory_id": "preserve:0545",
+      "requirement_ids": [
+        "REQ-GRF-03-01"
+      ],
+      "test_ids": [
+        "TEST-GRF-03-01"
+      ],
+      "rationale": "Latent common-parent construction с collision-free names"
+    },
+    {
+      "inventory_id": "preserve:0546",
+      "requirement_ids": [
+        "REQ-GRF-03-03"
+      ],
+      "test_ids": [
+        "TEST-GRF-03-05"
+      ],
+      "rationale": "Positive lagged self-edge, lag-preserving serialization, zero-lag cycle guard"
+    },
+    {
+      "inventory_id": "preserve:0547",
+      "requirement_ids": [
+        "REQ-GRF-03-02",
+        "REQ-GRF-03-03"
+      ],
+      "test_ids": [
+        "TEST-GRF-03-03",
+        "TEST-GRF-03-04",
+        "TEST-GRF-03-05"
+      ],
+      "rationale": "Early static fit/query admission и content-bound source/projection"
+    }
+  ],
+  "requirements": [
+    {
+      "text": "Canonical project_graph_to_dag сохраняет known causal direction при reverse storage, original endpoints/marks/metadata/evidence и immutable source. Корректный DAG остаётся detached content-equivalent; ADMG bidirected даёт общий latent parent без name collision. Unresolved marks/cyclic result не получают arbitrary DAG label и не лечатся удалением неудобных edges.",
+      "source_ids": [
+        "B214"
+      ],
+      "audit_ids": [
+        "C50-G01",
+        "C50-G03"
+      ],
+      "id": "REQ-GRF-03-01",
+      "test_ids": [
+        "TEST-GRF-03-01",
+        "TEST-GRF-03-02"
+      ]
+    },
+    {
+      "text": "Native source→projection→native_hybrid fit→SCM artifact→CAS fresh read→query сохраняет content-bound source_graph/source_ref/disposition. Подставленная reverse direction либо foreign graph не проходит graph_for_analysis. Default selected DoWhy GCM остаётся отдельным fully observed declared static DAG profile; hybrid test не заменяет worker acceptance.",
+      "source_ids": [
+        "B214",
+        "B218"
+      ],
+      "audit_ids": [
+        "C50-G01"
+      ],
+      "id": "REQ-GRF-03-02",
+      "test_ids": [
+        "TEST-GRF-03-03",
+        "TEST-GRF-03-04"
+      ]
+    },
+    {
+      "text": "Temporal compact content различает lag1/lag2 и positive directed self-lag после serialization/export; simultaneous cycles/self-loop остаются запрещены. Static adjacency/fit/query отказывают до numerical backend/sampling, пока явный temporal adapter не выполнен. DOT lag attribute сам по себе не разрешает static backend игнорировать время.",
+      "source_ids": [
+        "B218"
+      ],
+      "audit_ids": [
+        "C50-G01",
+        "C50-G02"
+      ],
+      "id": "REQ-GRF-03-03",
+      "test_ids": [
+        "TEST-GRF-03-05"
+      ]
+    },
+    {
+      "text": "Для одного выбранного реально нужного temporal use case квалифицировать existing temporal consumer либо finite expansion: координата(variable,time), знак/единица lag, horizon, initial/boundary conditions и source observation/time binding заданы до вычисления. Expansion строит только необходимую конечную область запроса с её предками, сохраняет исходный graph/ref и mapping, не отбрасывает необеспеченные начальные значения как нули.",
+      "source_ids": [
+        "B218"
+      ],
+      "audit_ids": [
+        "C50-G02"
+      ],
+      "id": "REQ-GRF-03-04",
+      "test_ids": [
+        "TEST-GRF-03-06",
+        "TEST-GRF-03-07"
+      ]
+    },
+    {
+      "text": "Unresolved PAG/CPDAG сохраняется как исследовательский source и конкретная limitation static route. Если нужен ответ по partial family, выбранный квалифицированный owner должен обосновать family semantics/допустимые completions и область invariant claim; single arbitrary completion не выдаётся за весь PAG. При отсутствии такого owner допустим полезный conditional result по явно выбранной гипотезе, не false identified result.",
+      "source_ids": [
+        "B214"
+      ],
+      "audit_ids": [
+        "C50-G03"
+      ],
+      "id": "REQ-GRF-03-05",
+      "test_ids": [
+        "TEST-GRF-03-02",
+        "TEST-GRF-03-08"
+      ]
+    },
+    {
+      "text": "Новый совместимый temporal graph или known-direction hypothesis подключается тем же declared adapter/contract без case-name веток. LLM может предлагать структуру, но synthetic coefficient/finite expansion не устанавливают empirical causality. Scope/assumptions у fresh consumer остаются видимыми, unsupported claim не уничтожает lawful static/descriptive результат.",
+      "source_ids": [
+        "B214",
+        "B218"
+      ],
+      "audit_ids": [
+        "C50-G02",
+        "C50-G03"
+      ],
+      "id": "REQ-GRF-03-06",
+      "test_ids": [
+        "TEST-GRF-03-03",
+        "TEST-GRF-03-06",
+        "TEST-GRF-03-08"
+      ]
+    },
+    {
+      "text": "Native tests/public imports используют поддержанный Python/dependency profile и actual CAS/selected references. Parent namespace shells, AST extraction и ручной8-node graph из аудита не считаются выполненным temporal adapter либо default DoWhy worker. Product diff для уже проходящих static repairs не требуется.",
+      "source_ids": [
+        "B214",
+        "B218"
+      ],
+      "audit_ids": [
+        "C50-G01"
+      ],
+      "id": "REQ-GRF-03-07",
+      "test_ids": [
+        "TEST-GRF-03-01",
+        "TEST-GRF-03-03",
+        "TEST-GRF-03-04",
+        "TEST-GRF-03-05"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "native canonical projection matrix",
+      "setup": "Existing90-profile matrix:5graph kinds×9endpoint pairs×2storage directions; reversed PAG X←Y, valid DAG, ADMG with existingU_0.",
+      "action": "Actual canonical projector/DTO validation и original dumps.",
+      "oracle": "Known reverse становится Y→X с original marks; same DAG content сохранён detached; bidirected parent named collision-free и связан с обоими endpoints. Metadata/evidence preserved, source unchanged. Invalid validator-bypassed copies не обходят canonical admission.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_grf_03.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-GRF-03-01",
+      "requirement_ids": [
+        "REQ-GRF-03-01",
+        "REQ-GRF-03-07"
+      ]
+    },
+    {
+      "level": "native unresolved/cycle controls",
+      "setup": "Unresolved CPDAG triangle и fully oriented cyclic PAG; identical graph under input permutation; source with unresolved marks.",
+      "action": "Projection/selected static ID route.",
+      "oracle": "Unresolved получает partial_graph_endpoint_profile_not_admitted либо exact supported refusal; cyclic rejected validated DAG constructor. Никакой model_copy(graph_type=DAG), edge deletion или arbitrary orientation. Source remains inspectable; separate conditional hypothesis не объявляется исходным family answer.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_grf_03.py; id_engine/core.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-GRF-03-02",
+      "requirement_ids": [
+        "REQ-GRF-03-01",
+        "REQ-GRF-03-05"
+      ]
+    },
+    {
+      "level": "native hybrid positive producer→consumer E02-I05-A/C",
+      "setup": "PAG source X←Y, genuine SCMFitData rowsX=2Y и explicit native_hybrid; actual source graph ref/CAS.",
+      "action": "Registered actual fit→persist SCM1.2→fresh canonical load→query that respects projectedY→X.",
+      "oracle": "Fitted X parentsY/coefficient≈2 within stated numerical tolerance; source/disposition exact, useful conditional query result reaches consumer. Это synthetic structural witness, не доказательство причинности. Foreign source/ref или substitutedX→Y отвергнуты.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py; test_gcm_query.py",
+      "allowed_doubles_and_prohibitions": "Synthetic rows допустимы; actual model validators, native_hybrid numerical fit, canonical projection/CAS/query не подменяются. Selected DoWhy worker отдельно TEST04.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-GRF-03-03",
+      "requirement_ids": [
+        "REQ-GRF-03-02",
+        "REQ-GRF-03-06",
+        "REQ-GRF-03-07"
+      ]
+    },
+    {
+      "level": "native selected backend separation",
+      "setup": "Declared fully observed static DAG с поддержанными mechanisms/data; actual selected DoWhy worker profile; рядом unresolved PAG и explicit hybrid case.",
+      "action": "Actual default fit/query lifecycle и persisted fitted artifact.",
+      "oracle": "Default worker accepted only its supported DAG profile, no silent hybrid fallback; native_hybrid remains explicit distinct method. Missing worker dependency BLOCKED, не PASS от hybrid. Exact source/projection/profile survives fresh read.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py; shared E02-I05-C selected-worker fixture",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-GRF-03-04",
+      "requirement_ids": [
+        "REQ-GRF-03-02",
+        "REQ-GRF-03-07"
+      ]
+    },
+    {
+      "level": "native lag transport/early refusal",
+      "setup": "Lag1 vs lag2, positive autoregression, reciprocal lag1, zero-lag self-loop/cycle; both fit_backend values.",
+      "action": "DTO JSON/DOT roundtrip; static adjacency/fit/query with backend tripwire.",
+      "oracle": "Lag values distinct, positive lag valid, contemporaneous cycles invalid. Static calls refuse before backend/sampling; tripwire0. Correct static DAG still works. DOT attribute не считается доказательством third-party temporal interpretation.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_grf_03.py; test_gcm_fit.py; test_gcm_query.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-GRF-03-05",
+      "requirement_ids": [
+        "REQ-GRF-03-03",
+        "REQ-GRF-03-07"
+      ]
+    },
+    {
+      "level": "native useful finite temporal route",
+      "setup": "Selected two-variable lag1 feedback model over t0..t3, explicit initial values/source row times; second compatible model with lag2 and different variable definitions.",
+      "action": "Existing temporal owner либо accepted finite adapter maps data and graph, computes requested horizon, persists mapping/result, fresh read.",
+      "oracle": "Первый unfolded graph8nodes/6time-advancing edges acyclic; numerical trajectory independently matches explicit recurrence по объявленным initial values. Второй case использует тот же mechanism; no case-name code. Consumer показывает time coordinates/horizon/source assumptions, не просто правильный рисунок.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "Selected temporal owner из DEC-TEMPORAL; GRF-03 shared variant",
+      "allowed_doubles_and_prohibitions": "Synthetic recurrence — oracle механизма. Реальная empirical validation требует отдельного actual source; adapter/data join/consumer не подменяются вручную построенным graph.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-GRF-03-06",
+      "requirement_ids": [
+        "REQ-GRF-03-04",
+        "REQ-GRF-03-06"
+      ]
+    },
+    {
+      "level": "temporal boundary/data-negative matrix",
+      "setup": "Missing initial values, lag-unit mismatch, duplicate/shifted timestamps, insufficient historical window, foreign selected dataset, horizon outside declared support.",
+      "action": "Same adapter/consumer before expensive numerical run.",
+      "oracle": "Точные unsupported/missing-source conditions, no zero-fill/future leakage/drop-lag. Допустимый subhorizon или descriptive source сохраняется только с явным scope; denied full horizon не становится complete result.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "Selected temporal owner из DEC-TEMPORAL",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-GRF-03-07",
+      "requirement_ids": [
+        "REQ-GRF-03-04"
+      ]
+    },
+    {
+      "level": "partial-family conditional useful result",
+      "setup": "One supported known-direction graph; unresolved graph с двумя явно различными допустимыми hypotheses/completions для selected query; actual qualified family owner если найден.",
+      "action": "Compare claimed invariant/family result либо conditional per-hypothesis output и fresh source binding.",
+      "oracle": "Если hypotheses дают разные эффекты/identification, single representative не выдаётся за invariant. Qualified owner сохраняет method/family assumptions; без owner unresolved source+reason и useful conditional hypothesis доступны. Synthetic topology не становится empirical world-model authority.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "Canonical source/projection и selected partial-family owner из DEC-PARTIAL",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-GRF-03-08",
+      "requirement_ids": [
+        "REQ-GRF-03-05",
+        "REQ-GRF-03-06"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I05-A",
+    "E02-I05-C"
+  ],
+  "dependencies": [
+    {
+      "packet": "GRF-02",
+      "relation": "Lossless graph content/selected profiles и immutable preparation."
+    },
+    {
+      "packet": "SCM-01 / SCM-02 / SCM-03",
+      "relation": "Общие gcm_fit/query/source DTO; selected worker/twin semantics owners separate, один writer."
+    },
+    {
+      "packet": "BKT-01",
+      "relation": "Temporal adapter не заменяет feature availability/as-of validation реальных данных."
+    }
+  ],
+  "preservation": [
+    "Canonical direction normalization with original marks",
+    "Validated DAG construction и typed partial-profile refusal",
+    "Latent common-parent construction с collision-free names",
+    "Positive lagged self-edge, lag-preserving serialization, zero-lag cycle guard",
+    "Early static fit/query admission и content-bound source/projection"
+  ],
+  "protected_distinction_ids": [],
+  "design_alignment": [
+    {
+      "source": "policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+      "section": "D0: hypothesis/model/typed capability",
+      "application": "LLM предлагает структуру; reusable projection/time adapter проверяет выбранный смысл. Новый совместимый temporal case подключается через contract, не отдельный hardcoded model."
+    },
+    {
+      "source": "policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md",
+      "section": "K01, K07–K08",
+      "application": "Source-preserving mathematical transformation не доказывает causal world model. Conditional useful result допустим без invented authority."
+    }
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-GRF-03-TEMPORAL",
+      "question": "Какой actual temporal consumer нужен для одного полезного запроса?",
+      "owner": "Graph/model и selected temporal method owner",
+      "bounded_action": "Finite census текущих temporal methods/data contracts; выбрать existing consumer либо минимальную finite expansion у existing owner. Сдать profile/lag/time/initial mapping и TEST06–07; если empirical source недоступен, mechanism acceptance и practical limitation отдельно.",
+      "default": "Static refusal сохраняется; ручной8-node graph не считается готовым adapter."
+    },
+    {
+      "id": "DEC-GRF-03-PARTIAL",
+      "question": "Требуется ли family-level inference или достаточно явной conditional hypothesis?",
+      "owner": "Causal identification/study owner",
+      "bounded_action": "Назвать intended query/family и available algorithm, проверить coverage supported profile; выбрать qualified family output либо per-hypothesis limited result с source binding. Сдать TEST08 и exact unsupported scope, не обещать общую PAG completeness.",
+      "default": "Unknown marks не превращаются в arbitrary DAG; source и useful conditional research output сохраняются."
+    }
+  ],
+  "technical_solution": "Static normalization уже канонически принадлежит IR `project_graph_to_dag`; `_graph_projection` — alias, не второй algorithm. Сохранить перестановку endpoints для ARROW/TAIL, original marks, collision-free latent parents и настоящий DAG constructor. `StructuralCausalModelSpec` source+disposition проверяется через `graph_for_analysis`; native lifecycle должен сохранить эту связь до query, а не ограничиться DTO shape.\n\n**Temporal scope:** сначала finite census actual temporal consumers/model contracts, без предположения, что вся система их лишена. Если выбранный consumer уже понимает compact lag, квалифицировать его data/time boundary. Если для нужного запроса есть только static computation, минимальный adapter у существующего graph/model owner создаёт finite `(variable,time)` DAG: edge src→dst lagL становится src(t-L)→dst(t) только в declared horizon plus required ancestor history; lag0 проходит contemporaneous cycle validation. Имена кодируются collision-safe, map original variable/time сохраняется. Initial/boundary values имеют source refs/условные assumptions; неизвестное не подставляется0. Данные join по exact time/variable, не по позиции несогласованных массивов. Static consumers получают уже проверенный finite profile и binding, а compact temporal input продолжает early-refuse. Не строить новый универсальный temporal subsystem.\n\n**Partial graph:** canonical known-direction projection — не completion-family inference. Для реально требуемого unresolved query finite census находит подходящий existing owner/algorithm и его supported family; иначе оставить source+limitation и явную conditional hypothesis. Если несколько hypotheses сравниваются, результат говорит per-hypothesis/invariant только по проверенной области, а не всей PAG. Не требуется реализовать общую completeness всех PAG как условие закрытия дешёвого static repair. LLM может предложить hypothesis, но orientation не берётся из порядка хранения.\n\nNative selected DoWhy profile и explicit native_hybrid не смешиваются. В первом actual worker нужен собственный dependency/execution evidence, во втором реальный OLS/helper и SCM source/projection. Если qualification выявляет gap в persistence, wire existing owner refs/loader; не новый evidence service.",
+  "compatibility_and_rollback": "Сохранить compact lagged input bytes и source graph, не переписывать как static DAG. Новая finite expansion имеет explicit profile/version/mapping; old artifacts остаются историческими. Не менять default fit backend на hybrid ради прохождения тестов. Rollback temporal adapter возвращает named unsupported route с source/partial result, не игнорирует lag. Historical source dispositions не переаттестовываются автоматически.",
+  "source_locators": [
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "first_line": 610,
+      "last_line": 651,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/causal_graph.py#L610-L651"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "first_line": 722,
+      "last_line": 743,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/causal_graph.py#L722-L743"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "first_line": 1054,
+      "last_line": 1182,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/causal_graph.py#L1054-L1182"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "first_line": 610,
+      "last_line": 641,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py#L610-L641"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "first_line": 785,
+      "last_line": 827,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py#L785-L827"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+      "first_line": 189,
+      "last_line": 227,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/structural_causal_model.py#L189-L227"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "first_line": 112,
+      "last_line": 141,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py#L112-L141"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_grf_03.py",
+      "first_line": 1,
+      "last_line": 219,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_grf_03.py#L1-L219"
+    }
+  ]
+}

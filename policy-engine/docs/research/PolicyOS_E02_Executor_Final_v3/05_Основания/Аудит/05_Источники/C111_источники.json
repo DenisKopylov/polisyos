@@ -1,0 +1,259 @@
+{
+  "pass_id": "C111",
+  "bundle": "CAL-06",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          437,
+          448
+        ],
+        [
+          797,
+          808
+        ],
+        [
+          2020,
+          2107
+        ],
+        [
+          2646,
+          2679
+        ],
+        [
+          3305,
+          3312
+        ],
+        [
+          3497,
+          3574
+        ]
+      ],
+      "evidence_level": "Actual group resolver, physical field expansion и projection producer прочитаны. Resolver/projection statements исполнены unchanged с fixture handles/state; полный optimizer не запускался.",
+      "git_blob": "dd435dced710805345da768fb14341b98671dac6",
+      "sha256": "f23b724aa07a447fbf10effad60c28f7e286ff137e2805e4e4a195adc28ac6a1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/report.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          268
+        ]
+      ],
+      "evidence_level": "Report DTO и validators прочитаны; выбранные unchanged class bodies исполнены с actual Pydantic. Reference-only ArtifactRef/UncertaintyEnvelopeRef annotation bindings = Any, эти поля не используются; native CAS admission не квалифицирован.",
+      "git_blob": "e7417784afcb5eee3ef970f383d2ad79a803d094",
+      "sha256": "9e063a7b96c4bc6c0e68a20641410f81701d535d7cad9470c1c17a7c68638587",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          64
+        ],
+        [
+          226,
+          385
+        ]
+      ],
+      "evidence_level": "Полные целевые Hessian envelope/projection functions прочитаны и исполнены unchanged. Bayesian posterior routes 387–922 не входят в этот пакет и не объявлены покрытыми.",
+      "git_blob": "b62579e851f3e63a24755301d53e52a837535e66",
+      "sha256": "4a7218269ba505f188066441116c1781c37681b2f9879b88b74de11aad133cdb",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/covariance.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/uncertainty/covariance.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          298
+        ]
+      ],
+      "evidence_level": "Полный read; actual functions/constants выполнены с jnp=NumPy. Typed-law priority, full covariance и preserve_singular consumer проверены; не native JAX.",
+      "git_blob": "01916cb2ad755aee9035296b38d95521131cf268",
+      "sha256": "26c5dbfcd60dd773ce77f5ad8dbf45c118a47832c19705e11e88af0342883236",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          299,
+          422
+        ],
+        [
+          546,
+          808
+        ],
+        [
+          1378,
+          1510
+        ]
+      ],
+      "evidence_level": "Точные contiguous ranges с actual enums/carriers/canonicalizers/envelope validators. Неизменённые source fragments разобраны отдельно от unrelated Python 3.14 syntax; ни один except не переписан. Actual selected DTO JSON roundtrip.",
+      "git_blob": "08f9f6daf15d0532edf1da5b171ea407ab8bb2d9",
+      "sha256": "f97f6eac54f67c3b94c74a3f1bcfb78b07f87a5debf097d6384892c51dd27dd5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          134,
+          141
+        ],
+        [
+          552,
+          572
+        ],
+        [
+          585,
+          637
+        ]
+      ],
+      "evidence_level": "Selected actual Gaussian joint-spec consumer использует preserve_singular=True. Class/normal fit/joint builder исполнены unchanged; external NumPy sampling лишь algebraic control, не full MC propagator.",
+      "git_blob": "028a2ebff762f2003c0ffda8d25b058369c45516",
+      "sha256": "23a3893fdecade9ac108ab01aa3b03218b1fc3d57fa2f803fe022c58cf9488e2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/ir/analytics/calibration.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/calibration.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          204,
+          470
+        ]
+      ],
+      "evidence_level": "Полный config section read C108 унаследован; selected actual trainable refs и config DTOs используются для producer route.",
+      "git_blob": "8b88c6610d875997e4a0b9feecfe6620344e21ae",
+      "sha256": "0fbfec3e929f2562c31a2b554c8d61e6dc2162a6312d8576984e2d7d5fcd2c79",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          74,
+          101
+        ]
+      ],
+      "evidence_level": "Read C109 унаследован. Actual selected enum/DTO классы в report dependency, не scientific identifiability run.",
+      "git_blob": "7229089c88c9692a27c660787e6fb151a90f870d",
+      "sha256": "1027d1b6efebfacf836b8d0a81896e6b6886995833a527736ff08de28ca47a5b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/tests/unit/remediation/test_cal_06.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_cal_06.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          143
+        ]
+      ],
+      "evidence_level": "Полный read. Пять unchanged bodies / шесть parameterized cases PASS в bounded runner.",
+      "git_blob": "e0b87cb27fbd551761a7f4fad843f7dbf7fb7d47",
+      "sha256": "c9afbd837ae8b3b6defed9a588492e67fb1d084c493ad6ffa8ee43a77c85aa13",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          198
+        ]
+      ],
+      "evidence_level": "Полностью прочитаны первые восемь целевых tests и imports. Восемь unchanged bodies PASS; последующие CAS/Bayesian tests не заявлены выполненными.",
+      "git_blob": "20d4c91c089e384c5d201543e7ce6d566384675d",
+      "sha256": "2ece8527030a089ef40515aa11c5ca5b993b185eb6fd04089bf0461ad83f11ba",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/ir/observation/bundles.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/observation/bundles.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          100
+        ],
+        [
+          109,
+          115
+        ],
+        [
+          285,
+          301
+        ]
+      ],
+      "evidence_level": "Read C91 унаследован на том же blob; unchanged setup DTOs, не новая проверка observation inference.",
+      "git_blob": "e1c61a894b2c0a923d42312bad1f75e5d7003046",
+      "sha256": "34f689a2b3feb3f265cf9a006029f84cb80c57f64858ee8ec58056c1a1bad167",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/ir/observation/contracts.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/observation/contracts.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          254
+        ]
+      ],
+      "evidence_level": "Read C91 унаследован; setup native import без новой содержательной аттестации.",
+      "git_blob": "0e0aa931227d023ce5691b17ef26562a0dbc9117",
+      "sha256": "efbe3ca78107dc47158d01c30b03cca4f16074b2ad37f3573fb581e423fdf2d4",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

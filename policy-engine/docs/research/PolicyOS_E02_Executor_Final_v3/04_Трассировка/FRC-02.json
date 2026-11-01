@@ -1,0 +1,592 @@
+{
+  "packet_id": "FRC-02",
+  "lane": "LANE-03",
+  "status": "AUTHORED_PENDING_FINAL_QA",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "test_status": "NOT_RUN",
+  "audit_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "source_ids": [
+    "LA-051"
+  ],
+  "audit_reports": [
+    "05_Основания/Аудит/02_Пакеты/FRC-02.md"
+  ],
+  "source_plan_lines": [
+    3846,
+    3973
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C31_остатки:0",
+      "audit_id": "C31-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-FRC-02-01"
+      ],
+      "shared_owner": null,
+      "rationale": "До преобразования проверить точную неотрицательную целочисленность.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C31_остатки.json",
+        "sha256": "267594f0cd1e2014bfd6c08805ab844acb1bb5afe48406dc1a4a2b2638a30abc",
+        "json_pointer": "/findings/0"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C31_остатки:1",
+      "audit_id": "C31-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FRC-02-02",
+        "REQ-FRC-02-03",
+        "REQ-FRC-02-06",
+        "REQ-FRC-02-08"
+      ],
+      "shared_owner": null,
+      "rationale": "Existing native producer/service/readback квалифицируется, не пишется заново.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C31_остатки.json",
+        "sha256": "267594f0cd1e2014bfd6c08805ab844acb1bb5afe48406dc1a4a2b2638a30abc",
+        "json_pointer": "/findings/1"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C31_остатки:2",
+      "audit_id": "C31-G02",
+      "disposition": "capability",
+      "requirement_ids": [
+        "REQ-FRC-02-04",
+        "REQ-FRC-02-05",
+        "REQ-FRC-02-06",
+        "REQ-FRC-02-08"
+      ],
+      "shared_owner": null,
+      "rationale": "Проверяемая outcome↔observed relation отсутствует; одной команды pytest недостаточно.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C31_остатки.json",
+        "sha256": "267594f0cd1e2014bfd6c08805ab844acb1bb5afe48406dc1a4a2b2638a30abc",
+        "json_pointer": "/findings/2"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C31_остатки:3",
+      "audit_id": "C31-G03",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FRC-02-02",
+        "REQ-FRC-02-07",
+        "REQ-FRC-02-08"
+      ],
+      "shared_owner": null,
+      "rationale": "Scoped scientific experiment и denominator semantics, не causal CI из predictive coverage.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C31_остатки.json",
+        "sha256": "267594f0cd1e2014bfd6c08805ab844acb1bb5afe48406dc1a4a2b2638a30abc",
+        "json_pointer": "/findings/3"
+      }
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0477",
+      "requirement_ids": [
+        "REQ-FRC-02-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Metadata normalization сохраняет значение.",
+      "source_ids": [
+        "LA-051"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0478",
+      "requirement_ids": [
+        "REQ-FRC-02-02",
+        "REQ-FRC-02-03",
+        "REQ-FRC-02-06",
+        "REQ-FRC-02-08"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native owner/CAS/S10 и historical readback.",
+      "source_ids": [
+        "LA-051"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0479",
+      "requirement_ids": [
+        "REQ-FRC-02-04",
+        "REQ-FRC-02-05",
+        "REQ-FRC-02-06",
+        "REQ-FRC-02-08"
+      ],
+      "disposition": "capability",
+      "rationale": "Один положительный relation и общий consumer с ограничениями.",
+      "source_ids": [
+        "LA-051"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0480",
+      "requirement_ids": [
+        "REQ-FRC-02-02",
+        "REQ-FRC-02-07",
+        "REQ-FRC-02-08"
+      ],
+      "disposition": "qualify",
+      "rationale": "Эксперимент по intended estimand отдельно от software qualification.",
+      "source_ids": [
+        "LA-051"
+      ]
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0779",
+      "requirement_ids": [
+        "REQ-FRC-02-02",
+        "REQ-FRC-02-03",
+        "REQ-FRC-02-07"
+      ],
+      "test_ids": [
+        "TEST-FRC-02-02",
+        "TEST-FRC-02-03",
+        "TEST-FRC-02-08"
+      ],
+      "rationale": "Actual ForecastOwner and held-out comparisons"
+    },
+    {
+      "inventory_id": "preserve:0780",
+      "requirement_ids": [
+        "REQ-FRC-02-03",
+        "REQ-FRC-02-04"
+      ],
+      "test_ids": [
+        "TEST-FRC-02-03",
+        "TEST-FRC-02-04",
+        "TEST-FRC-02-05",
+        "TEST-FRC-02-06"
+      ],
+      "rationale": "Canonical report/evidence reprojection and exact selected profiles"
+    },
+    {
+      "inventory_id": "preserve:0781",
+      "requirement_ids": [
+        "REQ-FRC-02-05",
+        "REQ-FRC-02-08"
+      ],
+      "test_ids": [
+        "TEST-FRC-02-03",
+        "TEST-FRC-02-05",
+        "TEST-FRC-02-06",
+        "TEST-FRC-02-08"
+      ],
+      "rationale": "Predictive-only denials and conservative credibility"
+    },
+    {
+      "inventory_id": "preserve:0782",
+      "requirement_ids": [
+        "REQ-FRC-02-06"
+      ],
+      "test_ids": [
+        "TEST-FRC-02-07"
+      ],
+      "rationale": "Historical bytes/read semantics"
+    }
+  ],
+  "requirements": [
+    {
+      "text": "Каждый metadata numerator/denominator принимается только как неотрицательное конечное целое без потери значения. До int-нормализации исключить bool, дробные2.9 и-0.1, nonfinite, произвольные объекты с __int__. Ошибка даёт persisted_metadata_counter_invalid, не usable pass. Actual observed counts всё равно независимо вычисляются из bounds. Для текстовых целых явно зафиксировать ограниченную legacy grammar, не разрешать decimal/exponent truncation.",
+      "source_ids": [
+        "LA-051"
+      ],
+      "audit_ids": [
+        "C31-R01"
+      ],
+      "id": "REQ-FRC-02-01",
+      "test_ids": [
+        "TEST-FRC-02-01",
+        "TEST-FRC-02-02"
+      ]
+    },
+    {
+      "text": "Один train slice и одинаковые параметры дают одинаковые point forecast/intervals при разных holdout; actual observed hits и usability различаются. Изменение только nominal confidence в report без новых observations не меняет измеренный numerator/denominator; отсутствие интервалов даёт сохраняемый ограниченный результат с нулевым denominator, не pass.",
+      "source_ids": [
+        "LA-051"
+      ],
+      "audit_ids": [
+        "C31-G01",
+        "C31-G03"
+      ],
+      "id": "REQ-FRC-02-02",
+      "test_ids": [
+        "TEST-FRC-02-02",
+        "TEST-FRC-02-03"
+      ]
+    },
+    {
+      "text": "Actual ForecastOwner, registry/dispatcher, native CAS, canonical report/evidence loader и run-bound service→S10→fresh association reader выполняют одну содержательную цепочку. Exact profiles/source edges/model/rule/time binding проверяются при создании и чтении. Forged flags, foreign selected profile, изменённый источник, модель, правило либо временная роль не могут сохранять прежний admitted outcome.",
+      "source_ids": [
+        "LA-051"
+      ],
+      "audit_ids": [
+        "C31-G01"
+      ],
+      "id": "REQ-FRC-02-03",
+      "test_ids": [
+        "TEST-FRC-02-03",
+        "TEST-FRC-02-04"
+      ]
+    },
+    {
+      "text": "Добавить к существующему selected source/profile пути проверяемую relation N4 target variable/metric→observed snapshot metric для одного полезного случая. Relation связывает выбранные candidate/problem/world revision, snapshot/profile/member, единицы, transformation, population и time scope; неизвестные поля явно неизвестны. Совпадение строк metric_id недостаточно. Consumer разрешает только ту ограниченную predictive роль, которая обоснована этой relation; отсутствие/несогласованность relation блокирует лишь outcome-calibrated tier, не уничтожая годный series calibration record.",
+      "source_ids": [
+        "LA-051"
+      ],
+      "audit_ids": [
+        "C31-G02"
+      ],
+      "id": "REQ-FRC-02-04",
+      "test_ids": [
+        "TEST-FRC-02-05",
+        "TEST-FRC-02-06"
+      ]
+    },
+    {
+      "text": "LLM может предложить relation и объяснение единиц/агрегации, но её usable status устанавливает существующий source/model owner по доступным данным и declared assumptions. Не присваивать issuer_status, source_population_scope_status, source_time_status=established из наличия internal role artifact. Новая совместимая метрика подключается через тот же relation mechanism без специальной ветки на название страны/политики.",
+      "source_ids": [
+        "LA-051"
+      ],
+      "audit_ids": [
+        "C31-G02",
+        "C31-G03"
+      ],
+      "id": "REQ-FRC-02-05",
+      "test_ids": [
+        "TEST-FRC-02-05",
+        "TEST-FRC-02-06"
+      ]
+    },
+    {
+      "text": "Исторические evidence1.0/1.1 сохраняют bytes и прежнюю семантику; новое evidence использует текущие exact profiles. Исторический nominal не восстанавливается догадкой, legacy repersist как newly measured evidence запрещён. При необходимости расширения relation/profile выполнить явное versioned чтение, не задним числом объявлять старую not_established relation подтверждённой.",
+      "source_ids": [
+        "LA-051"
+      ],
+      "audit_ids": [
+        "C31-G01",
+        "C31-G02"
+      ],
+      "id": "REQ-FRC-02-06",
+      "test_ids": [
+        "TEST-FRC-02-04",
+        "TEST-FRC-02-07"
+      ]
+    },
+    {
+      "text": "Конечный эксперимент квалифицирует конкретный horizon/sample/source regime и estimand predictive_interval_coverage: train/holdout разделены, numerator/denominator и пропуски открыты, temporal dependence и uncertainty измерения отражены. Generic bridge denominator по наблюдённым interval rows не называется полным requested corpus; ForecastOwner сохраняет требование полного horizon set. Finite-sample screening tolerance не становится universal calibration или causal-effect authority.",
+      "source_ids": [
+        "LA-051"
+      ],
+      "audit_ids": [
+        "C31-G03"
+      ],
+      "id": "REQ-FRC-02-07",
+      "test_ids": [
+        "TEST-FRC-02-02",
+        "TEST-FRC-02-08"
+      ]
+    },
+    {
+      "text": "Сохранить EvalSafety/WMR/candidate checks, conservative counterfactual credibility, predictive-only denials, method/rule revisions и раздельные времена. Успех software bridge и поддержанная outcome relation не выпускают production recommendation и не подтверждают causal effect CI. Доказательство новой положительной способности содержит фактическое значение/единицы/ограничения у fresh S10 consumer, не только факт отказа.",
+      "source_ids": [
+        "LA-051"
+      ],
+      "audit_ids": [
+        "C31-G01",
+        "C31-G02",
+        "C31-G03"
+      ],
+      "id": "REQ-FRC-02-08",
+      "test_ids": [
+        "TEST-FRC-02-03",
+        "TEST-FRC-02-04",
+        "TEST-FRC-02-05",
+        "TEST-FRC-02-06",
+        "TEST-FRC-02-08"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "native count regression",
+      "setup": "Настоящий BacktestReport с observed2/2; во всех четырёх metadata keys поочерёдно2.9,-0.1,True,NaN,inf,объект __int__, целые0/2,2.0 и согласованная textual legacy grammar.",
+      "action": "Вызвать actual bridge producer; valid persist/load; malformed нельзя объявлять usable. Вне JSON проверить прямую DTO boundary, затем JSON-supported subset через native CAS.",
+      "oracle": "2.9 не становится2 и-0.1 не становится0; persisted_metadata_counter_invalid присутствует, floor_passed=False. Valid2 и точно integral2.0 согласованы с observed2; bool не проходит. Text2 разрешается только если выбранная явная grammar; 2.9/2e0 не усекать. Mismatch3 vs observed2 остаётся mismatch, observed counts не заменены metadata.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_frc_02.py; calibration/forecast_bridge.py::_coerce_int/_recompute_and_reconcile",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-FRC-02-01",
+      "requirement_ids": [
+        "REQ-FRC-02-01"
+      ]
+    },
+    {
+      "level": "native independent observation oracle",
+      "setup": "Два отчёта одинаковой формы с2/2 и1/2 hits; nominal.80/.95; отсутствующие интервалы; generic2requested/1interval; actual owner incomplete horizon output.",
+      "action": "Recompute по y_true и inclusive low<=y<=high независимым простым loop; actual produce/persist/load сравнить с oracle.",
+      "oracle": "Observed rate1/.5 не следует nominal. Без intervals denominator0 и limitation. Generic subset1/1 явно не whole2/2; actual owner incomplete horizon отвергнут. Malformed metadata не делает subset полным; actual measured numbers сохранены.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_frc_02.py; test_frc_02_owner.py; forecast_owner.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-FRC-02-02",
+      "requirement_ids": [
+        "REQ-FRC-02-01",
+        "REQ-FRC-02-02",
+        "REQ-FRC-02-07"
+      ]
+    },
+    {
+      "level": "native owner→CAS→service→fresh S10 E02-I03-B",
+      "setup": "Existing empirical_bridge fixture training10..19 и holdout20,21,22 vs1000,1001,1002; actual ETS NumPy/uncertainty/dispatcher. Existing run/profile integration fixture создаёт действительные selected source/model/policy/rule и scoped intent.",
+      "action": "Сначала standalone owner→report→bridge, затем actual service role artifacts→evidence→association. Новый process/reader открывает association и повторяет S10.",
+      "oracle": "Одинаковые forecast/intervals, разные observed counts; standalone bridge_pending не превращается в false missing-producer diagnosis. Service result имеет воспроизводимые refs/counts и predictive-only scope; без outcome relation series record полезен, N4 tier blocked. Нельзя manufactured context считать внешним source authentication.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_frc_02_empirical_bridge.py; tests/integration/core_runtime/test_predictive_calibration_profile_owner_binding.py",
+      "allowed_doubles_and_prohibitions": "Synthetic data и test tenant допустимы. Actual ETS, uncertainty, dispatcher, CAS, service, canonical loader и S10 не подменяются; HTTP transport может вызываться in-process, но fresh read отдельно.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-FRC-02-03",
+      "requirement_ids": [
+        "REQ-FRC-02-02",
+        "REQ-FRC-02-03",
+        "REQ-FRC-02-08"
+      ]
+    },
+    {
+      "level": "native mutation/removal matrix",
+      "setup": "Сохранённая valid association; по одному изменению bytes/hash, selected profile member, child source edge, model ref, method/rule version, threshold, одной temporal role, positive flag.",
+      "action": "Открыть через canonical evidence/association loader и вызвать S10; рядом unchanged control.",
+      "oracle": "Каждое несовместимое изменение адресно refused/limited; новый hash для неверного payload не помогает. Unchanged control воспроизводит measured record. Времена остаются разными семантическими ролями; не чинить chronology подстановкой now().",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_frc_02_s10.py; tests/unit/runtime/http/test_predictive_calibration_profile_boundary.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-FRC-02-04",
+      "requirement_ids": [
+        "REQ-FRC-02-03",
+        "REQ-FRC-02-06",
+        "REQ-FRC-02-08"
+      ]
+    },
+    {
+      "level": "native positive selected relation capability",
+      "setup": "Один выбранный policy question и реальный конечный observed snapshot с документированными units/population/time; relation proposal с корректной identity либо явной применимой transformation. Второй совместимый вопрос/метрика отличается содержательно, не толькоID.",
+      "action": "Existing owners validate/select relation, persist exact profile edges, actual ForecastOwner→service→fresh S10. Показать numeric forecast/calibration и scoped outcome relation у consumer.",
+      "oracle": "Оба случая идут через один mechanism без if по case-name. Target variable/metric, units/transformation и scope воспроизводятся; поддержанная conditional predictive роль доступна. Unknown issuer остаётся unknown; отсутствие основания для causal effect/production продолжает ограничивать только такие claims.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "runtime/http/services/predictive_calibration.py::_n4_outcome_target_binding_record/_recompute_s10; generation_cycle.py::_s10_n4_outcome_binding_limitation_ref",
+      "allowed_doubles_and_prohibitions": "Контролируемый LLM proposal допустим; source/profile resolver и relation validation не заменяются готовым established flag. Если фактического empirical corpus нет, software fixture квалифицирует механизм, practical validation остаётся отдельным NOT_RUN.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-FRC-02-05",
+      "requirement_ids": [
+        "REQ-FRC-02-04",
+        "REQ-FRC-02-05",
+        "REQ-FRC-02-08"
+      ]
+    },
+    {
+      "level": "native relation negative and useful fallback",
+      "setup": "Тот же series evidence с отсутствующей relation, foreign snapshot/profile, несовместимыми единицами/агрегацией, population/time вне declared scope, self-declared established и одинаковым metric name для другого определения.",
+      "action": "Reopen и повторить S10 по actual selected candidate.",
+      "oracle": "Ни одна подмена не создаёт outcome-calibrated tier. Сохранённые legitimate series counts/forecast доступны с причиной и точным scope; не возвращается общий пустой error вместо полезного результата. Отказ подтверждает только affected claim, не blanket invalidation других lawful evidence.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_frc_02_s10.py; tests/integration/core_runtime/test_predictive_calibration_profile_owner_binding.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-FRC-02-06",
+      "requirement_ids": [
+        "REQ-FRC-02-04",
+        "REQ-FRC-02-05",
+        "REQ-FRC-02-08"
+      ]
+    },
+    {
+      "level": "native historical compatibility",
+      "setup": "Genuine retained schema1.0/1.1 fixture, текущая1.2, versioned relation при изменении profile.",
+      "action": "Load старых bytes, compare SHA до/после; attempt repersist как new; current positive load.",
+      "oracle": "SHA неизменён, исторический nominal отсутствует где отсутствовал, old semantics reproduced; legacy repersist refused; new exact-profile path проходит. Старый not_established не повышается от новой версии reader.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_frc_02.py; calibration/forecast_bridge.py::_reproduce_evidence",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-FRC-02-07",
+      "requirement_ids": [
+        "REQ-FRC-02-06"
+      ]
+    },
+    {
+      "level": "scientific scoped experiment, separate acceptance",
+      "setup": "Заранее выбранный доступный finite observed corpus и horizon grid, training/calibration/holdout protocol, baseline ETS/naive comparator, dependence-aware evaluation plan. Synthetic known-process control отдельно от реального корпуса.",
+      "action": "Получить actual held-out predictions/hits по horizon, denominators/пропуски, interval widths и uncertainty observed rate; сохранить весь protocol до inspection результатов.",
+      "oracle": "Отчёт указывает точный sample/source/time/horizon scope, численное сравнение baseline и ограничения; admissible claim соответствует реально измеренному estimand. Не вводить универсальный порог acceptance из tiny fixture или tolerance max(.05,1/sqrt(n)). Отсутствие научной поддержки сохраняет conditional numerical result и блокирует лишь неподдержанный claim.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "forecast_owner.py::run; foundry/methods/catalog/forecasting/uncertainty.py",
+      "allowed_doubles_and_prohibitions": "Источник/дизайн не заменяются synthetic examples для empirical authority. Доступный конечный corpus может отсутствовать: записать конкретный BLOCKED и не снимать software bridge acceptance.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-FRC-02-08",
+      "requirement_ids": [
+        "REQ-FRC-02-07",
+        "REQ-FRC-02-08"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I03-B"
+  ],
+  "dependencies": [
+    {
+      "packet": "FRC-01",
+      "relation": "Summary preservation и honest optional refs; единый gateway writer, один shared chain."
+    },
+    {
+      "packet": "PCL-01",
+      "relation": "Continuous report/receipt representation и denominator; не второй calibration owner."
+    },
+    {
+      "packet": "EMP-01",
+      "relation": "Selected source population/time и useful candidate scope; relation не выводится из country-only data."
+    },
+    {
+      "packet": "CYC-01 / ACQ-01",
+      "relation": "Использовать существующие N4 selected source/context/profile и acquisition, не новый planning registry."
+    }
+  ],
+  "preservation": [
+    "Actual ForecastOwner and held-out comparisons",
+    "Canonical report/evidence reprojection and exact selected profiles",
+    "Predictive-only denials and conservative credibility",
+    "Historical bytes/read semantics"
+  ],
+  "protected_distinction_ids": [
+    "LK01",
+    "LK29",
+    "LK30"
+  ],
+  "design_alignment": [
+    {
+      "source": "policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+      "section": "D0 и практический target architecture",
+      "application": "Typed selected relation расширяет повторно используемую способность, а не перечень частных политик; поддерживает полезный conditional output."
+    },
+    {
+      "source": "policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md",
+      "section": "K01, K07–K08",
+      "application": "Internal role graph и good calibration math не заменяют empirical scope/authority. Consumer принимает собственное назначение, не статус producer как право действия."
+    }
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-FRC-02-COUNTS",
+      "question": "Какие textual integers действительно входят в поддержанный historical contract?",
+      "owner": "Calibration bridge/release owner",
+      "bounded_action": "Проверить retained report fixtures/schema/callers; выбрать и протестировать конечную grammar. По умолчанию только неотрицательная decimal integer запись, не float parsing. Зафиксировать intentional отказ неподдержанным coercions.",
+      "default": "Дробные/negative/nonfinite/bool не принимаются независимо от legacy решения."
+    },
+    {
+      "id": "DEC-FRC-02-RELATION",
+      "question": "Какой existing source/profile owner несёт проверяемое N4 outcome↔observed relation?",
+      "owner": "Selected source/profile owner и S10 reviewer",
+      "bounded_action": "Проследить actual N4 source/profile/member schemas; выбрать existing relation projection либо минимальное versioned расширение. Сдать schema/path map, один содержательный positive и второй совместимый case, mismatch/fresh-read controls. Не оставлять как общее исследование без результата.",
+      "default": "Series record доступен; outcome-calibrated tier ограничен без применимой relation. Нельзя снять N4 guard только по равенству metric names."
+    },
+    {
+      "id": "DEC-FRC-02-EXPERIMENT",
+      "question": "Какое конкретное научное утверждение требуется сверх конечного measured screening?",
+      "owner": "Domain/method reviewer",
+      "bounded_action": "Назвать estimand, source/sample/horizon и protocol; выбрать имеющийся доступный corpus и baseline. Если external corpus недоступен, предъявить scoped software result и точный qualification gap без фиктивного authority.",
+      "default": "Predictive-only conditional result, никаких causal/production claims."
+    }
+  ],
+  "technical_solution": "**Локальный ремонт.** `_coerce_int` сейчас вызывает `int` прежде проверки. Применить явный разбор разрешённых JSON-чисел/строк: bool запрещён; int>=0; finite float с `is_integer()` и>=0; для строки — документированная decimal integer grammar без дробной/экспоненциальной нотации, если legacy требует её. Не принимать произвольный object coercion. После нормализации сравнивать с independently recomputed hits; сохранять нынешние issue codes, не изменять numerator из metadata. Большие целые не прогонять через float. Точная legacy grammar решается на сохранённых fixtures, а не на предположении о клиентах.\n\n**Bridge уже существует.** ForecastOwner читает selected source/profile, считает ETS и rolling-origin uncertainty на training, сравнивает holdout, сохраняет report. Neutral bridge повторяет observed counts и проверяет context role edges; service создаёт run-bound refs, persists evidence/association, `_recompute_s10` заново открывает candidate/report/evidence. Принять этот путь native, а не переписать provider или убрать standalone bridge_pending. Исправления FRC-01/PCL-01 включаются как варианты одного E02-I03-B.\n\n**Положительная недостающая способность.** `_n4_outcome_target_binding_record` пока только записывает две identity со статусом not_established; `_s10_n4_outcome_binding_limitation_ref` блокирует любой typed N4 candidate. Расширить существующий selected profile/source контракт проверяемой relation и передать её canonical projection в S10. Сначала finite census existing source/profile schemas: если они уже выражают relation, использовать их; иначе минимальное versioned поле/DTO в текущем owner, а не новый service/registry. Relation содержит candidate/problem/world revision, observed snapshot/profile/member, target definition, units/transformation и scope. Разрешённую transformation выбирает existing measurement/model owner; неизвестное semantic соответствие остаётся явно условным, не исправляется string equality. LLM предлагает гипотезу/сопоставление, system проверяет структуры/единицы/selected-source применимость, а научные assumptions не объявляет доказанными.\n\nService и fresh `_recompute_s10` должны разрешать **тот же** persisted relation через canonical source/profile loader и recompute scope; старый helper меняется с unconditional N4 refusal на refusal без подтверждённой применимой relation. Не доверять `metadata.status=established`. Unknown source population/time/issuer и credibility не становятся известными лишь потому, что внутренний artifact существует. Сначала поддержать один полезный relation, затем второй совместимый case тем же механизмом; неизвестная новая семантика требует честного declared gap, не бесконечного универсального изобретателя моделей.",
+  "compatibility_and_rollback": "Сохранять старые evidence bytes/versions и not_established, new profile version явно отличать при изменении semantics. Native current producer integer counters не меняются. Fractional metadata теперь ограничивается — intentional behavior fix. Rollback нового relation path возвращает только outcome tier в limited/blocked, series evidence остаётся доступным; не возвращать truncation и не переписывать historical artifacts. Доступность внешнего issuer не предполагается.",
+  "source_locators": [
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "first_line": 440,
+      "last_line": 580,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/calibration/forecast_bridge.py#L440-L580"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "first_line": 748,
+      "last_line": 786,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/calibration/forecast_bridge.py#L748-L786"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "first_line": 1446,
+      "last_line": 1463,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/calibration/forecast_bridge.py#L1446-L1463"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "first_line": 1852,
+      "last_line": 1859,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/calibration/forecast_bridge.py#L1852-L1859"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "first_line": 647,
+      "last_line": 800,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py#L647-L800"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "first_line": 1239,
+      "last_line": 1254,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py#L1239-L1254"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+      "first_line": 595,
+      "last_line": 630,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py#L595-L630"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+      "first_line": 961,
+      "last_line": 980,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py#L961-L980"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+      "first_line": 1948,
+      "last_line": 2036,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py#L1948-L2036"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": 17203,
+      "last_line": 17217,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L17203-L17217"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+      "first_line": 1191,
+      "last_line": 1251,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_frc_02_s10.py#L1191-L1251"
+    }
+  ]
+}

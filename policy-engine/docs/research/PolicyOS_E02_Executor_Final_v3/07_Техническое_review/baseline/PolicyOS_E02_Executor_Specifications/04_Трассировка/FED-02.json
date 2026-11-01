@@ -1,0 +1,331 @@
+{
+  "packet_id": "FED-02",
+  "lane": "LANE-07",
+  "source_ids": [
+    "B139",
+    "B142",
+    "B143",
+    "B144"
+  ],
+  "protected_distinction_ids": [],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/FED-02.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "work_types": "fix + preserve + native/performance qualification",
+  "practical_goal": "Законный нулевой результат остаётся пригодным для downstream SQL, а bounded audit не удерживает скрытую полную историю и не меняет данные.",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C90_остатки:0",
+      "audit_id": "C90-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-FED-02-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Согласованный empty schema union до output restoration."
+    },
+    {
+      "inventory_id": "audit-residual:C90_остатки:1",
+      "audit_id": "C90-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FED-02-01",
+        "REQ-FED-02-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Native typed schema/cold SQL и service delivery."
+    },
+    {
+      "inventory_id": "audit-residual:C90_остатки:2",
+      "audit_id": "C90-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FED-02-02",
+        "REQ-FED-02-03",
+        "REQ-FED-02-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Измерить actual performance; existing bounded repairs preserve."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-FED-02-01",
+      "text": "Empty UNION должен иметь согласованную схему всех admitted inputs либо explicit request schema, а не только первого frame. Compatible additional columns/dtypes сохраняются независимо от source permutation; no sources/failed delivery не становятся successful empty. Schema-only nullable columns допускаются с declared dtype; explicit dtype разрешается до inference, поэтому отсутствие source templates не вызывает pd.concat([]). Unsupported dtype даёт typed schema refusal.",
+      "source_ids": [
+        "B139",
+        "B142",
+        "B143",
+        "B144"
+      ],
+      "audit_ids": [
+        "C90-R01",
+        "C90-G01"
+      ],
+      "test_ids": [
+        "TEST-FED-02-01"
+      ]
+    },
+    {
+      "id": "REQ-FED-02-02",
+      "text": "Collector должен сохранять полный enabled count при bounded details и stable heap tie-breaker, включая повтор того же event object. FULL/SUMMARY/NONE не меняют численный результат; NONE не создаёт detail payload.",
+      "source_ids": [
+        "B139",
+        "B142",
+        "B143",
+        "B144"
+      ],
+      "audit_ids": [
+        "C90-G02"
+      ],
+      "test_ids": [
+        "TEST-FED-02-02"
+      ]
+    },
+    {
+      "id": "REQ-FED-02-03",
+      "text": "OVERLAY должен готовить index каждого реально используемого source один раз в composition и сохранять primary precedence, masks, keys и lineage. Global mutable-frame cache запрещён.",
+      "source_ids": [
+        "B139",
+        "B142",
+        "B143",
+        "B144"
+      ],
+      "audit_ids": [
+        "C90-G02"
+      ],
+      "test_ids": [
+        "TEST-FED-02-03"
+      ]
+    },
+    {
+      "id": "REQ-FED-02-04",
+      "text": "Native cold selected-artifact/SQL/service delivery и representative performance должны квалифицироваться при фиксированных inputs/backend и одинаковом numerical oracle. Total RSS/latency не выводятся из числа log/index calls.",
+      "source_ids": [
+        "B139",
+        "B142",
+        "B143",
+        "B144"
+      ],
+      "audit_ids": [
+        "C90-G01",
+        "C90-G02"
+      ],
+      "test_ids": [
+        "TEST-FED-02-04"
+      ]
+    },
+    {
+      "id": "REQ-FED-02-05",
+      "text": "Shared FED-01 numeric finite/singleton fixes должны потребляться без дублированного алгоритма и без изменения audit/empty semantics.",
+      "source_ids": [
+        "B139",
+        "B142",
+        "B143",
+        "B144"
+      ],
+      "audit_ids": [],
+      "test_ids": [
+        "TEST-FED-02-05"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-FED-02-01",
+      "requirement_ids": [
+        "REQ-FED-02-01"
+      ],
+      "level": "native unit / integration",
+      "setup": "Zero-row id:int64,x:float64 + id:int64,y:float64; reverse order, nullable/mixed compatible dtypes, explicit schema, empty+nonempty. Explicit schema добавляет nullable z:Int64, которого нет ни в одном source; отдельный unsupported dtype control.",
+      "action": "Actual compose→persist→fresh reader→registered SQL query.",
+      "oracle": "Empty содержит id,x,y и declared compatible types в обоих порядках; explicit schema honored; query returns0rows без KeyError. No sources отказ, failed delivery отдельный status; no fake row. z сохраняет declared nullable dtype/order; никаких pd.concat([])/ValueError; unsupported dtype даёт typed refusal до publication, не object fallback.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Настоящие DataSchema/profile/artifact/SQL owner; нельзя вручную сконструировать final empty.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-FED-02-02",
+      "requirement_ids": [
+        "REQ-FED-02-02"
+      ],
+      "level": "native unit / integration",
+      "setup": "80 conflicts cap/sample1, repeated same-key values и same-object; три audit levels.",
+      "action": "Actual UNION/JOIN, weakref/GC retained-object witness и summary.",
+      "oracle": "Enabledtotal80, retained<=declared cap плюс кратковременный call-local record; dropped79 при FULLcap1. No TypeError payload comparison; fixed stream sample stable. NONE0details, disabled count не объявлен полным.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Observer не удерживает объекты; не ограничиться len(returned log) и не dedupe повторные события.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-FED-02-03",
+      "requirement_ids": [
+        "REQ-FED-02-03"
+      ],
+      "level": "native unit / integration",
+      "setup": "Primary999 и вторичный источник для 3/8 value columns, неиспользуемый secondary, все audit modes.",
+      "action": "Count actual set_index/construction calls и сравнить values/masks/basis.",
+      "oracle": "1primary+1usedsecondary preparation, unusedsecondary0; primary999 retained; audit mode не меняет result; NONE0entries.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Spy calls допустим, не mocked indexing; count ratio не speedup.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-FED-02-04",
+      "requirement_ids": [
+        "REQ-FED-02-04"
+      ],
+      "level": "native unit / integration",
+      "setup": "Supported Python3.14, actual native typed-frame artifacts, bounded declared wide/large controlled dataset.",
+      "action": "Fresh process reopen/registered SQL; measure wall/peak separately FULL/SUMMARY/NONE после warmup/profile фиксации.",
+      "oracle": "Schema/data/lineage одинаковы; lifecycle и budget limits выдержаны. Report измеряет настоящее workload scope и не заявляет O(1) для N-row dataframe. Если transient SUMMARY allocations доминируют — отдельный optimization preserving count/sample.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "No syntax/import seams; не заменять Parquet/SQL pandas query. Performance changes только по измеренному need.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-FED-02-05",
+      "requirement_ids": [
+        "REQ-FED-02-05"
+      ],
+      "level": "native unit / integration",
+      "setup": "Combined E02-I07-B numeric cases после общей composer revision.",
+      "action": "Выполнить selected replay/audit mode matrix с finite extreme и ordinary12.",
+      "oracle": "FED01 finite result/participant oracles действуют во всех modes; empty schema repair не обходит numeric admission.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Один shared owner численного helper; no copied fix.",
+      "status": "NOT_RUN"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I07-B"
+  ],
+  "dependencies": [
+    "FED-01 predecessor/shared composer writer",
+    "Общий E02-I07-B; performance job scoped отдельно"
+  ],
+  "preservation": [
+    "Stable heap ordinal",
+    "Bounded collector и enabled counters",
+    "Lazy per-composition indexing",
+    "NONE без detail payload",
+    "Typed empty/no-source distinction"
+  ],
+  "design_alignment": [
+    "[Vision §3, §6–§7, §11](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md) — существующий owner, реально подключённый consumer, совместимые новые ресурсы через общий контракт; не бесконечный реестр вместо работы. [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md) — candidate/conditional вычисление не равно эмпирической или институциональной authority.",
+    "Ноль строк — полезное успешное состояние данных, не отсутствие causal effect. Небольшой schema repair использует current DataSchema, не новую schema platform; разные sources тойже схемы не требуют bespoke branches."
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0241",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-FED-02-01"
+      ],
+      "rationale": "Согласованный empty schema union до output restoration."
+    },
+    {
+      "inventory_id": "remaining:0242",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FED-02-01",
+        "REQ-FED-02-04"
+      ],
+      "rationale": "Native typed schema/cold SQL и service delivery."
+    },
+    {
+      "inventory_id": "remaining:0243",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FED-02-02",
+        "REQ-FED-02-03",
+        "REQ-FED-02-04"
+      ],
+      "rationale": "Измерить actual performance; existing bounded repairs preserve."
+    },
+    {
+      "inventory_id": "remaining:0244",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-FED-02-05"
+      ],
+      "rationale": "C89-R01 ownerFED01; shared numerical consumption."
+    },
+    {
+      "inventory_id": "remaining:0245",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-FED-02-05"
+      ],
+      "rationale": "C89-R02 ownerFED01; не второй resolverfix."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0361",
+      "requirement_ids": [
+        "REQ-FED-02-02"
+      ],
+      "test_ids": [
+        "TEST-FED-02-02"
+      ],
+      "rationale": "Stableordinal tie-break."
+    },
+    {
+      "inventory_id": "preserve:0362",
+      "requirement_ids": [
+        "REQ-FED-02-02"
+      ],
+      "test_ids": [
+        "TEST-FED-02-02"
+      ],
+      "rationale": "Boundedcollector/full enabledcounts."
+    },
+    {
+      "inventory_id": "preserve:0363",
+      "requirement_ids": [
+        "REQ-FED-02-03"
+      ],
+      "test_ids": [
+        "TEST-FED-02-03"
+      ],
+      "rationale": "Local lazy indexing."
+    },
+    {
+      "inventory_id": "preserve:0364",
+      "requirement_ids": [
+        "REQ-FED-02-02",
+        "REQ-FED-02-03"
+      ],
+      "test_ids": [
+        "TEST-FED-02-02",
+        "TEST-FED-02-03"
+      ],
+      "rationale": "NONE no detailpayload."
+    },
+    {
+      "inventory_id": "preserve:0365",
+      "requirement_ids": [
+        "REQ-FED-02-01"
+      ],
+      "test_ids": [
+        "TEST-FED-02-01"
+      ],
+      "rationale": "Lawful empty versus no-source/failure."
+    }
+  ],
+  "owners": [
+    "src/polisyos/fabric/connectors/federation/composer.py::_union",
+    "src/polisyos/fabric/connectors/federation/composer.py::_restore_output_profile",
+    "src/polisyos/fabric/connectors/federation/composer.py::MergeLogCollector",
+    "src/polisyos/fabric/connectors/federation/artifact.py"
+  ]
+}

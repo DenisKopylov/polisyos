@@ -1,0 +1,74 @@
+{
+  "pass_id": "C74",
+  "bundle": "CAS-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C74-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B150",
+        "B151",
+        "B153"
+      ],
+      "title": "Полная native custody цепь не подменяется выбранными store methods",
+      "evidence": [
+        "S01:3358–3707",
+        "S04:306–566",
+        "S06:384–431",
+        "S06:595–754",
+        "S12:615–650",
+        "P02",
+        "P04",
+        "P12"
+      ],
+      "remaining": "На supported runtime исполнить actual initialized FileSystemCAS → durable ownership index → exact profile owner/readback, с input/tenant admission, pending intent recovery и sign-on-put. Проверить общий LANE-06 current attempt и употребление ref, а не только generic bytes/hash.",
+      "limits": "Actual filesystem/hash/profile/lock control исполнен; in-memory intent index и authority/signing/storage admission fixtures. Два процесса не доказывают durable owner generation consistency. LK20: hash/profile/identity не дают разрешения reuse/closeout."
+    },
+    {
+      "id": "C74-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B153"
+      ],
+      "title": "Два unchanged concurrency tests имеют устаревшую observer signature",
+      "evidence": [
+        "S06:147–166",
+        "S06:452–594",
+        "S06:928–1072",
+        "S01:917–921",
+        "S04:424–463",
+        "P01"
+      ],
+      "remaining": "Согласовать test-only observer с актуальным create_lock_files keyword и повторить полный native concurrency набор. Не удалять readonly no-create contract ради тестовой обёртки. Сохранить deterministic gated holder/waiter и независимый stripe control.",
+      "limits": "В 14 isolated bodies сохранены 12 PASS и 2 FAIL TypeError; последующие отдельные P09/P11/P12/P13 не переименовывают эти FAIL в PASS. Это test qualification drift, не доказанный отказ product lock."
+    },
+    {
+      "id": "C74-G03",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B150",
+        "B151",
+        "B153"
+      ],
+      "title": "Эксплуатационное восстановление и storage-scale характеристики не квалифицированы",
+      "evidence": [
+        "S01:3427–3497",
+        "S03:61–116",
+        "P04",
+        "P05",
+        "P08",
+        "P10",
+        "P15"
+      ],
+      "remaining": "Для реально поддерживаемого filesystem проверить crash/durability и разрешённую repair/quarantine политику без выдуманной provenance. Отдельно при необходимости измерить stripe contention и долгоживущий root registry; bounded object count не заменяет RSS/throughput. Сохранить first/default history и exact selected views.",
+      "limits": "Current corrupt retry честно отказывает — это допустимый исход B151, не незавершённый обязательный auto-repair. Missing default в fixture создаётся по нынешним options; старый exact view сохранён, старый несовместимый profileless ref отвергнут. Нельзя выдавать это за восстановление неизвестной старой истории."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "protected_distinctions": [
+    "LK20"
+  ],
+  "decision": "B150/B151/B153 repairs подтверждены в bounded actual owners. Новый product defect в данном проходе не установлен; native/acceptance/recovery qualification остаётся."
+}

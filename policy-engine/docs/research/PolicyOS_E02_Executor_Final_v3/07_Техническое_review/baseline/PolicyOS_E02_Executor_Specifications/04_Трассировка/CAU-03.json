@@ -1,0 +1,489 @@
+{
+  "packet_id": "CAU-03",
+  "lane": "LANE-05",
+  "status": "AUTHORED_PENDING_FINAL_QA",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "test_status": "NOT_RUN",
+  "audit_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "source_ids": [
+    "B210",
+    "B211"
+  ],
+  "audit_reports": [
+    "05_Основания/Аудит/02_Пакеты/CAU-03.md"
+  ],
+  "source_plan_lines": [
+    6601,
+    6690
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C54_остатки:0",
+      "audit_id": "C54-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CAU-03-01",
+        "REQ-CAU-03-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Scaled coordinate и единая rank-revealing solve/covariance policy.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C54_остатки.json",
+        "sha256": "fa919c73f9c6188f9de58b13b629451c30eb2e5dfc484ab87149d02f815114b5",
+        "json_pointer": "/findings/0"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C54_остатки:1",
+      "audit_id": "C54-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CAU-03-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Native registered materialization/report/CAS/fresh reader.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C54_остатки.json",
+        "sha256": "fa919c73f9c6188f9de58b13b629451c30eb2e5dfc484ab87149d02f815114b5",
+        "json_pointer": "/findings/1"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C54_остатки:2",
+      "audit_id": "C54-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CAU-03-03",
+        "REQ-CAU-03-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Current real bounded RBC retained; broader science separately justified.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C54_остатки.json",
+        "sha256": "fa919c73f9c6188f9de58b13b629451c30eb2e5dfc484ab87149d02f815114b5",
+        "json_pointer": "/findings/2"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C54_остатки:3",
+      "audit_id": "C54-G03",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CAU-03-02",
+        "REQ-CAU-03-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Structural O(n·p) preservation and measured lifecycle if claimed.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C54_остатки.json",
+        "sha256": "fa919c73f9c6188f9de58b13b629451c30eb2e5dfc484ab87149d02f815114b5",
+        "json_pointer": "/findings/3"
+      }
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0330",
+      "requirement_ids": [
+        "REQ-CAU-03-01",
+        "REQ-CAU-03-02"
+      ],
+      "disposition": "fix",
+      "rationale": "Unit-scale invariant ordinary WLS, no RBC workaround.",
+      "source_ids": [
+        "B210",
+        "B211"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0331",
+      "requirement_ids": [
+        "REQ-CAU-03-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Actual input/output/CAS pipeline.",
+      "source_ids": [
+        "B210",
+        "B211"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0332",
+      "requirement_ids": [
+        "REQ-CAU-03-03",
+        "REQ-CAU-03-05"
+      ],
+      "disposition": "qualify",
+      "rationale": "Exact current RBC profile and intended data assumptions.",
+      "source_ids": [
+        "B210",
+        "B211"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0333",
+      "requirement_ids": [
+        "REQ-CAU-03-02",
+        "REQ-CAU-03-06"
+      ],
+      "disposition": "qualify",
+      "rationale": "Numerical-preserving linear-memory/performance evidence.",
+      "source_ids": [
+        "B210",
+        "B211"
+      ]
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0532",
+      "requirement_ids": [
+        "REQ-CAU-03-02",
+        "REQ-CAU-03-03"
+      ],
+      "test_ids": [
+        "TEST-CAU-03-02",
+        "TEST-CAU-03-04",
+        "TEST-CAU-03-05"
+      ],
+      "rationale": "Раздельные conventional и declared fixed sharp RBC profiles"
+    },
+    {
+      "inventory_id": "preserve:0533",
+      "requirement_ids": [
+        "REQ-CAU-03-03"
+      ],
+      "test_ids": [
+        "TEST-CAU-03-04"
+      ],
+      "rationale": "Combined corrected weights и HC0 variance включают bias covariance"
+    },
+    {
+      "inventory_id": "preserve:0534",
+      "requirement_ids": [
+        "REQ-CAU-03-03"
+      ],
+      "test_ids": [
+        "TEST-CAU-03-05"
+      ],
+      "rationale": "Explicit unsupported settings и missing bandwidth refusal"
+    },
+    {
+      "inventory_id": "preserve:0535",
+      "requirement_ids": [
+        "REQ-CAU-03-02"
+      ],
+      "test_ids": [
+        "TEST-CAU-03-03"
+      ],
+      "rationale": "Vector weights без product N×N diagonal"
+    },
+    {
+      "inventory_id": "preserve:0536",
+      "requirement_ids": [
+        "REQ-CAU-03-04"
+      ],
+      "test_ids": [
+        "TEST-CAU-03-06"
+      ],
+      "rationale": "Cutoff-preserving input materializer и content-bound profile"
+    },
+    {
+      "inventory_id": "preserve:0537",
+      "requirement_ids": [
+        "REQ-CAU-03-04"
+      ],
+      "test_ids": [
+        "TEST-CAU-03-06"
+      ],
+      "rationale": "Non-gating causal report projection"
+    }
+  ],
+  "requirements": [
+    {
+      "text": "Conventional local polynomial использует dimensionless centered coordinate u=(x−cutoff)/h и согласованную rank/solve policy. Положительная смена единиц x,cutoff,h на общий finite scale не меняет support/weights/intercept effect/SE в численной tolerance; принятый full-rank design не теряет slope в другой pseudoinverse threshold.",
+      "source_ids": [
+        "B211"
+      ],
+      "audit_ids": [
+        "C54-R01"
+      ],
+      "id": "REQ-CAU-03-01",
+      "test_ids": [
+        "TEST-CAU-03-01",
+        "TEST-CAU-03-02"
+      ]
+    },
+    {
+      "text": "Исправление solve сохраняет действительную conventional weighted-residual homoskedastic covariance formula, effective counts и kernel/order semantics. Использовать O(n·p) weighted design и одну согласованную небольшую факторизацию, без product N×N diagonal и без скрытой замены covariance на RBC/HC0. Rank-deficient/insufficient support остаются адресными отказами.",
+      "source_ids": [
+        "B211"
+      ],
+      "audit_ids": [
+        "C54-R01",
+        "C54-G03"
+      ],
+      "id": "REQ-CAU-03-02",
+      "test_ids": [
+        "TEST-CAU-03-02",
+        "TEST-CAU-03-03"
+      ]
+    },
+    {
+      "text": "RBC сохраняет declared sharp/fixed h,b/q=p+1/HC0/no-cluster/no-masspoints профиль: corrected point и corrected variance включают bias-estimation uncertainty/covariance и union h/b windows. Unsupported settings не становятся uncorrected result с флагом True. Conventional remains independently supported.",
+      "source_ids": [
+        "B210"
+      ],
+      "audit_ids": [
+        "C54-G02"
+      ],
+      "id": "REQ-CAU-03-03",
+      "test_ids": [
+        "TEST-CAU-03-04",
+        "TEST-CAU-03-05"
+      ]
+    },
+    {
+      "text": "Actual registered input materializer сохраняет typed cutoff и bound running/outcome vectors, не угадывает missing cutoff. Persisted whole report/envelope/fresh consumer сохраняют corrected/conventional profile, h/b/p/q, variance method, input digest и non-gating role; ни synthetic envelope ни direct pure_step не заменяют native lifecycle.",
+      "source_ids": [
+        "B210",
+        "B211"
+      ],
+      "audit_ids": [
+        "C54-G01"
+      ],
+      "id": "REQ-CAU-03-04",
+      "test_ids": [
+        "TEST-CAU-03-06"
+      ]
+    },
+    {
+      "text": "Independent sensitivity oracle и finite fixed-design DGP квалифицируют только текущий sharp profile. Реальные continuity/manipulation/bandwidth assumptions остаются отдельными; расширение на fuzzy/clusters/masspoints/data-driven selectors требует названного methodological/reference профиля и новых independent tests, не флага поддержки.",
+      "source_ids": [
+        "B210"
+      ],
+      "audit_ids": [
+        "C54-G02"
+      ],
+      "id": "REQ-CAU-03-05",
+      "test_ids": [
+        "TEST-CAU-03-04",
+        "TEST-CAU-03-05",
+        "TEST-CAU-03-07"
+      ]
+    },
+    {
+      "text": "Performance evidence различает размер математических структур и измеренный peak memory/runtime полного method lifecycle. Numerical correctness/rank не жертвуются ради скорости; shared native job не повторяет400-repetition campaign для каждого test.",
+      "source_ids": [
+        "B211"
+      ],
+      "audit_ids": [
+        "C54-G03"
+      ],
+      "id": "REQ-CAU-03-06",
+      "test_ids": [
+        "TEST-CAU-03-03",
+        "TEST-CAU-03-07"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "native unit-rescaling distinguishing regression",
+      "setup": "400unique x, y=1+.3*x_original+3*I(x>=0), cutoff0,h.7, p1 conventional. Повторить x/cutoff/h scales1,1e-8 и допустимый широкий finite scale; translated cutoff variant.",
+      "action": "Actual registered conventional RDD и independent weighted lstsq на u=x_centered/h; JSON/CAS readback.",
+      "oracle": "Оба исходных cases jump≈3, не3.14100798995 при SUCCESS; support/counts/weights unchanged, SE согласован с own covariance oracle. Tolerance привязана к conditioning/float error, не расширена до старой ошибки. Positive unit conversion не требует bias_correction=True.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_cau_03.py; rdd.py::_fit_local_polynomial",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-03-01",
+      "requirement_ids": [
+        "REQ-CAU-03-01"
+      ]
+    },
+    {
+      "level": "native rank/solve/covariance reference matrix",
+      "setup": "Triangular/epanechnikov/uniform, p1/p2, left/right, permutation, rescaling; rank-deficient repeated forcing support, insufficient rows, nonpositive bandwidth. Tiny diagonal oracle только test.",
+      "action": "Compare actual fit with independent sqrt(w)-weighted QR/SVD/lstsq and preserved sigma2 covariance.",
+      "oracle": "Intercept/SE/counts сохраняются normal-scale и scale-equivalent designs; rank decision использует те же singular values/tolerance, что solve. Deficient support refused, no silent truncated slope. No switch conventional variance profile.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_cau_03.py; tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-03-02",
+      "requirement_ids": [
+        "REQ-CAU-03-01",
+        "REQ-CAU-03-02"
+      ]
+    },
+    {
+      "level": "native allocation/factorization and bounded measurement",
+      "setup": "400admitted rows одной стороны, then declared larger finite n; product np.diag tripwire, actual factorization observer; separate end-to-end timer/RSS profile.",
+      "action": "Run conventional helper/full method; record matrix shapes and numerical outputs.",
+      "oracle": "No n×n weight allocation; O(n×(p+1)) design plus small factors. One rank-revealing factorization reused for coefficients/covariance, not duplicated pinv. If retained small Gram variant selected, one pinv/rank-consistency demonstrated.6400vs1280000bytes historical structure comparison not measured speedup; new timing/RSS labelled measured only.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_cau_03.py; rdd.py::_fit_local_polynomial",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-03-03",
+      "requirement_ids": [
+        "REQ-CAU-03-02",
+        "REQ-CAU-03-06"
+      ]
+    },
+    {
+      "level": "native RBC independent sensitivity/removal oracle",
+      "setup": "Existing curved and piecewise-linear signals, h=.45/b=.70 and reverse; independent weighted-lstsq unit-outcome perturbations.",
+      "action": "Actual RBC point/SE vs independent functional derivative HC0 oracle; remove correction and corrected-covariance separately in controlled mutants.",
+      "oracle": "Both bandwidth orders agree within existing tolerances; curved correction nonzero, linear correction zero. Removal mutants fail despite preserved RBC metadata. Corrected SE not old uncorrected SE; union h/b support retained.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-03-04",
+      "requirement_ids": [
+        "REQ-CAU-03-03",
+        "REQ-CAU-03-05"
+      ]
+    },
+    {
+      "level": "native profile refusal and bounded coverage",
+      "setup": "Explicit sharp h,b,q=p+1 HC0; missing/bad h/b, fuzzy/clustering/masspoint/unsupported q/variance requests. Existing400-repetition fixed-design heteroskedastic DGP seed2026102803.",
+      "action": "Run focused profile controls and once existing DGP.",
+      "oracle": "Unsupported settings typed refusal, no hidden conventional fallback. Existing coverage acceptance[.915,.985] with all accepted/failed counts retained; historical371/400 not required as immutable future exact count. No claim universal95% coverage or installed rdrobust equivalence.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "test_rdd_rbc.py; test_rdd_rbc_independent_oracle.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-03-05",
+      "requirement_ids": [
+        "REQ-CAU-03-03",
+        "REQ-CAU-03-05"
+      ]
+    },
+    {
+      "level": "native materialize→registry→CAS→fresh consumer E02-I05-B",
+      "setup": "Actual source-bound vectors with typed fallback cutoff0.2, running∈[-1,1], jump2.5 case; missing cutoff negative; conventional and RBC profiles.",
+      "action": "Native dispatcher/materializer→whole CausalEffectReport/envelope persistence→fresh selected reader.",
+      "oracle": "Cutoff not lost, expected jump≈2.5; missing cutoff refused before compute. Full h/b/p/q/profile/digest/estimate/SE and gate_eligible=False survive; forged output/profile refused by canonical readback. No fixture envelope substitutes actual route.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/foundry/methods/catalog/causal/test_rdd_dml_input_materialization.py; test_rdd_rbc.py; CAU-05 shared job owner",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-03-06",
+      "requirement_ids": [
+        "REQ-CAU-03-04"
+      ]
+    },
+    {
+      "level": "bounded methodology/performance applicability",
+      "setup": "Chosen real study forcing/outcome/cutoff definition, manipulation/continuity assumptions, selected bandwidth policy; declared n/kernel/order/backend benchmark.",
+      "action": "Record study-method profile and independent methodological/reference comparison only for requested extension; measure lifecycle if performance claim required.",
+      "oracle": "Current conventional/RBC numerical result remains conditional on stated assumptions. New fuzzy/cluster/masspoint claims not admitted without matching reference/acceptance; missing scientific source not replaced by synthetic curvature. Actual runtime/RSS denominators recorded without universal speedup promise.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "RDD method/study owner; DEC-PROFILE",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-03-07",
+      "requirement_ids": [
+        "REQ-CAU-03-05",
+        "REQ-CAU-03-06"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I05-B"
+  ],
+  "dependencies": [
+    {
+      "packet": "CAU-01",
+      "relation": "Shared typed causal report/metadata, not replacement of RDD inference."
+    },
+    {
+      "packet": "CAU-05",
+      "relation": "Native registry/source→whole-report selected-consumer acceptance shared."
+    }
+  ],
+  "preservation": [
+    "Раздельные conventional и declared fixed sharp RBC profiles",
+    "Combined corrected weights и HC0 variance включают bias covariance",
+    "Explicit unsupported settings и missing bandwidth refusal",
+    "Vector weights без product N×N diagonal",
+    "Cutoff-preserving input materializer и content-bound profile",
+    "Non-gating causal report projection"
+  ],
+  "protected_distinction_ids": [],
+  "design_alignment": [
+    {
+      "source": "policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+      "section": "D0, reusable numerical contracts",
+      "application": "Dimensionless general solver поддерживает новую единицу измерения без bespoke case; stronger inference требует своего profile, не label."
+    },
+    {
+      "source": "policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md",
+      "section": "K01/K07–K08",
+      "application": "Corrected point/variance и finite coverage не заменяют real-data causal assumptions/authority; non-gating output полезен."
+    }
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-CAU-03-PROFILE",
+      "question": "Нужен ли профиль шире текущего sharp/fixed-bandwidth/q=p+1/HC0?",
+      "owner": "RDD numerical/methodological reviewer",
+      "bounded_action": "Назвать конкретный requested design; если шире — выбрать primary methodological/maintained reference с matching settings, сравнить formulas/point/SE и новый independent DGP. Не расширять silently. Если текущего профиля достаточно, preserve и квалифицировать его assumptions.",
+      "default": "Current bounded profile, no fuzzy/cluster/masspoint/data-driven selector guarantee."
+    }
+  ],
+  "technical_solution": "**Предпочтительный conventional repair:** после выбора стороны/window построить R=[1,u,...,u^p], u=x_centered/h. A=sqrt(w)[:,None]*R, b=sqrt(w)*y. Одна rank-revealing SVD/QR определяет effective rank и решает least squares; для SVD accepted singular values s и V дают inverse normal matrix V·diag(1/s²)·Vᵀ без N×N. Coefficients и covariance используют те же rank/tolerance. Preserve sigma2=sum(w*residual²)/max(n−(p+1),1), intercept=beta0, SE=sqrt(sigma2*inverse00). Scaling не требует возвращать slope в старых единицах, если helper экспортирует только intercept/SE/count; если consumer использует coefficients, обратное преобразование явно по h^order.\n\nМинимальный x/h+small-Gram вариант допустим только если rank/solve согласованы на accepted singular subspace и TEST01–02 проходит; просто поменять metadata rank или увеличить rcond недостаточно. Предпочтение QR/SVD избегает квадратного ухудшения conditioning normal equations. Product noN×N и no repeated factorization сохраняются содержательно, не обязательно буквальным требованием оставить pinv.\n\n**RBC не переписывать.** Existing `_fit_rbc_polynomial` уже использует x/h,x/b, corrected weights a−L*d и combined-weight HC0 variance, сохраняет union windows. Keep bounded sharp fixed-profile и independent oracle/removal tests. Не называть quadratic refit RBC, но и не возвращать старое unsupported только потому, что clean-room implementation не внешняя rdrobust. Расширение профиля требует отдельно названной методологии/reference и finite acceptance.\n\nNative materializer обязательно сохраняет cutoff, source vector identity и report profile. Whole-report/source checks координирует CAU-05. Численный unit fix сдаётся независимо от неизвестной external empirical validity; useful non-gating result сохраняется.",
+  "compatibility_and_rollback": "Normal-scale valid conventional outputs эквивалентны в обоснованной tolerance; extreme unit case intentional correction. Covariance profile/name не меняется без отдельного решения. RBC metadata/version и historical outputs не переписывать; input digest отражает фактические units/params. Rollback при проблеме ограничивает неподдержанный numeric range с useful output, не выдаёт неверный SUCCESS и не принуждает к другой inference процедуре.",
+  "source_locators": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+      "first_line": 69,
+      "last_line": 177,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py#L69-L177"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+      "first_line": 300,
+      "last_line": 318,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py#L300-L318"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+      "first_line": 420,
+      "last_line": 642,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py#L420-L642"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py",
+      "first_line": 55,
+      "last_line": 152,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py#L55-L152"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py",
+      "first_line": 199,
+      "last_line": 264,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py#L199-L264"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_dml_input_materialization.py",
+      "first_line": 33,
+      "last_line": 77,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_dml_input_materialization.py#L33-L77"
+    }
+  ]
+}

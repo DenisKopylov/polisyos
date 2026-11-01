@@ -1,0 +1,2673 @@
+{
+  "status": "COMPLETE_DOCUMENTARY_AUDIT_NOT_PRODUCT_ACCEPTANCE",
+  "catalog_sha256": "8c8c77e13d9151349b7410b441f97f0f94fbfb7d097150f32c9872fe35a3cb59",
+  "baseline_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "assigned_lanes": [
+    "LANE-06",
+    "LANE-12"
+  ],
+  "packet_count": 26,
+  "criterion_count": 70,
+  "expected_dispositions": 1820,
+  "actual_dispositions": 1820,
+  "status_counts": {
+    "addressed": 695,
+    "bounded": 405,
+    "not_applicable": 720
+  },
+  "requirement_count": 93,
+  "test_contract_count": 92,
+  "implementation_tests": "NOT_RUN",
+  "product_code_inspection": "NOT_PERFORMED_NOT_NEEDED_FOR_CONFIRMED_NEW_FINDING",
+  "independent_counterexamples": "NONE_RUN; no new defect supported by complete contract",
+  "input_files": [
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/STA-01.md",
+      "sha256": "fe1c11c3376f631fb1e36723e4fb0678066a72c57490c4aac59ed0eff93cc683",
+      "bytes": 20052,
+      "line_count": 145,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          145
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/STA-01.json",
+      "sha256": "29463ca09b918f343174fa498515e301229b58d07427181e0d92955702dff72c",
+      "bytes": 16427,
+      "line_count": 305,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/STA-02.md",
+      "sha256": "77dfdc8b59e5d65b6474e9915e6dabc355daffd6a72b91dc92d98a4b8bd361a4",
+      "bytes": 19482,
+      "line_count": 134,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          134
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/STA-02.json",
+      "sha256": "805a6b4ada6c6524619fe33b972bf9cd8b616782c6dabc3a4c351677c538ca2d",
+      "bytes": 15581,
+      "line_count": 266,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/EXE-01.md",
+      "sha256": "3847d3d580e2a05b39dfcb2ec6636d6907d22cf9295aeb42e8231a15e26b7519",
+      "bytes": 17599,
+      "line_count": 133,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          133
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/EXE-01.json",
+      "sha256": "1fa6106d9bf422671517a72241152524d666817177b3976ad6d6460c3c6ae7c1",
+      "bytes": 13799,
+      "line_count": 270,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/EXE-02.md",
+      "sha256": "3337bc17484d05ba1f2daa3b8de618a85383ae1e66e0818891bf10f0376e1fe7",
+      "bytes": 13497,
+      "line_count": 114,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          114
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/EXE-02.json",
+      "sha256": "6e7581466d09fc18e4e957e49c8af927bb05843afe77ace875f904584bbc2008",
+      "bytes": 10029,
+      "line_count": 227,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/RES-01.md",
+      "sha256": "ccd032e287044d427a9f62c53e705a8c8b048a61ad54e58f8bec711c21558ba2",
+      "bytes": 16429,
+      "line_count": 134,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          134
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/RES-01.json",
+      "sha256": "77f06450332ab24f2d67db9f91f594c412c4ce56d2740a159946d039033c2799",
+      "bytes": 13253,
+      "line_count": 259,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/RES-02.md",
+      "sha256": "3c4d4909130128c47f9f8f6231f5a1c70ee7741ba561113497f0a0505447024a",
+      "bytes": 14074,
+      "line_count": 127,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          127
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/RES-02.json",
+      "sha256": "b18da41c167139f3f78dfc83e1d3185fcee9351f86c87ba8941c2384ae142222",
+      "bytes": 10819,
+      "line_count": 236,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/RES-03.md",
+      "sha256": "2ffb78bef514af0fdb9db4035e3268ecf6e253b147d5c23db6e76259bbe0efb8",
+      "bytes": 14658,
+      "line_count": 118,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          118
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/RES-03.json",
+      "sha256": "94d889b2feec4c6b66fbee15d3957f1dc616c1dda1c2af3e897ba2a406676fc2",
+      "bytes": 10759,
+      "line_count": 213,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/RUN-01.md",
+      "sha256": "bad71176244d5179e9252638f98b81ab5399656979d74715e8e324105b54e597",
+      "bytes": 13254,
+      "line_count": 117,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          117
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/RUN-01.json",
+      "sha256": "06b810c754b4259b5269a066e0a0f4ba77c931141bb284e5f10104400ac5fc6a",
+      "bytes": 10691,
+      "line_count": 242,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/RUN-02.md",
+      "sha256": "ebebd0c2f88692edeb925ff72baf200c36fa42f3dbb056b55bb807588b60fff3",
+      "bytes": 15573,
+      "line_count": 115,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          115
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/RUN-02.json",
+      "sha256": "b745f3333e6c2bad85eebe19c27b8909247795d44766d36cb60c3e2c5d4d1757",
+      "bytes": 12300,
+      "line_count": 237,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/RUN-03.md",
+      "sha256": "7595cf5b163f91df6171afbf4fe78a38f8fe44d72d1b4516035cb8a87b98c828",
+      "bytes": 14529,
+      "line_count": 129,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          129
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/RUN-03.json",
+      "sha256": "0eeaa49994386e6e4231c9bbf402ddf6d81986e6d85ee0c820cb71e99a2d1142",
+      "bytes": 12212,
+      "line_count": 271,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/DUR-01.md",
+      "sha256": "2120e9a7fe42e6db303efab1576ad12b26f6aaf4ecc42a3448dbe2439018f529",
+      "bytes": 15564,
+      "line_count": 115,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          115
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/DUR-01.json",
+      "sha256": "a30f29667ac19c58bde232932c53599df98ad0446be60a08f816e383da195a9e",
+      "bytes": 12368,
+      "line_count": 236,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/DUR-02.md",
+      "sha256": "622d30f3bae19030df59bc7e1108ad8425419c1c65160abaf68c1aa27d68eb41",
+      "bytes": 14211,
+      "line_count": 116,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          116
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/DUR-02.json",
+      "sha256": "e9c155e844dc05d155ab8d43d24d4d1fafb2f4db9e8141c080310244a9595090",
+      "bytes": 11574,
+      "line_count": 240,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/WIRE-01.md",
+      "sha256": "027fcccd16ec48132506eb05a059811f6279be734661ef0e9fd476b1611bd81d",
+      "bytes": 13353,
+      "line_count": 114,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          114
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/WIRE-01.json",
+      "sha256": "6dbc8d931bc78db12d2f05416cc600dcff79ccc6eb72f00731d9ed5e297ec6e1",
+      "bytes": 10389,
+      "line_count": 239,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CAS-01.md",
+      "sha256": "7a34468d33afe41a8c005c8698a1593bc91936831adda2f1de883859764695d4",
+      "bytes": 16022,
+      "line_count": 117,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          117
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CAS-01.json",
+      "sha256": "b259f96f43167d6a2cccf43a2f485b3a5c8b1fc2c0cd121ea7a5b424a83137b4",
+      "bytes": 13547,
+      "line_count": 257,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CAS-02.md",
+      "sha256": "1cb1efa58b9fde425e41728b5a662f3296c118d814eaf58c966f67c846b6fa09",
+      "bytes": 16636,
+      "line_count": 114,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          114
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CAS-02.json",
+      "sha256": "ebe8d6a431a114f5abb35ed75fd6c1d78d3998c00c49ec158e1e6fca7bccac08",
+      "bytes": 14684,
+      "line_count": 266,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CAS-03.md",
+      "sha256": "b49d9e2c1ce5d49416880fd19deb519f5953e307ee6b08066dcef2d7b290bf31",
+      "bytes": 18200,
+      "line_count": 131,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          131
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CAS-03.json",
+      "sha256": "9fb5462f103610008c7a6be4f911b3c2e8c1fb84c72e1ed9f3f36aeaeb278b3f",
+      "bytes": 17033,
+      "line_count": 313,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/REP-01.md",
+      "sha256": "d190dfa5bae718ae744c2b79a0c5f3a33daf53c4acf50fd3cc42d3808a68d3d8",
+      "bytes": 15269,
+      "line_count": 122,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          122
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/REP-01.json",
+      "sha256": "a79aecbbdfcf2951653b449b534760eb91c7bda8cd206f2b3f959dc3efa92c8d",
+      "bytes": 12858,
+      "line_count": 249,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CAN-01.md",
+      "sha256": "7e5637077c3f745d94dc09d8210a0378af6e34bcbc5b338a2881b7d4ec024c25",
+      "bytes": 15887,
+      "line_count": 120,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          120
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CAN-01.json",
+      "sha256": "a0129255fb4f607b4c5e5ea08b44c180b50efa9cf3d89f9876a21cd85e67647e",
+      "bytes": 13493,
+      "line_count": 253,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/MIG-01.md",
+      "sha256": "4595ddebbb557ac7babee6b2b99f5799f7f931bf14d5804118f9ba7231ef1dbd",
+      "bytes": 15632,
+      "line_count": 119,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          119
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/MIG-01.json",
+      "sha256": "78a7ba2a779977e356db60ff29385d8054e4e7254dd53fd8c07354f47874a98b",
+      "bytes": 13802,
+      "line_count": 267,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/MIG-02.md",
+      "sha256": "853a9ea2950100adc1ea1474bed8179e9ff544aede23be2c6f279e706df9e44e",
+      "bytes": 14933,
+      "line_count": 117,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          117
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/MIG-02.json",
+      "sha256": "53bf7dbdf4017fb7928013e98a151a9645fea9634e9da949487a7fba5471539e",
+      "bytes": 12709,
+      "line_count": 247,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/MIG-04.md",
+      "sha256": "da87b38791872dd7762691c98387d33f48261ad3de794387f8ae1587b4b9580e",
+      "bytes": 15261,
+      "line_count": 120,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          120
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/MIG-04.json",
+      "sha256": "75237935d407a6f902447ec4614ff7e0c5a492e2852adde26dac02ef88360d41",
+      "bytes": 13069,
+      "line_count": 249,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/MIG-05.md",
+      "sha256": "c43fad07954078f6418d740daee490b6c00c3b14d2ac05f8696419da9a86ebb2",
+      "bytes": 20294,
+      "line_count": 133,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          133
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/MIG-05.json",
+      "sha256": "1ea3190f21cf89033767f9eef5bd86904fb9084e19203deb4caef30f1dbb8025",
+      "bytes": 15906,
+      "line_count": 269,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/DFK-01.md",
+      "sha256": "696de65d97b7ea80bea5472e26775c4fa522627a95d2e3a59b06ce63c95ed950",
+      "bytes": 15664,
+      "line_count": 150,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          150
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/DFK-01.json",
+      "sha256": "000e5cd4be6df082ff1757f23ce08df9ae658e59fc1c610c8f8322be8d9a1a93",
+      "bytes": 17708,
+      "line_count": 380,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/HYG-02.md",
+      "sha256": "e12e769762c8cb62876c11b840186af1dea5b1e01626f4c1d7662885a5c160eb",
+      "bytes": 14113,
+      "line_count": 146,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          146
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/HYG-02.json",
+      "sha256": "de1b9402f1425add07f6957d70af6a626930c1ebac15e91a8a371c418975d244",
+      "bytes": 15753,
+      "line_count": 338,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/HYG-04.md",
+      "sha256": "7a82226c027c76544a87792fa58629469a7309d8eb9b4c12cbc45500191e2062",
+      "bytes": 13876,
+      "line_count": 144,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          144
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/HYG-04.json",
+      "sha256": "5f29dcdbc3d15730884bba31dd07bd3761b0b299c2a985f11cb328487fdadcab",
+      "bytes": 15840,
+      "line_count": 338,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CLI-01.md",
+      "sha256": "c3c0681f4f20c2b2bc24c2583b39c08ffb6b5142d47b67b7e8b0f8dd682dab87",
+      "bytes": 21550,
+      "line_count": 166,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          166
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CLI-01.json",
+      "sha256": "d674dc4134ea01e49252bf7b70175fdd11018dd3719ad744a2cabf09cebc6214",
+      "bytes": 22906,
+      "line_count": 389,
+      "read_scope": "All semantic fields matched to full MD by exact-string leaf comparison; all unmatched substantive/short metadata read separately",
+      "read_ranges": "JSON pointers /*, requirements/*, tests/*, residual_dispositions/*, source_obligations/*, obligation_dispositions/*, preservation_bindings/*, open_decisions/*"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Правила_исполнения_и_приёмки.md",
+      "sha256": "8f83cd845cf172c02de1f87035af331cd2cbb6bd81c255ca3b2fa42a0842ac99",
+      "bytes": 18608,
+      "line_count": 68,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          68
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Общие_владельцы_и_границы_изменений.md",
+      "sha256": "036a9db1db0158424fc6428a70130df05558b88e2a671188647c47eb6d20ee78",
+      "bytes": 7611,
+      "line_count": 27,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          27
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Порядок_и_окна_приёмки.md",
+      "sha256": "2cd026bcda5edc2a7e51c1f4d4cc3b7758f86d3d0ea2e91338ff668cf4b08a71",
+      "bytes": 8003,
+      "line_count": 113,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          113
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Архитектурное_направление_и_отступления.md",
+      "sha256": "cfbabc5614a0d624940482536204aec687feb4c619f1892da09611d2c17d4317",
+      "bytes": 8287,
+      "line_count": 32,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          32
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Защиты_и_направления.md",
+      "sha256": "a85e78652493ea259ab79ea2ba8fc7dc096400ee348ad3170b1c078f65a7b3e3",
+      "bytes": 23991,
+      "line_count": 92,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          92
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/01_Лейны/LANE-06.md",
+      "sha256": "6fa64228b13d5ed3fe46edab10fe7e18fa6787c89fce172e42ffab611f92f9f6",
+      "bytes": 12146,
+      "line_count": 76,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          76
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/01_Лейны/LANE-12.md",
+      "sha256": "44f4346608515172a9371de19203870ff939a0a649d2324009126c711bf78b12",
+      "bytes": 4904,
+      "line_count": 37,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          37
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/03_Интеграция/LANE-06.md",
+      "sha256": "058ebfcd5333ac71e3ab5d11dfebb470982812e693e172ccc1a4b43c6a892586",
+      "bytes": 17608,
+      "line_count": 100,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          100
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/03_Интеграция/LANE-12.md",
+      "sha256": "65fb552746c4baf89e39a485a74924c46c2f15dded0f0250e4b9af8695ffe90d",
+      "bytes": 11215,
+      "line_count": 67,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          67
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CYC-05.md",
+      "sha256": "3727389db2f1b442a2acf814ccd3fb1afa101b8d1b8a6440c6d1e51d8201bf3f",
+      "bytes": 31872,
+      "line_count": 198,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          198
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/03_Интеграция/Сценарии.json",
+      "sha256": "e2db814faf6e1d824c93ace6682dd6058e8729941ccdeeb04f4b4cdfcb048616",
+      "bytes": 408264,
+      "line_count": 7750,
+      "read_scope": "Full normative fields of selected lanes, global rules and selected profiles; historic audit summaries/existing test declarations not accepted as current PASS",
+      "read_ranges": "/global_rules; /native_profiles/P-CORE,P-PROCESS,P-DATA,P-PACKAGING; /lanes[id=LANE-06,LANE-12] excluding historical original_packet_contracts and nonnormative test declarations"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/Связь_требований_с_интеграцией.json",
+      "sha256": "60194c4970de884d13c7f1f9029f0d45ab43e439f91016f0939ff86f861cf4a8",
+      "bytes": 1323764,
+      "line_count": 22308,
+      "read_scope": "All 32 binding records referencing assigned packet requirements plus global rules; requirement/test edges structurally checked",
+      "read_ranges": "/rules; /scenario_mappings/*/bindings[assigned requirement]"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/Реестр_ограниченных_решений.json",
+      "sha256": "adc4b2b1a2c3f8014e01b1657bf98c294dff70b874db853c77ce37ba027d4457",
+      "bytes": 77005,
+      "line_count": 1078,
+      "read_scope": "All 28 selected lane decision rows",
+      "read_ranges": "/decisions[lane=LANE-06|LANE-12]"
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/Индекс.json",
+      "sha256": "e6b69fdbf65f5b0968e2d00520b7eeceb35ce73b59122ceb398068bdfa5fe8c7",
+      "bytes": 208423,
+      "line_count": 5299,
+      "read_scope": "Metadata plus all selected packet rows",
+      "read_ranges": "/counts; /packets[lane=LANE-06|LANE-12]"
+    },
+    {
+      "path": "e02_source_based_review/WORK_CONTRACT.md",
+      "sha256": "6d5ce045a17ce8d5a7bd63089414d11a9dc065c3bffcd5fc3999b7aaf5a0e06b",
+      "bytes": 4872,
+      "line_count": 26,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          26
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/AUDIT_PROTOCOL.md",
+      "sha256": "b4776a26dc75bf190a371af8e17235e986103070e9bac8096c9d25378d0c9d76",
+      "bytes": 5410,
+      "line_count": 74,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          74
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/catalog/FREEZE.json",
+      "sha256": "5b0d6eabb89e587e6f862b9eae8a556988966b87b95aad2d18ef1d56eb0ccd41",
+      "bytes": 2427,
+      "line_count": 73,
+      "read_scope": "full",
+      "read_ranges": [
+        [
+          1,
+          73
+        ]
+      ]
+    },
+    {
+      "path": "e02_source_based_review/catalog/criteria_catalog.json",
+      "sha256": "8c8c77e13d9151349b7410b441f97f0f94fbfb7d097150f32c9872fe35a3cb59",
+      "bytes": 437270,
+      "line_count": 5120,
+      "read_scope": "All 70 normalized source-grounded criterion records, rule set and source references; raw duplicate criterion not separately counted",
+      "read_ranges": "/rules; /criteria[0:70]; /sources"
+    }
+  ],
+  "read_bindings": [
+    {
+      "scenario_id": "E02-I06-A",
+      "binding_id": "E02-I06-A-B01",
+      "requirement_ids": [
+        "REQ-STA-01-01",
+        "REQ-STA-01-02",
+        "REQ-STA-01-03",
+        "REQ-STA-01-04"
+      ],
+      "local_test_ids": [
+        "TEST-STA-01-01",
+        "TEST-STA-01-02",
+        "TEST-STA-01-03",
+        "TEST-STA-01-04"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-A",
+      "binding_id": "E02-I06-A-B02",
+      "requirement_ids": [
+        "REQ-STA-02-01",
+        "REQ-STA-02-02",
+        "REQ-STA-02-03"
+      ],
+      "local_test_ids": [
+        "TEST-STA-02-01",
+        "TEST-STA-02-02",
+        "TEST-STA-02-03"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-A",
+      "binding_id": "E02-I06-A-B03",
+      "requirement_ids": [
+        "REQ-EXE-01-01",
+        "REQ-EXE-01-02",
+        "REQ-EXE-01-03"
+      ],
+      "local_test_ids": [
+        "TEST-EXE-01-01",
+        "TEST-EXE-01-02",
+        "TEST-EXE-01-03"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-A",
+      "binding_id": "E02-I06-A-B04",
+      "requirement_ids": [
+        "REQ-EXE-02-01",
+        "REQ-EXE-02-02",
+        "REQ-EXE-02-03"
+      ],
+      "local_test_ids": [
+        "TEST-EXE-02-01",
+        "TEST-EXE-02-02",
+        "TEST-EXE-02-03"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-B",
+      "binding_id": "E02-I06-B-B01",
+      "requirement_ids": [
+        "REQ-RES-01-01",
+        "REQ-RES-01-02",
+        "REQ-RES-01-03"
+      ],
+      "local_test_ids": [
+        "TEST-RES-01-01",
+        "TEST-RES-01-02",
+        "TEST-RES-01-03"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-B",
+      "binding_id": "E02-I06-B-B02",
+      "requirement_ids": [
+        "REQ-RES-02-01",
+        "REQ-RES-02-02",
+        "REQ-RES-02-03"
+      ],
+      "local_test_ids": [
+        "TEST-RES-02-01",
+        "TEST-RES-02-02",
+        "TEST-RES-02-03"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-B",
+      "binding_id": "E02-I06-B-B03",
+      "requirement_ids": [
+        "REQ-RES-03-01",
+        "REQ-RES-03-02",
+        "REQ-RES-03-03"
+      ],
+      "local_test_ids": [
+        "TEST-RES-03-01",
+        "TEST-RES-03-02",
+        "TEST-RES-03-03"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-B",
+      "binding_id": "E02-I06-B-B04",
+      "requirement_ids": [
+        "REQ-REP-01-02"
+      ],
+      "local_test_ids": [
+        "TEST-REP-01-02"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-B",
+      "binding_id": "E02-I06-B-B05",
+      "requirement_ids": [
+        "REQ-STA-01-05"
+      ],
+      "local_test_ids": [
+        "TEST-STA-01-05"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-C",
+      "binding_id": "E02-I06-C-B01",
+      "requirement_ids": [
+        "REQ-RUN-01-01",
+        "REQ-RUN-01-02"
+      ],
+      "local_test_ids": [
+        "TEST-RUN-01-01",
+        "TEST-RUN-01-02"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-C",
+      "binding_id": "E02-I06-C-B02",
+      "requirement_ids": [
+        "REQ-RUN-02-01",
+        "REQ-RUN-02-02"
+      ],
+      "local_test_ids": [
+        "TEST-RUN-02-01",
+        "TEST-RUN-02-02"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-C",
+      "binding_id": "E02-I06-C-B03",
+      "requirement_ids": [
+        "REQ-RUN-03-01",
+        "REQ-RUN-03-02",
+        "REQ-RUN-03-03",
+        "REQ-RUN-03-04"
+      ],
+      "local_test_ids": [
+        "TEST-RUN-03-01",
+        "TEST-RUN-03-02",
+        "TEST-RUN-03-03",
+        "TEST-RUN-03-04"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-C",
+      "binding_id": "E02-I06-C-B04",
+      "requirement_ids": [
+        "REQ-DUR-01-01",
+        "REQ-DUR-01-02",
+        "REQ-DUR-01-03"
+      ],
+      "local_test_ids": [
+        "TEST-DUR-01-01",
+        "TEST-DUR-01-02",
+        "TEST-DUR-01-03"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-C",
+      "binding_id": "E02-I06-C-B05",
+      "requirement_ids": [
+        "REQ-DUR-02-01",
+        "REQ-DUR-02-02",
+        "REQ-DUR-02-03"
+      ],
+      "local_test_ids": [
+        "TEST-DUR-02-01",
+        "TEST-DUR-02-02",
+        "TEST-DUR-02-03"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-C",
+      "binding_id": "E02-I06-C-B06",
+      "requirement_ids": [
+        "REQ-WIRE-01-01",
+        "REQ-WIRE-01-02",
+        "REQ-WIRE-01-03"
+      ],
+      "local_test_ids": [
+        "TEST-WIRE-01-01",
+        "TEST-WIRE-01-02",
+        "TEST-WIRE-01-03"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-D",
+      "binding_id": "E02-I06-D-B01",
+      "requirement_ids": [
+        "REQ-CAS-01-01",
+        "REQ-CAS-01-02",
+        "REQ-CAS-01-03"
+      ],
+      "local_test_ids": [
+        "TEST-CAS-01-01",
+        "TEST-CAS-01-02",
+        "TEST-CAS-01-03"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-D",
+      "binding_id": "E02-I06-D-B02",
+      "requirement_ids": [
+        "REQ-CAS-02-01",
+        "REQ-CAS-02-02",
+        "REQ-CAS-02-03"
+      ],
+      "local_test_ids": [
+        "TEST-CAS-02-01",
+        "TEST-CAS-02-02",
+        "TEST-CAS-02-03"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-D",
+      "binding_id": "E02-I06-D-B03",
+      "requirement_ids": [
+        "REQ-CAS-03-01",
+        "REQ-CAS-03-02",
+        "REQ-CAS-03-03",
+        "REQ-CAS-03-04"
+      ],
+      "local_test_ids": [
+        "TEST-CAS-03-01",
+        "TEST-CAS-03-02",
+        "TEST-CAS-03-03",
+        "TEST-CAS-03-04"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-E",
+      "binding_id": "E02-I06-E-B01",
+      "requirement_ids": [
+        "REQ-CAN-01-01",
+        "REQ-CAN-01-02",
+        "REQ-CAN-01-03"
+      ],
+      "local_test_ids": [
+        "TEST-CAN-01-01",
+        "TEST-CAN-01-02",
+        "TEST-CAN-01-03"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-E",
+      "binding_id": "E02-I06-E-B02",
+      "requirement_ids": [
+        "REQ-MIG-01-01",
+        "REQ-MIG-01-02",
+        "REQ-MIG-01-03"
+      ],
+      "local_test_ids": [
+        "TEST-MIG-01-01",
+        "TEST-MIG-01-02",
+        "TEST-MIG-01-03"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-E",
+      "binding_id": "E02-I06-E-B03",
+      "requirement_ids": [
+        "REQ-MIG-02-01",
+        "REQ-MIG-02-02",
+        "REQ-MIG-02-03"
+      ],
+      "local_test_ids": [
+        "TEST-MIG-02-01",
+        "TEST-MIG-02-02",
+        "TEST-MIG-02-03"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-E",
+      "binding_id": "E02-I06-E-B04",
+      "requirement_ids": [
+        "REQ-MIG-04-01",
+        "REQ-MIG-04-02",
+        "REQ-MIG-04-03"
+      ],
+      "local_test_ids": [
+        "TEST-MIG-04-01",
+        "TEST-MIG-04-02",
+        "TEST-MIG-04-03"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I06-E",
+      "binding_id": "E02-I06-E-B05",
+      "requirement_ids": [
+        "REQ-MIG-05-01",
+        "REQ-MIG-05-02",
+        "REQ-MIG-05-03",
+        "REQ-MIG-05-04"
+      ],
+      "local_test_ids": [
+        "TEST-MIG-05-01",
+        "TEST-MIG-05-02",
+        "TEST-MIG-05-03",
+        "TEST-MIG-05-04"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I12-A",
+      "binding_id": "E02-I12-A-B01",
+      "requirement_ids": [
+        "REQ-DFK-01-01",
+        "REQ-DFK-01-02",
+        "REQ-DFK-01-03",
+        "REQ-DFK-01-05"
+      ],
+      "local_test_ids": [
+        "TEST-DFK-01-01",
+        "TEST-DFK-01-02",
+        "TEST-DFK-01-03",
+        "TEST-DFK-01-04"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I12-A",
+      "binding_id": "E02-I12-A-B02",
+      "requirement_ids": [
+        "REQ-DFK-01-04"
+      ],
+      "local_test_ids": [
+        "TEST-DFK-01-03"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I12-A",
+      "binding_id": "E02-I12-A-B03",
+      "requirement_ids": [
+        "REQ-HYG-02-01",
+        "REQ-HYG-02-02",
+        "REQ-HYG-02-03",
+        "REQ-HYG-02-04"
+      ],
+      "local_test_ids": [
+        "TEST-HYG-02-01",
+        "TEST-HYG-02-02",
+        "TEST-HYG-02-03",
+        "TEST-HYG-02-04"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I12-A",
+      "binding_id": "E02-I12-A-B04",
+      "requirement_ids": [
+        "REQ-HYG-04-01",
+        "REQ-HYG-04-02",
+        "REQ-HYG-04-03",
+        "REQ-HYG-04-04"
+      ],
+      "local_test_ids": [
+        "TEST-HYG-04-01",
+        "TEST-HYG-04-02",
+        "TEST-HYG-04-03",
+        "TEST-HYG-04-04"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I12-B",
+      "binding_id": "E02-I12-B-B01",
+      "requirement_ids": [
+        "REQ-CLI-01-01",
+        "REQ-CLI-01-02",
+        "REQ-CLI-01-03"
+      ],
+      "local_test_ids": [
+        "TEST-CLI-01-01",
+        "TEST-CLI-01-02",
+        "TEST-CLI-01-03"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-I12-B",
+      "binding_id": "E02-I12-B-B02",
+      "requirement_ids": [
+        "REQ-CLI-01-04",
+        "REQ-CLI-01-05"
+      ],
+      "local_test_ids": [
+        "TEST-CLI-01-03",
+        "TEST-CLI-01-04",
+        "TEST-CLI-01-05"
+      ],
+      "activation_condition": "Только затронутый выбранный producer/interface/consumer профиль; не все backend и внешние зависимости платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-X01",
+      "binding_id": "E02-X01-B04",
+      "requirement_ids": [
+        "REQ-CAS-01-01",
+        "REQ-CYC-02-03",
+        "REQ-CYC-02-05"
+      ],
+      "local_test_ids": [
+        "TEST-CAS-01-01",
+        "TEST-CYC-02-03",
+        "TEST-CYC-02-05"
+      ],
+      "activation_condition": "При затронутом выбранном route/profile; не требует посторонних backend или всех вариантов платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-X02",
+      "binding_id": "E02-X02-B05",
+      "requirement_ids": [
+        "REQ-RES-03-02",
+        "REQ-RES-03-03"
+      ],
+      "local_test_ids": [
+        "TEST-RES-03-02",
+        "TEST-RES-03-03"
+      ],
+      "activation_condition": "При затронутом выбранном route/profile; не требует посторонних backend или всех вариантов платформы.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    },
+    {
+      "scenario_id": "E02-X03",
+      "binding_id": "E02-X03-B05",
+      "requirement_ids": [
+        "REQ-CLI-01-05"
+      ],
+      "local_test_ids": [
+        "TEST-CLI-01-04",
+        "TEST-CLI-01-05"
+      ],
+      "activation_condition": "Только при selected generated-client presentation, не обязательный frontend для каждого repair.",
+      "coverage_extent": "Связанная часть требования и межкомпонентный переход; не полная замена локальной приёмки.",
+      "local_tests_remain_required": true
+    }
+  ],
+  "validation": [
+    {
+      "packet_id": "STA-01",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 5,
+      "tests": 5
+    },
+    {
+      "packet_id": "STA-02",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 4,
+      "tests": 4
+    },
+    {
+      "packet_id": "EXE-01",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 4,
+      "tests": 4
+    },
+    {
+      "packet_id": "EXE-02",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 3,
+      "tests": 3
+    },
+    {
+      "packet_id": "RES-01",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 4,
+      "tests": 4
+    },
+    {
+      "packet_id": "RES-02",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 4,
+      "tests": 4
+    },
+    {
+      "packet_id": "RES-03",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 3,
+      "tests": 3
+    },
+    {
+      "packet_id": "RUN-01",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 3,
+      "tests": 3
+    },
+    {
+      "packet_id": "RUN-02",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 3,
+      "tests": 3
+    },
+    {
+      "packet_id": "RUN-03",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 4,
+      "tests": 4
+    },
+    {
+      "packet_id": "DUR-01",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 3,
+      "tests": 3
+    },
+    {
+      "packet_id": "DUR-02",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 3,
+      "tests": 3
+    },
+    {
+      "packet_id": "WIRE-01",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 3,
+      "tests": 3
+    },
+    {
+      "packet_id": "CAS-01",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 3,
+      "tests": 3
+    },
+    {
+      "packet_id": "CAS-02",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 3,
+      "tests": 3
+    },
+    {
+      "packet_id": "CAS-03",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 4,
+      "tests": 4
+    },
+    {
+      "packet_id": "REP-01",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 3,
+      "tests": 3
+    },
+    {
+      "packet_id": "CAN-01",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 3,
+      "tests": 3
+    },
+    {
+      "packet_id": "MIG-01",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 3,
+      "tests": 3
+    },
+    {
+      "packet_id": "MIG-02",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 3,
+      "tests": 3
+    },
+    {
+      "packet_id": "MIG-04",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 3,
+      "tests": 3
+    },
+    {
+      "packet_id": "MIG-05",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 4,
+      "tests": 4
+    },
+    {
+      "packet_id": "DFK-01",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 5,
+      "tests": 4
+    },
+    {
+      "packet_id": "HYG-02",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 4,
+      "tests": 4
+    },
+    {
+      "packet_id": "HYG-04",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 4,
+      "tests": 4
+    },
+    {
+      "packet_id": "CLI-01",
+      "coverage": "70_OF_70_EXACT_ONCE",
+      "md_hash_matches_current_index": true,
+      "json_hash_matches_current_index": true,
+      "evidence_files_and_req_test_locators_exist": true,
+      "requirements": 5,
+      "tests": 5
+    }
+  ],
+  "consulted_sources": {
+    "mode": "Frozen catalog authority/source records from completed research phase; no new direct-web/full-source reading claimed in this audit",
+    "criterion_ids": [
+      "DAT-01",
+      "DAT-02",
+      "DAT-03",
+      "DAT-04",
+      "DAT-05",
+      "DAT-06",
+      "DAT-07",
+      "DAT-08",
+      "DAT-09",
+      "DAT-10",
+      "DAT-11",
+      "DRT-01",
+      "DRT-02",
+      "DRT-03",
+      "DRT-04",
+      "DRT-05",
+      "DRT-06",
+      "DRT-07",
+      "DRT-08",
+      "DRT-09",
+      "DRT-10",
+      "DRT-11",
+      "DRT-12",
+      "DRT-13",
+      "DRT-14",
+      "DRT-15",
+      "DRT-16",
+      "DRT-17",
+      "DRT-18",
+      "DRT-19",
+      "DRT-20",
+      "DRT-21",
+      "DRT-22",
+      "DRT-23",
+      "DRT-24",
+      "RA-01",
+      "RA-02",
+      "RA-03",
+      "RA-04",
+      "RA-05",
+      "RA-06",
+      "RA-07",
+      "RA-08",
+      "RA-09",
+      "RA-10",
+      "RA-11",
+      "RA-12",
+      "RA-13",
+      "RA-14",
+      "RA-15",
+      "RA-16",
+      "RA-17",
+      "SR-01",
+      "SR-02",
+      "SR-03",
+      "SR-04",
+      "SR-05",
+      "SR-06",
+      "SR-07",
+      "SR-08",
+      "SR-09",
+      "SR-10",
+      "SR-11",
+      "SR-12",
+      "SR-13",
+      "SR-14",
+      "SR-15",
+      "SR-16",
+      "SR-17",
+      "SR-18"
+    ],
+    "source_ids": [
+      "DAT-S01",
+      "DAT-S02",
+      "DAT-S03",
+      "DAT-S04",
+      "DAT-S05",
+      "DAT-S06",
+      "DAT-S07",
+      "DAT-S08",
+      "DAT-S09",
+      "DAT-S10",
+      "DAT-S11",
+      "DAT-S12",
+      "DAT-S13",
+      "DAT-S14",
+      "DAT-S15",
+      "DAT-S16",
+      "DAT-S17",
+      "DAT-S18",
+      "DAT-S19",
+      "DAT-S20",
+      "DRS-01",
+      "DRS-02",
+      "DRS-03",
+      "DRS-04",
+      "DRS-05",
+      "DRS-06",
+      "DRS-07",
+      "DRS-08",
+      "DRS-09",
+      "DRS-10",
+      "DRS-11",
+      "DRS-12",
+      "DRS-13",
+      "DRS-14",
+      "RA-S01",
+      "RA-S02",
+      "RA-S03",
+      "RA-S04",
+      "RA-S05",
+      "RA-S06",
+      "RA-S07",
+      "RA-S08",
+      "RA-S09",
+      "RA-S10",
+      "RA-S11",
+      "RA-S12",
+      "RA-S13",
+      "SR-S01",
+      "SR-S02",
+      "SR-S03",
+      "SR-S04",
+      "SR-S05",
+      "SR-S06",
+      "SR-S07",
+      "SR-S08",
+      "SR-S09",
+      "SR-S10",
+      "SR-S11",
+      "SR-S12",
+      "SR-S13",
+      "SR-S14",
+      "SR-S15",
+      "SR-S16",
+      "SR-S17",
+      "SR-S18",
+      "SR-S19",
+      "SR-S20"
+    ],
+    "records": [
+      {
+        "id": "RA-S01",
+        "url": "https://www.nasa.gov/reference/appendix-c-how-to-write-a-good-requirement/",
+        "title": "Systems Engineering Handbook, Appendix C: How to Write a Good Requirement",
+        "publisher": "NASA",
+        "document_date": "Web page updated 2023-07-26; handbook NASA/SP-2016-6105 Rev 2",
+        "access_status": "opened_and_read",
+        "sections_read": [
+          "C.1; C.2 Product Requirement; C.3 General Goodness Checklist; C.4 Clarity, Consistency, Traceability, Performance, Interfaces, Reliability, Verifiability/Testability, Data Usage"
+        ],
+        "access_limits": "Чеклист NASA, не обязательный стандарт для E02. Буквальные правила о shall, отрицательных формулировках и расположении разделов не переносить механически."
+      },
+      {
+        "id": "RA-S02",
+        "url": "https://www.nasa.gov/reference/4-2-technical-requirements-definition/",
+        "title": "Systems Engineering Handbook, 4.2 Technical Requirements Definition",
+        "publisher": "NASA",
+        "document_date": "NASA/SP-2016-6105 Rev 2; web edition accessed 2026-11-01",
+        "access_status": "opened_and_read",
+        "sections_read": [
+          "4.2.1.2.3 Define Requirements in Acceptable Statements, Rationale; 4.2.1.2.4 Validate Technical Requirements; 4.2.1.2.7 Capture Work Products"
+        ],
+        "access_limits": "Открытый первичный источник; прочитаны указанные разделы, не только поисковый сниппет."
+      },
+      {
+        "id": "RA-S03",
+        "url": "https://www.nasa.gov/reference/appendix-d-requirements-verification-matrix/",
+        "title": "Systems Engineering Handbook, Appendix D: Requirements Verification Matrix",
+        "publisher": "NASA",
+        "document_date": "Web page updated 2023-07-26",
+        "access_status": "opened_and_read",
+        "sections_read": [
+          "Body paragraphs before Table D-1: verification approach, unique identifier, definitive source"
+        ],
+        "access_limits": "Прочитано текстовое описание; содержимое таблицы D-1 в HTML не извлечено и не используется для утверждения полного набора колонок."
+      },
+      {
+        "id": "RA-S04",
+        "url": "https://www.nasa.gov/reference/appendix-e-creating-the-validation-plan-with-a-validation-requirements-matrix/",
+        "title": "Systems Engineering Handbook, Appendix E: Creating the Validation Plan with a Validation Requirements Matrix",
+        "publisher": "NASA",
+        "document_date": "Web page updated 2023-07-26",
+        "access_status": "opened_and_read",
+        "sections_read": [
+          "Body: sources for validation plan; validation products; lifecycle planning"
+        ],
+        "access_limits": "Использована открытая текстовая часть; таблица E-1 не переписывалась. NASA-specific flight/certification artifacts не требуются для E02."
+      },
+      {
+        "id": "RA-S05",
+        "url": "https://www.nasa.gov/reference/appendix-l-interface-requirements-document-outline/",
+        "title": "Systems Engineering Handbook, Appendix L: Interface Requirements Document Outline",
+        "publisher": "NASA",
+        "document_date": "NASA/SP-2016-6105 Rev 2; web edition accessed 2026-11-01",
+        "access_status": "opened_and_read",
+        "sections_read": [
+          "1.2 Precedence; 1.3 Responsibility and Change Authority; 2.1 Applicable Documents; 3.1.2 Interface Responsibilities; 3.2.6 Software and Data"
+        ],
+        "access_limits": "Релевантны ответственность, приоритет и software/data interfaces; physical/fluid/electrical/spacecraft требования исключены."
+      },
+      {
+        "id": "RA-S06",
+        "url": "https://www.nasa.gov/reference/6-3-interface-management/",
+        "title": "Systems Engineering Handbook, 6.3 Interface Management",
+        "publisher": "NASA",
+        "document_date": "Web page updated 2023-07-26",
+        "access_status": "opened_and_read",
+        "sections_read": [
+          "6.3.1.2.2–6.3.1.2.5; 6.3.1.3 Outputs"
+        ],
+        "access_limits": "Не навязывает E02 создание формального NASA Interface Working Group; важны явные стороны, владельцы, версия, согласование изменения и влияние на проверки."
+      },
+      {
+        "id": "RA-S07",
+        "url": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695440/SWE-055%2B-%2BRequirements%2BValidation",
+        "title": "SWE-055 Requirements Validation, Software Engineering Handbook Ver D",
+        "publisher": "NASA",
+        "document_date": "Ver D; current page read 2026-11-01; AI-additions tracker lists 2025-08-27",
+        "access_status": "opened_and_read",
+        "sections_read": [
+          "1 Requirements; 3.2 Requirements Validation Throughout the Life Cycle; 3.3 Validation Planning; 3.4 Validation Process; 3.5 Select Life Cycle Products; 3.6 Validation Techniques & Methods"
+        ],
+        "access_limits": "Официальная guidance-страница, не самостоятельный общий стандарт. Ее нормативная 4.1.7 сверена с NPR 7150.2D (RA-S08); базовые идеи также присутствуют в Ver C от 2023-07-31. AI-additions tracker фиксирует добавления 2025-08-27, поэтому новые исторические narratives/lesson claims не использованы без отдельной проверки."
+      },
+      {
+        "id": "RA-S08",
+        "url": "https://nodis3.gsfc.nasa.gov/displayDir.cfm?Internal_ID=N_PR_7150_002D_&page_name=Chapter4",
+        "title": "NPR 7150.2D Chapter 4: Software Engineering Life Cycle Requirements",
+        "publisher": "NASA Office of the Chief Engineer",
+        "document_date": "Effective 2022-03-08; page states expiration 2027-03-08",
+        "access_status": "opened_and_read",
+        "sections_read": [
+          "4.1.1–4.1.7; 4.2 Software Architecture; 4.3 Software Design"
+        ],
+        "access_limits": "Нормативно для NASA; в E02 — добровольный источник методов, не доказательство юридической обязанности или aerospace certification."
+      },
+      {
+        "id": "RA-S09",
+        "url": "https://www.incose.org/docs/default-source/working-groups/requirements-wg/guidetowritingrequirements/incose_rwg_gtwr_v4_summary_sheet.pdf",
+        "title": "Guide to Writing Requirements v4 — Summary Sheet, INCOSE-TP-2010-006-04",
+        "publisher": "INCOSE Requirements Working Group",
+        "document_date": "June 2023",
+        "access_status": "opened_and_read",
+        "sections_read": [
+          "Printed p.2: C2, C4, C5, C10–C15; p.3: R14–R15, R18, R23–R28, R30–R36, R40; p.7: attributes A1–A15, A32–A33"
+        ],
+        "access_limits": "Открыт официальный 7-страничный summary PDF через ссылку RWG. Полный платный Guide не прочитан; summary не передает все исключения/пояснения полного руководства. Правила не являются автоматическим grammar-lint verdict."
+      },
+      {
+        "id": "RA-S10",
+        "url": "https://www.incose.org/wp-content/uploads/legacy/professional-development-portal/pdp-pdf-documents/webinar_168_wheatcraft_guide_to_writing_requirements_version_4.pdf",
+        "title": "Webinar 168: Guide to Writing Requirements Version 4, Lou Wheatcraft",
+        "publisher": "INCOSE Requirements Working Group",
+        "document_date": "2023-10-25",
+        "access_status": "opened_and_read",
+        "sections_read": [
+          "Slide 28: Focus of the GtWR; slide 30: types of requirements; slides 33–34: integrated needs/design inputs; slides 42–43: individual/set characteristics; slide 50: rules necessary but not sufficient"
+        ],
+        "access_limits": "Прочитан открытый PDF с официального домена; video resource обозначен members-only, видео не просмотрено. Web screenshot slide 28 завершился Cache miss; доступный текст PDF прочитан. Не цитируется содержание полного Guide."
+      },
+      {
+        "id": "RA-S11",
+        "url": "https://sei.cmu.edu/documents/716/2003_005_001_14249.pdf",
+        "title": "Quality Attribute Workshops (QAWs), Third Edition, CMU/SEI-2003-TR-016",
+        "publisher": "Carnegie Mellon University Software Engineering Institute",
+        "document_date": "2003; landing page dates 2003-10-01",
+        "access_status": "opened_and_read",
+        "sections_read": [
+          "3.5 Scenario Brainstorming, printed pp.9–10 / PDF pp.21–22; 3.8 Scenario Refinement, printed p.11 / PDF p.23; Appendix A p.19, Appendix B p.21"
+        ],
+        "access_limits": "Метод выявления/уточнения требований, применим до готовой архитектуры. Использование его идей не означает, что проведен формальный фасилитируемый QAW."
+      },
+      {
+        "id": "RA-S12",
+        "url": "https://www.sei.cmu.edu/documents/629/2000_005_001_13706.pdf",
+        "title": "ATAM: Method for Architecture Evaluation, CMU/SEI-2000-TR-004",
+        "publisher": "Carnegie Mellon University Software Engineering Institute",
+        "document_date": "August 2000",
+        "access_status": "opened_and_read",
+        "sections_read": [
+          "7.1 Risks and Non-Risks, printed pp.21–22 / PDF pp.33–34; 7.2 Sensitivity and Tradeoff Points, printed pp.22–23 / PDF pp.34–35; 7.3 A Structure for Reasoning, printed pp.23–24; 8.7 Scenario Brainstorming, printed pp.33–34"
+        ],
+        "access_limits": "Рамка анализа архитектурных рисков, не доказательство качества конкретного продукта и не обязательное проведение полного ATAM. Старые illustrative cryptography values не переносились."
+      },
+      {
+        "id": "RA-S13",
+        "url": "https://www.sei.cmu.edu/documents/1286/2020_005_001_637385.pdf",
+        "title": "Integrability, CMU/SEI-2020-TR-001, Kazman/Bianco/Ivers/Klein",
+        "publisher": "Carnegie Mellon University Software Engineering Institute",
+        "document_date": "February 2020",
+        "access_status": "opened_and_read",
+        "sections_read": [
+          "3 Evaluating Integrability, printed pp.6–7; 3.1 Measuring Integrability, printed pp.7–8 / PDF pp.13–14; 4 Integrability Scenarios, printed pp.11–16; 7.4 Derived Decisions and Special Cases, printed pp.42–44 / PDF pp.48–50"
+        ],
+        "access_limits": "Прочитан PDF-текст с первичного домена; screenshot отдельных страниц вернул Cache miss. Не утверждаем количественную стоимость интеграции E02 из общей формулы отчета."
+      },
+      {
+        "id": "DRS-01",
+        "url": "https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/",
+        "title": "Making retries safe with idempotent APIs",
+        "publisher": null,
+        "document_date": null,
+        "access_status": "read_selected_sections",
+        "sections_read": [
+          "Retrying and side effects",
+          "Reducing client complexity",
+          "Retries and semantic equivalence",
+          "Late arriving requests",
+          "Same client request ID, different intent",
+          "Conclusion"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DRS-02",
+        "url": "https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/",
+        "title": "Timeouts, retries, and backoff with jitter",
+        "publisher": null,
+        "document_date": null,
+        "access_status": "read_selected_sections",
+        "sections_read": [
+          "Failures Happen",
+          "Timeouts",
+          "Retries and backoff",
+          "Jitter",
+          "Conclusion"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DRS-03",
+        "url": "https://sre.google/sre-book/handling-overload/",
+        "title": "Site Reliability Engineering, Chapter 21: Handling Overload",
+        "publisher": null,
+        "document_date": null,
+        "access_status": "read_selected_sections",
+        "sections_read": [
+          "The Pitfalls of \"Queries per Second\"",
+          "Per-Customer Limits",
+          "Client-Side Throttling",
+          "Criticality",
+          "Utilization Signals",
+          "Handling Overload Errors / Deciding to Retry",
+          "Load from Connections",
+          "Conclusions"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DRS-04",
+        "url": "https://sre.google/sre-book/addressing-cascading-failures/",
+        "title": "Site Reliability Engineering, Chapter 22: Addressing Cascading Failures",
+        "publisher": null,
+        "document_date": null,
+        "access_status": "read_selected_sections",
+        "sections_read": [
+          "Causes of Cascading Failures and Designing to Avoid Them",
+          "Resource Exhaustion",
+          "Service Unavailability",
+          "Queue Management",
+          "Load Shedding and Graceful Degradation",
+          "Retries",
+          "Latency and Deadlines"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DRS-05",
+        "url": "https://www.rfc-editor.org/rfc/rfc9110.html",
+        "title": "RFC 9110: HTTP Semantics",
+        "publisher": null,
+        "document_date": null,
+        "access_status": "read_selected_sections",
+        "sections_read": [
+          "9.2.2 Idempotent Methods",
+          "13.1.1 If-Match",
+          "15.3.3 202 Accepted"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DRS-06",
+        "url": "https://www.rfc-editor.org/rfc/rfc9293.html",
+        "title": "RFC 9293: Transmission Control Protocol (TCP)",
+        "publisher": null,
+        "document_date": null,
+        "access_status": "read_selected_sections",
+        "sections_read": [
+          "3.1 Header Format — Acknowledgment Number"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DRS-07",
+        "url": "https://grpc.io/docs/guides/cancellation/",
+        "title": "Cancellation",
+        "publisher": null,
+        "document_date": null,
+        "access_status": "read_selected_sections",
+        "sections_read": [
+          "Overview",
+          "Cancelling an RPC Call on the Client Side",
+          "Language Support"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DRS-08",
+        "url": "https://grpc.io/docs/guides/deadlines/",
+        "title": "Deadlines",
+        "publisher": null,
+        "document_date": null,
+        "access_status": "read_selected_sections",
+        "sections_read": [
+          "Overview",
+          "Deadlines on the Client",
+          "Deadlines on the Server",
+          "Deadline Propagation",
+          "Language Support"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DRS-09",
+        "url": "https://www.postgresql.org/docs/18/transaction-iso.html",
+        "title": "PostgreSQL 18, 13.2 Transaction Isolation",
+        "publisher": null,
+        "document_date": null,
+        "access_status": "read_selected_sections",
+        "sections_read": [
+          "13.2 Transaction Isolation, Table 13.1",
+          "13.2.1 Read Committed Isolation Level",
+          "13.2.2 Repeatable Read Isolation Level",
+          "13.2.3 Serializable Isolation Level"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DRS-10",
+        "url": "https://www.postgresql.org/docs/18/wal-async-commit.html",
+        "title": "PostgreSQL 18, 28.4 Asynchronous Commit",
+        "publisher": null,
+        "document_date": null,
+        "access_status": "read_selected_sections",
+        "sections_read": [
+          "28.4 Asynchronous Commit",
+          "Caution"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DRS-11",
+        "url": "https://www.postgresql.org/docs/18/warm-standby.html",
+        "title": "PostgreSQL 18, 26.2 Log-Shipping Standby Servers",
+        "publisher": null,
+        "document_date": null,
+        "access_status": "read_selected_sections",
+        "sections_read": [
+          "26.2 Log-Shipping Standby Servers",
+          "26.2.8 Synchronous Replication",
+          "26.2.8.4 Planning for High Availability"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DRS-12",
+        "url": "https://aws.amazon.com/builders-library/leader-election-in-distributed-systems/",
+        "title": "Leader Election in Distributed Systems",
+        "publisher": null,
+        "document_date": null,
+        "access_status": "read_selected_sections",
+        "sections_read": [
+          "How Amazon elects a leader",
+          "What happens when the leader fails?",
+          "Best practices for leader election",
+          "Conclusion"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DRS-13",
+        "url": "https://etcd.io/docs/v3.6/learning/api_guarantees/",
+        "title": "etcd v3.6 API guarantees",
+        "publisher": null,
+        "document_date": null,
+        "access_status": "read_selected_sections",
+        "sections_read": [
+          "APIs to consider",
+          "KV APIs / Durability / Strict serializability",
+          "Watch APIs",
+          "etcd specific definitions / Operation completed / Revision"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DRS-14",
+        "url": "https://www.rabbitmq.com/docs/confirms",
+        "title": "Consumer Acknowledgements and Publisher Confirms",
+        "publisher": null,
+        "document_date": null,
+        "access_status": "read_selected_sections",
+        "sections_read": [
+          "Are Publisher Confirms Related to Consumer Delivery Acknowledgements?",
+          "Delivery Identifiers: Delivery Tags",
+          "Consumer Acknowledgement Modes and Data Safety Considerations",
+          "Negative Acknowledgement and Requeuing of Deliveries",
+          "Channel Prefetch Setting (QoS)",
+          "When Consumers Fail or Lose Connection: Automatic Requeueing",
+          "When Will Published Messages Be Confirmed by the Broker?",
+          "Ordering Considerations for Publisher Confirms",
+          "Publisher Confirms and Guaranteed Delivery"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S01",
+        "url": "https://google.aip.dev/180",
+        "title": "AIP-180: Backwards compatibility",
+        "publisher": "Google API Improvement Proposals",
+        "document_date": "AIP-180; Approved; header created/updated 2019-07-23, но changelog содержит изменение 2025-10-21; live page accessed 2026-11-01",
+        "access_status": null,
+        "sections_read": [
+          "Guidance (source / wire / semantic compatibility)",
+          "Adding components",
+          "Semantic changes"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S02",
+        "url": "https://protobuf.dev/programming-guides/proto3/",
+        "title": "Language Guide (proto3)",
+        "publisher": "Protocol Buffers",
+        "document_date": "proto3; live documentation; точная версия runtime не заявлена",
+        "access_status": null,
+        "sections_read": [
+          "Updating A Message Type → Binary Wire-safe Changes",
+          "Binary Wire-compatible Changes (Conditionally Safe)",
+          "Unknown Fields → Retaining Unknown Fields",
+          "Backwards-compatibility issues (oneof)"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S03",
+        "url": "https://protobuf.dev/programming-guides/field_presence/",
+        "title": "Application Note: Field Presence",
+        "publisher": "Protocol Buffers",
+        "document_date": "Live application note; proto2/proto3/editions distinctions",
+        "access_status": null,
+        "sections_read": [
+          "Considerations for Merging",
+          "Considerations for change-compatibility"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S04",
+        "url": "https://protobuf.dev/programming-guides/serialization-not-canonical/",
+        "title": "Proto Serialization Is Not Canonical",
+        "publisher": "Protocol Buffers",
+        "document_date": "Live documentation",
+        "access_status": null,
+        "sections_read": [
+          "Implications on Fingerprinting and Cryptographic Hashing",
+          "Deterministic is not Canonical"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S05",
+        "url": "https://avro.apache.org/docs/1.12.0/specification/",
+        "title": "Apache Avro 1.12.0 Specification",
+        "publisher": "Apache Software Foundation",
+        "document_date": "1.12.0",
+        "access_status": null,
+        "sections_read": [
+          "Complex Types → Records (default)",
+          "Schema Resolution",
+          "Parsing Canonical Form for Schemas"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S06",
+        "url": "https://www.rfc-editor.org/rfc/rfc8785.html",
+        "title": "RFC 8785: JSON Canonicalization Scheme (JCS)",
+        "publisher": "RFC Editor",
+        "document_date": "RFC 8785, June 2020, Informational / Independent Submission",
+        "access_status": null,
+        "sections_read": [
+          "§3.1 Creation of Input Data",
+          "§3.2.2.2 Serialization of Strings",
+          "§3.2.2.3 Serialization of Numbers",
+          "§3.2.3 Sorting of Object Properties"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S07",
+        "url": "https://www.rfc-editor.org/rfc/rfc8259.html",
+        "title": "RFC 8259: The JavaScript Object Notation (JSON) Data Interchange Format",
+        "publisher": "IETF / RFC Editor",
+        "document_date": "RFC 8259, December 2017; Standards Track",
+        "access_status": null,
+        "sections_read": [
+          "§4 Objects",
+          "§6 Numbers",
+          "§8.2 Unicode Characters",
+          "§8.3 String Comparison",
+          "§9 Parsers"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S08",
+        "url": "https://json-schema.org/draft/2020-12/json-schema-validation",
+        "title": "JSON Schema Validation: A Vocabulary for Structural Validation of JSON",
+        "publisher": "JSON Schema",
+        "document_date": "Draft 2020-12; draft-bhutton-json-schema-validation-01, 2022-06-16; Internet-Draft/work in progress, не RFC",
+        "access_status": null,
+        "sections_read": [
+          "§6.5.3 required",
+          "§7.2.1 Format-Annotation Vocabulary",
+          "§7.2.2 Format-Assertion Vocabulary",
+          "§9.2 default"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S09",
+        "url": "https://json-schema.org/draft/2020-12/json-schema-core",
+        "title": "JSON Schema: A Media Type for Describing JSON Documents",
+        "publisher": "JSON Schema",
+        "document_date": "Draft 2020-12; draft-bhutton-json-schema-01, 2022-06-16; Internet-Draft/work in progress, не RFC",
+        "access_status": null,
+        "sections_read": [
+          "§4.3.1 Schema Objects and Keywords",
+          "§8.1.1 The $schema Keyword",
+          "§8.1.2 The $vocabulary Keyword",
+          "§9.3 Compound Documents",
+          "§10.3.2.3 additionalProperties"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S10",
+        "url": "https://json-schema.org/understanding-json-schema/reference/annotations",
+        "title": "Understanding JSON Schema: Annotations",
+        "publisher": "JSON Schema",
+        "document_date": "Live official explanatory guide",
+        "access_status": null,
+        "sections_read": [
+          "Annotations → default"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S11",
+        "url": "https://www.nationalacademies.org/read/25303/chapter/7",
+        "title": "Reproducibility and Replicability in Science — Chapter 4: Reproducibility",
+        "publisher": "National Academies of Sciences, Engineering, and Medicine",
+        "document_date": "2019; DOI 10.17226/25303",
+        "access_status": null,
+        "sections_read": [
+          "Recommendation 4-1, pp.58–59",
+          "Assessing Reproducibility, p.59",
+          "Footnote 3, p.59"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S12",
+        "url": "https://abseil.io/resources/swe-book/html/ch12.html",
+        "title": "Software Engineering at Google — Chapter 12: Unit Testing",
+        "publisher": "Google / Abseil",
+        "document_date": "Book 2020; live HTML chapter",
+        "access_status": null,
+        "sections_read": [
+          "Test via Public APIs",
+          "Don’t Put Logic in Tests (Examples 12-15/12-16)",
+          "Defining Test Infrastructure"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S13",
+        "url": "https://hypothesis.readthedocs.io/en/latest/explanation/domain.html",
+        "title": "Hypothesis: Domain and distribution",
+        "publisher": "HypothesisWorks",
+        "document_date": "HTML banner observed: Hypothesis 6.170.14; /latest is mutable",
+        "access_status": null,
+        "sections_read": [
+          "How should I choose a domain for my test?",
+          "Why not let users control the distribution?"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S14",
+        "url": "https://hypothesis.readthedocs.io/en/latest/tutorial/replaying-failures.html",
+        "title": "Hypothesis: Replaying failed tests",
+        "publisher": "HypothesisWorks",
+        "document_date": "HTML banner observed: Hypothesis 6.170.14; /latest is mutable",
+        "access_status": null,
+        "sections_read": [
+          "The Hypothesis database",
+          "Using @example to run a specific input",
+          "Prefer @example over the database for correctness"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S15",
+        "url": "https://hypothesis.readthedocs.io/en/latest/stateful.html",
+        "title": "Hypothesis: Stateful tests",
+        "publisher": "HypothesisWorks",
+        "document_date": "HTML banner observed: Hypothesis 6.170.14; /latest is mutable",
+        "access_status": null,
+        "sections_read": [
+          "You may not need stateful tests",
+          "Rule-based state machines",
+          "DatabaseComparison example"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S16",
+        "url": "https://arxiv.org/pdf/2211.12003",
+        "title": "Application of property-based testing tools for metamorphic testing",
+        "publisher": "Alzahrani, Spichkova, Harland (RMIT), author preprint",
+        "document_date": "arXiv:2211.12003v1, 2022-11-22; accepted ENASE 2022 preprint",
+        "access_status": null,
+        "sections_read": [
+          "§2 Background, PDF pp.2–3",
+          "§4 Proposed Approach, PDF pp.4–6"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S17",
+        "url": "https://stryker-mutator.io/docs/mutation-testing-elements/mutant-states-and-metrics/",
+        "title": "Stryker: Mutant states and metrics",
+        "publisher": "Stryker Mutator",
+        "document_date": "Live official documentation",
+        "access_status": null,
+        "sections_read": [
+          "Mutant states",
+          "Metrics",
+          "Test states and metrics"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S18",
+        "url": "https://stryker-mutator.io/docs/stryker-js/disable-mutants/",
+        "title": "StrykerJS: Disable mutants",
+        "publisher": "Stryker Mutator",
+        "document_date": "Live official documentation; disable comments noted since 5.4",
+        "access_status": null,
+        "sections_read": [
+          "An example (equivalent max mutant)",
+          "Disable mutants",
+          "Using a // Stryker disable comment"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S19",
+        "url": "https://scikit-learn.org/stable/common_pitfalls.html",
+        "title": "scikit-learn: Common pitfalls and recommended practices",
+        "publisher": "scikit-learn developers",
+        "document_date": "HTML banner observed: 1.9.1; /stable is mutable",
+        "access_status": null,
+        "sections_read": [
+          "§12.2 Data leakage",
+          "§12.2.1 How to avoid data leakage",
+          "§12.2.2 Data leakage during pre-processing"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "DAT-S20",
+        "url": "https://google.github.io/benchmark/user_guide.html",
+        "title": "Google Benchmark User Guide",
+        "publisher": "Google Benchmark",
+        "document_date": "Live official guide; release tag not stated",
+        "access_status": null,
+        "sections_read": [
+          "Timing and Repetition Control",
+          "Runtime and Reporting Considerations",
+          "Manual Timing",
+          "Preventing Optimization",
+          "Reporting Statistics"
+        ],
+        "access_limits": null
+      },
+      {
+        "id": "SR-S01",
+        "url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf",
+        "title": "NIST SP 800-218 — SSDF",
+        "publisher": null,
+        "document_date": "1.1, Final",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "§2, печ. с. 3 (PDF page 12): risk-based tailoring",
+          "PO.4.1–PO.4.2, печ. с. 8 (PDF page 17)",
+          "PS.2.1, PS.3.1–PS.3.2, печ. с. 10 (PDF page 19)",
+          "PW.8.1–PW.8.2, печ. с. 15 (PDF page 24)"
+        ],
+        "access_limits": "Прочитаны релевантные страницы через извлечение PDF-текста; документ целиком не проверялся. Notional examples не превращены в обязательные способы реализации."
+      },
+      {
+        "id": "SR-S02",
+        "url": "https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/en/0x17-V8-Authorization.md",
+        "title": "OWASP ASVS — V8 Authorization",
+        "publisher": null,
+        "document_date": "5.0.0, tag v5.0.0",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "8.1.1–8.1.4",
+          "8.2.1–8.2.4",
+          "8.3.1–8.3.3",
+          "8.4.1"
+        ],
+        "access_limits": "Версия закреплена tag; месяц выпуска подтверждён страницей проекта. Конкретный ASVS level для E02 не установлен; требования L2/L3 не объявляются глобально обязательными."
+      },
+      {
+        "id": "SR-S03",
+        "url": "https://slsa.dev/spec/v1.2/verifying-artifacts",
+        "title": "SLSA — Build: Verifying artifacts",
+        "publisher": null,
+        "document_date": "1.2, Approved",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "How to verify",
+          "Step 1: Check SLSA Build level",
+          "Step 2: Check expectations",
+          "Forming Expectations",
+          "Architecture options"
+        ],
+        "access_limits": "Страница versioned и Approved; календарная дата публикации на прочитанной странице не указана. Build L3 не гарантирует честность самой build platform и не доказывает отсутствие дефектов."
+      },
+      {
+        "id": "SR-S04",
+        "url": "https://theupdateframework.github.io/specification/v1.0.36/",
+        "title": "The Update Framework Specification",
+        "publisher": null,
+        "document_date": "1.0.36",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "§1.1 Scope; §1.4 Non-goals",
+          "§5.1 fixed update start time",
+          "§5.3 root rotation",
+          "§5.4 timestamp rollback/freeze checks",
+          "§5.5 snapshot binding",
+          "§5.7 Fetch target",
+          "§6.1 key management"
+        ],
+        "access_limits": "Стандарт именно для update systems; перенос на approvals/policies — ограниченная аналогия, не требование внедрить TUF. Freshness зависит от модели доверенного времени и доступности metadata."
+      },
+      {
+        "id": "SR-S05",
+        "url": "https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/en/0x10-V1-Encoding-and-Sanitization.md",
+        "title": "OWASP ASVS — V1 Encoding and Sanitization",
+        "publisher": null,
+        "document_date": "5.0.0",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "1.1.1–1.1.2",
+          "1.2.1–1.2.5",
+          "1.3.6",
+          "1.5.1–1.5.3"
+        ],
+        "access_limits": "Выбраны релевантные interpreter/parser границы; не утверждается наличие XML/SQL/OS sinks в E02."
+      },
+      {
+        "id": "SR-S06",
+        "url": "https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/en/0x11-V2-Validation-and-Business-Logic.md",
+        "title": "OWASP ASVS — V2 Validation and Business Logic",
+        "publisher": null,
+        "document_date": "5.0.0",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "2.1.1–2.1.3",
+          "2.2.1–2.2.3",
+          "2.3.1–2.3.4",
+          "2.4.1"
+        ],
+        "access_limits": "Schema validation названа возможным, а не единственным способом. Конкретные quotas, транзакционные технологии и anti-automation меры не навязываются."
+      },
+      {
+        "id": "SR-S07",
+        "url": "https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/en/0x22-V13-Configuration.md",
+        "title": "OWASP ASVS — V13 Configuration",
+        "publisher": null,
+        "document_date": "5.0.0",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "13.1.1–13.1.4",
+          "13.2.2–13.2.6",
+          "13.3.1"
+        ],
+        "access_limits": "Key vault/HSM из уровня ASVS не превращаются в безусловное требование для исследуемого проекта; анализируется достижение требуемой границы."
+      },
+      {
+        "id": "SR-S08",
+        "url": "https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/en/0x23-V14-Data-Protection.md",
+        "title": "OWASP ASVS — V14 Data Protection",
+        "publisher": null,
+        "document_date": "5.0.0",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "14.1.1–14.1.2",
+          "14.2.1–14.2.4",
+          "14.2.6–14.2.7",
+          "14.3.1–14.3.3"
+        ],
+        "access_limits": "Не даётся правовое заключение и не вводятся произвольные сроки хранения. Browser-контроли применимы только при наличии такого потребителя."
+      },
+      {
+        "id": "SR-S09",
+        "url": "https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/en/0x25-V16-Security-Logging-and-Error-Handling.md",
+        "title": "OWASP ASVS — V16 Security Logging and Error Handling",
+        "publisher": null,
+        "document_date": "5.0.0",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "16.1.1",
+          "16.2.1–16.2.5",
+          "16.3.1–16.3.4",
+          "16.4.1–16.4.3",
+          "16.5.1–16.5.4"
+        ],
+        "access_limits": "Сам источник исключает SIEM correlation/alerting infrastructure из scope ASVS. Полноценная SIEM, отдельный сервис журналирования и лог всех событий не объявлены обязательными."
+      },
+      {
+        "id": "SR-S10",
+        "url": "https://wstg.owasp.org/v4.2/4-Web_Application_Security_Testing/05-Authorization_Testing/02-Testing_for_Bypassing_Authorization_Schema/",
+        "title": "OWASP WSTG — Testing for Bypassing Authorization Schema",
+        "publisher": null,
+        "document_date": "4.2, WSTG-ATHZ-02",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "Summary",
+          "Test Objectives",
+          "Testing for Horizontal Bypassing Authorization Schema"
+        ],
+        "access_limits": "Versioned URL; дата на странице отсутствует. Это методика авторизованного тестирования, не разрешение на реальную эксплуатацию."
+      },
+      {
+        "id": "SR-S11",
+        "url": "https://wstg.owasp.org/v4.2/4-Web_Application_Security_Testing/05-Authorization_Testing/04-Testing_for_Insecure_Direct_Object_References/",
+        "title": "OWASP WSTG — Testing for Insecure Direct Object References",
+        "publisher": null,
+        "document_date": "4.2, WSTG-ATHZ-04",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "Summary",
+          "Test Objectives",
+          "How to Test"
+        ],
+        "access_limits": "Прочитаны вводные методические разделы; exploit-процедуры не исполнялись. Применимость к не-web API — аналитический перенос."
+      },
+      {
+        "id": "SR-S12",
+        "url": "https://cwe.mitre.org/data/definitions/367.html",
+        "title": "MITRE CWE-367 — Time-of-check Time-of-use Race Condition",
+        "publisher": null,
+        "document_date": "CWE site reports 5.0",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "Description",
+          "Common Consequences",
+          "Potential Mitigations"
+        ],
+        "access_limits": "Живая страница; номер версии сайта виден, фиксированная дата revision не установлена. CWE классифицирует слабость, не задаёт полный concurrency protocol."
+      },
+      {
+        "id": "SR-S13",
+        "url": "https://www.rfc-editor.org/rfc/rfc8259",
+        "title": "IETF RFC 8259 — JSON Data Interchange Format",
+        "publisher": null,
+        "document_date": "RFC 8259 / STD 90",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "§4 Objects",
+          "§6 Numbers",
+          "§8.1 Character Encoding",
+          "§9 Parsers"
+        ],
+        "access_limits": "URL перенаправляет на info/rfc8259 с полным текстом; RFC говорит SHOULD о уникальности имён, а не universal MUST reject. Errata отдельно не анализировались."
+      },
+      {
+        "id": "SR-S14",
+        "url": "https://builder.aws.com/content/3F04j2yRAAMBuPSPs50xwXZqg01/ensuring-rollback-safety-during-deployments",
+        "title": "AWS Builders’ Library — Ensuring rollback safety during deployments",
+        "publisher": null,
+        "document_date": "Авторская инженерная практика, Sandeep Pokkunuri",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "Introduction",
+          "Standalone vs. distributed software deployments",
+          "Problems with protocol changes",
+          "Two-phase deployment technique"
+        ],
+        "access_limits": "AWS URL перенаправляет на официальный Builder Center, где указаны Published/Last modified Dec 5, 2019. Это практика, не универсальный обязательный deployment protocol."
+      },
+      {
+        "id": "SR-S15",
+        "url": "https://sre.google/workbook/canarying-releases/",
+        "title": "Google SRE Workbook — Canarying Releases",
+        "publisher": null,
+        "document_date": "SRE Workbook, chapter 16",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "Requirements of a Canary Process",
+          "A Roll Forward Deployment Versus a Simple Canary Deployment",
+          "Choosing a Canary Population and Duration"
+        ],
+        "access_limits": "На странице нет календарной версии; пример App Engine и упрощённые error-budget модели не являются готовыми thresholds для E02."
+      },
+      {
+        "id": "SR-S16",
+        "url": "https://sre.google/sre-book/data-integrity/",
+        "title": "Google SRE Book — Data Integrity: What You Read Is What You Wrote",
+        "publisher": null,
+        "document_date": "SRE Book, chapter 26",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "Backups Versus Archives",
+          "Delivering a Recovery System, Rather Than a Backup System",
+          "Second Layer / backup tiers",
+          "1T Versus 1E: Not Just a Bigger Backup",
+          "Third Layer: Early Detection",
+          "Gmail—February, 2011: Restore from GTape",
+          "Google Music recovery discussion"
+        ],
+        "access_limits": "Это опыт Google, не основание копировать объёмы, 30–90-дневные retention или стоимость. Читались обозначенные разделы, не все главы книги."
+      },
+      {
+        "id": "SR-S17",
+        "url": "https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-34r1.pdf",
+        "title": "NIST SP 800-34 Rev. 1 — Contingency Planning Guide",
+        "publisher": null,
+        "document_date": "Rev. 1, updated 2010-11-11",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "§3.2.1 recovery priorities / RTO / RPO, печ. с. 17 (PDF page 31)",
+          "§3.5 TT&E, печ. с. 27–31",
+          "§4.4 Reconstitution, печ. с. 41"
+        ],
+        "access_limits": "Федеральный контекст США не переносится в обязанность E02; используются определения и инженерная схема. Извлечение релевантного PDF-текста; устаревшие technology examples не используются."
+      },
+      {
+        "id": "SR-S18",
+        "url": "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html",
+        "title": "OWASP Authorization Cheat Sheet",
+        "publisher": null,
+        "document_date": "Living document, snapshot 2026-11-01",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "Introduction",
+          "Enforce Least Privileges",
+          "Deny by Default",
+          "Create Unit and Integration Test Cases for Authorization Logic"
+        ],
+        "access_limits": "Нет опубликованного version/date в прочитанном тексте. Не переносим recommendations ABAC/RBAC или SIEM в архитектурный mandate."
+      },
+      {
+        "id": "SR-S19",
+        "url": "https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html",
+        "title": "OWASP Multi-Tenant Application Security Cheat Sheet",
+        "publisher": null,
+        "document_date": "Living document, snapshot 2026-11-01",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "§1 Tenant Identification & Context Management",
+          "§2 Database Isolation Strategies: trade-offs",
+          "§4 Cache & Session Isolation",
+          "§5 Tenant-Aware Asynchronous Work",
+          "§6 File Storage & Blob Isolation",
+          "§7 Tenant Backup Restore"
+        ],
+        "access_limits": "Живой неприкреплённый к commit текст; образцы кода не запускались и не считаются production implementation. Источник прямо допускает глобальные данные и разные уровни изоляции."
+      },
+      {
+        "id": "SR-S20",
+        "url": "https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/",
+        "title": "AWS Builders’ Library — Making retries safe with idempotent APIs",
+        "publisher": null,
+        "document_date": "Авторская инженерная практика, Malcolm Featonby",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "sections_read": [
+          "Retrying and side effects",
+          "Reducing client complexity",
+          "Retries and semantic equivalence",
+          "Late arriving requests",
+          "Same client request ID, different intent"
+        ],
+        "access_limits": "Календарная дата на прочитанной странице не указана. API/CLI примеры не запускались. Idempotency не даёт новых прав и не означает exactly-once всего распределённого workflow."
+      }
+    ]
+  },
+  "limitations": [
+    "This is a review of formulation and acceptance-plan adequacy, not runtime verification or product PASS.",
+    "Only 26 assigned packets receive complete criterion assessments here; lane/scenario formal audits are parent-coordinated separately.",
+    "Full current MD and semantic JSON were read; historical v1 in 07 was not target and historical audit statuses were not treated as proof.",
+    "Current native/profile/actual-consumer qualification and explicit DEC outputs remain future work; their unresolved execution is not a newly discovered spec defect.",
+    "No arbitrary all-platform, global exactly-once, new database, universal compatibility, invented SLO/RTO/RPO or generic full-CI requirement has been added.",
+    "Source catalog sections/URLs were consumed as frozen researched provenance; no claim to personally re-browse or rerun source examples."
+  ],
+  "new_findings": 0,
+  "blocked_actions": [],
+  "writes_scope": "Only e02_source_based_review/audit_runtime_delivery"
+}

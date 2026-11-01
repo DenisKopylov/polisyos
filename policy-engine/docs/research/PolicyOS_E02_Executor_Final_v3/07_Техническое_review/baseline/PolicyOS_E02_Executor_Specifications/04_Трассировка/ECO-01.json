@@ -1,0 +1,287 @@
+{
+  "packet_id": "ECO-01",
+  "lane": "LANE-04",
+  "source_ids": [
+    "LA-004",
+    "LA-035"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/ECO-01.md",
+    "../05_Основания/Аудит/01_Реестры/C38_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C38-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-ECO-01-01",
+        "REQ-ECO-01-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Настоящие state/JAX/guard/JIT/grad/import/composite consumers, selected Gini domain и dtype.",
+      "inventory_id": "audit-residual:C38_остатки:0"
+    },
+    {
+      "audit_id": "C38-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-ECO-01-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Конкретная подстановка требует explicit observable mapping/units/clock; совпадающий debit не full equivalence.",
+      "inventory_id": "audit-residual:C38_остатки:1"
+    },
+    {
+      "audit_id": "C38-G03",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-ECO-01-02",
+        "REQ-ECO-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Сохранить exact baseline formula/callers; новый objective только отдельным выбором, alias retirement по census.",
+      "inventory_id": "audit-residual:C38_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-ECO-01-01",
+      "text": "Существующая economic profile table и actual consumers сохраняют state/units/clock/tax base/debit/masks/RNG/accounting distinctions. Flat25% на income[100,200] даёт одинаковый debit[25,50] только как выбранный observable: native уменьшает income и government+75, plugin уменьшает wealth без такого counteraccount. Любая подстановка должна задать mapping и rejected unsupported fields, не выдумывать accounts/calendar. Composite clock и domain clock квалифицируются отдельно; current selected Gini domain не обходится.",
+      "source_ids": [
+        "LA-004"
+      ],
+      "audit_ids": [
+        "C38-G01",
+        "C38-G02"
+      ],
+      "test_ids": [
+        "TEST-ECO-01-01"
+      ]
+    },
+    {
+      "id": "REQ-ECO-01-02",
+      "text": "normalized_income_budget_loss сохраняет float32 law −mean(income)/max(mean(abs(income)),1)+10*(max(min_balance−balance,0)/max(abs(min_balance),1))², default min−1000 и все supplied entries. Positive regime mean≥1 остаётся−1 при scaling; zero0, negative+1, breach example9; empty/nonfinite/overflow→+inf через настоящий finite_loss_or_inf. JIT/grad native согласованы, EconomicState без government_balance не притворяется compatible.",
+      "source_ids": [
+        "LA-035"
+      ],
+      "audit_ids": [
+        "C38-G01",
+        "C38-G03"
+      ],
+      "test_ids": [
+        "TEST-ECO-01-02"
+      ]
+    },
+    {
+      "id": "REQ-ECO-01-03",
+      "text": "Old policy_loss_fn aliases сохраняют callable identity и поддержанные import/FQN/serialized consumers до отдельного окна. Если пользователю нужен иной income/welfare ranking, это отдельный named objective/version с независимым oracle, не silently edited baseline. Текущее technical closure relocation не означает свежий native PASS, но не требует нового optimizer для повторного закрытия.",
+      "source_ids": [
+        "LA-035"
+      ],
+      "audit_ids": [
+        "C38-G03"
+      ],
+      "test_ids": [
+        "TEST-ECO-01-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-ECO-01-01",
+      "requirement_ids": [
+        "REQ-ECO-01-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Real GlobalState и EconomicState, flat/progressive tax, ordinary CompositeExecutor; fixed key, unequal wealth vs income; active/inactive examples.",
+      "action": "Registered dispatch обеих моделей; flat debit control, default progressive income[25000,50000], labor finding/threshold contrast, composite step и selected Gini refusal.",
+      "oracle": "Flat[25,50] с разными state effects; progressive[3250,7700] при policy multiplier1. Wealth не tax base. Negative active wealth не проходит classical Gini admission. Native firms/key и plugin hours/domain clock не fabricated equivalent; inactive plugin wages не обещаны frozen.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-ECO-01-02",
+      "requirement_ids": [
+        "REQ-ECO-01-02"
+      ],
+      "level": "native JAX/JIT/autodiff + real GlobalState",
+      "setup": "Existing baseline cases: zero/positive/negative/mixed, scales1/10/1e6, min0/−1000/positive, empty/nonfinite/overflow.",
+      "action": "Call direct/aliases, jit/grad; padding and inactive-entry controls; actual finite_loss_or_inf vector.",
+      "oracle": "Exact formula within float32 tolerance; positive−1 and local gradient≈0, breach9; [1,−6,2] gives+1/3 even inactive middle, padding changes low-scale−.5→−.25. Nonfinite/empty/overflow+inf; vector NaN gives whole+inf. Не менять population silently.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-ECO-01-03",
+      "requirement_ids": [
+        "REQ-ECO-01-03"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Current source/FQN/docs/serialized caller census и fresh package imports.",
+      "action": "Resolve aliases, inspect import side effects and supported consumers; compare GDP300/3000 with baseline control.",
+      "oracle": "Alias identity/catches unchanged; GDP criterion distinguishes magnitude, baseline−1 не переименован GDP objective. Census limited explicitly; no new optimizer requirement or unauthorized retirement.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I04-C"
+  ],
+  "dependencies": [
+    "FRY-03"
+  ],
+  "preservation": [
+    "GlobalState/PatchMap и EconomicState replacement остаются разными ABI; существующая таблица units/clock/base/debit/RNG/accounting сохраняется.",
+    "Plugin tax base income, debit wealth; native reported-income debit income плюс government counteraccount. Нет implicit calendar conversion/target-mask parity.",
+    "Named float32 normalized-income baseline, all-entry population, constant−1 positive regime, budget penalty и actual finite guard. Новый optimizer не обязателен."
+  ],
+  "design_alignment": [
+    "Разные модели остаются полезными conditional alternatives; scientific/causal claims требуют собственных оснований.",
+    "Free-grow через явные state/profile/observable contracts, не искусственное слияние всех economics APIs."
+  ],
+  "open_decisions": [
+    "Для конкретного реального use-case отдельно выбрать currency/time/population mapping и calibration evidence; это не блокирует native сохранение existing profiles."
+  ],
+  "source_obligations": [
+    "LA-004/AM02: richer plugin не доказанная замена; историческое train без update superseded current PLG-02/03 audit и не основание повторно объявить нынешний train фиктивным.",
+    "LA-035 relocation выполнен; GDP/welfare objectives не drop-in successor. Constant−1 — определённая нормализация, не автоматический bug.",
+    "LK04 сохраняет finite/nonnegative/probability helpers с их error/clamp semantics; LK06 registry-view и LK08 DomainPlugin lifecycle не сливаются с kernel."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py: normalized_income_budget_loss",
+    "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py: TaxationMechanism.apply, LaborMarketMechanism.apply",
+    "policy-engine/src/polisyos/foundry/plugins/composite.py: CompositeExecutor.step",
+    "policy-engine/src/polisyos/foundry/execute/_internal/numeric/__init__.py: finite_loss_or_inf",
+    "policy-engine/src/polisyos/foundry/methods/_internal/loss.py: historical alias"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/foundry/plugins/test_economic_profiles.py",
+    "policy-engine/tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+    "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0363",
+      "requirement_ids": [
+        "REQ-ECO-01-01",
+        "REQ-ECO-01-02"
+      ],
+      "disposition": "qualify",
+      "rationale": "Настоящие state/JAX/guard/JIT/grad/import/composite consumers, selected Gini domain и dtype."
+    },
+    {
+      "inventory_id": "remaining:0364",
+      "requirement_ids": [
+        "REQ-ECO-01-01"
+      ],
+      "disposition": "qualify",
+      "rationale": "Конкретная подстановка требует explicit observable mapping/units/clock; совпадающий debit не full equivalence."
+    },
+    {
+      "inventory_id": "remaining:0436",
+      "requirement_ids": [
+        "REQ-ECO-01-02",
+        "REQ-ECO-01-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Сохранить exact baseline formula/callers; новый objective только отдельным выбором, alias retirement по census."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0586",
+      "requirement_ids": [
+        "REQ-ECO-01-01"
+      ],
+      "test_ids": [
+        "TEST-ECO-01-01"
+      ],
+      "rationale": "Two state ABIs — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0587",
+      "requirement_ids": [
+        "REQ-ECO-01-01"
+      ],
+      "test_ids": [
+        "TEST-ECO-01-01"
+      ],
+      "rationale": "Explicit profile table — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0588",
+      "requirement_ids": [
+        "REQ-ECO-01-01"
+      ],
+      "test_ids": [
+        "TEST-ECO-01-01"
+      ],
+      "rationale": "Tax base versus debit distinction — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0589",
+      "requirement_ids": [
+        "REQ-ECO-01-01"
+      ],
+      "test_ids": [
+        "TEST-ECO-01-01"
+      ],
+      "rationale": "Native counteraccount and plugin limits — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0699",
+      "requirement_ids": [
+        "REQ-ECO-01-02"
+      ],
+      "test_ids": [
+        "TEST-ECO-01-02"
+      ],
+      "rationale": "Normalized formula — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0700",
+      "requirement_ids": [
+        "REQ-ECO-01-02"
+      ],
+      "test_ids": [
+        "TEST-ECO-01-02"
+      ],
+      "rationale": "Constant positive-regime score — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0701",
+      "requirement_ids": [
+        "REQ-ECO-01-02"
+      ],
+      "test_ids": [
+        "TEST-ECO-01-02"
+      ],
+      "rationale": "All-entry population — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0702",
+      "requirement_ids": [
+        "REQ-ECO-01-02"
+      ],
+      "test_ids": [
+        "TEST-ECO-01-02"
+      ],
+      "rationale": "Budget and actual numeric guard — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0703",
+      "requirement_ids": [
+        "REQ-ECO-01-02",
+        "REQ-ECO-01-03"
+      ],
+      "test_ids": [
+        "TEST-ECO-01-02",
+        "TEST-ECO-01-03"
+      ],
+      "rationale": "No forced new optimizer — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}
+

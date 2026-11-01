@@ -1,0 +1,70 @@
+{
+  "pass": "C63",
+  "bundle": "EXE-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C63-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high_bounded",
+      "source_ids": [
+        "B52"
+      ],
+      "title": "Late callback completed shared Future может синхронно блокировать event loop",
+      "evidence": [
+        "S02:223–241",
+        "S02:299–353",
+        "S02:949–951",
+        "P08"
+      ],
+      "remaining": "Согласовать existing callback owner и asyncio bridge так, чтобы регистрация delivery callback из event loop не ждала освобождения physical worker синхронно. Сохранить finite queue/physical-slot accounting и запрет nested oversubscription. Проверить completed-before-wrap и late-callback saturated owner как отдельные interleavings.",
+      "limits": "Actual whole Common owner; controlled submit interposition заставляет callable завершиться, а другой job занять единственный worker до wrap_future. Actual wrap blocks80.4ms, соседние ticks0, helper timeout10ms. Это responsiveness residual, не доказанный bypass owner hard deadline и не production deadlock. Timely callable result42 сам по себе не ошибочен."
+    },
+    {
+      "id": "C63-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B51",
+        "B52",
+        "B55"
+      ],
+      "title": "Native CAS/read-rights/recovery и full workflow chain не квалифицированы",
+      "evidence": [
+        "S06",
+        "S14",
+        "S15",
+        "S16",
+        "native_pytest.log",
+        "native_import.log"
+      ],
+      "remaining": "В supported runtime выполнить native existing cache budgets/slow I/O/atomicity/replay/deadline/fail-fast tests, включая denied source access и current applicability. Проверить fresh reader и partial immutable artifact vs current index semantics.",
+      "limits": "Actual cache scheduling methods executed with explicit cache and run/report fixtures; fixture не доказывает custody, provider thread-affinity, cross-process recovery или durable monetary settlement. Pytest отсутствует; import Core store blocked3.14syntax under3.12."
+    },
+    {
+      "id": "C63-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B52",
+        "B55"
+      ],
+      "title": "Latency/cancellation capacity и сохранение завершённых результатов требуют lane-level qualification",
+      "evidence": [
+        "S02",
+        "S01:1397–1600",
+        "S01:1720–1778",
+        "S17:162–184",
+        "P03",
+        "P06",
+        "P07"
+      ],
+      "remaining": "Измерить p95/p99 ожидания соседних задач, serialization/RAM и cache-hit cost на representative workload. Подтвердить physical slot retention, cancellation and completed independent result retention в общей execution/resume цепочке, не убивая потоки и не восстанавливая obsolete snapshots.",
+      "limits": "56ticks при60ms controlled read — responsiveness witness, не benchmark. Late fixture put index discarded, но no-late-CAS-bytes не обещано. Completed result persistence подробнее относится к последовательным RES packets; не закрыто этим scheduling probe."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C63-R01"
+  ],
+  "decision": "Action-specific read/compute budgets, off-loop cache I/O and post-semaphore fail-fast repairs действуют bounded. Shared Future late callback still stalls loop under controlled completion race."
+}

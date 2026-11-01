@@ -1,0 +1,91 @@
+{
+  "pass_id": "C79",
+  "bundle": "MIG-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C79-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "confidence": "high_within_bound",
+      "source_ids": [
+        "LA-010"
+      ],
+      "title": "Atomic text output оставляет временный файл при fsync failure до присваивания tmp_path",
+      "evidence": [
+        "S13:80–104",
+        "S01:43–49",
+        "P05"
+      ],
+      "reproduction": "Actual canonical main с валидным Trinity и собственными input/output files; unbound-output selector None. Injected os.fsync OSError после flush: exception доставлен, old output/input неизменны, один .output.*.tmp остаётся и содержит сформированный payload. os.replace failure control оставляет0 temp files.",
+      "impact": "Повторные ранние write/flush/fsync failures могут накапливать собственные temp outputs. Это не потеря старого output, false success, обход containment или доказательство power-loss failure.",
+      "remaining": "В существующем tools.lib.fs atomic writer удерживать имя созданного temp до операций, которые могут выбросить exception, и обеспечить cleanup на каждом failure path. Проверить write/flush/fsync/replace faults; сохранить atomic replace и scoped-output owner.",
+      "limits": "Исполнена исходная функция80–104; whole fs unsupported runtime и активный SecureOutputRoot path не квалифицированы. Fault injection локальный; production incident не установлен."
+    },
+    {
+      "id": "C79-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-010",
+        "LA-049"
+      ],
+      "title": "Registered/installed CLI и поддержанная runtime среда остаются непроверенными",
+      "evidence": [
+        "S18:234–259",
+        "S20:245–362",
+        "S21:1–48",
+        "native_verification.json"
+      ],
+      "remaining": "На Python3.14/Pydantic project baseline выполнить existing registered command body, real preflight/CLI exit handling, native filesystem/secure output failure cases и installed entry. Объединить LANE-06/CP2 с другими migration пакетами, не дублировать одинаковый крупный test на каждый.",
+      "limits": "Canonical main parser/JSON/YAML/real validator/actual atomic function исполнялись; полный tools.lib initializer, registered tools CLI и security-scoped writer не исполнены. Реальные native model imports/current guard доступны и проверены отдельно."
+    },
+    {
+      "id": "C79-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-010",
+        "LA-049"
+      ],
+      "title": "Compatibility retirement и error/return ABI требуют явной квалификации consumers",
+      "evidence": [
+        "S04:1–40",
+        "S05:1–121",
+        "S22:1–128",
+        "S23:569–576",
+        "S24:160–212",
+        "P03",
+        "P06",
+        "root_entry_census.json"
+      ],
+      "remaining": "Не восстанавливать retired root parser или Common constant ради старого адреса. Подтвердить supported external command lifecycle; сохранять tuple/auto_migrate/split contracts до согласованного окна. Явно зафиксировать parse JSONDecodeError/YAML ParserError отдельно от PolicyLoadError, identity no-op mapping отдельно от normalized helper dump, shape-only loader отдельно от exact-version owner.",
+      "limits": "Полный ограниченный census7021 tracked .py/.toml/.sh в src/tools/tests/architecture и pyproject дал1 filename-pattern test match,0 найденных executable root callers по выбранным patterns; это не внешний/dynamic census. Root path отсутствует в Git, source plan описывает историческое состояние. Текущий docstring обобщает PolicyLoadError, actual parser errors различаются; смена класса не должна молча ломать прежний ABI."
+    },
+    {
+      "id": "C79-G03",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-049"
+      ],
+      "title": "Валидация current model не аттестует конверсию/семантику/историческую поддержку",
+      "evidence": [
+        "S02:64–97",
+        "S03:1–33",
+        "S06:29–42",
+        "S12:15–26",
+        "P01",
+        "P03"
+      ],
+      "remaining": "Сохранять validation на public same-version boundary, отсутствие self-edge и отдельный converter owner. Для нового реального policy transition нужен собственный versioned conversion corpus/consumer verification; не создавать фиктивный migration report для no-op. Historical outputs не переаттестовывать нынешним validator задним числом.",
+      "limits": "Настоящий TrinityBundle и nested validators исполнены на bounded full structural fixtures, но semantic adequacy/empirical authority, registry-backed execution policy и production artifact admission не установлены. Dataset rename показывает отдельную реальную format conversion, не научную валидацию."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C79-R01"
+  ],
+  "protected_distinctions": [
+    "LK26",
+    "LK27"
+  ],
+  "decision": "Главный current-version validation repair выполнен; root duplicate retired. Низкий cleanup residual и native/lifecycle qualification остаются."
+}

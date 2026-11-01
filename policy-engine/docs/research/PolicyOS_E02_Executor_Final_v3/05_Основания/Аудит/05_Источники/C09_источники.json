@@ -1,0 +1,145 @@
+{
+  "pass_id": "C09_SIM02",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "C09-S01",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "requested_start_line": 350,
+      "requested_end_line": 430,
+      "topic": "EnginePlan/Request, plain string variable_map",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L350-L430",
+      "connector_citation": "turn125file0",
+      "reported_git_blob_sha": "2e3e5d5ec22f886eca00fcaa78265ab0db8d4f18",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C09-S02",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "requested_start_line": 3490,
+      "requested_end_line": 3745,
+      "topic": "composition, leaf paths, exact typed equality, step diagnostics",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L3490-L3745",
+      "connector_citation": "turn116file0",
+      "reported_git_blob_sha": "2e3e5d5ec22f886eca00fcaa78265ab0db8d4f18",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C09-S03",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "requested_start_line": 3830,
+      "requested_end_line": 4250,
+      "topic": "numeric extraction, state writes, queue/projector, explicit baseline",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L3830-L4250",
+      "connector_citation": "turn117file0",
+      "reported_git_blob_sha": "2e3e5d5ec22f886eca00fcaa78265ab0db8d4f18",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C09-S04",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "requested_start_line": 1090,
+      "requested_end_line": 1270,
+      "topic": "physical work interruption wrapper",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L1090-L1270",
+      "connector_citation": "turn118file0",
+      "reported_git_blob_sha": "2e3e5d5ec22f886eca00fcaa78265ab0db8d4f18",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C09-S05",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "requested_start_line": 1910,
+      "requested_end_line": 1990,
+      "topic": "run catches interruption and projects diagnostics",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L1910-L1990",
+      "connector_citation": "turn123file0",
+      "reported_git_blob_sha": "2e3e5d5ec22f886eca00fcaa78265ab0db8d4f18",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C09-S06",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "requested_start_line": 3060,
+      "requested_end_line": 3290,
+      "topic": "system dynamics and registry horizon adapters",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L3060-L3290",
+      "connector_citation": "turn122file0",
+      "reported_git_blob_sha": "2e3e5d5ec22f886eca00fcaa78265ab0db8d4f18",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C09-S07",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "requested_start_line": 760,
+      "requested_end_line": 890,
+      "topic": "scope and horizon coverage census",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L760-L890",
+      "connector_citation": "turn124file0",
+      "reported_git_blob_sha": "2e3e5d5ec22f886eca00fcaa78265ab0db8d4f18",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C09-S08",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+      "requested_start_line": 360,
+      "requested_end_line": 470,
+      "topic": "stock-flow numerical producer",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py#L360-L470",
+      "connector_citation": "turn121file0",
+      "reported_git_blob_sha": "d1c283347ebce85d7e06ac62d210d39d9ca02aa0",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C09-S09",
+      "path": "policy-engine/tests/unit/remediation/test_sim_02.py",
+      "requested_start_line": 1,
+      "requested_end_line": 360,
+      "topic": "missing/finite/zero tests and fixtures",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_sim_02.py#L1-L360",
+      "connector_citation": "turn112file0",
+      "reported_git_blob_sha": "6be395d2bcf28d27ea3a0ef0a67f64bc5ba5970b",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C09-S10",
+      "path": "policy-engine/tests/unit/remediation/test_sim_02.py",
+      "requested_start_line": 360,
+      "requested_end_line": 740,
+      "topic": "conflict and short coverage tests",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_sim_02.py#L360-L740",
+      "connector_citation": "turn113file0",
+      "reported_git_blob_sha": "6be395d2bcf28d27ea3a0ef0a67f64bc5ba5970b",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C09-S11",
+      "path": "policy-engine/tests/unit/remediation/test_sim_02.py",
+      "requested_start_line": 740,
+      "requested_end_line": 1130,
+      "topic": "program, overrides, queue tests",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_sim_02.py#L740-L1130",
+      "connector_citation": "turn114file0",
+      "reported_git_blob_sha": "6be395d2bcf28d27ea3a0ef0a67f64bc5ba5970b",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C09-S12",
+      "path": "policy-engine/tests/unit/remediation/test_sim_02.py",
+      "requested_start_line": 1130,
+      "requested_end_line": 1530,
+      "topic": "stock flow and registry output tests; EOF within requested range",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_sim_02.py#L1130-L1530",
+      "connector_citation": "turn115file0",
+      "reported_git_blob_sha": "6be395d2bcf28d27ea3a0ef0a67f64bc5ba5970b",
+      "full_blob_independently_reconstructed": false
+    }
+  ],
+  "original_requirement": {
+    "file": "E02_исходный_план.md",
+    "start_line": 1177,
+    "end_line": 1282
+  },
+  "reused_repository_instructions": "AGENTS.md and CONTRIBUTING.md already read at same pinned snapshot in preceding passes; unchanged SHA confirmed",
+  "web_check": "Public GitHub page was opened; its stale crawl was not used to establish source state. Connector commit/file reads govern this audit."
+}

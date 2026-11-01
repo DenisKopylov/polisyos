@@ -1,0 +1,447 @@
+{
+  "pass_id": "C127",
+  "bundle": "CLI-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/packages/runtime-api-client/scripts/generate-runtime-api-client.sh",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/packages/runtime-api-client/scripts/generate-runtime-api-client.sh",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          85
+        ]
+      ],
+      "evidence_level": "Полное чтение; exact Bash исполнялся с recorder tools. Native full generation test blocked missing dependency.",
+      "git_blob": "5b76f1a1b5f7cb41b5c2df5cb189a5688eb162f4",
+      "sha256": "3bd20e2c421ec6e703ce0b48c5a0a9ca5ced8e73a9464e33e1706136fbc5cc53",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/apps/runtime-dashboard/scripts/generate-api-client.sh",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/apps/runtime-dashboard/scripts/generate-api-client.sh",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          57
+        ]
+      ],
+      "evidence_level": "Полное чтение; exact Bash с recorder, downstream formatting отдельно.",
+      "git_blob": "256a29ccf87467638ef02e819d91789fb46727bb",
+      "sha256": "5d7fe962f2935ba6f88fd875aaaa07b686365f5341548b8922c02f1181347510",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/packages/runtime-api-client/package.json",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/packages/runtime-api-client/package.json",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          41
+        ]
+      ],
+      "evidence_level": "Полное чтение; actual exports/dependencies/scripts, metadata test PASS.",
+      "git_blob": "4f935309065e8e25d385043b5b7c5a26739f0921",
+      "sha256": "0e88f8dcea58be097b3249eee3692f670ed3dce44a799c71b84d6cf4daf29cf1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/packages/runtime-api-client/README.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/packages/runtime-api-client/README.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          226
+        ]
+      ],
+      "evidence_level": "Полное чтение; обещание selected operations, scratch handoff и отсутствие runtime authority.",
+      "git_blob": "f280d9a30763212311d70737afc0b3e2362cc2a9",
+      "sha256": "03e728d24651d5c36b9630def6aa39f4961dc2d1a3158cb70ab10d94f1cb2198",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          208
+        ]
+      ],
+      "evidence_level": "Полное чтение208строк; selected family/main executed, OpenAPI rendering adapter в main controls, не native full checker.",
+      "git_blob": "6d5f707d1f1a154001495a04df9ab1c3ef89c1a8",
+      "sha256": "a2a2ffaa91733b70a3d0a4bf709d0a418b5287aa1314d6aca4a536fec42de7b1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          709
+        ]
+      ],
+      "evidence_level": "Полное чтение709строк; native test load blocked typescript, scientific/type correctness не PASS.",
+      "git_blob": "bf8025a529e345923d01a95ea4df870641f061d9",
+      "sha256": "c723f936eb67d54f7b6dc428206b0dc87c60b78749ee8c3ed6f017d34fa64a8c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          222
+        ]
+      ],
+      "evidence_level": "Полное чтение222строки; native test load blocked typescript.",
+      "git_blob": "abca0260ecfb29b1b8c790c393a821070a587ec3",
+      "sha256": "6a294253f2099cea6205a0865a52aa3caa48962da1564666afe22f84208071c3",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/packages/runtime-api-client/runtimeApiClient.test.mjs",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/packages/runtime-api-client/runtimeApiClient.test.mjs",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          406
+        ]
+      ],
+      "evidence_level": "Полное чтение; actual node --test15PASS, fetch fixtures, no service.",
+      "git_blob": "a3a0230533ad26e2ec3ef442775e222f81cf092f",
+      "sha256": "752244f9d01516236a9b104cda0b37c00a9c4027b232cff6d94ca60d5da2368d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/packages/runtime-api-client/remediation.test.mjs",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/packages/runtime-api-client/remediation.test.mjs",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          103
+        ]
+      ],
+      "evidence_level": "Полное чтение;2native cases1PASS1environmentFAIL missing openapi-typescript.",
+      "git_blob": "378c366f8d5cce32d46b252dba062be26bf84a48",
+      "sha256": "a3cd0fa9f0fc6c7508a38ad421d1b711abc4c9796e7dc0a0c68c33009b2ab840",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/packages/runtime-api-client/scripts/canonicalize-runtime-client.test.mjs",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/packages/runtime-api-client/scripts/canonicalize-runtime-client.test.mjs",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          575
+        ]
+      ],
+      "evidence_level": "Полное чтение575строк; file loadFAIL before bodies, не count всех bodies.",
+      "git_blob": "5858e54a9ca55219bb50027bff7e56fd19ddb02a",
+      "sha256": "bd42ded02857b410be057b06707fa1980796f9c0c73814bc6508c949db3feb54",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/packages/runtime-api-client/scripts/normalize-recursive-openapi-types.test.mjs",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/packages/runtime-api-client/scripts/normalize-recursive-openapi-types.test.mjs",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          83
+        ]
+      ],
+      "evidence_level": "Полное чтение83строки; file loadFAIL before bodies.",
+      "git_blob": "bcf3cd644e1a55d9fb4be6060bf074a9b20fc9a8",
+      "sha256": "b82f3113a33a3b0febfcfd05ab478168584e7b55d8c6a6aa5ba239e9cfdde908",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/tools/ops_runners/runtime/generate_runtime_client.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/ops_runners/runtime/generate_runtime_client.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          699
+        ]
+      ],
+      "evidence_level": "Полное чтение701строка; native actual CLI on5custom fixtures, Node syntax/call probes. Whole current JSON parsed for selected operation census.",
+      "git_blob": "338a89927562bbb32bfdf094fbbee9467668ea94",
+      "sha256": "19a097bc6dc4ec95a0d236a58c3e969ded3789e33bdc691fe99cba986292b1cf",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/packages/runtime-api-client/scripts/check-architecture.mjs",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/packages/runtime-api-client/scripts/check-architecture.mjs",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          141
+        ]
+      ],
+      "evidence_level": "Полное чтение141строка; actual declared package gate exit1 with4violations; no dependencies required.",
+      "git_blob": "2a541ae64d52a351621e9a46202dd48536685830",
+      "sha256": "588c2ab388fb41bc3a989cdf370dd10b10b74a8329110a348c62a86894767457",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/packages/runtime-api-client/runtimeApiClient.type-test.ts",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/packages/runtime-api-client/runtimeApiClient.type-test.ts",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          211
+        ]
+      ],
+      "evidence_level": "Полное чтение211строк; strict discriminated/type-alias witnesses found, not typechecked.",
+      "git_blob": "f2149bc2e39696de0b66a02071eeb19b82d00ddc",
+      "sha256": "08bd3544019ad9d5a6723c378c80057cd9015256b5cd552b51fceea114d907f0",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/packages/runtime-api-client/tsconfig.json",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/packages/runtime-api-client/tsconfig.json",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          20
+        ]
+      ],
+      "evidence_level": "Полное чтение; current3output public family/type test, no native tsc execution.",
+      "git_blob": "69700bb09c4438d1760197515f6f1e0ca8a5b603",
+      "sha256": "6e6223067c8a9e1cee69e412df98dccc64a7050aad3be704378fa37d7f890603",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/packages/runtime-api-client/scripts/generate-openapi-types.mjs",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/packages/runtime-api-client/scripts/generate-openapi-types.mjs",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          90
+        ],
+        [
+          1228,
+          1283
+        ],
+        [
+          1450,
+          1522
+        ]
+      ],
+      "evidence_level": "Imports/full orchestration/CLI and prepareInputDocument read. Internal direction/null-admission algorithms not fully reviewed; no universal schema projection claim.",
+      "git_blob": "9f749b40b2e995c6785d894cb0d8f50b63bed28c",
+      "sha256": "38b865d77baa1cfcc6663dc3dceba64533b70ca914f9e4203e44fd5b7015d0cd",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          170
+        ],
+        [
+          250,
+          350
+        ],
+        [
+          730,
+          845
+        ]
+      ],
+      "evidence_level": "Shared request/query and selected actual operation methods read; whole module loaded by15native tests, not every991-line operation attested.",
+      "git_blob": "4992c4fa7dd56cb095fc4cda5eff4e6acbb1e7d3",
+      "sha256": "936edb25d5b6ad4b0cc345e1d7e1368c6f6ac366f204bbe54fd426e78bd00e98",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S18",
+      "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          90
+        ]
+      ],
+      "evidence_level": "Schema alias owner boundary read; full3975-line generated corpus not typechecked.",
+      "git_blob": "0775fe213766c307b9ef7259671fd07317236b20",
+      "sha256": "9bc6b6050d0778cb06de009c6a2f5289c65a8b0f8475ba5bef5429400c56a679",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S19",
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/architecture/generated_artifacts.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          801,
+          930
+        ]
+      ],
+      "evidence_level": "Both full relevant runtime-client/dashboard families read:3outputs, schema override, separate runtime paths.",
+      "git_blob": "5e5a00506b4e9fe894c7f9713d879c050f4b9d3d",
+      "sha256": "7b1ec6743ca528e250165f1933697e64cea4b1758cf2245a4e7fd0bbdc163c4b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S20",
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/devx/architecture/guardrails.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          6960,
+          7040
+        ],
+        [
+          7725,
+          7820
+        ],
+        [
+          8304,
+          8492
+        ],
+        [
+          8536,
+          8710
+        ]
+      ],
+      "evidence_level": "Full family measurement and aggregate/provisioning call paths read; registry/actual-output/bytes/escape/UNRUN mechanisms source-only, not all guardrails or live provisioning.",
+      "git_blob": "5ae7a7e997830fdd7d6f1f1167dec77e8030eb74",
+      "sha256": "739d5a08f6ecd23d594a7d2506dc0e9f0c3fb80bf9bc2fb727a0141c1efb1baf",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S21",
+      "path": "policy-engine/pnpm-lock.yaml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pnpm-lock.yaml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          460,
+          482
+        ]
+      ],
+      "evidence_level": "Exact package importer7.13.0/typescript5.9.3/prettier3.8.3 read; Python metadata test also checks dashboard importer absence. No installs/lock changes.",
+      "git_blob": "095a555d9a1eb173732f409550d5a1436c3be861",
+      "sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S22",
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          58
+        ],
+        [
+          2313,
+          2458
+        ]
+      ],
+      "evidence_level": "Package owner/version test unchanged executed PASS via AST; generation tests found/read but not full suite. Other2620-line tests not attested.",
+      "git_blob": "79b245c0bc5a842eeb1e8cae9be6de3a768d07de",
+      "sha256": "71358209e73aef26da41db78c7d89eb864643bb4eb96e8cbca22fa4f829caf32",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S23",
+      "path": "policy-engine/tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          169,
+          211
+        ]
+      ],
+      "evidence_level": "Complete selected service bridge test read; not executed. Earlier helper output was truncated, no whole-file claim.",
+      "git_blob": "ad8c6b851df67285ed65429100e1a011283c7bdb",
+      "sha256": "759722a3d2f6e7fdad9937dfec423e7cf9737ac5e6551d865ab622d82b0086cc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S24",
+      "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/schemas/runtime_api_v1.openapi.json",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          12
+        ]
+      ],
+      "evidence_level": "Header read; entire JSON byte-parsed by actual generator for103selected operations inventory with SHA. Not full line-by-line schema/endpoint review.",
+      "git_blob": "957b5a263af6338e8921db4bf430bfcfa34c4965",
+      "sha256": "19ee4209ae4cba940ffff7c8e41fb7e37cb6a217f9dbecaa32fd803b5a64388a",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

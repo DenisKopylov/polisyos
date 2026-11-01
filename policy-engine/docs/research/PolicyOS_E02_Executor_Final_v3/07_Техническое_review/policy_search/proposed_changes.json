@@ -1,0 +1,306 @@
+{
+  "schema_version": 1,
+  "status": "FROZEN_PROPOSAL_FOR_PARENT_INTEGRATION_NOT_PRODUCT_IMPLEMENTATION",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "scope": "5 modified packet MD/JSON pairs + LANE-01/02 overviews only; no shared03/aggregate04/baseline/product edits",
+  "parent_authorization": "Root message 2026-11-01 11:36 UTC after findings triage",
+  "new_requirement_ids": [],
+  "new_test_ids": [],
+  "new_decision_ids": [
+    "DEC-FUN-03-03",
+    "DEC-OPT-03-02",
+    "DEC-SIM-03-02"
+  ],
+  "finding_to_existing_ids": {
+    "PS-F01": [
+      "REQ-FUN-03-02",
+      "REQ-FUN-03-03",
+      "TEST-FUN-03-02",
+      "TEST-FUN-03-03"
+    ],
+    "PS-F07": [
+      "REQ-FUN-03-02",
+      "TEST-FUN-03-02"
+    ],
+    "PS-F03": [
+      "REQ-OPT-02-01",
+      "TEST-OPT-02-01"
+    ],
+    "PS-F04": [
+      "REQ-SIM-03-03",
+      "TEST-SIM-03-03"
+    ],
+    "PS-F08": [
+      "REQ-SIM-03-01",
+      "TEST-SIM-03-01",
+      "DEC-SIM-03-02"
+    ],
+    "PS-F02": [
+      "REQ-OPT-03-04",
+      "REQ-TRN-01-03",
+      "DEC-OPT-03-02"
+    ]
+  },
+  "optional_extension_activation": "DEC-OPT-03-02 is optional bounded capability choice. Existing fitted-native source guard, cold rows not fitted sources, current REQ/TEST/local DoD unchanged; no mandatory new profile/tests until separately specified and qualified.",
+  "files": [
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/FUN-03.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/FUN-03.md",
+      "old_sha256": "6833f5a3c6360320c4a5d7816d0f1fd6790e35486491da177f9e9fe2d3f318e6",
+      "new_sha256": "992b3355f65e78a3e95358bc9626b10a81ffccadec341c9802bd482cecc8433f",
+      "packet": "FUN-03",
+      "finding_ids": [
+        "PS-F01",
+        "PS-F07"
+      ],
+      "changed_requirement_ids": [
+        "REQ-FUN-03-02",
+        "REQ-FUN-03-03"
+      ],
+      "changed_test_ids": [
+        "TEST-FUN-03-02",
+        "TEST-FUN-03-03"
+      ],
+      "new_requirement_ids": [],
+      "new_test_ids": [],
+      "new_decision_ids": [
+        "DEC-FUN-03-03"
+      ],
+      "status": "PROPOSED_SPEC_ONLY_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/FUN-03.json",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/FUN-03.json",
+      "old_sha256": "b57cacfe7087b248336a5f571bb39dcd7f0ddbb0eb363e6ff67561bed4573310",
+      "new_sha256": "ac82c1f8596a70b77c206d16b0e223d95e82917e7040ea174569378ceb3eafbd",
+      "packet": "FUN-03",
+      "finding_ids": [
+        "PS-F01",
+        "PS-F07"
+      ],
+      "changed_requirement_ids": [
+        "REQ-FUN-03-02",
+        "REQ-FUN-03-03"
+      ],
+      "changed_test_ids": [
+        "TEST-FUN-03-02",
+        "TEST-FUN-03-03"
+      ],
+      "new_requirement_ids": [],
+      "new_test_ids": [],
+      "new_decision_ids": [
+        "DEC-FUN-03-03"
+      ],
+      "status": "PROPOSED_SPEC_ONLY_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/OPT-02.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/OPT-02.md",
+      "old_sha256": "b3057778bfdca3e4a3d76b44ff2426d3fc6a9c7194a2541f8c6d443885e529fe",
+      "new_sha256": "dc961a4c49cf01cdcbf6a7dad1726e4ff43b9dc2715d8804c534e851526db8f0",
+      "packet": "OPT-02",
+      "finding_ids": [
+        "PS-F03"
+      ],
+      "changed_requirement_ids": [
+        "REQ-OPT-02-01"
+      ],
+      "changed_test_ids": [
+        "TEST-OPT-02-01"
+      ],
+      "new_requirement_ids": [],
+      "new_test_ids": [],
+      "new_decision_ids": [],
+      "status": "PROPOSED_SPEC_ONLY_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/OPT-02.json",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/OPT-02.json",
+      "old_sha256": "587b1172356c6d6df12070cf70840b25524cf5dd1b914193c56143ad6fa85c13",
+      "new_sha256": "239697d9f421eaf0a1b0cb90ed04efde3858499d7133525d3ebd1274e3fd6f5c",
+      "packet": "OPT-02",
+      "finding_ids": [
+        "PS-F03"
+      ],
+      "changed_requirement_ids": [
+        "REQ-OPT-02-01"
+      ],
+      "changed_test_ids": [
+        "TEST-OPT-02-01"
+      ],
+      "new_requirement_ids": [],
+      "new_test_ids": [],
+      "new_decision_ids": [],
+      "status": "PROPOSED_SPEC_ONLY_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/SIM-03.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/SIM-03.md",
+      "old_sha256": "d7f0dbaa314c11ec906bfe3e5c6d8420b6c291da39fc4d0c6eb23c17abcd4ce4",
+      "new_sha256": "aa14bc4c7dd580eb9c50f093616aebce060449afca42b4bec141aff9b0cf0a5e",
+      "packet": "SIM-03",
+      "finding_ids": [
+        "PS-F04",
+        "PS-F08"
+      ],
+      "changed_requirement_ids": [
+        "REQ-SIM-03-01",
+        "REQ-SIM-03-03"
+      ],
+      "changed_test_ids": [
+        "TEST-SIM-03-01",
+        "TEST-SIM-03-03"
+      ],
+      "new_requirement_ids": [],
+      "new_test_ids": [],
+      "new_decision_ids": [
+        "DEC-SIM-03-02"
+      ],
+      "status": "PROPOSED_SPEC_ONLY_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/SIM-03.json",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/SIM-03.json",
+      "old_sha256": "5397b780ec111b0417696365a8dea17e3cc1a3ea9a498727dfd2b56d6fb5fc91",
+      "new_sha256": "00a5dcab73db7c1f62a2e05416a0b7df50307d1f99cd3e6db08bd53f6a0e710a",
+      "packet": "SIM-03",
+      "finding_ids": [
+        "PS-F04",
+        "PS-F08"
+      ],
+      "changed_requirement_ids": [
+        "REQ-SIM-03-01",
+        "REQ-SIM-03-03"
+      ],
+      "changed_test_ids": [
+        "TEST-SIM-03-01",
+        "TEST-SIM-03-03"
+      ],
+      "new_requirement_ids": [],
+      "new_test_ids": [],
+      "new_decision_ids": [
+        "DEC-SIM-03-02"
+      ],
+      "status": "PROPOSED_SPEC_ONLY_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/OPT-03.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/OPT-03.md",
+      "old_sha256": "3e35e027ab532d71189096e7063f624e0b6cbd6ffa79d89630791c78e5a12c1b",
+      "new_sha256": "ac39c763c00a38184ea26a2184b3eca6af77d3db283077810c02ba789e67320e",
+      "packet": "OPT-03",
+      "finding_ids": [
+        "PS-F02"
+      ],
+      "changed_requirement_ids": [
+        "REQ-OPT-03-04"
+      ],
+      "changed_test_ids": [],
+      "new_requirement_ids": [],
+      "new_test_ids": [],
+      "new_decision_ids": [
+        "DEC-OPT-03-02"
+      ],
+      "status": "PROPOSED_SPEC_ONLY_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/OPT-03.json",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/OPT-03.json",
+      "old_sha256": "9c0e63efed7a71642fe37784e6cddcb2af7efc585e28df5a04dabea97bf20e25",
+      "new_sha256": "b0311bca091c8d8a9bdaac805549bb7d2943b50062cb730eaec4c9106d1e4cae",
+      "packet": "OPT-03",
+      "finding_ids": [
+        "PS-F02"
+      ],
+      "changed_requirement_ids": [
+        "REQ-OPT-03-04"
+      ],
+      "changed_test_ids": [],
+      "new_requirement_ids": [],
+      "new_test_ids": [],
+      "new_decision_ids": [
+        "DEC-OPT-03-02"
+      ],
+      "status": "PROPOSED_SPEC_ONLY_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/TRN-01.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/TRN-01.md",
+      "old_sha256": "5d20bedd7e1011b64d09cf3c9c756651bbfb314fd9aa6b66fd875e5e190a1c2b",
+      "new_sha256": "acb63f3f975fb5c24f8da00b67b1673a232ec256c761f03fd9b820fb58efed8e",
+      "packet": "TRN-01",
+      "finding_ids": [
+        "PS-F02"
+      ],
+      "changed_requirement_ids": [
+        "REQ-TRN-01-03"
+      ],
+      "changed_test_ids": [],
+      "new_requirement_ids": [],
+      "new_test_ids": [],
+      "new_decision_ids": [],
+      "status": "PROPOSED_SPEC_ONLY_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/TRN-01.json",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/TRN-01.json",
+      "old_sha256": "53468e110aa9e2ecc770bc25c64de7ae8418634f7405239a244959fe8fa355b1",
+      "new_sha256": "cf3748957343529fed819e191e82ac590c7cff2e641bb9d14e205e7bb2508397",
+      "packet": "TRN-01",
+      "finding_ids": [
+        "PS-F02"
+      ],
+      "changed_requirement_ids": [
+        "REQ-TRN-01-03"
+      ],
+      "changed_test_ids": [],
+      "new_requirement_ids": [],
+      "new_test_ids": [],
+      "new_decision_ids": [],
+      "status": "PROPOSED_SPEC_ONLY_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/01_Лейны/LANE-01.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/01_Лейны/LANE-01.md",
+      "old_sha256": "60e37988d181aaaf1054089498b34d851ea7d7fb8a97eeefc07f2f4b37367ecd",
+      "new_sha256": "8c4a9ffa024a39d88eb10f940882e653a315e8817505a5616e3c47f2122b062c",
+      "lane": "LANE-01",
+      "finding_ids": [
+        "PS-F04",
+        "PS-F08"
+      ],
+      "changed_requirement_ids": [],
+      "changed_test_ids": [],
+      "new_requirement_ids": [],
+      "new_test_ids": [],
+      "new_decision_ids": [],
+      "status": "PROPOSED_OVERVIEW_ONLY_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/01_Лейны/LANE-02.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/01_Лейны/LANE-02.md",
+      "old_sha256": "ca33cbf6b608d6f1398c9e46287c92d31bfa42c984826e56a6f7b727aa93f47e",
+      "new_sha256": "f32af01898b24a89803e9812697273403813e692c45c1601b33bb717a92e27b3",
+      "lane": "LANE-02",
+      "finding_ids": [
+        "PS-F01",
+        "PS-F02",
+        "PS-F03",
+        "PS-F07"
+      ],
+      "changed_requirement_ids": [],
+      "changed_test_ids": [],
+      "new_requirement_ids": [],
+      "new_test_ids": [],
+      "new_decision_ids": [],
+      "status": "PROPOSED_OVERVIEW_ONLY_NOT_RUN"
+    }
+  ],
+  "verification": {
+    "md_json_updated_text_consistency": "PASS_DOCUMENT_CHECK",
+    "all_existing_REQ_TEST_ids_preserved": true,
+    "preservation_bindings_and_residuals_unchanged": true,
+    "all_product_test_statuses": "NOT_RUN",
+    "baseline_hashes_unchanged": true
+  }
+}

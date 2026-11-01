@@ -1,0 +1,607 @@
+{
+  "metadata": {
+    "title": "Исследование security / trust / release / operations для последующей source-based проверки E02",
+    "language": "ru",
+    "phase": "RESEARCH_ONLY",
+    "created_on": "2026-11-01",
+    "future_target": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2",
+    "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+    "expected_future_audit_inventory": {
+      "packets": 127,
+      "lanes": 12,
+      "scenarios_main": 38,
+      "scenarios_additional": 4
+    },
+    "applied_to_specs": false,
+    "product_or_spec_changes": false,
+    "tests_or_exploits_executed": false,
+    "method": "Источники дают основание; формулировки критериев и синтетические контрпримеры — аналитический вывод для будущего review, не цитаты и не findings.",
+    "finding_threshold": "Сначала установить applicability; затем найти точное место в текущей спеке и противоречие/omission. Не превращать отсутствие источника или теста в доказанную runtime уязвимость."
+  },
+  "criteria": [
+    {
+      "id": "SR-01",
+      "title": "Gate проверяет свойство, а не наличие файла или количество тестов",
+      "phase": "RESEARCH_ONLY_NOT_APPLIED",
+      "source_refs": [
+        {
+          "source_id": "SR-S01",
+          "sections": "PO.4.1–PO.4.2; PW.8.1–PW.8.2"
+        },
+        {
+          "source_id": "SR-S18",
+          "sections": "Create Unit and Integration Test Cases"
+        }
+      ],
+      "applicability_trigger": "Пакет или lane объявляет security/release gate, PASS, evidence или coverage.",
+      "defective_formulation": "«Есть test_report.json и все обязательные ключи — релиз безопасен».",
+      "counterexample": "Набор содержит 127 syntactically valid отчётов, но каждый проверяет только собственный happy path; отсутствует запрещённый cross-packet переход.",
+      "derived_review_rule": "Выделить независимые уровни: полнота перечня, смысл oracle, связь с target revision, реально исполненный тест. Ни один уровень не заменяет следующий.",
+      "positive_evidence_required": [
+        "В спеке указаны проверяемый инвариант, scope, oracle и конкретные свидетельства PASS.",
+        "Тест с разрешённым входом действительно достигает полезного эффекта; evidence указывает fixture, verifier и target."
+      ],
+      "negative_evidence_required": [
+        "Для каждого выбранного gate есть контрпример, нарушающий ровно соответствующее свойство и отвергаемый по ожидаемой причине.",
+        "Пустой/неполный/устаревший/от другого target отчёт не становится PASS."
+      ],
+      "scope_and_limits": "Требование review-методики; отсутствие runtime evidence означает NOT_TESTED, а не доказанную уязвимость. SSDF не требует 127 security suites или тотального pentest.",
+      "tradeoffs": "Дорогие проверки концентрируются на активных trust boundaries; общий тест допустим при явной трассировке применимости.",
+      "minimum_spec_contract": "Property + trigger + expected allow/deny/effect + artifact identity + evidence source + missing-evidence outcome.",
+      "lane_integration_obligation": "Нужны межпакетные цепочки для границ, которые не наблюдаемы локальным unit test.",
+      "audit_status": "NOT_ASSESSED",
+      "tests_executed": false
+    },
+    {
+      "id": "SR-02",
+      "title": "Целостность, ожидаемая идентичность и доверие к происхождению различаются",
+      "phase": "RESEARCH_ONLY_NOT_APPLIED",
+      "source_refs": [
+        {
+          "source_id": "SR-S03",
+          "sections": "Steps 1–2; Forming Expectations"
+        },
+        {
+          "source_id": "SR-S01",
+          "sections": "PS.2.1; PS.3.1"
+        }
+      ],
+      "applicability_trigger": "Передача/release/исполнение артефактов, manifest, provenance, подписанных отчётов или derived assets.",
+      "defective_formulation": "«SHA совпал / подпись валидна — использовать можно».",
+      "counterexample": "Правильно подписанный артефакт собран из неразрешённого fork; или digest относится к JSON summary, а исполняется другой blob по mutable URL.",
+      "derived_review_rule": "Проверять, какие именно bytes/семантический объект связаны с evidence, и отдельно — ожидаемые source, builder, параметры и authority. Trust policy не может быть произвольно выбрана самим объектом.",
+      "positive_evidence_required": [
+        "Разрешённый источник/процесс/параметры и точный consumable artifact проходят цепочку проверки.",
+        "Записаны происхождение trust configuration и её версия."
+      ],
+      "negative_evidence_required": [
+        "Подмена subject digest, builder, repository или существенного parameter отклоняется независимо.",
+        "Замена артефакта после publication-time verification выявляется у точки потребления или исключается доказанным immutable handoff."
+      ],
+      "scope_and_limits": "SLSA adoption, конкретный level, подпись каждого внутреннего файла и новый registry не требуются. Проверенный provenance не доказывает корректность или отсутствие уязвимостей.",
+      "tradeoffs": "Полная provenance дороже простого authenticated immutable handoff; выбирается граница, соответствующая источнику риска.",
+      "minimum_spec_contract": "Exact object identity; trust root/expectations; verifier decision; authorized use; binding до потребления.",
+      "lane_integration_obligation": "Проверить producer → transport/store → consumer, а не только генератор manifest.",
+      "audit_status": "NOT_ASSESSED",
+      "tests_executed": false
+    },
+    {
+      "id": "SR-03",
+      "title": "Свежесть допуска отдельно от воспроизводимости старого snapshot",
+      "phase": "RESEARCH_ONLY_NOT_APPLIED",
+      "source_refs": [
+        {
+          "source_id": "SR-S04",
+          "sections": "§5.1; §5.3–5.5; §5.7"
+        },
+        {
+          "source_id": "SR-S03",
+          "sections": "Forming Expectations"
+        }
+      ],
+      "applicability_trigger": "Используются allowlists, release channels, policy/approval versions, expiry или обещание «актуально».",
+      "defective_formulation": "«Любой ранее подписанный bundle допустим» либо «любой старый snapshot недействителен».",
+      "counterexample": "Сохранённый snapshot нужен для исторического replay, но его давно отозванный approval ошибочно разрешает новое production действие.",
+      "derived_review_rule": "Развести историческую проверку as-of фиксированного времени/версии и текущий operational admit. Для второго определить источник свежести и правила устаревания/отзыва.",
+      "positive_evidence_required": [
+        "Исторический snapshot воспроизводится в заявленном read-only режиме без выданного права на новое действие.",
+        "Current admit использует ожидаемую policy/version и авторизованный rollback при необходимости."
+      ],
+      "negative_evidence_required": [
+        "Просроченный или отозванный approval не даёт новый admit даже с корректным hash/signature.",
+        "Смешанные версии policy/metadata и потеря freshness source дают явно заданный исход, не скрытый PASS."
+      ],
+      "scope_and_limits": "TUF защищает update metadata, не любую бизнес-авторизацию. Нельзя автоматически запрещать исторические данные; обычный rollback релиза не равен атаке rollback metadata.",
+      "tradeoffs": "Offline availability конфликтует с мгновенным отзывом: нужен явно ограниченный stale window или отказ, а не обещание обоих без механизма.",
+      "minimum_spec_contract": "As-of vs current mode; version/time authority; allowed staleness; revocation; authorized rollback path.",
+      "lane_integration_obligation": "Связать approval producer, очередь, consumer и release gate на одной проверяемой временной шкале.",
+      "audit_status": "NOT_ASSESSED",
+      "tests_executed": false
+    },
+    {
+      "id": "SR-04",
+      "title": "TOCTOU: решение связано с фактически использованным объектом и действующими правами",
+      "phase": "RESEARCH_ONLY_NOT_APPLIED",
+      "source_refs": [
+        {
+          "source_id": "SR-S12",
+          "sections": "Description; Potential Mitigations"
+        },
+        {
+          "source_id": "SR-S02",
+          "sections": "8.3.2"
+        }
+      ],
+      "applicability_trigger": "Между validate/approve и read/execute/commit возможны задержка, конкурентная запись, alias swap или отзыв прав.",
+      "defective_formulation": "«Проверить права и hash в начале, затем исполнить; быстрый retry закрывает race».",
+      "counterexample": "В t0 разрешены revision A и роль редактора; до t1 alias указывает на B или роль отозвана; эффект всё равно совершается.",
+      "derived_review_rule": "Спека должна назвать точку, в которой связываются решение, resource identity/version и эффект, и механизм против инвалидирующего interleaving.",
+      "positive_evidence_required": [
+        "Без изменений разрешённая операция завершается с тем target, который проверялся.",
+        "При допустимом concurrent update оговорён retry/revalidation или version conflict."
+      ],
+      "negative_evidence_required": [
+        "Контролируемая пауза между check/use, затем resource replacement или revocation: новый запрещённый эффект/раскрытие не происходит.",
+        "Проверка «после» не объявлена достаточной защитой от уже выданного секрета."
+      ],
+      "scope_and_limits": "Не каждое immutable local read требует распределённой транзакции. Конкретная реализация atomic/CAS/lock/lease выбирается отдельно; уменьшение окна не доказательство отсутствия race.",
+      "tradeoffs": "Сильный fencing стоит latency/availability; при bounded stale праве размер окна должен соответствовать риску.",
+      "minimum_spec_contract": "Decision binding + validity window + invalidation + conflict behavior + effect boundary.",
+      "lane_integration_obligation": "Негативный interleaving важен через очередь/adapter/consumer, не только внутри функции проверки.",
+      "audit_status": "NOT_ASSESSED",
+      "tests_executed": false
+    },
+    {
+      "id": "SR-05",
+      "title": "Authorization покрывает функцию, существующий чужой объект и защищённые поля",
+      "phase": "RESEARCH_ONLY_NOT_APPLIED",
+      "source_refs": [
+        {
+          "source_id": "SR-S02",
+          "sections": "8.1.1–8.2.3; 8.3.1"
+        },
+        {
+          "source_id": "SR-S10",
+          "sections": "Summary; Horizontal testing"
+        },
+        {
+          "source_id": "SR-S11",
+          "sections": "How to Test"
+        }
+      ],
+      "applicability_trigger": "Есть разные субъекты, roles, ownership или частично доступные поля/операции.",
+      "defective_formulation": "«Пользователь аутентифицирован; неизвестный ID возвращает 404; UI скрывает кнопку».",
+      "counterexample": "Два пользователя имеют одну роль; оба знают существующие object IDs. Второй может экспортировать чужой объект или записать закрытое поле через альтернативный endpoint.",
+      "derived_review_rule": "Проверять authority в доверенной точке для точной операции/объекта/поля; тест чужого объекта должен использовать существующий объект и заведомо различимые разрешения.",
+      "positive_evidence_required": [
+        "Разрешённый субъект читает/меняет ровно допустимые объект и поля.",
+        "Публичный ресурс остаётся доступным согласно контракту."
+      ],
+      "negative_evidence_required": [
+        "Анонимный, logged-out, другой owner той же роли и недостаточная роль не достигают запретного результата.",
+        "Отказ проверяется по состоянию/раскрытию данных, а не только HTTP status."
+      ],
+      "scope_and_limits": "Не требуются RBAC, ABAC, UI или web endpoints, если их нет. Не каждый 404 означает security defect; oracle учитывает сознательное сокрытие существования.",
+      "tradeoffs": "Подробные ошибки удобнее диагностики, но раскрывают ownership/existence; внутренний audit и внешний ответ могут различаться.",
+      "minimum_spec_contract": "Subject × operation × resource × fields × context; trusted enforcement; observable allow/deny outcome.",
+      "lane_integration_obligation": "Одинаковая политика для direct API, export/import, batch и adapter путей, если они присутствуют.",
+      "audit_status": "NOT_ASSESSED",
+      "tests_executed": false
+    },
+    {
+      "id": "SR-06",
+      "title": "Делегирование не подменяет права пользователя привилегиями посредника",
+      "phase": "RESEARCH_ONLY_NOT_APPLIED",
+      "source_refs": [
+        {
+          "source_id": "SR-S02",
+          "sections": "8.3.3"
+        },
+        {
+          "source_id": "SR-S18",
+          "sections": "Enforce Least Privileges"
+        }
+      ],
+      "applicability_trigger": "Сервис, worker, агент или adapter действует от имени субъекта либо выполняет явно системную операцию.",
+      "defective_formulation": "«Внутренний сервис доверенный; его machine token разрешает всё downstream».",
+      "counterexample": "Непривилегированный пользователь вызывает экспорт; посредник с широкими полномочиями выгружает ресурс, недоступный исходному пользователю.",
+      "derived_review_rule": "Контракт различает originating principal, intermediary и system authority; явно задаёт, чьи права ограничивают эффект и какую scope можно делегировать.",
+      "positive_evidence_required": [
+        "Разрешённый delegated request сохраняет достаточный проверенный контекст до конечного ресурса.",
+        "Независимая системная задача имеет собственное явно разрешённое назначение и scope."
+      ],
+      "negative_evidence_required": [
+        "Недостаточное исходное право не становится достаточным из-за широкого service account.",
+        "Подмена subject/delegation или отсутствие обязательного контекста не создаёт default superuser."
+      ],
+      "scope_and_limits": "Не требуется передавать пользовательский bearer token повсюду; возможны ограниченные capabilities/проверенная delegation. Глобальные system jobs не нужно искусственно изображать пользователем.",
+      "tradeoffs": "Передача end-user credentials расширяет поверхность утечки; суженный проверяемый контекст сложнее, но уменьшает полномочия.",
+      "minimum_spec_contract": "Principal origin; authority basis; delegation scope/audience; downstream enforcement; missing-context outcome.",
+      "lane_integration_obligation": "Нужен тест полного пути caller → intermediary → final resource.",
+      "audit_status": "NOT_ASSESSED",
+      "tests_executed": false
+    },
+    {
+      "id": "SR-07",
+      "title": "Tenant isolation распространяется на cache, jobs, blobs и дедупликацию",
+      "phase": "RESEARCH_ONLY_NOT_APPLIED",
+      "source_refs": [
+        {
+          "source_id": "SR-S19",
+          "sections": "§1; §4; §5 asynchronous work; §6"
+        },
+        {
+          "source_id": "SR-S02",
+          "sections": "8.4.1"
+        }
+      ],
+      "applicability_trigger": "Данные/права/эффекты различаются по tenant или namespace в разделяемой инфраструктуре.",
+      "defective_formulation": "«tenant_id есть в JSON и SQL; следовательно все пути изолированы».",
+      "counterexample": "Два tenant используют одинаковый local ID или idempotency key; кэш, retry/DLQ или экспорт возвращает результат соседа.",
+      "derived_review_rule": "Определить verified context и его scope во всех tenant-sensitive shared state; client selector не заменяет permission. Явные global/cross-tenant данные допустимы только по отдельной модели.",
+      "positive_evidence_required": [
+        "Одинаковые локальные IDs в двух tenants дают независимые результаты и effects.",
+        "Разрешённый global asset остаётся осознанно общим."
+      ],
+      "negative_evidence_required": [
+        "Подмена tenant selector, потеря context при dequeue, общий cache key или чужой blob не дают утечку/эффект.",
+        "Delayed job учитывает изменение time-sensitive membership согласно контракту."
+      ],
+      "scope_and_limits": "Не требуются отдельная DB, очередь или криптоключ для каждого tenant. Применять только к реально tenant-scoped state.",
+      "tradeoffs": "Физическая изоляция дороже; общая инфраструктура допустима, но границы и шумный сосед нуждаются в проверке.",
+      "minimum_spec_contract": "Scope classification + verified context + key namespaces + storage/async enforcement + explicit global exceptions.",
+      "lane_integration_obligation": "Проверить crossing request → queue/cache/store → export/consumer.",
+      "audit_status": "NOT_ASSESSED",
+      "tests_executed": false
+    },
+    {
+      "id": "SR-08",
+      "title": "Один payload имеет одну security-семантику на всех parser/interpreter границах",
+      "phase": "RESEARCH_ONLY_NOT_APPLIED",
+      "source_refs": [
+        {
+          "source_id": "SR-S05",
+          "sections": "1.1.1–1.1.2; 1.5.1–1.5.3"
+        },
+        {
+          "source_id": "SR-S13",
+          "sections": "§4; §6; §8.1; §9"
+        }
+      ],
+      "applicability_trigger": "Входные JSON/XML/URI/path/manifest проходят несколько decoders, validators или interpreters.",
+      "defective_formulation": "«Payload прошёл JSON schema; любые дальнейшие parse/normalization безопасны».",
+      "counterexample": "Validator видит первое одноимённое поле allow=false, consumer — последнее allow=true; либо percent-decoding после проверки меняет значение пути.",
+      "derived_review_rule": "Зафиксировать grammar/version/encoding, decode order, неоднозначности и limits. Raw ambiguity не исчезает от schema validation уже потерявшего дубликаты объекта.",
+      "positive_evidence_required": [
+        "Допустимый encoding и representative boundary values дают одинаковое canonical meaning у verifier и consumer."
+      ],
+      "negative_evidence_required": [
+        "Duplicate security-relevant fields, unsupported forms, malformed encoding и divergent parsing либо явно отвергаются, либо имеют доказанно одинаковую безопасную семантику.",
+        "Контекстно опасное значение остаётся данными в используемом sink."
+      ],
+      "scope_and_limits": "RFC 8259 не делает reject-duplicates универсальным MUST; это рекомендуемое разрешение ambiguity для security-sensitive контракта. Никакие malicious payloads не исполнялись.",
+      "tradeoffs": "Строгий parser снижает ambiguity, но может ломать legacy producers; tolerant intake допустим только с единым нормализованным представлением.",
+      "minimum_spec_contract": "Accepted bytes/types + normalization order + ambiguity policy + parser agreement + resource bounds.",
+      "lane_integration_obligation": "Тестировать те же bytes на input validator, signer/verifier и фактическом consumer.",
+      "audit_status": "NOT_ASSESSED",
+      "tests_executed": false
+    },
+    {
+      "id": "SR-09",
+      "title": "Валидные поля не означают допустимую комбинацию и ограниченную работу",
+      "phase": "RESEARCH_ONLY_NOT_APPLIED",
+      "source_refs": [
+        {
+          "source_id": "SR-S06",
+          "sections": "2.1.1–2.2.3; 2.3.1–2.3.4; 2.4.1"
+        },
+        {
+          "source_id": "SR-S07",
+          "sections": "13.1.2–13.1.3"
+        }
+      ],
+      "applicability_trigger": "Есть связанных input fields, workflow state, batch/fan-out, лимитируемые ресурсы или внешние зависимости.",
+      "defective_formulation": "«Проверить типы; retry до успеха; batch_size — положительное число».",
+      "counterexample": "Каждый параметр допустим, но вместе depth×fan-out×retries создаёт неограниченную работу; action и target state противоречат друг другу.",
+      "derived_review_rule": "Указать cross-field invariants и бюджет на весь operation, не только отдельный запрос. Порядок шагов и частичный эффект должны иметь oracle.",
+      "positive_evidence_required": [
+        "Граничный допустимый объём и согласованная комбинация завершаются с нужным результатом.",
+        "Задержка зависимости укладывается в обещанный общий deadline/resource bound."
+      ],
+      "negative_evidence_required": [
+        "Несогласованные поля, skipped state, превышение aggregate limit или exhaustion дают определённый отказ/partial outcome без запрещённого эффекта."
+      ],
+      "scope_and_limits": "Не вводятся произвольные числа, CAPTCHAs или квоты для offline pure function. Пределы выводятся из заявленной нагрузки/риска.",
+      "tradeoffs": "Низкие лимиты снижают доступность для легитимного bulk; high limits увеличивают стоимость и blast radius.",
+      "minimum_spec_contract": "Cross-field rules; allowed state transitions; aggregate timeout/resource budget; partial-result contract.",
+      "lane_integration_obligation": "Локальный лимит должен композиционно ограничивать fan-out и повторения всего lane.",
+      "audit_status": "NOT_ASSESSED",
+      "tests_executed": false
+    },
+    {
+      "id": "SR-10",
+      "title": "Диагностика и evidence не становятся каналом секретов",
+      "phase": "RESEARCH_ONLY_NOT_APPLIED",
+      "source_refs": [
+        {
+          "source_id": "SR-S07",
+          "sections": "13.1.4; 13.3.1"
+        },
+        {
+          "source_id": "SR-S08",
+          "sections": "14.1.1–14.2.4"
+        },
+        {
+          "source_id": "SR-S09",
+          "sections": "16.2.5; 16.5.1"
+        }
+      ],
+      "applicability_trigger": "Обрабатываются secrets, session credentials, sensitive tenant data; создаются logs, exports, test artifacts или release bundles.",
+      "defective_formulation": "«Для воспроизводимости приложить полный request/env; Base64 безопасно; секрет вырезан из UI».",
+      "counterexample": "Секрет отсутствует в UI, но присутствует в generated manifest, exception trace, cache snapshot или приложенном fixture.",
+      "derived_review_rule": "Классификация данных должна действовать на весь жизненный цикл derived artifacts, включая failure paths; воспроизводимость не оправдывает раскрытие.",
+      "positive_evidence_required": [
+        "Минимальные синтетические/редактированные evidence воспроизводят диагноз без реальных секретов.",
+        "Авторизованная операция получает нужный секрет по предусмотренной границе."
+      ],
+      "negative_evidence_required": [
+        "Canary marker вместо секрета не обнаруживается в запрещённых output/log/build/export каналах после success и failure.",
+        "Недостаточно привилегированный reader не видит чувствительные evidence."
+      ],
+      "scope_and_limits": "Нет требования нового secrets platform или HSM. Проверять лишь реально секретные классы, а не скрывать полезные несекретные IDs/diagnostics.",
+      "tradeoffs": "Редакция снижает диагностическую полноту; correlation IDs и controlled restricted evidence сохраняют полезность без массового раскрытия.",
+      "minimum_spec_contract": "Data classes; allowed sinks/readers; redaction; retention; secret lifecycle; negative-path assertions.",
+      "lane_integration_obligation": "Проверка должна охватывать упаковку и выдачу итогового артефакта, не только runtime response.",
+      "audit_status": "NOT_ASSESSED",
+      "tests_executed": false
+    },
+    {
+      "id": "SR-11",
+      "title": "Отказ зависимости не превращается в разрешение; отсутствие результата не равно запрету",
+      "phase": "RESEARCH_ONLY_NOT_APPLIED",
+      "source_refs": [
+        {
+          "source_id": "SR-S09",
+          "sections": "16.5.2–16.5.3"
+        },
+        {
+          "source_id": "SR-S07",
+          "sections": "13.1.2–13.1.3; 13.2.6"
+        }
+      ],
+      "applicability_trigger": "Внешний policy service/verifier/storage/connector влияет на разрешение или завершение операции.",
+      "defective_formulation": "«При недоступности проверки продолжить по умолчанию» или «любой timeout означает rejected/no effect».",
+      "counterexample": "Policy lookup timeout интерпретирован как отсутствующее deny правило; effect выполняется. В другом случае effect произошёл, но потерянный ответ ошибочно отмечен как гарантированно неисполненный.",
+      "derived_review_rule": "Разделять security decision и execution outcome. Degraded mode заранее ограничен разрешёнными безопасными действиями; unknown evidence не превращается в PASS.",
+      "positive_evidence_required": [
+        "При доступной зависимости разрешённое действие выполняется.",
+        "Документированный degraded read-only или иной допустимый режим сохраняет свои границы."
+      ],
+      "negative_evidence_required": [
+        "Ошибка/exception обязательной проверки не даёт allow.",
+        "Timeout после отправки даёт UNKNOWN/PENDING и предусмотренный reconciliation, не автоматический новый effect."
+      ],
+      "scope_and_limits": "Fail-closed не означает остановку всего продукта при любой ошибке. Конкретные retry и outcome semantics зависят от API, а не от общего лозунга безопасности.",
+      "tradeoffs": "Строгая проверка снижает availability; разрешённый cache/stale режим требует отдельной риск-модели.",
+      "minimum_spec_contract": "Dependency failure taxonomy; admissible degraded actions; evidence absence handling; execution outcome states.",
+      "lane_integration_obligation": "Интеграционный отказ нужен в adapter/check/commit точках, не только mock возвращающий false.",
+      "audit_status": "NOT_ASSESSED",
+      "tests_executed": false
+    },
+    {
+      "id": "SR-12",
+      "title": "Совместимость old/new readers и writers проверяется во время rollout",
+      "phase": "RESEARCH_ONLY_NOT_APPLIED",
+      "source_refs": [
+        {
+          "source_id": "SR-S14",
+          "sections": "Standalone vs distributed; Problems with protocol changes; Two-phase deployment"
+        }
+      ],
+      "applicability_trigger": "Меняются persistent/wire formats, schema, defaults, heartbeat/timeout protocol; версии могут сосуществовать или выполняться rollback.",
+      "defective_formulation": "«Новая версия читает старые данные; миграция обратно совместима».",
+      "counterexample": "Новый writer сохраняет формат N+1; старый reader ещё работает или возвращается после rollback и не может прочесть новые записи.",
+      "derived_review_rule": "Зафиксировать направленную матрицу чтения/записи/протокола для реальных mixed states, а не один happy-path upgrade.",
+      "positive_evidence_required": [
+        "Доказаны поддерживаемые комбинации old writer→new reader, new writer→old reader/bridge и работа mixed fleet.",
+        "Readiness всех нужных readers подтверждена перед activation нового writer."
+      ],
+      "negative_evidence_required": [
+        "Ранняя activation при одном старом reader, rollback после новой записи и delayed old worker выявляют несовместимость или безопасно блокируются."
+      ],
+      "scope_and_limits": "Полная all-to-all совместимость не обязательна: допустим coordinated downtime, read-only migration или bridge, если это явно согласовано. AWS two-phase — вариант, не mandate.",
+      "tradeoffs": "Prepare/activate требует дополнительных этапов; downtime проще, но уменьшает доступность. Продолжительность rollback window влияет на хранение совместимости.",
+      "minimum_spec_contract": "Version matrix; writer activation barrier; supported downgrade floor; delayed clients; completion proof.",
+      "lane_integration_obligation": "Нужен mixed-version lane scenario со state, произведённым обеими версиями.",
+      "audit_status": "NOT_ASSESSED",
+      "tests_executed": false
+    },
+    {
+      "id": "SR-13",
+      "title": "Rollback описывает данные и внешние эффекты, а не только старый binary",
+      "phase": "RESEARCH_ONLY_NOT_APPLIED",
+      "source_refs": [
+        {
+          "source_id": "SR-S14",
+          "sections": "Problems with protocol changes; Two-phase deployment"
+        },
+        {
+          "source_id": "SR-S16",
+          "sections": "Backups Versus Archives; Third Layer"
+        }
+      ],
+      "applicability_trigger": "Релиз обещает rollback/reversibility после migration, deletion, export или другого внешнего эффекта.",
+      "defective_formulation": "«Откат: вернуть предыдущий контейнер/commit».",
+      "counterexample": "Старый binary стартовал, но column удалён, записи преобразованы необратимо или внешний получатель уже получил данные.",
+      "derived_review_rule": "Разделить code rollback, data recovery, compensation и forward-fix. Назвать last reversible point, доступные состояния и последствия после пересечения границы.",
+      "positive_evidence_required": [
+        "После реальной новой записи возврат в разрешённую версию сохраняет нужные данные и инварианты.",
+        "Операционная инструкция проверяет восстановление сервиса, а не лишь exit code deployment."
+      ],
+      "negative_evidence_required": [
+        "Сбой до/после irreversible step, прерванная backfill и частичное восстановление имеют определённый stop/recovery path.",
+        "Невозможная компенсация disclosure/deletion не маскируется фразой «полностью обратимо»."
+      ],
+      "scope_and_limits": "Не все изменения должны быть обратимыми. Допустимый необратимый шаг требует честного ограничения и отдельного согласования, а не автоматического запрета.",
+      "tradeoffs": "Хранение старых форматов/данных облегчает rollback, но увеличивает стоимость и может конфликтовать с retention; forward recovery иногда безопаснее downgrade.",
+      "minimum_spec_contract": "Reversible boundary; code/data/effect separation; loss budget; stop conditions; owner; recovery acceptance.",
+      "lane_integration_obligation": "Проверить rollback после каждого реально важного промежуточного состояния lane.",
+      "audit_status": "NOT_ASSESSED",
+      "tests_executed": false
+    },
+    {
+      "id": "SR-14",
+      "title": "Canary/rollout gate имеет наблюдаемую когорту и не считает тишину успехом",
+      "phase": "RESEARCH_ONLY_NOT_APPLIED",
+      "source_refs": [
+        {
+          "source_id": "SR-S15",
+          "sections": "Requirements; per-version comparison; Choosing population/duration"
+        }
+      ],
+      "applicability_trigger": "Спека обещает canary, gradual rollout или автоматическую promotion по telemetry.",
+      "defective_formulation": "«За пять минут общий error rate не вырос — продолжать».",
+      "counterexample": "Canary получает мало запросов; её 50% ошибок растворяются в общем metric; failed telemetry возвращает пустой набор, трактуемый как 0 errors.",
+      "derived_review_rule": "Определить cohort/control, релевантные signals, достаточность наблюдения и отдельный inconclusive исход. Решение должно реально менять progression.",
+      "positive_evidence_required": [
+        "Здоровый candidate с представительной нагрузкой проходит заявленный oracle.",
+        "Candidate/control различимы, и проверено влияние gate на promotion."
+      ],
+      "negative_evidence_required": [
+        "Управляемый bad candidate на малой когорте останавливает progression.",
+        "Нет трафика/telemetry, contaminated control или явно недостаточная выборка не дают автоматический PASS."
+      ],
+      "scope_and_limits": "Canary не обязателен offline артефакту и не заменяет security/data-migration tests. Фиксированные минуты/проценты из примеров не копируются.",
+      "tradeoffs": "Длинная репрезентативная оценка замедляет releases; короткая увеличивает false negatives. Цена ошибки определяет допустимый объём эксперимента.",
+      "minimum_spec_contract": "Cohort; control; signals; observation adequacy; pass/fail/inconclusive; pause/rollback authority.",
+      "lane_integration_obligation": "Интеграционная проверка касается telemetry → evaluator → rollout actuator, а не одного dashboard.",
+      "audit_status": "NOT_ASSESSED",
+      "tests_executed": false
+    },
+    {
+      "id": "SR-15",
+      "title": "Восстановление заканчивается доступными согласованными данными в RTO/RPO",
+      "phase": "RESEARCH_ONLY_NOT_APPLIED",
+      "source_refs": [
+        {
+          "source_id": "SR-S17",
+          "sections": "§3.2.1; §3.5; §4.4"
+        },
+        {
+          "source_id": "SR-S16",
+          "sections": "Delivering Recovery System; 1T vs 1E; recovery case studies"
+        }
+      ],
+      "applicability_trigger": "Есть persistent state и обещанные backup/recovery/SLO/continuity свойства.",
+      "defective_formulation": "«Backup создан, checksum совпал, restore command завершился — recovery PASS».",
+      "counterexample": "Файлы восстановлены, но индексы, metadata или ключи недоступны; пользователи не могут прочесть данные. Snapshot нескольких stores относится к несовместимым моментам.",
+      "derived_review_rule": "Определить what recovered означает для пользователя и бизнес-инвариантов, отдельно допустимые downtime и data-loss point; проверить зависимости и post-restore validation.",
+      "positive_evidence_required": [
+        "Репетиция на репрезентативном объёме восстанавливает чтение/запись и связи в пределах принятых целей.",
+        "Проверены доступность ключей, конфигурации и необходимых зависимостей."
+      ],
+      "negative_evidence_required": [
+        "Повреждённый/неполный backup, отсутствующая зависимость или несовместимые snapshots не получают recovery PASS.",
+        "Измерен ожидаемый проигрыш при неполном восстановлении; потерянный диапазон данных явно сообщён."
+      ],
+      "scope_and_limits": "Никакие RTO/RPO, георегионы или федеральные процедуры не навязаны. Для полностью пересоздаваемого состояния достаточно доказанного rebuild, не обязательного backup.",
+      "tradeoffs": "Частые независимые backups дороже; recovery validation и объём определяют реальный RTO, который не следует из расписания копирования.",
+      "minimum_spec_contract": "Recovery scope; data dependencies; RTO/RPO; accessible keys; validation oracle; accepted partial recovery.",
+      "lane_integration_obligation": "Проверять consumer-visible восстановление всего нужного набора stores, не только одного storage adapter.",
+      "audit_status": "NOT_ASSESSED",
+      "tests_executed": false
+    },
+    {
+      "id": "SR-16",
+      "title": "Restore не воскресит отозванный доступ и не смешает tenant data",
+      "phase": "RESEARCH_ONLY_NOT_APPLIED",
+      "source_refs": [
+        {
+          "source_id": "SR-S19",
+          "sections": "§7 Tenant Backup Restore"
+        },
+        {
+          "source_id": "SR-S02",
+          "sections": "8.3.2; 8.4.1"
+        }
+      ],
+      "applicability_trigger": "Backup содержит ACL/membership/secrets/approvals либо совместные данные нескольких tenants.",
+      "defective_formulation": "«Вернуть backup целиком в live и считать restored state доверенным».",
+      "counterexample": "Участник удалён после backup; восстановление старой membership возвращает доступ. Tenant-specific recovery случайно копирует соседние записи.",
+      "derived_review_rule": "Разделить восстановление содержимого и текущую authority/retention policy; восстановленные данные проходят сегодняшние разрешения перед доступностью.",
+      "positive_evidence_required": [
+        "Авторизованный operator восстанавливает именно нужный scope; необходимые данные доступны тем, кому разрешены сейчас."
+      ],
+      "negative_evidence_required": [
+        "Отозванный user/approval/secret не оживает; чужие tenant rows не копируются в целевой live scope.",
+        "Restore из устаревшего backup не отменяет предусмотренные удаления/retention без отдельного разрешённого решения."
+      ],
+      "scope_and_limits": "Не каждая система multi-tenant и не каждый backup содержит authority. Для исторической экспертизы старые ACL могут храниться как данные, не как действующие права.",
+      "tradeoffs": "Точная историческая реконструкция конфликтует с текущим доступом; безопасное решение — отдельный ограниченный forensic режим, а не silent overwrite.",
+      "minimum_spec_contract": "Restore data scope vs current security state; ownership validation; revocation/retention reapplication; isolated staging.",
+      "lane_integration_obligation": "Нужен путь backup → staging → revalidation → live exposure.",
+      "audit_status": "NOT_ASSESSED",
+      "tests_executed": false
+    },
+    {
+      "id": "SR-17",
+      "title": "Audit/evidence защищены от подмены и достаточно точны для решения",
+      "phase": "RESEARCH_ONLY_NOT_APPLIED",
+      "source_refs": [
+        {
+          "source_id": "SR-S09",
+          "sections": "16.1.1; 16.2.1–16.2.5; 16.3; 16.4"
+        },
+        {
+          "source_id": "SR-S01",
+          "sections": "PO.4.2; PS.3.1"
+        }
+      ],
+      "applicability_trigger": "Audit log, approval/evidence record или test result используются для допуска, расследования или доказательства результата.",
+      "defective_formulation": "«Логировать JSON» либо «есть event=success, значит эффект завершён».",
+      "counterexample": "Непроверенный input содержит перевод строки/поддельный event; record от другого target/revision принят за доказательство; denial и unknown записаны как одинаковый generic failure.",
+      "derived_review_rule": "Задать meaning, binding и доверенный producer каждого security/release event, а также защиту от неавторизованной записи/чтения. Лог намерения не равен свидетельству эффекта.",
+      "positive_evidence_required": [
+        "Событие привязано к actor, target, operation, revision/correlation и фактическому outcome; investigator различает этапы."
+      ],
+      "negative_evidence_required": [
+        "Forged/untrusted event, изменённый/неполный record, неправильный target или log injection не становятся валидным evidence.",
+        "Проверка failure path не записывает секреты."
+      ],
+      "scope_and_limits": "Не обязательны блокчейн, WORM, SIEM или отдельная audit platform. Не гарантируется абсолютная неотказуемость при полном компромиссе trusted producer.",
+      "tradeoffs": "Больше логов повышает стоимость/риск утечки; минимальный набор определяется реальными решениями и расследованием.",
+      "minimum_spec_contract": "Event semantics; identity/revision binding; trust/permissions; integrity; retention; incomplete-evidence handling.",
+      "lane_integration_obligation": "Трассировка должна соединять решение, adapter attempt и конечный эффект без смешения этих стадий.",
+      "audit_status": "NOT_ASSESSED",
+      "tests_executed": false
+    },
+    {
+      "id": "SR-18",
+      "title": "Неизвестный результат внешнего действия не лечится новым намерением",
+      "phase": "RESEARCH_ONLY_NOT_APPLIED",
+      "source_refs": [
+        {
+          "source_id": "SR-S20",
+          "sections": "Retrying and side effects; semantic equivalence; late requests; different intent"
+        }
+      ],
+      "applicability_trigger": "Deploy/release/migration/connector операция мутирует внешнее состояние и допускает timeout/retry/resume.",
+      "defective_formulation": "«Любая ошибка — повторить с новым request ID»; «тот же payload всегда тот же запрос».",
+      "counterexample": "Commit выполнен, ответ потерян; повтор создаёт второй объект. Или поздний retry воскрешает уже отменённый ресурс после истечения dedup window.",
+      "derived_review_rule": "Разделить намерение и попытки, проверить сервисный idempotency contract и окно его действия; при неопределённости использовать предусмотренную сверку результата, не изобретать новый effect.",
+      "positive_evidence_required": [
+        "Одна разрешённая операция и её безопасный повтор приводят к одному ожидаемому эффекту и понятному результату."
+      ],
+      "negative_evidence_required": [
+        "Потерянный response после commit, concurrent retry, поздний retry и тот же key с другим intent не дают дубликат/ложный success.",
+        "Отозванная/отклонённая авторизация не превращается в transient retry."
+      ],
+      "scope_and_limits": "Оговорённый серверный контракт важнее названия header. Idempotency не равно exactly-once всех побочных эффектов и не расширяет authority; запрещённые действия не повторяются по этому критерию.",
+      "tradeoffs": "Долгое хранение dedup state дорого; после его expiry нужен явный безопасный outcome. Read-only операции обычно проще.",
+      "minimum_spec_contract": "Intent identity/scope; attempt identity; durable effect binding; retry window; parameter mismatch; reconciliation; terminal outcomes.",
+      "lane_integration_obligation": "Сбой моделируется на границе effect committed / response lost у конечного adapter.",
+      "audit_status": "NOT_ASSESSED",
+      "tests_executed": false
+    }
+  ]
+}

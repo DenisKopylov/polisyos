@@ -1,0 +1,76 @@
+{
+  "pass": "C68",
+  "bundle": "RUN-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C68-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "confidence": "high_in_bounded_pre_admission_case",
+      "source_ids": [
+        "B69",
+        "B14"
+      ],
+      "title": "Pre-admission отказ run_coro_sync оставляет переданную свежую coroutine незакрытой",
+      "evidence": [
+        "S01:696–720",
+        "S01:379–400",
+        "P09"
+      ],
+      "actual": "При running loop и occupied canonical pool capacity1/queue0 submit поднимает SharedExecutorBackpressureError до cleanup try. Переданная fresh asyncio.sleep coroutine остаётся CORO_CREATED с attached frame; body не запускалось. Harness закрыл её явно после наблюдения.",
+      "remaining": "На существующей sync bridge boundary согласовать владение не принятой fresh coroutine и освободить только действительно принадлежащий ей объект при submit refusal. Сохранить typed backpressure/reentrancy; не закрывать чужой уже запущенный Task/Future, не повышать capacity и не ослаблять deadline. Добавить отрицательные controls для ещё не начатой и уже принадлежащей loop работы.",
+      "limits": "Низкий resource/diagnostic defect на отказе до запуска: возможен unawaited-coroutine warning и удержание frame до освобождения ссылок. Не установлен активный compute leak, authority bypass или обязательная production достижимость saturation."
+    },
+    {
+      "id": "C68-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B14",
+        "B40",
+        "B69",
+        "B95"
+      ],
+      "title": "Полный invocation deadline → native owner write/retry/cancellation путь требует поддерживаемого runtime",
+      "evidence": [
+        "S02:609–676",
+        "S02:1509–1586",
+        "S02:2091–2504",
+        "S02:3927–4244",
+        "S04:1322–1460",
+        "S06:2111–2127",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07"
+      ],
+      "remaining": "В общем LANE-06 integration выполнить actual context façade/CAS/claim write admission, single invocation budget через queue/backoff/retry/publication, cancellation и новый запрос после предыдущего. Зафиксировать external_outcome_unknown для некооперативной работы и отсутствие права позднего current commit; не объявлять поток hard-stopped. Real ingestion nesting проверить на существующих async входах. Process/macOS матрица — RUN-02, не проверена этим пакетом.",
+      "limits": "Deadline/authority/thread copying и реальные typed state/outcome исполнялись; context façade, cost/reporting и native producer/runtime owner admission fixtures. Full pytest и retry import blocked, поддерживаемый OS процессный route не исполнялся."
+    },
+    {
+      "id": "C68-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-057"
+      ],
+      "title": "Типовая очистка присутствует; supported toolchain/package и динамические consumers не закрыты",
+      "evidence": [
+        "S01:1–978",
+        "S03:25–48",
+        "S07",
+        "P02",
+        "P10",
+        "P11",
+        "consumer_scan.json"
+      ],
+      "remaining": "В поддерживаемом Python3.14 выполнить native Common tests/typecheck/installed-package imports. Сохранить четыре независимых function-local parameters и проверить явно поддерживаемых внешних consumers, если они есть; не возвращать модульный T без реального контракта.",
+      "limits": "Whole module импортирован без трансформации; actual get_type_hints, direct/star/reflection и child process работают на3.12. Finite scan8231tracked Pythonfiles не нашёл literal legacy imports, но computed dynamic names, arbitrary alias flow и внешние клиенты не доказаны отсутствующими. Commit ordering cleanup vs behavior по одному HEAD не аттестован."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C68-R01"
+  ],
+  "decision": "Основные deadline/context/reentrancy изменения и LA cleanup локально подтверждены. Один low pre-admission coroutine cleanup residual; native custody integration и supported typing/package qualification остаются."
+}

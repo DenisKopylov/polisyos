@@ -1,0 +1,298 @@
+{
+  "pass_id": "C84",
+  "bundle": "OBS-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/observation.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/observation.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          274
+        ]
+      ],
+      "evidence_level": "Полный canonical period owner прочитан и whole module исполнен за builders parent shell. Calendar/disposition/unique precompute/version проверены.",
+      "git_blob": "7ff1b15cd7471e17fa53fe6122ed381bb1e5cd14",
+      "sha256": "1181aa0b1d23395db623d3cb82cba18a8152ad9bef9026a806d6144e132b5a9f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          275
+        ]
+      ],
+      "evidence_level": "Прочитаны actual aliases/complete selected graph and support helpers.6 complete functions исполнены unchanged AST; не весь module/import facade.",
+      "git_blob": "0b46581c7ba3bf72d8bd68d397f62cd7f0979e36",
+      "sha256": "462d1e92af6468703221b0f891de4d5c7f19a32c81f20361b2f22cfb69dd6d36",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          120
+        ],
+        [
+          1120,
+          1398
+        ]
+      ],
+      "evidence_level": "Actual caller imports и complete metric/locator/frame producer прочитаны;3 complete functions исполнены AST. Parquet reader/OBS02 continuation здесь не проверены.",
+      "git_blob": "75292565d4ef85f40b436f93f1afb0fa8470c405",
+      "sha256": "6e7c51f66aa9a81f1f6a94804eea3d84fcffa78f4b14a5cdb04a5ed7c8f15a52",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          120
+        ],
+        [
+          197,
+          390
+        ]
+      ],
+      "evidence_level": "Actual projection imports и complete selected aggregation/caller functions прочитаны;3 complete functions исполнены AST. Other labor/demography pipeline не аттестован.",
+      "git_blob": "9155621b7174530226f38f58b7c322c016152d80",
+      "sha256": "e3b30b65da5c95ddc0684a0d582049e134ad75ee65c1df3ffec1891df1f32707",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/adapters.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/adapters.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          100
+        ]
+      ],
+      "evidence_level": "Прочитан exact oblast map и import context. Только literal map извлечён unchanged AST для helper binding; adapters/network/normalization не исполнялись.",
+      "git_blob": "b60ddc41d249cbbeb621a1969397706d3e9cca55",
+      "sha256": "8724bcf4ba817a230528472aaad086b020e91169777e2c9e90c3d5504e3d2ab7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/models.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/models.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          295
+        ]
+      ],
+      "evidence_level": "SourceConfig/StageId и другие relevant native DTO source-qualified C83; current actual imports без stubs. Default remote source config не использовалась.",
+      "git_blob": "275d73eff32e437f81abba68dbd183aa1a5164fc",
+      "sha256": "2f0bf55bee2dcfb5f9ac94392ddf9ca8c6562c4be2d47a46730e224ec441ac36",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/ir/model_layer/types.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/model_layer/types.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          93
+        ]
+      ],
+      "evidence_level": "Полный TimeFrequency enum и соседний public context прочитаны. Current allowed frequencies M/Q/Y, не unsupported daily claim.",
+      "git_blob": "945a65aae60dbd19d05c708b4d62742e1245e00e",
+      "sha256": "159f224597ffdeb24b55f13886badbc095e4d4ffafbb932e184b37049794aabf",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/ir/observation/contracts.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/observation/contracts.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          115
+        ],
+        [
+          131,
+          220
+        ]
+      ],
+      "evidence_level": "Actual family/scope/identification enums и complete ObservationRecord validator прочитаны; invalid dates не объявлены admissible IR observations. Whole module imports native, semantic validation corpus не полный.",
+      "git_blob": "0e0aa931227d023ce5691b17ef26562a0dbc9117",
+      "sha256": "efbe3ca78107dc47158d01c30b03cca4f16074b2ad37f3573fb581e423fdf2d4",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/scientist/governance/blueprint_release.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/governance/blueprint_release.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          141,
+          147
+        ],
+        [
+          480,
+          566
+        ],
+        [
+          612,
+          795
+        ],
+        [
+          1792,
+          1922
+        ],
+        [
+          1990,
+          2026
+        ]
+      ],
+      "evidence_level": "Полные selected reconcile/household/gate models/functions прочитаны и исполнены unchanged AST. Real admitted Parquet caller прочитан source-only; full native governance runner не исполнялся.",
+      "git_blob": "939de7a00bfb9c0373a8751166e102553beb46ee",
+      "sha256": "c90e217bec45be915705f65d3d781d4d826de04395d9ac2c89365ab13bcf05c4",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          137,
+          155
+        ],
+        [
+          175,
+          200
+        ],
+        [
+          263,
+          264
+        ]
+      ],
+      "evidence_level": "Прочитаны lazy period owner routing и actual error class; error class selected AST. Content-binding pipeline source-qualified C83, native CAS не исполнялся.",
+      "git_blob": "a3ef27d1af21361cfc4467f9d646f4df218a279c",
+      "sha256": "cb9735fb4c27d1a8a59c388ac0b56de8ec3bc446cac3a83badfdc54f2a972fb5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/tests/unit/remediation/test_obs_01.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_obs_01.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          366
+        ]
+      ],
+      "evidence_level": "Полный13-body regression прочитан;10 selected unchanged bodies/18 parameterized cases PASS.3 facade/alias-import tests excluded to avoid fake fixture activation proof.",
+      "git_blob": "6d6aaaba3dfec2ee3886ce16a903efaaba8c9914",
+      "sha256": "2d99bc2aac50c7de0a858e9e0fb69186f3216cdf858f906137e5cb007c84931e",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_builders.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/data_forge/domains/ukraine/test_builders.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          340,
+          365
+        ]
+      ],
+      "evidence_level": "Complete existing legacy format body351–359 прочитан и исполнен unchanged AST.",
+      "git_blob": "620f61d8ddefa6b6a29ea2264b2fe1a0c808058e",
+      "sha256": "855b3a10f4e6b1a5e266b3b860dd5085dfb119223e5cdf3c6645509bc29e2c0a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/tests/unit/scientist/governance/test_blueprint_release.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/governance/test_blueprint_release.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          2062,
+          2165
+        ]
+      ],
+      "evidence_level": "Три complete existing consumer/reconciliation/legacy tests прочитаны и исполнены unchanged AST с actual selected consumer functions.",
+      "git_blob": "ddd3ba9cb9bc1884b87d696cf7e06805df5443bc",
+      "sha256": "a2af373717e06d135d98a486cb7b0df61fd36509ee49d8400c6634971344fec7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          88
+        ]
+      ],
+      "evidence_level": "Полный facade source-qualified C83; current imports/explicit aliases source-only. Shared C83-R01 preserved, не дублируется новым R.",
+      "git_blob": "6c31f31549a1a680b311c229de636479a085f8ff",
+      "sha256": "0a368cb92a79bd4f905640cfe40ed5a88dd55933c9f8297e466393ef0845194b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          30
+        ]
+      ],
+      "evidence_level": "Supported runtime baseline source-qualified prior packets; native imports в Python3.12 blocked в parent stack.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

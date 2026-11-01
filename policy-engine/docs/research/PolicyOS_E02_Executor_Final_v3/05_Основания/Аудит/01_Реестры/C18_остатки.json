@@ -1,0 +1,99 @@
+{
+  "pass": "C18",
+  "bundle": "OPT-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C18-R01",
+      "type": "confirmed_local_defect",
+      "severity": "medium_conditional",
+      "confidence": "high_local",
+      "source_ids": [
+        "B110",
+        "B111"
+      ],
+      "mechanism": "Foreign complete coordinate schema yields Boolean non-dominance",
+      "location": "pareto.py:385-407,473-487",
+      "evidence": [
+        "P11",
+        "P12",
+        "P13"
+      ],
+      "preserve": "canonical axis identities, partial front denial, equivalent order-only permutations",
+      "remaining": "Compare effective owner schema to imported front before answering the relation; actual caller qualification",
+      "limits": "No current external publication or production frequency established; exact source with infrastructure type fixtures"
+    },
+    {
+      "id": "C18-R02",
+      "type": "confirmed_local_defect",
+      "severity": "medium_conditional",
+      "confidence": "high_local",
+      "source_ids": [
+        "B110"
+      ],
+      "mechanism": "Mutable comparison policy or returned schema changes effective interpretation under cached coordinate identity",
+      "location": "pareto.py:271-301,314-383,439-464",
+      "evidence": [
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18"
+      ],
+      "preserve": "new explicit basis remains supported; no copies of large unrelated datasets/services",
+      "remaining": "snapshot/freeze small effective policy and output schema, align consumed values with declared basis",
+      "limits": "Requires reusable owner with mutable shared config/result; inspected registry constructs fresh owner; no immutable CAS mutation claimed"
+    },
+    {
+      "id": "C18-G01",
+      "type": "bounded_display_limitation",
+      "source_ids": [
+        "B110"
+      ],
+      "evidence": [
+        "P23"
+      ],
+      "remaining": "Delimiter-bearing labels can collide in legacy display; canonical IDs retain all axes. Qualify compatibility consumers."
+    },
+    {
+      "id": "C18-G02",
+      "type": "source_qualification_boundary",
+      "source_ids": [
+        "B110",
+        "B111"
+      ],
+      "evidence": [
+        "P24",
+        "S02",
+        "S06"
+      ],
+      "remaining": "Mechanical split/unit declaration must be bound to true source by actual owner. Holdout payload alone does not prove hidden_holdout. No real access bypass established."
+    },
+    {
+      "id": "C18-G03",
+      "type": "documented_indicator_scope",
+      "source_ids": [
+        "B111"
+      ],
+      "evidence": [
+        "P25",
+        "P26",
+        "P27"
+      ],
+      "remaining": "Above 2D reported hypervolume is documented bounding-box approximation, not exact dominated union; preserve qualification and fixed-reference interpretation."
+    },
+    {
+      "id": "C18-G04",
+      "type": "semantic_profile_and_native_acceptance",
+      "source_ids": [
+        "B108"
+      ],
+      "evidence": [
+        "S03",
+        "S05"
+      ],
+      "remaining": "Keep direct deficit unit checks and balance-stock/period-flow distinction; qualify actual measurement law and full source/objective consumer. B108 not executed in this pass."
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "pass": "C43",
+  "bundle": "CMP-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C43-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B45",
+        "B46"
+      ],
+      "title": "Native dispatcher/registry/pytest acceptance остаётся невыполненной",
+      "evidence": [
+        "P01",
+        "P06",
+        "P08",
+        "P13",
+        "P14",
+        "native_attempt.log"
+      ],
+      "remaining": "На поддержанном Python 3.14 profile выполнить прочитанные focused tests, включая настоящий registry/backend и checkpoint history; не менять repository ради import workaround.",
+      "limits": "19 actual-body bounded observations; source MethodComposer/SlotSpec/linker/checker/IO/async/checkpoint реально исполнены, но registry/dispatcher/protocol metadata/hash/name-semantic seams явные. pytest отсутствует; normal imports не заявлены."
+    },
+    {
+      "id": "C43-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B45"
+      ],
+      "title": "WARN — кандидатный результат с collision limitation, не определённая merge semantics",
+      "evidence": [
+        "P03",
+        "P04",
+        "P05",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11"
+      ],
+      "remaining": "Сохранять полезный WARN diagnostic contour, но потребителю однозначного результата использовать STRICT либо explicit merge и учитывать validation_context/warnings. Отдельно квалифицировать downstream publication/authority consumer, если этот route туда допускается.",
+      "limits": "UUID-sensitive 20↔10 в WARN реально воспроизведено; это не silent last-wins, поскольку предупреждение сохраняется и связано с checkpoint. Не установлено, что такой result повышается до product/scientific authority. Преднамеренный tolerant profile не объявлен сам по себе defect; никаких новых ролей/архитектуры не предлагается."
+    },
+    {
+      "id": "C43-G03",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B46"
+      ],
+      "title": "Правильная occurrence индексация не делает tag-rules универсальными законами",
+      "evidence": [
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "S03:105–151",
+        "S03:233–314"
+      ],
+      "remaining": "Отделять source-defined heuristic ordering по family/variant/data_modalities от обоснованных методологических prerequisites конкретной задачи. Использовать existing signatures/semantic owner и явные edges там, где их смысл установлен.",
+      "limits": "Clean STRICT report на нейтральных/неизвестных tags не доказывает причинную состоятельность цепочки. Fixture arithmetic и persisted diagnostics не empirical evidence."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "Concrete duplicate checker и occurrence ordering исправлены; WARN explicitly limited path и native/scientific qualification раскрыты отдельно."
+}

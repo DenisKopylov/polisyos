@@ -1,0 +1,350 @@
+{
+  "packet_id": "FED-01",
+  "lane": "LANE-07",
+  "source_ids": [
+    "B138",
+    "B140",
+    "B141",
+    "B145"
+  ],
+  "protected_distinction_ids": [
+    "LK04"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/FED-01.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "work_types": "fix + preserve + native/use qualification",
+  "practical_goal": "Три и более источника объединяются без потери роли каждой ячейки, ошибочного увеличения grain или превращения конечного среднего в inf.",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C89_остатки:0",
+      "audit_id": "C89-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-FED-01-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Stable numeric point calculation и final finite admission."
+    },
+    {
+      "inventory_id": "audit-residual:C89_остатки:1",
+      "audit_id": "C89-R02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-FED-01-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Policy validity перед singleton shortcut."
+    },
+    {
+      "inventory_id": "audit-residual:C89_остатки:2",
+      "audit_id": "C89-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FED-01-03",
+        "REQ-FED-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Native selected artifact и actual opt-in acquisition/consumer."
+    },
+    {
+      "inventory_id": "audit-residual:C89_остатки:3",
+      "audit_id": "C89-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FED-01-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Concrete-use facts отдельно от программной lineage; conditional path полезен."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-FED-01-01",
+      "text": "Numeric CONSENSUS mean/even median должен вернуть конечный representable point result без intermediate overflow и без потери representable subnormal/cancellation результата; проверка finite результата выполняется до publication. Participants/exclusions/absence и categorical mode сохраняются.",
+      "source_ids": [
+        "B138",
+        "B140",
+        "B141",
+        "B145"
+      ],
+      "audit_ids": [
+        "C89-R01"
+      ],
+      "test_ids": [
+        "TEST-FED-01-01"
+      ]
+    },
+    {
+      "id": "REQ-FED-01-02",
+      "text": "Strict scalar MEDIAN должен проверить numeric validity до single-effective-candidate shortcut: inf/bad не проходят как single_source, null остаётся absence. Resolver выбирает существующего producer, CONSENSUS создаёт aggregate; FIRST_AVAILABLE/TRUST не меняются этой проверкой. Scalar even median обязательно использует common finite_binary64_midpoint; current np.median overflow не должен менять выбранного producer. Preserve stable tie/closest-source policy, не aggregate.",
+      "source_ids": [
+        "B138",
+        "B140",
+        "B141",
+        "B145"
+      ],
+      "audit_ids": [
+        "C89-R02"
+      ],
+      "test_ids": [
+        "TEST-FED-01-02"
+      ]
+    },
+    {
+      "id": "REQ-FED-01-03",
+      "text": "Owned cell lineage, cardinality/null/row-budget admission и collision-free names должны сохраняться через вторую композицию и selected-parent persistence/reopen. Declared bounded many-to-many остаётся доступным.",
+      "source_ids": [
+        "B138",
+        "B140",
+        "B141",
+        "B145"
+      ],
+      "audit_ids": [
+        "C89-G01"
+      ],
+      "test_ids": [
+        "TEST-FED-01-03"
+      ]
+    },
+    {
+      "id": "REQ-FED-01-04",
+      "text": "Native opt-in acquisition должен передать frozen request/captured sources в actual federation artifact owner, получить typed receipt и независимо открыть его; candidate limits сохраняются при useful composition.",
+      "source_ids": [
+        "B138",
+        "B140",
+        "B141",
+        "B145"
+      ],
+      "audit_ids": [
+        "C89-G01"
+      ],
+      "test_ids": [
+        "TEST-FED-01-04"
+      ]
+    },
+    {
+      "id": "REQ-FED-01-05",
+      "text": "Для конкретного stronger use declared grain/unit/source scope/version/independence должны иметь предметное основание либо явное unknown. Недоказанные issuer/currentness факты не запрещают software_derivation_candidate, но ограничивают соответствующий claim.",
+      "source_ids": [
+        "B138",
+        "B140",
+        "B141",
+        "B145"
+      ],
+      "audit_ids": [
+        "C89-G02"
+      ],
+      "test_ids": [
+        "TEST-FED-01-05"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-FED-01-01",
+      "requirement_ids": [
+        "REQ-FED-01-01"
+      ],
+      "level": "native unit / integration",
+      "setup": "Finite [1e308,1e308], [10,14], mixed signs, minsubnormal pairs и [1e308,-1e308,3*ulp(0)]; partial [10,14,inf,bad,null].",
+      "action": "Actual consensus→selected artifact persist→fresh replay; independent exact binary-rational oracle.",
+      "oracle": "Mean/median первых двух 1e308, ordinary12; cancellation mean=ulp(0), midpoint(minsub,2minsub)=2minsub при round-to-even. Partial12 с participants2/excluded2; invalid point не published. Old pandas aggregation inf различается.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Exact rational calculator только независимый oracle, не product test. Настоящие composer/artifact/reader обязательны.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-FED-01-02",
+      "requirement_ids": [
+        "REQ-FED-01-02"
+      ],
+      "level": "native unit / integration",
+      "setup": "[inf,None], [bad,None], [10,None], two finite candidates; strict/non-strict и разные policies. Phase2 source-backed additional case [2,1e308,1e308,1e308] and permutations with fixed source identities.",
+      "action": "Actual ConflictResolver.resolve и numeric CONSENSUS.",
+      "oracle": "Strict MEDIAN invalid отказ; valid10 выбран с настоящим source; обычные policies сохраняют объявленный смысл. Numeric consistency не превращает aggregate12 в одного producer10/14. Finite scalar target1e308 selects a genuine1e308 producer, not2; existing tie policy retained. Not a retroactive phase1 R or claimed native run.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Нельзя глобально запретить categorical values или менять trust policy для прохождения теста.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-FED-01-03",
+      "requirement_ids": [
+        "REQ-FED-01-03"
+      ],
+      "level": "native unit / integration",
+      "setup": "Ahigh[10,null], Blow[null,20], Cmedium[100,200], настоящий __source_id/x_left; repeated/null keys и explicit row budget.",
+      "action": "JOIN/OVERLAY→persist→independent fresh parent registry→второй JOIN; все 4 strategies имён.",
+      "oracle": "Итог[10,200], origin20=B до сравнения; forged/mutated attrs не заменяют owner basis. Default duplicate-right refused before merge; explicit bounded m:m valid; nulls не совпадают без flag; реальные имена/значения сохранены.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Нельзя fake lineage/replay или dedupe реальные occurrences; equal-priority order semantics не менять.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-FED-01-04",
+      "requirement_ids": [
+        "REQ-FED-01-04"
+      ],
+      "level": "native unit / integration",
+      "setup": "Controlled connector, real service/facade/native Python3.14, Parquet и selected artifact filesystem.",
+      "action": "fetch_federated→persist→fresh intake→second composition/SQL where declared.",
+      "oracle": "Valid combined data доходит до actual consumer; real parent hashes/ref/profile связаны. Service result не становится verified/current/source-independent по одному replay; corrupt/foreign parent refused.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Нет production network; controlled connector allowed, fake artifact/CAS/native format запрещён.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-FED-01-05",
+      "requirement_ids": [
+        "REQ-FED-01-05"
+      ],
+      "level": "native unit / integration",
+      "setup": "Candidate fixture и фактически доступные concrete-use source declarations.",
+      "action": "Сопоставить contract facts с evidence; выполнить valid conditional composition.",
+      "oracle": "Каждый stronger claim имеет witness либо withheld; identity/replay не выдаётся issuer truth. Erased copy лишь новый limited candidate, не восстановленная history.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не invent source corpus, universal provenance platform или deterministic semantic model inventor.",
+      "status": "NOT_RUN"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I07-B"
+  ],
+  "dependencies": [
+    "FED-02 shares composer/resolver mutex; UDF-05 общий E02-I07-B",
+    "Не переносить numeric requirements в новый общий provenance owner",
+    "FED-01 proposes shared finite-binary64 numeric_reductions owner; UQS-01 consumer; no duplicate Fabric/Scientist implementations."
+  ],
+  "preservation": [
+    "Owned cell basis и selected-parent replay",
+    "Bounded explicit join cardinality/null semantics",
+    "Collision-free internal aliases",
+    "Participant/exclusion/absence evidence",
+    "Candidate limits и finite helper"
+  ],
+  "design_alignment": [
+    "[Vision §3, §6–§7, §11](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md) — существующий owner, реально подключённый consumer, совместимые новые ресурсы через общий контракт; не бесконечный реестр вместо работы. [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md) — candidate/conditional вычисление не равно эмпирической или институциональной authority.",
+    "[North Star §2](../05_Основания/Архитектура/policy-design-causal-operating-system-north-star.md): алгоритмическая воспроизводимость не scientific admissibility. Существующая declared source semantics достаточна для полезной candidate композиции; отсутствие независимости измерений не превращает весь composer в бесполезный helper."
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-FED-01-01",
+      "status": "owner_decided_algorithm_optimization_open",
+      "owner": "src/polisyos/common/numeric_reductions.py",
+      "owner_status": "proposed_new_not_existing",
+      "implementation_owner": "FED-01",
+      "consumers": [
+        "FED-01",
+        "UQS-01"
+      ],
+      "required_output": "One shared finite_binary64_mean/midpoint implementation, exact reference/fallback contract and measured representative large-group cost. No per-domain duplicate, no unconditional Fraction per row.",
+      "criteria": "Finite binary64 overflow/subnormal/cancellation oracles preserved; optimized fast path requires correctness-preserving fallback; no upward Fabric import into Scientist and no new dependency."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0237",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-FED-01-01"
+      ],
+      "rationale": "Stable numeric point calculation и final finite admission."
+    },
+    {
+      "inventory_id": "remaining:0238",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-FED-01-02"
+      ],
+      "rationale": "Policy validity перед singleton shortcut."
+    },
+    {
+      "inventory_id": "remaining:0239",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FED-01-03",
+        "REQ-FED-01-04"
+      ],
+      "rationale": "Native selected artifact и actual opt-in acquisition/consumer."
+    },
+    {
+      "inventory_id": "remaining:0240",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FED-01-05"
+      ],
+      "rationale": "Concrete-use facts отдельно от программной lineage; conditional path полезен."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0356",
+      "requirement_ids": [
+        "REQ-FED-01-03",
+        "REQ-FED-01-04"
+      ],
+      "test_ids": [
+        "TEST-FED-01-03",
+        "TEST-FED-01-04"
+      ],
+      "rationale": "Owned basis и independent selected parent replay."
+    },
+    {
+      "inventory_id": "preserve:0357",
+      "requirement_ids": [
+        "REQ-FED-01-03"
+      ],
+      "test_ids": [
+        "TEST-FED-01-03"
+      ],
+      "rationale": "Explicit bounded cardinality/null semantics."
+    },
+    {
+      "inventory_id": "preserve:0358",
+      "requirement_ids": [
+        "REQ-FED-01-03"
+      ],
+      "test_ids": [
+        "TEST-FED-01-03"
+      ],
+      "rationale": "User names preserved across strategies."
+    },
+    {
+      "inventory_id": "preserve:0359",
+      "requirement_ids": [
+        "REQ-FED-01-01",
+        "REQ-FED-01-02"
+      ],
+      "test_ids": [
+        "TEST-FED-01-01",
+        "TEST-FED-01-02"
+      ],
+      "rationale": "Actual occurrences/participants/exclusions/absence."
+    },
+    {
+      "inventory_id": "preserve:0360",
+      "requirement_ids": [
+        "REQ-FED-01-01",
+        "REQ-FED-01-05"
+      ],
+      "test_ids": [
+        "TEST-FED-01-01",
+        "TEST-FED-01-05"
+      ],
+      "rationale": "Finite helper и candidate limits."
+    }
+  ],
+  "owners": [
+    "src/polisyos/fabric/connectors/federation/composer.py",
+    "src/polisyos/fabric/connectors/federation/resolver.py",
+    "src/polisyos/fabric/connectors/federation/artifact.py",
+    "src/polisyos/common/numeric_reductions.py (proposed new)"
+  ]
+}

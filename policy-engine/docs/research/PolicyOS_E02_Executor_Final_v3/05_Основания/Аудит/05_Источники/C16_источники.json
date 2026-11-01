@@ -1,0 +1,206 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "git_blob_sha1": "c15801509c9a890128ad33e493974bcbb8687ebb",
+      "read_ranges": [
+        [
+          1,
+          299
+        ]
+      ],
+      "execution": "complete blob matched; hash/frontier isolated; no PolicyCandidateSchema/actual objective",
+      "local_path": "04_Проверки/C16_CTL02/sources/frontier.py",
+      "sha256": "d9ef05678efc7b6cb59e32cb6be1ff94bf778ece6a0de394605771bb1040cd72",
+      "complete_module": true
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "git_blob_sha1": "61f1fffcdc30cbc99f84af91d35b7b829992d1f9",
+      "read_ranges": [
+        [
+          1,
+          460
+        ]
+      ],
+      "execution": "complete blob matched; executed actual state/RNG/Sobol methods",
+      "local_path": "04_Проверки/C16_CTL02/sources/base.py",
+      "sha256": "03509e648e38abe043906da542fc077129e1e998086fc3da2db259a289e0cf00",
+      "complete_module": true
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "git_blob_sha1": "b999c202092fe4050e0f5b7afcb108030440d399",
+      "read_ranges": [
+        [
+          1,
+          208
+        ]
+      ],
+      "execution": "complete blob matched; ParameterBounds/PolicyCandidate/StrategyState executed, objective semantics not executed",
+      "local_path": "04_Проверки/C16_CTL02/sources/types.py",
+      "sha256": "b0a2b5fbd8b165a3c24b5e34ed9fb08618c43abb11b63a15c4964e34b4366ecb",
+      "complete_module": true
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "git_blob_sha1": "7befb20ce42b15e8844d402fca627e3d17b497ec",
+      "read_ranges": [
+        [
+          1,
+          249
+        ]
+      ],
+      "execution": "complete blob matched; real SciPy/PyTorch/Python sampling with controlled optional routing",
+      "local_path": "04_Проверки/C16_CTL02/sources/space.py",
+      "sha256": "380139a26b7bde48ea31eb73f8316e19f7d312dd77706d4a7ac6654fdc4ca684",
+      "complete_module": true
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/random.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/strategies/random.py",
+      "git_blob_sha1": "2a4592ba268fac0a06757a3fd896bc67637247c9",
+      "read_ranges": [
+        [
+          1,
+          19
+        ]
+      ],
+      "execution": "complete blob matched; actual RandomSearchStrategy",
+      "local_path": "04_Проверки/C16_CTL02/sources/random_strategy.py",
+      "sha256": "b55c2504169baa23b82c635b480946e34cb3cd60bc046a970efd99df77bd6942",
+      "complete_module": true
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "git_blob_sha1": "93768dd16c915f96488bfde09cae606be3e0b658",
+      "execution": "exact two class excerpts, Pydantic genuine, not full module",
+      "local_path": "04_Проверки/C16_CTL02/sources/contract_excerpt.py",
+      "sha256": "d287116d6043d1b4104476ee38610b1f65fba9d692174f161cf89d198798e89f",
+      "complete_module": false,
+      "requested_line_ranges": [
+        [
+          1,
+          180
+        ]
+      ],
+      "complete_response_received": false,
+      "range_note": "Requested line windows, not a claim that file contains that many lines; named sections/read scope as disclosed."
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/tests/unit/scientist/search/test_frontier.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/search/test_frontier.py",
+      "git_blob_sha1": "2435b041f514cd75ce354bac8627c2063bd1ce8e",
+      "execution": "full text read; test expectations characterized; native pytest UNRUN",
+      "requested_line_ranges": [
+        [
+          1,
+          290
+        ]
+      ],
+      "complete_response_received": true,
+      "range_note": "Requested line windows, not a claim that file contains that many lines; named sections/read scope as disclosed."
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/tests/unit/scientist/search/test_candidate_identity_semantics.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/search/test_candidate_identity_semantics.py",
+      "git_blob_sha1": "1c3cd399a624c73164011c0fe2e762e12e121fd6",
+      "execution": "selected range read; actual source/registry tests UNRUN",
+      "requested_line_ranges": [
+        [
+          1,
+          250
+        ]
+      ],
+      "complete_response_received": false,
+      "range_note": "Requested line windows, not a claim that file contains that many lines; named sections/read scope as disclosed."
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_space_codec.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/search/strategies/test_space_codec.py",
+      "git_blob_sha1": "6d7f45c28371d3f9222e13984bc8f745e587ebfa",
+      "execution": "full file read; native project pytest UNRUN",
+      "requested_line_ranges": [
+        [
+          1,
+          360
+        ]
+      ],
+      "complete_response_received": true,
+      "range_note": "Requested line windows, not a claim that file contains that many lines; named sections/read scope as disclosed."
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+      "git_blob_sha1": "058cb5388de7ebb1f63cea32cb17b23c98b94eec",
+      "execution": "full read; optional dependency loader represented explicitly in isolated profile",
+      "requested_line_ranges": [
+        [
+          1,
+          250
+        ]
+      ],
+      "complete_response_received": true,
+      "range_note": "Requested line windows, not a claim that file contains that many lines; named sections/read scope as disclosed."
+    },
+    {
+      "id": "S11",
+      "path": "AGENTS.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/AGENTS.md",
+      "git_blob_sha1": "5f144a27e35130b60e2c3537d97f0c7bbcda57f5",
+      "read_ranges": null,
+      "execution": "repository scope rules read; source review only"
+    }
+  ],
+  "external_primary_context": [
+    {
+      "id": "E01",
+      "url": "https://docs.python.org/3.14/library/random.html",
+      "purpose": "getstate/setstate contract; external documentation not runtime test"
+    },
+    {
+      "id": "E02",
+      "url": "https://github.com/python/cpython/blob/3.14/Lib/random.py",
+      "purpose": "order of gauss_next assignment before native state validation; read only; executed Python is 3.13.5"
+    },
+    {
+      "id": "E03",
+      "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.qmc.Sobol.html",
+      "purpose": "prefix and balance caveats, fast_forward; page 1.18.0, actual runtime 1.17.0"
+    },
+    {
+      "id": "E04",
+      "url": "https://docs.pytorch.org/docs/2.13/generated/torch.quasirandom.SobolEngine.html",
+      "purpose": "draw/reset/fast_forward; documentation 2.13, actual runtime 2.10.0+cpu"
+    }
+  ],
+  "search_scope": "finite targeted source reads, not repository-wide census",
+  "test_ctl_02_py": "suggested E02 path returned 404; existing tests resolved at owners"
+}

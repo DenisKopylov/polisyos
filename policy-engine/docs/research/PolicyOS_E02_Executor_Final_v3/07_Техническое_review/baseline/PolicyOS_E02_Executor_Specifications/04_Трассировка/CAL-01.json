@@ -1,0 +1,342 @@
+{
+  "packet_id": "CAL-01",
+  "lane": "LANE-07",
+  "source_ids": [
+    "B176",
+    "B177",
+    "B178"
+  ],
+  "protected_distinction_ids": [
+    "LK01"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/CAL-01.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "work_types": "fix + preserve + native qualification",
+  "practical_goal": "Разрешённые наблюдения достигают calibration consumer с теми же временем, единицами и support; технический порядок IDs или строк не меняет величину.",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C91_остатки:0",
+      "audit_id": "C91-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CAL-01-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Единая axis admission перед temporal kernels."
+    },
+    {
+      "inventory_id": "audit-residual:C91_остатки:1",
+      "audit_id": "C91-R02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CAL-01-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Paired canonicalization до inferred endpoints."
+    },
+    {
+      "inventory_id": "audit-residual:C91_остатки:2",
+      "audit_id": "C91-R03",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CAL-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Whole-series unit/interval contract, не unit guessing."
+    },
+    {
+      "inventory_id": "audit-residual:C91_остатки:3",
+      "audit_id": "C91-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CAL-01-04",
+        "REQ-CAL-01-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Native real consumer и scoped scientific qualification."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-CAL-01-01",
+      "text": "Preflight должен один раз проверить конечность source и target time axis и разрешить duplicate policy до interpolation/optimizer. В отсутствие уже объявленного содержательного преобразования duplicate source timestamps отклоняются; positional mode сохраняется только когда действительно выбран.",
+      "source_ids": [
+        "B176",
+        "B177",
+        "B178"
+      ],
+      "audit_ids": [
+        "C91-R01"
+      ],
+      "test_ids": [
+        "TEST-CAL-01-01"
+      ]
+    },
+    {
+      "id": "REQ-CAL-01-02",
+      "text": "Source axis и связанные values/masks/metadata должны получить один допустимый paired order до inferred grid construction и equal-length shortcut. Перестановка одинаковых time/value pairs не меняет target/report axis или aligned values.",
+      "source_ids": [
+        "B176",
+        "B177",
+        "B178"
+      ],
+      "audit_ids": [
+        "C91-R02"
+      ],
+      "test_ids": [
+        "TEST-CAL-01-02"
+      ]
+    },
+    {
+      "id": "REQ-CAL-01-03",
+      "text": "Compiler должен проверить совместимость declared unit и interval semantics всей target series, не только same-period multiplicity. Без explicit conversion contract смешение share/percent отклоняется с сохранением исходных observations для repair.",
+      "source_ids": [
+        "B176",
+        "B177",
+        "B178"
+      ],
+      "audit_ids": [
+        "C91-R03"
+      ],
+      "test_ids": [
+        "TEST-CAL-01-03"
+      ]
+    },
+    {
+      "id": "REQ-CAL-01-04",
+      "text": "Сохранить same-period ambiguity refusal, paired metadata и различие observed zero/declared fill/no support. Integer/float fill0.5 равнозначен; empty+steps не создаёт measured zero; missing bundle slots имеют нулевую coverage/trust, не fake observations.",
+      "source_ids": [
+        "B176",
+        "B177",
+        "B178"
+      ],
+      "audit_ids": [
+        "C91-G01"
+      ],
+      "test_ids": [
+        "TEST-CAL-01-04"
+      ]
+    },
+    {
+      "id": "REQ-CAL-01-05",
+      "text": "Один native observation→target→optimizer/report witness должен доказать использование исправленных axes/units/masks реальным consumer; scientific adequacy остаётся отдельной qualification конкретных inputs. LK01 разделяет Foundry/predictive/DDM calibration.",
+      "source_ids": [
+        "B176",
+        "B177",
+        "B178"
+      ],
+      "audit_ids": [
+        "C91-G01"
+      ],
+      "test_ids": [
+        "TEST-CAL-01-05"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-CAL-01-01",
+      "requirement_ids": [
+        "REQ-CAL-01-01"
+      ],
+      "level": "native unit / integration",
+      "setup": "Linear/ffill, time[0,0,1] с перестановкой первых values; NaN/±Inf source/target axis; missing requested time_column; valid positional.",
+      "action": "Actual fetch/extract/prepare_targets до optimizer.",
+      "oracle": "Duplicate/nonfinite/missing declared column → targeted error до optimizer, не arbitrary latest value/NaN. Valid positional и explicit endpoint-fill работают.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Настоящий preflight/config; native JAX для final path, NumPy-only probe не градиентная приёмка.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-CAL-01-02",
+      "requirement_ids": [
+        "REQ-CAL-01-02"
+      ],
+      "level": "native unit / integration",
+      "setup": "Pairs(0,0),(1,10),(2,20) в двух permutations, steps2 и steps3, no explicit axis; separately explicit[.5,1.5].",
+      "action": "prepare_targets обеих branches.",
+      "oracle": "Inferredsteps2→axis[0,2],values[0,20] в обоихпорядках; equal length ordered paired result; explicit→[5,15]. Metadata IDs/split/masks двигаются вместе, не только time.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не угадывать calendar units из float; temporal conversion только declared contract.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-CAL-01-03",
+      "requirement_ids": [
+        "REQ-CAL-01-03"
+      ],
+      "level": "native unit / integration",
+      "setup": "Valid records .5/share январь и 50/percent февраль; sameunit positive; explicit upstream normalized percent→share with lineage.",
+      "action": "CalibrationTargetBundleCompiler.compile и downstream quality adapter.",
+      "oracle": "Mixed declared units не становится [.5,50] weighted target; sameunit represented; explicit converted [.5,.5] accepted с unit/provenance. Переименование IDs или trust не выбирает winner.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не heuristic metric-name conversion; actual record/compiler/router, не DTOcopy.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-CAL-01-04",
+      "requirement_ids": [
+        "REQ-CAL-01-04"
+      ],
+      "level": "native unit / integration",
+      "setup": "Same period two sources/IDs/trust, integer[1]/float[1.0]fill.5, empty steps3, actual zero[0,0], endpoint fill, masked calendar gaps.",
+      "action": "Actual compiler/raw preflight и support consumer.",
+      "oracle": "Ambiguity refusal invariant to IDs; fill[1,.5,.5], empty refusal, observed zeros kept, endpoint[1,2,2] kept; missing mask not valid measure.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не auto mean/maxtrust; positive fill и zero обязательны.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-CAL-01-05",
+      "requirement_ids": [
+        "REQ-CAL-01-05"
+      ],
+      "level": "native unit / integration",
+      "setup": "Supported JAX, tiny identifiable model с valid units/time, selected source inputs и persisted report; no-support negative.",
+      "action": "Совместный CAL lane10 consumer с CAL-02 scale/train mask contract; fresh report read.",
+      "oracle": "Actual finite fit/gradient/report связан с исправленными inputs; no-support не goodfit. Никаких fake JAX/NumPy substitution; candidate fixture не эмпирический сертификат.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Контролируемая synthetic model допустима для mechanism; real JAX optimizer/report/CAS требуется для claimed boundary.",
+      "status": "NOT_RUN"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I07-C"
+  ],
+  "dependencies": [
+    "CAL-02/CAL-06 shared preflight/measurement write mutex; one writer",
+    "E02-I07-C local source→target; shared lane10 optimizer/report evidence without duplicate infrastructure"
+  ],
+  "preservation": [
+    "Same-period fail closed без ID/trust выбора",
+    "Paired metadata",
+    "Explicit-axis sorting и requested-column refusal",
+    "Dtype promotion/empty support refusal",
+    "Zero/endpoint-fill и masked missing distinction",
+    "LK01 distinct calibration owners"
+  ],
+  "design_alignment": [
+    "[Vision §3, §6–§7, §11](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md) — существующий owner, реально подключённый consumer, совместимые новые ресурсы через общий контракт; не бесконечный реестр вместо работы. [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md) — candidate/conditional вычисление не равно эмпирической или институциональной authority.",
+    "Не требовать универсального интерпретатора физических единиц. Explicit typed transform и конечный domain contract достаточны для полезной работы; новая семантика может требовать общего кода, но не case-by-case branches по metric name."
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0297",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CAL-01-01"
+      ],
+      "rationale": "Единая axis admission перед temporal kernels."
+    },
+    {
+      "inventory_id": "remaining:0298",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CAL-01-02"
+      ],
+      "rationale": "Paired canonicalization до inferred endpoints."
+    },
+    {
+      "inventory_id": "remaining:0299",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CAL-01-03"
+      ],
+      "rationale": "Whole-series unit/interval contract, не unit guessing."
+    },
+    {
+      "inventory_id": "remaining:0300",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CAL-01-04",
+        "REQ-CAL-01-05"
+      ],
+      "rationale": "Native real consumer и scoped scientific qualification."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0450",
+      "requirement_ids": [
+        "REQ-CAL-01-03",
+        "REQ-CAL-01-04"
+      ],
+      "test_ids": [
+        "TEST-CAL-01-03",
+        "TEST-CAL-01-04"
+      ],
+      "rationale": "Sameperiodambiguity не ID/trustwinner."
+    },
+    {
+      "inventory_id": "preserve:0451",
+      "requirement_ids": [
+        "REQ-CAL-01-02",
+        "REQ-CAL-01-04"
+      ],
+      "test_ids": [
+        "TEST-CAL-01-02",
+        "TEST-CAL-01-04"
+      ],
+      "rationale": "Paired metadata retained."
+    },
+    {
+      "inventory_id": "preserve:0452",
+      "requirement_ids": [
+        "REQ-CAL-01-01",
+        "REQ-CAL-01-02"
+      ],
+      "test_ids": [
+        "TEST-CAL-01-01",
+        "TEST-CAL-01-02"
+      ],
+      "rationale": "Explicit sort/requestedcolumnrefusal."
+    },
+    {
+      "inventory_id": "preserve:0453",
+      "requirement_ids": [
+        "REQ-CAL-01-04"
+      ],
+      "test_ids": [
+        "TEST-CAL-01-04"
+      ],
+      "rationale": "Dtypepromotion/empty refusal."
+    },
+    {
+      "inventory_id": "preserve:0454",
+      "requirement_ids": [
+        "REQ-CAL-01-04",
+        "REQ-CAL-01-05"
+      ],
+      "test_ids": [
+        "TEST-CAL-01-04",
+        "TEST-CAL-01-05"
+      ],
+      "rationale": "Zero/fill/maskedabsence distinction."
+    },
+    {
+      "inventory_id": "preserve:0455",
+      "requirement_ids": [
+        "REQ-CAL-01-05"
+      ],
+      "test_ids": [
+        "TEST-CAL-01-05"
+      ],
+      "rationale": "LK01 distinctcalibrationowners."
+    }
+  ],
+  "owners": [
+    "src/polisyos/foundry/calibration/preflight.py::prepare_targets",
+    "src/polisyos/foundry/calibration/preflight.py::_resample_series",
+    "src/polisyos/foundry/calibration/measurement.py::CalibrationTargetBundleCompiler.compile",
+    "src/polisyos/ir/analytics/calibration.py"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "pass_id": "C86",
+  "bundle": "OBS-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C86-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B147"
+      ],
+      "title": "Native Parquet → D2 materialization → read API/CAS success chain остаётся непроверенной",
+      "evidence": [
+        "S01:1470–1591",
+        "S01:2004–2282",
+        "S10",
+        "P01",
+        "P02",
+        "P05",
+        "P06"
+      ],
+      "remaining": "В supported environment исполнить имеющиеся12 bodies/18 cases и5-variant orchestrator regression с real Arrow/DuckDB/CAS. Сверить two-block/two-metric shard IDs, merged panel rows, persisted final counters, source snapshot digest, failed receipt refusal и отсутствие full-read fallback. Это общий LANE-07 integration, не отдельная новая архитектура.",
+      "limits": "Все18 native cases BLOCKED до deciding assertions. Own JSON-backed reader и writer позволяют проверить actual cursor/mapper/D2 failure accounting, но не Parquet projection/schema, real footer/batch behavior, successful merge или CAS selected-profile admission."
+    },
+    {
+      "id": "C86-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B147"
+      ],
+      "title": "Real workload и lifecycle retained scratch требуют bounded эксплуатационной квалификации",
+      "evidence": [
+        "S01:1420–1467",
+        "S01:2027–2075",
+        "S05:324–401",
+        "S09:894–1036",
+        "P04",
+        "P05",
+        "P06"
+      ],
+      "remaining": "На representative controlled corpus проверить ресурсное поведение disk-backed snapshot, реальные decode/schema failures и public stage rerun после incomplete scratch; убедиться, что consumers используют completed content-bound receipt, а не остаточные файлы. Сохранить typed failure/partial counters и existing guards; не удалять forensic scratch как будто его наличие само по себе authority leak.",
+      "limits": "Current copy имеет initial-size/disk/free-space admission и hash equality; bounded mutation/growth/shrink/cancellation controls пройдены. Concurrent disk exhaustion, power loss, all historical outputs и все внешние consumers не проверены. Retained scratch явно not_established; actual selected tracking failed outputs=[] и actual read API refusal подтверждены, misuse не установлен."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "carried_related_residuals": [
+    "C83-R01"
+  ],
+  "protected_distinctions": [
+    "LK12"
+  ],
+  "decision": "B147 duplicate-prefix fallback removed in bounded actual-function controls. Snapshot-bound resume, phase-aware refusal и incomplete accounting присутствуют; новый defect не установлен, native successful chain остаётся G."
+}

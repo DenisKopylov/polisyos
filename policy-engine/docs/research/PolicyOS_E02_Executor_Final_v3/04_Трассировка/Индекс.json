@@ -1,0 +1,5300 @@
+{
+  "kind": "executor_specification_index",
+  "status": "FINAL_EXECUTOR_V3_IMPLEMENTATION_NOT_RUN",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "phase1_zip_sha256": "d4cfde8c6d5b65acd09f3352b4f0c74e2e35b0b2230d21ab4636de569076d550",
+  "product_changes": "NONE",
+  "implementation_tests": "NOT_RUN",
+  "counts": {
+    "packets": 127,
+    "requirements": 606,
+    "tests": 613,
+    "source_ids_in_plan": 282,
+    "source_ids_covered_by_written_packets": 282,
+    "disposition_records_total": 572,
+    "audit_residual_records_covered": 425,
+    "audit_residual_records_expected": 425,
+    "remaining_bindings": 490,
+    "unique_remaining_obligations_covered": 490,
+    "unique_remaining_obligations_expected": 490,
+    "preservation_bindings": 803,
+    "unique_preservation_obligations_covered": 803,
+    "unique_preservation_obligations_expected": 803
+  },
+  "packets": [
+    {
+      "packet_id": "CYC-01",
+      "lane": "LANE-01",
+      "source_order": 1,
+      "source_ids": [
+        "B01",
+        "B02",
+        "B03"
+      ],
+      "spec_path": "02_Пакеты/CYC-01.md",
+      "spec_sha256": "bee2ece9c283604a00c864360f0a7e8ee59d74032a9c63b041c353084d385555",
+      "trace_path": "04_Трассировка/CYC-01.json",
+      "trace_sha256": "42db10cdd7362e8ecb993d94ed61a8b89bada8c6585c3fc8b43a591c856f12e7",
+      "requirement_ids": [
+        "REQ-CYC-01-01",
+        "REQ-CYC-01-02",
+        "REQ-CYC-01-03",
+        "REQ-CYC-01-04",
+        "REQ-CYC-01-05",
+        "REQ-CYC-01-06",
+        "REQ-CYC-01-07"
+      ],
+      "test_ids": [
+        "TEST-CYC-01-01",
+        "TEST-CYC-01-02",
+        "TEST-CYC-01-03",
+        "TEST-CYC-01-04",
+        "TEST-CYC-01-05",
+        "TEST-CYC-01-06"
+      ],
+      "shared_scenarios": [
+        "E02-I01-A",
+        "E02-X01"
+      ],
+      "dependencies": [
+        "CYC-02: положительный conditional N8 и свежий независимый reader; не приписывать это candidate-N5 тесту.",
+        "SIM-01/SIM-02/SIM-03/SEL-01: numerical/selection falsifiers принимаются у своих owners; CYC-01 проверяет их штатное соединение.",
+        "CYC-03/ACQ-01: новая basis и continuation отдельно; CYC-05: действительная child/composition способность отдельно.",
+        "CP1: составная приёмка нужного пути; интерфейсы LANE-04 и LANE-06 только по фактическому выбранному маршруту."
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-CYC-01-01",
+          "question": "Какой второй содержательно отличный случай доступен через имеющийся ресурсный/модельный контракт?",
+          "owner": "Исполнитель CYC-01 с предметным reviewer; назначенный проектом координатор сквозного сценария E02-X03 «второй содержательно иной случай»",
+          "options": [
+            "Совместимый существующий profile/resource: только данные/регистрация.",
+            "Нужна отсутствующая общая семантика: минимально расширить существующий owner и предъявить повторное использование.",
+            "Доступного основания нет: сохранить полезный candidate/план получения, не заявлять portability PASS."
+          ],
+          "selection_evidence": "Реальный catalog/resource manifest, exact model/outcome/unit, независимый oracle, список case-specific подготовки.",
+          "required_output": "До TEST-06 выбрать один вариант и вход; результат/ограничение/конкретный следующий общий механизм. Не блокирует TEST-01–05 и bounded repair acceptance."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "REQ-01",
+      "lane": "LANE-01",
+      "source_order": 2,
+      "source_ids": [
+        "LA-045",
+        "LA-046"
+      ],
+      "spec_path": "02_Пакеты/REQ-01.md",
+      "spec_sha256": "cd4669966fe1aeec347e036f3a4770fbaf495e58af8fce78c46302bc0646a376",
+      "trace_path": "04_Трассировка/REQ-01.json",
+      "trace_sha256": "c26aea9f5189e91384b0227cae362bc2d5b04ff1db7b5c19f82b2f05ec450929",
+      "requirement_ids": [
+        "REQ-REQ-01-01",
+        "REQ-REQ-01-02",
+        "REQ-REQ-01-03",
+        "REQ-REQ-01-04",
+        "REQ-REQ-01-05",
+        "REQ-REQ-01-06",
+        "REQ-REQ-01-07",
+        "REQ-REQ-01-08",
+        "REQ-REQ-01-09"
+      ],
+      "test_ids": [
+        "TEST-REQ-01-01",
+        "TEST-REQ-01-02",
+        "TEST-REQ-01-03",
+        "TEST-REQ-01-04",
+        "TEST-REQ-01-05",
+        "TEST-REQ-01-06",
+        "TEST-REQ-01-07",
+        "TEST-REQ-01-08"
+      ],
+      "shared_scenarios": [
+        "E02-I01-B",
+        "E02-X02"
+      ],
+      "dependencies": [
+        "ACQ-01: владелец полного LA-046 caller→compiler→resolver→admission→reentry; domain rule реализуется один раз REQ-01.",
+        "CYC-03: current continuation и reuse; REQ-01 не повторяет dispatcher.",
+        "LA-045 совместимость: first-party imports/loaders/exports/distribution scope; не бесконечный внешний census."
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-REQ-01-01",
+          "question": "Как текущий grammar/resolver потребляет CUSTOM и отсутствие domain без потери explicit requirement?",
+          "owner": "REQ-01; ACQ-01 подтверждает N7 error/continuation surface",
+          "options": [
+            "CUSTOM + raw/status metadata, explicit constructs/scope продолжаются — предпочтительный путь.",
+            "Typed adapter refusal только для отсутствующей indispensable semantics, с сохранённым candidate/report и точным запросом; не blanket unknown-domain refusal."
+          ],
+          "selection_evidence": "Actual PolicyGrammarCompiler/compiled report для neutral unknown и явно заданного construct; existing ProblemDomain.CUSTOM escape hatch.",
+          "required_output": "До merge domain fix закрепить один exact contract, rule version и TEST-01/02/08; explicit alias fix и finite cleanup проверки не ждут всемирного semantic решения."
+        },
+        {
+          "id": "DEC-REQ-01-02",
+          "question": "Входит ли top-level required_constructs у Mapping claim в фактически поддержанный producer contract?",
+          "owner": "REQ-01 compiler owner",
+          "options": [
+            "Да: перенести без потери в canonical record, reject conflicting aliases.",
+            "Нет: сохранить metadata contract и сделать unsupported top-level input явным."
+          ],
+          "selection_evidence": "Конечные first-party producers + публичные DTO/schema + actual compile trace, не private helper поведение.",
+          "required_output": "Именованный перечень producer scope и выбранный поддержанный shape с TEST-07; не оставлять «разобраться вообще»."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CYC-03",
+      "lane": "LANE-01",
+      "source_order": 3,
+      "source_ids": [
+        "B09",
+        "B27",
+        "B28"
+      ],
+      "spec_path": "02_Пакеты/CYC-03.md",
+      "spec_sha256": "8a2afd12a03bc09241167f0e53d1381a3a47cab14264505a293e0adead7f6352",
+      "trace_path": "04_Трассировка/CYC-03.json",
+      "trace_sha256": "b955f5994860251163d108ba07d3743843c1b99ed3a85af390c763823774aca1",
+      "requirement_ids": [
+        "REQ-CYC-03-01",
+        "REQ-CYC-03-02",
+        "REQ-CYC-03-03",
+        "REQ-CYC-03-04",
+        "REQ-CYC-03-05",
+        "REQ-CYC-03-06"
+      ],
+      "test_ids": [
+        "TEST-CYC-03-01",
+        "TEST-CYC-03-02",
+        "TEST-CYC-03-03",
+        "TEST-CYC-03-04",
+        "TEST-CYC-03-05",
+        "TEST-CYC-03-06"
+      ],
+      "shared_scenarios": [
+        "E02-I01-B",
+        "E02-X02"
+      ],
+      "dependencies": [
+        "REQ-01 domain/construct contract → ACQ-01 actual admission/world → CYC-03 continuation/current occurrence.",
+        "generation_cycle.py общий mutex с CYC-01/02/04/05; ACQ-01 writer общего world bridge, CYC-03 writer basis-transition/occurrence.",
+        "Независимая реплика не создаёт empirical authority автоматически; SIM-03 владеет replication statistics."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "ACQ-01",
+      "lane": "LANE-01",
+      "source_order": 4,
+      "source_ids": [
+        "B12",
+        "LA-046"
+      ],
+      "spec_path": "02_Пакеты/ACQ-01.md",
+      "spec_sha256": "260d719b5d85f861fc50c2db44e9943dab509fcca0661d7da6e99ef7335bff00",
+      "trace_path": "04_Трассировка/ACQ-01.json",
+      "trace_sha256": "fc57d51a0eea9f7784506b6dc6dfcd715208e6b586aa5bc31c590fc9b69ee8cd",
+      "requirement_ids": [
+        "REQ-ACQ-01-01",
+        "REQ-ACQ-01-02",
+        "REQ-ACQ-01-03",
+        "REQ-ACQ-01-04",
+        "REQ-ACQ-01-05",
+        "REQ-ACQ-01-06"
+      ],
+      "test_ids": [
+        "TEST-ACQ-01-01",
+        "TEST-ACQ-01-02",
+        "TEST-ACQ-01-03",
+        "TEST-ACQ-01-04",
+        "TEST-ACQ-01-05",
+        "TEST-ACQ-01-06"
+      ],
+      "shared_scenarios": [
+        "E02-I01-B",
+        "E02-X02"
+      ],
+      "dependencies": [
+        "REQ-01 normalizer/report contract перед ACQ full closure; CYC-03 owns basis/occurrence and reuse semantics.",
+        "Shared generation_cycle.py mutations выполняет один writer по agreed patch order; no independent duplicated compiler adapter.",
+        "Source trust/acquisition owners других lanes остаются настоящими boundaries; fixture network допустим, admission/consumer не подменять."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CYC-04",
+      "lane": "LANE-01",
+      "source_order": 5,
+      "source_ids": [
+        "B10",
+        "B11"
+      ],
+      "spec_path": "02_Пакеты/CYC-04.md",
+      "spec_sha256": "e5fcff33e8ae6d07be412928fcb101b5292634dc4d9f105744442566bbf7c7b3",
+      "trace_path": "04_Трассировка/CYC-04.json",
+      "trace_sha256": "5bcf781146c2c3564aaafb830bfc3c425f187b8ffa59166ad4c8e2aa29128c09",
+      "requirement_ids": [
+        "REQ-CYC-04-01",
+        "REQ-CYC-04-02",
+        "REQ-CYC-04-03",
+        "REQ-CYC-04-04",
+        "REQ-CYC-04-05",
+        "REQ-CYC-04-06"
+      ],
+      "test_ids": [
+        "TEST-CYC-04-01",
+        "TEST-CYC-04-02",
+        "TEST-CYC-04-03",
+        "TEST-CYC-04-04",
+        "TEST-CYC-04-05",
+        "TEST-CYC-04-06"
+      ],
+      "shared_scenarios": [
+        "E02-I01-C",
+        "E02-X01"
+      ],
+      "dependencies": [
+        "CYC-04 единственный owner late-candidate queue в N6; SIM-01 — альтернативные engine plans внутри одного N5 request, не дублировать эти уровни.",
+        "ACQ-01 сохраняет data acquisition action; shared failure не превращать в обход через новую acquisition.",
+        "Budget owner/middleware изменения согласовать с RES/ответственными integration lanes; CYC-04 owns consumer purpose/admission контракт."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CYC-02",
+      "lane": "LANE-01",
+      "source_order": 6,
+      "source_ids": [
+        "B04",
+        "B05",
+        "B08"
+      ],
+      "spec_path": "02_Пакеты/CYC-02.md",
+      "spec_sha256": "c62e7c21eff1b5127b6f03d7ba75d9d723c242b180210d1c86985100c6a8da7d",
+      "trace_path": "04_Трассировка/CYC-02.json",
+      "trace_sha256": "0b2f7eac6290827029197a6a34e671290bb558a932233f07fa09846eaf968d8c",
+      "requirement_ids": [
+        "REQ-CYC-02-01",
+        "REQ-CYC-02-02",
+        "REQ-CYC-02-03",
+        "REQ-CYC-02-04",
+        "REQ-CYC-02-05"
+      ],
+      "test_ids": [
+        "TEST-CYC-02-01",
+        "TEST-CYC-02-02",
+        "TEST-CYC-02-03",
+        "TEST-CYC-02-04",
+        "TEST-CYC-02-05"
+      ],
+      "shared_scenarios": [
+        "E02-I01-A",
+        "E02-X01"
+      ],
+      "dependencies": [
+        "CYC-01 ordinary served entry; CYC-02 owns conditional projection/legacy fix/new-process reader.",
+        "SIM-03 owns model-bound comparator и interaction math; CYC-05 authored child relationships не заменяет joint numerical semantics.",
+        "Общий generation_cycle.py writer координируется с соседними CYC/ACQ; не создавать второй CAS/N8."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CYC-05",
+      "lane": "LANE-01",
+      "source_order": 7,
+      "source_ids": [
+        "B15",
+        "B29",
+        "B30"
+      ],
+      "spec_path": "02_Пакеты/CYC-05.md",
+      "spec_sha256": "3727389db2f1b442a2acf814ccd3fb1afa101b8d1b8a6440c6d1e51d8201bf3f",
+      "trace_path": "04_Трассировка/CYC-05.json",
+      "trace_sha256": "d9f8578a145b790e2025c612cc22b1e0d27d55de84be83b24140e316ec36ad3f",
+      "requirement_ids": [
+        "REQ-CYC-05-01",
+        "REQ-CYC-05-02",
+        "REQ-CYC-05-03",
+        "REQ-CYC-05-04",
+        "REQ-CYC-05-05",
+        "REQ-CYC-05-06",
+        "REQ-CYC-05-07"
+      ],
+      "test_ids": [
+        "TEST-CYC-05-01",
+        "TEST-CYC-05-02",
+        "TEST-CYC-05-03",
+        "TEST-CYC-05-04",
+        "TEST-CYC-05-05",
+        "TEST-CYC-05-06",
+        "TEST-CYC-05-07"
+      ],
+      "shared_scenarios": [
+        "E02-I01-C",
+        "E02-X01"
+      ],
+      "dependencies": [
+        "CYC-05 единственный writer положительного confidence_ledger readiness bridge/current consumer. LANE-12 DFK/HYG/CLI — фактические build/distribution/census/test artifact producers; не второй readiness issuer.",
+        "Issuer appointment и purpose/baseline contract согласовать с существующим identity owner до coding; не создавать внешний authority факт самостоятельно.",
+        "SIM-03 owns actual compound contrast/math; CYC-05 owns authored relationships, decomposition и propagation.",
+        "CYC-02 preserved numeric readback; CYC-03 current vs historical identities; общий generation_cycle.py mutex."
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-CYC-05-01",
+          "question": "Какой реально поддержанный deployment профиль и существующий issuer appointment дают конечный положительный structural contract?",
+          "owner": "CYC-05 совместно с LANE-12 producer/identity owner",
+          "options": [
+            "Source-checkout профиль с полным build/census artifact и canonical loaded baseline.",
+            "Installed distribution профиль с verified package manifest, declared build census и loaded binding."
+          ],
+          "selection_evidence": "Найденные actual build outputs, назначенный purpose/issuer и возможность проверить весь relevant denominator; не только наличие json.",
+          "required_output": "Один именованный профиль, versioned artifact/issuer interface, valid positive и invalidation tests; отсутствие appointment оформляется точным внешним предусловием, а bridge/consumer всё равно реализуются и проверяются на допустимом тестовом principal"
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "SIM-01",
+      "lane": "LANE-01",
+      "source_order": 8,
+      "source_ids": [
+        "B06",
+        "B07"
+      ],
+      "spec_path": "02_Пакеты/SIM-01.md",
+      "spec_sha256": "0806200774a4e3a68fbb2d04a4edf666e0ff53ebfc2225aacf8d6b0654c2d3fe",
+      "trace_path": "04_Трассировка/SIM-01.json",
+      "trace_sha256": "0d21636524b9af748fb23c0e20b5b715aa75ee177f4da415bd50eff5e75bc54d",
+      "requirement_ids": [
+        "REQ-SIM-01-01",
+        "REQ-SIM-01-02",
+        "REQ-SIM-01-03",
+        "REQ-SIM-01-04"
+      ],
+      "test_ids": [
+        "TEST-SIM-01-01",
+        "TEST-SIM-01-02",
+        "TEST-SIM-01-03",
+        "TEST-SIM-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I01-A"
+      ],
+      "dependencies": [
+        "SIM-01 owns engine-plan input preflight; CYC-04 owns кандидатные alternatives после локального N5/N8 отказа.",
+        "SIM-02 owns resolved write paths/interruption reasons; SIM-03 comparator/replications/joint math.",
+        "CYC-01 builder handoff и CYC-02 reader должны использовать один exact request/selected binding; shared horizon.py один writer."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "SIM-02",
+      "lane": "LANE-01",
+      "source_order": 9,
+      "source_ids": [
+        "B18",
+        "B20",
+        "B22"
+      ],
+      "spec_path": "02_Пакеты/SIM-02.md",
+      "spec_sha256": "c2b16fa2acd1a72c00dd40194f82cd2af34b95307874ea58beae3f459b884c24",
+      "trace_path": "04_Трассировка/SIM-02.json",
+      "trace_sha256": "d1b52fde2746f28dbb2cd09ca65cae225bbbbfe0ee12baca14a79088b36c6fb1",
+      "requirement_ids": [
+        "REQ-SIM-02-01",
+        "REQ-SIM-02-02",
+        "REQ-SIM-02-03",
+        "REQ-SIM-02-04",
+        "REQ-SIM-02-05"
+      ],
+      "test_ids": [
+        "TEST-SIM-02-01",
+        "TEST-SIM-02-02",
+        "TEST-SIM-02-03",
+        "TEST-SIM-02-04",
+        "TEST-SIM-02-05"
+      ],
+      "shared_scenarios": [
+        "E02-I01-A"
+      ],
+      "dependencies": [
+        "SIM-02 единственный owner common resolved-write и retained cause contract; SIM-03 использует этот cause для replication interruption.",
+        "SIM-01 preflight не catch-all retry; CYC-02 actual conditional consumer принимает только qualified выбранный профиль.",
+        "Temporal/aggregation profile согласовать с actual method owner, не менять units/estimand ради зелёной длины."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "SIM-03",
+      "lane": "LANE-01",
+      "source_order": 10,
+      "source_ids": [
+        "B19",
+        "B21",
+        "B23",
+        "B25",
+        "B26"
+      ],
+      "spec_path": "02_Пакеты/SIM-03.md",
+      "spec_sha256": "aa14bc4c7dd580eb9c50f093616aebce060449afca42b4bec141aff9b0cf0a5e",
+      "trace_path": "04_Трассировка/SIM-03.json",
+      "trace_sha256": "00a5dcab73db7c1f62a2e05416a0b7df50307d1f99cd3e6db08bd53f6a0e710a",
+      "requirement_ids": [
+        "REQ-SIM-03-01",
+        "REQ-SIM-03-02",
+        "REQ-SIM-03-03",
+        "REQ-SIM-03-04",
+        "REQ-SIM-03-05",
+        "REQ-SIM-03-06"
+      ],
+      "test_ids": [
+        "TEST-SIM-03-01",
+        "TEST-SIM-03-02",
+        "TEST-SIM-03-03",
+        "TEST-SIM-03-04",
+        "TEST-SIM-03-05",
+        "TEST-SIM-03-06"
+      ],
+      "shared_scenarios": [
+        "E02-I01-A"
+      ],
+      "dependencies": [
+        "SIM-02 owns exact cause/temporal contract; SIM-03 does finite/statistics/comparator/interaction.",
+        "CYC-05 owns authored relationships, SIM-03 owns actual joint numerical semantics; neither soleowner всего compound meaning.",
+        "CYC-02 exposes conditional result; no empirical/N9 proof от этой приёмки."
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-SIM-03-01",
+          "question": "Каков ограниченный numerical tolerance profile для noninteger/unit-rescaling fixtures и поддержанного NCM backend?",
+          "owner": "SIM-03, согласование numerical owner",
+          "options": [
+            "analytic absolute bound из float dtype, числа операций и scale с отдельно заданными единицами",
+            "существующий model-specific numerical error contract, если его assumptions совпадают"
+          ],
+          "selection_evidence": "До execution зафиксировать dtype, model expression, units, horizon, sample count и независимый high-precision/algebraic oracle; выбирать минимальную обоснованную bound, не cutoff по удобному observed output. Stochastic significance требует отдельного inference profile, не numerical tolerance",
+          "required_output": "Таблица fixture→formula/input→exact expected→derived bound и различающий mutation. Пока profile не выбран, соответствующие scale cases BLOCKED/NOT_RUN, packet не принят; integer additive/interaction controls уже полностью определены"
+        },
+        {
+          "id": "DEC-SIM-03-02",
+          "question": "Каков bounded interval estimand и совместимая unavailable projection для native NCM summary после deterministic quantile repair?",
+          "owner": "SIM-03 / existing NCM numerical-summary owner и actual interval consumers; согласование с общим CAU-01 confidence-domain правилом, без нового framework",
+          "options": [
+            "Сохранить legacy numeric summary только как явно неквалифицированную descriptive projection, добавив существующий limitation/status boundary",
+            "Versioned summary с nullable/unavailable interval и объявленным Monte Carlo error profile при достаточном основании; mean/trajectory/n сохраняются"
+          ],
+          "selection_evidence": "Actual consumer/DTO census: где CI читается и где используется только mean; существующие n_samples1, std ddof0 и sampling assumptions; precision для confidence0.50/0.80/0.95/0.99, nextafter(1,0) и tiny positive levels; legacy reader/version migration и независимый CDF/erfc residual",
+          "required_output": "Один bounded interval definition, sample-variance/singleton policy, поддержанный numerical confidence profile и versioned/legacy-unqualified projection. Для n1 или tiny confidence, когда float tail округляется к0.5 и positive quantile не различим, interval не квалифицирован, но где contract позволяет mean/trajectory/n и paired endpoint сохраняются. Если текущая schema не умеет unavailable interval, выбрать явную compatibility/versioned projection, не unconditional отказ всей simulation. Deterministic inverse-normal устраняет auxiliary random work, но сам не доказывает coverage; не менять весь inference framework"
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "SEL-01",
+      "lane": "LANE-01",
+      "source_order": 11,
+      "source_ids": [
+        "B34",
+        "B35",
+        "B36"
+      ],
+      "spec_path": "02_Пакеты/SEL-01.md",
+      "spec_sha256": "e6b2502dcdb9b8ff1cb1a855b9c9610922af7936e04fa7cc37d75afc0b882a6f",
+      "trace_path": "04_Трассировка/SEL-01.json",
+      "trace_sha256": "e4c1909e23342ccd54079a66075304966e1403d52e42a45721fc7ebc21406e89",
+      "requirement_ids": [
+        "REQ-SEL-01-01",
+        "REQ-SEL-01-02",
+        "REQ-SEL-01-03",
+        "REQ-SEL-01-04",
+        "REQ-SEL-01-05"
+      ],
+      "test_ids": [
+        "TEST-SEL-01-01",
+        "TEST-SEL-01-02",
+        "TEST-SEL-01-03",
+        "TEST-SEL-01-04",
+        "TEST-SEL-01-05"
+      ],
+      "shared_scenarios": [
+        "E02-I01-A"
+      ],
+      "dependencies": [
+        "SEL-01 owns advisor/receipt semantics; existing MethodRegistry/catalog owner supplies intake, не второй registry. LK06 roles view/kernel сохраняются.",
+        "REQ-01 аналогичный invariant ID≠semantics, но другой compiler owner: не объединять два механизма в новый NLP framework.",
+        "CYC-02/EMP actual value consumer и SIM numeric profile; выбор одного метода не cross-method consensus."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CTL-01",
+      "lane": "LANE-02",
+      "source_order": 12,
+      "source_ids": [
+        "B118",
+        "B119",
+        "LA-015"
+      ],
+      "spec_path": "02_Пакеты/CTL-01.md",
+      "spec_sha256": "2c29b6863ca5c4b9fd3a4c8674a44b23734241f0947c201378b56b4c8dabc18d",
+      "trace_path": "04_Трассировка/CTL-01.json",
+      "trace_sha256": "d1ec756ebeb26e3986d23718db2a595f3fb41dc9111d9ebcb342b34c3014631a",
+      "requirement_ids": [
+        "REQ-CTL-01-01",
+        "REQ-CTL-01-02",
+        "REQ-CTL-01-03",
+        "REQ-CTL-01-04"
+      ],
+      "test_ids": [
+        "TEST-CTL-01-01",
+        "TEST-CTL-01-02",
+        "TEST-CTL-01-03",
+        "TEST-CTL-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I02-A"
+      ],
+      "dependencies": [
+        "OPT-01 objective/source identity before accepted scientific best; чтение поregistry не integration order.",
+        "CTL-01 owner generation/failure-finalize; SRV-01 atomic pending/commit и split lifecycle; CTL-03 counters/budget; SRV-03 actual runner and LA-015 closure.",
+        "service/lifecycle/run_state общий один writer на согласованный atomic patch, не independent facade locks."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CTL-03",
+      "lane": "LANE-02",
+      "source_order": 13,
+      "source_ids": [
+        "B120",
+        "B121",
+        "B123"
+      ],
+      "spec_path": "02_Пакеты/CTL-03.md",
+      "spec_sha256": "a548d78eff5cf3a13640096394005b97deffaf91f558921f06be4465df9f9058",
+      "trace_path": "04_Трассировка/CTL-03.json",
+      "trace_sha256": "80b1b87fc72eb66cdf37de09f91b8db45e43bf41931f05dc1c32dcc805de5766",
+      "requirement_ids": [
+        "REQ-CTL-03-01",
+        "REQ-CTL-03-02",
+        "REQ-CTL-03-03",
+        "REQ-CTL-03-04",
+        "REQ-CTL-03-05"
+      ],
+      "test_ids": [
+        "TEST-CTL-03-01",
+        "TEST-CTL-03-02",
+        "TEST-CTL-03-03",
+        "TEST-CTL-03-04",
+        "TEST-CTL-03-05"
+      ],
+      "shared_scenarios": [
+        "E02-I02-A"
+      ],
+      "dependencies": [
+        "CTL-03 owns counter semantics/finite monetary cap; CTL-01 failure attempt snapshot; SRV-01 shared split admission; SRV-03 actual consumer.",
+        "OPT-01 source/coordinate contract governs usable objectives; scalar diagnostic не обходит его."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "SRV-01",
+      "lane": "LANE-02",
+      "source_order": 14,
+      "source_ids": [
+        "LA-014"
+      ],
+      "spec_path": "02_Пакеты/SRV-01.md",
+      "spec_sha256": "74a5397171514bb42fefff3460b697a5cdfa945c1568b722ce5816b060e216b2",
+      "trace_path": "04_Трассировка/SRV-01.json",
+      "trace_sha256": "81ac1ed603aaa6e0970a81f3e0f8622740b759d41572e987ed0d3bac2d0a0793",
+      "requirement_ids": [
+        "REQ-SRV-01-01",
+        "REQ-SRV-01-02",
+        "REQ-SRV-01-03",
+        "REQ-SRV-01-04"
+      ],
+      "test_ids": [
+        "TEST-SRV-01-01",
+        "TEST-SRV-01-02",
+        "TEST-SRV-01-03",
+        "TEST-SRV-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I02-A"
+      ],
+      "dependencies": [
+        "SRV-01 owns atomic acceptance API; CTL-01 owns run-generation replacement. Реализовать одним согласованным shared-owner patch, не два locks.",
+        "CTL-03 supplies work/cost/typed eligibility semantics; SRV-03 validates actual autotune split/full consumer and LA015 closure.",
+        "LA014 closed only after ownactualcontracts/caller/evidence; protocol presence не acceptance."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "SRV-03",
+      "lane": "LANE-02",
+      "source_order": 15,
+      "source_ids": [
+        "LA-015"
+      ],
+      "spec_path": "02_Пакеты/SRV-03.md",
+      "spec_sha256": "afeb92e708ec0e4564ec31cfd378ba7c6f81a3711acd431ac359b55332054a54",
+      "trace_path": "04_Трассировка/SRV-03.json",
+      "trace_sha256": "fdab59fd97a4ccd4fc79ea75d09c265c05d18abb44b2d3091498d499f4ba2ab5",
+      "requirement_ids": [
+        "REQ-SRV-03-01",
+        "REQ-SRV-03-02",
+        "REQ-SRV-03-03",
+        "REQ-SRV-03-04"
+      ],
+      "test_ids": [
+        "TEST-SRV-03-01",
+        "TEST-SRV-03-02",
+        "TEST-SRV-03-03",
+        "TEST-SRV-03-04"
+      ],
+      "shared_scenarios": [
+        "E02-I02-A",
+        "E02-I02-B"
+      ],
+      "dependencies": [
+        "CTL01run/partial; CTL03counts/cost; SRV01acceptance; CTL02RNG; STP01stop — обязательные общие contracts.",
+        "SRV-03 accountable LA-015 closure; CTL-01 phase 1 не закрывает целое. OPT-02 owns MethodJob binding; OPT-04 promotion atomicity, здесь sentinel role consumer."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CTL-02",
+      "lane": "LANE-02",
+      "source_order": 16,
+      "source_ids": [
+        "B124",
+        "B125",
+        "B126"
+      ],
+      "spec_path": "02_Пакеты/CTL-02.md",
+      "spec_sha256": "681811c17bc0048bb7c0eee9b86a11f6b574d1b82696ac031324261d4d8b1994",
+      "trace_path": "04_Трассировка/CTL-02.json",
+      "trace_sha256": "8739e56d7da85d69e3883ac722599d227b0aebe7199c7f0015ccedd4b3e50be3",
+      "requirement_ids": [
+        "REQ-CTL-02-01",
+        "REQ-CTL-02-02",
+        "REQ-CTL-02-03",
+        "REQ-CTL-02-04",
+        "REQ-CTL-02-05"
+      ],
+      "test_ids": [
+        "TEST-CTL-02-01",
+        "TEST-CTL-02-02",
+        "TEST-CTL-02-03",
+        "TEST-CTL-02-04",
+        "TEST-CTL-02-05"
+      ],
+      "shared_scenarios": [
+        "E02-I02-B"
+      ],
+      "dependencies": [
+        "OPT-02 исполняемый параметр/identity до checkpoint consumer; OPT03model state owner.",
+        "CTL-02 owns общий codec/atomic restore, не independent RNG fixes в стратегиях; SRV-03 проверяет actual resume."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "STP-01",
+      "lane": "LANE-02",
+      "source_order": 17,
+      "source_ids": [
+        "B41",
+        "B122"
+      ],
+      "spec_path": "02_Пакеты/STP-01.md",
+      "spec_sha256": "1284e83b2bbe9526983c2cd3676170e50f7c9c669651ca1f92328747aa9b6951",
+      "trace_path": "04_Трассировка/STP-01.json",
+      "trace_sha256": "2e9c1aa62a621bc72bf68db2bc0c6f64e600f74c0e6f7fff575b7933a61d9463",
+      "requirement_ids": [
+        "REQ-STP-01-01",
+        "REQ-STP-01-02",
+        "REQ-STP-01-03",
+        "REQ-STP-01-04"
+      ],
+      "test_ids": [
+        "TEST-STP-01-01",
+        "TEST-STP-01-02",
+        "TEST-STP-01-03",
+        "TEST-STP-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I02-A"
+      ],
+      "dependencies": [
+        "STP-01 ownsdetector/plateau; CTL-01/CTL-03 owns run/cost/counters, не второй stop framework.",
+        "SRV-03 complex resume сохраняет declared stop basis; OPT01actual objective units/source до meaningful plateau."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "OPT-01",
+      "lane": "LANE-02",
+      "source_order": 18,
+      "source_ids": [
+        "B108",
+        "B109",
+        "B110",
+        "B111"
+      ],
+      "spec_path": "02_Пакеты/OPT-01.md",
+      "spec_sha256": "7b34bbe6d05e3015d89f8d9bb310966e3d1aeb03de9b00e89717306fc1d142ed",
+      "trace_path": "04_Трассировка/OPT-01.json",
+      "trace_sha256": "eaeb7000a5b6d5d8c607ef5385bd43c29a6cc4b1c6562be2bde02f97afedbb14",
+      "requirement_ids": [
+        "REQ-OPT-01-01",
+        "REQ-OPT-01-02",
+        "REQ-OPT-01-03",
+        "REQ-OPT-01-04",
+        "REQ-OPT-01-05",
+        "REQ-OPT-01-06"
+      ],
+      "test_ids": [
+        "TEST-OPT-01-01",
+        "TEST-OPT-01-02",
+        "TEST-OPT-01-03",
+        "TEST-OPT-01-04",
+        "TEST-OPT-01-05",
+        "TEST-OPT-01-06"
+      ],
+      "shared_scenarios": [
+        "E02-I02-B"
+      ],
+      "dependencies": [
+        "OPT-02 делит autotune файлы: один writer на общий контракт; этот пакет владеет Pareto coordinate schema.",
+        "OPT-04 потребляет comparison basis, но владеет champion publication и atomic registry.",
+        "LAW/measurement owner даёт предметный закон; не выдумывать его в generic Pareto layer."
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-OPT-01-01",
+          "question": "Какой фискальный профиль и преобразование действительно поддержаны текущим producer?",
+          "owner": "OPT-01 с владельцем measurement law",
+          "options": [
+            "direct period-deficit с явно связанными units/period",
+            "вычисление из stock transitions при наличии всех входов закона",
+            "stock-only остаётся not_established"
+          ],
+          "selection_evidence": "Схема actual producer, единицы, период и различающий source→consumer fixture",
+          "required_output": "Версионированный adapter contract и два действительно эквивалентных представления; без научного утверждения по одному имени ключа"
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "OPT-02",
+      "lane": "LANE-02",
+      "source_order": 19,
+      "source_ids": [
+        "B112",
+        "B113",
+        "B127"
+      ],
+      "spec_path": "02_Пакеты/OPT-02.md",
+      "spec_sha256": "dc961a4c49cf01cdcbf6a7dad1726e4ff43b9dc2715d8804c534e851526db8f0",
+      "trace_path": "04_Трассировка/OPT-02.json",
+      "trace_sha256": "239697d9f421eaf0a1b0cb90ed04efde3858499d7133525d3ebd1274e3fd6f5c",
+      "requirement_ids": [
+        "REQ-OPT-02-01",
+        "REQ-OPT-02-02",
+        "REQ-OPT-02-03",
+        "REQ-OPT-02-04"
+      ],
+      "test_ids": [
+        "TEST-OPT-02-01",
+        "TEST-OPT-02-02",
+        "TEST-OPT-02-03",
+        "TEST-OPT-02-04"
+      ],
+      "shared_scenarios": [
+        "E02-I02-B"
+      ],
+      "dependencies": [
+        "CTL-02 владеет portable RNG/base snapshot; OPT-03 GP continuation. Общий bayesian.py — последовательный writer.",
+        "SRV-01 владеет атомарным tell, SRV-03 typed role envelope; не второй pending registry.",
+        "TRN-01/02 обеспечивают совместимый source history, но similarity не admission."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "OPT-03",
+      "lane": "LANE-02",
+      "source_order": 20,
+      "source_ids": [
+        "B114",
+        "B115"
+      ],
+      "spec_path": "02_Пакеты/OPT-03.md",
+      "spec_sha256": "ac39c763c00a38184ea26a2184b3eca6af77d3db283077810c02ba789e67320e",
+      "trace_path": "04_Трассировка/OPT-03.json",
+      "trace_sha256": "b0311bca091c8d8a9bdaac805549bb7d2943b50062cb730eaec4c9106d1e4cae",
+      "requirement_ids": [
+        "REQ-OPT-03-01",
+        "REQ-OPT-03-02",
+        "REQ-OPT-03-03",
+        "REQ-OPT-03-04"
+      ],
+      "test_ids": [
+        "TEST-OPT-03-01",
+        "TEST-OPT-03-02",
+        "TEST-OPT-03-03",
+        "TEST-OPT-03-04"
+      ],
+      "shared_scenarios": [
+        "E02-I02-B",
+        "E02-I02-D"
+      ],
+      "dependencies": [
+        "CTL-02 — общий portable RNG и base state; OPT-03 владеет GP atomic staging, не второй restore framework.",
+        "OPT-02 — canonical params/source corpus; TRN-01/02 — discovery и compatible history.",
+        "Проверять source verifier совместно с его actual owner; не отключать private admission."
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-OPT-03-01",
+          "question": "Как source verifier воспроизводит genuinely conditioned fit basis?",
+          "owner": "OPT-03 и existing fit-basis verifier",
+          "options": [
+            "версионированная проверяемая continuation lineage с replay исходного fit и append",
+            "явный bounded full-refit перед выдачей reusable source result"
+          ],
+          "selection_evidence": "Native posterior/fingerprint replay, поддержанный backend serialization, измеренные время/память и совместимость readers",
+          "required_output": "Один выбранный profile, DTO/version migration и positive/negative e2e; до выбора conditioned reuse остаётся NOT_RUN/unsupported, а candidate exploration допустима"
+        },
+        {
+          "id": "DEC-OPT-03-02",
+          "question": "Нужен ли отдельный bounded measured_observation reuse profile независимо от того, успел ли source proposer обучить GP?",
+          "owner": "OPT-03 с OPT-02 actual observation admission и TRN-01 WarmStartBridge",
+          "options": [
+            "Сохранить только нынешний fitted-native-GP historical profile и честно ограничить reusable-search claim",
+            "Отдельно квалифицировать strategy-neutral verified measurement reuse; source predictions/model continuation сохраняют более сильный fitted-basis contract"
+          ],
+          "selection_evidence": "Actual MethodJob source outcome/selected receipt, objective/units/direction/data/split/tenant/space/replica guards; whole-current vs persist/fresh-warm eligibility; measured evaluation/fit costs. Proposer strategy сама по себе не measurement validity, но syntactic ID/self-asserted score также не evidence",
+          "required_output": "Либо явный bounded scope без нового profile, либо отдельная согласованная capability specification/profile version и discriminating positive/negative tests: cold Sobol/random actual measurement before/after restart, same measured corpus once, wrong units/split/tenant/data rejected, prediction-only value не observation, target GP fit собственный. Никакого mandatory ослабления existing fitted-native guard или превращения cold source в fitted; новые tests/profile принимаются отдельно, текущий local repair не блокируются"
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "OPT-04",
+      "lane": "LANE-02",
+      "source_order": 21,
+      "source_ids": [
+        "B116",
+        "B117"
+      ],
+      "spec_path": "02_Пакеты/OPT-04.md",
+      "spec_sha256": "49d7453f81efae56e2d2e87466380eabdb1536cf652bff4c34a3a22dc1ee7512",
+      "trace_path": "04_Трассировка/OPT-04.json",
+      "trace_sha256": "b8a2c8f834b6ea83e51a68d64f73c3d84bae4f607a32864d4b77f354516226e6",
+      "requirement_ids": [
+        "REQ-OPT-04-01",
+        "REQ-OPT-04-02",
+        "REQ-OPT-04-03",
+        "REQ-OPT-04-04"
+      ],
+      "test_ids": [
+        "TEST-OPT-04-01",
+        "TEST-OPT-04-02",
+        "TEST-OPT-04-03",
+        "TEST-OPT-04-04"
+      ],
+      "shared_scenarios": [
+        "E02-I02-B"
+      ],
+      "dependencies": [
+        "OPT-01 — comparison coordinate contract; OPT-02/03 — source-admitted evaluations, не issuer полномочий.",
+        "SRV-03/OPT-02 разделяют runtime.py: один writer.",
+        "Existing claim verifier владеет appointment/signature/expiry; этот пакет интегрирует разрешённый test principal, не создаёт право из score."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "FUN-01",
+      "lane": "LANE-02",
+      "source_order": 22,
+      "source_ids": [
+        "B156",
+        "B158",
+        "B159"
+      ],
+      "spec_path": "02_Пакеты/FUN-01.md",
+      "spec_sha256": "7d71a9082e3e68798ebb598c95d18cf1e736c7a31d92a32903237c132d9f6134",
+      "trace_path": "04_Трассировка/FUN-01.json",
+      "trace_sha256": "ae6f7c8db554cd05336bb03d5eca448407b7d3d8d279f309903b742829044394",
+      "requirement_ids": [
+        "REQ-FUN-01-01",
+        "REQ-FUN-01-02",
+        "REQ-FUN-01-03",
+        "REQ-FUN-01-04"
+      ],
+      "test_ids": [
+        "TEST-FUN-01-01",
+        "TEST-FUN-01-02",
+        "TEST-FUN-01-03",
+        "TEST-FUN-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I02-C"
+      ],
+      "dependencies": [
+        "FUN-01 — orchestration/continuation owner; FUN-02 — fidelity/aggregate projection; FUN-03 — current knowledge/calibration/protected action.",
+        "CTL-03 владеет actual resource admission; bound continuation не создаёт второй budget owner.",
+        "Источник immutable numerical work остаётся у existing Foundry/AD01 owner; не общий ticket-cache."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "FUN-02",
+      "lane": "LANE-02",
+      "source_order": 23,
+      "source_ids": [
+        "B157",
+        "B160",
+        "B162",
+        "B165"
+      ],
+      "spec_path": "02_Пакеты/FUN-02.md",
+      "spec_sha256": "af46d4ae54f615373f2f71a6f0759e7960e817a1ef93184ccb4a56e680299546",
+      "trace_path": "04_Трассировка/FUN-02.json",
+      "trace_sha256": "f8e753e9dc26aa54dba917431d82836a3df18b597109d7804651609b4eb6d96d",
+      "requirement_ids": [
+        "REQ-FUN-02-01",
+        "REQ-FUN-02-02",
+        "REQ-FUN-02-03",
+        "REQ-FUN-02-04"
+      ],
+      "test_ids": [
+        "TEST-FUN-02-01",
+        "TEST-FUN-02-02",
+        "TEST-FUN-02-03",
+        "TEST-FUN-02-04"
+      ],
+      "shared_scenarios": [
+        "E02-I02-C"
+      ],
+      "dependencies": [
+        "FUN-01 владеет попытками/re-gating/reuse; общие orchestrator edits последовательны.",
+        "FUN-03/UQS — source-traced current uncertainty, здесь interval origin и aggregate presentation.",
+        "Actual engine owner подтверждает executed draws; диагностический label не назначает scientific authority."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "FUN-03",
+      "lane": "LANE-02",
+      "source_order": 24,
+      "source_ids": [
+        "B161",
+        "B163",
+        "B164"
+      ],
+      "spec_path": "02_Пакеты/FUN-03.md",
+      "spec_sha256": "992b3355f65e78a3e95358bc9626b10a81ffccadec341c9802bd482cecc8433f",
+      "trace_path": "04_Трассировка/FUN-03.json",
+      "trace_sha256": "ac82c1f8596a70b77c206d16b0e223d95e82917e7040ea174569378ceb3eafbd",
+      "requirement_ids": [
+        "REQ-FUN-03-01",
+        "REQ-FUN-03-02",
+        "REQ-FUN-03-03",
+        "REQ-FUN-03-04"
+      ],
+      "test_ids": [
+        "TEST-FUN-03-01",
+        "TEST-FUN-03-02",
+        "TEST-FUN-03-03",
+        "TEST-FUN-03-04"
+      ],
+      "shared_scenarios": [
+        "E02-I02-C"
+      ],
+      "dependencies": [
+        "FUN-01 — attempts/lineage; FUN-02 — diagnostic interval origin и aggregate.",
+        "Существующий search uncertainty owner единственный хранит task/current generations; UQS shared integration согласует source semantics, не второй ledger.",
+        "FUN-03 — L6 adapter, existing protected promotion writer — final effect authority; назначение issuer/port фиксируется DEC-FUN-03-02, не автоматически CYC-05 readiness issuer."
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-FUN-03-01",
+          "question": "Какой уже реализованный selected method/source profile квалифицирует первый blueprint assessment?",
+          "owner": "FUN-03 с existing uncertainty/method owner",
+          "options": [
+            "существующий RuntimeHTE completion profile с полным selected method basis",
+            "другой already-supported source-owned method с точным inference contract"
+          ],
+          "selection_evidence": "Actual method ABI/input/profile refs, units/population/contrast, independent numerical oracle и complete task admission",
+          "required_output": "Один bounded positive fixture с формулой/данными/expected assessment и negative basis mutation до execution; не выдумывать универсальную0.1"
+        },
+        {
+          "id": "DEC-FUN-03-02",
+          "question": "Какой назначенный protected promotion writer и issuer обслуживает L6?",
+          "owner": "FUN-03 и existing promotion authority owner",
+          "options": [
+            "адаптация существующего typed issuer/commit port",
+            "минимальное расширение существующего writer если port отсутствует"
+          ],
+          "selection_evidence": "Caller/owner census, назначение test principal, текущий revoke serialization и predecessor operation",
+          "required_output": "Точный symbol/interface, единственный owner, permit schema и commit/revoke linearization test до реализации; отсутствие port означает capability work, не снятие normal gate"
+        },
+        {
+          "id": "DEC-FUN-03-03",
+          "question": "Какой operational estimand и sampling/qualification contract обслуживает calibration acceptance, и как мигрируют все consumers?",
+          "owner": "FUN-03 / existing CorrelationTracker с owners calibration_report, cold_start и funnel routing",
+          "options": [
+            "FOR=FN/(FN+TN) как вероятность полезного результата среди rejected с явным названием и обоснованной tolerance",
+            "FNR=FN/(TP+FN) как доля потерянных actual positives при подходящем representative accepted/rejected audit",
+            "descriptive observed metrics без population qualification, пока evidence/design недостаточны"
+          ],
+          "selection_evidence": "Purpose исходного фильтра и cost of missed/useful expensive evaluation; source-bound gate/truth labels; target population/cohort/inclusion design, независимость либо обоснованная correction для selective/adaptive labels; выбранная tolerance/confidence/power и реальный stage-B audit budget; census прямого tracker, wrapper, report/Markdown, cold-start, routing/drift и snapshot consumers",
+          "required_output": "Один versioned metric contract с TP/FP/FN/TN и eligible/missing counts, window/cohort, definition/purpose, descriptive value vs qualification, выбранным interval/design и cost limit; migration/legacy projection без переписывания старых bytes/значений и явный положительный qualified fixture, если такой claim нужен. FDR/precision/FOR не называются FPR/TPR/FNR; observed0 при n>0 сам по себе не PASS population criterion. При невозможном audit бюджете — insufficient_evidence, без бесконечного сбора и без остановки независимой exploration"
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "TRN-01",
+      "lane": "LANE-02",
+      "source_order": 25,
+      "source_ids": [
+        "B128",
+        "B130",
+        "B131",
+        "B132"
+      ],
+      "spec_path": "02_Пакеты/TRN-01.md",
+      "spec_sha256": "acb63f3f975fb5c24f8da00b67b1673a232ec256c761f03fd9b820fb58efed8e",
+      "trace_path": "04_Трассировка/TRN-01.json",
+      "trace_sha256": "cf3748957343529fed819e191e82ac590c7cff2e641bb9d14e205e7bb2508397",
+      "requirement_ids": [
+        "REQ-TRN-01-01",
+        "REQ-TRN-01-02",
+        "REQ-TRN-01-03",
+        "REQ-TRN-01-04"
+      ],
+      "test_ids": [
+        "TEST-TRN-01-01",
+        "TEST-TRN-01-02",
+        "TEST-TRN-01-03",
+        "TEST-TRN-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I02-D",
+        "E02-I02-B",
+        "E02-X03"
+      ],
+      "dependencies": [
+        "TRN-02 владеет exact ref/cache/discovery; общий transfer.py один writer.",
+        "OPT-02 — canonical training params; OPT-03 — learned GP/source-fit qualification.",
+        "TRN-03 определяет aware timestamp boundary; historical unknown не автоматически UTC-now."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "TRN-02",
+      "lane": "LANE-02",
+      "source_order": 26,
+      "source_ids": [
+        "B129",
+        "B133",
+        "B134"
+      ],
+      "spec_path": "02_Пакеты/TRN-02.md",
+      "spec_sha256": "3e99a2ca1f804fe62654d51736b4171f5e413036df9aadcad9ea6759329d4c47",
+      "trace_path": "04_Трассировка/TRN-02.json",
+      "trace_sha256": "c29114e52a596647a8d771343ff2633e3d11c7e8056071466d56dbbab0728051",
+      "requirement_ids": [
+        "REQ-TRN-02-01",
+        "REQ-TRN-02-02",
+        "REQ-TRN-02-03",
+        "REQ-TRN-02-04"
+      ],
+      "test_ids": [
+        "TEST-TRN-02-01",
+        "TEST-TRN-02-02",
+        "TEST-TRN-02-03",
+        "TEST-TRN-02-04"
+      ],
+      "shared_scenarios": [
+        "E02-I02-D",
+        "E02-X03"
+      ],
+      "dependencies": [
+        "TRN-01 — численный admission и target reevaluation, не ANN similarity.",
+        "Existing Core/CAS owner сохраняет доступ/profile на cached read; не второй authority cache.",
+        "Тяжёлый tiny native job один coordinated slot, без одновременного GP job."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "TRN-03",
+      "lane": "LANE-02",
+      "source_order": 27,
+      "source_ids": [
+        "B135",
+        "B136",
+        "B137"
+      ],
+      "spec_path": "02_Пакеты/TRN-03.md",
+      "spec_sha256": "94afcd416722181aa4e525a0fce7e0e71ed160d74a77d0a6c288298a78c3ab49",
+      "trace_path": "04_Трассировка/TRN-03.json",
+      "trace_sha256": "2ab2424387afb74d9aabec3d13cea660e8dfeca29b9a58279a648cc25401b05c",
+      "requirement_ids": [
+        "REQ-TRN-03-01",
+        "REQ-TRN-03-02",
+        "REQ-TRN-03-03",
+        "REQ-TRN-03-04"
+      ],
+      "test_ids": [
+        "TEST-TRN-03-01",
+        "TEST-TRN-03-02",
+        "TEST-TRN-03-03",
+        "TEST-TRN-03-04"
+      ],
+      "shared_scenarios": [
+        "E02-I02-D",
+        "E02-X03"
+      ],
+      "dependencies": [
+        "TRN-01 использует общий aware-time contract для history; timestamp policy один, не duplicated defaults.",
+        "FUN-03 calibration report использует тот же effective lesson projection; report snapshot не новая authority.",
+        "Actual tenant/CAS owner подтверждает доступ; lesson similarity — proposal, не научное или институциональное полномочие."
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "EMP-01",
+      "lane": "LANE-03",
+      "source_order": 28,
+      "source_ids": [
+        "B16",
+        "B31",
+        "B33"
+      ],
+      "spec_path": "02_Пакеты/EMP-01.md",
+      "spec_sha256": "2a00ba0285fdbc90ae36791f088f47e8583d1d87b44e1247a70521b17e6e1fca",
+      "trace_path": "04_Трассировка/EMP-01.json",
+      "trace_sha256": "7a8658cdb6b21976d81dd9376a5cb4079bb92a0ea9a54ced3ade0d402e5fb0f9",
+      "requirement_ids": [
+        "REQ-EMP-01-01",
+        "REQ-EMP-01-02",
+        "REQ-EMP-01-03",
+        "REQ-EMP-01-04",
+        "REQ-EMP-01-05",
+        "REQ-EMP-01-06",
+        "REQ-EMP-01-07",
+        "REQ-EMP-01-08"
+      ],
+      "test_ids": [
+        "TEST-EMP-01-01",
+        "TEST-EMP-01-02",
+        "TEST-EMP-01-03",
+        "TEST-EMP-01-04",
+        "TEST-EMP-01-05",
+        "TEST-EMP-01-06",
+        "TEST-EMP-01-07",
+        "TEST-EMP-01-08"
+      ],
+      "shared_scenarios": [
+        "E02-I03-A"
+      ],
+      "dependencies": [
+        {
+          "packet": "CYC-01",
+          "relation": "Существующий selected problem/profile/context producer; наследованный предшественник, не повторный заказ его реализации."
+        },
+        {
+          "packet": "FRC-01/FRC-02",
+          "relation": "Время, calibration receipt и S10 находятся у этих owners. Scope/ValueOuterSet здесь не должны переписывать forecast gate."
+        },
+        {
+          "packet": "ACQ-01 / LANE-07",
+          "relation": "Activated projection и ObservationRecord semantics согласовать с настоящим producer; не новый параллельный measurement DTO."
+        },
+        {
+          "packet": "GRF-01/GRF-02",
+          "relation": "Переиспользовать canonical graph/solver contracts, не собственный graph engine."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-EMP-01-NUMERIC",
+          "question": "Какой существующий persisted profile/version владеет изменением width semantics?",
+          "owner": "ValueOuterSet и реальный artifact/profile owner, reviewer совместимости",
+          "bounded_action": "Проследить все writers/from_persisted_payload consumers и заморозить конечные genuine old fixtures; выбрать existing versioned profile либо минимальное explicit version field. Сдать карту old/new read/write и distinguishing checksum controls до изменения serializer.",
+          "default": "Не менять старые bytes и не угадывать version; локальная numerical правка не принимается без совместимого reader решения."
+        },
+        {
+          "id": "DEC-EMP-01-SCOPE",
+          "question": "Какие population/entity/time/regime координаты реально представлены выбранным источником?",
+          "owner": "Gateway и настоящий measurement/catalog producer",
+          "bounded_action": "На одном поддержанном источнике проверить полный mapping полей, одну содержательную смену scope и один неподдержанный срез. Выдать таблицу mapping и реализованный общий handoff либо точную объявленную границу плюс конкретный недостающий producer field. Не подменять отсутствие mapping произвольным fixture ключом.",
+          "default": "Country-only candidate сохраняет объявленный ограниченный scope; иной запрошенный scope не заменяется им молча."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "FRC-01",
+      "lane": "LANE-03",
+      "source_order": 29,
+      "source_ids": [
+        "B32",
+        "LA-051"
+      ],
+      "spec_path": "02_Пакеты/FRC-01.md",
+      "spec_sha256": "b76acab5ba2149469bee56bbad68d73a75032b345589ec2dbfc18beec9138132",
+      "trace_path": "04_Трассировка/FRC-01.json",
+      "trace_sha256": "71ae69c6389e7f7be45b6cf8d77e24a9f348a7a16ceb5229a6ba951004e50834",
+      "requirement_ids": [
+        "REQ-FRC-01-01",
+        "REQ-FRC-01-02",
+        "REQ-FRC-01-03",
+        "REQ-FRC-01-04",
+        "REQ-FRC-01-05",
+        "REQ-FRC-01-06",
+        "REQ-FRC-01-07"
+      ],
+      "test_ids": [
+        "TEST-FRC-01-01",
+        "TEST-FRC-01-02",
+        "TEST-FRC-01-03",
+        "TEST-FRC-01-04",
+        "TEST-FRC-01-05",
+        "TEST-FRC-01-06"
+      ],
+      "shared_scenarios": [
+        "E02-I03-A",
+        "E02-I03-B"
+      ],
+      "dependencies": [
+        {
+          "packet": "CYC-01",
+          "relation": "Реальный request/context owner, не повторная реализация."
+        },
+        {
+          "packet": "FRC-02",
+          "relation": "Accountable LA-051 bridge/served qualification; совместные gateway fields и temporal profile."
+        },
+        {
+          "packet": "PCL-01",
+          "relation": "Canonical numeric calibration/report/receipt contract; не второй расчет coverage здесь."
+        },
+        {
+          "packet": "EMP-01",
+          "relation": "Сохраняемые scope/value bounds переданы в общую summary без повышения силы."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-FRC-01-TIME",
+          "question": "Нужен ли реальному поддержанному эксперименту иной temporal profile, например совпадающие роли?",
+          "owner": "FRC-01/FRC-02 и владелец экспериментального дизайна",
+          "bounded_action": "Предъявить один конкретный дизайн и шесть семантических ролей, объяснить допустимые равенства/порядок. Выбрать сохранение текущего профиля либо versioned согласованное расширение bridge/S10 с positive/negative controls.",
+          "default": "Никаких искусственных дат; текущий профиль принимается только в его declared scope."
+        },
+        {
+          "id": "DEC-FRC-01-SUPPORT",
+          "question": "Какие optional support refs имеют реального producer/reader на выбранном forecast пути?",
+          "owner": "Gateway/ForecastOwner и затронутый S10 consumer",
+          "bounded_action": "Составить конечную таблицу source_contract/method_validity/sensitivity/equilibrium/distribution/interval: actual producer field→artifact→reader либо not_established. Реализовать доступные bindings; для отсутствующих — штатное empty+limitation, без фиктивного URI.",
+          "default": "Только реально связанный support получает более сильную роль, conditional payload не удаляется."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "PCL-01",
+      "lane": "LANE-03",
+      "source_order": 30,
+      "source_ids": [
+        "LA-052",
+        "LA-053"
+      ],
+      "spec_path": "02_Пакеты/PCL-01.md",
+      "spec_sha256": "f34f60ce4f651455a833414fecc55fddb4ac632b4229e189f6108961122ec3bc",
+      "trace_path": "04_Трассировка/PCL-01.json",
+      "trace_sha256": "241e96e7e66b229096bccdb8ae009fa2a56a626be73512f81e531236dfda939a",
+      "requirement_ids": [
+        "REQ-PCL-01-01",
+        "REQ-PCL-01-02",
+        "REQ-PCL-01-03",
+        "REQ-PCL-01-04",
+        "REQ-PCL-01-05",
+        "REQ-PCL-01-06",
+        "REQ-PCL-01-07"
+      ],
+      "test_ids": [
+        "TEST-PCL-01-01",
+        "TEST-PCL-01-02",
+        "TEST-PCL-01-03",
+        "TEST-PCL-01-04",
+        "TEST-PCL-01-05",
+        "TEST-PCL-01-06",
+        "TEST-PCL-01-07"
+      ],
+      "shared_scenarios": [
+        "E02-I03-B"
+      ],
+      "dependencies": [
+        {
+          "packet": "FRC-02",
+          "relation": "Один measurement-source bridge и общий native scenario; numeric report здесь не повышает роль сам."
+        },
+        {
+          "packet": "FRC-01",
+          "relation": "Summary/support refs должны сохранять ограничения report/receipt; shared gateway writer согласован."
+        },
+        {
+          "packet": "API-01 / LANE-12",
+          "relation": "Переиспользовать existing public-surface/packaging правила для finite alias lifecycle, без общего массового удаления."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-PCL-01-BOUNDARY",
+          "question": "Где actual serialized CalibrationDiagnosticsReport имеет известный output contract?",
+          "owner": "Dispatcher/serialization owner вместе с canonical calibration owner",
+          "bounded_action": "Проследить actual producers и output-slot metadata до merge и telemetry; выбрать существующий contract-carrying seam. Сдать одну реализованную нормализацию и native controlled producer path; если production caller не найден, явно ограничить claim generic contract acceptance, не утверждать production prevalence.",
+          "default": "Не распознавать authority по произвольному task label и не оставлять positive sidecar как fallback после invalid expected report."
+        },
+        {
+          "id": "DEC-PCL-01-ALIAS",
+          "question": "Завершилось ли поддерживаемое окно Scientist calibration_curve alias?",
+          "owner": "Public API/release owner; технический reviewer",
+          "bounded_action": "Сдать TEST-07 census, публичный статус и доступное внешнее подтверждение; выбрать retain с названным основанием либо retirement точного адреса. Дату не назначать произвольно.",
+          "default": "Alias поддерживается, identity-only test сохраняется; numerical repair сдаётся независимо."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "FRC-02",
+      "lane": "LANE-03",
+      "source_order": 31,
+      "source_ids": [
+        "LA-051"
+      ],
+      "spec_path": "02_Пакеты/FRC-02.md",
+      "spec_sha256": "11262b6fe5e732e8f8065185bd8a4ef11f38994c6f5c8d764536b8c3e92b35d4",
+      "trace_path": "04_Трассировка/FRC-02.json",
+      "trace_sha256": "9075e96923dfc9fc4c215e745ea34027aa91e13d917c72b98e5303d8946a5f95",
+      "requirement_ids": [
+        "REQ-FRC-02-01",
+        "REQ-FRC-02-02",
+        "REQ-FRC-02-03",
+        "REQ-FRC-02-04",
+        "REQ-FRC-02-05",
+        "REQ-FRC-02-06",
+        "REQ-FRC-02-07",
+        "REQ-FRC-02-08"
+      ],
+      "test_ids": [
+        "TEST-FRC-02-01",
+        "TEST-FRC-02-02",
+        "TEST-FRC-02-03",
+        "TEST-FRC-02-04",
+        "TEST-FRC-02-05",
+        "TEST-FRC-02-06",
+        "TEST-FRC-02-07",
+        "TEST-FRC-02-08"
+      ],
+      "shared_scenarios": [
+        "E02-I03-B"
+      ],
+      "dependencies": [
+        {
+          "packet": "FRC-01",
+          "relation": "Summary preservation и honest optional refs; единый gateway writer, один shared chain."
+        },
+        {
+          "packet": "PCL-01",
+          "relation": "Continuous report/receipt representation и denominator; не второй calibration owner."
+        },
+        {
+          "packet": "EMP-01",
+          "relation": "Selected source population/time и useful candidate scope; relation не выводится из country-only data."
+        },
+        {
+          "packet": "CYC-01 / ACQ-01",
+          "relation": "Использовать существующие N4 selected source/context/profile и acquisition, не новый planning registry."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-FRC-02-COUNTS",
+          "question": "Какие textual integers действительно входят в поддержанный historical contract?",
+          "owner": "Calibration bridge/release owner",
+          "bounded_action": "Проверить retained report fixtures/schema/callers; выбрать и протестировать конечную grammar. По умолчанию только неотрицательная decimal integer запись, не float parsing. Зафиксировать intentional отказ неподдержанным coercions.",
+          "default": "Дробные/negative/nonfinite/bool не принимаются независимо от legacy решения."
+        },
+        {
+          "id": "DEC-FRC-02-RELATION",
+          "question": "Какой existing source/profile owner несёт проверяемое N4 outcome↔observed relation?",
+          "owner": "Selected source/profile owner и S10 reviewer",
+          "bounded_action": "Проследить actual N4 source/profile/member schemas; выбрать existing relation projection либо минимальное versioned расширение. Сдать schema/path map, один содержательный positive и второй совместимый case, mismatch/fresh-read controls. Не оставлять как общее исследование без результата.",
+          "default": "Series record доступен; outcome-calibrated tier ограничен без применимой relation. Нельзя снять N4 guard только по равенству metric names."
+        },
+        {
+          "id": "DEC-FRC-02-EXPERIMENT",
+          "question": "Какое конкретное научное утверждение требуется сверх конечного measured screening?",
+          "owner": "Domain/method reviewer",
+          "bounded_action": "Назвать estimand, source/sample/horizon и protocol; выбрать имеющийся доступный corpus и baseline. Если external corpus недоступен, предъявить scoped software result и точный qualification gap без фиктивного authority.",
+          "default": "Predictive-only conditional result, никаких causal/production claims."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "BKT-01",
+      "lane": "LANE-03",
+      "source_order": 32,
+      "source_ids": [
+        "B166",
+        "B169",
+        "B170"
+      ],
+      "spec_path": "02_Пакеты/BKT-01.md",
+      "spec_sha256": "5734c65d88fc1dd763481eb1892ac5e053bc2b415118c96871362d24ead6fc68",
+      "trace_path": "04_Трассировка/BKT-01.json",
+      "trace_sha256": "43b4a6949db000494caca2c335a0b82441b1e2b79c884dfff8d7d71ca8d78e3a",
+      "requirement_ids": [
+        "REQ-BKT-01-01",
+        "REQ-BKT-01-02",
+        "REQ-BKT-01-03",
+        "REQ-BKT-01-04",
+        "REQ-BKT-01-05",
+        "REQ-BKT-01-06",
+        "REQ-BKT-01-07",
+        "REQ-BKT-01-08",
+        "REQ-BKT-01-09"
+      ],
+      "test_ids": [
+        "TEST-BKT-01-01",
+        "TEST-BKT-01-02",
+        "TEST-BKT-01-03",
+        "TEST-BKT-01-04",
+        "TEST-BKT-01-05",
+        "TEST-BKT-01-06",
+        "TEST-BKT-01-07",
+        "TEST-BKT-01-08",
+        "TEST-BKT-01-09"
+      ],
+      "shared_scenarios": [
+        "E02-I03-C"
+      ],
+      "dependencies": [
+        {
+          "packet": "BKT-02 / BKT-03",
+          "relation": "Один orchestrator/report writer: numeric empty/overflow and aggregate repairs согласовать, не дублировать report projections."
+        },
+        {
+          "packet": "BKT-04",
+          "relation": "Выбранные CV train/test boundaries согласованы с temporal view; expanding-window selection не заменяет feature availability."
+        },
+        {
+          "packet": "FRC-02",
+          "relation": "Переиспользовать forecast/source semantics и existing uncertainty owner; predictive experiment не causal CI."
+        },
+        {
+          "packet": "LANE-06",
+          "relation": "Существующие runtime budget/cost/admission и exact artifacts; не создавать собственную параллельную execution ledger."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-BKT-01-VIEW",
+          "question": "Какой existing source/feature profile несёт availability и derived parents?",
+          "owner": "Fabric/source и Scientist backtesting owners",
+          "bounded_action": "Census только actual input-binding/source/profile/feature routes; выбрать имеющийся contract либо минимальное typed расширение. Сдать field-role/dependency map и TEST01–02 с known-ahead positive и leaked-derived negative.",
+          "default": "Неклассифицированные post-cutoff outcome-derived данные не доступны admitted replay; допустимый known-prefix остаётся полезен."
+        },
+        {
+          "id": "DEC-BKT-01-PROJECTION",
+          "question": "Какой существующий numerical owner агрегирует совместимые replica trajectories?",
+          "owner": "Foundry numerical и Scientist owners",
+          "bounded_action": "Найти актуальный trajectory/draw summary контракт и выбрать один поддержанный aligned outcome case; реализовать coordinate-wise projection с original refs, TEST08–09. Если compatible owner отсутствует, добавить минимальную общую projection функцию у numerical owner, не новый runtime service.",
+          "default": "Честный unsupported плюс полный cohort; n1 supported. Не считать это завершением requested useful multi-run capability."
+        },
+        {
+          "id": "DEC-BKT-01-BUDGET",
+          "question": "Где actual replica route проходит существующее budget admission и accounting?",
+          "owner": "Runtime execution owner",
+          "bounded_action": "Проследить native request до actual budget gate, предъявить pre-dispatch refusal и known/unknown cost projection. Если gate отсутствует на этом route, подключить существующий owner, не вводить локальную имитацию счётчика.",
+          "default": "Не обещать budget compliance по числу requests; явно ограничить unattended multi-run до принятого admission."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "BKT-02",
+      "lane": "LANE-03",
+      "source_order": 33,
+      "source_ids": [
+        "B167",
+        "B168",
+        "B171"
+      ],
+      "spec_path": "02_Пакеты/BKT-02.md",
+      "spec_sha256": "1034bcae6837e9538a95f44a086eb289fcfaa8d6903a74d744a2cfdad430644e",
+      "trace_path": "04_Трассировка/BKT-02.json",
+      "trace_sha256": "aa4dc4f353107613275ba3b4214a31aacdb5f41dbdde2e4ccbcd4d0d67f66939",
+      "requirement_ids": [
+        "REQ-BKT-02-01",
+        "REQ-BKT-02-02",
+        "REQ-BKT-02-03",
+        "REQ-BKT-02-04",
+        "REQ-BKT-02-05",
+        "REQ-BKT-02-06",
+        "REQ-BKT-02-07",
+        "REQ-BKT-02-08"
+      ],
+      "test_ids": [
+        "TEST-BKT-02-01",
+        "TEST-BKT-02-02",
+        "TEST-BKT-02-03",
+        "TEST-BKT-02-04",
+        "TEST-BKT-02-05",
+        "TEST-BKT-02-06",
+        "TEST-BKT-02-07",
+        "TEST-BKT-02-08"
+      ],
+      "shared_scenarios": [
+        "E02-I03-C"
+      ],
+      "dependencies": [
+        {
+          "packet": "BKT-01",
+          "relation": "Actual trajectory/uncertainty semantics и native source path; не принимать произвольный envelope."
+        },
+        {
+          "packet": "BKT-03",
+          "relation": "Общий stable arithmetic/reconciliation writer: mean cancellation и numerical-range policy согласованы, не два расходящихся helper."
+        },
+        {
+          "packet": "FRC-02",
+          "relation": "Predictive experiment/coverage scientific scope, не general authority от point score."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-BKT-02-RANGE",
+          "question": "Достаточно ли explicit unavailable sufficient statistic или нужен scaled-statistics schema?",
+          "owner": "Evaluator/IR report owners и numerical reviewer",
+          "bounded_action": "Сравнить actual aggregate consumers и existing schema. Выбрать minimal limitation+retained rows как default; если нужен incremental extreme-range micro, добавить versioned scaled statistics и независимую reconciliation. Оба варианта обязаны пройти TEST01–02 без data loss/false trust.",
+          "default": "Не обещать полный numeric support там, где float summary непредставима; useful rows и finite metrics сохраняются."
+        },
+        {
+          "id": "DEC-BKT-02-POOL",
+          "question": "Какая existing metadata/typed contract задаёт сравнимые quantities и веса?",
+          "owner": "Backtest plan/domain owner",
+          "bounded_action": "Проследить target definitions/units из BKT-01 до report, выбрать grouping/conversion policy; сдать один same-quantity converted positive и incompatible negative. Не требовать универсальной онтологии всех измерений.",
+          "default": "Необоснованное cross-quantity pooling ограничено, per-scenario/per-quantity numerical results доступны."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "BKT-03",
+      "lane": "LANE-03",
+      "source_order": 34,
+      "source_ids": [
+        "B172",
+        "B173"
+      ],
+      "spec_path": "02_Пакеты/BKT-03.md",
+      "spec_sha256": "9f05a0b5e6ee98568ec666e14e28a39c50e28367fed348e96e2a5f8a3a957baf",
+      "trace_path": "04_Трассировка/BKT-03.json",
+      "trace_sha256": "43ef5eabe30541a0297a6054b030a02be84c83c1ae27092661b7e1113b2ce1d0",
+      "requirement_ids": [
+        "REQ-BKT-03-01",
+        "REQ-BKT-03-02",
+        "REQ-BKT-03-03",
+        "REQ-BKT-03-04",
+        "REQ-BKT-03-05",
+        "REQ-BKT-03-06",
+        "REQ-BKT-03-07"
+      ],
+      "test_ids": [
+        "TEST-BKT-03-01",
+        "TEST-BKT-03-02",
+        "TEST-BKT-03-03",
+        "TEST-BKT-03-04",
+        "TEST-BKT-03-05",
+        "TEST-BKT-03-06",
+        "TEST-BKT-03-07"
+      ],
+      "shared_scenarios": [
+        "E02-I03-C"
+      ],
+      "dependencies": [
+        {
+          "packet": "BKT-02",
+          "relation": "Один coordinated numerical-range/IR reconciliation contract; cancellation distinct from SSE overflow."
+        },
+        {
+          "packet": "BKT-01",
+          "relation": "Actual historical input и forecast/replica semantics до residual science."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-BKT-03-SCALE",
+          "question": "Сохранить ограниченный unit-domain floor или перейти к scale-aware predicate?",
+          "owner": "Numerical/statistical method owner",
+          "bounded_action": "Исполнить ordinary/tiny/unit-converted/cancellation matrix, выбрать policy по заявленному supported domain. Сдать exact predicate, reason semantics, version/read compatibility и зеркальную independent IR проверку. Не ослаблять floor без численной/научной аргументации.",
+          "default": "Current floor остаётся явной numerical limitation, не доказанной zero variance; cancellation fix сдаётся независимо."
+        },
+        {
+          "id": "DEC-BKT-03-SCOPE",
+          "question": "Какие assumptions и orientation доступны для конкретного backtest?",
+          "owner": "Selected study/domain owner",
+          "bounded_action": "Зафиксировать metric definition/units, repeated-unit/time dependence, effective-n basis, multiplicity и population scope для одного intended claim. Недостающие поля перечислить конкретно; не требовать универсальной методологии всех будущих задач.",
+          "default": "Descriptive magnitude/sign доступны, inferential/directional claims ограничены неизвестными основаниями."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "BKT-04",
+      "lane": "LANE-03",
+      "source_order": 35,
+      "source_ids": [
+        "B174",
+        "B175"
+      ],
+      "spec_path": "02_Пакеты/BKT-04.md",
+      "spec_sha256": "43380f18d18f15bb37862472b3584dc3e4eb2af73832ef0c823cd1e9a7615369",
+      "trace_path": "04_Трассировка/BKT-04.json",
+      "trace_sha256": "6c89202f412e36154ff841293ed674f7f6d0598c5d50921296dc8b6fd60a868d",
+      "requirement_ids": [
+        "REQ-BKT-04-01",
+        "REQ-BKT-04-02",
+        "REQ-BKT-04-03",
+        "REQ-BKT-04-04",
+        "REQ-BKT-04-05",
+        "REQ-BKT-04-06",
+        "REQ-BKT-04-07"
+      ],
+      "test_ids": [
+        "TEST-BKT-04-01",
+        "TEST-BKT-04-02",
+        "TEST-BKT-04-03",
+        "TEST-BKT-04-04",
+        "TEST-BKT-04-05",
+        "TEST-BKT-04-06",
+        "TEST-BKT-04-07"
+      ],
+      "shared_scenarios": [
+        "E02-I03-C"
+      ],
+      "dependencies": [
+        {
+          "packet": "BKT-01",
+          "relation": "Historical feature leakage отдельно от CV boundaries; selected folds не доказывают as-of admissibility."
+        },
+        {
+          "packet": "BKT-02",
+          "relation": "Переиспользовать per-metric completeness/weight semantics у actual consumer, не смешивать CV mean с microRMSE."
+        },
+        {
+          "packet": "BKT-03",
+          "relation": "Independence/effective-n scientific assumptions сохраняются при bootstrap interpretation."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-BKT-04-CALLER",
+          "question": "Кто фактически потребляет generic CV/bootstrap как measurement?",
+          "owner": "Scientist backtesting/public API owner",
+          "bounded_action": "Finite census exact imports/calls/public facade/config и объявленного intended usage; выбрать actual caller с shape/metric policy либо supported public-only status. Сдать конкретный route и TEST07; не объявлять отсутствующими dynamic callers без evidence.",
+          "default": "Public helper supported, runtime activation not established; никакой forced global hook."
+        },
+        {
+          "id": "DEC-BKT-04-SAMPLING",
+          "question": "Обосновано ли iid resampling для выбранной observation unit?",
+          "owner": "Selected study/method owner",
+          "bounded_action": "Назвать unit, dependence/effective-n и confidence target; iid оставить при обосновании, иначе выбрать existing block/cluster method с distinguishing dependent control. Недоступная domain evidence остаётся qualification gap.",
+          "default": "Численный bootstrap conditional, без empirical coverage/causal/population authority."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "FRY-01",
+      "lane": "LANE-04",
+      "source_order": 36,
+      "source_ids": [
+        "LA-001",
+        "LA-002",
+        "LA-037"
+      ],
+      "spec_path": "02_Пакеты/FRY-01.md",
+      "spec_sha256": "8af98e49820ebab59ff40dd756c6d4f01649f5be5926e26099b9142c669ab96c",
+      "trace_path": "04_Трассировка/FRY-01.json",
+      "trace_sha256": "3d5915bd949f15485f6cf5694406f50f9705649686a778ab67b052221c078e9b",
+      "requirement_ids": [
+        "REQ-FRY-01-01",
+        "REQ-FRY-01-02",
+        "REQ-FRY-01-03",
+        "REQ-FRY-01-04"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-01",
+        "TEST-FRY-01-02",
+        "TEST-FRY-01-03",
+        "TEST-FRY-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I04-A"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "Нужен source-qualified historical RNG corpus для полной declared backward support; synthetic v1 sample не весь production corpus.",
+        "Предметная применимость IC assumptions определяется выбранной задачей отдельно от native mechanical PASS."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "FRY-03",
+      "lane": "LANE-04",
+      "source_order": 37,
+      "source_ids": [
+        "LA-003"
+      ],
+      "spec_path": "02_Пакеты/FRY-03.md",
+      "spec_sha256": "f039551ec29a3995f447f3fc0e6ddfe7ff547233a2768fa0c36c45e45d6a7fd1",
+      "trace_path": "04_Трассировка/FRY-03.json",
+      "trace_sha256": "8ad47924ccec7c28fc7241a905921d6607ceb091330c2f505119c4574bb55951",
+      "requirement_ids": [
+        "REQ-FRY-03-01",
+        "REQ-FRY-03-02",
+        "REQ-FRY-03-03"
+      ],
+      "test_ids": [
+        "TEST-FRY-03-01",
+        "TEST-FRY-03-02",
+        "TEST-FRY-03-03"
+      ],
+      "shared_scenarios": [
+        "E02-I04-C"
+      ],
+      "dependencies": [
+        "FRY-01"
+      ],
+      "open_decisions": [
+        "При конкретном применении определить signed tax base и units/time-step; без решения conditional law явно ограничена, но native repair не блокируется."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "ECO-01",
+      "lane": "LANE-04",
+      "source_order": 38,
+      "source_ids": [
+        "LA-004",
+        "LA-035"
+      ],
+      "spec_path": "02_Пакеты/ECO-01.md",
+      "spec_sha256": "dc7fd8a9939059b0fd3949798a701a0da48cab58e3f37ca02383ba2903cce1fe",
+      "trace_path": "04_Трассировка/ECO-01.json",
+      "trace_sha256": "1493d2c22015ad72c7c7d0407dff6d55c9661bad662951fd2bdd4a696b233a8b",
+      "requirement_ids": [
+        "REQ-ECO-01-01",
+        "REQ-ECO-01-02",
+        "REQ-ECO-01-03"
+      ],
+      "test_ids": [
+        "TEST-ECO-01-01",
+        "TEST-ECO-01-02",
+        "TEST-ECO-01-03"
+      ],
+      "shared_scenarios": [
+        "E02-I04-C"
+      ],
+      "dependencies": [
+        "FRY-03"
+      ],
+      "open_decisions": [
+        "Для конкретного реального use-case отдельно выбрать currency/time/population mapping и calibration evidence; это не блокирует native сохранение existing profiles."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "PLG-01",
+      "lane": "LANE-04",
+      "source_order": 39,
+      "source_ids": [
+        "LA-022"
+      ],
+      "spec_path": "02_Пакеты/PLG-01.md",
+      "spec_sha256": "2d1f163afa7e0c2b3fcf0c5f3afc66031a7efc9be65243c081974b442428233c",
+      "trace_path": "04_Трассировка/PLG-01.json",
+      "trace_sha256": "5bde0bce7e43114f6e891a8246f269b390111ab534f855c3badf75b95ed7a731",
+      "requirement_ids": [
+        "REQ-PLG-01-01",
+        "REQ-PLG-01-02",
+        "REQ-PLG-01-03"
+      ],
+      "test_ids": [
+        "TEST-PLG-01-01",
+        "TEST-PLG-01-02",
+        "TEST-PLG-01-03"
+      ],
+      "shared_scenarios": [
+        "E02-I04-C"
+      ],
+      "dependencies": [],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "PLG-02",
+      "lane": "LANE-04",
+      "source_order": 40,
+      "source_ids": [
+        "LA-023"
+      ],
+      "spec_path": "02_Пакеты/PLG-02.md",
+      "spec_sha256": "1bc43565908f0bd751188acb010e65a2f7def12a49f5fed1bfef55950993173b",
+      "trace_path": "04_Трассировка/PLG-02.json",
+      "trace_sha256": "f71f5398ca67735db69cf8beef408ce32d6166f13ec678da4467b2962b650d1c",
+      "requirement_ids": [
+        "REQ-PLG-02-01",
+        "REQ-PLG-02-02",
+        "REQ-PLG-02-03"
+      ],
+      "test_ids": [
+        "TEST-PLG-02-01",
+        "TEST-PLG-02-02",
+        "TEST-PLG-02-03"
+      ],
+      "shared_scenarios": [
+        "E02-I04-C"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "Выбрать minimal status-vs-role API расширение после caller census; exact legacy fallback должен быть unqualified и проверяться отдельным negative test."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "PLG-03",
+      "lane": "LANE-04",
+      "source_order": 41,
+      "source_ids": [
+        "LA-023"
+      ],
+      "spec_path": "02_Пакеты/PLG-03.md",
+      "spec_sha256": "e2ba11032528f972a7374e1a0d535b33a2dbf64d610cdf56ef021abac2844e43",
+      "trace_path": "04_Трассировка/PLG-03.json",
+      "trace_sha256": "4557a131465925894ae03296d17f98cf33d0395a5a76fd94722e9e1c8e599a94",
+      "requirement_ids": [
+        "REQ-PLG-03-01",
+        "REQ-PLG-03-02",
+        "REQ-PLG-03-03",
+        "REQ-PLG-03-04"
+      ],
+      "test_ids": [
+        "TEST-PLG-03-01",
+        "TEST-PLG-03-02",
+        "TEST-PLG-03-03",
+        "TEST-PLG-03-04"
+      ],
+      "shared_scenarios": [
+        "E02-I04-C"
+      ],
+      "dependencies": [
+        "PLG-02"
+      ],
+      "open_decisions": [
+        "Если проект требует HARD training сейчас, выбрать полноценный action/likelihood contract вместо предложенного scoped refusal и предъявить native oracle до признания поддержки. Без такого выбора безопасный executable default — honest unsupported.",
+        "Предпочтительный HARD training refusal снимает неподдержанный семантический claim, но не закрывает полную HARD training capability. Release notes обязаны раскрыть потенциальное функциональное сужение; это не постоянный архитектурный запрет. Владелец может выбрать ограниченную реализацию общего action/likelihood контракта с native oracle; HARD evaluation и реальные fluid/relaxed updates сохраняются."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CMP-01",
+      "lane": "LANE-04",
+      "source_order": 42,
+      "source_ids": [
+        "B42",
+        "B43",
+        "B44"
+      ],
+      "spec_path": "02_Пакеты/CMP-01.md",
+      "spec_sha256": "1eeb8581f1c62e77b6f3d4c0ec65cd584c25ac305684208f9412b6e489359aca",
+      "trace_path": "04_Трассировка/CMP-01.json",
+      "trace_sha256": "b00eca793453f155aec22637c50898e286d03880fdedc25db032379ffafc3750",
+      "requirement_ids": [
+        "REQ-CMP-01-01",
+        "REQ-CMP-01-02",
+        "REQ-CMP-01-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-01-01",
+        "TEST-CMP-01-02",
+        "TEST-CMP-01-03"
+      ],
+      "shared_scenarios": [
+        "E02-I04-A",
+        "E02-I04-B"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "G02 обязательный выход: таблица actual persisted route и PASS witness, либо минимальный versioned owner patch с тем же witness; blanket 'нужно исследовать' не приёмка.",
+        "Optional backend список фиксируется по actual runtime/lock; отсутствующие environments остаются NOT_RUN без установки."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CMP-02",
+      "lane": "LANE-04",
+      "source_order": 43,
+      "source_ids": [
+        "B45",
+        "B46"
+      ],
+      "spec_path": "02_Пакеты/CMP-02.md",
+      "spec_sha256": "bfb019e433f2c38a61692c54ac4a36a87d3992066aaaac0ab3dd6c718fcd894b",
+      "trace_path": "04_Трассировка/CMP-02.json",
+      "trace_sha256": "10f6fa149cb1f13f1ce3af1dc8d4394c5fb9940510003a728579099c7e576a3c",
+      "requirement_ids": [
+        "REQ-CMP-02-01",
+        "REQ-CMP-02-02",
+        "REQ-CMP-02-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-02-01",
+        "TEST-CMP-02-02",
+        "TEST-CMP-02-03"
+      ],
+      "shared_scenarios": [
+        "E02-I04-A",
+        "E02-I04-B"
+      ],
+      "dependencies": [
+        "CMP-01"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CMP-03",
+      "lane": "LANE-04",
+      "source_order": 44,
+      "source_ids": [
+        "B47",
+        "B48"
+      ],
+      "spec_path": "02_Пакеты/CMP-03.md",
+      "spec_sha256": "a58f6ab3cbbbfbeb82c73a0429a990c51d076ebfea6f9fcae1185ed03297b37c",
+      "trace_path": "04_Трассировка/CMP-03.json",
+      "trace_sha256": "2f54f3d45793d4bb5c9576547d1c6589529675bb30b6d5ff636a207db299aef0",
+      "requirement_ids": [
+        "REQ-CMP-03-01",
+        "REQ-CMP-03-02",
+        "REQ-CMP-03-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-03-01",
+        "TEST-CMP-03-02",
+        "TEST-CMP-03-03"
+      ],
+      "shared_scenarios": [
+        "E02-I04-A"
+      ],
+      "dependencies": [
+        "CMP-02"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "JIT-01",
+      "lane": "LANE-04",
+      "source_order": 45,
+      "source_ids": [
+        "B49",
+        "B50",
+        "B53"
+      ],
+      "spec_path": "02_Пакеты/JIT-01.md",
+      "spec_sha256": "d5bd4384aa458bc9cb86819c3231d2ae3bc448f7682b09d94f3a384cddbdf5d5",
+      "trace_path": "04_Трассировка/JIT-01.json",
+      "trace_sha256": "5c2ea6ddec1a6da2e30f635aeafcdd8ed0ca58eda40fff9e3f5e5daf66c4fbf9",
+      "requirement_ids": [
+        "REQ-JIT-01-01",
+        "REQ-JIT-01-02",
+        "REQ-JIT-01-03"
+      ],
+      "test_ids": [
+        "TEST-JIT-01-01",
+        "TEST-JIT-01-02",
+        "TEST-JIT-01-03"
+      ],
+      "shared_scenarios": [
+        "E02-I04-B"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "G02 bounded decision: предъявить actual downstream dtype/trace/allocation observations и выбрать no-code documented supported profile либо existing abstract/lazy boundary repair; нельзя закрыть gap лишь source чтением."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "RES-04",
+      "lane": "LANE-04",
+      "source_order": 46,
+      "source_ids": [
+        "B74",
+        "B75",
+        "B76"
+      ],
+      "spec_path": "02_Пакеты/RES-04.md",
+      "spec_sha256": "febf6cdedcb3acac1fe8f8a2d1599106bc9d56eccf9f052c88de2ec9f54ae291",
+      "trace_path": "04_Трассировка/RES-04.json",
+      "trace_sha256": "9a6be67c5a96ddf3e41bc705fcaabde691143d20b83834e20f3c449c8cf64452",
+      "requirement_ids": [
+        "REQ-RES-04-01",
+        "REQ-RES-04-02",
+        "REQ-RES-04-03",
+        "REQ-RES-04-04"
+      ],
+      "test_ids": [
+        "TEST-RES-04-01",
+        "TEST-RES-04-02",
+        "TEST-RES-04-03",
+        "TEST-RES-04-04"
+      ],
+      "shared_scenarios": [
+        "E02-I04-B"
+      ],
+      "dependencies": [
+        "CMP-02"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAL-05",
+      "lane": "LANE-04",
+      "source_order": 47,
+      "source_ids": [
+        "B185"
+      ],
+      "spec_path": "02_Пакеты/CAL-05.md",
+      "spec_sha256": "5c53b92f2318d7afa3822a55da15458ae21b6481412f56dc391b4f1d97358c63",
+      "trace_path": "04_Трассировка/CAL-05.json",
+      "trace_sha256": "b2349eaf133cbd94aa54cb1bd4b7cf5ca08a9444b1d09810fded99ef9edc6711",
+      "requirement_ids": [
+        "REQ-CAL-05-01",
+        "REQ-CAL-05-02",
+        "REQ-CAL-05-03"
+      ],
+      "test_ids": [
+        "TEST-CAL-05-01",
+        "TEST-CAL-05-02",
+        "TEST-CAL-05-03"
+      ],
+      "shared_scenarios": [
+        "E02-I04-D"
+      ],
+      "dependencies": [],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "GRF-01",
+      "lane": "LANE-05",
+      "source_order": 48,
+      "source_ids": [
+        "B216",
+        "B217",
+        "LA-007",
+        "LA-019"
+      ],
+      "spec_path": "02_Пакеты/GRF-01.md",
+      "spec_sha256": "ad53ec63504b547b2bd616bdb672704a533307e303921200153805b7cb5f897a",
+      "trace_path": "04_Трассировка/GRF-01.json",
+      "trace_sha256": "b93a0aa17c1d001c67ba605dfbe6d6fe8d44c2e7e5ee77700cfd53462edc2a4c",
+      "requirement_ids": [
+        "REQ-GRF-01-01",
+        "REQ-GRF-01-02",
+        "REQ-GRF-01-03",
+        "REQ-GRF-01-04",
+        "REQ-GRF-01-05",
+        "REQ-GRF-01-06"
+      ],
+      "test_ids": [
+        "TEST-GRF-01-01",
+        "TEST-GRF-01-02",
+        "TEST-GRF-01-03",
+        "TEST-GRF-01-04",
+        "TEST-GRF-01-05",
+        "TEST-GRF-01-06",
+        "TEST-GRF-01-07"
+      ],
+      "shared_scenarios": [
+        "E02-I05-A"
+      ],
+      "dependencies": [
+        {
+          "packet": "GRF-02 / GRF-03",
+          "relation": "Общий admg_ops admission/cache/topology owner; не снимать outer validation ради экономии."
+        },
+        {
+          "packet": "API-01",
+          "relation": "Public facade identity/installed evidence shared; не смешивать точечное sibling retirement с facade migration."
+        },
+        {
+          "packet": "SCM-01 / SCM-02",
+          "relation": "Perfect-do structural semantics не доказывает factual abduction/shared-noise query correctness; отдельный E02-I05-C."
+        },
+        {
+          "packet": "LANE-12",
+          "relation": "Одна coordinated wheel/sdist/public-surface qualification, не build на каждый пакет."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-GRF-01-PACKAGING",
+          "question": "Есть ли поддержанный exact-filename consumer трёх retired siblings?",
+          "owner": "Causal public API/release owner",
+          "bounded_action": "TEST06 finite census + declared external support window; если есть supported caller, мигрировать его к package API и проверить installed distribution. Если нет — зафиксировать bounded scope, не обещать глобальное отсутствие динамических путей.",
+          "default": "Сохраняются настоящие packages, пустые siblings не восстанавливаются."
+        },
+        {
+          "id": "DEC-GRF-01-SCOPE",
+          "question": "Какое основание causal graph необходимо для выбранного пользовательского claim?",
+          "owner": "Selected graph/study owner",
+          "bounded_action": "Для одного intended use назвать graph hypothesis/revision, observations/assumptions и estimand scope; показать conditional positive и foreign-binding negative в TEST07. Не требовать универсального causal model inventor.",
+          "default": "Полезный structural conditional result с explicit empirical unknowns."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "GRF-02",
+      "lane": "LANE-05",
+      "source_order": 49,
+      "source_ids": [
+        "B219",
+        "B220"
+      ],
+      "spec_path": "02_Пакеты/GRF-02.md",
+      "spec_sha256": "b8710444348901f4777ff0a7a36168e17809fd619a757935d7fd12aa4deed5d1",
+      "trace_path": "04_Трассировка/GRF-02.json",
+      "trace_sha256": "f374320705a0251f6a715c6ec5a34e10b8376c3b76cf5b24c9d81005368a536f",
+      "requirement_ids": [
+        "REQ-GRF-02-01",
+        "REQ-GRF-02-02",
+        "REQ-GRF-02-03",
+        "REQ-GRF-02-04",
+        "REQ-GRF-02-05",
+        "REQ-GRF-02-06"
+      ],
+      "test_ids": [
+        "TEST-GRF-02-01",
+        "TEST-GRF-02-02",
+        "TEST-GRF-02-03",
+        "TEST-GRF-02-04",
+        "TEST-GRF-02-05",
+        "TEST-GRF-02-06",
+        "TEST-GRF-02-07"
+      ],
+      "shared_scenarios": [
+        "E02-I05-A"
+      ],
+      "dependencies": [
+        {
+          "packet": "GRF-01",
+          "relation": "Endpoint-aware semantics и outer canonical admission сохраняются, finite oracle общий."
+        },
+        {
+          "packet": "GRF-03",
+          "relation": "DAG export использует validated topology, отдельно от lossless mixed transport."
+        },
+        {
+          "packet": "LANE-06 CAS owners",
+          "relation": "Переиспользовать exact profile/native CAS, не новый graph store."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-GRF-02-KUZU",
+          "question": "Есть ли реальный supported connection-only lossless incremental caller?",
+          "owner": "Graphadapter/Kuzu schema owner",
+          "bounded_action": "Конечный census actual callers/contracts. По умолчанию simple-only preflight и existing bulk route. Если подтверждён caller incremental multigraph, определить occurrence identity, graph scope, transaction/idempotence и schema migration; TEST-01/02 обязательно native.",
+          "default": "Отказывать ambiguous direct export до первой записи; mixed export остаётся полезным через existing bulk."
+        },
+        {
+          "id": "DEC-GRF-02-SCALE",
+          "question": "Какой реальный query workload требует performancequalification?",
+          "owner": "Static causal query owner",
+          "bounded_action": "Выбрать finite representative sizes/query count/backend, cold/warm benchmark с output equivalence и peak RSS. Сдать числа и границы, не вводить произвольную цель ускорения.",
+          "default": "Принять устранение лишней внутренней подготовки отдельно от неизмеренного системного ускорения."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "GRF-03",
+      "lane": "LANE-05",
+      "source_order": 50,
+      "source_ids": [
+        "B214",
+        "B218"
+      ],
+      "spec_path": "02_Пакеты/GRF-03.md",
+      "spec_sha256": "4f3ea3f1afe47f4bf46a362b646a27381a380362c4be6906ff68599a31cec3b8",
+      "trace_path": "04_Трассировка/GRF-03.json",
+      "trace_sha256": "4a6649df67ea0f4636254a1d3b22feac0d0af9f14d5d532627459c5a424121bd",
+      "requirement_ids": [
+        "REQ-GRF-03-01",
+        "REQ-GRF-03-02",
+        "REQ-GRF-03-03",
+        "REQ-GRF-03-04",
+        "REQ-GRF-03-05",
+        "REQ-GRF-03-06",
+        "REQ-GRF-03-07"
+      ],
+      "test_ids": [
+        "TEST-GRF-03-01",
+        "TEST-GRF-03-02",
+        "TEST-GRF-03-03",
+        "TEST-GRF-03-04",
+        "TEST-GRF-03-05",
+        "TEST-GRF-03-06",
+        "TEST-GRF-03-07",
+        "TEST-GRF-03-08"
+      ],
+      "shared_scenarios": [
+        "E02-I05-A",
+        "E02-I05-C"
+      ],
+      "dependencies": [
+        {
+          "packet": "GRF-02",
+          "relation": "Lossless graph content/selected profiles и immutable preparation."
+        },
+        {
+          "packet": "SCM-01 / SCM-02 / SCM-03",
+          "relation": "Общие gcm_fit/query/source DTO; selected worker/twin semantics owners separate, один writer."
+        },
+        {
+          "packet": "BKT-01",
+          "relation": "Temporal adapter не заменяет feature availability/as-of validation реальных данных."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-GRF-03-TEMPORAL",
+          "question": "Какой actual temporal consumer нужен для одного полезного запроса?",
+          "owner": "Graph/model и selected temporal method owner",
+          "bounded_action": "Finite census текущих temporal methods/data contracts; выбрать existing consumer либо минимальную finite expansion у existing owner. Сдать profile/lag/time/initial mapping и TEST06–07; если empirical source недоступен, mechanism acceptance и practical limitation отдельно.",
+          "default": "Static refusal сохраняется; ручной8-node graph не считается готовым adapter."
+        },
+        {
+          "id": "DEC-GRF-03-PARTIAL",
+          "question": "Требуется ли family-level inference или достаточно явной conditional hypothesis?",
+          "owner": "Causal identification/study owner",
+          "bounded_action": "Назвать intended query/family и available algorithm, проверить coverage supported profile; выбрать qualified family output либо per-hypothesis limited result с source binding. Сдать TEST08 и exact unsupported scope, не обещать общую PAG completeness.",
+          "default": "Unknown marks не превращаются в arbitrary DAG; source и useful conditional research output сохраняются."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "API-01",
+      "lane": "LANE-05",
+      "source_order": 51,
+      "source_ids": [
+        "LA-020"
+      ],
+      "spec_path": "02_Пакеты/API-01.md",
+      "spec_sha256": "fc5d0d3f4ee1178d3ef966f9409a3ccfc90d9b6ee305d3644ab6a0bdc145afbf",
+      "trace_path": "04_Трассировка/API-01.json",
+      "trace_sha256": "649a4e154d9e2f14a70eca691b712a57b8169f9a86d03ac537c6897d1d195306",
+      "requirement_ids": [
+        "REQ-API-01-01",
+        "REQ-API-01-02",
+        "REQ-API-01-03",
+        "REQ-API-01-04",
+        "REQ-API-01-05",
+        "REQ-API-01-06"
+      ],
+      "test_ids": [
+        "TEST-API-01-01",
+        "TEST-API-01-02",
+        "TEST-API-01-03",
+        "TEST-API-01-04",
+        "TEST-API-01-05",
+        "TEST-API-01-06"
+      ],
+      "shared_scenarios": [
+        "E02-I05-A"
+      ],
+      "dependencies": [
+        {
+          "packet": "GRF-01",
+          "relation": "Native packages и installed evidence разделяются; точечное sibling retirement не facade rewrite."
+        },
+        {
+          "packet": "LANE-12",
+          "relation": "Общий packaging/docs/public-surface job, не отдельная сборка на каждый alias."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-API-01-WINDOW",
+          "question": "Какие compatibility bindings допускается снять и когда?",
+          "owner": "Public API/release owner",
+          "bounded_action": "TEST06 named finite census+actual support declaration; выбрать retain либо точечный retirement с caller/FQN/docs/monkeypatch acceptance. Недоступные external сведения честно ограничивают решение.",
+          "default": "Восемь declared direct-only bindings сохраняются, public2/9 неизменны."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAU-01",
+      "lane": "LANE-05",
+      "source_order": 52,
+      "source_ids": [
+        "B204",
+        "B205",
+        "B206",
+        "LA-016"
+      ],
+      "spec_path": "02_Пакеты/CAU-01.md",
+      "spec_sha256": "fa8cee1463f734a44e8a62ff36675d75515a34f46d79340ec0a57d04f0a9ef8b",
+      "trace_path": "04_Трассировка/CAU-01.json",
+      "trace_sha256": "1202d237fd29e60e8319e1a018070002574f59c2fb1ba69211fdc31fb692f772",
+      "requirement_ids": [
+        "REQ-CAU-01-01",
+        "REQ-CAU-01-02",
+        "REQ-CAU-01-03",
+        "REQ-CAU-01-04",
+        "REQ-CAU-01-05",
+        "REQ-CAU-01-06",
+        "REQ-CAU-01-07",
+        "REQ-CAU-01-08",
+        "REQ-CAU-01-09"
+      ],
+      "test_ids": [
+        "TEST-CAU-01-01",
+        "TEST-CAU-01-02",
+        "TEST-CAU-01-03",
+        "TEST-CAU-01-04",
+        "TEST-CAU-01-05",
+        "TEST-CAU-01-06",
+        "TEST-CAU-01-07",
+        "TEST-CAU-01-08"
+      ],
+      "shared_scenarios": [
+        "E02-I05-B"
+      ],
+      "dependencies": [
+        {
+          "packet": "CAU-02",
+          "relation": "Общий did.py и staggered phase LA-016; не независимая копия common inference."
+        },
+        {
+          "packet": "CAU-03",
+          "relation": "RDD consumer confidence-level общего B206; RBC/численная устойчивость остаются у CAU-03."
+        },
+        {
+          "packet": "CAU-05",
+          "relation": "Accountable LA-016 closure и historical FQN lifecycle; не блокирует локальный partition repair."
+        },
+        {
+          "packet": "LANE-06",
+          "relation": "Повторное использование действительных CAS/worker contracts без нового store."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-CAU-01-LABEL",
+          "question": "Есть ли заявленные callers с mixed/custom scalar labels за пределами normal string/int?",
+          "owner": "Исполнитель CAU-01 и reviewer публичного input contract",
+          "bounded_action": "Проверить actual callers/tests и сериализуемый тип unit_ids/cluster_var; перечислить поддерживаемые классы. Если нужен новый scalar тип, предложить общее правило identity и различающий тест. Не принимать arbitrary object equality молча.",
+          "default": "Missing/non-reflexive labels отклоняются; нормальные string/int сохраняются; выбор не блокирует ремонт NaN."
+        },
+        {
+          "id": "DEC-CAU-01-INFERENCE",
+          "question": "Требуется ли finite-cluster процедура конкретному реальному дизайну?",
+          "owner": "Владелец научного профиля/технический reviewer, без выдуманного имени",
+          "bounded_action": "Предъявить независимую единицу, предпосылки и требуемый estimand; выбрать существующую поддержанную процедуру либо явно ограничить normal CR0. Новый метод — отдельный обоснованный scope.",
+          "default": "Существующий large-unit normal CR0 остаётся кандидатом с limitation, без finite-cluster guarantee."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAU-02",
+      "lane": "LANE-05",
+      "source_order": 53,
+      "source_ids": [
+        "B207",
+        "B208",
+        "B209"
+      ],
+      "spec_path": "02_Пакеты/CAU-02.md",
+      "spec_sha256": "cb94b6ff620aa4c1fb77baf568add5e894ba248f643f3da945eb4d8f43f2453b",
+      "trace_path": "04_Трассировка/CAU-02.json",
+      "trace_sha256": "c58eacc2e152cfc0ec7e60911a33f1c7bfc58c136386ffe22e8176d07b2b5aba",
+      "requirement_ids": [
+        "REQ-CAU-02-01",
+        "REQ-CAU-02-02",
+        "REQ-CAU-02-03",
+        "REQ-CAU-02-04",
+        "REQ-CAU-02-05",
+        "REQ-CAU-02-06",
+        "REQ-CAU-02-07"
+      ],
+      "test_ids": [
+        "TEST-CAU-02-01",
+        "TEST-CAU-02-02",
+        "TEST-CAU-02-03",
+        "TEST-CAU-02-04",
+        "TEST-CAU-02-05",
+        "TEST-CAU-02-06",
+        "TEST-CAU-02-07"
+      ],
+      "shared_scenarios": [
+        "E02-I05-B"
+      ],
+      "dependencies": [
+        {
+          "packet": "CAU-01",
+          "relation": "Panel metadata/identity and shared report contract, но standard CR0 NaN-label defect не переносится на staggered route без evidence."
+        },
+        {
+          "packet": "CAU-05",
+          "relation": "Accountable dedicated/old-plan lifecycle и один registry/source/report integration owner."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-CAU-02-DESIGN",
+          "question": "Применим ли independent-unit pointwise theta_sel к выбранным данным?",
+          "owner": "DiD method/study reviewer",
+          "bounded_action": "Зафиксировать target/horizon/cohorts, sampling/assignment clusters/shared shocks, anticipation и identification assumptions. При несовместимости выбрать конкретный existing qualified method либо ограниченный point-only/conditional результат; более широкая inference отдельное bounded extension с oracle.",
+          "default": "Current scope large independent units/pointwise scalar; finite-cluster/simultaneous guarantees не заявляются."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAU-03",
+      "lane": "LANE-05",
+      "source_order": 54,
+      "source_ids": [
+        "B210",
+        "B211"
+      ],
+      "spec_path": "02_Пакеты/CAU-03.md",
+      "spec_sha256": "32649aa29d84f4d0abb3aa0afb03360e29055c78b2ed402c242c0065e8ccfd92",
+      "trace_path": "04_Трассировка/CAU-03.json",
+      "trace_sha256": "8e26e424e078172d1cb5e1e725f149f4b2979d2d83e8a884891cd34b812900d7",
+      "requirement_ids": [
+        "REQ-CAU-03-01",
+        "REQ-CAU-03-02",
+        "REQ-CAU-03-03",
+        "REQ-CAU-03-04",
+        "REQ-CAU-03-05",
+        "REQ-CAU-03-06"
+      ],
+      "test_ids": [
+        "TEST-CAU-03-01",
+        "TEST-CAU-03-02",
+        "TEST-CAU-03-03",
+        "TEST-CAU-03-04",
+        "TEST-CAU-03-05",
+        "TEST-CAU-03-06",
+        "TEST-CAU-03-07",
+        "TEST-CAU-03-08"
+      ],
+      "shared_scenarios": [
+        "E02-I05-B"
+      ],
+      "dependencies": [
+        {
+          "packet": "CAU-01",
+          "relation": "Shared typed causal report/metadata, not replacement of RDD inference."
+        },
+        {
+          "packet": "CAU-05",
+          "relation": "Native registry/source→whole-report selected-consumer acceptance shared."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-CAU-03-PROFILE",
+          "question": "Нужен ли профиль шире текущего sharp/fixed-bandwidth/q=p+1/HC0?",
+          "owner": "RDD numerical/methodological reviewer",
+          "bounded_action": "Назвать конкретный requested design; если шире — выбрать primary methodological/maintained reference с matching settings, сравнить formulas/point/SE и новый independent DGP. Не расширять silently. Если текущего профиля достаточно, preserve и квалифицировать его assumptions.",
+          "default": "Current bounded profile, no fuzzy/cluster/masspoint/data-driven selector guarantee."
+        },
+        {
+          "id": "DEC-CAU-03-VARIANCE-V2",
+          "question": "Как назвать/version new selected kernel-HC0 profile и legacy weighted-residual compatibility, когда менять default?",
+          "owner": "CAU-03 numerical owner + report compatibility reviewer",
+          "bounded_action": "Проверить actual consumers/historical schema, зафиксировать explicit profile selector и reader mapping; существующие historical outputs не изменять. Новый profile не объявлять implemented.",
+          "acceptance": "TEST-CAU-03-02/06/08, named migration decision before default cutover."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAU-04",
+      "lane": "LANE-05",
+      "source_order": 55,
+      "source_ids": [
+        "B212",
+        "B213"
+      ],
+      "spec_path": "02_Пакеты/CAU-04.md",
+      "spec_sha256": "407c656e4a44d1fefa767f2c3756bba405b8e4ed509e7d428f7cb714e3327783",
+      "trace_path": "04_Трассировка/CAU-04.json",
+      "trace_sha256": "004b25230cf6cae317ce7554eae938871c46c8517a57128321348b585b610915",
+      "requirement_ids": [
+        "REQ-CAU-04-01",
+        "REQ-CAU-04-02",
+        "REQ-CAU-04-03",
+        "REQ-CAU-04-04",
+        "REQ-CAU-04-05",
+        "REQ-CAU-04-06"
+      ],
+      "test_ids": [
+        "TEST-CAU-04-01",
+        "TEST-CAU-04-02",
+        "TEST-CAU-04-03",
+        "TEST-CAU-04-04",
+        "TEST-CAU-04-05",
+        "TEST-CAU-04-06",
+        "TEST-CAU-04-07",
+        "TEST-CAU-04-08"
+      ],
+      "shared_scenarios": [
+        "E02-I05-B"
+      ],
+      "dependencies": [
+        {
+          "packet": "CAU-05",
+          "relation": "Единый owner metadata/FQN lifecycle и общей report custody; CAU-04 отвечает за selected DoWhy semantics."
+        },
+        {
+          "packet": "SCM-01/SCM-02",
+          "relation": "Общий worker distribution/protocol owner, но gcm_fit/query не считается квалифицированным тестом linear_ate."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-CAU-04-LEGACY",
+          "question": "Есть ли фактический потребитель broad legacy вне selected ATE?",
+          "owner": "CAU-04 с CAU-05 lifecycle reviewer",
+          "bounded_action": "Проверить tracked callers, declared support и доступные genuine artifacts. Для найденного профиля выбрать actual API qualification либо explicit migration/refusal; предъявить конкретные cases и boundaries.",
+          "default": "Selected ATE остаётся supported; legacy NIE не получает production claim без numerical witness."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAU-05",
+      "lane": "LANE-05",
+      "source_order": 56,
+      "source_ids": [
+        "LA-016"
+      ],
+      "spec_path": "02_Пакеты/CAU-05.md",
+      "spec_sha256": "b4d4f01c55d051af4ee21ea3e6b8cbf010571d5814ac8e7d761416702b02491e",
+      "trace_path": "04_Трассировка/CAU-05.json",
+      "trace_sha256": "1b9996b3bac2a5528f5fb31c04ebaeda18acb3c6ef5a474627b3de8989ad6a8a",
+      "requirement_ids": [
+        "REQ-CAU-05-01",
+        "REQ-CAU-05-02",
+        "REQ-CAU-05-03",
+        "REQ-CAU-05-04",
+        "REQ-CAU-05-05",
+        "REQ-CAU-05-06"
+      ],
+      "test_ids": [
+        "TEST-CAU-05-01",
+        "TEST-CAU-05-02",
+        "TEST-CAU-05-03",
+        "TEST-CAU-05-04",
+        "TEST-CAU-05-05",
+        "TEST-CAU-05-06",
+        "TEST-CAU-05-07",
+        "TEST-CAU-05-08"
+      ],
+      "shared_scenarios": [
+        "E02-I05-B"
+      ],
+      "dependencies": [
+        {
+          "packet": "CAU-01",
+          "relation": "Оригинальный predecessor: detached metadata и corrected standard inference, включая partition repair."
+        },
+        {
+          "packet": "CAU-02",
+          "relation": "Оригинальный predecessor: corrected staggered target/variance/anticipation/bootstrap."
+        },
+        {
+          "packet": "CAU-03/CAU-04",
+          "relation": "Переиспользуют shared whole-report lifecycle сценарий, но не являются новой обязательной зависимостью локального DiD migration."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-CAU-05-REPLAY",
+          "question": "Какие frozen plan/schema/FQN версии действительно поддерживаются и каким reader?",
+          "owner": "DiD lifecycle owner и actual persisted-plan owner",
+          "bounded_action": "Сдать finite census, доступные genuine fixtures и таблицу supported/retired/unknown. Для supported scope расширить existing reader минимальным versioned mapping и actual replay test; иначе документировать direct-import-only support и actionable migration, не заявляя original broad replay исполненным.",
+          "default": "Dedicated new planning; direct adapter сохранён; unknown external history не считается доказанно отсутствующей."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "SCM-01",
+      "lane": "LANE-05",
+      "source_order": 57,
+      "source_ids": [
+        "B221",
+        "B222"
+      ],
+      "spec_path": "02_Пакеты/SCM-01.md",
+      "spec_sha256": "c5f91f6462e8c3f86295fb32b391567698e65ab45d80cef917d059bc65839dbe",
+      "trace_path": "04_Трассировка/SCM-01.json",
+      "trace_sha256": "9a2307da46e79ba516884e0f40f0379ed39453c2bad4ec46f589e10062f38ef9",
+      "requirement_ids": [
+        "REQ-SCM-01-01",
+        "REQ-SCM-01-02",
+        "REQ-SCM-01-03",
+        "REQ-SCM-01-04",
+        "REQ-SCM-01-05",
+        "REQ-SCM-01-06"
+      ],
+      "test_ids": [
+        "TEST-SCM-01-01",
+        "TEST-SCM-01-02",
+        "TEST-SCM-01-03",
+        "TEST-SCM-01-04",
+        "TEST-SCM-01-05",
+        "TEST-SCM-01-06",
+        "TEST-SCM-01-07",
+        "TEST-SCM-01-08"
+      ],
+      "shared_scenarios": [
+        "E02-I05-C"
+      ],
+      "dependencies": [
+        {
+          "packet": "GRF-02",
+          "relation": "Оригинальный predecessor: canonical graph identity/immutable adjacency."
+        },
+        {
+          "packet": "SCM-02",
+          "relation": "SCM-02 — единственный writer conditional-row/PSD и owner refit qualification; empirical root evidence требует joint conditioning, не removal non-ancestor."
+        },
+        {
+          "packet": "SCM-03",
+          "relation": "SCM-03 — единственный writer common closure/prepared-plan API и canonical stream coordinates; twin потребляет этот API, не копирует planner."
+        },
+        {
+          "packet": "GRF-03",
+          "relation": "Canonical static DAG/source disposition, temporal restriction не обходить."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-SCM-01-CLOSURE",
+          "question": "Какие declared law dependencies должен включать current supported posterior scope?",
+          "owner": "SCM-03 — единственный writer common closure/prepared-plan API; SCM-02 reviewer conditional-law, SCM-01 twin consumer",
+          "bounded_action": "Сопоставить finite profiles independent Gaussian, aligned empirical roots и fully observed polynomial residual; задать один closure interface с двумя arm scopes и evidence dependencies. Проверить irrelevant removal, needed ancestor и auxiliary observed joint-root controls.",
+          "default": "Не исключать зависимость только по отсутствию DAG edge; unsupported law остаётся conservative/limited, не exact."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "SCM-02",
+      "lane": "LANE-05",
+      "source_order": 58,
+      "source_ids": [
+        "B215",
+        "B223"
+      ],
+      "spec_path": "02_Пакеты/SCM-02.md",
+      "spec_sha256": "442a1b178533d695191df5d202bd5dcbc69d06130bac57b5293d51265570e7af",
+      "trace_path": "04_Трассировка/SCM-02.json",
+      "trace_sha256": "1bad193f324ce2b4c4e5c95adc09d4d92005294369c6e6753c1e6799aed5efc9",
+      "requirement_ids": [
+        "REQ-SCM-02-01",
+        "REQ-SCM-02-02",
+        "REQ-SCM-02-03",
+        "REQ-SCM-02-04",
+        "REQ-SCM-02-05",
+        "REQ-SCM-02-06",
+        "REQ-SCM-02-07",
+        "REQ-SCM-02-08"
+      ],
+      "test_ids": [
+        "TEST-SCM-02-01",
+        "TEST-SCM-02-02",
+        "TEST-SCM-02-03",
+        "TEST-SCM-02-04",
+        "TEST-SCM-02-05",
+        "TEST-SCM-02-06",
+        "TEST-SCM-02-07",
+        "TEST-SCM-02-08",
+        "TEST-SCM-02-09",
+        "TEST-SCM-02-10"
+      ],
+      "shared_scenarios": [
+        "E02-I05-C"
+      ],
+      "dependencies": [
+        {
+          "packet": "SCM-01",
+          "relation": "Оригинальный predecessor; shared carrier/predictor и twin relevance closure сохраняют joint evidence dependencies."
+        },
+        {
+          "packet": "SCM-03",
+          "relation": "SCM-03 — единственный writer common closure/prepared-plan API и canonical stream coordinates; inference/refit qualification остаётся SCM-02."
+        },
+        {
+          "packet": "GRF-03",
+          "relation": "Static declared DAG/source disposition для selected fit; temporal/partial support отдельно."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-SCM-02-PSD",
+          "question": "Какое нормированное factor representation сохраняет current public covariance contract и exact factual controls?",
+          "owner": "SCM-02 — conditional-row/PSD writer с независимым numerical reviewer",
+          "bounded_action": "Сравнить standardized-noise SVD factor с существующим covariance path на analytic2node, singular/full-factual и rescaled fixtures. Выбрать одно внутреннее representation с задокументированным epsilon/rank criterion, не внешний новый API.",
+          "default": "Никакого absolute covariance cutoff или artificial jitter; positive represented law сохраняется."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "SCM-03",
+      "lane": "LANE-05",
+      "source_order": 59,
+      "source_ids": [
+        "B224",
+        "B225"
+      ],
+      "spec_path": "02_Пакеты/SCM-03.md",
+      "spec_sha256": "339ba91d986feb8bb8669993aa05def00d1e5519b0bbab3fbf3099db7de69e94",
+      "trace_path": "04_Трассировка/SCM-03.json",
+      "trace_sha256": "4662e266f16156eea3c2a1e5c61b29993829bdf22639f668d1212b9707e72319",
+      "requirement_ids": [
+        "REQ-SCM-03-01",
+        "REQ-SCM-03-02",
+        "REQ-SCM-03-03",
+        "REQ-SCM-03-04",
+        "REQ-SCM-03-05",
+        "REQ-SCM-03-06",
+        "REQ-SCM-03-07"
+      ],
+      "test_ids": [
+        "TEST-SCM-03-01",
+        "TEST-SCM-03-02",
+        "TEST-SCM-03-03",
+        "TEST-SCM-03-04",
+        "TEST-SCM-03-05",
+        "TEST-SCM-03-06",
+        "TEST-SCM-03-07",
+        "TEST-SCM-03-08"
+      ],
+      "shared_scenarios": [
+        "E02-I05-C"
+      ],
+      "dependencies": [
+        {
+          "packet": "SCM-02",
+          "relation": "Оригинальный predecessor: posterior factor/joint conditioning; canonical coordinate fix согласован с numerical change."
+        },
+        {
+          "packet": "GRF-01",
+          "relation": "Оригинальный predecessor: intervention surgery и graph semantics."
+        },
+        {
+          "packet": "GRF-02",
+          "relation": "Оригинальный predecessor: immutable canonical identity/prepared adjacency."
+        },
+        {
+          "packet": "GRF-03",
+          "relation": "Existing canonical projection/disposition reuse, static/temporal boundary."
+        },
+        {
+          "packet": "SCM-01",
+          "relation": "Twin query-specific closure использует тот же supported-plan semantics, не отдельный parser."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-SCM-03-REPLAY",
+          "question": "Как закрепить исправленную posterior coordinate policy в existing replay provenance?",
+          "owner": "SCM-03 — canonical stream coordinates writer; SCM-02 numerical reviewer",
+          "bounded_action": "Проверить current schema/stream version fields и downstream readers; выбрать существующий computation-profile marker или минимальное versioned extension. Зафиксировать same-runtime tolerance, changed draws и unchanged target law, genuine historical bytes не менять.",
+          "default": "Canonical within accepted runtime; не обещать equivalence исторических draws или cross-version BLAS."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "FIT-01",
+      "lane": "LANE-05",
+      "source_order": 60,
+      "source_ids": [
+        "B54",
+        "B56"
+      ],
+      "spec_path": "02_Пакеты/FIT-01.md",
+      "spec_sha256": "ac4b636b2db998d6a49f55514194351ac58160b0b366ddffe92f911b8f8ae611",
+      "trace_path": "04_Трассировка/FIT-01.json",
+      "trace_sha256": "ebfe9b071643ca9cfe391c01daad119cdb4ee97be92c1f163915139fc2ed4544",
+      "requirement_ids": [
+        "REQ-FIT-01-01",
+        "REQ-FIT-01-02",
+        "REQ-FIT-01-03",
+        "REQ-FIT-01-04",
+        "REQ-FIT-01-05",
+        "REQ-FIT-01-06",
+        "REQ-FIT-01-07",
+        "REQ-FIT-01-08"
+      ],
+      "test_ids": [
+        "TEST-FIT-01-01",
+        "TEST-FIT-01-02",
+        "TEST-FIT-01-03",
+        "TEST-FIT-01-04",
+        "TEST-FIT-01-05",
+        "TEST-FIT-01-06",
+        "TEST-FIT-01-07",
+        "TEST-FIT-01-08",
+        "TEST-FIT-01-09",
+        "TEST-FIT-01-10"
+      ],
+      "shared_scenarios": [
+        "E02-I05-C"
+      ],
+      "dependencies": [
+        {
+          "packet": "LANE-06",
+          "relation": "Переиспользовать actual worker lifecycle/receipt/CAS; найденные дефекты admission направлять владельцам, не дублировать scheduler."
+        },
+        {
+          "packet": "SCM-01/SCM-02/SCM-03",
+          "relation": "Совместное окно E02-I05-C, но TMLE nuisance cache не объявлять SCM fit/twin backend. Независимые branches сохраняют собственные oracles."
+        }
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-FIT-01-RESOURCE",
+          "question": "Даёт ли новая внутренняя параллельность полезный выигрыш на заявленном workload?",
+          "owner": "Владельцы tmle_core и существующего LocalWorkerPool; технический reviewer",
+          "bounded_action": "Сдать TEST-07 таблицу cold/warm отдельно, сравнить одинаковый scientific plan и memory/wait cost. Выбрать сохранение serial-inner либо отдельное расширение admission с показанным отсутствием cyclic wait.",
+          "default": "Serial folds inside admitted job; это допустимый результат, не незавершённый обязательный fan-out."
+        },
+        {
+          "id": "DEC-FIT-01-SCIENTIFIC",
+          "question": "Для какого реального inference profile заявляется применимость?",
+          "owner": "Владелец scientific use case",
+          "bounded_action": "Назвать independence/positivity/outcome basis и реальный consumer; synthetic binary pilot не переносить на неизвестный профиль. При отсутствии оснований сохранить conditional candidate и ограничение.",
+          "default": "Квалификация механизма не создаёт эмпирической или институциональной authority."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "STA-01",
+      "lane": "LANE-06",
+      "source_order": 61,
+      "source_ids": [
+        "B57",
+        "B58",
+        "B59"
+      ],
+      "spec_path": "02_Пакеты/STA-01.md",
+      "spec_sha256": "fe1c11c3376f631fb1e36723e4fb0678066a72c57490c4aac59ed0eff93cc683",
+      "trace_path": "04_Трассировка/STA-01.json",
+      "trace_sha256": "29463ca09b918f343174fa498515e301229b58d07427181e0d92955702dff72c",
+      "requirement_ids": [
+        "REQ-STA-01-01",
+        "REQ-STA-01-02",
+        "REQ-STA-01-03",
+        "REQ-STA-01-04",
+        "REQ-STA-01-05"
+      ],
+      "test_ids": [
+        "TEST-STA-01-01",
+        "TEST-STA-01-02",
+        "TEST-STA-01-03",
+        "TEST-STA-01-04",
+        "TEST-STA-01-05"
+      ],
+      "shared_scenarios": [
+        "E02-I06-A",
+        "E02-I06-B",
+        "E02-I06-C"
+      ],
+      "dependencies": [
+        "STA-02: cache identity contract",
+        "RES-01 / RES-02: checkpoint readers",
+        "RUN-03 / DUR-01 / DUR-02: external effects"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "STA-02",
+      "lane": "LANE-06",
+      "source_order": 62,
+      "source_ids": [
+        "B60",
+        "B61",
+        "B62"
+      ],
+      "spec_path": "02_Пакеты/STA-02.md",
+      "spec_sha256": "77dfdc8b59e5d65b6474e9915e6dabc355daffd6a72b91dc92d98a4b8bd361a4",
+      "trace_path": "04_Трассировка/STA-02.json",
+      "trace_sha256": "805a6b4ada6c6524619fe33b972bf9cd8b616782c6dabc3a4c351677c538ca2d",
+      "requirement_ids": [
+        "REQ-STA-02-01",
+        "REQ-STA-02-02",
+        "REQ-STA-02-03",
+        "REQ-STA-02-04"
+      ],
+      "test_ids": [
+        "TEST-STA-02-01",
+        "TEST-STA-02-02",
+        "TEST-STA-02-03",
+        "TEST-STA-02-04"
+      ],
+      "shared_scenarios": [
+        "E02-I06-A"
+      ],
+      "dependencies": [
+        "STA-01"
+      ],
+      "open_decisions": [
+        "DEC-STA-02-01: владелец causal consumer выбирает один поддержанный manual/hybrid route по текущим API. Выход — field-by-field mapping + executable positive/unsupported controls; отсутствие native backend блокирует этот witness, не R01 repair."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "EXE-01",
+      "lane": "LANE-06",
+      "source_order": 63,
+      "source_ids": [
+        "B51",
+        "B52",
+        "B55"
+      ],
+      "spec_path": "02_Пакеты/EXE-01.md",
+      "spec_sha256": "3847d3d580e2a05b39dfcb2ec6636d6907d22cf9295aeb42e8231a15e26b7519",
+      "trace_path": "04_Трассировка/EXE-01.json",
+      "trace_sha256": "1fa6106d9bf422671517a72241152524d666817177b3976ad6d6460c3c6ae7c1",
+      "requirement_ids": [
+        "REQ-EXE-01-01",
+        "REQ-EXE-01-02",
+        "REQ-EXE-01-03",
+        "REQ-EXE-01-04"
+      ],
+      "test_ids": [
+        "TEST-EXE-01-01",
+        "TEST-EXE-01-02",
+        "TEST-EXE-01-03",
+        "TEST-EXE-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I06-A",
+        "E02-I06-B",
+        "E02-I06-C"
+      ],
+      "dependencies": [
+        "STA-01",
+        "RUN-01"
+      ],
+      "open_decisions": [
+        "DEC-EXE-01-01: выбрать transport callback adapter либо receipt signal по меньшей изменяемой поверхности после чтения полного helper. Обязательный выход одинаков: no wait before release в controlled race, bounded arbitrary callbacks, cancellation/shutdown invariants."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "EXE-02",
+      "lane": "LANE-06",
+      "source_order": 64,
+      "source_ids": [
+        "B77"
+      ],
+      "spec_path": "02_Пакеты/EXE-02.md",
+      "spec_sha256": "3337bc17484d05ba1f2daa3b8de618a85383ae1e66e0818891bf10f0376e1fe7",
+      "trace_path": "04_Трассировка/EXE-02.json",
+      "trace_sha256": "6e7581466d09fc18e4e957e49c8af927bb05843afe77ace875f904584bbc2008",
+      "requirement_ids": [
+        "REQ-EXE-02-01",
+        "REQ-EXE-02-02",
+        "REQ-EXE-02-03"
+      ],
+      "test_ids": [
+        "TEST-EXE-02-01",
+        "TEST-EXE-02-02",
+        "TEST-EXE-02-03"
+      ],
+      "shared_scenarios": [
+        "E02-I06-A",
+        "E02-I06-B"
+      ],
+      "dependencies": [
+        "RES-02",
+        "RES-01"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "RES-01",
+      "lane": "LANE-06",
+      "source_order": 65,
+      "source_ids": [
+        "B63",
+        "B70",
+        "B71"
+      ],
+      "spec_path": "02_Пакеты/RES-01.md",
+      "spec_sha256": "ccd032e287044d427a9f62c53e705a8c8b048a61ad54e58f8bec711c21558ba2",
+      "trace_path": "04_Трассировка/RES-01.json",
+      "trace_sha256": "77f06450332ab24f2d67db9f91f594c412c4ce56d2740a159946d039033c2799",
+      "requirement_ids": [
+        "REQ-RES-01-01",
+        "REQ-RES-01-02",
+        "REQ-RES-01-03",
+        "REQ-RES-01-04"
+      ],
+      "test_ids": [
+        "TEST-RES-01-01",
+        "TEST-RES-01-02",
+        "TEST-RES-01-03",
+        "TEST-RES-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I06-B"
+      ],
+      "dependencies": [
+        "STA-02",
+        "RES-02"
+      ],
+      "open_decisions": [
+        "DEC-RES-01-01: actual consumer census определяет поддержку list/null grammar. Выход до acceptance — finite table path/type/null semantics + tests; не объявлять arbitrary JSON graph поддержанным.",
+        "DEC-RES-01-02: tail выбирается только по measurement; отсутствие tail не дефект при выполненном exact-dedupe контракте."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "RES-02",
+      "lane": "LANE-06",
+      "source_order": 66,
+      "source_ids": [
+        "B72",
+        "B73"
+      ],
+      "spec_path": "02_Пакеты/RES-02.md",
+      "spec_sha256": "3c4d4909130128c47f9f8f6231f5a1c70ee7741ba561113497f0a0505447024a",
+      "trace_path": "04_Трассировка/RES-02.json",
+      "trace_sha256": "b18da41c167139f3f78dfc83e1d3185fcee9351f86c87ba8941c2384ae142222",
+      "requirement_ids": [
+        "REQ-RES-02-01",
+        "REQ-RES-02-02",
+        "REQ-RES-02-03",
+        "REQ-RES-02-04"
+      ],
+      "test_ids": [
+        "TEST-RES-02-01",
+        "TEST-RES-02-02",
+        "TEST-RES-02-03",
+        "TEST-RES-02-04"
+      ],
+      "shared_scenarios": [
+        "E02-I06-B"
+      ],
+      "dependencies": [
+        "STA-01"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "RES-03",
+      "lane": "LANE-06",
+      "source_order": 67,
+      "source_ids": [
+        "B13"
+      ],
+      "spec_path": "02_Пакеты/RES-03.md",
+      "spec_sha256": "2ffb78bef514af0fdb9db4035e3268ecf6e253b147d5c23db6e76259bbe0efb8",
+      "trace_path": "04_Трассировка/RES-03.json",
+      "trace_sha256": "94d889b2feec4c6b66fbee15d3957f1dc616c1dda1c2af3e897ba2a406676fc2",
+      "requirement_ids": [
+        "REQ-RES-03-01",
+        "REQ-RES-03-02",
+        "REQ-RES-03-03"
+      ],
+      "test_ids": [
+        "TEST-RES-03-01",
+        "TEST-RES-03-02",
+        "TEST-RES-03-03"
+      ],
+      "shared_scenarios": [
+        "E02-I06-B"
+      ],
+      "dependencies": [
+        "CYC-02",
+        "CMP-01"
+      ],
+      "open_decisions": [
+        "DEC-RES-03-01: после одной real same-leaf trace выбрать no-code existing reader, projection wiring или typed partial extension у existing cycle owner. Выход обязателен: exact ref→fresh public result/error; отсутствие supported N5 environment означает NOT_RUN именно этого witness, не закрытие G02."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "RUN-01",
+      "lane": "LANE-06",
+      "source_order": 68,
+      "source_ids": [
+        "B14",
+        "B40",
+        "B69",
+        "B95",
+        "LA-057"
+      ],
+      "spec_path": "02_Пакеты/RUN-01.md",
+      "spec_sha256": "bad71176244d5179e9252638f98b81ab5399656979d74715e8e324105b54e597",
+      "trace_path": "04_Трассировка/RUN-01.json",
+      "trace_sha256": "06b810c754b4259b5269a066e0a0f4ba77c931141bb284e5f10104400ac5fc6a",
+      "requirement_ids": [
+        "REQ-RUN-01-01",
+        "REQ-RUN-01-02",
+        "REQ-RUN-01-03"
+      ],
+      "test_ids": [
+        "TEST-RUN-01-01",
+        "TEST-RUN-01-02",
+        "TEST-RUN-01-03"
+      ],
+      "shared_scenarios": [
+        "E02-I06-C"
+      ],
+      "dependencies": [],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "RUN-02",
+      "lane": "LANE-06",
+      "source_order": 69,
+      "source_ids": [
+        "B24"
+      ],
+      "spec_path": "02_Пакеты/RUN-02.md",
+      "spec_sha256": "ebebd0c2f88692edeb925ff72baf200c36fa42f3dbb056b55bb807588b60fff3",
+      "trace_path": "04_Трассировка/RUN-02.json",
+      "trace_sha256": "b745f3333e6c2bad85eebe19c27b8909247795d44766d36cb60c3e2c5d4d1757",
+      "requirement_ids": [
+        "REQ-RUN-02-01",
+        "REQ-RUN-02-02",
+        "REQ-RUN-02-03"
+      ],
+      "test_ids": [
+        "TEST-RUN-02-01",
+        "TEST-RUN-02-02",
+        "TEST-RUN-02-03"
+      ],
+      "shared_scenarios": [
+        "E02-I06-C"
+      ],
+      "dependencies": [
+        "RUN-01"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "RUN-03",
+      "lane": "LANE-06",
+      "source_order": 70,
+      "source_ids": [
+        "B39",
+        "B96"
+      ],
+      "spec_path": "02_Пакеты/RUN-03.md",
+      "spec_sha256": "7595cf5b163f91df6171afbf4fe78a38f8fe44d72d1b4516035cb8a87b98c828",
+      "trace_path": "04_Трассировка/RUN-03.json",
+      "trace_sha256": "0eeaa49994386e6e4231c9bbf402ddf6d81986e6d85ee0c820cb71e99a2d1142",
+      "requirement_ids": [
+        "REQ-RUN-03-01",
+        "REQ-RUN-03-02",
+        "REQ-RUN-03-03",
+        "REQ-RUN-03-04"
+      ],
+      "test_ids": [
+        "TEST-RUN-03-01",
+        "TEST-RUN-03-02",
+        "TEST-RUN-03-03",
+        "TEST-RUN-03-04"
+      ],
+      "shared_scenarios": [
+        "E02-I06-C",
+        "E02-I06-B"
+      ],
+      "dependencies": [
+        "STA-01",
+        "RUN-01"
+      ],
+      "open_decisions": [
+        "DEC-RUN-03-01: выбрать load-bearing category representation у current NodeError/classifier по actual producer. Выход — таблица return/raise/IPC equivalence и legacy handling; если same-cause route отсутствует, ограничить claim, не объявить глобальный parity PASS."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "DUR-01",
+      "lane": "LANE-06",
+      "source_order": 71,
+      "source_ids": [
+        "B37"
+      ],
+      "spec_path": "02_Пакеты/DUR-01.md",
+      "spec_sha256": "2120e9a7fe42e6db303efab1576ad12b26f6aaf4ecc42a3448dbe2439018f529",
+      "trace_path": "04_Трассировка/DUR-01.json",
+      "trace_sha256": "a30f29667ac19c58bde232932c53599df98ad0446be60a08f816e383da195a9e",
+      "requirement_ids": [
+        "REQ-DUR-01-01",
+        "REQ-DUR-01-02",
+        "REQ-DUR-01-03"
+      ],
+      "test_ids": [
+        "TEST-DUR-01-01",
+        "TEST-DUR-01-02",
+        "TEST-DUR-01-03"
+      ],
+      "shared_scenarios": [
+        "E02-I06-C"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "DEC-DUR-01-01: release owner объявляет поддержанные filesystem/coordination profiles и trusted recovery source. Выход — исполнимая restore процедура и witness; без источника blocked только restore claim, известный ack fix выполняется."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "DUR-02",
+      "lane": "LANE-06",
+      "source_order": 72,
+      "source_ids": [
+        "B38",
+        "B78"
+      ],
+      "spec_path": "02_Пакеты/DUR-02.md",
+      "spec_sha256": "622d30f3bae19030df59bc7e1108ad8425419c1c65160abaf68c1aa27d68eb41",
+      "trace_path": "04_Трассировка/DUR-02.json",
+      "trace_sha256": "e9c155e844dc05d155ab8d43d24d4d1fafb2f4db9e8141c080310244a9595090",
+      "requirement_ids": [
+        "REQ-DUR-02-01",
+        "REQ-DUR-02-02",
+        "REQ-DUR-02-03"
+      ],
+      "test_ids": [
+        "TEST-DUR-02-01",
+        "TEST-DUR-02-02",
+        "TEST-DUR-02-03"
+      ],
+      "shared_scenarios": [
+        "E02-I06-C",
+        "E02-I06-B"
+      ],
+      "dependencies": [
+        "RUN-03",
+        "RES-02"
+      ],
+      "open_decisions": [
+        "DEC-DUR-02-01: выбрать один поддержанный primary/local pair и operation evidence для reconciliation. Выход — real completed/remaining/ambiguous table и positive continuation witness. Внешний непримиримый effect блокирует только соответствующее продолжение."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "WIRE-01",
+      "lane": "LANE-06",
+      "source_order": 73,
+      "source_ids": [
+        "B94"
+      ],
+      "spec_path": "02_Пакеты/WIRE-01.md",
+      "spec_sha256": "027fcccd16ec48132506eb05a059811f6279be734661ef0e9fd476b1611bd81d",
+      "trace_path": "04_Трассировка/WIRE-01.json",
+      "trace_sha256": "6dbc8d931bc78db12d2f05416cc600dcff79ccc6eb72f00731d9ed5e297ec6e1",
+      "requirement_ids": [
+        "REQ-WIRE-01-01",
+        "REQ-WIRE-01-02",
+        "REQ-WIRE-01-03"
+      ],
+      "test_ids": [
+        "TEST-WIRE-01-01",
+        "TEST-WIRE-01-02",
+        "TEST-WIRE-01-03"
+      ],
+      "shared_scenarios": [
+        "E02-I06-C"
+      ],
+      "dependencies": [],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAS-01",
+      "lane": "LANE-06",
+      "source_order": 74,
+      "source_ids": [
+        "B150",
+        "B151",
+        "B153"
+      ],
+      "spec_path": "02_Пакеты/CAS-01.md",
+      "spec_sha256": "7a34468d33afe41a8c005c8698a1593bc91936831adda2f1de883859764695d4",
+      "trace_path": "04_Трассировка/CAS-01.json",
+      "trace_sha256": "b259f96f43167d6a2cccf43a2f485b3a5c8b1fc2c0cd121ea7a5b424a83137b4",
+      "requirement_ids": [
+        "REQ-CAS-01-01",
+        "REQ-CAS-01-02",
+        "REQ-CAS-01-03"
+      ],
+      "test_ids": [
+        "TEST-CAS-01-01",
+        "TEST-CAS-01-02",
+        "TEST-CAS-01-03"
+      ],
+      "shared_scenarios": [
+        "E02-I06-D"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "До native квалификации назвать поддержанный filesystem и допустимый recovery/quarantine owner. Без этого G03 остаётся открытым operational limitation, не скрытым PASS."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAS-02",
+      "lane": "LANE-06",
+      "source_order": 75,
+      "source_ids": [
+        "B148",
+        "B149"
+      ],
+      "spec_path": "02_Пакеты/CAS-02.md",
+      "spec_sha256": "1cb1efa58b9fde425e41728b5a662f3296c118d814eaf58c966f67c846b6fa09",
+      "trace_path": "04_Трассировка/CAS-02.json",
+      "trace_sha256": "ebe8d6a431a114f5abb35ed75fd6c1d78d3998c00c49ec158e1e6fca7bccac08",
+      "requirement_ids": [
+        "REQ-CAS-02-01",
+        "REQ-CAS-02-02",
+        "REQ-CAS-02-03"
+      ],
+      "test_ids": [
+        "TEST-CAS-02-01",
+        "TEST-CAS-02-02",
+        "TEST-CAS-02-03"
+      ],
+      "shared_scenarios": [
+        "E02-I06-D"
+      ],
+      "dependencies": [
+        "CAS-01"
+      ],
+      "open_decisions": [
+        "Согласовать канал передачи retained generation path и bounded retention policy; отсутствие автоматического cleanup допустимо, потеря чужих данных — нет.",
+        "Для fsync после replace зафиксировать существующий error/report surface и поддержанный filesystem; не изобретать гарантированный rollback."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAS-03",
+      "lane": "LANE-06",
+      "source_order": 76,
+      "source_ids": [
+        "B152",
+        "B154",
+        "B155"
+      ],
+      "spec_path": "02_Пакеты/CAS-03.md",
+      "spec_sha256": "b49d9e2c1ce5d49416880fd19deb519f5953e307ee6b08066dcef2d7b290bf31",
+      "trace_path": "04_Трассировка/CAS-03.json",
+      "trace_sha256": "9fb5462f103610008c7a6be4f911b3c2e8c1fb84c72e1ed9f3f36aeaeb278b3f",
+      "requirement_ids": [
+        "REQ-CAS-03-01",
+        "REQ-CAS-03-02",
+        "REQ-CAS-03-03",
+        "REQ-CAS-03-04"
+      ],
+      "test_ids": [
+        "TEST-CAS-03-01",
+        "TEST-CAS-03-02",
+        "TEST-CAS-03-03",
+        "TEST-CAS-03-04"
+      ],
+      "shared_scenarios": [
+        "E02-I06-D"
+      ],
+      "dependencies": [
+        "CAS-01"
+      ],
+      "open_decisions": [
+        "Выбрать private cancellation propagation форму после чтения всех scanner callers; сохранить existing public status vocabulary.",
+        "Определить actual request-scope authorizer owner для native G02. Если route отсутствует, реализовать узкое явное caller wiring либо оставить capability недоказанной; одного signal test недостаточно."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "REP-01",
+      "lane": "LANE-06",
+      "source_order": 77,
+      "source_ids": [
+        "LA-033"
+      ],
+      "spec_path": "02_Пакеты/REP-01.md",
+      "spec_sha256": "d190dfa5bae718ae744c2b79a0c5f3a33daf53c4acf50fd3cc42d3808a68d3d8",
+      "trace_path": "04_Трассировка/REP-01.json",
+      "trace_sha256": "a79aecbbdfcf2951653b449b534760eb91c7bda8cd206f2b3f959dc3efa92c8d",
+      "requirement_ids": [
+        "REQ-REP-01-01",
+        "REQ-REP-01-02",
+        "REQ-REP-01-03"
+      ],
+      "test_ids": [
+        "TEST-REP-01-01",
+        "TEST-REP-01-02",
+        "TEST-REP-01-03"
+      ],
+      "shared_scenarios": [
+        "E02-I06-B"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "Зафиксировать реально поддержанные historical manifest версии и окно old module support; нет evidence — сохранить compatibility, не удалять.",
+        "CI-bounded scientific interpretation требует отдельного domain oracle, не переименования existing tolerance calculation."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAN-01",
+      "lane": "LANE-06",
+      "source_order": 78,
+      "source_ids": [
+        "LA-021"
+      ],
+      "spec_path": "02_Пакеты/CAN-01.md",
+      "spec_sha256": "7e5637077c3f745d94dc09d8210a0378af6e34bcbc5b338a2881b7d4ec024c25",
+      "trace_path": "04_Трассировка/CAN-01.json",
+      "trace_sha256": "a0129255fb4f607b4c5e5ea08b44c180b50efa9cf3d89f9876a21cd85e67647e",
+      "requirement_ids": [
+        "REQ-CAN-01-01",
+        "REQ-CAN-01-02",
+        "REQ-CAN-01-03"
+      ],
+      "test_ids": [
+        "TEST-CAN-01-01",
+        "TEST-CAN-01-02",
+        "TEST-CAN-01-03"
+      ],
+      "shared_scenarios": [
+        "E02-I06-E",
+        "E02-I06-D"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "Назвать supported historical corpus и решить, нужен ли alias candidate consumer; если реального корпуса нет, не заявлять blanket compatibility.",
+        "Обновление двух expectations требует явного записанного behavior-delta решения; просто сделать suite green не acceptance."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "MIG-01",
+      "lane": "LANE-06",
+      "source_order": 79,
+      "source_ids": [
+        "LA-010",
+        "LA-049"
+      ],
+      "spec_path": "02_Пакеты/MIG-01.md",
+      "spec_sha256": "4595ddebbb557ac7babee6b2b99f5799f7f931bf14d5804118f9ba7231ef1dbd",
+      "trace_path": "04_Трассировка/MIG-01.json",
+      "trace_sha256": "78a7ba2a779977e356db60ff29385d8054e4e7254dd53fd8c07354f47874a98b",
+      "requirement_ids": [
+        "REQ-MIG-01-01",
+        "REQ-MIG-01-02",
+        "REQ-MIG-01-03"
+      ],
+      "test_ids": [
+        "TEST-MIG-01-01",
+        "TEST-MIG-01-02",
+        "TEST-MIG-01-03"
+      ],
+      "shared_scenarios": [
+        "E02-I06-E"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "Если cleanup сам запрещён OS, выбрать приоритет diagnostic/exception chaining без сокрытия исходного отказа; document residual path.",
+        "Retirement error/tuple/auto_migrate только отдельным compatibility решением; в этом пакете default — сохранить."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "MIG-02",
+      "lane": "LANE-06",
+      "source_order": 80,
+      "source_ids": [
+        "LA-048"
+      ],
+      "spec_path": "02_Пакеты/MIG-02.md",
+      "spec_sha256": "853a9ea2950100adc1ea1474bed8179e9ff544aede23be2c6f279e706df9e44e",
+      "trace_path": "04_Трассировка/MIG-02.json",
+      "trace_sha256": "53bf7dbdf4017fb7928013e98a151a9645fea9634e9da949487a7fba5471539e",
+      "requirement_ids": [
+        "REQ-MIG-02-01",
+        "REQ-MIG-02-02",
+        "REQ-MIG-02-03"
+      ],
+      "test_ids": [
+        "TEST-MIG-02-01",
+        "TEST-MIG-02-02",
+        "TEST-MIG-02-03"
+      ],
+      "shared_scenarios": [
+        "E02-I06-E"
+      ],
+      "dependencies": [
+        "MIG-01"
+      ],
+      "open_decisions": [
+        "Зафиксировать supported historical layouts и CWD/root binding; при недоступном corpus G03 остаётся qualified limitation.",
+        "Shared cleanup evidence требует принятого MIG-01 patch; native happy path MIG-02 не закрывает его сам."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "MIG-04",
+      "lane": "LANE-06",
+      "source_order": 81,
+      "source_ids": [
+        "LA-050"
+      ],
+      "spec_path": "02_Пакеты/MIG-04.md",
+      "spec_sha256": "da87b38791872dd7762691c98387d33f48261ad3de794387f8ae1587b4b9580e",
+      "trace_path": "04_Трассировка/MIG-04.json",
+      "trace_sha256": "75237935d407a6f902447ec4614ff7e0c5a492e2852adde26dac02ef88360d41",
+      "requirement_ids": [
+        "REQ-MIG-04-01",
+        "REQ-MIG-04-02",
+        "REQ-MIG-04-03"
+      ],
+      "test_ids": [
+        "TEST-MIG-04-01",
+        "TEST-MIG-04-02",
+        "TEST-MIG-04-03"
+      ],
+      "shared_scenarios": [
+        "E02-I06-E"
+      ],
+      "dependencies": [
+        "MIG-01"
+      ],
+      "open_decisions": [
+        "Получить supported historical profiles; если нет, bounded matrix не заявлять полным historical PASS.",
+        "Решить, требуется ли optional target validation реальному consumer; по умолчанию сохранить честный format-only контракт, без forced stricter default."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "MIG-05",
+      "lane": "LANE-06",
+      "source_order": 82,
+      "source_ids": [
+        "LA-047"
+      ],
+      "spec_path": "02_Пакеты/MIG-05.md",
+      "spec_sha256": "c43fad07954078f6418d740daee490b6c00c3b14d2ac05f8696419da9a86ebb2",
+      "trace_path": "04_Трассировка/MIG-05.json",
+      "trace_sha256": "1ea3190f21cf89033767f9eef5bd86904fb9084e19203deb4caef30f1dbb8025",
+      "requirement_ids": [
+        "REQ-MIG-05-01",
+        "REQ-MIG-05-02",
+        "REQ-MIG-05-03",
+        "REQ-MIG-05-04"
+      ],
+      "test_ids": [
+        "TEST-MIG-05-01",
+        "TEST-MIG-05-02",
+        "TEST-MIG-05-03",
+        "TEST-MIG-05-04"
+      ],
+      "shared_scenarios": [
+        "E02-I06-E"
+      ],
+      "dependencies": [
+        "MIG-01 / MIG-02 / MIG-04: реальные converter/reader witnesses",
+        "CAN-01: исторический profile contract"
+      ],
+      "open_decisions": [
+        "DEC-MIG-05-01: inventory supported external callbacks/historical inputs определяет release owner перед acceptance. Выход: конечный список import paths, payload hashes и unsupported scope. Отсутствующий внешний corpus блокирует только соответствующий compatibility claim, не узкий fingerprint fix."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "UDF-01",
+      "lane": "LANE-07",
+      "source_order": 83,
+      "source_ids": [
+        "LA-030",
+        "LA-031"
+      ],
+      "spec_path": "02_Пакеты/UDF-01.md",
+      "spec_sha256": "a3ca06bf7e61dc64d8b5f962d3a4cb7a7f7a2d55e98650acc17d5411e89c4d94",
+      "trace_path": "04_Трассировка/UDF-01.json",
+      "trace_sha256": "2cbb165026ddd53cbc518769715238f26087b0c4421295f306cf36b029d8bdbe",
+      "requirement_ids": [
+        "REQ-UDF-01-01",
+        "REQ-UDF-01-02",
+        "REQ-UDF-01-03",
+        "REQ-UDF-01-04"
+      ],
+      "test_ids": [
+        "TEST-UDF-01-01",
+        "TEST-UDF-01-02",
+        "TEST-UDF-01-03",
+        "TEST-UDF-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I07-A"
+      ],
+      "dependencies": [
+        "UDF-01 sole shared facade/import writer; OBS-01/UDF-02 потребляют C83-R01",
+        "LA-031 accountable owner UDF-02; общий E02-I07-A"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "OBS-01",
+      "lane": "LANE-07",
+      "source_order": 84,
+      "source_ids": [
+        "B146",
+        "LA-031"
+      ],
+      "spec_path": "02_Пакеты/OBS-01.md",
+      "spec_sha256": "afadaf0e6180e7f75a52856a20be04598216ab775cc51be7dcbadb2c147b9b45",
+      "trace_path": "04_Трассировка/OBS-01.json",
+      "trace_sha256": "bbd350102dd5642bfacff9af1da6ad47efc8ade6813526e3277abea30b31d035",
+      "requirement_ids": [
+        "REQ-OBS-01-01",
+        "REQ-OBS-01-02",
+        "REQ-OBS-01-03",
+        "REQ-OBS-01-04"
+      ],
+      "test_ids": [
+        "TEST-OBS-01-01",
+        "TEST-OBS-01-02",
+        "TEST-OBS-01-03",
+        "TEST-OBS-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I07-A"
+      ],
+      "dependencies": [
+        "UDF-01 predecessor/shared import owner; UDF-02 accountable LA-031",
+        "OBS-02 reader qualification; один writer sources/common"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "UDF-02",
+      "lane": "LANE-07",
+      "source_order": 85,
+      "source_ids": [
+        "LA-031"
+      ],
+      "spec_path": "02_Пакеты/UDF-02.md",
+      "spec_sha256": "9867ff8fdea07af9144d4d62e9872adfa80a20a87e6a60e0a8f3e608dd4956a4",
+      "trace_path": "04_Трассировка/UDF-02.json",
+      "trace_sha256": "7729d4983d8da7866f1c42a157831d00a323ec0c6b40b6a4536855c00f2c48f8",
+      "requirement_ids": [
+        "REQ-UDF-02-01",
+        "REQ-UDF-02-02",
+        "REQ-UDF-02-03",
+        "REQ-UDF-02-04"
+      ],
+      "test_ids": [
+        "TEST-UDF-02-01",
+        "TEST-UDF-02-02",
+        "TEST-UDF-02-03",
+        "TEST-UDF-02-04"
+      ],
+      "shared_scenarios": [
+        "E02-I07-A"
+      ],
+      "dependencies": [
+        "UDF-01 и OBS-01 prerequisites; UDF02 accountable LA-031",
+        "Foundry binding owner co-review; OBS02 shared sources writer"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "OBS-02",
+      "lane": "LANE-07",
+      "source_order": 86,
+      "source_ids": [
+        "B147"
+      ],
+      "spec_path": "02_Пакеты/OBS-02.md",
+      "spec_sha256": "b0944005cb79c59f6a69ffb9fc1aa73af98cfabcd0a9eb756814d0f420f586ac",
+      "trace_path": "04_Трассировка/OBS-02.json",
+      "trace_sha256": "e626c26f3603824b93d2a6361e455c8c66d4f1b66afc906e352d9075350816f2",
+      "requirement_ids": [
+        "REQ-OBS-02-01",
+        "REQ-OBS-02-02",
+        "REQ-OBS-02-03",
+        "REQ-OBS-02-04"
+      ],
+      "test_ids": [
+        "TEST-OBS-02-01",
+        "TEST-OBS-02-02",
+        "TEST-OBS-02-03",
+        "TEST-OBS-02-04"
+      ],
+      "shared_scenarios": [
+        "E02-I07-A"
+      ],
+      "dependencies": [
+        "UDF-02 predecessor; UDF-01 shared import fix; OBS-01 periods",
+        "Один writer sources.py; общий E02-I07-A"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "UDF-04",
+      "lane": "LANE-07",
+      "source_order": 87,
+      "source_ids": [
+        "LA-029"
+      ],
+      "spec_path": "02_Пакеты/UDF-04.md",
+      "spec_sha256": "4e2d94f006a29013606b64217cc78e0dcb33d40319b3984af231893be47adbde",
+      "trace_path": "04_Трассировка/UDF-04.json",
+      "trace_sha256": "2e584a08d4e64809c8e0969616387058159ddc1a508c40df0685978b848b80ee",
+      "requirement_ids": [
+        "REQ-UDF-04-01",
+        "REQ-UDF-04-02",
+        "REQ-UDF-04-03",
+        "REQ-UDF-04-04",
+        "REQ-UDF-04-05"
+      ],
+      "test_ids": [
+        "TEST-UDF-04-01",
+        "TEST-UDF-04-02",
+        "TEST-UDF-04-03",
+        "TEST-UDF-04-04",
+        "TEST-UDF-04-05"
+      ],
+      "shared_scenarios": [
+        "E02-I07-A"
+      ],
+      "dependencies": [
+        "UDF-01 shared import owner; no required original predecessor",
+        "Ops sole writer receipt plugin/commands; server qualification отдельным разрешённым job"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "UDF-05",
+      "lane": "LANE-07",
+      "source_order": 88,
+      "source_ids": [
+        "LA-032"
+      ],
+      "spec_path": "02_Пакеты/UDF-05.md",
+      "spec_sha256": "a8eea98a6047d03467982f59b7760a17f8f404ca413825fef6675f7755b80d40",
+      "trace_path": "04_Трассировка/UDF-05.json",
+      "trace_sha256": "655de8e77fe7bee789bacfc1eea942a9e8d6b54c9c615a3967a02dc4ed9facf6",
+      "requirement_ids": [
+        "REQ-UDF-05-01",
+        "REQ-UDF-05-02",
+        "REQ-UDF-05-03",
+        "REQ-UDF-05-04",
+        "REQ-UDF-05-05",
+        "REQ-UDF-05-06"
+      ],
+      "test_ids": [
+        "TEST-UDF-05-01",
+        "TEST-UDF-05-02",
+        "TEST-UDF-05-03",
+        "TEST-UDF-05-04",
+        "TEST-UDF-05-05",
+        "TEST-UDF-05-06"
+      ],
+      "shared_scenarios": [
+        "E02-I07-B"
+      ],
+      "dependencies": [
+        "E02-I07-B shared with FED-01/FED-02; existing CAS/generation contract owners LANE-06/08"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "FED-01",
+      "lane": "LANE-07",
+      "source_order": 89,
+      "source_ids": [
+        "B138",
+        "B140",
+        "B141",
+        "B145"
+      ],
+      "spec_path": "02_Пакеты/FED-01.md",
+      "spec_sha256": "11a0343edb80a874d00ff8af5e5add848a69284b12ed6db3857959a889fc5b44",
+      "trace_path": "04_Трассировка/FED-01.json",
+      "trace_sha256": "cfa8c87f56fbc02e5637423d1ff2dd85d201ba1bcb65159b6b149573e9b0488d",
+      "requirement_ids": [
+        "REQ-FED-01-01",
+        "REQ-FED-01-02",
+        "REQ-FED-01-03",
+        "REQ-FED-01-04",
+        "REQ-FED-01-05"
+      ],
+      "test_ids": [
+        "TEST-FED-01-01",
+        "TEST-FED-01-02",
+        "TEST-FED-01-03",
+        "TEST-FED-01-04",
+        "TEST-FED-01-05"
+      ],
+      "shared_scenarios": [
+        "E02-I07-B"
+      ],
+      "dependencies": [
+        "FED-02 shares composer/resolver mutex; UDF-05 общий E02-I07-B",
+        "Не переносить numeric requirements в новый общий provenance owner",
+        "FED-01 proposes shared finite-binary64 numeric_reductions owner; UQS-01 consumer; no duplicate Fabric/Scientist implementations."
+      ],
+      "open_decisions": [
+        {
+          "id": "DEC-FED-01-01",
+          "status": "owner_decided_algorithm_optimization_open",
+          "owner": "src/polisyos/common/numeric_reductions.py",
+          "owner_status": "proposed_new_not_existing",
+          "implementation_owner": "FED-01",
+          "consumers": [
+            "FED-01",
+            "UQS-01"
+          ],
+          "required_output": "One shared finite_binary64_mean/midpoint API, first qualify a finite Python-binary64 wrapper over CPython3.14 statistics.mean against independent rational oracles and measured representative group cost. Custom accumulator only with documented correctness/performance rationale; no per-domain duplicate or unconditional Fraction per row.",
+          "criteria": "Preserve finite overflow/subnormal/cancellation, empty/admission and source provenance semantics. Do not substitute fmean/median blindly. Optimized path requires correctness-preserving fallback; no upward Fabric import and no new dependency."
+        }
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "FED-02",
+      "lane": "LANE-07",
+      "source_order": 90,
+      "source_ids": [
+        "B139",
+        "B142",
+        "B143",
+        "B144"
+      ],
+      "spec_path": "02_Пакеты/FED-02.md",
+      "spec_sha256": "b8d419b4c2df2d6c1848c23d3ec66a439a4d1b7dace4eb34cee63be6b0520c4c",
+      "trace_path": "04_Трассировка/FED-02.json",
+      "trace_sha256": "9012c60cd1c36e2e0a1c922f04c7c3370c6bf7b62a0bfa49d2cd560ccdec5b22",
+      "requirement_ids": [
+        "REQ-FED-02-01",
+        "REQ-FED-02-02",
+        "REQ-FED-02-03",
+        "REQ-FED-02-04",
+        "REQ-FED-02-05"
+      ],
+      "test_ids": [
+        "TEST-FED-02-01",
+        "TEST-FED-02-02",
+        "TEST-FED-02-03",
+        "TEST-FED-02-04",
+        "TEST-FED-02-05"
+      ],
+      "shared_scenarios": [
+        "E02-I07-B"
+      ],
+      "dependencies": [
+        "FED-01 predecessor/shared composer writer",
+        "Общий E02-I07-B; performance job scoped отдельно"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAL-01",
+      "lane": "LANE-07",
+      "source_order": 91,
+      "source_ids": [
+        "B176",
+        "B177",
+        "B178"
+      ],
+      "spec_path": "02_Пакеты/CAL-01.md",
+      "spec_sha256": "060690ec965bf10fb053a1e83c8408add5419ae6a1bcc57603acb268b53a5d0a",
+      "trace_path": "04_Трассировка/CAL-01.json",
+      "trace_sha256": "d20fa537db8903bdb706eecacd0a4aadb9bc7533f76f8393c56b93eedb4f76ac",
+      "requirement_ids": [
+        "REQ-CAL-01-01",
+        "REQ-CAL-01-02",
+        "REQ-CAL-01-03",
+        "REQ-CAL-01-04",
+        "REQ-CAL-01-05"
+      ],
+      "test_ids": [
+        "TEST-CAL-01-01",
+        "TEST-CAL-01-02",
+        "TEST-CAL-01-03",
+        "TEST-CAL-01-04",
+        "TEST-CAL-01-05"
+      ],
+      "shared_scenarios": [
+        "E02-I07-C"
+      ],
+      "dependencies": [
+        "CAL-02/CAL-06 shared preflight/measurement write mutex; one writer",
+        "E02-I07-C local source→target; shared lane10 optimizer/report evidence without duplicate infrastructure"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "DFK-02",
+      "lane": "LANE-08",
+      "source_order": 92,
+      "source_ids": [
+        "LA-028"
+      ],
+      "spec_path": "02_Пакеты/DFK-02.md",
+      "spec_sha256": "b6c7c0e12d46ba144f15662c5904dae87e7f6bc8e30b1717684d8089a4aeea70",
+      "trace_path": "04_Трассировка/DFK-02.json",
+      "trace_sha256": "bde59586de52bf009097b21c3a7d77dd1d51c0f058d89b2341264234a17fcaab",
+      "requirement_ids": [
+        "REQ-DFK-02-01",
+        "REQ-DFK-02-02",
+        "REQ-DFK-02-03",
+        "REQ-DFK-02-04"
+      ],
+      "test_ids": [
+        "TEST-DFK-02-01",
+        "TEST-DFK-02-02",
+        "TEST-DFK-02-03",
+        "TEST-DFK-02-04"
+      ],
+      "shared_scenarios": [
+        "E02-I08-A"
+      ],
+      "dependencies": [
+        "DFI-01/02 actual ingest consumers; общий E02-I08-A",
+        "LK19/LK20; source registry writer freeze before integration"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "DFI-01",
+      "lane": "LANE-08",
+      "source_order": 93,
+      "source_ids": [
+        "LA-038"
+      ],
+      "spec_path": "02_Пакеты/DFI-01.md",
+      "spec_sha256": "8af9d92d29a9deea31ea3ce11d3b0038469962e3d8c2a057c11072e639251fa6",
+      "trace_path": "04_Трассировка/DFI-01.json",
+      "trace_sha256": "855a74a7006331f5fe9dc259a615515137bb883929289ff0689f5d154ddbc7ff",
+      "requirement_ids": [
+        "REQ-DFI-01-01",
+        "REQ-DFI-01-02",
+        "REQ-DFI-01-03",
+        "REQ-DFI-01-04"
+      ],
+      "test_ids": [
+        "TEST-DFI-01-01",
+        "TEST-DFI-01-02",
+        "TEST-DFI-01-03",
+        "TEST-DFI-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I08-A"
+      ],
+      "dependencies": [
+        "DFI-02 accountable LA-038/shared facade mutex",
+        "DFK-02 rich filters; E02-I08-A один actual ingest witness"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "DFI-02",
+      "lane": "LANE-08",
+      "source_order": 94,
+      "source_ids": [
+        "LA-038"
+      ],
+      "spec_path": "02_Пакеты/DFI-02.md",
+      "spec_sha256": "6bcaf9aa0be163ceed7452719e0914a6af48d7c2ee640b50a5f916963ccb2e0b",
+      "trace_path": "04_Трассировка/DFI-02.json",
+      "trace_sha256": "cf1305211011ced4a8c264047ca4dcda2163e6175aa3891f9cbd5088405b80f1",
+      "requirement_ids": [
+        "REQ-DFI-02-01",
+        "REQ-DFI-02-02",
+        "REQ-DFI-02-03",
+        "REQ-DFI-02-04"
+      ],
+      "test_ids": [
+        "TEST-DFI-02-01",
+        "TEST-DFI-02-02",
+        "TEST-DFI-02-03",
+        "TEST-DFI-02-04"
+      ],
+      "shared_scenarios": [
+        "E02-I08-A"
+      ],
+      "dependencies": [
+        "DFI-01 predecessor/accountable LA-038 includes phase1",
+        "DFI-03/EMB-02 shared pipeline writer; E02-I08-A"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "EMB-01",
+      "lane": "LANE-08",
+      "source_order": 95,
+      "source_ids": [
+        "LA-039"
+      ],
+      "spec_path": "02_Пакеты/EMB-01.md",
+      "spec_sha256": "045f174e34103124110f41f5c6570d1bd64f42ac243f126df770bc2bd6617be6",
+      "trace_path": "04_Трассировка/EMB-01.json",
+      "trace_sha256": "08b54bfe0093fe5241485c83ba0284aa0b3935d3bc026de26e0e71784674bd26",
+      "requirement_ids": [
+        "REQ-EMB-01-01",
+        "REQ-EMB-01-02",
+        "REQ-EMB-01-03",
+        "REQ-EMB-01-04"
+      ],
+      "test_ids": [
+        "TEST-EMB-01-01",
+        "TEST-EMB-01-02",
+        "TEST-EMB-01-03",
+        "TEST-EMB-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I08-B"
+      ],
+      "dependencies": [
+        "EMB-02 accountable LA-039; EMB-03 shared kernel mutex",
+        "E02-I08-B uses one native binary corpus"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "EMB-02",
+      "lane": "LANE-08",
+      "source_order": 96,
+      "source_ids": [
+        "LA-039"
+      ],
+      "spec_path": "02_Пакеты/EMB-02.md",
+      "spec_sha256": "799a907f4d98ba180cc0774f3025f27731997d20b6524bf00e3557838560a9e4",
+      "trace_path": "04_Трассировка/EMB-02.json",
+      "trace_sha256": "8e2592a09410f3691c841c6d3a356a132d47b27061a016cdcb7cbe5fa3e72e63",
+      "requirement_ids": [
+        "REQ-EMB-02-01",
+        "REQ-EMB-02-02",
+        "REQ-EMB-02-03",
+        "REQ-EMB-02-04"
+      ],
+      "test_ids": [
+        "TEST-EMB-02-01",
+        "TEST-EMB-02-02",
+        "TEST-EMB-02-03",
+        "TEST-EMB-02-04"
+      ],
+      "shared_scenarios": [
+        "E02-I08-B"
+      ],
+      "dependencies": [
+        "EMB-01 prerequisite and shared native witness; LA-039 accountable here",
+        "EMB-03 consumes shared C96-R01; DFI-03 separate LA-041 resume",
+        "E02-I08-B; pipeline writes serialized with DFI-02/03"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "EMB-03",
+      "lane": "LANE-08",
+      "source_order": 97,
+      "source_ids": [
+        "LA-040",
+        "LA-042"
+      ],
+      "spec_path": "02_Пакеты/EMB-03.md",
+      "spec_sha256": "b7f78338c774d8a4bc48f73c803d6f2a39a35d254b44e5db5a5b9b0496f9d794",
+      "trace_path": "04_Трассировка/EMB-03.json",
+      "trace_sha256": "24b2f251644f6b7ea240edbd2e589537c5229a9b4954f99258f6b0bc5b900f6d",
+      "requirement_ids": [
+        "REQ-EMB-03-01",
+        "REQ-EMB-03-02",
+        "REQ-EMB-03-03",
+        "REQ-EMB-03-04"
+      ],
+      "test_ids": [
+        "TEST-EMB-03-01",
+        "TEST-EMB-03-02",
+        "TEST-EMB-03-03",
+        "TEST-EMB-03-04"
+      ],
+      "shared_scenarios": [
+        "E02-I08-B"
+      ],
+      "dependencies": [
+        "EMB-02 prerequisite and shared publisher owner",
+        "E02-I08-B real producer→served query; no duplicate heavy model run"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "DFI-03",
+      "lane": "LANE-08",
+      "source_order": 98,
+      "source_ids": [
+        "LA-041"
+      ],
+      "spec_path": "02_Пакеты/DFI-03.md",
+      "spec_sha256": "9b408e25c09447a1c0517e99724bb5f3d988584c4bc2fec68911c0d9d8b660dd",
+      "trace_path": "04_Трассировка/DFI-03.json",
+      "trace_sha256": "00302a2614b1f5c14e01489274dfdf93d31fddc9be15142ef02cda75ebdea4a5",
+      "requirement_ids": [
+        "REQ-DFI-03-01",
+        "REQ-DFI-03-02",
+        "REQ-DFI-03-03",
+        "REQ-DFI-03-04"
+      ],
+      "test_ids": [
+        "TEST-DFI-03-01",
+        "TEST-DFI-03-02",
+        "TEST-DFI-03-03",
+        "TEST-DFI-03-04"
+      ],
+      "shared_scenarios": [
+        "E02-I08-A"
+      ],
+      "dependencies": [
+        "EMB-02 predecessor and shared C96-R01 owner",
+        "DFI-02 shared pipeline writer; E02-I08-A plus native EMB consumer witness"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "ING-01",
+      "lane": "LANE-08",
+      "source_order": 99,
+      "source_ids": [
+        "B79",
+        "B80",
+        "B88"
+      ],
+      "spec_path": "02_Пакеты/ING-01.md",
+      "spec_sha256": "d8c65da830e1ffad0aef3a582dcea341f2589d705edaefb254bbac89e8b633f8",
+      "trace_path": "04_Трассировка/ING-01.json",
+      "trace_sha256": "d36378e03c0d0d8adcdaa31935f5c3fe7afca8aed42d0fe73405b82027ba0910",
+      "requirement_ids": [
+        "REQ-ING-01-01",
+        "REQ-ING-01-02",
+        "REQ-ING-01-03",
+        "REQ-ING-01-04"
+      ],
+      "test_ids": [
+        "TEST-ING-01-01",
+        "TEST-ING-01-02",
+        "TEST-ING-01-03",
+        "TEST-ING-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I08-C"
+      ],
+      "dependencies": [
+        "ING-02 jointly preserves frontier; ING-03 schema/identity; E02-I08-C",
+        "NET-01 lifecycle and NET-02 transport owners remain separate"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "ING-02",
+      "lane": "LANE-08",
+      "source_order": 100,
+      "source_ids": [
+        "B81",
+        "B82",
+        "B85"
+      ],
+      "spec_path": "02_Пакеты/ING-02.md",
+      "spec_sha256": "4bfba826da6c7a8b4b42af589c5836ff91cbcc600ac94a93f37ef076cdf72f4f",
+      "trace_path": "04_Трассировка/ING-02.json",
+      "trace_sha256": "8e30be86073271bbd60d4a45946b2bd4a75078ca3a03a1e8e4806e563cce4a6c",
+      "requirement_ids": [
+        "REQ-ING-02-01",
+        "REQ-ING-02-02",
+        "REQ-ING-02-03",
+        "REQ-ING-02-04"
+      ],
+      "test_ids": [
+        "TEST-ING-02-01",
+        "TEST-ING-02-02",
+        "TEST-ING-02-03",
+        "TEST-ING-02-04"
+      ],
+      "shared_scenarios": [
+        "E02-I08-C"
+      ],
+      "dependencies": [
+        "ING-01 and NET-01 predecessors; ING-03 shared streaming writer",
+        "E02-I08-C; CAS/revalidation owner review for withdrawal test"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "ING-03",
+      "lane": "LANE-08",
+      "source_order": 101,
+      "source_ids": [
+        "B83",
+        "B84",
+        "B86"
+      ],
+      "spec_path": "02_Пакеты/ING-03.md",
+      "spec_sha256": "f60268f7e0ffa3cb30dc19bd34e8770196562b345bebd796f1220b2b920df76c",
+      "trace_path": "04_Трассировка/ING-03.json",
+      "trace_sha256": "fbb1abae47cb445e1bf6d0f0b04be11a977bfd8d362df7787247ddea6fb8db39",
+      "requirement_ids": [
+        "REQ-ING-03-01",
+        "REQ-ING-03-02",
+        "REQ-ING-03-03",
+        "REQ-ING-03-04"
+      ],
+      "test_ids": [
+        "TEST-ING-03-01",
+        "TEST-ING-03-02",
+        "TEST-ING-03-03",
+        "TEST-ING-03-04"
+      ],
+      "shared_scenarios": [
+        "E02-I08-C"
+      ],
+      "dependencies": [
+        "ING-02 predecessor and shared streaming.py mutex",
+        "E02-I08-C actual CAS/quarantine/fresh consumer"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "NET-01",
+      "lane": "LANE-08",
+      "source_order": 102,
+      "source_ids": [
+        "B87",
+        "B89",
+        "B90"
+      ],
+      "spec_path": "02_Пакеты/NET-01.md",
+      "spec_sha256": "cc5971ca783cedfa84e1ceb4f50c5d730a67eb6366f940988564f798180c0e62",
+      "trace_path": "04_Трассировка/NET-01.json",
+      "trace_sha256": "c543492ef7069a325850893aad41d5ddd389d685f254ff91555c933346c28090",
+      "requirement_ids": [
+        "REQ-NET-01-01",
+        "REQ-NET-01-02",
+        "REQ-NET-01-03",
+        "REQ-NET-01-04"
+      ],
+      "test_ids": [
+        "TEST-NET-01-01",
+        "TEST-NET-01-02",
+        "TEST-NET-01-03",
+        "TEST-NET-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I08-C"
+      ],
+      "dependencies": [
+        "ING-02 depends on cleanup; streaming.py section mutex with ING-02/03",
+        "E02-I08-C physical resources and useful fresh consumer"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "NET-02",
+      "lane": "LANE-08",
+      "source_order": 103,
+      "source_ids": [
+        "B91",
+        "B92",
+        "B93"
+      ],
+      "spec_path": "02_Пакеты/NET-02.md",
+      "spec_sha256": "802add3e17efb87fa6a1e455c8795aea9cc5fa37add2c37de3821a9b9d5bb648",
+      "trace_path": "04_Трассировка/NET-02.json",
+      "trace_sha256": "a7642b00f2a820e0a5877253c6a32d51174a6338a84fc480e8ca9fb4b5ad70d3",
+      "requirement_ids": [
+        "REQ-NET-02-01",
+        "REQ-NET-02-02",
+        "REQ-NET-02-03",
+        "REQ-NET-02-04"
+      ],
+      "test_ids": [
+        "TEST-NET-02-01",
+        "TEST-NET-02-02",
+        "TEST-NET-02-03",
+        "TEST-NET-02-04"
+      ],
+      "shared_scenarios": [
+        "E02-I08-C"
+      ],
+      "dependencies": [
+        "NET-01 owns physical pool independently; E02-I08-C",
+        "Optional telemetry fallback coordinated with existing core observability owner"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "SCL-01",
+      "lane": "LANE-09",
+      "source_order": 104,
+      "source_ids": [
+        "B17",
+        "LA-024"
+      ],
+      "spec_path": "02_Пакеты/SCL-01.md",
+      "spec_sha256": "152f0a1f227dede5819998613030b8efb73ab6b49831a03ff60eb71dc689a749",
+      "trace_path": "04_Трассировка/SCL-01.json",
+      "trace_sha256": "2bbb48397482c675e6d3e514ac24c0f5b630257826fd6c4e9a3d32ae50d36ae7",
+      "requirement_ids": [
+        "REQ-SCL-01-01",
+        "REQ-SCL-01-02",
+        "REQ-SCL-01-03",
+        "REQ-SCL-01-04",
+        "REQ-SCL-01-05"
+      ],
+      "test_ids": [
+        "TEST-SCL-01-01",
+        "TEST-SCL-01-02",
+        "TEST-SCL-01-03",
+        "TEST-SCL-01-04",
+        "TEST-SCL-01-05",
+        "TEST-SCL-01-06"
+      ],
+      "shared_scenarios": [
+        "E02-I09-A"
+      ],
+      "dependencies": [
+        "SCL-03 shared fetch profile writer coordination; E02-I09-A"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "SCL-03",
+      "lane": "LANE-09",
+      "source_order": 105,
+      "source_ids": [
+        "LA-025"
+      ],
+      "spec_path": "02_Пакеты/SCL-03.md",
+      "spec_sha256": "62aff5a8f116353efc60285c2cb29dc4c4961dc1b511db7a7c6d530a809c66ae",
+      "trace_path": "04_Трассировка/SCL-03.json",
+      "trace_sha256": "d83b24f04fe518bfd2cc5eccc7d97eb0526be18769a464ad519e855e49744044",
+      "requirement_ids": [
+        "REQ-SCL-03-01",
+        "REQ-SCL-03-02",
+        "REQ-SCL-03-03",
+        "REQ-SCL-03-04"
+      ],
+      "test_ids": [
+        "TEST-SCL-03-01",
+        "TEST-SCL-03-02",
+        "TEST-SCL-03-03",
+        "TEST-SCL-03-04",
+        "TEST-SCL-03-05"
+      ],
+      "shared_scenarios": [
+        "E02-I09-A"
+      ],
+      "dependencies": [
+        "SCL-01 predecessor/shared fetcher mutex; E02-I09-A; existing CAS/docs owners"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "LLM-01",
+      "lane": "LANE-09",
+      "source_order": 106,
+      "source_ids": [
+        "B64",
+        "B65",
+        "B66"
+      ],
+      "spec_path": "02_Пакеты/LLM-01.md",
+      "spec_sha256": "acad62c4aa016e7df3688b1469c7f3d2a90911af0dd6ee7905b75bfde0bfe667",
+      "trace_path": "04_Трассировка/LLM-01.json",
+      "trace_sha256": "1726eccdda83d9bf2591576966e1f7fdf23e214b640073f144a6b9437d68b129",
+      "requirement_ids": [
+        "REQ-LLM-01-01",
+        "REQ-LLM-01-02",
+        "REQ-LLM-01-03",
+        "REQ-LLM-01-04",
+        "REQ-LLM-01-05",
+        "REQ-LLM-01-06"
+      ],
+      "test_ids": [
+        "TEST-LLM-01-01",
+        "TEST-LLM-01-02",
+        "TEST-LLM-01-03",
+        "TEST-LLM-01-04",
+        "TEST-LLM-01-05",
+        "TEST-LLM-01-06"
+      ],
+      "shared_scenarios": [
+        "E02-I09-B"
+      ],
+      "dependencies": [
+        "LLM-02 shared writer mutex and E02-I09-B"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "LLM-02",
+      "lane": "LANE-09",
+      "source_order": 107,
+      "source_ids": [
+        "B67",
+        "B68"
+      ],
+      "spec_path": "02_Пакеты/LLM-02.md",
+      "spec_sha256": "5ed23f57e9a0f1bf5d5bcde3cf5333a7c94fc4db6ffd93f407edd64c6f29ab72",
+      "trace_path": "04_Трассировка/LLM-02.json",
+      "trace_sha256": "aad77544dc8a6673625b5587b0c15a7b4ef9838f95241baf46a981df815ad9ba",
+      "requirement_ids": [
+        "REQ-LLM-02-01",
+        "REQ-LLM-02-02",
+        "REQ-LLM-02-03",
+        "REQ-LLM-02-04",
+        "REQ-LLM-02-05",
+        "REQ-LLM-02-06",
+        "REQ-LLM-02-07"
+      ],
+      "test_ids": [
+        "TEST-LLM-02-01",
+        "TEST-LLM-02-02",
+        "TEST-LLM-02-03",
+        "TEST-LLM-02-04",
+        "TEST-LLM-02-05",
+        "TEST-LLM-02-06",
+        "TEST-LLM-02-07",
+        "TEST-LLM-02-08"
+      ],
+      "shared_scenarios": [
+        "E02-I09-B"
+      ],
+      "dependencies": [
+        "LLM-01 shared write mutex and no-OTel fallback owner",
+        "E02-I09-B shared factory/cache/ledger evidence",
+        "Current runtime binder and translator caller owner review; existing LANE-06 CAS/ledger contracts"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAL-02",
+      "lane": "LANE-10",
+      "source_order": 108,
+      "source_ids": [
+        "B179",
+        "B180",
+        "B181",
+        "B182"
+      ],
+      "spec_path": "02_Пакеты/CAL-02.md",
+      "spec_sha256": "7b59039bc80dddf5dd98398235545750b0fe375d96b576cfe92d0d87f199b712",
+      "trace_path": "04_Трассировка/CAL-02.json",
+      "trace_sha256": "bdad60138440234cd420739ee36cbbd6e9a5d6e14d3c02f94f7dde86c9ac0d04",
+      "requirement_ids": [
+        "REQ-CAL-02-01",
+        "REQ-CAL-02-02",
+        "REQ-CAL-02-03",
+        "REQ-CAL-02-04",
+        "REQ-CAL-02-05",
+        "REQ-CAL-02-06",
+        "REQ-CAL-02-07"
+      ],
+      "test_ids": [
+        "TEST-CAL-02-01",
+        "TEST-CAL-02-02",
+        "TEST-CAL-02-03",
+        "TEST-CAL-02-04",
+        "TEST-CAL-02-05",
+        "TEST-CAL-02-06"
+      ],
+      "shared_scenarios": [
+        "E02-I10-A",
+        "E02-I10-B"
+      ],
+      "dependencies": [
+        "CAL-01"
+      ],
+      "open_decisions": [
+        "DEC-CAL-02-01: проверить callers unlabelled и явно full-data calibration. Выход — конечная таблица supported fit-role→source labels→report meaning. Если full-data caller отсутствует, не строить новый режим; если есть, согласовать named profile, не скрывать train/validation leakage. Это не блокирует scale fix."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAL-03",
+      "lane": "LANE-10",
+      "source_order": 109,
+      "source_ids": [
+        "B183",
+        "B195"
+      ],
+      "spec_path": "02_Пакеты/CAL-03.md",
+      "spec_sha256": "522f555e4898a2663c1e3ace3e80a7bf54fe49c68f4d5630fee3daae2b7525e9",
+      "trace_path": "04_Трассировка/CAL-03.json",
+      "trace_sha256": "f228b2f633068744d9238f3bcff0de6ba4ce0514b9d4c7ab320bba0cc4d530e4",
+      "requirement_ids": [
+        "REQ-CAL-03-01",
+        "REQ-CAL-03-02",
+        "REQ-CAL-03-03",
+        "REQ-CAL-03-04"
+      ],
+      "test_ids": [
+        "TEST-CAL-03-01",
+        "TEST-CAL-03-02",
+        "TEST-CAL-03-03",
+        "TEST-CAL-03-04"
+      ],
+      "shared_scenarios": [
+        "E02-I10-A"
+      ],
+      "dependencies": [
+        "CAL-02"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAL-04",
+      "lane": "LANE-10",
+      "source_order": 110,
+      "source_ids": [
+        "B184",
+        "B196",
+        "B203"
+      ],
+      "spec_path": "02_Пакеты/CAL-04.md",
+      "spec_sha256": "1a17a60286528a92e509aa0018451650fc50f4b75f6ca7111c38c7e3b0dc6263",
+      "trace_path": "04_Трассировка/CAL-04.json",
+      "trace_sha256": "a70e708018f64e1b98faed5bb21548aa224c347eb13f5c8514f0f63ff06e845b",
+      "requirement_ids": [
+        "REQ-CAL-04-01",
+        "REQ-CAL-04-02",
+        "REQ-CAL-04-03",
+        "REQ-CAL-04-04",
+        "REQ-CAL-04-05"
+      ],
+      "test_ids": [
+        "TEST-CAL-04-01",
+        "TEST-CAL-04-02",
+        "TEST-CAL-04-03",
+        "TEST-CAL-04-04"
+      ],
+      "shared_scenarios": [
+        "E02-I10-A"
+      ],
+      "dependencies": [
+        "CAL-03"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAL-06",
+      "lane": "LANE-10",
+      "source_order": 111,
+      "source_ids": [
+        "B197",
+        "B198"
+      ],
+      "spec_path": "02_Пакеты/CAL-06.md",
+      "spec_sha256": "66e7adf5c0288aa6e6bc6baa8f7c93b80853e830f4d2799b110a552e564b042e",
+      "trace_path": "04_Трассировка/CAL-06.json",
+      "trace_sha256": "7585cf0415f3c96105507d18dee6ff30ab40077577a18bf36673b9b3ea0557be",
+      "requirement_ids": [
+        "REQ-CAL-06-01",
+        "REQ-CAL-06-02",
+        "REQ-CAL-06-03",
+        "REQ-CAL-06-04",
+        "REQ-CAL-06-05"
+      ],
+      "test_ids": [
+        "TEST-CAL-06-01",
+        "TEST-CAL-06-02",
+        "TEST-CAL-06-03",
+        "TEST-CAL-06-04"
+      ],
+      "shared_scenarios": [
+        "E02-I10-A",
+        "E02-I10-B"
+      ],
+      "dependencies": [
+        "CAL-04",
+        "UQP-02"
+      ],
+      "open_decisions": [
+        "DEC-CAL-06-01: finite census CalibrationReport readers/schema validators, затем решение additive field with new profile либо schema version. Критерии: не менять legacy complete meaning, сохранять exact scope, fresh reader rejection для неизвестного profile; выход — migration table и roundtrip fixtures."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "UQS-01",
+      "lane": "LANE-10",
+      "source_order": 112,
+      "source_ids": [
+        "B199",
+        "B200",
+        "B201",
+        "B202"
+      ],
+      "spec_path": "02_Пакеты/UQS-01.md",
+      "spec_sha256": "4900c5287957f9a33bd7f7e5174ce2b980868d3655ca66bbf53282fe61112b99",
+      "trace_path": "04_Трассировка/UQS-01.json",
+      "trace_sha256": "ab2f549e352a405a2f5f0393a3eb1b6ffd35e33d3171f7bab878560b0b263ab3",
+      "requirement_ids": [
+        "REQ-UQS-01-01",
+        "REQ-UQS-01-02",
+        "REQ-UQS-01-03",
+        "REQ-UQS-01-04",
+        "REQ-UQS-01-05"
+      ],
+      "test_ids": [
+        "TEST-UQS-01-01",
+        "TEST-UQS-01-02",
+        "TEST-UQS-01-03",
+        "TEST-UQS-01-04",
+        "TEST-UQS-01-05"
+      ],
+      "shared_scenarios": [
+        "E02-I10-B"
+      ],
+      "dependencies": [
+        "UQP-02",
+        "CAL-06"
+      ],
+      "open_decisions": [
+        "DEC-UQS-01-01: finite producer/ref census для independent units и prior reuse. Выход: accepted predicate map+minimal positive route либо точный missing contract с планом; независимость не выводится из разных UUID/bytes."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "UQP-01",
+      "lane": "LANE-10",
+      "source_order": 113,
+      "source_ids": [
+        "B186",
+        "B189",
+        "B190",
+        "B191"
+      ],
+      "spec_path": "02_Пакеты/UQP-01.md",
+      "spec_sha256": "0383faefa3e653d0ba2911cd64eef6c418485523cfe683672ac46c44d30b7dfc",
+      "trace_path": "04_Трассировка/UQP-01.json",
+      "trace_sha256": "4549fd5e674fb9ecd7565970ae48a5bb537c2e15a58a9270c27d8140b512a0be",
+      "requirement_ids": [
+        "REQ-UQP-01-01",
+        "REQ-UQP-01-02",
+        "REQ-UQP-01-03",
+        "REQ-UQP-01-04",
+        "REQ-UQP-01-05"
+      ],
+      "test_ids": [
+        "TEST-UQP-01-01",
+        "TEST-UQP-01-02",
+        "TEST-UQP-01-03",
+        "TEST-UQP-01-04",
+        "TEST-UQP-01-05"
+      ],
+      "shared_scenarios": [
+        "E02-I10-B"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "DEC-UQP-01-01: по фактическому model/backend contract выбрать consistent coercion+declared domain либо stricter requested-precision refusal. Выход — dtype table, acceptance thresholds и compatibility note; rounding само по себе не defect."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "UQP-02",
+      "lane": "LANE-10",
+      "source_order": 114,
+      "source_ids": [
+        "B187",
+        "B188",
+        "B192"
+      ],
+      "spec_path": "02_Пакеты/UQP-02.md",
+      "spec_sha256": "7244e9ce19a8694dc65d90a24a7ec71ab4c79f9a795f0eef22ea5a54997c7446",
+      "trace_path": "04_Трассировка/UQP-02.json",
+      "trace_sha256": "96ddf992e4ea2bafaee979d122bb99848c7ceffce5ccd74fe982dd10785c2c27",
+      "requirement_ids": [
+        "REQ-UQP-02-01",
+        "REQ-UQP-02-02",
+        "REQ-UQP-02-03",
+        "REQ-UQP-02-04",
+        "REQ-UQP-02-05"
+      ],
+      "test_ids": [
+        "TEST-UQP-02-01",
+        "TEST-UQP-02-02",
+        "TEST-UQP-02-03",
+        "TEST-UQP-02-04"
+      ],
+      "shared_scenarios": [
+        "E02-I10-B"
+      ],
+      "dependencies": [
+        "UQP-01"
+      ],
+      "open_decisions": [],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "UQP-03",
+      "lane": "LANE-10",
+      "source_order": 115,
+      "source_ids": [
+        "B193",
+        "B194"
+      ],
+      "spec_path": "02_Пакеты/UQP-03.md",
+      "spec_sha256": "451124f91b49449e79159788d2e23ed8f95838910ee7a6aef20056bc303c7919",
+      "trace_path": "04_Трассировка/UQP-03.json",
+      "trace_sha256": "85ae999d139836768f75fa4277a50daae7908dc1a6ed5f3bff12aa7ae6a0456c",
+      "requirement_ids": [
+        "REQ-UQP-03-01",
+        "REQ-UQP-03-02",
+        "REQ-UQP-03-03",
+        "REQ-UQP-03-04",
+        "REQ-UQP-03-05"
+      ],
+      "test_ids": [
+        "TEST-UQP-03-01",
+        "TEST-UQP-03-02",
+        "TEST-UQP-03-03",
+        "TEST-UQP-03-04",
+        "TEST-UQP-03-05"
+      ],
+      "shared_scenarios": [
+        "E02-I10-B"
+      ],
+      "dependencies": [
+        "UQP-02"
+      ],
+      "open_decisions": [
+        "DEC-UQP-03-01: finite consumer census выбирает width-only profile или дополнительный требуемый functional precision profile. Выход — version/alias table, exact stopping object, tests и отдельная statistical validation scope; precision claim без выбранного плана запрещён."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "DOE-01",
+      "lane": "LANE-10",
+      "source_order": 116,
+      "source_ids": [
+        "B97",
+        "B98",
+        "B99"
+      ],
+      "spec_path": "02_Пакеты/DOE-01.md",
+      "spec_sha256": "37e4e30672f69d4fb3ad4ee3a4fc80c785204bd1d125dfc794049bfc31b84e97",
+      "trace_path": "04_Трассировка/DOE-01.json",
+      "trace_sha256": "f2878f05020dea8425cc2508bb3f2d46ad06dee96029bad1f5a19a6347c4208d",
+      "requirement_ids": [
+        "REQ-DOE-01-01",
+        "REQ-DOE-01-02",
+        "REQ-DOE-01-03",
+        "REQ-DOE-01-04"
+      ],
+      "test_ids": [
+        "TEST-DOE-01-01",
+        "TEST-DOE-01-02",
+        "TEST-DOE-01-03"
+      ],
+      "shared_scenarios": [
+        "E02-I10-C"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "DEC-DOE-01-01: finite caller/storage census, выбрать existing artifact handoff либо точный missing adapter. Выход — producer/consumer diagram и minimal acceptance fixture. Не считать отсутствие найденного caller универсальным system failure."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "DOE-02",
+      "lane": "LANE-10",
+      "source_order": 117,
+      "source_ids": [
+        "B100",
+        "B101"
+      ],
+      "spec_path": "02_Пакеты/DOE-02.md",
+      "spec_sha256": "b93d0e9218d057b38402f25cdc1e30c4a6a6ca5205389de9bd66452649b65b5a",
+      "trace_path": "04_Трассировка/DOE-02.json",
+      "trace_sha256": "eb2c3a4e613ccce7d284d75445e9551203f6e7099a26ba1bf2a61cd49a57d700",
+      "requirement_ids": [
+        "REQ-DOE-02-01",
+        "REQ-DOE-02-02",
+        "REQ-DOE-02-03",
+        "REQ-DOE-02-04"
+      ],
+      "test_ids": [
+        "TEST-DOE-02-01",
+        "TEST-DOE-02-02",
+        "TEST-DOE-02-03"
+      ],
+      "shared_scenarios": [
+        "E02-I10-C"
+      ],
+      "dependencies": [
+        "DOE-01"
+      ],
+      "open_decisions": [
+        "DEC-DOE-02-01: bounded inventory existing artifact writer/readers и RNG stages, выбрать minimal context binding. Если missing source owner, сохранить gap и дать конкретный adapter proposal; bare-array test не доказывает production mismatch."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "DOE-03",
+      "lane": "LANE-10",
+      "source_order": 118,
+      "source_ids": [
+        "B102",
+        "B103",
+        "B104",
+        "B105"
+      ],
+      "spec_path": "02_Пакеты/DOE-03.md",
+      "spec_sha256": "df62c40d8e02f445ecf20d82728849598c39e6dfc435c69793187d010f1933a8",
+      "trace_path": "04_Трассировка/DOE-03.json",
+      "trace_sha256": "241214060ce7fa461d844941d54b09c2f6d28d5dc9864443da1ac2c34b5fdfe7",
+      "requirement_ids": [
+        "REQ-DOE-03-01",
+        "REQ-DOE-03-02",
+        "REQ-DOE-03-03",
+        "REQ-DOE-03-04",
+        "REQ-DOE-03-05"
+      ],
+      "test_ids": [
+        "TEST-DOE-03-01",
+        "TEST-DOE-03-02",
+        "TEST-DOE-03-03",
+        "TEST-DOE-03-04",
+        "TEST-DOE-03-05"
+      ],
+      "shared_scenarios": [
+        "E02-I10-C"
+      ],
+      "dependencies": [
+        "DOE-02"
+      ],
+      "open_decisions": [
+        "DEC-DOE-03-01: actual PCA consumer задаёт units/metric/ranking assumptions и partial-output scope; выход короткая declared contract table, не всеобщая normalization policy. Missingness correction требует предметного основания и не блокирует narrow limitation fix."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "STR-01",
+      "lane": "LANE-10",
+      "source_order": 119,
+      "source_ids": [
+        "B106",
+        "B107"
+      ],
+      "spec_path": "02_Пакеты/STR-01.md",
+      "spec_sha256": "be849c0c2aa2af2a17792b70ba2ccd33ba73e93298939d4b04090db7b440ee13",
+      "trace_path": "04_Трассировка/STR-01.json",
+      "trace_sha256": "14b4850479c723c69135e77de4b2135f110bbf0b0597ab3c9cbdc6c0f326d131",
+      "requirement_ids": [
+        "REQ-STR-01-01",
+        "REQ-STR-01-02",
+        "REQ-STR-01-03",
+        "REQ-STR-01-04"
+      ],
+      "test_ids": [
+        "TEST-STR-01-01",
+        "TEST-STR-01-02",
+        "TEST-STR-01-03",
+        "TEST-STR-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I10-C"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "DEC-STR-01-01: finite selected-intent producer census; выбрать existing reference and validation predicate. Выход minimal positive source→fresh score path либо exact missing contract; не заявлять создание authority через один replay."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "BER-01",
+      "lane": "LANE-11",
+      "source_order": 120,
+      "source_ids": [
+        "LA-034",
+        "LA-036"
+      ],
+      "spec_path": "02_Пакеты/BER-01.md",
+      "spec_sha256": "b950e2cab8655f5e9dcac5bc02ed4b73facf72427f3865e9f6df4581c7d458f6",
+      "trace_path": "04_Трассировка/BER-01.json",
+      "trace_sha256": "537868bb7969120118e0f1b209ec12fd53e2629b2d7aa29bb288269d494e7bfc",
+      "requirement_ids": [
+        "REQ-BER-01-01",
+        "REQ-BER-01-02",
+        "REQ-BER-01-03",
+        "REQ-BER-01-04",
+        "REQ-BER-01-05"
+      ],
+      "test_ids": [
+        "TEST-BER-01-01",
+        "TEST-BER-01-02",
+        "TEST-BER-01-03",
+        "TEST-BER-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I11-A"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "DEC-BER-01-01: existing display/confidence owner выбирает alias-only N/A либо conservative limited policy; выход truth table с неизменным claim budget и distinction effective estimator count. Не создавать synthetic disagreement."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "DDM-01",
+      "lane": "LANE-11",
+      "source_order": 121,
+      "source_ids": [
+        "LA-056"
+      ],
+      "spec_path": "02_Пакеты/DDM-01.md",
+      "spec_sha256": "34c6758a0462e1a4ed1fc619374b0b24b19335ec38b3d90ed523a0818cf752b4",
+      "trace_path": "04_Трассировка/DDM-01.json",
+      "trace_sha256": "d5c26c9a77eba09977772c010c57f07985b93d8b7d679f31b7e3e8096f8f3278",
+      "requirement_ids": [
+        "REQ-DDM-01-01",
+        "REQ-DDM-01-02",
+        "REQ-DDM-01-03",
+        "REQ-DDM-01-04",
+        "REQ-DDM-01-05"
+      ],
+      "test_ids": [
+        "TEST-DDM-01-01",
+        "TEST-DDM-01-02",
+        "TEST-DDM-01-03",
+        "TEST-DDM-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I11-B",
+        "E02-I12-A"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "DEC-DDM-01-01: inventory обнаруженных plugin/FQN/historical readers; определить поддерживаемое окно forwarding и evidence для retirement. Если historical corpus недоступен, bounded fixture qualification с точной границей, не invented PASS."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "DDM-02",
+      "lane": "LANE-11",
+      "source_order": 122,
+      "source_ids": [
+        "LA-054",
+        "LA-055"
+      ],
+      "spec_path": "02_Пакеты/DDM-02.md",
+      "spec_sha256": "64d77f00860f16e2f6e9a06024ebd7963833225b2bf348dc3b6935a9c1b53e0d",
+      "trace_path": "04_Трассировка/DDM-02.json",
+      "trace_sha256": "7bbf7c4b08c8b8485b26c19f93fbba6f1ee4a342ba4493b885131d15e29ecfc8",
+      "requirement_ids": [
+        "REQ-DDM-02-01",
+        "REQ-DDM-02-02",
+        "REQ-DDM-02-03",
+        "REQ-DDM-02-04",
+        "REQ-DDM-02-05",
+        "REQ-DDM-02-06",
+        "REQ-DDM-02-07"
+      ],
+      "test_ids": [
+        "TEST-DDM-02-01",
+        "TEST-DDM-02-02",
+        "TEST-DDM-02-03",
+        "TEST-DDM-02-04",
+        "TEST-DDM-02-05",
+        "TEST-DDM-02-06",
+        "TEST-DDM-02-07",
+        "TEST-DDM-02-08"
+      ],
+      "shared_scenarios": [
+        "E02-I11-B",
+        "E02-X04"
+      ],
+      "dependencies": [
+        "DDM-01"
+      ],
+      "open_decisions": [
+        "DEC-DDM-02-01: source inventory должен ответить, существует ли producer с needed selection/coverage/currentness. Варианты: wire existing adequate owner; extend existing persisted event owner с явным predicate; отдельное предложение отсутствующей общей способности. Критерий выбора — независимо проверяемый source predicate, не форма payload. Без достаточного authority не открывать final grant; сохранить bounded outputs.",
+        "DEC-DDM-02-02: определить supported policy compatibility profiles и legitimate freshness/label-delay source. Default сегодня известен, но unknown version не интерпретировать как default. Выход — маленькая typed version/binding mapping с legacy read semantics; не универсальный DSL и не вымышленный institutional signoff."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "LEX-01",
+      "lane": "LANE-11",
+      "source_order": 123,
+      "source_ids": [
+        "LA-017"
+      ],
+      "spec_path": "02_Пакеты/LEX-01.md",
+      "spec_sha256": "d24417ec40be9d444f413b023e11e7df541f1e11ff6634fa77473538869e1b8a",
+      "trace_path": "04_Трассировка/LEX-01.json",
+      "trace_sha256": "030c6bfae19f0f82bc35e20362ad6285e3e000ad1a740b764c74abdd72bb2584",
+      "requirement_ids": [
+        "REQ-LEX-01-01",
+        "REQ-LEX-01-02",
+        "REQ-LEX-01-03",
+        "REQ-LEX-01-04"
+      ],
+      "test_ids": [
+        "TEST-LEX-01-01",
+        "TEST-LEX-01-02",
+        "TEST-LEX-01-03",
+        "TEST-LEX-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I11-C"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "DEC-LEX-01-01: finite fingerprint/report reader census; выбрать internal-only slash fix с explicit typed-fingerprint follow-through либо versioned typed path identity. Критерии: no boundary/type collision, immutable historical bytes, fresh reconciliation поддерживает declared profile."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "DFK-01",
+      "lane": "LANE-12",
+      "source_order": 124,
+      "source_ids": [
+        "LA-005",
+        "LA-006",
+        "LA-026",
+        "LA-027"
+      ],
+      "spec_path": "02_Пакеты/DFK-01.md",
+      "spec_sha256": "696de65d97b7ea80bea5472e26775c4fa522627a95d2e3a59b06ce63c95ed950",
+      "trace_path": "04_Трассировка/DFK-01.json",
+      "trace_sha256": "000e5cd4be6df082ff1757f23ce08df9ae658e59fc1c610c8f8322be8d9a1a93",
+      "requirement_ids": [
+        "REQ-DFK-01-01",
+        "REQ-DFK-01-02",
+        "REQ-DFK-01-03",
+        "REQ-DFK-01-04",
+        "REQ-DFK-01-05"
+      ],
+      "test_ids": [
+        "TEST-DFK-01-01",
+        "TEST-DFK-01-02",
+        "TEST-DFK-01-03",
+        "TEST-DFK-01-04"
+      ],
+      "shared_scenarios": [
+        "E02-I12-A"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "DEC-DFK-01-01/02/03: separate finite outcome for DTO file, descriptor, pipeline alias. Required outputs: caller evidence/exclusions, supported external obligation, chosen action, owner and objective exit condition; unknown obligation remains named, no invented sunset."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "HYG-02",
+      "lane": "LANE-12",
+      "source_order": 125,
+      "source_ids": [
+        "LA-008",
+        "LA-009",
+        "LA-018"
+      ],
+      "spec_path": "02_Пакеты/HYG-02.md",
+      "spec_sha256": "e12e769762c8cb62876c11b840186af1dea5b1e01626f4c1d7662885a5c160eb",
+      "trace_path": "04_Трассировка/HYG-02.json",
+      "trace_sha256": "de1b9402f1425add07f6957d70af6a626930c1ebac15e91a8a371c418975d244",
+      "requirement_ids": [
+        "REQ-HYG-02-01",
+        "REQ-HYG-02-02",
+        "REQ-HYG-02-03",
+        "REQ-HYG-02-04"
+      ],
+      "test_ids": [
+        "TEST-HYG-02-01",
+        "TEST-HYG-02-02",
+        "TEST-HYG-02-03",
+        "TEST-HYG-02-04"
+      ],
+      "shared_scenarios": [
+        "E02-I12-A"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "DEC-HYG-02-01: helper finite census and exact external obligations; DEC-HYG-02-02: governance supported window after actual facade/config migration. Outputs include changed consumers and negative-test activation criteria; no historical date guessed."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "HYG-04",
+      "lane": "LANE-12",
+      "source_order": 126,
+      "source_ids": [
+        "LA-011",
+        "LA-012",
+        "LA-013"
+      ],
+      "spec_path": "02_Пакеты/HYG-04.md",
+      "spec_sha256": "7a82226c027c76544a87792fa58629469a7309d8eb9b4c12cbc45500191e2062",
+      "trace_path": "04_Трассировка/HYG-04.json",
+      "trace_sha256": "5f29dcdbc3d15730884bba31dd07bd3761b0b299c2a985f11cb328487fdadcab",
+      "requirement_ids": [
+        "REQ-HYG-04-01",
+        "REQ-HYG-04-02",
+        "REQ-HYG-04-03",
+        "REQ-HYG-04-04"
+      ],
+      "test_ids": [
+        "TEST-HYG-04-01",
+        "TEST-HYG-04-02",
+        "TEST-HYG-04-03",
+        "TEST-HYG-04-04"
+      ],
+      "shared_scenarios": [
+        "E02-I12-A"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "DEC-HYG-04-01: benchmark3aliases finite migration/exit table; DEC-HYG-04-02: exact external setup/URL obligations and late-demo consumer scope. Each has source evidence, selected action, acceptance; not all delayed by one unknown external caller."
+      ],
+      "implementation_status": "NOT_RUN"
+    },
+    {
+      "packet_id": "CLI-01",
+      "lane": "LANE-12",
+      "source_order": 127,
+      "source_ids": [
+        "LA-043",
+        "LA-044"
+      ],
+      "spec_path": "02_Пакеты/CLI-01.md",
+      "spec_sha256": "c3c0681f4f20c2b2bc24c2583b39c08ffb6b5142d47b67b7e8b0f8dd682dab87",
+      "trace_path": "04_Трассировка/CLI-01.json",
+      "trace_sha256": "d674dc4134ea01e49252bf7b70175fdd11018dd3719ad744a2cabf09cebc6214",
+      "requirement_ids": [
+        "REQ-CLI-01-01",
+        "REQ-CLI-01-02",
+        "REQ-CLI-01-03",
+        "REQ-CLI-01-04",
+        "REQ-CLI-01-05"
+      ],
+      "test_ids": [
+        "TEST-CLI-01-01",
+        "TEST-CLI-01-02",
+        "TEST-CLI-01-03",
+        "TEST-CLI-01-04",
+        "TEST-CLI-01-05"
+      ],
+      "shared_scenarios": [
+        "E02-I12-B"
+      ],
+      "dependencies": [],
+      "open_decisions": [
+        "DEC-CLI-01-01: finite external/filesystem raw-import census; choose migration instruction or narrow supported bridge only for actual obligation, no universal-client promise. AST checker dynamic loading policy bounded to actual package needs."
+      ],
+      "implementation_status": "NOT_RUN"
+    }
+  ],
+  "release_note": "Technical specification review complete; implementation and native tests NOT_RUN. Exact scope and qualifications remain explicit.",
+  "execution_plan": "09_Исполнение/План_исполнения.json"
+}

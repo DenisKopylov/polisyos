@@ -1,0 +1,190 @@
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/acquisition_evaluation_dispatch.py:851-908
+  851         if comparison == "equivalent" and prior is not None:
+  852             with data_forge_read_api.catalog.acquisition_overlay_admission_fence(overlay_path):
+  853                 owner = AcquisitionEvaluationCurrentOwner(
+  854                     bridge,
+  855                     current_basis_ref,
+  856                     selection,
+  857                     prior,
+  858                 )
+  859                 owner.revalidate()
+  860                 current_cheap = _current_cheap_continuation(
+  861                     bridge, selection, prior, current_basis_ref
+  862                 )
+  863                 if type(current_cheap) is _RetainedCheapProjection:
+  864                     decision = _decision(
+  865                         selection,
+  866                         current_basis_ref=current_basis_ref,
+  867                         prior_basis_ref=old_ref,
+  868                         prior_evaluation=old_selected,
+  869                         comparison=comparison,
+  870                         reasons=reasons,
+  871                         frontier=frontier,
+  872                     )
+  873                     decision_ref = persist_acquisition_evaluation_artifact(
+  874                         store=bridge.artifact_store,
+  875                         event_log=bridge.event_log,
+  876                         record=decision,
+  877                     )
+  878                     continuation_ref = _persist_current_continuation(
+  879                         bridge,
+  880                         selection,
+  881                         decision_ref,
+  882                         decision,
+  883                         current_cheap,
+  884                     )
+  885                     if old_ref is None or old_selected is None:
+  886                         raise ValueError("acquisition_retained_actual_evaluation_missing")
+  887                     terminal = _terminal_record(
+  888                         selection,
+  889                         predecessor_ref=snapshot.head.receipt_ref,
+  890                         owner_refs=tuple(
+  891                             sorted(
+  892                                 {*selection.phase.owner_receipt_refs, str(decision_ref.artifact_id)}
+  893                             )
+  894                         ),
+  895                         decision_ref=decision_ref,
+  896                         outcome="source_admitted_evaluation_retained",
+  897                         selected_basis_ref=old_ref,
+  898                         selected_evaluation=old_selected,
+  899                         selected_witness_ref=prior.selected.n5_execution_ref,
+  900                         continuation_ref=continuation_ref,
+  901                     )
+  902                     with _terminal_scope(
+  903                         _TerminalScope(
+  904                             owner,
+  905                             decision_ref,
+  906                             decision,
+  907                             old_ref,
+  908                             old_selected,
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/generation_cycle.py:11928-11960
+11928     def _rebind_cycle_substrate_context_for_revision(
+11929         self,
+11930         previous_problem: DesignProblem,
+11931         revised_problem: DesignProblem,
+11932     ) -> None:
+11933         """Resolve one job-owned context before any N6 revision becomes current."""
+11934 
+11935         from polisyos.runtime.quality.cycle_substrate import (
+11936             CycleSubstrateContext,
+11937             CycleSubstrateContextArtifactOwner,
+11938             CycleSubstrateContextOwnerError,
+11939             build_cycle_substrate_context,
+11940             candidate_cycle_substrate_source_profile_selection,
+11941             revalidate_cycle_substrate_context,
+11942         )
+11943 
+11944         if self._candidate_simulation_handoff is not None:
+11945             raise GenerationCycleError(
+11946                 "generation_cycle_candidate_simulation_rebind_not_established"
+11947             )
+11948         prior_context = self._cycle_substrate_context
+11949         bound_contexts = [
+11950             prior_context,
+11951             getattr(self._generation_port, "_cycle_substrate_context", None),
+11952             getattr(self._simulation_port, "_cycle_substrate_context", None),
+11953             getattr(self._value_port, "cycle_substrate_context", None),
+11954             getattr(self._generic_cycle_simulation_handoff, "context", None),
+11955         ]
+11956         present_contexts = [context for context in bound_contexts if context is not None]
+11957         if not present_contexts:
+11958             return
+11959         if any(type(context) is not CycleSubstrateContext for context in present_contexts):
+11960             raise GenerationCycleError("generation_cycle_context_rebind_context_untyped")
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/generation_cycle.py:3296-3328
+ 3296 def validate_acquisition_overlay_continuation(
+ 3297     source_run: GenerationCycleRun, receipt: AcquisitionOverlayReentryReceipt
+ 3298 ) -> None:
+ 3299     """Validate one persisted N4/N5 occurrence continuation and its N9 projection."""
+ 3300 
+ 3301     if not receipt.schema_version.endswith(".v3"):
+ 3302         return
+ 3303     continued = receipt.continued_generation_run
+ 3304     if (
+ 3305         continued is None
+ 3306         or not source_run.cycles
+ 3307         or source_run.cycles[-1].cycle_index != receipt.source_cycle_index
+ 3308     ):
+ 3309         raise GenerationCycleError("acquisition_reentry_source_run_not_latest")
+ 3310     if generation_cycle_run_content_hash(source_run) != receipt.source_generation_run_content_hash:
+ 3311         raise GenerationCycleError("acquisition_reentry_source_run_content_hash_mismatch")
+ 3312     if (
+ 3313         continued.run_id != source_run.run_id
+ 3314         or continued.design_problem_ref != source_run.design_problem_ref
+ 3315         or continued.controller_ref != source_run.controller_ref
+ 3316         or continued.engine_owner_ref != source_run.engine_owner_ref
+ 3317         or continued.cycles[:-1] != source_run.cycles
+ 3318         or len(continued.cycles) != len(source_run.cycles) + 1
+ 3319         or continued.cycles[-1] != receipt.new_cycle
+ 3320         or receipt.new_cycle.cycle_index != source_run.cycles[-1].cycle_index + 1
+ 3321         or generation_cycle_run_content_hash(continued)
+ 3322         != receipt.continued_generation_run_content_hash
+ 3323     ):
+ 3324         raise GenerationCycleError("acquisition_reentry_continued_run_binding_mismatch")
+ 3325 
+ 3326     def occurrence_key(summary: CandidateSummary) -> tuple[object, ...]:
+ 3327         return (
+ 3328             summary.candidate_id,
+
+### e02_repository/policy-engine/src/polisyos/runtime/http/routes/runs.py:843-900
+  843                 observed_origin_source_ref = None
+  844                 if compiled.n4_recursive_source_ref is not None:
+  845                     observed_origin_source_ref = ArtifactRef.model_validate(
+  846                         compiled.n4_recursive_source_ref.model_dump(mode="json")
+  847                     )
+  848                 history_entries.append(
+  849                     RunCandidateSimulationAcquisitionHistoryEntry(
+  850                         route_receipt_ref=route_receipt_ref,
+  851                         route_id=route_receipt.route_id,
+  852                         action_generation=route_receipt.action_generation,
+  853                         terminal_outcome="quarantined_no_growth",
+  854                         origin_source_ref=observed_origin_source_ref,
+  855                         schema_version=(
+  856                             "policyos.runtime.run_candidate_simulation_acquisition_history.v2"
+  857                         ),
+  858                         reentry_receipt_schema_version=None,
+  859                         continuation_join_status="not_applicable",
+  860                         origin_source_binding_status=(
+  861                             "observed_only"
+  862                             if observed_origin_source_ref is not None
+  863                             else "not_supplied"
+  864                         ),
+  865                     )
+  866                 )
+  867                 continue
+  868             if route_receipt.reentry_receipt_ref is None:
+  869                 raise ValueError("acquisition_reentry_ref_missing")
+  870             reentry_receipt_ref = _selected_ref(
+  871                 route_receipt.reentry_receipt_ref,
+  872                 kind="runtime_quality.acquisition_overlay_reentry_receipt",
+  873             )
+  874             reentry_payload, _reentry_bytes, _reentry_report, reentry_receipt_ref = (
+  875                 _read_authority_payload(
+  876                     reentry_receipt_ref,
+  877                     expected_kind="runtime_quality.acquisition_overlay_reentry_receipt",
+  878                     expected_schema="polisyos.runtime.AcquisitionOverlayReentryReceipt",
+  879                     expected_version=("1.0", "2.0"),
+  880                     expected_job_id=route_receipt.source_job_id,
+  881                 )
+  882             )
+  883             reentry_receipt = AcquisitionOverlayReentryReceipt.model_validate(reentry_payload)
+  884             if (
+  885                 reentry_receipt.design_problem_ref != compiled.design_problem_ref
+  886                 or reentry_receipt.new_cycle.design_problem_ref
+  887                 != reentry_receipt.design_problem_ref
+  888                 or reentry_receipt.new_cycle.cycle_index != reentry_receipt.source_cycle_index + 1
+  889             ):
+  890                 raise ValueError("acquisition_reentry_route_binding_mismatch")
+  891 
+  892             if verified_source is not None:
+  893                 source_run = verified_source.source_generation_run
+  894                 selected_source_cycle = verified_source.source_cycle
+  895                 if source_run is None or selected_source_cycle is None:
+  896                     raise ValueError("acquisition_reentry_verified_source_missing")
+  897                 source_runs = (source_run,)
+  898             else:
+  899                 selected_source_cycle = None
+  900                 source_runs = tuple(

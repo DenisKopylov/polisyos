@@ -1,0 +1,288 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          341
+        ],
+        [
+          414,
+          1554
+        ],
+        [
+          1915,
+          2096
+        ],
+        [
+          2304,
+          2313
+        ]
+      ],
+      "evidence_level": "selected_exact_AST_control_flow_and_projection_executed_with_declared_boundaries",
+      "git_blob": "6f8826e2744eef7dd6e41b083320f8b07637d453",
+      "sha256": "b01a4e6277e45b17379a75734586d16383271f8e7e41bbfe926a3dea96577502",
+      "local_file": null,
+      "note": "Не исполнены настоящие source-score/work admission, uncertainty, correlation и lessons. Work packet owner 1555–1914 не объявлен прочитанным."
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          601
+        ]
+      ],
+      "evidence_level": "complete_source_read_selected_actual_DTO_definitions_executed",
+      "git_blob": "d32526b3828fd2029b2dd81d75353ab2ca519ea7",
+      "sha256": "e7c50a6e660bd8f86cf91608bc8c47713cb3a68408b0e86443eedde09c88c124",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          202
+        ]
+      ],
+      "evidence_level": "actual_strict_candidate_validation_hash_executed; live_caller_binding_source_read",
+      "git_blob": "c15801509c9a890128ad33e493974bcbb8687ebb",
+      "sha256": "d9ef05678efc7b6cb59e32cb6be1ff94bf778ece6a0de394605771bb1040cd72",
+      "local_file": null,
+      "note": "invoke_candidate_evaluator internal project import не исполнялся; bound callable вызван через with_proposal."
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          114
+        ]
+      ],
+      "evidence_level": "actual_CandidateProposal_EvaluationBundle_Pydantic_definitions_executed",
+      "git_blob": "93768dd16c915f96488bfde09cae606be3e0b658",
+      "sha256": "b95d17e62e55a5e16e7d76bc42a2a5dd2d07d95ea3febc589a7cbb7b050bef6d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/tests/unit/scientist/search/test_funnel_subject_identity.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/search/test_funnel_subject_identity.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          524
+        ]
+      ],
+      "evidence_level": "complete_existing_tests_read_UNRUN",
+      "git_blob": "e798423b9ba309c5f0c4c2a4537e2346db403d93",
+      "sha256": "a59874211ea54d37f34ded48ebd17e363284f5a6dceb3d1bd13a7a56ccaf43f9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_transition_accounting_semantics.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/search/funnel/test_transition_accounting_semantics.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          325
+        ]
+      ],
+      "evidence_level": "complete_existing_tests_read_UNRUN",
+      "git_blob": "086bdd0fe3d5928ffc5853096fd7d7a3d832d869",
+      "sha256": "9faf2334eb0b7dbea4d6c75e79179f4a5384d191a3d90619cbff71b58bc4d588",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          940,
+          1080
+        ]
+      ],
+      "evidence_level": "actual_StageA_ticket_to_StageB_owner_caller_source_trace_UNRUN",
+      "git_blob": "754e942a21b3198c3989ac9175c54342b6c67ab3",
+      "sha256": "f4615f237197b7f03195d63aabd9d115df0865165b5c897a6928c3fc52f29d53",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level2_causal.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/funnel/level2_causal.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          80,
+          262
+        ]
+      ],
+      "evidence_level": "complete_evaluate_method_read_UNRUN",
+      "git_blob": "298e873f1d003b4e43688e0333700bc2e38de2fd",
+      "sha256": "4f73bccf870ec150eab66156d5b99544809f4e0b6608b190a4e326a0aeb46a7e",
+      "local_file": null,
+      "note": "Внутренние identification/proxy/transport implementations не исчерпаны и не исполнялись."
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_reporting.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_reporting.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          210
+        ],
+        [
+          574,
+          755
+        ],
+        [
+          973,
+          1000
+        ],
+        [
+          1140,
+          1170
+        ]
+      ],
+      "evidence_level": "actual_serializer_AST_executed; downstream_state_consumer_source_read_UNRUN",
+      "git_blob": "b16c34d7007bdef85f8a8d89577e56b142352d55",
+      "sha256": "56b5f5ada5c8cec5a825c888d5d1acdd83e98256398eea530f000e44fe324094",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          285
+        ],
+        [
+          665,
+          960
+        ]
+      ],
+      "evidence_level": "selected_existing_test_bodies_read_UNRUN",
+      "git_blob": "d1a168e366e0d52ffc2adf4dc9c44b0486a70924",
+      "sha256": "06c75dfd110bf2d40984e1748dab81412f3509e69440adaca785a8f016dc9efd",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stage_contracts.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/stage_contracts.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          95
+        ]
+      ],
+      "evidence_level": "complete_StageResult_SearchStage_definitions_executed",
+      "git_blob": "6b6b0e190bda7581c4e169fcc39908ff8470528f",
+      "sha256": "00a45aa0010e6a85812602ff52a7489610da7098ceef33258b8ed6a2ad950701",
+      "local_file": null,
+      "note": null,
+      "metadata_correction": "C24: EOF end corrected; content/review unchanged. See 06_История/Поправки_диапазонов_C24.md"
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          692,
+          714
+        ],
+        [
+          1146,
+          1167
+        ]
+      ],
+      "evidence_level": "actual_status_enum_and_state_validator_executed; admission_fixture_not_native",
+      "git_blob": "19f375b836d59954649ac120530df055d42e2758",
+      "sha256": "1e9fefdb189b7bb6afc9aa5fa01f410c14dbdd70afa2918670f41e0017352f66",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sentinels.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/sentinels.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          125,
+          137
+        ]
+      ],
+      "evidence_level": "actual_sentinel_extraction_definition_executed",
+      "git_blob": "85409acfc8042bf3df14f78b0e291979a5495f96",
+      "sha256": "a2fa7bf353e3d432b4cdd2ba4cc60446cd0365f86adc36fc4a812a0df17cabff",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stages.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/stages.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          145
+        ]
+      ],
+      "evidence_level": "public_stage_facade_and_CheapStage_source_read_UNRUN",
+      "git_blob": "025e86032e023a9387c51f8d53d7a11e7ea7f37f",
+      "sha256": "13a5d9b19e4966b7b18b5aa3ac74e0c7ad155b726d46a09f96268601a4ab83c2",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      2697,
+      2804
+    ]
+  },
+  "discovery": {
+    "census": false
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace"
+}

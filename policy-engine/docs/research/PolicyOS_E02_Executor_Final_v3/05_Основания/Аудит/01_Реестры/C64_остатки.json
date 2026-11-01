@@ -1,0 +1,66 @@
+{
+  "pass": "C64",
+  "bundle": "EXE-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C64-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high_bounded",
+      "source_ids": [
+        "B77"
+      ],
+      "title": "Textual disjointness допускает разные spelling одного list index",
+      "evidence": [
+        "S01:980–1017",
+        "S01:1036–1040",
+        "S01:1152–1234",
+        "S03:404–469",
+        "P06"
+      ],
+      "remaining": "Согласовать existing path admission/overlap and actual container-aware resolver: канонический list index либо explicit refusal неоднозначного spelling, с сохранением различия dict string keys. До такого доказательства оставлять tier barrier. Проверить unjournaled and journaled routes и отрицательные controls без нового scheduler.",
+      "limits": "Actual admission/readiness synthetic journal/merge над explicit unjournaled adapter outcomes: .0 vs .00,+0,-1 на одноэлементном list принимаются как independent, оба launch0, дваok, финал2. Dict keys0/00 действительно различны. Enforced tracked producer route и production effect не утверждаются."
+    },
+    {
+      "id": "C64-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B77"
+      ],
+      "title": "Native lifecycle и полнота зависимостей остаются открытыми",
+      "evidence": [
+        "S01:253–557",
+        "S01:799–935",
+        "S05",
+        "S07",
+        "S11",
+        "native_pytest.log",
+        "native_import.log"
+      ],
+      "remaining": "В штатном runtime подтвердить actual local runner, journal/cold/cache routes, selected artifact/report/finalization, seeds и научные повторы. Сохранить tier semantics для checkpoint/rollback/provenance/conditions/unknown mutable or external effects; измерить time-to-first-useful-result и cost двух launch snapshots.",
+      "limits": "Крошечный actual scheduler witness не является workload speedup или empirical validity. Reporting/lifecycle/providers fixtures; native pytest missing, Core3.14syntax under3.12. Declared disjoint state paths сами по себе не доказывают отсутствие внешних скрытых эффектов."
+    },
+    {
+      "id": "C64-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B77"
+      ],
+      "title": "Existing async remediation test helpers отстали от selected-profile persistence ABI",
+      "evidence": [
+        "S06:63–88",
+        "S01:305–311",
+        "S01:861–875",
+        "P08"
+      ],
+      "remaining": "Перед native acceptance согласовать actual test persistence fixtures с current return_selected_profile keyword и выполнить три native async tests без обхода ownership checks. Сохранить strict selected-profile contract, не убирать keyword из продукта ради fixture.",
+      "limits": "Direct existing _persist_workflow_spec/_persist_state helper calls с current keyword даютTypeError; это test harness mismatch. Native три integration bodies не запускались, полный набор их последующих исходов неизвестен. Не product implementation failure."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C64-R01"
+  ],
+  "decision": "Bounded readiness producer→committed state→successor работает, semantic tier barriers сохранены. Path-spelling alias gap подтверждён для unjournaled adapter route; native lifecycle/test fixture qualification открыта."
+}

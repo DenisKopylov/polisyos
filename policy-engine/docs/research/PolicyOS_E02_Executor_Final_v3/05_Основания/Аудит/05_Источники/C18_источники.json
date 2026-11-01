@@ -1,0 +1,180 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          725
+        ]
+      ],
+      "evidence_level": "complete_blob_verified_source_executed_isolated",
+      "git_blob": "859a4e85b6433d7821525b32efcc790613534c2a",
+      "local_file": "04_Проверки/C18_OPT01/source/pareto.py",
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          440
+        ],
+        [
+          490,
+          940
+        ]
+      ],
+      "evidence_level": "selected_exact_class_bodies_executed_with_infrastructure_type_fixtures",
+      "git_blob": "631d87c1ade0b084e92806cc7f253f9628571c0e",
+      "local_file": "04_Проверки/C18_OPT01/source/models_excerpt.py",
+      "note": "Не весь models.py импортирован или сохранён; storage/provenance/defaults outside shown classes не исполнялись."
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          430
+        ],
+        [
+          1000,
+          1450
+        ],
+        [
+          1451,
+          1860
+        ],
+        [
+          1850,
+          1983
+        ],
+        [
+          1980,
+          2370
+        ]
+      ],
+      "evidence_level": "source_trace_only_UNRUN",
+      "git_blob": "19f375b836d59954649ac120530df055d42e2758",
+      "local_file": null,
+      "note": "Читались указанные окна; полный objective.py не сохранялся/не исполнялся. B108 producer/source reconciliation статически проверены."
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          650
+        ]
+      ],
+      "evidence_level": "existing_test_design_read_only_UNRUN",
+      "git_blob": "5aa322dd281cca3917581e9e56dea181d0a0fe40",
+      "local_file": null,
+      "note": "Не полный test-file; не запуск pytest. Собственный independent oracle расположен в P04."
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_objective.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/methods/search/test_objective.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          300
+        ]
+      ],
+      "evidence_level": "existing_test_design_read_only_UNRUN",
+      "git_blob": "711643399ce6ec580be93542cfec9316030e3e2f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          280
+        ],
+        [
+          1510,
+          1740
+        ]
+      ],
+      "evidence_level": "consumer_and_persistence_source_trace_only_UNRUN",
+      "git_blob": "32275312d1e4bfaeb5811e26193affd93d8ef5a9",
+      "local_file": null,
+      "note": "В показанной цепочке создаётся свежий promoter и переносится coverage. Не доказывает полный served provider/injection или отсутствие других consumers."
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/B109_P27_TASK.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/B109_P27_TASK.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          220
+        ]
+      ],
+      "evidence_level": "historical_scope_context_not_current_execution_evidence",
+      "git_blob": "b995ad010643a5bc2c1bf82a2ac881874d61cd97",
+      "local_file": null,
+      "note": "Отделяет исходный fast/direct comparator B109 от дополнительного served-provider. Историческое отсутствие provider не перенесено на текущий HEAD."
+    },
+    {
+      "id": "S08",
+      "path": "AGENTS.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/AGENTS.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          190
+        ]
+      ],
+      "evidence_level": "repository_instructions_read",
+      "git_blob": "5f144a27e35130b60e2c3537d97f0c7bbcda57f5",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      2250,
+      2379
+    ],
+    "source_base": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8"
+  },
+  "discovery": {
+    "queries": [
+      "class BenchmarkEvaluation",
+      "BudgetDeficitObjective",
+      "ParetoPromoter",
+      "is_dominated("
+    ],
+    "census": false
+  },
+  "external_oracle": {
+    "url": "https://pymoo.org/misc/indicators.html",
+    "role": "primary mathematical reference for dominated hypervolume; pymoo code not executed"
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace"
+}

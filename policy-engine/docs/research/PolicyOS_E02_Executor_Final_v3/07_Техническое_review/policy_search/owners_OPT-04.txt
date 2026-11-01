@@ -1,0 +1,109 @@
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/autotune/registry.py:724-781
+  724     def _consider_promotion_locked(
+  725         self,
+  726         *,
+  727         loop_id: str,
+  728         candidate_ref: ArtifactRef,
+  729         evaluation: BenchmarkEvaluation,
+  730         evaluation_ref: ArtifactRef,
+  731         policy: PromotionPolicy,
+  732         suite_ref: ArtifactRef | None,
+  733         current: ChampionPointer | None,
+  734     ) -> PromotionDecision:
+  735         if loop_id == "claim_adjudication":
+  736             if policy.model_dump(mode="json") != claim_promotion_policy():
+  737                 return PromotionDecision(
+  738                     loop_id=loop_id,
+  739                     promoted=False,
+  740                     reason="claim_promotion_policy_mismatch",
+  741                     champion=current,
+  742                     previous_champion=current,
+  743                 )
+  744             basis_path = self._root / loop_id / "promotion_basis.json"
+  745             if current is not None:
+  746                 read_claim_promotion_predecessor(
+  747                     self._root, current.model_dump(mode="json"), store=self._store
+  748                 )
+  749             elif basis_path.exists():
+  750                 raise ValueError("claim_adjudication_promotion_basis_current_pointer_missing")
+  751         if current is not None and suite_ref is not None:
+  752             current_suite_id = current.metadata.get("suite_id")
+  753             current_suite_ref = current.metadata.get("suite_ref")
+  754             if current_suite_id is None or current_suite_ref is None:
+  755                 return PromotionDecision(
+  756                     loop_id=loop_id,
+  757                     promoted=False,
+  758                     reason="champion_suite_basis_unknown",
+  759                     champion=current,
+  760                     previous_champion=current,
+  761                 )
+  762             if current_suite_id != evaluation.suite_id:
+  763                 return PromotionDecision(
+  764                     loop_id=loop_id,
+  765                     promoted=False,
+  766                     reason="champion_suite_mismatch",
+  767                     champion=current,
+  768                     previous_champion=current,
+  769                 )
+  770             if current.suite_version != evaluation.suite_version:
+  771                 return PromotionDecision(
+  772                     loop_id=loop_id,
+  773                     promoted=False,
+  774                     reason="champion_suite_version_mismatch",
+  775                     champion=current,
+  776                     previous_champion=current,
+  777                 )
+  778             if not isinstance(current_suite_ref, dict):
+  779                 return PromotionDecision(
+  780                     loop_id=loop_id,
+  781                     promoted=False,
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/autotune/registry.py:943-952
+  943     def _promotion_lock(self, loop_id: str) -> Iterator[None]:
+  944         """Serialize one loop's read/compare/publish transition across processes."""
+  945         lock_path = self._root / loop_id / "champion.lock"
+  946         lock_path.parent.mkdir(parents=True, exist_ok=True)
+  947         with lock_path.open("a+b") as lock_file:
+  948             fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+  949             try:
+  950                 yield
+  951             finally:
+  952                 fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py:152-186
+  152 def seed_loop_baseline(
+  153     *,
+  154     loop_id: str,
+  155     baseline: MutationArtifact,
+  156     store: CoreJSONArtifactStore | None = None,
+  157     registry: ChampionRegistry | None = None,
+  158     suite_version: str = "1.0",
+  159     metadata: dict[str, Any] | None = None,
+  160 ) -> ChampionPointer:
+  161     """Seed loop baseline helper."""
+  162     active_store = store if store is not None else _default_core_json_store()
+  163     active_registry = registry or ChampionRegistry(store=active_store)
+  164     candidate_ref = persist_mutation_artifact(active_store, baseline)
+  165     evaluation = BenchmarkEvaluation(
+  166         loop_id=loop_id,
+  167         suite_id=f"{loop_id}.baseline",
+  168         suite_version=suite_version,
+  169         candidate_ref=candidate_ref,
+  170         promotable=True,
+  171         status="seeded_baseline",
+  172         notes=["seeded production baseline"],
+  173         metadata={"seeded_baseline": True, **(metadata or {})},
+  174     )
+  175     evaluation_ref = persist_benchmark_evaluation(
+  176         active_store,
+  177         evaluation,
+  178         inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
+  179     )
+  180     return active_registry.seed_baseline(
+  181         loop_id,
+  182         candidate_ref=candidate_ref,
+  183         evaluation_ref=evaluation_ref,
+  184         suite_version=suite_version,
+  185         metadata=metadata,
+  186     )

@@ -1,0 +1,491 @@
+{
+  "packet_id": "GRF-01",
+  "lane": "LANE-05",
+  "status": "AUTHORED_PENDING_FINAL_QA",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "test_status": "NOT_RUN",
+  "audit_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "source_ids": [
+    "B216",
+    "B217",
+    "LA-007",
+    "LA-019"
+  ],
+  "audit_reports": [
+    "05_Основания/Аудит/02_Пакеты/GRF-01.md"
+  ],
+  "source_plan_lines": [
+    5840,
+    6034
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C48_остатки:0",
+      "audit_id": "C48-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-GRF-01-01",
+        "REQ-GRF-01-02",
+        "REQ-GRF-01-03",
+        "REQ-GRF-01-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Native supported imports/rules/ID/IDC/artifact lifecycle, no algorithm rewrite by default.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C48_остатки.json",
+        "sha256": "b91857c31d385b41dee2a365592c5340d87a2702e5538cee76d9dda3c80e47b4",
+        "json_pointer": "/findings/0"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C48_остатки:1",
+      "audit_id": "C48-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-GRF-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Installed compatibility and finite filename-loader qualification; retirements already applied.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C48_остатки.json",
+        "sha256": "b91857c31d385b41dee2a365592c5340d87a2702e5538cee76d9dda3c80e47b4",
+        "json_pointer": "/findings/1"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C48_остатки:2",
+      "audit_id": "C48-G03",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-GRF-01-01",
+        "REQ-GRF-01-02",
+        "REQ-GRF-01-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Static profile/scientific graph basis boundaries and useful conditional consumer.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C48_остатки.json",
+        "sha256": "b91857c31d385b41dee2a365592c5340d87a2702e5538cee76d9dda3c80e47b4",
+        "json_pointer": "/findings/2"
+      }
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0344",
+      "requirement_ids": [
+        "REQ-GRF-01-01",
+        "REQ-GRF-01-02",
+        "REQ-GRF-01-03",
+        "REQ-GRF-01-06"
+      ],
+      "disposition": "qualify",
+      "rationale": "Actual native finite oracle and proof consumer.",
+      "source_ids": [
+        "B216",
+        "B217",
+        "LA-007",
+        "LA-019"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0345",
+      "requirement_ids": [
+        "REQ-GRF-01-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native distribution and finite loader support.",
+      "source_ids": [
+        "B216",
+        "B217",
+        "LA-007",
+        "LA-019"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0346",
+      "requirement_ids": [
+        "REQ-GRF-01-01",
+        "REQ-GRF-01-02",
+        "REQ-GRF-01-05"
+      ],
+      "disposition": "qualify",
+      "rationale": "Graph hypothesis/structural proof/empirical authority remain distinct.",
+      "source_ids": [
+        "B216",
+        "B217",
+        "LA-007",
+        "LA-019"
+      ]
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0553",
+      "requirement_ids": [
+        "REQ-GRF-01-01"
+      ],
+      "test_ids": [
+        "TEST-GRF-01-01",
+        "TEST-GRF-01-02"
+      ],
+      "rationale": "Canonical static ADMG admission и endpoint marks"
+    },
+    {
+      "inventory_id": "preserve:0554",
+      "requirement_ids": [
+        "REQ-GRF-01-02"
+      ],
+      "test_ids": [
+        "TEST-GRF-01-01",
+        "TEST-GRF-01-03"
+      ],
+      "rationale": "Perfect-do cuts incoming/incident bidirected, сохраняет outgoing"
+    },
+    {
+      "inventory_id": "preserve:0555",
+      "requirement_ids": [
+        "REQ-GRF-01-01",
+        "REQ-GRF-01-02"
+      ],
+      "test_ids": [
+        "TEST-GRF-01-02",
+        "TEST-GRF-01-03"
+      ],
+      "rationale": "Immutable graph metadata и validated cache boundary"
+    },
+    {
+      "inventory_id": "preserve:0556",
+      "requirement_ids": [
+        "REQ-GRF-01-04"
+      ],
+      "test_ids": [
+        "TEST-GRF-01-05",
+        "TEST-GRF-01-06"
+      ],
+      "rationale": "Настоящие id_engine/causal_engine/interference packages"
+    },
+    {
+      "inventory_id": "preserve:0557",
+      "requirement_ids": [
+        "REQ-GRF-01-03",
+        "REQ-GRF-01-06"
+      ],
+      "test_ids": [
+        "TEST-GRF-01-01",
+        "TEST-GRF-01-03",
+        "TEST-GRF-01-04"
+      ],
+      "rationale": "Независимый finite latent-DAG oracle и typed proof consumers"
+    }
+  ],
+  "requirements": [
+    {
+      "text": "Сохранить общий canonical static ADMG admission и endpoint-aware m-separation: fork/chain открыты без conditioned middle, collider закрыт до conditioning collider/descendant; symmetric query и переименование узлов не меняют ответ. Warm cache не обходит повторную проверку raw graph content/profile. Partial/PAG/temporal профили не получают static success молча.",
+      "source_ids": [
+        "B216"
+      ],
+      "audit_ids": [
+        "C48-G01",
+        "C48-G03"
+      ],
+      "id": "REQ-GRF-01-01",
+      "test_ids": [
+        "TEST-GRF-01-01",
+        "TEST-GRF-01-02"
+      ]
+    },
+    {
+      "text": "Perfect-do удаляет incoming directed edges и все incident bidirected у action nodes, не удаляя outgoing effects и latent influence на остальных узлах. Reverse-stored directed marks и multiple actions имеют ту же семантику. Graph input/metadata неизменны; conditioning/fixing/stochastic intervention не подменяются этой операцией.",
+      "source_ids": [
+        "B217"
+      ],
+      "audit_ids": [
+        "C48-G01",
+        "C48-G03"
+      ],
+      "id": "REQ-GRF-01-02",
+      "test_ids": [
+        "TEST-GRF-01-01",
+        "TEST-GRF-01-03"
+      ]
+    },
+    {
+      "text": "Actual do/sigma rule consumers возвращают корректно изменённый DistributionRef и typed ProofStep, либо не применяют правило. Native ID/IDC и recursive rewrite выбранных маленьких positive/nonidentifiable запросов сохраняют graph/query/estimand/proof bindings при persistence/fresh read. Исправление separator не объявляется доказательством полноты всего ID/IDC.",
+      "source_ids": [
+        "B216",
+        "B217"
+      ],
+      "audit_ids": [
+        "C48-G01"
+      ],
+      "id": "REQ-GRF-01-03",
+      "test_ids": [
+        "TEST-GRF-01-03",
+        "TEST-GRF-01-04"
+      ]
+    },
+    {
+      "text": "Точные retired id_engine.py/causal_engine.py/interference.py не возвращаются. Native find_spec/public imports и wheel/sdist разрешают реальные packages и нужные public objects. Проверяются finite repository filename-loader/package-data/generated inventories и declared external support window; неизвестные внешние динамические loaders не считаются доказанно отсутствующими.",
+      "source_ids": [
+        "LA-007",
+        "LA-019"
+      ],
+      "audit_ids": [
+        "C48-G02"
+      ],
+      "id": "REQ-GRF-01-04",
+      "test_ids": [
+        "TEST-GRF-01-05",
+        "TEST-GRF-01-06"
+      ]
+    },
+    {
+      "text": "Пользовательский causal result связывает выбранное graph basis/revision, estimand/query, proof и доступные observations/assumptions с конкретным scope. Structural идентификация может быть полезным conditional результатом без empirical calibration; synthetic finite graph oracle не становится observed model validity или policy authority. LLM может предложить граф, но его гипотеза не превращается в установленную причинную структуру.",
+      "source_ids": [
+        "B216",
+        "B217"
+      ],
+      "audit_ids": [
+        "C48-G03"
+      ],
+      "id": "REQ-GRF-01-05",
+      "test_ids": [
+        "TEST-GRF-01-04",
+        "TEST-GRF-01-07"
+      ]
+    },
+    {
+      "text": "Конечный independent differential corpus выполняется один раз в общем lane profile:200 трёхузловых ADMG,2400 separation queries,19200 surgery queries с explicit latent DAG/moralization oracle. Сохранить отдельные small regressions и actual package imports без namespace shells; bounded прежние PASS не заменяют поддержанный Python/dependency run.",
+      "source_ids": [
+        "B216",
+        "B217"
+      ],
+      "audit_ids": [
+        "C48-G01"
+      ],
+      "id": "REQ-GRF-01-06",
+      "test_ids": [
+        "TEST-GRF-01-01",
+        "TEST-GRF-01-03",
+        "TEST-GRF-01-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "native independent finite graph oracle",
+      "setup": "Existing test_admg_latent_oracle.py:25 directed DAGs×8 bidirected subsets; ordered pairs and conditioning sets;8action sets.",
+      "action": "Native pytest настоящего module; reference latent common causes→ancestors/moralization/connectivity, runtime endpoint traversal.",
+      "oracle": "0 mismatches для2400 separation и19200 surgery queries; denominator/counts/log сохранены. Oracle не копирует runtime algorithm. Это finite3node result, не proof всех n/PAG/temporal.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-GRF-01-01",
+      "requirement_ids": [
+        "REQ-GRF-01-01",
+        "REQ-GRF-01-02",
+        "REQ-GRF-01-06"
+      ]
+    },
+    {
+      "level": "native profile/cache/renaming matrix",
+      "setup": "Chain,fork,collider,bidirected collider,conditioned descendant; reverse storage, renamed/permuted nodes; warmed valid cache затем invalid marks/PAG/lag>0.",
+      "action": "Actual m_separation/d_separation/public admission.",
+      "oracle": "Expected opening/closing, X/Y symmetry и rename invariance; invalid profile rejected до cached answer. DAG-only API не принимает bidirected. Никакой двусторонний AND не используется вместо правильного примитива.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py; admg_ops.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-GRF-01-02",
+      "requirement_ids": [
+        "REQ-GRF-01-01"
+      ]
+    },
+    {
+      "level": "native rules with proof oracle",
+      "setup": "X↔Y; P→X→Y+X↔Z; reverse-stored equivalents; multiple action set. DistributionRef для Rule1/2/3 и sigma variants.",
+      "action": "Actual surgery/rules и recursive do-calculus postpass; inspect AST leaves/ProofStep, original DTO dump.",
+      "oracle": "do(X) убирает confounding/incoming, оставляет X→Y; Rule3 pureconfounding removes do(X), fork Rule1 не удаляет зависимое conditioning, collider eligible does. Rule2 uses outgoing surgery separately. Original bytes-equivalent graph fields/metadata preserved; proof describes actually applied operation.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/foundry/methods/catalog/causal/test_do_calculus_postpass.py; test_sigma_calculus.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-GRF-01-03",
+      "requirement_ids": [
+        "REQ-GRF-01-02",
+        "REQ-GRF-01-03",
+        "REQ-GRF-01-06"
+      ]
+    },
+    {
+      "level": "native ID/IDC→artifact→fresh consumer E02-I05-A",
+      "setup": "Small supported DAG positive ID/IDC query, separate known nonidentifiable ADMG and invalid query/profile; real CausalEngine and selected graph artifact/CAS.",
+      "action": "Actual identify/rewrite→persist result/proof→fresh CausalEngine consumer; IDC withZempty and conditional query.",
+      "oracle": "Positive estimand/proof/distributions match hand-established query, IDC preserves denominator positivity condition. Nonidentifiable preserves certificate/reason, not fabricated AST; invalid profile refused. Fresh output bound to same graph/query/revision, conditional assumptions visible. No claim all ID/IDC cases complete.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/foundry/methods/test_causal_engine_integration.py; tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+      "allowed_doubles_and_prohibitions": "Synthetic graph/data permissible for structural mechanism. Actual graph model, admission, rules, ID/IDC, CAS and selected loader cannot be stubs.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-GRF-01-04",
+      "requirement_ids": [
+        "REQ-GRF-01-03",
+        "REQ-GRF-01-05",
+        "REQ-GRF-01-06"
+      ]
+    },
+    {
+      "level": "native installed public surfaces",
+      "setup": "Supported Python3.14 actual wheel/sdist built in coordinated packaging profile; clean environment outside checkout import shadowing.",
+      "action": "find_spec/import id_engine,causal_engine,interference; exercise representative public function/class and inspect package origin/distribution inventory.",
+      "oracle": "Origins package __init__.py, real core/transport/counterfactual/api exports present; three retired sibling files absent. Actual selected inference callable works, not just import-name presence. API-01 surface evidence reused where exact profile matches.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "causal/id_engine/__init__.py; causal/causal_engine/__init__.py; causal/interference/__init__.py; tests/unit/foundry/methods/catalog/causal/test_causal_engine_runtime_exports.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-GRF-01-05",
+      "requirement_ids": [
+        "REQ-GRF-01-04"
+      ]
+    },
+    {
+      "level": "finite filename-loader lifecycle qualification",
+      "setup": "Tracked src/tests/config/generated package-data/source inventory, supported filename-loader contracts and available external consumer evidence.",
+      "action": "Classify exact retired-path hits as executable/declaredcompatibility/history; test identified supported loaders or migrate caller to package API.",
+      "oracle": "No supported loader silently depends on deleted empty file; historical text not treated executable. Unknown external paths explicitly bounded by declared support window. No blanket deletion by prefix, no empty shim resurrection to satisfy path count.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "Repository packaging/public-surface inventory; shared LANE-12 packaging profile",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-GRF-01-06",
+      "requirement_ids": [
+        "REQ-GRF-01-04"
+      ]
+    },
+    {
+      "level": "scoped graph-basis positive/negative",
+      "setup": "LLM/test-proposed graph with explicit assumptions and one selected observed dataset; second materially different supported static graph/query through same contract; foreign graph ref and unestablished empirical basis.",
+      "action": "Selected graph→estimand/proof→fresh result consumer; inspect scope/limitations.",
+      "oracle": "Both supported hypotheses produce useful structural conditional answer without case-name branch. Foreign graph/query binding rejected; unestablished empirical basis stays hypothesis/assumption, not authority. PAG/temporal request returns named unsupported profile rather than guessed completion.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "CausalEngine selected graph/artifact route; E02-I05-A",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-GRF-01-07",
+      "requirement_ids": [
+        "REQ-GRF-01-05"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I05-A"
+  ],
+  "dependencies": [
+    {
+      "packet": "GRF-02 / GRF-03",
+      "relation": "Общий admg_ops admission/cache/topology owner; не снимать outer validation ради экономии."
+    },
+    {
+      "packet": "API-01",
+      "relation": "Public facade identity/installed evidence shared; не смешивать точечное sibling retirement с facade migration."
+    },
+    {
+      "packet": "SCM-01 / SCM-02",
+      "relation": "Perfect-do structural semantics не доказывает factual abduction/shared-noise query correctness; отдельный E02-I05-C."
+    },
+    {
+      "packet": "LANE-12",
+      "relation": "Одна coordinated wheel/sdist/public-surface qualification, не build на каждый пакет."
+    }
+  ],
+  "preservation": [
+    "Canonical static ADMG admission и endpoint marks",
+    "Perfect-do cuts incoming/incident bidirected, сохраняет outgoing",
+    "Immutable graph metadata и validated cache boundary",
+    "Настоящие id_engine/causal_engine/interference packages",
+    "Независимый finite latent-DAG oracle и typed proof consumers"
+  ],
+  "protected_distinction_ids": [
+    "LK05",
+    "LK13"
+  ],
+  "design_alignment": [
+    {
+      "source": "policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+      "section": "D0 и reusable causal capabilities",
+      "application": "Один endpoint-aware mechanism принимает новые совместимые static graphs, не меню разрешённых policy examples; semantic proposer может быть LLM."
+    },
+    {
+      "source": "policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md",
+      "section": "K01/K07–K08",
+      "application": "Structural proof и canonical identity не заменяют empirical graph basis либо права применения политики."
+    }
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-GRF-01-PACKAGING",
+      "question": "Есть ли поддержанный exact-filename consumer трёх retired siblings?",
+      "owner": "Causal public API/release owner",
+      "bounded_action": "TEST06 finite census + declared external support window; если есть supported caller, мигрировать его к package API и проверить installed distribution. Если нет — зафиксировать bounded scope, не обещать глобальное отсутствие динамических путей.",
+      "default": "Сохраняются настоящие packages, пустые siblings не восстанавливаются."
+    },
+    {
+      "id": "DEC-GRF-01-SCOPE",
+      "question": "Какое основание causal graph необходимо для выбранного пользовательского claim?",
+      "owner": "Selected graph/study owner",
+      "bounded_action": "Для одного intended use назвать graph hypothesis/revision, observations/assumptions и estimand scope; показать conditional positive и foreign-binding negative в TEST07. Не требовать универсального causal model inventor.",
+      "default": "Полезный structural conditional result с explicit empirical unknowns."
+    }
+  ],
+  "technical_solution": "Изменение продукта по умолчанию **не требуется**: endpoint-state traversal и correct incoming/bidirected surgery уже присутствуют. First action — supported native exact owners и independent finite oracle, затем actual rule→ID/IDC→artifact route. Не добавлять ещё один separator, fallback flag или global AND. Если regression появляется в current native environment, исправление остаётся у `admg_ops`/actual consumer с минимальным distinguishing case, а не переписыванием ID-engine.\n\nКеш получает canonical validated graph, immutable adjacency и сохранённые metadata; repeat boundary validation обязательна даже при cache hit. Static partial/PAG/temporal profiles остаются явно separate: отсутствие поддержки не лечится удобной интерпретацией marks. Для пользовательской цепочки использовать существующие graph artifact/estimand/proof owners и exact refs; если discovered gap в transport, донести missing existing binding, не создавать второй evidence registry.\n\nТри пустых sibling .py уже отсутствуют. LA acceptance теперь состоит в установленном distribution/public-loader evidence, а не повторном удалении. API-01 владеет substantive facade surface. Supported file-loader dependency, если найдена, мигрирует к реальному package API; внешнее неизвестное окно описать честно. LK05/LK13 исключают recursive cleanup реальных packages/BERL.\n\nStructural graph correctness отвечает на вопрос при заданной гипотезе. Source/measurement/causal assumptions проверяются у actual domain owners и остаются visible; полезный conditional ID/estimand не требует invented authenticated issuer. Новая совместимая static graph topology должна работать через тот же contract, новая semantics — separate justified profile.",
+  "compatibility_and_rollback": "Сохранять exact graph/proof public types, package exports, reverse-storage semantics и input immutability. No planned product diff for passing repairs. Если native repair нужен, historical proof не переписывается; current recomputation привязывается к current algorithm/profile. Retirement не возвращается пустым shim ради unknown dynamic consumers. Unsupported graph family остаётся явной limitation, не silent static projection.",
+  "source_locators": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "first_line": 184,
+      "last_line": 307,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py#L184-L307"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "first_line": 485,
+      "last_line": 584,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py#L485-L584"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "first_line": 699,
+      "last_line": 801,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py#L699-L801"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "first_line": 80,
+      "last_line": 267,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py#L80-L267"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "first_line": 1081,
+      "last_line": 1253,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py#L1081-L1253"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+      "first_line": 1,
+      "last_line": 164,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py#L1-L164"
+    }
+  ]
+}

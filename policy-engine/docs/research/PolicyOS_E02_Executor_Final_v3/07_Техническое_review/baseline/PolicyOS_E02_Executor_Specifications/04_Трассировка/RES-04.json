@@ -1,0 +1,395 @@
+{
+  "packet_id": "RES-04",
+  "lane": "LANE-04",
+  "source_ids": [
+    "B74",
+    "B75",
+    "B76"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/RES-04.md",
+    "../05_Основания/Аудит/01_Реестры/C46_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C46-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-RES-04-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Cleanup обязан различать pre/post manifest publication; после rename referenced sidecars сохраняются даже при fsync error.",
+      "inventory_id": "audit-residual:C46_остатки:0"
+    },
+    {
+      "audit_id": "C46-R02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-RES-04-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Единый envelope/раздельные root prefixes устраняют пересечение state и history без нового канонизатора.",
+      "inventory_id": "audit-residual:C46_остатки:1"
+    },
+    {
+      "audit_id": "C46-R03",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-RES-04-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Snapshot/restore переносит текущий typed RestrictedMethodInvocationEvidence или явно отмечает missing historical field, не silently None+complete.",
+      "inventory_id": "audit-residual:C46_остатки:2"
+    },
+    {
+      "audit_id": "C46-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-RES-04-01",
+        "REQ-RES-04-02",
+        "REQ-RES-04-03",
+        "REQ-RES-04-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Native backend result→real FS→fresh reader, actual restricted policy где допустима; DTO fixture не full native proof.",
+      "inventory_id": "audit-residual:C46_остатки:3"
+    },
+    {
+      "audit_id": "C46-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-RES-04-01",
+        "REQ-RES-04-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Сохранить exact-request route и узкий historical scope; standalone plan capability принадлежит CMP-01, не объявлять её по digest.",
+      "inventory_id": "audit-residual:C46_остатки:4"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-RES-04-01",
+      "text": "CheckpointingExecutor допускает resume только при совпадении effective request, occurrence-prefix, validation_context/warnings и complete slot-output history. Для x3 multiply2 add1 cold/resume7 с историей6/7; полный checkpoint0 новых dispatch, первый узел checkpoint→1 suffix dispatch. Factor3/input4/seed99/UUID-prefix изменение отвергает старую точку до dispatch; cold counterparts10/9, исходный seed не переписывается. Работающий exact-request resume не блокируется отсутствием универсального selective reuse.",
+      "source_ids": [
+        "B74",
+        "B75",
+        "B76"
+      ],
+      "audit_ids": [
+        "C46-G01",
+        "C46-G02"
+      ],
+      "test_ids": [
+        "TEST-RES-04-01"
+      ]
+    },
+    {
+      "id": "REQ-RES-04-02",
+      "text": "_snapshot_node_result/_restore_node_result переносят все текущие поля MethodResult, в том числе typed restricted_invocation status/limitation/profile/method/runner/input-read/output binding. Historical verified остаётся исходным наблюдением, unavailable не становится verified, None отличим от отсутствующего поля старой схемы. Legacy missing current evidence явно маркируется как неполная соответствующая часть истории и не допускает утверждение complete restricted evidence; при resume, требующем её полноты, существующая incomplete-history граница отказывает. Остальные6/7 outputs, seed/runtime, typed bound и arrays сохраняются.",
+      "source_ids": [
+        "B74",
+        "B75",
+        "B76"
+      ],
+      "audit_ids": [
+        "C46-R03",
+        "C46-G01",
+        "C46-G02"
+      ],
+      "test_ids": [
+        "TEST-RES-04-02"
+      ]
+    },
+    {
+      "id": "REQ-RES-04-03",
+      "text": "ChainCheckpoint.save определяет manifest rename как публикацию отдельно от последующего directory fsync подтверждения. До rename failure сохраняет прежний manifest+sidecars и убирает только новые недостижимые файлы. После rename failure не удаляет referenced new sidecars: fresh read видит целиком old либо new, никогда manifest с missing sidecar из cleanup. Durability error остаётся CheckpointSaveError/явной save issue по текущему fail_on_checkpoint_error; success не объявляется. Locks/generation guards сохраняются, orphan cleanup не затрагивает reachable generations.",
+      "source_ids": [
+        "B74",
+        "B75",
+        "B76"
+      ],
+      "audit_ids": [
+        "C46-R01",
+        "C46-G01"
+      ],
+      "test_ids": [
+        "TEST-RES-04-03"
+      ]
+    },
+    {
+      "id": "REQ-RES-04-04",
+      "text": "State и node_results history используют непересекающиеся root namespaces в одном существующем encoded path grammar. Supported state key node_results/0/output/arr не совпадает с history path с тем же suffix; оба массива сохраняют свои values при first и repeat save. Collision до publish отклоняется, а не sidecars.update overwrite. Existing flat a_b и nested a/b остаются разными; content/shape/dtype/path/symlink guards неизменны.",
+      "source_ids": [
+        "B74",
+        "B75",
+        "B76"
+      ],
+      "audit_ids": [
+        "C46-R02",
+        "C46-G01"
+      ],
+      "test_ids": [
+        "TEST-RES-04-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-RES-04-01",
+      "requirement_ids": [
+        "REQ-RES-04-01"
+      ],
+      "level": "native executor→FS→fresh resume",
+      "setup": "Native actual backend multiply2/add1, explicit slots, seed7, real JSON/NPY and fresh executor; full and first-node checkpoint.",
+      "action": "Cold/save/load/resume; independently mutate factor/input/seed/UUID/prefix/count/context/history.",
+      "oracle": "7, history6/7 and seeds7/7;0/1 new dispatch respectively; mutations refuse before dispatch, cold factor3→10/input4→9. No reuse claim for independent changed request.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-RES-04-02",
+      "requirement_ids": [
+        "REQ-RES-04-02"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Actual MethodResult with timings1/.25/.1, original runtime/fingerprint, warning, array artifact, INDETERMINATE bound and RestrictedMethodInvocationEvidence unavailable+limitation; eligible native restricted case separately.",
+      "action": "Automatic checkpoint/read/resume; roundtrip all typed fields; malformed status/read tuple/output path; legacy without field versus explicitNone.",
+      "oracle": "Field-by-field equivalent evidence and tuple types; unavailable+limitation unchanged, original invocation not recreated; legacy absence visible/incomplete, no inferred verified. Native eligible verified remains historical with original binding; malformed payload load refusal, not defaultNone. History6/7 and typed bounds preserved.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-RES-04-03",
+      "requirement_ids": [
+        "REQ-RES-04-03"
+      ],
+      "level": "real filesystem failure + concurrency",
+      "setup": "Old snapshot array[1], new[2]; real rename observer injects OSError only after manifest bytes changed; prepublication error control; two actual writers same manifest.",
+      "action": "Save fault cases, fresh load active path; repeat with fail_on_checkpoint_error=False and object-array unsupported new value.",
+      "oracle": "Before commit old[1]; after rename new[2] remains readable despite reported durability failure; no referenced sidecar removed. Concurrent scalar marker/array belong same generation; permissive compute7 survives with explicit save issues. Old implementation postrename yields missing sidecar.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-RES-04-04",
+      "requirement_ids": [
+        "REQ-RES-04-04"
+      ],
+      "level": "real JSON/NPY producer+fresh reader",
+      "setup": "State contains node_results/0/output/arr=[1], typed history same suffix arr=[2], prefix/history count1; a_b=[3] and a/b=[4].",
+      "action": "First and repeated same-path saves, both key orders; fresh load; corrupt/missing/dtype/shape/hash refs, pathescape and symlink fixture.",
+      "oracle": "All four arrays preserve distinct values and distinct refs across namespace/generation; producer never publishes alias. Each corrupted/unsafe ref refuses; old implementation repeated namespace case content-mismatch fails.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I04-B"
+  ],
+  "dependencies": [
+    "CMP-02"
+  ],
+  "preservation": [
+    "Execution digest связывает effective plan/input/params/seed и diagnostics; occurrence-prefix и live validation replay проверяются до resume.",
+    "Cold/resume7, история6/7 и seed7/7; полный prefix не dispatch повторно, неполный исполняет только suffix.",
+    "Точные per-node outputs/timing/reproducibility, typed validated bound, artifacts/slot arrays; legacy/incomplete history не выдаётся за полную.",
+    "Уникальные поколения, encoded structural paths, content/shape/dtype/path guards, writer lock и pre-publication rollback.",
+    "fail_on_checkpoint_error=False сохраняет вычисление и явные bounded save issues, не обещает успешную persistence."
+  ],
+  "design_alignment": [
+    "Публикация и подтверждение durability различны; текущее видимое поколение нельзя разрушать cleanup старого предположения.",
+    "Историческая invocation evidence переносится как история, не новая независимая проверка и не authority promotion."
+  ],
+  "open_decisions": [],
+  "source_obligations": [
+    "B74: exact effective request и prefix; changed factor/input/seed либо reject либо явный пересчёт, а не stale7. Текущий whole-request reject допустим; универсальный selective ancestor reuse не включать без отдельного scope (REQ01).",
+    "B75: настоящая история6/7, исходная reproducibility и ограничения, включая current restricted evidence; не final_state7/7 и не новая independent observation (REQ02).",
+    "B76: immutable generations, injective path namespace и publication boundary JSON+sidecars; concurrent writers и негативный fresh read (REQ03–04)."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py: ChainCheckpoint.save/load, _atomic_write_bytes, _serialise_state, _snapshot_node_result/_restore_node_result",
+    "policy-engine/src/polisyos/foundry/methods/backends/protocol.py: MethodResult, RestrictedMethodInvocationEvidence",
+    "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py: NumpyRunner.execute",
+    "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py: selected runner invocation binding"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_res_04.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0138",
+      "requirement_ids": [
+        "REQ-RES-04-01",
+        "REQ-RES-04-02",
+        "REQ-RES-04-03",
+        "REQ-RES-04-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native backend result→real FS→fresh reader, actual restricted policy где допустима; DTO fixture не full native proof."
+    },
+    {
+      "inventory_id": "remaining:0139",
+      "requirement_ids": [
+        "REQ-RES-04-01",
+        "REQ-RES-04-02"
+      ],
+      "disposition": "qualify",
+      "rationale": "Сохранить exact-request route и узкий historical scope; standalone plan capability принадлежит CMP-01, не объявлять её по digest."
+    },
+    {
+      "inventory_id": "remaining:0140",
+      "requirement_ids": [
+        "REQ-RES-04-02"
+      ],
+      "disposition": "fix",
+      "rationale": "Snapshot/restore переносит текущий typed RestrictedMethodInvocationEvidence или явно отмечает missing historical field, не silently None+complete."
+    },
+    {
+      "inventory_id": "remaining:0141",
+      "requirement_ids": [
+        "REQ-RES-04-03"
+      ],
+      "disposition": "fix",
+      "rationale": "Cleanup обязан различать pre/post manifest publication; после rename referenced sidecars сохраняются даже при fsync error."
+    },
+    {
+      "inventory_id": "remaining:0142",
+      "requirement_ids": [
+        "REQ-RES-04-04"
+      ],
+      "disposition": "fix",
+      "rationale": "Единый envelope/раздельные root prefixes устраняют пересечение state и history без нового канонизатора."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0204",
+      "requirement_ids": [
+        "REQ-RES-04-01"
+      ],
+      "test_ids": [
+        "TEST-RES-04-01"
+      ],
+      "rationale": "Effective request digest — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0205",
+      "requirement_ids": [
+        "REQ-RES-04-01"
+      ],
+      "test_ids": [
+        "TEST-RES-04-01"
+      ],
+      "rationale": "Occurrence prefix — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0206",
+      "requirement_ids": [
+        "REQ-RES-04-01"
+      ],
+      "test_ids": [
+        "TEST-RES-04-01"
+      ],
+      "rationale": "Validation diagnostics replay — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0207",
+      "requirement_ids": [
+        "REQ-RES-04-01"
+      ],
+      "test_ids": [
+        "TEST-RES-04-01"
+      ],
+      "rationale": "Suffix execution — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0208",
+      "requirement_ids": [
+        "REQ-RES-04-02"
+      ],
+      "test_ids": [
+        "TEST-RES-04-02"
+      ],
+      "rationale": "Actual per-node snapshots — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0209",
+      "requirement_ids": [
+        "REQ-RES-04-02"
+      ],
+      "test_ids": [
+        "TEST-RES-04-02"
+      ],
+      "rationale": "Original reproducibility fields — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0210",
+      "requirement_ids": [
+        "REQ-RES-04-02"
+      ],
+      "test_ids": [
+        "TEST-RES-04-02"
+      ],
+      "rationale": "Typed bound and arrays — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0211",
+      "requirement_ids": [
+        "REQ-RES-04-01",
+        "REQ-RES-04-02"
+      ],
+      "test_ids": [
+        "TEST-RES-04-01",
+        "TEST-RES-04-02"
+      ],
+      "rationale": "Incomplete history refusal — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0212",
+      "requirement_ids": [
+        "REQ-RES-04-03",
+        "REQ-RES-04-04"
+      ],
+      "test_ids": [
+        "TEST-RES-04-03",
+        "TEST-RES-04-04"
+      ],
+      "rationale": "Unique generation sidecars — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0213",
+      "requirement_ids": [
+        "REQ-RES-04-04"
+      ],
+      "test_ids": [
+        "TEST-RES-04-04"
+      ],
+      "rationale": "Encoded structural path — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0214",
+      "requirement_ids": [
+        "REQ-RES-04-03",
+        "REQ-RES-04-04"
+      ],
+      "test_ids": [
+        "TEST-RES-04-03",
+        "TEST-RES-04-04"
+      ],
+      "rationale": "Content/shape/dtype binding — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0215",
+      "requirement_ids": [
+        "REQ-RES-04-03"
+      ],
+      "test_ids": [
+        "TEST-RES-04-03"
+      ],
+      "rationale": "Writer lock and pre-publication rollback — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}
+

@@ -1,0 +1,351 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/components/composer.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          979
+        ]
+      ],
+      "evidence_level": "Полный composer прочитан; exact actual add/build/freeze/reconcile/DTO исполнены с real graphlib и typed MethodSignature, registry/materializer/dispatcher seams",
+      "git_blob": "2e93c3fea11b5cfbfe961e99e497aaf38f0ff35b",
+      "sha256": "9e2cfd63c0347f9d1db91ef9e47a3d084c11c3a72ad02632d54b6eb253c7ef53",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          62
+        ],
+        [
+          169,
+          284
+        ],
+        [
+          337,
+          369
+        ],
+        [
+          415,
+          546
+        ],
+        [
+          669,
+          1140
+        ]
+      ],
+      "evidence_level": "Полные selected wrappers/sequential loop/input collection/shared payload/replay/fusion predicate прочитаны; NumPy/no-fusion path исполнен, fused JAX/Ray не исполнены",
+      "git_blob": "6ae2eb8acc8dd32da596a21a3e05b504601242fe",
+      "sha256": "22b01ec4bbdd11b84adb7834f5bab80b2dd27cfd74f1899cdcd74ab23792b33b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          473
+        ]
+      ],
+      "evidence_level": "Полный async owner прочитан и exact definitions исполнены: actual asyncio.gather/to_thread/barrier; dispatcher/result/materializer seams",
+      "git_blob": "4600103c5e2a8cb10d7d351311c56d139a58f391",
+      "sha256": "37b151c404b73b125dbba91abf680b839d17d113246d5ed1cab47c29077ab79b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/foundry/methods/base.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/base.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          78
+        ],
+        [
+          225,
+          267
+        ],
+        [
+          545,
+          763
+        ],
+        [
+          1785,
+          1902
+        ]
+      ],
+      "evidence_level": "Полные selected signature/parameter/enums/stable helpers прочитаны и исполнены; empty-slot fixture, Unit/SlotSpec/metadata identity placeholders, local hashlib seam",
+      "git_blob": "e7a5c5c8c68c8cef191abe688d2a17f8c2872f76",
+      "sha256": "21f0a6bffb2a4a015a8b6da18d5e53aa2401bf6994b6b56542f0af241ee88f09",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/components/linker.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          148,
+          230
+        ],
+        [
+          452,
+          535
+        ]
+      ],
+      "evidence_level": "Полные config/init/chain validation methods прочитаны; class shell исполняет actual config/chain validation на no-dataflow graph, link pairwise checking не аттестовано",
+      "git_blob": "5d4900ff0d82db9bb55625cb45ac70d6fe9fc6de",
+      "sha256": "2a45b57d05b7d124cd737cddfcfffa75ee456fec8d6af31088630155028aaccc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/foundry/methods/_internal/executable_identity.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/_internal/executable_identity.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          77
+        ]
+      ],
+      "evidence_level": "Полный executable signature binding прочитан; actual signature matching исполнен",
+      "git_blob": "e702b1ec4b26109b033af91f7ea4c0f8623ebf88",
+      "sha256": "baeee61b468f3d04fe6cd63bb0aed0d37eb33e3ed30fc28de33934bceb93f5a5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          150
+        ]
+      ],
+      "evidence_level": "Полный parameter resolver прочитан и исполнен; runner body до telemetry прочитан, actual full runner не исполнен",
+      "git_blob": "837d1f16bc64ce22ce82aaa0bdc834a974c76175",
+      "sha256": "63f13361e33af041d9f83d2bef8e48c675546c85b86784f2a1c60527ef13eb3b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          550,
+          857
+        ],
+        [
+          970,
+          1032
+        ]
+      ],
+      "evidence_level": "Полные dispatch и selected backend call boundary прочитаны; dispatcher в bounded probes явно fixture",
+      "git_blob": "d4dd104a9b8ced2c9b257cdedced82197195757b",
+      "sha256": "222c73c76919254e23cfa9ca50db1faec5694c0845630809cc4e0d4d17b6c3bc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/semantic_validator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/components/semantic_validator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          376
+        ]
+      ],
+      "evidence_level": "Полный соседний semantic owner прочитан; focused build probes OFF, не semantic acceptance; дальнейший CMP-02 отдельный",
+      "git_blob": "1f6cb3bcdeab334d8629381fb1263423aebbe03c",
+      "sha256": "70dbd42d2b95bc4e1a636a962f8f9b65344b8ecfcf7e93c37fcaccabd60343f4",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/ray_chain_executor.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/backends/ray_chain_executor.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          333
+        ]
+      ],
+      "evidence_level": "Полный Ray owner прочитан: effective levels и equivalent explicit static/dynamic/override merge; native Ray не запускался",
+      "git_blob": "36cff6274088ea2421738e6d565c82b947e3b152",
+      "sha256": "40b55ce2cc6560bea210c5724f50eaff8882c0bc70dc819f2d0f3069306f34dc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          206
+        ]
+      ],
+      "evidence_level": "Полная lazy facade прочитана; normal import attempts blocked by Python 3.12 syntax incompatibility downstream",
+      "git_blob": "a6d233595c9576514c2ce2b52b0fb3b6f58abb92",
+      "sha256": "9ada029227a6b22fc96e5675d7b17e269543f8bdebafafc77bd4cab7a8e0e726",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/foundry/methods/composer.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/composer.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          5
+        ]
+      ],
+      "evidence_level": "Полная compatibility facade прочитана, отдельного compiler owner не создаёт",
+      "git_blob": "0922b11c5f1a5c575199f01063c7cc96cd92acc3",
+      "sha256": "939e8e117a91ac8fdd385aea2cdcbd04823da2736d36bc78b62d237937660065",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          306
+        ]
+      ],
+      "evidence_level": "Полный existing ChainArtifact producer прочитан и исполнен с fixture method-artifact refs/hash serializer; не Core CAS или executable-plan loader",
+      "git_blob": "78f29abf292f85ae48dbdac28392a6d8dbc4312c",
+      "sha256": "595618d471dae7567c0c69d1c6cc07121fa23e67c5856f619d63bed5820f62af",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_records.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/artifacts/_records.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          179
+        ]
+      ],
+      "evidence_level": "Полные records прочитаны; ChainNodeRecord/SlotBindingRecord исполнены",
+      "git_blob": "b4a35cf2b5e20b59614dd86ed9111a01fb374b29",
+      "sha256": "00581f80f2fed76e28262dc7a44f42961630986687614adb39a11fe7f3ca12b3",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/src/polisyos/foundry/methods/exceptions.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/exceptions.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          285,
+          300
+        ],
+        [
+          433,
+          469
+        ]
+      ],
+      "evidence_level": "Полные deciding contract/cycle/missing-requirement exceptions прочитаны/исполнены с Exception/ErrorCategory seams",
+      "git_blob": "7da6ef645662be55bc6bb32f4ad85d0b72c1b682",
+      "sha256": "b2e42f6445b5306c706206f247e06855c0137f2fa1c04a38cd831ad5002d1823",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          273,
+          294
+        ]
+      ],
+      "evidence_level": "Реальный downstream syntax blocker native imports прочитан; source не менялся для обхода Python 3.14 baseline",
+      "git_blob": "08f9f6daf15d0532edf1da5b171ea407ab8bb2d9",
+      "sha256": "f97f6eac54f67c3b94c74a3f1bcfb78b07f87a5debf097d6384892c51dd27dd5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          329
+        ]
+      ],
+      "evidence_level": "Полный focused native test прочитан: fresh import orders, actual composer chain, requires/cycle/payload; pytest attempt BLOCKED",
+      "git_blob": "f2ecb2e9d1c981efa0a4873a62b17ab9db1f23f7",
+      "sha256": "8ea2dd89bf8fe8a59544e2707e6a14b9b01659a6eecf543f2911963a91f788b7",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      5200,
+      5324
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "discovery": {
+    "census": false,
+    "logs": [
+      "04_Проверки/C42_CMP01/plan_owner_discovery.log",
+      "04_Проверки/C42_CMP01/payload_discovery.log"
+    ],
+    "scope": "Bounded foundry.methods owner search; no global dynamic caller census"
+  }
+}

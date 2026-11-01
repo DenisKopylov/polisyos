@@ -1,0 +1,51 @@
+{
+  "pass": "C38",
+  "bundle": "ECO-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C38-G01",
+      "type": "native_profile_guard_import_consumer_qualification",
+      "source_ids": [
+        "LA-004",
+        "LA-035"
+      ],
+      "evidence": [
+        "P01–P22",
+        "S19–S24"
+      ],
+      "remaining": "В поддерживаемой среде выполнить найденные native GlobalState/EconomicState, реальный numeric guard, JIT/gradient, package fresh-import и registered/composite consumer tests. Отдельно проверить complete conditional-state dtype и научный Gini domain там, где он запрошен.",
+      "limits": "22 bounded MATCH с NumPy, scripted RNG, eqx/replace-state/registry seams. Реальный текст guard исполнен, но это не native JAX guard. pytest отсутствует до collection; native imports, state tree, registration, CAS и Gini не запускались."
+    },
+    {
+      "id": "C38-G02",
+      "type": "explicit_model_conversion_and_scientific_scope",
+      "source_ids": [
+        "LA-004"
+      ],
+      "evidence": [
+        "P11–P18",
+        "P20",
+        "S12:1–54"
+      ],
+      "remaining": "Сохранять обе модели и существующую таблицу ABI, единиц, clock, base/debit, masks, RNG и accounting. Любая конкретная подстановка требует доказанного mapping выбранных observables; не добавлять недостающий government account или calendar conversion по догадке. Квалифицировать экономические данные/калибровку отдельно от совпадения finite fixtures.",
+      "limits": "Plugin tax base — income, debit — wealth; это не wealth-base tax. У plugin нет native target_mask API и полного freeze всех inactive fields. Совпадение двух debits/zero-job outputs не доказывает full-state equivalence; простой профиль не становится дефектом."
+    },
+    {
+      "id": "C38-G03",
+      "type": "historical_baseline_preservation_and_caller_scope",
+      "source_ids": [
+        "LA-035"
+      ],
+      "evidence": [
+        "P02–P10",
+        "P19",
+        "S18:8–46"
+      ],
+      "remaining": "Сохранить named GlobalState baseline, float32 law, all-entry population, constant −1 positive regime, budget penalty и numeric guards. При удалении aliases отдельно проверить поддержанные dynamic/serialized callers; если позже нужен иной criterion, выбрать отдельный objective/version.",
+      "limits": "Новый optimizer, welfare preference или универсальный semantic proposer не являются prerequisite исходного equivalent relocation. Найденные calls/tests не доказывают production optimization ущерб. Документированное прежнее technical closure не является текущим native PASS."
+    }
+  ],
+  "confirmed_local_defects": []
+}

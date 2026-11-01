@@ -1,0 +1,253 @@
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:5548-5574
+ 5548 def inspect_packaged_deployment_identity() -> PackagedDeploymentIdentityReadiness:
+ 5549     """Report installed identity inputs without trusting a self-issued manifest."""
+ 5550 
+ 5551     root = _loaded_policy_engine_root()
+ 5552     package_root = root / "polisyos"
+ 5553     manifest_path = package_root / "runtime" / "quality" / "_packaged_deployment_identity.json"
+ 5554     source_checkout = bool(
+ 5555         (root / "pyproject.toml").is_file()
+ 5556         and (root / "uv.lock").is_file()
+ 5557         and (root / "src" / "polisyos").is_dir()
+ 5558     )
+ 5559     return PackagedDeploymentIdentityReadiness(
+ 5560         verdict="UNRUN",
+ 5561         inputs={
+ 5562             "canonical_identity_owner": "polisyos.runtime.quality.confidence_ledger",
+ 5563             "installed_package_root": package_root.as_posix(),
+ 5564             "source_checkout_inputs_present": source_checkout,
+ 5565             "package_manifest_present": manifest_path.is_file(),
+ 5566             "lockfile_present_at_runtime": (root / "uv.lock").is_file(),
+ 5567             "n6_census_verdict": "UNRUN",
+ 5568         },
+ 5569         unresolved_by_construction=(
+ 5570             "packaged_build_identity_issuer_not_appointed",
+ 5571             "n6_strangle_census_not_established",
+ 5572             "deployment_authority_issuer_not_appointed",
+ 5573         ),
+ 5574     )
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:5577-5650
+ 5577 def observe_n6_deployment_currentness(
+ 5578     *,
+ 5579     recorded_identity_status: Literal["established", "not_established"] | None,
+ 5580     recorded_deployment_identity: str | None,
+ 5581 ) -> N6DeploymentCurrentnessObservation:
+ 5582     """Compare a run with canonical loaded identity without reading source files.
+ 5583 
+ 5584     A recorded identity mismatch is typed stale. Historical runs without an
+ 5585     identity remain replayable but cannot be called current. Matching identity
+ 5586     remains UNRUN while the package-owned N6 census issuer is not appointed.
+ 5587     """
+ 5588 
+ 5589     loaded = capture_loaded_deployment_identity()
+ 5590     readiness = inspect_packaged_deployment_identity()
+ 5591     unresolved = tuple(readiness.unresolved_by_construction)
+ 5592     common = {
+ 5593         "census_verdict": readiness.verdict,
+ 5594         "recorded_identity_status": recorded_identity_status,
+ 5595         "recorded_deployment_identity": recorded_deployment_identity,
+ 5596         "loaded_identity_status": loaded.status,
+ 5597         "loaded_deployment_identity": loaded.deployment_identity,
+ 5598         "loaded_identity_reason_code": loaded.reason_code,
+ 5599         "unresolved_by_construction": unresolved,
+ 5600     }
+ 5601     if recorded_identity_status is None:
+ 5602         return N6DeploymentCurrentnessObservation(
+ 5603             status="not_established",
+ 5604             reason_code=(
+ 5605                 "n6_census_issuer_not_appointed"
+ 5606                 if loaded.status == "established"
+ 5607                 else "loaded_deployment_identity_not_established"
+ 5608             ),
+ 5609             **common,
+ 5610         )
+ 5611     if recorded_identity_status != "established" or recorded_deployment_identity is None:
+ 5612         return N6DeploymentCurrentnessObservation(
+ 5613             status="not_established",
+ 5614             reason_code="historical_deployment_identity_not_recorded",
+ 5615             **common,
+ 5616         )
+ 5617     if loaded.status != "established" or loaded.deployment_identity is None:
+ 5618         return N6DeploymentCurrentnessObservation(
+ 5619             status="not_established",
+ 5620             reason_code="loaded_deployment_identity_not_established",
+ 5621             **common,
+ 5622         )
+ 5623     if recorded_deployment_identity != loaded.deployment_identity:
+ 5624         return N6DeploymentCurrentnessObservation(
+ 5625             status="stale",
+ 5626             reason_code="generation_cycle_deployment_identity_mismatch",
+ 5627             **common,
+ 5628         )
+ 5629     if readiness.verdict != "PASS" or unresolved:
+ 5630         reason_code = (
+ 5631             "n6_census_issuer_not_appointed"
+ 5632             if "n6_strangle_census_not_established" in unresolved
+ 5633             else "n6_census_not_established"
+ 5634         )
+ 5635         return N6DeploymentCurrentnessObservation(
+ 5636             status="not_established",
+ 5637             reason_code=reason_code,
+ 5638             **common,
+ 5639         )
+ 5640     return N6DeploymentCurrentnessObservation(
+ 5641         status="current",
+ 5642         census_verdict="PASS",
+ 5643         recorded_identity_status=recorded_identity_status,
+ 5644         recorded_deployment_identity=recorded_deployment_identity,
+ 5645         loaded_identity_status=loaded.status,
+ 5646         loaded_deployment_identity=loaded.deployment_identity,
+ 5647         loaded_identity_reason_code=loaded.reason_code,
+ 5648         reason_code="n6_currentness_established",
+ 5649         unresolved_by_construction=(),
+ 5650     )
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/generation_cycle.py:499-531
+  499 _N6_TERMINAL_STOP_PROJECTIONS: dict[SearchTerminalKind, Literal["stop", "abstain", "not_stop"]] = {
+  500     SearchTerminalKind.A_SPEC_GAP: "not_stop",
+  501     SearchTerminalKind.TOOL_FAILURE: "not_stop",
+  502     SearchTerminalKind.COMPOSITION_INVALID: "not_stop",
+  503     SearchTerminalKind.RECURSIVE_BLOCKED: "not_stop",
+  504     SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED: "stop",
+  505     SearchTerminalKind.HUMAN_DECISION_REQUIRED: "not_stop",
+  506     SearchTerminalKind.ACQUISITION_REQUIRED: "not_stop",
+  507     SearchTerminalKind.BUDGET_EXHAUSTED: "stop",
+  508     SearchTerminalKind.FRONTIER_STABLE: "stop",
+  509     SearchTerminalKind.GROUNDED_ADMISSIBLE: "stop",
+  510     SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE: "stop",
+  511     SearchTerminalKind.GROUNDED_ABSTENTION: "abstain",
+  512 }
+  513 
+  514 FrontKind = Literal["decision", "research", "quarantine", "portfolio"]
+  515 GenerationChannel = Literal["n4_owner", "grammar_fallback"]
+  516 RevisionStrategy = Literal[
+  517     "acquire_or_elicit",
+  518     "adversarial_validate",
+  519     "spec_gap_reframe",
+  520     "hold_abstain",
+  521     "terminal_stop",
+  522     "human_escalation",
+  523     "tool_repair",
+  524     "composition_repair",
+  525     "recursive_block",
+  526 ]
+  527 GroundingStatus = Literal[
+  528     "current_valid",
+  529     "grounded_shadow",
+  530     "grounding_gap",
+  531     "grounding_failed",
+
+### e02_repository/policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py:218-268
+  218 def _resolve_http_recursive_budget(
+  219     requested_max_iterations: object,
+  220     *,
+  221     candidate_child_count: int | None = None,
+  222     generic_child_count: int | None = None,
+  223 ) -> tuple[int, RecursiveBudgetResolution]:
+  224     """Resolve HTTP cycles and an exact source-derived child-set budget."""
+  225 
+  226     if candidate_child_count is not None and (
+  227         type(candidate_child_count) is not int or not 1 <= candidate_child_count <= 2
+  228     ):
+  229         raise DesignProblemAuthorityError("n4_recursive_child_count_outside_supported_profile")
+  230     if generic_child_count is not None and (
+  231         candidate_child_count is not None
+  232         or type(generic_child_count) is not int
+  233         or generic_child_count < 1
+  234     ):
+  235         raise DesignProblemAuthorityError("generic_n4_recursive_child_count_invalid")
+  236     complete_child_count = (
+  237         generic_child_count if generic_child_count is not None else candidate_child_count
+  238     )
+  239     requested = int(requested_max_iterations or 1)
+  240     effective = max(1, min(requested, _HTTP_RECURSIVE_MAX_CYCLES_PER_LEAF))
+  241     if requested > _HTTP_RECURSIVE_MAX_CYCLES_PER_LEAF:
+  242         clamp_reason = "requested_max_iterations_above_http_cycle_cap_3"
+  243     elif requested < 1:
+  244         clamp_reason = "requested_max_iterations_below_http_minimum_1"
+  245     else:
+  246         clamp_reason = "none"
+  247     return effective, RecursiveBudgetResolution(
+  248         requested_max_iterations=requested,
+  249         effective_max_iterations=effective,
+  250         recursive_budget=RecursiveBudgetProjection(
+  251             max_depth=1 if complete_child_count is not None else _HTTP_RECURSIVE_MAX_DEPTH,
+  252             max_nodes=1 + complete_child_count
+  253             if complete_child_count is not None
+  254             else _HTTP_RECURSIVE_MAX_NODES,
+  255             min_cycles_per_leaf=1,
+  256             max_cycles_per_leaf=effective,
+  257         ),
+  258         clamp_reason=clamp_reason,
+  259         requested_candidate_children=complete_child_count,
+  260         effective_candidate_children=complete_child_count,
+  261         child_budget_profile=(
+  262             "n4-source-complete-child-set.v1"
+  263             if generic_child_count is not None
+  264             else "candidate-lever-exploration-at-most-2.v1"
+  265             if candidate_child_count is not None
+  266             else None
+  267         ),
+  268     )
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py:1594-1651
+ 1594 class ParentJointCandidateSelectionV2(ParentJointCandidateSelectionV1):
+ 1595     """Bind an explicit all-source-member diagnostic without claiming composition.
+ 1596 
+ 1597     N4 candidates are alternatives. This receipt records the caller's request
+ 1598     to inspect every unique source member as a hypothetical candidate
+ 1599     diagnostic; it does not make that set an authored compound design or prove
+ 1600     child-to-parent refinement.
+ 1601     """
+ 1602 
+ 1603     schema_version: Literal[
+ 1604         "policyos.runtime.recursive_generation_cycle.parent_joint_candidate_selection.v2"
+ 1605     ] = "policyos.runtime.recursive_generation_cycle.parent_joint_candidate_selection.v2"
+ 1606     selection_rule: Literal["hypothetical_all_unique_n4_source_members.v2"] = (
+ 1607         "hypothetical_all_unique_n4_source_members.v2"
+ 1608     )
+ 1609     candidate_intent: Literal["n4_unique_parent_source_members.v1"]
+ 1610     member_basis: Literal["hypothetical_all_unique_n4_source_members"] = (
+ 1611         "hypothetical_all_unique_n4_source_members"
+ 1612     )
+ 1613     source_candidate_relationship: Literal["alternatives"] = "alternatives"
+ 1614     composition_status: Literal["not_established"] = "not_established"
+ 1615     composition_limitation_code: Literal[
+ 1616         "n4_source_candidates_are_alternatives_not_authored_compound_design"
+ 1617     ] = "n4_source_candidates_are_alternatives_not_authored_compound_design"
+ 1618     child_to_parent_refinement_status: Literal["not_established"] = "not_established"
+ 1619     child_to_parent_refinement_limitation_code: Literal[
+ 1620         "child_to_parent_refinement_rule_not_established"
+ 1621     ] = "child_to_parent_refinement_rule_not_established"
+ 1622     joint_simulation_request_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+ 1623 
+ 1624 
+ 1625 class RecursiveCycleNode(_StrictModel):
+ 1626     """One replay-visible node routed through existing depth owners."""
+ 1627 
+ 1628     node_ref: str = Field(min_length=1)
+ 1629     parent_ref: str | None = None
+ 1630     depth: int = Field(ge=0)
+ 1631     child_refs: tuple[str, ...] = ()
+ 1632     design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+ 1633     cycle_run: GenerationCycleRun | None = None
+ 1634     joint_simulation: JointSimulationResult | None = None
+ 1635     joint_simulation_ref: CASArtifactRef | None = None
+ 1636     joint_simulation_request: JointSimulationRequest | None = None
+ 1637     joint_simulation_request_content_hash: str | None = Field(
+ 1638         default=None,
+ 1639         pattern=r"^sha256:[0-9a-f]{64}$",
+ 1640     )
+ 1641     joint_candidate_selection: (
+ 1642         ParentJointCandidateSelectionV1 | ParentJointCandidateSelectionV2 | None
+ 1643     ) = Field(
+ 1644         default=None,
+ 1645         exclude_if=lambda value: value is None,
+ 1646     )
+ 1647     joint_candidate_selection_content_hash: str | None = Field(
+ 1648         default=None,
+ 1649         pattern=r"^sha256:[0-9a-f]{64}$",
+ 1650         exclude_if=lambda value: value is None,
+ 1651     )

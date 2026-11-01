@@ -1,0 +1,145 @@
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py:268-325
+  268 class ParetoPromoter:
+  269     """Promotes candidates using Pareto dominance across multiple objectives."""
+  270 
+  271     def __init__(self, policies: list[PromotionPolicy]) -> None:
+  272         if not policies:
+  273             raise ValueError("At least one PromotionPolicy is required")
+  274         self._policies = list(policies)
+  275         metric_counts: dict[str, int] = {}
+  276         for policy in self._policies:
+  277             metric_counts[policy.primary_metric] = metric_counts.get(policy.primary_metric, 0) + 1
+  278 
+  279         coordinates = [_coordinate_for_policy(policy) for policy in self._policies]
+  280         coordinate_ids = [coordinate.coordinate_id for coordinate in coordinates]
+  281         if len(set(coordinate_ids)) != len(coordinate_ids):
+  282             raise ValueError("PromotionPolicy coordinates must be unique")
+  283 
+  284         display_names: list[str] = []
+  285         for policy in self._policies:
+  286             if metric_counts[policy.primary_metric] == 1 and policy.unit is None:
+  287                 display_names.append(policy.primary_metric)
+  288                 continue
+  289             coordinate = [policy.primary_metric, policy.compare_split.value]
+  290             if policy.unit is not None:
+  291                 coordinate.append(f"unit={policy.unit}")
+  292             coordinate.append(f"direction={policy.direction.value}")
+  293             display_names.append("::".join(coordinate))
+  294 
+  295         self._coordinates = tuple(coordinates)
+  296         self._coordinate_schema = ParetoCoordinateSchema(
+  297             status="complete",
+  298             coordinates=coordinates,
+  299         )
+  300         self._objective_names = tuple(coordinate_ids)
+  301         self._display_objective_names = tuple(display_names)
+  302 
+  303     def _incomplete_front(self, assessment: ParetoInputAssessment) -> ParetoFront:
+  304         """Return an empty result that retains the known coordinate contract."""
+  305         return ParetoFront(
+  306             schema_version="2.0",
+  307             coordinate_schema=ParetoCoordinateSchema(
+  308                 status="incomplete",
+  309                 coordinates=list(self._coordinates),
+  310             ),
+  311             input_assessment=assessment,
+  312         )
+  313 
+  314     def compute_front(self, evaluations: list[BenchmarkEvaluation]) -> ParetoFront:
+  315         """Compute the Pareto front from a set of evaluations."""
+  316         if not evaluations:
+  317             return self._incomplete_front(
+  318                 ParetoInputAssessment(
+  319                     status="no_usable_inputs",
+  320                     input_count=0,
+  321                     assessed_count=0,
+  322                 )
+  323             )
+  324 
+  325         valid_evaluations: list[BenchmarkEvaluation] = []
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py:385-407
+  385     def is_dominated(
+  386         self,
+  387         candidate: BenchmarkEvaluation,
+  388         front: ParetoFront,
+  389     ) -> bool:
+  390         """Check if candidate is dominated by any member of the front."""
+  391         vector, missing, non_finite = self._assess_objective_vector(candidate)
+  392         if vector is None:
+  393             reason = "missing" if missing else "non-finite"
+  394             raise ValueError(f"candidate is unassessed: {reason} required Pareto coordinate")
+  395         schema = front.coordinate_schema
+  396         if schema is None or schema.status != "complete":
+  397             raise ValueError("front coordinate schema does not establish comparison axes")
+  398         _validate_coordinate_artifact(front)
+  399 
+  400         cand_obj = self._vector_to_objectives(vector)
+  401         for member in front.members:
+  402             if self._dominates(member.coordinate_values, cand_obj):
+  403                 return True
+  404         assessment = front.input_assessment
+  405         if assessment is None or assessment.status != "complete":
+  406             raise ValueError("front assessment does not establish non-dominance")
+  407         return False
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/objective.py:2072-2129
+ 2072     elif kind == "budget_deficit":
+ 2073         balance = _read_metric_aliases(results, _BALANCE_ALIASES)
+ 2074         deficit = _read_metric_aliases(results, _DEFICIT_ALIASES)
+ 2075         balance_score = None
+ 2076         deficit_score = None
+ 2077         if balance is _INVALID or deficit is _INVALID:
+ 2078             status = ObjectiveScoreStatus.INVALID
+ 2079         elif balance is _MISSING and deficit is _MISSING:
+ 2080             status = ObjectiveScoreStatus.UNAVAILABLE
+ 2081         else:
+ 2082             balance_score = max(-float(balance), 0.0) if balance is not _MISSING else None
+ 2083             deficit_score = abs(float(deficit)) if deficit is not _MISSING else None
+ 2084             if (
+ 2085                 balance_score is not None
+ 2086                 and deficit_score is not None
+ 2087                 and balance_score != deficit_score
+ 2088             ):
+ 2089                 status = ObjectiveScoreStatus.INVALID
+ 2090                 limitation = "objective_basis_conflicting_fiscal_measurements"
+ 2091             else:
+ 2092                 unit_error = _fiscal_alias_source_unit_error(spec, results)
+ 2093                 if unit_error is not None:
+ 2094                     status = (
+ 2095                         ObjectiveScoreStatus.NOT_ESTABLISHED
+ 2096                         if unit_error == "objective_source_unit_not_established"
+ 2097                         else ObjectiveScoreStatus.INVALID
+ 2098                     )
+ 2099                     limitation = unit_error
+ 2100                 elif deficit_score is not None:
+ 2101                     # A configured deficit operand is the selected objective input.
+ 2102                     # A balance-stock alias alone cannot establish that period measure.
+ 2103                     status = ObjectiveScoreStatus.AVAILABLE
+ 2104                     score = deficit_score
+ 2105                 else:
+ 2106                     status = ObjectiveScoreStatus.NOT_ESTABLISHED
+ 2107                     limitation = "budget_deficit_period_flow_source_not_established"
+ 2108         derived_values["balance_score"] = balance_score if balance is not _INVALID else None
+ 2109         derived_values["deficit_score"] = deficit_score if deficit is not _INVALID else None
+ 2110         derived_values["score"] = score
+ 2111     elif kind == "default_policy_scalar":
+ 2112         gdp, gdp_status = _read_finite_numeric_metric(results, "gdp_change")
+ 2113         expected_units = spec.get("expected_units")
+ 2114         fiscal_unit = (
+ 2115             expected_units.get("budget_deficit") if isinstance(expected_units, dict) else None
+ 2116         )
+ 2117         fiscal_value, fiscal_status = _assess_search_fiscal_measurement(
+ 2118             results, expected_unit=fiscal_unit
+ 2119         )
+ 2120         if (
+ 2121             gdp_status is ObjectiveScoreStatus.INVALID
+ 2122             or fiscal_status is ObjectiveScoreStatus.INVALID
+ 2123         ):
+ 2124             status = ObjectiveScoreStatus.INVALID
+ 2125         elif gdp_status is not ObjectiveScoreStatus.AVAILABLE or (
+ 2126             fiscal_status is not ObjectiveScoreStatus.AVAILABLE
+ 2127         ):
+ 2128             status = (
+ 2129                 ObjectiveScoreStatus.NOT_ESTABLISHED

@@ -1,0 +1,532 @@
+{
+  "packet_id": "CYC-02",
+  "lane": "LANE-01",
+  "title": "Доступный N5 и честный положительный conditional N8",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B04",
+    "B05",
+    "B08"
+  ],
+  "audit_reports": [
+    "02_Пакеты/CYC-02.md"
+  ],
+  "audit_report_sha256": "cabc45067dd3a217241f4a4785a7ec034cc6ffe1796e075746ea24f5c7db0db5",
+  "sourceplan_lines": [
+    867,
+    979
+  ],
+  "practical_goal": "Настоящее сохранённое число достигает другого разрешённого процесса/потребителя как условный результат модели; исторические ограничения не блокируют чтение и не превращаются в authority.",
+  "requirements": [
+    {
+      "id": "REQ-CYC-02-01",
+      "text": "Старый поддержанный N5 v1–v3 без позднего marker должен читаться в conditional N8 с явной unsupported interaction/sampling, не нарушая текущий DTO и не меняя signed bytes.",
+      "source_ids": [
+        "B04",
+        "B05",
+        "B08"
+      ],
+      "audit_ids": [
+        "remaining:0012",
+        "remaining:0013",
+        "preserve:0010",
+        "preserve:0014",
+        "audit-residual:C06_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-CYC-02-01"
+      ]
+    },
+    {
+      "id": "REQ-CYC-02-02",
+      "text": "Fixture store должен поддерживать текущий put_json(return_selected_profile=True) и сохранять distinct generic/selected views.",
+      "source_ids": [
+        "B04",
+        "B05",
+        "B08"
+      ],
+      "audit_ids": [
+        "remaining:0009",
+        "preserve:0011",
+        "audit-residual:C06_остатки:1"
+      ],
+      "test_ids": [
+        "TEST-CYC-02-02"
+      ]
+    },
+    {
+      "id": "REQ-CYC-02-03",
+      "text": "После завершения producer новый разрешённый процесс должен восстановить полный numerical payload и conditional N8 из exact selected CAS ref с исходными bindings.",
+      "source_ids": [
+        "B04",
+        "B05",
+        "B08"
+      ],
+      "audit_ids": [
+        "remaining:0010",
+        "remaining:0019",
+        "preserve:0010",
+        "preserve:0011",
+        "preserve:0012",
+        "audit-residual:C06_остатки:2"
+      ],
+      "test_ids": [
+        "TEST-CYC-02-03"
+      ]
+    },
+    {
+      "id": "REQ-CYC-02-04",
+      "text": "Conditional использование K_sim должно сохранять полный persisted blocker/currentness contract и не требовать synthetic treatment; эмпирическая authority остаётся отдельным путём.",
+      "source_ids": [
+        "B04",
+        "B05",
+        "B08"
+      ],
+      "audit_ids": [
+        "remaining:0019",
+        "remaining:0020",
+        "preserve:0013",
+        "preserve:0014",
+        "preserve:0015",
+        "preserve:0022",
+        "preserve:0023"
+      ],
+      "test_ids": [
+        "TEST-CYC-02-04"
+      ]
+    },
+    {
+      "id": "REQ-CYC-02-05",
+      "text": "Actual API/Atlas consumer должен показывать точный выбранный numerical result и его basis/limits; математическая корректность выбранного профиля подтверждается отдельным независимым oracle.",
+      "source_ids": [
+        "B04",
+        "B05",
+        "B08"
+      ],
+      "audit_ids": [
+        "remaining:0011",
+        "remaining:0021",
+        "preserve:0024",
+        "audit-residual:C06_остатки:3",
+        "audit-residual:C06_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-CYC-02-05"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-CYC-02-01",
+      "requirement_ids": [
+        "REQ-CYC-02-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Подлинная поддержанная historical форма v1/v2/v3 с валидным receipt/profile, без current-marker contamination; настоящий CAS/DTO. Current v4 positive.",
+      "action": "Сохранить старые bytes, загрузить load_joint_simulation_result→default conditional consumer и hash bytes повторно.",
+      "oracle": "Получен value_conditional/simulate_only/low без owner receipts, legacy sampling/not-established и unsupported marker сохранены; старый SHA тот же.",
+      "expected": "Нельзя назначить high/value_ready, удалить другие blockers или назвать legacy interaction проверенной; malformed/unknown schema адресно отказана.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-02-02",
+      "requirement_ids": [
+        "REQ-CYC-02-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "tests/unit/remediation/test_cyc_02.py::_GenericDefaultN5Store; current actual persist/load functions.",
+      "action": "Вызвать нынешний writer, затем выбрать требуемый manifest profile и проверить другой profile/tampered bytes.",
+      "oracle": "Нет unexpected keyword TypeError; actual selected ref имеет нужные kind/schema/digest, не случайный default.",
+      "expected": "Wrong view/blob/model сохраняет отказ; успешная фикстура не подставляет заранее готовый result.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-02-03",
+      "requirement_ids": [
+        "REQ-CYC-02-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Existing _real_n5_observation использует actual NCM/controller; поддержанный Python3.14 и temporary CAS. Запуск нового subprocess разрешён исполнителю; здесь NOT_RUN.",
+      "action": "Произвести маленький реальный N5, завершить producer, отдельным процессом открыть store и вызвать canonical N8; затем missing/tamper/wrong model/tenant.",
+      "oracle": "Совпадают numerical values/trajectory/units/model/limitations; fresh consumer получает полезный value_conditional; точные unavailable/integrity/binding исходы различимы.",
+      "expected": "Store отсутствует — отказ до работы; failed persistence после работы не становится доступным success по одному receipt hash.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-02-04",
+      "requirement_ids": [
+        "REQ-CYC-02-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Real TEST-03 результат с допустимыми limitations; неизвестный blocker, stale/foreign source; empirical path без owner treatment.",
+      "action": "Пройти обе branches и сохранить их проекции.",
+      "oracle": "Условное число положительно доступно при своих limits; эмпирический путь без основания остаётся treatment_assignment_not_owner_derived/ограниченным.",
+      "expected": "Unknown blocker не пропадает, K_sim не меняет K_world/N9; отсутствие empirical authority не удаляет полезное candidate число.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-02-05",
+      "requirement_ids": [
+        "REQ-CYC-02-05"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Тот же declared procurement/model profile, что в test_configured_candidate_simulation_served.py::test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift (его actual NCM, target baseline и materialization, не скопированный численный output). Actual выбранный API/Atlas projection читает сохранённый результат shared E02-I01-A через новый reader process.",
+      "action": "Прочитать новый процесс TEST-03 результат через потребитель; изменить model/baseline/trajectory и неизвестный limitation по одному.",
+      "oracle": "Для этого неизменённого profile expected_effect = outcome_per_target_unit * (materialization.value - target_baseline) = 0.5 (algebraic assertion abs_tol=1e-12); все actual replication effects должны укладываться в уже установленный для этого NCM допуск 0.02. Допуск не переносится на другой model/profile. Consumer показывает units/horizon/source/basis и ограничения; замена model/baseline/trajectory не даёт green result; degraded view доступен честно.",
+      "expected": "Равенство producer→reader само по себе не correctness; fresh GET не автоматически новый процесс; missing UI не объявлять проверенным.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C06_остатки:0",
+      "requirement_ids": [
+        "REQ-CYC-02-01"
+      ],
+      "rationale": "Legacy projection/DTO согласование.",
+      "disposition": "fix",
+      "audit_id": "C06-R1",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C06_остатки:1",
+      "requirement_ids": [
+        "REQ-CYC-02-02"
+      ],
+      "rationale": "Fixture selected-view forwarding.",
+      "disposition": "fix",
+      "audit_id": "C06-R2",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C06_остатки:2",
+      "requirement_ids": [
+        "REQ-CYC-02-03"
+      ],
+      "rationale": "Новый процесс, actual N5/CAS/N8.",
+      "disposition": "qualify",
+      "audit_id": "C06-V1",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C06_остатки:3",
+      "requirement_ids": [
+        "REQ-CYC-02-05"
+      ],
+      "rationale": "SIM owns mathematical validity, CYC-02 propagation.",
+      "disposition": "shared",
+      "audit_id": "C06-V2",
+      "shared_owner": "SIM-03"
+    },
+    {
+      "inventory_id": "audit-residual:C06_остатки:4",
+      "requirement_ids": [
+        "REQ-CYC-02-05"
+      ],
+      "rationale": "Конечный consumer census и visible result.",
+      "disposition": "qualify",
+      "audit_id": "C06-V3",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B04",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CYC-02-02",
+        "REQ-CYC-02-03",
+        "REQ-CYC-02-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B05",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CYC-02-01",
+        "REQ-CYC-02-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B08",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CYC-02-03",
+        "REQ-CYC-02-04",
+        "REQ-CYC-02-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0009",
+      "requirement_ids": [
+        "REQ-CYC-02-02"
+      ],
+      "rationale": "Точная fixture сигнатура.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0010",
+      "requirement_ids": [
+        "REQ-CYC-02-03"
+      ],
+      "rationale": "Реальный новый процесс и guards.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0011",
+      "requirement_ids": [
+        "REQ-CYC-02-05"
+      ],
+      "rationale": "SIM mathematical owners + actual consumer.",
+      "disposition": "shared",
+      "shared_owner": "SIM-03"
+    },
+    {
+      "inventory_id": "remaining:0012",
+      "requirement_ids": [
+        "REQ-CYC-02-01"
+      ],
+      "rationale": "Локальный контрпример проверяется native historical DTO.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0013",
+      "requirement_ids": [
+        "REQ-CYC-02-01"
+      ],
+      "rationale": "Исторические bytes без contamination.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0019",
+      "requirement_ids": [
+        "REQ-CYC-02-03",
+        "REQ-CYC-02-04"
+      ],
+      "rationale": "Положительная настоящая цепочка.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0020",
+      "requirement_ids": [
+        "REQ-CYC-02-04"
+      ],
+      "rationale": "Не производить empirical authority из conditional.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0021",
+      "requirement_ids": [
+        "REQ-CYC-02-05"
+      ],
+      "rationale": "Точечный consumer и SIM, не новый N8 engine.",
+      "disposition": "shared",
+      "shared_owner": "SIM-03"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0010",
+      "requirement_ids": [
+        "REQ-CYC-02-01",
+        "REQ-CYC-02-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Старый поддержанный N5 v1–v3 без позднего marker должен читаться в conditional N8 с явной unsupported interaction/sampling, не нарушая текущий DTO и не меняя signed bytes.; После завершения producer новый разрешённый процесс должен восстановить полный numerical payload и conditional N8 из exact selected CAS ref с исходными bindings.",
+      "test_ids": [
+        "TEST-CYC-02-01",
+        "TEST-CYC-02-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0011",
+      "requirement_ids": [
+        "REQ-CYC-02-02",
+        "REQ-CYC-02-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Fixture store должен поддерживать текущий put_json(return_selected_profile=True) и сохранять distinct generic/selected views.; После завершения producer новый разрешённый процесс должен восстановить полный numerical payload и conditional N8 из exact selected CAS ref с исходными bindings.",
+      "test_ids": [
+        "TEST-CYC-02-02",
+        "TEST-CYC-02-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0012",
+      "requirement_ids": [
+        "REQ-CYC-02-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: После завершения producer новый разрешённый процесс должен восстановить полный numerical payload и conditional N8 из exact selected CAS ref с исходными bindings.",
+      "test_ids": [
+        "TEST-CYC-02-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0013",
+      "requirement_ids": [
+        "REQ-CYC-02-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Conditional использование K_sim должно сохранять полный persisted blocker/currentness contract и не требовать synthetic treatment; эмпирическая authority остаётся отдельным путём.",
+      "test_ids": [
+        "TEST-CYC-02-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0014",
+      "requirement_ids": [
+        "REQ-CYC-02-01",
+        "REQ-CYC-02-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Старый поддержанный N5 v1–v3 без позднего marker должен читаться в conditional N8 с явной unsupported interaction/sampling, не нарушая текущий DTO и не меняя signed bytes.; Conditional использование K_sim должно сохранять полный persisted blocker/currentness contract и не требовать synthetic treatment; эмпирическая authority остаётся отдельным путём.",
+      "test_ids": [
+        "TEST-CYC-02-01",
+        "TEST-CYC-02-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0015",
+      "requirement_ids": [
+        "REQ-CYC-02-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Conditional использование K_sim должно сохранять полный persisted blocker/currentness contract и не требовать synthetic treatment; эмпирическая authority остаётся отдельным путём.",
+      "test_ids": [
+        "TEST-CYC-02-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0022",
+      "requirement_ids": [
+        "REQ-CYC-02-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Conditional использование K_sim должно сохранять полный persisted blocker/currentness contract и не требовать synthetic treatment; эмпирическая authority остаётся отдельным путём.",
+      "test_ids": [
+        "TEST-CYC-02-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0023",
+      "requirement_ids": [
+        "REQ-CYC-02-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Conditional использование K_sim должно сохранять полный persisted blocker/currentness contract и не требовать synthetic treatment; эмпирическая authority остаётся отдельным путём.",
+      "test_ids": [
+        "TEST-CYC-02-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0024",
+      "requirement_ids": [
+        "REQ-CYC-02-05"
+      ],
+      "rationale": "Конкретный контракт и oracle: Actual API/Atlas consumer должен показывать точный выбранный numerical result и его basis/limits; математическая корректность выбранного профиля подтверждается отдельным независимым oracle.",
+      "test_ids": [
+        "TEST-CYC-02-05"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I01-A",
+    "E02-X01"
+  ],
+  "dependencies": [
+    "CYC-01 ordinary served entry; CYC-02 owns conditional projection/legacy fix/new-process reader.",
+    "SIM-03 owns model-bound comparator и interaction math; CYC-05 authored child relationships не заменяет joint numerical semantics.",
+    "Общий generation_cycle.py writer координируется с соседними CYC/ACQ; не создавать второй CAS/N8."
+  ],
+  "preservation": [
+    "Полный content-bound numerical payload и оригинальные historical bytes.",
+    "Selected-profile CAS ref, tenant-owner, expected WMR/atoms/outcomes.",
+    "Раздельные unavailable/integrity/binding исходы и честный persistence failure.",
+    "K_sim остаётся доступным условным результатом, не K_world.",
+    "Persisted full blockers и повторное currentness/source binding.",
+    "No owner receipts, simulate_only и explicit low decision grade.",
+    "Conditional численный результат не требует фиктивного treatment assignment.",
+    "Candidate method-run artifact сохраняется без подмены production authority.",
+    "LLM постановка допустима; её смысл и numerical result должны сохраниться."
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    "Positive capability здесь уже существует: квалифицировать её и исправить адресные стыки, а не заново проектировать N8. Не ждать empirical каталога ради честного conditional числа."
+  ],
+  "open_decisions": [],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "symbol_or_anchor": "def _n8_interaction_qualification",
+      "lines": [
+        6940,
+        6972
+      ],
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L6940-L6972"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "symbol_or_anchor": "def _n8_sampling_uncertainty_limitations",
+      "lines": [
+        6961,
+        6993
+      ],
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L6961-L6993"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "symbol_or_anchor": "def _conditional_simulation_value_observation",
+      "lines": [
+        7008,
+        7040
+      ],
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L7008-L7040"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cyc_02.py",
+      "symbol_or_anchor": "class _GenericDefaultN5Store",
+      "lines": [
+        829,
+        861
+      ],
+      "sha256": "b99173035ad634c0bbb1c5c7f84582c74324aa7c5e28042bc01657ea3f86c2ca",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_cyc_02.py#L829-L861"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-CYC-02-01",
+      "text": "У existing _n8_sampling_uncertainty_limitations derive interaction_numeric_classification_unsupported при legacy numeric_interaction=unsupported, либо признать эквивалентное legacy ограничение в одном validator contract. Предпочесть additive текущую projection, не ослаблять ValuePortObservation authority shape. Проверить фактическую native reachability старого result, а не только helper transcription."
+    },
+    {
+      "requirement_id": "REQ-CYC-02-02",
+      "text": "Расширить _GenericDefaultN5Store.put_json совместимым параметром с точным forwarding к настоящему store; не удалять selected-profile request production writer. Отдельно проверять generic default view, выбранную N5 view и content-bound receipt."
+    },
+    {
+      "requirement_id": "REQ-CYC-02-03",
+      "text": "Повторно использовать JointSimulationPort→persist_joint_simulation_result→load_joint_simulation_result→_DefaultSimulationBoundFoundryValuePort. Временный store/tenant и profile refs передать сериализованно; новая Python invocation не наследует объект памяти. Проверить WMR/atoms/outcomes/expected_request и typed reference, не artifact-id-alone shortcut."
+    },
+    {
+      "requirement_id": "REQ-CYC-02-04",
+      "text": "Сохранить default conditional-before-Foundry routing, canonical source/context/profile/input/execution checks и no receipts. Candidate-fixture causal method artifact сохранять как candidate_fixture_value_run_not_authority. Не очищать blockers, не создавать treatment assignment и не подменять empirical owner, чтобы получить положительный статус."
+    },
+    {
+      "requirement_id": "REQ-CYC-02-05",
+      "text": "Начать с действующего cycle enclosing N5 full ref и N8 value_ref, найти конечных readers по DTO/callers. Связать их на selected view, не считать строковый artifact ID standalone addressability. SIM-01/02/03 владеют missing/zero/comparator/replications/trajectory math; здесь единый small end-to-end до consumer, не повтор полного каталога."
+    }
+  ]
+}

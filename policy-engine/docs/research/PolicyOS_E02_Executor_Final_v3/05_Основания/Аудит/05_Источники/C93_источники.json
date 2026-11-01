@@ -1,0 +1,376 @@
+{
+  "pass_id": "C93",
+  "bundle": "DFI-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          515
+        ],
+        [
+          742,
+          792
+        ],
+        [
+          852,
+          932
+        ],
+        [
+          997,
+          1085
+        ],
+        [
+          1129,
+          1267
+        ],
+        [
+          1361,
+          1453
+        ]
+      ],
+      "evidence_level": "Прочитаны полные dependency owner/resolver/proxy declarations и перечисленные consumer functions. AST всего файла инвентаризирован; selected unchanged bodies исполнены. Не полный native writer.",
+      "git_blob": "8048f07129fded3a3498f5ace0153231fae986e2",
+      "sha256": "c71931574b691570d8a124e8e582c5fadf685c4973d763adb1ccba97a1d44371",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          326
+        ],
+        [
+          997,
+          1127
+        ],
+        [
+          1385,
+          1430
+        ],
+        [
+          1810,
+          1866
+        ],
+        [
+          2243,
+          2279
+        ]
+      ],
+      "evidence_level": "Прочитаны полные dependency declarations и перечисленные consumers, включая checkpoint/currentness branch. Полный AST, selected unchanged bodies; остальные алгоритмы не аттестованы.",
+      "git_blob": "03fa92835de7f76e5aebf8672f1688683015fd19",
+      "sha256": "4a1c014b2f346dc4906d7cf4acabba4f586b8b43f1bc3eac7021aff742aa8252",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          320
+        ],
+        [
+          478,
+          658
+        ],
+        [
+          727,
+          733
+        ],
+        [
+          1213,
+          1379
+        ],
+        [
+          1438,
+          1570
+        ],
+        [
+          1646,
+          1715
+        ],
+        [
+          1910,
+          2088
+        ]
+      ],
+      "evidence_level": "Dependency owner и все функции с literal resolver calls прочитаны целиком. Полный AST inventory; representative country/chunk consumers исполнены. SQL/network consumers только чтение.",
+      "git_blob": "5e103017e4bd89ea0ea23e1b06663b14bf8f5bd4",
+      "sha256": "0f5a857d0353c880af6ce4a6e7961ee439f826e83568bf6b96b0d2fa0e852858",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          638
+        ]
+      ],
+      "evidence_level": "Полный существующий DTO/context owner прочитан и целиком импортирован; immutable/nested/async/thread/cancellation checks исполнены.",
+      "git_blob": "e5bc79f3b19891779a6832311a3f90b4c900d68f",
+      "sha256": "c3a8019dce00106229de2ac207c1568ba44b743e64ca9e03620372131be0c040",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          197
+        ]
+      ],
+      "evidence_level": "Полный finite compatibility facade прочитан и исполнен с actual selected three leaves/transformer и двумя synthetic соседями. Не full ingest.",
+      "git_blob": "c359cbd3fe861a041b70b6e9a0bfa84dd1d39c76",
+      "sha256": "9421aaed384111df9d4539281a3fa742dd472674a1fd2af527db820d0d9ae0b1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          115
+        ],
+        [
+          140,
+          365
+        ],
+        [
+          650,
+          799
+        ]
+      ],
+      "evidence_level": "Соседние finite dependency declarations, normalize/ID/country consumers прочитаны; selected unchanged functions исполнены.",
+      "git_blob": "e42b396dbd9ba8f46f272bffa4654276b40960c3",
+      "sha256": "231959818a0fc3fb8192ede89108bf32b1355bb52abe1a38d9b99e28f71c1494",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_writers.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_writers.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          262
+        ]
+      ],
+      "evidence_level": "Полный existing test file прочитан; четыре selected unchanged bodies исполнены, остальные native writer/concurrency tests не запускались.",
+      "git_blob": "fc2ae71f16373ef6beffd0b9c5b3d3f607a7120b",
+      "sha256": "0cdf908e75d2a8849223d6da9ec358bf5c3ae856520bd99046e3926756e00fe0",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_validators.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_validators.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          107
+        ]
+      ],
+      "evidence_level": "Полный existing file прочитан, все пять unchanged bodies исполнены в явной isolated оснастке.",
+      "git_blob": "9afb20c391f2fb8dc79b8de2cd608c5a2c4e749a",
+      "sha256": "3e8b59103da31b96d036814c94ad7c556b419d88d404e755ea810d5a3def07a0",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_loaders.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_loaders.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          39
+        ]
+      ],
+      "evidence_level": "Полный existing file прочитан; direct dependency body исполнен, full file native runner не запускался.",
+      "git_blob": "1d73a8b10829e7b429236820afbb7b2aea1199c1",
+      "sha256": "35bed22f105480fb19a8ef1b64c509046f4ce0ac16f2a35b9fc69bf29cd588f6",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/test__core_sources_ingest_contracts.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/data_forge/domains/catalog/batch/test__core_sources_ingest_contracts.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          162
+        ]
+      ],
+      "evidence_level": "Полный existing file прочитан; пять unchanged bodies, включая cancellation/async/thread isolation, исполнены.",
+      "git_blob": "f47aa7e5c0b8177547090e01312063fc191c84de",
+      "sha256": "628e9f0809058bee8b4d385ee391bec6eef850cfff54fe309e8e5ad65553b08f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/fabric/connectors/base.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/base.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          60
+        ],
+        [
+          541,
+          635
+        ]
+      ],
+      "evidence_level": "Actual capability DTO прочитан и unchanged AST class исполнен; полный Fabric module не импортировался.",
+      "git_blob": "0f8a052eb65375515353ea5b096aac768dc87dd2",
+      "sha256": "1b24cee041f280ddd399d75ddfe5a4c2b2aa3c8a4d32303a0e6ea7f464dc72d3",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/country_codes.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/country_codes.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          159
+        ]
+      ],
+      "evidence_level": "Полный actual country-code owner прочитан и исполнен.",
+      "git_blob": "f8c37446f5cd595e88e2630352e4326d67a4d21b",
+      "sha256": "9f0ca18d3c50fa569bdaede8c319c25afaffb933efcbd6a733d0cab74661ba89",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/ir/connectors/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/connectors/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          147,
+          267
+        ],
+        [
+          1043,
+          1072
+        ]
+      ],
+      "evidence_level": "Полный FetchRequest и его normalize/hash helpers прочитаны; whole actual IR module импортирован, не заменён синтетическим request DTO.",
+      "git_blob": "addccf798538210ce326d8a0b9a17de74d1fadb8",
+      "sha256": "23c98454aa822dabb903e68de82372fce3aeb57b3cf195d9100cf3d8abc8a5d4",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/tests/unit/remediation/test_dfi_02.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_dfi_02.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          178
+        ]
+      ],
+      "evidence_level": "Полный соседний regression file прочитан для маршрутизации, не исполнен в C93. Pipeline/concurrent ingest qualification относится к C94.",
+      "git_blob": "3b81493522cd68efb6485e6c240b87313594eac1",
+      "sha256": "af2f206ad9127d58c6e9bfc5209cc5a64cd153b31434c86c1d1fa30a03ee93ad",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1350,
+          1372
+        ],
+        [
+          1463,
+          1485
+        ]
+      ],
+      "evidence_level": "Точный current canonical API import/call и metrics consumer прочитаны. Это только routing evidence, не полный pipeline run.",
+      "git_blob": "85f82063d70d11d9c8e8cf1ac5b14443ed2abadf",
+      "sha256": "979f24af1b2f54e30b5c9ffcf5df28860a99a923613567c68f81b3cf3ded3866",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          3466
+        ]
+      ],
+      "evidence_level": "Только полный AST parse/declaration inventory для существования declared dependency targets. Не построчное семантическое чтение всей API и не её исполнение.",
+      "git_blob": "76d438f076f616febb14004820f4dafb8c8b4c0e",
+      "sha256": "cdc9587279db23a2d99b419bf385961e555db2b0c68dae252293f53733542c23",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          2040
+        ]
+      ],
+      "evidence_level": "Только полный AST parse/declaration inventory для существования declared dependency targets. Не полная семантическая квалификация registry.",
+      "git_blob": "146b0a59253a606c6091e7dd32cd802f47511294",
+      "sha256": "9b3a2dc1d861d4c26607a61b1d7cbeb4179a7b74e411c504dc340d47ab0b67fa",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

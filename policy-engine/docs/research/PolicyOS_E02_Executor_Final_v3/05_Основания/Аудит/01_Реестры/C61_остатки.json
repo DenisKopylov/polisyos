@@ -1,0 +1,71 @@
+{
+  "pass": "C61",
+  "bundle": "STA-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C61-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high_bounded",
+      "source_ids": [
+        "B58"
+      ],
+      "title": "Whole-root set удаляет protected index keys, хотя explicit delete отказан",
+      "evidence": [
+        "S01:146–174",
+        "S02:472–526",
+        "S05:47–78",
+        "S05:107–121",
+        "P06"
+      ],
+      "remaining": "Проверять сохранение protected key membership по реальному эффекту staged операции/результата, а не только operation name. Согласовать existing mutation/replay owner с before/after guard; сохранить разрешённые replacements/ref updates без удаления истории и allowed params deletion. Проверить inputs/artifacts_index/reports_index через cold, parallel и cached routes.",
+      "limits": "Actual declared/enforced branch с typed ref, set root={} допускается merge для всех3 roots; explicit del отказан, actual StateMutationGuard.post_check такой результат отвергает. Это потеря ссылки в state index, не удаление CAS bytes, не доказанная production incident или security exploit. Whole workflow UNRUN."
+    },
+    {
+      "id": "C61-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B57",
+        "B58",
+        "B59"
+      ],
+      "title": "Native persisted replay/rollback и mixed execution chain не квалифицированы",
+      "evidence": [
+        "S03:565–864",
+        "S04:1498–1647",
+        "S08",
+        "S09",
+        "S12",
+        "native_pytest.log",
+        "native_import.log"
+      ],
+      "remaining": "В supported runtime выполнить existing restart/current-base, incompatible target reexecution, failed-state rollback, cache custody и process wire tests. Проверить R01 на всех existing routes без параллельного patch schema.",
+      "limits": "Actual state machinery и proof validator исполнены, но package boot/pytest заблокированы. Core store Python3.14 syntax под3.12; Pydantic2.13.4 вне pinned<2.13. No installs. Proof fixture manifest не удостоверяет настоящий CAS."
+    },
+    {
+      "id": "C61-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B57",
+        "B59"
+      ],
+      "title": "Конкретный finite operation profile не равен произвольной Python-изоляции и идемпотентности эффектов",
+      "evidence": [
+        "S01:1802–1898",
+        "S03:148–170",
+        "S08:2237–2291",
+        "P02",
+        "P04",
+        "P08"
+      ],
+      "remaining": "Сохранить callback-free finite graph admission, alias ownership и typed operation order. Неподдержанные объекты/циклы явно отказывать; external spend/events/actions проверять по их operation identity, не replay state assignments. Оптимизацию serialization/RAM подтверждать representative measurements.",
+      "limits": "Selected DAG aliases, nested dict/list/model, canonical depth/cycle и bool/int controls выполнены. Остальная model corpus, arbitrary native objects и external effect chain UNRUN; synthetic state не empirical policy authority."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C61-R01"
+  ],
+  "decision": "Intent journal/current-base replay и deep declared-subtree repairs действуют в bounded actual profile. Protected-index deletion invariant неполон для whole-root set; native and effects qualification открыта."
+}

@@ -1,0 +1,3315 @@
+{
+  "snapshot_date": "2026-10-31",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "meaning": "Полный исходный список; audit_status не является статусом реализации репозитория.",
+  "bundle_count": 127,
+  "lanes": [
+    {
+      "id": "LANE-01",
+      "title": "Пользовательский цикл и явное N7 требование",
+      "bundle_ids": [
+        "CYC-01",
+        "REQ-01",
+        "CYC-03",
+        "ACQ-01",
+        "CYC-04",
+        "CYC-02",
+        "CYC-05",
+        "SIM-01",
+        "SIM-02",
+        "SIM-03",
+        "SEL-01"
+      ]
+    },
+    {
+      "id": "LANE-02",
+      "title": "Search state → adapters → actual autotune consumer",
+      "bundle_ids": [
+        "CTL-01",
+        "CTL-03",
+        "SRV-01",
+        "SRV-03",
+        "CTL-02",
+        "STP-01",
+        "OPT-01",
+        "OPT-02",
+        "OPT-03",
+        "OPT-04",
+        "FUN-01",
+        "FUN-02",
+        "FUN-03",
+        "TRN-01",
+        "TRN-02",
+        "TRN-03"
+      ]
+    },
+    {
+      "id": "LANE-03",
+      "title": "Empirical scope, calibration и S10 — без смешения ролей",
+      "bundle_ids": [
+        "EMP-01",
+        "FRC-01",
+        "PCL-01",
+        "FRC-02",
+        "BKT-01",
+        "BKT-02",
+        "BKT-03",
+        "BKT-04"
+      ]
+    },
+    {
+      "id": "LANE-04",
+      "title": "Compile/runtime владельцы, baseline-модели и executable plans",
+      "bundle_ids": [
+        "FRY-01",
+        "FRY-03",
+        "ECO-01",
+        "PLG-01",
+        "PLG-02",
+        "PLG-03",
+        "CMP-01",
+        "CMP-02",
+        "CMP-03",
+        "JIT-01",
+        "RES-04",
+        "CAL-05"
+      ]
+    },
+    {
+      "id": "LANE-05",
+      "title": "Causal shared helpers, wrappers и model/query",
+      "bundle_ids": [
+        "GRF-01",
+        "GRF-02",
+        "GRF-03",
+        "API-01",
+        "CAU-01",
+        "CAU-02",
+        "CAU-03",
+        "CAU-04",
+        "CAU-05",
+        "SCM-01",
+        "SCM-02",
+        "SCM-03",
+        "FIT-01"
+      ]
+    },
+    {
+      "id": "LANE-06",
+      "title": "Состояние, deadlines, replay, канон и persisted migrations",
+      "bundle_ids": [
+        "STA-01",
+        "STA-02",
+        "EXE-01",
+        "EXE-02",
+        "RES-01",
+        "RES-02",
+        "RES-03",
+        "RUN-01",
+        "RUN-02",
+        "RUN-03",
+        "DUR-01",
+        "DUR-02",
+        "WIRE-01",
+        "CAS-01",
+        "CAS-02",
+        "CAS-03",
+        "REP-01",
+        "CAN-01",
+        "MIG-01",
+        "MIG-02",
+        "MIG-04",
+        "MIG-05"
+      ]
+    },
+    {
+      "id": "LANE-07",
+      "title": "Ukraine builders: перенос helpers сразу с ремонтом наблюдений",
+      "bundle_ids": [
+        "UDF-01",
+        "OBS-01",
+        "UDF-02",
+        "OBS-02",
+        "UDF-04",
+        "UDF-05",
+        "FED-01",
+        "FED-02",
+        "CAL-01"
+      ]
+    },
+    {
+      "id": "LANE-08",
+      "title": "Catalog ingestion, generation-bound embeddings и resume",
+      "bundle_ids": [
+        "DFK-02",
+        "DFI-01",
+        "DFI-02",
+        "EMB-01",
+        "EMB-02",
+        "EMB-03",
+        "DFI-03",
+        "ING-01",
+        "ING-02",
+        "ING-03",
+        "NET-01",
+        "NET-02"
+      ]
+    },
+    {
+      "id": "LANE-09",
+      "title": "Scholar raw acquisition и snapshot handoff",
+      "bundle_ids": [
+        "SCL-01",
+        "SCL-03",
+        "LLM-01",
+        "LLM-02"
+      ]
+    },
+    {
+      "id": "LANE-10",
+      "title": "Калибровка модели и закон неопределённости",
+      "bundle_ids": [
+        "CAL-02",
+        "CAL-03",
+        "CAL-04",
+        "CAL-06",
+        "UQS-01",
+        "UQP-01",
+        "UQP-02",
+        "UQP-03",
+        "DOE-01",
+        "DOE-02",
+        "DOE-03",
+        "STR-01"
+      ]
+    },
+    {
+      "id": "LANE-11",
+      "title": "Explainability и monitoring: явный profile и актуальный decision",
+      "bundle_ids": [
+        "BER-01",
+        "DDM-01",
+        "DDM-02",
+        "LEX-01"
+      ]
+    },
+    {
+      "id": "LANE-12",
+      "title": "Точные retirement и generated client поставка",
+      "bundle_ids": [
+        "DFK-01",
+        "HYG-02",
+        "HYG-04",
+        "CLI-01"
+      ]
+    }
+  ],
+  "bundles": [
+    {
+      "order": 1,
+      "id": "CYC-01",
+      "title": "Штатный вход и связанные контексты N4/N5",
+      "lane_id": "LANE-01",
+      "source_start_line": 174,
+      "source_end_line": 302,
+      "source_anchor": "bundle-cyc-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B01",
+        "B02",
+        "B03"
+      ],
+      "protected_distinction_ids": [
+        "LK02",
+        "LK17"
+      ],
+      "audit_status": "source_reviewed_current_runtime_unrun",
+      "audit_summary": "Новый разбор B01–B03: исходные разрывы частично устранены; работоспособность на новом случае не установлена.",
+      "report": "02_Пакеты/CYC-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "unrun",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 2,
+      "id": "REQ-01",
+      "title": "DataRequirement: явный контекст и ограниченная private-очистка",
+      "lane_id": "LANE-01",
+      "source_start_line": 303,
+      "source_end_line": 507,
+      "source_anchor": "bundle-req-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-045",
+        "LA-046"
+      ],
+      "protected_distinction_ids": [
+        "LK24",
+        "LK31"
+      ],
+      "audit_status": "prior_audit_carried_forward_and_substantively_reassessed",
+      "audit_summary": "Предыдущий разбор сохранён; domain-дефект открыт, предписание возврата heuristic не принимается.",
+      "report": "02_Пакеты/REQ-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "unrun",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 3,
+      "id": "CYC-03",
+      "title": "Идентичность содержательной второй итерации",
+      "lane_id": "LANE-01",
+      "source_start_line": 508,
+      "source_end_line": 616,
+      "source_anchor": "bundle-cyc-03",
+      "original_predecessors": [
+        "CYC-01"
+      ],
+      "finding_ids": [
+        "B09",
+        "B27",
+        "B28"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "source_reviewed_current_runtime_unrun",
+      "audit_summary": "Установлены owner-bound reentry, exact-basis retention, context reissue, occurrence history и fresh GET; найден actual A→B→B→B→C test, native UNRUN. Обычный grammar advance оценивается отдельно.",
+      "report": "02_Пакеты/CYC-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "unrun",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 4,
+      "id": "ACQ-01",
+      "title": "N7: типизированное требование → acquisition → re-entry",
+      "lane_id": "LANE-01",
+      "source_start_line": 617,
+      "source_end_line": 778,
+      "source_anchor": "bundle-acq-01",
+      "original_predecessors": [
+        "REQ-01",
+        "CYC-03"
+      ],
+      "finding_ids": [
+        "B12",
+        "LA-046"
+      ],
+      "protected_distinction_ids": [
+        "LK24",
+        "LK31"
+      ],
+      "audit_status": "source_reviewed_current_runtime_unrun",
+      "audit_summary": "Исходный plan/else-разрыв изменён; actual admission→world/context→N5 и retained continuation присутствуют в ограниченном профиле. LA-046 domain остаток и общая интерпретация не закрыты.",
+      "report": "02_Пакеты/ACQ-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "unrun",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 5,
+      "id": "CYC-04",
+      "title": "Пригодные альтернативы и исследовательский бюджет",
+      "lane_id": "LANE-01",
+      "source_start_line": 779,
+      "source_end_line": 866,
+      "source_anchor": "bundle-cyc-04",
+      "original_predecessors": [
+        "CYC-03"
+      ],
+      "finding_ids": [
+        "B10",
+        "B11"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "source_reviewed_bounded_characterized_native_unrun",
+      "audit_summary": "Post-grounding выбор и information-over-ROI уже есть. Остаток: native квалификация, одна устаревшая fixture, late N5/N8 next-alternative и цена/резерв N5.",
+      "report": "02_Пакеты/CYC-04.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "unrun",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 6,
+      "id": "CYC-02",
+      "title": "Читаемый численный результат и положительный условный N8",
+      "lane_id": "LANE-01",
+      "source_start_line": 867,
+      "source_end_line": 979,
+      "source_anchor": "bundle-cyc-02",
+      "original_predecessors": [
+        "CYC-01",
+        "SIM-01",
+        "SIM-02",
+        "SIM-03"
+      ],
+      "finding_ids": [
+        "B04",
+        "B05",
+        "B08"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Full numerical CAS and conditional N8 implemented in read source; local legacy qualification mismatch and test-store keyword drift; native UNRUN.",
+      "report": "02_Пакеты/CYC-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "unrun",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 7,
+      "id": "CYC-05",
+      "title": "Правдивые лимиты, завершение и структурная проверка",
+      "lane_id": "LANE-01",
+      "source_start_line": 980,
+      "source_end_line": 1090,
+      "source_anchor": "bundle-cyc-05",
+      "original_predecessors": [
+        "CYC-02",
+        "CYC-03"
+      ],
+      "finding_ids": [
+        "B15",
+        "B29",
+        "B30"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Visible limits and actual child graph; producer stop semantics repaired; N6 no full AST at finish; positive currentness issuer remains UNRUN. Native acceptance not run.",
+      "report": "02_Пакеты/CYC-05.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "unrun",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 8,
+      "id": "SIM-01",
+      "title": "Полный выбор движка и верная история fallback",
+      "lane_id": "LANE-01",
+      "source_start_line": 1091,
+      "source_end_line": 1177,
+      "source_anchor": "bundle-sim-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B06",
+        "B07"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Coupling/temporal fallback and request-aware physical binding present; required coupled input preflight remains incomplete. 24 bounded observations; native UNRUN.",
+      "report": "02_Пакеты/SIM-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "unrun",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 9,
+      "id": "SIM-02",
+      "title": "Выходы, конфликты атомов и покрытие траекторий",
+      "lane_id": "LANE-01",
+      "source_start_line": 1178,
+      "source_end_line": 1288,
+      "source_anchor": "bundle-sim-02",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B18",
+        "B20",
+        "B22"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Missing/zero, literal conflicts and partial coverage already changed. B20 resolved-path alias and loss of specific persisted cause remain; native UNRUN.",
+      "report": "02_Пакеты/SIM-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "unrun",
+      "full_closure_claimed": false,
+      "assessment": {
+        "preserve": [
+          "typed missing/zero and finite checks",
+          "pre-run conflict rejection",
+          "partial trajectory and no implicit hold-last"
+        ],
+        "remaining": [
+          "resolved target aliases",
+          "persisted typed failure cause",
+          "native tests and time-coordinate semantics"
+        ],
+        "verification_level": "source_trace_bounded_numpy_and_boundary_fixtures; project_UNRUN"
+      }
+    },
+    {
+      "order": 10,
+      "id": "SIM-03",
+      "title": "Контрасты, реплики, SMM и экономия одинаковых расчётов",
+      "lane_id": "LANE-01",
+      "source_start_line": 1289,
+      "source_end_line": 1443,
+      "source_anchor": "bundle-sim-03",
+      "original_predecessors": [
+        "SIM-02"
+      ],
+      "finding_ids": [
+        "B19",
+        "B21",
+        "B23",
+        "B25",
+        "B26"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Baseline/evidence, actual replicas, local reuse, required-moment SMM and higher residuals already implemented. Two bounded residuals: nonfinite paired output and duplicate moment loss in adapter; comparator binding remains limited.",
+      "report": "02_Пакеты/SIM-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "unrun",
+      "full_closure_claimed": false,
+      "assessment": {
+        "preserve": [
+          "explicit baseline and evidence separation",
+          "actual seed loop and samples",
+          "invocation-local role reuse",
+          "fixed required moments and optional repeat counts",
+          "higher-order residuals with uncertainty limitations"
+        ],
+        "remaining": [
+          "finite paired Monte Carlo outputs/aggregates",
+          "unique effective moment IDs before dict conversion",
+          "one bound comparator profile",
+          "native controller/CAS/consumer qualification"
+        ],
+        "verification_level": "source_trace_and_50_bounded_observations; project_UNRUN"
+      }
+    },
+    {
+      "order": 11,
+      "id": "SEL-01",
+      "title": "Singleton, eligibility и неизменные требования выбора",
+      "lane_id": "LANE-01",
+      "source_start_line": 1444,
+      "source_end_line": 1588,
+      "source_anchor": "bundle-sel-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B34",
+        "B35",
+        "B36"
+      ],
+      "protected_distinction_ids": [
+        "LK06"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Singleton, hard-before-top-k and unchanged modalities present. Bounded residuals: ID-derived panel requirement and incorrect lexicographic loss reason. Source/census and native consumer qualification remain.",
+      "report": "02_Пакеты/SEL-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "unrun",
+      "full_closure_claimed": false,
+      "assessment": {
+        "preserve": [
+          "owner-backed singleton",
+          "hard filtering before top-k",
+          "complete value denominator vs eligible trace",
+          "explicit modalities and explicit method guards",
+          "context/content receipt bindings"
+        ],
+        "remaining": [
+          "C11-R01 opaque IDs vs hard requirements",
+          "C11-R02 actual ranking explanations",
+          "per-entry hard exclusion reasons",
+          "source-qualified scoped denominator and native downstream"
+        ],
+        "verification_level": "35 bounded observations including full Git-blob-matched receipt with real Pydantic; project native UNRUN"
+      }
+    },
+    {
+      "order": 12,
+      "id": "CTL-01",
+      "title": "Search run-state: исправление fresh/empty и извлечение владельца состояния",
+      "lane_id": "LANE-02",
+      "source_start_line": 1589,
+      "source_end_line": 1729,
+      "source_anchor": "bundle-ctl-01",
+      "original_predecessors": [
+        "OPT-01"
+      ],
+      "finding_ids": [
+        "B118",
+        "B119",
+        "LA-015"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Fresh state, detached snapshots, bounded empty and single lifecycle/native driver present. Residuals: delayed tell crosses run generation; error/cancel lacks final partial snapshot and started-attempt count. LA-015 stage 1 only.",
+      "report": "02_Пакеты/CTL-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "unrun",
+      "full_closure_claimed": false,
+      "assessment": {
+        "scope": "LA-015 stage 1/2; closure owner SRV-03",
+        "preserve": [
+          "fresh SearchRunState",
+          "detached snapshots",
+          "existing full-run lock",
+          "bounded transient/persistent empty",
+          "single lifecycle + native driver",
+          "real budget owner"
+        ],
+        "remaining": [
+          "C12-R02 run-affine pending and admission",
+          "C12-R01 interrupted run snapshot and started/failed attempts",
+          "C12-G01 reasoned empty semantics",
+          "native actual consumer qualification"
+        ],
+        "verification_level": "27 bounded observations; 2 full Git-blob-matched modules plus lifecycle excerpts and explicit fixtures; project native UNRUN"
+      }
+    },
+    {
+      "order": 13,
+      "id": "CTL-03",
+      "title": "Search transition: стоимость, счётчики и typed eligibility",
+      "lane_id": "LANE-02",
+      "source_start_line": 1730,
+      "source_end_line": 1849,
+      "source_anchor": "bundle-ctl-03",
+      "original_predecessors": [
+        "CTL-01"
+      ],
+      "finding_ids": [
+        "B120",
+        "B121",
+        "B123"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Owner budget and typed-best controls implemented; residual sentinel StageB denominator, ordinary-only liveness cap and NaN cost limit. Native acceptance UNRUN.",
+      "report": "02_Пакеты/CTL-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "unrun",
+      "full_closure_claimed": false,
+      "assessment": {
+        "preserve": [
+          "existing budget-owner reconciliation",
+          "warm/new separation",
+          "sentinel outside best/training",
+          "typed invalid separate from missing",
+          "single transition owner"
+        ],
+        "remaining": [
+          "C13-R01",
+          "C13-R02",
+          "C13-R03",
+          "C13-G01",
+          "C13-G02"
+        ],
+        "verification_level": "40 bounded observations; exact service/run_state plus source bodies with explicit fixtures; native UNRUN"
+      }
+    },
+    {
+      "order": 14,
+      "id": "SRV-01",
+      "title": "SearchService: чистые contracts и один ask/tell state transition",
+      "lane_id": "LANE-02",
+      "source_start_line": 1850,
+      "source_end_line": 1944,
+      "source_anchor": "bundle-srv-01",
+      "original_predecessors": [
+        "CTL-03"
+      ],
+      "finding_ids": [
+        "LA-014"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Contracts/adapters extraction and shared owner exist. One local overlapping-tell defect; explicit goal/search_space and manual budget profile need clarification/connection. Native acceptance UNRUN.",
+      "report": "02_Пакеты/SRV-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "unrun",
+      "full_closure_claimed": false,
+      "assessment": {
+        "implementation_assessment": "extraction_observed_shared_owner; overlapping_tell_atomicity_residual",
+        "preserve": [
+          "DTO/protocol owner and lazy compatibility aliases",
+          "historical serialized record identities",
+          "shared lifecycle/run_state; no duplicated history/best mutation",
+          "detached proposals/results; unknown and sequential duplicate refusal",
+          "malformed typed input cannot silently become scalar best"
+        ],
+        "remaining": [
+          "C14-R01: atomic pending-response acceptance, coordinated with run affinity from C12",
+          "C14-G01: explicit meaning/support of goal and search_space in ask",
+          "C14-G02: qualify manual ask/tell resource/lifecycle ownership, not implied run_search parity",
+          "C14-G03: native cold import/identity/DTO/consumer and finite compatibility census"
+        ],
+        "goal_alignment": "LLM supplies hypotheses and task framing; existing algorithmic owner must preserve the subject and accept each response exactly once without duplicating framework or ledger.",
+        "verification_level": "29 bounded observations; full blob-matched adapters/service/run_state, lifecycle excerpts with explicit interfaces; native project UNRUN",
+        "report": "02_Пакеты/SRV-01.md"
+      }
+    },
+    {
+      "order": 15,
+      "id": "SRV-03",
+      "title": "Autotune: native SearchService driver и ограниченный cutover",
+      "lane_id": "LANE-02",
+      "source_start_line": 1945,
+      "source_end_line": 2044,
+      "source_anchor": "bundle-srv-03",
+      "original_predecessors": [
+        "SRV-01",
+        "CTL-02",
+        "STP-01"
+      ],
+      "finding_ids": [
+        "LA-015"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "reviewed_limited",
+      "audit_summary": "Native owner/driver cutover exists. Stock sentinel→strict mutation codec refusal reproduced; actual consumer error/partial boundary and test gap recorded. Native acceptance UNRUN.",
+      "report": "02_Пакеты/SRV-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "unrun",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 16,
+      "id": "CTL-02",
+      "title": "Содержательные даты и воспроизводимый RNG/checkpoint",
+      "lane_id": "LANE-02",
+      "source_start_line": 2045,
+      "source_end_line": 2160,
+      "source_anchor": "bundle-ctl-02",
+      "original_predecessors": [
+        "OPT-02"
+      ],
+      "finding_ids": [
+        "B124",
+        "B125",
+        "B126"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Предметные даты, versioned Random и stable Sobol уже работают; native-library replay проверен в изоляции. R01: legacy denial теряется на re-export; R02: Gaussian cache finite/atomicity. Старые tests и стоимость prefix подготовки отмечены отдельно.",
+      "report": "02_Пакеты/CTL-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "isolated_CPython_SciPy_PyTorch_and_subprocess; whole_project_UNRUN",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 17,
+      "id": "STP-01",
+      "title": "Актуальный convergence-сигнал и плато около нуля",
+      "lane_id": "LANE-02",
+      "source_start_line": 2161,
+      "source_end_line": 2250,
+      "source_anchor": "bundle-stp-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B41",
+        "B122"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Current-pair guards and signed declared plateau implemented; R01 rejected-call embedding residue, R02 extreme arithmetic overflow; 51 existing isolated tests + 30 probes; full native consumer UNRUN.",
+      "report": "02_Пакеты/STP-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "whole_project_unrun; full_modules_isolated_tests_executed",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 18,
+      "id": "OPT-01",
+      "title": "Метрика, полная координата и строгий Pareto",
+      "lane_id": "LANE-02",
+      "source_start_line": 2251,
+      "source_end_line": 2385,
+      "source_anchor": "bundle-opt-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B108",
+        "B109",
+        "B110",
+        "B111"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Fast finite Pareto agrees with independent oracle; canonical coordinates/partial assessment present. R01 foreign schema becomes False; R02 mutable comparison basis under stale schema. B108 static semantic review; full native UNRUN.",
+      "report": "02_Пакеты/OPT-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "whole_project_unrun; full_pareto_isolated_source_and_selected_Pydantic_model_definitions_executed",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 19,
+      "id": "OPT-02",
+      "title": "Настоящий SearchSpace и координаты фактического исполнения",
+      "lane_id": "LANE-02",
+      "source_start_line": 2386,
+      "source_end_line": 2504,
+      "source_anchor": "bundle-opt-02",
+      "original_predecessors": [
+        "OPT-01"
+      ],
+      "finding_ids": [
+        "B112",
+        "B113",
+        "B127"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Настоящий SearchSpace и сохранение params/full IDs уже есть; effective duplicate guard работает локально, но cold/batch/exhaustion и внешний fallback остаются. Native GP/CAS/pytest UNRUN.",
+      "report": "02_Пакеты/OPT-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "UNRUN; selected_AST_mechanics_and_SciPy_sampler_executed",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 20,
+      "id": "OPT-03",
+      "title": "Рабочий warm-start и сохранённое GP-состояние",
+      "lane_id": "LANE-02",
+      "source_start_line": 2505,
+      "source_end_line": 2599,
+      "source_anchor": "bundle-opt-03",
+      "original_predecessors": [
+        "OPT-02"
+      ],
+      "finding_ids": [
+        "B114",
+        "B115"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Warm/current corpus и append conditioning уже реализованы; их сохранять. Остатки: крайний cap=1 не ограничивает подвыборку, поздний отказ snapshot изменяет live model. Найдены сильные native posterior/UCB/removal tests, но они UNRUN.",
+      "report": "02_Пакеты/OPT-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "UNRUN; selected_AST_boundaries_and_SciPy_only",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 21,
+      "id": "OPT-04",
+      "title": "Привязанный champion и compare-and-publish",
+      "lane_id": "LANE-02",
+      "source_start_line": 2600,
+      "source_end_line": 2696,
+      "source_anchor": "bundle-opt-04",
+      "original_predecessors": [
+        "OPT-01",
+        "OPT-02"
+      ],
+      "finding_ids": [
+        "B116",
+        "B117"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Registry уже связывает candidate/evaluation/suite и сериализует read→compare→publish межпроцессным flock; removal воспроизводит старую гонку. Остаток: новая metric/split/direction/unit policy не сверяется с comparison basis incumbent. Native CAS/authority UNRUN.",
+      "report": "02_Пакеты/OPT-04.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "UNRUN_native_product; actual_cross_process_local_IO_in_fixture_profile",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 22,
+      "id": "FUN-01",
+      "title": "Версионный ticket и одинаковое full/split продолжение",
+      "lane_id": "LANE-02",
+      "source_start_line": 2697,
+      "source_end_line": 2804,
+      "source_anchor": "bundle-fun-01",
+      "original_predecessors": [
+        "CTL-03"
+      ],
+      "finding_ids": [
+        "B156",
+        "B158",
+        "B159"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Свежие context/sentinel gates и before-L3 scheduler guard сохранены. Direct split эквивалентен full по исполняемым стадиям; bound split повторяет ранние evaluate. Адресное continuation по новому основанию и общая lineage projection остаются незавершёнными; native qualification UNRUN.",
+      "report": "02_Пакеты/FUN-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "UNRUN_native_product; selected_AST_scoreless_fixture_replay",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 23,
+      "id": "FUN-02",
+      "title": "Изоляция reduced-config и правдивый результат воронки",
+      "lane_id": "LANE-02",
+      "source_start_line": 2805,
+      "source_end_line": 2932,
+      "source_anchor": "bundle-fun-02",
+      "original_predecessors": [
+        "FUN-01"
+      ],
+      "finding_ids": [
+        "B157",
+        "B160",
+        "B162",
+        "B165"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Исходные config aliasing, empty/capped false approval и aggregate verdict дефекты отремонтированы в рассмотренном профиле. CI invalid/zero различены; остаются finite overflow и heuristic width с bootstrap label. Actual workload/source/consumer qualification UNRUN.",
+      "report": "02_Пакеты/FUN-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "UNRUN_native_product; exact_adapter_helper_projection_fixture_replay",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 24,
+      "id": "FUN-03",
+      "title": "Текущее знание, calibration routing и pre-commit ограничение",
+      "lane_id": "LANE-02",
+      "source_start_line": 2933,
+      "source_end_line": 3044,
+      "source_anchor": "bundle-fun-03",
+      "original_predecessors": [
+        "FUN-02"
+      ],
+      "finding_ids": [
+        "B161",
+        "B163",
+        "B164"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Historical/current uncertainty и empty calibration разделены; L6 fail-closed до effectful callback. Остатки: insufficient/undefined correlation как measured drift, empty criterion PASS, неполный blueprint task basis, snapshot handoff и owner-authorized commit bridge.",
+      "report": "02_Пакеты/FUN-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "UNRUN_native_product; exact_tracker_report_L6_predicate_fixture_replay",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 25,
+      "id": "TRN-01",
+      "title": "Численный transfer без фиктивного benchmark",
+      "lane_id": "LANE-02",
+      "source_start_line": 3045,
+      "source_end_line": 3182,
+      "source_anchor": "bundle-trn-01",
+      "original_predecessors": [
+        "OPT-02"
+      ],
+      "finding_ids": [
+        "B128",
+        "B130",
+        "B131",
+        "B132"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Constructor, direction-aware отбор, квота и полная привязка transfer исправлены. Подтверждены потеря timestamp и truthiness malformed stage-A; обратный benchmark ещё не устанавливает настоящий source split/suite/profile.",
+      "report": "02_Пакеты/TRN-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "UNRUN_native_product; exact_transfer_bridge_actual_DTO_explicit_source_history_fixtures",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 26,
+      "id": "TRN-02",
+      "title": "Точные snapshot-refs и атомарное поколение vector memory",
+      "lane_id": "LANE-02",
+      "source_start_line": 3183,
+      "source_end_line": 3300,
+      "source_anchor": "bundle-trn-02",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B129",
+        "B133",
+        "B134"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Exact refs, immutable cache и atomic vector generation исправлены; partial mutation восстанавливается, failed rollback закрывает поколение. Остаток discovery: fixed ANN oversampling скрывает совместимые результаты до filtering. Native HNSW/CAS qualification не выполнена.",
+      "report": "02_Пакеты/TRN-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "UNRUN_native_HNSW_CAS; exact_owners_actual_DTO_explicit_fixtures_real_threads_files",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 27,
+      "id": "TRN-03",
+      "title": "Контекст переноса, фильтры lessons и время подтверждения",
+      "lane_id": "LANE-02",
+      "source_start_line": 3301,
+      "source_end_line": 3412,
+      "source_anchor": "bundle-trn-03",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B135",
+        "B136",
+        "B137"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Explicit context, local/transfer filters и evidence/access clocks согласованы. Остатки: historical pattern grade без effective-age маркировки, naive timestamp arithmetic и source evidence-anchor handoff; реальная научная ревалидация не доказана.",
+      "report": "02_Пакеты/TRN-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "UNRUN_native_product_CAS_security; exact_registry_resolver_actual_DTO_real_files_fixtures",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 28,
+      "id": "EMP-01",
+      "title": "Область эмпирических данных, ValueOuterSet и selection diagram",
+      "lane_id": "LANE-03",
+      "source_start_line": 3413,
+      "source_end_line": 3529,
+      "source_anchor": "bundle-emp-01",
+      "original_predecessors": [
+        "CYC-01"
+      ],
+      "finding_ids": [
+        "B16",
+        "B31",
+        "B33"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Country scope, отказ при усечении/неоднозначных единицах, отдельные statistical bounds и выбранный causal graph реализованы. Подтверждены зависимость width от масштаба единиц и переполнение width; candidate run basis не заменяет эмпирическое основание.",
+      "report": "02_Пакеты/EMP-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "UNRUN_native_project_SQL_CAS_Foundry_transport; bounded_exact_definitions_with_explicit_fixtures",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 29,
+      "id": "FRC-01",
+      "title": "S10: реальные времена и запрет выдуманного calibration pass",
+      "lane_id": "LANE-03",
+      "source_start_line": 3530,
+      "source_end_line": 3669,
+      "source_anchor": "bundle-frc-01",
+      "original_predecessors": [
+        "CYC-01"
+      ],
+      "finding_ids": [
+        "B32",
+        "LA-051"
+      ],
+      "protected_distinction_ids": [
+        "LK29",
+        "LK30"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Finite CI больше не создаёт calibration pass; временные роли и отсутствие history честно ограничены. В summary воспроизведено повторное назначение pass/floor из счётчиков вопреки input limit. Реальный predictive bridge найден, но полное LA-051 остаётся за FRC-02.",
+      "report": "02_Пакеты/FRC-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "UNRUN_native_project_HTTP_CAS_bridge; bounded_actual_S10_DTO_builders_curve_with_fixtures",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 30,
+      "id": "PCL-01",
+      "title": "Предиктивная калибровка: знаменатель, receipt и canonical tests",
+      "lane_id": "LANE-03",
+      "source_start_line": 3670,
+      "source_end_line": 3845,
+      "source_anchor": "bundle-pcl-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-052",
+        "LA-053"
+      ],
+      "protected_distinction_ids": [
+        "LK01",
+        "LK30",
+        "LK32"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Empty/incomplete calibration больше не становится положительным receipt; реальные numeric/report/receipt и readback проверены. Canonical tests перенесены, alias identity сохранена. Остаток: typed report ограничивает sidecar в dispatcher, JSON mapping того же report — нет; retirement alias требует lifecycle.",
+      "report": "02_Пакеты/PCL-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "UNRUN_native_pytest_fullimports_distribution_dispatch; actual_numerical_report_receipt_merge_isolated_imports",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 31,
+      "id": "FRC-02",
+      "title": "S10: один действительный calibration producer и связанный forecast",
+      "lane_id": "LANE-03",
+      "source_start_line": 3846,
+      "source_end_line": 3973,
+      "source_anchor": "bundle-frc-02",
+      "original_predecessors": [
+        "FRC-01",
+        "PCL-01",
+        "EMP-01"
+      ],
+      "finding_ids": [
+        "LA-051"
+      ],
+      "protected_distinction_ids": [
+        "LK01",
+        "LK29",
+        "LK30"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Найден реальный ETS→holdout→report→neutral evidence→run-bound S10 bridge; actual bridge/DTO definitions проверены на25 bounded cases с явными fixture CAS/ref seams. Дробные metadata counts усекались при reconciliation. Native short chain BLOCKED отсутствием pytest; predictive-only scope и N4 outcome binding остаются ограниченными.",
+      "report": "02_Пакеты/FRC-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_UNRUN_full_native_chain",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 32,
+      "id": "BKT-01",
+      "title": "Фактический historical view, тип прогноза и реплики",
+      "lane_id": "LANE-03",
+      "source_start_line": 3974,
+      "source_end_line": 4083,
+      "source_anchor": "bundle-bkt-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B166",
+        "B169",
+        "B170"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Target prefix теперь связан с Foundry request, scalar требует constant profile, n1/n7 различают requests/seeds и сохраняют cohort.24 bounded MATCH с fixture workflow/CAS. Остались нецелевые future values в masked view, потеря cohort ref при invalid-prediction fallback и потеря selected metrics profile. Native tests BLOCKED отсутствием pytest.",
+      "report": "02_Пакеты/BKT-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_UNRUN_Scientist_Foundry_CAS",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 33,
+      "id": "BKT-02",
+      "title": "Полнота сравнения, nominal coverage и micro/macro",
+      "lane_id": "LANE-03",
+      "source_start_line": 4084,
+      "source_end_line": 4220,
+      "source_anchor": "bundle-bkt-02",
+      "original_predecessors": [
+        "BKT-01"
+      ],
+      "finding_ids": [
+        "B167",
+        "B168",
+        "B171"
+      ],
+      "protected_distinction_ids": [
+        "LK01",
+        "LK29",
+        "LK30"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Полнота ячеек, unknown CI, nominal/type и micro/macro существенно исправлены.24 bounded observations подтверждают numeric→DTO JSON→fresh trust chain; native CAS/workflow не запускались. Конечные крайние числа всё ещё срывают scenario при square/accumulation overflow. Native tests BLOCKED отсутствием pytest.",
+      "report": "02_Пакеты/BKT-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_UNRUN_native_CAS_workflow",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 34,
+      "id": "BKT-03",
+      "title": "Описательное смещение и честный статистический backend",
+      "lane_id": "LANE-03",
+      "source_start_line": 4221,
+      "source_end_line": 4308,
+      "source_anchor": "bundle-bkt-03",
+      "original_predecessors": [
+        "BKT-02"
+      ],
+      "finding_ids": [
+        "B172",
+        "B173"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Constant residual и SciPy availability теперь честно разделены; fresh verifier и actual packet section сохраняют descriptive rows, снимая stale p.24 bounded observations. Остался cancellation mismatch np.mean против math.fsum/n, срывающий finite report. Native tests BLOCKED отсутствием pytest; полный CAS/C5b/packet UNRUN.",
+      "report": "02_Пакеты/BKT-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_UNRUN_native_CAS_C5b_packet",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 35,
+      "id": "BKT-04",
+      "title": "Только выбранные CV-разбиения и разрешённая bootstrap-статистика",
+      "lane_id": "LANE-03",
+      "source_start_line": 4309,
+      "source_end_line": 4396,
+      "source_anchor": "bundle-bkt-04",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B174",
+        "B175"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "CV материализует только6 выбранных списков/1504 элемента и заранее проверяет progress. Bootstrap отвергает неизвестный selector и невалидные данные до sampling, сохраняет named/callable identity и воспроизводимый RNG.25 bounded observations, новых R-дефектов не установлено; native/activation/scientific gaps раскрыты. Native tests BLOCKED отсутствием pytest.",
+      "report": "02_Пакеты/BKT-04.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_UNRUN_native_import_and_runtime",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 36,
+      "id": "FRY-01",
+      "title": "Foundry compile/catalog: randomization, families и прямой IR layout",
+      "lane_id": "LANE-04",
+      "source_start_line": 4397,
+      "source_end_line": 4592,
+      "source_anchor": "bundle-fry-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-001",
+        "LA-002",
+        "LA-037"
+      ],
+      "protected_distinction_ids": [
+        "LK03",
+        "LK06"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Три адресных ремонта подтверждены: randomization и family owners, прямые IR layout bindings. Actual IR registry/certificates и admission исполнены ограниченно; versioned RNG явно отделён от cosmetic move. 24 MATCH, новых R-дефектов не установлено. Native compiler/CAS/JAX/IC остаются UNRUN, pytest BLOCKED.",
+      "report": "02_Пакеты/FRY-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_UNRUN_native_compiler_CAS_JAX_IC",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 37,
+      "id": "FRY-03",
+      "title": "Fiscal/labor: эквивалентный перенос живых PatchMap kernels",
+      "lane_id": "LANE-04",
+      "source_start_line": 4593,
+      "source_end_line": 4710,
+      "source_anchor": "bundle-fry-03",
+      "original_predecessors": [
+        "FRY-01"
+      ],
+      "finding_ids": [
+        "LA-003"
+      ],
+      "protected_distinction_ids": [
+        "LK06",
+        "LK08"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Живые fiscal/labor kernels принадлежат execute/mechanisms; runtime class paths и прямые old aliases согласованы. 22 bounded observations с NumPy/scripted-RNG seams подтверждают PatchMap/masks/accounting/control flow, но не JAX equivalence. Намеренный precision delta отделён от relocation; новых R-дефектов не установлено. Native registry/compiler/CAS/gradient UNRUN, pytest BLOCKED.",
+      "report": "02_Пакеты/FRY-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_UNRUN_JAX_registry_compiler_CAS_gradient",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 38,
+      "id": "ECO-01",
+      "title": "Два economic профиля и предметный baseline objective",
+      "lane_id": "LANE-04",
+      "source_start_line": 4711,
+      "source_end_line": 4892,
+      "source_anchor": "bundle-eco-01",
+      "original_predecessors": [
+        "FRY-03"
+      ],
+      "finding_ids": [
+        "LA-004",
+        "LA-035"
+      ],
+      "protected_distinction_ids": [
+        "LK04",
+        "LK06",
+        "LK08"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Два economic ABI/law профиля сохранены с существующей таблицей units/clock/base/debit/RNG/accounting. Plugin tax base — income, debit — wealth. Named normalized-income baseline и actual guard body проверены ограниченно; constant −1 и all-entry population намеренно сохранены. 22 MATCH, новых R нет; native JAX/state/import/consumer проверки BLOCKED/UNRUN.",
+      "report": "02_Пакеты/ECO-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_UNRUN_native_JAX_state_Gini_imports",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 39,
+      "id": "PLG-01",
+      "title": "DomainPlugin: общая discovery-механика без смены ABI",
+      "lane_id": "LANE-04",
+      "source_start_line": 4893,
+      "source_end_line": 4994,
+      "source_anchor": "bundle-plg-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-022"
+      ],
+      "protected_distinction_ids": [
+        "LK08"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Core discovery primitives реально используются при сохранённом Domain ABI/group/lifecycle. 18 bounded MATCH, включая C39-R01: malformed dev/prefix factory result прерывает auto-registration и оставляет следующий valid plugin незарегистрированным. Prefix scan и one-pass dependency order остаются явными qualification границами; native pytest BLOCKED.",
+      "report": "02_Пакеты/PLG-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_UNRUN_native_package_Economics_state",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 40,
+      "id": "PLG-02",
+      "title": "PolisySimulator: честный rollout result вместо псевдообучения",
+      "lane_id": "LANE-04",
+      "source_start_line": 4995,
+      "source_end_line": 5089,
+      "source_anchor": "bundle-plg-02",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-023"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Текущий unsupported train честно возвращает bridge_pending до actor/rollout/store, CLI exit 1 без ложного loss/model output; обычный run сохранён. 18 bounded MATCH. C40-R01: немаркированный legacy-compatible TrainingResult по default trained получает success/PPO-loss роль у CLI. Реальный trainer bridge существует, но его этап 2 ещё не оценён.",
+      "report": "02_Пакеты/PLG-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_UNRUN_native_state_optimizer_CLI_process",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 41,
+      "id": "PLG-03",
+      "title": "Один DomainPlugin → существующий trainer: реальный learning bridge",
+      "lane_id": "LANE-04",
+      "source_start_line": 5090,
+      "source_end_line": 5199,
+      "source_anchor": "bundle-plg-03",
+      "original_predecessors": [
+        "PLG-02"
+      ],
+      "finding_ids": [
+        "LA-023"
+      ],
+      "protected_distinction_ids": [
+        "LK08"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Реальный one-domain Economics→canonical JIT PPO→artifact bridge существует; old reward-only loop не текущий train. 23 bounded MATCH. C41-R01: HARD collector записывает sampled action, temporal transition выполняет mean; default fluid/relaxed controls согласованы. Native gradient/CAS acceptance BLOCKED; C40-R01 сохранён.",
+      "report": "02_Пакеты/PLG-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_UNRUN_JAX_PPO_native_CAS",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 42,
+      "id": "CMP-01",
+      "title": "Импорт, effective DAG и единый payload исполнителей",
+      "lane_id": "LANE-04",
+      "source_start_line": 5200,
+      "source_end_line": 5324,
+      "source_anchor": "bundle-cmp-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B42",
+        "B43",
+        "B44"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Исторические import/effective-DAG/payload repairs присутствуют: actual build→freeze→local execute с requires-only edge, параллельным sibling и window=20 даёт 21 bounded MATCH. Новых product defects в этом scope не установлено; native imports/pytest blocked средой, persisted effective-plan и optional routes остаются неполной квалификацией.",
+      "report": "02_Пакеты/CMP-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_Python312_native_import_syntax",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 43,
+      "id": "CMP-02",
+      "title": "Однозначные slots и ordering по occurrence",
+      "lane_id": "LANE-04",
+      "source_start_line": 5325,
+      "source_end_line": 5427,
+      "source_anchor": "bundle-cmp-02",
+      "original_predecessors": [
+        "CMP-01"
+      ],
+      "finding_ids": [
+        "B45",
+        "B46"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Concrete slot collision и occurrence ordering guards существуют. 19 bounded MATCH: STRICT отказывает duplicate producers; explicit merge даёт UUID-invariant 60. WARN сохраняет неоднозначность 20↔10 с явным warning/mode, включая actual checkpoint JSON fresh readback и resume без новых dispatch. Native и научная квалификация остаются ограниченными.",
+      "report": "02_Пакеты/CMP-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_UNRUN_native_registry_dispatcher",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 44,
+      "id": "CMP-03",
+      "title": "Полное и семантически одинаковое ручное/автоматическое связывание",
+      "lane_id": "LANE-04",
+      "source_start_line": 5428,
+      "source_end_line": 5529,
+      "source_anchor": "bundle-cmp-03",
+      "original_predecessors": [
+        "CMP-02"
+      ],
+      "finding_ids": [
+        "B47",
+        "B48"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Original matching и semantic parity repair существуют. 23 bounded MATCH, включая 729 contract graphs; два остатка: stale source в diagnostics и потеря exact-name preference между targets. Actual consumers/checkpoint различают правильный binding и ложное сообщение. Native/scientific qualification остаются открытыми.",
+      "report": "02_Пакеты/CMP-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_UNRUN_native_registry_dispatcher",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 45,
+      "id": "JIT-01",
+      "title": "Правильный warm kernel, single-flight и дешёвая подготовка",
+      "lane_id": "LANE-04",
+      "source_start_line": 5530,
+      "source_end_line": 5648,
+      "source_anchor": "bundle-jit-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B49",
+        "B50",
+        "B53"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "B49 dynamic binding и B53 no-evaluation shape preparation существуют; B50 publication/shared flights сохранены, но miss→claim race даёт 2 kernel constructions на одном поколении. 22 bounded MATCH; native pytest/JAX отсутствуют, dtype и runtime qualification отдельно.",
+      "report": "02_Пакеты/JIT-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_and_JAX_missing_UNRUN_native_JIT",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 46,
+      "id": "RES-04",
+      "title": "Точный Foundry checkpoint и неизменяемые sidecars",
+      "lane_id": "LANE-04",
+      "source_start_line": 5649,
+      "source_end_line": 5771,
+      "source_anchor": "bundle-res-04",
+      "original_predecessors": [
+        "CMP-02"
+      ],
+      "finding_ids": [
+        "B74",
+        "B75",
+        "B76"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Effective request/prefix и typed 6/7 history сохраняются. 21 bounded MATCH; остатки: post-rename cleanup удаляет referenced sidecars, state/history namespace collision и потеря restricted_invocation. Native pytest BLOCKED; fixtures не empirical authority.",
+      "report": "02_Пакеты/RES-04.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_UNRUN_native_backend_CAS",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 47,
+      "id": "CAL-05",
+      "title": "Неактивный механизм не вычисляется как активный",
+      "lane_id": "LANE-04",
+      "source_start_line": 5772,
+      "source_end_line": 5839,
+      "source_anchor": "bundle-cal-05",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B185"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Исходный unconditional emitter repair существует: inactive eager skip, tracer-safe cond, mapped-predicate refusal и scalar batch map. 20 bounded MATCH; новых R не установлено. Native JAX/pytest BLOCKED, scientific calibration authority не аттестована.",
+      "report": "02_Пакеты/CAL-05.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_and_JAX_missing_UNRUN_transforms_calibrator",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 48,
+      "id": "GRF-01",
+      "title": "Правильные static ADMG m-separation и perfect-do",
+      "lane_id": "LANE-05",
+      "source_start_line": 5840,
+      "source_end_line": 6034,
+      "source_anchor": "bundle-grf-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B216",
+        "B217",
+        "LA-007",
+        "LA-019"
+      ],
+      "protected_distinction_ids": [
+        "LK05",
+        "LK13"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Endpoint-aware separator и perfect-do реализованы; свежие 20 MATCH и три неизменённых test bodies подтверждают 2400 separation и 19200 surgery queries на 200 ADMGs. Пустые siblings отсутствуют, реальные packages сохранены. Новых R не установлено; native/installed/scientific qualification открыта.",
+      "report": "02_Пакеты/GRF-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_Python_3_12_UNRUN_installed_packages_IDC",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 49,
+      "id": "GRF-02",
+      "title": "Неизменяемый граф, mixed-edge export и версии кэша",
+      "lane_id": "LANE-05",
+      "source_start_line": 6035,
+      "source_end_line": 6128,
+      "source_anchor": "bundle-grf-02",
+      "original_predecessors": [
+        "GRF-01"
+      ],
+      "finding_ids": [
+        "B219",
+        "B220"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "NetworkX multikey export и frozen/copy/row-cache coherence сохранены: 16 MATCH, 12 existing bodies / 27 isolated cases. Остались endpoint-only identity прямого Kuzu-emitter и тройная canonical/hash preparation внутри одного conditioned query; native backends/CAS BLOCKED.",
+      "report": "02_Пакеты/GRF-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_and_graph_backends_missing_UNRUN_supported_Python_CAS",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 50,
+      "id": "GRF-03",
+      "title": "Известные направления и явная временная/частичная семантика",
+      "lane_id": "LANE-05",
+      "source_start_line": 6129,
+      "source_end_line": 6220,
+      "source_anchor": "bundle-grf-03",
+      "original_predecessors": [
+        "GRF-02"
+      ],
+      "finding_ids": [
+        "B214",
+        "B218"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Known reverse direction, source marks и validated DAG construction сохранены; compact lag1/lag2 и positive autoregression не теряются, static fit/sampling отказывают до backend. 20 MATCH и 9 unchanged bodies (90 finite profile controls); новых R нет. Native/temporal-family/scientific qualification открыта.",
+      "report": "02_Пакеты/GRF-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_Python_3_14_syntax_UNRUN_full_fit_query_CAS",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 51,
+      "id": "API-01",
+      "title": "Причинные фасады: explicit surface вместо отражающих globals",
+      "lane_id": "LANE-05",
+      "source_start_line": 6221,
+      "source_end_line": 6323,
+      "source_anchor": "bundle-api-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-020"
+      ],
+      "protected_distinction_ids": [
+        "LK05",
+        "LK13"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Оба package initializer используют explicit public manifest (2/9 имён) и сохраняют 8 direct-only compatibility bindings. Actual sync/dispatch различает patch и removal control. 13 MATCH, 8 existing bodies/11 cases с synthetic leaves; runtime R не установлен. Native/installed/FQN и относительный consumer census остаются G.",
+      "report": "02_Пакеты/API-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_Python_3_14_syntax_UNRUN_native_leaf_installed_consumers",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 52,
+      "id": "CAU-01",
+      "title": "Standard DiD: допустимый дизайн, covariance и уровни CI",
+      "lane_id": "LANE-05",
+      "source_start_line": 6324,
+      "source_end_line": 6487,
+      "source_anchor": "bundle-cau-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B204",
+        "B205",
+        "B206",
+        "LA-016"
+      ],
+      "protected_distinction_ids": [
+        "LK05"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Standard t0=0 получает точный отказ; actual HC1/CR0 и CI80/95/99 различаются, metadata отвязаны от deprecated owner. 12 MATCH, 16 unchanged bodies с AST seams. C52-R01: unique NaN cluster label считается, но score его unit теряется, занижая SE. Native/coverage/migration qualification открыта.",
+      "report": "02_Пакеты/CAU-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_statsmodels_missing_Python_3_14_syntax_UNRUN_registry_CAS_scientific_coverage",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 53,
+      "id": "CAU-02",
+      "title": "Staggered DiD: единицы, H0 и anticipation",
+      "lane_id": "LANE-05",
+      "source_start_line": 6488,
+      "source_end_line": 6600,
+      "source_anchor": "bundle-cau-02",
+      "original_predecessors": [
+        "CAU-01"
+      ],
+      "finding_ids": [
+        "B207",
+        "B208",
+        "B209"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Staggered DiD использует общий unit influence с cohort-share contribution и fixed theta_sel; H0/CI связаны одной finite-B inversion, anticipation исключает g=t+a controls. 11 MATCH, 18 bodies/37 cases и 160 bounded DGP repetitions; новых R нет. Native/general coverage/empirical identification остаются G.",
+      "report": "02_Пакеты/CAU-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_Python_3_14_syntax_UNRUN_native_job_CAS_GENERAL_COVERAGE",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 54,
+      "id": "CAU-03",
+      "title": "RDD: честная RBC capability и линейная память WLS",
+      "lane_id": "LANE-05",
+      "source_start_line": 6601,
+      "source_end_line": 6690,
+      "source_anchor": "bundle-cau-03",
+      "original_predecessors": [
+        "CAU-01"
+      ],
+      "finding_ids": [
+        "B210",
+        "B211"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Real bounded sharp RBC меняет point и covariance и совпадает с independent sensitivity oracle;400 fixed-DGP repetitions дали371/400 coverage. Vector weights/one small Gram pinv сохранены. 7 MATCH,26 existing bodies/66 cases; C54-R01 conventional raw-scale pinv теряет slope при full rank. Native/general coverage/performance G открыты.",
+      "report": "02_Пакеты/CAU-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_Python_3_14_syntax_UNRUN_native_CAS_external_RBC_GENERAL_COVERAGE",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 55,
+      "id": "CAU-04",
+      "title": "DoWhy: реальный estimand и point-only результат",
+      "lane_id": "LANE-05",
+      "source_start_line": 6691,
+      "source_end_line": 6782,
+      "source_anchor": "bundle-cau-04",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B212",
+        "B213"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Point-only7 сохраняется без CI/level/SE и без SUCCESS; selected DoWhy profile ограничен ATE/linear/0→1/ate/95%. Exact bridge и whole-report consumer отказывают malformed/binding/extra-claim mutations. 7 MATCH,13 existing bodies/24 cases; нового R нет, actual DoWhy/native CAS/scientific G открыты.",
+      "report": "02_Пакеты/CAU-04.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_Python_3_14_syntax_DoWhy_profile_absent_UNRUN_native_CAS_backend_coverage",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 56,
+      "id": "CAU-05",
+      "title": "DiD: dedicated planning, old-slot replay и retirement umbrella",
+      "lane_id": "LANE-05",
+      "source_start_line": 6783,
+      "source_end_line": 6871,
+      "source_anchor": "bundle-cau-05",
+      "original_predecessors": [
+        "CAU-01",
+        "CAU-02"
+      ],
+      "finding_ids": [
+        "LA-016"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Dedicated DiD metadata/boot/request/callers сохранены, direct old-slot/mode adapter equivalent по целому report и warnings. 8 MATCH,8 existing bodies/9 cases;8231-file literal census pinned. Нового R нет; native chain и versioned frozen-plan replay не квалифицированы, LA016 closure не заявлена.",
+      "report": "02_Пакеты/CAU-05.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_Python_3_14_syntax_UNRUN_native_registry_CAS_frozen_plan_replay",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 57,
+      "id": "SCM-01",
+      "title": "Наблюдаемые корни и выполняемый nonlinear payload",
+      "lane_id": "LANE-05",
+      "source_start_line": 6872,
+      "source_end_line": 6964,
+      "source_anchor": "bundle-scm-01",
+      "original_predecessors": [
+        "GRF-02"
+      ],
+      "finding_ids": [
+        "B221",
+        "B222"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Observed/joint roots проходят fit→DTO JSON→query; declared polynomial даёт 4 вместо 1.36, shared predictor сохраняет fully observed residual/twin/linear control. 9 MATCH, 5 unchanged bodies. C57-R01: outcome-only twin требует не влияющий disconnected root; несовместимые законы Z дают одинаковый ответ. Native selected/CAS chain и nonlinear qualification открыты.",
+      "report": "02_Пакеты/SCM-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_Python_3_14_syntax_UNRUN_selected_DoWhy_worker_CAS_Scientist_chain",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 58,
+      "id": "SCM-02",
+      "title": "Factual abduction и две явные стороны attribution",
+      "lane_id": "LANE-05",
+      "source_start_line": 6965,
+      "source_end_line": 7059,
+      "source_anchor": "bundle-scm-02",
+      "original_predecessors": [
+        "SCM-01"
+      ],
+      "finding_ids": [
+        "B215",
+        "B223"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Partial Gaussian posterior и explicit target/comparator работают в обычных controls. 10 MATCH, 17 unchanged bodies. C58-R01: absolute draw threshold уничтожает small positive covariance; C58-R02: factual empirical-root pin не condition-ит joint row law и ошибочно помечен exact. Native chain/refit/scientific qualification открыты.",
+      "report": "02_Пакеты/SCM-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_Python_3_14_syntax_UNRUN_native_CAS_Scientist_ensemble_refit",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 59,
+      "id": "SCM-03",
+      "title": "Активный query-plan и сохранённый stochastic law",
+      "lane_id": "LANE-05",
+      "source_start_line": 7060,
+      "source_end_line": 7155,
+      "source_anchor": "bundle-scm-03",
+      "original_predecessors": [
+        "SCM-02",
+        "GRF-01",
+        "GRF-02"
+      ],
+      "finding_ids": [
+        "B224",
+        "B225"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Perfect do/active plan и stochastic law работают:10/210 calls,20/220 retained values; один parse,2048 interior truncnorm draws. 10 MATCH,10 unchanged bodies/11 cases. C59-R01 manual partial graph raw-endpoint admission; C59-R02 low joint-posterior replica instability. Native/refit/scientific qualification открыта.",
+      "report": "02_Пакеты/SCM-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_Python_3_14_syntax_UNRUN_native_registry_worker_CAS_Scientist_refit",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 60,
+      "id": "FIT-01",
+      "title": "Nuisance fit-core, актуальная диагностика и ограниченные folds",
+      "lane_id": "LANE-05",
+      "source_start_line": 7156,
+      "source_end_line": 7248,
+      "source_anchor": "bundle-fit-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B54",
+        "B56"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Actual fit-core/current-view repairs подтверждены:32contract fields,7same-label invalidations,readonly reader isolation и controlled precomputed reuse. Два actual fits сохраняют12folds при peak2 total/1 per fit. 6MATCH,11unchanged bodies/49cases; R не выявлены. Native pool/CAS и workload/scientific qualification открыты.",
+      "report": "02_Пакеты/FIT-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_Python_3_14_syntax_UNRUN_native_pool_CAS_report_projection",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 61,
+      "id": "STA-01",
+      "title": "Изоляция ветвей и точные эффекты replay",
+      "lane_id": "LANE-06",
+      "source_start_line": 7249,
+      "source_end_line": 7365,
+      "source_anchor": "bundle-sta-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B57",
+        "B58",
+        "B59"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Actual intent journal сохраняет current unrelated field и same-value write; deep declared subtree изолирует base/sibling. 8 MATCH,29 unchanged bodies/34cases. C61-R01: whole-root set снимает protected index key, тогда как delete и before/after guard отказывают. Native CAS/restart и external-effect qualification открыты.",
+      "report": "02_Пакеты/STA-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_Python_3_14_store_syntax_UNRUN_WorkflowExecutor_CAS_restart",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 62,
+      "id": "STA-02",
+      "title": "Точная версия входа и пригодность готового bundle",
+      "lane_id": "LANE-06",
+      "source_start_line": 7366,
+      "source_end_line": 7479,
+      "source_anchor": "bundle-sta-02",
+      "original_predecessors": [
+        "STA-01"
+      ],
+      "finding_ids": [
+        "B60",
+        "B61",
+        "B62"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Exact request/source/presence repairs действуют в bounded actual owners:9 MATCH,4 unchanged skip bodies. C62-R01: source-unbound reuse оставляет старые32draws при новом key для128draws/seed9 или не создаёт derived runtime fields. Native CAS/DuckDB/WorkflowExecutor и scientific qualification открыты.",
+      "report": "02_Пакеты/STA-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_DuckDB_missing_Python_3_14_syntax_UNRUN_CAS_WorkflowExecutor",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 63,
+      "id": "EXE-01",
+      "title": "Допуск cache read, неблокирующий I/O и fail-fast",
+      "lane_id": "LANE-06",
+      "source_start_line": 7480,
+      "source_end_line": 7596,
+      "source_anchor": "bundle-exe-01",
+      "original_predecessors": [
+        "STA-01",
+        "RUN-01"
+      ],
+      "finding_ids": [
+        "B51",
+        "B52",
+        "B55"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Read/compute admission разделены; actual cache I/O off-loop и fail-fast после acquire действуют.8 MATCH,14 unchanged Common bodies. C63-R01: late callback completed shared Future блокирует event loop в контролируемом interleaving. Native CAS/full workflow и performance qualification открыты.",
+      "report": "02_Пакеты/EXE-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "COMMON_actual_module_executed_BLOCKED_pytest_Python_3_14_store_syntax_UNRUN_native_CAS_workflow",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 64,
+      "id": "EXE-02",
+      "title": "Готовность зависимостей вместо лишнего tier-ожидания",
+      "lane_id": "LANE-06",
+      "source_start_line": 7597,
+      "source_end_line": 7665,
+      "source_anchor": "bundle-exe-02",
+      "original_predecessors": [
+        "RES-02",
+        "RES-01"
+      ],
+      "finding_ids": [
+        "B77"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Actual readiness освобождает C после committed A до независимого B, сохраняет real join и semantic tier barriers.8 MATCH,5 unchanged state-boundary bodies. C64-R01: list-index spelling alias принят как disjoint в unjournaled route. Native lifecycle и stale test helper ABI остаются открытыми.",
+      "report": "02_Пакеты/EXE-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_Python_3_14_store_syntax_UNRUN_public_workflow_CAS_checkpoint",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 65,
+      "id": "RES-01",
+      "title": "Повторный resume, достаточный state и дешёвый индекс",
+      "lane_id": "LANE-06",
+      "source_start_line": 7666,
+      "source_end_line": 7785,
+      "source_anchor": "bundle-res-01",
+      "original_predecessors": [
+        "STA-02",
+        "RES-02"
+      ],
+      "finding_ids": [
+        "B63",
+        "B70",
+        "B71"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "11 bounded MATCH: original/residual identity разделены; actual resume выбирает остаток или явный полный replay; exact successful refs dedupe между trace/checkpoint. Нового R не установлено. Native durable custody/lifecycle, workload I/O и полнота declarations остаются открытыми.",
+      "report": "02_Пакеты/RES-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_Python_3_14_import_syntax_UNRUN_native_CAS_durable_resume",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 66,
+      "id": "RES-02",
+      "title": "Единый завершённый frontier и атомарный tier checkpoint",
+      "lane_id": "LANE-06",
+      "source_start_line": 7786,
+      "source_end_line": 7884,
+      "source_anchor": "bundle-res-02",
+      "original_predecessors": [
+        "STA-01"
+      ],
+      "finding_ids": [
+        "B72",
+        "B73"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "9 bounded MATCH: skip исключён из successful frontier при обеих ширинах; один tier checkpoint после решения commit/rollback, правильная compensation и сохранённые output records. Нового R нет. Native crash/CAS retention и current test helper ABI остаются открытыми.",
+      "report": "02_Пакеты/RES-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_Python_3_14_import_syntax_UNRUN_native_crash_resume_CAS",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 67,
+      "id": "RES-03",
+      "title": "Сохранение частичного результата через последующий отказ",
+      "lane_id": "LANE-06",
+      "source_start_line": 7885,
+      "source_end_line": 7956,
+      "source_anchor": "bundle-res-03",
+      "original_predecessors": [
+        "CYC-02",
+        "CMP-01"
+      ],
+      "finding_ids": [
+        "B13"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "9 bounded MATCH: async partial сохраняет successful siblings, прежние уровни, численный fixture result и exact error. Recursive V3 predicates и API/normative consumers различают partial и authority. Нового R нет; native N5/CAS/readback и same-leaf поздний отказ остаются открытыми.",
+      "report": "02_Пакеты/RES-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED_pytest_missing_Python_3_14_syntax_UNRUN_native_N5_CAS_HTTP",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 68,
+      "id": "RUN-01",
+      "title": "Deadline, contextvars и безопасные sync/async-мосты",
+      "lane_id": "LANE-06",
+      "source_start_line": 7957,
+      "source_end_line": 8151,
+      "source_anchor": "bundle-run-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B14",
+        "B40",
+        "B69",
+        "B95",
+        "LA-057"
+      ],
+      "protected_distinction_ids": [
+        "LK36"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "11 bounded MATCH и12 isolated Common bodies: actual deadline/unbounded/context/re-entrancy contracts и LA-057 cleanup подтверждены ограниченно. C68-R01: low pre-admission fresh coroutine cleanup. Native write-owner integration и supported tooling остаются открытыми.",
+      "report": "02_Пакеты/RUN-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "COMMON_MODULE_EXECUTED_RETRY_FULL_IMPORT_BLOCKED_PYTHON_3_14_PYTEST_UNRUN",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 69,
+      "id": "RUN-02",
+      "title": "Доставка результата через процессную границу",
+      "lane_id": "LANE-06",
+      "source_start_line": 8152,
+      "source_end_line": 8220,
+      "source_anchor": "bundle-run-02",
+      "original_predecessors": [
+        "RUN-01"
+      ],
+      "finding_ids": [
+        "B24"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "7 bounded MATCH: actual channel/worker/codec доставляют64байта и1MiB в sync/async до join; partial frame и compute timeout различены, own direct children очищены. C69-R01 low early-EOF diagnostic residual. Full Core supervisor/receipts/descendants и native Mac не квалифицированы.",
+      "report": "02_Пакеты/RUN-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BOUNDED_LINUX_FORK_CHANNEL_EXECUTED_FULL_RETRY_PYTEST_MACOS_UNRUN",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 70,
+      "id": "RUN-03",
+      "title": "Одна retry-политика и чистый baseline каждой попытки",
+      "lane_id": "LANE-06",
+      "source_start_line": 8221,
+      "source_end_line": 8312,
+      "source_anchor": "bundle-run-03",
+      "original_predecessors": [
+        "STA-01",
+        "RUN-01"
+      ],
+      "finding_ids": [
+        "B39",
+        "B96"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "9 bounded MATCH: fresh retry baseline и фильтр политики подтверждены на трёх маршрутах; известные completed costs и история сохраняются при обычном успехе/исчерпании. C70-R01 low cancellation state-projection остаток; единая return/raise семантика и native durable closure не квалифицированы.",
+      "report": "02_Пакеты/RUN-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BOUNDED_RETRY_STATE_CLASSIFICATION_EXECUTED_NATIVE_PYTEST_CUSTODY_UNRUN",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 71,
+      "id": "DUR-01",
+      "title": "Аварийно-устойчивый бюджетный snapshot",
+      "lane_id": "LANE-06",
+      "source_start_line": 8313,
+      "source_end_line": 8386,
+      "source_anchor": "bundle-dur-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B37"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "8 bounded MATCH: whole native ledger/middleware, 19 unchanged existing bodies / 62 cases подтверждают stable lock, atomic old/new publication, strict corruption refusal и exact-event idempotency. C71-R01: visible readback после failed directory sync преждевременно получает durable ack; filesystem/native qualification остаётся.",
+      "report": "02_Пакеты/DUR-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "WHOLE_NATIVE_LEDGER_MIDDLEWARE_AND_REAL_CHILDREN_EXECUTED_PYTEST_TOOLCHAIN_UNRUN",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 72,
+      "id": "DUR-02",
+      "title": "Поколение worker и безопасный backend handover",
+      "lane_id": "LANE-06",
+      "source_start_line": 8387,
+      "source_end_line": 8488,
+      "source_anchor": "bundle-dur-02",
+      "original_predecessors": [
+        "RUN-03",
+        "RES-02"
+      ],
+      "finding_ids": [
+        "B38",
+        "B78"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "7 bounded MATCH: actual SQL fences/transaction rollback и typed pre-dispatch fallback подтверждены на явных fixtures; post-dispatch effect не повторяется local. C72-R01: unavailable heartbeat останавливается без cooperative signal. Native custody и reconciled handover остаются квалификационными пробелами.",
+      "report": "02_Пакеты/DUR-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BOUNDED_SQL_FENCING_WORKER_FALLBACK_EXECUTED_NATIVE_CUSTODY_UNRUN",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 73,
+      "id": "WIRE-01",
+      "title": "Версионированный transport допустимых типов state",
+      "lane_id": "LANE-06",
+      "source_start_line": 8489,
+      "source_end_line": 8561,
+      "source_anchor": "bundle-wire-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B94"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "9 bounded MATCH: actual whole codec/DTOs на stdlib сохраняют Decimal, bytes, typed refs, outcome subtype и journal. 19 unchanged bodies / 41 cases: 40 PASS, 1 stale-envelope FAIL. C73-R01: escaped mapping writer/reader depth mismatch; orjson/native qualification остаётся.",
+      "report": "02_Пакеты/WIRE-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "WHOLE_CODEC_AND_ACTUAL_DTOS_BEHIND_INITIALIZER_SHELLS_STDLIB_EXECUTED_ORJSON_UNRUN",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 74,
+      "id": "CAS-01",
+      "title": "First-writer, честная ref и bounded lock ownership",
+      "lane_id": "LANE-06",
+      "source_start_line": 8562,
+      "source_end_line": 8687,
+      "source_anchor": "bundle-cas-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B150",
+        "B151",
+        "B153"
+      ],
+      "protected_distinction_ids": [
+        "LK20"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "15 bounded MATCH: actual selected publication/read methods, exact manifest views, corrupt retry refusal и fixed-stripe/flock controls. 14 unchanged bodies: 12 PASS, 2 stale-observer FAIL. Новый product defect не установлен; native custody, test drift и recovery/storage qualification остаются.",
+      "report": "02_Пакеты/CAS-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "ACTUAL_FILES_FLOCK_AND_SELECTED_STORE_METHODS_EXECUTED_OWNER_INDEX_FIXTURE_NATIVE_CAS_UNRUN",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 75,
+      "id": "CAS-02",
+      "title": "Сначала проверенный transfer, затем публикация inventory",
+      "lane_id": "LANE-06",
+      "source_start_line": 8688,
+      "source_end_line": 8780,
+      "source_anchor": "bundle-cas-02",
+      "original_predecessors": [
+        "CAS-01"
+      ],
+      "finding_ids": [
+        "B148",
+        "B149"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "12 bounded MATCH; 10 unchanged bodies /11 cases PASS под explicit fixture seams. Staging/admission и exact inventory подтверждены ограниченно. Подтверждены late foreign-file cleanup R01 и потеря старого tar при failed re-export R02; native custody/recovery остаются.",
+      "report": "02_Пакеты/CAS-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "ACTUAL_TRANSFER_AND_SELECTED_STORE_METHODS_EXECUTED_OWNER_INDEX_STREAM_FIXTURES_NATIVE_CAS_UNRUN",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 76,
+      "id": "CAS-03",
+      "title": "Одна проверка bytes и bounded batch verification",
+      "lane_id": "LANE-06",
+      "source_start_line": 8781,
+      "source_end_line": 8892,
+      "source_anchor": "bundle-cas-03",
+      "original_predecessors": [
+        "CAS-01"
+      ],
+      "finding_ids": [
+        "B152",
+        "B154",
+        "B155"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "7 bounded MATCH;23 unchanged bodies/cases PASS, actual Ed25519 и selected store/batch owners. Single snapshot и partial/aborted batch reports подтверждены ограниченно. Default census cancellation R01 и duplicate-source cancellation R02 остаются; native custody/CLI unrun.",
+      "report": "02_Пакеты/CAS-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "REAL_ED25519_AND_SELECTED_BATCH_STORE_OWNERS_EXECUTED_FIXTURE_CUSTODY_CONTEXT_BRIDGE_NATIVE_SUITE_UNRUN",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 77,
+      "id": "REP-01",
+      "title": "Runtime replay: прямой Scientist owner без лишнего compatibility hop",
+      "lane_id": "LANE-06",
+      "source_start_line": 8893,
+      "source_end_line": 9007,
+      "source_anchor": "bundle-rep-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-033"
+      ],
+      "protected_distinction_ids": [
+        "LK15"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Direct replay owner migration подтверждён: native root10 lazy PASS;6 bounded MATCH и4 unchanged compatibility bodies PASS с actual canonical definitions/explicit seams. CLI check-only и historical local writer/readback исполнены ограниченно. Новый product defect не установлен; native replay/resume/package и retirement qualification остаются.",
+      "report": "02_Пакеты/REP-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "NATIVE_ROOT_IMPORT_PASS_CANONICAL_CLI_PERSISTED_BOUNDED_SEAMS_FULL_REPLAY_RESUME_UNRUN",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 78,
+      "id": "CAN-01",
+      "title": "Strict canon: один primitive, явные Core/IR профили",
+      "lane_id": "LANE-06",
+      "source_start_line": 9008,
+      "source_end_line": 9128,
+      "source_anchor": "bundle-can-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-021"
+      ],
+      "protected_distinction_ids": [
+        "LK07",
+        "LK20"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Shared strict canon/hash owner и отдельные Core/IR профили подтверждены. 7 bounded MATCH;52 unchanged bodies/127 cases:125 PASS,2 characterization FAIL на intentional conformance delta сохранены. Native codecs/IR IO доступны; full CAS/native suite и historical compatibility qualification остаются. C76 PEP695 metadata уточнена отдельным свежим replay без изменения старых файлов.",
+      "report": "02_Пакеты/CAN-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: native common/Core/IR codecs и IR IO импортированы без stubs; свежий IR IO import не загружает Core. 52 existing bodies /127 cases исполнены под pytest helpers:125 PASS,2 FAIL. Native pytest отсутствует; full Core CAS blocked на Python3.12. Actual Core profile module исполнен за initializer shell. Native ownership/publication/installed package UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 79,
+      "id": "MIG-01",
+      "title": "Один migration CLI: делегирование и явная Trinity validation",
+      "lane_id": "LANE-06",
+      "source_start_line": 9129,
+      "source_end_line": 9302,
+      "source_anchor": "bundle-mig-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-010",
+        "LA-049"
+      ],
+      "protected_distinction_ids": [
+        "LK26",
+        "LK27"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Current no-op policy IR теперь валидируется настоящим TrinityBundle; self-edge удалена, root CLI duplicate retired. 6 bounded MATCH,14 unchanged bodies/19 cases PASS и отдельный native model control. Low R01: fsync failure оставляет temp, сохраняя old output/input. Registered native CLI/lifecycle qualification остаются.",
+      "report": "02_Пакеты/MIG-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: actual TrinityBundle, migration registry и loader native, отдельный fresh native current/incomplete control PASS. 14 unchanged bodies/19 cases PASS под pytest helpers; canonical main actual за tools.lib/fs seams. Whole tools CLI/fs blocked Python 3.14 syntax при Python3.12; native pytest отсутствует. Registered/installed CLI и scoped output owner UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 80,
+      "id": "MIG-02",
+      "title": "RunManifest: сохраняющее identity преобразование paths",
+      "lane_id": "LANE-06",
+      "source_start_line": 9303,
+      "source_end_line": 9428,
+      "source_anchor": "bundle-mig-02",
+      "original_predecessors": [
+        "MIG-01"
+      ],
+      "finding_ids": [
+        "LA-048"
+      ],
+      "protected_distinction_ids": [
+        "LK15",
+        "LK27"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Runtime-owned path normalization подтверждена: no basename fallback, identity/declared roots/containment/--to refusal и actual writer→manifest→reader same bytes. 5 bounded MATCH,11 unchanged cases PASS; standalone native converter PASS. Новый product defect не установлен; native/historical/root-profile qualification и общий C79-R01 остаются.",
+      "report": "02_Пакеты/MIG-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: actual converter native, standalone same-bytes/no-mutation control PASS. 11 unchanged bodies/cases PASS под pytest helpers; actual Runtime DTO/API whole modules за EnvironmentManifestRef import bridge, canonical main за C79 tools.lib/fs seams. Native Runtime graph/registered CLI blocked Python 3.14 syntax на Python3.12; native pytest отсутствует.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 81,
+      "id": "MIG-04",
+      "title": "DatasetManifest: converter у schema owner, явная registration",
+      "lane_id": "LANE-06",
+      "source_start_line": 9429,
+      "source_end_line": 9543,
+      "source_anchor": "bundle-mig-04",
+      "original_predecessors": [
+        "MIG-01"
+      ],
+      "finding_ids": [
+        "LA-050"
+      ],
+      "protected_distinction_ids": [
+        "LK28"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Fabric schema-owner converter и explicit CLI registration подтверждены; generic Common нейтрален, bounded legacy adapter сохранён. 5 MATCH,12 unchanged bodies/14 cases PASS, включая3 native child checks; native actual registry/DTO различает converted и admitted. Новый product defect не установлен; historical/target/lifecycle/native CLI qualification и shared C79-R01 остаются.",
+      "report": "02_Пакеты/MIG-04.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: actual Fabric converter/DTO/clock/ManifestRegistry native, fresh persisted consumer control PASS;3 native child import/registration checks PASS. 12 unchanged bodies/14 cases PASS под pytest helpers. Canonical main actual за C79 tools.lib/fs seams; registered/installed tools CLI и native pytest UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 82,
+      "id": "MIG-05",
+      "title": "Common/IR: общая линейная механика, разные migration profiles",
+      "lane_id": "LANE-06",
+      "source_start_line": 9544,
+      "source_end_line": 9664,
+      "source_anchor": "bundle-mig-05",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-047"
+      ],
+      "protected_distinction_ids": [
+        "LK25"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Shared Common/IR linear executor и явные profiles подтверждены; DataForge graph owner сохранён. 5 MATCH,30/30 unchanged cases PASS на actual native product modules. C82-R01: unsupported closure identity маскируется как empty cell, скрывая callback conflict; fresh native reproduction. Historical/installed/release qualification остаётся.",
+      "report": "02_Пакеты/MIG-05.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: Common/IR/DataForge actual native modules без product shells; fresh native closure reproduction PASS (подтверждает defect). 30 unchanged bodies/30 cases PASS под внешними pytest helpers; native pytest отсутствует, supported Python 3.14/installed/release checks UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 83,
+      "id": "UDF-01",
+      "title": "Ukraine builders: D4 handoff и малые явные contracts",
+      "lane_id": "LANE-07",
+      "source_start_line": 9665,
+      "source_end_line": 9849,
+      "source_anchor": "bundle-udf-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-030",
+        "LA-031"
+      ],
+      "protected_distinction_ids": [
+        "LK10",
+        "LK12"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "D4 canonical handoff/alias/exact bytes и4 authority denials сохранены;6 MATCH,3 selected unchanged cases PASS за явными seams/fixture CAS. C83-R01:contract-only import всё ещё eagerly активирует unrelated builder siblings. Current inputs extension сохранён; native selected-profile/governance chain и remaining LA-031 phases не закрыты.",
+      "report": "02_Пакеты/UDF-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: actual models native; contract-only/native manifests imports BLOCKED на Core store Python 3.14 syntax, trace показывает eager siblings. 3 unchanged bodies PASS за Core/builders shells и fixture CAS; actual producer/I/O/DTO/read API, selected actual Scientist parser. Native CAS/facade/selected-profile governance pipeline и pytest UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 84,
+      "id": "OBS-01",
+      "title": "Календарные observation helpers: перенос и корректные периоды",
+      "lane_id": "LANE-07",
+      "source_start_line": 9850,
+      "source_end_line": 9995,
+      "source_anchor": "bundle-obs-01",
+      "original_predecessors": [
+        "UDF-01"
+      ],
+      "finding_ids": [
+        "B146",
+        "LA-031"
+      ],
+      "protected_distinction_ids": [
+        "LK12"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "B146 calendar/fallback repair подтверждён:5 MATCH,14 unchanged bodies/22 cases PASS,720 calendar inputs и500 rows/4 parser calls. Actual selected callers/reconciliation/gate отвергают tampered projection и не повышают unresolved periods. Новый product defect не установлен; native Parquet/CAS/historical reevaluation/shared C83-R01 и remaining LA-031 не закрыты.",
+      "report": "02_Пакеты/OBS-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: actual full period module за builders shell, actual native SourceConfig/IR types, selected unchanged actual caller/reconcile/gate functions.14 unchanged bodies/22 cases PASS;720 additional calendar diagnostic inputs. Native full facade/CAS/Parquet/governance/pytest UNRUN; own persisted JSON witness не native artifact chain.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 85,
+      "id": "UDF-02",
+      "title": "Ukraine common: доменный I/O, binding diagnostics и явные exports",
+      "lane_id": "LANE-07",
+      "source_start_line": 9996,
+      "source_end_line": 10136,
+      "source_anchor": "bundle-udf-02",
+      "original_predecessors": [
+        "UDF-01",
+        "OBS-01"
+      ],
+      "finding_ids": [
+        "LA-031"
+      ],
+      "protected_distinction_ids": [
+        "LK10",
+        "LK11",
+        "LK12"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "Coherent I/O/bindings owners и explicit imports подтверждены:5 MATCH,10 unchanged bodies PASS,2 native Parquet attempts BLOCKED.28 common aliases, JSON bytes/atomic failures, NPZ metadata и diagnostic warnings сохранены. Новый defect не установлен; shared C83-R01, native profiles/consumer activation/lifecycle не закрыты.",
+      "report": "02_Пакеты/UDF-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: actual whole io/common/bindings modules за Core artifacts и builders initializer shells.5 MATCH;10 unchanged bodies PASS,2 Parquet bodies BLOCKED,1 facade body UNRUN. Source-selection reader fixture explicit. Native CAS/full stages/pytest/DuckDB не выполнялись.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 86,
+      "id": "OBS-02",
+      "title": "Observation reader: непрерывность после partial yield",
+      "lane_id": "LANE-07",
+      "source_start_line": 10137,
+      "source_end_line": 10212,
+      "source_anchor": "bundle-obs-02",
+      "original_predecessors": [
+        "UDF-02"
+      ],
+      "finding_ids": [
+        "B147"
+      ],
+      "protected_distinction_ids": [
+        "LK12"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "B147 duplicate-prefix fallback устранён в bounded actual-function controls:6 MATCH, snapshot-bound resume при4 rebatching вариантах, typed partial accounting и failed receipt refusal.12 native bodies/18 cases BLOCKED,0 native PASS. Новый defect не установлен; successful native Parquet/D2/CAS и lifecycle qualification не закрыты.",
+      "report": "02_Пакеты/OBS-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: actual complete snapshot/iterator/mapper/D2/tracking functions selected AST; actual OS files/hash/temp handles и whole read API negative admission.6 MATCH.12 existing native bodies/18 cases BLOCKED on PyArrow;0 native test PASS. Reader/shard writer are explicit own JSON fixtures; native Parquet/DuckDB/CAS/full successful D2 UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 87,
+      "id": "UDF-04",
+      "title": "Ukraine ops: явный workspace root и перенос server gate",
+      "lane_id": "LANE-07",
+      "source_start_line": 10213,
+      "source_end_line": 10320,
+      "source_anchor": "bundle-udf-04",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-029"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "LA-029 explicit workspace/root и Ops ownership подтверждены:5 MATCH,17 unchanged bodies/19 cases PASS. Low C87-R01: public installed-layout route до typed unavailable preempted server guard; no bypass/false PASS. Native installed/C7/deployment UNRUN; synthetic receipts только unit evidence.",
+      "report": "02_Пакеты/UDF-04.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: actual whole CLI/Ops/server/orchestrator modules за Core/builders/tools.lib initializer seams; empty stage registry is not activation proof.5 MATCH,17 unchanged bodies/19 cases PASS. subprocess recording only; synthetic pytest/pluggy helpers and receipts, selected actual timing identity AST. Native C7/provisioning/installed wheel UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 88,
+      "id": "UDF-05",
+      "title": "Демография: единый snapshot вместо per-file legacy fallback",
+      "lane_id": "LANE-07",
+      "source_start_line": 10321,
+      "source_end_line": 10450,
+      "source_anchor": "bundle-udf-05",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-032"
+      ],
+      "protected_distinction_ids": [
+        "LK12",
+        "LK20"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "LA-032 whole-layout fallback repair сохранён: 5 MATCH, 31 unchanged bodies / 77 cases PASS. C88-R01 role-field overwrite и C88-R02 fractional donor truncation подтверждены на historical reader→pure aging. Candidate probes post-resolution only; native CAS/builder chain UNRUN, authority limits сохранены.",
+      "report": "02_Пакеты/UDF-05.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: whole actual demography/source_inventory/read_api/static-aging и generation modules за Core initializer shell; 5 MATCH, 31 unchanged bodies / 77 cases PASS. Native package import BLOCKED Python3.12 vs required3.14; pytest absent. Candidate probes post-resolution only, real CAS/builder/Foundry qualification UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 89,
+      "id": "FED-01",
+      "title": "Grain, cell lineage, внутренние имена и CONSENSUS",
+      "lane_id": "LANE-07",
+      "source_start_line": 10451,
+      "source_end_line": 10596,
+      "source_anchor": "bundle-fed-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B138",
+        "B140",
+        "B141",
+        "B145"
+      ],
+      "protected_distinction_ids": [
+        "LK04"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "B138/B140/B141 bounded repair подтверждён, включая actual selected JSON parent replay. 5 MATCH;36 unchanged bodies/47 cases:46 PASS,1 Parquet BLOCKED. B145 residuals C89-R01 finite aggregate overflow и C89-R02 singleton strict MEDIAN. Native syntax/import/service qualification UNRUN. Erratum: LANE-07 продолжается через FED-02 и CAL-01.",
+      "report": "02_Пакеты/FED-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: 5 MATCH;36 unchanged existing bodies/47 cases:46 PASS,1 Parquet BLOCKED. Actual resolver/profile/artifact/IR DTOs and disk JSON selected replay; composer external syntax adapter adds parentheses to3 except clauses. Two parent initializer shells, no-op telemetry and pytest helper. Native facade/Python 3.14/full service UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 90,
+      "id": "FED-02",
+      "title": "Устойчивый bounded audit, typed-empty и один indexing",
+      "lane_id": "LANE-07",
+      "source_start_line": 10597,
+      "source_end_line": 10728,
+      "source_anchor": "bundle-fed-02",
+      "original_predecessors": [
+        "FED-01"
+      ],
+      "finding_ids": [
+        "B139",
+        "B142",
+        "B143",
+        "B144"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "B139/B143/B144 bounded repairs подтверждены:5 MATCH,3 existing bodies PASS;80 conflicts/cap1 удерживают1 detail после возврата, count80;OVERLAY2index/NONE0payload. C90-R01: multiple compatible empty UNION inputs теряют extra columns первого-schema branch, включая JSON replay. Native/SQL/performance qualification UNRUN.",
+      "report": "02_Пакеты/FED-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL:5 MATCH,3 unchanged existing bodies/cases PASS. Actual resolver/profile/artifact/IR DTOs, real JSON typed-empty persistence/replay and weakref/profile observations. Composer external copy has3 syntax-only except parentheses; initializer shells, telemetry no-op, pytest helper. Native facade/Python 3.14/pytest/DuckDB/large-workload performance UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 91,
+      "id": "CAL-01",
+      "title": "Наблюдения, календарная ось и заполнение без фиктивной опоры",
+      "lane_id": "LANE-07",
+      "source_start_line": 10729,
+      "source_end_line": 10843,
+      "source_anchor": "bundle-cal-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B176",
+        "B177",
+        "B178"
+      ],
+      "protected_distinction_ids": [
+        "LK01"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "CAL01:5 MATCH,19 unchanged bodies/20 cases PASS; same-period ambiguity, paired explicit-grid sort, requested time, fractional fill/empty-support repairs сохранены. R01 duplicate/nonfinite time, R02 implicit grid from unsorted endpoints, R03 cross-period unit mixing подтверждены bounded. Native JAX/optimizer/report UNRUN. LANE07 завершён по очереди, не product closure.",
+      "report": "02_Пакеты/CAL-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL:5 MATCH;19 unchanged existing bodies/20 cases PASS. Actual whole measurement supported NumPy fallback, actual Record/Panel/registry/split owner; selected config/manifest real DTO class AST. Preflight whole AST except JAX import, jnp=NumPy explicit fixture. Native Python 3.14/pytest/JAX/optimizer/report/Fabric service UNRUN; two early harness setup errors retained.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 92,
+      "id": "DFK-02",
+      "title": "Source catalog: одно определение и единая seed-selection policy",
+      "lane_id": "LANE-08",
+      "source_start_line": 10844,
+      "source_end_line": 10981,
+      "source_anchor": "bundle-dfk-02",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-028"
+      ],
+      "protected_distinction_ids": [
+        "LK19",
+        "LK20"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "DFK02:5 MATCH,26 unchanged bodies/37 cases PASS. Full35-row YAML/allfields/assets,36profile-wave pairs,shared fail-closed seeds/default-vs-empty подтверждены. C92-R01 low: catalog-only entry predicate требует connector в отличие от общей/batch policy.35 redundant literal constructors overwritten canonically; native producer/Fabric chain UNRUN.",
+      "report": "02_Пакеты/DFK-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL:5 MATCH,26 unchanged existing bodies/37 cases PASS. Whole actual YAML/registry/selection/module/batch/asset owners; supporting alias/Enum/error class AST, explicit parent/facade seams. Four actual Fabric policy methods executed with fixture object state. Native facade/pytest/resolve/DuckDB/published pipeline UNRUN; three early setup/extraction failures retained.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 93,
+      "id": "DFI-01",
+      "title": "Core sources: самостоятельные writer/validator/loader dependencies",
+      "lane_id": "LANE-08",
+      "source_start_line": 10982,
+      "source_end_line": 11088,
+      "source_anchor": "bundle-dfi-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-038"
+      ],
+      "protected_distinction_ids": [
+        "LK19"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "DFI-01: 5 MATCH, 15 unchanged existing bodies/cases PASS. Finite three-leaf owner bindings, canonical calls before facade import, immutable scoped async/thread/cancellation behavior and actual writer SQL/provenance/count capture confirmed. Новых R нет; native trace parity и accountable DFI-02 closure остаются.",
+      "report": "02_Пакеты/DFI-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: 5 MATCH; 15 unchanged existing bodies/cases PASS. Whole actual contracts/IR request/country map; selected unchanged three-leaf dependency owners and consumers. Whole facade with two synthetic neighbor modules. Native writer import BLOCKED on transitive Python 3.14 syntax; pytest/DuckDB unavailable. SQL captured, not executed; network/full ingest UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 94,
+      "id": "DFI-02",
+      "title": "Core sources: API cutover без обратной синхронизации globals",
+      "lane_id": "LANE-08",
+      "source_start_line": 11089,
+      "source_end_line": 11197,
+      "source_anchor": "bundle-dfi-02",
+      "original_predecessors": [
+        "DFI-01"
+      ],
+      "finding_ids": [
+        "LA-038"
+      ],
+      "protected_distinction_ids": [
+        "LK19"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "DFI-02: 6 MATCH, 12 unchanged existing bodies/cases PASS. Actual canonical pipeline function, scoped facade A/B, real stage manifest persistence, sync context и bounded lease/budget handoff подтверждены с явными boundary fixtures. C94-R01 low: empty_shards теряется на outer merge; C94-R02 low: restored older generated wrapper recurses. Full native LA-038 closure остаётся открытым.",
+      "report": "02_Пакеты/DFI-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: 6 MATCH, 12 unchanged existing bodies/cases PASS. Actual selected remaining-leaf owners, whole facade, full selected pipeline/API stage functions, real JSON manifest/atomic persistence and actual sync runner. Explicit config/alignment/profile/DB/checkpoint/connector/result fixtures. Native API import BLOCKED on transitive Python 3.14 syntax; pytest/DuckDB unavailable. Full selected publish/currentness/network/ingest scheduler UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 95,
+      "id": "EMB-01",
+      "title": "Academic/Catalog: общий encode/index primitive, разные text profiles",
+      "lane_id": "LANE-08",
+      "source_start_line": 11198,
+      "source_end_line": 11318,
+      "source_anchor": "bundle-emb-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-039"
+      ],
+      "protected_distinction_ids": [
+        "LK20"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "EMB-01: 5 MATCH, 4 unchanged existing bodies/cases PASS. Whole shared kernel/domain wrappers and real NumPy/NPZ preserve separate1200vs500/20/20 profiles, ID/vector correspondence, float32, labels/settings, device/results/thermal. JSON-HNSW/SQL/encoder fixtures explicit. Новых R нет; native HNSW/DB и EMB-02 publication/reader qualification остаются.",
+      "report": "02_Пакеты/EMB-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: 5 MATCH, 4 unchanged existing bodies/cases PASS. Whole actual domain wrappers/shared kernel/projections, real NumPy float32/NPZ, basis/hash/filesystem/atomic stage manifests. SQL, encoder and JSON-HNSW fixtures explicit; native HNSW/DuckDB/pytest/SentenceTransformer absent. Native kernel import PASS only; native catalog graph BLOCKED. Model quality, ANN recall and full selected-reader chain UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 96,
+      "id": "EMB-02",
+      "title": "Индексное поколение: NPZ/HNSW/basis публикуются согласованно",
+      "lane_id": "LANE-08",
+      "source_start_line": 11319,
+      "source_end_line": 11441,
+      "source_anchor": "bundle-emb-02",
+      "original_predecessors": [
+        "EMB-01"
+      ],
+      "finding_ids": [
+        "LA-039"
+      ],
+      "protected_distinction_ids": [
+        "LK20"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "EMB-02:5 MATCH,9 unchanged existing bodies/14 cases PASS. Actual staged publisher, typed empty, failure retention, selected inventory/currentness and semantic reader guards confirmed within explicit SQL/encoder/JSON-index fixtures. R01: controlled index output mismatch becomes selected complete before reader admission; old directory retained, reader refuses. Native public-reader/search/readiness corpus remains G01.",
+      "report": "02_Пакеты/EMB-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL:5 MATCH,9 unchanged existing test bodies/14 cases PASS. Whole actual publisher/kernel/domain build wrappers, real NumPy/NPZ/files/hashes; selected Academic methods unchanged. Catalog index methods have two syntax-only except adaptations, removed guard and fixture constructor. SQL/encoder/HNSW explicit fixtures; .hnsw is JSON. Whole native readers BLOCKED, HNSW/DuckDB/pytest absent. Native search/read-session/readiness and ANN/model quality UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 97,
+      "id": "EMB-03",
+      "title": "Legal embeddings: content-bound incremental и честный старый backend API",
+      "lane_id": "LANE-08",
+      "source_start_line": 11442,
+      "source_end_line": 11597,
+      "source_anchor": "bundle-emb-03",
+      "original_predecessors": [
+        "EMB-02"
+      ],
+      "finding_ids": [
+        "LA-040",
+        "LA-042"
+      ],
+      "protected_distinction_ids": [
+        "LK20"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "EMB-03: 5 MATCH, 11 unchanged existing bodies/15 cases PASS. Actual content-bound Legal reuse preserves three projections, chunk/thermal/stats and invalidates text/model/assets/tokenizer/rule/withdrawal; historical NPZ not upgraded to cache. Honest old backend refusal/result/exception semantics confirmed. Generic candidate query correctly refuses before encode without owned runtime material. New R absent; native/owned serving and exact external lifecycle scope remain G; shared C96-R01 not duplicated.",
+      "report": "02_Пакеты/EMB-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: 5 MATCH, 11 unchanged existing bodies/15 cases PASS. Whole legal builder has two exact syntax-only except adaptations for Python3.12; actual shared kernel/projections/asset identity, NumPy/NPZ/files. SQL/encoder/JSON-HNSW fixtures explicit. Selected unchanged reader/query methods and CLI stage body executed; constructor fixture. Native builder/store BLOCKED; runtime-material module import PASS only. Native owned encoder/HNSW/DB/HTTP, model quality and legal authority UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 98,
+      "id": "DFI-03",
+      "title": "Batch resume: input basis и обязательный output inventory",
+      "lane_id": "LANE-08",
+      "source_start_line": 11598,
+      "source_end_line": 11714,
+      "source_anchor": "bundle-dfi-03",
+      "original_predecessors": [
+        "EMB-02"
+      ],
+      "finding_ids": [
+        "LA-041"
+      ],
+      "protected_distinction_ids": [
+        "LK20"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "DFI-03: strict content-bound selected resume реализован и сохранён; 5 MATCH,13 unchanged bodies/14 cases PASS. Actual harvest receipt reconciles mandatory source/hash/count inventory, embed binds current assets and selected complete/empty generation. Два low bounded остатка: malformed count aborts recovery и standalone harvest CLI ignores resume_mode off при resume=True. Native all-stage/config/normalizer/performance qualification остаётся G.",
+      "report": "02_Пакеты/DFI-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: 5 MATCH; 13 unchanged existing bodies/14 cases PASS. Actual whole checkpoint/embed kernel, selected pipeline/harvest functions and full CLI parser/dispatcher; one selected except syntax adaptation for Python3.12. Config/profile/selection, SQL/encoder/JSON-HNSW and external transport fixtures explicit. Native package imports BLOCKED at transitive3.14 syntax; pytest/DuckDB/HNSW absent. Native all-stage resume, model quality, HTTP, final admission and performance UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 99,
+      "id": "ING-01",
+      "title": "Инкрементальный запрос, committed cursor и replay",
+      "lane_id": "LANE-08",
+      "source_start_line": 11715,
+      "source_end_line": 11830,
+      "source_anchor": "bundle-ing-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B79",
+        "B80",
+        "B88"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "ING-01: 4 MATCH,6 unchanged bodies/8 cases PASS. B79/B80 jointly wired through actual finite source-owner/request/cursor reconciliation; A a8→a9, failed B not advanced, empty delta retains whole consumer state, legacy proof-less cursors refused. B88 ordinary/live fallback removed; actual ReplayStore/simulator/aiohttp negatives pass. One low multi-namespace replay compatibility residual; native CAS/full ingestion/served provenance/live scope remain G.",
+      "report": "02_Пакеты/ING-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: 4 MATCH;6 unchanged existing bodies/8 cases PASS. Actual finite source reader/contracts/request transform/cursor evidence checks/serializer/atomic index; fixture CAS profiles and ingestion persistence delegate. Actual ReplayStore/APISimulator/aiohttp interception, no native requests. One units.TypeVar compatibility import adaptation. Native IR/cursor DTO imports PASS; modes/source-contract/simulator/source-progress graph BLOCKED on3.14 baseline mismatch. Native CAS/full source ingestion/served provenance/live currentness UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 100,
+      "id": "ING-02",
+      "title": "Непрерывное окно, позиция и полная lineage",
+      "lane_id": "LANE-08",
+      "source_start_line": 11831,
+      "source_end_line": 11940,
+      "source_anchor": "bundle-ing-02",
+      "original_predecessors": [
+        "ING-01",
+        "NET-01"
+      ],
+      "finding_ids": [
+        "B81",
+        "B82",
+        "B85"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "ING-02:4 MATCH;8 unchanged bodies/20 cases PASS. Actual stream/session/pool/JSONL/cursor chain сохраняет pending operator state и все contributor refs;41-row restart equivalence подтверждена для4 стратегий. Один medium first-frontier recovery refusal: ordinary error пишет diagnostic latest без clock/witness. Native CAS/withdrawal/served chain и external native rewind остаются G; C99 supplemented source-only integration inventory.",
+      "report": "02_Пакеты/ING-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: 4 MATCH;8 unchanged existing bodies/20 cases PASS. Whole actual streaming/session/registry/pool/local JSONL producer/CursorStore and async adapters; fixture CAS profile/manifest/load and sanitizer. One TypeVar import adaptation/package shells. Native streaming/CursorStore import BLOCKED on3.14 syntax under3.12; pytest absent. Native CAS/served consumer/withdrawal/native external rewind UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 101,
+      "id": "ING-03",
+      "title": "Ограниченный stream-state без смены выборки",
+      "lane_id": "LANE-08",
+      "source_start_line": 11941,
+      "source_end_line": 12052,
+      "source_anchor": "bundle-ing-03",
+      "original_predecessors": [
+        "ING-02"
+      ],
+      "finding_ids": [
+        "B83",
+        "B84",
+        "B86"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "ING-03:5 MATCH;13 unchanged bodies/65 cases PASS. Actual UTC dedupe owner/cap/restart, disabled semantics, pre-publication input/operator/output guards и schema-local quarantine работают в bounded chain. Honest spill refusal сохраняет окна. Остатки: повторная full-buffer serialization590/2380 для20/40 строк; CATEGORY allowed_values не применяется actual stream sanitizer. Native CAS/OS-worker/live authority/performance остаются G.",
+      "report": "02_Пакеты/ING-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: 5 MATCH;13 unchanged existing bodies/65 cases PASS across final run02+boundary_run01+category_run01. Whole actual streaming/session/registry/pool/local JSONL/CursorStore/quarantine and4 sanitizer functions; fixture CAS/profile/load. Exact UTC boundary fresh-store same-process, not native OS-worker. Native import BLOCKED3.14 baseline under3.12; pytest absent; native CAS/served/live/RSS UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 102,
+      "id": "NET-01",
+      "title": "Владение соединением от acquire до cleanup",
+      "lane_id": "LANE-08",
+      "source_start_line": 12053,
+      "source_end_line": 12164,
+      "source_anchor": "bundle-net-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B87",
+        "B89",
+        "B90"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "NET-01:7 наблюдений (6MATCH/1PARTIAL);29 unchanged bodies/37cases,34PASS/3FAIL. Actual permit/handle/generation/deadline ownership и physical FD retry→fresh consumer работают в bounded scope. Остаток: terminal cancelled cleanup task зацикливает shield и блокирует event loop;3 старых finalizer tests требуют актуального source profile. Native/live/performance не закрыты.",
+      "report": "02_Пакеты/NET-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL:7 observations (6MATCH/1PARTIAL);29 unchanged existing bodies/37cases,34PASS/3FAIL. Whole actual pool/session/registry; real local FD race oracles. Five adapted non-dedupe current-profile controls plus physical-close removal and four ordering controls. Native imports BLOCKED (pool TypeVar default; streaming Python 3.14 syntax under3.12), pytest absent. No live transport/performance/native CAS claim.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 103,
+      "id": "NET-02",
+      "title": "Редкий rate, поколения circuit и невыбрасываемая защита",
+      "lane_id": "LANE-08",
+      "source_start_line": 12165,
+      "source_end_line": 12276,
+      "source_anchor": "bundle-net-02",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B91",
+        "B92",
+        "B93"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "NET-02:4MATCH;35 unchanged bodies/55cases PASS в bounded graph с explicit telemetry/provider fixtures. Fractional pacing, generation leases, protected registry и actual REST multi-page/fetch owner reuse подтверждены. Остаток: оба adaptive wrappers не передают successful provider feedback; после429 и100 successes rate остаётся0.5, mandatory state не neutral. Native/live qualification открыта.",
+      "report": "02_Пакеты/NET-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL:4MATCH;35 unchanged existing bodies/55cases PASS in finalrun04, not native pytest. Actual regulator/circuit/registry/wrappers and REST pagination; in-memory provider, controlled clocks, explicit tracing/SLO dependency fixtures and one TypeVar adaptation. Early harness/import failures andrun03 54PASS/1FAIL retained. No live HTTP/telemetry/empirical rate claim.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 104,
+      "id": "SCL-01",
+      "title": "Scholar: пустой ответ, общий raw transport и точные причины отказа",
+      "lane_id": "LANE-09",
+      "source_start_line": 12277,
+      "source_end_line": 12403,
+      "source_anchor": "bundle-scl-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B17",
+        "LA-024"
+      ],
+      "protected_distinction_ids": [
+        "LK09"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "SCL-01: 6 MATCH; 44 unchanged bodies / 60 cases PASS в bounded graph. Подтверждены empty/exception failover, shared raw transport и сохранение non-URL sources. Остатки: cached result не повторяет текущие redirect/MIME/size constraints; следующая provider попытка начинается после hard wall deadline внутри batch. Native transport и snapshot handoff не закрыты.",
+      "report": "02_Пакеты/SCL-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: 6 MATCH; 44 неизменённых test bodies / 60 cases PASS в bounded run05. Native lazy root import PASS, search graph BLOCKED на Python 3.14 syntax в CAS, pytest отсутствует. Fake transport/providers, package shells, TypeVar compatibility и no-op tracing явно отделены; реальная сеть и native CAS не исполнялись.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 105,
+      "id": "SCL-03",
+      "title": "Search→enrich: точный raw snapshot, не повторный URL-fetch",
+      "lane_id": "LANE-09",
+      "source_start_line": 12404,
+      "source_end_line": 12527,
+      "source_anchor": "bundle-scl-03",
+      "original_predecessors": [
+        "SCL-01"
+      ],
+      "finding_ids": [
+        "LA-025"
+      ],
+      "protected_distinction_ids": [
+        "LK09",
+        "LK20"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "SCL-03: 6 MATCH + 1 PARTIAL; 14 unchanged cases, 13 PASS / 1 FAIL старого fake DNS контракта. Actual public chain до docs-ingest использует v1, cached v1 и явный v2 с lineage без reconstruction из snippets. Остатки: bytes normalization удаляет selected raw ref, actual fetch producer не заполняет effective profile. Native CAS/full docs/claims и reuse permissions не закрыты.",
+      "report": "02_Пакеты/SCL-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: 6 MATCH + 1 PARTIAL; 14 unchanged bodies/cases, 13 PASS и 1 FAIL. Actual API→source binding→normalization→orchestrator достигнут до docs-ingest с явно fixture store/provider/response и одним TypeVar import adaptation. Native API/orchestrator BLOCKED на Python 3.14 CAS syntax; pytest отсутствует; полный docs/claims/native CAS не исполнялся.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 106,
+      "id": "LLM-01",
+      "title": "Корректная обёртка, необязательная телеметрия и цена reuse",
+      "lane_id": "LANE-09",
+      "source_start_line": 12528,
+      "source_end_line": 12661,
+      "source_anchor": "bundle-llm-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B64",
+        "B65",
+        "B66"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "LLM-01: 6 MATCH; 10 unchanged bodies /15 cases PASS с нативными project imports. Actual factory/cache/normalizer/trace/FileBudgetLedger: miss+2hits дают 1 provider, 3 events, 0.02. Исходные prompt/reuse repairs действуют; optional histogram внешнего budget wrapper и injected span ещё могут скрыть ответ. Поддерживаемая native suite и full-runtime admission не закрыты.",
+      "report": "02_Пакеты/LLM-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: 6 MATCH; 10 unchanged test bodies /15 cases PASS с native project imports и малым pytest-fixture adapter. Actual factory→cache→response→trace→filesystem ledger выполнена с fixture transport. Выбранные module imports PASS без shim; pytest отсутствует, поддерживаемая Python 3.14/Pydantic среда и настоящий OTel backend не квалифицированы.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 107,
+      "id": "LLM-02",
+      "title": "Разрешённый immutable reuse и single-flight",
+      "lane_id": "LANE-09",
+      "source_start_line": 12662,
+      "source_end_line": 12765,
+      "source_anchor": "bundle-llm-02",
+      "original_predecessors": [
+        "LLM-01"
+      ],
+      "finding_ids": [
+        "B67",
+        "B68"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "LLM-02: 7 MATCH + 1 PARTIAL;41 unchanged bodies /80 cases,79 PASS/1 FAIL с явным optional-tracer fixture. Current-owner reuse, single-flight/cancel/cleanup, scope lifetime и actual ledger работают в ограниченных проверках. Узкий residual: publication revision race создаёт второй physical call. Strict frozen URL route и native full stack остаются qualification gaps.",
+      "report": "02_Пакеты/LLM-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: 7 MATCH + 1 PARTIAL. 41 unchanged test bodies /80 cases: 79 PASS, 1 FAIL после явного optional-tracer fixture; original run01 54 PASS/26 FAIL сохранён, 25 отказов предшествуют target assertions из-за no-OTel fallback. Cache/factory native imports PASS; native CAS/PI/runtime BLOCKED на Python3.14 syntax, pytest отсутствует. Actual FileBudgetLedger выполнялся.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 108,
+      "id": "CAL-02",
+      "title": "Один effective loss: оси, два уровня весов и masked scale",
+      "lane_id": "LANE-10",
+      "source_start_line": 12766,
+      "source_end_line": 12884,
+      "source_anchor": "bundle-cal-02",
+      "original_predecessors": [
+        "CAL-01"
+      ],
+      "finding_ids": [
+        "B179",
+        "B180",
+        "B181",
+        "B182"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "CAL-02: 5 MATCH, 13 unchanged test bodies / 13 cases PASS в NumPy fixture. Основные shape/weight/zero-support/masked-scale ремонты реализованы; подтверждены overflow scale и split-to-objective mismatch. Native gradient/JIT/full optimizer UNRUN.",
+      "report": "02_Пакеты/CAL-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED: Python 3.12.14 вместо declared 3.14; native calibration import упирается в 3.14-only multiple-exception syntax uncertainty.py:287. JAX и pytest отсутствуют. Grad/JIT/optax/full Calibrator UNRUN; 13 selected test bodies PASS только с NumPy binding.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 109,
+      "id": "CAL-03",
+      "title": "Несколько стартов: span lifecycle и пригодность выбора",
+      "lane_id": "LANE-10",
+      "source_start_line": 12885,
+      "source_end_line": 12971,
+      "source_anchor": "bundle-cal-03",
+      "original_predecessors": [
+        "CAL-02"
+      ],
+      "finding_ids": [
+        "B183",
+        "B195"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "CAL-03: 5 MATCH, 16 unchanged test bodies / 16 cases PASS в bounded runner. Fresh span factory и честный multi-start selector работают в выбранных проверках; actual single-run caller обходит finite-loss admission. Native OTel/JAX/optimizer UNRUN.",
+      "report": "02_Пакеты/CAL-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED: native calibration/selection import на Python 3.12.14 упирается в 3.14-only uncertainty.py:287. JAX, OpenTelemetry и pytest отсутствуют. Full optimizer/OTel exporter/JAX Hessian UNRUN; 16 selected unchanged test bodies PASS в bounded runner.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 110,
+      "id": "CAL-04",
+      "title": "Последний итерат, единый финальный forward и Hessian reuse",
+      "lane_id": "LANE-10",
+      "source_start_line": 12972,
+      "source_end_line": 13077,
+      "source_anchor": "bundle-cal-04",
+      "original_predecessors": [
+        "CAL-03"
+      ],
+      "finding_ids": [
+        "B184",
+        "B196",
+        "B203"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "CAL-04: 5 MATCH, 3 unchanged pure test bodies PASS. Last candidate, final weights/replica, shared projections и local Hessian reuse подтверждены selected statements. Low residual: unchanged-state tie повторяет final forward. Native JAX/optimizer UNRUN.",
+      "report": "02_Пакеты/CAL-04.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED: native calibration import на Python 3.12.14 упирается в 3.14-only uncertainty.py:287; JAX/OTel/pytest отсутствуют. Full optimizer/JAX derivative/report persistence UNRUN. Три unchanged pure test bodies PASS с selected dependencies и NumPy.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 111,
+      "id": "CAL-06",
+      "title": "Tied-параметры и неизменный масштаб условного закона",
+      "lane_id": "LANE-10",
+      "source_start_line": 13078,
+      "source_end_line": 13170,
+      "source_anchor": "bundle-cal-06",
+      "original_predecessors": [
+        "CAL-04",
+        "UQP-02"
+      ],
+      "finding_ids": [
+        "B197",
+        "B198"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "CAL-06: 4 MATCH, 13 unchanged bodies / 14 cases PASS в bounded runner. Explicit tied projection сохраняет rank-one covariance, typed conditional std не зависит от display level. Residual: unrelated unassigned handle блокирует usable active-field envelopes. Native optimizer/CAS/MC UNRUN.",
+      "report": "02_Пакеты/CAL-06.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED: Python 3.12.14 вместо declared 3.14; native calibration/adapter/covariance/IR imports упираются в multiple-exception syntax uncertainty.py:287. JAX/pytest отсутствуют. Full optimizer/CAS/native MC UNRUN; selected DTO/producer/consumer bodies и JSON roundtrip исполнены.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 112,
+      "id": "UQS-01",
+      "title": "Summary, интервалы и независимые информационные единицы",
+      "lane_id": "LANE-10",
+      "source_start_line": 13171,
+      "source_end_line": 13307,
+      "source_anchor": "bundle-uqs-01",
+      "original_predecessors": [
+        "UQP-02",
+        "CAL-06"
+      ],
+      "finding_ids": [
+        "B199",
+        "B200",
+        "B201",
+        "B202"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "UQS-01: 5 MATCH, 12 unchanged bodies / 26 cases PASS. Exact duplicate view сохраняет level; asymmetric summary сохраняет mean/CI/draws и typed limitation. Residuals: secondary decomposition gate flags и overflow среднего больших finite points. Independent fusion/native chain остаются открыты.",
+      "report": "02_Пакеты/UQS-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED: native aggregator/adapter/IR imports на Python 3.12.14 останавливаются у uncertainty.py:287 (declared 3.14 syntax); JAX/pytest отсутствуют. Full CAS, MCMC, MC и scientific qualification UNRUN. Selected actual bodies с явными storage/profile seams выполнены.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 113,
+      "id": "UQP-01",
+      "title": "Настоящая функция отклика и полный effective call",
+      "lane_id": "LANE-10",
+      "source_start_line": 13308,
+      "source_end_line": 13430,
+      "source_anchor": "bundle-uqp-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B186",
+        "B189",
+        "B190",
+        "B191"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "UQP-01: 5 MATCH, 11 unchanged bodies / 12 cases PASS с явными numerical/sampling seams. Complete fixed kwargs, honest partial mapping, zero-baseline effect и missing-vs-zero сохранены. Native JAX/source-bound node/CAS и float32 domain qualification открыты; нового подтверждённого product defect нет.",
+      "report": "02_Пакеты/UQP-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED: native delta/IR import uncertainty.py:287, node import store.py:2118 (Python 3.14 syntax, среда 3.12.14); JAX/pytest отсутствуют. Native grad/JIT/full dispatch/MC/node/CAS UNRUN. Bounded selected bodies с явными finite-difference и sampler seams выполнены.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 114,
+      "id": "UQP-02",
+      "title": "Оси covariance, совместный закон и эмпирический carrier",
+      "lane_id": "LANE-10",
+      "source_start_line": 13431,
+      "source_end_line": 13533,
+      "source_anchor": "bundle-uqp-02",
+      "original_predecessors": [
+        "UQP-01"
+      ],
+      "finding_ids": [
+        "B187",
+        "B188",
+        "B192"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "UQP-02: 6 MATCH, 11 unchanged bodies PASS. Named axes, singular Gaussian covariance и empirical atoms/weights/shared rows реально используются. Residuals: std0 получает marginal noise1e-12; empirical clipping теряет малую крайнюю массу. Native successful report/CAS/scientific qualification открыты.",
+      "report": "02_Пакеты/UQP-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED: native analytical/MC/IR imports на uncertainty.py:287, среда Python3.12.14 вместо declared3.14; JAX/pytest отсутствуют. Actual SciPy1.17.0 Sobol/transform и NumPy2.3.5 выполнены в selected owner path. Native JAX, full successful MC report/CAS и scientific qualification UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 115,
+      "id": "UQP-03",
+      "title": "Точность функционала, остановка MC и непокрытая область",
+      "lane_id": "LANE-10",
+      "source_start_line": 13534,
+      "source_end_line": 13616,
+      "source_anchor": "bundle-uqp-03",
+      "original_predecessors": [
+        "UQP-02"
+      ],
+      "finding_ids": [
+        "B193",
+        "B194"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "UQP-03:5 MATCH,16 unchanged bodies PASS. Actual selected legacy MC result builder сохраняет conditional half-law/draw ledger и bounded same-input retry; batch50/60 достигают общего checkpoint. Width stopping не MC precision; native/source/normative qualification открыты.",
+      "report": "02_Пакеты/UQP-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED: native MC/IR imports uncertainty.py:287, Python3.12.14 вместо declared3.14; JAX/pytest отсутствуют. Actual selected legacy full producer/result DTO с NumPy PRNG seam и real SciPy Sobol выполнен. Lightweight classifier/Core errors native. CAS/Science/normative bridge и scientific sequential validation UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 116,
+      "id": "DOE-01",
+      "title": "Ограниченная генерация и только объявленные раунды",
+      "lane_id": "LANE-10",
+      "source_start_line": 13617,
+      "source_end_line": 13722,
+      "source_anchor": "bundle-doe-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B97",
+        "B98",
+        "B99"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "DOE-01: 4 MATCH, 6 unchanged bodies / 11 cases PASS. B97/B98/B99 repairs подтверждены bounded leaf execution: capped prefix, last completed result и сохранённое explicit permission. Native SALib и scientific consumer остаются G. LANE-10 продолжается до STR-01, а подпись C115 относилась только к CAL/UQP подмножеству.",
+      "report": "02_Пакеты/DOE-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED: public DOE import достигает Core store.py:2118 с Python 3.14 syntax; среда Python 3.12.14. SALib и pytest отсутствуют. Actual leaf modules/NumPy/Pydantic исполнены с facade shell и synthetic adaptive sampler/analyzer; native SALib, CAS и stress consumer не запускались.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 117,
+      "id": "DOE-02",
+      "title": "Один дизайн распределений и локальные RNG",
+      "lane_id": "LANE-10",
+      "source_start_line": 13723,
+      "source_end_line": 13809,
+      "source_anchor": "bundle-doe-02",
+      "original_predecessors": [
+        "DOE-01"
+      ],
+      "finding_ids": [
+        "B100",
+        "B101"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "DOE-02: 5 MATCH, 6 unchanged selected test bodies PASS. Единый typed bounded mapping и domain-separated seeds подтверждены actual wrappers / true SciPy adapter; native SALib и source-bound design provenance остаются G. Новый R не заявлен.",
+      "report": "02_Пакеты/DOE-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED: public DOE import через Core store.py:2118 (Python 3.14 syntax), текущая среда 3.12.14; SALib/pytest отсутствуют. Actual leaf wrappers/DTO/geometry исполнены с explicit fake SALib boundary; настоящий SciPy QMC/PPF/CDF — только отдельный adapter, не native SALib design/analyzer.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 118,
+      "id": "DOE-03",
+      "title": "Целые блоки, failure-policy, PCA и шкала Morris",
+      "lane_id": "LANE-10",
+      "source_start_line": 13810,
+      "source_end_line": 13935,
+      "source_anchor": "bundle-doe-03",
+      "original_predecessors": [
+        "DOE-02"
+      ],
+      "finding_ids": [
+        "B102",
+        "B103",
+        "B104",
+        "B105"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "DOE-03: 6 MATCH, 3 unchanged bodies PASS. Whole-block filtering, pre-PCA policy/counts, centered-rank cap и normalized effects подтверждены actual numerical leaves. C118-R01: median-filled outputs получают ordinary UQ ok без imputation qualification; native SALib/consumer остаются G.",
+      "report": "02_Пакеты/DOE-03.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL_NUMERICAL: actual sklearn PCA/NumPy SVD/Morris effects/percentile bootstrap/DTO storage выполнены через leaf package shell. SALib point backend — explicit fixed fake, trajectories synthetic. Native DOE facade BLOCKED Core store.py:2118 на Python 3.12.14; SALib/pytest отсутствуют. Native CAS/consumer и scientific coverage UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 119,
+      "id": "STR-01",
+      "title": "Направление stress-поиска и независимые от top-k счётчики",
+      "lane_id": "LANE-10",
+      "source_start_line": 13936,
+      "source_end_line": 14020,
+      "source_anchor": "bundle-str-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "B106",
+        "B107"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "STR-01: 6 MATCH, 3 unchanged bodies / 8 cases PASS. Actual typed direction и pre-top-k occurrence counting подтверждены; C119-R01 — unavailable одновременно counted valid, без false score. Source-intent/native authority остаются G. LANE-10 рассмотрен ограниченно, следующий BER-01.",
+      "report": "02_Пакеты/STR-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED: native adversarial import через Core store.py:2118 на Python3.12 вместо declared3.14; pytest отсутствует. Actual selected runner/DTO/badness/stopping выполнены с external module graph, inactive ArtifactRef=Any и fixture identifier. Реальный NumPy/SciPy initial sampler; CAS, built-in metric assessment, source-bound resolver и Level5 UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 120,
+      "id": "BER-01",
+      "title": "BERL: schema profile и действительная identity объяснителя",
+      "lane_id": "LANE-11",
+      "source_start_line": 14021,
+      "source_end_line": 14184,
+      "source_anchor": "bundle-ber-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-034",
+        "LA-036"
+      ],
+      "protected_distinction_ids": [
+        "LK13"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "BER-01:6 MATCH,22 unchanged selected bodies:21 PASS,1 Python3.12 tree environment FAIL. Generated persisted profile и effective alias dedup подтверждены; C120-R01 — permissive intake public persisted semantic helper, не bypass selected CAS. Native/historical consumer и alias-only policy gaps сохраняются.",
+      "report": "02_Пакеты/BER-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "BLOCKED: public polisyos.berl import проходит в Core store.py:2118 с 3.14-only syntax на Python3.12; pytest отсутствует. Actual BERL leaf service/DTO/kernel/metric выполнены через facade bypass. 22 unchanged selected bodies:21 PASS,1 TreeSHAP slots/super environment FAIL. Supported3.14, native CAS/Phase5/runtime admission UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 121,
+      "id": "DDM-01",
+      "title": "DDM: один event/budget owner и lazy parent facade",
+      "lane_id": "LANE-11",
+      "source_start_line": 14185,
+      "source_end_line": 14334,
+      "source_anchor": "bundle-ddm-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-056"
+      ],
+      "protected_distinction_ids": [
+        "LK01",
+        "LK14",
+        "LK33",
+        "LK34",
+        "LK35"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "DDM-01:6 MATCH;10 unchanged bodies/19cases:18PASS,1 missing-RFC3339 environment FAIL. Реальные lazy imports/canonical identity/monitor fixture и fresh synthetic old-FQN readers подтверждены. Новых R нет; native tooling, historical corpus и отдельная DDM-02 applicability qualification открыты.",
+      "report": "02_Пакеты/DDM-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: реальные public DDM/monitor imports и synthetic monitor chain выполнены без module shells/stubs. 10 unchanged test bodies/19cases:18PASS,1FAIL из-за отсутствующего optional RFC3339 checker. pytest, supported3.14/toolchain, full native suites и registry authority UNRUN. Ничего не устанавливалось.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 122,
+      "id": "DDM-02",
+      "title": "DDM: актуальное основание и единый gate с R2 override",
+      "lane_id": "LANE-11",
+      "source_start_line": 14335,
+      "source_end_line": 14548,
+      "source_anchor": "bundle-ddm-02",
+      "original_predecessors": [
+        "DDM-01"
+      ],
+      "finding_ids": [
+        "LA-054",
+        "LA-055"
+      ],
+      "protected_distinction_ids": [
+        "LK01",
+        "LK14",
+        "LK33",
+        "LK34",
+        "LK35"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "DDM-02:5 MATCH;33 unchanged bodies/52cases PASS. Report/source/expiry/basis и conditional veto/R2 repairs подтверждены; low C122-R01 — earlier foreign-model shift может быть bound прямым builder, monitor отвергает и final finite-only gate не разрешает production. Production-owner/policy/scientific qualification остаётся G.",
+      "report": "02_Пакеты/DDM-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: actual product imports и monitor/checker/finite-source/registry chain выполнены. 33 unchanged selected test bodies/52cases PASS через внешний AST runner; pytest отсутствует, supported3.14 и full native suite UNRUN. Production observation owner/admission, calibration streams/statistical validity и deployment не проверены.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 123,
+      "id": "LEX-01",
+      "title": "Lex: norm/compliance comparison отдельно от impact-topic эвристики",
+      "lane_id": "LANE-11",
+      "source_start_line": 14549,
+      "source_end_line": 14644,
+      "source_anchor": "bundle-lex-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-017"
+      ],
+      "protected_distinction_ids": [],
+      "audit_status": "partially_assessed",
+      "audit_summary": "LEX-01: 6 MATCH;1 unchanged body PASS. Actual norm/compliance owners, aliases и честные candidate topics сохранены. Low C123-R01 — slash grouping теряет structural issue path; native CAS/selected reader/CLI и legal/scientific authority остаются G.",
+      "report": "02_Пакеты/LEX-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: native NormPack и stable identity imported; selected product definitions выполнялись вне imports, ArtifactRef/ArtifactID/FileSystemCAS annotations=Any, persist=False. 1 unchanged test body PASS. Full Core/Lex imports BLOCKED Python3.12 против3.14 syntax; pytest отсутствует. CAS, selected reader, full CLI, authority surface и legal/scientific validity UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 124,
+      "id": "DFK-01",
+      "title": "Точные остатки Foundry/Data Forge schemas без удаления владельцев",
+      "lane_id": "LANE-12",
+      "source_start_line": 14645,
+      "source_end_line": 14913,
+      "source_anchor": "bundle-dfk-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-005",
+        "LA-006",
+        "LA-026",
+        "LA-027"
+      ],
+      "protected_distinction_ids": [
+        "LK03",
+        "LK10",
+        "LK25"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "DFK-01: 6 MATCH;9 unchanged bodies/16cases:14PASS2 environmentFAIL. Canonical schemas/graph migrations сохранены, mechanisms tombstone отсутствует. Три schema/codegen/pipeline surfaces compatibility_pending; full bounded census и explicit gaps, новых R нет.",
+      "report": "02_Пакеты/DFK-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: actual canonical schemas/Foundry DTO/codegen imports и graph/evolution executed. 9 unchanged bodies/16cases:14PASS,2 environmentFAIL pipeline parent→Core3.14 syntax. Native census/pytest BLOCKED; full actual census runs with extracted actual fs read-measurement dependency only. Exact alias initializer identity не native pipeline import. Wheel/sdist/installed/JAX consumer UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 125,
+      "id": "HYG-02",
+      "title": "Evidence/governance/factlog: точные адресные retirement",
+      "lane_id": "LANE-12",
+      "source_start_line": 14914,
+      "source_end_line": 15101,
+      "source_anchor": "bundle-hyg-02",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-008",
+        "LA-009",
+        "LA-018"
+      ],
+      "protected_distinction_ids": [
+        "LK17",
+        "LK18"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "HYG-02: 6 MATCH;8 unchanged bodies:4PASS4environmentFAIL. Lex factlog и retired Scientist roots отсутствуют; _shim и3Core governance aliases ещё существуют,2actual facade и3test imports установлены. Без новых R; lifecycle/native-reader G01–G03.",
+      "report": "02_Пакеты/HYG-02.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: actual Scientist/evidence/Lex roots, helper, compatibility metadata and IR manifest DTO imported. 8 unchanged test bodies/8cases:4PASS4environmentFAIL (Core3.14 syntax). Actual selected Fabric reader uses no-op lock/local error stand-in and explicit pandas DataFrame adapter, not Parquet/authorization. Full Core identity/Fabric→Lex read, native pytest, distribution/external clients UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 126,
+      "id": "HYG-04",
+      "title": "Bootstrap/benchmark wrappers и frontend redirect: конечная миграция",
+      "lane_id": "LANE-12",
+      "source_start_line": 15102,
+      "source_end_line": 15297,
+      "source_anchor": "bundle-hyg-04",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-011",
+        "LA-012",
+        "LA-013"
+      ],
+      "protected_distinction_ids": [
+        "LK16",
+        "LK23"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "HYG-04:5 MATCH;9 unchanged bodies30cases24PASS6environmentFAIL.3retired paths отсутствуют;3benchmark aliases сохраняют identity/CLI.4bootstrap profiles recorder,16bounded early JAX cases. Без новых R; lifecycle/native/build G01–G03.",
+      "report": "02_Пакеты/HYG-04.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: native common.jax_env/config controls3PASS;6 native tool-import cases BLOCKED/FAIL by Python3.12 vs3.14 fs857.21 bounded cases PASS with tools.lib parent shell (19) or selected lifecycle helpers/traversal adapter(2). Total9 unchanged bodies30cases24PASS6environmentFAIL. Native pytest/full docs CLI/builds/JAX computation/installed-distribution/external clients UNRUN.",
+      "full_closure_claimed": false
+    },
+    {
+      "order": 127,
+      "id": "CLI-01",
+      "title": "Runtime client: package-owned генерация и снятие raw committed surface",
+      "lane_id": "LANE-12",
+      "source_start_line": 15298,
+      "source_end_line": 15482,
+      "source_anchor": "bundle-cli-01",
+      "original_predecessors": [],
+      "finding_ids": [
+        "LA-043",
+        "LA-044"
+      ],
+      "protected_distinction_ids": [
+        "LK16",
+        "LK21",
+        "LK22",
+        "LK23"
+      ],
+      "audit_status": "partially_assessed",
+      "audit_summary": "CLI-01: 7 MATCH. Package-owned schema generation, private raw handoff и canonical public tests подтверждены ограниченно. 18 начатых existing cases: 17 PASS, 1 environment FAIL; 2 test files BLOCKED. R01 — custom path/query names; R02 — architecture gate. Full regeneration/type/service qualification остаётся.",
+      "report": "02_Пакеты/CLI-01.md",
+      "source_commit_reviewed": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "native_execution_in_this_release": "PARTIAL: Node24.22.1 versus declared22. Actual transport15PASS, remediation2cases1PASS1environmentFAIL; Python unchanged metadata1PASS. Total18started cases17PASS1environmentFAIL;2TypeScript-dependent test files blocked before bodies. Actual raw-generator CLI/Node and package architecture gate executed; latter FAIL is C127-R02. Full generation/frozen install/tsc/general freshness/live HTTP UNRUN.",
+      "full_closure_claimed": false
+    }
+  ],
+  "release": "v016-continuation-C127",
+  "study_id": "POSR-20261031-e02-capability-audit"
+}

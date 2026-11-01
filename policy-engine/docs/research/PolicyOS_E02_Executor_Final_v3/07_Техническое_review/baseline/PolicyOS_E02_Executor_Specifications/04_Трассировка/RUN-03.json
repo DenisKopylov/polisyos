@@ -1,0 +1,271 @@
+{
+  "packet_id": "RUN-03",
+  "lane": "LANE-06",
+  "source_ids": [
+    "B39",
+    "B96"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/RUN-03.md",
+    "../05_Основания/Аудит/01_Реестры/C70_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C70-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-RUN-03-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Cancellation переносит уже known failed_spend, не текущий unknown расход/dirty state.",
+      "inventory_id": "audit-residual:C70_остатки:0"
+    },
+    {
+      "audit_id": "C70-G01",
+      "disposition": "capability",
+      "requirement_ids": [
+        "REQ-RUN-03-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Нужен bounded classification contract actual return/raise, не прочтение details.category.",
+      "inventory_id": "audit-residual:C70_остатки:1"
+    },
+    {
+      "audit_id": "C70-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-RUN-03-01",
+        "REQ-RUN-03-02",
+        "REQ-RUN-03-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Native attempt/CAS/cost/consumer и continuation.",
+      "inventory_id": "audit-residual:C70_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-RUN-03-01",
+      "text": "Каждая permitted retry на sync/genuine-async/async→sync получает baseline x0/nested[]; mutate→fail→success даёт x1, только marker второй попытки. Ordinary failed writes не попадают в baseline; producing-copy и max_retries0 сохраняются.",
+      "source_ids": [
+        "B96"
+      ],
+      "audit_ids": [
+        "C70-G02"
+      ],
+      "test_ids": [
+        "TEST-RUN-03-01"
+      ]
+    },
+    {
+      "id": "REQ-RUN-03-02",
+      "text": "При cancellation после завершённой fail-попытки terminal baseline/settlement включает её уже известный failed_spend ровно один раз; baseline5 + known2 =7. Cancelled current attempt с unknown cost не добавляет выдуманную величину. CancelledError propagates, ordinary mutations не принимаются и success не публикуется.",
+      "source_ids": [
+        "B96"
+      ],
+      "audit_ids": [
+        "C70-R01",
+        "C70-G02"
+      ],
+      "test_ids": [
+        "TEST-RUN-03-02"
+      ]
+    },
+    {
+      "id": "REQ-RUN-03-03",
+      "text": "Для одного actual supported producer эквивалентные declared reason/code/category в return/raise дают одинаковое retry решение. Classification использует существующий owner и typed contract, не свободные details/message. Empty filter даёт один вызов; allowed transient bounded retry; permanent и unknown already-dispatched effect не слепо повторяются.",
+      "source_ids": [
+        "B39"
+      ],
+      "audit_ids": [
+        "C70-G01"
+      ],
+      "test_ids": [
+        "TEST-RUN-03-03"
+      ]
+    },
+    {
+      "id": "REQ-RUN-03-04",
+      "text": "Actual attempt input/implementation basis, outcome/error и known spend переживают persistence/fresh reader. Explicit checkpoint continuation проходит RES-01 contract, а не продолжает dirty retry state; поздний неизвестный effect требует reconciliation/idempotency, не новой UUID.",
+      "source_ids": [
+        "B39",
+        "B96"
+      ],
+      "audit_ids": [
+        "C70-G02"
+      ],
+      "test_ids": [
+        "TEST-RUN-03-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-RUN-03-01",
+      "requirement_ids": [
+        "REQ-RUN-03-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "x0,nested[],spend5; first fail modifies x/list/spend2; second success cost1; three execution routes.",
+      "action": "Run return/raise failures и producing-copy/max_retries0 controls.",
+      "oracle": "Final x1/list[second]/spend8; initial ordinary state clean. Second saw x0/list[]/baseline5; clean nodes unchanged.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-RUN-03-02",
+      "requirement_ids": [
+        "REQ-RUN-03-02"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "First completed fail +2; second CancelledError, controlled cancellation during callback, separate first-attempt cancel/late unknown.",
+      "action": "Propagate cancel; inspect terminal state and durable owner.",
+      "oracle": "Baseline spend7 exactly once and x0; first-cancel stays5; unknown current spend not fabricated; CancelledError retained, no success.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-RUN-03-03",
+      "requirement_ids": [
+        "REQ-RUN-03-03"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Actual same-cause producer both forms, declared category mapping; empty filter/permanent/transient/unknown effect.",
+      "action": "Run sync/async and IPC envelope through same classification.",
+      "oracle": "Same declared cause same attempts; empty/permanent1, allowed transient2 in two-attempt fixture, unknown effect0 blind repeats. details/message-only category не принят как typed.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-RUN-03-04",
+      "requirement_ids": [
+        "REQ-RUN-03-04"
+      ],
+      "level": "native persisted integration",
+      "setup": "Real RunContext/TraceRecord/CAS, attempt bindings and temporary budget ledger.",
+      "action": "Retry→cancel/exhaust/success→fresh read; RES-01 continuation distinct.",
+      "oracle": "Exact started/completed attempts/costs bound to IDs, no double settlement; failed ordinary state absent; prior artifacts readable; continuation obeys original fingerprint.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-C",
+    "E02-I06-B"
+  ],
+  "dependencies": [
+    "STA-01",
+    "RUN-01"
+  ],
+  "preservation": [
+    "Fresh declared-write branch внутри каждой retry-loop, чистые producing-copy nodes и max_retries0.",
+    "retry_on, typed transient/validation precedence, IPC category/code; не class-name heuristic.",
+    "Known completed-failure spend отдельно от ordinary writes.",
+    "Existing attempt basis/outcome/trace owners; checkpoint continuation отдельный договор."
+  ],
+  "design_alignment": [
+    "policy-design-execution-topology.md §3–6: retry versus continuation, unknown effect requires next action.",
+    "design_direction.md §4.9: failed work/history не исчезает; candidate retry не становится независимым научным экспериментом."
+  ],
+  "open_decisions": [
+    "DEC-RUN-03-01: выбрать load-bearing category representation у current NodeError/classifier по actual producer. Выход — таблица return/raise/IPC equivalence и legacy handling; если same-cause route отсутствует, ограничить claim, не объявить глобальный parity PASS."
+  ],
+  "source_obligations": [
+    "B39 → REQ-RUN-03-03: empty retry filter уже исправлен; finite actual producer classification contract и unknown external effect no blind retry.",
+    "B96 → REQ-RUN-03-01/-02/-04: fresh baseline, known cost terminal settlement, actual durable attempts и отдельный continuation."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py: _fresh_retry_state, _preserve_retry_spend, _merge_spend, execute_with_retry_async",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/error_classifier.py: existing classification",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py: NodeError",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py: persisted attempt basis/outcome"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_run_03.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0098",
+      "requirement_ids": [
+        "REQ-RUN-03-02"
+      ],
+      "disposition": "fix",
+      "rationale": "Cancellation переносит уже known failed_spend, не текущий unknown расход/dirty state."
+    },
+    {
+      "inventory_id": "remaining:0099",
+      "requirement_ids": [
+        "REQ-RUN-03-03"
+      ],
+      "disposition": "capability",
+      "rationale": "Нужен bounded classification contract actual return/raise, не прочтение details.category."
+    },
+    {
+      "inventory_id": "remaining:0100",
+      "requirement_ids": [
+        "REQ-RUN-03-01",
+        "REQ-RUN-03-02",
+        "REQ-RUN-03-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native attempt/CAS/cost/consumer и continuation."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0127",
+      "requirement_ids": [
+        "REQ-RUN-03-01"
+      ],
+      "test_ids": [
+        "TEST-RUN-03-01"
+      ],
+      "rationale": "Fresh declared-write branch каждой попытки — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0128",
+      "requirement_ids": [
+        "REQ-RUN-03-03"
+      ],
+      "test_ids": [
+        "TEST-RUN-03-03"
+      ],
+      "rationale": "retry_on и typed transient/validation precedence — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0129",
+      "requirement_ids": [
+        "REQ-RUN-03-02"
+      ],
+      "test_ids": [
+        "TEST-RUN-03-02"
+      ],
+      "rationale": "Known completed-failure costs отдельно от ordinary failed writes — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0130",
+      "requirement_ids": [
+        "REQ-RUN-03-02",
+        "REQ-RUN-03-04"
+      ],
+      "test_ids": [
+        "TEST-RUN-03-02",
+        "TEST-RUN-03-04"
+      ],
+      "rationale": "Existing attempt basis/outcome и durable trace owners — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0131",
+      "requirement_ids": [
+        "REQ-RUN-03-01"
+      ],
+      "test_ids": [
+        "TEST-RUN-03-01"
+      ],
+      "rationale": "Чистый producing-copy и max_retries=0 compatibility — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

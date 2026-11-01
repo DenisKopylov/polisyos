@@ -1,0 +1,270 @@
+{
+  "packet_id": "EXE-01",
+  "lane": "LANE-06",
+  "source_ids": [
+    "B51",
+    "B52",
+    "B55"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/EXE-01.md",
+    "../05_Основания/Аудит/01_Реестры/C63_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C63-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-EXE-01-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Разделить bounded user callback и внутренний nonblocking asyncio delivery.",
+      "inventory_id": "audit-residual:C63_остатки:0"
+    },
+    {
+      "audit_id": "C63-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-EXE-01-02",
+        "REQ-EXE-01-03",
+        "REQ-EXE-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Read rights/current applicability/CAS/fresh recovery через actual owners.",
+      "inventory_id": "audit-residual:C63_остатки:1"
+    },
+    {
+      "audit_id": "C63-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-EXE-01-01",
+        "REQ-EXE-01-03",
+        "REQ-EXE-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Измерить latency/capacity; completed result preservation совместно с RES.",
+      "inventory_id": "audit-residual:C63_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-EXE-01-01",
+      "text": "Все поддержанные async-await routes над _SharedFuture — run_blocking_async, SharedExecutionHandle.result_async и async thread-timeout bridge — при completed-before-registration и saturated owner не должны ждать capacity или future.result синхронно на event-loop thread. Delivery существующего timely receipt выполняется без повторного callable; arbitrary user callbacks остаются bounded и reentrancy guards сохраняются. Физическая reservation принадлежит underlying job, не waiter; cancellation/shutdown и закрытый loop не создают duplicate delivery или ложного освобождения capacity.",
+      "source_ids": [
+        "B52"
+      ],
+      "audit_ids": [
+        "C63-R01",
+        "C63-G02"
+      ],
+      "test_ids": [
+        "TEST-EXE-01-01"
+      ]
+    },
+    {
+      "id": "REQ-EXE-01-02",
+      "text": "При run_budget=0/read_budget>0 valid admitted hit возвращается без producer и нового compute charge. Read denial/expired hard deadline предотвращают cache I/O; miss при run_budget=0 не запускает producer. Corrupt/cross-scope hit не становится success.",
+      "source_ids": [
+        "B51"
+      ],
+      "audit_ids": [
+        "C63-G01"
+      ],
+      "test_ids": [
+        "TEST-EXE-01-02"
+      ]
+    },
+    {
+      "id": "REQ-EXE-01-03",
+      "text": "Cache get/put/recovery остаются off-loop с effective owner deadline. После timeout/cancel late write не восстанавливает current index; полностью допустимый published artifact читается fresh reader. Immutable bytes и acknowledged current entry различаются; provider thread-affinity соблюдена.",
+      "source_ids": [
+        "B52"
+      ],
+      "audit_ids": [
+        "C63-G01",
+        "C63-G02"
+      ],
+      "test_ids": [
+        "TEST-EXE-01-03"
+      ]
+    },
+    {
+      "id": "REQ-EXE-01-04",
+      "text": "При fail_fast waiting node перепроверяет сигнал после semaphore acquire и не начинает substantive work; continue выполняет independent nodes. Ошибка optional metrics и cancellation освобождают slot, но running underlying job удерживает физическую capacity до завершения; already completed independent results сохраняются.",
+      "source_ids": [
+        "B55"
+      ],
+      "audit_ids": [
+        "C63-G01",
+        "C63-G02"
+      ],
+      "test_ids": [
+        "TEST-EXE-01-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-EXE-01-01",
+      "requirement_ids": [
+        "REQ-EXE-01-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Actual shared owner capacity1; first callable completed, second held barrier before registration; event-loop heartbeat. Параметризовать run_blocking_async, SharedExecutionHandle.result_async и actual async thread-timeout bridge; watchdog/release вне проверяемого loop.",
+      "action": "Для каждого actual caller зарегистрировать completion до освобождения second worker; проверить heartbeat, затем release. Повтор queued/running cancellation, shutdown и closed-loop races; прежний adapter либо controlled removal служит различающим negative.",
+      "oracle": "Во всех трёх routes heartbeat/event marker продвигается до release; регистрация не ждёт worker. Receipt42 либо исходное exception delivered once без повторного invoke; queue/workers bounded; running job удерживает physical slot до собственного завершения. Timely result не объявлен ошибочным только из-за delivery delay. Closed loop не вызывает duplicate delivery/утечку reservation; arbitrary user callback contract не ослаблен.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-EXE-01-02",
+      "requirement_ids": [
+        "REQ-EXE-01-02"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Real budget middleware/cache scoped store, read1/run0; denial, miss, corrupt and changed-scope variants.",
+      "action": "Execute actual local runner node.",
+      "oracle": "Hit: read1 producer0 previous cost not charged; read denial/expired deadline get0; miss producer0 with compute reason; invalid artifact not success.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-EXE-01-03",
+      "requirement_ids": [
+        "REQ-EXE-01-03"
+      ],
+      "level": "native integration + measurement",
+      "setup": "Temporary real CAS и current index; delay/fault только вокруг реального I/O; fresh reader.",
+      "action": "Cancel/timeout put before and after publication; allow valid put; измерить neighbor wait p95/p99 и serialization/RAM на declared workload.",
+      "oracle": "Cancelled index remains absent после worker completion/restart; valid bytes readable exact; no claim underlying thread killed/no bytes existed; measured values не SLA.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-EXE-01-04",
+      "requirement_ids": [
+        "REQ-EXE-01-04"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Four producers, parallelism1, first failure after others waiting; separate continue and metric-error/cancel cases.",
+      "action": "Run tier and read persisted records/results.",
+      "oracle": "Fail-fast calls=[a], statuses fail/skip/skip/skip; continue all four; semaphore restored; physical slot retained while running. Independent completed result bytes доступны, terminal failure не изменён.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-A",
+    "E02-I06-B",
+    "E02-I06-C"
+  ],
+  "dependencies": [
+    "STA-01",
+    "RUN-01"
+  ],
+  "preservation": [
+    "Action-specific read/run budgets и hard workflow deadline до read.",
+    "Bounded Common executor, finite FIFO queue, physical slot ownership до фактического завершения.",
+    "Current-state journal replay и fence отменённого cache index; immutable bytes могут существовать без current admission.",
+    "Post-acquire fail-fast, release в finally, continue policy. LK/S специальных нет."
+  ],
+  "design_alignment": [
+    "design_direction.md §2.1, §2.6: полезное чтение полученного результата не блокируется compute exhaustion; write cancellation не выдумывает rollback.",
+    "policy-design-execution-topology.md §3–6: artifact/control loop с реальным потреблением; один shared owner вместо нового pool на вызов."
+  ],
+  "open_decisions": [
+    "DEC-EXE-01-01: выбрать transport callback adapter либо receipt signal по меньшей изменяемой поверхности после чтения полного helper. Обязательный выход одинаков: no wait before release в controlled race, bounded arbitrary callbacks, cancellation/shutdown invariants."
+  ],
+  "source_obligations": [
+    "B51 → REQ-EXE-01-02: read permitted/compute denied, no double charge, права и deadline не обходятся.",
+    "B52 → REQ-EXE-01-01/-03: delivery без синхронного ожидания event loop, real persistence и measured latency.",
+    "B55 → REQ-EXE-01-04: waiting versus running cancellation, сохранённые independent results."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/common/async_tools/__init__.py: _SharedFuture.add_done_callback, _SharedExecutor.run_callback_sync, run_blocking_async, SharedExecutionHandle.result_async",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py: _execute_node, _put_cache_entry, _run_parallel_tier",
+    "policy-engine/src/polisyos/core/artifacts/async_store.py: AsyncArtifactStoreAdapter",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py: cache I/O/token/entry admission",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py: _submit_thread_attempt, _execute_with_timeout_thread_async"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/common/test_async_tools.py",
+    "policy-engine/tests/unit/remediation/test_exe_02.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0115",
+      "requirement_ids": [
+        "REQ-EXE-01-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Разделить bounded user callback и внутренний nonblocking asyncio delivery."
+    },
+    {
+      "inventory_id": "remaining:0116",
+      "requirement_ids": [
+        "REQ-EXE-01-02",
+        "REQ-EXE-01-03",
+        "REQ-EXE-01-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Read rights/current applicability/CAS/fresh recovery через actual owners."
+    },
+    {
+      "inventory_id": "remaining:0117",
+      "requirement_ids": [
+        "REQ-EXE-01-01",
+        "REQ-EXE-01-03",
+        "REQ-EXE-01-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Измерить latency/capacity; completed result preservation совместно с RES."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0160",
+      "requirement_ids": [
+        "REQ-EXE-01-02"
+      ],
+      "test_ids": [
+        "TEST-EXE-01-02"
+      ],
+      "rationale": "Action-specific read/run budget and hard owner deadline — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0161",
+      "requirement_ids": [
+        "REQ-EXE-01-01",
+        "REQ-EXE-01-04"
+      ],
+      "test_ids": [
+        "TEST-EXE-01-01",
+        "TEST-EXE-01-04"
+      ],
+      "rationale": "Existing bounded Common executor, finite queue and physical slot accounting — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0162",
+      "requirement_ids": [
+        "REQ-EXE-01-03"
+      ],
+      "test_ids": [
+        "TEST-EXE-01-03"
+      ],
+      "rationale": "Current-state journal replay and cancelled-index fence — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0163",
+      "requirement_ids": [
+        "REQ-EXE-01-04"
+      ],
+      "test_ids": [
+        "TEST-EXE-01-04"
+      ],
+      "rationale": "Post-acquire fail-fast and finally semaphore release — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/run_state.py:64-66
+   64     def scientific_evaluations(self) -> int:
+   65         """Return non-sentinel Stage B evaluations used by the search signal."""
+   66         return max(0, self.stage_b_evaluations - self.sentinel_evaluations)
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/run_state.py:99-119
+   99     def apply_tell_transition(
+  100         self,
+  101         transition: _EvaluationTransition,
+  102         *,
+  103         stage_a_evaluated: bool,
+  104         stage_b_evaluated: bool = True,
+  105     ) -> None:
+  106         """Apply one externally evaluated candidate through this state owner.
+  107 
+  108         Ask/tell adapters report evaluator feedback without invoking the
+  109         controller's full loop.  Stage A rejection is a valid terminal path
+  110         for the candidate and therefore must not be counted as a Stage B
+  111         evaluation.  Counters and history still enter through the same
+  112         transition owner used by ``SearchController.run``; adapters must not
+  113         maintain a second mutable ledger.
+  114         """
+  115         if stage_a_evaluated:
+  116             self.stage_a_evaluations += 1
+  117         if stage_b_evaluated:
+  118             self.stage_b_evaluations += 1
+  119         self.apply_evaluation_transition(transition)
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/stopping.py:289-346
+  289 class CostBudgetStopping(StoppingCriterion):
+  290     """Stop when cumulative cost exceeds a USD budget."""
+  291 
+  292     def __init__(
+  293         self,
+  294         max_cost_usd: float,
+  295         cost_key: str = "cumulative_cost_usd",
+  296     ):
+  297         if max_cost_usd <= 0:
+  298             raise ValueError("max_cost_usd must be > 0")
+  299         self._max_cost = max_cost_usd
+  300         self._cost_key = cost_key
+  301 
+  302     @property
+  303     def name(self) -> str:
+  304         return "cost_budget"
+  305 
+  306     def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> StoppingCondition:
+  307         del history
+  308         raw_cost = state.get(self._cost_key)
+  309         if not isinstance(raw_cost, (int, float, Decimal)) or isinstance(raw_cost, bool):
+  310             return StoppingCondition(
+  311                 should_stop=True,
+  312                 reason=f"Cost budget unavailable for key {self._cost_key!r}",
+  313                 details={
+  314                     "budget": self._max_cost,
+  315                     "cost_key": self._cost_key,
+  316                     "budget_available": False,
+  317                 },
+  318             )
+  319         cost = float(raw_cost)
+  320         if not isfinite(cost):
+  321             return StoppingCondition(
+  322                 should_stop=True,
+  323                 reason=f"Cost budget unavailable for key {self._cost_key!r}",
+  324                 details={
+  325                     "budget": self._max_cost,
+  326                     "cost": raw_cost,
+  327                     "cost_key": self._cost_key,
+  328                     "budget_available": False,
+  329                 },
+  330             )
+  331         if cost >= self._max_cost:
+  332             return StoppingCondition(
+  333                 should_stop=True,
+  334                 reason=f"Cost budget ({self._max_cost} USD) exhausted",
+  335                 details={
+  336                     "cost": cost,
+  337                     "budget": self._max_cost,
+  338                     "cost_key": self._cost_key,
+  339                     "budget_available": True,
+  340                 },
+  341             )
+  342         return StoppingCondition(
+  343             should_stop=False,
+  344             details={
+  345                 "cost": cost,
+  346                 "budget": self._max_cost,
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/lifecycle.py:1299-1356
+ 1299     def _resolve_policy_evaluation_with_status(
+ 1300         self,
+ 1301         candidate: dict[str, Any],
+ 1302         stage_b_result: dict[str, Any] | None,
+ 1303         *,
+ 1304         candidate_proposal: CandidateProposal | None = None,
+ 1305     ) -> _PolicyEvaluationResolution:
+ 1306         """Resolve typed evaluation input without conflating absent and invalid data."""
+ 1307         if not stage_b_result:
+ 1308             return _PolicyEvaluationResolution(value=None, status="missing")
+ 1309 
+ 1310         typed_vector_present = "policy_evaluation" in stage_b_result
+ 1311         typed_bundle_present = (
+ 1312             "policy_evaluation_bundle" in stage_b_result
+ 1313             or "_policy_evaluation_bundle" in stage_b_result
+ 1314         )
+ 1315         if not typed_vector_present and not typed_bundle_present:
+ 1316             return _PolicyEvaluationResolution(value=None, status="missing")
+ 1317 
+ 1318         try:
+ 1319             from polisyos.scientist.policy_design.objectives import (
+ 1320                 PolicyEvaluationBundle,
+ 1321                 _normalize_policy_evaluation_vector,
+ 1322             )
+ 1323             from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+ 1324         except _IMPORT_ERRORS as exc:
+ 1325             _search_degraded(
+ 1326                 operation="resolve_policy_evaluation",
+ 1327                 reason="policy_objective_stack_unavailable",
+ 1328                 exc=exc,
+ 1329             )
+ 1330             return _PolicyEvaluationResolution(
+ 1331                 value=None,
+ 1332                 status="invalid",
+ 1333                 reason="policy_objective_stack_unavailable",
+ 1334             )
+ 1335 
+ 1336         typed_error_reason: str | None = None
+ 1337         if typed_vector_present:
+ 1338             raw_vector = stage_b_result.get("policy_evaluation")
+ 1339             try:
+ 1340                 return _PolicyEvaluationResolution(
+ 1341                     value=_normalize_policy_evaluation_vector(raw_vector, allow_mapping=True),
+ 1342                     status="valid",
+ 1343                 )
+ 1344             except _SEARCH_DEGRADED_ERRORS as exc:
+ 1345                 typed_error_reason = "policy_evaluation_parse_failed"
+ 1346                 _search_degraded(
+ 1347                     operation="resolve_policy_evaluation",
+ 1348                     reason=typed_error_reason,
+ 1349                     exc=exc,
+ 1350                 )
+ 1351 
+ 1352         objective_stack = self._config.policy_objective_stack
+ 1353         if objective_stack is None:
+ 1354             return _PolicyEvaluationResolution(
+ 1355                 value=None,
+ 1356                 status="invalid",

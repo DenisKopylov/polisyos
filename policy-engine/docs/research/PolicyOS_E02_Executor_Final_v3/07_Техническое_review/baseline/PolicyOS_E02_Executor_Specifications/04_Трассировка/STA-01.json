@@ -1,0 +1,305 @@
+{
+  "packet_id": "STA-01",
+  "lane": "LANE-06",
+  "source_ids": [
+    "B57",
+    "B58",
+    "B59"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/STA-01.md",
+    "../05_Основания/Аудит/01_Реестры/C61_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C61-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-STA-01-01",
+        "REQ-STA-01-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Согласовать staged merge с before/after membership; не запрещать полезные добавления и ref updates.",
+      "inventory_id": "audit-residual:C61_остатки:0"
+    },
+    {
+      "audit_id": "C61-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-STA-01-02",
+        "REQ-STA-01-03",
+        "REQ-STA-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Реальные CAS, restart, worker и failed-node routes ещё требуют supported native evidence.",
+      "inventory_id": "audit-residual:C61_остатки:1"
+    },
+    {
+      "audit_id": "C61-G02",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-STA-01-03",
+        "REQ-STA-01-05"
+      ],
+      "shared_owner": "RUN-03 / DUR-01 / DUR-02",
+      "rationale": "Finite-state replay остаётся здесь; внешние costs/events/actions принимаются их identity/fence owners, не операциями set.",
+      "inventory_id": "audit-residual:C61_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-STA-01-01",
+      "text": "При merge операций, затрагивающих inputs, artifacts_index или reports_index, итоговый набор ключей каждого protected root должен содержать все ключи входной текущей основы. Whole-root set, replace и эквивалентные spelling не обходят правило. При нарушении возвращается typed replay/mutation refusal; caller base и committed state не изменяются. Добавление ключа и обновление значения существующего ref разрешены.",
+      "source_ids": [
+        "B58"
+      ],
+      "audit_ids": [
+        "C61-R01"
+      ],
+      "test_ids": [
+        "TEST-STA-01-01"
+      ]
+    },
+    {
+      "id": "REQ-STA-01-02",
+      "text": "При cold, parallel и cache-hit применении journal сохраняются явное y=4 поверх текущего y=9, unrelated=new и отсутствие удалённого независимым шагом поля. В params delete удаляет ключ, null сохраняет ключ со значением null, no-write не меняет его; конфликт parent-delete/child-write не публикует частичный результат.",
+      "source_ids": [
+        "B57",
+        "B58"
+      ],
+      "audit_ids": [
+        "C61-R01",
+        "C61-G01"
+      ],
+      "test_ids": [
+        "TEST-STA-01-02",
+        "TEST-STA-01-04"
+      ]
+    },
+    {
+      "id": "REQ-STA-01-03",
+      "text": "Изменение вложенного list/dict/typed model в declared subtree не наблюдается base и sibling до commit; ошибка/отмена ветви не меняет их. Aliases внутри изолированного subtree сохраняются. Цикл или объект вне finite callback-free профиля явно отказывается до публикации, а не теряет identity.",
+      "source_ids": [
+        "B59"
+      ],
+      "audit_ids": [
+        "C61-G01",
+        "C61-G02"
+      ],
+      "test_ids": [
+        "TEST-STA-01-03",
+        "TEST-STA-01-04"
+      ]
+    },
+    {
+      "id": "REQ-STA-01-04",
+      "text": "После реального CAS roundtrip и fresh reader сохранённый journal/proof применяется только при совместимых target/epoch/source bindings. Tamper/unsupported historical entry/несовместимый target не дают hit-success; incompatible replay приводит к штатному переисполнению с неизменённой основой.",
+      "source_ids": [
+        "B57",
+        "B58",
+        "B59"
+      ],
+      "audit_ids": [
+        "C61-G01"
+      ],
+      "test_ids": [
+        "TEST-STA-01-04"
+      ]
+    },
+    {
+      "id": "REQ-STA-01-05",
+      "text": "Replay state не повторяет spend/event/external operation: существующая operation identity и fence остаются решающими. Отчёт об оптимизации указывает измеренные bytes/time/peak memory на объявленном workload, а без измерения не заявляет ускорение или поддержку произвольного Python object graph.",
+      "source_ids": [
+        "B57",
+        "B59"
+      ],
+      "audit_ids": [
+        "C61-G02"
+      ],
+      "test_ids": [
+        "TEST-STA-01-05"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-STA-01-01",
+      "requirement_ids": [
+        "REQ-STA-01-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Для каждого protected root typed ArtifactRef под evidence; declared/enforced branch. Отдельные допустимые params и ref-update controls.",
+      "action": "Слить root={} и replacement с потерянным ключом; затем set с сохранённым evidence+new и заменённым ref; повторить cold/parallel/cache routes.",
+      "oracle": "Удаляющие варианты typed refusal; исходный evidence тот же и никакой partial commit. Допустимые варианты приняты и consumer видит новый ref/new key. На pinned R01 хотя бы root={} control должен провалиться.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-STA-01-02",
+      "requirement_ids": [
+        "REQ-STA-01-02"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Old state x=2,y=4,unrelated=old; producer явно пишет y=4. Current y=9,unrelated=new, чужое поле уже удалено.",
+      "action": "Сериализовать journal, replay; отдельно params delete/null/no-write и конфликтующий parent-delete/child-write.",
+      "oracle": "y=4,unrelated=new; удалённое чужое поле не воскресает. Три операции различимы по presence/value; конфликт applied=false/typed refusal без изменения base.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-STA-01-03",
+      "requirement_ids": [
+        "REQ-STA-01-03"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "params.config с nested rows и двумя aliases одного list; соседняя большая неизменяемая область. Failed node mutate-then-raise.",
+      "action": "Выполнить реальную ветвь и отказ; проверить base/sibling и alias identity; negative cycle/unsupported callback object.",
+      "oracle": "Base/sibling nested value прежнее; branch aliases указывают на один изолированный объект; unrelated не обязана копироваться; неподдержанный граф явно отказан без публикации.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-STA-01-04",
+      "requirement_ids": [
+        "REQ-STA-01-02",
+        "REQ-STA-01-03",
+        "REQ-STA-01-04"
+      ],
+      "level": "native integration P-CORE/P-PROCESS",
+      "setup": "Изолированные real CAS/index/checkpoint и fresh process; действующий producer, typed NodeOutcome, current-base mutation.",
+      "action": "Cold execute→cache put→restart→warm read; tamper operation, unknown epoch, wrong target kind; failed-node rollback и process wire.",
+      "oracle": "Exact ordered intent и permitted output доступны fresh consumer; invalid proof miss/refusal, incompatible target вызывает ровно штатный recompute, а не частичный hit; protected key invariant общий.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-STA-01-05",
+      "requirement_ids": [
+        "REQ-STA-01-05"
+      ],
+      "level": "cross-owner integration + measurement",
+      "setup": "Одна operation ID с completed cost/event; выбранный небольшой растущий declared subtree workload.",
+      "action": "Replay той же ветви через RUN-03/DUR owners; записать размеры и время serialization без искусственного SLA.",
+      "oracle": "Чистые assignments применены, spend/event count не увеличен повторно; measurement содержит actual sample/workload/units и не подменяет correctness.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-A",
+    "E02-I06-B",
+    "E02-I06-C"
+  ],
+  "dependencies": [
+    "STA-02: cache identity contract",
+    "RES-01 / RES-02: checkpoint readers",
+    "RUN-03 / DUR-01 / DUR-02: external effects"
+  ],
+  "preservation": [
+    "Intent journal сохраняет same-value assignment и порядок, различает delete/null/no-write; cached replay использует текущую основу, не старый snapshot.",
+    "Deepcopy только declared mutable subtree с shallow ancestors и alias memo; finite callback-free profile, явный отказ циклам/unsupported objects.",
+    "Существующие NodeCacheEntry schema, mutation/replay proof, исторический checkpoint как целый snapshot. Отказ несовместимому target переводит cache в miss/re-execution, а не успешный частичный hit.",
+    "LK/S для пакета в реестре не назначены; S01–S08 не активируются этим локальным ремонтом."
+  ],
+  "design_alignment": [
+    "design_direction.md §2.6, §4.7–9: durable useful result, история отдельно от current applicability; replay не повышает authority.",
+    "§2.2 и §7 / Vision Rule12 с практической поправкой: один общий membership contract для любого нового node/resource, не if-case ветка.",
+    "CTM §2–5: не вводить универсальную временную оболочку; сохранять native operation/entry semantics."
+  ],
+  "open_decisions": [],
+  "source_obligations": [
+    "B57 → preserve/qualify, REQ-STA-01-02, -04, -05: same-value intent, unrelated preservation, carrier/reader, внешние эффекты и отдельное измерение стоимости.",
+    "B58 → fix/preserve, REQ-STA-01-01, -02: permitted params delete, atomic conflict, protected indices независимо от spelling.",
+    "B59 → preserve/qualify, REQ-STA-01-03, -04: subtree isolation, failed branch rollback, aliases и finite graph."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py: merge_parallel_outcomes, _apply_staged_write, _PROTECTED_DELETE_ROOTS",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/guards.py: StateMutationGuard.post_check, _removed_index_paths",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py: branch_state, journal tracking",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py: NodeCacheEntry, replay proof, NodeResultCache",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py: _merge_cached_outcome_state и incompatible replay handling"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0121",
+      "requirement_ids": [
+        "REQ-STA-01-01",
+        "REQ-STA-01-02"
+      ],
+      "disposition": "fix",
+      "rationale": "Согласовать staged merge с before/after membership; не запрещать полезные добавления и ref updates."
+    },
+    {
+      "inventory_id": "remaining:0122",
+      "requirement_ids": [
+        "REQ-STA-01-02",
+        "REQ-STA-01-03",
+        "REQ-STA-01-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Реальные CAS, restart, worker и failed-node routes ещё требуют supported native evidence."
+    },
+    {
+      "inventory_id": "remaining:0123",
+      "requirement_ids": [
+        "REQ-STA-01-03",
+        "REQ-STA-01-05"
+      ],
+      "disposition": "shared",
+      "rationale": "Finite-state replay остаётся здесь; внешние costs/events/actions принимаются их identity/fence owners, не операциями set."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0173",
+      "requirement_ids": [
+        "REQ-STA-01-02"
+      ],
+      "test_ids": [
+        "TEST-STA-01-02",
+        "TEST-STA-01-04"
+      ],
+      "rationale": "Concrete ordered operation journal including same-value intent — точное поведение проверяется связанным oracle"
+    },
+    {
+      "inventory_id": "preserve:0174",
+      "requirement_ids": [
+        "REQ-STA-01-01",
+        "REQ-STA-01-02"
+      ],
+      "test_ids": [
+        "TEST-STA-01-01",
+        "TEST-STA-01-02",
+        "TEST-STA-01-04"
+      ],
+      "rationale": "Delete/null/no-write distinction and typed replay refusal — точное поведение проверяется связанным oracle"
+    },
+    {
+      "inventory_id": "preserve:0175",
+      "requirement_ids": [
+        "REQ-STA-01-04"
+      ],
+      "test_ids": [
+        "TEST-STA-01-04"
+      ],
+      "rationale": "Versioned proof-bound cache entry separate from checkpoint snapshot — точное поведение проверяется связанным oracle"
+    },
+    {
+      "inventory_id": "preserve:0176",
+      "requirement_ids": [
+        "REQ-STA-01-03"
+      ],
+      "test_ids": [
+        "TEST-STA-01-03",
+        "TEST-STA-01-04"
+      ],
+      "rationale": "Deep declared subtree and alias-aware finite graph isolation — точное поведение проверяется связанным oracle"
+    }
+  ]
+}

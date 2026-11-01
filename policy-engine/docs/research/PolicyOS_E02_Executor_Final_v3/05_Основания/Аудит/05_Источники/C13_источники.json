@@ -1,0 +1,181 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "ranges_read": [
+        [
+          1,
+          126
+        ]
+      ],
+      "git_blob": "b4f980de235263513c7ad7e5771e1ccfbb3d8b3d",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "role": "Counters and transitions",
+      "boundary": "Full current read; archived complete source blob rechecked and executed with contract fixtures"
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "ranges_read": [
+        [
+          180,
+          326
+        ]
+      ],
+      "git_blob": "bcc87e32cc1903888845a557a729f6dcf6b182b2",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "role": "Driver full loop and termination",
+      "boundary": "Targeted fresh read; complete C12 source rechecked by current blob and executed; external owner seams are fixtures"
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "ranges_read": [
+        [
+          645,
+          960
+        ],
+        [
+          960,
+          1188
+        ],
+        [
+          1250,
+          1580
+        ]
+      ],
+      "git_blob": "754e942a21b3198c3989ac9175c54342b6c67ab3",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "role": "Budget, evaluation and typed resolver",
+      "boundary": "Transcribed bodies; resolver executed only through no-stack prefix; prior same-commit accept_tell/finish bodies reused; full native imports UNRUN"
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "ranges_read": [
+        [
+          107,
+          166
+        ],
+        [
+          1145,
+          1370
+        ]
+      ],
+      "git_blob": "4b25698f56165167e10b7f79a97753ec1d84f342",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "role": "Owner-bound stop and traced generator",
+      "boundary": "Stop body executed; provider/client binding read-only"
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "ranges_read": [
+        [
+          285,
+          480
+        ]
+      ],
+      "git_blob": "dda3875d68e1dd43002835ee332270cf3d4e23b5",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "role": "Cost stopping and composition",
+      "boundary": "Concrete stop bodies executed; MaxIterations source from prior same-blob excerpt, freshly cross-checked source identity, project import UNRUN"
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/policy_design/objectives.py",
+      "ranges_read": [
+        [
+          1,
+          290
+        ],
+        [
+          500,
+          645
+        ]
+      ],
+      "git_blob": "f4ea1089b4dc63d3ffb22f0e92a610de6c115e49",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/policy_design/objectives.py",
+      "role": "Typed vector, source-bound scoring",
+      "boundary": "Read-only; not the simplified VectorFixture used by diagnostic harness"
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sentinels.py",
+      "ranges_read": [
+        [
+          1,
+          120
+        ],
+        [
+          170,
+          245
+        ]
+      ],
+      "git_blob": "85409acfc8042bf3df14f78b0e291979a5495f96",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/sentinels.py",
+      "role": "Actual metadata key and regular/sentinel interleaving",
+      "boundary": "inject_batch body executed with explicit candidate/set fixtures; full CAS/class imports UNRUN"
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/tests/unit/remediation/test_srv_01.py",
+      "ranges_read": [
+        [
+          1,
+          335
+        ]
+      ],
+      "git_blob": "5a52ea0584e7844d1dea31afacc9cfebaf3db4ce",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_srv_01.py",
+      "role": "Existing ask/tell and invalid typed regression",
+      "boundary": "Read, not executed"
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+      "ranges_read": [
+        [
+          1140,
+          1325
+        ]
+      ],
+      "git_blob": "9f595575ea54d2b2cd22802363c100eac0aecce3",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/search/test_search_loop.py",
+      "role": "Real caller budget test structure",
+      "boundary": "Read selected test body, not executed; fake provider transport and controlled evaluator, real production middleware/client/CAS classes in test code"
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/CONTRIBUTING.md",
+      "ranges_read": [
+        [
+          1,
+          20
+        ]
+      ],
+      "git_blob": "8ff414198e306e671abff1f76f31330a1f29d765",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/CONTRIBUTING.md",
+      "role": "Supported runtime",
+      "boundary": "Python 3.14 baseline; audit cloud Python 3.13.5"
+    }
+  ],
+  "source_plan": "05_Источники/E02_исходный_план.md",
+  "plan_lines": [
+    1729,
+    1843
+  ],
+  "web_note": "Public GitHub overview was older cached text and not used for code/status conclusions. Fresh GitHub connector pinned source is basis."
+}

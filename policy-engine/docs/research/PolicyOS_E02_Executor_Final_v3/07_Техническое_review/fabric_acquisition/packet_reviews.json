@@ -1,0 +1,417 @@
+{
+  "schema": "e02.final-review.packet-verdicts.v1",
+  "packets": [
+    {
+      "packet": "UDF-01",
+      "lane": "LANE-07",
+      "verdict": "retain",
+      "technical_assessment": "Lazy facade вместо очередного relocation — правильный локальный ремонт: contract-only import не должен активировать все stages. Dynamic activation должен возвращать canonical functions, а не copied wrappers. D4 exact deny bytes и первые5 positional полей StageBuildResult — реальные ABI, inputs extension не основание ломать callers.",
+      "source_evidence": [
+        "src/polisyos/data_forge/domains/ukraine/builders/__init__.py:1–88",
+        "src/polisyos/data_forge/domains/ukraine/builders/governance_handoff.py:1–52",
+        "tests/unit/remediation/test_udf_01.py:133–164"
+      ],
+      "test_validity": "Cold subprocess важнее sys.modules assertion после warmed import. Existing D4 test производит payload и вручную complete manifest: он полезен для parser/CAS seam, но не полный admitted orchestration. Packet правильно требует actual stage→binding consumer; не заменять expected byte literal production formatter.",
+      "free_grow_transfer": "Второй builder активируется тем же facade механизмом без case-ID ветки. Здесь не нужен второй предметный проект ради lazy import; существенный consumer transfer общий I07-A.",
+      "cost_compatibility": "PEP562/existing lazy pattern без dependency; измерять cold import dependency closure, не только import elapsed. Поддержать introspection/explicit aliases и failed first import retry.",
+      "limits": "Qualification-only части не разрешают удалять wrappers по историческому имени.",
+      "findings": []
+    },
+    {
+      "packet": "OBS-01",
+      "lane": "LANE-07",
+      "verdict": "retain",
+      "technical_assessment": "Calendar.monthrange и source-owned period parsing соответствуют календарной задаче; не заменять общим fuzzy date parser, способным угадывать missing дату. Inclusive bounds, coarse/fine precision и positional duplicate index semantics важнее pandas index labels.",
+      "source_evidence": [
+        "src/polisyos/data_forge/domains/ukraine/builders/observation.py:96–275",
+        "tests/unit/remediation/test_obs_01.py:43–125"
+      ],
+      "test_validity": "Leap2024/ordinary2023/Q2/year — аналитические independent expected dates; malformed/None и duplicate rows distinct. Missing не measured zero. Historical reevaluation обязана предъявить finite actual inventory, а не произвольный сегодняшней fixture. Хорошо, что пакет не объявляет реконструкцию без periodID.",
+      "free_grow_transfer": "Новые корректные period strings в уже объявленной grammar проходят без dictionary per date. Transfer irregular fiscal calendar — новая семантика и отдельный owner/profile, не обязанность этого patch.",
+      "cost_compatibility": "Unique-period precompute сохраняет O(U) parsing+O(N) placement; нет смысла добавлять dateutil ради finite grammar.",
+      "limits": "Calendar correctness не source authenticity; native Parquet/gate I07-A остаётся обязательным.",
+      "findings": []
+    },
+    {
+      "packet": "UDF-02",
+      "lane": "LANE-07",
+      "verdict": "bounded qualification",
+      "technical_assessment": "Existing IO/bindings extraction уже есть; повторная архитектурная перестройка не оправдана. Exact legacy JSON bytes, NPZ/Parquet semantic reader и D0–D3 prepared input bindings нужно квалифицировать на реальном producer/consumer.",
+      "source_evidence": [
+        "src/polisyos/data_forge/domains/ukraine/builders/io.py:40–96",
+        "src/polisyos/foundry/data_plane/bindings.py:1373–1515,1943–2075",
+        "tests/unit/remediation/test_udf_02.py:63–161"
+      ],
+      "test_validity": "Formatter unit and synthetic payload shape недостаточны. Actual FileSystemCAS+prepare_input_bindings/build consumer должны связать selected refs, а не only expected mapping. Existing mocked atomic writer failure доказывает propagation, не old-file durability: native fail-before-replace если заявляется атомарность.",
+      "free_grow_transfer": "Добавить второй compatible D0–D3 source manifest с новым schema/data и explicit declared binding, без special country/source branch. Не превращать synthetic input в empirical observation.",
+      "cost_compatibility": "JSON+NPZ existing writer достаточен; Parquet current writer не следует автоматически объявлять atomic как JSON. No new serialization framework.",
+      "limits": "Нужно назвать конкретный принимающий consumer/config в execution manifest; whole Scientist/Foundry реализованность из IO roundtrip не следует.",
+      "findings": []
+    },
+    {
+      "packet": "OBS-02",
+      "lane": "LANE-07",
+      "verdict": "retain",
+      "technical_assessment": "Disk-captured immutable read + bounded Arrow batch + prefix accounting соответствует replay при mutation/rebatch. Копия на диск дороже прямого parquet scan, но необходима для выбранного неизменного источника; mapper failures не должны провоцировать reader fallback и дублирование accepted prefix.",
+      "source_evidence": [
+        "src/polisyos/data_forge/domains/ukraine/builders/sources.py:1420–1593",
+        "tests/unit/remediation/test_obs_02.py:248–379"
+      ],
+      "test_validity": "Сильные controls уже предусмотрены: exact row IDs, same-size restoredmtime/ABA, confirmed vs pending counters и actual reader fault. Wrong implementation «dedupe по value» проходит sum/count-only oracle, но ломается distinct IDs with equal values; это следует сохранить.",
+      "free_grow_transfer": "Transfer меняет batch/rowgroup boundaries и duplicate index layout, а не только seed. Второй compatible table с nullable numeric и variable-width strings испытывает тот же snapshot owner.",
+      "cost_compatibility": "Arrow22 iter_batches не whole-file pandas; O(file) temporary storage/free-space admission, peak batch memory и prefix reread measurable. DuckDB Arrow handoff — optional future measured optimization, не нынешний prerequisite.",
+      "limits": "No global exactly-once/no power-loss durability из одного retry. Disk full должен оставить old output и close captured handles.",
+      "findings": []
+    },
+    {
+      "packet": "UDF-04",
+      "lane": "LANE-07",
+      "verdict": "retain",
+      "technical_assessment": "Preflight unavailable до server guard разумен: absence checkout — structural capability, не попытка обойти запрещённый action. Workspace root и artifact root отдельны; callbacks принадлежат Ops. Installed C7 receipt требует real same-child collection/setup/call/teardown, не stdout passed.",
+      "source_evidence": [
+        "src/polisyos/data_forge/domains/ukraine/orchestrator.py:442–475",
+        "src/polisyos/data_forge/domains/ukraine/server.py:57–137",
+        "tests/unit/remediation/test_udf_04.py:361–413"
+      ],
+      "test_validity": "Подходящий positive fixture с actual callback рядом с missing-root denial предотвращает always-unavailable. Installed console/import proof отдельно от rendered shell command. Fake runner допустим для cwd/env composition, но не для receipt lifecycle.",
+      "free_grow_transfer": "Transfer checkout vs installed/no-checkout forms имеет смысл; не требовать реального provisioning всех окружений для diagnostic fix.",
+      "cost_compatibility": "Existing pathlib/packaging composition enough. Не вычислять repo через parents[N], не добавлять runtime registry.",
+      "limits": "Actual deployment requires отдельное разрешение и target evidence. Review ничего не запускает.",
+      "findings": []
+    },
+    {
+      "packet": "UDF-05",
+      "lane": "LANE-07",
+      "verdict": "targeted revision",
+      "technical_assessment": "Role-aware assembler выбран правильно: scalar/aggregate согласованность, equal legacy duplicate vs conflicting value, metadata preservation и reserved evidence last. Но exact index validator поставлен после before np.asarray — FA-01. Исправление должно захватить raw scalar identity.",
+      "source_evidence": [
+        "src/polisyos/data_forge/domains/ukraine/demography/__init__.py:176–380",
+        "src/polisyos/data_forge/domains/ukraine/static_aging.py:14–49",
+        "P/02_Пакеты/UDF-05.md §5.3"
+      ],
+      "test_validity": "Mixed big int/integral float discriminator обязателен. Existing TEST02 homogeneous extrema недостаточны; full public DTO+historical+candidate covers error translation. Candidate helper патчит unrelated gates — его нельзя выдавать за admitted full orchestration; пакет честно отмечает это.",
+      "free_grow_transfer": "Два state axes разного размера и materialized entrants/donor дают reusable pure aging. Изменить не только labels: разные positive flow/zero entrant structure и optional donor disposition.",
+      "cost_compatibility": "Никакой новой unit/index library. O(N) source admission+canonical int64. Signed record IDs сохраняются; state IDs range ограничен.",
+      "limits": "Inventory receipt доказывает captured inputs, не научную пригодность. Прогноз/калибровка на synthetic fixture остаются conditional.",
+      "findings": [
+        "FA-01"
+      ]
+    },
+    {
+      "packet": "FED-01",
+      "lane": "LANE-07",
+      "verdict": "targeted revision",
+      "technical_assessment": "Numeric contract сильный: finite extremes/subnormal/cancellation, MEDIAN validation до singleton, distinction arithmetic point vs actual source selection. Предпочтительнее existing statistics.mean за common wrapper, чем новая arithmetic implementation (FA-04). Custom exact algorithm сам по себе не ошибочен.",
+      "source_evidence": [
+        "src/polisyos/fabric/connectors/federation/resolver.py:95–145,323–365",
+        "src/polisyos/fabric/connectors/federation/composer.py:1612–1778"
+      ],
+      "test_validity": "Expected exact rational result независим; вычисление expected тем же helper запрещено. Три sources/second JOIN/persisted fresh reader проверяют cell lineage, repeated keys, null/cardinality. Wrong shared producer attribution проходит numeric-only asserts, но не cell-origin matrix.",
+      "free_grow_transfer": "Поменять primary priority, secondary overlap и missingness, не только values; holdout с source names вне fixtures и одними контрактами. Candidate composition не зависит от эмпирической source independence.",
+      "cost_compatibility": "Common stdlib3.14 wrapper, group cost измерить; mean streamable, median требует central selection. Bounded audit не означает full composition O(1) memory.",
+      "limits": "Scalar MEDIAN выбирает действительный admitted cell, не synthetic median source. Не менять tolerance/tie policy под numeric test.",
+      "findings": [
+        "FA-04"
+      ]
+    },
+    {
+      "packet": "FED-02",
+      "lane": "LANE-07",
+      "verdict": "retain",
+      "technical_assessment": "Schema-first typed empty UNION и one bounded audit collector решают реальные дефекты без новой relational engine. Declared nullable schema-only column должна создаваться до pd.concat templates; no-sources отличается от lawful empty sources.",
+      "source_evidence": [
+        "src/polisyos/fabric/connectors/federation/composer.py:634–775",
+        "tests/unit/remediation/test_fed_02.py:115–205,661–785"
+      ],
+      "test_validity": "Full typed schema through SQL fresh reader + summary/full/none equal results и full conflict counts сильнее len0/count-only. Heap tiebreaker stable sequence не должен сравнивать MergeLog payload. Transient allocation census полезен, но не RSS/latency proof.",
+      "free_grow_transfer": "Transfer repeated keys+secondaries with different priority and unused source; index once per used secondary. Новый declared field без rows — решающий schema transfer.",
+      "cost_compatibility": "Сохранить pandas2.3 current ABI; DuckDB rewrite только по measured need. Per-composition lazy indexes не global mutable cache.",
+      "limits": "Schema authority не утверждается inferred pandas dtype; no-source refusal не считается lawful empty positive.",
+      "findings": []
+    },
+    {
+      "packet": "CAL-01",
+      "lane": "LANE-07",
+      "verdict": "retain",
+      "technical_assessment": "Normalize paired source axis до inferred linspace и equal-length shortcut — правильное место; np.interp сам не валидирует domain invariants. Unit/interval compatibility всей selected series, не unit первого record. Не навязывать Pint/global conversion: upstream declared conversion owner достаточен.",
+      "source_evidence": [
+        "src/polisyos/foundry/calibration/preflight.py:63–109,230–308",
+        "src/polisyos/foundry/calibration/measurement.py:247–338",
+        "tests/unit/remediation/test_cal_01.py:196–248"
+      ],
+      "test_validity": "Local _resample explicit target test уже может быть green при broken prepare_targets inferred branch: будущая suite правильно должна пройти public prepare_targets equal-length/inferred и compiler→optimizer. Oracle line y=2t+1 аналитичен; masks/IDs отдельны. Empty support/zero/fill различаются.",
+      "free_grow_transfer": "Transfer нерегулярная сетка, перестановка+переименование IDs, explicit reversed requested grid, другой unit объявленный upstream conversion. Не требовать generic model invention.",
+      "cost_compatibility": "Stable O(nlogn) sort и existing NumPy/JAX. Measurement compiler explicitlyfloat32, native profile tolerance/report должны быть dtype-aware; не утверждать binary64 precision всего model path.",
+      "limits": "Передача CAL-02 в I10-A нужна для optimizer/report sensitivity; target correctness не empirical model validity.",
+      "findings": []
+    },
+    {
+      "packet": "DFK-02",
+      "lane": "LANE-08",
+      "verdict": "retain",
+      "technical_assessment": "Catalog visibility не должна проходить executable connector projection. Исправить predicate через current selection owner, сохранив governed source config semantics; не отождествлять catalog-only с callable source.",
+      "source_evidence": [
+        "src/polisyos/data_forge/domains/catalog/registry.py:50–115",
+        "P/02_Пакеты/DFK-02.md all solution/tests"
+      ],
+      "test_validity": "Explicit default vs [] vs None, seed closure и same-stat policy bytes контролируют реальные meanings. Wrong predicate alwaysTrue проходит один legal source, но должен сломаться excluded private/catalog-only/control source.",
+      "free_grow_transfer": "Второй catalog-only entry с иной source family добавляется data/profile без connector stub. Policy denied executable всё ещё denied; free-grow не значит обход access.",
+      "cost_compatibility": "Existing typed YAML registry достаточен; no second parser/list. Lazy YAML import и compatibility exports сохранить.",
+      "limits": "Catalog listing показывает discoverable, не executable/authority.",
+      "findings": []
+    },
+    {
+      "packet": "DFI-01",
+      "lane": "LANE-08",
+      "verdict": "bounded qualification",
+      "technical_assessment": "Existing finite binding/context extraction уже выполнен, поэтому retain owners и квалифицировать actual three leaf groups. ContextVar правильнее module global overrides; scope restoration в finally нужно проверять при exceptions/cancellation.",
+      "source_evidence": [
+        "src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py:1–210,289–370",
+        "P/02_Пакеты/DFI-01.md"
+      ],
+      "test_validity": "AST/import architecture tests не проверяют SQL write/manifests. Actual canonical caller с native DB и two concurrent bindings обязан выдавать раздельные outputs; second invocation after exception проверяет reset, а не только successful path.",
+      "free_grow_transfer": "Compatible source через finite existing bindings без добавления нового global alias. New unsupported semantics legitimate code extension, не бесконечный injection registry.",
+      "cost_compatibility": "MappingProxyType shallow — caller-owned mutable values надо использовать по объявленной lifecycle, не считать deep immutability. Не вводить heavyweight DI framework.",
+      "limits": "Нет нового root-cause fix без найденного mismatch; full LA038 closure включает callers and actual manifests.",
+      "findings": []
+    },
+    {
+      "packet": "DFI-02",
+      "lane": "LANE-08",
+      "verdict": "retain",
+      "technical_assessment": "Потерянный empty_shards counter протянуть через actual aggregate. Facade stale delegate решается small weak identity bookkeeping либо stable forwarding with current owner lookup; не broad monkeypatch broadcast и не дублирование API функций.",
+      "source_evidence": [
+        "src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py:1–197",
+        "src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py:1096–1139",
+        "tests/unit/remediation/test_dfi_02.py:1–178"
+      ],
+      "test_validity": "Counter test должен получить actual complete-empty shard а не fake returned dictionary; existing unit mocks useful wiring only. Два сохранённых wrapper handles до и после owner change различают stale closure, один latest wrapper — нет.",
+      "free_grow_transfer": "Transfer explicit binding, default binding и concurrent scope with cancellation. Не поддерживать произвольное reflective private symbol patching ради теста.",
+      "cost_compatibility": "Weak refs избегают unbounded retained wrapper list; stable dynamic lookup дешевле, но preserve exact dispatch/exception identity.",
+      "limits": "empty_shards — metric, не completeness evidence без selected denominator. Canonical writers unchanged.",
+      "findings": []
+    },
+    {
+      "packet": "DFI-03",
+      "lane": "LANE-08",
+      "verdict": "targeted revision",
+      "technical_assessment": "Strict nonnegative integer counts (not bool/coercion) и content-bound resume правильны. §5 содержит неподдержанный sync helper; off-only alternative не покрывает smart direct admission. FA-02: existing async finite-stage route предпочтителен.",
+      "source_evidence": [
+        "src/polisyos/data_forge/domains/catalog/batch/pipeline.py:492–616,1240–1283,1392–1425",
+        "src/polisyos/data_forge/domains/catalog/batch/harvester.py:1069–1174,1255–1278",
+        "src/polisyos/data_forge/domains/catalog/batch/cli.py:79–106"
+      ],
+      "test_validity": "Endpoint/profile mutation при прежнем source.name и coherent old payload must force acquisition. Only config.resume assertion не проверяет stage work; TEST02 требует counted connector+fresh receipt. [] required outputs vs None — реальный all([]) adversary.",
+      "free_grow_transfer": "Два источника с complete_empty/nonempty; same bytes/newmtime reuse, same stat/newbytes miss. Transfer через новые source metadata, не fixture filename.",
+      "cost_compatibility": "Whole selected hashing costly but preserves threat model; measure separately, immutable lease only if proved. Core/QC remain live noncacheable.",
+      "limits": "Off не означает запрет независимого lawful transport cache. Native build not run.",
+      "findings": [
+        "FA-02",
+        "FA-05"
+      ]
+    },
+    {
+      "packet": "EMB-01",
+      "lane": "LANE-08",
+      "verdict": "bounded qualification",
+      "technical_assessment": "Existing shared encode kernel хороший reuse: разные Academic/Catalog text projections остаются domain-owned, matrix/index normalization и dtype общие. Re-extract no need. Dimension from actual encoder4 vs fallback99 полезно отличает silent pad.",
+      "source_evidence": [
+        "src/polisyos/data_forge/kernel/embeddings.py:349–463,1118–1182",
+        "P/02_Пакеты/EMB-01.md:32–76"
+      ],
+      "test_validity": "Настоящие DuckDB/NumPy/HNSW нужны вместо JSON recorder; deterministic encoder допустим только wiring. Пакет честно не доказывает model quality/ANN recall. Дополнительный topology query oracle делает search wiring более различающим, но scientific quality отдельно.",
+      "free_grow_transfer": "Text preparation profiles и ID collision controls существеннее другого seed. Добавить compatible corpus без domain routing в kernel; retain separate SQL truncations.",
+      "cost_compatibility": "M16/ef_construction200 preserved; set_ef100 after load exists. vector-search native build3.14 отдельно; не ставить latest library ради ремонта.",
+      "limits": "Current selected ordering сознательно canonical, legacy byte order иной. Unbound encoder может produce candidate, не reuse authority.",
+      "findings": [
+        "FA-05",
+        "FA-06",
+        "FA-07"
+      ]
+    },
+    {
+      "packet": "EMB-02",
+      "lane": "LANE-08",
+      "verdict": "retain",
+      "technical_assessment": "Перед selector switch вызвать существующую semantic admission — оптимальный небольшой fix. Hashes не видят coherent but wrong index vectors; common staged validator нужен, selected flag forge не нужен. Postcommit projection error не rollback уже committed selector.",
+      "source_evidence": [
+        "src/polisyos/data_forge/kernel/embeddings.py:349–463,1118–1182,1217–1412",
+        "src/polisyos/data_forge/domains/catalog/knowledge/store.py:301–378,428–476",
+        "tests/unit/remediation/test_emb_02.py:95–127,399–488"
+      ],
+      "test_validity": "Coherent inventory wrong vector до commit — сильный counterexample, лучше простой tamper checksum. Fresh reader after each failure phase и valid replacement исключают always-reject. Both warm/fresh effective-text mutation and beyond-truncation positive keep exact model-input semantics.",
+      "free_grow_transfer": "Перестановка IDs/добавление/withdrawal и второй domain reader показывают shared publisher. Не общий третий generation framework.",
+      "cost_compatibility": "Warm revalidation cost FA-05; не ослаблять currentness ради speed. HNSW stored normalized cosine vectors correspondence requires tolerance, not arbitrary byte identity.",
+      "limits": "No fsync/powerloss claim from os.replace; readiness/QC distinct from valid index.",
+      "findings": [
+        "FA-05",
+        "FA-06"
+      ]
+    },
+    {
+      "packet": "EMB-03",
+      "lane": "LANE-08",
+      "verdict": "bounded qualification",
+      "technical_assessment": "Legal incremental per-record text/assets/tokenizer identity следует сохранить, а не менять на Academic full rebuild или ID-only cache. Owned runtime positive served query действительно добавляет способность; source-owned finite CPU1024/ST2.7 profile допустим старт, не вечный hardcoded universe.",
+      "source_evidence": [
+        "src/polisyos/data_forge/domains/legal/runtime_material.py:568–577,649–739",
+        "P/02_Пакеты/EMB-03.md:31–75",
+        "src/polisyos/data_forge/kernel/embeddings.py:349–463,1118–1182"
+      ],
+      "test_validity": "Three tables, append/change/withdrawal/revision invalidators и actual owned model без mocked gate сильны. Но «полезный» результат требует relevance target/holdout, FA-06. Runtime owner trusted-process assumption не доказывает защиту от hostile concurrent mutation всех globals.",
+      "free_grow_transfer": "Второй corpus с иными legal entities/facts/provisions и paraphrase query через тот же профиль. Новый model backend — новая semantic/runtime qualification, не обязан автоматически пройти.",
+      "cost_compatibility": "Optional rag-local и provided assets обязательны; tiny corpus still full model load/RSS. Long text truncation query adversary может выявить false abstention. No downloads in review.",
+      "limits": "Candidate similarity не verified source relation; text fallback остаётся полезным, но не заменяет требуемый owned-vector positive.",
+      "findings": [
+        "FA-05",
+        "FA-06",
+        "FA-07"
+      ]
+    },
+    {
+      "packet": "ING-01",
+      "lane": "LANE-08",
+      "verdict": "retain",
+      "technical_assessment": "Finite pre-admitted request_hash→unique namespace map устраняет first namespace selection без filesystem guessing. Identical HTTP request across two sources действительно неоднозначен без request-scoped identity; bounded upfront unsupported честнее случайного routing.",
+      "source_evidence": [
+        "src/polisyos/fabric/data_plane/modes.py:1124–1204",
+        "src/polisyos/fabric/data_plane/replay_store.py:96–114",
+        "src/polisyos/fabric/connectors/testing/simulator.py:344–405"
+      ],
+      "test_validity": "Два real namespaces, unknown request, ambiguity до ingestion и no live fallback обязательны. Различать successful fetch count и actual persisted transform/PII/graph consumer. Replaying recorded bytes не доказывает fresh provider computation.",
+      "free_grow_transfer": "Второй source namespace с иной request method/body/schema; compatible manifests data-only. Для одинаковых requests нужен новый typed source boundary, не ad-hoc URL suffix.",
+      "cost_compatibility": "Map O(fixtures), no network service/new router. Content canonicalization owner existing; payload historical bytes не переписывать под old ID.",
+      "limits": "Finite approved adapter scope only; no arbitrary production access or global exactly-once.",
+      "findings": []
+    },
+    {
+      "packet": "ING-02",
+      "lane": "LANE-08",
+      "verdict": "retain",
+      "technical_assessment": "Initial failure checkpoint должен иметь admitted source/clock/schema identities и empty operator state, а не mutated observed progress. Малый helper identity fields корректнее клонирования live accumulator. Actual committed frontier остаётся единственным resume basis.",
+      "source_evidence": [
+        "src/polisyos/fabric/data_plane/streaming.py:1540–1588,3049–3113",
+        "tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py:805–945"
+      ],
+      "test_validity": "Independent raw byte/window oracle и actual CAS writes хороши; BaseException injection не OS process death, поэтому separate worker-kill required только для declared crash recovery. First-before-commit failure плюс actual fresh reader решает конкретный gap, not only state DTO.",
+      "free_grow_transfer": "Count/tumbling/sliding/session и uneven rebatching должны сохранять window memberships/contributor refs; new dataset/source identity через contracts. Withdrawal affected contributor invalidates dependent window, independent retained.",
+      "cost_compatibility": "Checkpoint snapshot O(retained state) memory+IO, horizon bounds declared. No parallel journal/recovery service.",
+      "limits": "Source witness identity не сама causal authority; timed event clocks require same admitted semantic profile.",
+      "findings": []
+    },
+    {
+      "packet": "ING-03",
+      "lane": "LANE-08",
+      "verdict": "retain",
+      "technical_assessment": "Owned per-occurrence serialized byte accounting правильно заменяет repeated full sum; id(dict)-only memoization неверна при reuse/mutation. CATEGORY allowed_values is not None отличает empty allowed set от unconstrained; existing quarantine owner достаточен.",
+      "source_evidence": [
+        "src/polisyos/fabric/data_plane/streaming.py:954–1054,1237–1270",
+        "src/polisyos/fabric/data_plane/schema_rows.py:23–115"
+      ],
+      "test_validity": "Exact cap+one byte, repeated identical object occurrences, mutate-after-admit, preview abort, restored state counter independently recomputed. Wrong one-size-per-unique-ID cache проходит unique-row fixtures; explicit repeated reference distinguishes. Window-closing transition must remain admitted without arbitrary forced flush.",
+      "free_grow_transfer": "Разные window types/variable-width Unicode fields, category[]=denyall vs None=any, UTC expiry after restart. Новая data value не новый branch.",
+      "cost_compatibility": "O(1) buffered_bytes не full loop O(N): _prune_row_refs scans buffer, preview copies containers. Не предлагать eviction cache для semantic live rows; no unimplemented spill success.",
+      "limits": "Operator serialized budget не process RSS. Counter/index metadata overhead отдельно measured; capacity refusal preserves frontier.",
+      "findings": []
+    },
+    {
+      "packet": "NET-01",
+      "lane": "LANE-08",
+      "verdict": "retain",
+      "technical_assessment": "Terminal cleanup task cancelled нельзя shield-await forever: inspect done/cancelled and unified settlement retaining owner/permit until real close. Caller cancellation after success сначала settles physical result, then propagates. Design uses existing lifecycle, not new cancellation framework.",
+      "source_evidence": [
+        "src/polisyos/fabric/connectors/pool.py:833–900",
+        "src/polisyos/fabric/data_plane/streaming.py:3114–3120",
+        "tests/unit/fabric/data_plane/test_stream_pool_physical_cleanup_oracle.py:146–260"
+      ],
+      "test_validity": "Watchdog timeout сам по себе не PASS: heartbeat progress, fd remains readable while pending, os.fstat closed after retry, new session acquisition then works. Fixtures must pass legitimate dedupe/source admission before reaching cleanup; removing gate ради finalizer недопустимо.",
+      "free_grow_transfer": "Two cancellation origins (caller vs owned task), same-session-key replacement and independent pending owners transfer mechanism, no source-specific cleanup branch.",
+      "cost_compatibility": "Python asyncio primitives adequate. Lock protects metadata, never physical disconnect await. No finite timeout can pretend actual FD close.",
+      "limits": "Primary provider/sanitizer error identity preserved; cleanup degradation separate, pending ownership explicit.",
+      "findings": []
+    },
+    {
+      "packet": "NET-02",
+      "lane": "LANE-08",
+      "verdict": "retain",
+      "technical_assessment": "Successful result feeds AdaptiveRateLimiter once after actual provider completion. Plain RateLimiter protocol не расширять обязательным callback. Success feedback exception нельзя перехватить как provider RateLimitError и повторить physical call.",
+      "source_evidence": [
+        "src/polisyos/fabric/connectors/resilience/rate_limiter.py:380–468",
+        "P/02_Пакеты/NET-02.md full local tests"
+      ],
+      "test_validity": "Actual wrapper+controlled clock matrix: 429 cooldown→success recovery, exception/cancel no success, fractional0.2/s and declared burst, stale circuit generation ignored. Mere call count misses recovered state; next admitted request time distinguishes.",
+      "free_grow_transfer": "Different connector IDs/tenants sharing intended owner vs isolated profile; registry eviction with pinned leases and late completion. No distributed quota claim.",
+      "cost_compatibility": "Existing limiter+registry sufficient; tenacity retry cannot replace feedback/generation semantics. Relative sleep sums не absolute deadline.",
+      "limits": "Provider result/accounting remains primary; adaptive policy unchanged except missing successful feedback.",
+      "findings": []
+    },
+    {
+      "packet": "SCL-01",
+      "lane": "LANE-09",
+      "verdict": "targeted revision",
+      "technical_assessment": "Current cached admission и per-attempt deadline — нужный ремонт, но offline ordering явно исправить FA-03. Общий raw transport сохраняет numeric destination/peer/hostname SNI; rewrite HTTP stack без причины не оправдан.",
+      "source_evidence": [
+        "src/polisyos/scholar/search/fetcher.py:31–103",
+        "src/polisyos/scholar/search/security.py:76–180",
+        "src/polisyos/scholar/search/providers.py:118–218",
+        "tests/unit/scholar/search/test_fetcher_security_cache.py:60–106"
+      ],
+      "test_validity": "Positive legal cached reuse+prohibited final/redirect/MIME/size рядом. Offline DNS-failure control missing in text; add. Deadline injected clock first ends t2 budget1 excludes second; positive failover within budget excludes always-stop. Async cancellation physical worker distinct.",
+      "free_grow_transfer": "Second compatible profile with different MIME/domain/limits and third-party legacy list provider — не просто another URL. Unknown legacy cache fact explicitly gap/allowed refresh.",
+      "cost_compatibility": "HTTPX phase timeouts no wall guarantee; outer monotonic async deadline plus existing retained worker owner. No live network in review.",
+      "limits": "Candidate schema1.1 remains decision, not implied migration; snippet availability not source permission.",
+      "findings": [
+        "FA-03"
+      ]
+    },
+    {
+      "packet": "SCL-03",
+      "lane": "LANE-09",
+      "verdict": "retain",
+      "technical_assessment": "Carry existing typed raw ArtifactRef through manual bytes normalization activates existing acquire recheck; второй CAS/SourceSpec type не нужен. Fetch profile must come from actual applied transport arguments on cache and no-cache routes, not populated test DTO.",
+      "source_evidence": [
+        "src/polisyos/scholar/search/fetcher.py:70–93",
+        "P/02_Пакеты/SCL-03.md §5",
+        "src/polisyos/scholar/discover/http_fetch.py:46–137"
+      ],
+      "test_validity": "Native API→CAS→docs/fragments/claims→fresh reader решительно лучше sentinel before publication. v1 then URLv2 without refetch and explicit refresh lineage distinguish cache from accidental fresh retrieval. Corrupt/missing blob must not reconstruct from snippets.",
+      "free_grow_transfer": "Два документа с повторяющимися фразами и Unicode normalization + multiple snippets; второй applied profile no code branch. Span coordinate system должен быть extracted text, не naive raw-byte offset.",
+      "cost_compatibility": "Store full raw bytes once; exact profile metadata inexpensive. Native parser/backend qualification separate for HTML/PDF, не promise arbitrary MIME.",
+      "limits": "Fragment substring proves extraction fidelity, not truth/entailment/copyright rights. Source-bound non-URL manual bytes remain functional.",
+      "findings": []
+    },
+    {
+      "packet": "LLM-01",
+      "lane": "LANE-09",
+      "verdict": "retain",
+      "technical_assessment": "Optional metrics/traces не могут скрыть response/mandatory post_record. Нужен safe optional context boundary preserving body exception, не blanket suppress. Existing ledger/accounting owner retain; no new money subsystem.",
+      "source_evidence": [
+        "src/polisyos/scientist/orchestration/llm/budget_enforcer.py:221–291,424–471",
+        "src/polisyos/core/llm/traced_client.py:1301–1365",
+        "tests/unit/scientist/orchestration/llm/test_factory_cache_composition.py:229–329"
+      ],
+      "test_validity": "Current native-style composition real FileBudgetLedger/local gateway useful, но _Tracer double не no-OTel fallback proof. Fault matrix enter/exit/attributes/status and mandatory audit failure must verify response/cause+next-spend gate, not only ledger already charged.",
+      "free_grow_transfer": "Async generate и sync invoke separate routes; normal/fallback tracer profile; missing usage unknown→reconciliation→positive next call. Другой controlled provider reply tests no constant fallback.",
+      "cost_compatibility": "OTel principle supports optional isolation, но core default includes SDK. Deliberately reduced fallback environment explicit. No external bill/invoice claim.",
+      "limits": "Unknown cost не zero; consumer reuse events не physical invoice. Body cancellation и mandatory error должны распространяться.",
+      "findings": []
+    },
+    {
+      "packet": "LLM-02",
+      "lane": "LANE-09",
+      "verdict": "retain",
+      "technical_assessment": "Finite six-role translator closure — обоснованное новое общее contract extension; не regex whitelist и не universal NL semantics. Exact prepared request binding + current owner/epoch per hit and once bounded revision re-admission avoids needless physical duplicate. Existing coordinator sufficient.",
+      "source_evidence": [
+        "src/polisyos/scientist/orchestration/llm/prompt_cache.py:674–910",
+        "src/polisyos/scientist/policy_design/translator.py:48–61,188–233",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:222–296",
+        "tests/unit/scientist/orchestration/llm/test_factory_cache_composition.py:330–430"
+      ],
+      "test_validity": "One role at a time drift/absence/request/scope must force miss; unchanged literal URL/uncertainty content still hit. Provider fixture should parse actual serialized six-role payload and return role-sensitive valid brief, not constant answer; otherwise consumer wiring can ignore changed material. Cross-loop shared concurrent Future already meaningful.",
+      "free_grow_transfer": "Два materially different bundles (например fiscal transfer vs service provision) через same translator profile, no dossierID routing. New seventh live role remains unsupported until explicit contract extension; это честная граница, не free-grow дефект.",
+      "cost_compatibility": "One retry only; no locks around async provider/IO. Capture immutable payload bytes before dispatch; bind selectedCAS facts by current owner. No new distributed cache service. DefaultT0.1 stays; explicitT0/fallbackFalse qualifies reusable route.",
+      "limits": "T0/cache reuse не гарантирует cloud-model mathematical determinism или policy quality. Tool-calling NL request builder не покрыт. LLM-01 shared files sequential writer.",
+      "findings": []
+    }
+  ]
+}

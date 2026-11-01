@@ -1,0 +1,51 @@
+{
+  "pass": "C67",
+  "bundle": "RES-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C67-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B13"
+      ],
+      "title": "Native owner-bound simulation → partial artifact → public reader ещё не выполнен",
+      "evidence": [
+        "S04:1995–2475",
+        "S05:1–336",
+        "S06:1326–1470",
+        "S07:592–646",
+        "S08:971–1088",
+        "P05",
+        "P07",
+        "P08",
+        "P09",
+        "native_pytest.log",
+        "native_import.log"
+      ],
+      "remaining": "В поддерживаемом runtime выполнить существующий real-leaf regression и общий LANE-06 маршрут с реальным CAS, exact selected profiles, scoped readback после sibling failure, blocked descendants и повтором. Отдельно изменить общее основание/epoch и доказать отзыв зависимой authority без удаления независимого candidate artifact. Проверить актуальность output scope и совместимость повторного использования, а не только наличие ref.",
+      "limits": "Actual async owner, graph predicates, API projection и normative guard исполнены, но registry/dispatcher, recursive DTO/hash/terminal owner, artifact admission — fixtures. Native N5 test только прочитан. Локальные коэффициенты синтетические; научная валидность и production durability не заявлены."
+    },
+    {
+      "id": "C67-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B13"
+      ],
+      "title": "Сохранение завершённого соседнего leaf не доказывает partial representation при отказе поздней стадии того же leaf",
+      "evidence": [
+        "S03:45–56",
+        "S09:9472–9526",
+        "S09:13562–13689",
+        "S04:3573–3582",
+        "S04:3655–3672",
+        "P06"
+      ],
+      "remaining": "Сделать различающий native сценарий: N5 действительно сохраняет результат, затем независимый value/revision этап того же leaf падает; через существующий reader доступны численный результат, его scope и точная причина остановки. Если путь неполон, расширить существующий source/checkpoint owner, не создавать второй журнал. Различать локальный сбой и invalidation общего основания.",
+      "limits": "P06 подтверждает только minimal engine: успешный промежуточный state достиг следующего callable, точная ошибка вышла без partial_result. _run_cycle собирает запись после engine; recursive partial принимает только законченные cycle runs. Это не доказательство потери всех CAS-записей и не установленный дефект native configured N5: его внутренние сохранения/отказы не воспроизведены."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "Async repair подтверждён bounded execution; typed recursive partial и public consumers существуют. Два конкретных квалификационных остатка не дают закрыть весь B13. Новый R не установлен."
+}

@@ -1,0 +1,371 @@
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py:471-618
+  471     def submit(
+  472         self,
+  473         candidate: dict[str, Any],
+  474         context: dict[str, Any],
+  475         *,
+  476         search_uncertainty_owner_context: SearchUncertaintyOwnerTaskContext | None = None,
+  477         candidate_proposal: CandidateProposal | None = None,
+  478         _prior_attempt_id: str | None = None,
+  479     ) -> FunnelTicket:
+  480         """Submit a candidate to the orchestrator and return a reusable ticket."""
+  481 
+  482         candidate_hash = _candidate_identity(candidate, candidate_proposal)
+  483         sentinel_meta = extract_sentinel_metadata(candidate) or {}
+  484         ticket_context = dict(context)
+  485         prior_attempt_id = _prior_attempt_id
+  486         prior_attempt = None
+  487         if prior_attempt_id is not None:
+  488             if not isinstance(prior_attempt_id, str) or prior_attempt_id not in self._tickets:
+  489                 raise ValueError("funnel_prior_attempt_unresolved")
+  490             prior_attempt = self._tickets[prior_attempt_id]
+  491             if not candidate_payloads_equal(prior_attempt.candidate, candidate):
+  492                 raise ValueError("funnel_prior_attempt_candidate_mismatch")
+  493             if (
+  494                 _candidate_identity(prior_attempt.candidate, prior_attempt.candidate_proposal)
+  495                 != candidate_hash
+  496             ):
+  497                 raise ValueError("funnel_prior_attempt_subject_mismatch")
+  498         metric_projection_basis = ticket_context.pop("_funnel_method_metric_projection_basis", None)
+  499         cache_context = dict(ticket_context)
+  500         if metric_projection_basis is not None:
+  501             cache_context["_funnel_method_metric_projection_basis"] = metric_projection_basis
+  502         if search_uncertainty_owner_context is not None:
+  503             cache_context["search_uncertainty_owner_context"] = (
+  504                 search_uncertainty_owner_context.model_dump(mode="json", exclude_none=False)
+  505             )
+  506         if sentinel_meta:
+  507             ticket_context.update(sentinel_meta)
+  508             ticket_context["is_sentinel"] = True
+  509         routing_mode = self._routing_mode(ticket_context)
+  510         try:
+  511             cache_key = self._ticket_cache_key(
+  512                 candidate,
+  513                 cache_context,
+  514                 sentinel_meta=sentinel_meta,
+  515                 routing_mode=routing_mode,
+  516             )
+  517         except (TypeError, ValueError):
+  518             # Opaque source handles cannot establish a reusable input basis.
+  519             cache_key = f"uncacheable:{uuid4()}"
+  520         # Reuse only the explicit live Stage A attempt handed back by this
+  521         # owner to its matching Stage B call. A separate request must run the
+  522         # current stage, lesson, correlation, uncertainty and access gates.
+  523         # Immutable selected Foundry/AD01 source computation remains reusable
+  524         # through its owner; a whole prior funnel result is not that source.
+  525         if prior_attempt is not None and search_uncertainty_owner_context is None:
+  526             try:
+  527                 same_context = _stable_context_identity(
+  528                     self._ticket_effective_context(prior_attempt)
+  529                 ) == _stable_context_identity(cache_context)
+  530             except (TypeError, ValueError):
+  531                 same_context = False
+  532             if same_context:
+  533                 # The ticket is the same live split, but mutable lessons,
+  534                 # correlation, access and routing owners may have changed since
+  535                 # Stage A. Rerun the gates instead of carrying their old results.
+  536                 # Keep the physical trace and already-recorded attribution.
+  537                 prior_attempt.stage_results.clear()
+  538                 prior_attempt.current_level = None
+  539                 prior_attempt.next_level = self._first_level()
+  540                 prior_attempt.final_action = "advance"
+  541                 prior_attempt.is_terminal = False
+  542                 prior_attempt.last_scheduling_decision = None
+  543                 prior_attempt.terminal_basis = None
+  544                 prior_attempt.continuation_reason = "live_split_gates_rechecked"
+  545                 return prior_attempt
+  546         ticket_id = str(uuid4())
+  547         uncertainty_ticket_id: str | None = None
+  548         uncertainty_generation: int | None = None
+  549         uncertainty_binding_ref: ArtifactRef | None = None
+  550         uncertainty_admission_failure: str | None = None
+  551         if search_uncertainty_owner_context is not None:
+  552             (
+  553                 uncertainty_ticket_id,
+  554                 uncertainty_generation,
+  555                 uncertainty_binding_ref,
+  556                 uncertainty_admission_failure,
+  557             ) = _admit_search_uncertainty_task(
+  558                 funnel_ticket_id=ticket_id,
+  559                 owner_context=search_uncertainty_owner_context,
+  560                 context=ticket_context,
+  561                 owned_attempt_association_resolver=(
+  562                     self._search_uncertainty_attempt_association_resolver
+  563                 ),
+  564                 owned_historical_attempt_association_resolver=(
+  565                     self._search_uncertainty_historical_attempt_association_resolver
+  566                 ),
+  567                 source_projection_verifier=self._search_uncertainty_source_projection_verifier,
+  568             )
+  569         ticket = FunnelTicket(
+  570             ticket_id=ticket_id,
+  571             candidate_hash=candidate_hash,
+  572             candidate=deepcopy(candidate),
+  573             context=ticket_context,
+  574             candidate_proposal=deepcopy(candidate_proposal),
+  575             next_level=self._first_level(),
+  576             cache_key=cache_key,
+  577             lineage=(ticket_id,),
+  578             search_uncertainty_ticket_id=uncertainty_ticket_id,
+  579             search_uncertainty_generation=uncertainty_generation,
+  580             search_uncertainty_task_binding_ref=uncertainty_binding_ref,
+  581         )
+  582         if uncertainty_admission_failure is not None:
+  583             ticket.context["search_uncertainty_admission_failure"] = uncertainty_admission_failure
+  584         ticket._set_method_metric_projection_basis(metric_projection_basis)
+  585         if prior_attempt is not None:
+  586             # This is a distinct physical attempt. Retain the actual preceding
+  587             # ticket's trace regardless of unrelated cache/continuation lookup.
+  588             ticket.parent_ticket_id = prior_attempt.ticket_id
+  589             ticket.prior_attempt_ticket_id = prior_attempt.ticket_id
+  590             ticket.lineage = (*prior_attempt.lineage, ticket_id)
+  591         store = ticket.context.get("store")
+  592         candidate_ref = ticket.context.get("policy_candidate_ref")
+  593         welfare_ref = ticket.context.get("welfare_bundle_ref")
+  594         if (
+  595             store is not None
+  596             and isinstance(candidate_ref, ArtifactRef)
+  597             and isinstance(welfare_ref, ArtifactRef)
+  598         ):
+  599             try:
+  600                 ticket.context["welfare_candidate_observation_ref"] = (
+  601                     persist_source_bound_risk_observation(
+  602                         store,
+  603                         candidate_ref=candidate_ref,
+  604                         welfare_bundle_ref=welfare_ref,
+  605                     )
+  606                 )
+  607             except (
+  608                 AttributeError,
+  609                 OSError,
+  610                 RuntimeError,
+  611                 TypeError,
+  612                 ValueError,
+  613             ) as exc:
+  614                 logger.info("Candidate welfare observation withheld: %s", type(exc).__name__)
+  615         self._tickets[ticket.ticket_id] = ticket
+  616         # The current request retains its ticket, but does not publish a
+  617         # reusable aggregate decision for a later independent request.
+  618         return ticket
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py:648-705
+  648     def advance(
+  649         self,
+  650         ticket: FunnelTicket | str,
+  651         target_level: int | None = None,
+  652         policy: AdvancePolicy | None = None,
+  653     ) -> FunnelOutcome:
+  654         """Advance an existing ticket to the requested target level or policy."""
+  655 
+  656         resolved_ticket = self._resolve_ticket(ticket)
+  657         execution_target = self._resolve_target_level(target_level, policy)
+  658         resolved_ticket.degradation_mode = self._routing_mode(resolved_ticket.context)
+  659         burn_in_calibration = (
+  660             policy == "burn_in"
+  661             and str(resolved_ticket.context.get("burn_in_cohort", "")) == "calibration"
+  662         )
+  663 
+  664         while not resolved_ticket.is_terminal:
+  665             next_level = self._resolve_next_level(resolved_ticket)
+  666             if next_level is None:
+  667                 self._mark_terminal(resolved_ticket)
+  668                 break
+  669             if next_level > execution_target:
+  670                 break
+  671             if resolved_ticket.degradation_mode == "freeze_frontier":
+  672                 resolved_ticket.final_action = "defer"
+  673                 resolved_ticket.is_terminal = True
+  674                 break
+  675 
+  676             if resolved_ticket.current_level in (2, 3) and resolved_ticket.next_level == next_level:
+  677                 scheduling_action = self._maybe_schedule_transition(
+  678                     resolved_ticket,
+  679                     execution_target=execution_target,
+  680                     policy=policy,
+  681                     trace_step=None,
+  682                 )
+  683                 if scheduling_action in {"reject", "defer", "retry_cheaper"}:
+  684                     break
+  685 
+  686             stage = self._stages_by_level[next_level]
+  687             stage_candidate = deepcopy(resolved_ticket.candidate)
+  688             result = stage.evaluate(stage_candidate, self._build_stage_context(resolved_ticket))
+  689             try:
+  690                 subject_unchanged = candidate_payloads_equal(
+  691                     stage_candidate, resolved_ticket.candidate
+  692                 )
+  693             except (TypeError, ValueError):
+  694                 subject_unchanged = False
+  695             if not subject_unchanged:
+  696                 # Preserve the physical attempt and cost, but admit no score,
+  697                 # work packet, routing decision or changed subject as the input.
+  698                 resolved_ticket.trace.append(
+  699                     FunnelTraceStep(
+  700                         fidelity_level=next_level,
+  701                         stage_name=result.stage_name,
+  702                         objective_value=None,
+  703                         is_promising=False,
+  704                         duration_seconds=result.duration_seconds,
+  705                         compute_cost_usd=result.compute_cost_usd,
+
+### e02_repository/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_reporting.py:574-732
+  574 def _serialize_funnel_outcome(outcome: FunnelOutcome) -> dict[str, Any]:
+  575     payload = {
+  576         "ticket_id": outcome.ticket_id,
+  577         "candidate_hash": outcome.candidate_hash,
+  578         "compute_cost_usd": outcome.compute_cost_usd,
+  579         "compute_cost_origin": outcome.compute_cost_origin,
+  580         "trace": [
+  581             {
+  582                 "fidelity_level": step.fidelity_level,
+  583                 "stage_name": step.stage_name,
+  584                 "objective_value": step.objective_value,
+  585                 "is_promising": step.is_promising,
+  586                 "score_status": step.score_status.value,
+  587                 "score_admission": (
+  588                     None
+  589                     if step.score_admission is None
+  590                     else step.score_admission.to_surface_payload()
+  591                 ),
+  592                 "duration_seconds": step.duration_seconds,
+  593                 "compute_cost_usd": step.compute_cost_usd,
+  594                 "compute_cost_origin": step.compute_cost_origin,
+  595                 "executed_work_packet_status": step.executed_work_packet_status,
+  596                 "executed_work_packet_ref": (
+  597                     None
+  598                     if step.executed_work_packet_ref is None
+  599                     else step.executed_work_packet_ref.model_dump(mode="json")
+  600                 ),
+  601                 "routing_decision": step.routing_decision,
+  602                 "voi_action": step.voi_action,
+  603                 "voi_priority": step.voi_priority,
+  604                 "failure_count": step.failure_count,
+  605                 "blocker_count": step.blocker_count,
+  606             }
+  607             for step in outcome.trace
+  608         ],
+  609         "prior_attempt_ticket_id": getattr(outcome, "prior_attempt_ticket_id", None),
+  610         "prior_attempt_trace": [
+  611             {
+  612                 "fidelity_level": step.fidelity_level,
+  613                 "stage_name": step.stage_name,
+  614                 "objective_value": step.objective_value,
+  615                 "is_promising": step.is_promising,
+  616                 "score_status": step.score_status.value,
+  617                 "score_admission": (
+  618                     None
+  619                     if step.score_admission is None
+  620                     else step.score_admission.to_surface_payload()
+  621                 ),
+  622                 "duration_seconds": step.duration_seconds,
+  623                 "compute_cost_usd": step.compute_cost_usd,
+  624                 "compute_cost_origin": step.compute_cost_origin,
+  625                 "executed_work_packet_status": step.executed_work_packet_status,
+  626                 "executed_work_packet_ref": (
+  627                     None
+  628                     if step.executed_work_packet_ref is None
+  629                     else step.executed_work_packet_ref.model_dump(mode="json")
+  630                 ),
+  631                 "routing_decision": step.routing_decision,
+  632                 "voi_action": step.voi_action,
+  633                 "voi_priority": step.voi_priority,
+  634                 "failure_count": step.failure_count,
+  635                 "blocker_count": step.blocker_count,
+  636             }
+  637             for step in getattr(outcome, "prior_attempt_trace", ())
+  638         ],
+  639         "prior_attempt_history_status": outcome.prior_attempt_history_status,
+  640         "prior_attempt_history": [
+  641             {
+  642                 "ticket_id": attempt.ticket_id,
+  643                 "trace": [
+  644                     {
+  645                         "fidelity_level": step.fidelity_level,
+  646                         "stage_name": step.stage_name,
+  647                         "objective_value": step.objective_value,
+  648                         "is_promising": step.is_promising,
+  649                         "score_status": step.score_status.value,
+  650                         "score_admission": (
+  651                             None
+  652                             if step.score_admission is None
+  653                             else step.score_admission.to_surface_payload()
+  654                         ),
+  655                         "duration_seconds": step.duration_seconds,
+  656                         "compute_cost_usd": step.compute_cost_usd,
+  657                         "compute_cost_origin": step.compute_cost_origin,
+  658                         "executed_work_packet_status": step.executed_work_packet_status,
+  659                         "executed_work_packet_ref": (
+  660                             None
+  661                             if step.executed_work_packet_ref is None
+  662                             else step.executed_work_packet_ref.model_dump(mode="json")
+  663                         ),
+  664                         "routing_decision": step.routing_decision,
+  665                         "voi_action": step.voi_action,
+  666                         "voi_priority": step.voi_priority,
+  667                         "failure_count": step.failure_count,
+  668                         "blocker_count": step.blocker_count,
+  669                     }
+  670                     for step in attempt.trace
+  671                 ],
+  672             }
+  673             for attempt in outcome.prior_attempt_history
+  674         ],
+  675         "stage_results": {
+  676             str(level): {
+  677                 "stage_name": result.stage_name,
+  678                 "objective_value": result.objective_value,
+  679                 "is_promising": result.is_promising,
+  680                 "score_status": result.score_status.value,
+  681                 "score_admission": (
+  682                     None
+  683                     if result.score_admission is None
+  684                     else result.score_admission.to_surface_payload()
+  685                 ),
+  686                 "feedback": result.feedback,
+  687                 "failure_cards": [card.model_dump(mode="json") for card in result.failure_cards],
+  688                 "fidelity_level": result.fidelity_level,
+  689                 "compute_cost_usd": result.compute_cost_usd,
+  690                 "compute_cost_origin": result.compute_cost_origin,
+  691                 "executed_work_packet_status": result.executed_work_packet_status,
+  692                 "executed_work_packet_ref": (
+  693                     None
+  694                     if result.executed_work_packet_ref is None
+  695                     else result.executed_work_packet_ref.model_dump(mode="json")
+  696                 ),
+  697                 "terminal_action": result.terminal_action,
+  698             }
+  699             for level, result in outcome.stage_results.items()
+  700         },
+  701         "final_action": outcome.final_action,
+  702         "completed": outcome.completed,
+  703         "degradation_mode": outcome.degradation_mode,
+  704         "uncertainty_historical_max": outcome.uncertainty_envelope.model_dump(mode="json"),
+  705         "uncertainty_current": (
+  706             None
+  707             if outcome.current_uncertainty_envelope is None
+  708             else outcome.current_uncertainty_envelope.model_dump(mode="json")
+  709         ),
+  710         "uncertainty_observation_refs": [
+  711             ref.model_dump(mode="json") for ref in outcome.uncertainty_observation_refs
+  712         ],
+  713         "uncertainty_intake_failures": list(outcome.uncertainty_intake_failures),
+  714         "search_uncertainty_current_read": (
+  715             None
+  716             if outcome.search_uncertainty_current_read is None
+  717             else outcome.search_uncertainty_current_read.model_dump(mode="json", exclude_none=False)
+  718         ),
+  719         "audit_refs": [ref.model_dump(mode="json") for ref in outcome.audit_refs],
+  720         "actionable_side_information_refs": [
+  721             ref.model_dump(mode="json") for ref in outcome.actionable_side_information_refs
+  722         ],
+  723     }
+  724 
+  725     if outcome.result_reuse_source_ticket_id is not None:
+  726         payload.update(
+  727             parent_ticket_id=outcome.parent_ticket_id,
+  728             lineage=list(outcome.lineage),
+  729             continuation_reason=outcome.continuation_reason,
+  730             result_reuse_source_ticket_id=outcome.result_reuse_source_ticket_id,
+  731         )
+  732     return payload

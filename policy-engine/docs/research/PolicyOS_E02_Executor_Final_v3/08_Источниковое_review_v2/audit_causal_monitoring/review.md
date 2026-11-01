@@ -1,0 +1,345 @@
+# Второй source-led аудит: LANE-05 и LANE-11, 17 current v2 пакетов
+
+## Результат
+
+**Новых обязательных дефектов формулировки/приёмки не подтверждено.** Все 17 пакетов рассмотрены против всех 70 замороженных критериев: 1190 dispositions. Единственная заметка **CM-001** — low, optional, non-blocking уточнение общей coordination map SCM; не runtime bug и не основание требовать новый scientific тест.
+
+`addressed` означает достаточность описанного контракта/будущего evidence, а не работоспособность реализации. `bounded` сохраняет явный предел, условное решение либо qualification. **Product/native tests: NOT_RUN**. Baseline v2 не изменялся; source code не исследовался.
+
+## Что уже исправлено и не открывается повторно
+
+- CAU-03: выбран kernel-HC0 sandwich; inverse-Gram weighted-residual profile отделён как legacy; TEST-CAU-03-08 имеет независимый exact oracle.
+- CAU-04: Statsmodels comparison честно остаётся backend/adapter parity; TEST-CAU-04-08 отдельно задаёт независимый 8-row point/SE/t5 interval oracle.
+- FIT-01: TEST-FIT-01-10 требует train-fold-owned continuous-Y preprocessing и heldout-Y invariance для nuisance predictions; итоговый score не обязан оставаться неизменным.
+- SCM-02: TEST-SCM-02-10 независимо сверяет каждый actual refit target и percentile endpoints, а не только shrink/callback count.
+- DDM-02: producer не может fallback-нуть calibration-source в holdout; raw versus moving-block lineage, temporal/source separation и finite-corpus limitation заданы.
+
+## Совместная архитектурная граница
+
+Прочитаны все current LANE-05/I05-A/B/C и LANE-11/I11-A/B/C contracts, применимые general rules, четыре cross-lane stories и выбранные binding edges. Проверены передача реального артефакта, fresh consumer, source/request/profile binding и ограничения разрешённой подмены. Local-only не потеряны: source qualification, temporal adapter, historical/FQN support corpus, immutable mutation matrix и measured worker workload остаются самостоятельными обязательствами. Подробные JSON pointers/line ranges и SHA-256 — в coverage.json.
+
+Синтетический structural/numerical oracle не подтверждает истинность графа, parallel trends, empirical coverage или полномочие policy action. Native-hybrid и selected Linux Python3.12 DoWhy0.14 worker различены; parent Python3.14 не заменяет этот профиль. Неизвестный production DDM source, historical corpus или temporal support не выданы за выполненную capability. Нужны существующие owner decisions с полезным finite результатом, а не новая бесконечная подсистема.
+
+Источник критериев — frozen catalog 8c8c77e13d9151349b7410b441f97f0f94fbfb7d097150f32c9872fe35a3cb59. Исходные authoritative источники исследованы до этого прохода; здесь использованы их зафиксированные proposition/limits. Новая проверка документа не равна повторному прочтению всех web pages.
+
+## CM-001 — уточнить одну общую строку ownership
+
+Общая карта `00_Общее/Общие_владельцы_и_границы_изменений.md:13` называет SCM-03 для selected native worker/causal fit. Вступление (:3) уже различает технического интегратора и смыслового owner, поэтому прямое противоречие исполнения из этой строки не следует. Однако отдельная implementation-role SCM-03 для worker fit не определена; подробные SCM §7 и `01_Лейны/LANE-05.md:41–47` согласованно задают SCM-03 closure/coordinates, SCM-02 conditioning/refit, SCM-01 native fit→query acceptance. SCM-02:181 связывает worker fit owner с SCM-01.
+
+Риск — первичная неверная маршрутизация coordination/review, а не прохождение неверной реализации через полный v2. Достаточно уточнить общую строку или сослаться на подробную таблицу как канон. Нельзя на этом основании переносить исходный код между owners. Дополнительный runtime тест не нужен. Guidance [NASA IRD Appendix L](https://www.nasa.gov/reference/appendix-l-interface-requirements-document-outline/) (§§1.2–1.3,2.1) и [NASA Interface Management](https://www.nasa.gov/reference/6-3-interface-management/) (§6.3.1.2.3,6.3.1.3) поддерживает ясность роли/приоритета, но не доказывает product bug. Полный counterexample, preservation и alternative — findings.json.
+
+## Вердикты по каждому пакету
+
+### GRF-01 — static ADMG separator/perfect-do и настоящие package/proof consumers
+
+**Вердикт:** контракт достаточен в объявленных границах; новый mandatory gap не установлен.
+
+**Контракт и corner cases.** REQ01/02 задают endpoint-aware separation и хирургическое удаление только incoming/bidirected; REQ03/06 отделяют proof consumer от конечного 200-графового oracle. TEST02 warm valid→invalid profile не получает cached answer; TEST04 nonidentifiable certificate сохраняется, TEST07 unsupported family не угадывается.
+
+**Различающее evidence.** TEST01 independent latent DAG/moralization: 2400 separation и 19200 surgery queries; TEST02/03 имеют collider/descendant/reverse/multiple-action controls; TEST04 сверяет настоящий ID/IDC/proof и nonidentifiable результат. TEST02 symmetry/renaming и TEST03 reverse-storage эквивалентны только для тех же static endpoint semantics; independent finite oracle не пропускает constant answer.
+
+**Передача и identity/lifecycle.** TEST04/07: actual graph/query/revision→estimand/proof→CAS→fresh consumer; foreign graph/query отказывает, conditional assumptions остаются видимыми. Graph/query/profile/metadata identity не равна empirical validity; outer revalidation предшествует cache lookup (REQ01, TEST02). TEST02 warm→corrupted query, TEST04 persist→fresh load и TEST05 installed import квалифицируют разные наблюдаемые состояния.
+
+**Пределы и совместимость.** DEC-PACKAGING/SCOPE ограничивают неизвестные filename loaders и основание графа; structural correctness не идентифицирует реальный мир, PAG/temporal вне static profile. §8 и TEST05/06 сохраняют historical bytes/public classes и genuine packages; неизвестный внешний loader требует конечного support window, не безусловного retirement.
+
+**Ресурсы.** Нового latency/SLO или speedup нет: квалифицируется конечный структурный механизм, а shared resource policy ограничивает запуск.
+
+**Локаторы.** ['REQ-GRF-01-01–06', 'TEST-GRF-01-01–07', '§5; §8; DEC-GRF-01-PACKAGING/SCOPE']; companion `04_Трассировка/GRF-01.json`; applicable shared binding/REQ→TEST partition в coverage.json.
+
+**70 критериев:** addressed=25, bounded=11, not_applicable=34. Детальные причины и evidence каждого ID — assessments.json.
+
+### GRF-02 — lossless mixed-edge transport, Kuzu preflight и query-local preparation
+
+**Вердикт:** контракт достаточен в объявленных границах; новый mandatory gap не установлен.
+
+**Контракт и corner cases.** REQ01 отделяет simple-only direct export от lossless bulk/условного occurrence-aware mode; REQ02 сохраняет весь multiset; REQ03/04 запрещают caller skip-validation и удержание исходного объекта. Unsupported collision отказывает до nodes/edges writes; correct simple graph и actual mixed bulk route полезны (TEST01/02). Metadata mutation/empty copy не используют старые derived rows (TEST05/06).
+
+**Различающее evidence.** TEST01 проверяет отсутствие DB effects до отказа; TEST02/03 native full multiset 5 occurrences/120 permutations и DiGraph removal control; TEST04/05 проверяют real preparation и invalid warm input. TEST02/03 permutation сохраняет multiset, включая identical duplicates; TEST05 content-equivalent cache reuse отдельно от current raw validation.
+
+**Передача и identity/lifecycle.** TEST03/07 actual graph→CAS→fresh selected loader→query сохраняет selected profile, metadata и multiplicity, не только count/hash. Relation occurrence identity включает payload/ordinal/graph scope при выбранном direct extension; endpoint-only identity запрещена для collisions. Hash служит current content binding, не causal authority. TEST05 warm→mutation/copy→query и TEST06 140 contents→eviction→GC читают observable cache capacity/ownership; TEST01 повторный direct export обязан иметь объявленную семантику.
+
+**Пределы и совместимость.** DEC-KUZU требует actual incremental caller прежде нового direct mode; optional backend qualification не переносится на все платформы. DEC-SCALE выбирает workload без обещания ускорения. §8/DEC-KUZU запрещают скрытое очищение чужой DB; occurrence-aware вариант имеет отдельную schema/version/transaction/repeat/rollback disposition. Старый graph content не переписывается.
+
+**Ресурсы.** REQ06/TEST04/07 отдельно измеряют preparation count, wall time и RSS на declared cold/warm workload; 3→1 hashes не выдается за системный speedup.
+
+**Локаторы.** ['REQ-GRF-02-01–06', 'TEST-GRF-02-01–07', '§5; §8; DEC-GRF-02-KUZU/SCALE']; companion `04_Трассировка/GRF-02.json`; applicable shared binding/REQ→TEST partition в coverage.json.
+
+**70 критериев:** addressed=25, bounded=14, not_applicable=31. Детальные причины и evidence каждого ID — assessments.json.
+
+### GRF-03 — canonical known-direction projection и ограниченные temporal/partial consumers
+
+**Вердикт:** контракт достаточен в объявленных границах; новый mandatory gap не установлен.
+
+**Контракт и corner cases.** REQ01/03 сохраняют marks/source и lag; REQ04 определяет variable,time, horizon, initial values и source-time join; REQ05 запрещает arbitrary completion как family answer. TEST05 tripwire=0 для compact lag на static backend; TEST07 missing history/units/duplicate times не превращаются в zero-fill или future leakage; lawful subhorizon сохраняет scope.
+
+**Различающее evidence.** TEST01 90-profile matrix; TEST02 unresolved/cycle отказ; TEST03 fitted coefficient≈2 плюс foreign-direction control; TEST06 recurrence oracle и TEST07 missing initial/time/source controls дают смысл за пределами graph shape. TEST01 equivalent reversed spelling сохраняет causal direction; TEST06 второй lag2 model проходит тот же adapter, но это mechanism witness, не безусловный transfer claim.
+
+**Передача и identity/lifecycle.** TEST03/04 source→projection→actual selected fit→SCM/CAS→fresh query связывает source/disposition; native_hybrid не заменяет DoWhy worker. Exact variable/time/source join и collision-safe expanded coordinates заданы §5; source graph не замещается projection под прежней identity. TEST03 fitted artifact→fresh consumer и TEST04 selected-backend admission не заменяются manually built 8-node graph; TEST07 проверяет boundary до expensive run.
+
+**Пределы и совместимость.** DEC-TEMPORAL/PARTIAL имеют finite census и выбор existing owner/минимального adapter либо точного conditional scope; общая PAG completeness не обещана. §8 сохраняет compact temporal bytes, вводит explicit finite-expansion profile/mapping и separate historical disposition; rollback возвращает named unsupported route, не игнорирование lag.
+
+**Ресурсы.** Расширяется только необходимый конечный horizon/ancestor scope; arbitrary infinite temporal expansion/SLO не обещаны, выбранный consumer и workload конечны.
+
+**Локаторы.** ['REQ-GRF-03-01–07', 'TEST-GRF-03-01–08', '§5; §8; DEC-GRF-03-TEMPORAL/PARTIAL']; companion `04_Трассировка/GRF-03.json`; applicable shared binding/REQ→TEST partition в coverage.json.
+
+**70 критериев:** addressed=26, bounded=11, not_applicable=33. Детальные причины и evidence каждого ID — assessments.json.
+
+### API-01 — identity-preserving causal façades и конечный supported consumer census
+
+**Вердикт:** контракт достаточен в объявленных границах; новый mandatory gap не установлен.
+
+**Контракт и corner cases.** REQ01/02 фиксируют public2/9/direct-only5/3 без wrappers, unknown fallback или reflection-copy; REQ03 требует фактическое потребление четырёх monkeypatch bindings. TEST01 unknown ImportError/AttributeError; TEST02 reload удаляет stale incidental names, не supported aliases; TEST04 parse gaps=0 или явно BLOCKED.
+
+**Различающее evidence.** TEST03 actual identify→dispatch/restoration и no-op sync mutant; TEST04 exhaustive tracked-Python AST relative-import corpus различает старый content-only prefilter; TEST05 требует genuine historical bytes, не synthetic pickle как history. TEST02 incidental import не меняет manifest; TEST03 patch/restoration проверяет реальное поведение, а не только равенство списка имён.
+
+**Передача и identity/lifecycle.** TEST03/05 actual leaf objects→installed facade→causal/interference consumer сохраняет exceptions/DTO/FQN и полезный либо точно limited результат. Object/FQN identity сохраняется через aliases; census denominator привязан к actual commit, старые 71/8231 не вечные expected counts. Cold installed import, patch→dispatch→restore, stale injection→reload и retained/retired migration имеют отдельные TEST01–06.
+
+**Пределы и совместимость.** DEC-WINDOW сохраняет восемь supported bindings до finite current/historical census; отсутствие неизвестных внешних loaders не объявляется доказанным. §8/TEST05/06 и DEC-WINDOW различают explicit aliases, FQN/history и coordinated retirement; no blanket export, no silent historical claim.
+
+**Ресурсы.** Нового пользовательского performance/SLO нет; exhaustive finite AST предпочтителен, optional prefilter обязан сравниваться с exhaustive reference, не убирать случаи ради скорости.
+
+**Локаторы.** ['REQ-API-01-01–06', 'TEST-API-01-01–06', '§5; §8; DEC-API-01-WINDOW']; companion `04_Трассировка/API-01.json`; applicable shared binding/REQ→TEST partition в coverage.json.
+
+**70 критериев:** addressed=24, bounded=10, not_applicable=36. Детальные причины и evidence каждого ID — assessments.json.
+
+### CAU-01 — standard DiD unit partition/CR0 и корректная normal uncertainty
+
+**Вердикт:** контракт достаточен в объявленных границах; новый mandatory gap не установлен.
+
+**Контракт и corner cases.** REQ01/02 различают missing cluster identity и допустимый HC1, требуют полный однократный unit partition; REQ03–06 задают standard boundary, diagnostic statuses, covariance и устойчивый lower-tail CI. t0=0 остается допустимым DTO, но standard method INPUT_INVALID; missing/non-reflexive labels не дают point/SE/CI, tiny unrepresentable quantile не дает zero-width SUCCESS.
+
+**Различающее evidence.** TEST02 независимый pre/post oracle ATT3.125, CR0 SE .5659615711336, HC1 .9042722672588; TEST01 NaN/refusal до covariance; TEST04 nextafter endpoints и два actual callers; TEST06 coherent report forgery сверяется с source. TEST02 unit permutation и техническое повторение периодов сохраняют CR0/ATT, но не объявляют рост independent sample; TEST04 изменение уровня меняет только CI.
+
+**Передача и identity/lifecycle.** TEST06 actual registry/Scientist job/CAS→fresh reader сохраняет complete report/diagnostics/covariance/level; TEST08 non-gating envelope не повышает numerical SUCCESS. Unit labels не stringified совместно; плотные codes имеют один partition owner, весь target/diagnostic window source-bound; point и scientific authority различны. TEST05 isolated metadata mutation не меняет dedicated definitions; TEST06 persisted report→fresh verification→tamper и TEST08 projection наблюдают actual state.
+
+**Пределы и совместимость.** REQ09/DEC-INFERENCE отделяют large-independent-units CR0/normal от finite-cluster и empirical parallel-trends guarantees; DEC-LABEL не требует arbitrary object equality. §8 не переписывает historical NaN reports; current wrong covariance исправляется намеренно, old FQN lifecycle у CAU-05; diagnostic-only/HC1 пути не запрещаются глобально.
+
+**Ресурсы.** Адресная нормализация и accumulation не строят N×N/N×G membership; throughput/SLO не обещаны, shared native resource slot конечен.
+
+**Локаторы.** ['REQ-CAU-01-01–09', 'TEST-CAU-01-01–08', '§5; §8; DEC-CAU-01-LABEL/INFERENCE']; companion `04_Трассировка/CAU-01.json`; applicable shared binding/REQ→TEST partition в coverage.json.
+
+**70 критериев:** addressed=25, bounded=13, not_applicable=32. Детальные причины и evidence каждого ID — assessments.json.
+
+### CAU-02 — staggered theta_sel, unit influence, finite-B inversion и anticipation
+
+**Вердикт:** контракт достаточен в объявленных границах; новый mandatory gap не установлен.
+
+**Контракт и corner cases.** REQ01 фиксирует eligible periods/cohort-share target; REQ02 unit multiplier включает share derivative; REQ03 одна finite-B plus-one CI/H0 inversion; REQ04 g−1−a и timing>t+a. Degenerate influence сохраняет point без CI/p; too-small B и missing requested cells дают точные причины без silent target shrink; unsupported design остается conditional.
+
+**Различающее evidence.** TEST01 independent empirical-functional derivative theta_sel41/6; TEST02 one-cell/share removal controls; TEST03 actual RNG corpus и nextafter inversion; TEST04 boundary anticipation и missing cells различаются. TEST01 diagnostic-window change не меняет target, но меняет diagnostic binding; TEST03 null at endpoints и nextafter фиксируют один и тот же draw corpus.
+
+**Передача и identity/lifecycle.** TEST05/06 actual dispatcher/RNG/source/CAS→fresh consumer сверяет полный current report и independently recomputed target/diagnostic basis даже при согласованном rehash. Source outcomes/treatment/timing/unit/time alignment входят в target identity, diagnostics имеют отдельный binding (REQ01, TEST06). TEST05 old slots→dedicated current report и TEST06 persist→coherent-forgery→fresh source reader не заменяются pure numerical replay.
+
+**Пределы и совместимость.** REQ06/07 и DEC-DESIGN ограничивают pointwise independent-unit target; finite DGP не uniform coverage, неизвестные parallel trends/anticipation не исчезают при nonrejection. §8 сохраняет intentional weighting change как новую target semantics, historical cell-size estimate не переименовывается theta_sel; versioned history у CAU-05.
+
+**Ресурсы.** Finite B/chunk corpus и one shared DGP campaign ограничены; увеличение B не считается исправлением неверного law, общего latency/SLO нет.
+
+**Локаторы.** ['REQ-CAU-02-01–07', 'TEST-CAU-02-01–07', '§5; §8; DEC-CAU-02-DESIGN']; companion `04_Трассировка/CAU-02.json`; applicable shared binding/REQ→TEST partition в coverage.json.
+
+**70 критериев:** addressed=25, bounded=13, not_applicable=32. Детальные причины и evidence каждого ID — assessments.json.
+
+### CAU-03 — dimensionless conventional RDD и отдельные kernel-HC0/legacy/RBC profiles
+
+**Вердикт:** контракт достаточен в объявленных границах; новый mandatory gap не установлен.
+
+**Контракт и corner cases.** REQ01/02 задают x/h coordinate и общий rank/solve, selected HC0 sandwich вместо inverse-variance WLS; REQ03 сохраняет настоящий bounded sharp RBC и union h/b support. Rank-deficient/insufficient support и missing cutoff отказаны; unsupported fuzzy/cluster/masspoint/RBC profiles не превращаются в conventional с RBC flag.
+
+**Различающее evidence.** TEST01 unit-scale regression; TEST04 independent sensitivity RBC/variance removals; v2 TEST08 Fraction known-noise127/286 отдельно от residual HC0 sum(ell²r²), legacy covariance явно не oracle нового профиля. TEST01/02 positive common scaling x,cutoff,h и row permutation сохраняют support/intercept/SE в admitted numerical domain; TEST04 zero curvature имеет zero correction anchor.
+
+**Передача и identity/lifecycle.** TEST06/08 actual materializer cutoff/source vectors→registry→whole report/CAS→fresh selected consumer сохраняет variance profile/version и non-gating role. Cutoff typed, source vectors content-bound; profile/variance identity не cosmetic flag. New/legacy reports сохраняют разный смысл, не просто одинаковые bytes. TEST06 persisted conventional/RBC profiles и TEST08 new/legacy fresh readback связывают computation и совместимость; no rewrite of old inference.
+
+**Пределы и совместимость.** REQ05/DEC-PROFILE и DEC-VARIANCE-V2 отделяют scientific method extension от current fixed-h sharp repair; HC0 не finite-unbiased, conventional coverage не наследует RBC. §8/DEC-VARIANCE-V2 сохраняют immutable legacy bytes/labels, вводят named new selector/default disposition до внешнего cutover; reader mapping проверяется TEST02/06/08.
+
+**Ресурсы.** REQ06/TEST03 различают O(n·p) allocation и actual runtime/RSS; economy factorization reuse и no N×N проверяются отдельно от speedup.
+
+**Локаторы.** ['REQ-CAU-03-01–06', 'TEST-CAU-03-01–08', '§5; §8; DEC-CAU-03-PROFILE/VARIANCE-V2']; companion `04_Трассировка/CAU-03.json`; applicable shared binding/REQ→TEST partition в coverage.json.
+
+**70 критериев:** addressed=25, bounded=13, not_applicable=32. Детальные причины и evidence каждого ID — assessments.json.
+
+### CAU-04 — locked DoWhy ATE adapter и честный point-only результат
+
+**Вердикт:** контракт достаточен в объявленных границах; новый mandatory gap не установлен.
+
+**Контракт и corner cases.** REQ01 сохраняет point без fabricated CI; REQ02 фиксирует ATE0→1/.95/backdoor.linear_regression/full-rank binary profile; REQ03/04 whole request/reply/report binding. TEST03 unsupported estimand/contrast/level отказаны до worker; TEST04 malformed reply primitives/nonfinite/inventory и source mismatch не принимаются; partial point остается полезным.
+
+**Различающее evidence.** v2 TEST08 8-row sums beta[1,2,3],SSE8,SEsqrt(.8), independent t5 trigonometric CDF; TEST02 сохраняется как adapter parity. TEST05 восемь schema-valid report mutations не проходят source-based consumer. TEST08 row permutation/translated X сохраняют оценку, A relabel меняет знак и CI endpoints; explicit finite analytic anchor исключает constant/parity-only oracle.
+
+**Передача и identity/lifecycle.** TEST05 real selected Linux/Python3.12 worker→parent3.14 job/CAS→fresh whole report/envelope; point-only protocol seam маркируется отдельно от actual backend evidence. REQ03 binds common row IDs плюс actual values, graph/params/seed/source и observed installed inventory; rehash измененного outcome не заменяет admitted input. TEST05 real interval persist→fresh reader→semantic mutation и TEST07 genuine historical replay разделены; no partial report promotion.
+
+**Пределы и совместимость.** REQ05 отделяет underlying Statsmodels parity, independent algebraic oracle и Gaussian DGP coverage; DEC-LEGACY не обещает NIE/unknown external FQN. §8 current selected allowlist сохраняется, новый inference требует profile/version и historical reader; legacy census в TEST07/CAU-05, не общий alias fallback.
+
+**Ресурсы.** Нет latency/throughput обещания; выбранный worker/native profile квалифицируется отдельно, отсутствие Linux среды дает NOT_QUALIFIED, не universal platform failure.
+
+**Локаторы.** ['REQ-CAU-04-01–06', 'TEST-CAU-04-01–08', '§5; §8; DEC-CAU-04-LEGACY']; companion `04_Трассировка/CAU-04.json`; applicable shared binding/REQ→TEST partition в coverage.json.
+
+**70 критериев:** addressed=25, bounded=13, not_applicable=32. Детальные причины и evidence каждого ID — assessments.json.
+
+### CAU-05 — dedicated DiD planning, direct adapter и bounded versioned historical replay
+
+**Вердикт:** контракт достаточен в объявленных границах; новый mandatory gap не установлен.
+
+**Контракт и corner cases.** REQ01–03 сохраняют independent metadata/dedicated FQNs и точный old-slot/bool mode mapping; REQ04/05 запрещают implicit old-name registry fallback, REQ06 связывает numerical prerequisites. TEST04 string true/false,0/1,None/empty и old+new slots не выбирают другой estimator через truthiness; unsupported historical version явно отказывает, useful current adapter остается.
+
+**Различающее evidence.** TEST02 actual boot и rejected retired lookup; TEST03 poison legacy proves maintained dispatch; TEST04 ambiguous truthiness/alias conflict; TEST07 whole-report source tampering, TEST08 numerical evidence не заменяется metadata move. TEST03 equivalent effective old/dedicated requests дают same complete corrected report/warnings; numerical companion anchors запрещают назвать одинаковый ошибочный report доказательством математики.
+
+**Передача и identity/lifecycle.** TEST07 actual registered standard/staggered source-bound jobs→CAS→fresh canonical report/envelope; correct numbers с foreign diagnostics недостаточны. Original plan identity и current effective method identity связываются явно; default registry retired FQN не resurrects ради historical reading. TEST01 metadata poisoning/cross-mutation, TEST02 boot, TEST06 genuine old plan→migration→fresh process и TEST07 persistence проверяют разные переходы.
+
+**Пределы и совместимость.** DEC-REPLAY требует genuine plan/schema/FQN corpus и actual reader; без corpus допустим explicit direct-import-only scope, не fake replay или бесконечная совместимость. REQ04/05, §8 и TEST05/06 сохраняют original plan bytes/provenance; corrected effective request identity отличается от exact historical flawed execution; mapping обновляется у versioned reader.
+
+**Ресурсы.** Не новая вычислительная оптимизация: one shared E02-I05-B, local migration не требует CAU03/04 или full CI. Resource/SLO claim отсутствует.
+
+**Локаторы.** ['REQ-CAU-05-01–06', 'TEST-CAU-05-01–08', '§5; §8; DEC-CAU-05-REPLAY']; companion `04_Трассировка/CAU-05.json`; applicable shared binding/REQ→TEST partition в coverage.json.
+
+**70 критериев:** addressed=25, bounded=11, not_applicable=34. Детальные причины и evidence каждого ID — assessments.json.
+
+### SCM-01 — twin relevance, aligned root carriers/polynomial и selected fit custody
+
+**Вердикт:** контракт достаточен в объявленных границах; новый mandatory gap не установлен. CM-001 — optional coordination clarification.
+
+**Контракт и corner cases.** REQ01/02 требуют единый plan для двух arms/factual/joint law, не только DAG ancestors; REQ03 сохраняет carriers/partial SCM, REQ04 один strict polynomial predictor. TEST02/05 truly needed missing law отказывает, irrelevant и replaced atomic roots не блокируют; unsupported conditional profile остается limited, не fabricated Normal.
+
+**Различающее evidence.** TEST01 irrelevant Z distinguishes availability; TEST02 auxiliary observed joint root W,Z учитывается; TEST03 shared-U marginal/ITE; TEST06 polynomial4 vs linear surrogate1.36, malformed payload отказан. TEST01 irrelevant law Z0/Z1e9 не меняет requested distribution; TEST03 same U сохраняет marginals, отдельный fixed polynomial anchor задаёт результат.
+
+**Передача и identity/lifecycle.** TEST07 actual selected DoWhy fit→SCM/CAS→fresh profile reader→Scientist query; TEST08 различает SCM1.2 и TwinResult1.1, raw fixture/hybrid не native worker proof. Aligned row group/source carrier identity и mechanism payload сохраняются, malformed lengths/source/group refused; observed non-ancestor Z остается evidence, не do(Z). TEST04 fit→DTO→JSON→query, TEST07 selected worker→CAS→fresh reader и TEST08 legacy/current profile readback различены; no generic currentness from old bytes.
+
+**Пределы и совместимость.** REQ06 и DEC-CLOSURE ограничивают supported posterior/family; fixed SCM outcome/ITE range не estimator CI или empirical causal authority; genuine needed-root refusal сохраняется. §8 сохраняет source/law/profile historical bytes; changed stream mapping требует SCM03 replay version. Schema1.2 maintenance не blanket rewrite всех1.1.
+
+**Ресурсы.** Relevance дает bounded availability repair, не утверждение глобального ускорения; full-world API нельзя молча сузить outcome-only правилом, one prepared plan общий.
+
+**Локаторы.** ['REQ-SCM-01-01–06', 'TEST-SCM-01-01–08', '§5; §7–8; DEC-SCM-01-CLOSURE']; companion `04_Трассировка/SCM-01.json`; applicable shared binding/REQ→TEST partition в coverage.json.
+
+**70 критериев:** addressed=24, bounded=14, not_applicable=32. Детальные причины и evidence каждого ID — assessments.json.
+
+### SCM-02 — scale-aware Gaussian posterior, finite empirical conditioning и real refit
+
+**Вердикт:** контракт достаточен в объявленных границах; новый mandatory gap не установлен. CM-001 — optional coordination clarification.
+
+**Контракт и corner cases.** REQ01/02 сохраняют PSD law/shared-U/full factual; REQ03/04 condition общий aligned row index с multiplicities; REQ05 различает natural/do0/identical/stochastic arms, REQ07 refit interval отдельно. TEST03 incompatible deterministic evidence и indefinite PSD refused; TEST05 empty support не nearest-match, unsupported partial nonlinear не exact fallback; TEST09 unsupported unit/profile/count отказывает до refit.
+
+**Различающее evidence.** TEST01 analytic covariance s²[[.5,-.5],[-.5,.5]] при s1/1e-7; TEST04 exact conditional supportY10 и duplicate weights; v2 TEST10 independent per-replica scalar OLS targets/explicit linear quantiles, не shared helper или shrink-only assurance. TEST01 normalized law invariant under finite units; TEST02 marginal variance с deterministic ITE не смешиваются; TEST06 identical/reversed arms и TEST10 reverse attribution проверяют declared law.
+
+**Передача и identity/lifecycle.** TEST07 actual query/CAS/fresh Scientist/ensemble сверяет arms/source/profile; TEST08–10 selected worker full-row refits/indices→interval→fresh validator имеют отдельный numerical oracle. REQ05/07 связывают target/comparator/source/row indices/fit response; raw normalization не создаёт provenance, replica failures не скрываются resample-until-success. Prepared conditional plan→draw across both worlds, persisted whole-output→foreign-arm rejection, actual refits→persisted validator составляют связанные transition tests.
+
+**Пределы и совместимость.** REQ08/DEC-PSD различают admitted Gaussian/finite empirical/fully observed residual и unsupported nonlinear posterior; iid row resampling и empirical identification требуют отдельного основания. §8 изменяет ошибочные deterministic/unconditional results намеренно, historical bytes/seed provenance сохраняются, bitwise старых draws не обещается; natural/no-override sentinel остается typed.
+
+**Ресурсы.** Factor готовится один раз, positive represented covariance не режется ради скорости; full replica denominator/real fit count задан, speedup/SLO не обещан.
+
+**Локаторы.** ['REQ-SCM-02-01–08', 'TEST-SCM-02-01–10', '§5; §7–8; DEC-SCM-02-PSD']; companion `04_Трассировка/SCM-02.json`; applicable shared binding/REQ→TEST partition в coverage.json.
+
+**70 критериев:** addressed=24, bounded=14, not_applicable=32. Детальные причины и evidence каждого ID — assessments.json.
+
+### SCM-03 — canonical manual admission/query plan и posterior replica coordinates
+
+**Вердикт:** контракт достаточен в объявленных границах; новый mandatory gap не установлен. CM-001 — optional coordination clarification.
+
+**Контракт и corner cases.** REQ01/02 требуют revalidated DAG/canonical projection и mechanism consistency; REQ03 canonical coordinate tuple сохраняет joint covariance; REQ04/05 replacement/pruning/law parsing имеют отдельные semantics. TEST02 temporal/cycle/missing latent mechanism отказывает до sampling; TEST06 malformed law даже с fallback7 не становится atomic; valid manual DAG и degenerate declared interval остаются полезными.
+
+**Различающее evidence.** TEST01 raw reverse/unresolved graph discriminator; TEST03 ordered posterior replicas плюс analytic covariance; TEST04 shared mutable RNG mutant; TEST06 actual tail sampler сравнивается с независимой quadrature, не тем же rvs. TEST03/04 node/edge/mechanism permutations и irrelevant insertion/pruning сохраняют corresponding replicas в fixed runtime; correlated vector/shared-U controls исключают independent-noise подмену.
+
+**Передача и identity/lifecycle.** TEST07 actual registered query→CAS→fresh Scientist reconciliation binds graph/law/arms/seed/whole output; current SCM repairs должны быть в одной accepted revision. Canonical logical coordinates и namespace stream identity отделены от storage order; cached prepared plan, только если нужен, обязан bind graph/mechanisms/arms/evidence/full_trace (§5). TEST05 atomic replacement before broken natural mechanism и active/full_trace states; TEST07 admitted source→query→persist→fresh tamper checks не подменяются counters.
+
+**Пределы и совместимость.** REQ07/DEC-REPLAY ограничивают same-runtime/backend replicas и supported laws; cross-BLAS bitwise identity, all nonlinear posterior и empirical authority не обещаются. §8/DEC-REPLAY version canonical coordinates и old/new seed mapping сохраняют исторические bytes; изменение representation-sensitive draws не объявляет прежние marginals biased.
+
+**Ресурсы.** TEST05 counters10/210 и retained20/220 не benchmark; TEST08 требует declared corpus/seed/warmup/repeats/RSS и equivalence лишь если заявлен performance claim.
+
+**Локаторы.** ['REQ-SCM-03-01–07', 'TEST-SCM-03-01–08', '§5; §7–8; DEC-SCM-03-REPLAY']; companion `04_Трассировка/SCM-03.json`; applicable shared binding/REQ→TEST partition в coverage.json.
+
+**70 критериев:** addressed=25, bounded=14, not_applicable=31. Детальные причины и evidence каждого ID — assessments.json.
+
+### FIT-01 — immutable TMLE fit core/current view, fold-owned preprocessing и actual pool admission
+
+**Вердикт:** контракт достаточен в объявленных границах; новый mandatory gap не установлен.
+
+**Контракт и corner cases.** REQ01–04 разделяют fit identity/current diagnostic view и controlled precomputed core; REQ05/06 сохраняют all folds/repeats/seeds при serial-inner и actual outer capacity1/2; REQ08 fold-owned train preprocessing. Mismatched/unknown precomputed identity refused без cache pollution; failed study освобождает slot и waiting sibling завершается; unsupported clustered/unknown inference не дает fabricated interval.
+
+**Различающее evidence.** TEST01 stale-materialization mutant, TEST02 field-complete fit/view partition, TEST04 poisoned offered predictions900; TEST06 actual pool/failure sibling; v2 TEST10 heldout-Y nuisance invariance плюс train-Y positive при actual ElasticNet. TEST01 diagnostic-only change сохраняет predictions, меняет current view; TEST05 requested parallel flags не меняют scientific tasks/results; TEST10 heldout Y не влияет на selected fold nuisance, но final EIF/ATE вправе меняться.
+
+**Передача и identity/lifecycle.** TEST06/08 real StudyNode/LocalWorkerPool→parent receipt/trace→actual CAS→fresh TMLE report/envelope связывает current diagnostics и полезный conditional estimate; SCM worker это не заменяет. REQ02 field-complete fit fingerprint включая data/seed/split/model и current-view классификацию; __shared_nuisance_key не authority, immutable backing защищает subsequent hits. Cold→warm diagnostic rebind→third reader, reader mutation→new hit, queued studies→failure→slot release→sibling CAS tests observe реальный жизненный цикл.
+
+**Пределы и совместимость.** DEC-RESOURCE допускает оставить serial-inner после measurement; DEC-SCIENTIFIC и TEST09 ограничивают binary iid pilot, empirical independence/positivity и прочие profiles не выводятся из cache success. §8 algorithm/preprocess change invalidates old core identity; historical artifacts неизменны, diagnostic policy materializes current new view; rollback serial-inner не урезает scientific plan.
+
+**Ресурсы.** REQ07/TEST07 actual same workload serial/budget1/2, cold/warm, wall/RSS/queue wait/peak active work без false OS-thread conclusion; tasks не сокращаются ради cap.
+
+**Локаторы.** ['REQ-FIT-01-01–08', 'TEST-FIT-01-01–10', '§5; §7–8; DEC-FIT-01-RESOURCE/SCIENTIFIC']; companion `04_Трассировка/FIT-01.json`; applicable shared binding/REQ→TEST partition в coverage.json.
+
+**70 критериев:** addressed=28, bounded=14, not_applicable=28. Детальные причины и evidence каждого ID — assessments.json.
+
+### BER-01 — единый strict persisted BERL intake и truthful alias-only display
+
+**Вердикт:** контракт достаточен в объявленных границах; новый mandatory gap не установлен.
+
+**Контракт и corner cases.** REQ01/02 отделяют construction defaults от required/version/strict persisted JSON и generated full content; REQ03 сохраняет requested/effective aliases, REQ04 явный confidence policy. Persisted omitted/coercible/unknown version refusal до semantics; supported construction defaults остаются; unsupported conditional law не вычисляется даже при alias label.
+
+**Различающее evidence.** TEST01 wrong type/missing version/nested extras через public helper и selected loader; TEST03 real tree-first/kernel-first call counts плюс identity mutations; TEST04 distinct estimators сохраняют actual disagreement obligations. TEST03 equivalent aliases в разных order дают одно effective computation, но changed model/background/input/typed params recompute; TEST04 independent claims не исчезают вместе с call dedup.
+
+**Передача и identity/lifecycle.** TEST02 actual CAS manifest/profile→fresh loader→public helper/Phase5/display проверяет те же strict bytes и limited meaning, inline candidate не selected authority. Requested identity, effective algorithm/cache identity и число confidence claims различны; exact typed cache ключ связывает model/background/params (REQ03/04). TEST02 persist→fresh loader→display и TEST03 request-local cache same/changed identity проверяют transition boundaries, а не только DTO shape.
+
+**Пределы и совместимость.** DEC-BER-01-01 finite policy truth table выбирает N/A disagreement либо conservative limited; dedup не снижает protected claim count и не выдумывает independent agreement/TreeSHAP exactness. §8 known-version historical readers и requested IDs/bytes сохраняются, strict helper delta intentional, construction API не ужесточается.
+
+**Ресурсы.** Один actual computation на compatible aliases проверяется реальными calls; latency/SLO или empirical explanation quality из call reduction не выводятся.
+
+**Локаторы.** ['REQ-BER-01-01–05', 'TEST-BER-01-01–04', '§5; §8; DEC-BER-01-01']; companion `04_Трассировка/BER-01.json`; applicable shared binding/REQ→TEST partition в coverage.json.
+
+**70 критериев:** addressed=28, bounded=11, not_applicable=31. Детальные причины и evidence каждого ID — assessments.json.
+
+### DDM-01 — canonical events/budget classes и lazy import compatibility
+
+**Вердикт:** контракт достаточен в объявленных границах; новый mandatory gap не установлен.
+
+**Контракт и corner cases.** REQ01 единая identity и lazy contract-only imports; REQ02 различает manual channel schema и runtime cross-field guards; REQ04 actual monitor outputs не равны DDM02 applicability. TEST02 no-channel runtime/manual и reversed-window runtime refusal; TEST01 trap отличает neutral contracts от monitor; legacy unknown corpus не считается проверенным.
+
+**Различающее evidence.** TEST01 actual cold import trap с working monitor positive; TEST02 malformed RFC3339 проверяет installed checker capability, не только constructor; TEST04 drift-onlyR2/diagnosticR4 и no registry grant. TEST01 old/new forwarded objects должны быть identical; это API identity contract, не доказательство equivalence новых semantic DDM02 fields.
+
+**Передача и identity/lifecycle.** TEST03 actual installed package/resources и trusted historical FQN fresh reader; TEST04 actual monitor→risk/readiness/root-cause/incident, без deployment side effect. enum/event_type/pass/pass_ aliases и resources сохраняются; duplicate canonical classes не появляются; manual schema/current runtime guards имеют разные роли. Cold contract import→on-demand monitor и actual trusted historical read в fresh process сохраняют ownership; relocation отдельно от new gate policy.
+
+**Пределы и совместимость.** DEC-DDM-01-01 ограничивает historical/plugin support найденным corpus и window; no product diff без mismatch; optional checker environment absence не schema bug. §8 forwarding retained до corpus-based exit criteria, supported old/new classes is-identical; trusted existing pickle только, не arbitrary external input.
+
+**Ресурсы.** Lazy imports проверяют отсутствие orchestration load, не обещают общий latency/RSS speedup; тяжелая FP campaign не нужна для equivalent move.
+
+**Локаторы.** ['REQ-DDM-01-01–05', 'TEST-DDM-01-01–04', '§5; §8; DEC-DDM-01-01']; companion `04_Трассировка/DDM-01.json`; applicable shared binding/REQ→TEST partition в coverage.json.
+
+**70 критериев:** addressed=27, bounded=10, not_applicable=33. Детальные причины и evidence каждого ID — assessments.json.
+
+### DDM-02 — all-event model binding, current policy/source applicability и calibration provenance
+
+**Вердикт:** контракт достаточен в объявленных границах; новый mandatory gap не установлен.
+
+**Контракт и corner cases.** REQ01 сверяет каждый consumed model-bearing event, REQ02 current resolved source/window; REQ04/05 одна veto/R2/policy table; REQ06 actual source disjoint holdout и truthful raw/MBB method. Foreign earlier/DQ/version/changed/unavailable source unbind; observed-empty отдельно от unavailable; R4/R3 veto и R1/R0/failed certificate не обойдены signoff, finite public veto сохраняется.
+
+**Различающее evidence.** TEST01 earlier foreign event проверяет intermediate binding, не только final false; TEST05 полная R0…R4/signoff/certificate matrix; TEST07 exact100-window Wilson arithmetic; v2 TEST08 relabelled reused observations и truthful MBB lineage. TEST02/07 unchanged numeric fields с foreign basis не authority; TEST08 equal numeric values distinct trusted observations допустимы, relabelled same observations не independent holdout.
+
+**Передача и identity/lifecycle.** TEST02/04/06/08 actual source→checker→monitor→registry→fresh rebind/gate bind target/model/version/policy/report and current source; persisted public record не восстанавливает private authority. Whole subject/consumed basis, report/source digest и actual artifact/time coordinates не caller labels; private validity/current decision отдельно от historical public projection. TEST03 before/on/after expiry, matching/unrelated invalidation and fresh context rebind; E02-X04-B05 source revision→affected cone→late old callback сохраняет independent usable results и history.
+
+**Пределы и совместимость.** DEC01 production observation owner может оказаться отсутствующим: G01 остается unresolved capability, а finite diagnostics полезны. DEC02 freshness/label-delay и policy version конечны; synthetic smoke не FP/ERT/FDR certificate. §8 historical public records readable non-authoritative; optional projection не resurrects token; TEST06 unknown/mismatched policy не default, old bytes/timestamps не обновляются задним числом.
+
+**Ресурсы.** Horizon/TTL/observation delay различены; finite source and calibration denominator не throughput/SLO. Новый production producer требует bounded actual predicates, не универсального monitoring framework.
+
+**Локаторы.** ['REQ-DDM-02-01–07', 'TEST-DDM-02-01–08', '§5; §8; DEC-DDM-02-01/02', 'E02-X04-B05']; companion `04_Трассировка/DDM-02.json`; applicable shared binding/REQ→TEST partition в coverage.json.
+
+**70 критериев:** addressed=29, bounded=13, not_applicable=28. Детальные причины и evidence каждого ID — assessments.json.
+
+### LEX-01 — typed structural issue identity и честный norm-impact reader
+
+**Вердикт:** контракт достаточен в объявленных границах; новый mandatory gap не установлен.
+
+**Контракт и corner cases.** REQ01 typed path boundaries, REQ02 actual compared NormPacks/multiset/severity, REQ03 selected1.1 reader-first reconciliation, REQ04 qualitative unknown-direction topics. Stub explicitly not evaluated; foreign compared context не управляет comparison; missing source/jurisdiction/backend restricts claim, не превращает unknown direction в effect0.
+
+**Различающее evidence.** TEST01 slash collision/int1 versus str1 и duplicates; TEST02 actual LegalPass income2 old>=1/new>=3 плюс foreign pack; TEST03 schema-valid counts/topics/issues/source tamper before display. TEST01 structural difference несмотря на same slash display дает removed+added, exact duplicates retain multiplicity; TEST02 unchanged failing rule не создает false transition.
+
+**Передача и identity/lifecycle.** TEST03 actual store/manifest/diff→fresh JSON/Markdown/CLI preserves same basis; TEST04 quantitative request идет к existing Scientist/Foundry evidence, не новому Lex simulator. Typed path tuple и display formatting отдельны, report_id не content hash; actual CAS refs/manifest/diff identity связаны (TEST01/03). TEST03 persist→fresh read→render→tamper/reader-profile rollback связывает user-visible outcome, а не только local grouping.
+
+**Пределы и совместимость.** DEC-LEX-01-01 отделяет internal grouping от versioned typed fingerprint migration; legal/source/jurisdiction coverage и quantitative effect не возникают из labels/retrieval. §8 historical IDs/schema1.0/1.1 immutable; typed fingerprint profile/version mapping explicit, TEST03 reader-first rollback preserves legacy readable/unbound scope.
+
+**Ресурсы.** Пакет исправляет correctness группировки, не обещает latency/throughput; new legal engine/численный simulator явно не входят в scope.
+
+**Локаторы.** ['REQ-LEX-01-01–04', 'TEST-LEX-01-01–04', '§5; §8; DEC-LEX-01-01']; companion `04_Трассировка/LEX-01.json`; applicable shared binding/REQ→TEST partition в coverage.json.
+
+**70 критериев:** addressed=26, bounded=11, not_applicable=33. Детальные причины и evidence каждого ID — assessments.json.
+
+## Контроль полноты и ограничения
+
+- Независимая stdlib-проверка документов: 109 REQ, 123 local TEST, 213 REQ→TEST edges; 130 выбранных requirement/local-only rows совпадают с companion text/test IDs. Все 17 companion hashes совпали с source inventory.
+- Каждые 70 catalog IDs присутствуют ровно один раз в каждом из 17 assessment; всего1190. Все finding refs существуют. Product/native tests не запускались.
+- Прочитаны полные решения и tests всех17 MD, все semantic companion fields через явное сопоставление дублирующего текста и чтение unique fields; truncation восстановлена выбранными диапазонами. Exact input hashes сохранены.
+- Отсутствие нового gap не означает подтверждение реализации, всех возможных scientific models, external consumers или unbounded threat model.
+- Блокеров/denied/pending действий нет. Единственный следующий шаг вне этого задания — parent triage optional CM-001; изменение редакции потребует отдельной команды.

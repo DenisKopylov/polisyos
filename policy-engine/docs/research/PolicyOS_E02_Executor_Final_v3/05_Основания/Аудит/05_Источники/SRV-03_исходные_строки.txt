@@ -1,0 +1,100 @@
+01944: <a id="bundle-srv-03"></a>
+01945: # SRV-03 — Autotune: native SearchService driver и ограниченный cutover
+01946: 
+01947: **E02 · окно CP3 · локальная проверка N · начальный статус planned.**
+01948: 
+01949: **B:** Нет; пакет миграции LA. **LA:** LA-015 (M).
+01950: 
+01951: **Предшественники:** [SRV-01](bundles/SRV-01.md), [CTL-02](bundles/CTL-02.md), [STP-01](bundles/STP-01.md). **Совместная очередь:** LANE-02.
+01952: 
+01953: **Общие правила:** [исполнение](EXECUTION_GUIDE.md). Source facts и новые решения E02 различены ниже; current HEAD не проверен этим пакетом.
+01954: 
+01955: ## Поручение и минимальная приёмка
+01956: 
+01957: Создать native ask/tell driver у текущего methods/search owner, переиспользуя извлечённый state transition, стратегии, stopping и funnel ports. Переключить один реальный autotune consumer. Снять старый full-loop только после trace parity и конечного caller/lifecycle scan; сохранённые histories получают совместимый reader, не новую трактовку.
+01958: 
+01959: **Различающие тесты и сохраняемое поведение.** Два кандидатных сценария: обычное завершение и warm→sentinel→empty/error→resume. Совпадают effective requests, расходы, history/frontier, partial outcomes; B118–127 исправленные controls не теряются при cutover. Отдельно typed result, RNG и negative admission. Не требовать равенства с доказанно неверным старым поведением.
+01960: 
+01961: **Не считать исправлением.** Не писать второй search framework с копией старого loop и не удалять все methods/search. Неперенесённый поддержанный consumer означает compatibility_pending, не разрешение rm.
+01962: 
+01963: **Цикл работы:** зафиксировать actual scope и нужный characterization; оформить equivalent move и намеренный behavior fix раздельно; выполнить указанные малые tests через I1; независимый reviewer проверяет actual owner; передать commit, path map и остатки. CLI/test selectors разрешаются по настоящему checkout до запуска, не выдумываются из названия находки.
+01964: 
+01965: ## Границы участия в LA
+01966: 
+01967: **LA-015:** Этап 2/2 и accountable closure: native driver, actual autotune caller, lifecycle. CTL-01 извлечение и CTL-03 корректность переходов обязательны. Accountable closure: **SRV-03**; необходимые пакеты: CTL-01, SRV-03.
+01968: 
+01969: ## Файлы и координация
+01970: 
+01971: **Кандидаты записи по аудиту / предложенные новые пути:**
+01972: 
+01973: ```text
+01974: policy-engine/src/polisyos/scientist/methods/autotune/runtime.py
+01975: policy-engine/src/polisyos/scientist/methods/search/adapters.py
+01976: policy-engine/src/polisyos/scientist/methods/search/controller.py
+01977: policy-engine/src/polisyos/scientist/methods/search/service.py
+01978: ```
+01979: 
+01980: **Читать как соседние контракты:**
+01981: 
+01982: ```text
+01983: policy-engine/src/polisyos/scientist/methods/search/frontier.py
+01984: policy-engine/src/polisyos/scientist/methods/search/stopping.py
+01985: policy-engine/src/polisyos/scientist/methods/search/strategies/base.py
+01986: ```
+01987: 
+01988: **Предлагаемый отдельный regression-файл:** `policy-engine/tests/unit/remediation/test_srv_03.py`. Это новое место либо предложение объединить проверки с существующим ближайшим тестом после короткого чтения; оно не объявлено найденным в репозитории. Actual native tests из исходных карточек не заменяются этим именем.
+01989: 
+01990: **Write mutex:** CTL-01, CTL-03, OPT-02, OPT-04, SRV-01. Это не необходимые предшественники. Read-contract impacts, общие config/lockfile и новые обнаруженные tests учитывает I1/I2 до lease; никто не меняет тестируемый worktree во время job.
+01991: 
+01992: **Path-map записи:** MOVE-05, MOVE-06. После принятого move работать по actual target/commit, не по историческому имени файла. Source и target move одновременно зарезервированы владельцем.
+01993: 
+01994: **Условия общего использования:**
+01995: 
+01996: **A11.** Native search cutover не копирует private mutation и сохраняет все принятые B fresh/empty/cost/typed controls. LA-015 закрывается после проверки реального consumer, не появления protocol.
+01997: 
+01998: **Ресурс:** N — один tiny native/numerical job, без других тестовых jobs. Общий агентный fan-out остаётся12–16; ожидание test slot не останавливает написание/review. Для загрузки зависимостей и широких builds обращаться к I1, не запускать их самостоятельно.
+01999: 
+02000: **Передача:** source ID/phase и исход каждого; base/patch; exact writes; equivalent versus intended delta; actual commands/exit/log; native/fixture/deferred; reviewer; path-map/caller/lifecycle/activation остатки. Ни partial LA, ни explicit limitation не превращаются в full implemented capability.
+02001: 
+02002: ## Исходное решение LA-015
+02003: 
+02004: Источник LA_r09, строки 482–512; полный текст, не только выполняемая здесь фаза.
+02005: 
+02006: <!-- SOURCE_BEGIN LA:LA-015 -->
+02007: ## LA-015. SearchController: живое legacy-ядро, требующее поэтапного замещения
+02008: 
+02009: **Слияние / разделение ответственности**
+02010: 
+02011: **Статус.** Legacy-роль и production-source caller подтверждены.
+02012: 
+02013: **Точная область:**
+02014: 
+02015: `src/polisyos/scientist/methods/search/controller.py`
+02016: 
+02017: `src/polisyos/scientist/methods/search/frontier.py`
+02018: 
+02019: `src/polisyos/scientist/methods/autotune/runtime.py`
+02020: 
+02021: **Что установлено и почему это legacy-кандидат.** Контроллер поддерживает старый монолитный loop; autotune/runtime действительно создаёт SearchController. Protocol ask/tell не доказывает наличия второго полноценного loop, уже покрывающего stopping, warm-start, sentinels и историю. Сохранение старого драйвера лишь ради зрелого consumer — типичный случай живого legacy, а не unused code.
+02022: 
+02023: **Что сохранить.** Проверенные сценарии, историю, причины остановки, evaluator ports, sentinel roles, бюджетные ограничения и частичные результаты. Стратегии и funnel не нужно выносить или переписывать вместе с driver.
+02024: 
+02025: **Куда перенести / с чем объединить.** Текущий владелец methods/search/ и SearchService-contract. Предлагаемая extraction: state transition и run state под тем же владельцем, затем native ask/tell driver; autotune/runtime переводится на этот сервис. Это план миграции, не ссылка на якобы уже готовый advanced implementation.
+02026: 
+02027: **Порядок миграции.** Снять characterization traces по фактически используемым сценариям. Выделять операции без смены поведения, переключать одного consumer и только затем выводить full-loop API. Отдельный retirement для старых serialized histories и import names.
+02028: 
+02029: **Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.
+02030: 
+02031: **Приоритет.** Высокая полезность, высокая цена; не первая cleanup-волна.
+02032: 
+02033: **Граница вывода.** В этом проходе перечитан contract и подтверждён caller; весь controller/runtime повторно не исполнен. Нет основания удалить весь methods/search, содержащий работающие современные компоненты.
+02034: 
+02035: **Основания:** E27, E28, E37.
+02036: 
+02037: <!-- PAGEBREAK -->
+02038: <!-- SOURCE_END LA:LA-015 -->
+02039: 
+02040: 
+02041: 
+02042: ---
+02043: 

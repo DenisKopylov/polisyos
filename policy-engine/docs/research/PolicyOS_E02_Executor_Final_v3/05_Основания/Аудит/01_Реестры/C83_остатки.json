@@ -1,0 +1,73 @@
+{
+  "pass_id": "C83",
+  "bundle": "UDF-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C83-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "confidence": "high",
+      "source_ids": [
+        "LA-031"
+      ],
+      "title": "Контракт-only import всё ещё запускает eager builder facade и unrelated siblings",
+      "evidence": [
+        "S04:5–24",
+        "S06:9–17",
+        "S05:16–23",
+        "P01",
+        "native_contracts.json"
+      ],
+      "remaining": "Устранить eager activation siblings при импорте existing contracts, сохранив public aliases и STAGE_BUILDERS activation в composition owner. Переиспользовать existing lazy-export подход Ukraine facade либо другой узкий existing boundary, не новый import framework. Добавить fresh-process import test, отдельно проверяющий отсутствие unrelated builders и корректную explicit activation; измерять budget только в supported окружении.",
+      "limits": "Нативный recorder без подмены loader увидел builders→bindings_validation→common до contracts. Последующий SyntaxError Core store обусловлен Python3.12 против baseline3.14 и сам не product defect. Не измерены время/RSS; не утверждается successful import всех builders в этом окружении или отказ D4 на поддержанном runtime."
+    },
+    {
+      "id": "C83-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-030",
+        "LA-031"
+      ],
+      "title": "Native D4 producer-to-selected-profile-consumer цепь не заменяется fixture CAS",
+      "evidence": [
+        "S14:325–401",
+        "S15:894–1080",
+        "S16:1923–1990",
+        "P02",
+        "P03",
+        "P06"
+      ],
+      "remaining": "В supported окружении повторить real facade/orchestrator→persisted completed manifest→native CAS selected-profile read→Scientist request consumer с corruption/absence controls и import-budget check. Организовать shared LANE-07 integration coverage, а не требовать одинаковый тяжёлый тест в каждом packet.",
+      "limits": "Actual read API/DTO/hash/size guards и narrow parser выполнены, CAS backend собственный fixture с synthetic selected-profile token. New actual governance bridge использует load_verified_stage_json_output/value_for_candidate, этот route не исполнен. Ни D4 calibration, ни governance permission, ни release acceptance не установлены."
+    },
+    {
+      "id": "C83-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-030",
+        "LA-031"
+      ],
+      "title": "Intentional DTO extension и alias lifecycle требуют отдельной совместимости",
+      "evidence": [
+        "S02:20–77",
+        "S03",
+        "S04:28–64",
+        "S14:344–354",
+        "P04",
+        "P05"
+      ],
+      "remaining": "Сохранить полезные inputs/validate_inputs и первые5 positional fields; отдельно квалифицировать external dataclass serialization/introspection и alias callers до retirement. Observation helpers продолжить в OBS-01, remaining I/O/bindings/facade в UDF-02. Не объявлять LA-031 закрытой этой частичной фазой.",
+      "limits": "D4 bytes/schema/filename/required stages/four denials подтверждены; класс теперь имеет дополнительный inputs field, поэтому это не побайтово неизменённый класс из исходного move требования. Current extension используется orchestrator и не признана дефектом только из-за появления нового поля. Полный external consumer census отсутствует."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C83-R01"
+  ],
+  "protected_distinctions": [
+    "LK10",
+    "LK12"
+  ],
+  "decision": "D4 canonical relocation/explicit namespace сохранены; contract-only import isolation не завершена. LA-031 phase-only; downstream authority не следует из handoff."
+}

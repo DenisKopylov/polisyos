@@ -1,0 +1,96 @@
+{
+  "scope": "lane_integration",
+  "confirmed_new_findings": [],
+  "finding_count": 0,
+  "notes": [
+    "0 independent new lane finding IDs does not mean all shared clauses are consistent: confirmed FAC-02 is linked, not duplicated.",
+    "CM-001 remains bounded low/nonblocking coordination refinement, not runtime or mandatory test gap.",
+    "Existing MAP-CAPABILITY-CONDITIONAL and BIND-X04-E01/E02 limits are not new errors."
+  ],
+  "product_execution": "NOT_RUN",
+  "linked_findings": [
+    {
+      "finding_id": "FAC-02",
+      "owner": "audit_fabric_acquisition",
+      "classification": "confirmed narrow contract/trace clarification",
+      "entities": [
+        "E02-I07-C",
+        "LANE-07"
+      ],
+      "gap_criteria": [
+        "RA-03",
+        "RA-09",
+        "RA-10"
+      ],
+      "bounded_criteria": [
+        "RA-02"
+      ],
+      "count_as_new_own_finding": false,
+      "reason": "FAC-02, shared finding fabric_acquisition: E02-I07-C-B01 требует finite unique source/target axes, но REQ-CAL-01-01 (стр.34) отличает finite обеих осей от duplicate source refusal без declared transform, а §5 (стр.81) сохраняет explicit target order и проверяет его finite/declared coordinate semantics. Limits самого B01 запрещают скрытую target sorting, но не устанавливают universal target uniqueness. Selected-route activation не разрешает это расхождение: в interpolation route repeated finite target queries сохраняют requested multiplicity, тогда как literal shared predicate их запрещает. Это узкое необоснованное усиление admission в trace/binding, не доказательство допустимости repeated model time для любого backend и не новый runtime bug. Согласовать один source/target-specific predicate; сохранить refusal duplicate source, paired metadata, positive ordered queries и native consumer evidence.",
+      "evidence": [
+        {
+          "path": "02_Пакеты/CAL-01.md",
+          "locator": "REQ-CAL-01-01 строки33–40; REQ-CAL-01-02 строки42–49; §5 строка81",
+          "claim": "Source duplicate policy/paired source sort отличны от finite explicit target и сохранённого requested order."
+        },
+        {
+          "path": "04_Трассировка/Связь_требований_с_интеграцией.json",
+          "locator": "E02-I07-C-B01 concrete_obligation + limits",
+          "claim": "finite unique source/target axes вводит более сильное target restriction; limits не дают его основания."
+        },
+        {
+          "path": "03_Интеграция/LANE-07.md",
+          "locator": "E02-I07-C positive/negative oracle + local TEST inheritance",
+          "claim": "Requested grid positive и duplicate-time negative без source/target qualification нельзя использовать для молчаливого расширения source refusal."
+        }
+      ]
+    },
+    {
+      "finding_id": "CM-001",
+      "owner": "audit_causal_monitoring",
+      "classification": "low nonblocking optional owner-map clarification",
+      "entities": [
+        "E02-I05-C",
+        "LANE-05"
+      ],
+      "bounded_criteria": [
+        "RA-03",
+        "RA-10"
+      ],
+      "count_as_new_own_finding": false,
+      "reason": "CM-001, bounded low nonblocking clarification causal_monitoring: общая карта owners, строка13, назначает SCM-03 selected native SCM worker/causal fit; её вводная строка3 отличает semantic owner от технического интегратора, но не объясняет эту дополнительную роль. SCM-01 §7 строка162, SCM-02 §7 строка181 и SCM-03 §7 строка168 согласованно задают SCM-03 closure/prepared-plan/coordinates, SCM-02 conditional-row/PSD/refit qualification, SCM-01 twin/native selected fit→query acceptance. LANE-05 строка67 и E02-I05-C-B01/B02/B03 подтверждают эту подробную разбивку. Подробный контракт даёт исполнимый одновладельческий порядок и не пропускает native/refit acceptance; runtime противоречие или отсутствующий обязательный тест не установлены. Однако общей строке нельзя приписать безоговорочную согласованность: optional исправление только координационной формулировки, без переноса code ownership, новой инфраструктуры или дублирования worker job.",
+      "evidence": [
+        {
+          "path": "00_Общее/Общие_владельцы_и_границы_изменений.md",
+          "locator": "строки3,13 и заключительное conflict-resolution правило",
+          "claim": "Карта координационная; worker/causal-fit label SCM03 шире подробных semantic roles; нельзя выбирать последнее ТЗ вместо разрешения observable conflict."
+        },
+        {
+          "path": "02_Пакеты/SCM-01.md",
+          "locator": "§7 строки158–168, особенно162",
+          "claim": "SCM01 native acceptance/twin; SCM03 common closure; SCM02 refit."
+        },
+        {
+          "path": "02_Пакеты/SCM-02.md",
+          "locator": "§7 строки177–185, особенно181",
+          "claim": "SCM02 conditional/PSD и source-bound refit; worker fit owner общий с SCM01."
+        },
+        {
+          "path": "02_Пакеты/SCM-03.md",
+          "locator": "§7 строки164–174, особенно168",
+          "claim": "SCM03 graph admission/common closure/coordinates, не refit qualification."
+        },
+        {
+          "path": "01_Лейны/LANE-05.md",
+          "locator": "строка67; selected native profile CS-006",
+          "claim": "SCM01 native chain, SCM02 real refit; FIT01 отдельный TMLE route; реальные profiles не подменяются."
+        },
+        {
+          "path": "04_Трассировка/Связь_требований_с_интеграцией.json",
+          "locator": "E02-I05-C-B01/B02/B03 acceptance_role и limits",
+          "claim": "Подробные binding roles не назначают SCM03 весь worker-fit/refit boundary."
+        }
+      ]
+    }
+  ]
+}

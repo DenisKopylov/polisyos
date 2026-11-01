@@ -1,0 +1,227 @@
+{
+  "packet_id": "EXE-02",
+  "lane": "LANE-06",
+  "source_ids": [
+    "B77"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/EXE-02.md",
+    "../05_Основания/Аудит/01_Реестры/C64_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C64-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-EXE-02-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Container-aware identity либо conservative refusal неоднозначных list paths.",
+      "inventory_id": "audit-residual:C64_остатки:0"
+    },
+    {
+      "audit_id": "C64-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-EXE-02-02",
+        "REQ-EXE-02-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Native runner/state/custody и completeness declarations, не только tiny schedule.",
+      "inventory_id": "audit-residual:C64_остатки:1"
+    },
+    {
+      "audit_id": "C64-G02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-EXE-02-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Исправить test persistence fixture ABI, не product ownership contract.",
+      "inventory_id": "audit-residual:C64_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-EXE-02-01",
+      "text": "Для unordered nodes readiness разрешается только если declared target identities disjoint в текущем admitted state. List .0/.00/.+0/.-1, разрешающиеся в один элемент, считаются overlap либо неоднозначный путь отказывает readiness. Dict keys '0'/'00' сохраняют разные identities; unresolved container/type/alias не считается доказанно disjoint.",
+      "source_ids": [
+        "B77"
+      ],
+      "audit_ids": [
+        "C64-R01"
+      ],
+      "test_ids": [
+        "TEST-EXE-02-01"
+      ]
+    },
+    {
+      "id": "REQ-EXE-02-02",
+      "text": "A→C с независимым B начинает C после committed A до release B; добавление B→C возвращает join. Failed A блокирует C, independent B сохраняется. Semantic tier hooks сохраняют прежний маршрут; методы, inputs/seeds/repeats и порядок records не меняются.",
+      "source_ids": [
+        "B77"
+      ],
+      "audit_ids": [
+        "C64-G01"
+      ],
+      "test_ids": [
+        "TEST-EXE-02-02"
+      ]
+    },
+    {
+      "id": "REQ-EXE-02-03",
+      "text": "Existing remediation fixtures принимают current return_selected_profile и возвращают действительную форму selected profile. Native runner должен сохранить selected artifacts/report/finalization, rollback/cancel и fresh readback; измерение first-useful-result и стоимости launch snapshots не выдаёт synthetic schedule за workload speedup.",
+      "source_ids": [
+        "B77"
+      ],
+      "audit_ids": [
+        "C64-G01",
+        "C64-G02"
+      ],
+      "test_ids": [
+        "TEST-EXE-02-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-EXE-02-01",
+      "requirement_ids": [
+        "REQ-EXE-02-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "One-element list и unordered writers .0 vs .00,+0,-1; dict {'0':0,'00':0}; journaled/unjournaled variants.",
+      "action": "Run admission затем workflow с held B и A commit.",
+      "oracle": "List alias не readiness-disjoint; fallback/conflict исключает две stale independent writes. Dict disjoint accepted. Canonical truly-disjoint list elements positive accepted когда parent shape stable; unknown shape fallback.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-EXE-02-02",
+      "requirement_ids": [
+        "REQ-EXE-02-02"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Actual A,B,C DAG, events удерживают B; second variant dependency B→C; failed A and hook variants.",
+      "action": "Execute existing readiness/tier owners.",
+      "oracle": "C sees committed A and starts before release B только first variant; join waits second; each call once/seed same/records a,b,c. Failed A blocks C, B retained; semantic hooks tier unchanged.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-EXE-02-03",
+      "requirement_ids": [
+        "REQ-EXE-02-03"
+      ],
+      "level": "native integration + test maintenance",
+      "setup": "Actual local runner/CAS; corrected fixture signatures separately; full existing remediation bodies.",
+      "action": "Native async tests + selected output readback/cancel; collect first-useful-result/snapshot metrics.",
+      "oracle": "No unexpected keyword TypeError; actual selected-profile owner still invoked/validated. Artifacts fresh-readable, pending children awaited; measurements disclose workload no invented speedup.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-A",
+    "E02-I06-B"
+  ],
+  "dependencies": [
+    "RES-02",
+    "RES-01"
+  ],
+  "preservation": [
+    "Narrow readiness admission и fallback для checkpoint/provenance/compensation/conditions/fail_fast/unknown effects.",
+    "Merge commit перед successor release; separate immutable launch baseline и declared delta.",
+    "Stable report invocation order, explicit dependency join, exact seeds/counts.",
+    "Не новый scheduler; S направления не включаются."
+  ],
+  "design_alignment": [
+    "design_direction.md §2.2, §4.1, §7: общая доказанная независимость важнее case-specific scheduler.",
+    "policy-design-execution-topology.md §3–6: artifact completion и consumer readiness связаны; unknown dependencies не стираются ради speed."
+  ],
+  "open_decisions": [],
+  "source_obligations": [
+    "B77 → REQ-EXE-02-01…-03: уже реализованное раннее scheduling сохранить; исправить admission alias, квалифицировать lifecycle и measured first useful result без обещания speedup17→10."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py: _can_use_readiness_schedule, _readiness_paths_overlap, _readiness_get_path, _readiness_launch_pair",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py: _get_path/_set_path",
+    "policy-engine/tests/unit/remediation/test_exe_02.py: _executor persistence helpers"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_exe_02.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0143",
+      "requirement_ids": [
+        "REQ-EXE-02-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Container-aware identity либо conservative refusal неоднозначных list paths."
+    },
+    {
+      "inventory_id": "remaining:0144",
+      "requirement_ids": [
+        "REQ-EXE-02-02",
+        "REQ-EXE-02-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native runner/state/custody и completeness declarations, не только tiny schedule."
+    },
+    {
+      "inventory_id": "remaining:0145",
+      "requirement_ids": [
+        "REQ-EXE-02-03"
+      ],
+      "disposition": "fix",
+      "rationale": "Исправить test persistence fixture ABI, не product ownership contract."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0216",
+      "requirement_ids": [
+        "REQ-EXE-02-01",
+        "REQ-EXE-02-02"
+      ],
+      "test_ids": [
+        "TEST-EXE-02-01",
+        "TEST-EXE-02-02"
+      ],
+      "rationale": "Narrow readiness admission with tier fallback — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0217",
+      "requirement_ids": [
+        "REQ-EXE-02-02"
+      ],
+      "test_ids": [
+        "TEST-EXE-02-02"
+      ],
+      "rationale": "Commit successful completion before successor release — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0218",
+      "requirement_ids": [
+        "REQ-EXE-02-02"
+      ],
+      "test_ids": [
+        "TEST-EXE-02-02"
+      ],
+      "rationale": "Independent immutable launch baseline/current delta ownership — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0219",
+      "requirement_ids": [
+        "REQ-EXE-02-02"
+      ],
+      "test_ids": [
+        "TEST-EXE-02-02"
+      ],
+      "rationale": "Stable report order and explicit dependency join — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

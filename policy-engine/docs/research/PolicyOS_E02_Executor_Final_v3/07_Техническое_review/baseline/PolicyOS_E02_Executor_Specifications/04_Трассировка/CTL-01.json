@@ -1,0 +1,474 @@
+{
+  "packet_id": "CTL-01",
+  "lane": "LANE-02",
+  "title": "Принадлежность run и доступный результат прерывания",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B118",
+    "B119",
+    "LA-015"
+  ],
+  "audit_reports": [
+    "02_Пакеты/CTL-01.md"
+  ],
+  "audit_report_sha256": "aa848cdf7983f6b041e6604a0f7ca8a60f0266f1a0ff0715777d0ea18e23b5af",
+  "sourceplan_lines": [
+    1589,
+    1729
+  ],
+  "practical_goal": "Поздний ответ не попадает в другое исследование; уже полученная работа остаётся доступной после ошибки/отмены, а пустые предложения завершаются без выдуманного научного исчерпания.",
+  "requirements": [
+    {
+      "id": "REQ-CTL-01-01",
+      "text": "Pending proposal и tell должны принадлежать точному run/generation owner; новый admitted run не принимает старый ответ, а отказ admission не сбрасывает pending.",
+      "source_ids": [
+        "B118",
+        "LA-015"
+      ],
+      "audit_ids": [
+        "remaining:0193",
+        "remaining:0194",
+        "preserve:0309",
+        "preserve:0310",
+        "audit-residual:C12_остатки:0",
+        "audit-residual:C12_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-CTL-01-01"
+      ]
+    },
+    {
+      "id": "REQ-CTL-01-02",
+      "text": "Каждая начатая generation/evaluation attempt и её failed/cancelled outcome должны оставаться учтены; interruption сохраняет detached partial run с причиной и актуальным owner budget, затем распространяет исходную ошибку/отмену.",
+      "source_ids": [
+        "B119",
+        "LA-015"
+      ],
+      "audit_ids": [
+        "remaining:0196",
+        "remaining:0198",
+        "preserve:0311",
+        "preserve:0313",
+        "preserve:0314",
+        "audit-residual:C12_остатки:1",
+        "audit-residual:C12_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-CTL-01-02"
+      ]
+    },
+    {
+      "id": "REQ-CTL-01-03",
+      "text": "Persistent empty должен ограниченно завершать попытки с причиной, отличной от подтверждённого exhaustion; transient empty может привести к настоящему кандидату без busy loop.",
+      "source_ids": [
+        "B119"
+      ],
+      "audit_ids": [
+        "remaining:0197",
+        "preserve:0311",
+        "preserve:0312",
+        "preserve:0313",
+        "audit-residual:C12_остатки:2",
+        "audit-residual:C12_остатки:3"
+      ],
+      "test_ids": [
+        "TEST-CTL-01-03"
+      ]
+    },
+    {
+      "id": "REQ-CTL-01-04",
+      "text": "Fresh runs и возвращённые snapshots должны оставаться независимыми; реальные callers сохраняют новый state-owner и законные evaluator ports.",
+      "source_ids": [
+        "B118",
+        "LA-015"
+      ],
+      "audit_ids": [
+        "remaining:0195",
+        "remaining:0198",
+        "preserve:0307",
+        "preserve:0308",
+        "preserve:0309",
+        "audit-residual:C12_остатки:5"
+      ],
+      "test_ids": [
+        "TEST-CTL-01-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-CTL-01-01",
+      "requirement_ids": [
+        "REQ-CTL-01-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Один lifecycle owner, adaptersA/B; A ask(old), B fullrun(new), A late tell; отдельно занятый full-run lock и исходный pending.",
+      "action": "Пройти обе interleavings, then legal same-session out-of-order different IDs.",
+      "oracle": "Old tell адресно stale-run до state change; rejected new run сохраняет pending, valid same-generation tell работает; previous detached result неизменен.",
+      "expected": "Новый ID не мигрирует старую историю; внешний generator/warm corpus не обнулять произвольно.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CTL-01-02",
+      "requirement_ids": [
+        "REQ-CTL-01-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Один good candidate, затем generation RuntimeError/CancelledError после settlement; evaluatorfailure и отказ до dispatch отдельно; actual ledger и result reader.",
+      "action": "Запустить full route, получить typed interruption/partial ref, открыть её новым reader, затем fresh run.",
+      "oracle": "Partial история доступна под прежним run; attempts и committed spend точны; lock released, original error/cancel propagates, fresh run не стирает сохранённый результат.",
+      "expected": "Незавершённый run не RUNNING навечно и не converged; cancellation не swallowed; settledzero/cache согласно owner, не fake price.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CTL-01-03",
+      "requirement_ids": [
+        "REQ-CTL-01-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Existing empty tests; generator[]always, []then realcandidate, explicit exhausted, repair-needed и transient source.",
+      "action": "Пройти actual driver stopping до/после generation и перед evaluation.",
+      "oracle": "Finite calls, useful transient candidate оценён, empty reason доступен reader; generation spend не потерян и scientific evaluation count не увеличен пустотой.",
+      "expected": "Никаких fabricated candidates, увеличения hard-limit или short busy-loop; sentinel-only общий cap у CTL-03.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CTL-01-04",
+      "requirement_ids": [
+        "REQ-CTL-01-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Actual tests/unit/scientist/search/test_search_loop.py fresh/concurrent tests и test_controller_api.py metrics test; два native runs, mutable nested payload.",
+      "action": "A/B same owner vs two fresh owners; mutate returned snapshots; attempt overlapping fullrun; actual autotune reader.",
+      "oracle": "История/лучший/counters independent; rejected overlap не меняет state; typedfixture достигает metrics assertion; реальный consumer читает верный subject.",
+      "expected": "Не clear старый list; permitted warm restart явно задан; LA-015 accountable closure SRV-03, не здесь.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C12_остатки:0",
+      "requirement_ids": [
+        "REQ-CTL-01-01"
+      ],
+      "rationale": "Run generation binds all drivers; reset admission safe.",
+      "disposition": "fix",
+      "audit_id": "C12-R02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C12_остатки:1",
+      "requirement_ids": [
+        "REQ-CTL-01-02"
+      ],
+      "rationale": "Намеренное расширение raise-path, не просто stale test fix.",
+      "disposition": "capability",
+      "audit_id": "C12-R01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C12_остатки:2",
+      "requirement_ids": [
+        "REQ-CTL-01-03"
+      ],
+      "rationale": "Typed producer reason/deadline.",
+      "disposition": "fix",
+      "audit_id": "C12-G01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C12_остатки:3",
+      "requirement_ids": [
+        "REQ-CTL-01-03"
+      ],
+      "rationale": "CTL-03 owns sentinel physical-work cap.",
+      "disposition": "shared",
+      "audit_id": "C12-A01",
+      "shared_owner": "CTL-03"
+    },
+    {
+      "inventory_id": "audit-residual:C12_остатки:4",
+      "requirement_ids": [
+        "REQ-CTL-01-01",
+        "REQ-CTL-01-02"
+      ],
+      "rationale": "SRV-01 owns split API accounting/admission composition.",
+      "disposition": "shared",
+      "audit_id": "C12-A02",
+      "shared_owner": "SRV-01"
+    },
+    {
+      "inventory_id": "audit-residual:C12_остатки:5",
+      "requirement_ids": [
+        "REQ-CTL-01-04"
+      ],
+      "rationale": "Evaluator fixture соответствует constructor.",
+      "disposition": "fix",
+      "audit_id": "C12-T01",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B118",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CTL-01-01",
+        "REQ-CTL-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B119",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CTL-01-02",
+        "REQ-CTL-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "LA-015",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CTL-01-01",
+        "REQ-CTL-01-02",
+        "REQ-CTL-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0193",
+      "requirement_ids": [
+        "REQ-CTL-01-01"
+      ],
+      "rationale": "Owner generation affinity.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0194",
+      "requirement_ids": [
+        "REQ-CTL-01-01"
+      ],
+      "rationale": "Reset после admission.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0195",
+      "requirement_ids": [
+        "REQ-CTL-01-04"
+      ],
+      "rationale": "Actual caller/readback.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0196",
+      "requirement_ids": [
+        "REQ-CTL-01-02"
+      ],
+      "rationale": "Доступный partial и attempt accounting.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0197",
+      "requirement_ids": [
+        "REQ-CTL-01-03"
+      ],
+      "rationale": "Attempt stop не scientific exhaustion.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0198",
+      "requirement_ids": [
+        "REQ-CTL-01-02",
+        "REQ-CTL-01-04"
+      ],
+      "rationale": "Actual provider/ledger/caller.",
+      "disposition": "qualify"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0307",
+      "requirement_ids": [
+        "REQ-CTL-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Fresh runs и возвращённые snapshots должны оставаться независимыми; реальные callers сохраняют новый state-owner и законные evaluator ports.",
+      "test_ids": [
+        "TEST-CTL-01-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0308",
+      "requirement_ids": [
+        "REQ-CTL-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Fresh runs и возвращённые snapshots должны оставаться независимыми; реальные callers сохраняют новый state-owner и законные evaluator ports.",
+      "test_ids": [
+        "TEST-CTL-01-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0309",
+      "requirement_ids": [
+        "REQ-CTL-01-01",
+        "REQ-CTL-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Pending proposal и tell должны принадлежать точному run/generation owner; новый admitted run не принимает старый ответ, а отказ admission не сбрасывает pending.; Fresh runs и возвращённые snapshots должны оставаться независимыми; реальные callers сохраняют новый state-owner и законные evaluator ports.",
+      "test_ids": [
+        "TEST-CTL-01-01",
+        "TEST-CTL-01-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0310",
+      "requirement_ids": [
+        "REQ-CTL-01-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: Pending proposal и tell должны принадлежать точному run/generation owner; новый admitted run не принимает старый ответ, а отказ admission не сбрасывает pending.",
+      "test_ids": [
+        "TEST-CTL-01-01"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0311",
+      "requirement_ids": [
+        "REQ-CTL-01-02",
+        "REQ-CTL-01-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Каждая начатая generation/evaluation attempt и её failed/cancelled outcome должны оставаться учтены; interruption сохраняет detached partial run с причиной и актуальным owner budget, затем распространяет исходную ошибку/отмену.; Persistent empty должен ограниченно завершать попытки с причиной, отличной от подтверждённого exhaustion; transient empty может привести к настоящему кандидату без busy loop.",
+      "test_ids": [
+        "TEST-CTL-01-02",
+        "TEST-CTL-01-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0312",
+      "requirement_ids": [
+        "REQ-CTL-01-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Persistent empty должен ограниченно завершать попытки с причиной, отличной от подтверждённого exhaustion; transient empty может привести к настоящему кандидату без busy loop.",
+      "test_ids": [
+        "TEST-CTL-01-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0313",
+      "requirement_ids": [
+        "REQ-CTL-01-02",
+        "REQ-CTL-01-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Каждая начатая generation/evaluation attempt и её failed/cancelled outcome должны оставаться учтены; interruption сохраняет detached partial run с причиной и актуальным owner budget, затем распространяет исходную ошибку/отмену.; Persistent empty должен ограниченно завершать попытки с причиной, отличной от подтверждённого exhaustion; transient empty может привести к настоящему кандидату без busy loop.",
+      "test_ids": [
+        "TEST-CTL-01-02",
+        "TEST-CTL-01-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0314",
+      "requirement_ids": [
+        "REQ-CTL-01-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Каждая начатая generation/evaluation attempt и её failed/cancelled outcome должны оставаться учтены; interruption сохраняет detached partial run с причиной и актуальным owner budget, затем распространяет исходную ошибку/отмену.",
+      "test_ids": [
+        "TEST-CTL-01-02"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I02-A"
+  ],
+  "dependencies": [
+    "OPT-01 objective/source identity before accepted scientific best; чтение поregistry не integration order.",
+    "CTL-01 owner generation/failure-finalize; SRV-01 atomic pending/commit и split lifecycle; CTL-03 counters/budget; SRV-03 actual runner and LA-015 closure.",
+    "service/lifecycle/run_state общий один writer на согласованный atomic patch, не independent facade locks."
+  ],
+  "preservation": [
+    "fresh allocated state instead of clear",
+    "deep result snapshots",
+    "full-run non-reentrant guard",
+    "legitimate same-session continuation",
+    "separate generation/evaluation counters",
+    "finite empty streak",
+    "post-generation/pre-evaluation budget check",
+    "original error/cancel propagation"
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    "Содержательный поиск выигрывает от сохранения частичного знания и явного продолжения; error не должен выглядеть успешным empty или стирать полезный результат."
+  ],
+  "open_decisions": [],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "symbol_or_anchor": "def run_search",
+      "lines": [
+        177,
+        209
+      ],
+      "sha256": "782fb7b060955c6139db7ed6d9d77740ce5453f0fe6f31d3be44224ddd67e907",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/service.py#L177-L209"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "symbol_or_anchor": "def _run_locked",
+      "lines": [
+        199,
+        231
+      ],
+      "sha256": "782fb7b060955c6139db7ed6d9d77740ce5453f0fe6f31d3be44224ddd67e907",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/service.py#L199-L231"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "symbol_or_anchor": "def _prepare_service_run",
+      "lines": [
+        234,
+        266
+      ],
+      "sha256": "f4615f237197b7f03195d63aabd9d115df0865165b5c897a6928c3fc52f29d53",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/lifecycle.py#L234-L266"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "symbol_or_anchor": "def _begin_native_run",
+      "lines": [
+        437,
+        469
+      ],
+      "sha256": "f4615f237197b7f03195d63aabd9d115df0865165b5c897a6928c3fc52f29d53",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/lifecycle.py#L437-L469"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-CTL-01-01",
+      "text": "Добавить/использовать monotonic generation token у _SearchLifecycleOwner/SearchRunState и bind его в service proposal envelope/pending, не subject payload. Reset driver state только после owner lock admission. Fresh run заменяет generation; same-session ask/tell сохраняет её; явный resume принимает конкретную прежнюю generation. Atomic pending claim/commit единый SRV-01; CTL-01 owns generation/replace contract, не второй lock в facade."
+    },
+    {
+      "requirement_id": "REQ-CTL-01-02",
+      "text": "В native driver/lifecycle разделить started/completed/failed/cancelled counters; existing generation_attempts может остаться completed-call с явной единицей. При исключении до нормального finish вызвать bounded failure finalization у existing owner: snapshot completed history/frontier/telemetry, reconcile durable budget, persist через existing caller artifact/event либо typed interruption attachment, terminal failed/cancelled. Сохранять исходный exception/cancellation; не catch-as-empty, не auto paid retry. SRV-03 owns фактическое сохранение/возобновление в runner."
+    },
+    {
+      "requirement_id": "REQ-CTL-01-03",
+      "text": "Сохранить separate generation_attempts/max_empty streak. Использовать существующий typed generation transition для proposal/exhausted/repair/transient, source reason если он дан. У bare[] после count cap писать attempt_limit/unknown-exhaustion, а не научную полноту. Repair требует meaningful input change; transient retry имеет deadline/backoff и actual budget admission."
+    },
+    {
+      "requirement_id": "REQ-CTL-01-04",
+      "text": "Сохранить _begin_native_run новый SearchRunState/deep snapshots/reset scoped diversity/stopping; warm initial_evaluations копируются и source-qualified, не случайная старая history. Исправить test_search_controller_uses_facade_default_metrics_binding: дать StageA/B ports до assertion metrics, не ослаблять constructor. Историческую relocation parity проверять только на том commit, не требовать сегодняшнего AST equality."
+    }
+  ]
+}

@@ -1,0 +1,522 @@
+{
+  "packet_id": "BKT-03",
+  "lane": "LANE-03",
+  "status": "AUTHORED_PENDING_FINAL_QA",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "test_status": "NOT_RUN",
+  "audit_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "source_ids": [
+    "B172",
+    "B173"
+  ],
+  "audit_reports": [
+    "05_Основания/Аудит/02_Пакеты/BKT-03.md"
+  ],
+  "source_plan_lines": [
+    4221,
+    4308
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C34_остатки:0",
+      "audit_id": "C34-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-BKT-03-01",
+        "REQ-BKT-03-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Согласовать compensated signed mean и честную statistical-range деградацию.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C34_остатки.json",
+        "sha256": "99e7401587bdf3fc12a3da6ac4743adcac7a2b65babe59114ddfcc747b1653fb",
+        "json_pointer": "/findings/0"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C34_остатки:1",
+      "audit_id": "C34-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-BKT-03-03",
+        "REQ-BKT-03-04",
+        "REQ-BKT-03-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Native complete CAS/C5b/packet path вместо isolated section fixture.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C34_остатки.json",
+        "sha256": "99e7401587bdf3fc12a3da6ac4743adcac7a2b65babe59114ddfcc747b1653fb",
+        "json_pointer": "/findings/1"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C34_остатки:2",
+      "audit_id": "C34-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-BKT-03-02",
+        "REQ-BKT-03-06",
+        "REQ-BKT-03-07"
+      ],
+      "shared_owner": null,
+      "rationale": "Фактические scientific assumptions и scale policy, без automatic trust.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C34_остатки.json",
+        "sha256": "99e7401587bdf3fc12a3da6ac4743adcac7a2b65babe59114ddfcc747b1653fb",
+        "json_pointer": "/findings/2"
+      }
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0291",
+      "requirement_ids": [
+        "REQ-BKT-03-01",
+        "REQ-BKT-03-02"
+      ],
+      "disposition": "fix",
+      "rationale": "Cancellation/permutation и producer-reader agreement.",
+      "source_ids": [
+        "B172"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0292",
+      "requirement_ids": [
+        "REQ-BKT-03-03",
+        "REQ-BKT-03-04",
+        "REQ-BKT-03-05"
+      ],
+      "disposition": "qualify",
+      "rationale": "Existing full native regression/packet delivery.",
+      "source_ids": [
+        "B172",
+        "B173"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0293",
+      "requirement_ids": [
+        "REQ-BKT-03-02",
+        "REQ-BKT-03-06",
+        "REQ-BKT-03-07"
+      ],
+      "disposition": "qualify",
+      "rationale": "Supported units/numerical floor и scoped statistical assumptions.",
+      "source_ids": [
+        "B172",
+        "B173"
+      ]
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0434",
+      "requirement_ids": [
+        "REQ-BKT-03-01",
+        "REQ-BKT-03-03"
+      ],
+      "test_ids": [
+        "TEST-BKT-03-01",
+        "TEST-BKT-03-03"
+      ],
+      "rationale": "Magnitude/sign"
+    },
+    {
+      "inventory_id": "preserve:0435",
+      "requirement_ids": [
+        "REQ-BKT-03-03",
+        "REQ-BKT-03-06"
+      ],
+      "test_ids": [
+        "TEST-BKT-03-03",
+        "TEST-BKT-03-07"
+      ],
+      "rationale": "Unknown orientation"
+    },
+    {
+      "inventory_id": "preserve:0436",
+      "requirement_ids": [
+        "REQ-BKT-03-03"
+      ],
+      "test_ids": [
+        "TEST-BKT-03-03",
+        "TEST-BKT-03-06"
+      ],
+      "rationale": "Exact-zero control"
+    },
+    {
+      "inventory_id": "preserve:0437",
+      "requirement_ids": [
+        "REQ-BKT-03-01",
+        "REQ-BKT-03-05"
+      ],
+      "test_ids": [
+        "TEST-BKT-03-01",
+        "TEST-BKT-03-05"
+      ],
+      "rationale": "Strict source reconciliation"
+    },
+    {
+      "inventory_id": "preserve:0438",
+      "requirement_ids": [
+        "REQ-BKT-03-02",
+        "REQ-BKT-03-04"
+      ],
+      "test_ids": [
+        "TEST-BKT-03-04",
+        "TEST-BKT-03-05"
+      ],
+      "rationale": "Method/backend/version"
+    },
+    {
+      "inventory_id": "preserve:0439",
+      "requirement_ids": [
+        "REQ-BKT-03-04"
+      ],
+      "test_ids": [
+        "TEST-BKT-03-04"
+      ],
+      "rationale": "No hidden normal approximation"
+    },
+    {
+      "inventory_id": "preserve:0440",
+      "requirement_ids": [
+        "REQ-BKT-03-02",
+        "REQ-BKT-03-04",
+        "REQ-BKT-03-05"
+      ],
+      "test_ids": [
+        "TEST-BKT-03-02",
+        "TEST-BKT-03-04",
+        "TEST-BKT-03-05"
+      ],
+      "rationale": "Residual-only degradation"
+    },
+    {
+      "inventory_id": "preserve:0441",
+      "requirement_ids": [
+        "REQ-BKT-03-05"
+      ],
+      "test_ids": [
+        "TEST-BKT-03-05",
+        "TEST-BKT-03-06"
+      ],
+      "rationale": "Actual packet-section verifier"
+    }
+  ],
+  "requirements": [
+    {
+      "text": "Для supported finite residual multiset signed mean/magnitude/sign одинаковы у producer, IR reconciliation и fresh consumer независимо от permutation. [1e16,1,-1e16] даёт mean1/3 и descriptive magnitude1/3, не false neutral/whole-report refusal. Использовать устойчивую reduction, не увеличивать tolerance чтобы скрыть потерянную единицу.",
+      "source_ids": [
+        "B172"
+      ],
+      "audit_ids": [
+        "C34-R01"
+      ],
+      "id": "REQ-BKT-03-01",
+      "test_ids": [
+        "TEST-BKT-03-01",
+        "TEST-BKT-03-02"
+      ]
+    },
+    {
+      "text": "Если statistical backend не воспроизводит supported numerical-range contract, сохранить finite scenario rows/descriptive diagnostics и точную unavailable limitation; не приписывать ему вычисленный другим способом statistic/p. Any range change согласовать с BKT-02 и actual fresh recomputation. Numeric backend identity/statistic/p отражают действительно исполненный метод.",
+      "source_ids": [
+        "B172",
+        "B173"
+      ],
+      "audit_ids": [
+        "C34-R01",
+        "C34-G02"
+      ],
+      "id": "REQ-BKT-03-02",
+      "test_ids": [
+        "TEST-BKT-03-01",
+        "TEST-BKT-03-02",
+        "TEST-BKT-03-04"
+      ]
+    },
+    {
+      "text": "Constant residual±10 сохраняет magnitude10 и signed direction при not_computable/zero_variance, без p0 и без NEUTRAL positive trust. Exact all-zero — отдельное point-fit состояние без фиктивного executed method. Balanced nonzero residual mean0 не называется exact_zero и сохраняет MAE/неустановленные assumptions.",
+      "source_ids": [
+        "B172"
+      ],
+      "audit_ids": [
+        "C34-G01",
+        "C34-G02"
+      ],
+      "id": "REQ-BKT-03-03",
+      "test_ids": [
+        "TEST-BKT-03-03"
+      ]
+    },
+    {
+      "text": "Нормальный supported sample использует actual scipy.stats.ttest_1samp с method/backend/version/statistic/p. Import denial, отсутствующий метод, invalid p/statistic или backend error сохраняют rows/descriptive values и explicit unavailable без hidden normal approximation. При свежем чтении stale p/version/test identity не становятся доступными из сохранённого marker.",
+      "source_ids": [
+        "B173"
+      ],
+      "audit_ids": [
+        "C34-G01"
+      ],
+      "id": "REQ-BKT-03-04",
+      "test_ids": [
+        "TEST-BKT-03-04",
+        "TEST-BKT-03-05"
+      ]
+    },
+    {
+      "text": "Native CAS→C5b/calibration summary→full decision packet и fresh reader сохраняют exact source/profile/scope и повторяют diagnostic projection. Изменение p, backend version, bias-card p, counts/mean/scope или exact-zero status выявляется; статистические claims снимаются адресно, validated descriptive values остаются доступными.",
+      "source_ids": [
+        "B172",
+        "B173"
+      ],
+      "audit_ids": [
+        "C34-G01"
+      ],
+      "id": "REQ-BKT-03-05",
+      "test_ids": [
+        "TEST-BKT-03-05",
+        "TEST-BKT-03-06"
+      ]
+    },
+    {
+      "text": "Scientific interpretation явно задаёт units/metric orientation, residual dependence/effective n, multiplicity и population scope выбранного испытания. Пока эти сведения не установлены, sign остаётся descriptive и direction UNKNOWN; computed p и число rows не снимают unresolved assumptions. Предметный owner может предоставить обоснованную orientation через existing metric contract, но не через знак residual.",
+      "source_ids": [
+        "B172",
+        "B173"
+      ],
+      "audit_ids": [
+        "C34-G02"
+      ],
+      "id": "REQ-BKT-03-06",
+      "test_ids": [
+        "TEST-BKT-03-07"
+      ]
+    },
+    {
+      "text": "Absolute std floor1e-12 считается numerical policy, а не математическим доказательством zero variance. До изменения выбрать и документировать supported unit/scale regime либо scale-aware computation; [-1e-14,0,1e-14] и его допустимая смена единиц получают согласованную интерпретацию. Смена policy/version не переаттестовывает старые reports.",
+      "source_ids": [
+        "B172",
+        "B173"
+      ],
+      "audit_ids": [
+        "C34-G02"
+      ],
+      "id": "REQ-BKT-03-07",
+      "test_ids": [
+        "TEST-BKT-03-02",
+        "TEST-BKT-03-07"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "native cancellation/permutation regression",
+      "setup": "Actual evaluator rows для residuals[1e16,1,-1e16] и всех6 permutations, plus [1e16,-1e16,1]; Decimal exact oracle.",
+      "action": "_detect_systematic_biases→BacktestReport→CAS→fresh verified projection.",
+      "oracle": "Mean/magnitude1/3, positive residual sign, nonzero descriptive card сохраняются при всех порядках; no metric diagnostic count/mean rejection. Statistical fields либо genuine reconciled SciPy result, либо explicit range-unavailable; false neutral и tolerance-based hiding запрещены.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_bkt_03.py; ir/analytics/backtest.py::_assert_metric_diagnostics_match_scenarios",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-BKT-03-01",
+      "requirement_ids": [
+        "REQ-BKT-03-01",
+        "REQ-BKT-03-02"
+      ]
+    },
+    {
+      "level": "native reduction/range consistency",
+      "setup": "Cancellation corpus, constant huge finite residuals, tiny variance [-1e-14,0,1e-14], ordinary sample; BKT-02 range fixtures.",
+      "action": "Producer numeric policy и independent IR/fresh recomputation; snapshot method/policy identity.",
+      "oracle": "Для supported range одинаковые counts/mean/sign/status. Overflow/underflow policy даёт typed limitation с useful rows, не exception/inf/fictional p. Tiny variance limitation не выдается за истинное отсутствие variability; chosen unit/scale domain указан.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_bkt_03.py; shared numeric policy BKT-02",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-BKT-03-02",
+      "requirement_ids": [
+        "REQ-BKT-03-01",
+        "REQ-BKT-03-02",
+        "REQ-BKT-03-07"
+      ]
+    },
+    {
+      "level": "native descriptive versus inferential matrix",
+      "setup": "Residuals[10,10,10],[-10,-10,-10],[0,0,0],[0],[-1,0,1],[-1,3,3] и n2 sample.",
+      "action": "Actual evaluator/aggregate/report roundtrip.",
+      "oracle": "Constant magnitude10, sign±, pNone/zero_variance, directionUNKNOWN; exact-zero отдельный status без backend identity. Balanced mean0 с MAE>0 не exact-zero; [-1,3,3] magnitude5/3, MAE7/3, не взаимозаменяемы. n2 insufficient_observations с сохранённым descriptive value.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_bkt_03.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-BKT-03-03",
+      "requirement_ids": [
+        "REQ-BKT-03-03"
+      ]
+    },
+    {
+      "level": "native SciPy reference + controlled faults",
+      "setup": "[.5,1.5,2.5] и настоящий installed SciPy; отдельные controlled import denial/missing ttest/NaN p/out-of-range p/nonfinite statistic.",
+      "action": "Actual _two_sided_ttest и независимый direct scipy.stats.ttest_1samp; serialize/validate result.",
+      "oracle": "Positive p≈.121690 и actual method/backend/version/statistic совпадают с direct reference. Fault branches pNone и точный reason, никаких normal-like .009375 под именем t-test. Rows/MAE1.5 и mean1.5 сохранены. Фикстурный fault не считается native отсутствием dependency.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_bkt_03.py::test_small_sample_ttest_matches_scipy_reference; orchestrator.py::_two_sided_ttest",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-BKT-03-04",
+      "requirement_ids": [
+        "REQ-BKT-03-02",
+        "REQ-BKT-03-04"
+      ]
+    },
+    {
+      "level": "native CAS/fresh statistical tamper controls",
+      "setup": "Genuine saved report; по одному p=.009375, backend_version, bias-card p, diagnostic scope, mean/n, forged exact_zero; backend unavailable после записи.",
+      "action": "Canonical load и actual fresh verifier, затем C5b summary.",
+      "oracle": "Forged source shape/scope/exact-zero rejected; stale statistical provenance снимает p/method и оставляет validated mean/magnitude. Unchanged ordinary control сохраняет вычисленный p с версией. Backend disappearance не теряет source rows и не возвращает positive trust.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/scientist/nodes/test_decision_packet_node_v3.py::test_s1_c5b_fresh_backtest_binding_reaches_packet_and_rejects_kept_markers",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-BKT-03-05",
+      "requirement_ids": [
+        "REQ-BKT-03-04",
+        "REQ-BKT-03-05"
+      ]
+    },
+    {
+      "level": "native full packet E02-I03-C",
+      "setup": "Actual native selected report ref/manifest, C5b source, full BuildDecisionPacketNode; unchanged and stale diagnostic branches из TEST05.",
+      "action": "Build/persist full packet и fresh read; inspect actual nested backtest section.",
+      "oracle": "Section имеет тот же recomputed mean/p/status/scope, stale pNone with explicit unavailable и mean1.5. Exact-zero trusted point-fit control проходит только при собственных verified bindings. Isolated section fixture не заменяет это свидетельство.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/scientist/nodes/test_decision_packet_node_v3.py::test_s1_exact_zero_trust_recomputes_through_cas_c5b_and_packet",
+      "allowed_doubles_and_prohibitions": "Test tenant/inputs допустимы; selected loader, CAS/C5b, actual packet node и verifier не подменяются.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-BKT-03-06",
+      "requirement_ids": [
+        "REQ-BKT-03-05"
+      ]
+    },
+    {
+      "level": "scoped numerical/scientific qualification",
+      "setup": "Одна metric с documented units и orientation, тот же residual corpus в эквивалентных units; dependent repeated copies vs независимый declared design, multiple metrics; protocol before result inspection.",
+      "action": "Методовый reviewer задаёт bounded assumptions/policy; actual diagnostic transport/readback проверяет labels и unresolved fields.",
+      "oracle": "Unit conversion не превращает tiny nonzero variance в доказанную zero variance. Без sufficient independence/effective-n/multiplicity/population basis остаются unresolved; sign costs не называется автоматически optimism. Поддержанная orientation имеет явный source/definition, unknown case сохраняет UNKNOWN и useful descriptive result. Научный вывод ограничен конкретным protocol, не synthetic software fixture.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "MetricBiasDiagnostic / existing metric definition owner; DEC-SCALE/DEC-SCOPE",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-BKT-03-07",
+      "requirement_ids": [
+        "REQ-BKT-03-06",
+        "REQ-BKT-03-07"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I03-C"
+  ],
+  "dependencies": [
+    {
+      "packet": "BKT-02",
+      "relation": "Один coordinated numerical-range/IR reconciliation contract; cancellation distinct from SSE overflow."
+    },
+    {
+      "packet": "BKT-01",
+      "relation": "Actual historical input и forecast/replica semantics до residual science."
+    }
+  ],
+  "preservation": [
+    "Magnitude/sign",
+    "Unknown orientation",
+    "Exact-zero control",
+    "Strict source reconciliation",
+    "Method/backend/version",
+    "No hidden normal approximation",
+    "Residual-only degradation",
+    "Actual packet-section verifier"
+  ],
+  "protected_distinction_ids": [],
+  "design_alignment": [
+    {
+      "source": "policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+      "section": "D0: typed meanings and reusable computation",
+      "application": "Общая numerical/diagnostic policy повторно используется для новой metric, но предметная orientation/dependence не придумывается helper."
+    },
+    {
+      "source": "policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md",
+      "section": "K01, K07–K08",
+      "application": "Доступность вычисленного p не является evidence scientific assumptions или decision authority; useful descriptive work сохраняется отдельно."
+    }
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-BKT-03-SCALE",
+      "question": "Сохранить ограниченный unit-domain floor или перейти к scale-aware predicate?",
+      "owner": "Numerical/statistical method owner",
+      "bounded_action": "Исполнить ordinary/tiny/unit-converted/cancellation matrix, выбрать policy по заявленному supported domain. Сдать exact predicate, reason semantics, version/read compatibility и зеркальную independent IR проверку. Не ослаблять floor без численной/научной аргументации.",
+      "default": "Current floor остаётся явной numerical limitation, не доказанной zero variance; cancellation fix сдаётся независимо."
+    },
+    {
+      "id": "DEC-BKT-03-SCOPE",
+      "question": "Какие assumptions и orientation доступны для конкретного backtest?",
+      "owner": "Selected study/domain owner",
+      "bounded_action": "Зафиксировать metric definition/units, repeated-unit/time dependence, effective-n basis, multiplicity и population scope для одного intended claim. Недостающие поля перечислить конкретно; не требовать универсальной методологии всех будущих задач.",
+      "default": "Descriptive magnitude/sign доступны, inferential/directional claims ограничены неизвестными основаниями."
+    }
+  ],
+  "technical_solution": "**Ремонт reduction:** `_detect_systematic_biases` использует `np.mean`, IR/fresh reader — `math.fsum/n`. Для текущего supported range заменить producer mean на ту же устойчивую математическую reduction, сохранив independent source recalculation у reader. Все ветки magnitude/sign/bias-presence используют этот mean; не исправлять только отображаемое поле. Для wider range согласовать с BKT-02 scaled summation/typed limitation, поскольку и fsum может переполниться. Не расширять `_close` чтобы принять0 вместо1/3.\n\n**t-test отдельно.** Actual SciPy может иметь собственную finite precision reduction. Не записывать стабилизированный hand-computed statistic под method_id SciPy, если он не был этим backend получен. Сравнить actual result с declared source reduction/variance в допустимом tolerance; при genuine unsupported range вернуть existing unavailable с точным scipy_ttest_1samp_numeric_range reason, сохраняющим compatibility с IR prefix checks, и повторять ту же policy при fresh verification. Если требуется новая эквивалентная реализация, это явно другой method/version с reference acceptance; не обязательное условие данного ремонта. Обычный sample сохраняет реальный SciPy result.\n\n**Честные описания и downstream уже реализованы.** Constant nonzero magnitude, UNKNOWN orientation, exact-zero point-fit, real backend identity и residual-only degradation сохраняются. Existing full CAS/C5b/packet regression нужно выполнить/расширить cancellation case, а не писать новый parallel validator. Native report binding и source rows остаются доказательной базой; kept marker не заменяет fresh recomputation.\n\n**Floor и scientific scope:** `std<=1e-12` — нынешняя absolute numerical policy. DEC-SCALE выбирает либо явно ограниченный unit/range contract с accurate below_resolution reason, либо scale-aware numerical variance predicate/normalization. Смена одновременно затрагивает producer и IR availability check; old reason/version остаётся читаемым исторически. Не принимать tiny exact variance как scientifically trustworthy только после снятия floor. Metric orientation, dependence/effective n и multiplicity предоставляет selected study/metric owner, а не общий helper, угадывающий по residual sign.",
+  "compatibility_and_rollback": "Normal finite-range method outputs сохраняются. Cancellation исправление меняет ранее ошибочно neutral/нечитаемый result намеренно; старые persisted diagnostics не переписывать. Новый numerical-floor contract требует explicit version/profile handling и current recalculation; historical p не становится current по одному marker. Rollback сохраняет rows и делает только неподдержанный diagnostic unavailable; запрещено вернуть hidden normal approximation или loosen source verification.",
+  "source_locators": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "first_line": 1542,
+      "last_line": 1726,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py#L1542-L1726"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "first_line": 153,
+      "last_line": 204,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/backtest.py#L153-L204"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "first_line": 583,
+      "last_line": 736,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/backtest.py#L583-L736"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+      "first_line": 172,
+      "last_line": 322,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/governance/backtest_matrix.py#L172-L322"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/outcome_sections.py",
+      "first_line": 255,
+      "last_line": 350,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/outcome_sections.py#L255-L350"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+      "first_line": 4066,
+      "last_line": 4622,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/nodes/test_decision_packet_node_v3.py#L4066-L4622"
+    }
+  ]
+}

@@ -1,0 +1,292 @@
+{
+  "schema": "e02.final.runtime_delivery.findings.v1",
+  "checked_date": "2026-11-01",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "scope": [
+    "LANE-06",
+    "LANE-12"
+  ],
+  "status": "REVIEW_ONLY_NOT_IMPLEMENTED",
+  "findings": [
+    {
+      "id": "RD-01",
+      "severity": "high; блокирует общий no-blocking claim, не остальные EXE repairs",
+      "classification": "verified_specification_scope_gap",
+      "packets": [
+        "EXE-01",
+        "RUN-01"
+      ],
+      "requirement_ids": [
+        "REQ-EXE-01-01",
+        "REQ-RUN-01-02"
+      ],
+      "test_ids": [
+        "TEST-EXE-01-01",
+        "TEST-RUN-01-02"
+      ],
+      "scenario_ids": [
+        "E02-I06-A",
+        "E02-I06-C"
+      ],
+      "title": "Локальный ремонт run_blocking_async оставляет два sibling await bridge с той же синхронной блокировкой",
+      "faulty_proposition": "EXE-01 §5 связывает новый transport adapter только с run_blocking_async; это достаточно для названного теста, но не для общей responsiveness всех shared-owner routes.",
+      "evidence": [
+        "P/02_Пакеты/EXE-01.md:33–37,54–66,70–76",
+        "policy-engine/src/polisyos/common/async_tools/__init__.py:141–155,223–242,301–351,463–474,635–653,951–952",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py:2397–2414,2479–2504",
+        "policy-engine/tests/unit/common/test_async_tools.py:1110–1166: ordinary late-callback contract и несатурированный wrap test; не отрицать полезность этих tests"
+      ],
+      "counterexample": "Future завершён до wrap. Единственный физический worker уже занят вторым job с barrier. result_async либо _execute_with_timeout_thread_async вызывает asyncio.wrap_future; overridden add_done_callback вызывает run_callback_sync, который ждёт capacity и future.result на loop. Heartbeat/timeout не исполняется до release. Исправленный только run_blocking_async проходит TEST-EXE-01-01.",
+      "alternatives": [
+        "Оставить repair строго одного helper и явно не заявлять общую capability — допустимо как узкий bugfix, но открытый риск остаётся.",
+        "Один внутренний shared-future→asyncio adapter во всех действительных sibling callers; обычные callbacks остаются bounded.",
+        "AnyIO4.12.0 to_thread.run_sync уже locked, но замена owner не сохраняет автоматически admission, receipt, finite queue, физическую capacity и late-write fence. Второй pool отвергнут."
+      ],
+      "preferred_solution": "Один private transport-only registration/receipt adapter в Common; явное wiring run_blocking_async, SharedExecutionHandle.result_async и thread-timeout bridge. Инвентаризировать тип future у остальных wrap sites, не механически заменять чужие futures. Небольшое расширение diff дешевле второго executor.",
+      "replacement_requirement": "Все поддержанные async-await routes над _SharedFuture передают completion в event loop без синхронного ожидания owner capacity или worker completion, включая already-done registration. User callbacks, physical occupancy, cancellation-before-start, deadlines, receipt timing и shutdown сохраняют прежние контракты.",
+      "replacement_test": "Параметризовать TEST-EXE-01-01 тремя actual callers. Для каждого capacity=1: завершить first, удержать second, зарегистрировать first result до release; независимый heartbeat обязан пройти. Проверить exactly-once receipt, result/error identity, queued/running cancellation, закрытый loop и shutdown. Контроль с прежним bridge обязан не пройти heartbeat до release; watchdog освобождает barrier вне loop.",
+      "shared_owner": "Common async_tools; retry.py — consumer, не второй callback owner",
+      "preservation_risks": [
+        "Нельзя превращать arbitrary callbacks в unbounded inline execution.",
+        "Нельзя высвобождать physical slot при cancellation waiter до завершения running job.",
+        "call_soon_threadsafe после loop.close бросает RuntimeError: обработать закрытие без duplicate delivery и утечки capacity."
+      ],
+      "validation_plan": "Адресная matrix в test_async_tools + thread timeout test; затем один actual CAS workflow из I06-A. Нативный Py3.14 профиль; не широкая CI матрица.",
+      "uncertainty": "Статический доказуемый call-chain и контрпример; зависание продукта не запускалось. Частные callers могут иметь дополнительные ограничения, которые следует сохранить, а не угадывать.",
+      "sources": [
+        "https://docs.python.org/3.14/library/asyncio-eventloop.html#asyncio.loop.call_soon_threadsafe",
+        "https://raw.githubusercontent.com/agronholm/anyio/4.12.0/src/anyio/to_thread.py"
+      ],
+      "product_execution": "NOT_RUN"
+    },
+    {
+      "id": "RD-02",
+      "severity": "high; блокирует REQ-CLI-01-01 в заявленном классе wire names",
+      "classification": "verified_specification_defect",
+      "packets": [
+        "CLI-01"
+      ],
+      "requirement_ids": [
+        "REQ-CLI-01-01"
+      ],
+      "test_ids": [
+        "TEST-CLI-01-01"
+      ],
+      "scenario_ids": [
+        "E02-I12-B"
+      ],
+      "title": "JSON-quoted query key не устраняет особую семантику __proto__ и inherited optional keys",
+      "faulty_proposition": "CLI-01 §5 предписывает query object keys json.dumps(name). Quoted object-literal __proto__ всё ещё prototype setter, а не data property.",
+      "evidence": [
+        "P/02_Пакеты/CLI-01.md §5 и TEST-CLI-01-01",
+        "policy-engine/tools/ops_runners/runtime/generate_runtime_client.py:439–458,463–493,543–546,590–609,631–635",
+        "ECMAScript Object Initializer PropertyDefinitionEvaluation steps3,7,9: noncomputed __proto__ имеет отдельную семантику",
+        "Root supplementary independent Node24 experiment: cross_lane/js_proto_counterexample.json; это не Node22 generated-client acceptance"
+      ],
+      "counterexample": "Для допустимого query name __proto__ выражение {\"__proto__\":\"payload\"} не создаёт own key. Object.entries пуст; query исчезает без SyntaxError. Для optional constructor/toString при обычном params={} чтение через property access может взять inherited function и отправить отсутствующий параметр. Corpus item-id/filter-mode и quoted/backslash этого не различает.",
+      "alternatives": [
+        "Все keys как computed {[JSON-string]: value} плюс own-property presence для параметров.",
+        "Сразу entries/URLSearchParams без промежуточного object literal.",
+        "Явно ограничить supported wire-name grammar и отклонять остальные — хуже free-grow для обычных допустимых строк; не нужен endpoint-specific blacklist."
+      ],
+      "preferred_solution": "Общий TS/JS safe accessor и computed-data-property/entries emitter. Для optional params учитывать собственное наличие, не prototype lookup; portable Object.prototype.hasOwnProperty.call не требует upgrade TS lib; params?.[key] само по себе этого не даёт. Не переписывать весь client transport ради одной ошибки.",
+      "replacement_requirement": "Генератор сохраняет допустимые wire keys как собственные data keys, независимо от их совпадения с Object.prototype; отсутствие optional параметра не сериализует inherited значение. Одинаковые правила TS/JS, path/query; unsupported input получает явную диагностику.",
+      "replacement_test": "Дополнить actual raw→canonical→Node22→tsc corpus: __proto__, constructor, toString, кавычка, обратная косая, backtick, ${ и обычные keys. Params создать JSON.parse либо null-prototype map. Проверить точные URLSearchParams.getAll, отсутствие optional ключа, отсутствие изменения прототипа и path a/b→a%2Fb. Перестановка/новые имена data-only; контроль quoted-only emitter обязан потерять __proto__ и провалиться.",
+      "shared_owner": "tools/ops_runners/runtime/generate_runtime_client.py; existing canonicalizer и package tests",
+      "preservation_risks": [
+        "Не изменять operation allowlist, binary/header/body/error ABI и exactly-three-output family.",
+        "Own-property semantics должна быть объявлена; если class-instance params намеренно поддержаны, дать отдельный явный contract вместо случайного inherited access."
+      ],
+      "validation_plan": "Раздельно JS execution, TS typecheck, canonicalization idempotence, fullfamily freshness, actual service bridge. Без Node22 результат остаётся NOT_RUN.",
+      "uncertainty": "ECMAScript семантика установлена первоисточником; product generator не исполнялся. Root Node24 experiment — только независимое подтверждение языка.",
+      "sources": [
+        "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-object-initializer"
+      ],
+      "product_execution": "NOT_RUN"
+    },
+    {
+      "id": "RD-03",
+      "severity": "medium; ограничивает semantic/reproducibility claim; НЕ блокирует узкий except fix",
+      "classification": "verified_qualification_gap",
+      "packets": [
+        "MIG-05"
+      ],
+      "requirement_ids": [
+        "REQ-MIG-05-01",
+        "REQ-MIG-05-04"
+      ],
+      "test_ids": [
+        "TEST-MIG-05-01",
+        "TEST-MIG-05-04"
+      ],
+      "scenario_ids": [
+        "E02-I06-E"
+      ],
+      "title": "Однократный fingerprint живого callback не гарантирует неизменный смысл зарегистрированной миграции",
+      "faulty_proposition": "Паспорт MIG-05 обещает сохранение того же смысла регистрации. Narrow except repair корректен, но значение mutable capture хешируется один раз, а вызывается live function.",
+      "evidence": [
+        "P/02_Пакеты/MIG-05.md:7,33–34,55–57,70–74",
+        "policy-engine/src/polisyos/ir/migrations/base.py:508–558,561–591,594–650,1100–1123",
+        "policy-engine/tests/unit/remediation/test_mig_05.py:60–73,115–132,328–351: mutable observer captures действительно используются"
+      ],
+      "counterexample": "Closure читает cfg={\"factor\":2}; register сохраняет fingerprint и сам fn. После cfg[\"factor\"]=3 без новой регистрации migrate_artifact исполняет другой коэффициент при прежнем registry fingerprint. Новый except fix и conflicting-repeat тесты по-прежнему проходят. Никакого злонамеренного callback для этого не требуется.",
+      "alternatives": [
+        "Честно ограничить fingerprint registration-time descriptor equality; не заявлять воспроизводимость произвольного Python.",
+        "Для реально semantic captures в supported corpus ввести immutable explicit config/identity descriptor с версией; при необходимости проверять его перед исполнением.",
+        "Blanket rehash/freeze всех closure objects — отклонено: observer list в existing tests меняется штатно; globals/I/O всё равно не покрыты."
+      ],
+      "preferred_solution": "Сохранить narrow fix без расширения scope; уточнить паспорт/qualification и finite inventory semantic configuration. Для конкретных заявленных reproducible converters выбирать явный stable config contract, не universal function-semantics prover. Новая сильная runtime guarantee — отдельное обоснованное решение владельца.",
+      "replacement_requirement": "Fingerprint подтверждает равенство поддержанного registration descriptor, а не эквивалентность произвольного поведения Python. Для converters с заявленной воспроизводимостью semantic config и implementation/environment binding фиксируются отдельно; mutable внешние зависимости без такого binding остаются незаквалифицированными.",
+      "replacement_test": "Добавить post-registration mutation semantic cfg и показать выбранный outcome: versioned re-registration/explicit refusal либо явно bounded non-reproducible profile. Positive immutable config повторяется; harmless observer list не запрещается. Изменение global/file dependency не выдавать за обнаруживаемое fingerprint, если этого нет в контракте.",
+      "shared_owner": "IR registry identity owner; Common traversal и DataForge graph не менять",
+      "preservation_risks": [
+        "Сохранить IR live nested mutation/no-op identity и Common deepcopy/stamp.",
+        "Не менять historical IDs молча.",
+        "Не превращать допустимые logging/observer closures в blanket unsupported."
+      ],
+      "validation_plan": "Сначала узкий unsupported-vs-empty regression и registry snapshot; отдельно finite callbacks qualification с pure positive и mutable semantic negative; actual DTO admission после conversion.",
+      "uncertainty": "Статическая механика drift доказуема; наличие конкретного production mutable semantic converter не установлено. Поэтому не объявлен текущий эксплуатационный инцидент.",
+      "sources": [],
+      "product_execution": "NOT_RUN"
+    },
+    {
+      "id": "RD-04",
+      "severity": "high for warm numerical Linux qualification; не блокирует EOF-classification repair",
+      "classification": "unverified_runtime_risk_with_verified_test_gap",
+      "packets": [
+        "RUN-02",
+        "WIRE-01"
+      ],
+      "requirement_ids": [
+        "REQ-RUN-02-03",
+        "REQ-WIRE-01-03"
+      ],
+      "test_ids": [
+        "TEST-RUN-02-03",
+        "TEST-WIRE-01-03"
+      ],
+      "scenario_ids": [
+        "E02-I06-C"
+      ],
+      "title": "Linux fork необходимо квалифицировать после инициализации реального JAX runtime",
+      "faulty_proposition": "Ограниченный процессный transport/descendant corpus не устанавливает пригодность принудительного fork из уже многопоточного numerical parent.",
+      "evidence": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py:2514–2529 explicitly Linux fork, Darwin spawn",
+        "policy-engine/uv.lock: jax/jaxlib0.8.2; pyproject.toml:Python>=3.14,<3.15",
+        "JAX pinned0.8.2 xla_bridge.py:130–135 предупреждает об os.fork с многопоточностью",
+        "P/02_Пакеты/RUN-02.md TEST03: Linux descendant cleanup и Darwin canonical spawn; warm JAX parent отдельно не назван"
+      ],
+      "counterexample": "Холодный simple callable успешно шлёт64B/1MiB и корректно убивается. Настоящий service предварительно создаёт JAX backend/threadpools, затем timeout worker наследует process image через fork. Возможен deadlock/ошибка numerical child; прежний corpus остаётся зелёным. Это предсказанный риск, не воспроизведённый продуктовый FAIL.",
+      "alternatives": [
+        "Сохранить fork только в доказанно поддержанном launch profile и явно ограничить остальные.",
+        "Переиспользовать existing closed spawn task/context wire на Linux; доказать cleanup/custody/latency.",
+        "Контролируемый forkserver до numerical preload; требует проверки импорта и process-tree semantics.",
+        "Глобальный set_start_method либо бесконтрольный ProcessPool rewrite отвергнут."
+      ],
+      "preferred_solution": "Добавить один настоящий warm-parent qualification и explicit start-method decision. Если fork не выдерживает, предпочесть существующую closed task boundary; не импортировать новый distributed framework и не стирать subreaper/group cleanup.",
+      "replacement_requirement": "Поддержка Linux timed numerical execution определяется actual launch topology после заявленной инициализации JAX/BLAS/thread owners, а не лишь наличием fork. Поддержанный warm workload завершает meaningful calculation и typed delivery; неподдержанная topology обозначается до опасного запуска либо получает безопасный route.",
+      "replacement_test": "На Py3.14/lockedJAX инициализировать backend действительной небольшой численной операцией в parent, затем real timeout owner исполняет bounded child calculation. Проверить значение, deadline, exact wire, cleanup descendant и отсутствие parent kill. Отдельный stalled-child negative с внешним watchdog. Cold generic callable сохраняется как transport-only контроль; Darwin native test не выдаётся за Linux.",
+      "shared_owner": "retry timeout-worker launch owner; existing worker serialization wire",
+      "preservation_risks": [
+        "spawn importability/serialization отличны от fork; не обещать drop-in.",
+        "Forkserver preload может сам запустить threads.",
+        "Нужны scoped latency/RSS/process-count measurements, не абстрактное утверждение faster."
+      ],
+      "validation_plan": "Локальный Linux профиль+bounded external watchdog; точный backend/startmethod/env evidence. Начать с static decision и приёмочного пункта, исполнение требует отдельного разрешения.",
+      "uncertainty": "Нативный runtime не запускался. Python docs описывают3.14 family; точный patch version среды ещё не установлен. JAX предупреждение подтверждено pinned исходником, но не доказывает неизбежность deadlock каждой операции.",
+      "sources": [
+        "https://docs.python.org/3.14/library/multiprocessing.html#contexts-and-start-methods",
+        "https://raw.githubusercontent.com/jax-ml/jax/jax-v0.8.2/jax/_src/xla_bridge.py"
+      ],
+      "product_execution": "NOT_RUN"
+    },
+    {
+      "id": "RD-05",
+      "severity": "medium; numerical capability qualification only",
+      "classification": "test_oracle_independence_gap",
+      "packets": [
+        "STA-02"
+      ],
+      "requirement_ids": [
+        "REQ-STA-02-01",
+        "REQ-STA-02-04"
+      ],
+      "test_ids": [
+        "TEST-STA-02-01",
+        "TEST-STA-02-04"
+      ],
+      "scenario_ids": [
+        "E02-I06-A"
+      ],
+      "title": "Direct bridge parity — oracle wiring, но не независимый oracle численной способности",
+      "faulty_proposition": "Сравнение reuse с прямым ParameterTransfer.pure_step достаточно для fresh-derivation regression, но не для правильности literature-prior numerical mapping.",
+      "evidence": [
+        "P/02_Пакеты/STA-02.md TEST01/TEST04",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py:253,419–443",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/parameter_transfer.py:112–149,248–273,348–365"
+      ],
+      "counterexample": "Если pure_step одинаково ошибочно игнорирует uncertainty multiplier или связывает mean с чужим parameter, direct и reused paths совпадают. Same-path changed-source guard тоже может работать, но обе ветки несут неверный prior. Это не доказанный текущий численный дефект.",
+      "alternatives": [
+        "Сохранить direct parity как integration/wiring oracle.",
+        "Добавить независимые скалярные mean/std и controlled-distribution/metamorphic свойства в существующий test owner.",
+        "Заменить bridge новой probabilistic library без установленного математического дефекта — не оправдано."
+      ],
+      "preferred_solution": "Двухуровневый oracle: exact field mapping независимо от production bridge; отдельно backend-qualified intervals/consumer. Проверять shift/positive-scale на фиксированных draws и field-by-field prior wiring, не требовать произвольного отличия результата при смене seed.",
+      "replacement_requirement": "Прямой ParameterTransfer используется только как regression oracle reuse. Правильность prior mapping устанавливается независимой декларацией μ, σ, multiplier, unit/parameter correspondence; stochastic interval validation имеет заранее выбранную точность и backend scope.",
+      "replacement_test": "В actual ParameterValue DTO задать value=2, std_error=.2, confidence_interval отсутствует, multiplier=3; независимо ожидать prior mean2/std.6 до sampling (не точный sample mean). Сохранить finite floor и unsupported-parameter semantics. Добавить второй параметр и перестановку ключей; affine shift/scale controls при фиксированном stochastic input. При change source/draws/seed проверить identity и реально использованную конфигурацию. Actual manual/hybrid consumer потребляет эти поля; unsupported backend остаётся отдельным outcome, не mock scientific PASS.",
+      "shared_owner": "ParameterTransfer + causal-consumer owner; resolver отвечает за current request",
+      "preservation_risks": [
+        "Не переписывать empirical sampling на аналитические интервалы ради теста.",
+        "Не менять fallback/backend semantics молча.",
+        "causal-dowhy marker python<3.13 не даёт native DoWhy на обязательном3.14."
+      ],
+      "validation_plan": "Local deterministic mapping + existing backend test, потом один actual downstream prior consumer и held-out param shape. Численный consumer qualification не блокирует repair раннего reuse return.",
+      "uncertainty": "Самосравнение видно в предложенном тесте; ошибка математики продукта не установлена. Scientific validity prior остаётся отдельным предметным вопросом.",
+      "sources": [],
+      "product_execution": "NOT_RUN"
+    },
+    {
+      "id": "RD-06",
+      "severity": "medium; блокирует сильную full client-service roundtrip трактовку текущего bridge",
+      "classification": "verified_current_test_limitation_and_spec_clarification",
+      "packets": [
+        "CLI-01"
+      ],
+      "requirement_ids": [
+        "REQ-CLI-01-05"
+      ],
+      "test_ids": [
+        "TEST-CLI-01-05"
+      ],
+      "scenario_ids": [
+        "E02-I12-B"
+      ],
+      "title": "Существующий service bridge не возвращает ответ реального Runtime в generated client",
+      "faulty_proposition": "Ссылка на existing service bridge может быть исполнена повторным запуском старого теста; его результат устанавливает лишь совпадение selected GET path и отдельный server result, не сквозной transport/error/header contract.",
+      "evidence": [
+        "policy-engine/tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py:138–166: fake fetch returns always200 {ok:true}",
+        "тот же файл:169–198: реальному TestClient передаётся только parsed.path; ответ проверяется Python, не JS",
+        "P/02_Пакеты/CLI-01.md TEST05 и E02-I12-B-B02 требуют actual service boundaries, но конкретный wire-response handoff следует сделать явным"
+      ],
+      "counterexample": "Generated client может выбрасывать нужные auth headers, неверно сериализовать body, глотать403, неправильно decode binary либо возвращать constant. Fake fetch branch всё равно успешен; отдельный Python GET получает корректный job status. Даже добавленные server-only denied tests это не обнаружат.",
+      "alternatives": [
+        "Честно называть текущий тест split request-contract bridge, сохранить как cheap smoke.",
+        "Расширить existing bridge relay: полный request envelope в реальный local ASGI service и действительные status/headers/body назад в JS Response.",
+        "Один ephemeral localhost server с Node nativefetch — сильнее network stack, но дороже и требует разрешённого isolated lifecycle."
+      ],
+      "preferred_solution": "Один bounded bidirectional bridge в том же test owner; service/auth/storage настоящие, adapter только переносит method/URL/query/headers/body и response bytes/status. Не нужен новый E2E framework или внешний deployment.",
+      "replacement_requirement": "Actual service outcome должен пройти обратно через неизменённый generated client; accepted/denied/missing/stale cases наблюдаются на public JS API. Server policy не заменяется client validator; transport-only fixture не считается service enforcement evidence.",
+      "replacement_test": "Одна selected GET + разрешённый POST + binary route по действительному allowlist; positive scoped auth и resource, negative denied/missing/stale. Проверить точные запросы и actual service status/body/bytes, затем JS decoded/error outcome. Deliberately drop required header/alter response status/control binary bytes: test обязан различить. Service-side calls без client roundtrip учитывать отдельно.",
+      "shared_owner": "tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py; runtime-api-client existing tests",
+      "preservation_risks": [
+        "Не обходить actual auth middleware через удобный helper.",
+        "Не расширять103-operation census до103executions без необходимости.",
+        "Сохранить public error ABI; не вводить новый object error contract скрыто."
+      ],
+      "validation_plan": "Node22/Python3.14 locked package, isolated Runtime store, no live provider. Один fullfamily generation witness переиспользовать HYG04/CP6.",
+      "uncertainty": "Текущий bridge прочитан полностью401line, не запускался. Предложенный packet уже намерен проверить boundaries; finding уточняет достаточность, не утверждает что он сознательно разрешает mocks.",
+      "sources": [],
+      "product_execution": "NOT_RUN"
+    }
+  ]
+}

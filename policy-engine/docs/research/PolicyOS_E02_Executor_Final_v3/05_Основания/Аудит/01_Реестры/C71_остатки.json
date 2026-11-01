@@ -1,0 +1,72 @@
+{
+  "pass_id": "C71",
+  "bundle": "DUR-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C71-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high_for_acknowledgment_transition",
+      "source_ids": [
+        "B37"
+      ],
+      "title": "Visible readback после directory fsync failure преждевременно превращается в durable acknowledgment",
+      "evidence": [
+        "S01:1053–1099",
+        "S01:1269–1306",
+        "S01:1387–1424",
+        "S01:1512–1543",
+        "S03:152–186",
+        "S07:1043–1160",
+        "P07",
+        "P08"
+      ],
+      "actual": "Постоянный injected _fsync_dir отказ после replace: первая spend/producer операция unknown; exact replay возвращает receipt/committed без нового sync. Compute control повторно sync и остаётся unknown. Actual acknowledgment methods через middleware fallback readback сразу возвращают status=committed, durability=ledger после единственного failed directory sync.",
+      "remaining": "Отделить видимость exact receipt от подтверждённой durable publication. Согласовать spend/producer replay и resolve с существующим durability confirmation under stable lock, сохраняя exact event identity и единственный charge. Downstream acknowledgment не должен повышать unknown до ledger durability только по readable bytes. Проверить persistent fault, восстановление sync, replay и обе стороны publication; не вводить новую базу или второй журнал.",
+      "limits": "Реальный локальный owner и exact methods; filesystem fault injection. Не воспроизводились отключение питания или реальная потеря bytes. В observed process bytes полные, cost списан один раз. Medium относится к неверной гарантийной метке durable acknowledgment, не к доказанному финансовому ущербу. P08 client state и absent route fixtures; live provider не вызывался."
+    },
+    {
+      "id": "C71-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B37"
+      ],
+      "title": "Полная durability и эксплуатационное восстановление требуют supported filesystem qualification",
+      "evidence": [
+        "S01:704–779",
+        "S01:1427–1441",
+        "S01:1512–1543",
+        "S04:20–49",
+        "P02",
+        "P03",
+        "P06"
+      ],
+      "remaining": "На поддерживаемом runtime/filesystem подтвердить old/new publication при crash, directory lifecycle и stable lock ownership, затем явно проверить восстановление повреждённого existing snapshot из достоверного состояния без сброса лимитов. Multi-host POSIX semantics проверять на реально поддерживаемом shared filesystem, не по названию canonical contract.",
+      "limits": "Local process kill и injected syscall failures доказаны; они не имитируют power loss, storage-controller caches, NFS locks или lost ancestor-directory durability. Corrupted files сейчас честно блокируются; автоматическое восстановление не объявлено реализованным или обязательным новым сервисом."
+    },
+    {
+      "id": "C71-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B37"
+      ],
+      "title": "Полный producer/custody маршрут и supported native test runner не исполнены",
+      "evidence": [
+        "S03:188–285",
+        "S07:617–673",
+        "S08:37–122",
+        "P04",
+        "P05",
+        "P08"
+      ],
+      "remaining": "Исполнить существующие process/settlement tests в supported Python/Pydantic pytest environment и общий LANE-06 сценарий actual authorized producer intent → unknown/known outcome → exact event settlement → durable acknowledgment → current budget consumer. Сохранить declared unknown cost и отдельную reuse provenance; не превращать synthetic file charge в внешнее billing authority.",
+      "limits": "Native ledger/middleware/source subprocesses реально исполнены, поэтому это не отсутствие реализации. Но pytest отсутствует, Python 3.12/Pydantic 2.13 вне pinned baseline; provider, current tenant/job admission и pricing authority не проверялись."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C71-R01"
+  ],
+  "decision": "Исходная пустота при записи устранена actual stable lock и atomic publication. Новый bounded durable-ack residual и filesystem/native qualification gaps остаются."
+}

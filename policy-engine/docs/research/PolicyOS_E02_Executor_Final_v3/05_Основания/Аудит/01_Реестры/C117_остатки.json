@@ -1,0 +1,41 @@
+{
+  "pass_id": "C117",
+  "bundle": "DOE-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C117-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Pinned native backend и полная reproducibility ещё не квалифицированы",
+      "evidence": [
+        "S05",
+        "S06",
+        "S07",
+        "S08",
+        "P01",
+        "P02",
+        "P03",
+        "commands.json"
+      ],
+      "remaining": "Выполнить существующие реальные SALib 1.5.2 tests на поддерживаемом окружении. Проверять полный запрос с явно заданными uncertainty/model RNG streams, порядок независимых задач и отделение replay/cache-hit от новой реплики. Сохранить compatibility_pending отказ для seeded FAST и bounded LOGNORMAL.",
+      "limits": "True SciPy transform подтверждает смысл mapping, но не SALib sampler. Анализ bootstrap использует отдельный uncertainty.random_seed; фиксированный plan.seed не переаттестован как seed всех стадий. Native version receipt за пределами locked profile не проверен."
+    },
+    {
+      "id": "C117-G02",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Fingerprint текущего плана не аутентифицирует происхождение bare sample matrix",
+      "evidence": [
+        "S03:30–85",
+        "S01:296–339",
+        "P04"
+      ],
+      "remaining": "Квалифицировать существующую передачу exact design, закона, порядка осей, seed/replica и выбранного backend от producer к consumer. Связывать с существующим artifact/owner, а не создавать новый параллельный registry. Не считать metadata fingerprint доказательством независимости или научного качества.",
+      "limits": "Actual analyzer принимает bare arrays, а fingerprint вычисляет из переданного сейчас plan. Controlled uniform rows + normal plan получают normal receipt с fake numerical backend. Это qualification boundary API, не доказательство неверного native SALib индекса или текущего caller, подменяющего план."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "Единый typed bounded mapping и local backend seeds реализованы и bounded-подтверждены; native complete design provenance/reproducibility остаются G."
+}

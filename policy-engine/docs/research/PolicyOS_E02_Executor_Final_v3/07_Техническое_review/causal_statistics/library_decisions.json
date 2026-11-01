@@ -1,0 +1,416 @@
+{
+  "checked_date": "2026-11-01",
+  "status": "COMPLETE",
+  "policy": "Primary official docs/repositories; lock availability not runtime qualification; no installs",
+  "decisions": [
+    {
+      "id": "LIB-01",
+      "packets": [
+        "GRF-01",
+        "GRF-02",
+        "GRF-03"
+      ],
+      "current_baseline": "NetworkX3.6.1 + own endpoint-aware ADMG operators; Kuzu0.11.3 optional; rustworkx absent uv.lock",
+      "alternatives": [
+        "NetworkX DAG d_separation",
+        "rustworkx native graph",
+        "generic causal-discovery library"
+      ],
+      "decision": "retain endpoint semantic owner; reuse NetworkX for DAG operations and independent latent expansion oracle",
+      "rationale": "DAG separation is not ADMG/PAG endpoint semantics, perfect-do surgery, ID or IDC. Native storage must preserve occurrence multiplicity/marks/lag and cannot decide causal graph validity. Replacing custom owner with DiGraph loses required semantics; smaller prepared adjacency API removes repeated preparation safely.",
+      "complexity_and_cost": "m-separation uses finite endpoint-state walk with O(V+E) adjacency; prepare once per query. LRU128 bounds content entries, not automatically total bytes. Hash/adjacency count is not measured speedup. New accelerator only after same semantic corpus and material workload benefit.",
+      "compatibility": "NetworkX locked and pure Python; backend native wheels/OS are separate profile qualification. Kuzu archived: minimal compatibility repair preferred over unsolicited new store. rustworkx requires future declared pinned profile.",
+      "sources": [
+        {
+          "url": "https://networkx.org/documentation/stable/reference/algorithms/d_separation.html",
+          "checked": "2026-11-01",
+          "section": "d-separation requires DAG",
+          "applicability": "Not direct replacement of ADMG; independent latent DAG useful."
+        },
+        {
+          "url": "https://github.com/kuzudb/kuzu/",
+          "checked": "2026-11-01",
+          "section": "archive banner Oct10,2025",
+          "applicability": "Maintenance risk, not evidence of present runtime failure/security issue."
+        }
+      ],
+      "native_status": "NOT_RUN"
+    },
+    {
+      "id": "LIB-02",
+      "packets": [
+        "CAU-01"
+      ],
+      "current_baseline": "NumPy2.3.5 / stdlib NormalDist; Statsmodels0.14.6 available analytics extra",
+      "alternatives": [
+        "statsmodels cov_cluster",
+        "own group-score accumulation",
+        "SciPy norm.isf"
+      ],
+      "decision": "retain small explicit CR0 implementation + independent Statsmodels differential check configured use_correction=False",
+      "rationale": "Default cov_cluster has small-sample correction; silent library swap changes required CR0. Missing label fix belongs before partition, not in covariance backend. Dense integer unit map and grouped score sum avoid NaN equality drop. NormalDist lower-tail inverse meets tiny upper-tail requirement without new dependency.",
+      "complexity_and_cost": "Score matrix O(nk), aggregate O(Gk), covariance O(k²); no n×G one-hot. Avoid O(nG) repeated masks if large G measurement motivates indexed accumulation.",
+      "compatibility": "Statsmodels optional analytics group; not guaranteed installed by core. differential test must use actual selected dependency profile. CR0 asymptotic approximation does not gain finite-G validity from library provenance.",
+      "sources": [
+        {
+          "url": "https://www.statsmodels.org/v0.14.6/generated/statsmodels.stats.sandwich_covariance.cov_cluster.html",
+          "checked": "2026-11-01",
+          "section": "use_correction defaultTrue",
+          "applicability": "SetFalse to compare required CR0; check model/residual shape."
+        }
+      ],
+      "native_status": "NOT_RUN"
+    },
+    {
+      "id": "LIB-03",
+      "packets": [
+        "CAU-02"
+      ],
+      "current_baseline": "Custom staggered theta_sel/cell influence/Mammen multiplier path",
+      "alternatives": [
+        "R did::aggte",
+        "Statsmodels clustered covariance",
+        "new Python DiD framework"
+      ],
+      "decision": "retain explicitly defined theta_sel and finite-B inversion; external did only aligned reference, not drop-in estimator replacement",
+      "rationale": "Group aggregation/cell aggregation/calendar/dynamic weightings are different targets. Existing cohort-share derivative and single unit multiplier across cells are central; swapping generic robust SE or simple weighted ATT fails estimand. New platform would not simplify protocol/custody.",
+      "complexity_and_cost": "Cell influence matrix O(nC), bootstrap can stream draws O(n+C+B), avoid B×n×C tensor. B399 sets p resolution1/400; no claim arbitrarily precise tail. Campaign160 DGP cases done once.",
+      "compatibility": "R did is not parent Python dependency and needs separate authorized environment; no installation proposed. Exact target/control cohort/anticipation/normalization must match before comparison.",
+      "sources": [
+        {
+          "url": "https://bcallaway11.github.io/did/reference/aggte.html",
+          "checked": "2026-11-01",
+          "section": "aggregation types group/simple/dynamic/calendar",
+          "applicability": "Target semantics comparison only."
+        }
+      ],
+      "native_status": "NOT_RUN"
+    },
+    {
+      "id": "LIB-04",
+      "packets": [
+        "CAU-03"
+      ],
+      "current_baseline": "NumPy2.3.5, SciPy1.16.3 optional analytics, own conventional/RBC",
+      "alternatives": [
+        "NumPy economy SVD",
+        "SciPy lstsq gelsd/gelsy",
+        "Statsmodels WLS",
+        "rdrobust external reference"
+      ],
+      "decision": "use economy NumPy SVD once; repair explicit covariance contract; keep bounded RBC",
+      "rationale": "Normal equations square conditioning. SVD of sqrt(w)X gives common rank threshold and inverse/equivalent weights; small p makes cost modest. full_matrices=False mandatory. Statsmodels default WLS nonrobust covariance assumes inverse variance weights, so not independent fix for kernel RD. rdrobust valuable matching methodological reference, defaults differ.",
+      "complexity_and_cost": "O(np²+p³), storageO(np+p²); no N×N weights or full U. Reuse singular factors for point and covariance. RBC p/q solves remain separate mathematical fits; do not incorrectly demand a single decomposition across different bandwidths/degrees.",
+      "compatibility": "rdrobust not in lock, proposed only for separately pinned reference profile or justified future functionality. Current fixed sharp h,b HC0 is not rdrobust default NN/data-selected bandwidth equivalence.",
+      "sources": [
+        {
+          "url": "https://numpy.org/doc/2.3/reference/generated/numpy.linalg.svd.html",
+          "checked": "2026-11-01",
+          "section": "full_matrices and returned singular vectors",
+          "applicability": "Use economy matrices."
+        },
+        {
+          "url": "https://docs.scipy.org/doc/scipy-1.16.0/reference/generated/scipy.linalg.lstsq.html",
+          "checked": "2026-11-01",
+          "section": "cond/lapack_driver",
+          "applicability": "Alternative already available in analytics; gelsy lacks singular-values evidence."
+        },
+        {
+          "url": "https://www.statsmodels.org/v0.14.6/generated/statsmodels.regression.linear_model.WLS.html",
+          "checked": "2026-11-01",
+          "section": "weights",
+          "applicability": "Inverse variance assumption differs from kernel localization."
+        },
+        {
+          "url": "https://github.com/rdpackages/rdrobust/blob/main/Python/rdrobust/src/rdrobust/rdbwselect.py",
+          "checked": "2026-11-01",
+          "section": "vce/defaults/bandwidth selectors",
+          "applicability": "Explicit HC0/NN and h/b/p/q matching necessary."
+        }
+      ],
+      "native_status": "NOT_RUN"
+    },
+    {
+      "id": "LIB-05",
+      "packets": [
+        "CAU-04",
+        "SCM-01",
+        "SCM-02"
+      ],
+      "current_baseline": "Parent3.14; existing Linux worker3.12 DoWhy0.14 with its own lock",
+      "alternatives": [
+        "install parent DoWhy conditional extra",
+        "rewrite native estimator",
+        "existing worker protocol"
+      ],
+      "decision": "retain worker isolation and restricted profile",
+      "rationale": "The parent marker dowhy<.14 on python<3.13 is not selected worker dependency. Worker actually enforces Linux3.12/.14. Isolated request/response lets preserve parent DTO/CAS while qualifying exactly supported backend. Public broad DoWhy API does not imply actual worker supports mediation/nonlinear GCM/other contrasts.",
+      "complexity_and_cost": "Worker serialization and per-refit process overhead must be measured. Batch fitting replicas can help only preserving full source alignment and per-replica audit; no new service needed.",
+      "compatibility": "Worker lock numpy2.4.6/scipy1.15.3/statsmodels.15.0/networkx3.7/sklearn1.9.1 separate from parent; none executed. DoWhy library parity not independent OLS proof (CS-002).",
+      "sources": [
+        {
+          "url": "https://www.pywhy.org/dowhy/v0.14/_modules/dowhy/causal_estimators/linear_regression_estimator.html",
+          "checked": "2026-11-01",
+          "section": "_build_model/CI/SE",
+          "applicability": "Same Statsmodels backend as existing reference."
+        }
+      ],
+      "native_status": "NOT_RUN"
+    },
+    {
+      "id": "LIB-06",
+      "packets": [
+        "SCM-01",
+        "SCM-02",
+        "SCM-03"
+      ],
+      "current_baseline": "Own Gaussian partial abduction and aligned empirical roots; worker fitted linear ANM",
+      "alternatives": [
+        "DoWhy counterfactual_samples",
+        "SciPy multivariate_normal/Covariance",
+        "probabilistic-programming backend"
+      ],
+      "decision": "retain bounded analytic/finite posterior owner; use one normalized Gaussian factor; do not pretend arbitrary nonlinear posterior",
+      "rationale": "Stock DoWhy invertible-ANM counterfactual reconstructs observed noise; partial observations and aligned correlated roots require the explicit existing extension. Fully observed polynomial residual is algebraic, not generic nonlinear posterior. New PPL would expand approximation, dependencies, cost and query semantics without a requested need.",
+      "complexity_and_cost": "For observation operator A in whitened noise space, SVD once yields posterior mean/nullspace factor; draw m×r products, not repeat covariance factorization every sample. Dense covariance still O(m²), documented bound; empirical filtering O(Nroots×evidence), then sample eligible aligned row IDs preserving multiplicities.",
+      "compatibility": "SciPy factor objects optional and do not implement causal abduction. Parent NumPy suffices; worker selected mechanism contract remains linear. Partial arbitrary nonlinear/continuous exact conditioning on empirical zero-support observations remains explicit limitation.",
+      "sources": [
+        {
+          "url": "https://www.pywhy.org/dowhy/v0.14/user_guide/causal_tasks/what_if/counterfactuals.html",
+          "checked": "2026-11-01",
+          "section": "invertible noise assumptions and shared observed noise",
+          "applicability": "Reference for full-factual ANM; not turnkey partial posterior."
+        },
+        {
+          "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.Covariance.html",
+          "checked": "2026-11-01",
+          "section": "factor-based covariance representations",
+          "applicability": "Potential reuse, not replacement of causal model conditioning."
+        }
+      ],
+      "native_status": "NOT_RUN"
+    },
+    {
+      "id": "LIB-07",
+      "packets": [
+        "SCM-02"
+      ],
+      "current_baseline": "Real full-row refit bootstrap with selected worker",
+      "alternatives": [
+        "DoWhy fit_and_compute",
+        "query-only bootstrap",
+        "scipy.stats.bootstrap over frozen predictions"
+      ],
+      "decision": "retain full-row refit; independent target/quantile oracle added",
+      "rationale": "Only refitting addresses declared training-sampling variability. Query-only bootstrap studies fixed-model Monte Carlo/predictive variation. Generic bootstrap callback alone does not ensure aligned row/source/covariate/target identity; existing explicit protocol is useful.",
+      "complexity_and_cost": "R replicas×actual fit cost, finite20..500 boundary. Source validator may repeat fit; record validation cost separately. Interval evidence should reuse one frozen replica plan, not repeatedly rerun large campaign in each packet.",
+      "compatibility": "DoWhy0.14 fit_and_compute exists but would need semantic wrapper and source-index evidence; not inherently better than current worker protocol.",
+      "sources": [
+        {
+          "url": "https://www.pywhy.org/dowhy/v0.14/user_guide/modeling_gcm/estimating_confidence_intervals.html",
+          "checked": "2026-11-01",
+          "section": "fit_and_compute vs bootstrap_sampling; runtime tradeoff",
+          "applicability": "Library itself distinguishes retraining and frozen-model resampling."
+        }
+      ],
+      "native_status": "NOT_RUN"
+    },
+    {
+      "id": "LIB-08",
+      "packets": [
+        "SCM-03"
+      ],
+      "current_baseline": "SciPy1.16.3 (parent analytics); query stochastic-law parser",
+      "alternatives": [
+        "scipy.stats.truncnorm",
+        "clipped normal",
+        "naive rejection sampler"
+      ],
+      "decision": "prefer truncnorm for declared truncated law; clipping remains separate mechanism",
+      "rationale": "Clipping creates boundary atoms; tail rejection at8..9 is prohibitively unlikely. Existing library supports standardized bounds a=(lo-mu)/sd,b=(hi-mu)/sd. Parse/validate once and preserve declared intervention semantics.",
+      "complexity_and_cost": "Vectorized draws amortize overhead, but stable logical stream assignment must survive graph reorder. Independent quadrature/tail moment oracle must not call same truncnorm implementation.",
+      "compatibility": "Docs1.16.2 adjacent patch to locked1.16.3; exact locked runtime tail behavior still NOT_RUN. No new dependency if analytics selected; absence cannot silently become clipping.",
+      "sources": [
+        {
+          "url": "https://docs.scipy.org/doc/scipy-1.16.2/reference/generated/scipy.stats.truncnorm.html",
+          "checked": "2026-11-01",
+          "section": "Notes standardized truncation limits",
+          "applicability": "API semantics applies to1.16 branch; verify actual locked patch."
+        }
+      ],
+      "native_status": "NOT_RUN"
+    },
+    {
+      "id": "LIB-09",
+      "packets": [
+        "FIT-01"
+      ],
+      "current_baseline": "Existing sklearn1.8.0 nuisances, own TMLE fit-core/view, LocalWorkerPool, threadpoolctl3.6.0",
+      "alternatives": [
+        "sklearn fold-owned pipeline",
+        "EconML0.17.0 DML",
+        "new inner parallel scheduler"
+      ],
+      "decision": "repair fold-owned preprocessing; retain fit-core and serial-inner; do not replace TMLE by DML",
+      "rationale": "EconML has cross-fit estimators but DML estimand/orthogonal score differs from targeted TMLE. It does not supply project-specific immutable current-view/custody semantics. sklearn pipeline can enforce leakage discipline inside fit; existing fold API is simplest. Counter of concurrent folds does not measure BLAS/OpenMP threads.",
+      "complexity_and_cost": "Cost all folds×repeats remains scientific plan. n_jobs=1 addresses selected joblib estimators only; use existing threadpoolctl/profile to bound native threads where needed. Queue wait, RSS, fit calls and thread census measured separately, not all-fold serial assumed1thread.",
+      "compatibility": "Parent sklearn1.8.0 and EconML0.17.0 locked, actual install not proven. Current online sklearn stable1.9.1 docs checked against1.8.0 source for ElasticNet objective. No distributed service/extra worker tokens proposed.",
+      "sources": [
+        {
+          "url": "https://github.com/scikit-learn/scikit-learn/blob/1.8.0/sklearn/linear_model/_coordinate_descent.py",
+          "checked": "2026-11-01",
+          "section": "ElasticNet objective",
+          "applicability": "Fixed alpha depends on global target scale."
+        },
+        {
+          "url": "https://scikit-learn.org/stable/common_pitfalls.html",
+          "checked": "2026-11-01",
+          "section": "data leakage and pipelines",
+          "applicability": "Train-only preprocessing discipline."
+        },
+        {
+          "url": "https://scikit-learn.org/stable/computing/parallelism.html",
+          "checked": "2026-11-01",
+          "section": "joblib vs OpenMP vs BLAS",
+          "applicability": "n_jobs is not total process threads."
+        },
+        {
+          "url": "https://github.com/py-why/EconML/blob/main/doc/spec/estimation/dml.rst",
+          "checked": "2026-11-01",
+          "section": "DML nuisance crossfit/final score",
+          "applicability": "Realistic existing alternative for a different estimator, not drop-in TMLE."
+        },
+        {
+          "url": "https://docs.jax.dev/en/latest/101/default_dtypes.html",
+          "checked": "2026-11-01",
+          "section": "X64 flag/default dtype",
+          "applicability": "JAX migration is not proposed; any later path requires explicit x64/precision profile, not parent lock inference."
+        }
+      ],
+      "native_status": "NOT_RUN"
+    },
+    {
+      "id": "LIB-10",
+      "packets": [
+        "BER-01"
+      ],
+      "current_baseline": "Own exact finite-coalition empirical Shapley<=10 features; SHAP0.54.1 in lock transitively",
+      "alternatives": [
+        "SHAP TreeExplainer",
+        "SHAP KernelExplainer",
+        "existing exact enumeration"
+      ],
+      "decision": "retain exact small-dimension empirical owner and alias cache; genuine tree adapter conditional on actual tree model",
+      "rationale": "ScalarModel callable does not expose tree structure. TreeExplainer requires supported model and declared feature-dependence/background policy. Same effective empirical explainer under several aliases is not independent method agreement. Keep fallback truthful and numerical outputs independent of alias order.",
+      "complexity_and_cost": "Exact coalition evaluation O(B*2^d) model rows, attribution O(d*2^d), memory potentially O(2^d). d<=10 meaningful resource scope, not arbitrary feature capability. Cache per effective request/model/background/data identity; no alias-dependent rerun.",
+      "compatibility": "SHAP lock presence via causal dependency does not grant mandatory BER core availability. No direct swap justified by popularity; actual TreeSHAP optional route requires its own law and tests.",
+      "sources": [
+        {
+          "url": "https://shap.readthedocs.io/en/stable/generated/shap.TreeExplainer.html",
+          "checked": "2026-11-01",
+          "section": "model/background/feature_perturbation",
+          "applicability": "Tree structure and dependence semantics are prerequisites."
+        }
+      ],
+      "native_status": "NOT_RUN"
+    },
+    {
+      "id": "LIB-11",
+      "packets": [
+        "BER-01",
+        "DDM-01",
+        "DDM-02"
+      ],
+      "current_baseline": "Pydantic2.12.5/jsonschema4.25.1/rfc3339-validator.1.4",
+      "alternatives": [
+        "second validation framework",
+        "existing strict JSON loader helper"
+      ],
+      "decision": "reuse existing strict wire intake, neutral owner; preserve construction API separately",
+      "rationale": "Strict persisted boundary and ergonomic Python construction are different APIs. Moving canonical classes again adds risk without semantic benefit. Format checking requires active checker, not only schema format keyword. Aliases preserve class identity/FQN; source-backed applicability remains domain owner.",
+      "complexity_and_cost": "Single parse/validation on selected input; avoid repeated JSON→dict→coercing model roundtrips. Small schemas not performance bottleneck; drift and parser provenance matter.",
+      "compatibility": "Already pinned libraries; no new dependencies needed. Native package/resources/oldFQN lifecycle evidence separate from source validation.",
+      "sources": [
+        {
+          "url": "https://docs.pydantic.dev/latest/concepts/strict_mode/",
+          "checked": "2026-11-01",
+          "section": "strict mode JSON vs Python input",
+          "applicability": "Do not assume model_validate equals strict JSON wire."
+        }
+      ],
+      "native_status": "NOT_RUN"
+    },
+    {
+      "id": "LIB-12",
+      "packets": [
+        "DDM-02"
+      ],
+      "current_baseline": "Existing deterministic MBB helper; arch8.0.0 locked analytics",
+      "alternatives": [
+        "arch MovingBlockBootstrap",
+        "raw stream maxima quantile",
+        "custom new resampling framework"
+      ],
+      "decision": "retain simple raw quantile when that is actual method; consider arch for real block resampling, not blanket replacement",
+      "rationale": "MBB library handles indices/blocks/seed but cannot establish independent holdout, stationary regime, source authority or risk policy. Existing helper is small; replace only with exact semantics/reproducibility migration. Current calibration_method label must be truthful regardless of library.",
+      "complexity_and_cost": "Stream maxima O(total samples), quantile sorting O(MlogM); MBB O(B*length). Maintain whole contiguous block dependence, not independently sampled scalar positions. Denominator is independent windows only when data/source basis supports that model.",
+      "compatibility": "arch8.0.0 in lock, analytics optional. Runtime3.14 wheel qualification not asserted. No FP/FDR theorem from Wilson plus library choice.",
+      "sources": [
+        {
+          "url": "https://bashtage.github.io/arch/bootstrap/generated/arch.bootstrap.MovingBlockBootstrap.html",
+          "checked": "2026-11-01",
+          "section": "block_size/seed/index/state",
+          "applicability": "Existing compatible option for genuine resampling with inspectable indices."
+        }
+      ],
+      "native_status": "NOT_RUN"
+    },
+    {
+      "id": "LIB-13",
+      "packets": [
+        "CAU-04",
+        "SCM-01",
+        "SCM-02",
+        "SCM-03"
+      ],
+      "current_baseline": "SALib1.5.2 optional sensitivity, DoWhy worker restricted API",
+      "alternatives": [
+        "SALib Sobol/Morris",
+        "DoWhy refutation/sensitivity",
+        "same synthetic DGP repeats"
+      ],
+      "decision": "use sensitivity methods only for their declared uncertainty question; no new generic engine required for repairs",
+      "rationale": "SALib explores response to assumed input distributions; not a test of causal graph truth or hidden confounding. DoWhy refuters/sensitivity can challenge specified estimates, not establish identifiability. None substitute for exact conditional joint-law semantics or independent estimator oracle.",
+      "complexity_and_cost": "Global sensitivity needs many model calls and explicit joint input law; correlated empirical roots invalidate independent-input shortcuts. Schedule separately from unit repairs and source/custody acceptance.",
+      "compatibility": "SALib locked optional; actual selected worker exposes only finite operations, so public DoWhy sensitivity methods are proposed capability, not already callable support.",
+      "sources": [
+        {
+          "url": "https://salib.readthedocs.io/en/latest/user_guide/basics.html",
+          "checked": "2026-11-01",
+          "section": "sample→model evaluate→analyze",
+          "applicability": "Forward sensitivity workflow, not causal identification."
+        }
+      ],
+      "native_status": "NOT_RUN"
+    },
+    {
+      "id": "LIB-14",
+      "packets": [
+        "LEX-01",
+        "API-01"
+      ],
+      "current_baseline": "Python stdlib ast/tuple/dict + existing domain schemas/CAS",
+      "alternatives": [
+        "generic AST refactoring framework",
+        "JSON pointer libraries",
+        "new fingerprint store"
+      ],
+      "decision": "retain stdlib and existing owners",
+      "rationale": "AST finite full-census and package-relative resolution are enough for literal import gap. Typed segment tuple fixes slash ambiguity without changing fingerprint version. New libraries do not solve semantic lifecycle/historical evidence.",
+      "complexity_and_cost": "AST census O(total tracked source bytes); issue grouping expectedO(n), bucket sorting O(sum m logm). Keep multiplicity rather than converting to sets.",
+      "compatibility": "No new dependencies or generated runtime changes. Root pnpm10.33.2/node22 profile inspected; these repairs remain Python owners, JS stack is not a numerical alternative.",
+      "sources": [],
+      "native_status": "NOT_RUN"
+    }
+  ]
+}

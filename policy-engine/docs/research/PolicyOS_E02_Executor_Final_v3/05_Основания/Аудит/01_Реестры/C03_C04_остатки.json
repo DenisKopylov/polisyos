@@ -1,0 +1,98 @@
+{
+  "release": "v002",
+  "items": [
+    {
+      "id": "R01",
+      "work_type": "verification",
+      "bundle": "CYC-03",
+      "original_ids": [
+        "B09",
+        "B27",
+        "B28"
+      ],
+      "next_work": "Исполнить существующий actual sequential test A→B→B→B→C в штатном Python/check-out.",
+      "qualification": "Чтение теста не является результатом исполнения; не писать ещё один дубль.",
+      "product_change_performed": false
+    },
+    {
+      "id": "R02",
+      "work_type": "verification",
+      "bundle": "ACQ-01",
+      "original_ids": [
+        "B12",
+        "LA-046"
+      ],
+      "next_work": "Квалифицировать реальные compiler/planner missing-bytes и state/NCM mutation controls.",
+      "qualification": "Тесты уже найдены; не объявлять их отсутствующими.",
+      "product_change_performed": false
+    },
+    {
+      "id": "R03",
+      "work_type": "inherited_confirmed_source_counterexample",
+      "bundle": "REQ-01 / ACQ-01",
+      "original_ids": [
+        "LA-046"
+      ],
+      "next_work": "Исправить education_policy→fiscal на existing adapter и проверить настоящий consumer.",
+      "qualification": "Дефект из прежних source probes; новый product regression здесь не запускался.",
+      "product_change_performed": false
+    },
+    {
+      "id": "R04",
+      "work_type": "capability_expansion_or_discovery_verification",
+      "bundle": "CYC-03 / ACQ-01",
+      "original_ids": [
+        "B09",
+        "B12"
+      ],
+      "next_work": "Второй содержательно иной поддержанный profile через existing owners, с учётом ручной подготовки.",
+      "qualification": "Не доказано отсутствие иных реализаций в репозитории; текущий audited profile узок.",
+      "product_change_performed": false
+    },
+    {
+      "id": "R05",
+      "work_type": "capability_scope_verification",
+      "bundle": "CYC-03",
+      "original_ids": [
+        "B09",
+        "B27"
+      ],
+      "next_work": "Установить переходы по изменению модели, метода, ограничения и разрешённой реплики.",
+      "qualification": "Не сводить к снятию grammar guard и не навязывать новые DTO без фактической потребности.",
+      "product_change_performed": false
+    },
+    {
+      "id": "R06",
+      "work_type": "semantic_scope_verification",
+      "bundle": "CYC-03",
+      "original_ids": [
+        "B09"
+      ],
+      "next_work": "Различить одинаковый эффективный input и новое независимое измерение того же значения.",
+      "qualification": "Контролируемый single-observation NCM profile не устанавливает общий sampling/reuse закон.",
+      "product_change_performed": false
+    },
+    {
+      "id": "R07",
+      "work_type": "consumer_verification",
+      "bundle": "CYC-03",
+      "original_ids": [
+        "B28"
+      ],
+      "next_work": "Квалифицировать актуальную occurrence на реально используемых HTTP/export/UI границах.",
+      "qualification": "GET source прочитан; browser rendering/dashboard integration здесь не запускались.",
+      "product_change_performed": false
+    },
+    {
+      "id": "R08",
+      "work_type": "verification",
+      "bundle": "ACQ-01",
+      "original_ids": [
+        "B12"
+      ],
+      "next_work": "Адресно квалифицировать recovery/concurrent selected frontier на той же поддерживаемой композиции.",
+      "qualification": "Настоящие dispatch/fences прочитаны; не заявлен новый race-баг или отсутствие существующих tests.",
+      "product_change_performed": false
+    }
+  ]
+}

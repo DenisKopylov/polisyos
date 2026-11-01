@@ -1,0 +1,69 @@
+{
+  "pass": "C69",
+  "bundle": "RUN-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C69-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "confidence": "high_in_controlled_EOF_liveness_case",
+      "source_ids": [
+        "B24"
+      ],
+      "title": "EOF до completion mark классифицируется как compute timeout, даже когда deadline ещё впереди",
+      "evidence": [
+        "S01:2688–2738",
+        "S01:2741–2790",
+        "P04"
+      ],
+      "actual": "Оба actual drain owners при последнем observed is_alive=True и раннем EOF немедленно дают _WorkerComputeTimeout с почти10секундами оставшегося бюджета. Если процесс уже виден завершённым, тот же no-mark случай даёт _WorkerProcessExited(exitcode23). При наличии timely mark EOF даёт _WorkerDeliveryTimeout.",
+      "remaining": "Согласовать ранний channel EOF с отдельной crash/transport diagnostic и актуальным exit status, не ждать полного compute budget и не ослаблять fail-closed. Проверить оба порядка наблюдения process exit/EOF и sync/async symmetry. Не менять успешную drain-before-join схему.",
+      "limits": "Контролируемый liveness/channel interleaving, не измеренная частота реальных аварий. Во всех controls нет success; data corruption, потеря completed результата или обход cleanup не доказаны. Это диагностический остаток низкой тяжести."
+    },
+    {
+      "id": "C69-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B24"
+      ],
+      "title": "Полный Core-bound Linux supervisor и descendant cleanup требуют native прогона",
+      "evidence": [
+        "S01:245–427",
+        "S01:2944–3214",
+        "S01:3297–3716",
+        "S03:1794–1832",
+        "S03:2225–2320",
+        "P01",
+        "P02",
+        "P03",
+        "P05",
+        "P07"
+      ],
+      "remaining": "В поддерживаемом runtime исполнить existing small/1MiB sync/async tests через actual wrapper и Core owner, плюс descendant cleanup после timeout и worker exit, actual worker receipt/trace admission, corrupt send и interrupted job. Один общий LANE-06 integration должен совместить deadline, typed state and current publication; не дублировать тяжёлый сценарий для каждого пакета.",
+      "limits": "Probe использует настоящие pipe/drain/worker/codec и прямые owned process groups, но не actual supervisor/subreaper и не Core parent capability/receipt admission. Descendants не создавались. Completion predicate fixture для finite shared double; Python3.14 function body не транспилировался."
+    },
+    {
+      "id": "C69-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B24"
+      ],
+      "title": "Native macOS spawn, allowlist и закрытый context wire не аттестованы Linux fork опытом",
+      "evidence": [
+        "S01:2507–2530",
+        "S01:2831–2941",
+        "S01:3217–3280",
+        "S02:1732–1902",
+        "S04:1–312"
+      ],
+      "remaining": "На native macOS проверить current supported canonical nodes, exact task/params/state/attempt/owner bindings, small/large delivery, cleanup и отказ unsupported context без silent fallback. Сохранить existing typed serializer/admission, не менять fork на spawn одним словом и не расширять allowlist без producer/consumer evidence.",
+      "limits": "Код выбирает Darwin spawn и ограниченные canonical node IDs; это полезная реализация, не отсутствие платформенной работы. Но текущая среда Linux, штатный retry import blocked, Darwin-only test прочитан и UNRUN. Ray/Temporal не проверены."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C69-R01"
+  ],
+  "decision": "Join-before-drain repair подтверждён actual channel/codec bounded Linux process wave. Один low early-EOF diagnostic residual; native supervisor/custody/macOS остаются открытыми."
+}

@@ -1,0 +1,41 @@
+{
+  "pass_id": "C121",
+  "bundle": "DDM-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C121-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Полная native qualification поддерживаемого tooling остаётся открытой",
+      "evidence": [
+        "P01",
+        "P02",
+        "P05",
+        "commands.json",
+        "format_environment.stdout",
+        "S17:169–179"
+      ],
+      "remaining": "В supported environment выполнить existing facade/compatibility/fresh-consumer suites, включая jsonschema format-nongpl date-time guard, типизацию/import checks и packaging. Не менять product schema из-за отсутствующего локального dependency и не объявлять format validated по факту создания FormatChecker.",
+      "limits": "Native product imports и monitor fixture реальны. Pytest отсутствует;Ровно10 unchanged bodies/19cases,18PASS/1environmentFAIL. Runtime Pydantic отдельно отверг malformed date. Импортное время/память и wheel/sdist не измерены."
+    },
+    {
+      "id": "C121-G02",
+      "kind": "qualification_gap",
+      "severity": "low",
+      "title": "Historical artifacts/plugins и applicability не закрываются relocation controls",
+      "evidence": [
+        "P03",
+        "P04",
+        "P06",
+        "S12",
+        "S13"
+      ],
+      "remaining": "Проверить обнаруженный реальный historical FQN/plugin/serialized corpus при наличии; сохранить прежние exports до конца supported migration. Validity/report/observation-window/R2 signoff/non-overridable failures проверять отдельно в следующемDDM-02, не выдавать canonical class identity за gate equivalence.",
+      "limits": "Fresh cold reader успешно загрузил самогенерируемые old-FQN event/budget pickle. Это не replay неизвестных исторических bytes. Поля CalibrationValidityProjection и optional subject identity вCalibrationAudit являются current extensions, не доказательством byte-equivalent relocation commit. Manual channel schema и runtime window validator сохраняются как разные полезные проверки."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "Neutral contract owner/lazy facade repair подтверждён actual imports и typed consumer. Подтверждённых новых defect нет; environment/historical/applicability qualification остаётся."
+}

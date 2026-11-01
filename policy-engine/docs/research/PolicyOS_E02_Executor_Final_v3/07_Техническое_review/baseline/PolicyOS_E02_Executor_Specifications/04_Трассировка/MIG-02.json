@@ -1,0 +1,247 @@
+{
+  "packet_id": "MIG-02",
+  "lane": "LANE-06",
+  "source_ids": [
+    "LA-048"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/MIG-02.md",
+    "../05_Основания/Аудит/01_Реестры/C80_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C80-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-MIG-02-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Registered native CLI/Runtime persisted roundtrip и shared writer failure свидетельство MIG-01.",
+      "inventory_id": "audit-residual:C80_остатки:0"
+    },
+    {
+      "audit_id": "C80-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-MIG-02-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Явно квалифицировать root/CWD, narrow path-only профиль и point-in-time limitation вместо обещания relocation.",
+      "inventory_id": "audit-residual:C80_остатки:1"
+    },
+    {
+      "audit_id": "C80-G03",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-MIG-02-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Source-qualified historical layouts и actual readers; собственный новый run не весь old corpus.",
+      "inventory_id": "audit-residual:C80_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-MIG-02-01",
+      "text": "Actual Runtime writer создаёт RunManifest1.0 с artifacts, registered CLI преобразует копию JSON/YAML, fresh native Runtime DTO/resolver читает те же resolved paths и bytes для каждого entry. Весь список проходит preflight до _dump: mixed valid+missing/conflicting/escape entry сохраняет old output/input. Shared C79-R01 закрывается REQ-MIG-01-01; run_manifest ветка подтверждает использование того же исправленного writer без своего patch.",
+      "source_ids": [
+        "LA-048"
+      ],
+      "audit_ids": [
+        "C80-G01"
+      ],
+      "test_ids": [
+        "TEST-MIG-02-01"
+      ]
+    },
+    {
+      "id": "REQ-MIG-02-02",
+      "text": "Normalization использует declared run_root либо documented input.parent.parent default, сохраняет root spelling и nested source identity. Relative root остаётся привязанным к явно записанному CWD; перенос output manifest не меняет artifact root. External/missing/broken-link/conflicting identities и любой --to отказаны; внутренний symlink может нормализоваться к тому же внутреннему target. Никакой физический move/copy, arbitrary rebase или immutable snapshot не обещается.",
+      "source_ids": [
+        "LA-048"
+      ],
+      "audit_ids": [
+        "C80-G02"
+      ],
+      "test_ids": [
+        "TEST-MIG-02-02"
+      ]
+    },
+    {
+      "id": "REQ-MIG-02-03",
+      "text": "Для конечного перечня реально поддержанных исторических RunManifest layouts проверить existing reader до/после normalization без изменения исходных bytes. Нельзя заменить Runtime1.0 похожим Core DTO, объявить journal/pickle recovery проверенным или повысить point-in-time same-path до scientific/release authority. Неподдержанный layout получает явную диагностическую границу, не basename fallback.",
+      "source_ids": [
+        "LA-048"
+      ],
+      "audit_ids": [
+        "C80-G03"
+      ],
+      "test_ids": [
+        "TEST-MIG-02-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-MIG-02-01",
+      "requirement_ids": [
+        "REQ-MIG-02-01"
+      ],
+      "level": "native Runtime producer → registered CLI → fresh reader",
+      "setup": "Temporary own Runtime start/log/finalize run с audit/payload; absolute declared root, JSON/YAML inputs, output в другом каталоге.",
+      "action": "Normalize, parse actual RunManifest, resolve all artifacts and compare bytes SHA; repeat; mixed second entry missing; reuse MIG-01 output faults.",
+      "oracle": "Каждый resolved path/bytes до=после; повтор idempotent, source unchanged, schema1.0/status preserved. Invalid second entry не публикует partial first; общий writer faults temp0/old output preserved по MIG-01 evidence.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-MIG-02-02",
+      "requirement_ids": [
+        "REQ-MIG-02-02"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "sub/data.json='original', root/data.json='unrelated'; два внешних same-basename files; relative root under fixed CWD; valid/broken/escape symlinks.",
+      "action": "Normalize supported cases, переместить только output file, сменить CWD для characterization, вызвать --to9.9.",
+      "oracle": "Ни один substitute basename не выбран; same root сохраняет original. External/--to/escape/missing точный RunManifestPathMigrationError. Relative root CWD-dependence явно отражена, не portable relocation promise; converter не копирует files.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-MIG-02-03",
+      "requirement_ids": [
+        "REQ-MIG-02-03"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Source-qualified old-run layout corpus с version/provenance и checksums; existing native readers.",
+      "action": "Read original and normalized copy при объявленном root; unsupported layout controls; inspect independent quality/journal consumers.",
+      "oracle": "Поддержанные layouts читаются без DTO substitution/byte rewriting; corpus границы названы. Journal/pickle не PASS без собственного теста; converter outcome не утверждает immutable custody или content validity.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-E"
+  ],
+  "dependencies": [
+    "MIG-01"
+  ],
+  "preservation": [
+    "Runtime manifest_migrations — единственный path converter; все entries preflight проверяются до output.",
+    "Значимые subdirectories, resolved source identity/containment, deepcopy и exact conflicting path отказ.",
+    "Никакого external copy; --to явно отказан в path-only режиме; RunManifest1.0 reader/writer остаются."
+  ],
+  "design_alignment": [
+    "Same addressed object и custody/authority различены; conversion не создаёт доказательства содержания.",
+    "Небольшой Runtime-owned normalization обслуживает новые совместимые layouts через явный profile, не через case-by-case basename heuristics."
+  ],
+  "open_decisions": [
+    "Зафиксировать supported historical layouts и CWD/root binding; при недоступном corpus G03 остаётся qualified limitation.",
+    "Shared cleanup evidence требует принятого MIG-01 patch; native happy path MIG-02 не закрывает его сам."
+  ],
+  "source_obligations": [
+    "LA-048: историческая inline basename логика уже заменена actual Runtime owner; не выполнять move повторно.",
+    "Исходное предложение rebase/relocation сужено до явного normalization profile: root сохраняется, unsupported external/--to честно отказаны. Новый relocation engine без реальной потребности не нужен.",
+    "LK15/LK27: Runtime persisted schema и containment/binding сохраняются; совпадение адреса в момент проверки не immutable custody."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/runtime/manifest_migrations.py: migrate_run_manifest_paths, _source_root, _canonical_reference",
+    "policy-engine/src/polisyos/runtime/api.py: resolve_artifact_path and persisted writer",
+    "policy-engine/src/polisyos/runtime/manifest: RunManifest, ArtifactRef",
+    "policy-engine/tools/ops_runners/migrations/migrate.py: run_manifest branch, _dump"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_mig_02.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0469",
+      "requirement_ids": [
+        "REQ-MIG-02-01"
+      ],
+      "disposition": "qualify",
+      "rationale": "Registered native CLI/Runtime persisted roundtrip и shared writer failure свидетельство MIG-01."
+    },
+    {
+      "inventory_id": "remaining:0470",
+      "requirement_ids": [
+        "REQ-MIG-02-02"
+      ],
+      "disposition": "qualify",
+      "rationale": "Явно квалифицировать root/CWD, narrow path-only профиль и point-in-time limitation вместо обещания relocation."
+    },
+    {
+      "inventory_id": "remaining:0471",
+      "requirement_ids": [
+        "REQ-MIG-02-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Source-qualified historical layouts и actual readers; собственный новый run не весь old corpus."
+    },
+    {
+      "inventory_id": "remaining:0472",
+      "requirement_ids": [
+        "REQ-MIG-02-01"
+      ],
+      "disposition": "shared",
+      "rationale": "Общий temp cleanup исправляет MIG-01 REQ-MIG-01-01; здесь native run_manifest branch потребляет тот же writer и повторно использует fault evidence."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0769",
+      "requirement_ids": [
+        "REQ-MIG-02-01"
+      ],
+      "test_ids": [
+        "TEST-MIG-02-01"
+      ],
+      "rationale": "Runtime converter owner — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0770",
+      "requirement_ids": [
+        "REQ-MIG-02-01",
+        "REQ-MIG-02-02"
+      ],
+      "test_ids": [
+        "TEST-MIG-02-01",
+        "TEST-MIG-02-02"
+      ],
+      "rationale": "Nested source identity и real-path containment — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0771",
+      "requirement_ids": [
+        "REQ-MIG-02-01"
+      ],
+      "test_ids": [
+        "TEST-MIG-02-01"
+      ],
+      "rationale": "Preflight всех entries до output — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0772",
+      "requirement_ids": [
+        "REQ-MIG-02-02"
+      ],
+      "test_ids": [
+        "TEST-MIG-02-02"
+      ],
+      "rationale": "No external copy и explicit --to refusal — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0773",
+      "requirement_ids": [
+        "REQ-MIG-02-01",
+        "REQ-MIG-02-03"
+      ],
+      "test_ids": [
+        "TEST-MIG-02-01",
+        "TEST-MIG-02-03"
+      ],
+      "rationale": "RunManifest1.0 и actual reader — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

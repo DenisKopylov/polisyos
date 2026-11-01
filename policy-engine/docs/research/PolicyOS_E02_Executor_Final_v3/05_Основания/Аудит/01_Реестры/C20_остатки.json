@@ -1,0 +1,84 @@
+{
+  "pass": "C20",
+  "bundle": "OPT-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C20-R01",
+      "type": "confirmed_local_defect",
+      "severity": "low_to_medium_conditional",
+      "confidence": "high_local",
+      "source_ids": [
+        "B114"
+      ],
+      "location": "bayesian.py:1197–1207",
+      "mechanism": "max_train_size=1 даёт recent_n=0 и весь корпус через [-0:].",
+      "evidence": [
+        "P08",
+        "P09",
+        "P10"
+      ],
+      "preserve": "Обычный recent/diverse subset и default cap=512.",
+      "remaining": "Определить допустимый диапазон caps и обработать пустую recent-часть; test cap=1.",
+      "limits": "Не измерены production память/время; cap=4 работает."
+    },
+    {
+      "id": "C20-R02",
+      "type": "confirmed_local_atomicity_defect",
+      "severity": "medium_conditional",
+      "confidence": "high_local",
+      "source_ids": [
+        "B115"
+      ],
+      "location": "bayesian.py:1085–1195",
+      "mechanism": "Поздний отказ GP snapshot возникает после мутации base state и удаления live model.",
+      "evidence": [
+        "P19"
+      ],
+      "preserve": "Ранние basis/counter отказы и корректный conditioning/refit.",
+      "remaining": "Полностью проверить новое состояние до замены текущего; отрицательный test на уже живом owner.",
+      "limits": "Точные AST-тела с NumPy tensor boundary; реальные model bytes не загружались."
+    },
+    {
+      "id": "C20-G01",
+      "type": "native_numerical_and_cost_qualification",
+      "source_ids": [
+        "B114",
+        "B115"
+      ],
+      "evidence": [
+        "S08",
+        "S09",
+        "S10"
+      ],
+      "remaining": "Исполнить найденные native GP/CAS/MethodJob tests, posterior/transform/noise oracle и оценить стоимость; fixtures не заменяют их."
+    },
+    {
+      "id": "C20-G02",
+      "type": "existing_test_contract_drift",
+      "source_ids": [
+        "B114"
+      ],
+      "evidence": [
+        "P18",
+        "S08"
+      ],
+      "remaining": "Согласовать batch iteration expectations 0 с текущим history_count; реальный suite UNRUN."
+    },
+    {
+      "id": "C20-G03",
+      "type": "conditioning_source_verifier_composition_qualification",
+      "source_ids": [
+        "B114",
+        "B115"
+      ],
+      "evidence": [
+        "S01",
+        "S07",
+        "S10"
+      ],
+      "remaining": "Проверить source admission после genuinely conditioned model: verifier выполняет fresh full refit, найденный e2e задаёт refit_interval=1. Native расхождение не воспроизведено."
+    }
+  ]
+}

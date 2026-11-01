@@ -1,0 +1,454 @@
+{
+  "packet_id": "FUN-02",
+  "lane": "LANE-02",
+  "title": "Честные fidelity, score и interval semantics",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B157",
+    "B160",
+    "B162",
+    "B165"
+  ],
+  "audit_reports": [
+    "02_Пакеты/FUN-02.md"
+  ],
+  "audit_report_sha256": "175cff603764a8ce8d4be0e14afe3dc4264c766b23031a5c6da52146a3bfbeed",
+  "sourceplan_lines": [
+    2805,
+    2932
+  ],
+  "practical_goal": "Получать полезный reduced/full результат без aliasing и ложной bootstrap certainty; empty/partial/zero остаются различимыми у настоящего consumer.",
+  "requirements": [
+    {
+      "id": "REQ-FUN-02-01",
+      "text": "Квалифицировать actual effective L3/L4 config и physical work, сохраняя минимальные owned mapping copies.",
+      "source_ids": [
+        "B157",
+        "B160",
+        "B162",
+        "B165"
+      ],
+      "audit_ids": [
+        "remaining:0267",
+        "preserve:0395",
+        "preserve:0396",
+        "audit-residual:C23_остатки:2"
+      ],
+      "test_ids": [
+        "TEST-FUN-02-01"
+      ]
+    },
+    {
+      "id": "REQ-FUN-02-02",
+      "text": "Выполненный source-admitted zero, empty и partial сохраняют разные score/aggregate verdict у всех affected consumers.",
+      "source_ids": [
+        "B157",
+        "B160",
+        "B162",
+        "B165"
+      ],
+      "audit_ids": [
+        "remaining:0272",
+        "remaining:0282",
+        "preserve:0401",
+        "preserve:0402",
+        "preserve:0411",
+        "preserve:0412",
+        "audit-residual:C23_остатки:3",
+        "audit-residual:C23_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-FUN-02-02"
+      ]
+    },
+    {
+      "id": "REQ-FUN-02-03",
+      "text": "Нормировка width/(2*abs(effect)) устойчива для всех finite диапазонов, включая subnormal; missing/invalid/zero остаются typed.",
+      "source_ids": [
+        "B157",
+        "B160",
+        "B162",
+        "B165"
+      ],
+      "audit_ids": [
+        "remaining:0275",
+        "preserve:0405",
+        "preserve:0406",
+        "audit-residual:C23_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-FUN-02-03"
+      ]
+    },
+    {
+      "id": "REQ-FUN-02-04",
+      "text": "Метод uncertainty следует фактическому interval producer, а не имени bootstrap key/fidelity.",
+      "source_ids": [
+        "B157",
+        "B160",
+        "B162",
+        "B165"
+      ],
+      "audit_ids": [
+        "remaining:0276",
+        "remaining:0282",
+        "preserve:0412",
+        "audit-residual:C23_остатки:1",
+        "audit-residual:C23_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-FUN-02-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-FUN-02-01",
+      "requirement_ids": [
+        "REQ-FUN-02-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Caller fraction1/bootstrap500/full SCM, L3 fraction0.2/bootstrap50/reduced; actual engine с instrumented work counters и dataset handles.",
+      "action": "Run direct full и reduced→full; сравнить input digests, output basis, физические calls/draws и costs.",
+      "oracle": "Caller и full input неизменны; reduced реально использует свой меньший declared work, full не наследует overlay; handles не копируются без причины.",
+      "expected": "Requested500 не executed500. Если backend не умеет draws accounting, явно not_instrumented, без утверждения меньшей стоимости.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-FUN-02-02",
+      "requirement_ids": [
+        "REQ-FUN-02-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Empty stages, cap исключает L4, actual valid zero objective, stage APPROVE + aggregate defer/reject, поле stage verdict присутствует/отсутствует.",
+      "action": "Actual stage/source→orchestrator→Stage B→blueprint persistence→fresh consumer.",
+      "oracle": "Empty None/NOT_EVALUATED; zero0 сохранён; partial0 остаётся DEFER/partial, не full APPROVE; optional stage verdict не меняет aggregate.",
+      "expected": "Неверные/missing units не обойти для zero. Старый L4 fixture без units исправить по настоящему контракту, не ослабить admission.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-FUN-02-03",
+      "requirement_ids": [
+        "REQ-FUN-02-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "width=effect=1e308; оба равны минимальному positive subnormal; width0/effect2; width0.4/effect2; huge int10**400; bool/NaN/negative/missing.",
+      "action": "Вызвать actual helper и L3/L4 adapters, сравнить exact rational rounded oracle и typed reason.",
+      "oracle": "Оба equal-scale extreme случая дают0.5; 0.4/4≈0.1 в ≤1ULP от rounded reference; настоящие zero cases сохраняются; invalid не bootstrap measurement.",
+      "expected": "Effect0 width>0→declared level1 proxy, both0→0; никакого произвольного clipping входов или универсального scientific CI вывода.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-FUN-02-04",
+      "requirement_ids": [
+        "REQ-FUN-02-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Actual native producer heuristic width0.1, effect1 и not_instrumented; отдельно настоящий source-owned interval с известным method/input/units; tampered method/source.",
+      "action": "Producer→L4 envelope→persist→actual routing/display consumer.",
+      "oracle": "Heuristic ratio0.05 остаётся proxy; только подтверждённый interval имеет свой реальный method; tamper не становится measured CI.",
+      "expected": "Нулевой interval не blanket запрещён; validity требует конкретного source method. Scientific uncertainty/current assessment остаётся FUN-03/UQS owner, а не scalar helper.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C23_остатки:0",
+      "requirement_ids": [
+        "REQ-FUN-02-03"
+      ],
+      "rationale": "Stable ratio с exact reference.",
+      "disposition": "fix",
+      "audit_id": "C23-R01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C23_остатки:1",
+      "requirement_ids": [
+        "REQ-FUN-02-04"
+      ],
+      "rationale": "Heuristic не bootstrap.",
+      "disposition": "fix",
+      "audit_id": "C23-R02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C23_остатки:2",
+      "requirement_ids": [
+        "REQ-FUN-02-01"
+      ],
+      "rationale": "Actual work, не recording inputs alone.",
+      "disposition": "qualify",
+      "audit_id": "C23-G01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C23_остатки:3",
+      "requirement_ids": [
+        "REQ-FUN-02-02"
+      ],
+      "rationale": "Native runtime и согласование unit fixture.",
+      "disposition": "fix",
+      "audit_id": "C23-G02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C23_остатки:4",
+      "requirement_ids": [
+        "REQ-FUN-02-02",
+        "REQ-FUN-02-04"
+      ],
+      "rationale": "Measured interval/zero actual chain.",
+      "disposition": "capability",
+      "audit_id": "C23-G03",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B157",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FUN-02-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B160",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FUN-02-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B162",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-FUN-02-03",
+        "REQ-FUN-02-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B165",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FUN-02-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0267",
+      "requirement_ids": [
+        "REQ-FUN-02-01"
+      ],
+      "rationale": "Native work/cost и nested ownership.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0272",
+      "requirement_ids": [
+        "REQ-FUN-02-02"
+      ],
+      "rationale": "Source-admitted zero.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0275",
+      "requirement_ids": [
+        "REQ-FUN-02-03"
+      ],
+      "rationale": "Finite overflow и underflow controls.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0276",
+      "requirement_ids": [
+        "REQ-FUN-02-04"
+      ],
+      "rationale": "Правдивый method/source label.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0282",
+      "requirement_ids": [
+        "REQ-FUN-02-02",
+        "REQ-FUN-02-04"
+      ],
+      "rationale": "Actual consumer migration и source validity.",
+      "disposition": "qualify"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0395",
+      "requirement_ids": [
+        "REQ-FUN-02-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: Квалифицировать actual effective L3/L4 config и physical work, сохраняя минимальные owned mapping copies.",
+      "test_ids": [
+        "TEST-FUN-02-01"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0396",
+      "requirement_ids": [
+        "REQ-FUN-02-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: Квалифицировать actual effective L3/L4 config и physical work, сохраняя минимальные owned mapping copies.",
+      "test_ids": [
+        "TEST-FUN-02-01"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0401",
+      "requirement_ids": [
+        "REQ-FUN-02-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Выполненный source-admitted zero, empty и partial сохраняют разные score/aggregate verdict у всех affected consumers.",
+      "test_ids": [
+        "TEST-FUN-02-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0402",
+      "requirement_ids": [
+        "REQ-FUN-02-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Выполненный source-admitted zero, empty и partial сохраняют разные score/aggregate verdict у всех affected consumers.",
+      "test_ids": [
+        "TEST-FUN-02-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0405",
+      "requirement_ids": [
+        "REQ-FUN-02-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Нормировка width/(2*abs(effect)) устойчива для всех finite диапазонов, включая subnormal; missing/invalid/zero остаются typed.",
+      "test_ids": [
+        "TEST-FUN-02-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0406",
+      "requirement_ids": [
+        "REQ-FUN-02-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Нормировка width/(2*abs(effect)) устойчива для всех finite диапазонов, включая subnormal; missing/invalid/zero остаются typed.",
+      "test_ids": [
+        "TEST-FUN-02-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0411",
+      "requirement_ids": [
+        "REQ-FUN-02-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Выполненный source-admitted zero, empty и partial сохраняют разные score/aggregate verdict у всех affected consumers.",
+      "test_ids": [
+        "TEST-FUN-02-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0412",
+      "requirement_ids": [
+        "REQ-FUN-02-02",
+        "REQ-FUN-02-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Выполненный source-admitted zero, empty и partial сохраняют разные score/aggregate verdict у всех affected consumers.; Метод uncertainty следует фактическому interval producer, а не имени bootstrap key/fidelity.",
+      "test_ids": [
+        "TEST-FUN-02-02",
+        "TEST-FUN-02-04"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I02-C"
+  ],
+  "dependencies": [
+    "FUN-01 владеет попытками/re-gating/reuse; общие orchestrator edits последовательны.",
+    "FUN-03/UQS — source-traced current uncertainty, здесь interval origin и aggregate presentation.",
+    "Actual engine owner подтверждает executed draws; диагностический label не назначает scientific authority."
+  ],
+  "preservation": [
+    "Пять small mapping copies, shared dataset/model/CAS handles.",
+    "Прямая L4 и L3→L4 получают одинаковый input.",
+    "None/NOT_EVALUATED для empty/capped.",
+    "Zero и partial score retained без ложного full APPROVE.",
+    "Typed missing/invalid/effect reasons.",
+    "Huge-int conversion guard и true zero.",
+    "Stage verdict отдельно; aggregate defer/reject не повышает полномочия.",
+    "Score и stage result сохраняются."
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    ""
+  ],
+  "open_decisions": [],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+      "symbol_or_anchor": "def statistical_uncertainty_from_ci_width(",
+      "lines": [
+        191,
+        223
+      ],
+      "sha256": "e7c50a6e660bd8f86cf91608bc8c47713cb3a68408b0e86443eedde09c88c124",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/funnel/types.py#L191-L223"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+      "symbol_or_anchor": "    def _build_reduced_state(",
+      "lines": [
+        250,
+        282
+      ],
+      "sha256": "ee9faccc6bd4d370f3a4bbd88ffc206e7001fc3756212873fcf81ea0591b459a",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py#L250-L282"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_metrics.py",
+      "symbol_or_anchor": "def _build_policy_simulation_results_impl(",
+      "lines": [
+        450,
+        482
+      ],
+      "sha256": "6b1fa26b61b70809b906aa850e15f80329b28edd86450a1bbd2e8cc5eabe171e",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_metrics.py#L450-L482"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-FUN-02-01",
+      "text": "Сохранить dict copies пяти конфигураций в _build_reduced_state и shared immutable dataset/model/CAS handles. Native engine должен принять effective fidelity/config digest, отдельно сообщить requested и действительно executed work. Если конкретный inner engine мутирует nested tuning, изолировать именно его owned subtree или прекратить mutation; не вводить blanket deepcopy. Direct L4 и L3→L4 используют один исходный full profile."
+    },
+    {
+      "requirement_id": "REQ-FUN-02-02",
+      "text": "Использовать existing _empty_result/_compatibility_result и score admission finalization. Actual zero подкрепить source metric/unit/selected result, не fixture admission. Перенести consumer с удобного stage APPROVE на declared aggregate field с version/migration; stage result/score оставить отдельно. Source/consumer census ограничить актуальными callers обоих funnel result/outcome полей."
+    },
+    {
+      "requirement_id": "REQ-FUN-02-03",
+      "text": "В statistical_uncertainty_from_ci_width после текущей validation вычислять ratio через масштабирование mantissa/exponent (frexp/ldexp или эквивалентный проверенный owner), чтобы не получить overflow 2*effect или underflow от предварительного 0.5*width. Clamp к1 делается по математическому ratio, не как лечение invalid. Сравнить с Fraction.from_float/as_integer_ratio oracle для exact входных float; при реально непредставимо малом результате допускается правильно округлённый0 с сохранённым source method, не fabricated certainty."
+    },
+    {
+      "requirement_id": "REQ-FUN-02-04",
+      "text": "Расширить существующий uncertainty/source contract для heuristic_proxy и source_owned_interval с method/profile/input/unit binding. _build_policy_simulation_results_impl width0.1/0.12 при draw_execution_status=not_instrumented передаёт proxy, L4 не переименовывает его full_fidelity_bootstrap. Реальный interval producer предоставляет measured method/scale/refs; consumer проверяет binding перед bootstrap label. Сохранить raw result и useful routing, не повторять дорогую simulation ради исправления label."
+    }
+  ]
+}

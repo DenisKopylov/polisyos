@@ -1,0 +1,57 @@
+{
+  "pass_id": "C108",
+  "bundle": "CAL-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C108-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "title": "Конечные float32 наблюдения переполняют вычисление масштаба и получают epsilon",
+      "evidence": [
+        "P03",
+        "S03:716–763",
+        "S02:319–329"
+      ],
+      "remaining": "Стабилизировать вычисление существующих scale statistics на выбранной observed/training опоре. Не подменять переполнение отсутствием данных; сохранить finite guard и фиксированный scale до оптимизации. Проверять representable mean/std и loss относительно независимого устойчивого oracle.",
+      "limits": "Фактический NumPy scale helper; loss проверен с NumPy binding. Большие конечные synthetic значения, не оценка частоты в production и не native JAX gradient."
+    },
+    {
+      "id": "C108-R02",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "title": "Раздел train применяется к scale, но не к effective objective measurement bundle",
+      "evidence": [
+        "P04",
+        "S05:48–133",
+        "S02:247–364",
+        "S03:2537–2566",
+        "S03:2594–2624",
+        "S03:2780–2839"
+      ],
+      "remaining": "Связать существующий split contract с разрешённой fit support и отдельной оценкой validation/test/holdout; не создавать второй splitter. В общем objective и support diagnostics использовать одну явную политику. Если нужен fit по всем данным, требовать явный режим/переименование роли данных, а не молча сохранять validation label как защиту.",
+      "limits": "Actual compiler/splitter и выбранный unchanged base-vector consumer: validation 10→30 меняет objective 0→2 при training scale 10. Full Calibrator/optimizer/production panel не запускались; не утверждается измеренная утечка или научная несостоятельность всех результатов."
+    },
+    {
+      "id": "C108-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Reverse-mode gradient, JIT и supported-runtime integration не исполнены",
+      "evidence": [
+        "S11",
+        "P01",
+        "P02",
+        "P05",
+        "commands.json"
+      ],
+      "remaining": "В поддерживаемой среде выполнить существующий zero-support gradient/JIT witness и интеграцию actual compiler→Calibrator→GradNorm→final loss/Hessian/report. Сохранить positive partial support, nonfinite refusal, shape rejection и приоритет 9:1/1:9. Общий lane-level integration может покрывать несколько пакетов; synthetic fixtures не эмпирическая authority.",
+      "limits": "Без зависимостей нельзя подтвердить autodiff арифметику или optimizer stop. P05 подтверждает только primal wiring при fixed-forward/transform/penalty seams. Shared-run01 harness failure сохранён и исправлен только вне checkout."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C108-R01",
+    "C108-R02"
+  ],
+  "decision": "Основные четыре ремонта реализованы на source/primal уровне. Остались numerical scale overflow, split-to-objective wiring и native autodiff qualification."
+}

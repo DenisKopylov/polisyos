@@ -1,0 +1,69 @@
+{
+  "pass_id": "C92",
+  "bundle": "DFK-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C92-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "confidence": "high",
+      "source_ids": [
+        "LA-028"
+      ],
+      "title": "Entry.included_in_run_profile требует connector через projection, хотя общая selection разрешает catalog-only запись",
+      "evidence": [
+        "S01:85–98",
+        "S02:41–60",
+        "S11:52–59",
+        "S13:536–554",
+        "P04"
+      ],
+      "remaining": "Делегировать entry predicate непосредственно existing shared source_included_in_run_profile, сохранив connector_identity_missing в to_module_spec и actual execution intake. Добавить valid catalog-only omitted-connector input в parity tests entry/batch/shared selection, включая empty/unsupported profile и disabled controls.",
+      "limits": "Реальный custom YAML без connector допускается canonical/batch loader по сохранённому default. prod_full/catalog_refresh включают запись, batch predicate=True, но entry predicate raises connector_identity_missing. Projection control по-прежнему отказывает. Не current production failure, не разрешение запуска отсутствующего connector и не дефект всех35штатных строк."
+    },
+    {
+      "id": "C92-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-028"
+      ],
+      "title": "Native import и полный published producer → warm/fresh Fabric consumer остаются неквалифицированными",
+      "evidence": [
+        "S12",
+        "S13:599–1072",
+        "S15",
+        "S22",
+        "P05"
+      ],
+      "remaining": "В supported environment выполнить existing public/Fabric tests и два full published-catalog witnesses: изменённая same-ID policy при неизменном stat, переиздание producer receipt, fresh reader, disabled seed без мутации индекса. Сохранить одно lane-level доказательство receipts/currentness, не заменить его локальной parser parity.",
+      "limits": "Native registry/service import BLOCKED на Python3.14 except syntax в Core store при Python3.12; pytest/DuckDB отсутствуют. Четыре actual policy methods с fixture state отражают changed full registry и fail-closed seeds/connector, но не являются full resolve/receipt/CAS/production proof. Isolated contract-only import без YAML reads имеет parent shells."
+    },
+    {
+      "id": "C92-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-028"
+      ],
+      "title": "Оставшееся compatibility scaffolding и реальные execution consumers требуют завершающей migration qualification",
+      "evidence": [
+        "S05",
+        "S06",
+        "S07",
+        "S08",
+        "S09",
+        "S10",
+        "S13",
+        "P03"
+      ],
+      "remaining": "Упростить existing named compatibility exports до canonical source-ID views или generated projection, сохранив public names, порядок, field/asset golden corpus и historical defaults. После этого native import/equality proof и actual execution consumer qualification. Не переносить каталог в Fabric и не удалять connectors.",
+      "limits": "35 старых literal specs всё ещё создаются и сразу заменяются YAML-derived values; это реально оставшийся migration scaffolding, но final projections уже совпадают по всем полям и второй effective policy authority не найдена. Отдельный runtime defect/скорость/production divergence на этом основании не объявляются."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C92-R01"
+  ],
+  "migration_scaffolding_remaining": "35 literal constructors then canonical overwrite; cleanup separate from effective policy correctness",
+  "decision": "Canonical YAML and shared fail-closed seed selection действительно работают; full fields/35-row equality сохранены. Низкий predicate parity residual, redundant compatibility scaffolding и native consumer qualification остаются."
+}

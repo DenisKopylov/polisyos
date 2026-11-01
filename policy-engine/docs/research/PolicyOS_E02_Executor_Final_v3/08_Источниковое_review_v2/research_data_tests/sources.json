@@ -1,0 +1,468 @@
+{
+  "schema_version": "1.0",
+  "language": "ru",
+  "phase": "research_only",
+  "accessed_on": "2026-11-01",
+  "source_count": 20,
+  "scope": "Схемы/API/данные, идентичность и сила тестового доказательства для будущего review E02 v2. Никаких findings по пакетам.",
+  "source_handling": "Только прочитанные релевантные разделы использованы; live URLs не обозначают точную версию установленной библиотеки. Прямых цитат нет. Нормативность ограничена явно указанной спецификацией/профилем.",
+  "sources": [
+    {
+      "id": "DAT-S01",
+      "title": "AIP-180: Backwards compatibility",
+      "publisher": "Google API Improvement Proposals",
+      "url": "https://google.aip.dev/180",
+      "version": "AIP-180; Approved; header created/updated 2019-07-23, но changelog содержит изменение 2025-10-21; live page accessed 2026-11-01",
+      "authority": "Рекомендация владельца API, не универсальный стандарт",
+      "locators": [
+        "Guidance (source / wire / semantic compatibility)",
+        "Adding components",
+        "Semantic changes"
+      ],
+      "read_evidence": "Прочитаны Guidance, Adding components и Semantic changes/defaults; версия оценивается по live snapshot, не только устаревшему header.",
+      "proposition": "Совместимость включает исходный код, передачу данных и семантику. Новое поле не должно менять прежнее поведение старого клиента. Требования зависят от управляемости обновления потребителей.",
+      "limits": "Предпосылки документа: API для разных языков с независимыми обновлениями клиентов; ограниченный внутренний API может обосновать более узкое окно.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S02",
+      "title": "Language Guide (proto3)",
+      "publisher": "Protocol Buffers",
+      "url": "https://protobuf.dev/programming-guides/proto3/",
+      "version": "proto3; live documentation; точная версия runtime не заявлена",
+      "authority": "Официальная документация формата",
+      "locators": [
+        "Updating A Message Type → Binary Wire-safe Changes",
+        "Binary Wire-compatible Changes (Conditionally Safe)",
+        "Unknown Fields → Retaining Unknown Fields",
+        "Backwards-compatibility issues (oneof)"
+      ],
+      "read_evidence": "Прочитаны соответствующие разделы, включая пример int32/int64, порядок rollout и потерю unknown fields при JSON/field-by-field copy.",
+      "proposition": "Wire-safe не равнозначно source-safe; wire-compatible переход может терять значения. Unknown fields сохраняются binary round trip, но могут пропасть на иных преобразованиях. NOT_SET у oneof не всегда отличает отсутствие от нового неизвестного варианта.",
+      "limits": "Это правила protobuf binary; перенос на ProtoJSON, другие сериализации и бизнес-смысл требует отдельного основания.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S03",
+      "title": "Application Note: Field Presence",
+      "publisher": "Protocol Buffers",
+      "url": "https://protobuf.dev/programming-guides/field_presence/",
+      "version": "Live application note; proto2/proto3/editions distinctions",
+      "authority": "Официальное описание семантики presence",
+      "locators": [
+        "Considerations for Merging",
+        "Considerations for change-compatibility"
+      ],
+      "read_evidence": "Прочитаны оба раздела с примером implicit/explicit presence.",
+      "proposition": "При implicit presence merge пропускает default-valued field; patch в ноль требует внешнего механизма или explicit presence. Binary-compatible смена presence может изменить семантику round trip.",
+      "limits": "Не требует optional повсеместно; выбор зависит от необходимости различать состояния и API обновления.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S04",
+      "title": "Proto Serialization Is Not Canonical",
+      "publisher": "Protocol Buffers",
+      "url": "https://protobuf.dev/programming-guides/serialization-not-canonical/",
+      "version": "Live documentation",
+      "authority": "Официальная гарантия/ограничение сериализации",
+      "locators": [
+        "Implications on Fingerprinting and Cryptographic Hashing",
+        "Deterministic is not Canonical"
+      ],
+      "read_evidence": "Прочитаны оба раздела полностью.",
+      "proposition": "Детерминированная protobuf-сериализация не гарантирует каноничности между сборками, версиями библиотек и схемами; неизвестные поля осложняют универсальную семантическую fingerprint-функцию.",
+      "limits": "Не запрещает bytes hash для целостности конкретного артефакта и узкую use-specific fingerprint-функцию.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S05",
+      "title": "Apache Avro 1.12.0 Specification",
+      "publisher": "Apache Software Foundation",
+      "url": "https://avro.apache.org/docs/1.12.0/specification/",
+      "version": "1.12.0",
+      "authority": "Спецификация формата",
+      "locators": [
+        "Complex Types → Records (default)",
+        "Schema Resolution",
+        "Parsing Canonical Form for Schemas"
+      ],
+      "read_evidence": "Прочитаны правила reader/writer resolution, default при чтении и вводное определение parsing canonical form.",
+      "proposition": "Результат чтения зависит от пары writer/reader schemas; отсутствующее поле reader без default вызывает ошибку, лишнее writer-поле игнорируется. Default предназначен для чтения старой записи и не делает поле необязательным при кодировании. Parsing canonical form описывает эквивалентность для чтения данных, не весь смысл контракта.",
+      "limits": "Применять только к Avro либо как явно помеченную аналогию; не считать все schema fingerprints бизнес-идентичностью.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S06",
+      "title": "RFC 8785: JSON Canonicalization Scheme (JCS)",
+      "publisher": "RFC Editor",
+      "url": "https://www.rfc-editor.org/rfc/rfc8785.html",
+      "version": "RFC 8785, June 2020, Informational / Independent Submission",
+      "authority": "Спецификация JCS; не Internet Standards Track",
+      "locators": [
+        "§3.1 Creation of Input Data",
+        "§3.2.2.2 Serialization of Strings",
+        "§3.2.2.3 Serialization of Numbers",
+        "§3.2.3 Sorting of Object Properties"
+      ],
+      "read_evidence": "Прочитаны ограничения входа и правила Unicode; просмотрены правила чисел/сортировки.",
+      "proposition": "JCS задаёт представление ограниченного JSON: без повторяющихся имён, с числами IEEE-754 double и сохранением Unicode как есть; Unicode normalization не является частью JCS.",
+      "limits": "Каноничность формата не определяет бизнес-эквивалентность. Не предписывается JCS, если продукт выбрал другой явно описанный профиль.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S07",
+      "title": "RFC 8259: The JavaScript Object Notation (JSON) Data Interchange Format",
+      "publisher": "IETF / RFC Editor",
+      "url": "https://www.rfc-editor.org/rfc/rfc8259.html",
+      "version": "RFC 8259, December 2017; Standards Track",
+      "authority": "Стандарт JSON",
+      "locators": [
+        "§4 Objects",
+        "§6 Numbers",
+        "§8.2 Unicode Characters",
+        "§8.3 String Comparison",
+        "§9 Parsers"
+      ],
+      "read_evidence": "Прочитаны указанные разделы, включая duplicates, точность целых и ограничения парсеров.",
+      "proposition": "Разные парсеры могут различно обработать повторяющиеся имена; точность чисел и Unicode имеют границы интероперабельности. JSON-грамматика сама по себе не обеспечивает единое прикладное толкование.",
+      "limits": "Не требовать, чтобы все JSON-числа были строками или все unicode-строки нормализовались; ограничения выбираются по значимому домену.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S08",
+      "title": "JSON Schema Validation: A Vocabulary for Structural Validation of JSON",
+      "publisher": "JSON Schema",
+      "url": "https://json-schema.org/draft/2020-12/json-schema-validation",
+      "version": "Draft 2020-12; draft-bhutton-json-schema-validation-01, 2022-06-16; Internet-Draft/work in progress, не RFC",
+      "authority": "Версионированная опубликованная спецификация JSON Schema vocabulary",
+      "locators": [
+        "§6.5.3 required",
+        "§7.2.1 Format-Annotation Vocabulary",
+        "§7.2.2 Format-Assertion Vocabulary",
+        "§9.2 default"
+      ],
+      "read_evidence": "Прочитаны required/default и различие format annotation/assertion.",
+      "proposition": "required проверяет наличие имени. Default — аннотация. Обработка format зависит от vocabulary и настроек; annotation-профиль сам по себе не даёт обязательного отклонения неверного формата.",
+      "limits": "Не переносить автоматически на OpenAPI 3.0/иные dialects; проверять реально выбранный профиль валидатора.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S09",
+      "title": "JSON Schema: A Media Type for Describing JSON Documents",
+      "publisher": "JSON Schema",
+      "url": "https://json-schema.org/draft/2020-12/json-schema-core",
+      "version": "Draft 2020-12; draft-bhutton-json-schema-01, 2022-06-16; Internet-Draft/work in progress, не RFC",
+      "authority": "Версионированная опубликованная спецификация core",
+      "locators": [
+        "§4.3.1 Schema Objects and Keywords",
+        "§8.1.1 The $schema Keyword",
+        "§8.1.2 The $vocabulary Keyword",
+        "§9.3 Compound Documents",
+        "§10.3.2.3 additionalProperties"
+      ],
+      "read_evidence": "Прочитаны dialect/unknown keywords, bundled schemas и правила additionalProperties.",
+      "proposition": "$schema определяет dialect; при его отсутствии поведение root schema implementation-defined. Неизвестные keywords могут быть только annotations. additionalProperties учитывает свойства того же schema object; объединение схем не равнозначно произвольному наследованию.",
+      "limits": "Не вводит обязанности переписать схемы на новый draft. Допустим явно зафиксированный старый dialect с эквивалентными ограничениями.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S10",
+      "title": "Understanding JSON Schema: Annotations",
+      "publisher": "JSON Schema",
+      "url": "https://json-schema.org/understanding-json-schema/reference/annotations",
+      "version": "Live official explanatory guide",
+      "authority": "Официальное пояснение, не отдельная normative specification",
+      "locators": [
+        "Annotations → default"
+      ],
+      "read_evidence": "Прочитан абзац default и связь с validation.",
+      "proposition": "default не заполняет отсутствующие значения в процессе validation; это может делать отдельный инструмент или прикладной этап.",
+      "limits": "Критерий касается разделения validation и materialization, а не запрета на осознанное заполнение default.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S11",
+      "title": "Reproducibility and Replicability in Science — Chapter 4: Reproducibility",
+      "publisher": "National Academies of Sciences, Engineering, and Medicine",
+      "url": "https://www.nationalacademies.org/read/25303/chapter/7",
+      "version": "2019; DOI 10.17226/25303",
+      "authority": "Консенсусный исследовательский отчёт; не software conformance standard",
+      "locators": [
+        "Recommendation 4-1, pp.58–59",
+        "Assessing Reproducibility, p.59",
+        "Footnote 3, p.59"
+      ],
+      "read_evidence": "Прочитаны рекомендации о данных/методе/окружении, пределах численного совпадения и примечание об ошибочном коде.",
+      "proposition": "Воспроизводимость требует описания входов, шагов, параметров и окружения. Совпадение повторных запусков не гарантирует правильность: одна ошибка кода может устойчиво повторяться. Численная согласованность не всегда означает bitwise equality.",
+      "limits": "Не переносится научная терминология механически; в контракте нужно собственное определение replay/independent verification и допусков.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S12",
+      "title": "Software Engineering at Google — Chapter 12: Unit Testing",
+      "publisher": "Google / Abseil",
+      "url": "https://abseil.io/resources/swe-book/html/ch12.html",
+      "version": "Book 2020; live HTML chapter",
+      "authority": "Первичное описание инженерной практики Google",
+      "locators": [
+        "Test via Public APIs",
+        "Don’t Put Logic in Tests (Examples 12-15/12-16)",
+        "Defining Test Infrastructure"
+      ],
+      "read_evidence": "Прочитаны наблюдение публичного поведения, общий дефект вычисления expected и необходимость собственных тестов test infrastructure.",
+      "proposition": "Тест контрактного поведения устойчивее проверки деталей реализации. Сложный expected может повторять ошибку production logic; общая тестовая инфраструктура сама нуждается в проверке.",
+      "limits": "Не запрет на test utilities, property/model-based testing или тестирование внутренних компонентов. Не требуется организация второго независимого проекта для каждой функции.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S13",
+      "title": "Hypothesis: Domain and distribution",
+      "publisher": "HypothesisWorks",
+      "url": "https://hypothesis.readthedocs.io/en/latest/explanation/domain.html",
+      "version": "HTML banner observed: Hypothesis 6.170.14; /latest is mutable",
+      "authority": "Документация автора property-based testing framework",
+      "locators": [
+        "How should I choose a domain for my test?",
+        "Why not let users control the distribution?"
+      ],
+      "read_evidence": "Прочитана страница целиком кроме navigation.",
+      "proposition": "Домен генератора задаёт возможные входы; чрезмерные ограничения могут исключить ошибку. Распределение поиска внутри Hypothesis не является фиксированной моделью производственного трафика.",
+      "limits": "Не делает требование Hypothesis обязательным. Разумные ресурсные границы допустимы при явном объяснении.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S14",
+      "title": "Hypothesis: Replaying failed tests",
+      "publisher": "HypothesisWorks",
+      "url": "https://hypothesis.readthedocs.io/en/latest/tutorial/replaying-failures.html",
+      "version": "HTML banner observed: Hypothesis 6.170.14; /latest is mutable",
+      "authority": "Документация автора framework",
+      "locators": [
+        "The Hypothesis database",
+        "Using @example to run a specific input",
+        "Prefer @example over the database for correctness"
+      ],
+      "read_evidence": "Прочитаны replay, явные примеры и ограничения локальной базы.",
+      "proposition": "Сохранённый контрпример можно повторить; локальная database может инвалидироваться при обновлении или изменении теста, поэтому обязательный regression case надо фиксировать явно.",
+      "limits": "Не обязывает хранить seed вместо входа; для переносимости конкретный вход/trace часто полезнее seed.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S15",
+      "title": "Hypothesis: Stateful tests",
+      "publisher": "HypothesisWorks",
+      "url": "https://hypothesis.readthedocs.io/en/latest/stateful.html",
+      "version": "HTML banner observed: Hypothesis 6.170.14; /latest is mutable",
+      "authority": "Документация автора model/stateful testing framework",
+      "locators": [
+        "You may not need stateful tests",
+        "Rule-based state machines",
+        "DatabaseComparison example"
+      ],
+      "read_evidence": "Прочитаны последовательности действий, bundles и сравнение реальной базы с простой in-memory моделью.",
+      "proposition": "Stateful tests проверяют цепочки действий и сравнивают наблюдаемое поведение с моделью; для простых случаев достаточно обычных тестов.",
+      "limits": "Последовательная state machine не является доказательством concurrency, crash consistency или linearizability.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S16",
+      "title": "Application of property-based testing tools for metamorphic testing",
+      "publisher": "Alzahrani, Spichkova, Harland (RMIT), author preprint",
+      "url": "https://arxiv.org/pdf/2211.12003",
+      "version": "arXiv:2211.12003v1, 2022-11-22; accepted ENASE 2022 preprint",
+      "authority": "Первичная исследовательская работа",
+      "locators": [
+        "§2 Background, PDF pp.2–3",
+        "§4 Proposed Approach, PDF pp.4–6"
+      ],
+      "read_evidence": "Текст PDF читабелен; прочитаны отношения входов/выходов, риск дублирования реализации и согласованность generator/shrinker/preconditions.",
+      "proposition": "Metamorphic testing проверяет отношения между несколькими входами и выходами. Генератор и shrinking должны сохранять условия отношения, иначе возможны невалидные тесты.",
+      "limits": "Не заимствуется универсальное заявление об эффективности конкретного алгоритма. Это основание для bounded MR-контрактов, а не доказательство полноты.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S17",
+      "title": "Stryker: Mutant states and metrics",
+      "publisher": "Stryker Mutator",
+      "url": "https://stryker-mutator.io/docs/mutation-testing-elements/mutant-states-and-metrics/",
+      "version": "Live official documentation",
+      "authority": "Определения метрик инструмента",
+      "locators": [
+        "Mutant states",
+        "Metrics",
+        "Test states and metrics"
+      ],
+      "read_evidence": "Прочитана полная таблица состояний и формулы.",
+      "proposition": "Mutation score зависит от состава valid mutants. Timeout входит в detected; compile/runtime errors, ignored и pending не являются обычными semantic kills.",
+      "limits": "Для других инструментов перепроверять формулы. Высокий score не доказывает полноту требований.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S18",
+      "title": "StrykerJS: Disable mutants",
+      "publisher": "Stryker Mutator",
+      "url": "https://stryker-mutator.io/docs/stryker-js/disable-mutants/",
+      "version": "Live official documentation; disable comments noted since 5.4",
+      "authority": "Документация инструмента",
+      "locators": [
+        "An example (equivalent max mutant)",
+        "Disable mutants",
+        "Using a // Stryker disable comment"
+      ],
+      "read_evidence": "Прочитаны пример equivalent mutant и локальные/глобальные исключения.",
+      "proposition": "Некоторые мутанты эквивалентны и не могут быть убиты корректным тестом. Исключения должны быть видимыми; глобальное исключение оператора затрагивает все места его использования.",
+      "limits": "Не требовать 100% mutation score и не считать каждый survivor дефектом.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S19",
+      "title": "scikit-learn: Common pitfalls and recommended practices",
+      "publisher": "scikit-learn developers",
+      "url": "https://scikit-learn.org/stable/common_pitfalls.html",
+      "version": "HTML banner observed: 1.9.1; /stable is mutable",
+      "authority": "Официальное практическое руководство ML library",
+      "locators": [
+        "§12.2 Data leakage",
+        "§12.2.1 How to avoid data leakage",
+        "§12.2.2 Data leakage during pre-processing"
+      ],
+      "read_evidence": "Прочитаны правила split-before-fit, preprocessing fit только на train и демонстрация ложной accuracy.",
+      "proposition": "Использование информации test data при выборе модели или обучении preprocessing даёт оптимистичную оценку. Одинаковый transform на train/test допустим, обучение transform по test — нет.",
+      "limits": "Вне ML перенос на калибровку threshold/ranking явно является инженерной аналогией. Regression fixtures не обязаны быть секретными.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    },
+    {
+      "id": "DAT-S20",
+      "title": "Google Benchmark User Guide",
+      "publisher": "Google Benchmark",
+      "url": "https://google.github.io/benchmark/user_guide.html",
+      "version": "Live official guide; release tag not stated",
+      "authority": "Документация microbenchmark framework",
+      "locators": [
+        "Timing and Repetition Control",
+        "Runtime and Reporting Considerations",
+        "Manual Timing",
+        "Preventing Optimization",
+        "Reporting Statistics"
+      ],
+      "read_evidence": "Прочитаны warmup/repetitions, dry run, CPU/real/manual timing и DoNotOptimize limitations.",
+      "proposition": "Измерение зависит от прогрева, границ таймера, повторений и среды. Dry run проверяет запуск, а не стабильную производительность. Оптимизатор может исключать/переиспользовать измеряемую работу; агрегаты скрывают отдельные прогоны.",
+      "limits": "Microbenchmark не является автоматически end-to-end latency/SLO. Не навязываются произвольные число повторов, power или percentile threshold.",
+      "accessed_at_utc": "2026-11-01",
+      "access": "read_relevant_sections",
+      "direct_quote_words": 0
+    }
+  ],
+  "access_limits": [
+    {
+      "url": "https://www.acm.org/publications/policies/artifact-review-and-badging-current",
+      "action": "web open",
+      "result": "HTTP 403 Forbidden",
+      "retry": "не повторялось",
+      "used_as_support": false,
+      "replacement": "DAT-S11",
+      "limit": "ACM badging definitions не объявлены прочитанными."
+    },
+    {
+      "url": "https://testing.googleblog.com/2015/01/testing-on-toilet-change-detector-tests.html",
+      "action": "web open",
+      "result": "redirect to google.com/sorry; tool reports non-retryable error",
+      "retry": "не повторялось",
+      "used_as_support": false,
+      "replacement": "DAT-S12",
+      "limit": "Содержимое этой страницы не использовано; книга Google — отдельный доступный первичный источник."
+    },
+    {
+      "url": "https://hypothesis.readthedocs.io/en/latest/tutorial/running-tests.html",
+      "action": "web open",
+      "result": "URL inaccessible through tool",
+      "retry": "не повторялось",
+      "used_as_support": false,
+      "replacement": "DAT-S13, DAT-S14, DAT-S15",
+      "limit": "Нужные существующие страницы найдены через официальный documentation index."
+    },
+    {
+      "url": "https://hypothesis.readthedocs.io/en/latest/tutorial/property-based-testing.html",
+      "action": "web open",
+      "result": "URL inaccessible through tool",
+      "retry": "не повторялось",
+      "used_as_support": false,
+      "replacement": "DAT-S13, DAT-S14, DAT-S15"
+    },
+    {
+      "url": "https://arxiv.org/html/2002.12543",
+      "action": "web open",
+      "result": "HTTP 404 Not Found",
+      "retry": "не повторялось",
+      "used_as_support": false,
+      "replacement": "DAT-S16"
+    },
+    {
+      "url": "https://arxiv.org/pdf/2002.12543",
+      "action": "PDF text + screenshot attempt",
+      "result": "PDF доступен, но извлечение основного текста искажено; screenshot-вызовы вернули только ссылки без доступных изображений",
+      "retry": "полный текст не считается прочитанным",
+      "used_as_support": false,
+      "replacement": "DAT-S16",
+      "limit": "Прочитан лишь abstract и metadata; никакого вывода из недоступных страниц."
+    },
+    {
+      "url": "https://www.cs.hku.hk/data/techreps/document/TR-2017-04.pdf",
+      "action": "web open",
+      "result": "timeout fetching; search excerpt exists",
+      "retry": "не повторялось",
+      "used_as_support": false,
+      "replacement": "DAT-S16",
+      "limit": "Search excerpt не принят за чтение полного раздела."
+    },
+    {
+      "url": "https://www.sciencedirect.com/science/article/pii/S0950584926001394",
+      "action": "web open",
+      "result": "HTTP 403 Forbidden",
+      "retry": "не повторялось",
+      "used_as_support": false,
+      "replacement": "DAT-S16",
+      "limit": "Search abstract не использован как полнотекстовая опора."
+    }
+  ],
+  "blocked_work": "Ни один необходимый критерий не опирается на недоступный источник; требуемое разрешение для завершения research отсутствует. Повторных попыток обхода HTTP отказов не было."
+}
+

@@ -1,0 +1,317 @@
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/service.py:111-141
+  111     def tell(
+  112         self,
+  113         candidate_id: str,
+  114         evaluation: EvaluationBundle,
+  115     ) -> TellResult:
+  116         """Accept one previously asked evaluation through lifecycle-owner state."""
+  117         if not isinstance(candidate_id, str) or not candidate_id:
+  118             raise KeyError(candidate_id)
+  119         if candidate_id in self._completed_candidate_ids:
+  120             raise ValueError(f"duplicate search evaluation: {candidate_id}")
+  121         if candidate_id not in self._pending_candidates:
+  122             raise KeyError(candidate_id)
+  123 
+  124         proposal = deepcopy(self._pending_candidates[candidate_id])
+  125         candidate = materialize_candidate_proposal(proposal)
+  126         stage_b_result = self._stage_b_result(evaluation)
+  127         self.owner._accept_tell(
+  128             candidate=candidate,
+  129             objective_value=evaluation.objective_value,
+  130             score_status=evaluation.score_status,
+  131             objective_details=list(evaluation.objective_details),
+  132             is_promising=bool(evaluation.is_promising),
+  133             stage_a_passed=bool(evaluation.stage_a_passed),
+  134             stage_b_result=stage_b_result,
+  135             duration_seconds=float(evaluation.duration_seconds),
+  136             candidate_proposal=proposal,
+  137         )
+  138 
+  139         del self._pending_candidates[candidate_id]
+  140         self._completed_candidate_ids.add(candidate_id)
+  141         return TellResult(**self.owner._service_tell_snapshot())
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/service.py:46-109
+   46     def ask(
+   47         self,
+   48         goal: dict[str, Any] | None,
+   49         search_space: dict[str, Any] | None,
+   50         context: dict[str, Any],
+   51     ) -> list[CandidateProposal]:
+   52         """Generate proposals and retain candidate-ID ownership for ``tell``."""
+   53         del goal, search_space
+   54         self.owner._prepare_service_run()
+   55         payloads = self.owner._generate_candidates(
+   56             iteration=self._ask_iteration,
+   57             initial_candidate=None,
+   58             context=context,
+   59         )
+   60 
+   61         proposals: list[CandidateProposal] = []
+   62         pending: dict[str, CandidateProposal] = {}
+   63         for index, payload in enumerate(payloads):
+   64             if isinstance(payload, CandidateProposal):
+   65                 proposal = deepcopy(payload)
+   66                 candidate_id = proposal.candidate_id
+   67                 materialize_candidate_proposal(proposal)
+   68                 if proposal.metadata or proposal.service_iteration is not None:
+   69                     raise ValueError("candidate_service_context_already_present")
+   70                 proposal.metadata = {"iteration": self._ask_iteration}
+   71                 proposal.service_iteration = self._ask_iteration
+   72                 materialize_candidate_proposal(proposal)
+   73                 if (
+   74                     candidate_id in pending
+   75                     or candidate_id in self._pending_candidates
+   76                     or candidate_id in self._completed_candidate_ids
+   77                 ):
+   78                     raise ValueError(f"duplicate search candidate id: {candidate_id}")
+   79                 pending[candidate_id] = proposal
+   80                 proposals.append(deepcopy(proposal))
+   81                 continue
+   82             if not isinstance(payload, dict):
+   83                 raise TypeError("search candidate generators must return mappings")
+   84             if "candidate_id" not in payload:
+   85                 candidate_id = f"candidate_{self._ask_iteration}_{index}"
+   86             else:
+   87                 raw_candidate_id = payload["candidate_id"]
+   88                 if not isinstance(raw_candidate_id, str) or not raw_candidate_id:
+   89                     raise ValueError("search candidate_id must be an explicit non-empty string")
+   90                 candidate_id = raw_candidate_id
+   91             if (
+   92                 candidate_id in pending
+   93                 or candidate_id in self._pending_candidates
+   94                 or candidate_id in self._completed_candidate_ids
+   95             ):
+   96                 raise ValueError(f"duplicate search candidate id: {candidate_id}")
+   97             proposal = CandidateProposal(
+   98                 candidate_id=candidate_id,
+   99                 payload=deepcopy(payload),
+  100                 metadata={"iteration": self._ask_iteration},
+  101                 service_iteration=self._ask_iteration,
+  102             )
+  103             materialize_candidate_proposal(proposal)
+  104             pending[candidate_id] = proposal
+  105             proposals.append(deepcopy(proposal))
+  106 
+  107         self._pending_candidates.update(pending)
+  108         self._ask_iteration += 1
+  109         return proposals
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/lifecycle.py:254-420
+  254     def _accept_tell(
+  255         self,
+  256         *,
+  257         candidate: CandidatePayload,
+  258         objective_value: float | None,
+  259         score_status: ObjectiveScoreStatus,
+  260         objective_details: list[Any],
+  261         is_promising: bool,
+  262         stage_a_passed: bool,
+  263         stage_b_result: dict[str, Any],
+  264         duration_seconds: float,
+  265         candidate_proposal: CandidateProposal | None = None,
+  266     ) -> SearchIteration:
+  267         """Accept one ask/tell result through the lifecycle-owner transition.
+  268 
+  269         This is an internal bridge for ``LegacySearchServiceAdapter``.  It
+  270         reuses the typed-evaluation resolver and frontier owner from the full
+  271         native lifecycle, preserving the distinction between absent and
+  272         malformed typed results (B123) without exposing private fields to the
+  273         adapter.
+  274         """
+  275         if candidate_proposal is not None:
+  276             if not candidate_payloads_equal(
+  277                 materialize_candidate_proposal(candidate_proposal), candidate
+  278             ):
+  279                 raise ValueError("candidate_proposal_payload_mismatch")
+  280         policy_resolution = self._resolve_policy_evaluation_with_status(
+  281             candidate,
+  282             stage_b_result,
+  283             candidate_proposal=candidate_proposal,
+  284         )
+  285         policy_evaluation = policy_resolution.value
+  286         self._validate_result_candidate_identity(
+  287             candidate, candidate_proposal, policy_evaluation, stage_b_result
+  288         )
+  289         candidate_ref, evaluation_ref, source_verified = self._resolve_policy_source(
+  290             candidate_proposal, policy_evaluation, stage_b_result
+  291         )
+  292         self._prepare_service_run()
+  293         effective_objective = None
+  294         effective_score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+  295         effective_assessment: ObjectiveScoreAssessment | None = None
+  296         effective_details: list[ObjectiveValue] = []
+  297         if policy_resolution.status == "invalid":
+  298             self._run_state.policy_evaluation_errors += 1
+  299         source_results = stage_b_result.get("simulation_results")
+  300         if isinstance(source_results, dict):
+  301             recomputed = self._config.objective.evaluate(source_results)
+  302             effective_assessment = recomputed.score_assessment
+  303             effective_score_status = recomputed.score_status
+  304             effective_details = self._config.objective.evaluate_detailed(source_results)
+  305             if (
+  306                 effective_score_status is ObjectiveScoreStatus.AVAILABLE
+  307                 and selected_score_admission_status(effective_assessment, source_results)
+  308                 is ObjectiveScoreStatus.AVAILABLE
+  309             ):
+  310                 effective_objective = (
+  311                     effective_assessment.value if effective_assessment is not None else None
+  312                 )
+  313             elif effective_score_status is ObjectiveScoreStatus.AVAILABLE:
+  314                 effective_score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+  315         else:
+  316             effective_score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+  317         if effective_score_status not in {
+  318             ObjectiveScoreStatus.AVAILABLE,
+  319             ObjectiveScoreStatus.NOT_ESTABLISHED,
+  320         }:
+  321             effective_objective = None
+  322 
+  323         effective_admission = reconcile_objective_score_assessment(
+  324             effective_assessment,
+  325             source_results,
+  326             reported_status=effective_score_status,
+  327             reported_value=effective_objective,
+  328         )
+  329         is_sentinel = extract_sentinel_metadata(candidate) is not None
+  330         policy_subject = (
+  331             candidate_proposal is not None
+  332             and candidate_proposal.strategy_context is not None
+  333             and candidate_proposal.strategy_context.policy_schema
+  334         )
+  335         if (policy_subject or policy_evaluation is not None) and not source_verified:
+  336             effective_objective = None
+  337             effective_score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+  338             effective_assessment = None
+  339             effective_details = []
+  340             effective_admission = reconcile_objective_score_assessment(
+  341                 None,
+  342                 source_results,
+  343                 reported_status=effective_score_status,
+  344                 reported_value=None,
+  345             )
+  346             if not is_sentinel and policy_evaluation is not None:
+  347                 self._record_candidate_only_evaluation(
+  348                     candidate, candidate_proposal, policy_evaluation, candidate_ref, evaluation_ref
+  349                 )
+  350         feedback = stage_b_result.get("feedback")
+  351         verdict = feedback.get("verdict") if isinstance(feedback, dict) else None
+  352         accepted = (
+  353             bool(is_promising)
+  354             and bool(stage_a_passed)
+  355             and policy_resolution.status != "invalid"
+  356             and (policy_evaluation is None or policy_evaluation.feasible)
+  357             and verdict == "APPROVE"
+  358             and effective_score_status is ObjectiveScoreStatus.AVAILABLE
+  359             and effective_assessment is not None
+  360             and selected_score_admission_status(effective_assessment, source_results)
+  361             is ObjectiveScoreStatus.AVAILABLE
+  362         )
+  363         if (
+  364             stage_a_passed
+  365             and not is_sentinel
+  366             and policy_resolution.status != "invalid"
+  367             and effective_score_status is ObjectiveScoreStatus.AVAILABLE
+  368             and effective_objective is not None
+  369         ):
+  370             if effective_details:
+  371                 self._update_policy_or_legacy_frontier(
+  372                     candidate=candidate,
+  373                     objective_details=effective_details,
+  374                     policy_evaluation=policy_evaluation,
+  375                     stage_b_result=stage_b_result,
+  376                     candidate_proposal=candidate_proposal,
+  377                 )
+  378             if effective_objective < self._best_objective:
+  379                 self._best_objective = effective_objective
+  380                 self._best_candidate = deepcopy(candidate)
+  381 
+  382         record = SearchIteration(
+  383             iteration=self._run_state.evaluation_iterations,
+  384             candidate=deepcopy(candidate),
+  385             objective_value=effective_objective,
+  386             objective_details=deepcopy(effective_details),
+  387             is_promising=accepted,
+  388             stage_a_passed=bool(stage_a_passed),
+  389             stage_b_result=deepcopy(stage_b_result),
+  390             duration_seconds=float(duration_seconds),
+  391             policy_evaluation=deepcopy(policy_evaluation),
+  392             policy_evaluation_status=(
+  393                 "source_unverified"
+  394                 if (policy_subject or policy_evaluation is not None) and not source_verified
+  395                 else policy_resolution.status
+  396             ),
+  397             policy_evaluation_error=(
+  398                 "policy_evaluation_source_unverified"
+  399                 if (policy_subject or policy_evaluation is not None) and not source_verified
+  400                 else policy_resolution.reason
+  401             ),
+  402             candidate_ref=candidate_ref,
+  403             evaluation_ref=evaluation_ref,
+  404             score_status=effective_admission.status,
+  405             score_assessment=effective_assessment,
+  406             score_admission=effective_admission,
+  407             candidate_proposal=deepcopy(candidate_proposal),
+  408         )
+  409         transition = _EvaluationTransition(
+  410             disposition=(
+  411                 _EvaluationDisposition.SENTINEL if is_sentinel else _EvaluationDisposition.ORDINARY
+  412             ),
+  413             record=record,
+  414         )
+  415         self._run_state.apply_tell_transition(
+  416             transition,
+  417             stage_a_evaluated=self._config.enable_stage_a,
+  418             stage_b_evaluated=stage_a_passed,
+  419         )
+  420         return record
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/contracts.py:609-616
+  609 def __getattr__(name: str) -> Any:
+  610     """Resolve legacy bridge names without importing runtime implementations eagerly."""
+  611     if name in _LAZY_ADAPTER_EXPORTS:
+  612         module = importlib.import_module("polisyos.scientist.methods.search.adapters")
+  613         value = getattr(module, name)
+  614         globals()[name] = value
+  615         return value
+  616     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/adapters.py:28-64
+   28 class LegacySearchServiceAdapter(_NativeSearchServiceDriver):
+   29     """Compatibility adapter over one controller's private lifecycle owner."""
+   30 
+   31     def __init__(self, controller: SearchController) -> None:
+   32         self.controller = controller
+   33         super().__init__(controller._lifecycle_owner)
+   34 
+   35 
+   36 @dataclass(slots=True)
+   37 class OrchestratorFunnelService:
+   38     """Wrap ``FunnelOrchestrator`` behind the canonical funnel contract."""
+   39 
+   40     orchestrator: FunnelOrchestrator
+   41 
+   42     def submit(
+   43         self,
+   44         candidate: CandidateProposal,
+   45         *,
+   46         context: dict[str, Any] | None = None,
+   47     ) -> FunnelTicket:
+   48         """Submit one proposal to the existing multi-fidelity orchestrator."""
+   49         return self.orchestrator.submit(
+   50             materialize_candidate_proposal(candidate), context or {}, candidate_proposal=candidate
+   51         )
+   52 
+   53     def get_result(self, ticket: FunnelTicket | str) -> FunnelOutcome:
+   54         """Return a completed outcome, advancing the existing ticket if needed."""
+   55         outcome = self.orchestrator.get_outcome(ticket)
+   56         if not outcome.completed and outcome.final_result is None:
+   57             return self.orchestrator.advance(ticket, policy="full")
+   58         return outcome
+   59 
+   60 
+   61 __all__ = [
+   62     "LegacySearchServiceAdapter",
+   63     "OrchestratorFunnelService",
+   64 ]

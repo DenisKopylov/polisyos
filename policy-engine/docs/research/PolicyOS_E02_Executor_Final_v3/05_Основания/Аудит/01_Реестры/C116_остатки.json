@@ -1,0 +1,40 @@
+{
+  "pass_id": "C116",
+  "bundle": "DOE-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C116-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Нет свежей native SALib и downstream qualification",
+      "evidence": [
+        "S04",
+        "S07",
+        "commands.json",
+        "P01",
+        "P03"
+      ],
+      "remaining": "На поддерживаемом профиле выполнить уже существующие real-SALib tests, затем ограниченный actual producer→consumer путь. Проверять полезный результат, бюджет и причину остановки отдельно от научной достаточности выборки; не устанавливать зависимости в рамках текущего аудита.",
+      "limits": "Все три исходных ремонта локально подтверждены. Отсутствующая зависимость — ограничение среды, не product defect. Synthetic backend не доказывает реальную Morris geometry или quality of indices."
+    },
+    {
+      "id": "C116-G02",
+      "kind": "qualification_gap",
+      "severity": "low",
+      "title": "Last-result не равен сохранённому scientific design и суммарному бюджету",
+      "evidence": [
+        "S02:57–65",
+        "S02:108–245",
+        "S07:1043–1125",
+        "P02",
+        "P04"
+      ],
+      "remaining": "Квалифицировать передачу exact final design/seed/stream identity и результатов существующему scientific consumer, не вводя новый registry. Явно отличать per-design max_estimated_runs, известные evaluator rows, неизвестную частичную работу и sampling/analysis cost. Не считать три угла исчерпывающим покрытием 4096.",
+      "limits": "AdaptiveResult хранит result/rounds/attempts, но не сами samples или ссылку. В source caller search других production uses AdaptiveSampler не найдено; это не доказательство отсутствия внешних callers. Возврат полезного результата и observed accounting подтверждены; global resource authority и statistical convergence не доказаны."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "B97/B98/B99 локально исправлены; сохранять bounded prefix, last completed result и явное разрешение. Native/backend/consumer научная квалификация открыта."
+}

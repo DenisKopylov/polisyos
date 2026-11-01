@@ -1,0 +1,87 @@
+{
+  "pass_id": "C75",
+  "bundle": "CAS-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C75-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high_bounded",
+      "source_ids": [
+        "B149"
+      ],
+      "title": "После проверки directory target поздний чужой файл удаляется вместе с прошлым поколением",
+      "evidence": [
+        "S01:385–468",
+        "S01:753–798",
+        "P09",
+        "P10"
+      ],
+      "remaining": "Сохранить exact inventory и generation publication, но устранить владение всем target по устаревшей проверке. Cleanup должен удалять лишь доказанно принадлежащие экспорту entries; при изменении поколения/чужих entries безопасно отказать или сохранить прежнюю директорию. Не добавлять параллельный сервис блокировок ради локального случая.",
+      "limits": "Controlled interleaving: fixture source callback добавил собственный user-note.txt после preflight, до swap; actual transfer вернул успех и rmtree удалил файл. Предсуществующий foreign entry правильно отвергнут. Не доказана внешняя атака или удаление за пределами собственного fixture root."
+    },
+    {
+      "id": "C75-R02",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high_bounded",
+      "source_ids": [
+        "B149"
+      ],
+      "title": "Ошибка повторного tar export уничтожает предыдущий полный архив",
+      "evidence": [
+        "S01:718–752",
+        "S02:5885–5926",
+        "P08",
+        "P11"
+      ],
+      "remaining": "Для compressed export использовать существующий принцип private staging → полный inventory → atomic replacement; при ошибке чтения сохранить старый archive. Не ослаблять проверку source stream ради успешного отчёта.",
+      "limits": "Actual tarfile.open(final_path, w:gz) заменяет прежние bytes. Injected OSError на manifest после blob оставляет новый partial tar без export_manifest и без старого A. Ошибка не маскируется успехом; finding о потере предыдущего результата, не о ложном успешном import. Directory branch в контрольном опыте сохраняет старое поколение."
+    },
+    {
+      "id": "C75-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B148",
+        "B149"
+      ],
+      "title": "Native custody, signatures и durable recovery остаются отдельной приёмкой",
+      "evidence": [
+        "S02:1287–1545",
+        "S02:4289–5323",
+        "S03:314–345",
+        "S03:376–455",
+        "S03:528–614",
+        "P12"
+      ],
+      "remaining": "На supported runtime выполнить native signed/default/selected-view roundtrip, tenant/input refusal, pending-intent exact retry и crash recovery. Проверить текущий consumer LANE-06, разделяя measured bytes, generation, authorization и semantic reuse. Использовать существующие owner/index/profile contracts.",
+      "limits": "11 selected cases PASS не покрывают эти bodies; индекс и stream fixtures. Строка disposition_basis=durable_owner_manifest_stage_intent получена реальным DTO над fixture index, но не доказывает durable authority. Полная атомарность всего архива не требуется исходной карточкой."
+    },
+    {
+      "id": "C75-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B148",
+        "B149"
+      ],
+      "title": "Файловая durability и согласованность передачи между сбоями не квалифицированы",
+      "evidence": [
+        "S01:446–468",
+        "S01:815–1158",
+        "S02:4523–5312",
+        "P03",
+        "P04",
+        "P08"
+      ],
+      "remaining": "Проверить поддерживаемые filesystem и прерывания публикации для минимально необходимой замкнутой группы; сохранять историю отказа и честную disposition. Проверить конкурентную публикацию и readback без подмены durable owner fixture индексом.",
+      "limits": "Свежий replay подтверждает process-local controlled failures и real files, не machine power-loss, multi-host durability или производственные объёмы. Нет основания требовать гигантскую транзакцию на весь archive."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C75-R01",
+    "C75-R02"
+  ],
+  "decision": "B148 staging/admission и B149 exact directory inventory существенно реализованы. Два bounded export residual подтверждены; native custody/recovery не закрыты."
+}

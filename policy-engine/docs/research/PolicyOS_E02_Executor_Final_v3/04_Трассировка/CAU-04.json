@@ -1,0 +1,485 @@
+{
+  "packet_id": "CAU-04",
+  "lane": "LANE-05",
+  "status": "AUTHORED_PENDING_FINAL_QA",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "test_status": "NOT_RUN",
+  "audit_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "source_ids": [
+    "B212",
+    "B213"
+  ],
+  "audit_reports": [
+    "05_Основания/Аудит/02_Пакеты/CAU-04.md"
+  ],
+  "source_plan_lines": [
+    6691,
+    6782
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C55_остатки:0",
+      "audit_id": "C55-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CAU-04-01",
+        "REQ-CAU-04-02",
+        "REQ-CAU-04-03",
+        "REQ-CAU-04-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Actual backend, parent DTO/CAS и fresh consumer проверяются раздельно и совместно.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C55_остатки.json",
+        "sha256": "2422193ba05ada353a1d12d4e32f967f2b4b15a4749fd51f0cae006a6bd54551",
+        "json_pointer": "/findings/0"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C55_остатки:1",
+      "audit_id": "C55-G02",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-CAU-04-02",
+        "REQ-CAU-04-06"
+      ],
+      "shared_owner": "CAU-05",
+      "rationale": "Legacy API не равен selected profile; квалифицировать только заявленный finite scope.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C55_остатки.json",
+        "sha256": "2422193ba05ada353a1d12d4e32f967f2b4b15a4749fd51f0cae006a6bd54551",
+        "json_pointer": "/findings/1"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C55_остатки:2",
+      "audit_id": "C55-G03",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CAU-04-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Отдельный numerical/DGP oracle и actual scientific assumptions, без promotion от content binding.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C55_остатки.json",
+        "sha256": "2422193ba05ada353a1d12d4e32f967f2b4b15a4749fd51f0cae006a6bd54551",
+        "json_pointer": "/findings/2"
+      }
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0334",
+      "requirement_ids": [
+        "REQ-CAU-04-01",
+        "REQ-CAU-04-02",
+        "REQ-CAU-04-03",
+        "REQ-CAU-04-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Реальная двухсредовая цепочка вместо AST/recorder.",
+      "source_ids": [
+        "B212",
+        "B213"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0335",
+      "requirement_ids": [
+        "REQ-CAU-04-02",
+        "REQ-CAU-04-06"
+      ],
+      "disposition": "shared",
+      "rationale": "CAU-05 владеет census/FQN; CAU-04 actual estimator/contrast capability.",
+      "source_ids": [
+        "B212",
+        "B213"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0336",
+      "requirement_ids": [
+        "REQ-CAU-04-05"
+      ],
+      "disposition": "qualify",
+      "rationale": "Scientific scope независим от механической целостности.",
+      "source_ids": [
+        "B212",
+        "B213"
+      ]
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0538",
+      "requirement_ids": [
+        "REQ-CAU-04-01"
+      ],
+      "test_ids": [
+        "TEST-CAU-04-01",
+        "TEST-CAU-04-05"
+      ],
+      "rationale": "Point без fabricated uncertainty"
+    },
+    {
+      "inventory_id": "preserve:0539",
+      "requirement_ids": [
+        "REQ-CAU-04-01"
+      ],
+      "test_ids": [
+        "TEST-CAU-04-01"
+      ],
+      "rationale": "Общий SUCCESS guard"
+    },
+    {
+      "inventory_id": "preserve:0540",
+      "requirement_ids": [
+        "REQ-CAU-04-02"
+      ],
+      "test_ids": [
+        "TEST-CAU-04-02",
+        "TEST-CAU-04-03"
+      ],
+      "rationale": "Selected exact ATE/linear/contrast/target/level profile"
+    },
+    {
+      "inventory_id": "preserve:0541",
+      "requirement_ids": [
+        "REQ-CAU-04-03",
+        "REQ-CAU-04-04"
+      ],
+      "test_ids": [
+        "TEST-CAU-04-04",
+        "TEST-CAU-04-05"
+      ],
+      "rationale": "Source/request/reply binding и full-report canonical projection"
+    },
+    {
+      "inventory_id": "preserve:0542",
+      "requirement_ids": [
+        "REQ-CAU-04-05",
+        "REQ-CAU-04-06"
+      ],
+      "test_ids": [
+        "TEST-CAU-04-03",
+        "TEST-CAU-04-06",
+        "TEST-CAU-04-07"
+      ],
+      "rationale": "Explicit legacy boundary и non-gating causal candidate"
+    }
+  ],
+  "requirements": [
+    {
+      "text": "Finite point без доступного CI сохраняется в typed report как полезный partial result, без epsilon-CI, нулевого SE или confidence level. Настоящий CI сохраняет endpoints. SUCCESS требует действительной interval части; широкий heuristic failure envelope никогда не маркируется CI или gate-eligible.",
+      "source_ids": [
+        "B212"
+      ],
+      "audit_ids": [
+        "C55-G01"
+      ],
+      "id": "REQ-CAU-04-01",
+      "test_ids": [
+        "TEST-CAU-04-01",
+        "TEST-CAU-04-05"
+      ]
+    },
+    {
+      "text": "Selected worker поддерживает ровно nonparametric-ate/backdoor.linear_regression/contrast 0→1/target ate/95%, binary treatment и full-rank design. Actual identify получает estimand и proceed_when_unidentifiable=False; identified adjustment set и effective estimator class/level совпадают с запросом. Unsupported request получает capability-result до numerical execution, не relabeled default.",
+      "source_ids": [
+        "B213"
+      ],
+      "audit_ids": [
+        "C55-G01",
+        "C55-G02"
+      ],
+      "id": "REQ-CAU-04-02",
+      "test_ids": [
+        "TEST-CAU-04-02",
+        "TEST-CAU-04-03",
+        "TEST-CAU-04-08"
+      ]
+    },
+    {
+      "text": "Source-bound request сохраняет согласованные columns/rows/common row IDs, graph, parameters, seed и actual CAS source identity. Reply проверяет эти bindings и наблюдённый полный installed distribution inventory выбранного worker. Rehash изменённого outcome/graph/target не позволяет подменить admitted input.",
+      "source_ids": [
+        "B213"
+      ],
+      "audit_ids": [
+        "C55-G01"
+      ],
+      "id": "REQ-CAU-04-03",
+      "test_ids": [
+        "TEST-CAU-04-04",
+        "TEST-CAU-04-05"
+      ]
+    },
+    {
+      "text": "Primary job и fresh consumer проверяют persisted/offered whole report и derived envelope, затем actual source/reply binding и canonical report_from_worker_result. Point/CI equality недостаточна: metadata, diagnostics, method_params, identified estimand и non-gating role также должны совпадать.",
+      "source_ids": [
+        "B212",
+        "B213"
+      ],
+      "audit_ids": [
+        "C55-G01"
+      ],
+      "id": "REQ-CAU-04-04",
+      "test_ids": [
+        "TEST-CAU-04-05"
+      ]
+    },
+    {
+      "text": "В реальном locked DoWhy0.14 worker point/SE/CI сравниваются с underlying Statsmodels OLS как adapter parity, не независимая numerical implementation. Отдельный малый analytic finite-design oracle проверяет point/SE/Student-t CI без DoWhy/Statsmodels/product helper; fixed IID Gaussian DGP coverage против known truth остаётся третьим отдельным уровнем. Graph correctness, positivity и real-data applicability не выводятся из parity/hash/synthetic coverage; candidate остаётся non-authoritative.",
+      "source_ids": [
+        "B212",
+        "B213"
+      ],
+      "audit_ids": [
+        "C55-G03"
+      ],
+      "id": "REQ-CAU-04-05",
+      "test_ids": [
+        "TEST-CAU-04-02",
+        "TEST-CAU-04-06",
+        "TEST-CAU-04-08"
+      ]
+    },
+    {
+      "text": "Legacy-inprocess и GraphCausalDataV1 имеют явный ограниченный lifecycle: выполнить конечный caller/artifact census совместно с CAU-05. Не предлагать NIE/иные contrast как поддержанный production profile без actual version-specific API binding и numerical oracle. Отсутствие такого спроса допускает сохранение legacy с truthful unsupported/qualification boundary, не требует нового estimator.",
+      "source_ids": [
+        "B213"
+      ],
+      "audit_ids": [
+        "C55-G02"
+      ],
+      "id": "REQ-CAU-04-06",
+      "test_ids": [
+        "TEST-CAU-04-03",
+        "TEST-CAU-04-07"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "native DTO/projection boundary",
+      "setup": "Point7 без CI/SE, реальный interval[5,9], отдельно point+known SE без CI и unavailable backend.",
+      "action": "Вызвать actual adapter/projection, JSON roundtrip и to_uncertainty_envelope.",
+      "oracle": "Partial point7 сохраняется; CI и level отсутствуют; реальный SE не затирается и не превращается автоматически в CI. Interval[5,9] не сужен. Failure envelope heuristic/non-gating, SUCCESS без CI отвергнут.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_cau_04.py; ir/analytics/causal.py",
+      "allowed_doubles_and_prohibitions": "Recorder допустим только для отсутствия inference; не считается DoWhy numerical witness. DTO/projection реальные.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-04-01",
+      "requirement_ids": [
+        "REQ-CAU-04-01"
+      ]
+    },
+    {
+      "level": "real worker numerical oracle",
+      "setup": "workers/dowhy-014/tests/test_worker.py::request(seed=19,n=500), X→A,X→Y,A→Y, actual locked Python3.12/DoWhy0.14.",
+      "action": "Через execute/linear_ate получить actual backend report; отдельно fit underlying Statsmodels OLS [1,A,X] для adapter parity; наблюдать actual arguments без подмены backend.",
+      "oracle": "Point/SE/95% CI совпадают с underlying-backend OLS parity abs1e-12; estimator class LinearRegressionEstimator, adjustment[X], level.95; inventory получен из runtime, не из fixture. Test не skip при отсутствующем backend: qualification BLOCKED, не PASS.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "workers/dowhy-014/tests/test_worker.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-04-02",
+      "requirement_ids": [
+        "REQ-CAU-04-02",
+        "REQ-CAU-04-05"
+      ]
+    },
+    {
+      "level": "native capability/negative",
+      "setup": "NIE, ATT target, contrast1→2, level.8, unknown method/profile; positive default ATE.",
+      "action": "Подать через ordinary registered route; подтвердить отсутствие worker dispatch для unsupported profile.",
+      "oracle": "Каждый unsupported получает INPUT_INVALID/unsupported_worker_profile без mislabeled point; default реально работает. Legacy NIE recorder отдельно доказывает только forwarding, не mathematical NIE.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py; test_dowhy_identify_estimate.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-04-03",
+      "requirement_ids": [
+        "REQ-CAU-04-02",
+        "REQ-CAU-04-06"
+      ]
+    },
+    {
+      "level": "native source/protocol boundary",
+      "setup": "Actual GraphCausalData CAS source; переставить только outcome values при тех же row IDs, изменить graph/seed/target; malformed reply primitives bool/string/nonfinite и неполный inventory.",
+      "action": "Использовать actual _bound_request и reply validator; сохранить original valid request/reply control.",
+      "oracle": "Aligned original проходит; каждое mismatched content/source/request/effective-field отклонено до consumption. Coercion bool/string и invented inventory не проходят. Synthetic reply допустим для validator negatives, но отдельно labelled.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "foundry/methods/catalog/causal/_dowhy_worker.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-04-04",
+      "requirement_ids": [
+        "REQ-CAU-04-03"
+      ]
+    },
+    {
+      "level": "native two-environment E02-I05-B",
+      "setup": "Primary causal job с actual CAS source и real selected worker; второй point-only controlled case на protocol seam; fresh store/reader.",
+      "action": "Запустить _run_primary_causal_job, сохранить result, перечитать из CAS, выполнить full projection; затем изменить point, SE, CI, p-value, method_params, authority, diagnostic, identified estimand и корректно пересериализовать.",
+      "oracle": "Real interval reaches consumer. Point-only control remains useful without CI. Все восемь semantic mutations отказаны даже при согласованном hash нового payload; удалённый source также refused. Подмена только peer report/envelope не считается native custody.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "scientist/nodes/builtins/simulate/run_causal_evaluation.py; existing selected-worker parent tests",
+      "allowed_doubles_and_prohibitions": "Synthetic panel допустим. Real numerical job не заменять recorder; point-only seam control помечать отдельно, не утверждать что реальный backend обязательно возвращает None.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-04-05",
+      "requirement_ids": [
+        "REQ-CAU-04-01",
+        "REQ-CAU-04-03",
+        "REQ-CAU-04-04"
+      ]
+    },
+    {
+      "level": "bounded scientific qualification",
+      "setup": "200 независимых seeds1000..1199,n180, truth2, existing correctly specified IID Gaussian DGP.",
+      "action": "Выполнить existing non-skipping coverage test; на каждом replicate сравнить actual CI с OLS abs1e-11, сохранить все исходы.",
+      "oracle": "180≤covered≤199 из200 по заранее заданному band; не пересевать после результата. Это только указанный DGP/профиль, не real-data identification/NIE proof.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "workers/dowhy-014/tests/test_worker.py::test_known_gaussian_dgp_nominal_95_coverage_over_independent_replicates",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-04-06",
+      "requirement_ids": [
+        "REQ-CAU-04-05"
+      ]
+    },
+    {
+      "level": "finite lifecycle qualification",
+      "setup": "Census фактических legacy execution_profile, V1 graph_gml и persisted FQN consumers с CAU-05.",
+      "action": "Для каждого реально retained profile replay genuine supported fixture на actual installed version или зафиксировать точный отказ/миграцию.",
+      "oracle": "Таблица supported/replayable/unsupported с источником и сроком поддержки; неизвестная внешняя история не названа отсутствующей. Unsupported NIE не закрыт recorder test.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "CAU-05 lifecycle owner; dowhy_identify_estimate.py::_run_legacy_dowhy",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-04-07",
+      "requirement_ids": [
+        "REQ-CAU-04-06"
+      ]
+    },
+    {
+      "id": "TEST-CAU-04-08",
+      "requirement_ids": [
+        "REQ-CAU-04-05",
+        "REQ-CAU-04-02"
+      ],
+      "level": "real worker plus independent 8-row algebraic numerical oracle",
+      "setup": "Rows(A,X,Y)=(0,-1,-3),(0,1,3),(0,-1,-1),(0,1,5),(1,-1,-1),(1,1,5),(1,-1,1),(1,1,7). DAG X→A,X→Y,A→Y; adjustment[X], exact selected ATE0→1/.95 profile.",
+      "action": "Execute actual worker identify/estimate; independently derive balanced OLS from sums with column order[1,A,X]. Student-t df5 reference: theta=atan(t/sqrt5), F(t)=.5+theta/pi+2sin(2theta)/(3pi)+sin(4theta)/(12pi); bisection F=.975 without SciPy/Statsmodels/DoWhy. Preserve existing adapter parity test separately.",
+      "oracle": "beta=[1,2,3], SSE8,df5,sigma²1.6, Var(A)=.8,SE=.8944271909999159,t(.975,5)=2.570581835636312,CI95=[-.299198290483594,4.299198290483593]. Point/SE atol1e-12,CI atol1e-10 on this well-conditioned design. Row permutation/translated X unchanged, A relabel0↔1 gives point−2 and CI[−4.299198290483593,.299198290483594]. Wrong column/contrast/CI mutant fails analytic oracle.",
+      "expected": "Actual worker positive and independent numerical oracle; NOT_RUN.",
+      "existing_owner": "workers/dowhy-014/tests/test_worker.py; worker.py::linear_ate; existing parent-worker report acceptance",
+      "allowed_doubles_and_prohibitions": "No substitution of actual worker/estimator. Independent test sums/trig allowed; underlying Statsmodels equality remains adapter parity only.",
+      "status": "NOT_RUN",
+      "evidence_required": "Runtime worker inventory, actual identified adjustment/estimator, reference derivation, observed point/SE/CI. DGP coverage denominator remains separate."
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I05-B"
+  ],
+  "dependencies": [
+    {
+      "packet": "CAU-05",
+      "relation": "Единый owner metadata/FQN lifecycle и общей report custody; CAU-04 отвечает за selected DoWhy semantics."
+    },
+    {
+      "packet": "SCM-01/SCM-02",
+      "relation": "Общий worker distribution/protocol owner, но gcm_fit/query не считается квалифицированным тестом linear_ate."
+    }
+  ],
+  "preservation": [
+    "Point без fabricated uncertainty",
+    "Общий SUCCESS guard",
+    "Selected exact ATE/linear/contrast/target/level profile",
+    "Source/request/reply binding и full-report canonical projection",
+    "Explicit legacy boundary и non-gating causal candidate"
+  ],
+  "protected_distinction_ids": [],
+  "design_alignment": [
+    {
+      "source": "policy-engine/docs/system-design-decisions/policy-design-execution-topology.md",
+      "section": "Applicability versus semantic judgment",
+      "application": "LLM может предложить graph/estimand, но actual backend capability и causal assumptions не возникают из подписи."
+    },
+    {
+      "source": "policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+      "section": "D0",
+      "application": "Сохранять полезный partial candidate и расширяемый общий protocol, не специальный обход для каждого неподдержанного запроса."
+    }
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-CAU-04-LEGACY",
+      "question": "Есть ли фактический потребитель broad legacy вне selected ATE?",
+      "owner": "CAU-04 с CAU-05 lifecycle reviewer",
+      "bounded_action": "Проверить tracked callers, declared support и доступные genuine artifacts. Для найденного профиля выбрать actual API qualification либо explicit migration/refusal; предъявить конкретные cases и boundaries.",
+      "default": "Selected ATE остаётся supported; legacy NIE не получает production claim без numerical witness."
+    }
+  ],
+  "technical_solution": "Сначала запускать существующую реализацию, не переписывать partial contract. `_run_dowhy` ограничивает профиль, `worker.linear_ate` делает actual identify/estimate, `_validate_reply_fields` проверяет bindings, `report_from_worker_result` — единственный canonical producer полного отчёта. При новом несовпадении ремонтировать соответствующий owner, не добавлять второй способ вычисления report в Scientist.\n\nПрофили среды разделены: parent Python3.14 с настоящим registry/CAS и worker Python3.12/DoWhy0.14 по существующему lock. Зафиксировать interpreter, observed installed inventory, request/response digest и actual estimator class. Подготовка среды через общий разрешённый I1 процесс, не self-install каждого пакета. Point-only seam тест допустим для контрактного refusal, но численное свидетельство — только actual worker+underlying OLS parity и отдельный TEST-08 analytic oracle.\n\nДля нового estimand сначала требуется существующее version-specific backend capability и handoff всех решающих parameters; новый label в report недостаточен. Если такого запроса нет, сохранить ограниченный рабочий ATE и явный unsupported результат. Это практический free-grow: общий registry/worker protocol расширяем, но не обязуемся изобрести универсальный causal estimator.\n\n**v2 / CS-002:** DoWhy0.14 LinearRegressionEstimator сам вызывает Statsmodels OLS. Существующие TEST-02/06 сохраняют adapter parity/finite coverage, но не обозначаются independent implementation. Новый TEST-08 использует exact balanced design и независимую closed-form Student-t CDF; это repair acceptance, не реальная Gaussian выборка и не доказательство causal assumptions.",
+  "compatibility_and_rollback": "Текущие partial/interval и selected allowlist сохраняются. No mandatory schema change. Если меняется поддержанный inference profile, version и historical reader должны явно различать meaning; старые artifacts не переименовывать в новые authoritative results. Rollback ограничивает новый profile, не возвращает epsilon-CI.",
+  "source_locators": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+      "first_line": 350,
+      "last_line": 630,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py#L350-L630"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/worker.py",
+      "first_line": 69,
+      "last_line": 151,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/workers/dowhy-014/worker.py#L69-L151"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+      "first_line": 146,
+      "last_line": 299,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py#L146-L299"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "first_line": 462,
+      "last_line": 536,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py#L462-L536"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "first_line": 582,
+      "last_line": 615,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py#L582-L615"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/tests/test_worker.py",
+      "first_line": 72,
+      "last_line": 122,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/workers/dowhy-014/tests/test_worker.py#L72-L122"
+    }
+  ],
+  "technical_review_revision": {
+    "version": "PROPOSED_v2",
+    "finding_ids": [
+      "CS-002"
+    ],
+    "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+    "product_test_status": "NOT_RUN",
+    "new_test_ids": [
+      "TEST-CAU-04-08"
+    ],
+    "compatibility": "Original source/residual/preservation mappings retained; added requirement-test edges are local companion evidence until aggregate map owner review."
+  }
+}

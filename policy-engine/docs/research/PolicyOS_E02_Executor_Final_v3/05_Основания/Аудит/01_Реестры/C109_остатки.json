@@ -1,0 +1,41 @@
+{
+  "pass_id": "C109",
+  "bundle": "CAL-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C109-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "title": "Single-run caller обходит исправленную finite-loss admission",
+      "evidence": [
+        "P05",
+        "S01:35–53",
+        "S02:485–510",
+        "S02:3267–3304"
+      ],
+      "remaining": "Применить одинаковую finite-result admission перед final projection для одного и нескольких стартов. Сохранить ограниченные конечные результаты с явными diagnostics; отсутствие конечного кандидата должно иметь отдельный failure/limited-result контракт, а не обычный selected run. Не удалять loss history и не запрещать все ill-conditioned модели.",
+      "limits": "Точный actual selection if и lower-loss helper исполнены с fixture run dictionaries. Единственный inf передаётся в final phase; public selector его отвергает, два старта выбирают конечный. Diagnostics сохраняются. Full optimizer, report return/persistence и downstream scientific acceptance не запускались."
+    },
+    {
+      "id": "C109-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Нативная двухстартовая OTel/JAX интеграция остаётся непроверенной",
+      "evidence": [
+        "P01",
+        "P02",
+        "P04",
+        "S08",
+        "commands.json"
+      ],
+      "remaining": "В поддерживаемой среде выполнить два actual starts с OTel и без него, проверить fresh span identity/lifecycle, primary exception policy и selection reason. Один маленький JAX Hessian должен подтвердить raw degeneracy→consumer filtering. Общий integration fixture LANE-10 допустим вместо дублирования для каждого пакета.",
+      "limits": "Stdlib one-shot contexts не OTel SDK. Actual finite-difference fallback с NumPy и явно недоступным autodiff не подтверждает native JAX Hessian. Test table не доказывает глобальный минимум, идентификацию или эмпирическую validity."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C109-R01"
+  ],
+  "decision": "Fresh span factory и multi-start selection полезно исправлены; single-run caller bypass и supported-runtime qualification остаются."
+}

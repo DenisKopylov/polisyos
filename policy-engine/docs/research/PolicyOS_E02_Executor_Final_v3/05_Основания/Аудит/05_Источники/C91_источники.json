@@ -1,0 +1,299 @@
+{
+  "pass_id": "C91",
+  "bundle": "CAL-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/foundry/calibration/preflight.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/preflight.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          326
+        ]
+      ],
+      "evidence_level": "Полный owner прочитан. Whole AST исполнен с единственным исключением unavailable import jax.numpy; jnp явно NumPy fixture. Native JAX не заявлен.",
+      "git_blob": "14d17c4359013a98d6bd78733dab818aa11da394",
+      "sha256": "bd8dde0b985904a6d1a9af5da06885055adf78242933e8af48d559ec389cc8cf",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/foundry/calibration/measurement.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/measurement.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          681
+        ]
+      ],
+      "evidence_level": "Полный owner прочитан и actual whole module imported; собственный supported NumPy fallback. Compiler, metadata/quality adapter исполнены; optimizer/gradient нет.",
+      "git_blob": "872828461d04ddce98febd8a620a00ff8df78625",
+      "sha256": "be1de99f1764725d501ddaf2f1136ed40c39d02df456aef4478a497138ace350",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/ir/analytics/calibration.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/calibration.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          470
+        ]
+      ],
+      "evidence_level": "Полный config source прочитан. Actual class bodies TargetAlignConfig–CalibrationConfig 204–470 extracted unchanged; unrelated analytics import graph не исполнялся.",
+      "git_blob": "8b88c6610d875997e4a0b9feecfe6620344e21ae",
+      "sha256": "0fbfec3e929f2562c31a2b554c8d61e6dc2162a6312d8576984e2d7d5fcd2c79",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/ir/observation/contracts.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/observation/contracts.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          254
+        ]
+      ],
+      "evidence_level": "Полный contract source-qualified C89 и повторно relevant record/panel validators C91. Actual whole module imported, real Pydantic validation executed.",
+      "git_blob": "0e0aa931227d023ce5691b17ef26562a0dbc9117",
+      "sha256": "efbe3ca78107dc47158d01c30b03cca4f16074b2ad37f3573fb581e423fdf2d4",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/ir/observation/bundles.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/observation/bundles.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          100
+        ],
+        [
+          109,
+          115
+        ],
+        [
+          285,
+          301
+        ]
+      ],
+      "evidence_level": "Relevant complete five manifest DTO class bodies read/unchanged AST executed. Не весь original module import: unrelated analytics unavailable on Python3.12.",
+      "git_blob": "e1c61a894b2c0a923d42312bad1f75e5d7003046",
+      "sha256": "34f689a2b3feb3f265cf9a006029f84cb80c57f64858ee8ec58056c1a1bad167",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/ir/observation/compiler.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/observation/compiler.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          217
+        ]
+      ],
+      "evidence_level": "Полный neutral split owner прочитан и actual whole module импортирован/исполнен. Split dates не объявлены эмпирически правильными для произвольного домена.",
+      "git_blob": "b5392c03c0da454741c35f8a6423439fe2bb13b4",
+      "sha256": "1a445f61eee78e47c191ea1ef2ab55fc7e9483111d1b9f9f2c8837831b58c9fe",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/ir/observation/measurement.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/observation/measurement.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          73
+        ],
+        [
+          106,
+          131
+        ],
+        [
+          262,
+          610
+        ]
+      ],
+      "evidence_level": "Relevant full registry, trust normalization, router and schema registry source read; actual whole module imported. Trust/routing не заменены фикстурой, authority не доказана.",
+      "git_blob": "8a5942ddd36eeee3e113ff6026848cdfb6c4ead0",
+      "sha256": "173fd6fe6f8a2b93582f10a02bee0f974c37d8657b7a5d244605229a265f5166",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          765,
+          779
+        ],
+        [
+          2380,
+          2595
+        ]
+      ],
+      "evidence_level": "Actual raw/measurement consumer branches и time-axis projection прочитаны; full optimizer/selected report execution UNRUN. Model batch branch не смешивается с raw/measurement paths.",
+      "git_blob": "dd435dced710805345da768fb14341b98671dac6",
+      "sha256": "f23b724aa07a447fbf10effad60c28f7e286ff137e2805e4e4a195adc28ac6a1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/foundry/calibration/loss.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/loss.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          156
+        ]
+      ],
+      "evidence_level": "Полный downstream numeric loss owner прочитан; finite targets/predictions guard сохраняется. Native JAX loss НЕ исполнен.",
+      "git_blob": "6bc8e542a8ed4a3cf9f85b218397ee0d7e601dde",
+      "sha256": "a3c7dcf6b118d88b7b3f1b0bc60f8ec390cd2229232f75e8f7ff0b6c022f9e58",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/tests/unit/remediation/test_cal_01.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_cal_01.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          326
+        ]
+      ],
+      "evidence_level": "Полный regression corpus прочитан; все10 test bodies/11 cases unchanged AST исполнены; helper records/config actual DTOs.",
+      "git_blob": "593daa22292e0da7f5da8475a9104b20212274de",
+      "sha256": "8c343db6ca5d1003606156e47cc9fd47da3c484dd2a5b946a8527bc785628441",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_preflight.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/calibration/test_preflight.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          61
+        ]
+      ],
+      "evidence_level": "Полный файл:8 class test bodies unchanged AST исполнены.",
+      "git_blob": "f5ab84d83eefeaa76151d82effb86a3d60d8f9ef",
+      "sha256": "9ad2fc73c496ad44c435d1f2c50e0b2e0072dfcc5663756e6116ca1017abb9c3",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_measurement.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/calibration/test_measurement.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          250
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан; только _panel и compiler missing-mask body unchanged executed. JAX gradient/loss/placebo остальные tests не посчитаны PASS.",
+      "git_blob": "0f55a4b2141dc4e44b0be17f5eee79ff3858706e",
+      "sha256": "6a5d4c5ba8881884004fc0c9552528d9537dcf233ff5614750939803e20c531b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/foundry/calibration/README.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/README.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          85
+        ]
+      ],
+      "evidence_level": "Ownership/entrypoints/explicit scientific limitations прочитаны. Не весь README source-qualified C91.",
+      "git_blob": "94df249367a4ebe202bd8d540a84c20a286bed7b",
+      "sha256": "1aa3aab0b1158d7986fbfa212b08133013447d77151a92f1f3f3a280b15274c6",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/calibration/README.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/calibration/README.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          25
+        ]
+      ],
+      "evidence_level": "Predictive diagnostics vs Foundry vs DDM ownership; LK01 сохранено, не слияние по имени.",
+      "git_blob": "f227b7056d381936aa6a39efd6116c6a17bb33b6",
+      "sha256": "e187bb22c0200770bcf3cc5d2f016efa495b20b7f38902d1e58e0801815d4a9b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/src/polisyos/ddm/calibration/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ddm/calibration/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          28
+        ]
+      ],
+      "evidence_level": "Actual DDM facade detector calibration exports, distinct responsibility; native DDM не исполнялся.",
+      "git_blob": "5a00679dcbc00a939d02ec844a7b7e32d0439946",
+      "sha256": "1accd35304221d8cbc248b22f8b99a57b74fadb69619111f072ea5460241f219",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/src/polisyos/ddm/calibration/calibrate.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ddm/calibration/calibrate.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          12
+        ]
+      ],
+      "evidence_level": "Module scope false-positive certification подтверждён header, весь DDM algorithm не аудировался CAL01.",
+      "git_blob": "ae0315d505172721e4f018be7d7608676385be96",
+      "sha256": "eee9493030c961f89159d7d1f298b319377ff0656b0fe4555a443f3ac98409a8",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

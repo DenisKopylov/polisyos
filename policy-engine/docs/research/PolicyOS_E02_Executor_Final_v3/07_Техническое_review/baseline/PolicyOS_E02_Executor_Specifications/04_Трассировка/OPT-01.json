@@ -1,0 +1,615 @@
+{
+  "packet_id": "OPT-01",
+  "lane": "LANE-02",
+  "title": "Полная неизменная координата и полезный Pareto-фронт",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B108",
+    "B109",
+    "B110",
+    "B111"
+  ],
+  "audit_reports": [
+    "02_Пакеты/OPT-01.md"
+  ],
+  "audit_report_sha256": "1c657929a0bd65872f81909d7b91fda715333e687acaf4ec05cac3e1bb5930b3",
+  "sourceplan_lines": [
+    2251,
+    2385
+  ],
+  "practical_goal": "Получить из настоящих измерений согласованный фронт и перечитать его без потери split/unit/direction; не объявлять частичный набор полным пространством политик.",
+  "requirements": [
+    {
+      "id": "REQ-OPT-01-01",
+      "text": "Перед is_dominated сравнивать complete-схему front с активным эффективным договором; несовместимость не возвращает False.",
+      "source_ids": [
+        "B108",
+        "B109",
+        "B110",
+        "B111"
+      ],
+      "audit_ids": [
+        "remaining:0175",
+        "remaining:0179",
+        "preserve:0290",
+        "preserve:0291",
+        "preserve:0293",
+        "audit-residual:C18_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-OPT-01-01"
+      ]
+    },
+    {
+      "id": "REQ-OPT-01-02",
+      "text": "Эффективная comparison policy и выдаваемые snapshots не изменяются через caller alias.",
+      "source_ids": [
+        "B108",
+        "B109",
+        "B110",
+        "B111"
+      ],
+      "audit_ids": [
+        "remaining:0176",
+        "preserve:0290",
+        "preserve:0291",
+        "audit-residual:C18_остатки:1"
+      ],
+      "test_ids": [
+        "TEST-OPT-01-02"
+      ]
+    },
+    {
+      "id": "REQ-OPT-01-03",
+      "text": "Полная canonical coordinate сохраняется в реальном registry/CAS/readback; display collision и неподтверждённый split/unit не маскируются.",
+      "source_ids": [
+        "B108",
+        "B109",
+        "B110",
+        "B111"
+      ],
+      "audit_ids": [
+        "remaining:0177",
+        "remaining:0178",
+        "preserve:0290",
+        "preserve:0291",
+        "audit-residual:C18_остатки:2",
+        "audit-residual:C18_остатки:3"
+      ],
+      "test_ids": [
+        "TEST-OPT-01-03"
+      ]
+    },
+    {
+      "id": "REQ-OPT-01-04",
+      "text": "Квалифицировать существующий strict comparator и частичный полезный фронт без переписывания исправленного алгоритма.",
+      "source_ids": [
+        "B108",
+        "B109",
+        "B110",
+        "B111"
+      ],
+      "audit_ids": [
+        "remaining:0173",
+        "remaining:0174",
+        "remaining:0179",
+        "preserve:0288",
+        "preserve:0289",
+        "preserve:0292",
+        "preserve:0293"
+      ],
+      "test_ids": [
+        "TEST-OPT-01-04"
+      ]
+    },
+    {
+      "id": "REQ-OPT-01-05",
+      "text": "Фискальный score получать по объявленному measurement law, не отождествляя balance-stock и period deficit по ключу.",
+      "source_ids": [
+        "B108",
+        "B109",
+        "B110",
+        "B111"
+      ],
+      "audit_ids": [
+        "remaining:0171",
+        "remaining:0172",
+        "preserve:0286",
+        "preserve:0287",
+        "audit-residual:C18_остатки:5"
+      ],
+      "test_ids": [
+        "TEST-OPT-01-05"
+      ]
+    },
+    {
+      "id": "REQ-OPT-01-06",
+      "text": "Hypervolume потреблять с явным алгоритмом, reference и пределом точности.",
+      "source_ids": [
+        "B108",
+        "B109",
+        "B110",
+        "B111"
+      ],
+      "audit_ids": [
+        "remaining:0180",
+        "preserve:0294",
+        "audit-residual:C18_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-OPT-01-06"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-OPT-01-01",
+      "requirement_ids": [
+        "REQ-OPT-01-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Front holdout score=2; queried score=1; fresh JSON reader; четыре owner со сменой metric/split/unit/direction и переставленная эквивалентная схема.",
+      "action": "Вызвать реальный is_dominated после round-trip, затем повторить на partial front с known witness.",
+      "oracle": "Совместимый witness True; чужая полная схема — конкретная несовместимость, не False; порядок тех же осей не меняет отношение.",
+      "expected": "Complete same-basis без witness даёт False; partial без witness не даёт доказанного False; missing query не сравним.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-OPT-01-02",
+      "requirement_ids": [
+        "REQ-OPT-01-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Один mutable PromotionPolicy maximize selection, A=2/B=1 и holdout A=9; вычисленный front.",
+      "action": "Изменить caller direction/split; изменить returned coordinate_schema и исходную evaluation; повторно вычислить и сериализовать старый/новый результат.",
+      "oracle": "Старый owner сохраняет исходный смысл и hash; old snapshot внутренне согласован; новый явный contract выбирает согласно новой цели.",
+      "expected": "Нет обратного влияния old front на следующий; сохраняются duplicate-coordinate refusal и Pydantic hash/key validation.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-OPT-01-03",
+      "requirement_ids": [
+        "REQ-OPT-01-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Два score split и delimiter-containing metric; источник с заявленным holdout и policy hidden_holdout; настоящий разрешённый store и registry.",
+      "action": "Producer→evaluation→compute_front→persist→fresh reader; проверить обе оси и source basis, затем несовместимый split.",
+      "oracle": "Canonical tradeoff и IDs сохранены; display не теряет ось; непроверенный hidden split/unit не получает measured label.",
+      "expected": "Обычный authorized split проходит; malformed/hash tamper/missing coordinate отказ адресный, не общее отключение исследования.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-OPT-01-04",
+      "requirement_ids": [
+        "REQ-OPT-01-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Сетка {-1,0,1} в 1–4 измерениях, равные кандидаты с разными refs, один invalid и один measured кандидат; actual registry.",
+      "action": "Сопоставить membership с определением weak-all/strict-one, затем перечитать partial result и пройти выбранный consumer.",
+      "oracle": "Fast и slow фронты совпадают; invalid не становится бесконечностью; полезный assessed subset доступен с partial status.",
+      "expected": "Контроль <=→< обнаруживается исходными 2D/3D контрпримерами; ни один равный ID не исчезает; complete относится лишь к входной последовательности.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-OPT-01-05",
+      "requirement_ids": [
+        "REQ-OPT-01-05"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Настоящий producer с direct deficit, эквивалентным по документированному закону представлением, missing/null/0/conflict и stock-only.",
+      "action": "Пройти source observation→BudgetDeficitObjective→search consumer с readback, сравнить score и basis.",
+      "oracle": "Эквивалентные измерения одной величины дают одинаковый score; stock-only не притворяется периодным потоком; законные разные величины не образуют ложный конфликт.",
+      "expected": "Без unit/law ограничивается эта координата; другой полезный objective/candidate путь сохраняется; нет favourable invented zero.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-OPT-01-06",
+      "requirement_ids": [
+        "REQ-OPT-01-06"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "2D oracle и 3D points (10,1,1),(1,10,1),(1,1,10) с нулевым reference; empty/invalid reference.",
+      "action": "Вычислить и сохранить indicator, прочитать actual reporting/ranking consumer.",
+      "oracle": "2D exact=8 для принятого fixture; 3D proxy=1000 не назван exact union=28; несовместимые references не дают сравнимое улучшение.",
+      "expected": "Reference/result finite либо explicit unavailable; пустота не превращается в infinity; membership не меняется ради indicator.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C18_остатки:0",
+      "requirement_ids": [
+        "REQ-OPT-01-01"
+      ],
+      "rationale": "C18-R01: active schema до Boolean.",
+      "disposition": "fix",
+      "audit_id": "C18-R01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C18_остатки:1",
+      "requirement_ids": [
+        "REQ-OPT-01-02"
+      ],
+      "rationale": "C18-R02: immutable effective snapshot.",
+      "disposition": "fix",
+      "audit_id": "C18-R02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C18_остатки:2",
+      "requirement_ids": [
+        "REQ-OPT-01-03"
+      ],
+      "rationale": "Canonical identity не потеряна; исправляется display boundary.",
+      "disposition": "fix",
+      "audit_id": "C18-G01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C18_остатки:3",
+      "requirement_ids": [
+        "REQ-OPT-01-03"
+      ],
+      "rationale": "Source split/unit qualification, не доказанный holdout bypass.",
+      "disposition": "qualify",
+      "audit_id": "C18-G02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C18_остатки:4",
+      "requirement_ids": [
+        "REQ-OPT-01-06"
+      ],
+      "rationale": "Объявленное approximation не выдавать за exact.",
+      "disposition": "qualify",
+      "audit_id": "C18-G03",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C18_остатки:5",
+      "requirement_ids": [
+        "REQ-OPT-01-05"
+      ],
+      "rationale": "Реальный law/producer/consumer и корректный stock-flow смысл.",
+      "disposition": "capability",
+      "audit_id": "C18-G04",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B108",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-OPT-01-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B109",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-OPT-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B110",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-OPT-01-01",
+        "REQ-OPT-01-02",
+        "REQ-OPT-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B111",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-OPT-01-01",
+        "REQ-OPT-01-03",
+        "REQ-OPT-01-04",
+        "REQ-OPT-01-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0171",
+      "requirement_ids": [
+        "REQ-OPT-01-05"
+      ],
+      "rationale": "Настоящее measurement→objective→consumer, не source-only.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0172",
+      "requirement_ids": [
+        "REQ-OPT-01-05"
+      ],
+      "rationale": "Предметный закон stock/flow и cross-family reconciliation.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0173",
+      "requirement_ids": [
+        "REQ-OPT-01-04"
+      ],
+      "rationale": "Native comparator и выбранный consumer.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0174",
+      "requirement_ids": [
+        "REQ-OPT-01-04"
+      ],
+      "rationale": "Актуальный provider-path отдельно от исторического census.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0175",
+      "requirement_ids": [
+        "REQ-OPT-01-01"
+      ],
+      "rationale": "Активная canonical schema.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0176",
+      "requirement_ids": [
+        "REQ-OPT-01-02"
+      ],
+      "rationale": "Изоляция входного и выходного договора.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0177",
+      "requirement_ids": [
+        "REQ-OPT-01-03"
+      ],
+      "rationale": "Display и фактическая split/unit basis.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0178",
+      "requirement_ids": [
+        "REQ-OPT-01-03"
+      ],
+      "rationale": "Producer→CAS→registry→fresh reader.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0179",
+      "requirement_ids": [
+        "REQ-OPT-01-01",
+        "REQ-OPT-01-04"
+      ],
+      "rationale": "Foreign schema отказ, partial semantics сохраняется.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0180",
+      "requirement_ids": [
+        "REQ-OPT-01-06"
+      ],
+      "rationale": "Proxy и exact HV различены; input universe ограничен.",
+      "disposition": "qualify"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0286",
+      "requirement_ids": [
+        "REQ-OPT-01-05"
+      ],
+      "rationale": "Конкретный контракт и oracle: Фискальный score получать по объявленному measurement law, не отождествляя balance-stock и period deficit по ключу.",
+      "test_ids": [
+        "TEST-OPT-01-05"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0287",
+      "requirement_ids": [
+        "REQ-OPT-01-05"
+      ],
+      "rationale": "Конкретный контракт и oracle: Фискальный score получать по объявленному measurement law, не отождествляя balance-stock и period deficit по ключу.",
+      "test_ids": [
+        "TEST-OPT-01-05"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0288",
+      "requirement_ids": [
+        "REQ-OPT-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Квалифицировать существующий strict comparator и частичный полезный фронт без переписывания исправленного алгоритма.",
+      "test_ids": [
+        "TEST-OPT-01-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0289",
+      "requirement_ids": [
+        "REQ-OPT-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Квалифицировать существующий strict comparator и частичный полезный фронт без переписывания исправленного алгоритма.",
+      "test_ids": [
+        "TEST-OPT-01-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0290",
+      "requirement_ids": [
+        "REQ-OPT-01-01",
+        "REQ-OPT-01-02",
+        "REQ-OPT-01-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Перед is_dominated сравнивать complete-схему front с активным эффективным договором; несовместимость не возвращает False.; Эффективная comparison policy и выдаваемые snapshots не изменяются через caller alias.; Полная canonical coordinate сохраняется в реальном registry/CAS/readback; display collision и неподтверждённый split/unit не маскируются.",
+      "test_ids": [
+        "TEST-OPT-01-01",
+        "TEST-OPT-01-02",
+        "TEST-OPT-01-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0291",
+      "requirement_ids": [
+        "REQ-OPT-01-01",
+        "REQ-OPT-01-02",
+        "REQ-OPT-01-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Перед is_dominated сравнивать complete-схему front с активным эффективным договором; несовместимость не возвращает False.; Эффективная comparison policy и выдаваемые snapshots не изменяются через caller alias.; Полная canonical coordinate сохраняется в реальном registry/CAS/readback; display collision и неподтверждённый split/unit не маскируются.",
+      "test_ids": [
+        "TEST-OPT-01-01",
+        "TEST-OPT-01-02",
+        "TEST-OPT-01-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0292",
+      "requirement_ids": [
+        "REQ-OPT-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Квалифицировать существующий strict comparator и частичный полезный фронт без переписывания исправленного алгоритма.",
+      "test_ids": [
+        "TEST-OPT-01-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0293",
+      "requirement_ids": [
+        "REQ-OPT-01-01",
+        "REQ-OPT-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Перед is_dominated сравнивать complete-схему front с активным эффективным договором; несовместимость не возвращает False.; Квалифицировать существующий strict comparator и частичный полезный фронт без переписывания исправленного алгоритма.",
+      "test_ids": [
+        "TEST-OPT-01-01",
+        "TEST-OPT-01-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0294",
+      "requirement_ids": [
+        "REQ-OPT-01-06"
+      ],
+      "rationale": "Конкретный контракт и oracle: Hypervolume потреблять с явным алгоритмом, reference и пределом точности.",
+      "test_ids": [
+        "TEST-OPT-01-06"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I02-B"
+  ],
+  "dependencies": [
+    "OPT-02 делит autotune файлы: один writer на общий контракт; этот пакет владеет Pareto coordinate schema.",
+    "OPT-04 потребляет comparison basis, но владеет champion publication и atomic registry.",
+    "LAW/measurement owner даёт предметный закон; не выдумывать его в generic Pareto layer."
+  ],
+  "preservation": [
+    "Direct deficit aliases с необходимыми units; missing/null/zero/conflicts различены.",
+    "Balance-stock не становится period deficit по одному имени; нормальный declared mapping нужен отдельно.",
+    "Исправленные 2D/3D сравнения и distinct equal identities.",
+    "Направления нормализуются до сравнения; независимый slow oracle остаётся в тестах, не заменяет production fast algorithm.",
+    "Canonical metric/split/unit-state/unit/direction hash; duplicate refusal; display отделён.",
+    "Настоящие Pydantic schema/hash/key-set checks и JSON сохранение tradeoff.",
+    "Missing/nonfinite отдельно от usable subset; точные omission indexes/ids.",
+    "Known witness допускает True, partial assessment не даёт неподтверждённое False.",
+    "Finite reference/HV guards; пустой набор не становится numeric infinity."
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    ""
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-OPT-01-01",
+      "question": "Какой фискальный профиль и преобразование действительно поддержаны текущим producer?",
+      "owner": "OPT-01 с владельцем measurement law",
+      "options": [
+        "direct period-deficit с явно связанными units/period",
+        "вычисление из stock transitions при наличии всех входов закона",
+        "stock-only остаётся not_established"
+      ],
+      "selection_evidence": "Схема actual producer, единицы, период и различающий source→consumer fixture",
+      "required_output": "Версионированный adapter contract и два действительно эквивалентных представления; без научного утверждения по одному имени ключа"
+    }
+  ],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "symbol_or_anchor": "class ParetoPromoter",
+      "lines": [
+        268,
+        300
+      ],
+      "sha256": "a17a8590e44a445a54f3649564f675514c6f2468ce2b6cad5de40ceb913a2716",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py#L268-L300"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "symbol_or_anchor": "    def is_dominated(",
+      "lines": [
+        385,
+        417
+      ],
+      "sha256": "a17a8590e44a445a54f3649564f675514c6f2468ce2b6cad5de40ceb913a2716",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py#L385-L417"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "symbol_or_anchor": "elif kind == \"budget_deficit\":",
+      "lines": [
+        2072,
+        2104
+      ],
+      "sha256": "1e9fefdb189b7bb6afc9aa5fa01f410c14dbdd70afa2918670f41e0017352f66",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/objective.py#L2072-L2104"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-OPT-01-01",
+      "text": "В ParetoPromoter.is_dominated после внутренней DTO-validation сопоставить canonical coordinate IDs/definitions, не display-label и не порядок списка. При различии вернуть существующий адресный отказ сравнения; разрешённое преобразование требует явного adapter и новой basis. Не принуждать True. Положительное свидетельство partial front сохраняется только на совместимой схеме."
+    },
+    {
+      "requirement_id": "REQ-OPT-01-02",
+      "text": "В конструкторе promoter создать маленький immutable/deep-copied contract metric/split/unit/direction. Чтение значений, IDs и schema использовать из одного снимка. DTO результата получает независимую схему; embedded evaluation должен быть согласованным snapshot либо immutable ref, а не изменяемым источником против сохранённых coordinate_values. Не deepcopy сервисы/datasets. Явная смена цели создаёт новый owner/basis."
+    },
+    {
+      "requirement_id": "REQ-OPT-01-03",
+      "text": "Сохранить существующие coordinate IDs в ParetoRegistry consumer. Legacy display-label сделать однозначным только на display-границе либо вернуть explicit collision limitation; не менять математическую identity ради labels. Взять actual BenchmarkEvaluation producer и связать runtime split/unit с policy перед принятием значения: общий holdout dict не доказывает hidden_holdout. Не заявлять обход доступа по локальному adapter."
+    },
+    {
+      "requirement_id": "REQ-OPT-01-04",
+      "text": "Расширить существующий test_pareto малым независимым slow oracle; production 2D/3D skyline оставить быстрым. Проверить направления, равенства с разными candidate IDs, input permutations и сохранённые omission records у настоящего consumer. Прежний registered-provider census не является текущим отсутствием provider: выбрать действующий путь по checkout."
+    },
+    {
+      "requirement_id": "REQ-OPT-01-05",
+      "text": "В существующем objective/source adapter определить поддержанный профиль period, sign, unit и cross-family reconciliation. Direct deficit с units сохраняется, настоящий zero не missing. Если stock/flow действительно преобразуются — требовать наблюдаемые входы закона/период и фиксировать derived basis. Иначе stock-only остаётся not_established. Проверку конфликта balance/deficit применять только к заявленно эквивалентным величинам, а не к законно различным stock и flow."
+    },
+    {
+      "requirement_id": "REQ-OPT-01-06",
+      "text": "Сохранить точную 2D rectangle-union реализацию. Для >2D нынешний bounding-box proxy маркировать как approximation в доступном indicator contract/consumer; если consumer требует exact HV, подключить обоснованный алгоритм отдельно, не переименовывать proxy. Сравнение поколений только на одном declared finite reference и coordinate basis."
+    }
+  ]
+}

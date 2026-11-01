@@ -1,0 +1,54 @@
+{
+  "pass_id": "C123",
+  "bundle": "LEX-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C123-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "title": "Issue grouping теряет границы сегментов typed path",
+      "evidence": [
+        "P06",
+        "S02:647–695",
+        "run02/path_collision_report.json"
+      ],
+      "remaining": "В существующем grouping/fingerprint owner сохранять структурные границы path. Не менять historical report IDs и schema без явного compatibility решения; сохранить multiset/severity semantics.",
+      "limits": "Supported custom backend возвращает разные paths a/b одним сегментом и a,b двумя: fingerprints различны, но grouping одинаков и deltas пуст. Current expr_ast occurrence, persisted reader bypass и institutional admission не доказаны."
+    },
+    {
+      "id": "C123-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Native persistence/selected reader/CLI и historical compatibility требуют исполнения",
+      "evidence": [
+        "S02:505–645",
+        "S08:95–110",
+        "S18",
+        "S21",
+        "commands.json"
+      ],
+      "remaining": "В supported toolchain выполнить actual CAS refs/bytes/manifest reconciliation, old aliases, 1.0 reader-first и opt-in1.1/rollback на native tests, сохранив historical payloads. Не подменять guards fixture CAS.",
+      "limits": "Code/test reading показывает реальные guards и consumer, но bounded helper P05 не native selected-read proof. Original schemas не менялись в аудите."
+    },
+    {
+      "id": "C123-G02",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Report не устанавливает полноту норм, источник права и quantitative impact",
+      "evidence": [
+        "P02",
+        "P04",
+        "S02",
+        "S07:90–125"
+      ],
+      "remaining": "Сохранить explicit backend/context/jurisdiction limitations; при необходимости downstream обосновать source applicability/coverage/context у существующих владельцев. Количественные эффекты направлять в Scientist/Foundry, не выводить по rule type.",
+      "limits": "Default stub честно not implemented; expr_ast выполняет только assigned rules, custom backend semantics unknown. Finite synthetic NormPack не юридическое заключение, causal model или measured KPI; отсутствие универсального rule inventor не дефект."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C123-R01"
+  ],
+  "decision": "Смысловой move/aliases и честные candidate topics подтверждены source/limited execution; low grouping R01 и native/authority G остаются."
+}

@@ -1,0 +1,339 @@
+{
+  "packet_id": "SCL-01",
+  "lane": "LANE-09",
+  "source_ids": [
+    "B17",
+    "LA-024"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/SCL-01.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "title": "Текущий допуск cached страницы и бюджет каждой попытки",
+  "practical_goal": "Доступный поиск продолжает полезные разрешённые попытки, но не отдаёт запрещённый snapshot и не начинает работу после hard deadline.",
+  "work_types": "fix + preserve + native qualification",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C104_остатки:0",
+      "audit_id": "C104-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-SCL-01-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Current admission перед cached result и snippets с сохранением legal reuse."
+    },
+    {
+      "inventory_id": "audit-residual:C104_остатки:1",
+      "audit_id": "C104-R02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-SCL-01-02",
+        "REQ-SCL-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Единый deadline ограничивает каждый provider attempt и честный terminal outcome."
+    },
+    {
+      "inventory_id": "audit-residual:C104_остатки:2",
+      "audit_id": "C104-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-SCL-01-04",
+        "REQ-SCL-01-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Native transport/profile compatibility и явное решение candidate schema; fixture не права на источник."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-SCL-01-01",
+      "text": "Перед возвратом cached страницы fetch_open_page должен проверить текущую применимую policy по initial/final URL и каждому redirect, MIME, известному raw byte_size и пригодности saved profile. Неизвестный требуемый факт не считается доказательством допуска; unchanged разрешённый snapshot должен переиспользоваться без нового raw fetch. При достаточных saved facts offline reuse не зависит от нового DNS/socket access. Pure URL/domain/literal-IP и saved-content policy проверяются до выдачи; live destination resolution выполняется только при отдельно разрешённом fresh fetch.",
+      "source_ids": [
+        "LA-024"
+      ],
+      "audit_ids": [
+        "C104-R01"
+      ],
+      "test_ids": [
+        "TEST-SCL-01-01",
+        "TEST-SCL-01-02"
+      ]
+    },
+    {
+      "id": "REQ-SCL-01-02",
+      "text": "deep_search должен передать единый monotonic deadline в provider failover; перед каждой следующей попыткой вычисляется remaining. При remaining<=0 новый provider не запускается; timeout попытки не превышает min(per-search timeout,remaining). Итог сохраняет partial и точную wall-budget причину, включая истечение в последнем batch.",
+      "source_ids": [
+        "B17"
+      ],
+      "audit_ids": [
+        "C104-R02"
+      ],
+      "test_ids": [
+        "TEST-SCL-01-03"
+      ]
+    },
+    {
+      "id": "REQ-SCL-01-03",
+      "text": "При доступном бюджете []/exception/unusable candidates должны позволять следующий разрешённый provider; trace различает empty/error/filter/normalization и legacy unknown, не заявляя исчерпания знаний по одному ответу.",
+      "source_ids": [
+        "B17"
+      ],
+      "audit_ids": [],
+      "test_ids": [
+        "TEST-SCL-01-03",
+        "TEST-SCL-01-04"
+      ]
+    },
+    {
+      "id": "REQ-SCL-01-04",
+      "text": "Search и seed должны продолжать использовать один redirect-aware raw transport, сохраняя полный документ/bytes/hash/license/source identity, numeric destination/peer проверки и hostname SNI. Local-file/bytes adapters и search extraction остаются отдельными; snippets не заменяют raw.",
+      "source_ids": [
+        "LA-024"
+      ],
+      "audit_ids": [],
+      "test_ids": [
+        "TEST-SCL-01-04",
+        "TEST-SCL-01-05"
+      ]
+    },
+    {
+      "id": "REQ-SCL-01-05",
+      "text": "Native HTTP/TLS/redirect-cycle/proxy и supported runtime квалифицируются на контролируемом разрешённом стенде; candidate schema1.1 не объявляется принятой автоматически. До stronger deployment claim оформить конечное решение совместимости actual producer/consumer contract, сохраняя рабочий текущий supported профиль.",
+      "source_ids": [
+        "B17",
+        "LA-024"
+      ],
+      "audit_ids": [
+        "C104-G01"
+      ],
+      "test_ids": [
+        "TEST-SCL-01-05",
+        "TEST-SCL-01-06"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-SCL-01-01",
+      "requirement_ids": [
+        "REQ-SCL-01-01"
+      ],
+      "level": "native public cache roundtrip",
+      "setup": "Разрешённый actual raw response с redirect, UrlFetchCache JSON put/reload, known MIME/size. После producer put/reload сделать DNS resolver/socket/transport raise-on-call; сохранённые facts достаточны для current offline admission.",
+      "action": "Повторить public fetch/find при unchanged policy; затем blocked final/redirect host, меньшем max_bytes, другом MIME. Повторить allowed cached fetch/find при недоступном DNS; запрещённые cached policy variants тоже проверить без network access. Fresh miss/refresh квалифицировать отдельно с прежними live guards.",
+      "oracle": "Unchanged→cached и 0 новых raw calls; каждый запрещённый cached case не даёт text/snippets. Cold и cached policy outcomes согласованы; old cache bypass test падает на прежнем коде. Eligible persisted cache возвращает прежние text/ref при нуле новых DNS/socket/raw calls; current offline policy denial также не открывает сеть. Existing live resolver перед cache.get должен нарушить positive offline oracle.",
+      "expected": "Positive reuse плюс различающие negatives.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Контролируемый raw transport allowed; cache/index/fetch/find реальные, не fabricated cached record."
+    },
+    {
+      "id": "TEST-SCL-01-02",
+      "requirement_ids": [
+        "REQ-SCL-01-01"
+      ],
+      "level": "native historical cache profile",
+      "setup": "Persisted legacy records с missing byte_size/profile/redirect metadata и известные valid records; no fabricated rights.",
+      "action": "Применить current constraints; выполнить явный permitted refresh отдельно.",
+      "oracle": "Missing required facts → explicit unusable-cache/gap либо разрешённый refresh по existing call policy, не silent equivalence. Известные достаточные факты допускают reuse без требования полного identity совпадения всех несущественных полей.",
+      "expected": "Безопасная совместимость, не blanket cache-disable.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Не обращаться к запрещённому host ради проверки saved content; не считать DNS today историческим peer proof."
+    },
+    {
+      "id": "TEST-SCL-01-03",
+      "requirement_ids": [
+        "REQ-SCL-01-02",
+        "REQ-SCL-01-03"
+      ],
+      "level": "native deterministic deadline",
+      "setup": "Actual service и ProviderFailoverPolicy, monotonic injected clock; budget1, first empty ends t2; boundary remaining0; success when second finishes within budget.",
+      "action": "Вызвать deep_search и legacy policy interface; inspect passed timeouts/attempts/partial/notes.",
+      "oracle": "Expired→second count0, partial=True, stopped:max_wall_time_s ровно с реальной причиной; available→second called with bounded timeout и hits preserved; cancellation не превращается в continue-all. Prebatch guard сохраняется.",
+      "expected": "Old t2 second-call reproducer различающий; положительный failover обязателен.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Provider/clock doubles allowed; service/policy реальные, не sleep-based flaky race."
+    },
+    {
+      "id": "TEST-SCL-01-04",
+      "requirement_ids": [
+        "REQ-SCL-01-03",
+        "REQ-SCL-01-04"
+      ],
+      "level": "native provider/adapters preservation",
+      "setup": "First [], first exception, normalized-invalid, all-filtered и legacy list-only provider; raw HTML/bytes/local file.",
+      "action": "Actual policy/search/discover adapters; inspect ordered trace и full byte input downstream.",
+      "oracle": "Причины/counts только наблюдаемые; legacy raw counts None; provider ABI/error text сохраняется. Full document не snippets; local path/bytes живы.",
+      "expected": "Полезный second result и исходные adapters.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Fake provider/response allowed; не fake policy/normalizer/adapter outputs."
+    },
+    {
+      "id": "TEST-SCL-01-05",
+      "requirement_ids": [
+        "REQ-SCL-01-04",
+        "REQ-SCL-01-05"
+      ],
+      "level": "native controlled transport integration",
+      "setup": "Supported Python3.14, локальный разрешённый HTTP/TLS fixture и explicit private-network opt-in; valid numeric peer, redirects/loop/oversize/timeout/MIME, отказ proxy where current contract disallows.",
+      "action": "Пройти обоими actual adapters через discover/transport; inspect raw hashes и hostname SNI/peer binding.",
+      "oracle": "Valid bytes одинаковы; invalid hop/peer/MIME/size не выдаётся; loop bounded. Opt-in не отключает остальные проверки. Ни internet access, ни current source rights не выводятся из fixture.",
+      "expected": "Positive real native stack и targeted refusals.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Local server/transport endpoints allowed; no external production fault injection. Не подменять CAS/Python imports shims."
+    },
+    {
+      "id": "TEST-SCL-01-06",
+      "requirement_ids": [
+        "REQ-SCL-01-05"
+      ],
+      "level": "finite compatibility decision",
+      "setup": "Actual current schema/consumer requirements и candidate1.1 docs, supported platform/proxy policy.",
+      "action": "Составить таблицу field/producer/reader/version и выполнить выбранные supported combinations.",
+      "oracle": "Решение: оставить текущий supported schema либо явно forward-migrate candidate при подтверждённых consumers; нет скрытого принятия ratification. Unsupported profile marked, не фиктивный PASS.",
+      "expected": "Bounded qualification output, не новая архитектура.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Source rights проверяются только по имеющимся конкретным источникам; не выдумывать universal public-web grant."
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I09-A"
+  ],
+  "dependencies": [
+    "SCL-03 shared fetch profile writer coordination; E02-I09-A"
+  ],
+  "preservation": [
+    "Переход после пустого ответа и exception",
+    "Точные причины и legacy unknown",
+    "Один raw transport и разные typed adapters",
+    "Raw bytes, license metadata и source identity",
+    "Local-file и bytes источники",
+    "Numeric destination/peer guards и hostname SNI",
+    "Допустимый cache reuse и pre-batch budget guard"
+  ],
+  "design_alignment": [
+    "Vision §3,7,11; North Star §5,7; LK09"
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0043",
+      "requirement_ids": [
+        "REQ-SCL-01-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Current admission перед cached result и snippets с сохранением legal reuse."
+    },
+    {
+      "inventory_id": "remaining:0044",
+      "requirement_ids": [
+        "REQ-SCL-01-02",
+        "REQ-SCL-01-03"
+      ],
+      "disposition": "fix",
+      "rationale": "Единый deadline ограничивает каждый provider attempt и честный terminal outcome."
+    },
+    {
+      "inventory_id": "remaining:0045",
+      "requirement_ids": [
+        "REQ-SCL-01-04",
+        "REQ-SCL-01-05"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native transport/profile compatibility и явное решение candidate schema; fixture не права на источник."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0053",
+      "requirement_ids": [
+        "REQ-SCL-01-03"
+      ],
+      "test_ids": [
+        "TEST-SCL-01-03",
+        "TEST-SCL-01-04"
+      ],
+      "rationale": "Empty/exception failover работает при бюджете."
+    },
+    {
+      "inventory_id": "preserve:0054",
+      "requirement_ids": [
+        "REQ-SCL-01-03"
+      ],
+      "test_ids": [
+        "TEST-SCL-01-04"
+      ],
+      "rationale": "Trace observed reasons, legacy unknown."
+    },
+    {
+      "inventory_id": "preserve:0055",
+      "requirement_ids": [
+        "REQ-SCL-01-04"
+      ],
+      "test_ids": [
+        "TEST-SCL-01-04",
+        "TEST-SCL-01-05"
+      ],
+      "rationale": "Единственный raw transport, typed adapters различны."
+    },
+    {
+      "inventory_id": "preserve:0056",
+      "requirement_ids": [
+        "REQ-SCL-01-04"
+      ],
+      "test_ids": [
+        "TEST-SCL-01-04",
+        "TEST-SCL-01-05"
+      ],
+      "rationale": "Full bytes/license/source identity retained."
+    },
+    {
+      "inventory_id": "preserve:0057",
+      "requirement_ids": [
+        "REQ-SCL-01-04"
+      ],
+      "test_ids": [
+        "TEST-SCL-01-04"
+      ],
+      "rationale": "Local-file/bytes не удаляются."
+    },
+    {
+      "inventory_id": "preserve:0058",
+      "requirement_ids": [
+        "REQ-SCL-01-04"
+      ],
+      "test_ids": [
+        "TEST-SCL-01-05"
+      ],
+      "rationale": "Numeric peer и hostname SNI сохраняются."
+    },
+    {
+      "inventory_id": "preserve:0059",
+      "requirement_ids": [
+        "REQ-SCL-01-01",
+        "REQ-SCL-01-02"
+      ],
+      "test_ids": [
+        "TEST-SCL-01-01",
+        "TEST-SCL-01-03"
+      ],
+      "rationale": "Legal reuse и prebatch budget guard положительно проверены."
+    }
+  ],
+  "owners": [
+    "src/polisyos/scholar/search/fetcher.py::fetch_open_page",
+    "src/polisyos/scholar/search/providers.py::ProviderFailoverPolicy",
+    "src/polisyos/scholar/search/service.py::deep_search"
+  ],
+  "protected_distinction_ids": [
+    "LK09"
+  ]
+}

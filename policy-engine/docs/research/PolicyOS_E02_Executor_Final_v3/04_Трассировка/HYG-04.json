@@ -1,0 +1,338 @@
+{
+  "packet_id": "HYG-04",
+  "title": "Canonical bootstrap/benchmarks и один CP6 build window",
+  "goal": "Сохранить ранний JAX setup, рабочие benchmark commands и настоящие apps при retirement точных старых адресов.",
+  "work_type": "C126-G01 lifecycle; G02 supported bootstrap qualification; G03 docs/build qualification",
+  "preservation": [
+    "Common early JAX defaults/setdefault и explicit overrides.",
+    "Canonical bootstrap4profiles и root benchmark suite IDs/CLI.",
+    "Independent research tools, LK16 shell/dashboard/client и LK23 styleguide не удаляются."
+  ],
+  "technical_solution": [
+    "Finite census точных3benchmark addresses, migrate actual jobs/imports to root benchmarks and remove only after supported exit. Existing advanced census mechanism preferred lexical-only scan. Preserve independent jax/lex/data tools.",
+    "Common jax_env now package, not old jax_env.py. Keep apply_jax_env_defaults before actual heavy imports. Bootstrap tests record CommandSpec/run_command, не запускать real system bootstrap. Late demo reference inspect/reproduce in supported selected smoke; do not reconstruct removed domain.state to satisfy stale path blindly.",
+    "Root CP6 orchestration reuses existing workspace build/docs/Q2 results for all four lane packets. Build artifact evidence passes CYC-05 bridge owner; no separate readiness issuer here."
+  ],
+  "owners": [
+    "src/polisyos/common/jax_env/__init__.py",
+    "tools/devx/workspace/bootstrap.py",
+    "tools/research/benchmarks/metrics.py",
+    "tools/research/benchmarks/harness.py",
+    "tools/research/benchmarks/suite_registry.py",
+    "tools/quality/validation/check_docs_lifecycle.py",
+    "tests/unit/common/jax_env/test__policy.py",
+    "tests/unit/remediation/test_hyg_04.py"
+  ],
+  "shared_scenarios": [
+    "E02-I12-A"
+  ],
+  "coordination": "LANE-12 производит actual build/distribution/census evidence с artifact binding. CYC-05 владеет positive build/deployment→N6 readiness bridge в existing confidence_ledger и runtime currentness; здесь не создавать второй issuer/registry. CP6 — одно общее окно Q2/package qualification, не build на каждый alias. CLI-01 owns generated client family; reuse its Node22 results, no parallel install/build.",
+  "compatibility": "Retired wrappers не восстановить ради obsolete selector. External setup/URL obligations receive explicit decision; no automatic sunset. Canonical suite output remains stable; actual apps retain separate roles.",
+  "design_alignment": [
+    "[North Star §2](../05_Основания/Архитектура/policy-design-causal-operating-system-north-star.md#2-everything-reduces-to-data--but-the-causal-structure-is-not-data) и [синтез §4](../05_Основания/Исследование/design_direction.md): общий действующий owner сохраняется, удаление исторического адреса не заменяет способность; новые compatible resources подключаются через существующий механизм."
+  ],
+  "open_decisions": [
+    "DEC-HYG-04-01: benchmark3aliases finite migration/exit table; DEC-HYG-04-02: exact external setup/URL obligations and late-demo consumer scope. Each has source evidence, selected action, acceptance; not all delayed by one unknown external caller."
+  ],
+  "acceptance": "Native recording/import-order, full links and actual build separately. No installer execution for test. Metadata suite listing не scientific benchmark validation.",
+  "lane": "LANE-12",
+  "source_ids": [
+    "LA-011",
+    "LA-012",
+    "LA-013"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/HYG-04.md"
+  ],
+  "requirements": [
+    {
+      "text": "Три benchmark aliases должны получить finite caller/config/job/package migration и отдельный retirement/temporary support outcome, сохраняя canonical algorithms и CLI contract.",
+      "source_ids": [
+        "LA-012"
+      ],
+      "audit_ids": [
+        "C126-G01"
+      ],
+      "id": "REQ-HYG-04-01",
+      "test_ids": [
+        "TEST-HYG-04-01"
+      ]
+    },
+    {
+      "text": "Canonical bootstrap и JAX preparation должны сохранять profile commands и применять defaults до numerical imports, не перезаписывая explicit environment.",
+      "source_ids": [
+        "LA-011"
+      ],
+      "audit_ids": [
+        "C126-G02"
+      ],
+      "id": "REQ-HYG-04-02",
+      "test_ids": [
+        "TEST-HYG-04-02"
+      ]
+    },
+    {
+      "text": "Удалённые install.sh/jax_bootstrap/frontend redirect должны оставаться retired при проверенной навигации/lifecycle obligations; дата сама по себе не evidence миграции всех пользователей.",
+      "source_ids": [
+        "LA-011",
+        "LA-013"
+      ],
+      "audit_ids": [
+        "C126-G02",
+        "C126-G03"
+      ],
+      "id": "REQ-HYG-04-03",
+      "test_ids": [
+        "TEST-HYG-04-03"
+      ]
+    },
+    {
+      "text": "Shared CP6 build/distribution qualification должна сохранять actual apps/packages/research tools и declared roles; early import guard не выдаётся за full demo/production UI proof.",
+      "source_ids": [
+        "LA-011",
+        "LA-012",
+        "LA-013"
+      ],
+      "audit_ids": [
+        "C126-G02",
+        "C126-G03"
+      ],
+      "id": "REQ-HYG-04-04",
+      "test_ids": [
+        "TEST-HYG-04-03",
+        "TEST-HYG-04-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "wrapper/canonical CLI",
+      "setup": "metrics/harness/suite_registry actual imports, canonical and legacy CLI good/bad arguments; jobs/config census.",
+      "action": "Compare object identity/stdout/stderr/exit before migration, run canonical after chosen retirement.",
+      "oracle": "Identity exact, suite IDs and exit semantics stable. All found jobs updated; unresolved external surface explicitly retained narrow; no inherited DEFAULT_SHIM_SUNSET invented.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-HYG-04-01",
+      "requirement_ids": [
+        "REQ-HYG-04-01"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "native bootstrap recording + early subprocess",
+      "setup": "Supported3.14; four actual profiles; invalid profile; Darwin/Linux with explicit JAX overrides and Metal opt-in.",
+      "action": "Replace only run_command with recorder; guard immediately before JAX/Equinox/Foundry import in actual entrypoints.",
+      "oracle": "Exact frozen sync/profile commands, invalid exit2; no installation executed. Defaults established before import, overrides untouched. Early guard does not attest subsequent workload.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-HYG-04-02",
+      "requirement_ids": [
+        "REQ-HYG-04-02"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "docs/lifecycle/workspace",
+      "setup": "Actual links and notices, removed paths, protected apps/packages.",
+      "action": "Existing full docs lifecycle/link commands and shared package inventory; negative120day no-ADR fixture.",
+      "oracle": "No dangling active navigation to retired path; justified external redirect if needed. Lifetime/date policy tested as implemented, not assumed today>sunset. Protected shell/dashboard/styleguide present.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-HYG-04-03",
+      "requirement_ids": [
+        "REQ-HYG-04-03",
+        "REQ-HYG-04-04"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "E02-I12-A CP6 capability smoke",
+      "setup": "Existing actual Q2/package build, selected benchmark/demo consumers; run_mechanism_design late foundry.domain.state reference explicitly inspected.",
+      "action": "One shared build and bounded supported canonical benchmark smoke; diagnose actual demo path before claiming complete.",
+      "oracle": "Artifacts/imports/command exit valid within declared profile; reachable retired import fixed via actual current owner or explicit demo unsupported decision, not hidden behind early-order PASS. Shell diagnostics call generated client; formatter not authority issuer.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-HYG-04-04",
+      "requirement_ids": [
+        "REQ-HYG-04-04"
+      ],
+      "status": "NOT_RUN"
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "LA-011",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Wrappers removed; early timing/public native/external setup validate.",
+      "requirement_ids": [
+        "REQ-HYG-04-02",
+        "REQ-HYG-04-03",
+        "REQ-HYG-04-04"
+      ]
+    },
+    {
+      "audit_id": "LA-012",
+      "disposition": "lifecycle",
+      "shared_owner": null,
+      "rationale": "Three wrappers still forwarding, exact migration needed.",
+      "requirement_ids": [
+        "REQ-HYG-04-01",
+        "REQ-HYG-04-04"
+      ]
+    },
+    {
+      "audit_id": "LA-013",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Redirect absent; actual docs/build links qualify.",
+      "requirement_ids": [
+        "REQ-HYG-04-03",
+        "REQ-HYG-04-04"
+      ]
+    },
+    {
+      "audit_id": "C126-G01",
+      "disposition": "lifecycle",
+      "shared_owner": null,
+      "rationale": "Actual census existing owners, no blanket directory deletion.",
+      "requirement_ids": [
+        "REQ-HYG-04-01"
+      ],
+      "inventory_id": "audit-residual:C126_остатки:0"
+    },
+    {
+      "audit_id": "C126-G02",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Recording no installs; late demo retired import is explicit follow-through risk.",
+      "requirement_ids": [
+        "REQ-HYG-04-02",
+        "REQ-HYG-04-03",
+        "REQ-HYG-04-04"
+      ],
+      "inventory_id": "audit-residual:C126_остатки:1"
+    },
+    {
+      "audit_id": "C126-G03",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Full links/build and protected apps, not new frontend.",
+      "requirement_ids": [
+        "REQ-HYG-04-03",
+        "REQ-HYG-04-04"
+      ],
+      "inventory_id": "audit-residual:C126_остатки:2"
+    }
+  ],
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "SPECIFICATION_NOT_IMPLEMENTED",
+  "dependencies": [],
+  "protected_distinction_ids": [
+    "LK16",
+    "LK23"
+  ],
+  "original_source": "../05_Основания/Аудит/05_Источники/HYG-04_исходные_строки.txt",
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0375",
+      "requirement_ids": [
+        "REQ-HYG-04-01"
+      ],
+      "disposition": "lifecycle",
+      "rationale": "Actual census existing owners, no blanket directory deletion."
+    },
+    {
+      "inventory_id": "remaining:0376",
+      "requirement_ids": [
+        "REQ-HYG-04-02",
+        "REQ-HYG-04-03",
+        "REQ-HYG-04-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Recording no installs; late demo retired import is explicit follow-through risk."
+    },
+    {
+      "inventory_id": "remaining:0377",
+      "requirement_ids": [
+        "REQ-HYG-04-03",
+        "REQ-HYG-04-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Full links/build and protected apps, not new frontend."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0607",
+      "requirement_ids": [
+        "REQ-HYG-04-02"
+      ],
+      "test_ids": [
+        "TEST-HYG-04-02"
+      ],
+      "rationale": "Common early JAX defaults/overrides — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0608",
+      "requirement_ids": [
+        "REQ-HYG-04-02"
+      ],
+      "test_ids": [
+        "TEST-HYG-04-02"
+      ],
+      "rationale": "Canonical bootstrap profiles — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0609",
+      "requirement_ids": [
+        "REQ-HYG-04-01"
+      ],
+      "test_ids": [
+        "TEST-HYG-04-01"
+      ],
+      "rationale": "Root benchmark owners/suite IDs — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0610",
+      "requirement_ids": [
+        "REQ-HYG-04-01",
+        "REQ-HYG-04-04"
+      ],
+      "test_ids": [
+        "TEST-HYG-04-01",
+        "TEST-HYG-04-03",
+        "TEST-HYG-04-04"
+      ],
+      "rationale": "Independent research tools — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0611",
+      "requirement_ids": [
+        "REQ-HYG-04-03",
+        "REQ-HYG-04-04"
+      ],
+      "test_ids": [
+        "TEST-HYG-04-03",
+        "TEST-HYG-04-04"
+      ],
+      "rationale": "Runtime shell/dashboard/client — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0612",
+      "requirement_ids": [
+        "REQ-HYG-04-03",
+        "REQ-HYG-04-04"
+      ],
+      "test_ids": [
+        "TEST-HYG-04-03",
+        "TEST-HYG-04-04"
+      ],
+      "rationale": "CLI styleguide — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    }
+  ]
+}

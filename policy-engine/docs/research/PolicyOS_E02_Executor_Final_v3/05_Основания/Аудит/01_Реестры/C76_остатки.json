@@ -1,0 +1,91 @@
+{
+  "pass_id": "C76",
+  "bundle": "CAS-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C76-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "confidence": "high_bounded",
+      "source_ids": [
+        "B155"
+      ],
+      "title": "Default inventory census полностью материализуется и не прерывается отменой",
+      "evidence": [
+        "S03:5353–5510",
+        "S03:5881–5883",
+        "S02:115–168",
+        "S06:40–100",
+        "P06"
+      ],
+      "remaining": "Расширить существующий authenticated inventory cursor для bounded/cancellable preparation, сохранив complete canonical membership и scoped-owner reconciliation. Не удалять census/authorization проверки ради быстрых tests; отличать bounded pending от O(N) final report.",
+      "limits": "20 fixture artifacts,38 scandir,37 после cancel;0 member reads и0 admitted workers. Report правильно aborted/cancelled. Не измерены RSS/latency и не доказано нарушение доступа; это остаток ресурса/отмены preparation, уже честно описанный в docstring."
+    },
+    {
+      "id": "C76-R02",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "confidence": "high_bounded",
+      "source_ids": [
+        "B155"
+      ],
+      "title": "Дедупликация explicit iterator не наблюдает отмену между повторными ID",
+      "evidence": [
+        "S03:280–291",
+        "S03:3024–3054",
+        "S02:127–151",
+        "P07"
+      ],
+      "remaining": "Связать cooperative stop с existing canonical-ID iterator и завершением inventory; не отказываться от дедупликации. Проверить повторы, distinct-ID control, конечное exhaustion и остановку чтения источника без новой работы.",
+      "limits": "После первого completed item источник выставляет cancel и выдаёт200 повторов; actual dedup поглощает все, next заканчивается StopIteration, batch state=complete с cancel_set=True. Distinct второй ID даёт корректный aborted/cancelled. Не заявлена бесконечная зависшая production operation, лишняя crypto работа или потеря completed rows."
+    },
+    {
+      "id": "C76-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B152",
+        "B154",
+        "B155"
+      ],
+      "title": "Native custody и consumer chain не заменяются actual crypto над fixture store",
+      "evidence": [
+        "S03:2903–3054",
+        "S03:6136–6243",
+        "S06:686–883",
+        "S08:217–292",
+        "P01",
+        "P02",
+        "P05"
+      ],
+      "remaining": "На supported runtime исполнить full initialized FileSystemCAS с tenant/input access, durable sidecar publication, native stream/metrics и CLI projection. Сохранить request-owned authorization-loss signal; отдельный local denial не автоматически global loss.",
+      "limits": "Actual crypto действительно исполнена, включая revoked/untrusted/identity/bad signature; это не production key lifecycle и не проверка всех tenant rules. Context trampoline fixture исполняет context.run, но native PEP695 module не импортирован."
+    },
+    {
+      "id": "C76-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B152",
+        "B154",
+        "B155"
+      ],
+      "title": "Performance, memory и полный semantic downstream остаются отдельной квалификацией",
+      "evidence": [
+        "S01:312–402",
+        "S02:100–202",
+        "S05:601–751",
+        "P01",
+        "P02",
+        "P06"
+      ],
+      "remaining": "При реально используемых объёмах измерить RSS/throughput/storage и максимальный byte-size snapshot наряду с pending count. Final detailed report и unique-ID dedup остаются O(N); при необходимости использовать существующий segmented consumer contract, не незаметно усекать report. Проверить real caller authorizer, где требуется shared-loss reaction.",
+      "limits": "Hash/read counters не являются коэффициентом ускорения. Дополнительный hash внутри public cryptographic verifier проверяет собственный input и не признан старым triple-integrity defect; нельзя принимать внешний declared checksum. Byte/signature validity не доказывает научную истинность или допустимость политики."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C76-R01",
+    "C76-R02"
+  ],
+  "decision": "B152/B154 содержательно отремонтированы в проверенной области; B155 pending bounded, но preparation/cancellation имеет два остатка."
+}

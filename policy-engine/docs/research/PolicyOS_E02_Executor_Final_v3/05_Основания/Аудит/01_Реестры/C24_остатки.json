@@ -1,0 +1,108 @@
+{
+  "pass": "C24",
+  "bundle": "FUN-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C24-R01",
+      "type": "insufficient_or_undefined_correlation_reported_as_measured_drift",
+      "severity": "medium_semantic_routing_explanation",
+      "source_ids": [
+        "B163"
+      ],
+      "location": "stages.py:421–547,682–750",
+      "evidence": [
+        "P04",
+        "P05",
+        "P06"
+      ],
+      "mechanism": "1–2 pairs and constant ranks use correlation0, then nonempty corpus=observed and PROMOTION_BAN measured-drift alert.",
+      "preserve": "No-promotion limit and actual inverse-correlation negative control.",
+      "remaining": "Разделить insufficient/undefined и measured poor correlation, сохранив нужный safety cap.",
+      "limits": "Не обход прав и не снятие ограничения публикации; statistical adequacy не исчерпана локальным опытом."
+    },
+    {
+      "id": "C24-R02",
+      "type": "empty_report_acceptance_false_positive",
+      "severity": "low_diagnostic_criterion",
+      "source_ids": [
+        "B163"
+      ],
+      "location": "calibration_report.py:110–133,190–240",
+      "evidence": [
+        "P26"
+      ],
+      "mechanism": "Empty sample_count0 gives false_negative_rate actual0 passedTrue and Markdown PASS.",
+      "preserve": "Report gaps and no_promotion сохраняются. Genuine measured zeros допустимы.",
+      "remaining": "При отсутствующем eligible denominator показывать GAP/None с причиной.",
+      "limits": "Не весь report зелёный, не scientific promotion authorization."
+    },
+    {
+      "id": "C24-G01",
+      "type": "native_blueprint_same_basis_capability_incomplete",
+      "source_ids": [
+        "B161"
+      ],
+      "evidence": [
+        "S05",
+        "S06",
+        "S11",
+        "S12",
+        "S13"
+      ],
+      "remaining": "Native blueprint producer явно not_established/semantic_scopeNone; довести existing selected method/source/task basis до same-basis assessment и consumer. Substantial v2/RuntimeHTE путь уже существует, native replay UNRUN."
+    },
+    {
+      "id": "C24-G02",
+      "type": "calibration_snapshot_producer_consumer_handoff",
+      "source_ids": [
+        "B163"
+      ],
+      "evidence": [
+        "P07",
+        "P08",
+        "P09",
+        "P25",
+        "S03",
+        "S04"
+      ],
+      "remaining": "Actual report builder не содержит snapshot ожидаемый reader; metrics сохранены, mutable corpus не восстановлен этим путём. Подключить существующий snapshot и квалифицировать scope compatibility."
+    },
+    {
+      "id": "C24-G03",
+      "type": "owner_authorized_effectful_promotion_bridge_missing",
+      "source_ids": [
+        "B164"
+      ],
+      "evidence": [
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "S07",
+        "S08"
+      ],
+      "remaining": "L6 намеренно не вызывает runner без owner-issued permit/current independent verification/revoke-serialized commit. Нужен actual protected writer, не возвратbool gate. Native authority/revocation/commit UNRUN."
+    },
+    {
+      "id": "C24-G04",
+      "type": "native_test_and_source_qualification",
+      "source_ids": [
+        "B161",
+        "B163",
+        "B164"
+      ],
+      "evidence": [
+        "S10",
+        "S11",
+        "S12",
+        "S13"
+      ],
+      "remaining": "Python3.14/pytest/CAS/HTTP/HTE source-chain unrun; старые test assertions inf/obsolete feedback требуют reconciliation без объявления фактического test failure."
+    }
+  ]
+}

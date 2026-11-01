@@ -1,0 +1,258 @@
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py:537-646
+  537     def _deserialize_evaluation(
+  538         cls,
+  539         row: dict[str, Any],
+  540         run_id: str,
+  541         *,
+  542         expected_fingerprint: RunFingerprint | None = None,
+  543     ) -> Evaluation:
+  544         """Rehydrate one row, returning a visible rejection for malformed data."""
+  545         candidate_id = str(row.get("candidate_id", "transfer"))
+  546         source_metadata = row.get("metadata", {})
+  547         metadata = dict(source_metadata) if isinstance(source_metadata, dict) else {}
+  548         metadata.setdefault("source_run_id", run_id)
+  549         metadata.setdefault("source_candidate_id", candidate_id)
+  550         provenance_ref = row.get("provenance_ref")
+  551 
+  552         try:
+  553             params = row.get("params", {})
+  554             if not isinstance(params, dict):
+  555                 raise TypeError("params must be an object")
+  556             objectives_payload = row["objectives"]
+  557             if not isinstance(objectives_payload, list) or not objectives_payload:
+  558                 raise ValueError("objectives must be a non-empty list")
+  559             source_result = row.get("stage_b_result")
+  560             objectives = [
+  561                 cls._deserialize_objective(
+  562                     payload,
+  563                     source_result,
+  564                     expected_rule_spec=(
+  565                         expected_fingerprint.objective_rule_specs.get(str(payload.get("name")))
+  566                         if expected_fingerprint is not None and isinstance(payload, dict)
+  567                         else None
+  568                     ),
+  569                     expected_direction=(
+  570                         expected_fingerprint.objective_directions.get(str(payload.get("name")))
+  571                         if expected_fingerprint is not None and isinstance(payload, dict)
+  572                         else None
+  573                     ),
+  574                 )
+  575                 for payload in objectives_payload
+  576             ]
+  577             raw_scalar_score = row.get("scalar_score")
+  578             if raw_scalar_score is None:
+  579                 scalar_score = None
+  580             else:
+  581                 if isinstance(raw_scalar_score, bool):
+  582                     raise TypeError("scalar_score must be numeric or null")
+  583                 scalar_score = float(raw_scalar_score)
+  584                 if not math.isfinite(scalar_score):
+  585                     raise ValueError("scalar_score must be finite")
+  586             status = EvaluationStatus(row.get("status", EvaluationStatus.SUCCESS.value))
+  587             assessment_payload = row.get("score_assessment")
+  588             assessment = (
+  589                 ObjectiveScoreAssessment.from_payload(assessment_payload)
+  590                 if assessment_payload is not None
+  591                 else None
+  592             )
+  593             if assessment is not None and not score_assessment_matches_source(
+  594                 assessment, source_result
+  595             ):
+  596                 assessment = _unestablished_score_assessment("source_reconciliation_failed")
+  597                 metadata["transfer_score_assessment"] = "source_reconciliation_failed"
+  598             if expected_fingerprint is None or not cls._evaluation_matches_objective_rules(
+  599                 objectives, source_result, expected_fingerprint
+  600             ):
+  601                 assessment = _unestablished_score_assessment(
+  602                     "selected_objective_rule_not_reconciled"
+  603                 )
+  604                 metadata["transfer_score_assessment"] = "selected_objective_rule_not_reconciled"
+  605             score_status = (
+  606                 assessment.status
+  607                 if assessment is not None
+  608                 else ObjectiveScoreStatus.NOT_ESTABLISHED
+  609             )
+  610             if assessment is None:
+  611                 metadata.setdefault("transfer_score_assessment", "legacy_basis_not_established")
+  612             normalized = row.get("params_normalized", [])
+  613             if not isinstance(normalized, (list, tuple)):
+  614                 raise TypeError("params_normalized must be a list or tuple")
+  615             evaluation = Evaluation(
+  616                 candidate_id=candidate_id,
+  617                 params=params,
+  618                 params_normalized=tuple(normalized),
+  619                 objectives=objectives,
+  620                 scalar_score=scalar_score,
+  621                 stage_a_passed=bool(row.get("stage_a_passed", False)),
+  622                 stage_b_result=source_result,
+  623                 status=status,
+  624                 provenance_ref=provenance_ref,
+  625                 wall_time_seconds=float(row.get("wall_time_seconds", 0.0)),
+  626                 metadata=metadata,
+  627                 score_status=score_status,
+  628                 score_assessment=assessment,
+  629             )
+  630             return evaluation
+  631         except (KeyError, TypeError, ValueError, OverflowError) as exc:
+  632             metadata["transfer_status"] = "rejected"
+  633             metadata["transfer_error"] = str(exc)
+  634             return Evaluation(
+  635                 candidate_id=candidate_id,
+  636                 params=row.get("params", {}) if isinstance(row.get("params", {}), dict) else {},
+  637                 params_normalized=tuple(row.get("params_normalized", []))
+  638                 if isinstance(row.get("params_normalized", []), (list, tuple))
+  639                 else (),
+  640                 objectives=[],
+  641                 scalar_score=None,
+  642                 stage_a_passed=False,
+  643                 status=EvaluationStatus.STAGE_B_ERROR,
+  644                 provenance_ref=provenance_ref,
+  645                 metadata=metadata,
+  646             )
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py:222-279
+  222     def get_warm_start_evaluations(
+  223         self,
+  224         similar_runs: list[RunFingerprint],
+  225         max_evals: int = 50,
+  226         *,
+  227         target_fingerprint: RunFingerprint,
+  228     ) -> list[Evaluation]:
+  229         """Reuse compatible history only after a complete target identity is supplied.
+  230 
+  231         Collects the best evaluations from each binding-compatible run, up to
+  232         ``max_evals`` total. Incomplete or malformed target identities are
+  233         refused before any history read. The result remains a list so rejected
+  234         history rows stay visible to compatible callers.
+  235         """
+  236         if max_evals <= 0 or not similar_runs:
+  237             return []
+  238         if not isinstance(
+  239             target_fingerprint, RunFingerprint
+  240         ) or not self._has_complete_binding_basis(target_fingerprint):
+  241             return []
+  242 
+  243         prepared: list[list[Evaluation]] = []
+  244         for fp in similar_runs:
+  245             if not self._binding_matches(target_fingerprint, fp):
+  246                 continue
+  247 
+  248             rows = self._load_run_evaluations(fp)
+  249             evaluations = [
+  250                 self._deserialize_evaluation(row, fp.run_id, expected_fingerprint=fp)
+  251                 for row in rows
+  252             ]
+  253             evaluations.sort(
+  254                 key=lambda evaluation: self._evaluation_sort_key(evaluation, target_fingerprint)
+  255             )
+  256             if evaluations:
+  257                 prepared.append(evaluations)
+  258 
+  259         # Give every compatible source its first observation, then redistribute
+  260         # the remaining capacity round-robin.  This avoids the old floor quota
+  261         # dropping unused capacity from short histories while retaining source
+  262         # diversity for the initial warm-start corpus.
+  263         all_evals: list[Evaluation] = []
+  264         offsets = [0] * len(prepared)
+  265         while len(all_evals) < max_evals:
+  266             progressed = False
+  267             for index, evaluations in enumerate(prepared):
+  268                 offset = offsets[index]
+  269                 if offset >= len(evaluations):
+  270                     continue
+  271                 all_evals.append(evaluations[offset])
+  272                 offsets[index] += 1
+  273                 progressed = True
+  274                 if len(all_evals) >= max_evals:
+  275                     break
+  276             if not progressed:
+  277                 break
+  278 
+  279         return all_evals
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py:78-161
+   78     def evaluations_to_benchmarks(
+   79         evaluations: list[Evaluation],
+   80         *,
+   81         loop_id: str,
+   82         suite_id: str = "warm_start",
+   83         primary_metric: str = "score",
+   84         objective_direction: OptimizationDirection | None = None,
+   85         objective_rule_spec: str | None = None,
+   86     ) -> list[BenchmarkEvaluation]:
+   87         """Convert only evaluations recomputed under the supplied selected rule."""
+   88         from polisyos.core.artifacts.manifest import ArtifactRef
+   89 
+   90         results: list[BenchmarkEvaluation] = []
+   91         if objective_direction is None or not objective_rule_spec:
+   92             return results
+   93         for ev in evaluations:
+   94             if not _evaluation_matches_selected_objectives(
+   95                 ev,
+   96                 objective_names=[primary_metric],
+   97                 objective_directions={primary_metric: objective_direction},
+   98                 objective_rule_specs={primary_metric: objective_rule_spec},
+   99                 require_scalar_score=True,
+  100             ):
+  101                 logger.warning(
+  102                     "WarmStartBridge: skipping candidate %s with unreconciled %s basis",
+  103                     getattr(ev, "candidate_id", "unknown"),
+  104                     primary_metric,
+  105                 )
+  106                 continue
+  107             try:
+  108                 ref = ArtifactRef(
+  109                     artifact_id=ev.candidate_id,
+  110                     kind="search.candidate",
+  111                     media_type="application/json",
+  112                 )
+  113             except (TypeError, ValueError) as exc:
+  114                 logger.warning(
+  115                     "WarmStartBridge: skipping candidate without an artifact reference %s: %s",
+  116                     ev.candidate_id,
+  117                     exc,
+  118                 )
+  119                 continue
+  120 
+  121             selected = next(
+  122                 objective for objective in ev.objectives if objective.name == primary_metric
+  123             )
+  124             metrics = {primary_metric: selected.raw_value}
+  125             directions = {primary_metric: selected.direction.value}
+  126             if not math.isfinite(selected.raw_value):
+  127                 logger.warning(
+  128                     "WarmStartBridge: skipping candidate %s without measured %s",
+  129                     ev.candidate_id,
+  130                     primary_metric,
+  131                 )
+  132                 continue
+  133 
+  134             source_run_id = ev.metadata.get("source_run_id", "unknown")
+  135             metadata = {
+  136                 "warm_start": True,
+  137                 "source_candidate_id": ev.candidate_id,
+  138                 "params": dict(ev.params),
+  139                 "directions": directions,
+  140                 "direction": directions[primary_metric],
+  141             }
+  142             if source_run_id != "unknown":
+  143                 metadata["source_run_id"] = source_run_id
+  144             if ev.provenance_ref is not None:
+  145                 metadata["provenance_ref"] = ev.provenance_ref
+  146 
+  147             results.append(
+  148                 BenchmarkEvaluation(
+  149                     loop_id=loop_id,
+  150                     suite_id=suite_id,
+  151                     candidate_ref=ref,
+  152                     selection_metrics=metrics,
+  153                     holdout_metrics={},
+  154                     promotable=False,
+  155                     status="warm_start_limited",
+  156                     notes=[f"transferred from {source_run_id}"],
+  157                     runtime_split_type=BenchmarkSplit.SELECTION,
+  158                     metadata=metadata,
+  159                 )
+  160             )
+  161         return results

@@ -1,0 +1,86 @@
+{
+  "pass": "C44",
+  "bundle": "CMP-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C44-R01",
+      "kind": "confirmed_local_defect",
+      "source_ids": [
+        "B47"
+      ],
+      "title": "Autolink diagnostics используют stale src_name вместо выбранного source",
+      "evidence": [
+        "S02:397–430",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P20"
+      ],
+      "remaining": "В существующем _link_auto привязать exact-name check, текст выбранного ребра и alternatives к matched_source/actual binding; проверить rematching и persisted warning surface. Новый диагностический owner не нужен.",
+      "limits": "Реальное binding и численный результат в P17/P18 правильные; дефект относится к сообщению о выбранном ребре и подавлению предупреждения. Не заявляется, что неверная строка меняет runtime binding. Actual checkpoint сохраняет ложное сообщение, но не придаёт ему научной истинности."
+    },
+    {
+      "id": "C44-R02",
+      "kind": "confirmed_local_defect",
+      "source_ids": [
+        "B47"
+      ],
+      "title": "При равной полноте matching не соблюдает настроенное prefer_exact_names между target slots",
+      "evidence": [
+        "S02:365–390",
+        "S02:603–624",
+        "S01:592–606",
+        "P22",
+        "P23"
+      ],
+      "remaining": "В существующем bounded matching сохранить приоритет полноты, затем учитывать предпочтения для всего назначения, а не только для очередного target. Добавить single-source/two-target и перестановку connect controls. Для содержательно неоднозначных данных по-прежнему нужен явный mapping.",
+      "limits": "P22: единственный right связан с left, хотя right→right имеет ту же максимальную мощность и prefer_exact_names=True. P23: actual complete DAG даёт auto 1020/2010 по порядку connect, explicit стабилен. Это дефект заявленного предпочтения, а не доказательство неверной научной интерпретации нейтральных имён; existing composer предотвращает collision фильтрацией занятых inputs."
+    },
+    {
+      "id": "C44-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B47",
+        "B48"
+      ],
+      "title": "Native package/test qualification остаётся невыполненной",
+      "evidence": [
+        "native_attempt.log",
+        "P03",
+        "P13",
+        "P17",
+        "P18",
+        "P23"
+      ],
+      "remaining": "На поддержанном Python 3.14 и существующем dependency profile выполнить focused tests и native composer→dispatcher→checkpoint/consumer probes. Установок и source import workarounds в этом аудите нет.",
+      "limits": "23 итоговых observations, включая 729 bounded contract graphs. Registry/dispatcher/result provenance/hash/import seams явные; actual full slot schema не подменена. Native pytest отсутствует, до collection не дошло."
+    },
+    {
+      "id": "C44-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B47",
+        "B48"
+      ],
+      "title": "Полнота структурного matching и named semantic allowance не заменяют содержательное основание связи",
+      "evidence": [
+        "S13:139–165",
+        "S13:194–230",
+        "P04",
+        "P19",
+        "P20",
+        "P12"
+      ],
+      "remaining": "Сохранять типизированные реальные контракты, явный выбор/adapters для неоднозначности и существующий semantic owner. Unknown name означает отсутствие ограничения, а не установленный смысл. Allowance outcome→residual сама не выполняет residualization.",
+      "limits": "Нейтральные имена и scalar fixtures не empirical evidence; bounds по документированному checker являются warning-only. Автоматический максимальный matching не должен использоваться как научный oracle; универсальный deterministic model inventor не требуется."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C44-R01",
+    "C44-R02"
+  ],
+  "decision": "Original greedy-completeness и semantic/partial parity repair существуют; два узких остатка в diagnostics и global exact-name preference подтверждены. Native/scientific qualification отдельно."
+}

@@ -1,0 +1,477 @@
+{
+  "packet_id": "CTL-03",
+  "lane": "LANE-02",
+  "title": "Согласованные единицы работы, бюджета и пригодности",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B120",
+    "B121",
+    "B123"
+  ],
+  "audit_reports": [
+    "02_Пакеты/CTL-03.md"
+  ],
+  "audit_report_sha256": "03dc19037f1a0cdea6840457db871956411bd60fbad0cbaa21b24d0d129535af",
+  "sourceplan_lines": [
+    1730,
+    1849
+  ],
+  "practical_goal": "Sentinel расходует ресурс, но не загрязняет обучение; новые оценки не теряют квоту из-за warm history, а invalid typed result не становится лучшим по удобному scalar.",
+  "requirements": [
+    {
+      "id": "REQ-CTL-03-01",
+      "text": "Scientific/non-sentinel StageB count должен вычитаться из той же StageB базы; ранний StageA-rejected sentinel не уменьшает обычные StageB.",
+      "source_ids": [
+        "B121"
+      ],
+      "audit_ids": [
+        "remaining:0201",
+        "preserve:0318",
+        "preserve:0319",
+        "audit-residual:C13_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-CTL-03-01"
+      ]
+    },
+    {
+      "id": "REQ-CTL-03-02",
+      "text": "Generic sentinel-only профиль должен иметь конечный physical-work/attempt лимит либо обязательный независимый finite resource cap, сохраняя ordinary iteration semantics.",
+      "source_ids": [
+        "B121"
+      ],
+      "audit_ids": [
+        "remaining:0202",
+        "preserve:0318",
+        "preserve:0319",
+        "audit-residual:C13_остатки:1"
+      ],
+      "test_ids": [
+        "TEST-CTL-03-02"
+      ]
+    },
+    {
+      "id": "REQ-CTL-03-03",
+      "text": "CostBudgetStopping должен отвергать bool/non-numeric/NaN/inf/nonpositive cap; допустимый конечный limit останавливает по фактическому owner snapshot.",
+      "source_ids": [
+        "B120"
+      ],
+      "audit_ids": [
+        "remaining:0199",
+        "preserve:0315",
+        "preserve:0316",
+        "preserve:0317",
+        "audit-residual:C13_остатки:2"
+      ],
+      "test_ids": [
+        "TEST-CTL-03-03"
+      ]
+    },
+    {
+      "id": "REQ-CTL-03-04",
+      "text": "Выбранный дорогой evaluator должен иметь собственный actual admission/reservation и price basis; post-spend search stopping не является его предварительным разрешением.",
+      "source_ids": [
+        "B120"
+      ],
+      "audit_ids": [
+        "remaining:0200",
+        "preserve:0315",
+        "preserve:0317",
+        "audit-residual:C13_остатки:3"
+      ],
+      "test_ids": [
+        "TEST-CTL-03-04"
+      ]
+    },
+    {
+      "id": "REQ-CTL-03-05",
+      "text": "Present malformed typed evaluation должен оставаться invalid до best/frontier/training/publication consumer; отдельное корректное scalar diagnostic может сохраняться без повышения eligibility.",
+      "source_ids": [
+        "B123"
+      ],
+      "audit_ids": [
+        "remaining:0205",
+        "preserve:0322",
+        "preserve:0323",
+        "preserve:0324",
+        "audit-residual:C13_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-CTL-03-05"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-CTL-03-01",
+      "requirement_ids": [
+        "REQ-CTL-03-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Passing sentinel, StageA-rejected sentinel, ordinary StageB и malformed typed evaluation; обе APIs.",
+      "action": "Выполнить смешанную последовательность и roundtrip telemetry.",
+      "oracle": "Rejected sentinel+ordinary→stageB1/scientific1, sentinelattempt1; passing sentinel отдельноStageB, ordinarytraining/best не меняется от sentinel.",
+      "expected": "Warm history не новые evaluations; resource counts и accepted evidence различны.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CTL-03-02",
+      "requirement_ids": [
+        "REQ-CTL-03-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Generator толькоsentinels, ordinaryhardlimit1, explicit worklimit3; stock injector ordinarymix; independent cost cap.",
+      "action": "Пройти full native driver и manual profile sharedSRV01, считать actual StageB и attempts.",
+      "oracle": "После3разрешённых control work — адресный stop с partial output; ordinarycount0, обучение не загрязнено; normal injector работает.",
+      "expected": "Ни watchdog, ни отсутствие предложений не product stop proof; unknown resource не unlimited.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CTL-03-03",
+      "requirement_ids": [
+        "REQ-CTL-03-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "capNaN,±inf,bool,0,−1,normal1; actual durable BudgetState/owner/run/events и settled0.",
+      "action": "Construct/check и actual generation spend→ledger→stopping→report, wrongowner/run/missingevents controls.",
+      "oracle": "Invalid cap rejected до работы; actual committed cost и reserved видны,1порог работает, settled0 корректен.",
+      "expected": "Не выдавать локальный capfix за обход/замену durable admission; unknowncost не0.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CTL-03-04",
+      "requirement_ids": [
+        "REQ-CTL-03-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Actual test_autotune_runner_binds_real_provider_call_to_durable_budget_owner плюс реальный bounded evaluator route; fakeHTTPtransport допустим.",
+      "action": "Success,fail-after-dispatch,retry/cache,settledzero и unknownprice; прочитать spend+reserved и stop.",
+      "oracle": "Один measurement расход виден всем consumers, нет doublecharge/cache суммирования, недопущенная новая работа не стартует.",
+      "expected": "Fixturecontextcost999 не истина; настоящий source/price profile явен, no live paid calls нужны.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CTL-03-05",
+      "requirement_ids": [
+        "REQ-CTL-03-05"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Actual PolicyEvaluationVector/ObjectiveStack, absent/None/extraField/list/bool, unverifiedsource и verifiedpositive; run иtell.",
+      "action": "Оценить, сохранить history, прочитать best/frontier/surrogate/действующий downstream, попытаться выбрать invalid scalar−100.",
+      "oracle": "Invalid не best/train/promote; safe candidate сохраняется; absent legacypositive работает; valid owner-backed typed candidate полезно принимается.",
+      "expected": "Нельзя объявить source admission по VectorFixture; branch identity/limits видны после readback.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C13_остатки:0",
+      "requirement_ids": [
+        "REQ-CTL-03-01"
+      ],
+      "rationale": "Same-base sentinel StageB accounting.",
+      "disposition": "fix",
+      "audit_id": "C13-R01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C13_остатки:1",
+      "requirement_ids": [
+        "REQ-CTL-03-02"
+      ],
+      "rationale": "Bound generic sentinel work.",
+      "disposition": "fix",
+      "audit_id": "C13-R02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C13_остатки:2",
+      "requirement_ids": [
+        "REQ-CTL-03-03"
+      ],
+      "rationale": "Reject NaN cap.",
+      "disposition": "fix",
+      "audit_id": "C13-R03",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C13_остатки:3",
+      "requirement_ids": [
+        "REQ-CTL-03-04"
+      ],
+      "rationale": "Actual evaluator admission, не generator-only scope.",
+      "disposition": "qualify",
+      "audit_id": "C13-G01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C13_остатки:4",
+      "requirement_ids": [
+        "REQ-CTL-03-05"
+      ],
+      "rationale": "Реальный composite eligibility consumer.",
+      "disposition": "qualify",
+      "audit_id": "C13-G02",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B120",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CTL-03-03",
+        "REQ-CTL-03-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B121",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CTL-03-01",
+        "REQ-CTL-03-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B123",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CTL-03-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0199",
+      "requirement_ids": [
+        "REQ-CTL-03-03"
+      ],
+      "rationale": "Finite configuration.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0200",
+      "requirement_ids": [
+        "REQ-CTL-03-04"
+      ],
+      "rationale": "Actual evaluator resource owner.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0201",
+      "requirement_ids": [
+        "REQ-CTL-03-01"
+      ],
+      "rationale": "StageB denominator alignment.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0202",
+      "requirement_ids": [
+        "REQ-CTL-03-02"
+      ],
+      "rationale": "Finite physical work cap.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0205",
+      "requirement_ids": [
+        "REQ-CTL-03-05"
+      ],
+      "rationale": "Scalar diagnostic не eligibility.",
+      "disposition": "qualify"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0315",
+      "requirement_ids": [
+        "REQ-CTL-03-03",
+        "REQ-CTL-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: CostBudgetStopping должен отвергать bool/non-numeric/NaN/inf/nonpositive cap; допустимый конечный limit останавливает по фактическому owner snapshot.; Выбранный дорогой evaluator должен иметь собственный actual admission/reservation и price basis; post-spend search stopping не является его предварительным разрешением.",
+      "test_ids": [
+        "TEST-CTL-03-03",
+        "TEST-CTL-03-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0316",
+      "requirement_ids": [
+        "REQ-CTL-03-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: CostBudgetStopping должен отвергать bool/non-numeric/NaN/inf/nonpositive cap; допустимый конечный limit останавливает по фактическому owner snapshot.",
+      "test_ids": [
+        "TEST-CTL-03-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0317",
+      "requirement_ids": [
+        "REQ-CTL-03-03",
+        "REQ-CTL-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: CostBudgetStopping должен отвергать bool/non-numeric/NaN/inf/nonpositive cap; допустимый конечный limit останавливает по фактическому owner snapshot.; Выбранный дорогой evaluator должен иметь собственный actual admission/reservation и price basis; post-spend search stopping не является его предварительным разрешением.",
+      "test_ids": [
+        "TEST-CTL-03-03",
+        "TEST-CTL-03-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0318",
+      "requirement_ids": [
+        "REQ-CTL-03-01",
+        "REQ-CTL-03-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Scientific/non-sentinel StageB count должен вычитаться из той же StageB базы; ранний StageA-rejected sentinel не уменьшает обычные StageB.; Generic sentinel-only профиль должен иметь конечный physical-work/attempt лимит либо обязательный независимый finite resource cap, сохраняя ordinary iteration semantics.",
+      "test_ids": [
+        "TEST-CTL-03-01",
+        "TEST-CTL-03-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0319",
+      "requirement_ids": [
+        "REQ-CTL-03-01",
+        "REQ-CTL-03-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Scientific/non-sentinel StageB count должен вычитаться из той же StageB базы; ранний StageA-rejected sentinel не уменьшает обычные StageB.; Generic sentinel-only профиль должен иметь конечный physical-work/attempt лимит либо обязательный независимый finite resource cap, сохраняя ordinary iteration semantics.",
+      "test_ids": [
+        "TEST-CTL-03-01",
+        "TEST-CTL-03-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0322",
+      "requirement_ids": [
+        "REQ-CTL-03-05"
+      ],
+      "rationale": "Конкретный контракт и oracle: Present malformed typed evaluation должен оставаться invalid до best/frontier/training/publication consumer; отдельное корректное scalar diagnostic может сохраняться без повышения eligibility.",
+      "test_ids": [
+        "TEST-CTL-03-05"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0323",
+      "requirement_ids": [
+        "REQ-CTL-03-05"
+      ],
+      "rationale": "Конкретный контракт и oracle: Present malformed typed evaluation должен оставаться invalid до best/frontier/training/publication consumer; отдельное корректное scalar diagnostic может сохраняться без повышения eligibility.",
+      "test_ids": [
+        "TEST-CTL-03-05"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0324",
+      "requirement_ids": [
+        "REQ-CTL-03-05"
+      ],
+      "rationale": "Конкретный контракт и oracle: Present malformed typed evaluation должен оставаться invalid до best/frontier/training/publication consumer; отдельное корректное scalar diagnostic может сохраняться без повышения eligibility.",
+      "test_ids": [
+        "TEST-CTL-03-05"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I02-A"
+  ],
+  "dependencies": [
+    "CTL-03 owns counter semantics/finite monetary cap; CTL-01 failure attempt snapshot; SRV-01 shared split admission; SRV-03 actual consumer.",
+    "OPT-01 source/coordinate contract governs usable objectives; scalar diagnostic не обходит его."
+  ],
+  "preservation": [
+    "owner/run/event reconciliation",
+    "unknown not zero",
+    "spent+reserved",
+    "ordinary iteration semantics",
+    "sentinels excluded from training/best",
+    "presence status",
+    "best/frontier guard",
+    "legitimate optional scalar path"
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    "Различающие единицы сохраняют полезность warm start и sentinels одновременно. Budget предотвращает необоснованную новую работу, но tell уже сделанной работы не теряется только от позднего exhaustion."
+  ],
+  "open_decisions": [],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "symbol_or_anchor": "def scientific_evaluations",
+      "lines": [
+        64,
+        96
+      ],
+      "sha256": "69a4ed41941be6b8545ab78be653cc89a889886f8ed69de8fb9904aef2855185",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/run_state.py#L64-L96"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "symbol_or_anchor": "def apply_tell_transition",
+      "lines": [
+        99,
+        126
+      ],
+      "sha256": "69a4ed41941be6b8545ab78be653cc89a889886f8ed69de8fb9904aef2855185",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/run_state.py#L99-L126"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "symbol_or_anchor": "class CostBudgetStopping",
+      "lines": [
+        289,
+        321
+      ],
+      "sha256": "d34d8ccd041ac2b6372346e956bd489be7e1500c7f10e94e15bc5c1dc98d21d0",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/stopping.py#L289-L321"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "symbol_or_anchor": "def _resolve_policy_evaluation_with_status",
+      "lines": [
+        1299,
+        1331
+      ],
+      "sha256": "f4615f237197b7f03195d63aabd9d115df0865165b5c897a6928c3fc52f29d53",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/lifecycle.py#L1299-L1331"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-CTL-03-01",
+      "text": "У единственного SearchRunState хранить отдельно sentinel attempts и sentinel_stage_b_completed (либо explicit ordinary_stage_b counter), обновлять через shared transition fullrun/tell. scientific_evaluations обозначает выполненную non-sentinel StageB работу, не accepted evidence. Не лечить max(0) и не добавлять sentinel в ordinary history/best."
+    },
+    {
+      "requirement_id": "REQ-CTL-03-02",
+      "text": "В существующих run-state/stopping задать отдельную единицу общего work cap и проверять до каждого actual evaluation/generation. Не повышать ordinary counter sentinel ради остановки. Штатный SentinelInjector, который не добавляет sentinel к empty, сохранить; custom generator без конечного cap не допускается к unlimited loop."
+    },
+    {
+      "requirement_id": "REQ-CTL-03-03",
+      "text": "В constructor/config boundary выполнить explicit numeric type+isfinite+positive validation до сохранения. Unlimited только отдельный явный профиль, не IEEE special value. Existing _read_source_budget_snapshot/owner reconciliation остаётся источником spent/reserved, не callercontext."
+    },
+    {
+      "requirement_id": "REQ-CTL-03-04",
+      "text": "Связать существующий evaluator/budget middleware с тем же run owner, reserve до вызова где price policy это требует, settle/release по фактическому событию; генераторный TracedLLM budget не автоматически evaluator budget. Return snapshot reader проверяет exact identity/event totals. Не создавать search-side денежный ledger."
+    },
+    {
+      "requirement_id": "REQ-CTL-03-05",
+      "text": "Сохранить presence-aware _resolve_policy_evaluation_with_status и actual ObjectiveStack/source owner. Missing optional typed разрешает законный scalar; invalid/null/malformed не missing. Tell может хранить scalar AVAILABLE, но composite consumer всегда проверяет typed status/feasible/source. Не стирать полезное число ради одинаковости run/tell проекций."
+    }
+  ]
+}

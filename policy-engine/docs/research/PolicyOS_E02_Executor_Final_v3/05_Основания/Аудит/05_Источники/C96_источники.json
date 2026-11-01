@@ -1,0 +1,344 @@
+{
+  "pass_id": "C96",
+  "bundle": "EMB-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          599
+        ],
+        [
+          632,
+          851
+        ],
+        [
+          1118,
+          1450
+        ]
+      ],
+      "evidence_level": "Actual shared module импортирован целиком. Publication/resolve/manifest/admission helpers прочитаны, в том числе повторно C96; compute/encoder boundaries унаследованы из C95 на том же blob. Asset helpers852–1117 не объявлены полностью прочитанными. Real NumPy/NPZ/filesystem; HNSW fixture JSON, не binary.",
+      "git_blob": "cace792597f2999e955c6fa2aa24d82f467afac3",
+      "sha256": "ffd121f70aece50096ac6e96b10327f09a08692356074b07c85aed80334cc59e",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/batch/embedder.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/academic/batch/embedder.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          102
+        ]
+      ],
+      "evidence_level": "Полный actual wrapper прочитан C95 на том же blob, заново целиком исполнен C96 с SQL/encoder/index fixtures.",
+      "git_blob": "b3cb0d03efb1899c177dec4b76d744872686997c",
+      "sha256": "d122e58311e07650a213cff3e6a7cf7c3ae1ca2b282f5a126e45d97e2596cab7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          200
+        ]
+      ],
+      "evidence_level": "Полный actual wrapper прочитан C95, whole module и build path заново исполнены. Native model loader/cache не квалифицирован.",
+      "git_blob": "9ba1199642250aa001dbf98c7abd8c6d29024005",
+      "sha256": "d683ec0033f08b99ad7173e73b472c3b39c241e682ef98e731800e28d6e4a207",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/embedding_projection.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/academic/embedding_projection.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          20
+        ]
+      ],
+      "evidence_level": "Полная actual projection прочитана и исполнена; unchanged1200 text contract.",
+      "git_blob": "54c11566af538403da467df72bc2b4577cf26126",
+      "sha256": "2bc422d0934a8eba0ea69bf7a8df44c24bb6bc4cc4d16042e49bc7b3cfc15144",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/embedding_projection.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/embedding_projection.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          33
+        ]
+      ],
+      "evidence_level": "Полная actual projection прочитана и исполнена; unchanged500/20/20 text contract.",
+      "git_blob": "5855e463e366f74543ce7903334b7ee7bff90aa1",
+      "sha256": "b6407940924bc0b1e63c9e6b4c3e044a02dcea9b79911df6b6233058990a6c76",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/store.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/store.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          68
+        ],
+        [
+          140,
+          242
+        ],
+        [
+          285,
+          318
+        ],
+        [
+          1208,
+          1209
+        ]
+      ],
+      "evidence_level": "Полные constructor, refusal и _load_work_index прочитаны и selected unchanged source исполнен; close unchanged. Search fragment только соседнее чтение, не полный search/claims owner. Native whole graph BLOCKED.",
+      "git_blob": "365054056018385f81cdc390293710841389a446",
+      "sha256": "54f2054208b9aba180ff51e5f3f63448e63874e292883c0ac4f5b0196078c345",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          75
+        ],
+        [
+          116,
+          265
+        ],
+        [
+          287,
+          479
+        ],
+        [
+          636,
+          664
+        ]
+      ],
+      "evidence_level": "Полные selected current-generation/load functions и relevant guarded read owner прочитаны. В probe только index methods; два except parenthesized для3.12, decorator удалён, constructor fixture. Original/adapted slices сохранены. Actual DB read-session custody и public search НЕ исполнены.",
+      "git_blob": "63b932542dbbe74ebcdf2c1bafcef0820be5623e",
+      "sha256": "2d6d876276cdc93a8f66eb599d4481cf691c621fada3820720d82865499c739b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/tests/unit/remediation/test_emb_02.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_emb_02.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          545
+        ]
+      ],
+      "evidence_level": "Полный existing file прочитан; первые7 relevant bodies/8 cases исполнены unchanged через bounded fixtures. Catalog readiness/search и Academic publish tests прочитаны, UNRUN.",
+      "git_blob": "03bdf43b1f28750196eba914fff1adf999914a98",
+      "sha256": "b830738c7656c015c5afc48c5c48076ceb4257139ee0f73aac2266ee9480ac9b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/tests/unit/data_forge/kernel/test_embeddings.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/data_forge/kernel/test_embeddings.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          544
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан C95/C96;2 unchanged publication failure bodies/6 cases исполнены C96. Search-after-retry body прочитан, UNRUN.",
+      "git_blob": "477cd236450770ddd70a1e952b421643afe46089",
+      "sha256": "7c87187cfc9dd517796481a502ce21554dcb188ec8d553f804909f14495b9f45",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_store.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_store.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          856,
+          912
+        ]
+      ],
+      "evidence_level": "Полный existing legacy-flat text-fallback test прочитан, UNRUN. Подтверждает намеренный современный отказ vector admission, не blanket backwards-compatibility bug.",
+      "git_blob": "70a9dd57268ace6b1d5a6b2213fa0e87c9ba0e38",
+      "sha256": "1a0600504b3e4fc836738912324edfaf7b3f86734621487488f8c975ff7ea699",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/batch/publish.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/academic/batch/publish.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          257
+        ]
+      ],
+      "evidence_level": "Полный actual publish owner прочитан. Selected generation artifact/metadata flow статически прослежен; execution/readiness/schema utility UNRUN.",
+      "git_blob": "0bb67ca3a2333dacc1f8875d27bb30b39f0306f5",
+      "sha256": "659b55f9a8447e8ec92bac33af46afcb562432386a6f315bad4666a225228ff0",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/publish.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/publish.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          271
+        ]
+      ],
+      "evidence_level": "Полный actual publish owner прочитан. Separate current benchmark/QC and consumer_ready gates перед manifest сохранены; не квалифицированы synthetic index experiment.",
+      "git_blob": "369dde488060659a932d582f68efabb476a2063e",
+      "sha256": "6b62cbf70ef1b3225e3f48a495fc80a815f6d08175d32e3f4ffc43038dacd2dd",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          252,
+          318
+        ],
+        [
+          383,
+          475
+        ],
+        [
+          596,
+          714
+        ],
+        [
+          1285,
+          1343
+        ],
+        [
+          1491,
+          1512
+        ]
+      ],
+      "evidence_level": "Relevant input/selected-inventory excerpts, полные _stage_outputs/_stage_output_inventory/_should_skip_stage/current_content_stage_receipt/_record_stage_completion прочитаны. Embed return→completion callsite source-only. Whole pipeline/basis/resume не объявлены выполненными; accountable LA041 в DFI03.",
+      "git_blob": "85f82063d70d11d9c8e8cf1ac5b14443ed2abadf",
+      "sha256": "979f24af1b2f54e30b5c9ffcf5df28860a99a923613567c68f81b3cf3ded3866",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          314
+        ]
+      ],
+      "evidence_level": "Полный basis owner прочитан C95 на том же blob; actual module заново исполнен C96. Input members/content identity не semantic output integrity и не empirical authority.",
+      "git_blob": "672dc970ef1e2ee1daa8fe1d94e0f49de562c2f6",
+      "sha256": "5036e343aa67a6b2989bb003c3513f36d0b20e6ce59f86f91144c2daca79f343",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/atomic.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/io/atomic.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          71
+        ]
+      ],
+      "evidence_level": "Полное чтение C94/C95 same blob; actual staged atomic publication исполнена. Fault injection Python-level, не power-loss/fs durability certification.",
+      "git_blob": "3bc1c0e05b196e29c9d5f0fff1149221fd54bcee",
+      "sha256": "38cae9207be0d3d3d6ff810f62b79a433b13ff0dd0b9aac86a53d2fbb9598c41",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/hashing.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/io/hashing.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          28
+        ]
+      ],
+      "evidence_level": "Полный hash owner прочитан раньше на same blob, actual hashes заново исполнены.",
+      "git_blob": "38144247f153be11c7cac07c29c5cb51ec7eacb8",
+      "sha256": "be74a13ba66a1652244b6f0b8b06597828f41e633cc7fe416f5f6f2649459ff1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          272
+        ]
+      ],
+      "evidence_level": "Полное чтение C94/C95 на same blob; actual module imported. C96 directly tests embedding_generation_manifest inventory; final publish helper не выдаётся за runtime-tested здесь.",
+      "git_blob": "13b5f985cda18030fe1c7ef644d49fd15f6f5d69",
+      "sha256": "42e3f5bbfb8f0b7e6f23addd05417c67f7738805c820d162d01b4fa93bed97f9",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

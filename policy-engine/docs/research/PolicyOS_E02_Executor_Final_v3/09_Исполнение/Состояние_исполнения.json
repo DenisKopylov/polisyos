@@ -1,0 +1,5952 @@
+{
+  "kind": "executor_working_state_template",
+  "status": "IN_PROGRESS",
+  "scope": "Coordination record only, not new runtime state machine or product schema. Populate copy during implementation. Never infer PASS from empty fields or inherited document QA.",
+  "specification_version": "v3",
+  "reference_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "actual_start_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
+  "active_lane": "LANE-06",
+  "lane_order": [
+    "LANE-06",
+    "LANE-08",
+    "LANE-07",
+    "LANE-04",
+    "LANE-10",
+    "LANE-05",
+    "LANE-09",
+    "LANE-01",
+    "LANE-03",
+    "LANE-02",
+    "LANE-11",
+    "LANE-12"
+  ],
+  "lanes": [
+    {
+      "lane_id": "LANE-06",
+      "sequence": 1,
+      "implementation_status": "IN_PROGRESS",
+      "local_qualification": "NOT_RUN",
+      "capability_acceptance": "NOT_RUN",
+      "transition_evidence": [],
+      "corrective_windows": []
+    },
+    {
+      "lane_id": "LANE-08",
+      "sequence": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "capability_acceptance": "NOT_RUN",
+      "transition_evidence": [],
+      "corrective_windows": []
+    },
+    {
+      "lane_id": "LANE-07",
+      "sequence": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "capability_acceptance": "NOT_RUN",
+      "transition_evidence": [],
+      "corrective_windows": []
+    },
+    {
+      "lane_id": "LANE-04",
+      "sequence": 4,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "capability_acceptance": "NOT_RUN",
+      "transition_evidence": [],
+      "corrective_windows": []
+    },
+    {
+      "lane_id": "LANE-10",
+      "sequence": 5,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "capability_acceptance": "NOT_RUN",
+      "transition_evidence": [],
+      "corrective_windows": []
+    },
+    {
+      "lane_id": "LANE-05",
+      "sequence": 6,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "capability_acceptance": "NOT_RUN",
+      "transition_evidence": [],
+      "corrective_windows": []
+    },
+    {
+      "lane_id": "LANE-09",
+      "sequence": 7,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "capability_acceptance": "NOT_RUN",
+      "transition_evidence": [],
+      "corrective_windows": []
+    },
+    {
+      "lane_id": "LANE-01",
+      "sequence": 8,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "capability_acceptance": "NOT_RUN",
+      "transition_evidence": [],
+      "corrective_windows": []
+    },
+    {
+      "lane_id": "LANE-03",
+      "sequence": 9,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "capability_acceptance": "NOT_RUN",
+      "transition_evidence": [],
+      "corrective_windows": []
+    },
+    {
+      "lane_id": "LANE-02",
+      "sequence": 10,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "capability_acceptance": "NOT_RUN",
+      "transition_evidence": [],
+      "corrective_windows": []
+    },
+    {
+      "lane_id": "LANE-11",
+      "sequence": 11,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "capability_acceptance": "NOT_RUN",
+      "transition_evidence": [],
+      "corrective_windows": []
+    },
+    {
+      "lane_id": "LANE-12",
+      "sequence": 12,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "capability_acceptance": "NOT_RUN",
+      "transition_evidence": [],
+      "corrective_windows": []
+    }
+  ],
+  "packets": [
+    {
+      "packet_id": "STA-01",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-A",
+      "track_position": 1,
+      "implementation_status": "IMPLEMENTED_PENDING_REVIEW",
+      "local_qualification": "PARTIAL",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": "/root/lane06_state",
+      "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
+      "integrated_commit": null,
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py"
+      ],
+      "shared_writer": "/root/lane06_state",
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-STA-01-01",
+        "REQ-STA-01-02",
+        "REQ-STA-01-03",
+        "REQ-STA-01-04",
+        "REQ-STA-01-05"
+      ],
+      "test_ids": [
+        "TEST-STA-01-01",
+        "TEST-STA-01-02",
+        "TEST-STA-01-03",
+        "TEST-STA-01-04",
+        "TEST-STA-01-05"
+      ],
+      "evidence": [
+        {
+          "kind": "focused_regression",
+          "source_base": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
+          "output": "policy-engine/_cache/e02/sta01-membership-green",
+          "observed_result": "37 PASS",
+          "peak_sampled_rss_gib": 1.303,
+          "oracle": "actual pre-change failure followed by repaired mechanism; preservation controls included",
+          "scope": "Only locally exercised requirements; full packet and shared integration not accepted"
+        }
+      ],
+      "blockers": [],
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "released; source/test frozen for review",
+        "source_scope": "Only leased paths; root owns index/commits/refs/generated families and imported working state. Read-only analysis of downstream packets allowed; no second active lane.",
+        "independent_review": "pending",
+        "delegate_limit": "At most one read-only child; explicit allowed model; grandchild is leaf."
+      }
+    },
+    {
+      "packet_id": "STA-02",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-A",
+      "track_position": 2,
+      "implementation_status": "IN_PROGRESS",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": "/root/lane06_state",
+      "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
+      "integrated_commit": null,
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py"
+      ],
+      "shared_writer": "/root/lane06_state",
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-STA-02-01",
+        "REQ-STA-02-02",
+        "REQ-STA-02-03",
+        "REQ-STA-02-04"
+      ],
+      "test_ids": [
+        "TEST-STA-02-01",
+        "TEST-STA-02-02",
+        "TEST-STA-02-03",
+        "TEST-STA-02-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "queued; CAN and CAS have the two light slots",
+        "source_scope": "Current reused bundle→ParameterTransfer materialization only; main executor/idempotency retained. No tests/shared files outside leased paths.",
+        "independent_review": "pending"
+      }
+    },
+    {
+      "packet_id": "RES-02",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-A",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-RES-02-01",
+        "REQ-RES-02-02",
+        "REQ-RES-02-03",
+        "REQ-RES-02-04"
+      ],
+      "test_ids": [
+        "TEST-RES-02-01",
+        "TEST-RES-02-02",
+        "TEST-RES-02-03",
+        "TEST-RES-02-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "RES-01",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-A",
+      "track_position": 4,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-RES-01-01",
+        "REQ-RES-01-02",
+        "REQ-RES-01-03",
+        "REQ-RES-01-04"
+      ],
+      "test_ids": [
+        "TEST-RES-01-01",
+        "TEST-RES-01-02",
+        "TEST-RES-01-03",
+        "TEST-RES-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "EXE-02",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-A",
+      "track_position": 5,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-EXE-02-01",
+        "REQ-EXE-02-02",
+        "REQ-EXE-02-03"
+      ],
+      "test_ids": [
+        "TEST-EXE-02-01",
+        "TEST-EXE-02-02",
+        "TEST-EXE-02-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "RES-03",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-A",
+      "track_position": 6,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-RES-03-01",
+        "REQ-RES-03-02",
+        "REQ-RES-03-03"
+      ],
+      "test_ids": [
+        "TEST-RES-03-01",
+        "TEST-RES-03-02",
+        "TEST-RES-03-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-01"
+      ]
+    },
+    {
+      "packet_id": "REP-01",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-A",
+      "track_position": 7,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-REP-01-01",
+        "REQ-REP-01-02",
+        "REQ-REP-01-03"
+      ],
+      "test_ids": [
+        "TEST-REP-01-01",
+        "TEST-REP-01-02",
+        "TEST-REP-01-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "RUN-01",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-B",
+      "track_position": 1,
+      "implementation_status": "IMPLEMENTED_PENDING_REVIEW",
+      "local_qualification": "PARTIAL",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": "/root/lane06_async",
+      "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
+      "integrated_commit": null,
+      "actual_write_set": [
+        "policy-engine/src/polisyos/common/async_tools/__init__.py",
+        "policy-engine/tests/unit/common/test_async_tools.py"
+      ],
+      "shared_writer": "/root/lane06_async",
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-RUN-01-01",
+        "REQ-RUN-01-02",
+        "REQ-RUN-01-03"
+      ],
+      "test_ids": [
+        "TEST-RUN-01-01",
+        "TEST-RUN-01-02",
+        "TEST-RUN-01-03"
+      ],
+      "evidence": [
+        {
+          "kind": "focused_regression",
+          "source_base": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
+          "output": "policy-engine/_cache/e02/lane06-run01-pre-admission-final",
+          "observed_result": "48 PASS",
+          "peak_sampled_rss_gib": 0.117,
+          "oracle": "actual pre-change failure followed by repaired mechanism; preservation controls included",
+          "scope": "Only locally exercised requirements; full packet and shared integration not accepted"
+        }
+      ],
+      "blockers": [],
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "released; source/test frozen for review",
+        "source_scope": "Only leased paths; root owns index/commits/refs/generated families and imported working state. Read-only analysis of downstream packets allowed; no second active lane.",
+        "independent_review": "pending",
+        "delegate_limit": "At most one read-only child; explicit allowed model; grandchild is leaf."
+      }
+    },
+    {
+      "packet_id": "EXE-01",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-B",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-EXE-01-01",
+        "REQ-EXE-01-02",
+        "REQ-EXE-01-03",
+        "REQ-EXE-01-04"
+      ],
+      "test_ids": [
+        "TEST-EXE-01-01",
+        "TEST-EXE-01-02",
+        "TEST-EXE-01-03",
+        "TEST-EXE-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "RUN-02",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-B",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-RUN-02-01",
+        "REQ-RUN-02-02",
+        "REQ-RUN-02-03"
+      ],
+      "test_ids": [
+        "TEST-RUN-02-01",
+        "TEST-RUN-02-02",
+        "TEST-RUN-02-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "WIRE-01",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-B",
+      "track_position": 4,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-WIRE-01-01",
+        "REQ-WIRE-01-02",
+        "REQ-WIRE-01-03"
+      ],
+      "test_ids": [
+        "TEST-WIRE-01-01",
+        "TEST-WIRE-01-02",
+        "TEST-WIRE-01-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "RUN-03",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-B",
+      "track_position": 5,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-RUN-03-01",
+        "REQ-RUN-03-02",
+        "REQ-RUN-03-03",
+        "REQ-RUN-03-04"
+      ],
+      "test_ids": [
+        "TEST-RUN-03-01",
+        "TEST-RUN-03-02",
+        "TEST-RUN-03-03",
+        "TEST-RUN-03-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "DUR-01",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-B",
+      "track_position": 6,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-DUR-01-01",
+        "REQ-DUR-01-02",
+        "REQ-DUR-01-03"
+      ],
+      "test_ids": [
+        "TEST-DUR-01-01",
+        "TEST-DUR-01-02",
+        "TEST-DUR-01-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "DUR-02",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-B",
+      "track_position": 7,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-DUR-02-01",
+        "REQ-DUR-02-02",
+        "REQ-DUR-02-03"
+      ],
+      "test_ids": [
+        "TEST-DUR-02-01",
+        "TEST-DUR-02-02",
+        "TEST-DUR-02-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "CAS-01",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-C",
+      "track_position": 1,
+      "implementation_status": "IN_PROGRESS",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": "/root/lane06_cas",
+      "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
+      "integrated_commit": null,
+      "actual_write_set": [
+        "policy-engine/tests/unit/remediation/test_cas_01.py"
+      ],
+      "shared_writer": "/root/lane06_cas",
+      "decision_records": [
+        {
+          "decision_id": "DEC-CAS-01-admission",
+          "status": "CHOSEN",
+          "decision": "Qualify real FileSystemCAS on local macOS APFS using existing signature/tenant/cell/ownership readers. Pending or indeterminate generations fail closed and exact retry/recovery uses the existing owner. No production recovery SLA or Linux native proof inferred; no new cleanup service."
+        }
+      ],
+      "requirement_ids": [
+        "REQ-CAS-01-01",
+        "REQ-CAS-01-02",
+        "REQ-CAS-01-03"
+      ],
+      "test_ids": [
+        "TEST-CAS-01-01",
+        "TEST-CAS-01-02",
+        "TEST-CAS-01-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "queued after exclusive STA-01 qualification; no concurrent heavy processes",
+        "source_scope": "Only leased paths; root owns index/commits/refs/generated families and imported working state. Read-only analysis of downstream packets allowed; no second active lane.",
+        "independent_review": "pending",
+        "delegate_limit": "At most one read-only child; explicit allowed model; grandchild is leaf."
+      }
+    },
+    {
+      "packet_id": "CAS-02",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-C",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CAS-02-01",
+        "REQ-CAS-02-02",
+        "REQ-CAS-02-03"
+      ],
+      "test_ids": [
+        "TEST-CAS-02-01",
+        "TEST-CAS-02-02",
+        "TEST-CAS-02-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "CAS-03",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-C",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CAS-03-01",
+        "REQ-CAS-03-02",
+        "REQ-CAS-03-03",
+        "REQ-CAS-03-04"
+      ],
+      "test_ids": [
+        "TEST-CAS-03-01",
+        "TEST-CAS-03-02",
+        "TEST-CAS-03-03",
+        "TEST-CAS-03-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "CAN-01",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-D",
+      "track_position": 1,
+      "implementation_status": "IN_PROGRESS",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": "/root/lane06_canonical",
+      "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
+      "integrated_commit": null,
+      "actual_write_set": [
+        "policy-engine/tests/unit/remediation/test_can_01.py",
+        "policy-engine/src/polisyos/core/canon/README.md"
+      ],
+      "shared_writer": "/root/lane06_canonical",
+      "decision_records": [
+        {
+          "decision_id": "DEC-CAN-01-admission",
+          "status": "CHOSEN",
+          "decision": "Keep existing neutral primitive, separate Core/IR policies and default0.2. Raw alias read is separate from current producer/selected-reader conformance refusal; finite Git-owned vectors are not a production corpus. No new candidate decoder API without an actual caller. Existing Foundry enrolled0.3 remains independently scoped."
+        }
+      ],
+      "requirement_ids": [
+        "REQ-CAN-01-01",
+        "REQ-CAN-01-02",
+        "REQ-CAN-01-03"
+      ],
+      "test_ids": [
+        "TEST-CAN-01-01",
+        "TEST-CAN-01-02",
+        "TEST-CAN-01-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "queued after exclusive STA-01 qualification; no concurrent heavy processes",
+        "source_scope": "Only leased paths; root owns index/commits/refs/generated families and imported working state. Read-only analysis of downstream packets allowed; no second active lane.",
+        "independent_review": "pending",
+        "delegate_limit": "At most one read-only child; explicit allowed model; grandchild is leaf."
+      }
+    },
+    {
+      "packet_id": "MIG-05",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-D",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-MIG-05-01",
+        "REQ-MIG-05-02",
+        "REQ-MIG-05-03",
+        "REQ-MIG-05-04"
+      ],
+      "test_ids": [
+        "TEST-MIG-05-01",
+        "TEST-MIG-05-02",
+        "TEST-MIG-05-03",
+        "TEST-MIG-05-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "MIG-01",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-D",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-MIG-01-01",
+        "REQ-MIG-01-02",
+        "REQ-MIG-01-03"
+      ],
+      "test_ids": [
+        "TEST-MIG-01-01",
+        "TEST-MIG-01-02",
+        "TEST-MIG-01-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "MIG-02",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-D",
+      "track_position": 4,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-MIG-02-01",
+        "REQ-MIG-02-02",
+        "REQ-MIG-02-03"
+      ],
+      "test_ids": [
+        "TEST-MIG-02-01",
+        "TEST-MIG-02-02",
+        "TEST-MIG-02-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "MIG-04",
+      "lane_id": "LANE-06",
+      "lane_sequence": 1,
+      "track_id": "06-D",
+      "track_position": 5,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-MIG-04-01",
+        "REQ-MIG-04-02",
+        "REQ-MIG-04-03"
+      ],
+      "test_ids": [
+        "TEST-MIG-04-01",
+        "TEST-MIG-04-02",
+        "TEST-MIG-04-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "DFK-02",
+      "lane_id": "LANE-08",
+      "lane_sequence": 2,
+      "track_id": "08-A",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-DFK-02-01",
+        "REQ-DFK-02-02",
+        "REQ-DFK-02-03",
+        "REQ-DFK-02-04"
+      ],
+      "test_ids": [
+        "TEST-DFK-02-01",
+        "TEST-DFK-02-02",
+        "TEST-DFK-02-03",
+        "TEST-DFK-02-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "DFI-01",
+      "lane_id": "LANE-08",
+      "lane_sequence": 2,
+      "track_id": "08-A",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-DFI-01-01",
+        "REQ-DFI-01-02",
+        "REQ-DFI-01-03",
+        "REQ-DFI-01-04"
+      ],
+      "test_ids": [
+        "TEST-DFI-01-01",
+        "TEST-DFI-01-02",
+        "TEST-DFI-01-03",
+        "TEST-DFI-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "DFI-02",
+      "lane_id": "LANE-08",
+      "lane_sequence": 2,
+      "track_id": "08-A",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-DFI-02-01",
+        "REQ-DFI-02-02",
+        "REQ-DFI-02-03",
+        "REQ-DFI-02-04"
+      ],
+      "test_ids": [
+        "TEST-DFI-02-01",
+        "TEST-DFI-02-02",
+        "TEST-DFI-02-03",
+        "TEST-DFI-02-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "DFI-03",
+      "lane_id": "LANE-08",
+      "lane_sequence": 2,
+      "track_id": "08-A",
+      "track_position": 4,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-DFI-03-01",
+        "REQ-DFI-03-02",
+        "REQ-DFI-03-03",
+        "REQ-DFI-03-04"
+      ],
+      "test_ids": [
+        "TEST-DFI-03-01",
+        "TEST-DFI-03-02",
+        "TEST-DFI-03-03",
+        "TEST-DFI-03-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "EMB-01",
+      "lane_id": "LANE-08",
+      "lane_sequence": 2,
+      "track_id": "08-D",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-EMB-01-01",
+        "REQ-EMB-01-02",
+        "REQ-EMB-01-03",
+        "REQ-EMB-01-04"
+      ],
+      "test_ids": [
+        "TEST-EMB-01-01",
+        "TEST-EMB-01-02",
+        "TEST-EMB-01-03",
+        "TEST-EMB-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "EMB-02",
+      "lane_id": "LANE-08",
+      "lane_sequence": 2,
+      "track_id": "08-D",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-EMB-02-01",
+        "REQ-EMB-02-02",
+        "REQ-EMB-02-03",
+        "REQ-EMB-02-04"
+      ],
+      "test_ids": [
+        "TEST-EMB-02-01",
+        "TEST-EMB-02-02",
+        "TEST-EMB-02-03",
+        "TEST-EMB-02-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "EMB-03",
+      "lane_id": "LANE-08",
+      "lane_sequence": 2,
+      "track_id": "08-D",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-EMB-03-01",
+        "REQ-EMB-03-02",
+        "REQ-EMB-03-03",
+        "REQ-EMB-03-04"
+      ],
+      "test_ids": [
+        "TEST-EMB-03-01",
+        "TEST-EMB-03-02",
+        "TEST-EMB-03-03",
+        "TEST-EMB-03-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "NET-01",
+      "lane_id": "LANE-08",
+      "lane_sequence": 2,
+      "track_id": "08-B",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-NET-01-01",
+        "REQ-NET-01-02",
+        "REQ-NET-01-03",
+        "REQ-NET-01-04"
+      ],
+      "test_ids": [
+        "TEST-NET-01-01",
+        "TEST-NET-01-02",
+        "TEST-NET-01-03",
+        "TEST-NET-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "ING-01",
+      "lane_id": "LANE-08",
+      "lane_sequence": 2,
+      "track_id": "08-B",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-ING-01-01",
+        "REQ-ING-01-02",
+        "REQ-ING-01-03",
+        "REQ-ING-01-04"
+      ],
+      "test_ids": [
+        "TEST-ING-01-01",
+        "TEST-ING-01-02",
+        "TEST-ING-01-03",
+        "TEST-ING-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "ING-02",
+      "lane_id": "LANE-08",
+      "lane_sequence": 2,
+      "track_id": "08-B",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-ING-02-01",
+        "REQ-ING-02-02",
+        "REQ-ING-02-03",
+        "REQ-ING-02-04"
+      ],
+      "test_ids": [
+        "TEST-ING-02-01",
+        "TEST-ING-02-02",
+        "TEST-ING-02-03",
+        "TEST-ING-02-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "ING-03",
+      "lane_id": "LANE-08",
+      "lane_sequence": 2,
+      "track_id": "08-B",
+      "track_position": 4,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-ING-03-01",
+        "REQ-ING-03-02",
+        "REQ-ING-03-03",
+        "REQ-ING-03-04"
+      ],
+      "test_ids": [
+        "TEST-ING-03-01",
+        "TEST-ING-03-02",
+        "TEST-ING-03-03",
+        "TEST-ING-03-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "NET-02",
+      "lane_id": "LANE-08",
+      "lane_sequence": 2,
+      "track_id": "08-C",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-NET-02-01",
+        "REQ-NET-02-02",
+        "REQ-NET-02-03",
+        "REQ-NET-02-04"
+      ],
+      "test_ids": [
+        "TEST-NET-02-01",
+        "TEST-NET-02-02",
+        "TEST-NET-02-03",
+        "TEST-NET-02-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "UDF-01",
+      "lane_id": "LANE-07",
+      "lane_sequence": 3,
+      "track_id": "07-A",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-UDF-01-01",
+        "REQ-UDF-01-02",
+        "REQ-UDF-01-03",
+        "REQ-UDF-01-04"
+      ],
+      "test_ids": [
+        "TEST-UDF-01-01",
+        "TEST-UDF-01-02",
+        "TEST-UDF-01-03",
+        "TEST-UDF-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "OBS-01",
+      "lane_id": "LANE-07",
+      "lane_sequence": 3,
+      "track_id": "07-A",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-OBS-01-01",
+        "REQ-OBS-01-02",
+        "REQ-OBS-01-03",
+        "REQ-OBS-01-04"
+      ],
+      "test_ids": [
+        "TEST-OBS-01-01",
+        "TEST-OBS-01-02",
+        "TEST-OBS-01-03",
+        "TEST-OBS-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "UDF-02",
+      "lane_id": "LANE-07",
+      "lane_sequence": 3,
+      "track_id": "07-A",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-UDF-02-01",
+        "REQ-UDF-02-02",
+        "REQ-UDF-02-03",
+        "REQ-UDF-02-04"
+      ],
+      "test_ids": [
+        "TEST-UDF-02-01",
+        "TEST-UDF-02-02",
+        "TEST-UDF-02-03",
+        "TEST-UDF-02-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-02"
+      ]
+    },
+    {
+      "packet_id": "OBS-02",
+      "lane_id": "LANE-07",
+      "lane_sequence": 3,
+      "track_id": "07-A",
+      "track_position": 4,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-OBS-02-01",
+        "REQ-OBS-02-02",
+        "REQ-OBS-02-03",
+        "REQ-OBS-02-04"
+      ],
+      "test_ids": [
+        "TEST-OBS-02-01",
+        "TEST-OBS-02-02",
+        "TEST-OBS-02-03",
+        "TEST-OBS-02-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "UDF-05",
+      "lane_id": "LANE-07",
+      "lane_sequence": 3,
+      "track_id": "07-B",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-UDF-05-01",
+        "REQ-UDF-05-02",
+        "REQ-UDF-05-03",
+        "REQ-UDF-05-04",
+        "REQ-UDF-05-05",
+        "REQ-UDF-05-06"
+      ],
+      "test_ids": [
+        "TEST-UDF-05-01",
+        "TEST-UDF-05-02",
+        "TEST-UDF-05-03",
+        "TEST-UDF-05-04",
+        "TEST-UDF-05-05",
+        "TEST-UDF-05-06"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "FED-01",
+      "lane_id": "LANE-07",
+      "lane_sequence": 3,
+      "track_id": "07-B",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-FED-01-01",
+        "REQ-FED-01-02",
+        "REQ-FED-01-03",
+        "REQ-FED-01-04",
+        "REQ-FED-01-05"
+      ],
+      "test_ids": [
+        "TEST-FED-01-01",
+        "TEST-FED-01-02",
+        "TEST-FED-01-03",
+        "TEST-FED-01-04",
+        "TEST-FED-01-05"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "FED-02",
+      "lane_id": "LANE-07",
+      "lane_sequence": 3,
+      "track_id": "07-B",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-FED-02-01",
+        "REQ-FED-02-02",
+        "REQ-FED-02-03",
+        "REQ-FED-02-04",
+        "REQ-FED-02-05"
+      ],
+      "test_ids": [
+        "TEST-FED-02-01",
+        "TEST-FED-02-02",
+        "TEST-FED-02-03",
+        "TEST-FED-02-04",
+        "TEST-FED-02-05"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "CAL-01",
+      "lane_id": "LANE-07",
+      "lane_sequence": 3,
+      "track_id": "07-C",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CAL-01-01",
+        "REQ-CAL-01-02",
+        "REQ-CAL-01-03",
+        "REQ-CAL-01-04",
+        "REQ-CAL-01-05"
+      ],
+      "test_ids": [
+        "TEST-CAL-01-01",
+        "TEST-CAL-01-02",
+        "TEST-CAL-01-03",
+        "TEST-CAL-01-04",
+        "TEST-CAL-01-05"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-03"
+      ]
+    },
+    {
+      "packet_id": "UDF-04",
+      "lane_id": "LANE-07",
+      "lane_sequence": 3,
+      "track_id": "07-D",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-UDF-04-01",
+        "REQ-UDF-04-02",
+        "REQ-UDF-04-03",
+        "REQ-UDF-04-04",
+        "REQ-UDF-04-05"
+      ],
+      "test_ids": [
+        "TEST-UDF-04-01",
+        "TEST-UDF-04-02",
+        "TEST-UDF-04-03",
+        "TEST-UDF-04-04",
+        "TEST-UDF-04-05"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "FRY-01",
+      "lane_id": "LANE-04",
+      "lane_sequence": 4,
+      "track_id": "04-A",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-FRY-01-01",
+        "REQ-FRY-01-02",
+        "REQ-FRY-01-03",
+        "REQ-FRY-01-04"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-01",
+        "TEST-FRY-01-02",
+        "TEST-FRY-01-03",
+        "TEST-FRY-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-02"
+      ]
+    },
+    {
+      "packet_id": "CMP-01",
+      "lane_id": "LANE-04",
+      "lane_sequence": 4,
+      "track_id": "04-A",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CMP-01-01",
+        "REQ-CMP-01-02",
+        "REQ-CMP-01-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-01-01",
+        "TEST-CMP-01-02",
+        "TEST-CMP-01-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-01",
+        "DA-02"
+      ]
+    },
+    {
+      "packet_id": "CMP-02",
+      "lane_id": "LANE-04",
+      "lane_sequence": 4,
+      "track_id": "04-A",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CMP-02-01",
+        "REQ-CMP-02-02",
+        "REQ-CMP-02-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-02-01",
+        "TEST-CMP-02-02",
+        "TEST-CMP-02-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "CMP-03",
+      "lane_id": "LANE-04",
+      "lane_sequence": 4,
+      "track_id": "04-A",
+      "track_position": 4,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CMP-03-01",
+        "REQ-CMP-03-02",
+        "REQ-CMP-03-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-03-01",
+        "TEST-CMP-03-02",
+        "TEST-CMP-03-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "JIT-01",
+      "lane_id": "LANE-04",
+      "lane_sequence": 4,
+      "track_id": "04-A",
+      "track_position": 5,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-JIT-01-01",
+        "REQ-JIT-01-02",
+        "REQ-JIT-01-03"
+      ],
+      "test_ids": [
+        "TEST-JIT-01-01",
+        "TEST-JIT-01-02",
+        "TEST-JIT-01-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "RES-04",
+      "lane_id": "LANE-04",
+      "lane_sequence": 4,
+      "track_id": "04-A",
+      "track_position": 6,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-RES-04-01",
+        "REQ-RES-04-02",
+        "REQ-RES-04-03",
+        "REQ-RES-04-04"
+      ],
+      "test_ids": [
+        "TEST-RES-04-01",
+        "TEST-RES-04-02",
+        "TEST-RES-04-03",
+        "TEST-RES-04-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "FRY-03",
+      "lane_id": "LANE-04",
+      "lane_sequence": 4,
+      "track_id": "04-B",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-FRY-03-01",
+        "REQ-FRY-03-02",
+        "REQ-FRY-03-03"
+      ],
+      "test_ids": [
+        "TEST-FRY-03-01",
+        "TEST-FRY-03-02",
+        "TEST-FRY-03-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "ECO-01",
+      "lane_id": "LANE-04",
+      "lane_sequence": 4,
+      "track_id": "04-B",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-ECO-01-01",
+        "REQ-ECO-01-02",
+        "REQ-ECO-01-03"
+      ],
+      "test_ids": [
+        "TEST-ECO-01-01",
+        "TEST-ECO-01-02",
+        "TEST-ECO-01-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "PLG-01",
+      "lane_id": "LANE-04",
+      "lane_sequence": 4,
+      "track_id": "04-C",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-PLG-01-01",
+        "REQ-PLG-01-02",
+        "REQ-PLG-01-03"
+      ],
+      "test_ids": [
+        "TEST-PLG-01-01",
+        "TEST-PLG-01-02",
+        "TEST-PLG-01-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "PLG-02",
+      "lane_id": "LANE-04",
+      "lane_sequence": 4,
+      "track_id": "04-C",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-PLG-02-01",
+        "REQ-PLG-02-02",
+        "REQ-PLG-02-03"
+      ],
+      "test_ids": [
+        "TEST-PLG-02-01",
+        "TEST-PLG-02-02",
+        "TEST-PLG-02-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "PLG-03",
+      "lane_id": "LANE-04",
+      "lane_sequence": 4,
+      "track_id": "04-C",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-PLG-03-01",
+        "REQ-PLG-03-02",
+        "REQ-PLG-03-03",
+        "REQ-PLG-03-04"
+      ],
+      "test_ids": [
+        "TEST-PLG-03-01",
+        "TEST-PLG-03-02",
+        "TEST-PLG-03-03",
+        "TEST-PLG-03-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "CAL-05",
+      "lane_id": "LANE-04",
+      "lane_sequence": 4,
+      "track_id": "04-D",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CAL-05-01",
+        "REQ-CAL-05-02",
+        "REQ-CAL-05-03"
+      ],
+      "test_ids": [
+        "TEST-CAL-05-01",
+        "TEST-CAL-05-02",
+        "TEST-CAL-05-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-04"
+      ]
+    },
+    {
+      "packet_id": "CAL-02",
+      "lane_id": "LANE-10",
+      "lane_sequence": 5,
+      "track_id": "10-A",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CAL-02-01",
+        "REQ-CAL-02-02",
+        "REQ-CAL-02-03",
+        "REQ-CAL-02-04",
+        "REQ-CAL-02-05",
+        "REQ-CAL-02-06",
+        "REQ-CAL-02-07"
+      ],
+      "test_ids": [
+        "TEST-CAL-02-01",
+        "TEST-CAL-02-02",
+        "TEST-CAL-02-03",
+        "TEST-CAL-02-04",
+        "TEST-CAL-02-05",
+        "TEST-CAL-02-06"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-03",
+        "DA-04"
+      ]
+    },
+    {
+      "packet_id": "CAL-03",
+      "lane_id": "LANE-10",
+      "lane_sequence": 5,
+      "track_id": "10-A",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CAL-03-01",
+        "REQ-CAL-03-02",
+        "REQ-CAL-03-03",
+        "REQ-CAL-03-04"
+      ],
+      "test_ids": [
+        "TEST-CAL-03-01",
+        "TEST-CAL-03-02",
+        "TEST-CAL-03-03",
+        "TEST-CAL-03-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "CAL-04",
+      "lane_id": "LANE-10",
+      "lane_sequence": 5,
+      "track_id": "10-A",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CAL-04-01",
+        "REQ-CAL-04-02",
+        "REQ-CAL-04-03",
+        "REQ-CAL-04-04",
+        "REQ-CAL-04-05"
+      ],
+      "test_ids": [
+        "TEST-CAL-04-01",
+        "TEST-CAL-04-02",
+        "TEST-CAL-04-03",
+        "TEST-CAL-04-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-04"
+      ]
+    },
+    {
+      "packet_id": "CAL-06",
+      "lane_id": "LANE-10",
+      "lane_sequence": 5,
+      "track_id": "10-A",
+      "track_position": 4,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CAL-06-01",
+        "REQ-CAL-06-02",
+        "REQ-CAL-06-03",
+        "REQ-CAL-06-04",
+        "REQ-CAL-06-05"
+      ],
+      "test_ids": [
+        "TEST-CAL-06-01",
+        "TEST-CAL-06-02",
+        "TEST-CAL-06-03",
+        "TEST-CAL-06-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-03"
+      ]
+    },
+    {
+      "packet_id": "UQS-01",
+      "lane_id": "LANE-10",
+      "lane_sequence": 5,
+      "track_id": "10-A",
+      "track_position": 5,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-UQS-01-01",
+        "REQ-UQS-01-02",
+        "REQ-UQS-01-03",
+        "REQ-UQS-01-04",
+        "REQ-UQS-01-05"
+      ],
+      "test_ids": [
+        "TEST-UQS-01-01",
+        "TEST-UQS-01-02",
+        "TEST-UQS-01-03",
+        "TEST-UQS-01-04",
+        "TEST-UQS-01-05"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "UQP-01",
+      "lane_id": "LANE-10",
+      "lane_sequence": 5,
+      "track_id": "10-B",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-UQP-01-01",
+        "REQ-UQP-01-02",
+        "REQ-UQP-01-03",
+        "REQ-UQP-01-04",
+        "REQ-UQP-01-05"
+      ],
+      "test_ids": [
+        "TEST-UQP-01-01",
+        "TEST-UQP-01-02",
+        "TEST-UQP-01-03",
+        "TEST-UQP-01-04",
+        "TEST-UQP-01-05"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "UQP-02",
+      "lane_id": "LANE-10",
+      "lane_sequence": 5,
+      "track_id": "10-B",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-UQP-02-01",
+        "REQ-UQP-02-02",
+        "REQ-UQP-02-03",
+        "REQ-UQP-02-04",
+        "REQ-UQP-02-05"
+      ],
+      "test_ids": [
+        "TEST-UQP-02-01",
+        "TEST-UQP-02-02",
+        "TEST-UQP-02-03",
+        "TEST-UQP-02-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "UQP-03",
+      "lane_id": "LANE-10",
+      "lane_sequence": 5,
+      "track_id": "10-B",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-UQP-03-01",
+        "REQ-UQP-03-02",
+        "REQ-UQP-03-03",
+        "REQ-UQP-03-04",
+        "REQ-UQP-03-05"
+      ],
+      "test_ids": [
+        "TEST-UQP-03-01",
+        "TEST-UQP-03-02",
+        "TEST-UQP-03-03",
+        "TEST-UQP-03-04",
+        "TEST-UQP-03-05"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "DOE-01",
+      "lane_id": "LANE-10",
+      "lane_sequence": 5,
+      "track_id": "10-C",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-DOE-01-01",
+        "REQ-DOE-01-02",
+        "REQ-DOE-01-03",
+        "REQ-DOE-01-04"
+      ],
+      "test_ids": [
+        "TEST-DOE-01-01",
+        "TEST-DOE-01-02",
+        "TEST-DOE-01-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "DOE-02",
+      "lane_id": "LANE-10",
+      "lane_sequence": 5,
+      "track_id": "10-C",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-DOE-02-01",
+        "REQ-DOE-02-02",
+        "REQ-DOE-02-03",
+        "REQ-DOE-02-04"
+      ],
+      "test_ids": [
+        "TEST-DOE-02-01",
+        "TEST-DOE-02-02",
+        "TEST-DOE-02-03"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "DOE-03",
+      "lane_id": "LANE-10",
+      "lane_sequence": 5,
+      "track_id": "10-C",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-DOE-03-01",
+        "REQ-DOE-03-02",
+        "REQ-DOE-03-03",
+        "REQ-DOE-03-04",
+        "REQ-DOE-03-05"
+      ],
+      "test_ids": [
+        "TEST-DOE-03-01",
+        "TEST-DOE-03-02",
+        "TEST-DOE-03-03",
+        "TEST-DOE-03-04",
+        "TEST-DOE-03-05"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "STR-01",
+      "lane_id": "LANE-10",
+      "lane_sequence": 5,
+      "track_id": "10-D",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-STR-01-01",
+        "REQ-STR-01-02",
+        "REQ-STR-01-03",
+        "REQ-STR-01-04"
+      ],
+      "test_ids": [
+        "TEST-STR-01-01",
+        "TEST-STR-01-02",
+        "TEST-STR-01-03",
+        "TEST-STR-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "GRF-01",
+      "lane_id": "LANE-05",
+      "lane_sequence": 6,
+      "track_id": "05-A",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-GRF-01-01",
+        "REQ-GRF-01-02",
+        "REQ-GRF-01-03",
+        "REQ-GRF-01-04",
+        "REQ-GRF-01-05",
+        "REQ-GRF-01-06"
+      ],
+      "test_ids": [
+        "TEST-GRF-01-01",
+        "TEST-GRF-01-02",
+        "TEST-GRF-01-03",
+        "TEST-GRF-01-04",
+        "TEST-GRF-01-05",
+        "TEST-GRF-01-06",
+        "TEST-GRF-01-07"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-05"
+      ]
+    },
+    {
+      "packet_id": "GRF-02",
+      "lane_id": "LANE-05",
+      "lane_sequence": 6,
+      "track_id": "05-A",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-GRF-02-01",
+        "REQ-GRF-02-02",
+        "REQ-GRF-02-03",
+        "REQ-GRF-02-04",
+        "REQ-GRF-02-05",
+        "REQ-GRF-02-06"
+      ],
+      "test_ids": [
+        "TEST-GRF-02-01",
+        "TEST-GRF-02-02",
+        "TEST-GRF-02-03",
+        "TEST-GRF-02-04",
+        "TEST-GRF-02-05",
+        "TEST-GRF-02-06",
+        "TEST-GRF-02-07"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "GRF-03",
+      "lane_id": "LANE-05",
+      "lane_sequence": 6,
+      "track_id": "05-A",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-GRF-03-01",
+        "REQ-GRF-03-02",
+        "REQ-GRF-03-03",
+        "REQ-GRF-03-04",
+        "REQ-GRF-03-05",
+        "REQ-GRF-03-06",
+        "REQ-GRF-03-07"
+      ],
+      "test_ids": [
+        "TEST-GRF-03-01",
+        "TEST-GRF-03-02",
+        "TEST-GRF-03-03",
+        "TEST-GRF-03-04",
+        "TEST-GRF-03-05",
+        "TEST-GRF-03-06",
+        "TEST-GRF-03-07",
+        "TEST-GRF-03-08"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "API-01",
+      "lane_id": "LANE-05",
+      "lane_sequence": 6,
+      "track_id": "05-A",
+      "track_position": 4,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-API-01-01",
+        "REQ-API-01-02",
+        "REQ-API-01-03",
+        "REQ-API-01-04",
+        "REQ-API-01-05",
+        "REQ-API-01-06"
+      ],
+      "test_ids": [
+        "TEST-API-01-01",
+        "TEST-API-01-02",
+        "TEST-API-01-03",
+        "TEST-API-01-04",
+        "TEST-API-01-05",
+        "TEST-API-01-06"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-05"
+      ]
+    },
+    {
+      "packet_id": "CAU-01",
+      "lane_id": "LANE-05",
+      "lane_sequence": 6,
+      "track_id": "05-B",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CAU-01-01",
+        "REQ-CAU-01-02",
+        "REQ-CAU-01-03",
+        "REQ-CAU-01-04",
+        "REQ-CAU-01-05",
+        "REQ-CAU-01-06",
+        "REQ-CAU-01-07",
+        "REQ-CAU-01-08",
+        "REQ-CAU-01-09"
+      ],
+      "test_ids": [
+        "TEST-CAU-01-01",
+        "TEST-CAU-01-02",
+        "TEST-CAU-01-03",
+        "TEST-CAU-01-04",
+        "TEST-CAU-01-05",
+        "TEST-CAU-01-06",
+        "TEST-CAU-01-07",
+        "TEST-CAU-01-08"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "CAU-02",
+      "lane_id": "LANE-05",
+      "lane_sequence": 6,
+      "track_id": "05-B",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CAU-02-01",
+        "REQ-CAU-02-02",
+        "REQ-CAU-02-03",
+        "REQ-CAU-02-04",
+        "REQ-CAU-02-05",
+        "REQ-CAU-02-06",
+        "REQ-CAU-02-07"
+      ],
+      "test_ids": [
+        "TEST-CAU-02-01",
+        "TEST-CAU-02-02",
+        "TEST-CAU-02-03",
+        "TEST-CAU-02-04",
+        "TEST-CAU-02-05",
+        "TEST-CAU-02-06",
+        "TEST-CAU-02-07"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "CAU-03",
+      "lane_id": "LANE-05",
+      "lane_sequence": 6,
+      "track_id": "05-B",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CAU-03-01",
+        "REQ-CAU-03-02",
+        "REQ-CAU-03-03",
+        "REQ-CAU-03-04",
+        "REQ-CAU-03-05",
+        "REQ-CAU-03-06"
+      ],
+      "test_ids": [
+        "TEST-CAU-03-01",
+        "TEST-CAU-03-02",
+        "TEST-CAU-03-03",
+        "TEST-CAU-03-04",
+        "TEST-CAU-03-05",
+        "TEST-CAU-03-06",
+        "TEST-CAU-03-07",
+        "TEST-CAU-03-08"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "CAU-04",
+      "lane_id": "LANE-05",
+      "lane_sequence": 6,
+      "track_id": "05-B",
+      "track_position": 4,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CAU-04-01",
+        "REQ-CAU-04-02",
+        "REQ-CAU-04-03",
+        "REQ-CAU-04-04",
+        "REQ-CAU-04-05",
+        "REQ-CAU-04-06"
+      ],
+      "test_ids": [
+        "TEST-CAU-04-01",
+        "TEST-CAU-04-02",
+        "TEST-CAU-04-03",
+        "TEST-CAU-04-04",
+        "TEST-CAU-04-05",
+        "TEST-CAU-04-06",
+        "TEST-CAU-04-07",
+        "TEST-CAU-04-08"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "CAU-05",
+      "lane_id": "LANE-05",
+      "lane_sequence": 6,
+      "track_id": "05-B",
+      "track_position": 5,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CAU-05-01",
+        "REQ-CAU-05-02",
+        "REQ-CAU-05-03",
+        "REQ-CAU-05-04",
+        "REQ-CAU-05-05",
+        "REQ-CAU-05-06"
+      ],
+      "test_ids": [
+        "TEST-CAU-05-01",
+        "TEST-CAU-05-02",
+        "TEST-CAU-05-03",
+        "TEST-CAU-05-04",
+        "TEST-CAU-05-05",
+        "TEST-CAU-05-06",
+        "TEST-CAU-05-07",
+        "TEST-CAU-05-08"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "SCM-03",
+      "lane_id": "LANE-05",
+      "lane_sequence": 6,
+      "track_id": "05-C",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-SCM-03-01",
+        "REQ-SCM-03-02",
+        "REQ-SCM-03-03",
+        "REQ-SCM-03-04",
+        "REQ-SCM-03-05",
+        "REQ-SCM-03-06",
+        "REQ-SCM-03-07"
+      ],
+      "test_ids": [
+        "TEST-SCM-03-01",
+        "TEST-SCM-03-02",
+        "TEST-SCM-03-03",
+        "TEST-SCM-03-04",
+        "TEST-SCM-03-05",
+        "TEST-SCM-03-06",
+        "TEST-SCM-03-07",
+        "TEST-SCM-03-08"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "SCM-02",
+      "lane_id": "LANE-05",
+      "lane_sequence": 6,
+      "track_id": "05-C",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-SCM-02-01",
+        "REQ-SCM-02-02",
+        "REQ-SCM-02-03",
+        "REQ-SCM-02-04",
+        "REQ-SCM-02-05",
+        "REQ-SCM-02-06",
+        "REQ-SCM-02-07",
+        "REQ-SCM-02-08"
+      ],
+      "test_ids": [
+        "TEST-SCM-02-01",
+        "TEST-SCM-02-02",
+        "TEST-SCM-02-03",
+        "TEST-SCM-02-04",
+        "TEST-SCM-02-05",
+        "TEST-SCM-02-06",
+        "TEST-SCM-02-07",
+        "TEST-SCM-02-08",
+        "TEST-SCM-02-09",
+        "TEST-SCM-02-10"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "SCM-01",
+      "lane_id": "LANE-05",
+      "lane_sequence": 6,
+      "track_id": "05-C",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-SCM-01-01",
+        "REQ-SCM-01-02",
+        "REQ-SCM-01-03",
+        "REQ-SCM-01-04",
+        "REQ-SCM-01-05",
+        "REQ-SCM-01-06"
+      ],
+      "test_ids": [
+        "TEST-SCM-01-01",
+        "TEST-SCM-01-02",
+        "TEST-SCM-01-03",
+        "TEST-SCM-01-04",
+        "TEST-SCM-01-05",
+        "TEST-SCM-01-06",
+        "TEST-SCM-01-07",
+        "TEST-SCM-01-08"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "FIT-01",
+      "lane_id": "LANE-05",
+      "lane_sequence": 6,
+      "track_id": "05-D",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-FIT-01-01",
+        "REQ-FIT-01-02",
+        "REQ-FIT-01-03",
+        "REQ-FIT-01-04",
+        "REQ-FIT-01-05",
+        "REQ-FIT-01-06",
+        "REQ-FIT-01-07",
+        "REQ-FIT-01-08"
+      ],
+      "test_ids": [
+        "TEST-FIT-01-01",
+        "TEST-FIT-01-02",
+        "TEST-FIT-01-03",
+        "TEST-FIT-01-04",
+        "TEST-FIT-01-05",
+        "TEST-FIT-01-06",
+        "TEST-FIT-01-07",
+        "TEST-FIT-01-08",
+        "TEST-FIT-01-09",
+        "TEST-FIT-01-10"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "SCL-01",
+      "lane_id": "LANE-09",
+      "lane_sequence": 7,
+      "track_id": "09-A",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-SCL-01-01",
+        "REQ-SCL-01-02",
+        "REQ-SCL-01-03",
+        "REQ-SCL-01-04",
+        "REQ-SCL-01-05"
+      ],
+      "test_ids": [
+        "TEST-SCL-01-01",
+        "TEST-SCL-01-02",
+        "TEST-SCL-01-03",
+        "TEST-SCL-01-04",
+        "TEST-SCL-01-05",
+        "TEST-SCL-01-06"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "SCL-03",
+      "lane_id": "LANE-09",
+      "lane_sequence": 7,
+      "track_id": "09-A",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-SCL-03-01",
+        "REQ-SCL-03-02",
+        "REQ-SCL-03-03",
+        "REQ-SCL-03-04"
+      ],
+      "test_ids": [
+        "TEST-SCL-03-01",
+        "TEST-SCL-03-02",
+        "TEST-SCL-03-03",
+        "TEST-SCL-03-04",
+        "TEST-SCL-03-05"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "LLM-01",
+      "lane_id": "LANE-09",
+      "lane_sequence": 7,
+      "track_id": "09-B",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-LLM-01-01",
+        "REQ-LLM-01-02",
+        "REQ-LLM-01-03",
+        "REQ-LLM-01-04",
+        "REQ-LLM-01-05",
+        "REQ-LLM-01-06"
+      ],
+      "test_ids": [
+        "TEST-LLM-01-01",
+        "TEST-LLM-01-02",
+        "TEST-LLM-01-03",
+        "TEST-LLM-01-04",
+        "TEST-LLM-01-05",
+        "TEST-LLM-01-06"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "LLM-02",
+      "lane_id": "LANE-09",
+      "lane_sequence": 7,
+      "track_id": "09-B",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-LLM-02-01",
+        "REQ-LLM-02-02",
+        "REQ-LLM-02-03",
+        "REQ-LLM-02-04",
+        "REQ-LLM-02-05",
+        "REQ-LLM-02-06",
+        "REQ-LLM-02-07"
+      ],
+      "test_ids": [
+        "TEST-LLM-02-01",
+        "TEST-LLM-02-02",
+        "TEST-LLM-02-03",
+        "TEST-LLM-02-04",
+        "TEST-LLM-02-05",
+        "TEST-LLM-02-06",
+        "TEST-LLM-02-07",
+        "TEST-LLM-02-08"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "REQ-01",
+      "lane_id": "LANE-01",
+      "lane_sequence": 8,
+      "track_id": "01-A",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-REQ-01-01",
+        "REQ-REQ-01-02",
+        "REQ-REQ-01-03",
+        "REQ-REQ-01-04",
+        "REQ-REQ-01-05",
+        "REQ-REQ-01-06",
+        "REQ-REQ-01-07",
+        "REQ-REQ-01-08",
+        "REQ-REQ-01-09"
+      ],
+      "test_ids": [
+        "TEST-REQ-01-01",
+        "TEST-REQ-01-02",
+        "TEST-REQ-01-03",
+        "TEST-REQ-01-04",
+        "TEST-REQ-01-05",
+        "TEST-REQ-01-06",
+        "TEST-REQ-01-07",
+        "TEST-REQ-01-08"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "CYC-01",
+      "lane_id": "LANE-01",
+      "lane_sequence": 8,
+      "track_id": "01-A",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CYC-01-01",
+        "REQ-CYC-01-02",
+        "REQ-CYC-01-03",
+        "REQ-CYC-01-04",
+        "REQ-CYC-01-05",
+        "REQ-CYC-01-06",
+        "REQ-CYC-01-07"
+      ],
+      "test_ids": [
+        "TEST-CYC-01-01",
+        "TEST-CYC-01-02",
+        "TEST-CYC-01-03",
+        "TEST-CYC-01-04",
+        "TEST-CYC-01-05",
+        "TEST-CYC-01-06"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-07"
+      ]
+    },
+    {
+      "packet_id": "ACQ-01",
+      "lane_id": "LANE-01",
+      "lane_sequence": 8,
+      "track_id": "01-A",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-ACQ-01-01",
+        "REQ-ACQ-01-02",
+        "REQ-ACQ-01-03",
+        "REQ-ACQ-01-04",
+        "REQ-ACQ-01-05",
+        "REQ-ACQ-01-06"
+      ],
+      "test_ids": [
+        "TEST-ACQ-01-01",
+        "TEST-ACQ-01-02",
+        "TEST-ACQ-01-03",
+        "TEST-ACQ-01-04",
+        "TEST-ACQ-01-05",
+        "TEST-ACQ-01-06"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "CYC-03",
+      "lane_id": "LANE-01",
+      "lane_sequence": 8,
+      "track_id": "01-A",
+      "track_position": 4,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CYC-03-01",
+        "REQ-CYC-03-02",
+        "REQ-CYC-03-03",
+        "REQ-CYC-03-04",
+        "REQ-CYC-03-05",
+        "REQ-CYC-03-06"
+      ],
+      "test_ids": [
+        "TEST-CYC-03-01",
+        "TEST-CYC-03-02",
+        "TEST-CYC-03-03",
+        "TEST-CYC-03-04",
+        "TEST-CYC-03-05",
+        "TEST-CYC-03-06"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "CYC-04",
+      "lane_id": "LANE-01",
+      "lane_sequence": 8,
+      "track_id": "01-A",
+      "track_position": 5,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CYC-04-01",
+        "REQ-CYC-04-02",
+        "REQ-CYC-04-03",
+        "REQ-CYC-04-04",
+        "REQ-CYC-04-05",
+        "REQ-CYC-04-06"
+      ],
+      "test_ids": [
+        "TEST-CYC-04-01",
+        "TEST-CYC-04-02",
+        "TEST-CYC-04-03",
+        "TEST-CYC-04-04",
+        "TEST-CYC-04-05",
+        "TEST-CYC-04-06"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "CYC-05",
+      "lane_id": "LANE-01",
+      "lane_sequence": 8,
+      "track_id": "01-A",
+      "track_position": 6,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CYC-05-01",
+        "REQ-CYC-05-02",
+        "REQ-CYC-05-03",
+        "REQ-CYC-05-04",
+        "REQ-CYC-05-05",
+        "REQ-CYC-05-06",
+        "REQ-CYC-05-07"
+      ],
+      "test_ids": [
+        "TEST-CYC-05-01",
+        "TEST-CYC-05-02",
+        "TEST-CYC-05-03",
+        "TEST-CYC-05-04",
+        "TEST-CYC-05-05",
+        "TEST-CYC-05-06",
+        "TEST-CYC-05-07"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-06"
+      ]
+    },
+    {
+      "packet_id": "CYC-02",
+      "lane_id": "LANE-01",
+      "lane_sequence": 8,
+      "track_id": "01-A",
+      "track_position": 7,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CYC-02-01",
+        "REQ-CYC-02-02",
+        "REQ-CYC-02-03",
+        "REQ-CYC-02-04",
+        "REQ-CYC-02-05"
+      ],
+      "test_ids": [
+        "TEST-CYC-02-01",
+        "TEST-CYC-02-02",
+        "TEST-CYC-02-03",
+        "TEST-CYC-02-04",
+        "TEST-CYC-02-05"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-01",
+        "DA-07"
+      ]
+    },
+    {
+      "packet_id": "SIM-01",
+      "lane_id": "LANE-01",
+      "lane_sequence": 8,
+      "track_id": "01-B",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-SIM-01-01",
+        "REQ-SIM-01-02",
+        "REQ-SIM-01-03",
+        "REQ-SIM-01-04"
+      ],
+      "test_ids": [
+        "TEST-SIM-01-01",
+        "TEST-SIM-01-02",
+        "TEST-SIM-01-03",
+        "TEST-SIM-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "SIM-02",
+      "lane_id": "LANE-01",
+      "lane_sequence": 8,
+      "track_id": "01-B",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-SIM-02-01",
+        "REQ-SIM-02-02",
+        "REQ-SIM-02-03",
+        "REQ-SIM-02-04",
+        "REQ-SIM-02-05"
+      ],
+      "test_ids": [
+        "TEST-SIM-02-01",
+        "TEST-SIM-02-02",
+        "TEST-SIM-02-03",
+        "TEST-SIM-02-04",
+        "TEST-SIM-02-05"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "SIM-03",
+      "lane_id": "LANE-01",
+      "lane_sequence": 8,
+      "track_id": "01-B",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-SIM-03-01",
+        "REQ-SIM-03-02",
+        "REQ-SIM-03-03",
+        "REQ-SIM-03-04",
+        "REQ-SIM-03-05",
+        "REQ-SIM-03-06"
+      ],
+      "test_ids": [
+        "TEST-SIM-03-01",
+        "TEST-SIM-03-02",
+        "TEST-SIM-03-03",
+        "TEST-SIM-03-04",
+        "TEST-SIM-03-05",
+        "TEST-SIM-03-06"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "SEL-01",
+      "lane_id": "LANE-01",
+      "lane_sequence": 8,
+      "track_id": "01-C",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-SEL-01-01",
+        "REQ-SEL-01-02",
+        "REQ-SEL-01-03",
+        "REQ-SEL-01-04",
+        "REQ-SEL-01-05"
+      ],
+      "test_ids": [
+        "TEST-SEL-01-01",
+        "TEST-SEL-01-02",
+        "TEST-SEL-01-03",
+        "TEST-SEL-01-04",
+        "TEST-SEL-01-05"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "EMP-01",
+      "lane_id": "LANE-03",
+      "lane_sequence": 9,
+      "track_id": "03-A",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-EMP-01-01",
+        "REQ-EMP-01-02",
+        "REQ-EMP-01-03",
+        "REQ-EMP-01-04",
+        "REQ-EMP-01-05",
+        "REQ-EMP-01-06",
+        "REQ-EMP-01-07",
+        "REQ-EMP-01-08"
+      ],
+      "test_ids": [
+        "TEST-EMP-01-01",
+        "TEST-EMP-01-02",
+        "TEST-EMP-01-03",
+        "TEST-EMP-01-04",
+        "TEST-EMP-01-05",
+        "TEST-EMP-01-06",
+        "TEST-EMP-01-07",
+        "TEST-EMP-01-08"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-07"
+      ]
+    },
+    {
+      "packet_id": "FRC-01",
+      "lane_id": "LANE-03",
+      "lane_sequence": 9,
+      "track_id": "03-A",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-FRC-01-01",
+        "REQ-FRC-01-02",
+        "REQ-FRC-01-03",
+        "REQ-FRC-01-04",
+        "REQ-FRC-01-05",
+        "REQ-FRC-01-06",
+        "REQ-FRC-01-07"
+      ],
+      "test_ids": [
+        "TEST-FRC-01-01",
+        "TEST-FRC-01-02",
+        "TEST-FRC-01-03",
+        "TEST-FRC-01-04",
+        "TEST-FRC-01-05",
+        "TEST-FRC-01-06"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-07"
+      ]
+    },
+    {
+      "packet_id": "PCL-01",
+      "lane_id": "LANE-03",
+      "lane_sequence": 9,
+      "track_id": "03-A",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-PCL-01-01",
+        "REQ-PCL-01-02",
+        "REQ-PCL-01-03",
+        "REQ-PCL-01-04",
+        "REQ-PCL-01-05",
+        "REQ-PCL-01-06",
+        "REQ-PCL-01-07"
+      ],
+      "test_ids": [
+        "TEST-PCL-01-01",
+        "TEST-PCL-01-02",
+        "TEST-PCL-01-03",
+        "TEST-PCL-01-04",
+        "TEST-PCL-01-05",
+        "TEST-PCL-01-06",
+        "TEST-PCL-01-07"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "FRC-02",
+      "lane_id": "LANE-03",
+      "lane_sequence": 9,
+      "track_id": "03-A",
+      "track_position": 4,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-FRC-02-01",
+        "REQ-FRC-02-02",
+        "REQ-FRC-02-03",
+        "REQ-FRC-02-04",
+        "REQ-FRC-02-05",
+        "REQ-FRC-02-06",
+        "REQ-FRC-02-07",
+        "REQ-FRC-02-08"
+      ],
+      "test_ids": [
+        "TEST-FRC-02-01",
+        "TEST-FRC-02-02",
+        "TEST-FRC-02-03",
+        "TEST-FRC-02-04",
+        "TEST-FRC-02-05",
+        "TEST-FRC-02-06",
+        "TEST-FRC-02-07",
+        "TEST-FRC-02-08"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-07"
+      ]
+    },
+    {
+      "packet_id": "BKT-01",
+      "lane_id": "LANE-03",
+      "lane_sequence": 9,
+      "track_id": "03-B",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-BKT-01-01",
+        "REQ-BKT-01-02",
+        "REQ-BKT-01-03",
+        "REQ-BKT-01-04",
+        "REQ-BKT-01-05",
+        "REQ-BKT-01-06",
+        "REQ-BKT-01-07",
+        "REQ-BKT-01-08",
+        "REQ-BKT-01-09"
+      ],
+      "test_ids": [
+        "TEST-BKT-01-01",
+        "TEST-BKT-01-02",
+        "TEST-BKT-01-03",
+        "TEST-BKT-01-04",
+        "TEST-BKT-01-05",
+        "TEST-BKT-01-06",
+        "TEST-BKT-01-07",
+        "TEST-BKT-01-08",
+        "TEST-BKT-01-09"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "BKT-02",
+      "lane_id": "LANE-03",
+      "lane_sequence": 9,
+      "track_id": "03-B",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-BKT-02-01",
+        "REQ-BKT-02-02",
+        "REQ-BKT-02-03",
+        "REQ-BKT-02-04",
+        "REQ-BKT-02-05",
+        "REQ-BKT-02-06",
+        "REQ-BKT-02-07",
+        "REQ-BKT-02-08"
+      ],
+      "test_ids": [
+        "TEST-BKT-02-01",
+        "TEST-BKT-02-02",
+        "TEST-BKT-02-03",
+        "TEST-BKT-02-04",
+        "TEST-BKT-02-05",
+        "TEST-BKT-02-06",
+        "TEST-BKT-02-07",
+        "TEST-BKT-02-08"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "BKT-03",
+      "lane_id": "LANE-03",
+      "lane_sequence": 9,
+      "track_id": "03-B",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-BKT-03-01",
+        "REQ-BKT-03-02",
+        "REQ-BKT-03-03",
+        "REQ-BKT-03-04",
+        "REQ-BKT-03-05",
+        "REQ-BKT-03-06",
+        "REQ-BKT-03-07"
+      ],
+      "test_ids": [
+        "TEST-BKT-03-01",
+        "TEST-BKT-03-02",
+        "TEST-BKT-03-03",
+        "TEST-BKT-03-04",
+        "TEST-BKT-03-05",
+        "TEST-BKT-03-06",
+        "TEST-BKT-03-07"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "BKT-04",
+      "lane_id": "LANE-03",
+      "lane_sequence": 9,
+      "track_id": "03-C",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-BKT-04-01",
+        "REQ-BKT-04-02",
+        "REQ-BKT-04-03",
+        "REQ-BKT-04-04",
+        "REQ-BKT-04-05",
+        "REQ-BKT-04-06",
+        "REQ-BKT-04-07"
+      ],
+      "test_ids": [
+        "TEST-BKT-04-01",
+        "TEST-BKT-04-02",
+        "TEST-BKT-04-03",
+        "TEST-BKT-04-04",
+        "TEST-BKT-04-05",
+        "TEST-BKT-04-06",
+        "TEST-BKT-04-07"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "OPT-01",
+      "lane_id": "LANE-02",
+      "lane_sequence": 10,
+      "track_id": "02-A",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-OPT-01-01",
+        "REQ-OPT-01-02",
+        "REQ-OPT-01-03",
+        "REQ-OPT-01-04",
+        "REQ-OPT-01-05",
+        "REQ-OPT-01-06"
+      ],
+      "test_ids": [
+        "TEST-OPT-01-01",
+        "TEST-OPT-01-02",
+        "TEST-OPT-01-03",
+        "TEST-OPT-01-04",
+        "TEST-OPT-01-05",
+        "TEST-OPT-01-06"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "OPT-02",
+      "lane_id": "LANE-02",
+      "lane_sequence": 10,
+      "track_id": "02-A",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-OPT-02-01",
+        "REQ-OPT-02-02",
+        "REQ-OPT-02-03",
+        "REQ-OPT-02-04"
+      ],
+      "test_ids": [
+        "TEST-OPT-02-01",
+        "TEST-OPT-02-02",
+        "TEST-OPT-02-03",
+        "TEST-OPT-02-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "CTL-02",
+      "lane_id": "LANE-02",
+      "lane_sequence": 10,
+      "track_id": "02-A",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CTL-02-01",
+        "REQ-CTL-02-02",
+        "REQ-CTL-02-03",
+        "REQ-CTL-02-04",
+        "REQ-CTL-02-05"
+      ],
+      "test_ids": [
+        "TEST-CTL-02-01",
+        "TEST-CTL-02-02",
+        "TEST-CTL-02-03",
+        "TEST-CTL-02-04",
+        "TEST-CTL-02-05"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "OPT-03",
+      "lane_id": "LANE-02",
+      "lane_sequence": 10,
+      "track_id": "02-A",
+      "track_position": 4,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-OPT-03-01",
+        "REQ-OPT-03-02",
+        "REQ-OPT-03-03",
+        "REQ-OPT-03-04"
+      ],
+      "test_ids": [
+        "TEST-OPT-03-01",
+        "TEST-OPT-03-02",
+        "TEST-OPT-03-03",
+        "TEST-OPT-03-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "OPT-04",
+      "lane_id": "LANE-02",
+      "lane_sequence": 10,
+      "track_id": "02-A",
+      "track_position": 5,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-OPT-04-01",
+        "REQ-OPT-04-02",
+        "REQ-OPT-04-03",
+        "REQ-OPT-04-04"
+      ],
+      "test_ids": [
+        "TEST-OPT-04-01",
+        "TEST-OPT-04-02",
+        "TEST-OPT-04-03",
+        "TEST-OPT-04-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "CTL-01",
+      "lane_id": "LANE-02",
+      "lane_sequence": 10,
+      "track_id": "02-B",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CTL-01-01",
+        "REQ-CTL-01-02",
+        "REQ-CTL-01-03",
+        "REQ-CTL-01-04"
+      ],
+      "test_ids": [
+        "TEST-CTL-01-01",
+        "TEST-CTL-01-02",
+        "TEST-CTL-01-03",
+        "TEST-CTL-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "SRV-01",
+      "lane_id": "LANE-02",
+      "lane_sequence": 10,
+      "track_id": "02-B",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-SRV-01-01",
+        "REQ-SRV-01-02",
+        "REQ-SRV-01-03",
+        "REQ-SRV-01-04"
+      ],
+      "test_ids": [
+        "TEST-SRV-01-01",
+        "TEST-SRV-01-02",
+        "TEST-SRV-01-03",
+        "TEST-SRV-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "CTL-03",
+      "lane_id": "LANE-02",
+      "lane_sequence": 10,
+      "track_id": "02-B",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CTL-03-01",
+        "REQ-CTL-03-02",
+        "REQ-CTL-03-03",
+        "REQ-CTL-03-04",
+        "REQ-CTL-03-05"
+      ],
+      "test_ids": [
+        "TEST-CTL-03-01",
+        "TEST-CTL-03-02",
+        "TEST-CTL-03-03",
+        "TEST-CTL-03-04",
+        "TEST-CTL-03-05"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "STP-01",
+      "lane_id": "LANE-02",
+      "lane_sequence": 10,
+      "track_id": "02-B",
+      "track_position": 4,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-STP-01-01",
+        "REQ-STP-01-02",
+        "REQ-STP-01-03",
+        "REQ-STP-01-04"
+      ],
+      "test_ids": [
+        "TEST-STP-01-01",
+        "TEST-STP-01-02",
+        "TEST-STP-01-03",
+        "TEST-STP-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "SRV-03",
+      "lane_id": "LANE-02",
+      "lane_sequence": 10,
+      "track_id": "02-B",
+      "track_position": 5,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-SRV-03-01",
+        "REQ-SRV-03-02",
+        "REQ-SRV-03-03",
+        "REQ-SRV-03-04"
+      ],
+      "test_ids": [
+        "TEST-SRV-03-01",
+        "TEST-SRV-03-02",
+        "TEST-SRV-03-03",
+        "TEST-SRV-03-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "TRN-03",
+      "lane_id": "LANE-02",
+      "lane_sequence": 10,
+      "track_id": "02-C",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-TRN-03-01",
+        "REQ-TRN-03-02",
+        "REQ-TRN-03-03",
+        "REQ-TRN-03-04"
+      ],
+      "test_ids": [
+        "TEST-TRN-03-01",
+        "TEST-TRN-03-02",
+        "TEST-TRN-03-03",
+        "TEST-TRN-03-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "TRN-01",
+      "lane_id": "LANE-02",
+      "lane_sequence": 10,
+      "track_id": "02-C",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-TRN-01-01",
+        "REQ-TRN-01-02",
+        "REQ-TRN-01-03",
+        "REQ-TRN-01-04"
+      ],
+      "test_ids": [
+        "TEST-TRN-01-01",
+        "TEST-TRN-01-02",
+        "TEST-TRN-01-03",
+        "TEST-TRN-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "TRN-02",
+      "lane_id": "LANE-02",
+      "lane_sequence": 10,
+      "track_id": "02-C",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-TRN-02-01",
+        "REQ-TRN-02-02",
+        "REQ-TRN-02-03",
+        "REQ-TRN-02-04"
+      ],
+      "test_ids": [
+        "TEST-TRN-02-01",
+        "TEST-TRN-02-02",
+        "TEST-TRN-02-03",
+        "TEST-TRN-02-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "FUN-01",
+      "lane_id": "LANE-02",
+      "lane_sequence": 10,
+      "track_id": "02-D",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-FUN-01-01",
+        "REQ-FUN-01-02",
+        "REQ-FUN-01-03",
+        "REQ-FUN-01-04"
+      ],
+      "test_ids": [
+        "TEST-FUN-01-01",
+        "TEST-FUN-01-02",
+        "TEST-FUN-01-03",
+        "TEST-FUN-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "FUN-02",
+      "lane_id": "LANE-02",
+      "lane_sequence": 10,
+      "track_id": "02-D",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-FUN-02-01",
+        "REQ-FUN-02-02",
+        "REQ-FUN-02-03",
+        "REQ-FUN-02-04"
+      ],
+      "test_ids": [
+        "TEST-FUN-02-01",
+        "TEST-FUN-02-02",
+        "TEST-FUN-02-03",
+        "TEST-FUN-02-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "FUN-03",
+      "lane_id": "LANE-02",
+      "lane_sequence": 10,
+      "track_id": "02-D",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-FUN-03-01",
+        "REQ-FUN-03-02",
+        "REQ-FUN-03-03",
+        "REQ-FUN-03-04"
+      ],
+      "test_ids": [
+        "TEST-FUN-03-01",
+        "TEST-FUN-03-02",
+        "TEST-FUN-03-03",
+        "TEST-FUN-03-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "BER-01",
+      "lane_id": "LANE-11",
+      "lane_sequence": 11,
+      "track_id": "11-A",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-BER-01-01",
+        "REQ-BER-01-02",
+        "REQ-BER-01-03",
+        "REQ-BER-01-04",
+        "REQ-BER-01-05"
+      ],
+      "test_ids": [
+        "TEST-BER-01-01",
+        "TEST-BER-01-02",
+        "TEST-BER-01-03",
+        "TEST-BER-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "DDM-01",
+      "lane_id": "LANE-11",
+      "lane_sequence": 11,
+      "track_id": "11-B",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-DDM-01-01",
+        "REQ-DDM-01-02",
+        "REQ-DDM-01-03",
+        "REQ-DDM-01-04",
+        "REQ-DDM-01-05"
+      ],
+      "test_ids": [
+        "TEST-DDM-01-01",
+        "TEST-DDM-01-02",
+        "TEST-DDM-01-03",
+        "TEST-DDM-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-05"
+      ]
+    },
+    {
+      "packet_id": "DDM-02",
+      "lane_id": "LANE-11",
+      "lane_sequence": 11,
+      "track_id": "11-B",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-DDM-02-01",
+        "REQ-DDM-02-02",
+        "REQ-DDM-02-03",
+        "REQ-DDM-02-04",
+        "REQ-DDM-02-05",
+        "REQ-DDM-02-06",
+        "REQ-DDM-02-07"
+      ],
+      "test_ids": [
+        "TEST-DDM-02-01",
+        "TEST-DDM-02-02",
+        "TEST-DDM-02-03",
+        "TEST-DDM-02-04",
+        "TEST-DDM-02-05",
+        "TEST-DDM-02-06",
+        "TEST-DDM-02-07",
+        "TEST-DDM-02-08"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "LEX-01",
+      "lane_id": "LANE-11",
+      "lane_sequence": 11,
+      "track_id": "11-C",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-LEX-01-01",
+        "REQ-LEX-01-02",
+        "REQ-LEX-01-03",
+        "REQ-LEX-01-04"
+      ],
+      "test_ids": [
+        "TEST-LEX-01-01",
+        "TEST-LEX-01-02",
+        "TEST-LEX-01-03",
+        "TEST-LEX-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": []
+    },
+    {
+      "packet_id": "DFK-01",
+      "lane_id": "LANE-12",
+      "lane_sequence": 12,
+      "track_id": "12-A",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-DFK-01-01",
+        "REQ-DFK-01-02",
+        "REQ-DFK-01-03",
+        "REQ-DFK-01-04",
+        "REQ-DFK-01-05"
+      ],
+      "test_ids": [
+        "TEST-DFK-01-01",
+        "TEST-DFK-01-02",
+        "TEST-DFK-01-03",
+        "TEST-DFK-01-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-05",
+        "DA-06"
+      ]
+    },
+    {
+      "packet_id": "HYG-02",
+      "lane_id": "LANE-12",
+      "lane_sequence": 12,
+      "track_id": "12-A",
+      "track_position": 2,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-HYG-02-01",
+        "REQ-HYG-02-02",
+        "REQ-HYG-02-03",
+        "REQ-HYG-02-04"
+      ],
+      "test_ids": [
+        "TEST-HYG-02-01",
+        "TEST-HYG-02-02",
+        "TEST-HYG-02-03",
+        "TEST-HYG-02-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-05"
+      ]
+    },
+    {
+      "packet_id": "HYG-04",
+      "lane_id": "LANE-12",
+      "lane_sequence": 12,
+      "track_id": "12-A",
+      "track_position": 3,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-HYG-04-01",
+        "REQ-HYG-04-02",
+        "REQ-HYG-04-03",
+        "REQ-HYG-04-04"
+      ],
+      "test_ids": [
+        "TEST-HYG-04-01",
+        "TEST-HYG-04-02",
+        "TEST-HYG-04-03",
+        "TEST-HYG-04-04"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-05",
+        "DA-06"
+      ]
+    },
+    {
+      "packet_id": "CLI-01",
+      "lane_id": "LANE-12",
+      "lane_sequence": 12,
+      "track_id": "12-B",
+      "track_position": 1,
+      "implementation_status": "NOT_STARTED",
+      "local_qualification": "NOT_RUN",
+      "integration_qualification": "NOT_RUN",
+      "assigned_executor": null,
+      "base_commit": null,
+      "integrated_commit": null,
+      "actual_write_set": [],
+      "shared_writer": null,
+      "decision_records": [],
+      "requirement_ids": [
+        "REQ-CLI-01-01",
+        "REQ-CLI-01-02",
+        "REQ-CLI-01-03",
+        "REQ-CLI-01-04",
+        "REQ-CLI-01-05"
+      ],
+      "test_ids": [
+        "TEST-CLI-01-01",
+        "TEST-CLI-01-02",
+        "TEST-CLI-01-03",
+        "TEST-CLI-01-04",
+        "TEST-CLI-01-05"
+      ],
+      "evidence": [],
+      "blockers": [],
+      "deferred_ids": [
+        "DA-06"
+      ]
+    }
+  ],
+  "integration_scenarios": [
+    {
+      "scenario_id": "E02-I01-A",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I01-A-B01",
+        "E02-I01-A-B02",
+        "E02-I01-A-B03",
+        "E02-I01-A-B04"
+      ]
+    },
+    {
+      "scenario_id": "E02-I01-B",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I01-B-B01",
+        "E02-I01-B-B02",
+        "E02-I01-B-B03"
+      ]
+    },
+    {
+      "scenario_id": "E02-I01-C",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I01-C-B01",
+        "E02-I01-C-B02",
+        "E02-I01-C-B03"
+      ]
+    },
+    {
+      "scenario_id": "E02-I02-A",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I02-A-B01",
+        "E02-I02-A-B02",
+        "E02-I02-A-B03",
+        "E02-I02-A-B04"
+      ]
+    },
+    {
+      "scenario_id": "E02-I02-B",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I02-B-B01",
+        "E02-I02-B-B02",
+        "E02-I02-B-B03",
+        "E02-I02-B-B04"
+      ]
+    },
+    {
+      "scenario_id": "E02-I02-C",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I02-C-B01",
+        "E02-I02-C-B02",
+        "E02-I02-C-B03",
+        "E02-I02-C-B04"
+      ]
+    },
+    {
+      "scenario_id": "E02-I02-D",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I02-D-B01",
+        "E02-I02-D-B02",
+        "E02-I02-D-B03",
+        "E02-I02-D-B04"
+      ]
+    },
+    {
+      "scenario_id": "E02-I03-A",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I03-A-B01",
+        "E02-I03-A-B02"
+      ]
+    },
+    {
+      "scenario_id": "E02-I03-B",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I03-B-B01",
+        "E02-I03-B-B02",
+        "E02-I03-B-B03",
+        "E02-I03-B-B04"
+      ]
+    },
+    {
+      "scenario_id": "E02-I03-C",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I03-C-B01",
+        "E02-I03-C-B02",
+        "E02-I03-C-B03",
+        "E02-I03-C-B04"
+      ]
+    },
+    {
+      "scenario_id": "E02-I04-A",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I04-A-B01",
+        "E02-I04-A-B02",
+        "E02-I04-A-B03",
+        "E02-I04-A-B04"
+      ]
+    },
+    {
+      "scenario_id": "E02-I04-B",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I04-B-B01",
+        "E02-I04-B-B02",
+        "E02-I04-B-B03"
+      ]
+    },
+    {
+      "scenario_id": "E02-I04-C",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I04-C-B01",
+        "E02-I04-C-B02",
+        "E02-I04-C-B03",
+        "E02-I04-C-B04"
+      ]
+    },
+    {
+      "scenario_id": "E02-I04-D",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I04-D-B01",
+        "E02-I04-D-B02"
+      ]
+    },
+    {
+      "scenario_id": "E02-I05-A",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I05-A-B01",
+        "E02-I05-A-B02",
+        "E02-I05-A-B03",
+        "E02-I05-A-B04"
+      ]
+    },
+    {
+      "scenario_id": "E02-I05-B",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I05-B-B01",
+        "E02-I05-B-B02",
+        "E02-I05-B-B03",
+        "E02-I05-B-B04",
+        "E02-I05-B-B05"
+      ]
+    },
+    {
+      "scenario_id": "E02-I05-C",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I05-C-B01",
+        "E02-I05-C-B02",
+        "E02-I05-C-B03",
+        "E02-I05-C-B04"
+      ]
+    },
+    {
+      "scenario_id": "E02-I06-A",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I06-A-B01",
+        "E02-I06-A-B02",
+        "E02-I06-A-B03",
+        "E02-I06-A-B04"
+      ]
+    },
+    {
+      "scenario_id": "E02-I06-B",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I06-B-B01",
+        "E02-I06-B-B02",
+        "E02-I06-B-B03",
+        "E02-I06-B-B04",
+        "E02-I06-B-B05"
+      ]
+    },
+    {
+      "scenario_id": "E02-I06-C",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I06-C-B01",
+        "E02-I06-C-B02",
+        "E02-I06-C-B03",
+        "E02-I06-C-B04",
+        "E02-I06-C-B05",
+        "E02-I06-C-B06"
+      ]
+    },
+    {
+      "scenario_id": "E02-I06-D",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I06-D-B01",
+        "E02-I06-D-B02",
+        "E02-I06-D-B03"
+      ]
+    },
+    {
+      "scenario_id": "E02-I06-E",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I06-E-B01",
+        "E02-I06-E-B02",
+        "E02-I06-E-B03",
+        "E02-I06-E-B04",
+        "E02-I06-E-B05"
+      ]
+    },
+    {
+      "scenario_id": "E02-I07-A",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I07-A-B01",
+        "E02-I07-A-B02",
+        "E02-I07-A-B03",
+        "E02-I07-A-B04"
+      ]
+    },
+    {
+      "scenario_id": "E02-I07-B",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I07-B-B01",
+        "E02-I07-B-B02",
+        "E02-I07-B-B03"
+      ]
+    },
+    {
+      "scenario_id": "E02-I07-C",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I07-C-B01",
+        "E02-I07-C-B02"
+      ]
+    },
+    {
+      "scenario_id": "E02-I08-A",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I08-A-B01",
+        "E02-I08-A-B02",
+        "E02-I08-A-B03"
+      ]
+    },
+    {
+      "scenario_id": "E02-I08-B",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I08-B-B01",
+        "E02-I08-B-B02",
+        "E02-I08-B-B03"
+      ]
+    },
+    {
+      "scenario_id": "E02-I08-C",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I08-C-B01",
+        "E02-I08-C-B02",
+        "E02-I08-C-B03",
+        "E02-I08-C-B04",
+        "E02-I08-C-B05"
+      ]
+    },
+    {
+      "scenario_id": "E02-I09-A",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I09-A-B01",
+        "E02-I09-A-B02",
+        "E02-I09-A-B03"
+      ]
+    },
+    {
+      "scenario_id": "E02-I09-B",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I09-B-B01",
+        "E02-I09-B-B02",
+        "E02-I09-B-B03"
+      ]
+    },
+    {
+      "scenario_id": "E02-I10-A",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I10-A-B01",
+        "E02-I10-A-B02",
+        "E02-I10-A-B03",
+        "E02-I10-A-B04"
+      ]
+    },
+    {
+      "scenario_id": "E02-I10-B",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I10-B-B01",
+        "E02-I10-B-B02",
+        "E02-I10-B-B03",
+        "E02-I10-B-B04",
+        "E02-I10-B-B05"
+      ]
+    },
+    {
+      "scenario_id": "E02-I10-C",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I10-C-B01",
+        "E02-I10-C-B02",
+        "E02-I10-C-B03",
+        "E02-I10-C-B04"
+      ]
+    },
+    {
+      "scenario_id": "E02-I11-A",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I11-A-B01",
+        "E02-I11-A-B02"
+      ]
+    },
+    {
+      "scenario_id": "E02-I11-B",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I11-B-B01",
+        "E02-I11-B-B02",
+        "E02-I11-B-B03",
+        "E02-I11-B-B04"
+      ]
+    },
+    {
+      "scenario_id": "E02-I11-C",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I11-C-B01",
+        "E02-I11-C-B02"
+      ]
+    },
+    {
+      "scenario_id": "E02-I12-A",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I12-A-B01",
+        "E02-I12-A-B02",
+        "E02-I12-A-B03",
+        "E02-I12-A-B04"
+      ]
+    },
+    {
+      "scenario_id": "E02-I12-B",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-I12-B-B01",
+        "E02-I12-B-B02"
+      ]
+    },
+    {
+      "scenario_id": "E02-X01",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-X01-B01",
+        "E02-X01-B02",
+        "E02-X01-B03",
+        "E02-X01-B04",
+        "E02-X01-B05"
+      ]
+    },
+    {
+      "scenario_id": "E02-X02",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-X02-B01",
+        "E02-X02-B02",
+        "E02-X02-B03",
+        "E02-X02-B04",
+        "E02-X02-B05"
+      ]
+    },
+    {
+      "scenario_id": "E02-X03",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-X03-B01",
+        "E02-X03-B02",
+        "E02-X03-B03",
+        "E02-X03-B04",
+        "E02-X03-B05"
+      ]
+    },
+    {
+      "scenario_id": "E02-X04",
+      "status": "NOT_RUN",
+      "commit": null,
+      "profile": null,
+      "evidence": [],
+      "binding_ids": [
+        "E02-X04-B01",
+        "E02-X04-B02",
+        "E02-X04-B03",
+        "E02-X04-B04",
+        "E02-X04-B05",
+        "E02-X04-B06"
+      ]
+    }
+  ],
+  "deferred_acceptance": [
+    {
+      "id": "DA-01",
+      "owners": [
+        "RES-03",
+        "CMP-01",
+        "CYC-02"
+      ],
+      "origin_lane": "LANE-06",
+      "trigger": "CMP-01 после04 и CYC-02 после01 merged; RES-03 consumer-affecting changes frozen",
+      "required_real_consumer": "E02-I06-B actual same-leaf partial result→checkpoint/head→fresh CYC/CLI continuation; I04-B where restricted invocation/checkpoint is affected",
+      "early_allowed": "Inspect existing CMP/CYC contracts and implement local partial projection only if sufficient native contract exists; record exact unqualified consumer edge",
+      "blocked_if": "Required producer/consumer contract absent or incompatible: affected implementation step BLOCKED, not merely deferred test",
+      "closure": "After01 run real linked route; any repair reopens the owning lane as a serial corrective window before downstream affected work",
+      "scenario_ids": [
+        "E02-I06-B",
+        "E02-X02"
+      ],
+      "binding_ids": [
+        "E02-I06-B-B03",
+        "E02-X02-B05"
+      ],
+      "requirement_ids": [
+        "REQ-RES-03-02",
+        "REQ-RES-03-03"
+      ],
+      "local_test_ids": [
+        "TEST-RES-03-02",
+        "TEST-RES-03-03"
+      ],
+      "coverage_extent": "Partial transition/consumer evidence only; local test IDs are trace locators, not permission to defer entire tests or requirements.",
+      "scope_note": "Late CYC public reader/leaf projection only; RES03-01 local async-chain control is not automatically deferred. I04-B/RES04 is an impact-triggered extra, not prerequisite of every RES03 test.",
+      "binding_requirement_subsets": [
+        {
+          "binding_id": "E02-I06-B-B03",
+          "requirement_ids": [
+            "REQ-RES-03-02",
+            "REQ-RES-03-03"
+          ],
+          "local_test_ids": [
+            "TEST-RES-03-02",
+            "TEST-RES-03-03"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X02-B05",
+          "requirement_ids": [
+            "REQ-RES-03-02",
+            "REQ-RES-03-03"
+          ],
+          "local_test_ids": [
+            "TEST-RES-03-02",
+            "TEST-RES-03-03"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        }
+      ],
+      "local_only_or_separate_requirement_ids": [],
+      "additional_invalidated_binding_ids": [],
+      "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope.",
+      "status": "NOT_RUN",
+      "assigned_owner": null,
+      "actual_provider_commit": null,
+      "evidence": []
+    },
+    {
+      "id": "DA-02",
+      "owners": [
+        "UDF-02",
+        "CMP-01",
+        "FRY-01"
+      ],
+      "origin_lane": "LANE-07",
+      "trigger": "Selected Foundry intake/execution profile from04 frozen",
+      "required_real_consumer": "E02-I07-A native source/Parquet/CAS→actual Foundry binding and useful conditional result",
+      "early_allowed": "Native format/readback and existing qualified intake can close early; defer only demonstrably changed unavailable Foundry consumer",
+      "blocked_if": "No declared actual intake contract exists; do not invent converter/mock accepted as product",
+      "closure": "After04 re-run affected I07-A binding; existing unchanged qualified consumer may remove this pending item with evidence",
+      "scenario_ids": [
+        "E02-I07-A"
+      ],
+      "binding_ids": [
+        "E02-I07-A-B01"
+      ],
+      "requirement_ids": [
+        "REQ-UDF-02-02",
+        "REQ-UDF-02-04"
+      ],
+      "local_test_ids": [
+        "TEST-UDF-02-02",
+        "TEST-UDF-02-04"
+      ],
+      "coverage_extent": "Partial transition/consumer evidence only; local test IDs are trace locators, not permission to defer entire tests or requirements.",
+      "scope_note": "Only actual selected-snapshot→Foundry consumer and its carried diagnostics; UDF01 import/IO byte tests in the same binding remain early. Existing qualified unchanged intake can close immediately.",
+      "binding_requirement_subsets": [
+        {
+          "binding_id": "E02-I07-A-B01",
+          "requirement_ids": [
+            "REQ-UDF-02-02",
+            "REQ-UDF-02-04"
+          ],
+          "local_test_ids": [
+            "TEST-UDF-02-02",
+            "TEST-UDF-02-04"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        }
+      ],
+      "local_only_or_separate_requirement_ids": [],
+      "additional_invalidated_binding_ids": [],
+      "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope.",
+      "status": "NOT_RUN",
+      "assigned_owner": null,
+      "actual_provider_commit": null,
+      "evidence": []
+    },
+    {
+      "id": "DA-03",
+      "owners": [
+        "CAL-01",
+        "CAL-02",
+        "CAL-06"
+      ],
+      "origin_lane": "LANE-07",
+      "trigger": "LANE10 final objective/uncertainty report merged",
+      "required_real_consumer": "E02-I07-C source/time/mask/units→actual calibration objective/optimizer→fresh report",
+      "early_allowed": "CAL01 finite source/target and paired-order local controls on declared model/query contract",
+      "blocked_if": "Alignment semantics unresolved; target uniqueness must not be guessed from source uniqueness",
+      "closure": "During10 shared I10-A/I07-C actual evidence, original local numeric tests remain",
+      "scenario_ids": [
+        "E02-I07-C"
+      ],
+      "binding_ids": [
+        "E02-I07-C-B01",
+        "E02-I07-C-B02"
+      ],
+      "requirement_ids": [
+        "REQ-CAL-01-01",
+        "REQ-CAL-01-02",
+        "REQ-CAL-01-03",
+        "REQ-CAL-01-04",
+        "REQ-CAL-01-05"
+      ],
+      "local_test_ids": [
+        "TEST-CAL-01-01",
+        "TEST-CAL-01-02",
+        "TEST-CAL-01-03",
+        "TEST-CAL-01-04",
+        "TEST-CAL-01-05"
+      ],
+      "coverage_extent": "Partial transition/consumer evidence only; local test IDs are trace locators, not permission to defer entire tests or requirements.",
+      "scope_note": "Only final actual calibration-consumer part of these bindings; all source/preflight local controls can run earlier. FAC02 revised target predicate applies.",
+      "binding_requirement_subsets": [
+        {
+          "binding_id": "E02-I07-C-B01",
+          "requirement_ids": [
+            "REQ-CAL-01-01",
+            "REQ-CAL-01-02",
+            "REQ-CAL-01-05"
+          ],
+          "local_test_ids": [
+            "TEST-CAL-01-01",
+            "TEST-CAL-01-02",
+            "TEST-CAL-01-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-I07-C-B02",
+          "requirement_ids": [
+            "REQ-CAL-01-03",
+            "REQ-CAL-01-04"
+          ],
+          "local_test_ids": [
+            "TEST-CAL-01-03",
+            "TEST-CAL-01-04"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        }
+      ],
+      "local_only_or_separate_requirement_ids": [],
+      "additional_invalidated_binding_ids": [],
+      "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope.",
+      "status": "NOT_RUN",
+      "assigned_owner": null,
+      "actual_provider_commit": null,
+      "evidence": []
+    },
+    {
+      "id": "DA-04",
+      "owners": [
+        "CAL-05",
+        "CAL-02",
+        "CAL-04"
+      ],
+      "origin_lane": "LANE-04",
+      "trigger": "LANE10 final calibrator.py objective/state/report merged",
+      "required_real_consumer": "I04-D actual conditional pure executor→calibration objective/derivatives/report, relevant I10-A",
+      "early_allowed": "Native pure executor eager/tracer/cond behavior on existing supported scalar-map profile",
+      "blocked_if": "Required conditional executor semantics not implementable against current primitive",
+      "closure": "During10 rerun CAL05 integration after shared calibrator edits; no assertion of old evidence freshness",
+      "scenario_ids": [
+        "E02-I04-D"
+      ],
+      "binding_ids": [
+        "E02-I04-D-B02"
+      ],
+      "requirement_ids": [
+        "REQ-CAL-05-03"
+      ],
+      "local_test_ids": [
+        "TEST-CAL-05-03"
+      ],
+      "coverage_extent": "Partial transition/consumer evidence only; local test IDs are trace locators, not permission to defer entire tests or requirements.",
+      "scope_note": "Only final Calibrator loss/report consumption after calibrator edits; CAL05-01/02 pure executor controls are not deferred.",
+      "binding_requirement_subsets": [
+        {
+          "binding_id": "E02-I04-D-B02",
+          "requirement_ids": [
+            "REQ-CAL-05-03"
+          ],
+          "local_test_ids": [
+            "TEST-CAL-05-03"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        }
+      ],
+      "local_only_or_separate_requirement_ids": [],
+      "additional_invalidated_binding_ids": [],
+      "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope.",
+      "status": "NOT_RUN",
+      "assigned_owner": null,
+      "actual_provider_commit": null,
+      "evidence": []
+    },
+    {
+      "id": "DA-05",
+      "owners": [
+        "API-01",
+        "GRF-01",
+        "DDM-01",
+        "DFK-01",
+        "HYG-02",
+        "HYG-04"
+      ],
+      "origin_lane": "LANE-05/LANE-11",
+      "trigger": "LANE12 final noneditable artifacts and census ready",
+      "required_real_consumer": "I12-A actual installed-origin public/FQN/alias consumers on final wheel/sdist/rebuilt artifact",
+      "early_allowed": "Source-local alias/import/caller regression and native semantics; source tests not installed proof",
+      "blocked_if": "Retirement lacks supported caller/window decision; absence of installed evidence does not authorize deletion",
+      "closure": "At12 Q2 single shared evidence with exact source/artifact mapping; no build per packet",
+      "scenario_ids": [
+        "E02-I12-A"
+      ],
+      "binding_ids": [
+        "E02-I12-A-B02"
+      ],
+      "requirement_ids": [
+        "REQ-DFK-01-04",
+        "REQ-API-01-05",
+        "REQ-GRF-01-04",
+        "REQ-DDM-01-05"
+      ],
+      "local_test_ids": [
+        "TEST-API-01-05",
+        "TEST-API-01-06",
+        "TEST-DDM-01-01",
+        "TEST-DDM-01-02",
+        "TEST-DDM-01-03",
+        "TEST-DFK-01-03",
+        "TEST-GRF-01-05",
+        "TEST-GRF-01-06"
+      ],
+      "coverage_extent": "Partial transition/consumer evidence only; local test IDs are trace locators, not permission to defer entire tests or requirements.",
+      "scope_note": "I12-A-B02 supplies shared artifact/origin evidence. API05/GRF04/DDM05 are local-only obligations: their explicit local tests still run against that artifact and do not acquire new invented binding coverage. Source/census tests are not deferred wholesale.",
+      "binding_requirement_subsets": [
+        {
+          "binding_id": "E02-I12-A-B02",
+          "requirement_ids": [
+            "REQ-DFK-01-04"
+          ],
+          "local_test_ids": [
+            "TEST-DFK-01-03"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        }
+      ],
+      "local_only_or_separate_requirement_ids": [
+        "REQ-API-01-05",
+        "REQ-DDM-01-05",
+        "REQ-GRF-01-04"
+      ],
+      "additional_invalidated_binding_ids": [],
+      "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope.",
+      "status": "NOT_RUN",
+      "assigned_owner": null,
+      "actual_provider_commit": null,
+      "evidence": []
+    },
+    {
+      "id": "DA-06",
+      "owners": [
+        "CYC-05",
+        "DFK-01",
+        "HYG-04",
+        "CLI-01"
+      ],
+      "origin_lane": "LANE-01",
+      "trigger": "LANE12 actual final build/distribution/census/client evidence exists with issuer appointment/profile",
+      "required_real_consumer": "CYC05 existing confidence_ledger positive build/deployment→N6 currentness consumer for loaded artifact",
+      "early_allowed": "Implement/qualify bridge contract using allowed inputs, but no final loaded-artifact readiness claim",
+      "blocked_if": "Appointed issuer/consumer predicate absent: targeted decision remains BLOCKED, no self-issued candidate manifest",
+      "closure": "At12 feed real bound evidence into existing bridge; revoke/currentness negatives and positive path, no second registry",
+      "scenario_ids": [
+        "E02-I01-C"
+      ],
+      "binding_ids": [
+        "E02-I01-C-B03"
+      ],
+      "requirement_ids": [
+        "REQ-CYC-05-04",
+        "REQ-CYC-05-05",
+        "REQ-CYC-05-06"
+      ],
+      "local_test_ids": [
+        "TEST-CYC-05-04",
+        "TEST-CYC-05-05",
+        "TEST-CYC-05-06"
+      ],
+      "coverage_extent": "Partial transition/consumer evidence only; local test IDs are trace locators, not permission to defer entire tests or requirements.",
+      "scope_note": "Only actual final loaded build/census→readiness evidence. Local malformed-census/currentness controls remain runnable earlier; no final positive readiness before appointed evidence.",
+      "binding_requirement_subsets": [
+        {
+          "binding_id": "E02-I01-C-B03",
+          "requirement_ids": [
+            "REQ-CYC-05-04",
+            "REQ-CYC-05-05",
+            "REQ-CYC-05-06"
+          ],
+          "local_test_ids": [
+            "TEST-CYC-05-04",
+            "TEST-CYC-05-05",
+            "TEST-CYC-05-06"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        }
+      ],
+      "local_only_or_separate_requirement_ids": [],
+      "additional_invalidated_binding_ids": [],
+      "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope.",
+      "status": "NOT_RUN",
+      "assigned_owner": null,
+      "actual_provider_commit": null,
+      "evidence": []
+    },
+    {
+      "id": "DA-07",
+      "owners": [
+        "CYC-01",
+        "CYC-02",
+        "EMP-01",
+        "FRC-01",
+        "FRC-02"
+      ],
+      "origin_lane": "LANE-01",
+      "trigger": "LANE03 modified selected forecast/source/summary consumers merged",
+      "required_real_consumer": "Only affected I01 and I03 selected context→real forecast/summary→fresh conditional reader edges",
+      "early_allowed": "Already qualified direct numerical N5/N8 candidate path remains valid within its declared profile",
+      "blocked_if": "Claim requires absent observed-outcome relation; candidate or series calibration cannot substitute",
+      "closure": "After03 refresh impacted evidence only; not mandatory rebuild of every unchanged I01 test",
+      "scenario_ids": [
+        "E02-I01-A",
+        "E02-I03-A",
+        "E02-I03-B"
+      ],
+      "binding_ids": [
+        "E02-I01-A-B01",
+        "E02-I03-A-B01",
+        "E02-I03-A-B02",
+        "E02-I03-B-B03",
+        "E02-I03-B-B04"
+      ],
+      "requirement_ids": [
+        "REQ-CYC-01-03",
+        "REQ-CYC-01-04",
+        "REQ-CYC-02-03",
+        "REQ-CYC-02-04",
+        "REQ-CYC-02-05",
+        "REQ-EMP-01-04",
+        "REQ-EMP-01-05",
+        "REQ-EMP-01-07",
+        "REQ-FRC-01-01",
+        "REQ-FRC-01-02",
+        "REQ-FRC-01-04",
+        "REQ-FRC-01-05",
+        "REQ-FRC-01-06",
+        "REQ-FRC-02-04",
+        "REQ-FRC-02-05"
+      ],
+      "local_test_ids": [
+        "TEST-CYC-01-01",
+        "TEST-CYC-01-04",
+        "TEST-CYC-02-03",
+        "TEST-CYC-02-04",
+        "TEST-CYC-02-05",
+        "TEST-EMP-01-03",
+        "TEST-EMP-01-04",
+        "TEST-EMP-01-05",
+        "TEST-EMP-01-06",
+        "TEST-EMP-01-07",
+        "TEST-FRC-01-01",
+        "TEST-FRC-01-02",
+        "TEST-FRC-01-03",
+        "TEST-FRC-01-04",
+        "TEST-FRC-01-05",
+        "TEST-FRC-01-06",
+        "TEST-FRC-02-05",
+        "TEST-FRC-02-06"
+      ],
+      "coverage_extent": "Partial transition/consumer evidence only; local test IDs are trace locators, not permission to defer entire tests or requirements.",
+      "scope_note": "Conditional impact-recheck only if changed EMP/FRC/summary route is actually consumed. Does not suspend previously qualified independent candidate N5/N8 profile or unrelated EMP numeric tests.",
+      "binding_requirement_subsets": [
+        {
+          "binding_id": "E02-I01-A-B01",
+          "requirement_ids": [
+            "REQ-CYC-01-03",
+            "REQ-CYC-01-04",
+            "REQ-CYC-02-03",
+            "REQ-CYC-02-04",
+            "REQ-CYC-02-05"
+          ],
+          "local_test_ids": [
+            "TEST-CYC-01-01",
+            "TEST-CYC-01-04",
+            "TEST-CYC-02-03",
+            "TEST-CYC-02-04",
+            "TEST-CYC-02-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-I03-A-B01",
+          "requirement_ids": [
+            "REQ-EMP-01-04",
+            "REQ-EMP-01-05",
+            "REQ-EMP-01-07"
+          ],
+          "local_test_ids": [
+            "TEST-EMP-01-03",
+            "TEST-EMP-01-04",
+            "TEST-EMP-01-05",
+            "TEST-EMP-01-07"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-I03-A-B02",
+          "requirement_ids": [
+            "REQ-FRC-01-01",
+            "REQ-FRC-01-02",
+            "REQ-FRC-01-04",
+            "REQ-FRC-01-05"
+          ],
+          "local_test_ids": [
+            "TEST-FRC-01-01",
+            "TEST-FRC-01-02",
+            "TEST-FRC-01-04",
+            "TEST-FRC-01-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-I03-B-B03",
+          "requirement_ids": [
+            "REQ-FRC-02-04",
+            "REQ-FRC-02-05"
+          ],
+          "local_test_ids": [
+            "TEST-FRC-02-05",
+            "TEST-FRC-02-06"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-I03-B-B04",
+          "requirement_ids": [
+            "REQ-FRC-01-06"
+          ],
+          "local_test_ids": [
+            "TEST-FRC-01-06"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        }
+      ],
+      "local_only_or_separate_requirement_ids": [],
+      "additional_invalidated_binding_ids": [],
+      "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope.",
+      "status": "NOT_RUN",
+      "assigned_owner": null,
+      "actual_provider_commit": null,
+      "evidence": []
+    },
+    {
+      "id": "DA-08",
+      "owners": [
+        "coordinator",
+        "all activated scenario owners"
+      ],
+      "origin_lane": "all",
+      "trigger": "All participating lanes merged and final selected runtime/artifact profile frozen; final checkpoint after12",
+      "required_real_consumer": "E02-X01/X02/X03/X04 activated paths and materially different compatible holdout, plus all stale impacted Ixx evidence",
+      "early_allowed": "Run early cross-lane stories when actual participants exist; record inputs/outputs/profiles and limitations",
+      "blocked_if": "Required endpoint absent, skip, fabricated ready object, case-ID branch or changed owner invalidates evidence",
+      "closure": "Final impact-based rerun on delivered commit/artifact. Shared run reused only for matching property/profile, never counted as independent repetitions",
+      "scenario_ids": [
+        "E02-X01",
+        "E02-X02",
+        "E02-X03",
+        "E02-X04"
+      ],
+      "binding_ids": [
+        "E02-X01-B01",
+        "E02-X01-B02",
+        "E02-X01-B03",
+        "E02-X01-B04",
+        "E02-X01-B05",
+        "E02-X02-B01",
+        "E02-X02-B02",
+        "E02-X02-B03",
+        "E02-X02-B04",
+        "E02-X02-B05",
+        "E02-X03-B01",
+        "E02-X03-B02",
+        "E02-X03-B03",
+        "E02-X03-B04",
+        "E02-X03-B05",
+        "E02-X04-B01",
+        "E02-X04-B02",
+        "E02-X04-B03",
+        "E02-X04-B04",
+        "E02-X04-B05",
+        "E02-X04-B06"
+      ],
+      "requirement_ids": [
+        "REQ-ACQ-01-02",
+        "REQ-ACQ-01-03",
+        "REQ-ACQ-01-05",
+        "REQ-ACQ-01-06",
+        "REQ-CAS-01-01",
+        "REQ-CLI-01-05",
+        "REQ-CMP-01-02",
+        "REQ-CYC-01-03",
+        "REQ-CYC-01-04",
+        "REQ-CYC-01-07",
+        "REQ-CYC-02-03",
+        "REQ-CYC-02-05",
+        "REQ-CYC-03-01",
+        "REQ-CYC-03-04",
+        "REQ-CYC-03-05",
+        "REQ-CYC-03-06",
+        "REQ-CYC-04-03",
+        "REQ-DDM-02-01",
+        "REQ-DDM-02-02",
+        "REQ-DDM-02-03",
+        "REQ-DDM-02-07",
+        "REQ-DFI-03-03",
+        "REQ-DFK-02-01",
+        "REQ-DFK-02-03",
+        "REQ-DFK-02-04",
+        "REQ-FRC-02-04",
+        "REQ-FRC-02-08",
+        "REQ-ING-02-03",
+        "REQ-ING-02-04",
+        "REQ-LEX-01-03",
+        "REQ-LEX-01-04",
+        "REQ-PCL-01-05",
+        "REQ-REQ-01-04",
+        "REQ-REQ-01-05",
+        "REQ-REQ-01-07",
+        "REQ-RES-03-02",
+        "REQ-RES-03-03",
+        "REQ-SCL-03-01",
+        "REQ-SCL-03-03",
+        "REQ-SCL-03-04",
+        "REQ-SCM-01-01",
+        "REQ-SCM-01-02",
+        "REQ-SCM-02-04",
+        "REQ-SCM-02-05",
+        "REQ-SEL-01-05",
+        "REQ-SIM-03-02",
+        "REQ-SIM-03-06",
+        "REQ-TRN-01-03",
+        "REQ-TRN-02-04",
+        "REQ-TRN-03-04",
+        "REQ-UQP-01-04",
+        "REQ-UQP-02-03",
+        "REQ-UQP-02-04",
+        "REQ-UQP-03-03",
+        "REQ-UQP-03-05",
+        "REQ-UQS-01-03",
+        "REQ-UQS-01-04"
+      ],
+      "local_test_ids": [
+        "TEST-ACQ-01-02",
+        "TEST-ACQ-01-03",
+        "TEST-ACQ-01-05",
+        "TEST-ACQ-01-06",
+        "TEST-CAS-01-01",
+        "TEST-CLI-01-04",
+        "TEST-CLI-01-05",
+        "TEST-CMP-01-02",
+        "TEST-CYC-01-01",
+        "TEST-CYC-01-04",
+        "TEST-CYC-01-06",
+        "TEST-CYC-02-03",
+        "TEST-CYC-02-05",
+        "TEST-CYC-03-01",
+        "TEST-CYC-03-04",
+        "TEST-CYC-03-05",
+        "TEST-CYC-03-06",
+        "TEST-CYC-04-03",
+        "TEST-DDM-02-01",
+        "TEST-DDM-02-02",
+        "TEST-DDM-02-03",
+        "TEST-DDM-02-04",
+        "TEST-DDM-02-06",
+        "TEST-DDM-02-08",
+        "TEST-DFI-03-03",
+        "TEST-DFK-02-01",
+        "TEST-DFK-02-03",
+        "TEST-DFK-02-04",
+        "TEST-FRC-02-03",
+        "TEST-FRC-02-04",
+        "TEST-FRC-02-05",
+        "TEST-FRC-02-06",
+        "TEST-FRC-02-08",
+        "TEST-ING-02-03",
+        "TEST-ING-02-04",
+        "TEST-LEX-01-02",
+        "TEST-LEX-01-03",
+        "TEST-LEX-01-04",
+        "TEST-PCL-01-05",
+        "TEST-REQ-01-02",
+        "TEST-REQ-01-03",
+        "TEST-REQ-01-04",
+        "TEST-REQ-01-05",
+        "TEST-REQ-01-06",
+        "TEST-RES-03-02",
+        "TEST-RES-03-03",
+        "TEST-SCL-03-01",
+        "TEST-SCL-03-02",
+        "TEST-SCL-03-04",
+        "TEST-SCL-03-05",
+        "TEST-SCM-01-01",
+        "TEST-SCM-01-02",
+        "TEST-SCM-01-03",
+        "TEST-SCM-01-04",
+        "TEST-SCM-02-04",
+        "TEST-SCM-02-05",
+        "TEST-SCM-02-06",
+        "TEST-SCM-02-07",
+        "TEST-SEL-01-05",
+        "TEST-SIM-03-02",
+        "TEST-SIM-03-06",
+        "TEST-TRN-01-03",
+        "TEST-TRN-02-04",
+        "TEST-TRN-03-04",
+        "TEST-UQP-01-04",
+        "TEST-UQP-02-02",
+        "TEST-UQP-02-03",
+        "TEST-UQP-02-04",
+        "TEST-UQP-03-03",
+        "TEST-UQP-03-05",
+        "TEST-UQS-01-03",
+        "TEST-UQS-01-04",
+        "TEST-UQS-01-05"
+      ],
+      "coverage_extent": "Partial transition/consumer evidence only; local test IDs are trace locators, not permission to defer entire tests or requirements.",
+      "scope_note": "Cross-story activation conditions remain canonical. Listed refs identify potential final checks, not mandatory activation of every optional backend. Any additional Ixx stale evidence must be added to additional_invalidated_binding_ids with actual changed owner/reason; no blanket full rerun inferred.",
+      "binding_requirement_subsets": [
+        {
+          "binding_id": "E02-X01-B01",
+          "requirement_ids": [
+            "REQ-CYC-01-03",
+            "REQ-CYC-01-04",
+            "REQ-SIM-03-02",
+            "REQ-SEL-01-05"
+          ],
+          "local_test_ids": [
+            "TEST-CYC-01-01",
+            "TEST-CYC-01-04",
+            "TEST-SEL-01-05",
+            "TEST-SIM-03-02"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X01-B02",
+          "requirement_ids": [
+            "REQ-CYC-04-03"
+          ],
+          "local_test_ids": [
+            "TEST-CYC-04-03"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X01-B03",
+          "requirement_ids": [
+            "REQ-CMP-01-02"
+          ],
+          "local_test_ids": [
+            "TEST-CMP-01-02"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X01-B04",
+          "requirement_ids": [
+            "REQ-CAS-01-01",
+            "REQ-CYC-02-03",
+            "REQ-CYC-02-05"
+          ],
+          "local_test_ids": [
+            "TEST-CAS-01-01",
+            "TEST-CYC-02-03",
+            "TEST-CYC-02-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X01-B05",
+          "requirement_ids": [
+            "REQ-LEX-01-03",
+            "REQ-LEX-01-04"
+          ],
+          "local_test_ids": [
+            "TEST-LEX-01-02",
+            "TEST-LEX-01-03",
+            "TEST-LEX-01-04"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X02-B01",
+          "requirement_ids": [
+            "REQ-REQ-01-04",
+            "REQ-REQ-01-05",
+            "REQ-ACQ-01-02"
+          ],
+          "local_test_ids": [
+            "TEST-ACQ-01-02",
+            "TEST-REQ-01-02",
+            "TEST-REQ-01-03",
+            "TEST-REQ-01-04",
+            "TEST-REQ-01-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X02-B02",
+          "requirement_ids": [
+            "REQ-ACQ-01-03",
+            "REQ-CYC-03-01",
+            "REQ-CYC-03-04",
+            "REQ-CYC-03-05"
+          ],
+          "local_test_ids": [
+            "TEST-ACQ-01-03",
+            "TEST-CYC-03-01",
+            "TEST-CYC-03-04",
+            "TEST-CYC-03-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X02-B03",
+          "requirement_ids": [
+            "REQ-ING-02-03",
+            "REQ-ING-02-04"
+          ],
+          "local_test_ids": [
+            "TEST-ING-02-03",
+            "TEST-ING-02-04"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X02-B04",
+          "requirement_ids": [
+            "REQ-SCL-03-01",
+            "REQ-SCL-03-03",
+            "REQ-SCL-03-04"
+          ],
+          "local_test_ids": [
+            "TEST-SCL-03-01",
+            "TEST-SCL-03-02",
+            "TEST-SCL-03-04",
+            "TEST-SCL-03-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X02-B05",
+          "requirement_ids": [
+            "REQ-RES-03-02",
+            "REQ-RES-03-03"
+          ],
+          "local_test_ids": [
+            "TEST-RES-03-02",
+            "TEST-RES-03-03"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X03-B01",
+          "requirement_ids": [
+            "REQ-CYC-01-07",
+            "REQ-CYC-03-06",
+            "REQ-REQ-01-07",
+            "REQ-ACQ-01-05",
+            "REQ-ACQ-01-06"
+          ],
+          "local_test_ids": [
+            "TEST-ACQ-01-05",
+            "TEST-ACQ-01-06",
+            "TEST-CYC-01-06",
+            "TEST-CYC-03-06",
+            "TEST-REQ-01-04",
+            "TEST-REQ-01-06"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X03-B02",
+          "requirement_ids": [
+            "REQ-DFK-02-01",
+            "REQ-DFK-02-03",
+            "REQ-DFK-02-04",
+            "REQ-DFI-03-03"
+          ],
+          "local_test_ids": [
+            "TEST-DFI-03-03",
+            "TEST-DFK-02-01",
+            "TEST-DFK-02-03",
+            "TEST-DFK-02-04"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X03-B03",
+          "requirement_ids": [
+            "REQ-TRN-01-03",
+            "REQ-TRN-02-04",
+            "REQ-TRN-03-04"
+          ],
+          "local_test_ids": [
+            "TEST-TRN-01-03",
+            "TEST-TRN-02-04",
+            "TEST-TRN-03-04"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X03-B04",
+          "requirement_ids": [
+            "REQ-SCL-03-03",
+            "REQ-SCL-03-04"
+          ],
+          "local_test_ids": [
+            "TEST-SCL-03-01",
+            "TEST-SCL-03-02",
+            "TEST-SCL-03-04",
+            "TEST-SCL-03-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X03-B05",
+          "requirement_ids": [
+            "REQ-CLI-01-05"
+          ],
+          "local_test_ids": [
+            "TEST-CLI-01-04",
+            "TEST-CLI-01-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X04-B01",
+          "requirement_ids": [
+            "REQ-SIM-03-06"
+          ],
+          "local_test_ids": [
+            "TEST-SIM-03-06"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X04-B02",
+          "requirement_ids": [
+            "REQ-SCM-01-01",
+            "REQ-SCM-01-02",
+            "REQ-SCM-02-04",
+            "REQ-SCM-02-05"
+          ],
+          "local_test_ids": [
+            "TEST-SCM-01-01",
+            "TEST-SCM-01-02",
+            "TEST-SCM-01-03",
+            "TEST-SCM-01-04",
+            "TEST-SCM-02-04",
+            "TEST-SCM-02-05",
+            "TEST-SCM-02-06",
+            "TEST-SCM-02-07"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X04-B03",
+          "requirement_ids": [
+            "REQ-UQP-01-04",
+            "REQ-UQP-02-03",
+            "REQ-UQP-02-04",
+            "REQ-UQP-03-03",
+            "REQ-UQP-03-05",
+            "REQ-UQS-01-03",
+            "REQ-UQS-01-04"
+          ],
+          "local_test_ids": [
+            "TEST-UQP-01-04",
+            "TEST-UQP-02-02",
+            "TEST-UQP-02-03",
+            "TEST-UQP-02-04",
+            "TEST-UQP-03-03",
+            "TEST-UQP-03-05",
+            "TEST-UQS-01-03",
+            "TEST-UQS-01-04",
+            "TEST-UQS-01-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X04-B04",
+          "requirement_ids": [
+            "REQ-PCL-01-05",
+            "REQ-FRC-02-04",
+            "REQ-FRC-02-08"
+          ],
+          "local_test_ids": [
+            "TEST-FRC-02-03",
+            "TEST-FRC-02-04",
+            "TEST-FRC-02-05",
+            "TEST-FRC-02-06",
+            "TEST-FRC-02-08",
+            "TEST-PCL-01-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X04-B05",
+          "requirement_ids": [
+            "REQ-DDM-02-01",
+            "REQ-DDM-02-02",
+            "REQ-DDM-02-03",
+            "REQ-DDM-02-07"
+          ],
+          "local_test_ids": [
+            "TEST-DDM-02-01",
+            "TEST-DDM-02-02",
+            "TEST-DDM-02-03",
+            "TEST-DDM-02-04",
+            "TEST-DDM-02-06"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X04-B06",
+          "requirement_ids": [
+            "REQ-LEX-01-03",
+            "REQ-LEX-01-04"
+          ],
+          "local_test_ids": [
+            "TEST-LEX-01-02",
+            "TEST-LEX-01-03",
+            "TEST-LEX-01-04"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        }
+      ],
+      "local_only_or_separate_requirement_ids": [],
+      "additional_invalidated_binding_ids": [],
+      "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope.",
+      "status": "NOT_RUN",
+      "assigned_owner": null,
+      "actual_provider_commit": null,
+      "evidence": []
+    }
+  ],
+  "newly_discovered_dependencies": [],
+  "final_acceptance": "NOT_RUN",
+  "source_admission": {
+    "commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
+    "tree": "f09c0babe69ffa7b2b3c64397f3bf6099b2d7eba",
+    "reference_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+    "reference_is_ancestor": true,
+    "tracked_state_at_admission": "clean",
+    "archive_sha256": "b620abf637cdb608ee14b258d831c73fd463bf5b01049eed07acbc94b1dbd629",
+    "archive_integrity": "PASS_DOCUMENT_INTEGRITY before working-state edit; product checks NOT_RUN",
+    "python_lock_sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+    "resource_profile": "macOS arm64; existing Python 3.14 environment; at most two qualified light test jobs, unknown native job alone; about 10 GiB free; no reinstall or environment copies",
+    "authorization": "User authorizes sequential lanes, parallel work within active lane, ordinary main composition and retirement after actual content/protection/worktree checks. No cloud tasks or production-data export."
+  }
+}

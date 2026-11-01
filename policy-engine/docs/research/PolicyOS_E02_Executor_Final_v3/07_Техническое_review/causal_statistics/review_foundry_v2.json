@@ -1,0 +1,651 @@
+{
+  "status": "ACCEPT_REVIEWED_SPECIFICATION_AFTER_PEER_DELTA_01",
+  "reviewed_at_utc": "2026-11-01T12:08:01.043608+00:00",
+  "reviewer": "causal_statistics independent peer",
+  "product_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "scope": "6 complete packet MD/JSON pairs + 3 lane overview deltas; no common 03 or aggregate 04 qualification",
+  "native_execution": "NOT_RUN",
+  "execution_performed": "stdlib-only document/hash reconciliation and independent arithmetic; no repository imports, installs, product tests or product/proposal edits",
+  "files": [
+    {
+      "relative_path": "02_Пакеты/CAL-02.md",
+      "baseline_sha256": "2e55f17413f00e64da116c7731c3282f65637d305b2ccef940a873a271cb2c91",
+      "reviewed_sha256": "cd27f454534069d22fd1e845a0edc9422b1605645f7c0f47faf0005068f71a78",
+      "baseline_lines": 186,
+      "reviewed_lines": 188,
+      "manifest_hash_and_diff_verified": true,
+      "read_scope": "complete proposed packet + actual baseline diff; JSON all leaves reconciled to MD or read separately"
+    },
+    {
+      "relative_path": "04_Трассировка/CAL-02.json",
+      "baseline_sha256": "8f6ea468564bf8a12e4542f2efab1feae0afaf84104ed382bc63f16330853995",
+      "reviewed_sha256": "bdad60138440234cd420739ee36cbbd6e9a5d6e14d3c02f94f7dde86c9ac0d04",
+      "baseline_lines": 431,
+      "reviewed_lines": 440,
+      "manifest_hash_and_diff_verified": true,
+      "read_scope": "complete proposed packet + actual baseline diff; JSON all leaves reconciled to MD or read separately"
+    },
+    {
+      "relative_path": "02_Пакеты/BKT-02.md",
+      "baseline_sha256": "e76887b6fe05ce03d8745d03019333cef6655ade90e8f201f4d25c20644d9eb4",
+      "reviewed_sha256": "41d1fd71a0cccaa32d80421b8ce47631eeced83daaaa115d226b5179dffdd89e",
+      "baseline_lines": 211,
+      "reviewed_lines": 213,
+      "manifest_hash_and_diff_verified": true,
+      "read_scope": "complete proposed packet + actual baseline diff; JSON all leaves reconciled to MD or read separately"
+    },
+    {
+      "relative_path": "04_Трассировка/BKT-02.json",
+      "baseline_sha256": "2ff7d5978d45936c6518e5c5e826e64b56bd327d0c221b4f768299aac0d1f9b7",
+      "reviewed_sha256": "aa4dc4f353107613275ba3b4214a31aacdb5f41dbdde2e4ccbcd4d0d67f66939",
+      "baseline_lines": 629,
+      "reviewed_lines": 638,
+      "manifest_hash_and_diff_verified": true,
+      "read_scope": "complete proposed packet + actual baseline diff; JSON all leaves reconciled to MD or read separately"
+    },
+    {
+      "relative_path": "02_Пакеты/UQS-01.md",
+      "baseline_sha256": "fa7e245b15c1d1575a6d25bad69def6a21741791e8e76d820e8cc36121b7b5c0",
+      "reviewed_sha256": "1ee06a7ef5eb68251355235c59f31e5615cae247c9a1058672e832f70b2a1558",
+      "baseline_lines": 156,
+      "reviewed_lines": 158,
+      "manifest_hash_and_diff_verified": true,
+      "read_scope": "complete proposed packet + actual baseline diff; JSON all leaves reconciled to MD or read separately"
+    },
+    {
+      "relative_path": "04_Трассировка/UQS-01.json",
+      "baseline_sha256": "17dc4cc4fe5397287af7389979fa05ef0c0e796e0d27beb051bb02dc60b6a11f",
+      "reviewed_sha256": "ab2f549e352a405a2f5f0393a3eb1b6ffd35e33d3171f7bab878560b0b263ab3",
+      "baseline_lines": 390,
+      "reviewed_lines": 399,
+      "manifest_hash_and_diff_verified": true,
+      "read_scope": "complete proposed packet + actual baseline diff; JSON all leaves reconciled to MD or read separately"
+    },
+    {
+      "relative_path": "02_Пакеты/PLG-03.md",
+      "baseline_sha256": "65fec3195ed2d5c283150af9688a9672feb155f4677c42f4755b706cbdbe77fa",
+      "reviewed_sha256": "bdc3c93d663e3038593797b35e1c3718cf9f31cfc662915c205084a8fe6ef79c",
+      "baseline_lines": 130,
+      "reviewed_lines": 134,
+      "manifest_hash_and_diff_verified": true,
+      "read_scope": "complete proposed packet + actual baseline diff; JSON all leaves reconciled to MD or read separately"
+    },
+    {
+      "relative_path": "04_Трассировка/PLG-03.json",
+      "baseline_sha256": "ac0b4ef66f718548011ba4627aac30be7a5270f4fe563f60e1b66ef6713bf217",
+      "reviewed_sha256": "4557a131465925894ae03296d17f98cf33d0395a5a76fd94722e9e1c8e599a94",
+      "baseline_lines": 301,
+      "reviewed_lines": 318,
+      "manifest_hash_and_diff_verified": true,
+      "read_scope": "complete proposed packet + actual baseline diff; JSON all leaves reconciled to MD or read separately"
+    },
+    {
+      "relative_path": "02_Пакеты/DOE-02.md",
+      "baseline_sha256": "51d9f360198d0acde34a7183367bb961ae63584014d3ead2e650a172e8612f19",
+      "reviewed_sha256": "621f91863f89176c8cb6bcbcac1a088a672639d54486b70310195730be2e07ed",
+      "baseline_lines": 126,
+      "reviewed_lines": 130,
+      "manifest_hash_and_diff_verified": true,
+      "read_scope": "complete proposed packet + actual baseline diff; JSON all leaves reconciled to MD or read separately"
+    },
+    {
+      "relative_path": "04_Трассировка/DOE-02.json",
+      "baseline_sha256": "de9e9d40467cf3ec227b68d87f262e00715846a41dff55ac6eeb7afdf63cc60d",
+      "reviewed_sha256": "eb2c3a4e613ccce7d284d75445e9551203f6e7099a26ba1bf2a61cd49a57d700",
+      "baseline_lines": 286,
+      "reviewed_lines": 296,
+      "manifest_hash_and_diff_verified": true,
+      "read_scope": "complete proposed packet + actual baseline diff; JSON all leaves reconciled to MD or read separately"
+    },
+    {
+      "relative_path": "02_Пакеты/DOE-03.md",
+      "baseline_sha256": "f9c3bf1217d515137e098afe09b794968b4036b62491f94ef49198cce26279d5",
+      "reviewed_sha256": "5c7e497f6d9c9edcf401c8dc7332c595e74399cd6c31a95bf52339c9ec6bf12a",
+      "baseline_lines": 156,
+      "reviewed_lines": 160,
+      "manifest_hash_and_diff_verified": true,
+      "read_scope": "complete proposed packet + actual baseline diff; JSON all leaves reconciled to MD or read separately"
+    },
+    {
+      "relative_path": "04_Трассировка/DOE-03.json",
+      "baseline_sha256": "7c1132864d8761e0a48623002b11e099f9683649d840683f0b547b11c45da4d5",
+      "reviewed_sha256": "241214060ce7fa461d844941d54b09c2f6d28d5dc9864443da1ac2c34b5fdfe7",
+      "baseline_lines": 379,
+      "reviewed_lines": 389,
+      "manifest_hash_and_diff_verified": true,
+      "read_scope": "complete proposed packet + actual baseline diff; JSON all leaves reconciled to MD or read separately"
+    },
+    {
+      "relative_path": "01_Лейны/LANE-03.md",
+      "baseline_sha256": "83af9b92ff6b88a471815d7097706ee2774d8f9caf65276b6f6d5cbcf12f4f1c",
+      "reviewed_sha256": "da5c8ad38e5e2c72119a6560e213fffae795050fa5c97cb4b800ec07a78259f3",
+      "baseline_lines": 67,
+      "reviewed_lines": 73,
+      "manifest_hash_and_diff_verified": true,
+      "read_scope": "complete actual baseline-to-proposed overview delta"
+    },
+    {
+      "relative_path": "01_Лейны/LANE-04.md",
+      "baseline_sha256": "dbd39769b3df55cff6208fec87bb47d8ab7a9a960aacd596d78bf9f5266e610e",
+      "reviewed_sha256": "cd157f8a8d00f5fbd4a29a3baaadce9c7e3531d3b408f6dfff24d2478b580a8b",
+      "baseline_lines": 62,
+      "reviewed_lines": 68,
+      "manifest_hash_and_diff_verified": true,
+      "read_scope": "complete actual baseline-to-proposed overview delta"
+    },
+    {
+      "relative_path": "01_Лейны/LANE-10.md",
+      "baseline_sha256": "d35a5b532edcfb6b27a17b56b92a0d4ac795607972be000d881fb8cb87c795b1",
+      "reviewed_sha256": "831388812733b8c4bc6622731026ad3be4610e92128bb444b5b89719697c4d24",
+      "baseline_lines": 43,
+      "reviewed_lines": 49,
+      "manifest_hash_and_diff_verified": true,
+      "read_scope": "complete actual baseline-to-proposed overview delta"
+    }
+  ],
+  "manifest": {
+    "path": "e02_final_technical_review/foundry_numeric/proposed_changes.json",
+    "sha256": "b116e4d20c3da8895943364aa1f03fe4d7355f382c2b5fcba2082bce7a458337",
+    "all_15_hashes_and_actual_diffs_verified": true
+  },
+  "coverage": {
+    "packet_count": 6,
+    "file_count": 15,
+    "requirements": 33,
+    "tests": 31,
+    "packets": [
+      {
+        "packet": "CAL-02",
+        "requirements": [
+          "REQ-CAL-02-01",
+          "REQ-CAL-02-02",
+          "REQ-CAL-02-03",
+          "REQ-CAL-02-04",
+          "REQ-CAL-02-05",
+          "REQ-CAL-02-06",
+          "REQ-CAL-02-07"
+        ],
+        "tests": [
+          "TEST-CAL-02-01",
+          "TEST-CAL-02-02",
+          "TEST-CAL-02-03",
+          "TEST-CAL-02-04",
+          "TEST-CAL-02-05",
+          "TEST-CAL-02-06"
+        ],
+        "preserved_maps": {
+          "source_ids": true,
+          "residual_dispositions": true,
+          "obligation_dispositions": true,
+          "preservation_bindings": true,
+          "source_locators": true,
+          "source_obligations": true,
+          "dependencies": true,
+          "shared_scenarios": true,
+          "protected_distinction_ids": true
+        },
+        "full_MD_JSON_normative_parity": true
+      },
+      {
+        "packet": "BKT-02",
+        "requirements": [
+          "REQ-BKT-02-01",
+          "REQ-BKT-02-02",
+          "REQ-BKT-02-03",
+          "REQ-BKT-02-04",
+          "REQ-BKT-02-05",
+          "REQ-BKT-02-06",
+          "REQ-BKT-02-07",
+          "REQ-BKT-02-08"
+        ],
+        "tests": [
+          "TEST-BKT-02-01",
+          "TEST-BKT-02-02",
+          "TEST-BKT-02-03",
+          "TEST-BKT-02-04",
+          "TEST-BKT-02-05",
+          "TEST-BKT-02-06",
+          "TEST-BKT-02-07",
+          "TEST-BKT-02-08"
+        ],
+        "preserved_maps": {
+          "source_ids": true,
+          "residual_dispositions": true,
+          "obligation_dispositions": true,
+          "preservation_bindings": true,
+          "source_locators": true,
+          "source_obligations": true,
+          "dependencies": true,
+          "shared_scenarios": true,
+          "protected_distinction_ids": true
+        },
+        "full_MD_JSON_normative_parity": true
+      },
+      {
+        "packet": "UQS-01",
+        "requirements": [
+          "REQ-UQS-01-01",
+          "REQ-UQS-01-02",
+          "REQ-UQS-01-03",
+          "REQ-UQS-01-04",
+          "REQ-UQS-01-05"
+        ],
+        "tests": [
+          "TEST-UQS-01-01",
+          "TEST-UQS-01-02",
+          "TEST-UQS-01-03",
+          "TEST-UQS-01-04",
+          "TEST-UQS-01-05"
+        ],
+        "preserved_maps": {
+          "source_ids": true,
+          "residual_dispositions": true,
+          "obligation_dispositions": true,
+          "preservation_bindings": true,
+          "source_locators": true,
+          "source_obligations": true,
+          "dependencies": true,
+          "shared_scenarios": true,
+          "protected_distinction_ids": true
+        },
+        "full_MD_JSON_normative_parity": true
+      },
+      {
+        "packet": "PLG-03",
+        "requirements": [
+          "REQ-PLG-03-01",
+          "REQ-PLG-03-02",
+          "REQ-PLG-03-03",
+          "REQ-PLG-03-04"
+        ],
+        "tests": [
+          "TEST-PLG-03-01",
+          "TEST-PLG-03-02",
+          "TEST-PLG-03-03",
+          "TEST-PLG-03-04"
+        ],
+        "preserved_maps": {
+          "source_ids": true,
+          "residual_dispositions": true,
+          "obligation_dispositions": true,
+          "preservation_bindings": true,
+          "source_locators": true,
+          "source_obligations": true,
+          "dependencies": true,
+          "shared_scenarios": true,
+          "protected_distinction_ids": true
+        },
+        "full_MD_JSON_normative_parity": true
+      },
+      {
+        "packet": "DOE-02",
+        "requirements": [
+          "REQ-DOE-02-01",
+          "REQ-DOE-02-02",
+          "REQ-DOE-02-03",
+          "REQ-DOE-02-04"
+        ],
+        "tests": [
+          "TEST-DOE-02-01",
+          "TEST-DOE-02-02",
+          "TEST-DOE-02-03"
+        ],
+        "preserved_maps": {
+          "source_ids": true,
+          "residual_dispositions": true,
+          "obligation_dispositions": true,
+          "preservation_bindings": true,
+          "source_locators": true,
+          "source_obligations": true,
+          "dependencies": true,
+          "shared_scenarios": true,
+          "protected_distinction_ids": true
+        },
+        "full_MD_JSON_normative_parity": true
+      },
+      {
+        "packet": "DOE-03",
+        "requirements": [
+          "REQ-DOE-03-01",
+          "REQ-DOE-03-02",
+          "REQ-DOE-03-03",
+          "REQ-DOE-03-04",
+          "REQ-DOE-03-05"
+        ],
+        "tests": [
+          "TEST-DOE-03-01",
+          "TEST-DOE-03-02",
+          "TEST-DOE-03-03",
+          "TEST-DOE-03-04",
+          "TEST-DOE-03-05"
+        ],
+        "preserved_maps": {
+          "source_ids": true,
+          "residual_dispositions": true,
+          "obligation_dispositions": true,
+          "preservation_bindings": true,
+          "source_locators": true,
+          "source_obligations": true,
+          "dependencies": true,
+          "shared_scenarios": true,
+          "protected_distinction_ids": true
+        },
+        "full_MD_JSON_normative_parity": true
+      }
+    ],
+    "all_original_ids_preserved": true,
+    "truncated_outputs_recovered": true,
+    "full_proposed_MD_and_semantic_JSON_read": true,
+    "baseline_scope": "Actual changed regions and complete trace/source/residual/preservation maps; not claiming every baseline byte reread"
+  },
+  "source_reads": [
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/calibration/loss.py",
+      "sha256": "a3c7dcf6b118d88b7b3f1b0bc60f8ec390cd2229232f75e8f7ff0b6c022f9e58",
+      "read_line_ranges": [
+        [
+          1,
+          115
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "sha256": "f23b724aa07a447fbf10effad60c28f7e286ff137e2805e4e4a195adc28ac6a1",
+      "read_line_ranges": [
+        [
+          2690,
+          2735
+        ],
+        [
+          2780,
+          2850
+        ],
+        [
+          2995,
+          3035
+        ],
+        [
+          3370,
+          3425
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/calibration/bijectors.py",
+      "sha256": "8dec3b0586cec709db88a9754ad51a00483c02035b52200d43ffb5b94a741a94",
+      "read_line_ranges": [
+        [
+          1,
+          100
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py",
+      "sha256": "0e048675e3a559a625e0f2fb0431926749b9ae7eabb6353e93f57148d8c6c7f5",
+      "read_line_ranges": [
+        [
+          1,
+          149
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/execute/_internal/numeric/__init__.py",
+      "sha256": "8f00616c33fc197a357aad04d301bdf5ad88fe6955c1ae6c44af337ebf35a9f9",
+      "read_line_ranges": [
+        [
+          1,
+          110
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/foundry/calibration/test_calibrator_mvp.py",
+      "sha256": "4a8987298cf856090a6abf5ed9f54c01fba12398b001c67854e25337dc554bf1",
+      "read_line_ranges": [
+        [
+          225,
+          280
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+      "sha256": "d60ea4b569b28e64187842bb191c9541d64cf83d548f5fd2008c69d68ced66be",
+      "read_line_ranges": [
+        [
+          72,
+          209
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "sha256": "5fc6db3c90220efd194175e6a6cab7d0a11f1a526a0e4182e011d4a3b42c7480",
+      "read_line_ranges": [
+        [
+          368,
+          585
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+      "sha256": "a1342fac260fa1906a94d66859f245455608d58ad8baa9906ebe0af3b2436801",
+      "read_line_ranges": [
+        [
+          225,
+          260
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/agent_sim/rl.py",
+      "sha256": "7497f31a3d89011d34cdb908013749e9e9a6cb16090463c202260c9950a4b9cb",
+      "read_line_ranges": [
+        [
+          1,
+          168
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/agent_sim/actor_critic.py",
+      "sha256": "09163b55ebfcd24cbf3c42062e192c82b3e3a02fc94dc99f0b9618b7c7b2d40f",
+      "read_line_ranges": [
+        [
+          1,
+          273
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/agent_sim/jit_training.py",
+      "sha256": "6730c202d77ba15d2107b79d88b0a9a31149effa7eb25b3da8c9835cd0c30927",
+      "read_line_ranges": [
+        [
+          230,
+          275
+        ],
+        [
+          410,
+          450
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+      "sha256": "36aed5a1740a2075f3a7728e251b7e04b5eaf5f565a4da38b9cb7bb6b9f8cbb2",
+      "read_line_ranges": [
+        [
+          95,
+          150
+        ],
+        [
+          635,
+          685
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/agent_sim/temporal.py",
+      "sha256": "ec16ec9d69197be6ee71aad32f5f91ad8e0204ea38a444ea35456bb0f2e585db",
+      "read_line_ranges": [
+        [
+          26,
+          94
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/doe/multi_output.py",
+      "sha256": "2363477e97c4c98bba93e8453322eeb546e789eb2efc743272140293af6b299a",
+      "read_line_ranges": [
+        [
+          1,
+          239
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "sha256": "8cd056fde7b64825baa33c440ec0f05e96b2b12313355a4228e00279ce36e596",
+      "read_line_ranges": [
+        [
+          1,
+          109
+        ]
+      ]
+    }
+  ],
+  "technology_profile": {
+    "lock_file": "e02_repository/policy-engine/uv.lock",
+    "sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+    "read_scope": "package version records only, not complete lockfile in this peer turn",
+    "versions": {
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "equinox": "0.13.2",
+      "optax": "0.2.6",
+      "scikit-learn": "1.8.0",
+      "salib": "1.5.2",
+      "numpy": "2.3.5"
+    }
+  },
+  "primary_sources": [
+    {
+      "id": "PY314",
+      "url": "https://raw.githubusercontent.com/python/cpython/v3.14.0/Lib/statistics.py",
+      "sections": "mean 145–164; fmean 167–191; _sum/_exact_ratio/_convert also examined in immediately preceding fabric peer review",
+      "supports": "Exact-ratio sum divided before final float conversion; fmean is not equivalent range contract. Fraction oracle shares arithmetic family; Decimal adds a different finite-fixture crosscheck.",
+      "checked_date": "2026-11-01",
+      "source_type": "primary"
+    },
+    {
+      "id": "SK18PCA",
+      "url": "https://raw.githubusercontent.com/scikit-learn/scikit-learn/1.8.0/sklearn/decomposition/_pca.py",
+      "sections": "479–496, 636–711",
+      "supports": "Actual auto solver dispatch; randomized path calls check_random_state and passes it to randomized SVD; explicit profile parameters exist in locked version.",
+      "checked_date": "2026-11-01",
+      "source_type": "primary"
+    },
+    {
+      "id": "SK18RNG",
+      "url": "https://raw.githubusercontent.com/scikit-learn/scikit-learn/1.8.0/sklearn/utils/validation.py",
+      "sections": "check_random_state 1324–1351",
+      "supports": "None returns global legacy RandomState; integer creates separate state.",
+      "checked_date": "2026-11-01",
+      "source_type": "primary"
+    },
+    {
+      "id": "SALIB152",
+      "url": "https://raw.githubusercontent.com/SALib/SALib/v1.5.2/src/SALib/sample/morris/morris.py",
+      "sections": "sample 22–138; grid construction 275–301",
+      "supports": "N trajectories, num_levels and seed; two parameters mean three rows per ungrouped trajectory; actual parameter grid, not row-index model output.",
+      "checked_date": "2026-11-01",
+      "source_type": "primary"
+    },
+    {
+      "id": "JAXWHERE",
+      "url": "https://docs.jax.dev/en/latest/faq.html#gradients-contain-nan-where-using-where",
+      "sections": "Gradients contain NaN where using where",
+      "supports": "Excluding a result after unsafe nonlinear evaluation need not keep autodiff finite. Used only as AD principle, not a new-version runtime guarantee.",
+      "checked_date": "2026-11-01",
+      "source_type": "primary"
+    }
+  ],
+  "verdicts": [
+    {
+      "packet": "CAL-02",
+      "verdict": "ACCEPT_SPECIFICATION",
+      "reason": "Pre-nonlinear evaluation exclusion, independent original prediction nonfinite guard, empty-corpus refusal vs zero-contribution sibling are distinguished. Concrete physical/bijector loss/gradient/Hessian fixture agrees with fiscal/loss source."
+    },
+    {
+      "packet": "BKT-02",
+      "verdict": "ACCEPT_SPECIFICATION",
+      "reason": "Finite residual/MAE/RMSE need not imply representable SSE. Scaled L2 and safe mean preserve rows/counts; versioned unavailable sums reconcile through fresh reader, not discard or fabricated zero."
+    },
+    {
+      "packet": "UQS-01",
+      "verdict": "ACCEPT_SPECIFICATION",
+      "reason": "Uses shared FED-owned finite-binary64 mean without fmean substitution; exact float-ratio and Decimal fixtures plus valid permutation/repetition metamorphisms; does not turn duplication into confidence."
+    },
+    {
+      "packet": "PLG-03",
+      "verdict": "ACCEPT_AFTER_PEER_DELTA_01",
+      "reason": "Actual scalar actor coordinate matches analytic objective; fixed-target float32 normalization and all three clip branches plus GAE are correct. Added six component cases close initial gap. Native padding remains a falsifiable same-shape/source-derived hypothesis, not claimed defect."
+    },
+    {
+      "packet": "DOE-02",
+      "verdict": "ACCEPT_SPECIFICATION_BOUNDED_QUALIFICATION",
+      "reason": "PCA stage local derived seed and actual solver provenance close upstream sampling-only replay gap, with no global RNG mutation or cross-version exactness promise."
+    },
+    {
+      "packet": "DOE-03",
+      "verdict": "ACCEPT_SPECIFICATION_BOUNDED_QUALIFICATION",
+      "reason": "Direct DCT matrix supplies independent analytic PCA oracle; separate parameter-only Legendre/Morris model and pre-PCA rank/gap freeze prevent hidden row-index substitution. Native finite-seed preflight explicitly outstanding."
+    }
+  ],
+  "findings": [
+    {
+      "id": "CS-FN-PEER-01",
+      "severity": "medium",
+      "status": "RESOLVED_IN_REVIEWED_BYTES",
+      "scope": "PLG-03 REQ-PLG-03-02 / TEST-PLG-03-02",
+      "initial_defect": "New requirement covered policy/value/entropy semantics, but initial analytic unit set both value and entropy coefficients to zero; dropping those terms could still pass the analytic oracle. Independently confirmed here, also raised by runtime/root peer.",
+      "resolution": "Author peer_delta_01 adds raw MSE/entropy, six separate/combined coefficient cases and gradients through actual critic_out.bias/action_log_std; returns[1,3], MSE5, total5cv-ceH0, dnu=-4cv, dlogstd=-ce. Source independently checked; stdlib arithmetic agrees.",
+      "reviewed_md_sha256": "bdc3c93d663e3038593797b35e1c3718cf9f31cfc662915c205084a8fe6ef79c",
+      "reviewed_json_sha256": "4557a131465925894ae03296d17f98cf33d0395a5a76fd94722e9e1c8e599a94",
+      "native_result": "NOT_RUN"
+    }
+  ],
+  "unresolved_blocking_findings": [],
+  "remaining_qualification": [
+    "Native JAX eager/JIT masking/gradient/Hessian/Optax and inactive-padding witness NOT_RUN.",
+    "Backtest/UQS current-schema persistence and fresh readback NOT_RUN.",
+    "SALib seeds [13,17,19,23] rank>15/gap>=1e-3 preflight and selecting two accepted matrices NOT_RUN; fewer than two is blocked, not acceptance.",
+    "Actual randomized/full fallback PCA and multi-output Morris/replay/fresh artifact NOT_RUN.",
+    "Common integration03/aggregate04 independently reviewed by root later."
+  ],
+  "nonblocking_execution_notes": [
+    "Legendre output j=0 is constant; public MultiOutputAnalyzer removes zero-variance columns, so raw600x100 becomes actual600x99. Centered singular spectrum is unchanged by removing the zero column; record both shapes and resolved solver.",
+    "NumPy full SVD is a separate adapter/backend oracle, not mathematically independent from every possible shared LAPACK implementation; DCT analytic oracle supplies that independent layer.",
+    "Decimal precision1200 crosscheck is asserted for these finite fixtures, not a proof of every all-binary64 aggregation case.",
+    "No monotone welfare/convergence, broad statistical validity, all-platform availability or native execution guarantee follows from unit matrices."
+  ],
+  "arithmetic": {
+    "script": "e02_final_technical_review/causal_statistics/review_foundry_arithmetic.py",
+    "script_sha256": "b91aeb12e1305eb5957f20b9dd4097b8d95359a4d17c51197edc81757ccc55bb",
+    "results": "e02_final_technical_review/causal_statistics/review_foundry_arithmetic.json",
+    "results_sha256": "14d626ee1797cd06f0afa21c2d1f9ce94bac398f36abac4cbe06f517f43d88f6",
+    "python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "execution_kind": "STANDARD_LIBRARY_ONLY_NOT_PRODUCT_TESTS"
+  },
+  "permissions": {
+    "blocked": false,
+    "denials": [],
+    "mutations": "Own causal_statistics report/scripts only"
+  }
+}

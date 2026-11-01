@@ -1,0 +1,75 @@
+{
+  "pass": "C49",
+  "bundle": "GRF-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C49-R01",
+      "kind": "confirmed_local_defect",
+      "source_ids": [
+        "B219"
+      ],
+      "severity": "medium_conditional_public_adapter",
+      "confidence": "high_for_emitted_contract_not_native_DB_consequence",
+      "title": "Прямой Kuzu-emitter не выражает идентичность параллельного отношения",
+      "evidence": [
+        "S01:837–870",
+        "S04:94–203",
+        "S05:1–16",
+        "P07",
+        "P08",
+        "P09"
+      ],
+      "observed": "Для пяти edge occurrences с одинаковыми endpoints (directed, bidirected, lag1, lag2, duplicate) actual to_kuzu выдаёт пять вызовов с одним pattern MERGE (s)-[r:CausalEdge]->(d). Marks/lag/payload выставляются только SET; occurrence discriminator отсутствует.",
+      "consequence": "Direct adapter contract не задаёт раздельную identity mixed/duplicate records. Перезапись/слияние в native Kuzu — ожидаемое следствие endpoint-only match, но база здесь не запускалась; фактической порчи production DB не установлено. Найдены лишь прямые test callers.",
+      "remaining": "На существующей export boundary либо использовать квалифицированный lossless bulk/occurrence-aware route, либо явно ограничить direct emitter допустимым простым графом. Проверить backend round-trip и multiplicity при перестановках. Не объявлять MultiDiGraph доказательством Kuzu correctness.",
+      "limits": "Локально подтверждены emitted statements/parameters и отсутствие relation key. CSV route сохраняет пять rows и имеет отдельный count guard; он не объявляется сломанным."
+    },
+    {
+      "id": "C49-R02",
+      "kind": "confirmed_local_defect",
+      "source_ids": [
+        "B220"
+      ],
+      "severity": "low_performance_scope",
+      "confidence": "high_for_repeated_work_scale_unmeasured",
+      "title": "Один уже допущенный conditioned query повторно строит и хэширует тот же graph snapshot",
+      "evidence": [
+        "S02:159–278",
+        "S02:418–451",
+        "S02:699–777",
+        "P10",
+        "P15"
+      ],
+      "observed": "В одном прогретом m_separation(X,Y|Z) actual wrappers насчитали 3 canonical graph rebuilds и 3 full snapshot hashes: outer admission, separator adjacency, ancestors(Z). Adjacency при этом переиспользуется.",
+      "consequence": "Повторяется O(graph content) подготовка внутри одного query; стоимость на production scale и влияние на latency не измерены. Один внешний admission на свежий caller нужен для корректности, сам по себе не объявляется дефектом.",
+      "remaining": "Сохранить полный canonical admission внешнего caller; внутри уже допущенного query переиспользовать detached prepared snapshot/adjacency в существующих helpers. Не возвращать identity-only trust, не удалять lag/endpoint/metadata checks и не отключать cache ради упрощения.",
+      "limits": "10 warm ancestors queries также имеют по одному rebuild/hash, но это внешний guard, а не достаточный признак лишней работы. R02 относится к дополнительной внутренней повторной подготовке. Исходный old stale-cache/copy mismatch не воспроизведён."
+    },
+    {
+      "id": "C49-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B219",
+        "B220"
+      ],
+      "title": "Native backend и CAS round-trip acceptance не повторена",
+      "evidence": [
+        "S08:1–92",
+        "native_attempt.log",
+        "networkx_attempt.log",
+        "rustworkx_attempt.log",
+        "kuzu_attempt.log",
+        "P01–P16"
+      ],
+      "remaining": "На поддержанном Python/dependencies выполнить существующие native NetworkX+CAS permutations/removal controls, Kuzu duplicate/lag/mixed round-trip и Rustworkx payload multiplicity. Сохранить точные selected artifact profile/schema bindings.",
+      "limits": "16 MATCH включают reproductions R01/R02, не product PASS. 12 существующих bodies исполнены с явными fixtures, не pytest. Optional backends отсутствуют; graph full authority/empirical causality не аттестованы."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C49-R01",
+    "C49-R02"
+  ],
+  "decision": "Основные NetworkX identity и frozen/copy/cache coherence repairs полезны и сохраняются. Остались прямой Kuzu identity contract и повторная внутренняя canonical preparation. Native backend/CAS acceptance не закрыта."
+}

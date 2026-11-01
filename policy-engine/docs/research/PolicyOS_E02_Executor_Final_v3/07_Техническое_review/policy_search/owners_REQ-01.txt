@@ -1,0 +1,496 @@
+
+### e02_repository/policy-engine/src/polisyos/data_requirement/compiler.py:122-221
+  122 @dataclass(frozen=True)
+  123 class _ScenarioScopeProfile:
+  124     """Explicit, versioned scope context owned by the scenario adapter."""
+  125 
+  126     profile_id: str
+  127     jurisdiction: str | None = None
+  128     time_start: str | None = None
+  129     time_end: str | None = None
+  130     time_role: DataRequirementTimeRole | None = None
+  131     granularity: str | None = None
+  132     unrepresented_fields: tuple[str, ...] = ()
+  133     required_constructs: tuple[str, ...] = ()
+  134     candidate_construct_proposals: tuple[str, ...] = ()
+  135 
+  136 
+  137 class ScenarioScopeProfileInputError(ValueError):
+  138     """Typed refusal for a supplied scenario scope profile that cannot be admitted."""
+  139 
+  140     code = "scenario_scope_profile_invalid"
+  141 
+  142     def __init__(self, reason_code: str, field_path: str) -> None:
+  143         self.reason_code = reason_code
+  144         self.field_path = field_path
+  145         super().__init__(f"{self.code}:{reason_code}:{field_path}")
+  146 
+  147 
+  148 class ScenarioFamilyDeclarationInputError(ValueError):
+  149     """Typed refusal for a malformed or ambiguous legacy family declaration."""
+  150 
+  151     code = "scenario_family_declaration_invalid"
+  152 
+  153     def __init__(self, reason_code: str, field_path: str) -> None:
+  154         self.reason_code = reason_code
+  155         self.field_path = field_path
+  156         super().__init__(f"{self.code}:{reason_code}:{field_path}")
+  157 
+  158 
+  159 _SCENARIO_PROFILE_TOP_LEVEL_ALIASES = (
+  160     "scenario_profile",
+  161     "pilot_profile",
+  162     "scope_profile",
+  163     "profile",
+  164 )
+  165 _SCENARIO_PROFILE_CONTEXT_ALIASES = ("scenario_profile", "pilot_profile", "scope_profile")
+  166 _SCENARIO_DIRECT_REQUIRED_CONSTRUCT_ALIASES = ("required_constructs", "construct_refs")
+  167 _SCENARIO_DIRECT_CANDIDATE_CONSTRUCT_ALIASES = ("candidate_construct_proposals",)
+  168 _SCENARIO_PROFILE_REQUIRED_CONSTRUCT_ALIASES = (
+  169     "required_constructs",
+  170     "required_evidence_constructs",
+  171     "declared_constructs",
+  172 )
+  173 _SCENARIO_PROFILE_CANDIDATE_CONSTRUCT_ALIASES = (
+  174     "candidate_construct_proposals",
+  175     "construct_proposals",
+  176     "topic_proposals",
+  177 )
+  178 
+  179 
+  180 @dataclass(frozen=True)
+  181 class _ScenarioAdapterInput:
+  182     """Semantic inputs handed from a scenario mapping to the compiler."""
+  183 
+  184     scenario_id: str
+  185     text: str
+  186     domain: governance.ProblemDomain
+  187     authority_type: governance.PolicyLayerLevel
+  188     scope_profile: _ScenarioScopeProfile | None = None
+  189 
+  190 
+  191 @dataclass(frozen=True)
+  192 class _ConstructResolutionInputs:
+  193     """Separate declared authority inputs from candidate semantic proposals."""
+  194 
+  195     required_constructs: tuple[str, ...] = ()
+  196     candidate_construct_proposals: tuple[str, ...] = ()
+  197 
+  198 
+  199 def _load_governed_scenario_family_construct_rows() -> tuple[
+  200     contracts.ScenarioFamilyConstructRow,
+  201     ...,
+  202 ]:
+  203     if not _GOVERNED_CAPABILITY_ROWS_PATH.exists():
+  204         return ()
+  205     try:
+  206         payload = json.loads(_GOVERNED_CAPABILITY_ROWS_PATH.read_text(encoding="utf-8"))
+  207     except (json.JSONDecodeError, OSError):
+  208         return ()
+  209     rows = payload.get("scenario_family_construct_rows") if isinstance(payload, Mapping) else ()
+  210     if not isinstance(rows, Sequence) or isinstance(rows, str | bytes | bytearray):
+  211         return ()
+  212     normalized: list[contracts.ScenarioFamilyConstructRow] = []
+  213     for row in rows:
+  214         try:
+  215             normalized.append(contracts.ScenarioFamilyConstructRow.model_validate(row))
+  216         except (TypeError, ValueError):
+  217             continue
+  218     return tuple(normalized)
+  219 
+  220 
+  221 class DataRequirementCompiler:
+
+### e02_repository/policy-engine/src/polisyos/data_requirement/compiler.py:486-572
+  486     def compile_for_scenario(
+  487         self,
+  488         scenario: Mapping[str, Any],
+  489     ) -> DataRequirementCompilationReport:
+  490         """Compile data requirements for a golden scenario without reading legacy families."""
+  491 
+  492         adapter_input = _scenario_adapter_input(scenario)
+  493         scenario_id = adapter_input.scenario_id
+  494         text = adapter_input.text
+  495         domain = adapter_input.domain
+  496         case = PolicyGrammarCompiler().compile(
+  497             intent=PolicyGrammarIntent(
+  498                 intent_id=scenario_id,
+  499                 text=text,
+  500                 domain=domain,
+  501             ),
+  502             authority_profile=contracts.UniversalAuthorityProfile(
+  503                 profile_id=f"authority_profile.{scenario_id}",
+  504                 authority_type=adapter_input.authority_type,
+  505             ),
+  506             concept_spine_refs=PolicyGrammarConceptSpineRefs(
+  507                 concept_spine_ref=f"concept-spine://scenario/{scenario_id}",
+  508                 jurisdiction_spine_ref=f"jurisdiction-spine://scenario/{scenario_id}",
+  509                 canonical_concept_refs=(f"concept://scenario/{scenario_id}",),
+  510             ),
+  511         )
+  512         if case.facets is None:
+  513             report = self._compile_from_legacy_scenario_fallback(
+  514                 scenario=scenario,
+  515                 scenario_id=scenario_id,
+  516                 scope_profile=adapter_input.scope_profile,
+  517             )
+  518             return _bind_scenario_compilation_inputs(report, scenario=scenario)
+  519         facets = facet_snapshots_for_obligation_graph(case)
+  520         graph = compile_obligation_graph(
+  521             run_id=f"scenario-{scenario_id}",
+  522             facets=facets,
+  523             governed_rules=build_seed_obligation_rule_catalog().rules,
+  524             complexity_budget=ComplexityBudget(max_frontier_items=8),
+  525             intent_text=text,
+  526         )
+  527         claim_ledger = _compile_claim_decomposition(
+  528             {
+  529                 "run_id": f"scenario-{scenario_id}",
+  530                 "intent": text,
+  531                 "facets": [
+  532                     {
+  533                         "facet_id": facet["facet_id"],
+  534                         "facet_type": facet["facet_type"],
+  535                         "value": facet["value"],
+  536                         "concept_spine_refs": [facet["concept_ref"]],
+  537                         "authority_profile_refs": [facet["authority_profile"]],
+  538                     }
+  539                     for facet in facets
+  540                 ],
+  541                 "obligations": [
+  542                     {
+  543                         "obligation_id": item.frontier_id,
+  544                         "family": item.bundle_key.family,
+  545                         "description": item.obligation_text,
+  546                         "facet_refs": [facet["facet_id"] for facet in facets],
+  547                         "concept_spine_refs": [facet["concept_ref"] for facet in facets],
+  548                         "authority_profile_refs": [facet["authority_profile"] for facet in facets],
+  549                     }
+  550                     for item in graph.blocking_frontier
+  551                 ],
+  552                 "named_alternatives": [
+  553                     {
+  554                         "alternative_id": f"alternative-{scenario_id}-status-quo-plus",
+  555                         "label": "Status quo plus",
+  556                         "description": "Incremental improvement to current practice.",
+  557                     }
+  558                 ],
+  559                 "concept_spine_refs": [case.concept_spine_ref],
+  560                 "authority_profile_refs": [case.authority_profile.profile_id],
+  561             }
+  562         )
+  563         report = self.compile_for_claim_ledger(
+  564             run_id=f"scenario-{scenario_id}",
+  565             scenario_id=scenario_id,
+  566             claim_ledger=claim_ledger,
+  567             facet_snapshots=facets,
+  568             obligation_graph=graph,
+  569             authority_profile_refs=(case.authority_profile.profile_id,),
+  570             scope_profile=adapter_input.scope_profile,
+  571         )
+  572         return _bind_scenario_compilation_inputs(report, scenario=scenario)
+
+### e02_repository/policy-engine/src/polisyos/data_requirement/compiler.py:797-812
+  797 def _claim_record_like(claim: object) -> Any:
+  798     if not isinstance(claim, Mapping):
+  799         return claim
+  800     return SimpleNamespace(
+  801         claim_id=_text(claim.get("claim_id")) or "claim:unknown",
+  802         claim_family=claim.get("claim_family"),
+  803         claim_type=claim.get("claim_type"),
+  804         claim_use=claim.get("claim_use"),
+  805         text=_text(claim.get("text")),
+  806         metadata=claim.get("metadata") if isinstance(claim.get("metadata"), Mapping) else {},
+  807         facet_refs=_text_tuple(claim.get("facet_refs")),
+  808         obligation_refs=_text_tuple(claim.get("obligation_refs")),
+  809         authority_profile_refs=_text_tuple(claim.get("authority_profile_refs")),
+  810         concept_spine_refs=_text_tuple(claim.get("concept_spine_refs")),
+  811         source_attribution=_text_tuple(claim.get("source_attribution")),
+  812     )
+
+### e02_repository/policy-engine/src/polisyos/data_requirement/compiler.py:1435-1542
+ 1435 def _bind_scenario_compilation_inputs(
+ 1436     report: DataRequirementCompilationReport,
+ 1437     *,
+ 1438     scenario: Mapping[str, Any],
+ 1439 ) -> DataRequirementCompilationReport:
+ 1440     """Bind the scenario's declared candidate basis to its actual report."""
+ 1441 
+ 1442     scenario_id = _text(scenario.get("scenario_id")) or report.scenario_id or "scenario"
+ 1443     families, declaration = _legacy_scenario_family_declaration(scenario)
+ 1444     scenario_ref = f"scenario:{scenario_id}"
+ 1445     declaration_ref = (
+ 1446         f"scenario:{scenario_id}/expected_evidence_contract/admissible_data_source_families"
+ 1447     )
+ 1448     has_declaration_path = declaration != "not_supplied"
+ 1449     subject_refs = tuple(
+ 1450         dict.fromkeys(
+ 1451             (
+ 1452                 *report.subject_refs,
+ 1453                 f"run:{report.run_id}",
+ 1454                 scenario_ref,
+ 1455                 *((declaration_ref,) if has_declaration_path else ()),
+ 1456             )
+ 1457         )
+ 1458     )
+ 1459     rule_version_refs = tuple(
+ 1460         dict.fromkeys(
+ 1461             (
+ 1462                 *report.rule_version_refs,
+ 1463                 "policyos.data_requirement.compiler.v2",
+ 1464                 *(spec.rule_version_ref for spec in report.specs),
+ 1465                 *(
+ 1466                     item.binding.rule_version_ref
+ 1467                     for item in report.capability_requirement_resolutions or ()
+ 1468                     if item.binding is not None
+ 1469                 ),
+ 1470             )
+ 1471         )
+ 1472     )
+ 1473     input_content_hash = _sha256_json_value(
+ 1474         {
+ 1475             "compiler_input_content_hash": report.input_content_hash,
+ 1476             "scenario_input": scenario,
+ 1477         }
+ 1478     )
+ 1479     source_refs = list(report.requirement_basis.source_refs)
+ 1480     source_refs.extend(
+ 1481         (
+ 1482             report.producer_report_ref or report.runtime_event_ref or "",
+ 1483             *subject_refs,
+ 1484             *rule_version_refs,
+ 1485         )
+ 1486     )
+ 1487     if has_declaration_path:
+ 1488         source_refs.append(declaration_ref)
+ 1489     source_refs = list(dict.fromkeys(item for item in source_refs if item))
+ 1490 
+ 1491     if report.requirement_basis.state == "established":
+ 1492         reasons = list(report.requirement_basis.reason_codes)
+ 1493         if declaration == "declared" and families:
+ 1494             reasons.append("explicit_scenario_family_declaration_candidate_only")
+ 1495         elif declaration == "explicit_empty":
+ 1496             reasons.append("explicit_empty_family_declaration_not_proof")
+ 1497         basis = report.requirement_basis.model_copy(
+ 1498             update={
+ 1499                 "reason_codes": tuple(dict.fromkeys(reasons)),
+ 1500                 "source_refs": tuple(source_refs),
+ 1501             }
+ 1502         )
+ 1503     elif declaration == "declared" and families:
+ 1504         basis = DataRequirementBasisResolution(
+ 1505             state="established",
+ 1506             source="explicit_scenario_family_declaration",
+ 1507             basis_grade="consumer_asserted",
+ 1508             reason_codes=("explicit_scenario_family_declaration_candidate_only",),
+ 1509             source_refs=tuple(source_refs),
+ 1510         )
+ 1511     elif declaration == "explicit_empty":
+ 1512         basis = DataRequirementBasisResolution(
+ 1513             state="not_established",
+ 1514             source="explicit_scenario_family_declaration",
+ 1515             basis_grade="not_established",
+ 1516             reason_codes=(
+ 1517                 "explicit_empty_family_declaration_not_proof",
+ 1518                 "empty_compilation_not_proof_of_no_data",
+ 1519             ),
+ 1520             source_refs=tuple(source_refs),
+ 1521         )
+ 1522     else:
+ 1523         reasons = list(report.requirement_basis.reason_codes)
+ 1524         if declaration == "explicit_empty":
+ 1525             reasons.append("explicit_empty_family_declaration_not_proof")
+ 1526         basis = report.requirement_basis.model_copy(
+ 1527             update={
+ 1528                 "reason_codes": tuple(dict.fromkeys(reasons)),
+ 1529                 "source_refs": tuple(source_refs),
+ 1530             }
+ 1531         )
+ 1532 
+ 1533     payload = report.model_dump(mode="python")
+ 1534     payload.update(
+ 1535         {
+ 1536             "requirement_basis": basis,
+ 1537             "subject_refs": subject_refs,
+ 1538             "rule_version_refs": rule_version_refs,
+ 1539             "input_content_hash": input_content_hash,
+ 1540         }
+ 1541     )
+ 1542     return DataRequirementCompilationReport.model_validate(payload)
+
+### e02_repository/policy-engine/src/polisyos/data_requirement/compiler.py:2279-2300
+ 2279 def _problem_domain_for_scenario(scenario: Mapping[str, Any]) -> governance.ProblemDomain:
+ 2280     supplied = _enum_text(scenario.get("domain")) or _enum_text(scenario.get("domain_hint"))
+ 2281     if supplied:
+ 2282         normalized = supplied.casefold().replace("-", " ").replace("_", " ")
+ 2283         for domain in governance.ProblemDomain:
+ 2284             if normalized.strip() in {domain.value, domain.name.casefold()}:
+ 2285                 return domain
+ 2286         supplied_words = set(normalized.split())
+ 2287         if supplied_words.intersection({"health", "healthcare"}):
+ 2288             return governance.ProblemDomain.HEALTHCARE
+ 2289         if "social" in supplied_words:
+ 2290             return governance.ProblemDomain.SOCIAL
+ 2291         if "fiscal" in supplied_words:
+ 2292             return governance.ProblemDomain.FISCAL
+ 2293 
+ 2294     haystack = _scenario_text(scenario).casefold().replace("-", " ").replace("_", " ")
+ 2295     words = set(haystack.split())
+ 2296     if words.intersection({"health", "healthcare", "clinic", "vaccination", "medicine"}):
+ 2297         return governance.ProblemDomain.HEALTHCARE
+ 2298     if words.intersection({"housing", "rent", "benefit", "social"}):
+ 2299         return governance.ProblemDomain.SOCIAL
+ 2300     return governance.ProblemDomain.FISCAL
+
+### e02_repository/policy-engine/src/polisyos/ir/governance/problem_frame.py:49-93
+   49 class ProblemDomain(str, Enum):
+   50     """Classify the domain vocabulary used to route metrics and templates.
+   51 
+   52     The domain label is consumed by authoring tools and reporting layers to
+   53     choose problem-specific defaults; ``CUSTOM`` is the escape hatch when no
+   54     built-in domain taxonomy applies.
+   55     """
+   56 
+   57     FISCAL = "fiscal"
+   58     MONETARY = "monetary"
+   59     SOCIAL = "social"
+   60     ENVIRONMENTAL = "environmental"
+   61     LABOR = "labor"
+   62     HEALTHCARE = "healthcare"
+   63     EDUCATION = "education"
+   64     INFRASTRUCTURE = "infrastructure"
+   65     REGULATORY = "regulatory"
+   66     TRADE = "trade"
+   67     CUSTOM = "custom"
+   68 
+   69 
+   70 class ConstraintType(str, Enum):
+   71     """Declare whether a constraint is a hard feasibility gate or a soft penalty.
+   72 
+   73     ``ProblemFrame`` validators keep hard and soft constraints in separate
+   74     collections, while portfolio/search routines can use ``SOFT`` entries with
+   75     ``ConstraintSpec.penalty_weight`` as a scalarized penalty term.
+   76     """
+   77 
+   78     HARD = "hard"  # Must be satisfied
+   79     SOFT = "soft"  # Preferred but not required
+   80 
+   81 
+   82 class NormativeArbitrationPolicy(str, Enum):
+   83     """Supported formal arbitration policies."""
+   84 
+   85     LEXICOGRAPHIC_RIGHTS = "lexicographic_rights"
+   86     WEIGHTED_WELFARE = "weighted_welfare"
+   87     MAX_MIN_HARM = "max_min_harm"
+   88     PARETO_FILTER = "pareto_filter"
+   89 
+   90 
+   91 class NormativeComparisonMode(str, Enum):
+   92     """Supported comparison modes for arbitration."""
+   93 
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/generation_cycle.py:9937-9963
+ 9937     def _n7_data_requirement_basis_with_report(
+ 9938         self,
+ 9939         problem: DesignProblem,
+ 9940         *,
+ 9941         acquisition_request: Mapping[str, Any],
+ 9942         cycle: GenerationCycleRecord | None = None,
+ 9943     ) -> _N7DataRequirementBasis:
+ 9944         """Retain the exact compiler output alongside the selected candidate inputs."""
+ 9945 
+ 9946         # The compiler remains the only source of requirement specs and resolver
+ 9947         # rows. A typed cycle gap may select one already-compiled requirement for
+ 9948         # routing, but its payload never changes the compiler denominator.
+ 9949         unbound_input_fields = tuple(
+ 9950             [
+ 9951                 f"acquisition_request.{key}"
+ 9952                 for key in (
+ 9953                     "data_requirement_specs",
+ 9954                     "compiled_requirement_specs",
+ 9955                 )
+ 9956                 if key in acquisition_request
+ 9957             ]
+ 9958             + (
+ 9959                 ["runtime_hints.n7_data_requirement_specs"]
+ 9960                 if "n7_data_requirement_specs" in problem.runtime_hints
+ 9961                 else []
+ 9962             )
+ 9963         )
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/generation_cycle.py:10090-10118
+10090         try:
+10091             report = DataRequirementCompiler(
+10092                 capability_resolver=self._n7_capability_resolver(problem),
+10093             ).compile_for_scenario(scenario_payload)
+10094         except (
+10095             ScenarioFamilyDeclarationInputError,
+10096             ScenarioScopeProfileInputError,
+10097         ) as exc:
+10098             raise GenerationCycleError(
+10099                 (
+10100                     "n7_family_declaration_invalid"
+10101                     if isinstance(exc, ScenarioFamilyDeclarationInputError)
+10102                     else "n7_cycle_substrate_context_invalid"
+10103                 ),
+10104                 str(exc),
+10105             ) from exc
+10106         if type(report) is not DataRequirementCompilationReport:
+10107             raise GenerationCycleError("n7_compiler_report_binding_refused", "report_untyped")
+10108         routed_compiler_gaps: tuple[AcquisitionRequirementGap, ...] = ()
+10109         # A source refusal or unbound input is final for routing. The compiler
+10110         # report remains available, but no later match can replace the reason or
+10111         # expose routes alongside the refusal.
+10112         if not unbound_input_fields and routing_limitation_code is None:
+10113             if source_gap is not None and not request_binding_refused:
+10114                 route_current = (
+10115                     _n7_route_compiler_gaps
+10116                     if _N7_SOURCE_SEMANTIC_EMISSION_ENABLED
+10117                     else _n7_unmarked_current_compiler_gaps
+10118                 )
+
+### e02_repository/policy-engine/tests/unit/data_requirement/test_compiler.py:725-768
+  725 def test_scenario_adapter_accepts_text_request_and_domain_context(
+  726     monkeypatch: pytest.MonkeyPatch,
+  727 ) -> None:
+  728     captured: list[tuple[str, ProblemDomain]] = []
+  729 
+  730     def capture_compile(
+  731         _self: object,
+  732         *,
+  733         intent: PolicyGrammarIntent,
+  734         authority_profile: UniversalAuthorityProfile,
+  735         concept_spine_refs: PolicyGrammarConceptSpineRefs,
+  736     ) -> SimpleNamespace:
+  737         del authority_profile, concept_spine_refs
+  738         captured.append((intent.text, intent.domain))
+  739         return SimpleNamespace(facets=None)
+  740 
+  741     monkeypatch.setattr(compiler_module.PolicyGrammarCompiler, "compile", capture_compile)
+  742 
+  743     compiler = DataRequirementCompiler()
+  744     compiler.compile_for_scenario(
+  745         {
+  746             "scenario_id": "opaque-case",
+  747             "text": "A neutral health policy statement.",
+  748             "domain": "healthcare",
+  749             "expected_evidence_contract": {
+  750                 "admissible_data_source_families": ["health_panel"],
+  751             },
+  752         }
+  753     )
+  754     compiler.compile_for_scenario(
+  755         {
+  756             "scenario_id": "opaque-case-two",
+  757             "request": "A neutral fiscal policy request.",
+  758             "domain_hint": "fiscal",
+  759             "expected_evidence_contract": {
+  760                 "admissible_data_source_families": ["fiscal_panel"],
+  761             },
+  762         }
+  763     )
+  764 
+  765     assert captured == [
+  766         ("A neutral health policy statement.", ProblemDomain.HEALTHCARE),
+  767         ("A neutral fiscal policy request.", ProblemDomain.FISCAL),
+  768     ]

@@ -1,0 +1,345 @@
+{
+  "schema_version": "1.0",
+  "language": "ru",
+  "phase": "research_only",
+  "created_on": "2026-11-01",
+  "criterion_count": 11,
+  "baseline_not_audited": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2",
+  "repository_not_inspected": "e02_repository/policy-engine @ 20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "application_rule": "Критерий активируется только applicability_trigger; покрытие формулировки ТЗ не равно runtime PASS. Перед finding проверить полный пакет, shared/general clauses и существующие limits. Источники не устанавливают новых product requirements сами по себе.",
+  "criteria": [
+    {
+      "id": "DAT-01",
+      "category": "data_evolution",
+      "label": "Совместимость — направленный контракт по всему маршруту, а не успешный decode",
+      "source_refs": [
+        "DAT-S01",
+        "DAT-S02",
+        "DAT-S05"
+      ],
+      "source_proposition": "Первичные источники различают source/wire/semantic compatibility, условно безопасные изменения и writer/reader resolution. Успешное чтение не исключает потери значения или полей.",
+      "applicability_trigger": "Есть обещание совместимости версий, обновление схемы/API, сохранённые записи, раздельно обновляемые producer/consumer, конвертер или forwarding между лейнами.",
+      "concrete_corner_case": "Новый writer выдаёт int64 выше диапазона старого int32; старый consumer успешно разбирает, но усекает значение. В другом маршруте новое поле переживает binary decode старым relay, затем теряется при его proto→JSON→proto. В Avro новое обязательное reader-поле без default ломает чтение старой записи.",
+      "bad_spec_or_false_assurance": "«Изменения additive и backward-compatible; старые и новые сообщения декодируются». Тест использует только latest→latest либо маленькое положительное число и не проверяет фактический смысл результата. Положительные локальные тесты endpoints не покрывают старый relay.",
+      "corrected_contract_expectation": "Назвать поддерживаемые версии, направление compatibility, представление и семантические инварианты; описать handling unknown fields/enum variants и ограничение записи новых значений в rollout. Для backward/forward не полагаться на неодинаковое толкование терминов: явно указать writer→reader.",
+      "required_discriminating_evidence": [
+        "Матрица old writer→new reader и new writer→old reader в обещанном окне; unsupported pairs явно отклоняются или не заявлены.",
+        "Boundary fixture, различающий успешный parse и сохранение значения; отсутствующее поле, новый enum/union variant только где они применимы.",
+        "Если маршрут сохраняет/трансформирует/пересылает данные: новый writer→реальный старый посредник→новый consumer с проверкой требуемого конечного состояния; persisted old record и rollback — только если это часть обещания.",
+        "В ТЗ достаточно точно заданного испытания и oracle; заявление «испытано» дополнительно требует версии, fixture и результатов, а не только схемы."
+      ],
+      "scope_limits": [
+        "Не все исторические версии и не все транспорты: только объявленное окно и существующие пути.",
+        "Protobuf/Avro-specific детали неприменимы без соответствующего формата; общая проблема совместимости остаётся условной.",
+        "Отказ от forward compatibility допустим, если согласован с реальным rollout и не противоречит общему контракту."
+      ],
+      "tradeoffs": "Терпимое чтение улучшает эволюцию, но может скрыть потерю значимых данных; strict rejection безопаснее для некоторых полей, но ограничивает rolling update. Выбор должен быть явным, не универсальным.",
+      "cross_lane_focus": "Сопоставить producer version, encoding, adapter policy и consumer version одной передачи; два независимых PASS по разным fixtures не образуют общий compatibility witness.",
+      "derivation": "Матрица и конкретные discriminators — наша ограниченная инженерная операционализация источников; это не найденный дефект E02.",
+      "status": "research_candidate_not_audited",
+      "product_execution": "not_performed"
+    },
+    {
+      "id": "DAT-02",
+      "category": "data_semantics",
+      "label": "Absent, explicit default, null и unknown — разные состояния, пока контракт не определил обратное",
+      "source_refs": [
+        "DAT-S03",
+        "DAT-S05",
+        "DAT-S08",
+        "DAT-S10"
+      ],
+      "source_proposition": "Implicit protobuf merge не передаёт установку в default; JSON Schema default не материализует поле; Avro default действует при чтении отсутствующего writer-поля, а не делает запись необязательной.",
+      "applicability_trigger": "Есть partial update/merge, необязательные поля, reset/clear, defaults, конфигурация или пересечение сериализаторов с разной presence-семантикой.",
+      "concrete_corner_case": "У объекта limit=10; patch с explicit 0 должен выключить лимит, но merge пропускает 0. Валидатор принимает объект без limit, однако runtime не подставляет обещанный default. JSON null интерпретируется одним лейном как clear, другим — как отсутствие и preserve.",
+      "bad_spec_or_false_assurance": "«Пустые значения используют default; patch сохраняет остальные поля». Тест проверяет только update 10→20 и round trip непустого сообщения. Он не различает отсутствие, ноль, false, пустую строку и явный null.",
+      "corrected_contract_expectation": "Для каждого семантически значимого optional/update-поля дать таблицу состояний на границе: отсутствует / explicit default / null (если допустим) / иное значение; определить preserve/set/clear/reject и владельца default-materialization. Unknown-field policy не смешивать с null.",
+      "required_discriminating_evidence": [
+        "Fixtures со старым non-default состоянием и отдельными отсутствующим, default-valued и null patch; проверять конечное состояние и сообщения об отказе, где требуется.",
+        "Ожидания по initial create и update разделены; default из schema annotation не считается автоматически исполняемым.",
+        "При mixed presence пройти полный encode→adapter→decode→merge путь; проверять значение и наличие отдельно, когда наличие значимо."
+      ],
+      "scope_limits": [
+        "Не требуется различать состояния, если контракт явно считает их эквивалентными и это безопасно для потребителей.",
+        "Не требовать nullable всех типов или optional всех protobuf-полей.",
+        "Пустой список/строка — отдельный кейс только при семантической значимости, а не механически для каждого поля."
+      ],
+      "tradeoffs": "Более богатая presence-семантика повышает выразительность и сложность клиентов. Возможны explicit presence, field mask или отдельная clear-операция; критерий не выбирает за проект.",
+      "cross_lane_focus": "Проверить, что источник default, схема envelope, adapter и владелец patch применяют одну таблицу состояний.",
+      "derivation": "Таблица состояний — наша форма проверки; источники обосновывают необходимость не смешивать эти понятия.",
+      "status": "research_candidate_not_audited",
+      "product_execution": "not_performed"
+    },
+    {
+      "id": "DAT-03",
+      "category": "identity",
+      "label": "Byte identity, canonical representation и семантическая идентичность не взаимозаменяемы",
+      "source_refs": [
+        "DAT-S04",
+        "DAT-S06",
+        "DAT-S07"
+      ],
+      "source_proposition": "Protobuf deterministic serialization не канонична между версиями/сборками. JCS задаёт ограниченный канонический JSON, но не Unicode normalization и не прикладную эквивалентность.",
+      "applicability_trigger": "Хеш, cache key, deduplication, подпись, evidence ID, сравнение результатов или replay заявлены как свидетельство равенства сущностей, а не просто целостности конкретного файла.",
+      "concrete_corner_case": "Одинаковый объект с иным порядком JSON-полей получает иной raw hash; два разных integer IDs выше точной float-границы сливаются после преобразования; массив, где порядок значим, ошибочно сортируется как множество. Смена protobuf runtime меняет bytes при прежнем смысле.",
+      "bad_spec_or_false_assurance": "«Использовать детерминированную сериализацию и SHA-256 для стабильного semantic_id». Тест хеширует один объект дважды тем же binary; либо проверяет только idempotence canonicalizer, которую удовлетворяет и константная функция.",
+      "corrected_contract_expectation": "Назвать вид идентичности и область стабильности. Для semantic identity определить входящие поля, контекст/версии, эквивалентности и неоднозначные/неподдерживаемые входы. Для wire signature определить точные bytes/profile. Канонизация представления и нормализация смысла — разные стадии.",
+      "required_discriminating_evidence": [
+        "Пары семантически равных представлений и пары обязательно различных сущностей; equality-only тест недостаточен.",
+        "Если выбран JCS: соответствие выбранному профилю, duplicates и невалидный Unicode отклоняются; array order сохраняется; числовая точность явно ограничена/представлена.",
+        "Проверить только обещанные реализации/версии; для миграции identity namespace/version или иной согласованный переход.",
+        "Тест должен различать потерю данных от допустимого изменения представления, а не требовать произвольного bitwise equality."
+      ],
+      "scope_limits": [
+        "Raw bytes hash корректен для integrity одного неизменного артефакта; этот критерий не объявляет его ошибкой.",
+        "Не навязывать JCS, Unicode normalization, второй хеш или поддержку всех числовых типов.",
+        "Отсутствующие unknown fields не нужно искусственно изобретать, если область гарантированно закрыта и эта граница защищена контрактом."
+      ],
+      "tradeoffs": "Широкая semantic equivalence повышает риск коллизий смысла; слишком узкая byte equality даёт ложные различия. Выбор зависит от назначения ключа.",
+      "cross_lane_focus": "Совпадают ли проекция полей, порядок/точность, namespace и версия identity у producer и каждого потребителя?",
+      "derivation": "Пары equal/unequal и запрет смешивать виды идентичности — наш вывод из явных ограничений сериализаций.",
+      "status": "research_candidate_not_audited",
+      "product_execution": "not_performed"
+    },
+    {
+      "id": "DAT-04",
+      "category": "schema_validation",
+      "label": "Схема проверяет только реально поддерживаемый dialect и активные assertions",
+      "source_refs": [
+        "DAT-S08",
+        "DAT-S09"
+      ],
+      "source_proposition": "JSON Schema различает annotations и assertions; $schema/$vocabulary задают dialect. Unknown keyword может не проверяться. additionalProperties ограничено тем же schema object; format-annotation не гарантирует semantic validation.",
+      "applicability_trigger": "Приёмка ссылается на JSON Schema/OpenAPI schema, custom keywords/formats, allOf/$ref composition или обещает расширяемый, но закрытый envelope.",
+      "concrete_corner_case": "Поле timestamp содержит format:date-time, но выбранный validator трактует format лишь как annotation. Опечатка в custom keyword даёт ложный PASS. allOf добавляет поле к base schema с additionalProperties:false, и корректное расширение становится невалидным.",
+      "bad_spec_or_false_assurance": "«Вход валиден по JSON Schema, следовательно все форматы и бизнес-ограничения соблюдены». Тест проверяет meta-schema или валидный happy path, но не заведомо запрещённый instance.",
+      "corrected_contract_expectation": "Зафиксировать dialect/version, vocabulary и важные validator options. Разделить проверку самой схемы, instance validation, format syntax и прикладную семантику. Для композиции указать допустимые extensions и unknown-field policy.",
+      "required_discriminating_evidence": [
+        "Для реально значимых ограничений по одному запрещённому discriminator: неверный format, неизвестное/неподдержанное требование, закрытое/допустимое extension-поле.",
+        "Тестировать final composed/bundled schema в фактическом режиме валидатора, не только каждый фрагмент по отдельности.",
+        "Для custom vocabulary определить fail/refuse/support behavior; документировать ограничения format-checker, не выдавать синтаксическую проверку за существование URL/email."
+      ],
+      "scope_limits": [
+        "Только используемый dialect; OpenAPI 3.0 и 3.1 нельзя без проверки считать JSON Schema 2020-12.",
+        "Не требуется запрещать все дополнительные поля или всегда включать все formats.",
+        "Не требуется сетевое разрешение каждого $ref; достаточно однозначно определённого набора schema resources."
+      ],
+      "tradeoffs": "Закрытые схемы ловят опечатки, но усложняют эволюцию; tolerant schemas удобнее для расширений. Ужесточение должно учитывать DAT-01, а не автоматически становиться исправлением.",
+      "cross_lane_focus": "Одинаково ли трактуются общий envelope и дополнительные поля после composition у validator, adapter и consumer?",
+      "derivation": "Discriminator fixtures — наша рекомендация проверить реально обещанную семантику, а не расширить стандарт.",
+      "status": "research_candidate_not_audited",
+      "product_execution": "not_performed"
+    },
+    {
+      "id": "DAT-05",
+      "category": "evidence",
+      "label": "Повторяемость и независимость oracle — разные оси доказательства",
+      "source_refs": [
+        "DAT-S11",
+        "DAT-S12"
+      ],
+      "source_proposition": "NASEM прямо отделяет воспроизводимость от правильности; Google показывает общий дефект production/expected logic и рекомендует наблюдать контрактное поведение.",
+      "applicability_trigger": "Есть утверждения «воспроизводимо», «независимо подтверждено», golden/reference output, сравнение двух реализаций, несколько verdicts или общий verifier в разных лейнах.",
+      "concrete_corner_case": "Production и oracle используют один и тот же ошибочный normalizer или comparator. Они стабильно возвращают одинаковый результат на одном dataset, и второй runner только повторяет вызов. Hash, два лога и replay подтверждают устойчивость этой ошибки, а не истинность результата.",
+      "bad_spec_or_false_assurance": "«Повторить трижды, hashes совпадают — correctness подтверждена независимо». Или expected генерируется тем же production function, а отдельный процесс считается независимым oracle.",
+      "corrected_contract_expectation": "Раздельно задать replay claim (что повторяется, при каких входах/версиях/окружении/допусках) и correctness oracle (откуда ожидаемый смысл, что независимо от изменяемого пути). Зафиксировать допустимые общие зависимости и ограничения независимости.",
+      "required_discriminating_evidence": [
+        "Provenance manifest входов, code/schema/data versions, параметров и relevant environment для replay.",
+        "Для критичного утверждения — проверяемый вручную discriminating fixture, проще устроенная reference model, внешний нормативный expected либо другой обоснованный источник истины; не обязательно всё сразу.",
+        "Объяснить dependency overlap SUT/oracle, включая генератор expected и нормализатор; изменение проверяемой ошибки должно менять verdict.",
+        "Наблюдать обещанный результат/состояние на контрактной границе; внутренний флаг success не заменяет результат handoff."
+      ],
+      "scope_limits": [
+        "Повторный запуск полезен и не обесценивается; просто его нельзя выдавать за независимую correctness-проверку.",
+        "Не требуются разные организации, языки или ОС для каждого теста; независимость определяется по существенному риску.",
+        "Общий parser не всегда порок: допустим, если parser correctness не объект данного утверждения и это явно ограничено."
+      ],
+      "tradeoffs": "Полностью независимый oracle дорог и иногда невозможен. Bounded independence + простые anchors/negative controls честнее, чем необоснованная абсолютная независимость.",
+      "cross_lane_focus": "Не считать один shared oracle/fixture несколькими независимыми подтверждениями; tracing должен показывать реальное происхождение и свежего consumer.",
+      "derivation": "Разделение replay/correctness и dependency-overlap review — наша операционализация; источники не требуют полной независимости всего стека.",
+      "status": "research_candidate_not_audited",
+      "product_execution": "not_performed"
+    },
+    {
+      "id": "DAT-06",
+      "category": "property_testing",
+      "label": "Property-based test проверяет сформулированное свойство на заявленном домене, не полноту системы",
+      "source_refs": [
+        "DAT-S13",
+        "DAT-S14"
+      ],
+      "source_proposition": "Hypothesis предупреждает о потере bug-triggering inputs при чрезмерном сужении домена и об инвалидируемой replay database.",
+      "applicability_trigger": "ТЗ использует generative/property/fuzz testing, много случайных примеров, фиксированные seeds или обещает широкое покрытие входного пространства.",
+      "concrete_corner_case": "Генератор создаёт только непустые уникальные списки, хотя функция обязана сохранять duplicates. Проверка «выход отсортирован и set(input)=set(output)» пропускает ошибочный deduplicating sort. В другом случае assume отбрасывает все значимые boundary cases.",
+      "bad_spec_or_false_assurance": "«10 000 случайных тестов прошли, значит все corner cases закрыты». Нет определения домена, исключений и свойства; seed записан без версии генератора, а найденный сбой остаётся только в локальном кэше.",
+      "corrected_contract_expectation": "Определить property, допустимый домен/границы/исключения и какие классы ошибок оно различает. Нужные граничные случаи закрепить явно; найденный контрпример сохранить как regression input/trace с контекстом.",
+      "required_discriminating_evidence": [
+        "Описание generator constraints и причины исключений; count принятых/отброшенных случаев или иной способ увидеть пустую проверку, когда это риск.",
+        "Небольшой known-bad discriminator: например потеря повторов при сортировке должна проваливать полный контракт свойства.",
+        "Сохраняемый конкретный минимизированный failing input/trace; seed дополнительно, а не как универсальная переносимость.",
+        "Отдельные обязательные boundary fixtures там, где случайный поиск не даёт гарантии посещения."
+      ],
+      "scope_limits": [
+        "Не требовать безграничного генератора; performance/resource limits допустимы и должны ограничивать силу вывода.",
+        "Не требовать конкретный framework, число примеров или probabilistic guarantee без обоснования.",
+        "PBT не заменяет тест взаимодействия лейнов или независимый expected для всех свойств."
+      ],
+      "tradeoffs": "Широкий домен полезен, но может быть дорог; разумны bounded partitions и отдельные stress cases. Пустые/тривиальные свойства не исправляются простым увеличением числа запусков.",
+      "cross_lane_focus": "Один и тот же admissible domain должен быть принят downstream; локальный generator не должен исключать допустимые upstream payloads.",
+      "derivation": "Пример deduplicating sort и non-vacuity discriminator — наши мысленные контрпримеры, не дефекты документации Hypothesis и не результат запуска продукта.",
+      "status": "research_candidate_not_audited",
+      "product_execution": "not_performed"
+    },
+    {
+      "id": "DAT-07",
+      "category": "metamorphic_testing",
+      "label": "Metamorphic relation требует обоснованных предпосылок и не заменяет все ожидаемые результаты",
+      "source_refs": [
+        "DAT-S16",
+        "DAT-S13"
+      ],
+      "source_proposition": "Metamorphic testing связывает несколько входов/выходов; генерация и shrinking обязаны сохранять условия отношения.",
+      "applicability_trigger": "Есть сложный oracle, обещания инвариантности/монотонности/идемпотентности, reorder/rename/rescale transformations или metamorphic tests.",
+      "concrete_corner_case": "Заявлена инвариантность результата при перестановке evidence, но порядок фактически имеет приоритетный смысл; такой тест ложно обвинит корректную реализацию. Обратная ошибка: relation f(f(x))=f(x) принимает константную функцию и не доказывает полезную нормализацию.",
+      "bad_spec_or_false_assurance": "«Все преобразования входа сохраняют результат; проверить несколько permutations». Не задано, что сохраняется: bytes, множество, порядок, величина с допуском; не указаны предусловия и forbidden transformations.",
+      "corrected_contract_expectation": "Для выбранного relation записать исходный домен, преобразование T, предпосылки P и ожидаемую связь R(outputs), включая нужный tolerance. Различать необходимое свойство и полную спецификацию. Сохранять предусловия при shrinking.",
+      "required_discriminating_evidence": [
+        "Нетривиальная пара source/follow-up inputs, для которой T действительно допустимо; отдельно пример вне предусловия, который не используется как обвиняющий oracle.",
+        "Хоть один anchor или другой relation, исключающий очевидный degenerate implementation (constant/identity/drop-all) для данного требования.",
+        "Контрпример хранит обе связанные входные формы и результаты; shrinking не разрушает сам relation.",
+        "Проверить, что relation выведен из предметного контракта, а не из текущего поведения SUT."
+      ],
+      "scope_limits": [
+        "Не навязывать metamorphic testing там, где простые known expected outputs достаточны.",
+        "Не требовать invariance для порядка/масштаба/имен автоматически: это предметные решения.",
+        "Relation, найденный эмпирически, сначала гипотеза; он не нормативен без согласования."
+      ],
+      "tradeoffs": "Metamorphic tests полезны при дорогом oracle, но могут пропускать согласованно неверные результаты или ложно падать при невалидной трансформации.",
+      "cross_lane_focus": "Transformation должна сохранять сквозные предпосылки: id/context/version/order у всех участвующих лейнов, а не только local input schema.",
+      "derivation": "Формальная форма P/T/R и degenerate examples — наша ограниченная проверочная интерпретация первичной работы.",
+      "status": "research_candidate_not_audited",
+      "product_execution": "not_performed"
+    },
+    {
+      "id": "DAT-08",
+      "category": "stateful_model_testing",
+      "label": "Истории переходов проверяются отдельно от изолированных операций",
+      "source_refs": [
+        "DAT-S15",
+        "DAT-S12"
+      ],
+      "source_proposition": "Stateful testing генерирует цепочки действий и сверяет их с упрощённой моделью; для простых случаев state machine не обязательна.",
+      "applicability_trigger": "Есть lifecycle, create/update/delete, cache/invalidation, replay/reset, миграция или операции, результат которых зависит от предыдущих действий.",
+      "concrete_corner_case": "Create и delete проходят по отдельности, но delete→recreate оставляет устаревшую запись cache. Либо rollback после частичного update восстанавливает значение, но не presence/version. Модель, которая вызывает тот же production transition helper, повторяет дефект.",
+      "bad_spec_or_false_assurance": "«Все операции покрыты unit-тестами». Для каждой операции создаётся свежее состояние; история, допустимые переходы и наблюдаемый state не специфицированы.",
+      "corrected_contract_expectation": "Описать минимальные значимые состояния/переходы, предусловия и postconditions/invariants, порядок наблюдений и что сохраняется после ошибки. Reference model должна быть проще и независима в проверяемом аспекте.",
+      "required_discriminating_evidence": [
+        "Короткая последовательность, отличающая корректный lifecycle от stale-state реализации: напр. create→update→delete→recreate→read, только если такая история допустима.",
+        "Наблюдение after-step invariant и конечного состояния, а не только количества успешных API-ответов.",
+        "Illegal transition имеет предусмотренный reject/no-op outcome и не повреждает состояние, если это обещано.",
+        "Сохраняемый action trace и initial state для воспроизведения; связи с реальным handoff на уровне интеграции."
+      ],
+      "scope_limits": [
+        "Не требует отдельного FSM для stateless helper.",
+        "Последовательная модель не доказывает параллельность, atomicity, crash recovery или linearizability; эти утверждения требуют своей модели/испытания.",
+        "Не включать запрещённые lifecycle истории как обязательный supported path."
+      ],
+      "tradeoffs": "Полная модель быстро усложняется и рискует стать второй реализацией. Лучше bounded модель критичных инвариантов плюс named exclusions.",
+      "cross_lane_focus": "Сквозной state owner и момент наблюдения должны совпадать; локальные состояния разных лейнов не равны глобальному завершению.",
+      "derivation": "Сценарии cache/lifecycle — наши примеры применения stateful подхода, не предположение о наличии таких дефектов в E02.",
+      "status": "research_candidate_not_audited",
+      "product_execution": "not_performed"
+    },
+    {
+      "id": "DAT-09",
+      "category": "test_adequacy",
+      "label": "Mutation/negative-control доказательство должно показывать, какую ошибку и каким assertion оно обнаруживает",
+      "source_refs": [
+        "DAT-S17",
+        "DAT-S18"
+      ],
+      "source_proposition": "Состояния mutant и знаменатель score различаются; timeout не semantic assertion failure, а equivalent mutant не может быть убит корректным тестом.",
+      "applicability_trigger": "ТЗ ссылается на coverage/mutation score/negative controls либо приёмочный oracle выглядит способным принимать заведомо неверный результат.",
+      "concrete_corner_case": "Система объявляет 100% mutation score: большая часть изменений вызвала timeouts, а значимые mutants оказались ignored/compile errors. Или единственный negative test ломает JSON-синтаксис и не доказывает обнаружение неверного, но schema-valid решения.",
+      "bad_spec_or_false_assurance": "«Mutation score ≥ X, значит contract доказан». Не указаны mutation operators, область, исключения, outcomes и связь с реальной ошибкой. Любая авария runner считается обнаружением семантического нарушения.",
+      "corrected_contract_expectation": "Описать несколько релевантных fault models и наблюдаемую причину rejection/failure. Если используется агрегат, зафиксировать numerator/denominator/status accounting и причины исключений.",
+      "required_discriminating_evidence": [
+        "Representative mutant или handcrafted negative control, сохраняющий входные предусловия, но нарушающий проверяемое обещание, должен провалить нужный assertion.",
+        "Разделить killed, timeout, survived, no-coverage, ignored, invalid и pending согласно выбранному инструменту.",
+        "Survivor triage: эквивалентность / вне области / неубедительный тест / неизвестно; не считать эквивалентность доказанной без объяснения.",
+        "Не ограничиваться malformed-input control для semantic property; полезен schema-valid wrong value/order/owner/version."
+      ],
+      "scope_limits": [
+        "Не обязательный полный mutation run каждого пакета и не требование 100%.",
+        "Для простого теста достаточно одного ясного negative discriminator; native mutation services в этой работе не запускаются.",
+        "Timeout может быть допустимым detector для liveness, но не подменяет доказательство иной property."
+      ],
+      "tradeoffs": "Mutation testing дорого и зависит от operators; небольшой набор осмысленных controls иногда сильнее большого процента нерелевантных мутантов.",
+      "cross_lane_focus": "Fault injection/negative fixture должно попадать в реально проверяемую границу, не лишь ломать общий harness до handoff.",
+      "derivation": "Требование semantic negative controls и mapping к assertions — наше применение определений инструментов.",
+      "status": "research_candidate_not_audited",
+      "product_execution": "not_performed"
+    },
+    {
+      "id": "DAT-10",
+      "category": "evaluation_integrity",
+      "label": "Оценочный набор не должен участвовать в выборе оцениваемого решения без явного ограничения вывода",
+      "source_refs": [
+        "DAT-S19",
+        "DAT-S11"
+      ],
+      "source_proposition": "Обучение preprocessing/выбор модели по test data приводит к optimistic estimates; воспроизводимость такого процесса не исправляет leakage.",
+      "applicability_trigger": "Есть обучение, калибровка score/threshold, retrieval/ranking quality, сравнение методов на dataset или заявление о переносимости на невиданные данные.",
+      "concrete_corner_case": "Normalizer или feature selector обучен на общем наборе до split; threshold выбран по final evaluation labels. В лейн-пайплайне test outcome возвращается в builder, после чего тот же набор снова предъявляется как независимая проверка.",
+      "bad_spec_or_false_assurance": "«Train и test файлы разные, accuracy ≥ X; seed фиксирован». При этом preprocessing использует оба файла либо качество многократно подгоняется по test. Для non-ML контракта ошибка-аналог: expected fixtures созданы из проверяемого результата и названы независимым benchmark.",
+      "corrected_contract_expectation": "Назвать роли data: development/calibration/evaluation, что может быть известно при построении решения, где выполняется fit/tune и какая версия решения заморожена до итоговой оценки. При повторном использовании набора ограничить claim.",
+      "required_discriminating_evidence": [
+        "Lineage split и transforms: параметры обучены на допустимой части; eval используется для transform/score, не для fit/tune.",
+        "Для связанных сущностей/времени — правило разделения, соответствующее заявленной generalization, если такие зависимости входят в задачу.",
+        "Сохранить конфигурацию до финальной оценки и журнал выбора threshold/model; не требовать секретности обычных regression tests.",
+        "Показывать denominator, exclusions и ошибки отдельно от выбранных успешных примеров; не выдавать tuned benchmark за независимое обобщение."
+      ],
+      "scope_limits": [
+        "Вне ML перенос на threshold/ranking — наша аналогия, применимая лишь при заявлении объективной внешней оценки.",
+        "Обычные deterministic regression fixtures разрешено видеть разработчику; это не leakage само по себе.",
+        "Не требовать новых private datasets или установленного sample size без предметного основания."
+      ],
+      "tradeoffs": "Holdout расходует данные; повторное использование допустимо для разработки при честной маркировке. Нельзя автоматически отменять весь результат, если claim ограничен in-sample regression.",
+      "cross_lane_focus": "Проверить обратные связи: не получает ли producer/selector сведения из оценочного consumer до freeze, в том числе через shared defaults, normalization или labels.",
+      "derivation": "Generalization split по entity/time и non-ML аналогии — условное применение, не универсальная норма scikit-learn.",
+      "status": "research_candidate_not_audited",
+      "product_execution": "not_performed"
+    },
+    {
+      "id": "DAT-11",
+      "category": "benchmark_interpretation",
+      "label": "Benchmark должен измерять заявленный результат в заявленных условиях",
+      "source_refs": [
+        "DAT-S20",
+        "DAT-S11"
+      ],
+      "source_proposition": "Benchmark зависит от вида таймера, прогрева, повторений и оптимизации измеряемой работы. Перезапускаемый microbenchmark не равен end-to-end latency или доказательству product capability.",
+      "applicability_trigger": "Есть latency/throughput/resource claims, улучшение относительно baseline, fast path или оценка эффективности алгоритма.",
+      "concrete_corner_case": "Замеряет только постановку асинхронной задачи, а не завершение; CPU timer не учитывает работу других threads. Компилятор устраняет постоянное вычисление. Среднее нескольких repetition means выдаётся за p99 пользовательских запросов; cold start исключён, хотя SLO его включает.",
+      "bad_spec_or_false_assurance": "«Benchmark прошёл; ускорение 2×». Нет workload/versions/clock/границы start-stop; сравниваются разные нагрузки либо dry run с одной итерацией.",
+      "corrected_contract_expectation": "Назвать unit of work, correctness condition, clock/timing boundary, workload и state (cold/warm), concurrency, baseline, hardware/software context и способ агрегирования. Claim должен оставаться в пределах реально измеренного.",
+      "required_discriminating_evidence": [
+        "Проверить выполнение/завершение полезной работы и сохранение correctness; отсутствие work elimination или cache-hit-only подмены, если это значимо.",
+        "Сопоставимые baseline/candidate условия, raw observations/repetitions и выбранная статистика с объяснением вариабельности.",
+        "Если заявлен percentile/SLO — наблюдения соответствующих операций, а не percentile из несопоставимых средних; exact threshold не изобретать.",
+        "Manifest достаточен для повторения; явные исключения setup/network/cold start не должны противоречить названию claim."
+      ],
+      "scope_limits": [
+        "Не требовать универсальное число повторов, warmup или SLO; они зависят от property и среды.",
+        "Microbenchmark допустим для локальной стоимости; не объявлять его плохим только потому, что он не E2E.",
+        "Нельзя запускать native services/benchmarks в данной research-фазе; речь о требованиях к доказательству."
+      ],
+      "tradeoffs": "Изоляция снижает шум, но уменьшает реализм; end-to-end измерение реалистичнее, но хуже локализует причину. Обе формы полезны при раздельных claims.",
+      "cross_lane_focus": "Убедиться, что начало/конец сквозной операции и workload одни и те же для producer, handoff и consumer; суммы локальных средних не равны автоматически latency распределению всей цепочки.",
+      "derivation": "Условия сопоставимости и запрет подмены статистик — наши ограниченные выводы из измерительных гарантий, не готовый SLO для E02.",
+      "status": "research_candidate_not_audited",
+      "product_execution": "not_performed"
+    }
+  ]
+}
+

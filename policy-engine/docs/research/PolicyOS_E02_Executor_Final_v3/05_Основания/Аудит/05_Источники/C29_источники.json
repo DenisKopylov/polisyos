@@ -1,0 +1,254 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          6114,
+          6133
+        ],
+        [
+          6550,
+          6609
+        ],
+        [
+          16029,
+          16047
+        ],
+        [
+          17140,
+          18010
+        ],
+        [
+          18679,
+          18725
+        ],
+        [
+          18800,
+          18818
+        ],
+        [
+          20510,
+          20550
+        ]
+      ],
+      "evidence_level": "Полные S10 builder/diagnostic/temporal/resolver участки прочитаны; выбранные определения исполнены",
+      "git_blob": "9761de868301e6fb90e69cd03aa3270b9a8187aa",
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "local_file": null,
+      "note": "_s10_empirical_projection и _is_finite_number содержат синтаксис Python 3.14: projection только прочитан, finite helper заменён явно указанной фикстурой. Native bridge не запускался."
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          939
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан и определения исполнены; реальные Pydantic DTO/builders/envelope/summary",
+      "git_blob": "428aae4ce290817815f6ea2bbd43b1e6be6bee9d",
+      "sha256": "a223585ff8ddc5e0d183753885d1c1f016490441279e9c0235005c012d6db877",
+      "local_file": null,
+      "note": "ArtifactRefModel и normalize_artifact_ref — явные внешние фикстуры; base/AuthorityBoundary настоящие определения."
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_frc_01.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          242
+        ]
+      ],
+      "evidence_level": "Полный существующий тестовый файл прочитан; UNRUN",
+      "git_blob": "025d4688c4496a6bfba2e37143caccea4cb37d3c",
+      "sha256": "ac0b73ca4e69e8d817b3ac8964e5780333729a8a40e95b3548b76c38de377a44",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/calibration/diagnostics/continuous.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/calibration/diagnostics/continuous.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          403
+        ]
+      ],
+      "evidence_level": "Полный текущий численный owner прочитан; UNRUN",
+      "git_blob": "6a2a40cd092e7a58a7130e28a5c73713f017f455",
+      "sha256": "c7202a9d529919d1231fe8ce301700251705b3e742f31074ff66ba5a5036093b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          334
+        ]
+      ],
+      "evidence_level": "Полный диагностический DTO/receipt файл прочитан; UNRUN",
+      "git_blob": "33d3d8ae220e8d824a949bee20eb61e93e1a044a",
+      "sha256": "d62583344c7a85ebc25869adc65917bfbcd0d1419f1824877d1fd81635ff5e95",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/pdc/_impl/layer2_readiness.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/pdc/_impl/layer2_readiness.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          206
+        ]
+      ],
+      "evidence_level": "Base, AuthorityBoundary и соседние определения прочитаны; 1–38,47–165 исполнены",
+      "git_blob": "32f0e6b84be9d8b2cead70c71364cf9749113f08",
+      "sha256": "8dbc8b75030ea1ee70d2894eb01baf1371b79b60014c4ab3e10d3d16dea5a703",
+      "local_file": null,
+      "note": "PEP695 DecisionGrade alias представлен равнозначным Literal в загрузчике; методы lattice не вызывались."
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          25,
+          75
+        ],
+        [
+          78,
+          98
+        ]
+      ],
+      "evidence_level": "Входные enum aliases прочитаны;78–93 исполнены",
+      "git_blob": "3860b09e6dcb90d79956c39282ff9ae597c29c6b",
+      "sha256": "95ce3a43e7991f5bf559d70d3fa1a78e01000fde73205d14ef68e74be2b58fcb",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          320,
+          375
+        ]
+      ],
+      "evidence_level": "Текущий единый temporal profile прочитан; bridge целиком не оценён",
+      "git_blob": "91a5a1897851b179d51b77a3f73645790691b931",
+      "sha256": "953abaf6021ebc35629f03c4c132851515903eb96aba53a242ec450d855ca750",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          630,
+          720
+        ],
+        [
+          1970,
+          2055
+        ]
+      ],
+      "evidence_level": "Фактические producer→S10 и reopened-consumer вызовы прочитаны; UNRUN",
+      "git_blob": "996b0d27d524019fd50611a008d0b9b89cac0925",
+      "sha256": "c93d9322231521d77b3da7c3bd1d63c0ac8d1d84b9fac1fac127a31d2f94dd71",
+      "local_file": null,
+      "note": "Это обнаружение реальной интеграции, не полное закрытие FRC-02."
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          3505,
+          3595
+        ]
+      ],
+      "evidence_level": "Фактический sibling summary consumer прочитан; UNRUN",
+      "git_blob": "432b84668d6b6f8c3b222f4190aa923da65b434d",
+      "sha256": "950b2d83bcfce73b5882df34794ea11a71a2a39f09bc58ccf8dcad0e8c4c08fe",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/calibration/curve/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/calibration/curve/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          36
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан; actual dataclasses1–27 исполнены",
+      "git_blob": "bce3c104c9cd2d8111be8927d49cd670e51e7a36",
+      "sha256": "f728d338c60b866fba304bb77ac42290180112c3b1a9939625383aac6f3dadcb",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/calibration/curve/_compute.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/calibration/curve/_compute.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          93
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан; actual numerical owner с настоящим NumPy исполнен",
+      "git_blob": "70c3b869cd37576212c9423f9629907c2e4eedc1",
+      "sha256": "ca9f8332372cc85b0e1690fcf3647cc5bc1224b7fa43e002380054939ba0e6fc",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      3530,
+      3669
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "discovery": {
+    "census": false,
+    "scope": "FRC-01 stage1: no fabricated pass/time; existing bridge integration discovered but accountable FRC-02 not preclosed"
+  }
+}

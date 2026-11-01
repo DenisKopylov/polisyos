@@ -1,0 +1,267 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/plan.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/plan.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          136
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан и definitions исполнены",
+      "git_blob": "b2f977a9cfe51f7509a0f96894c2a67652c36a99",
+      "sha256": "b37c79921d42a7b7f1226e6a4ba10d9f6ccc2d0181a62f69f03d883b5de4f8f1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/masking.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/masking.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          161
+        ]
+      ],
+      "evidence_level": "Полный masker прочитан и исполнен с настоящими NumPy и PolicyOSError",
+      "git_blob": "c4d382213fa178b625a2f91a72f121ccf7032759",
+      "sha256": "2a39f65b41ccb9bc818b3f77bc3aa7304dfdcce9a678a5ad651f47e4275e891a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          292
+        ],
+        [
+          428,
+          1339
+        ]
+      ],
+      "evidence_level": "Все указанные переходы прочитаны; exact replica records/cohort/FoundryPort135–267 и exact methods563–1339 исполнены в audit class wrapper",
+      "git_blob": "bcf32f0beab30a28c36979fac4f79a5c12bca037",
+      "sha256": "b8da4c1aa45c6cd22576c34e6360fc2c34de29a4a6cfaaa9fa85cace9d51a46c",
+      "local_file": null,
+      "note": "Полный orchestrator module не импортировался. Код TYPE_CHECKING с type alias не преобразовывался; aggregate/trust writer не исполнялся. Workflow/Foundry/CAS — явные fixtures."
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          858
+        ]
+      ],
+      "evidence_level": "Полный контракт прочитан при C31 на том же SHA; все шесть actual DTO classes снова исполнены, owned IO не исполнен",
+      "git_blob": "00cb21226f292127497c8c818b16ff2b65081fed",
+      "sha256": "5fc6db3c90220efd194175e6a6cab7d0a11f1a526a0e4182e011d4a3b42c7480",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          209
+        ]
+      ],
+      "evidence_level": "Полный evaluator прочитан и исполнен для actual scenario downstream projection",
+      "git_blob": "641fdc644857a6ac5eedf003a3fc4d2bb0f40b45",
+      "sha256": "d60ea4b569b28e64187842bb191c9541d64cf83d548f5fd2008c69d68ced66be",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/core/errors/base.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/errors/base.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          81
+        ]
+      ],
+      "evidence_level": "Полные реальные ErrorCategory/PolicyOSError прочитаны и исполнены",
+      "git_blob": "ab56a6e4cc36ab91891415b25819cd70ef57c743",
+      "sha256": "f013683b373b4bf947dbdaf0b5e6fc4c830da6fa6b74ef431d59a215bbbeaaed",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/core/contracts/fabric.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/contracts/fabric.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          208,
+          244
+        ]
+      ],
+      "evidence_level": "Полная actual DataSnapshot208–242 прочитана и исполнена; reference/owner-lineage types — seams",
+      "git_blob": "3701ea8f64f45a846e03b80217ff5f0f93b46143",
+      "sha256": "29f295e4105dde36fcb778becd7b0191046e206e24e20867fde95c35f1d72ac3",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/contracts/foundry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1484,
+          1575
+        ],
+        [
+          2437,
+          2498
+        ],
+        [
+          2525,
+          2565
+        ],
+        [
+          2818,
+          2887
+        ]
+      ],
+      "evidence_level": "Actual ExecConfig/InputBindings transforms/rules, ExecuteRequest/Result и SimulationResult definitions прочитаны и исполнены; selected ref types — явные fixtures",
+      "git_blob": "68b9bf9437da96372fb6c15ab07b91af9e60f533",
+      "sha256": "9f5baf6b5cd9c5959421e6505f346f3f9fddfd00b06d7fa7ad8ede92f1cd74c5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          365,
+          535
+        ],
+        [
+          594,
+          634
+        ]
+      ],
+      "evidence_level": "Actual matrix consumer/selected-role decorator адресно прочитаны; UNRUN",
+      "git_blob": "74502da3834c16a0dfc1db0bbb02489747a21606",
+      "sha256": "bae5165b80e26b1ba4479512b47e78fe748528505e46989c453d27dd1ee888fe",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/uncertainty_source_projection.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/uncertainty_source_projection.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          359,
+          475
+        ]
+      ],
+      "evidence_level": "Полные selected-source uncertainty read/admission helpers прочитаны; native admission UNRUN",
+      "git_blob": "f9892036c3b28e9cc5064a65f511c6b759ddc108",
+      "sha256": "37e4ffd9dad1395947442df93c80c0ff3c449f0a2718d0a1b00f22f58e3cd002",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          280,
+          375
+        ]
+      ],
+      "evidence_level": "Actual native simulation request consumer адресно прочитан; UNRUN",
+      "git_blob": "e985fcf80ea2ab7a592596b81283182f2c4f5466",
+      "sha256": "142eebf0c3cc825e105ced9c1f1592995491a6928292bb3a8f57a19ecba6b408",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          276,
+          374
+        ],
+        [
+          519,
+          945
+        ],
+        [
+          1432,
+          1732
+        ]
+      ],
+      "evidence_level": "Полные выбранные native request-profile, masking/scalar/replica/failed-denominator fixture tests прочитаны; UNRUN",
+      "git_blob": "b1873f09a460b5587d077b21bd6f8f3a0eb56d8f",
+      "sha256": "5052ded2db80238d69360ce390b1fdc0499a66473c2e61e1ae4691554e1e53cb",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_masking.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/methods/backtesting/test_masking.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          89
+        ]
+      ],
+      "evidence_level": "Полный найденный masking test прочитан; native attempt BLOCKED до collection",
+      "git_blob": "eb0bdd74fbdf2c07944aec7ea9cb1a4af7e074a3",
+      "sha256": "4dc762ad6c253195cb8bbf0d3cc4e4fa5234a9fe1e2479eced7c4f4f8d83dc13",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      3974,
+      4083
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "discovery": {
+    "census": false,
+    "scope": "Actual plan/mask/snapshot/request/replica/metrics/scenario chain and selected tests; full pipeline not executed"
+  }
+}

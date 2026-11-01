@@ -1,0 +1,347 @@
+{
+  "packet_id": "CAL-06",
+  "title": "Явный частичный uncertainty scope без потери tied covariance",
+  "goal": "Сохранить uncertainty оценённых A/B при наличии неоценённого C, не выдавая отсутствующую uncertainty C за ноль.",
+  "work_type": "C111-R01 scoped-contract fix; C111-G01 persistence/propagation qualification",
+  "preservation": [
+    "Explicit coordinate order/matrix, JΣJᵀ, cross-terms и singular null space.",
+    "Bounds conflict отказ; unknown STD не выдумывается; v1 legacy и v2 explicit projection различены.",
+    "Typed conditional mean/std имеет приоритет перед metadata/display; heuristic и gate_eligible=false сохраняются."
+  ],
+  "technical_solution": [
+    "В calibrator projection producer строить field_order только из реально назначенных group handles, сохраняя calibrated_params для всех point values. Добавить явный uncertainty field scope в canonical CalibrationReport contract; existing complete означает complete within declared scope, а не безусловное равенство всем point values. Предпочтителен additive typed field с explicit version/profile; нельзя молча переопределить смысл старого complete.",
+    "Validator требует scope subset calibrated_params, exact projection field coverage и exact coordinate basis uncertainties.params, отсутствие duplicate handles. Unassigned fields перечислить как point-only limitation. Adapter уже перебирает projection.field_order: обновить scope admission, не угадывать имена.",
+    "Сохранить _projected_field_covariance и typed ParametricFitCarrier/extract_std. UQP-02 владеет singular joint sampling; здесь проверить его consumer, не создавать второй sampler. Миграцию schema выбрать по фактическим readers в ограниченном DEC.",
+    "Canonical schema owner — foundry/calibration/report.py::CalibrationReport.validate_coordinate_projection_contract; текущие 2.0/2.1 требуют coverage всех calibrated_params, поэтому partial scope требует explicit version/profile migration, не только изменения producer loop."
+  ],
+  "owners": [
+    "src/polisyos/foundry/calibration/calibrator.py",
+    "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+    "src/polisyos/foundry/uncertainty/covariance.py",
+    "tests/unit/remediation/test_cal_06.py",
+    "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+    "src/polisyos/foundry/calibration/report.py"
+  ],
+  "shared_scenarios": [
+    "E02-I10-A",
+    "E02-I10-B"
+  ],
+  "coordination": "CAL-04 upstream state; UQP-02 joint law dependency — не ждать целый lane. Согласовать canonical report schema owner с CAL-01; один writer calibrator.py.",
+  "compatibility": "До изменения schema перечислить actual readers/writers и выбрать additive version/profile; old v2 complete semantics не изменять задним числом. Old records не получают fabricated scope. При unsupported reader выдать named limited result, сохранить point values и covariance.",
+  "design_alignment": [
+    "[Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md#d25-epistemic-regime-architecture): полезный ограниченный numerical result сохраняется без присвоения empirical authority. [Синтез §4](../05_Основания/Исследование/design_direction.md): общий механизм вместо отдельной ветки на каждый кейс.",
+    "[Stage-0 §4.3](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md#43-k06--fail-closed-binds-the-protected-action-not-the-computation): неизвестность C ограничивает claim о C, не валидную A/B работу."
+  ],
+  "open_decisions": [
+    "DEC-CAL-06-01: finite census CalibrationReport readers/schema validators, затем решение additive field with new profile либо schema version. Критерии: не менять legacy complete meaning, сохранять exact scope, fresh reader rejection для неизвестного profile; выход — migration table и roundtrip fixtures."
+  ],
+  "acceptance": "Ремонт принят при A/B positive scope и explicit C unknown, не при снятии guards. Native CAS/MC evidence отдельно от DTO-only. Conditional Hessian approximation не posterior/empirical authority.",
+  "lane": "LANE-10",
+  "source_ids": [
+    "B197",
+    "B198"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/CAL-06.md"
+  ],
+  "requirements": [
+    {
+      "text": "Report должен явно отделять множество оценённых uncertainty fields от всех сохранённых point values; полная валидная projection этого scope сохраняется при unrelated unassigned handle.",
+      "source_ids": [
+        "B197"
+      ],
+      "audit_ids": [
+        "C111-R01"
+      ],
+      "id": "REQ-CAL-06-01",
+      "test_ids": [
+        "TEST-CAL-06-01",
+        "TEST-CAL-06-04"
+      ]
+    },
+    {
+      "text": "Projection должна проверять exact field/coordinate order, coverage выбранного scope, matrix shape/finite и duplicate handles; неподдерживаемая или неполная projection не угадывается по имени.",
+      "source_ids": [
+        "B197"
+      ],
+      "audit_ids": [
+        "C111-R01"
+      ],
+      "id": "REQ-CAL-06-02",
+      "test_ids": [
+        "TEST-CAL-06-01",
+        "TEST-CAL-06-02"
+      ]
+    },
+    {
+      "text": "Tied fields должны получать JΣJᵀ с cross-covariance и singular dependence; неизвестный C не получает fake zero variance или самостоятельный Normal.",
+      "source_ids": [
+        "B197"
+      ],
+      "audit_ids": [
+        "C111-G01"
+      ],
+      "id": "REQ-CAL-06-03",
+      "test_ids": [
+        "TEST-CAL-06-01",
+        "TEST-CAL-06-04"
+      ]
+    },
+    {
+      "text": "Изменение только display level/metadata не должно менять typed conditional sigma или повышать heuristic/gating status; отсутствие подходящего law остаётся явно ограниченным.",
+      "source_ids": [
+        "B198"
+      ],
+      "audit_ids": [
+        "C111-G01"
+      ],
+      "id": "REQ-CAL-06-04",
+      "test_ids": [
+        "TEST-CAL-06-03",
+        "TEST-CAL-06-04"
+      ]
+    },
+    {
+      "text": "Новый scoped report должен пройти actual persist/load и существующий propagation consumer, сохранив scope, basis, law и ограничения; старые v1/v2 records остаются читаемыми по своим contracts.",
+      "source_ids": [
+        "B197",
+        "B198"
+      ],
+      "audit_ids": [
+        "C111-G01"
+      ],
+      "id": "REQ-CAL-06-05",
+      "test_ids": [
+        "TEST-CAL-06-02",
+        "TEST-CAL-06-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "producer→DTO→adapter",
+      "setup": "A.rate/B.rate tied shared_rate=.25, group variance .0025, unrelated unselected C.rate=.7.",
+      "action": "Actual resolver/projection/report/adapter; rename group; untied control.",
+      "oracle": "A/B envelopes 2, projected matrix все элементы .0025 (rtol=1e-6 atol=1e-9), rank1; C remains point-only/unknown uncertainty. Removing C не меняет A/B. No string-name inference.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-CAL-06-01",
+      "requirement_ids": [
+        "REQ-CAL-06-01",
+        "REQ-CAL-06-02",
+        "REQ-CAL-06-03"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "contract migration/boundary",
+      "setup": "Old v1/v2 report; new scoped record; duplicate/missing scope field, reordered coordinates, incompatible bounds.",
+      "action": "Parse and consume each actual DTO.",
+      "oracle": "Legacy прежние rules; new exact basis accepted; ambiguity/mismatch адресный отказ. Не допускается declared complete coverage, если часть объявленного scope отсутствует.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-CAL-06-02",
+      "requirement_ids": [
+        "REQ-CAL-06-02",
+        "REQ-CAL-06-05"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "typed-law roundtrip",
+      "setup": "Typed Normal mean=.25 std=.05; display .8/.95; tampered metadata std=9; missing typed std.",
+      "action": "Adapter → JSON → extract_std; legacy arbitrary band отдельно.",
+      "oracle": "Sigma=.05 для обоих levels с atol=1e-12; display widths различны; metadata не overrides typed law; incomplete typed carrier отказывает. Heuristic/non-gating flags неизменны, произвольная band не объявлена Normal.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-CAL-06-03",
+      "requirement_ids": [
+        "REQ-CAL-06-04"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "E02-I10-A/B actual persistence/MC",
+      "setup": "Native calibration report из selected tied params; actual configured tmp artifact store и fresh consumer; empirical drawn path UQP-02.",
+      "action": "Persist/load → envelope→joint law→propagation; output f=A−B.",
+      "oracle": "Точный shared law даёт A=B и f=0 на каждом draw (float64 atol=1e-12, float32 atol=1e-6), C не включён в joint без law. Scope/flags сохраняются; missing artifact не заменяется fixture authority.",
+      "expected": "positive + negative + boundary",
+      "seams": "Synthetic model/observations допустимы; actual DTO/store/resolver/joint consumer обязательны. Фиксированный seed допустим, hardcoded draws вместо проверяемого joint sampler — нет.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-CAL-06-04",
+      "requirement_ids": [
+        "REQ-CAL-06-01",
+        "REQ-CAL-06-03",
+        "REQ-CAL-06-04",
+        "REQ-CAL-06-05"
+      ],
+      "status": "NOT_RUN"
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "B197",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Основная projection есть; all-handles coverage теряет active subset.",
+      "requirement_ids": [
+        "REQ-CAL-06-01",
+        "REQ-CAL-06-02",
+        "REQ-CAL-06-03",
+        "REQ-CAL-06-05"
+      ]
+    },
+    {
+      "audit_id": "B198",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Typed carrier repair сохранить и проверить downstream.",
+      "requirement_ids": [
+        "REQ-CAL-06-04",
+        "REQ-CAL-06-05"
+      ]
+    },
+    {
+      "audit_id": "C111-R01",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Добавить explicit scope, не снять coverage validator.",
+      "requirement_ids": [
+        "REQ-CAL-06-01",
+        "REQ-CAL-06-02"
+      ],
+      "inventory_id": "audit-residual:C111_остатки:0"
+    },
+    {
+      "audit_id": "C111-G01",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "DTO JSON и joint builder не actual CAS/full propagation.",
+      "requirement_ids": [
+        "REQ-CAL-06-03",
+        "REQ-CAL-06-04",
+        "REQ-CAL-06-05"
+      ],
+      "inventory_id": "audit-residual:C111_остатки:1"
+    }
+  ],
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "SPECIFICATION_NOT_IMPLEMENTED",
+  "dependencies": [
+    "CAL-04",
+    "UQP-02"
+  ],
+  "protected_distinction_ids": [],
+  "original_source": "../05_Основания/Аудит/05_Источники/CAL-06_исходные_строки.txt",
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0318",
+      "requirement_ids": [
+        "REQ-CAL-06-01",
+        "REQ-CAL-06-02"
+      ],
+      "disposition": "fix",
+      "rationale": "Добавить explicit scope, не снять coverage validator."
+    },
+    {
+      "inventory_id": "remaining:0319",
+      "requirement_ids": [
+        "REQ-CAL-06-03",
+        "REQ-CAL-06-04",
+        "REQ-CAL-06-05"
+      ],
+      "disposition": "qualify",
+      "rationale": "DTO JSON и joint builder не actual CAS/full propagation."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0505",
+      "requirement_ids": [
+        "REQ-CAL-06-01",
+        "REQ-CAL-06-02"
+      ],
+      "test_ids": [
+        "TEST-CAL-06-01",
+        "TEST-CAL-06-02",
+        "TEST-CAL-06-04"
+      ],
+      "rationale": "Explicit coordinate projection — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0506",
+      "requirement_ids": [
+        "REQ-CAL-06-03"
+      ],
+      "test_ids": [
+        "TEST-CAL-06-01",
+        "TEST-CAL-06-04"
+      ],
+      "rationale": "Covariance cross-terms и singular rank — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0507",
+      "requirement_ids": [
+        "REQ-CAL-06-02"
+      ],
+      "test_ids": [
+        "TEST-CAL-06-01",
+        "TEST-CAL-06-02"
+      ],
+      "rationale": "Bounds refusal — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0508",
+      "requirement_ids": [
+        "REQ-CAL-06-04"
+      ],
+      "test_ids": [
+        "TEST-CAL-06-03",
+        "TEST-CAL-06-04"
+      ],
+      "rationale": "Typed conditional mean/std — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0509",
+      "requirement_ids": [
+        "REQ-CAL-06-04",
+        "REQ-CAL-06-05"
+      ],
+      "test_ids": [
+        "TEST-CAL-06-02",
+        "TEST-CAL-06-03",
+        "TEST-CAL-06-04"
+      ],
+      "rationale": "Heuristic/non-gating semantics — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0510",
+      "requirement_ids": [
+        "REQ-CAL-06-03",
+        "REQ-CAL-06-04"
+      ],
+      "test_ids": [
+        "TEST-CAL-06-01",
+        "TEST-CAL-06-03",
+        "TEST-CAL-06-04"
+      ],
+      "rationale": "Unknown STD refusal — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0511",
+      "requirement_ids": [
+        "REQ-CAL-06-02",
+        "REQ-CAL-06-05"
+      ],
+      "test_ids": [
+        "TEST-CAL-06-01",
+        "TEST-CAL-06-02",
+        "TEST-CAL-06-04"
+      ],
+      "rationale": "V1/V2 projection distinction — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    }
+  ]
+}

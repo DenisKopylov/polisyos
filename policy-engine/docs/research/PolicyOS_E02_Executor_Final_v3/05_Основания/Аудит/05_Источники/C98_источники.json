@@ -1,0 +1,277 @@
+{
+  "pass_id": "C98",
+  "bundle": "DFI-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/checkpoints.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/checkpoints.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          288
+        ]
+      ],
+      "evidence_level": "Полный актуальный файл прочитан и исполнен в bounded import graph. Formatter, content basis/inventory и legacy/strict predicates actual; native package import BLOCKED.",
+      "git_blob": "dc7fb079117ba7266d65225faf19b277d1574262",
+      "sha256": "ca70042c76c45f8f91bceec8efd1570b8004669f8459f039cd9941f8f4cf306f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          714
+        ],
+        [
+          1280,
+          1561
+        ]
+      ],
+      "evidence_level": "Полные selected stage basis/inventory/receipt/skip/completion и sync/async orchestration прочитаны. AST-selected owners исполнены; одна syntax-only parenthesization в selected line468. Config/profile и невыбранные producers fixtures. Большие benchmark/QC/publish helpers715–1279 не квалифицированы этим пакетом.",
+      "git_blob": "85f82063d70d11d9c8e8cf1ac5b14443ed2abadf",
+      "sha256": "979f24af1b2f54e30b5c9ffcf5df28860a99a923613567c68f81b3cf3ded3866",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          200
+        ]
+      ],
+      "evidence_level": "Полный актуальный embed producer и local-only current encoder identity прочитаны/исполнены. Actual kernel/NumPy/NPZ; SQL/encoder/JSON-HNSW fixtures. Нет model download.",
+      "git_blob": "9ba1199642250aa001dbf98c7abd8c6d29024005",
+      "sha256": "d683ec0033f08b99ad7173e73b472c3b39c241e682ef98e731800e28d6e4a207",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          65
+        ],
+        [
+          200,
+          270
+        ],
+        [
+          304,
+          338
+        ],
+        [
+          387,
+          713
+        ]
+      ],
+      "evidence_level": "Actual constructor/validator, config/material snapshot, profile coverage capture и classification прочитаны. Только coverage parser/classifier672–713 исполнены unchanged; config constructor и whole material/profile snapshot заменены явно обозначенными fixtures. Source confirms resume_mode off не изменяет resume.",
+      "git_blob": "c6dbe5f24c69754bd109180b7239f8799a509aa7",
+      "sha256": "411c69ac27b003e7a5a8a97a468692a78f9694b9091afde2d48cc8b309b9334d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          96
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан; actual SourceSpec/SourceRegistry dataclasses исполнены AST. Canonical selection заменён single-source fixture, не считается coverage full registry/profile selection.",
+      "git_blob": "537172785837469853b2e0d33ac6ec8750614865",
+      "sha256": "45b495ce015e0ee7efdf2ab10d69cd0d165c406b331f56e77d8ce93e0c2d28ed",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          846,
+          856
+        ],
+        [
+          983,
+          1371
+        ]
+      ],
+      "evidence_level": "Полные selected JSON/limits, harvest_sources, harvest_one_source и artifact path helpers прочитаны и unchanged nodes исполнены. External transport, sampling enrichment и metrics fixtures; прочие families/whole long file не квалифицированы.",
+      "git_blob": "800b416419ee9f158e110c41dd9dc2321eae0578",
+      "sha256": "0ce31bac3c78143283b3e3c24960e7f5d2a6b2faffd0436da80ed692bbad04c6",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/normalizer.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/normalizer.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1206,
+          1372
+        ]
+      ],
+      "evidence_level": "Полный normalize_raw_sources orchestration прочитан; outer pipeline disables old inner cache на miss. Actual normalization/metadata projection НЕ исполнялись; existing normalized receipt tests используют fixture harvest receipt.",
+      "git_blob": "94972f3ec433ac89994f23fc676cc845b86e0498",
+      "sha256": "529e0b6e914e9d9e9bd275aa0791c422e1a88f8572cdada9d59a3a5fc87932fe",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/cli.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/catalog/batch/cli.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          297
+        ]
+      ],
+      "evidence_level": "Полный CLI прочитан и actual module/parser/dispatcher исполнены с fixture config и selected producers. Whole native process/import graph BLOCKED; standalone harvest vs run реально различены.",
+      "git_blob": "bf990d94426173cccb7b56a85a54de9eb49a2e57",
+      "sha256": "cce2d35c885368d53b5b2c36993739a98fabb6687666c168d061459bd876f9c1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/tests/unit/remediation/test_dfi_03.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_dfi_03.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          356
+        ],
+        [
+          988,
+          1100
+        ],
+        [
+          1339,
+          1429
+        ],
+        [
+          2570,
+          2751
+        ]
+      ],
+      "evidence_level": "Прочитаны selected13 bodies/14cases и helpers; bodies исполнены unchanged без pytest decorators/runner. Profile setup helper заменён явно; не вся2751-line suite. Остальные прочитанные witnesses UNRUN.",
+      "git_blob": "68fbf81f29b0a3b52a4d4cb31bf49bf13b4ccc94",
+      "sha256": "f9829ac9c95e57f76ffd356933f2e4a5859c4871e45bc9390b81711b37f6b02e",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1450
+        ]
+      ],
+      "evidence_level": "Полное чтение накопительно C95–C97 на том же blob; whole actual kernel заново исполняется C98. JSON-HNSW fixture не binary; native semantic publisher gap C96-R01 не дублируется.",
+      "git_blob": "cace792597f2999e955c6fa2aa24d82f467afac3",
+      "sha256": "ffd121f70aece50096ac6e96b10327f09a08692356074b07c85aed80334cc59e",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          314
+        ]
+      ],
+      "evidence_level": "Полное чтение C95 на том же blob; whole actual module заново исполняется. Content identity не authority.",
+      "git_blob": "672dc970ef1e2ee1daa8fe1d94e0f49de562c2f6",
+      "sha256": "5036e343aa67a6b2989bb003c3513f36d0b20e6ce59f86f91144c2daca79f343",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          272
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан ранее на том же blob; actual raw/stage manifests заново пишутся и читаются P03/P04. Нет generic validator all([]) promotion.",
+      "git_blob": "13b5f985cda18030fe1c7ef644d49fd15f6f5d69",
+      "sha256": "42e3f5bbfb8f0b7e6f23addd05417c67f7738805c820d162d01b4fa93bed97f9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/atomic.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/io/atomic.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          71
+        ]
+      ],
+      "evidence_level": "Полный source прочитан; actual atomic_write_text используется, historical JSON formatting сохранён. Crash/power-loss не тестировались.",
+      "git_blob": "3bc1c0e05b196e29c9d5f0fff1149221fd54bcee",
+      "sha256": "38cae9207be0d3d3d6ff810f62b79a433b13ff0dd0b9aac86a53d2fbb9598c41",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/hashing.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/io/hashing.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          28
+        ]
+      ],
+      "evidence_level": "Полный source прочитан; actual file bytes hashing исполняется. Не независимая scientific validation.",
+      "git_blob": "38144247f153be11c7cac07c29c5cb51ec7eacb8",
+      "sha256": "be74a13ba66a1652244b6f0b8b06597828f41e633cc7fe416f5f6f2649459ff1",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "pass": "C32",
+  "bundle": "BKT-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C32-R01",
+      "type": "non_target_future_values_survive_masked_snapshot",
+      "severity": "conditional_historical_input_contamination",
+      "source_ids": [
+        "B166"
+      ],
+      "location": "masking.py:24–110;orchestrator.py:1261–1310",
+      "evidence": [
+        "P01",
+        "P06",
+        "P07"
+      ],
+      "mechanism": "Masking changes target_metrics and time_index only, then persists the whole dictionary. A constructed future_derived_outcome column retains post-cutoff90000/90100; actual replica adapter forwards the correct snapshot and the fixture delegate reads these values from that same bound view.",
+      "preserve": "Correct target prefix, source immutability, exact snapshot binding and request mismatch refusal. Some exogenous future-known fields may be legitimate, so do not blindly truncate every list.",
+      "remaining": "At existing historical data owner declare and verify temporal/availability roles of supplied features; do not include unclassified post-cutoff outcome-derived fields in an admitted replay view. Derived features must be computed from admissible inputs, not merely truncated afterwards.",
+      "limits": "Future values are proven accessible in the actual masked payload under fixture workflow/CAS. No actual production model was shown to consume this field or change its forecast."
+    },
+    {
+      "id": "C32-R02",
+      "type": "completed_cohort_reference_lost_on_invalid_prediction_fallback",
+      "severity": "local_provenance_loss",
+      "source_ids": [
+        "B169",
+        "B170"
+      ],
+      "location": "orchestrator.py:1005–1013;563–603;537–551",
+      "evidence": [
+        "P13",
+        "P14"
+      ],
+      "mechanism": "After a completed Scientist replica and persisted cohort, scalar without profile or wrong trajectory length returns a new naive payload without replica_cohort_ref. Actual _run_single_scenario propagates no cohort ref; report writer only adds cohort edges found in scenario metadata.",
+      "preserve": "Reject arbitrary scalar and wrong-length trajectory; keep explicit degraded naive result and all persisted raw artifacts.",
+      "remaining": "Reuse the existing _naive_with_cohort path or equivalent projection to carry the already persisted cohort ref through this fallback; do not rerun failed semantic projection or delete useful replica records.",
+      "limits": "Actual prediction/scenario methods and evaluator executed with explicit fixture workflow/Foundry/CAS. Native aggregate persistence not executed; missing report edge is source-traced, not native attested."
+    },
+    {
+      "id": "C32-R03",
+      "type": "selected_metrics_profile_dropped_before_constant_forecast_admission",
+      "severity": "conditional_wrong_manifest_view",
+      "source_ids": [
+        "B169"
+      ],
+      "location": "orchestrator.py:960–975,1215–1235",
+      "evidence": [
+        "P15",
+        "P16",
+        "P17",
+        "P18"
+      ],
+      "mechanism": "Earlier exact metrics_ref matches SimulationResult, but later code rereads by ArtifactID and _is_constant_forecast reads default manifest. With identical bytes and sibling profiles, selected valid producer/default foreign producer loses valid forecast; selected no producer/default matching producer admits scalar.",
+      "preserve": "Full typed profile, outcome_trajectory estimand, horizon and producer binding checks; physical request binding profile protection already exists.",
+      "remaining": "Carry the original selected MetricsRef through payload read and manifest producer check; same discipline for any selected uncertainty profile at constant-profile check.",
+      "limits": "Actual control flow exercised with an explicit multi-profile fixture store; native Core CAS was not run. This proves selector loss and conditional admission result, not external authority/production bypass."
+    },
+    {
+      "id": "C32-G01",
+      "type": "forecast_semantic_and_temporal_binding_incomplete",
+      "source_ids": [
+        "B169"
+      ],
+      "evidence": [
+        "P19",
+        "P20",
+        "P21",
+        "S01:36–52",
+        "S03:976–994"
+      ],
+      "remaining": "Current constant profile validates unique time labels and horizon but does not compare them to held-out coordinates; same-length list accepts caller metadata mean_ate/wrong dates. Bind trajectory quantity/unit/baseline/time origin and coordinates through existing producer contract before a historical forecast interpretation. Keep correct stationary constant forecast and already-computed draws; no forced model rerun.",
+      "limits": "P19/P20 retain missing-envelope degradation; they do not establish positive interval/production admission. General list semantic capability remains unqualified even though original scalar and length defects improved."
+    },
+    {
+      "id": "C32-G02",
+      "type": "native_replica_execution_cost_and_projection_qualification",
+      "source_ids": [
+        "B166",
+        "B169",
+        "B170"
+      ],
+      "evidence": [
+        "P08",
+        "P09",
+        "P11",
+        "S03:948–956",
+        "S12:1432–1732"
+      ],
+      "remaining": "Native workflow/Foundry/CAS, supported uncertainty admission, budget and actual cost must be checked in supported environment. Distinct requests/seeds are not proof of independent Monte Carlo draws. Multi-run artifacts are retained but no joint forecast projection is configured; qualify a useful supported summary through existing computation owner rather than average into scalar.",
+      "limits": "24 bounded MATCH; actual request/seed DTO and adapter bodies, fixture execution. Native test attempt missing pytest before collection. No dependency installation."
+    }
+  ]
+}

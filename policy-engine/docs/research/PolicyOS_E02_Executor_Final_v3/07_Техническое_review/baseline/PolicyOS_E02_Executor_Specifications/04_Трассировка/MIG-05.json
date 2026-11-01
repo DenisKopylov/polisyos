@@ -1,0 +1,269 @@
+{
+  "packet_id": "MIG-05",
+  "lane": "LANE-06",
+  "source_ids": [
+    "LA-047"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/MIG-05.md",
+    "../05_Основания/Аудит/01_Реестры/C82_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C82-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-MIG-05-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Только genuinely empty closure cell получает marker; stable encoding error не подавлять.",
+      "inventory_id": "audit-residual:C82_остатки:0"
+    },
+    {
+      "audit_id": "C82-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-MIG-05-02",
+        "REQ-MIG-05-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исторические callbacks/extensions и observable profiles требуют реального release corpus, не синтетической уверенности.",
+      "inventory_id": "audit-residual:C82_остатки:1"
+    },
+    {
+      "audit_id": "C82-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-MIG-05-03",
+        "REQ-MIG-05-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Supported/installed owner chain, direct-read versus migration и DTO admission проверяются отдельно; DataForge сохранён.",
+      "inventory_id": "audit-residual:C82_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-MIG-05-01",
+      "text": "В _migration_function_fingerprint ValueError от чтения действительно пустого cell может кодироваться empty_cell; MigrationCompatibilityError от _stable_migration_value должен распространяться без изменения registry. Два unsupported captured objects не могут приниматься как одинаковая регистрация. Supported identical repeat допустим; supported conflicting repeat явно отказан.",
+      "source_ids": [
+        "LA-047"
+      ],
+      "audit_ids": [
+        "C82-R01"
+      ],
+      "test_ids": [
+        "TEST-MIG-05-01"
+      ]
+    },
+    {
+      "id": "REQ-MIG-05-02",
+      "text": "Shared linear runner должен сохранять объявленные Common/IR copy, stamp, returned-version, exception, source-version и no-op identity profiles на двухшаговом переходе, missing-later-edge и callback mutate-then-fail. Strict IR conflict/cycle behavior не откатывается к историческому overwrite.",
+      "source_ids": [
+        "LA-047"
+      ],
+      "audit_ids": [
+        "C82-G01"
+      ],
+      "test_ids": [
+        "TEST-MIG-05-02"
+      ]
+    },
+    {
+      "id": "REQ-MIG-05-03",
+      "text": "DataForge graph route сохраняет shortest path и deterministic tie независимо от order регистрации, instance isolation и свой version/copy/stamp contract. IR compatibility возвращает migration_required отдельно от direct-read; successful callback не заменяет actual DTO admission.",
+      "source_ids": [
+        "LA-047"
+      ],
+      "audit_ids": [
+        "C82-G02"
+      ],
+      "test_ids": [
+        "TEST-MIG-05-03"
+      ]
+    },
+    {
+      "id": "REQ-MIG-05-04",
+      "text": "Supported release composition должна предъявить конечный inventory фактически поддерживаемых callback registrations/import paths и доступных historical inputs с результатами public/installed consumer. Неизвестные внешние plugins/historical corpus обозначаются как незаквалифицированные, не как отсутствующие и не как обязательная бесконечная универсальность.",
+      "source_ids": [
+        "LA-047"
+      ],
+      "audit_ids": [
+        "C82-G01",
+        "C82-G02"
+      ],
+      "test_ids": [
+        "TEST-MIG-05-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-MIG-05-01",
+      "requirement_ids": [
+        "REQ-MIG-05-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Closures одного code с разными Config objects; actual empty cell; scalar/dict captures; clean registry snapshot.",
+      "action": "Сравнить fingerprint и выполнить first/second registrations; затем run actual migration для valid supported callback.",
+      "oracle": "Unsupported capture даёт MigrationCompatibilityError до любой регистрации; snapshot неизменен. Empty cell кодируется стабильно. Identical supported repeat принят; differing scalar/dict refused; actual result соответствует зарегистрированному callback, не второму ошибочно принятому.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-MIG-05-02",
+      "requirement_ids": [
+        "REQ-MIG-05-02"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Одна матрица Common и IR profiles; callbacks two-step, conflicting stamp, bad result, nested mutate-then-raise; public exceptions imported штатно.",
+      "action": "Выполнить оба фасада через actual shared runner; проверить no-op identity и original nested values.",
+      "oracle": "Common original unchanged/deep no-op copy/stamp target/TypeError; IR сохраняет live nested effect/no-op is input и typed version error. Missing edge и cycle не замаскированы успехом. Spy может считать shared call, но output вычисляет настоящий owner.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-MIG-05-03",
+      "requirement_ids": [
+        "REQ-MIG-05-03"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "DataForge два равных пути с reverse registration, два instance; IR schema rule NONE и отдельно доступный migration route.",
+      "action": "Plan/apply и negotiate; valid/invalid actual DTO read.",
+      "oracle": "DataForge low→vialow при обоих orders; exact duplicate и bad version refused; shallow nested identity/no auto-stamp сохранены. IR migration_required=true не выдан за direct-read; invalid DTO refused независимо от conversion success.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-MIG-05-04",
+      "requirement_ids": [
+        "REQ-MIG-05-04"
+      ],
+      "level": "native/installed integration P-CORE/P-PACKAGING",
+      "setup": "Supported package/entrypoints, перечисленные реальные callbacks и доступные historical fixtures с hashes; изолированный process.",
+      "action": "Импортировать supported compositions по объявленным order, invoke actual manifest converter/Trinity helper и current/historical readers; интегрировать с MIG-01/02/04.",
+      "oracle": "Все заявленные supported callbacks зарегистрированы либо имеют точный compatibility refusal; profile outputs соответствуют golden semantics. Ненайденные historical inputs не сфабрикованы; список ограничений явный.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-E"
+  ],
+  "dependencies": [
+    "MIG-01 / MIG-02 / MIG-04: реальные converter/reader witnesses",
+    "CAN-01: исторический profile contract"
+  ],
+  "preservation": [
+    "Common run_linear_migration и явные LinearMigrationProfile; Common deepcopy/stamp/str/no-op deep copy, IR live nested mutation/returned-version check/coercion/no-op identity.",
+    "IR strict identical repeat / conflicting repeat / registration cycle refusal; исходный permissive overwrite IR намеренно устарел.",
+    "IR schema compatibility/negotiation и public exception identities отдельны от traversal.",
+    "LK25: DataForge branching BFS shortest path, deterministic tie, instance registry, three-component version, shallow copy и no auto-stamp. S развитие не включать."
+  ],
+  "design_alignment": [
+    "design_direction.md §2.2, §5 Rule12, §7: новые совместимые converters подключаются через общую механику; новая семантика может потребовать общий профиль, не case branch.",
+    "§4.1, §4.7 / Identity и CTM: version conversion/identity не равны semantic validity/currentness.",
+    "LK25 защищает полезное различие graph vs linear; буквальная минимизация числа файлов не цель."
+  ],
+  "open_decisions": [
+    "DEC-MIG-05-01: inventory supported external callbacks/historical inputs определяет release owner перед acceptance. Выход: конечный список import paths, payload hashes и unsupported scope. Отсутствующий внешний corpus блокирует только соответствующий compatibility claim, не узкий fingerprint fix."
+  ],
+  "source_obligations": [
+    "LA-047 → fix C82-R01 и preserve/qualify REQ-MIG-05-01…-04: один traversal уже есть; снять actual supported callback/import corpus, сохранить profiles и separately verify compatibility/admission.",
+    "LK25 → preserve REQ-MIG-05-03: не удалять DataForge graph registry и не объявлять его взаимозаменяемым с linear engine."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/ir/migrations/base.py: _stable_migration_value, _migration_function_fingerprint, register_migration, migrate_artifact",
+    "policy-engine/src/polisyos/common/migrations/_engine.py: LinearMigrationProfile, run_linear_migration",
+    "policy-engine/src/polisyos/common/migrations/base.py: Common facade/profile",
+    "policy-engine/src/polisyos/data_forge/kernel/schemas/migrations.py: SchemaMigrationRegistry",
+    "policy-engine/src/polisyos/ir/migrations/policy_ir.py: policy facade"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_mig_05.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0466",
+      "requirement_ids": [
+        "REQ-MIG-05-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Только genuinely empty closure cell получает marker; stable encoding error не подавлять."
+    },
+    {
+      "inventory_id": "remaining:0467",
+      "requirement_ids": [
+        "REQ-MIG-05-02",
+        "REQ-MIG-05-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Исторические callbacks/extensions и observable profiles требуют реального release corpus, не синтетической уверенности."
+    },
+    {
+      "inventory_id": "remaining:0468",
+      "requirement_ids": [
+        "REQ-MIG-05-03",
+        "REQ-MIG-05-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Supported/installed owner chain, direct-read versus migration и DTO admission проверяются отдельно; DataForge сохранён."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0764",
+      "requirement_ids": [
+        "REQ-MIG-05-02"
+      ],
+      "test_ids": [
+        "TEST-MIG-05-02"
+      ],
+      "rationale": "Shared traversal — точное поведение проверяется связанным oracle"
+    },
+    {
+      "inventory_id": "preserve:0765",
+      "requirement_ids": [
+        "REQ-MIG-05-02"
+      ],
+      "test_ids": [
+        "TEST-MIG-05-02"
+      ],
+      "rationale": "Разные Common/IR observable profiles — точное поведение проверяется связанным oracle"
+    },
+    {
+      "inventory_id": "preserve:0766",
+      "requirement_ids": [
+        "REQ-MIG-05-01",
+        "REQ-MIG-05-03"
+      ],
+      "test_ids": [
+        "TEST-MIG-05-01",
+        "TEST-MIG-05-03"
+      ],
+      "rationale": "IR compatibility owner и stricter registration — точное поведение проверяется связанным oracle"
+    },
+    {
+      "inventory_id": "preserve:0767",
+      "requirement_ids": [
+        "REQ-MIG-05-03"
+      ],
+      "test_ids": [
+        "TEST-MIG-05-03"
+      ],
+      "rationale": "DataForge graph registry — точное поведение проверяется связанным oracle"
+    },
+    {
+      "inventory_id": "preserve:0768",
+      "requirement_ids": [
+        "REQ-MIG-05-04"
+      ],
+      "test_ids": [
+        "TEST-MIG-05-04"
+      ],
+      "rationale": "Actual manifest/Trinity helper — точное поведение проверяется связанным oracle"
+    }
+  ]
+}

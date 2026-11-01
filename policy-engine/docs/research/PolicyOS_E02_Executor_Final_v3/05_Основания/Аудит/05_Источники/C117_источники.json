@@ -1,0 +1,168 @@
+{
+  "pass_id": "C117",
+  "bundle": "DOE-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          401
+        ]
+      ],
+      "evidence_level": "Полный read C116 унаследован; actual typed mapping/fingerprint/derived seed исполнены.",
+      "git_blob": "1108150cbc0c64a635bbe2d7de585177308fe412",
+      "sha256": "b8420f14abb36aa0e1e4423c8215aec836f637e69060992308ef47b12ffe9a8f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          109
+        ]
+      ],
+      "evidence_level": "Полный read C116; actual forwarding исполнен до explicit fake SALib boundary. Numerical transform — явный true SciPy adapter, не SALib.",
+      "git_blob": "c2a4b105c122ca3d2c20d5ab80710844894ecc65",
+      "sha256": "8cd056fde7b64825baa33c440ec0f05e96b2b12313355a4228e00279ce36e596",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          393
+        ]
+      ],
+      "evidence_level": "Полный read; actual complete analyzer wrapper/metadata/preparation/refusals с fixed backend spy. Scientific SALib indices не аттестованы.",
+      "git_blob": "519375af58a09853ba9a7cb7f88d9a7dd9f8582d",
+      "sha256": "7b58b2f9c8e1f94a1fff30e5d9aae8b8408960cf583aa28e12d06f3ee1145239",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          141
+        ]
+      ],
+      "evidence_level": "Полный read; actual inverse coordinate mapping и bounded geometry control с true SciPy CDF.",
+      "git_blob": "c12a5d1f5e183fa9f955b16912e487402596b03c",
+      "sha256": "77cff9546611cfe83e7bda8d62d7ebdf16f3c742b1149cc9a23ca2e8d7c7b51b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/tests/unit/remediation/test_doe_02.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_doe_02.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          367
+        ]
+      ],
+      "evidence_level": "Полный read; 6 selected unchanged nonnumerical/spy bodies PASS. Module-level importorskip не выполнялся; native numerical tests UNRUN.",
+      "git_blob": "0b6f158cb414544b21fcb51139926f82a1511bde",
+      "sha256": "cce40927263a910511d0acb2f1eec461539d9900e5a6c6df26982edff26ef03f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/uncertainty.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/doe/uncertainty.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          140
+        ],
+        [
+          270,
+          305
+        ],
+        [
+          532,
+          570
+        ]
+      ],
+      "evidence_level": "DTO read C116 и selected local uncertainty RNG owners прочитаны. Functions не выполнялись; plan.seed не заявлен seed всего bootstrap pipeline.",
+      "git_blob": "fa005049fa051a5a38284ef93e921e4d202e15bb",
+      "sha256": "7972fc93335e2104cab133c92f040d68a67183fd71971fc10c5c4c59d74bb5be",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          105
+        ]
+      ],
+      "evidence_level": "Объявленные Python/Pydantic/SALib/SciPy profiles прочитаны; зависимости не устанавливались.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/uv.lock",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/uv.lock",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          5681,
+          5697
+        ]
+      ],
+      "evidence_level": "Actual locked SALib 1.5.2 identity, не installed-backend claim.",
+      "git_blob": "c34f9273799807fbf0bb95a30668f75a4c4e69a9",
+      "sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/doe/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          172
+        ]
+      ],
+      "evidence_level": "Facade read C116 унаследован; native import blocked Core3.14 syntax; external package shell явно отделён.",
+      "git_blob": "1f1d5b6ea3728d9b7aba141bb0680644d358673f",
+      "sha256": "ed880fe654d655f4a4bc849f614f3d09daded7cfef268de99885d35623cfcd37",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

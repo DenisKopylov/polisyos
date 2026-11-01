@@ -1,0 +1,64 @@
+{
+  "pass_id": "C104",
+  "bundle": "SCL-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C104-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "source_ids": [
+        "LA-024"
+      ],
+      "title": "Cache-hit не повторяет текущие ограничения redirect domain, MIME и размера",
+      "evidence": [
+        "P04",
+        "S04:40–44",
+        "S05:103–111",
+        "S06:134–215"
+      ],
+      "remaining": "Согласовать допуск существующего snapshot с текущим запросом до возврата cached result и downstream snippets. Проверять применимые ограничения на сохранённый final URL/redirect chain, MIME и byte_size; неизвестный профиль не считать эквивалентным. Сохранить допустимый cache reuse и initial URL guard, не создавать новый transport.",
+      "limits": "Воспроизведено actual miss→put→JSON reload→public find. Cold path отказывает; unchanged profile переиспользуется. Это допуск сохранённого содержимого, не новый сетевой доступ к запрещённому host и не SSRF exploit. SCL-03 orchestrator snapshot route здесь не объявлен повреждённым."
+    },
+    {
+      "id": "C104-R02",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "source_ids": [
+        "B17"
+      ],
+      "title": "Оставшийся hard wall budget не ограничивает следующую failover попытку внутри batch",
+      "evidence": [
+        "P05",
+        "S06:280–330",
+        "S01:118–221",
+        "S07:21–32"
+      ],
+      "remaining": "Передавать и проверять remaining deadline в существующей search/failover boundary перед следующей попыткой, согласовать timeout/cancellation и terminal reason. После исчерпания не начинать следующий provider и сохранять честный partial/budget outcome, не отменяя переход после пустого ответа при доступном бюджете.",
+      "limits": "Контролируемый service-local clock: лимит1, первый пустой provider завершает вt2, второй начинается вt2 с timeout10; final partial=False. Positive pre-batch expiry вызывает0 providers и partial=True. Это source-backed ordering counterexample, не замер реальной длительности и не полный аудит job-manager cancellation."
+    },
+    {
+      "id": "C104-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B17",
+        "LA-024"
+      ],
+      "title": "Native transport, supported environment и принятие candidate контракта не подтверждены",
+      "evidence": [
+        "commands.json",
+        "native_search.stdout",
+        "S17",
+        "S20"
+      ],
+      "remaining": "В поддерживаемой среде выполнить существующие native suites и регрессии обоих остатков; отдельно квалифицировать допустимые HTTP/TLS/redirect-cycle/proxy сценарии, текущие source rights и согласование schema1.1. Не выдавать fixture PASS за право публикации или научный вывод.",
+      "limits": "Root facade импортируется лениво; это не обход blocked search dependency graph. Python3.12.14/Pydantic2.13.4, pytest/opentelemetry отсутствуют. Ранние setup failures сохранены. No installs, no live HTTP/model calls. Snapshot handoff отдельно SCL-03."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C104-R01",
+    "C104-R02"
+  ],
+  "decision": "Empty/exception failover и общий raw transport подтверждены ограниченно; current-cache admission и remaining wall budget оставляют содержательные остатки."
+}

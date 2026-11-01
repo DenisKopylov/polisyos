@@ -1,0 +1,554 @@
+{
+  "pass_id": "C126",
+  "bundle": "HYG-04",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/tools/research/benchmarks/harness.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/research/benchmarks/harness.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          9
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "4a0388ea79db49d0e0d6e073782f9622a161d5de",
+      "sha256": "49795c36771ba70f44ed8cddb96e4ae37eda9fb9ea5eaad5e788d74b4d6df4d1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/tools/research/benchmarks/metrics.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/research/benchmarks/metrics.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          9
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "56e0c8ba7a6c5ed8513a09d27e30334b7acaad82",
+      "sha256": "20d0b7fc74e6b524047b5f468290b1c566a0e9e529d3b950ebec2563f8bf4469",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/tools/research/benchmarks/suite_registry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/research/benchmarks/suite_registry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          13
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "1abb7de042d07c95b3010b773fb6a5b2f48dc8ba",
+      "sha256": "811893ca062906e8b5a55c151063d749edc8df20f47b559f49a38bbe74785ff4",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/tools/lib/compat.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/lib/compat.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          95
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "04c43c6719ef19101490aef5f7b687c5095417bb",
+      "sha256": "f3b2a1b4f843f8d092cb67bf72f88092a187bb0f43c6908c6934cbb29618a953",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/common/jax_env/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/jax_env/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          36
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "2026ea5643b0e6fa45ccf717506d524ef0cef2d0",
+      "sha256": "20bacc55f166addc9ba94138793d1b90d6374118bccbb95f49a6666362b0afcc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/common/jax_env/_policy.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/jax_env/_policy.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          17
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "64d639b0e08c466f72d04d128ea01f2ee5b1f725",
+      "sha256": "cb74039a8f00a95eae580d36eab56029915987398794b42e6cc8348548f2ea41",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/tools/devx/workspace/bootstrap.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/devx/workspace/bootstrap.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          184
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "7554680ccbd245a468edf22c6dad33118c95e829",
+      "sha256": "dc49dfbd183e39aae4aac40564fe20245b75633c0a2393035fc411402e4ffd56",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/architecture/shims.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/architecture/shims.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          128
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "8f303d26e9948721b2ba565825daa44b8691e086",
+      "sha256": "181a86d98e42fc0c57cdbae21c81a62c9a1dc4fb4fb3d4e5a09fe631bfede4a2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/tools/lib/imports.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/lib/imports.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          96
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "dc606e388c397eea850890b5dc701461877d2b26",
+      "sha256": "b5d526162f7038967712b2e99446377ea1a2543185eb46f9731354bda9bd7286",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/benchmarks/harness.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/benchmarks/harness.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          517
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "3bb3456bf8570d9fa8db13415fc86e690f07621d",
+      "sha256": "9e5fe6ef343483de61551223b29e30079a5b390ca3762ecad942cb7204ae15e3",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/benchmarks/metrics.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/benchmarks/metrics.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          275
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "c9bad634a394f24614db98012ff733778a492d77",
+      "sha256": "65d167c60052b42a79a0bb2302cd2206045ff9d832a31544e70611c15c464850",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/tests/unit/common/jax_env/test__policy.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/common/jax_env/test__policy.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          44
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "626c2a5467033e30e94ff0d588ddf321f17483a2",
+      "sha256": "bb25d1f8c0aedd0f762f1686c81b869468f027acf1788adf6a3cb8456b43713c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/hatch.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/hatch.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          53
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "1355bf80299b4d3f37cdf915d75c00987742ae1d",
+      "sha256": "b30a89dcdcfba3e94915be920d2a060fe991f7364c4501a66e529b4bed812bef",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/package.json",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/package.json",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          17
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "05c08c9dad38ef14ff9c32b28f555a7647b6cb85",
+      "sha256": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/pnpm-workspace.yaml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pnpm-workspace.yaml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          3
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "3ff5faaaf5f139c707e338e7e89e51606e9e0ace",
+      "sha256": "08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/apps/runtime-reference-shell/package.json",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/apps/runtime-reference-shell/package.json",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          25
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "fd9a84037fde21b4d615bb685434531d288bc424",
+      "sha256": "bd7a1d8bcebcab06a029084b2f9e4bf20235ad4c98ced0f08a87225ab2271ecc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/apps/runtime-dashboard/package.json",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/apps/runtime-dashboard/package.json",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          183
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "0eca7ad3345d1492d108b8847d79ea55c7719615",
+      "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S18",
+      "path": "policy-engine/packages/runtime-api-client/package.json",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/packages/runtime-api-client/package.json",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          41
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "4f935309065e8e25d385043b5b7c5a26739f0921",
+      "sha256": "0e88f8dcea58be097b3249eee3692f670ed3dce44a799c71b84d6cf4daf29cf1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S19",
+      "path": "policy-engine/apps/runtime-reference-shell/README.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/apps/runtime-reference-shell/README.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          100
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "104891d94d992011e9b69d0e14fe11de27aa052c",
+      "sha256": "38772256fe886aad4760ec94e8f8e6aa9bd24d82e0ba1cb349e9465648437e66",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S20",
+      "path": "policy-engine/apps/runtime-reference-shell/governedProjectionProof.js",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/apps/runtime-reference-shell/governedProjectionProof.js",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          27
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "f8fb5a9ae44a46faec9e42c66c2c9d057d2b3d51",
+      "sha256": "4aaef5a15ba5d654bb61f7c55c5de7bea06b7b9949c9bb8bfa9e8fdb713b6785",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S21",
+      "path": "policy-engine/packages/cli/package.json",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/packages/cli/package.json",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          24
+        ]
+      ],
+      "evidence_level": "Полное чтение; уровень исполнения отдельно указан в отчёте, наличие не означает capability PASS.",
+      "git_blob": "1da90d088c42d656f3b1f95906bbcd1af90eaf3a",
+      "sha256": "71693e64b8c2b2f09d10cc440e1df8b52bb56b197d682c0b8bfa2ce82fd28bab",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S22",
+      "path": "policy-engine/tools/devx/workspace/_common.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/devx/workspace/_common.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          155
+        ]
+      ],
+      "evidence_level": "Constants/profile/CommandSpec/run_command прочитаны; module импортирован с tools.lib parent shell, main recorder.",
+      "git_blob": "5f99fd0e73d91ca28e3be56442679d3f7772acaa",
+      "sha256": "fadb1e8e48587a79fdeafdf7ce23216518d4f09a06c3045b0ed1f1c0133c267a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S23",
+      "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/devx/workspace/_repo_hygiene.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          75
+        ]
+      ],
+      "evidence_level": "Импорты/constants; hooks branch не выполнялся, остальной helper не аттестован.",
+      "git_blob": "f65bafe4bae4183e42be6f58c2cfaa762b91cdd6",
+      "sha256": "2364c99e22eaeaf8d0d6258240cb5cbcbed45ab4659aa972015e1020776218cd",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S24",
+      "path": "policy-engine/tools/quality/validation/check_docs_lifecycle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/quality/validation/check_docs_lifecycle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          55
+        ],
+        [
+          110,
+          270
+        ],
+        [
+          487,
+          545
+        ]
+      ],
+      "evidence_level": "Полные selected redirect helpers прочитаны/AST executed с traversal adapter. Не весь819-line validator.",
+      "git_blob": "cdc26688a1824689fa936824155a65c3b964f16b",
+      "sha256": "25b855dc300fd6d029e28a05c6ff215707c3cba8535e7174d3ff4292d1af592e",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S25",
+      "path": "policy-engine/tests/unit/remediation/test_hyg_04.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_hyg_04.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          294
+        ],
+        [
+          1509,
+          1670
+        ]
+      ],
+      "evidence_level": "Selected unchanged bodies; middle advanced census helpers/tests295–1508 не аттестованы и не запускались.",
+      "git_blob": "b162dfe84b3326e955f1efd78297202a0a185aee",
+      "sha256": "23af8e255ae6b967f6bcc4ed5e9779affb4463345cd8acad2758356a9625f383",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S26",
+      "path": "policy-engine/tools/research/benchmarks/jax/bench_domain.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/research/benchmarks/jax/bench_domain.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          65
+        ],
+        [
+          100,
+          231
+        ]
+      ],
+      "evidence_level": "Early boundary и main/runner read; guard останавливает до NumPy/JAX, science не исполняется.",
+      "git_blob": "7f478b45e6374454cf6580a33cbe92c2fb5a0493",
+      "sha256": "cf2757e5cda4651b858bca7f50102395213a620bc4603e2d3e8d98b15bfb6570",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S27",
+      "path": "policy-engine/tools/research/benchmarks/jax/bench_simulation.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/research/benchmarks/jax/bench_simulation.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          65
+        ]
+      ],
+      "evidence_level": "Early bootstrap/import order read/executed only to numerical guard.",
+      "git_blob": "e149d0929b052591e1f09a2deebf23ccc77cc7c7",
+      "sha256": "aa094d532ed507c5d7845a69941044bc0e7e8373fd299299d630a0a0aa832c0d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S28",
+      "path": "policy-engine/tools/research/demos/run_laffer_demo.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/research/demos/run_laffer_demo.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          65
+        ]
+      ],
+      "evidence_level": "Same bounded early boundary; full demo UNRUN.",
+      "git_blob": "cc0738d4b0cae2cb9c0732345a2ce1517147d64d",
+      "sha256": "5e411172fc153e8dad00e5a75e2bcb2462ae9b41fe6e12a4eb8069a2d0fac3c9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S29",
+      "path": "policy-engine/tools/research/demos/run_mechanism_design.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/research/demos/run_mechanism_design.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          65
+        ]
+      ],
+      "evidence_level": "Same bounded early boundary; later retired foundry.domain.state import source-only, full demo not qualified.",
+      "git_blob": "9a547105227b51224d8f03dd31bff55001567feb",
+      "sha256": "ef7ea802b84e82dcbaa963899dcbe82729a2668ff7208f3c4892e9cf3f260a1f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S30",
+      "path": "policy-engine/benchmarks/suite_registry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/benchmarks/suite_registry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          90
+        ],
+        [
+          880,
+          1123
+        ]
+      ],
+      "evidence_level": "DTO/alias/filter/CLI complete read; large suite catalog91–879 not line-by-line scientific validation; actual whole module loaded.",
+      "git_blob": "3c9bc87ef73eb5cf31195993f3df987e0e539321",
+      "sha256": "bd361e03bac207314823662c62230720d576fbfc490202ffd048ec12608c5f7c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S31",
+      "path": "policy-engine/CONTRIBUTING.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/CONTRIBUTING.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          110
+        ]
+      ],
+      "evidence_level": "Supported runtime and canonical bootstrap/profile requirements.",
+      "git_blob": "8ff414198e306e671abff1f76f31330a1f29d765",
+      "sha256": "e78f1bdb99a900f6426f9f451b7e9cbc0e21007eb12012eaf209d89c505f3a1f",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

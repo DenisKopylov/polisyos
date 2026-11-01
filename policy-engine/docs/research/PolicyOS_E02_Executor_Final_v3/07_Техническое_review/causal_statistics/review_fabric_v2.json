@@ -1,0 +1,699 @@
+{
+  "schema": "e02.independent-peer-review.v1",
+  "reviewer": "causal_statistics",
+  "reviewed_author": "fabric_acquisition",
+  "checked_date": "2026-11-01",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "verdict": "ACCEPT_PROPOSED_SPECIFICATION_CORRECTIONS",
+  "new_findings": [],
+  "blocking_findings": 0,
+  "product_tests": "NOT_RUN",
+  "native_qualification": "NOT_QUALIFIED",
+  "implementation_status": "NOT_IMPLEMENTED",
+  "claims_read": [
+    {
+      "path": "e02_final_technical_review/fabric_acquisition/proposed_changes.json",
+      "sha256": "64a0b1e95e5e966b6c5083415e757366fe2ad7c279e5d11d34bfbd0b9eb47934",
+      "scope": "full; findings prose checked against full review, maps inspected"
+    },
+    {
+      "path": "e02_final_technical_review/fabric_acquisition/findings.json",
+      "sha256": "d9955ad1b4c509f9ae186000af995c01e59f361cbf6a2ddd740b4aed4f6117e8",
+      "scope": "full; findings prose checked against full review, maps inspected"
+    },
+    {
+      "path": "e02_final_technical_review/fabric_acquisition/review.md",
+      "sha256": "2caf5257214bd03d3b0316f8151b2bb48016448a657c72584d5825de8dd82950",
+      "scope": "full; findings prose checked against full review, maps inspected"
+    }
+  ],
+  "files": [
+    {
+      "path": "02_Пакеты/UDF-05.md",
+      "old_sha256": "193e2e542c94da6d07130f36444daab5a8a6c721063cd3bffc375abdc7668195",
+      "new_sha256": "a8eea98a6047d03467982f59b7760a17f8f404ca413825fef6675f7755b80d40",
+      "manifest_match": true,
+      "read_scope": "full proposed Markdown; full baseline-to-proposed unified diff",
+      "findings_addressed": [
+        "FA-01"
+      ]
+    },
+    {
+      "path": "04_Трассировка/UDF-05.json",
+      "old_sha256": "55b432e485f33617cc952c85192735febda2ba7530dd15016096ef2bab08a1b7",
+      "new_sha256": "655de8e77fe7bee789bacfc1eea942a9e8d6b54c9c615a3967a02dc4ed9facf6",
+      "manifest_match": true,
+      "read_scope": "entire JSON parsed; normative text deduplicated against fully read Markdown; all unique text/maps and all changed fields inspected",
+      "findings_addressed": [
+        "FA-01"
+      ]
+    },
+    {
+      "path": "02_Пакеты/DFI-03.md",
+      "old_sha256": "62c9a9784bef9a5fa7ccce4c29a4e16dba95c67c93ad08e89696df1ee5ea6e48",
+      "new_sha256": "9b408e25c09447a1c0517e99724bb5f3d988584c4bc2fec68911c0d9d8b660dd",
+      "manifest_match": true,
+      "read_scope": "full proposed Markdown; full baseline-to-proposed unified diff",
+      "findings_addressed": [
+        "FA-02"
+      ]
+    },
+    {
+      "path": "04_Трассировка/DFI-03.json",
+      "old_sha256": "bea831bc86c51797db932b6bab1dbbf0ae679358f6537d2dc38262419a9d05d4",
+      "new_sha256": "00302a2614b1f5c14e01489274dfdf93d31fddc9be15142ef02cda75ebdea4a5",
+      "manifest_match": true,
+      "read_scope": "entire JSON parsed; normative text deduplicated against fully read Markdown; all unique text/maps and all changed fields inspected",
+      "findings_addressed": [
+        "FA-02"
+      ]
+    },
+    {
+      "path": "02_Пакеты/SCL-01.md",
+      "old_sha256": "a5f5f9671e8f79431ba2f949400fb06a95d80ed9ba40d45ea3bdbac31fd0299a",
+      "new_sha256": "152f0a1f227dede5819998613030b8efb73ab6b49831a03ff60eb71dc689a749",
+      "manifest_match": true,
+      "read_scope": "full proposed Markdown; full baseline-to-proposed unified diff",
+      "findings_addressed": [
+        "FA-03"
+      ]
+    },
+    {
+      "path": "04_Трассировка/SCL-01.json",
+      "old_sha256": "bc1bf5951244cc44e9d051cb2e0f5e2ffe034d5dd84dfe8c54904ef9a1b4f647",
+      "new_sha256": "2bbb48397482c675e6d3e514ac24c0f5b630257826fd6c4e9a3d32ae50d36ae7",
+      "manifest_match": true,
+      "read_scope": "entire JSON parsed; normative text deduplicated against fully read Markdown; all unique text/maps and all changed fields inspected",
+      "findings_addressed": [
+        "FA-03"
+      ]
+    },
+    {
+      "path": "02_Пакеты/FED-01.md",
+      "old_sha256": "fd18e7dbd098faaa67aac193c65a8f1b517b1a0ba69c42552ea3e10c36ebc9db",
+      "new_sha256": "11a0343edb80a874d00ff8af5e5add848a69284b12ed6db3857959a889fc5b44",
+      "manifest_match": true,
+      "read_scope": "full proposed Markdown; full baseline-to-proposed unified diff",
+      "findings_addressed": [
+        "FA-04"
+      ]
+    },
+    {
+      "path": "04_Трассировка/FED-01.json",
+      "old_sha256": "5d68e851781f72fdd4152cef99bb4c53453c6816c270079160e35a674f7f4f0b",
+      "new_sha256": "cfa8c87f56fbc02e5637423d1ff2dd85d201ba1bcb65159b6b149573e9b0488d",
+      "manifest_match": true,
+      "read_scope": "entire JSON parsed; normative text deduplicated against fully read Markdown; all unique text/maps and all changed fields inspected",
+      "findings_addressed": [
+        "FA-04"
+      ]
+    },
+    {
+      "path": "02_Пакеты/EMB-01.md",
+      "old_sha256": "beba99b03e531f255d93d0318d735a125d810be4f05817ca4900840283b8b84c",
+      "new_sha256": "045f174e34103124110f41f5c6570d1bd64f42ac243f126df770bc2bd6617be6",
+      "manifest_match": true,
+      "read_scope": "full proposed Markdown; full baseline-to-proposed unified diff",
+      "findings_addressed": [
+        "FA-06",
+        "FA-07"
+      ]
+    },
+    {
+      "path": "04_Трассировка/EMB-01.json",
+      "old_sha256": "beaf957679e823a02c983e4bfaaa849f5cb891bec8c928050df01a7c3376ddad",
+      "new_sha256": "08b54bfe0093fe5241485c83ba0284aa0b3935d3bc026de26e0e71784674bd26",
+      "manifest_match": true,
+      "read_scope": "entire JSON parsed; normative text deduplicated against fully read Markdown; all unique text/maps and all changed fields inspected",
+      "findings_addressed": [
+        "FA-06",
+        "FA-07"
+      ]
+    },
+    {
+      "path": "02_Пакеты/EMB-02.md",
+      "old_sha256": "920dce2149f604a6b2b10ca132a1b40a26bdd207939fc858476e3400a39923f8",
+      "new_sha256": "799a907f4d98ba180cc0774f3025f27731997d20b6524bf00e3557838560a9e4",
+      "manifest_match": true,
+      "read_scope": "full proposed Markdown; full baseline-to-proposed unified diff",
+      "findings_addressed": [
+        "FA-05"
+      ]
+    },
+    {
+      "path": "04_Трассировка/EMB-02.json",
+      "old_sha256": "1542948d517b502fc7700308f237abd168a8a8cf74f183f9f7889da8bc3fa45d",
+      "new_sha256": "8e2592a09410f3691c841c6d3a356a132d47b27061a016cdcb7cbe5fa3e72e63",
+      "manifest_match": true,
+      "read_scope": "entire JSON parsed; normative text deduplicated against fully read Markdown; all unique text/maps and all changed fields inspected",
+      "findings_addressed": [
+        "FA-05"
+      ]
+    },
+    {
+      "path": "02_Пакеты/EMB-03.md",
+      "old_sha256": "8e6d6fe39800110ae582ae9aa41895aeb4404e27f2c3a30e453d448cd3cc54e2",
+      "new_sha256": "b7f78338c774d8a4bc48f73c803d6f2a39a35d254b44e5db5a5b9b0496f9d794",
+      "manifest_match": true,
+      "read_scope": "full proposed Markdown; full baseline-to-proposed unified diff",
+      "findings_addressed": [
+        "FA-06",
+        "FA-07"
+      ]
+    },
+    {
+      "path": "04_Трассировка/EMB-03.json",
+      "old_sha256": "9fd669d56526514f5a284d0e2fa41a65c67b41d2211370c2c6b1aabc47ec0eb1",
+      "new_sha256": "24b2f251644f6b7ea240edbd2e589537c5229a9b4954f99258f6b0bc5b900f6d",
+      "manifest_match": true,
+      "read_scope": "entire JSON parsed; normative text deduplicated against fully read Markdown; all unique text/maps and all changed fields inspected",
+      "findings_addressed": [
+        "FA-06",
+        "FA-07"
+      ]
+    },
+    {
+      "path": "01_Лейны/LANE-07.md",
+      "old_sha256": "d99c9af0a8811e2be5097bee891a34ea56aa69d012c81f030018a1d754884be0",
+      "new_sha256": "fa3267d0d6aa96035eb1b0e9bb8bad600876f4b57ad2152920c40f4bd3bf03dc",
+      "manifest_match": true,
+      "read_scope": "full proposed Markdown; full baseline-to-proposed unified diff",
+      "findings_addressed": [
+        "FA-01",
+        "FA-04"
+      ]
+    },
+    {
+      "path": "01_Лейны/LANE-08.md",
+      "old_sha256": "92183dcb6df9c6fa5ca61b4fb6474dc8add55ec9d729489d5cf5a29dba7f475e",
+      "new_sha256": "ebf6df3390e33c39d15720a6da7247548b4a5dcee171ea7dcd37dfedda4a9b3c",
+      "manifest_match": true,
+      "read_scope": "full proposed Markdown; full baseline-to-proposed unified diff",
+      "findings_addressed": [
+        "FA-02",
+        "FA-05",
+        "FA-06",
+        "FA-07"
+      ]
+    },
+    {
+      "path": "01_Лейны/LANE-09.md",
+      "old_sha256": "82f79adab1aa022baccd10853b35c71ae108ea52a8134e84fb74c6b9676aa158",
+      "new_sha256": "04c1406e38fa04c333ebc32bc59fb40454de28a82259d45ee44fec5cbfa32d8f",
+      "manifest_match": true,
+      "read_scope": "full proposed Markdown; full baseline-to-proposed unified diff",
+      "findings_addressed": [
+        "FA-03"
+      ]
+    }
+  ],
+  "packet_checks": [
+    {
+      "packet_id": "UDF-05",
+      "requirements": 6,
+      "tests": 6,
+      "all_original_ids_preserved": true,
+      "unchanged_maps": [
+        "source_ids",
+        "residual_dispositions",
+        "obligation_dispositions",
+        "preservation_bindings",
+        "preservation",
+        "protected_distinction_ids"
+      ],
+      "normative_md_json_exact_match": true
+    },
+    {
+      "packet_id": "DFI-03",
+      "requirements": 4,
+      "tests": 4,
+      "all_original_ids_preserved": true,
+      "unchanged_maps": [
+        "source_ids",
+        "residual_dispositions",
+        "obligation_dispositions",
+        "preservation_bindings",
+        "preservation",
+        "protected_distinction_ids"
+      ],
+      "normative_md_json_exact_match": true
+    },
+    {
+      "packet_id": "SCL-01",
+      "requirements": 5,
+      "tests": 6,
+      "all_original_ids_preserved": true,
+      "unchanged_maps": [
+        "source_ids",
+        "residual_dispositions",
+        "obligation_dispositions",
+        "preservation_bindings",
+        "preservation",
+        "protected_distinction_ids"
+      ],
+      "normative_md_json_exact_match": true
+    },
+    {
+      "packet_id": "FED-01",
+      "requirements": 5,
+      "tests": 5,
+      "all_original_ids_preserved": true,
+      "unchanged_maps": [
+        "source_ids",
+        "residual_dispositions",
+        "obligation_dispositions",
+        "preservation_bindings",
+        "preservation",
+        "protected_distinction_ids"
+      ],
+      "normative_md_json_exact_match": true
+    },
+    {
+      "packet_id": "EMB-01",
+      "requirements": 4,
+      "tests": 4,
+      "all_original_ids_preserved": true,
+      "unchanged_maps": [
+        "source_ids",
+        "residual_dispositions",
+        "obligation_dispositions",
+        "preservation_bindings",
+        "preservation",
+        "protected_distinction_ids"
+      ],
+      "normative_md_json_exact_match": true
+    },
+    {
+      "packet_id": "EMB-02",
+      "requirements": 4,
+      "tests": 4,
+      "all_original_ids_preserved": true,
+      "unchanged_maps": [
+        "source_ids",
+        "residual_dispositions",
+        "obligation_dispositions",
+        "preservation_bindings",
+        "preservation",
+        "protected_distinction_ids"
+      ],
+      "normative_md_json_exact_match": true
+    },
+    {
+      "packet_id": "EMB-03",
+      "requirements": 4,
+      "tests": 4,
+      "all_original_ids_preserved": true,
+      "unchanged_maps": [
+        "source_ids",
+        "residual_dispositions",
+        "obligation_dispositions",
+        "preservation_bindings",
+        "preservation",
+        "protected_distinction_ids"
+      ],
+      "normative_md_json_exact_match": true
+    }
+  ],
+  "source_read_scope": [
+    {
+      "path": "src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+      "sha256": "336db8edc8bc61bfb96da8113045dca52e8241493f7596183fca0830d1863ebb",
+      "total_lines": 467,
+      "read_scope": [
+        [
+          176,
+          405
+        ]
+      ],
+      "whole_file_read": false
+    },
+    {
+      "path": "src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py",
+      "sha256": "7173f64b3e24afecd43fa1d92d2478fbd2fd888bbe86ac8e6622439c76850068",
+      "total_lines": 1057,
+      "read_scope": [
+        [
+          905,
+          955
+        ]
+      ],
+      "whole_file_read": false
+    },
+    {
+      "path": "src/polisyos/data_forge/domains/ukraine/static_aging.py",
+      "sha256": "b41eef2e01aa7291c770fd81b593bd750c444faac5439f4aed1b3e22f6c3899b",
+      "total_lines": 50,
+      "read_scope": [
+        [
+          1,
+          50
+        ]
+      ],
+      "whole_file_read": false
+    },
+    {
+      "path": "src/polisyos/data_forge/domains/catalog/batch/cli.py",
+      "sha256": "cce2d35c885368d53b5b2c36993739a98fabb6687666c168d061459bd876f9c1",
+      "total_lines": 297,
+      "read_scope": [
+        [
+          70,
+          120
+        ]
+      ],
+      "whole_file_read": false
+    },
+    {
+      "path": "src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+      "sha256": "979f24af1b2f54e30b5c9ffcf5df28860a99a923613567c68f81b3cf3ded3866",
+      "total_lines": 1561,
+      "read_scope": [
+        [
+          150,
+          205
+        ],
+        [
+          492,
+          700
+        ],
+        [
+          1225,
+          1435
+        ]
+      ],
+      "whole_file_read": false
+    },
+    {
+      "path": "src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "sha256": "0ce31bac3c78143283b3e3c24960e7f5d2a6b2faffd0436da80ed692bbad04c6",
+      "total_lines": 2233,
+      "read_scope": [
+        [
+          1069,
+          1174
+        ],
+        [
+          1250,
+          1285
+        ]
+      ],
+      "whole_file_read": false
+    },
+    {
+      "path": "src/polisyos/scholar/search/security.py",
+      "sha256": "8813f9d6f2f4b78d2f4b3ba2743f60c6ea09d402617800e5056d12eb6503dbe7",
+      "total_lines": 228,
+      "read_scope": [
+        [
+          1,
+          210
+        ]
+      ],
+      "whole_file_read": false
+    },
+    {
+      "path": "src/polisyos/scholar/search/fetcher.py",
+      "sha256": "2dd9e13a8f75cbc66bcd1a751012c7aee67d55f83556c9b6ba448acbbeedfe2f",
+      "total_lines": 290,
+      "read_scope": "full",
+      "whole_file_read": true
+    },
+    {
+      "path": "tests/unit/scholar/search/test_fetcher_security_cache.py",
+      "sha256": "8b5ddea43d7c70f34ac8b1484bd7062ccca65f789ebdc1bd29a76c33870cbe5c",
+      "total_lines": 406,
+      "read_scope": [
+        [
+          1,
+          150
+        ]
+      ],
+      "whole_file_read": false
+    },
+    {
+      "path": "src/polisyos/fabric/connectors/federation/composer.py",
+      "sha256": "3ab46f4a5e71cff32e65e370bc2e1c808ba19a2ac58359555e2c1253e30c8b71",
+      "total_lines": 1913,
+      "read_scope": [
+        [
+          1612,
+          1735
+        ]
+      ],
+      "whole_file_read": false
+    },
+    {
+      "path": "src/polisyos/fabric/connectors/federation/resolver.py",
+      "sha256": "93658eca6990c50eb6765293d9e79170a72799c63e6a5770f56f5e0f2c1c19f9",
+      "total_lines": 512,
+      "read_scope": [
+        [
+          315,
+          370
+        ]
+      ],
+      "whole_file_read": false
+    },
+    {
+      "path": "src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "sha256": "2d6d876276cdc93a8f66eb599d4481cf691c621fada3820720d82865499c739b",
+      "total_lines": 1307,
+      "read_scope": [
+        [
+          290,
+          380
+        ],
+        [
+          415,
+          480
+        ],
+        [
+          630,
+          670
+        ]
+      ],
+      "whole_file_read": false
+    },
+    {
+      "path": "src/polisyos/data_forge/kernel/embeddings.py",
+      "sha256": "ffd121f70aece50096ac6e96b10327f09a08692356074b07c85aed80334cc59e",
+      "total_lines": 1450,
+      "read_scope": [
+        [
+          349,
+          463
+        ],
+        [
+          1118,
+          1412
+        ]
+      ],
+      "whole_file_read": false
+    },
+    {
+      "path": "src/polisyos/data_forge/domains/legal/runtime_material.py",
+      "sha256": "2ee5093f03bade9677abe9a5c3386dbd936cfc970eb9b77dbc89c1b6c36f9dbc",
+      "total_lines": 949,
+      "read_scope": [
+        [
+          250,
+          315
+        ],
+        [
+          550,
+          580
+        ],
+        [
+          649,
+          745
+        ]
+      ],
+      "whole_file_read": false
+    },
+    {
+      "path": "src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py",
+      "sha256": "e99b1b3ba38a28264497477cb064fed6cddf0f8a4affb3e57eb25bd06bdbd927",
+      "total_lines": 7707,
+      "read_scope": [
+        [
+          1867,
+          1995
+        ]
+      ],
+      "whole_file_read": false
+    },
+    {
+      "path": "tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py",
+      "sha256": "7d63e11e3ede5cd5c0e70c7be9d69d5dc5a996c90e2dc033bc1b71127a31f2a8",
+      "total_lines": 4020,
+      "read_scope": [
+        [
+          905,
+          965
+        ]
+      ],
+      "whole_file_read": false
+    },
+    {
+      "path": "tests/unit/remediation/test_emb_02.py",
+      "sha256": "b830738c7656c015c5afc48c5c48076ceb4257139ee0f73aac2266ee9480ac9b",
+      "total_lines": 545,
+      "read_scope": [
+        [
+          399,
+          488
+        ]
+      ],
+      "whole_file_read": false
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "total_lines": 295,
+      "read_scope": {
+        "text_ranges": [
+          [
+            145,
+            225
+          ]
+        ],
+        "queried_lines": "requires-python, vector-search, rag-local, research, all; relevant TOML profile definitions"
+      },
+      "whole_file_read": false
+    },
+    {
+      "path": "uv.lock",
+      "sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+      "total_lines": 7226,
+      "read_scope": {
+        "parsed": "full TOML file; independently inspected selected hnswlib, numpy, pydantic, sentence-transformers, torch, transformers package entries; not every lock entry reviewed"
+      },
+      "whole_file_read": false
+    }
+  ],
+  "finding_dispositions": [
+    {
+      "finding_id": "FA-01",
+      "verdict": "accept",
+      "reason": "Original scalar validation now precedes inferred float dtype; exact mixed big-int controls cover direct DTO and both readers; signed/integral-float compatibility retained."
+    },
+    {
+      "finding_id": "FA-02",
+      "verdict": "accept",
+      "reason": "Canonical async selected-config route exists; sync helper excludes harvest; unchanged smart hit, changed current basis, off and missing receipt controls distinguish stage work from config-only assertions."
+    },
+    {
+      "finding_id": "FA-03",
+      "verdict": "accept",
+      "reason": "Offline current saved-content admission precedes cache return and DNS; live peer/SNI/redirect guards retained; persisted producer/reload plus network traps distinguishes original ordering."
+    },
+    {
+      "finding_id": "FA-04",
+      "verdict": "accept_as_preference_pending_target_qualification",
+      "reason": "Pinned CPython mean exact-ratio contract fits finite Python floats; fmean/even median are not substitutes; no measured speed claim; common owner and source semantics retained."
+    },
+    {
+      "finding_id": "FA-05",
+      "verdict": "accept_measurement_only",
+      "reason": "Actual warm path reprojects/hashes artifacts; proposal adds bounded breakdown without mandating lease/cache or stat-only identity."
+    },
+    {
+      "finding_id": "FA-06",
+      "verdict": "accept_bounded_qualification",
+      "reason": "Finite ANN topology oracle distinct from semantic relevance; frozen holdout/new-resource public serving qualification; existing GL/G5 evidence principle reused without false ledger/schema authority."
+    },
+    {
+      "finding_id": "FA-07",
+      "verdict": "accept_profile_correction",
+      "reason": "Actual lock/extras and local owner profile distinguish HNSW index from ST/model serving; missing prereqs NOT_QUALIFIED; no native compatibility or installation claim."
+    }
+  ],
+  "primary_sources": [
+    {
+      "url": "https://numpy.org/doc/2.3/reference/generated/numpy.asarray.html",
+      "checked": "2026-11-01",
+      "sections": "dtype inferred from input",
+      "applicability": "NumPy2.3.5 lock"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/python/cpython/v3.14.0/Lib/statistics.py",
+      "checked": "2026-11-01",
+      "sections": "mean 145–164; fmean167–191; _sum1321–1373; _exact_ratio1455–1477; _convert1480–1496",
+      "applicability": "target CPython3.14 source contract, not target execution"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/nmslib/hnswlib/v0.8.0/README.md",
+      "checked": "2026-11-01",
+      "sections": "Python API init_index/set_ef/knn_query/get_items; ef not saved; cosine normalized vectors",
+      "applicability": "exact hnswlib0.8.0 lock source; no native build run"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/UKPLab/sentence-transformers/v2.7.0/sentence_transformers/SentenceTransformer.py",
+      "checked": "2026-11-01",
+      "sections": "constructor46–85 and encode241–278",
+      "applicability": "exact ST2.7.0 lock source, local path/device; no new constructor API prescribed"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/python/cpython/v3.14.0/Lib/fractions.py",
+      "checked": "2026-11-01",
+      "sections": "from_number/from_float exact input conversion",
+      "applicability": "supporting rational oracle semantics only"
+    }
+  ],
+  "independent_arithmetic": {
+    "scope": "stdlib-only independent calculator; no product imports; host not target3.14",
+    "host_python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "cases": [
+      {
+        "input_hex": [
+          "0x1.1ccf385ebc8a0p+1023",
+          "0x1.1ccf385ebc8a0p+1023"
+        ],
+        "rational_expected_hex": "0x1.1ccf385ebc8a0p+1023",
+        "host_statistics_mean_hex": "0x1.1ccf385ebc8a0p+1023",
+        "equal": true
+      },
+      {
+        "input_hex": [
+          "0x1.4000000000000p+3",
+          "0x1.c000000000000p+3"
+        ],
+        "rational_expected_hex": "0x1.8000000000000p+3",
+        "host_statistics_mean_hex": "0x1.8000000000000p+3",
+        "equal": true
+      },
+      {
+        "input_hex": [
+          "0x1.1ccf385ebc8a0p+1023",
+          "-0x1.1ccf385ebc8a0p+1023",
+          "0x0.0000000000003p-1022"
+        ],
+        "rational_expected_hex": "0x0.0000000000001p-1022",
+        "host_statistics_mean_hex": "0x0.0000000000001p-1022",
+        "equal": true
+      },
+      {
+        "input_hex": [
+          "0x0.0000000000001p-1022",
+          "0x0.0000000000002p-1022"
+        ],
+        "rational_expected_hex": "0x0.0000000000002p-1022",
+        "host_statistics_mean_hex": "0x0.0000000000002p-1022",
+        "equal": true
+      }
+    ]
+  },
+  "nonblocking_execution_notes": [
+    "run_dataset_pipeline selection is config.stages, not a new stages keyword; preserve single-stage return/exception/side-effect contract or factor existing branch.",
+    "Freeze finite relevance corpus/criteria/k/ef before holdout; no semantic utility PASS before actual model evidence.",
+    "Root coordinates shared03 profile/integration claims separately; not edited by this reviewer.",
+    "Fraction oracle is independent of application helper but shares underlying rational/conversion primitives with CPython mean; retain explicit hardcoded boundary values."
+  ],
+  "limitations": [
+    "No native product tests, installs, model loads, network acquisition, repository imports or external mutations.",
+    "No performance/RSS/build/platform/semantic relevance measurements.",
+    "Source ranges only, not full repository review or re-review of all25 fabric packets.",
+    "No power-loss/crash/durability or source-authority claims inferred from document checks."
+  ],
+  "report_markdown_sha256": "6f201067223066e813b48b2ac8746152ac18803600622465b3904ef8f291c145"
+}

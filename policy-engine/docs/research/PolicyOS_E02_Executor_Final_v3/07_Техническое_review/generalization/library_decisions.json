@@ -1,0 +1,61 @@
+[
+  {
+    "id": "GEN-LIB-01",
+    "decision": "retain_existing",
+    "technology": "Python3.14 importlib.metadata via core.discovery",
+    "existing_owner": "src/polisyos/core/discovery/base.py:112–130; foundry/plugins/discovery.py:67–89",
+    "alternatives": [
+      "Новый plugin discovery framework",
+      "Ручной список case-specific plugins"
+    ],
+    "reason": "Текущий stdlib owner уже решает installed-distribution discovery. Требуется actual registration→selection→execution witness, а не второй discovery layer.",
+    "limits": "Наличие entry point не доказывает type conformance, executable posture, safety или empirical authority. Builtin economics bootstrap список сам по себе не закрывает installed-plugin extension.",
+    "source_ids": [
+      "EXT-PY314"
+    ]
+  },
+  {
+    "id": "GEN-LIB-02",
+    "decision": "retain_scan_measure_before_optimize",
+    "technology": "Immutable in-memory rows / DuckDB1.4.3",
+    "existing_owner": "runtime/quality/capability_resolver.py:397–577",
+    "alternatives": [
+      "dict[normalized_construct,tuple[capability]] rebuilt per snapshot",
+      "DuckDB filtered projection/predicate pushdown",
+      "ART index only for measured highly selective workload"
+    ],
+    "reason": "Current governed fallback has3 capabilities/11 688 bytes. O(N) scan is not measured bottleneck; from_duckdb not shown to be current hot path. Premature extra index complicates identity/invalidation and may cost more.",
+    "qualification": "Record actual N, query count, constructor frequency, bytes, cold/warm latency/RSS; compare same outputs/ref ordering/rejections/authority. Adopt simpler map before database rearchitecture if repeat scans dominate.",
+    "source_ids": [
+      "EXT-DUCK14"
+    ]
+  },
+  {
+    "id": "GEN-LIB-03",
+    "decision": "retain_current_CAS_and_readmission",
+    "technology": "Existing artifact/CAS/cache owners; Bazel as comparison only",
+    "alternatives": [
+      "Add Bazel or general cache framework",
+      "Treat identical bytes as fresh validity"
+    ],
+    "reason": "Useful established pattern is separate computation input identity/action result from immutable content identity. Current E02 already demands changed request invalidation/current admission; no new build framework addresses policy semantics.",
+    "qualification": "Observe call counts and costs, current-basis validation and fresh read, not only log markers/hash equality.",
+    "source_ids": [
+      "EXT-BAZEL"
+    ]
+  },
+  {
+    "id": "GEN-LIB-04",
+    "decision": "retain_family_native_provenance",
+    "technology": "Existing CTM/owner projections; W3C PROV conceptual comparison",
+    "alternatives": [
+      "Universal persisted event envelope",
+      "RDF/graph-store migration for every owner"
+    ],
+    "reason": "Generic provenance vocabulary is reusable but cannot own claim-specific time/authority rules. Source CTM explicitly rejects universal event envelope. Add only needed lineage relations to existing family artifacts.",
+    "qualification": "One selected result before/after changed dependency, historical/current query distinction and exact dependency cone; no new cross-platform event framework.",
+    "source_ids": [
+      "EXT-PROV"
+    ]
+  }
+]

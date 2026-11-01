@@ -1,0 +1,2392 @@
+{
+  "status": "COMPLETE",
+  "completed_utc": "2026-11-01T13:00:42.139397+00:00",
+  "scope": "32 current root v2 packets: LANE-03, LANE-04, LANE-10; applicable shared contracts consulted, not duplicate lane/scenario assessment assignment",
+  "catalog_sha256": "8c8c77e13d9151349b7410b441f97f0f94fbfb7d097150f32c9872fe35a3cb59",
+  "catalog_criteria": [
+    "RA-01",
+    "RA-02",
+    "RA-03",
+    "RA-04",
+    "RA-05",
+    "RA-06",
+    "RA-07",
+    "RA-08",
+    "RA-09",
+    "RA-10",
+    "RA-11",
+    "RA-12",
+    "RA-13",
+    "RA-14",
+    "RA-15",
+    "RA-16",
+    "RA-17",
+    "DRT-01",
+    "DRT-02",
+    "DRT-03",
+    "DRT-04",
+    "DRT-05",
+    "DRT-06",
+    "DRT-07",
+    "DRT-08",
+    "DRT-09",
+    "DRT-10",
+    "DRT-11",
+    "DRT-12",
+    "DRT-13",
+    "DRT-14",
+    "DRT-15",
+    "DRT-16",
+    "DRT-17",
+    "DRT-18",
+    "DRT-19",
+    "DRT-20",
+    "DRT-21",
+    "DRT-22",
+    "DRT-23",
+    "DRT-24",
+    "DAT-01",
+    "DAT-02",
+    "DAT-03",
+    "DAT-04",
+    "DAT-05",
+    "DAT-06",
+    "DAT-07",
+    "DAT-08",
+    "DAT-09",
+    "DAT-10",
+    "DAT-11",
+    "SR-01",
+    "SR-02",
+    "SR-03",
+    "SR-04",
+    "SR-05",
+    "SR-06",
+    "SR-07",
+    "SR-08",
+    "SR-09",
+    "SR-10",
+    "SR-11",
+    "SR-12",
+    "SR-13",
+    "SR-14",
+    "SR-15",
+    "SR-16",
+    "SR-17",
+    "SR-18"
+  ],
+  "packets": 32,
+  "criterion_dispositions": 2240,
+  "status_counts_by_criterion": {
+    "addressed": 846,
+    "bounded": 518,
+    "not_applicable": 876
+  },
+  "inputs": [
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/EMP-01.md",
+      "sha256": "2a00ba0285fdbc90ae36791f088f47e8583d1d87b44e1247a70521b17e6e1fca",
+      "bytes": 36307,
+      "read_ranges": "1–209",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/EMP-01.json",
+      "sha256": "7a8658cdb6b21976d81dd9376a5cb4079bb92a0ea9a54ced3ade0d402e5fb0f9",
+      "bytes": 42111,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/FRC-01.md",
+      "sha256": "b76acab5ba2149469bee56bbad68d73a75032b345589ec2dbfc18beec9138132",
+      "bytes": 32487,
+      "read_ranges": "1–183",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/FRC-01.json",
+      "sha256": "71ae69c6389e7f7be45b6cf8d77e24a9f348a7a16ceb5229a6ba951004e50834",
+      "bytes": 35202,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/PCL-01.md",
+      "sha256": "f34f60ce4f651455a833414fecc55fddb4ac632b4229e189f6108961122ec3bc",
+      "bytes": 31769,
+      "read_ranges": "1–194",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/PCL-01.json",
+      "sha256": "241e96e7e66b229096bccdb8ae009fa2a56a626be73512f81e531236dfda939a",
+      "bytes": 35348,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/FRC-02.md",
+      "sha256": "11262b6fe5e732e8f8065185bd8a4ef11f38994c6f5c8d764536b8c3e92b35d4",
+      "bytes": 36395,
+      "read_ranges": "1–213",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/FRC-02.json",
+      "sha256": "9075e96923dfc9fc4c215e745ea34027aa91e13d917c72b98e5303d8946a5f95",
+      "bytes": 40000,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/BKT-01.md",
+      "sha256": "5734c65d88fc1dd763481eb1892ac5e053bc2b415118c96871362d24ead6fc68",
+      "bytes": 35296,
+      "read_ranges": "1–227",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/BKT-01.json",
+      "sha256": "43b4a6949db000494caca2c335a0b82441b1e2b79c884dfff8d7d71ca8d78e3a",
+      "bytes": 40837,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/BKT-02.md",
+      "sha256": "1034bcae6837e9538a95f44a086eb289fcfaa8d6903a74d744a2cfdad430644e",
+      "bytes": 33686,
+      "read_ranges": "1–213",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/BKT-02.json",
+      "sha256": "aa4dc4f353107613275ba3b4214a31aacdb5f41dbdde2e4ccbcd4d0d67f66939",
+      "bytes": 38013,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/BKT-03.md",
+      "sha256": "9f05a0b5e6ee98568ec666e14e28a39c50e28367fed348e96e2a5f8a3a957baf",
+      "bytes": 27079,
+      "read_ranges": "1–191",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/BKT-03.json",
+      "sha256": "43ef5eabe30541a0297a6054b030a02be84c83c1ae27092661b7e1113b2ce1d0",
+      "bytes": 29954,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/BKT-04.md",
+      "sha256": "43380f18d18f15bb37862472b3584dc3e4eb2af73832ef0c823cd1e9a7615369",
+      "bytes": 26509,
+      "read_ranges": "1–190",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/BKT-04.json",
+      "sha256": "6c89202f412e36154ff841293ed674f7f6d0598c5d50921296dc8b6fd60a868d",
+      "bytes": 29276,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/FRY-01.md",
+      "sha256": "8af98e49820ebab59ff40dd756c6d4f01649f5be5926e26099b9142c669ab96c",
+      "bytes": 17261,
+      "read_ranges": "1–134",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/FRY-01.json",
+      "sha256": "3d5915bd949f15485f6cf5694406f50f9705649686a778ab67b052221c078e9b",
+      "bytes": 17008,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/FRY-03.md",
+      "sha256": "f039551ec29a3995f447f3fc0e6ddfe7ff547233a2768fa0c36c45e45d6a7fd1",
+      "bytes": 14236,
+      "read_ranges": "1–117",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/FRY-03.json",
+      "sha256": "8ad47924ccec7c28fc7241a905921d6607ceb091330c2f505119c4574bb55951",
+      "bytes": 11981,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/ECO-01.md",
+      "sha256": "dc7fd8a9939059b0fd3949798a701a0da48cab58e3f37ca02383ba2903cce1fe",
+      "bytes": 14733,
+      "read_ranges": "1–117",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/ECO-01.json",
+      "sha256": "1493d2c22015ad72c7c7d0407dff6d55c9661bad662951fd2bdd4a696b233a8b",
+      "bytes": 13808,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/PLG-01.md",
+      "sha256": "2d1f163afa7e0c2b3fcf0c5f3afc66031a7efc9be65243c081974b442428233c",
+      "bytes": 14207,
+      "read_ranges": "1–115",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/PLG-01.json",
+      "sha256": "5bde0bce7e43114f6e891a8246f269b390111ab534f855c3badf75b95ed7a731",
+      "bytes": 11987,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/PLG-02.md",
+      "sha256": "1bc43565908f0bd751188acb010e65a2f7def12a49f5fed1bfef55950993173b",
+      "bytes": 13525,
+      "read_ranges": "1–113",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/PLG-02.json",
+      "sha256": "f71f5398ca67735db69cf8beef408ce32d6166f13ec678da4467b2962b650d1c",
+      "bytes": 8871,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/PLG-03.md",
+      "sha256": "e2ba11032528f972a7374e1a0d535b33a2dbf64d610cdf56ef021abac2844e43",
+      "bytes": 24956,
+      "read_ranges": "1–134",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/PLG-03.json",
+      "sha256": "4557a131465925894ae03296d17f98cf33d0395a5a76fd94722e9e1c8e599a94",
+      "bytes": 23934,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CMP-01.md",
+      "sha256": "1eeb8581f1c62e77b6f3d4c0ec65cd584c25ac305684208f9412b6e489359aca",
+      "bytes": 16742,
+      "read_ranges": "1–118",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CMP-01.json",
+      "sha256": "b00eca793453f155aec22637c50898e286d03880fdedc25db032379ffafc3750",
+      "bytes": 13678,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CMP-02.md",
+      "sha256": "bfb019e433f2c38a61692c54ac4a36a87d3992066aaaac0ab3dd6c718fcd894b",
+      "bytes": 16488,
+      "read_ranges": "1–117",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CMP-02.json",
+      "sha256": "10f6fa149cb1f13f1ce3af1dc8d4394c5fb9940510003a728579099c7e576a3c",
+      "bytes": 13723,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CMP-03.md",
+      "sha256": "a58f6ab3cbbbfbeb82c73a0429a990c51d076ebfea6f9fcae1185ed03297b37c",
+      "bytes": 16817,
+      "read_ranges": "1–115",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CMP-03.json",
+      "sha256": "2f54f3d45793d4bb5c9576547d1c6589529675bb30b6d5ff636a207db299aef0",
+      "bytes": 14549,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/JIT-01.md",
+      "sha256": "d5bd4384aa458bc9cb86819c3231d2ae3bc448f7682b09d94f3a384cddbdf5d5",
+      "bytes": 16730,
+      "read_ranges": "1–117",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/JIT-01.json",
+      "sha256": "5c2ea6ddec1a6da2e30f635aeafcdd8ed0ca58eda40fff9e3f5e5daf66c4fbf9",
+      "bytes": 16010,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/RES-04.md",
+      "sha256": "febf6cdedcb3acac1fe8f8a2d1599106bc9d56eccf9f052c88de2ec9f54ae291",
+      "bytes": 19545,
+      "read_ranges": "1–131",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/RES-04.json",
+      "sha256": "9a6be67c5a96ddf3e41bc705fcaabde691143d20b83834e20f3c449c8cf64452",
+      "bytes": 19269,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CAL-05.md",
+      "sha256": "5c53b92f2318d7afa3822a55da15458ae21b6481412f56dc391b4f1d97358c63",
+      "bytes": 17190,
+      "read_ranges": "1–115",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CAL-05.json",
+      "sha256": "b2349eaf133cbd94aa54cb1bd4b7cf5ca08a9444b1d09810fded99ef9edc6711",
+      "bytes": 13331,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CAL-02.md",
+      "sha256": "7b59039bc80dddf5dd98398235545750b0fe375d96b576cfe92d0d87f199b712",
+      "bytes": 28731,
+      "read_ranges": "1–188",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CAL-02.json",
+      "sha256": "bdad60138440234cd420739ee36cbbd6e9a5d6e14d3c02f94f7dde86c9ac0d04",
+      "bytes": 32064,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CAL-03.md",
+      "sha256": "522f555e4898a2663c1e3ace3e80a7bf54fe49c68f4d5630fee3daae2b7525e9",
+      "bytes": 13944,
+      "read_ranges": "1–140",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CAL-03.json",
+      "sha256": "f228b2f633068744d9238f3bcff0de6ba4ce0514b9d4c7ab320bba0cc4d530e4",
+      "bytes": 15610,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CAL-04.md",
+      "sha256": "1a17a60286528a92e509aa0018451650fc50f4b75f6ca7111c38c7e3b0dc6263",
+      "bytes": 13738,
+      "read_ranges": "1–140",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CAL-04.json",
+      "sha256": "a70e708018f64e1b98faed5bb21548aa224c347eb13f5c8514f0f63ff06e845b",
+      "bytes": 16244,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CAL-06.md",
+      "sha256": "66e7adf5c0288aa6e6bc6baa8f7c93b80853e830f4d2799b110a552e564b042e",
+      "bytes": 15238,
+      "read_ranges": "1–146",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CAL-06.json",
+      "sha256": "7585cf0415f3c96105507d18dee6ff30ab40077577a18bf36673b9b3ea0557be",
+      "bytes": 17558,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/UQS-01.md",
+      "sha256": "4900c5287957f9a33bd7f7e5174ce2b980868d3655ca66bbf53282fe61112b99",
+      "bytes": 18940,
+      "read_ranges": "1–158",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/UQS-01.json",
+      "sha256": "ab2f549e352a405a2f5f0393a3eb1b6ffd35e33d3171f7bab878560b0b263ab3",
+      "bytes": 22571,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/UQP-01.md",
+      "sha256": "0383faefa3e653d0ba2911cd64eef6c418485523cfe683672ac46c44d30b7dfc",
+      "bytes": 14841,
+      "read_ranges": "1–158",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/UQP-01.json",
+      "sha256": "4549fd5e674fb9ecd7565970ae48a5bb537c2e15a58a9270c27d8140b512a0be",
+      "bytes": 17493,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/UQP-02.md",
+      "sha256": "7244e9ce19a8694dc65d90a24a7ec71ab4c79f9a795f0eef22ea5a54997c7446",
+      "bytes": 15517,
+      "read_ranges": "1–144",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/UQP-02.json",
+      "sha256": "96ddf992e4ea2bafaee979d122bb99848c7ceffce5ccd74fe982dd10785c2c27",
+      "bytes": 18167,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/UQP-03.md",
+      "sha256": "451124f91b49449e79159788d2e23ed8f95838910ee7a6aef20056bc303c7919",
+      "bytes": 14667,
+      "read_ranges": "1–155",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/UQP-03.json",
+      "sha256": "85ae999d139836768f75fa4277a50daae7908dc1a6ed5f3bff12aa7ae6a0456c",
+      "bytes": 17083,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/DOE-01.md",
+      "sha256": "37e4e30672f69d4fb3ad4ee3a4fc80c785204bd1d125dfc794049bfc31b84e97",
+      "bytes": 12093,
+      "read_ranges": "1–126",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/DOE-01.json",
+      "sha256": "f2878f05020dea8425cc2508bb3f2d46ad06dee96029bad1f5a19a6347c4208d",
+      "bytes": 13736,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/DOE-02.md",
+      "sha256": "b93d0e9218d057b38402f25cdc1e30c4a6a6ca5205389de9bd66452649b65b5a",
+      "bytes": 16948,
+      "read_ranges": "1–130",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/DOE-02.json",
+      "sha256": "eb2c3a4e613ccce7d284d75445e9551203f6e7099a26ba1bf2a61cd49a57d700",
+      "bytes": 18310,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/DOE-03.md",
+      "sha256": "df62c40d8e02f445ecf20d82728849598c39e6dfc435c69793187d010f1933a8",
+      "bytes": 21172,
+      "read_ranges": "1–160",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/DOE-03.json",
+      "sha256": "241214060ce7fa461d844941d54b09c2f6d28d5dc9864443da1ac2c34b5fdfe7",
+      "bytes": 24390,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/STR-01.md",
+      "sha256": "be849c0c2aa2af2a17792b70ba2ccd33ba73e93298939d4b04090db7b440ee13",
+      "bytes": 12859,
+      "read_ranges": "1–140",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/STR-01.json",
+      "sha256": "14b4850479c723c69135e77de4b2135f110bbf0b0597ab3c9cbdc6c0f326d131",
+      "bytes": 15016,
+      "read_ranges": "all semantic fields, recursive exact-string comparison with full MD; all unique scalar metadata read",
+      "kind": "specification"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Правила_исполнения_и_приёмки.md",
+      "sha256": "8f83cd845cf172c02de1f87035af331cd2cbb6bd81c255ca3b2fa42a0842ac99",
+      "bytes": 18608,
+      "read_ranges": "1–68",
+      "kind": "shared_contract"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Общие_владельцы_и_границы_изменений.md",
+      "sha256": "036a9db1db0158424fc6428a70130df05558b88e2a671188647c47eb6d20ee78",
+      "bytes": 7611,
+      "read_ranges": "1–27",
+      "kind": "shared_contract"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Архитектурное_направление_и_отступления.md",
+      "sha256": "cfbabc5614a0d624940482536204aec687feb4c619f1892da09611d2c17d4317",
+      "bytes": 8287,
+      "read_ranges": "1–32",
+      "kind": "shared_contract"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Реестр_ограниченных_решений.md",
+      "sha256": "c7d7e9fb9c382f8a888746d2564e85f3141ecabe670275e819c64cc26b068ea0",
+      "bytes": 27005,
+      "read_ranges": "1–108",
+      "kind": "shared_contract"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Порядок_и_окна_приёмки.md",
+      "sha256": "2cd026bcda5edc2a7e51c1f4d4cc3b7758f86d3d0ea2e91338ff668cf4b08a71",
+      "bytes": 8003,
+      "read_ranges": "1–113",
+      "kind": "shared_contract"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Защиты_и_направления.md",
+      "sha256": "a85e78652493ea259ab79ea2ba8fc7dc096400ee348ad3170b1c078f65a7b3e3",
+      "bytes": 23991,
+      "read_ranges": "1–92",
+      "kind": "shared_contract"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/01_Лейны/LANE-03.md",
+      "sha256": "da5c8ad38e5e2c72119a6560e213fffae795050fa5c97cb4b800ec07a78259f3",
+      "bytes": 13082,
+      "read_ranges": "1–73",
+      "kind": "shared_contract"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/01_Лейны/LANE-04.md",
+      "sha256": "cd157f8a8d00f5fbd4a29a3baaadce9c7e3531d3b408f6dfff24d2478b580a8b",
+      "bytes": 11413,
+      "read_ranges": "1–68",
+      "kind": "shared_contract"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/01_Лейны/LANE-10.md",
+      "sha256": "831388812733b8c4bc6622731026ad3be4610e92128bb444b5b89719697c4d24",
+      "bytes": 6946,
+      "read_ranges": "1–49",
+      "kind": "shared_contract"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/03_Интеграция/LANE-03.md",
+      "sha256": "0fadddeb8453386e76250a91bc1ecc84ea322e0f91444170fcf1ef4d6c4cd037",
+      "bytes": 12168,
+      "read_ranges": "1–77",
+      "kind": "shared_contract"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/03_Интеграция/LANE-04.md",
+      "sha256": "dfed6f9d8906421e07edb9dc425ad344817aaea4fa28797a9ebbebcb10bfb5d0",
+      "bytes": 14353,
+      "read_ranges": "1–88",
+      "kind": "shared_contract"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/03_Интеграция/LANE-10.md",
+      "sha256": "fe59f16d408b341b9a68a94c22f0d2d401d07b04f2e58e68f37cf760aa484d55",
+      "bytes": 15527,
+      "read_ranges": "1–82",
+      "kind": "shared_contract"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/03_Интеграция/Практическая_расширяемость.md",
+      "sha256": "82b5faca59c39f5ab9b61767fc2ceb702d7e224d2d93170d49b6eec7bf297147",
+      "bytes": 13004,
+      "read_ranges": "1–52",
+      "kind": "shared_contract"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/03_Интеграция/Сценарии.json",
+      "sha256": "e2db814faf6e1d824c93ace6682dd6058e8729941ccdeeb04f4b4cdfcb048616",
+      "bytes": 408264,
+      "read_ranges": "/global_rules, /native_profiles, complete LANE-03/04/10 records including scenarios/owner declarations/historical metadata; /cross_lane_stories",
+      "kind": "shared_contract"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/Связь_требований_с_интеграцией.json",
+      "sha256": "60194c4970de884d13c7f1f9029f0d45ab43e439f91016f0939ff86f861cf4a8",
+      "bytes": 1323764,
+      "read_ranges": {
+        "bindings": [
+          "E02-I03-A-B01",
+          "E02-I03-A-B02",
+          "E02-I03-B-B01",
+          "E02-I03-B-B02",
+          "E02-I03-B-B03",
+          "E02-I03-B-B04",
+          "E02-I03-C-B01",
+          "E02-I03-C-B02",
+          "E02-I03-C-B03",
+          "E02-I03-C-B04",
+          "E02-I04-A-B01",
+          "E02-I04-A-B02",
+          "E02-I04-A-B03",
+          "E02-I04-A-B04",
+          "E02-I04-B-B01",
+          "E02-I04-B-B02",
+          "E02-I04-B-B03",
+          "E02-I04-C-B01",
+          "E02-I04-C-B02",
+          "E02-I04-C-B03",
+          "E02-I04-C-B04",
+          "E02-I04-D-B01",
+          "E02-I04-D-B02",
+          "E02-I10-A-B01",
+          "E02-I10-A-B02",
+          "E02-I10-A-B03",
+          "E02-I10-A-B04",
+          "E02-I10-B-B01",
+          "E02-I10-B-B02",
+          "E02-I10-B-B03",
+          "E02-I10-B-B04",
+          "E02-I10-B-B05",
+          "E02-I10-C-B01",
+          "E02-I10-C-B02",
+          "E02-I10-C-B03",
+          "E02-I10-C-B04",
+          "E02-X01-B03",
+          "E02-X04-B03",
+          "E02-X04-B04"
+        ],
+        "local_only": "all rows belonging to 32 assigned packets",
+        "metadata": [
+          "rules",
+          "membership_exceptions",
+          "additional_story_evidence",
+          "preserved_capability_gaps"
+        ]
+      },
+      "kind": "shared_contract"
+    },
+    {
+      "path": "WORK_CONTRACT.md",
+      "sha256": "6d5ce045a17ce8d5a7bd63089414d11a9dc065c3bffcd5fc3999b7aaf5a0e06b",
+      "bytes": 4872,
+      "read_ranges": "full; all 70 canonical criteria for catalog (duplicate raw_criterion mirrors not treated as distinct criteria)",
+      "kind": "audit_contract_or_frozen_sources"
+    },
+    {
+      "path": "AUDIT_PROTOCOL.md",
+      "sha256": "b4776a26dc75bf190a371af8e17235e986103070e9bac8096c9d25378d0c9d76",
+      "bytes": 5410,
+      "read_ranges": "full; all 70 canonical criteria for catalog (duplicate raw_criterion mirrors not treated as distinct criteria)",
+      "kind": "audit_contract_or_frozen_sources"
+    },
+    {
+      "path": "catalog/FREEZE.json",
+      "sha256": "5b0d6eabb89e587e6f862b9eae8a556988966b87b95aad2d18ef1d56eb0ccd41",
+      "bytes": 2427,
+      "read_ranges": "full; all 70 canonical criteria for catalog (duplicate raw_criterion mirrors not treated as distinct criteria)",
+      "kind": "audit_contract_or_frozen_sources"
+    },
+    {
+      "path": "catalog/criteria_catalog.json",
+      "sha256": "8c8c77e13d9151349b7410b441f97f0f94fbfb7d097150f32c9872fe35a3cb59",
+      "bytes": 437270,
+      "read_ranges": "full; all 70 canonical criteria for catalog (duplicate raw_criterion mirrors not treated as distinct criteria)",
+      "kind": "audit_contract_or_frozen_sources"
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CAL-01.md",
+      "sha256": "060690ec965bf10fb053a1e83c8408add5419ae6a1bcc57603acb268b53a5d0a",
+      "bytes": 13842,
+      "read_ranges": "1–90; parent-requested cross-lane axis clarification, not part of assigned 32 full-packet assessments",
+      "kind": "supporting_cross_lane_clarification"
+    }
+  ],
+  "relevant_binding_ids": [
+    "E02-I03-A-B01",
+    "E02-I03-A-B02",
+    "E02-I03-B-B01",
+    "E02-I03-B-B02",
+    "E02-I03-B-B03",
+    "E02-I03-B-B04",
+    "E02-I03-C-B01",
+    "E02-I03-C-B02",
+    "E02-I03-C-B03",
+    "E02-I03-C-B04",
+    "E02-I04-A-B01",
+    "E02-I04-A-B02",
+    "E02-I04-A-B03",
+    "E02-I04-A-B04",
+    "E02-I04-B-B01",
+    "E02-I04-B-B02",
+    "E02-I04-B-B03",
+    "E02-I04-C-B01",
+    "E02-I04-C-B02",
+    "E02-I04-C-B03",
+    "E02-I04-C-B04",
+    "E02-I04-D-B01",
+    "E02-I04-D-B02",
+    "E02-I10-A-B01",
+    "E02-I10-A-B02",
+    "E02-I10-A-B03",
+    "E02-I10-A-B04",
+    "E02-I10-B-B01",
+    "E02-I10-B-B02",
+    "E02-I10-B-B03",
+    "E02-I10-B-B04",
+    "E02-I10-B-B05",
+    "E02-I10-C-B01",
+    "E02-I10-C-B02",
+    "E02-I10-C-B03",
+    "E02-I10-C-B04",
+    "E02-X01-B03",
+    "E02-X04-B03",
+    "E02-X04-B04"
+  ],
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "repository_reads": [
+    {
+      "path": "e02_repository/AGENTS.md",
+      "sha256": "919ae21b9ae3e6762dd72e5ab4ddef62b170917fc189de2700e09d978f63d638",
+      "read_ranges": "full",
+      "purpose": "Parent-requested CAL-01 target-axis cross-lane clarification only; no execution"
+    },
+    {
+      "path": "e02_repository/policy-engine/CONTRIBUTING.md",
+      "sha256": "e78f1bdb99a900f6426f9f451b7e9cbc0e21007eb12012eaf209d89c505f3a1f",
+      "read_ranges": "full",
+      "purpose": "Parent-requested CAL-01 target-axis cross-lane clarification only; no execution"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/calibration/preflight.py",
+      "sha256": "bd8dde0b985904a6d1a9af5da06885055adf78242933e8af48d559ec389cc8cf",
+      "read_ranges": [
+        "45–151",
+        "235–326"
+      ],
+      "purpose": "Parent-requested CAL-01 target-axis cross-lane clarification only; no execution"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "sha256": "f23b724aa07a447fbf10effad60c28f7e286ff137e2805e4e4a195adc28ac6a1",
+      "read_ranges": [
+        "2400–2515",
+        "2550–2600",
+        "targeted time-axis search:68,765,1536–1591"
+      ],
+      "purpose": "Parent-requested CAL-01 target-axis cross-lane clarification only; no execution"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+      "sha256": "ced0591134d9213404219e53038742cc6aa944ae8f100b061cd516a023c0acc6",
+      "read_ranges": "targeted row_times search:748–782, not full implementation read",
+      "purpose": "Parent-requested CAL-01 target-axis cross-lane clarification only; no execution"
+    }
+  ],
+  "consulted_sources": {
+    "mode": "Frozen completed source-derived catalog, all 70 applicability triggers/propositions/required evidence/scope limits; no new external research or claim of independently reopening every upstream URL",
+    "source_records": [
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S01",
+        "title": "Systems Engineering Handbook, Appendix C: How to Write a Good Requirement",
+        "publisher": "NASA",
+        "url": "https://www.nasa.gov/reference/appendix-c-how-to-write-a-good-requirement/",
+        "document_date": "Web page updated 2023-07-26; handbook NASA/SP-2016-6105 Rev 2",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "guidance",
+        "locators": [
+          "C.1; C.2 Product Requirement; C.3 General Goodness Checklist; C.4 Clarity, Consistency, Traceability, Performance, Interfaces, Reliability, Verifiability/Testability, Data Usage"
+        ],
+        "access_and_applicability_limits": "Чеклист NASA, не обязательный стандарт для E02. Буквальные правила о shall, отрицательных формулировках и расположении разделов не переносить механически."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S02",
+        "title": "Systems Engineering Handbook, 4.2 Technical Requirements Definition",
+        "publisher": "NASA",
+        "url": "https://www.nasa.gov/reference/4-2-technical-requirements-definition/",
+        "document_date": "NASA/SP-2016-6105 Rev 2; web edition accessed 2026-11-01",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "guidance",
+        "locators": [
+          "4.2.1.2.3 Define Requirements in Acceptable Statements, Rationale; 4.2.1.2.4 Validate Technical Requirements; 4.2.1.2.7 Capture Work Products"
+        ],
+        "access_and_applicability_limits": "Открытый первичный источник; прочитаны указанные разделы, не только поисковый сниппет."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S03",
+        "title": "Systems Engineering Handbook, Appendix D: Requirements Verification Matrix",
+        "publisher": "NASA",
+        "url": "https://www.nasa.gov/reference/appendix-d-requirements-verification-matrix/",
+        "document_date": "Web page updated 2023-07-26",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "guidance",
+        "locators": [
+          "Body paragraphs before Table D-1: verification approach, unique identifier, definitive source"
+        ],
+        "access_and_applicability_limits": "Прочитано текстовое описание; содержимое таблицы D-1 в HTML не извлечено и не используется для утверждения полного набора колонок."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S04",
+        "title": "Systems Engineering Handbook, Appendix E: Creating the Validation Plan with a Validation Requirements Matrix",
+        "publisher": "NASA",
+        "url": "https://www.nasa.gov/reference/appendix-e-creating-the-validation-plan-with-a-validation-requirements-matrix/",
+        "document_date": "Web page updated 2023-07-26",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "guidance",
+        "locators": [
+          "Body: sources for validation plan; validation products; lifecycle planning"
+        ],
+        "access_and_applicability_limits": "Использована открытая текстовая часть; таблица E-1 не переписывалась. NASA-specific flight/certification artifacts не требуются для E02."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S05",
+        "title": "Systems Engineering Handbook, Appendix L: Interface Requirements Document Outline",
+        "publisher": "NASA",
+        "url": "https://www.nasa.gov/reference/appendix-l-interface-requirements-document-outline/",
+        "document_date": "NASA/SP-2016-6105 Rev 2; web edition accessed 2026-11-01",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "guidance",
+        "locators": [
+          "1.2 Precedence; 1.3 Responsibility and Change Authority; 2.1 Applicable Documents; 3.1.2 Interface Responsibilities; 3.2.6 Software and Data"
+        ],
+        "access_and_applicability_limits": "Релевантны ответственность, приоритет и software/data interfaces; physical/fluid/electrical/spacecraft требования исключены."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S06",
+        "title": "Systems Engineering Handbook, 6.3 Interface Management",
+        "publisher": "NASA",
+        "url": "https://www.nasa.gov/reference/6-3-interface-management/",
+        "document_date": "Web page updated 2023-07-26",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "guidance",
+        "locators": [
+          "6.3.1.2.2–6.3.1.2.5; 6.3.1.3 Outputs"
+        ],
+        "access_and_applicability_limits": "Не навязывает E02 создание формального NASA Interface Working Group; важны явные стороны, владельцы, версия, согласование изменения и влияние на проверки."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S07",
+        "title": "SWE-055 Requirements Validation, Software Engineering Handbook Ver D",
+        "publisher": "NASA",
+        "url": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695440/SWE-055%2B-%2BRequirements%2BValidation",
+        "document_date": "Ver D; current page read 2026-11-01; AI-additions tracker lists 2025-08-27",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "guidance",
+        "locators": [
+          "1 Requirements; 3.2 Requirements Validation Throughout the Life Cycle; 3.3 Validation Planning; 3.4 Validation Process; 3.5 Select Life Cycle Products; 3.6 Validation Techniques & Methods"
+        ],
+        "access_and_applicability_limits": "Официальная guidance-страница, не самостоятельный общий стандарт. Ее нормативная 4.1.7 сверена с NPR 7150.2D (RA-S08); базовые идеи также присутствуют в Ver C от 2023-07-31. AI-additions tracker фиксирует добавления 2025-08-27, поэтому новые исторические narratives/lesson claims не использованы без отдельной проверки."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S08",
+        "title": "NPR 7150.2D Chapter 4: Software Engineering Life Cycle Requirements",
+        "publisher": "NASA Office of the Chief Engineer",
+        "url": "https://nodis3.gsfc.nasa.gov/displayDir.cfm?Internal_ID=N_PR_7150_002D_&page_name=Chapter4",
+        "document_date": "Effective 2022-03-08; page states expiration 2027-03-08",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "NASA_procedural_requirement",
+        "locators": [
+          "4.1.1–4.1.7; 4.2 Software Architecture; 4.3 Software Design"
+        ],
+        "access_and_applicability_limits": "Нормативно для NASA; в E02 — добровольный источник методов, не доказательство юридической обязанности или aerospace certification."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S09",
+        "title": "Guide to Writing Requirements v4 — Summary Sheet, INCOSE-TP-2010-006-04",
+        "publisher": "INCOSE Requirements Working Group",
+        "url": "https://www.incose.org/docs/default-source/working-groups/requirements-wg/guidetowritingrequirements/incose_rwg_gtwr_v4_summary_sheet.pdf",
+        "document_date": "June 2023",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "official_public_summary",
+        "locators": [
+          "Printed p.2: C2, C4, C5, C10–C15; p.3: R14–R15, R18, R23–R28, R30–R36, R40; p.7: attributes A1–A15, A32–A33"
+        ],
+        "access_and_applicability_limits": "Открыт официальный 7-страничный summary PDF через ссылку RWG. Полный платный Guide не прочитан; summary не передает все исключения/пояснения полного руководства. Правила не являются автоматическим grammar-lint verdict."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S10",
+        "title": "Webinar 168: Guide to Writing Requirements Version 4, Lou Wheatcraft",
+        "publisher": "INCOSE Requirements Working Group",
+        "url": "https://www.incose.org/wp-content/uploads/legacy/professional-development-portal/pdp-pdf-documents/webinar_168_wheatcraft_guide_to_writing_requirements_version_4.pdf",
+        "document_date": "2023-10-25",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "official_presentation",
+        "locators": [
+          "Slide 28: Focus of the GtWR; slide 30: types of requirements; slides 33–34: integrated needs/design inputs; slides 42–43: individual/set characteristics; slide 50: rules necessary but not sufficient"
+        ],
+        "access_and_applicability_limits": "Прочитан открытый PDF с официального домена; video resource обозначен members-only, видео не просмотрено. Web screenshot slide 28 завершился Cache miss; доступный текст PDF прочитан. Не цитируется содержание полного Guide."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S11",
+        "title": "Quality Attribute Workshops (QAWs), Third Edition, CMU/SEI-2003-TR-016",
+        "publisher": "Carnegie Mellon University Software Engineering Institute",
+        "url": "https://sei.cmu.edu/documents/716/2003_005_001_14249.pdf",
+        "document_date": "2003; landing page dates 2003-10-01",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "primary_technical_report",
+        "locators": [
+          "3.5 Scenario Brainstorming, printed pp.9–10 / PDF pp.21–22; 3.8 Scenario Refinement, printed p.11 / PDF p.23; Appendix A p.19, Appendix B p.21"
+        ],
+        "access_and_applicability_limits": "Метод выявления/уточнения требований, применим до готовой архитектуры. Использование его идей не означает, что проведен формальный фасилитируемый QAW."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S12",
+        "title": "ATAM: Method for Architecture Evaluation, CMU/SEI-2000-TR-004",
+        "publisher": "Carnegie Mellon University Software Engineering Institute",
+        "url": "https://www.sei.cmu.edu/documents/629/2000_005_001_13706.pdf",
+        "document_date": "August 2000",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "primary_technical_report",
+        "locators": [
+          "7.1 Risks and Non-Risks, printed pp.21–22 / PDF pp.33–34; 7.2 Sensitivity and Tradeoff Points, printed pp.22–23 / PDF pp.34–35; 7.3 A Structure for Reasoning, printed pp.23–24; 8.7 Scenario Brainstorming, printed pp.33–34"
+        ],
+        "access_and_applicability_limits": "Рамка анализа архитектурных рисков, не доказательство качества конкретного продукта и не обязательное проведение полного ATAM. Старые illustrative cryptography values не переносились."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S13",
+        "title": "Integrability, CMU/SEI-2020-TR-001, Kazman/Bianco/Ivers/Klein",
+        "publisher": "Carnegie Mellon University Software Engineering Institute",
+        "url": "https://www.sei.cmu.edu/documents/1286/2020_005_001_637385.pdf",
+        "document_date": "February 2020",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "primary_technical_report",
+        "locators": [
+          "3 Evaluating Integrability, printed pp.6–7; 3.1 Measuring Integrability, printed pp.7–8 / PDF pp.13–14; 4 Integrability Scenarios, printed pp.11–16; 7.4 Derived Decisions and Special Cases, printed pp.42–44 / PDF pp.48–50"
+        ],
+        "access_and_applicability_limits": "Прочитан PDF-текст с первичного домена; screenshot отдельных страниц вернул Cache miss. Не утверждаем количественную стоимость интеграции E02 из общей формулы отчета."
+      },
+      {
+        "research_group": "research_distributed",
+        "accessed_at_utc": "2026-11-01",
+        "source_kind": "первичный официальный",
+        "access_status": "read_selected_sections",
+        "id": "DRS-01",
+        "title": "Making retries safe with idempotent APIs",
+        "organization": "Amazon Builders' Library",
+        "url": "https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/",
+        "published_or_updated": "Дата публикации не показана в прочитанном тексте.",
+        "sections": [
+          "Retrying and side effects",
+          "Reducing client complexity",
+          "Retries and semantic equivalence",
+          "Late arriving requests",
+          "Same client request ID, different intent",
+          "Conclusion"
+        ],
+        "read_evidence": "Прочитаны содержательные абзацы 227–256, 371–379, 423, 466–476; примеры CLI не исполнялись.",
+        "scope_limit": "Практика AWS для определённых API, не универсальная гарантия exactly-once."
+      },
+      {
+        "research_group": "research_distributed",
+        "accessed_at_utc": "2026-11-01",
+        "source_kind": "первичный официальный",
+        "access_status": "read_selected_sections",
+        "id": "DRS-02",
+        "title": "Timeouts, retries, and backoff with jitter",
+        "organization": "Amazon Builders' Library / AWS Builder Center",
+        "url": "https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/",
+        "resolved_url": "https://builder.aws.com/content/3EumjoZascWd1oZiEgL8ORlv3qE/timeouts-retries-and-backoff-with-jitter",
+        "published_or_updated": "2019-12-05; на странице Published и Last modified.",
+        "sections": [
+          "Failures Happen",
+          "Timeouts",
+          "Retries and backoff",
+          "Jitter",
+          "Conclusion"
+        ],
+        "read_evidence": "Прочитаны разделы в строках 54–108.",
+        "scope_limit": "Практические рекомендации; числовые примеры не целевые параметры E02."
+      },
+      {
+        "research_group": "research_distributed",
+        "accessed_at_utc": "2026-11-01",
+        "source_kind": "первичный официальный",
+        "access_status": "read_selected_sections",
+        "id": "DRS-03",
+        "title": "Site Reliability Engineering, Chapter 21: Handling Overload",
+        "organization": "Google SRE",
+        "url": "https://sre.google/sre-book/handling-overload/",
+        "published_or_updated": "Дата главы не показана; copyright страницы 2017.",
+        "sections": [
+          "The Pitfalls of \"Queries per Second\"",
+          "Per-Customer Limits",
+          "Client-Side Throttling",
+          "Criticality",
+          "Utilization Signals",
+          "Handling Overload Errors / Deciding to Retry",
+          "Load from Connections",
+          "Conclusions"
+        ],
+        "read_evidence": "Прочитаны разделы 56–185, включая контекст ограничений адаптивного throttling.",
+        "scope_limit": "Google описывает собственную топологию и нагрузку; три попытки, 10% и классы criticality не норматив для E02."
+      },
+      {
+        "research_group": "research_distributed",
+        "accessed_at_utc": "2026-11-01",
+        "source_kind": "первичный официальный",
+        "access_status": "read_selected_sections",
+        "id": "DRS-04",
+        "title": "Site Reliability Engineering, Chapter 22: Addressing Cascading Failures",
+        "organization": "Google SRE",
+        "url": "https://sre.google/sre-book/addressing-cascading-failures/",
+        "published_or_updated": "Дата главы не показана в прочитанном тексте.",
+        "sections": [
+          "Causes of Cascading Failures and Designing to Avoid Them",
+          "Resource Exhaustion",
+          "Service Unavailability",
+          "Queue Management",
+          "Load Shedding and Graceful Degradation",
+          "Retries",
+          "Latency and Deadlines"
+        ],
+        "read_evidence": "Прочитаны смысловые абзацы 62–180 и 213–280; кодовый пример не исполнялся.",
+        "scope_limit": "Глава о serving systems; конкретные размеры очередей и числовые нагрузки — иллюстрации."
+      },
+      {
+        "research_group": "research_distributed",
+        "accessed_at_utc": "2026-11-01",
+        "source_kind": "первичный официальный",
+        "access_status": "read_selected_sections",
+        "id": "DRS-05",
+        "title": "RFC 9110: HTTP Semantics",
+        "organization": "IETF / RFC Editor",
+        "url": "https://www.rfc-editor.org/rfc/rfc9110.html",
+        "published_or_updated": "2022-06",
+        "sections": [
+          "9.2.2 Idempotent Methods",
+          "13.1.1 If-Match",
+          "15.3.3 202 Accepted"
+        ],
+        "read_evidence": "Прочитаны 1984–1994, 2728–2760, 3327–3331, не весь RFC.",
+        "scope_limit": "Нормативно для соответствующего HTTP-контракта; перенос на другие протоколы — отдельный инженерный вывод."
+      },
+      {
+        "research_group": "research_distributed",
+        "accessed_at_utc": "2026-11-01",
+        "source_kind": "первичный официальный",
+        "access_status": "read_selected_sections",
+        "id": "DRS-06",
+        "title": "RFC 9293: Transmission Control Protocol (TCP)",
+        "organization": "IETF / RFC Editor",
+        "url": "https://www.rfc-editor.org/rfc/rfc9293.html",
+        "published_or_updated": "2022-08",
+        "sections": [
+          "3.1 Header Format — Acknowledgment Number"
+        ],
+        "read_evidence": "Прочитано определение ACK/sequence в строках 263–275 и контекст заголовка.",
+        "scope_limit": "Транспортный уровень TCP; не спецификация приложения, БД или брокера."
+      },
+      {
+        "research_group": "research_distributed",
+        "accessed_at_utc": "2026-11-01",
+        "source_kind": "первичный официальный",
+        "access_status": "read_selected_sections",
+        "id": "DRS-07",
+        "title": "Cancellation",
+        "organization": "gRPC project",
+        "url": "https://grpc.io/docs/guides/cancellation/",
+        "published_or_updated": "2024-02-29, Last modified.",
+        "sections": [
+          "Overview",
+          "Cancelling an RPC Call on the Client Side",
+          "Language Support"
+        ],
+        "read_evidence": "Прочитаны строки 115–154.",
+        "scope_limit": "Поддержка propagation различается по языкам; cancel не является протоколом бизнес-компенсации."
+      },
+      {
+        "research_group": "research_distributed",
+        "accessed_at_utc": "2026-11-01",
+        "source_kind": "первичный официальный",
+        "access_status": "read_selected_sections",
+        "id": "DRS-08",
+        "title": "Deadlines",
+        "organization": "gRPC project",
+        "url": "https://grpc.io/docs/guides/deadlines/",
+        "published_or_updated": "2025-07-07, Last modified.",
+        "sections": [
+          "Overview",
+          "Deadlines on the Client",
+          "Deadlines on the Server",
+          "Deadline Propagation",
+          "Language Support"
+        ],
+        "read_evidence": "Прочитаны строки 115–169.",
+        "scope_limit": "Конкретное поведение gRPC; на иной RPC переносится только проверка явно объявленного бюджета."
+      },
+      {
+        "research_group": "research_distributed",
+        "accessed_at_utc": "2026-11-01",
+        "source_kind": "первичный официальный",
+        "access_status": "read_selected_sections",
+        "id": "DRS-09",
+        "title": "PostgreSQL 18, 13.2 Transaction Isolation",
+        "organization": "PostgreSQL Global Development Group",
+        "url": "https://www.postgresql.org/docs/18/transaction-iso.html",
+        "published_or_updated": "Версия документации 18; дата изменения страницы не показана.",
+        "sections": [
+          "13.2 Transaction Isolation, Table 13.1",
+          "13.2.1 Read Committed Isolation Level",
+          "13.2.2 Repeatable Read Isolation Level",
+          "13.2.3 Serializable Isolation Level"
+        ],
+        "read_evidence": "Прочитаны определения и содержательные абзацы 23–66, 92–110, 128–137.",
+        "scope_limit": "Семантика PostgreSQL 18, не требование выбрать PostgreSQL или SERIALIZABLE повсюду."
+      },
+      {
+        "research_group": "research_distributed",
+        "accessed_at_utc": "2026-11-01",
+        "source_kind": "первичный официальный",
+        "access_status": "read_selected_sections",
+        "id": "DRS-10",
+        "title": "PostgreSQL 18, 28.4 Asynchronous Commit",
+        "organization": "PostgreSQL Global Development Group",
+        "url": "https://www.postgresql.org/docs/18/wal-async-commit.html",
+        "published_or_updated": "Версия документации 18; дата изменения страницы не показана.",
+        "sections": [
+          "28.4 Asynchronous Commit",
+          "Caution"
+        ],
+        "read_evidence": "Прочитан основной текст 20–38.",
+        "scope_limit": "Durability зависит от выбранного режима и модели отказа; async commit не тождествен fsync=off."
+      },
+      {
+        "research_group": "research_distributed",
+        "accessed_at_utc": "2026-11-01",
+        "source_kind": "первичный официальный",
+        "access_status": "read_selected_sections",
+        "id": "DRS-11",
+        "title": "PostgreSQL 18, 26.2 Log-Shipping Standby Servers",
+        "organization": "PostgreSQL Global Development Group",
+        "url": "https://www.postgresql.org/docs/18/warm-standby.html",
+        "published_or_updated": "Версия документации 18; дата изменения страницы не показана.",
+        "sections": [
+          "26.2 Log-Shipping Standby Servers",
+          "26.2.8 Synchronous Replication",
+          "26.2.8.4 Planning for High Availability"
+        ],
+        "read_evidence": "Прочитаны 29–35, 152–166, 191–201.",
+        "scope_limit": "Различия remote_write/on/remote_apply используются как конкретный контрпример смешению persistence и visibility, не как универсальные названия режимов."
+      },
+      {
+        "research_group": "research_distributed",
+        "accessed_at_utc": "2026-11-01",
+        "source_kind": "первичный официальный",
+        "access_status": "read_selected_sections",
+        "id": "DRS-12",
+        "title": "Leader Election in Distributed Systems",
+        "organization": "Amazon Builders' Library / AWS Builder Center",
+        "url": "https://aws.amazon.com/builders-library/leader-election-in-distributed-systems/",
+        "resolved_url": "https://builder.aws.com/content/3Ev0vH0hfkcUizISUWYTvHibtcp/leader-election-in-distributed-systems",
+        "published_or_updated": "2019-12-05; Published и Last modified.",
+        "sections": [
+          "How Amazon elects a leader",
+          "What happens when the leader fails?",
+          "Best practices for leader election",
+          "Conclusion"
+        ],
+        "read_evidence": "Прочитаны 74–112 и контекст 53–73.",
+        "scope_limit": "Практический источник о lease-паузах; не доказательство невозможности безопасного лидерства и не требование ввести election."
+      },
+      {
+        "research_group": "research_distributed",
+        "accessed_at_utc": "2026-11-01",
+        "source_kind": "первичный официальный",
+        "access_status": "read_selected_sections",
+        "id": "DRS-13",
+        "title": "etcd v3.6 API guarantees",
+        "organization": "etcd project",
+        "url": "https://etcd.io/docs/v3.6/learning/api_guarantees/",
+        "published_or_updated": "2025-09-26, Last modified.",
+        "sections": [
+          "APIs to consider",
+          "KV APIs / Durability / Strict serializability",
+          "Watch APIs",
+          "etcd specific definitions / Operation completed / Revision"
+        ],
+        "read_evidence": "Прочитано содержательное тело 824–869, не навигационные списки версий.",
+        "scope_limit": "Гарантии etcd ограничены API/режимом и окном истории; нельзя переносить гарантии KV на watch или весь E02."
+      },
+      {
+        "research_group": "research_distributed",
+        "accessed_at_utc": "2026-11-01",
+        "source_kind": "первичный официальный",
+        "access_status": "read_selected_sections",
+        "id": "DRS-14",
+        "title": "Consumer Acknowledgements and Publisher Confirms",
+        "organization": "RabbitMQ project",
+        "url": "https://www.rabbitmq.com/docs/confirms",
+        "published_or_updated": "Прочитанная страница помечена Version: 4.4; дата изменения не показана.",
+        "sections": [
+          "Are Publisher Confirms Related to Consumer Delivery Acknowledgements?",
+          "Delivery Identifiers: Delivery Tags",
+          "Consumer Acknowledgement Modes and Data Safety Considerations",
+          "Negative Acknowledgement and Requeuing of Deliveries",
+          "Channel Prefetch Setting (QoS)",
+          "When Consumers Fail or Lose Connection: Automatic Requeueing",
+          "When Will Published Messages Be Confirmed by the Broker?",
+          "Ordering Considerations for Publisher Confirms",
+          "Publisher Confirms and Guaranteed Delivery"
+        ],
+        "read_evidence": "Прочитаны 50–91, 344–346, 408–447, 464–483; клиентские примеры не исполнялись.",
+        "scope_limit": "Особенности AMQP 0-9-1/RabbitMQ; эквивалентные границы другого брокера требуют его документации."
+      },
+      {
+        "research_group": "research_distributed",
+        "accessed_at_utc": "2026-11-01",
+        "source_kind": "первичный официальный",
+        "access_status": "denied_http_403",
+        "id": "DRS-X01",
+        "title": "POSIX clock_gettime",
+        "organization": "The Open Group",
+        "url": "https://pubs.opengroup.org/onlinepubs/9799919799/functions/clock_gettime.html",
+        "published_or_updated": "Не установлена: текст недоступен.",
+        "sections": [],
+        "read_evidence": "web.open вернул 403 Forbidden; текст не прочитан.",
+        "scope_limit": "Не используется как доказательство.",
+        "retry_status": "Повторных попыток не было; обхода или escalation не предпринималось."
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S01",
+        "title": "AIP-180: Backwards compatibility",
+        "publisher": "Google API Improvement Proposals",
+        "url": "https://google.aip.dev/180",
+        "version": "AIP-180; Approved; header created/updated 2019-07-23, но changelog содержит изменение 2025-10-21; live page accessed 2026-11-01",
+        "authority": "Рекомендация владельца API, не универсальный стандарт",
+        "locators": [
+          "Guidance (source / wire / semantic compatibility)",
+          "Adding components",
+          "Semantic changes"
+        ],
+        "read_evidence": "Прочитаны Guidance, Adding components и Semantic changes/defaults; версия оценивается по live snapshot, не только устаревшему header.",
+        "proposition": "Совместимость включает исходный код, передачу данных и семантику. Новое поле не должно менять прежнее поведение старого клиента. Требования зависят от управляемости обновления потребителей.",
+        "limits": "Предпосылки документа: API для разных языков с независимыми обновлениями клиентов; ограниченный внутренний API может обосновать более узкое окно.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S02",
+        "title": "Language Guide (proto3)",
+        "publisher": "Protocol Buffers",
+        "url": "https://protobuf.dev/programming-guides/proto3/",
+        "version": "proto3; live documentation; точная версия runtime не заявлена",
+        "authority": "Официальная документация формата",
+        "locators": [
+          "Updating A Message Type → Binary Wire-safe Changes",
+          "Binary Wire-compatible Changes (Conditionally Safe)",
+          "Unknown Fields → Retaining Unknown Fields",
+          "Backwards-compatibility issues (oneof)"
+        ],
+        "read_evidence": "Прочитаны соответствующие разделы, включая пример int32/int64, порядок rollout и потерю unknown fields при JSON/field-by-field copy.",
+        "proposition": "Wire-safe не равнозначно source-safe; wire-compatible переход может терять значения. Unknown fields сохраняются binary round trip, но могут пропасть на иных преобразованиях. NOT_SET у oneof не всегда отличает отсутствие от нового неизвестного варианта.",
+        "limits": "Это правила protobuf binary; перенос на ProtoJSON, другие сериализации и бизнес-смысл требует отдельного основания.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S03",
+        "title": "Application Note: Field Presence",
+        "publisher": "Protocol Buffers",
+        "url": "https://protobuf.dev/programming-guides/field_presence/",
+        "version": "Live application note; proto2/proto3/editions distinctions",
+        "authority": "Официальное описание семантики presence",
+        "locators": [
+          "Considerations for Merging",
+          "Considerations for change-compatibility"
+        ],
+        "read_evidence": "Прочитаны оба раздела с примером implicit/explicit presence.",
+        "proposition": "При implicit presence merge пропускает default-valued field; patch в ноль требует внешнего механизма или explicit presence. Binary-compatible смена presence может изменить семантику round trip.",
+        "limits": "Не требует optional повсеместно; выбор зависит от необходимости различать состояния и API обновления.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S04",
+        "title": "Proto Serialization Is Not Canonical",
+        "publisher": "Protocol Buffers",
+        "url": "https://protobuf.dev/programming-guides/serialization-not-canonical/",
+        "version": "Live documentation",
+        "authority": "Официальная гарантия/ограничение сериализации",
+        "locators": [
+          "Implications on Fingerprinting and Cryptographic Hashing",
+          "Deterministic is not Canonical"
+        ],
+        "read_evidence": "Прочитаны оба раздела полностью.",
+        "proposition": "Детерминированная protobuf-сериализация не гарантирует каноничности между сборками, версиями библиотек и схемами; неизвестные поля осложняют универсальную семантическую fingerprint-функцию.",
+        "limits": "Не запрещает bytes hash для целостности конкретного артефакта и узкую use-specific fingerprint-функцию.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S05",
+        "title": "Apache Avro 1.12.0 Specification",
+        "publisher": "Apache Software Foundation",
+        "url": "https://avro.apache.org/docs/1.12.0/specification/",
+        "version": "1.12.0",
+        "authority": "Спецификация формата",
+        "locators": [
+          "Complex Types → Records (default)",
+          "Schema Resolution",
+          "Parsing Canonical Form for Schemas"
+        ],
+        "read_evidence": "Прочитаны правила reader/writer resolution, default при чтении и вводное определение parsing canonical form.",
+        "proposition": "Результат чтения зависит от пары writer/reader schemas; отсутствующее поле reader без default вызывает ошибку, лишнее writer-поле игнорируется. Default предназначен для чтения старой записи и не делает поле необязательным при кодировании. Parsing canonical form описывает эквивалентность для чтения данных, не весь смысл контракта.",
+        "limits": "Применять только к Avro либо как явно помеченную аналогию; не считать все schema fingerprints бизнес-идентичностью.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S06",
+        "title": "RFC 8785: JSON Canonicalization Scheme (JCS)",
+        "publisher": "RFC Editor",
+        "url": "https://www.rfc-editor.org/rfc/rfc8785.html",
+        "version": "RFC 8785, June 2020, Informational / Independent Submission",
+        "authority": "Спецификация JCS; не Internet Standards Track",
+        "locators": [
+          "§3.1 Creation of Input Data",
+          "§3.2.2.2 Serialization of Strings",
+          "§3.2.2.3 Serialization of Numbers",
+          "§3.2.3 Sorting of Object Properties"
+        ],
+        "read_evidence": "Прочитаны ограничения входа и правила Unicode; просмотрены правила чисел/сортировки.",
+        "proposition": "JCS задаёт представление ограниченного JSON: без повторяющихся имён, с числами IEEE-754 double и сохранением Unicode как есть; Unicode normalization не является частью JCS.",
+        "limits": "Каноничность формата не определяет бизнес-эквивалентность. Не предписывается JCS, если продукт выбрал другой явно описанный профиль.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S07",
+        "title": "RFC 8259: The JavaScript Object Notation (JSON) Data Interchange Format",
+        "publisher": "IETF / RFC Editor",
+        "url": "https://www.rfc-editor.org/rfc/rfc8259.html",
+        "version": "RFC 8259, December 2017; Standards Track",
+        "authority": "Стандарт JSON",
+        "locators": [
+          "§4 Objects",
+          "§6 Numbers",
+          "§8.2 Unicode Characters",
+          "§8.3 String Comparison",
+          "§9 Parsers"
+        ],
+        "read_evidence": "Прочитаны указанные разделы, включая duplicates, точность целых и ограничения парсеров.",
+        "proposition": "Разные парсеры могут различно обработать повторяющиеся имена; точность чисел и Unicode имеют границы интероперабельности. JSON-грамматика сама по себе не обеспечивает единое прикладное толкование.",
+        "limits": "Не требовать, чтобы все JSON-числа были строками или все unicode-строки нормализовались; ограничения выбираются по значимому домену.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S08",
+        "title": "JSON Schema Validation: A Vocabulary for Structural Validation of JSON",
+        "publisher": "JSON Schema",
+        "url": "https://json-schema.org/draft/2020-12/json-schema-validation",
+        "version": "Draft 2020-12; draft-bhutton-json-schema-validation-01, 2022-06-16; Internet-Draft/work in progress, не RFC",
+        "authority": "Версионированная опубликованная спецификация JSON Schema vocabulary",
+        "locators": [
+          "§6.5.3 required",
+          "§7.2.1 Format-Annotation Vocabulary",
+          "§7.2.2 Format-Assertion Vocabulary",
+          "§9.2 default"
+        ],
+        "read_evidence": "Прочитаны required/default и различие format annotation/assertion.",
+        "proposition": "required проверяет наличие имени. Default — аннотация. Обработка format зависит от vocabulary и настроек; annotation-профиль сам по себе не даёт обязательного отклонения неверного формата.",
+        "limits": "Не переносить автоматически на OpenAPI 3.0/иные dialects; проверять реально выбранный профиль валидатора.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S09",
+        "title": "JSON Schema: A Media Type for Describing JSON Documents",
+        "publisher": "JSON Schema",
+        "url": "https://json-schema.org/draft/2020-12/json-schema-core",
+        "version": "Draft 2020-12; draft-bhutton-json-schema-01, 2022-06-16; Internet-Draft/work in progress, не RFC",
+        "authority": "Версионированная опубликованная спецификация core",
+        "locators": [
+          "§4.3.1 Schema Objects and Keywords",
+          "§8.1.1 The $schema Keyword",
+          "§8.1.2 The $vocabulary Keyword",
+          "§9.3 Compound Documents",
+          "§10.3.2.3 additionalProperties"
+        ],
+        "read_evidence": "Прочитаны dialect/unknown keywords, bundled schemas и правила additionalProperties.",
+        "proposition": "$schema определяет dialect; при его отсутствии поведение root schema implementation-defined. Неизвестные keywords могут быть только annotations. additionalProperties учитывает свойства того же schema object; объединение схем не равнозначно произвольному наследованию.",
+        "limits": "Не вводит обязанности переписать схемы на новый draft. Допустим явно зафиксированный старый dialect с эквивалентными ограничениями.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S10",
+        "title": "Understanding JSON Schema: Annotations",
+        "publisher": "JSON Schema",
+        "url": "https://json-schema.org/understanding-json-schema/reference/annotations",
+        "version": "Live official explanatory guide",
+        "authority": "Официальное пояснение, не отдельная normative specification",
+        "locators": [
+          "Annotations → default"
+        ],
+        "read_evidence": "Прочитан абзац default и связь с validation.",
+        "proposition": "default не заполняет отсутствующие значения в процессе validation; это может делать отдельный инструмент или прикладной этап.",
+        "limits": "Критерий касается разделения validation и materialization, а не запрета на осознанное заполнение default.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S11",
+        "title": "Reproducibility and Replicability in Science — Chapter 4: Reproducibility",
+        "publisher": "National Academies of Sciences, Engineering, and Medicine",
+        "url": "https://www.nationalacademies.org/read/25303/chapter/7",
+        "version": "2019; DOI 10.17226/25303",
+        "authority": "Консенсусный исследовательский отчёт; не software conformance standard",
+        "locators": [
+          "Recommendation 4-1, pp.58–59",
+          "Assessing Reproducibility, p.59",
+          "Footnote 3, p.59"
+        ],
+        "read_evidence": "Прочитаны рекомендации о данных/методе/окружении, пределах численного совпадения и примечание об ошибочном коде.",
+        "proposition": "Воспроизводимость требует описания входов, шагов, параметров и окружения. Совпадение повторных запусков не гарантирует правильность: одна ошибка кода может устойчиво повторяться. Численная согласованность не всегда означает bitwise equality.",
+        "limits": "Не переносится научная терминология механически; в контракте нужно собственное определение replay/independent verification и допусков.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S12",
+        "title": "Software Engineering at Google — Chapter 12: Unit Testing",
+        "publisher": "Google / Abseil",
+        "url": "https://abseil.io/resources/swe-book/html/ch12.html",
+        "version": "Book 2020; live HTML chapter",
+        "authority": "Первичное описание инженерной практики Google",
+        "locators": [
+          "Test via Public APIs",
+          "Don’t Put Logic in Tests (Examples 12-15/12-16)",
+          "Defining Test Infrastructure"
+        ],
+        "read_evidence": "Прочитаны наблюдение публичного поведения, общий дефект вычисления expected и необходимость собственных тестов test infrastructure.",
+        "proposition": "Тест контрактного поведения устойчивее проверки деталей реализации. Сложный expected может повторять ошибку production logic; общая тестовая инфраструктура сама нуждается в проверке.",
+        "limits": "Не запрет на test utilities, property/model-based testing или тестирование внутренних компонентов. Не требуется организация второго независимого проекта для каждой функции.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S13",
+        "title": "Hypothesis: Domain and distribution",
+        "publisher": "HypothesisWorks",
+        "url": "https://hypothesis.readthedocs.io/en/latest/explanation/domain.html",
+        "version": "HTML banner observed: Hypothesis 6.170.14; /latest is mutable",
+        "authority": "Документация автора property-based testing framework",
+        "locators": [
+          "How should I choose a domain for my test?",
+          "Why not let users control the distribution?"
+        ],
+        "read_evidence": "Прочитана страница целиком кроме navigation.",
+        "proposition": "Домен генератора задаёт возможные входы; чрезмерные ограничения могут исключить ошибку. Распределение поиска внутри Hypothesis не является фиксированной моделью производственного трафика.",
+        "limits": "Не делает требование Hypothesis обязательным. Разумные ресурсные границы допустимы при явном объяснении.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S14",
+        "title": "Hypothesis: Replaying failed tests",
+        "publisher": "HypothesisWorks",
+        "url": "https://hypothesis.readthedocs.io/en/latest/tutorial/replaying-failures.html",
+        "version": "HTML banner observed: Hypothesis 6.170.14; /latest is mutable",
+        "authority": "Документация автора framework",
+        "locators": [
+          "The Hypothesis database",
+          "Using @example to run a specific input",
+          "Prefer @example over the database for correctness"
+        ],
+        "read_evidence": "Прочитаны replay, явные примеры и ограничения локальной базы.",
+        "proposition": "Сохранённый контрпример можно повторить; локальная database может инвалидироваться при обновлении или изменении теста, поэтому обязательный regression case надо фиксировать явно.",
+        "limits": "Не обязывает хранить seed вместо входа; для переносимости конкретный вход/trace часто полезнее seed.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S15",
+        "title": "Hypothesis: Stateful tests",
+        "publisher": "HypothesisWorks",
+        "url": "https://hypothesis.readthedocs.io/en/latest/stateful.html",
+        "version": "HTML banner observed: Hypothesis 6.170.14; /latest is mutable",
+        "authority": "Документация автора model/stateful testing framework",
+        "locators": [
+          "You may not need stateful tests",
+          "Rule-based state machines",
+          "DatabaseComparison example"
+        ],
+        "read_evidence": "Прочитаны последовательности действий, bundles и сравнение реальной базы с простой in-memory моделью.",
+        "proposition": "Stateful tests проверяют цепочки действий и сравнивают наблюдаемое поведение с моделью; для простых случаев достаточно обычных тестов.",
+        "limits": "Последовательная state machine не является доказательством concurrency, crash consistency или linearizability.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S16",
+        "title": "Application of property-based testing tools for metamorphic testing",
+        "publisher": "Alzahrani, Spichkova, Harland (RMIT), author preprint",
+        "url": "https://arxiv.org/pdf/2211.12003",
+        "version": "arXiv:2211.12003v1, 2022-11-22; accepted ENASE 2022 preprint",
+        "authority": "Первичная исследовательская работа",
+        "locators": [
+          "§2 Background, PDF pp.2–3",
+          "§4 Proposed Approach, PDF pp.4–6"
+        ],
+        "read_evidence": "Текст PDF читабелен; прочитаны отношения входов/выходов, риск дублирования реализации и согласованность generator/shrinker/preconditions.",
+        "proposition": "Metamorphic testing проверяет отношения между несколькими входами и выходами. Генератор и shrinking должны сохранять условия отношения, иначе возможны невалидные тесты.",
+        "limits": "Не заимствуется универсальное заявление об эффективности конкретного алгоритма. Это основание для bounded MR-контрактов, а не доказательство полноты.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S17",
+        "title": "Stryker: Mutant states and metrics",
+        "publisher": "Stryker Mutator",
+        "url": "https://stryker-mutator.io/docs/mutation-testing-elements/mutant-states-and-metrics/",
+        "version": "Live official documentation",
+        "authority": "Определения метрик инструмента",
+        "locators": [
+          "Mutant states",
+          "Metrics",
+          "Test states and metrics"
+        ],
+        "read_evidence": "Прочитана полная таблица состояний и формулы.",
+        "proposition": "Mutation score зависит от состава valid mutants. Timeout входит в detected; compile/runtime errors, ignored и pending не являются обычными semantic kills.",
+        "limits": "Для других инструментов перепроверять формулы. Высокий score не доказывает полноту требований.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S18",
+        "title": "StrykerJS: Disable mutants",
+        "publisher": "Stryker Mutator",
+        "url": "https://stryker-mutator.io/docs/stryker-js/disable-mutants/",
+        "version": "Live official documentation; disable comments noted since 5.4",
+        "authority": "Документация инструмента",
+        "locators": [
+          "An example (equivalent max mutant)",
+          "Disable mutants",
+          "Using a // Stryker disable comment"
+        ],
+        "read_evidence": "Прочитаны пример equivalent mutant и локальные/глобальные исключения.",
+        "proposition": "Некоторые мутанты эквивалентны и не могут быть убиты корректным тестом. Исключения должны быть видимыми; глобальное исключение оператора затрагивает все места его использования.",
+        "limits": "Не требовать 100% mutation score и не считать каждый survivor дефектом.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S19",
+        "title": "scikit-learn: Common pitfalls and recommended practices",
+        "publisher": "scikit-learn developers",
+        "url": "https://scikit-learn.org/stable/common_pitfalls.html",
+        "version": "HTML banner observed: 1.9.1; /stable is mutable",
+        "authority": "Официальное практическое руководство ML library",
+        "locators": [
+          "§12.2 Data leakage",
+          "§12.2.1 How to avoid data leakage",
+          "§12.2.2 Data leakage during pre-processing"
+        ],
+        "read_evidence": "Прочитаны правила split-before-fit, preprocessing fit только на train и демонстрация ложной accuracy.",
+        "proposition": "Использование информации test data при выборе модели или обучении preprocessing даёт оптимистичную оценку. Одинаковый transform на train/test допустим, обучение transform по test — нет.",
+        "limits": "Вне ML перенос на калибровку threshold/ranking явно является инженерной аналогией. Regression fixtures не обязаны быть секретными.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_data_tests",
+        "id": "DAT-S20",
+        "title": "Google Benchmark User Guide",
+        "publisher": "Google Benchmark",
+        "url": "https://google.github.io/benchmark/user_guide.html",
+        "version": "Live official guide; release tag not stated",
+        "authority": "Документация microbenchmark framework",
+        "locators": [
+          "Timing and Repetition Control",
+          "Runtime and Reporting Considerations",
+          "Manual Timing",
+          "Preventing Optimization",
+          "Reporting Statistics"
+        ],
+        "read_evidence": "Прочитаны warmup/repetitions, dry run, CPU/real/manual timing и DoNotOptimize limitations.",
+        "proposition": "Измерение зависит от прогрева, границ таймера, повторений и среды. Dry run проверяет запуск, а не стабильную производительность. Оптимизатор может исключать/переиспользовать измеряемую работу; агрегаты скрывают отдельные прогоны.",
+        "limits": "Microbenchmark не является автоматически end-to-end latency/SLO. Не навязываются произвольные число повторов, power или percentile threshold.",
+        "accessed_at_utc": "2026-11-01",
+        "access": "read_relevant_sections",
+        "direct_quote_words": 0
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S01",
+        "title": "NIST SP 800-218 — SSDF",
+        "url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf",
+        "version": "1.1, Final",
+        "publication_or_revision_date": "2022-02",
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "§2, печ. с. 3 (PDF page 12): risk-based tailoring",
+          "PO.4.1–PO.4.2, печ. с. 8 (PDF page 17)",
+          "PS.2.1, PS.3.1–PS.3.2, печ. с. 10 (PDF page 19)",
+          "PW.8.1–PW.8.2, печ. с. 15 (PDF page 24)"
+        ],
+        "source_insight": "Критерии security checks и их свидетельства задаются заранее; тесты имеют scope и результаты; целостность и архив релиза — отдельные задачи. SSDF прямо не является универсальным checklist.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "Прочитаны релевантные страницы через извлечение PDF-текста; документ целиком не проверялся. Notional examples не превращены в обязательные способы реализации.",
+        "other_verified_urls": [
+          "https://csrc.nist.gov/pubs/sp/800/218/final"
+        ]
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S02",
+        "title": "OWASP ASVS — V8 Authorization",
+        "url": "https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/en/0x17-V8-Authorization.md",
+        "version": "5.0.0, tag v5.0.0",
+        "publication_or_revision_date": "2025-05",
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "8.1.1–8.1.4",
+          "8.2.1–8.2.4",
+          "8.3.1–8.3.3",
+          "8.4.1"
+        ],
+        "source_insight": "Функция, объект, поле, исходный субъект и tenant являются разными границами доступа. Компенсация после отзыва прав не устраняет уже совершённое раскрытие данных.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "Версия закреплена tag; месяц выпуска подтверждён страницей проекта. Конкретный ASVS level для E02 не установлен; требования L2/L3 не объявляются глобально обязательными.",
+        "other_verified_urls": [
+          "https://github.com/OWASP/ASVS",
+          "https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x17-V8-Authorization.md"
+        ]
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S03",
+        "title": "SLSA — Build: Verifying artifacts",
+        "url": "https://slsa.dev/spec/v1.2/verifying-artifacts",
+        "version": "1.2, Approved",
+        "publication_or_revision_date": null,
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "How to verify",
+          "Step 1: Check SLSA Build level",
+          "Step 2: Check expectations",
+          "Forming Expectations",
+          "Architecture options"
+        ],
+        "source_insight": "Подпись provenance, digest subject и заранее доверенные builder/repository/build parameters проверяются раздельно. Проверка только в registry не покрывает последующую подмену у потребителя.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "Страница versioned и Approved; календарная дата публикации на прочитанной странице не указана. Build L3 не гарантирует честность самой build platform и не доказывает отсутствие дефектов.",
+        "other_verified_urls": [
+          "https://slsa.dev/spec/v1.2/"
+        ]
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S04",
+        "title": "The Update Framework Specification",
+        "url": "https://theupdateframework.github.io/specification/v1.0.36/",
+        "version": "1.0.36",
+        "publication_or_revision_date": "2026-08-05",
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "§1.1 Scope; §1.4 Non-goals",
+          "§5.1 fixed update start time",
+          "§5.3 root rotation",
+          "§5.4 timestamp rollback/freeze checks",
+          "§5.5 snapshot binding",
+          "§5.7 Fetch target",
+          "§6.1 key management"
+        ],
+        "source_insight": "Действительная подпись сама по себе не исключает replay старых metadata или mix-and-match; target связан с проверенными metadata и digest.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "Стандарт именно для update systems; перенос на approvals/policies — ограниченная аналогия, не требование внедрить TUF. Freshness зависит от модели доверенного времени и доступности metadata.",
+        "other_verified_urls": []
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S05",
+        "title": "OWASP ASVS — V1 Encoding and Sanitization",
+        "url": "https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/en/0x10-V1-Encoding-and-Sanitization.md",
+        "version": "5.0.0",
+        "publication_or_revision_date": "2025-05",
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "1.1.1–1.1.2",
+          "1.2.1–1.2.5",
+          "1.3.6",
+          "1.5.1–1.5.3"
+        ],
+        "source_insight": "Декодирование, проверка, интерпретация и контекстное экранирование имеют порядок; разные parsers одного типа данных должны давать совместимую семантику.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "Выбраны релевантные interpreter/parser границы; не утверждается наличие XML/SQL/OS sinks в E02.",
+        "other_verified_urls": []
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S06",
+        "title": "OWASP ASVS — V2 Validation and Business Logic",
+        "url": "https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/en/0x11-V2-Validation-and-Business-Logic.md",
+        "version": "5.0.0",
+        "publication_or_revision_date": "2025-05",
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "2.1.1–2.1.3",
+          "2.2.1–2.2.3",
+          "2.3.1–2.3.4",
+          "2.4.1"
+        ],
+        "source_insight": "Структурная валидность не заменяет согласованность связанных полей, бизнес-пределы и допустимый порядок операций.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "Schema validation названа возможным, а не единственным способом. Конкретные quotas, транзакционные технологии и anti-automation меры не навязываются.",
+        "other_verified_urls": []
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S07",
+        "title": "OWASP ASVS — V13 Configuration",
+        "url": "https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/en/0x22-V13-Configuration.md",
+        "version": "5.0.0",
+        "publication_or_revision_date": "2025-05",
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "13.1.1–13.1.4",
+          "13.2.2–13.2.6",
+          "13.3.1"
+        ],
+        "source_insight": "Зависимости требуют явного resource/failure contract; секреты не должны попадать в исходники и build artifacts.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "Key vault/HSM из уровня ASVS не превращаются в безусловное требование для исследуемого проекта; анализируется достижение требуемой границы.",
+        "other_verified_urls": []
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S08",
+        "title": "OWASP ASVS — V14 Data Protection",
+        "url": "https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/en/0x23-V14-Data-Protection.md",
+        "version": "5.0.0",
+        "publication_or_revision_date": "2025-05",
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "14.1.1–14.1.2",
+          "14.2.1–14.2.4",
+          "14.2.6–14.2.7",
+          "14.3.1–14.3.3"
+        ],
+        "source_insight": "Требования зависят от классификации данных и охватывают кэш, логи, передачу и retention; Base64 не делает данные несекретными.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "Не даётся правовое заключение и не вводятся произвольные сроки хранения. Browser-контроли применимы только при наличии такого потребителя.",
+        "other_verified_urls": []
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S09",
+        "title": "OWASP ASVS — V16 Security Logging and Error Handling",
+        "url": "https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/en/0x25-V16-Security-Logging-and-Error-Handling.md",
+        "version": "5.0.0",
+        "publication_or_revision_date": "2025-05",
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "16.1.1",
+          "16.2.1–16.2.5",
+          "16.3.1–16.3.4",
+          "16.4.1–16.4.3",
+          "16.5.1–16.5.4"
+        ],
+        "source_insight": "Security events должны быть сопоставимы и защищены; ошибки проверки не должны превращаться в allow.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "Сам источник исключает SIEM correlation/alerting infrastructure из scope ASVS. Полноценная SIEM, отдельный сервис журналирования и лог всех событий не объявлены обязательными.",
+        "other_verified_urls": []
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S10",
+        "title": "OWASP WSTG — Testing for Bypassing Authorization Schema",
+        "url": "https://wstg.owasp.org/v4.2/4-Web_Application_Security_Testing/05-Authorization_Testing/02-Testing_for_Bypassing_Authorization_Schema/",
+        "version": "4.2, WSTG-ATHZ-02",
+        "publication_or_revision_date": null,
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "Summary",
+          "Test Objectives",
+          "Testing for Horizontal Bypassing Authorization Schema"
+        ],
+        "source_insight": "Тесты различают анонимного, вышедшего из сессии, равнопривилегированного другого пользователя и другого по роли субъекта.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "Versioned URL; дата на странице отсутствует. Это методика авторизованного тестирования, не разрешение на реальную эксплуатацию.",
+        "other_verified_urls": [
+          "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/05-Authorization_Testing/02-Testing_for_Bypassing_Authorization_Schema"
+        ]
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S11",
+        "title": "OWASP WSTG — Testing for Insecure Direct Object References",
+        "url": "https://wstg.owasp.org/v4.2/4-Web_Application_Security_Testing/05-Authorization_Testing/04-Testing_for_Insecure_Direct_Object_References/",
+        "version": "4.2, WSTG-ATHZ-04",
+        "publication_or_revision_date": null,
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "Summary",
+          "Test Objectives",
+          "How to Test"
+        ],
+        "source_insight": "Object-reference tests нуждаются минимум в двух известных наборах прав/объектов, иначе отказ на несуществующий ID не проверяет IDOR.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "Прочитаны вводные методические разделы; exploit-процедуры не исполнялись. Применимость к не-web API — аналитический перенос.",
+        "other_verified_urls": []
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S12",
+        "title": "MITRE CWE-367 — Time-of-check Time-of-use Race Condition",
+        "url": "https://cwe.mitre.org/data/definitions/367.html",
+        "version": "CWE site reports 5.0",
+        "publication_or_revision_date": null,
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "Description",
+          "Common Consequences",
+          "Potential Mitigations"
+        ],
+        "source_insight": "Состояние/идентичность ресурса может измениться между проверкой и использованием; сокращение окна не устраняет race.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "Живая страница; номер версии сайта виден, фиксированная дата revision не установлена. CWE классифицирует слабость, не задаёт полный concurrency protocol.",
+        "other_verified_urls": []
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S13",
+        "title": "IETF RFC 8259 — JSON Data Interchange Format",
+        "url": "https://www.rfc-editor.org/rfc/rfc8259",
+        "version": "RFC 8259 / STD 90",
+        "publication_or_revision_date": "2017-12",
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "§4 Objects",
+          "§6 Numbers",
+          "§8.1 Character Encoding",
+          "§9 Parsers"
+        ],
+        "source_insight": "Повторённые имена JSON имеют неодинаковую обработку у parsers; допустимые parser limits и числовые представления требуют явного контракта.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "URL перенаправляет на info/rfc8259 с полным текстом; RFC говорит SHOULD о уникальности имён, а не universal MUST reject. Errata отдельно не анализировались.",
+        "other_verified_urls": [
+          "https://www.rfc-editor.org/info/rfc8259/"
+        ]
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S14",
+        "title": "AWS Builders’ Library — Ensuring rollback safety during deployments",
+        "url": "https://builder.aws.com/content/3F04j2yRAAMBuPSPs50xwXZqg01/ensuring-rollback-safety-during-deployments",
+        "version": "Авторская инженерная практика, Sandeep Pokkunuri",
+        "publication_or_revision_date": "2019-12-05",
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "Introduction",
+          "Standalone vs. distributed software deployments",
+          "Problems with protocol changes",
+          "Two-phase deployment technique"
+        ],
+        "source_insight": "Совместимость требуется во время переходов; prepare readers предшествует activation writers, а rollback после новых записей имеет другую нижнюю границу.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "AWS URL перенаправляет на официальный Builder Center, где указаны Published/Last modified Dec 5, 2019. Это практика, не универсальный обязательный deployment protocol.",
+        "other_verified_urls": [
+          "https://aws.amazon.com/builders-library/ensuring-rollback-safety-during-deployments/"
+        ]
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S15",
+        "title": "Google SRE Workbook — Canarying Releases",
+        "url": "https://sre.google/workbook/canarying-releases/",
+        "version": "SRE Workbook, chapter 16",
+        "publication_or_revision_date": null,
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "Requirements of a Canary Process",
+          "A Roll Forward Deployment Versus a Simple Canary Deployment",
+          "Choosing a Canary Population and Duration"
+        ],
+        "source_insight": "Canary должен иметь различимый контроль, оценку и влияние на rollout; малая нехарактерная выборка и общий metric скрывают ошибки.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "На странице нет календарной версии; пример App Engine и упрощённые error-budget модели не являются готовыми thresholds для E02.",
+        "other_verified_urls": []
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S16",
+        "title": "Google SRE Book — Data Integrity: What You Read Is What You Wrote",
+        "url": "https://sre.google/sre-book/data-integrity/",
+        "version": "SRE Book, chapter 26",
+        "publication_or_revision_date": null,
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "Backups Versus Archives",
+          "Delivering a Recovery System, Rather Than a Backup System",
+          "Second Layer / backup tiers",
+          "1T Versus 1E: Not Just a Bigger Backup",
+          "Third Layer: Early Detection",
+          "Gmail—February, 2011: Restore from GTape",
+          "Google Music recovery discussion"
+        ],
+        "source_insight": "Критерий восстановления — пригодные и доступные пользователю данные; архив, копия и replication не равнозначны восстановлению согласованных данных.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "Это опыт Google, не основание копировать объёмы, 30–90-дневные retention или стоимость. Читались обозначенные разделы, не все главы книги.",
+        "other_verified_urls": []
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S17",
+        "title": "NIST SP 800-34 Rev. 1 — Contingency Planning Guide",
+        "url": "https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-34r1.pdf",
+        "version": "Rev. 1, updated 2010-11-11",
+        "publication_or_revision_date": "2010-11-11",
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "§3.2.1 recovery priorities / RTO / RPO, печ. с. 17 (PDF page 31)",
+          "§3.5 TT&E, печ. с. 27–31",
+          "§4.4 Reconstitution, печ. с. 41"
+        ],
+        "source_insight": "Допустимый простой и потеря данных различаются; восстановление завершается проверкой работоспособности и данных, а не окончанием команды копирования.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "Федеральный контекст США не переносится в обязанность E02; используются определения и инженерная схема. Извлечение релевантного PDF-текста; устаревшие technology examples не используются.",
+        "other_verified_urls": [
+          "https://csrc.nist.gov/pubs/sp/800/34/r1/upd1/final"
+        ]
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S18",
+        "title": "OWASP Authorization Cheat Sheet",
+        "url": "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html",
+        "version": "Living document, snapshot 2026-11-01",
+        "publication_or_revision_date": null,
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "Introduction",
+          "Enforce Least Privileges",
+          "Deny by Default",
+          "Create Unit and Integration Test Cases for Authorization Logic"
+        ],
+        "source_insight": "Authentication не означает authorization; положительные и отрицательные unit/integration tests проверяют разные исходы и не являются полным доказательством security.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "Нет опубликованного version/date в прочитанном тексте. Не переносим recommendations ABAC/RBAC или SIEM в архитектурный mandate.",
+        "other_verified_urls": []
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S19",
+        "title": "OWASP Multi-Tenant Application Security Cheat Sheet",
+        "url": "https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html",
+        "version": "Living document, snapshot 2026-11-01",
+        "publication_or_revision_date": null,
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "§1 Tenant Identification & Context Management",
+          "§2 Database Isolation Strategies: trade-offs",
+          "§4 Cache & Session Isolation",
+          "§5 Tenant-Aware Asynchronous Work",
+          "§6 File Storage & Blob Isolation",
+          "§7 Tenant Backup Restore"
+        ],
+        "source_insight": "Tenant selectors не являются правами; cache/jobs/storage требуют согласованного контекста; restore не должен воскресить старые membership/retention.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "Живой неприкреплённый к commit текст; образцы кода не запускались и не считаются production implementation. Источник прямо допускает глобальные данные и разные уровни изоляции.",
+        "other_verified_urls": []
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S20",
+        "title": "AWS Builders’ Library — Making retries safe with idempotent APIs",
+        "url": "https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/",
+        "version": "Авторская инженерная практика, Malcolm Featonby",
+        "publication_or_revision_date": null,
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "Retrying and side effects",
+          "Reducing client complexity",
+          "Retries and semantic equivalence",
+          "Late arriving requests",
+          "Same client request ID, different intent"
+        ],
+        "source_insight": "Timeout не доказывает неисполнение; повтор требует intent identity, согласованного учёта эффекта и решения для задержанных/изменённых запросов.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "Календарная дата на прочитанной странице не указана. API/CLI примеры не запускались. Idempotency не даёт новых прав и не означает exactly-once всего распределённого workflow.",
+        "other_verified_urls": []
+      }
+    ],
+    "access_limitations": [
+      {
+        "research_group": "research_requirements",
+        "url": "https://www.incose.org/docs/default-source/working-groups/requirements-wg/shared_gtwr/gtwr_characteristics_section_4_050423.pdf?sfvrsn=9a7548c7_2",
+        "status": "404_on_open",
+        "use": "Excluded; search excerpt not treated as reviewed source"
+      },
+      {
+        "research_group": "research_requirements",
+        "url": "https://www.incose.org/docs/default-source/working-groups/requirements-wg/gtwr/incose_rwg_gtwr_v4_040423_final_drafts.pdf?sfvrsn=5c877fc7_2",
+        "status": "404_on_open",
+        "use": "Excluded; no claim to have read full Guide"
+      },
+      {
+        "research_group": "research_requirements",
+        "url": "https://www.nasa.gov/reference/appendix-f-functional-timing-and-state-analysis/",
+        "status": "opened_but_content_removed",
+        "use": "Not used as state/timing guidance; page redirects readers to Expanded Guidance, which was not read"
+      },
+      {
+        "research_group": "research_requirements",
+        "url": "https://swehb.nasa.gov/spaces/SWEHBVC/pages/50888911/SWE-055%2B-%2BRequirements%2BValidation",
+        "status": "opened_read_historical_revision_C",
+        "use": "Historical corroboration only; used Ver D and NPR 7150.2D in main catalog"
+      },
+      {
+        "research_group": "research_requirements",
+        "url": "https://swehb.nasa.gov/spaces/SITE/pages/211386411/AI%2BAdditions%2Bto%2BSWEHBVD",
+        "status": "opened_read",
+        "use": "Provenance limitation: SWE-055 listed for AI raw content added 2025-08-27; no conclusion about authorship of any individual paragraph"
+      },
+      {
+        "research_group": "research_requirements",
+        "url": "https://www.incose.org/group/requirements-working-group/",
+        "status": "opened_read",
+        "use": "Official discovery/verification of free v4 summary sheet; no private/member source accessed"
+      },
+      {
+        "research_group": "research_data_tests",
+        "url": "https://www.acm.org/publications/policies/artifact-review-and-badging-current",
+        "action": "web open",
+        "result": "HTTP 403 Forbidden",
+        "retry": "не повторялось",
+        "used_as_support": false,
+        "replacement": "DAT-S11",
+        "limit": "ACM badging definitions не объявлены прочитанными."
+      },
+      {
+        "research_group": "research_data_tests",
+        "url": "https://testing.googleblog.com/2015/01/testing-on-toilet-change-detector-tests.html",
+        "action": "web open",
+        "result": "redirect to google.com/sorry; tool reports non-retryable error",
+        "retry": "не повторялось",
+        "used_as_support": false,
+        "replacement": "DAT-S12",
+        "limit": "Содержимое этой страницы не использовано; книга Google — отдельный доступный первичный источник."
+      },
+      {
+        "research_group": "research_data_tests",
+        "url": "https://hypothesis.readthedocs.io/en/latest/tutorial/running-tests.html",
+        "action": "web open",
+        "result": "URL inaccessible through tool",
+        "retry": "не повторялось",
+        "used_as_support": false,
+        "replacement": "DAT-S13, DAT-S14, DAT-S15",
+        "limit": "Нужные существующие страницы найдены через официальный documentation index."
+      },
+      {
+        "research_group": "research_data_tests",
+        "url": "https://hypothesis.readthedocs.io/en/latest/tutorial/property-based-testing.html",
+        "action": "web open",
+        "result": "URL inaccessible through tool",
+        "retry": "не повторялось",
+        "used_as_support": false,
+        "replacement": "DAT-S13, DAT-S14, DAT-S15"
+      },
+      {
+        "research_group": "research_data_tests",
+        "url": "https://arxiv.org/html/2002.12543",
+        "action": "web open",
+        "result": "HTTP 404 Not Found",
+        "retry": "не повторялось",
+        "used_as_support": false,
+        "replacement": "DAT-S16"
+      },
+      {
+        "research_group": "research_data_tests",
+        "url": "https://arxiv.org/pdf/2002.12543",
+        "action": "PDF text + screenshot attempt",
+        "result": "PDF доступен, но извлечение основного текста искажено; screenshot-вызовы вернули только ссылки без доступных изображений",
+        "retry": "полный текст не считается прочитанным",
+        "used_as_support": false,
+        "replacement": "DAT-S16",
+        "limit": "Прочитан лишь abstract и metadata; никакого вывода из недоступных страниц."
+      },
+      {
+        "research_group": "research_data_tests",
+        "url": "https://www.cs.hku.hk/data/techreps/document/TR-2017-04.pdf",
+        "action": "web open",
+        "result": "timeout fetching; search excerpt exists",
+        "retry": "не повторялось",
+        "used_as_support": false,
+        "replacement": "DAT-S16",
+        "limit": "Search excerpt не принят за чтение полного раздела."
+      },
+      {
+        "research_group": "research_data_tests",
+        "url": "https://www.sciencedirect.com/science/article/pii/S0950584926001394",
+        "action": "web open",
+        "result": "HTTP 403 Forbidden",
+        "retry": "не повторялось",
+        "used_as_support": false,
+        "replacement": "DAT-S16",
+        "limit": "Search abstract не использован как полнотекстовая опора."
+      },
+      {
+        "research_group": "research_security_release",
+        "url": "https://github.com/OWASP/ASVS/releases/tag/v5.0.0",
+        "action": "web.open",
+        "outcome": "HTTP_404_NOT_FOUND",
+        "reason": "Release page по этому URL не получена; versioned raw tag доступен. Дата дня выпуска не утверждается, используется подтверждённый месяц.",
+        "dependent_work": "NONE; source content read at tag",
+        "retry_performed": false
+      },
+      {
+        "research_group": "research_security_release",
+        "url": "https://wstg.owasp.org/v4.2/3-The_OWASP_Testing_Framework/0-The_OWASP_Testing_Framework/",
+        "action": "web.open",
+        "outcome": "TOOL_URL_NOT_ACCESSIBLE",
+        "reason": "Текст этого необязательного framework URL не доступен инструменту; не используется как основание.",
+        "dependent_work": "NONE; versioned WSTG-ATHZ-02/04 read",
+        "retry_performed": false
+      },
+      {
+        "research_group": "research_security_release",
+        "url": "NIST PDF sources",
+        "action": "web.open/find; screenshot request",
+        "outcome": "RELEVANT_TEXT_READ",
+        "reason": "Критерии основаны на читаемом извлечённом тексте; screenshots не использованы как независимое визуальное доказательство.",
+        "dependent_work": "NONE"
+      }
+    ]
+  },
+  "independent_stdlib_checks": {
+    "status": "PASSED_SPEC_ARITHMETIC_ONLY",
+    "checks": [
+      {
+        "case": "CAL-02 weights 9:1",
+        "total": 96,
+        "physical_gradient": -36,
+        "physical_hessian": 20,
+        "optimizer_u_gradient": -9.0,
+        "optimizer_u_hessian": 1.25
+      },
+      {
+        "case": "CAL-02 weights 1:9",
+        "total": 736,
+        "physical_gradient": -164,
+        "physical_hessian": 20,
+        "optimizer_u_gradient": -41.0,
+        "optimizer_u_hessian": 1.25
+      },
+      {
+        "case": "PLG-03 independent GAE arithmetic",
+        "terminals": [
+          false,
+          false
+        ],
+        "returns": [
+          "9/4",
+          "5/2"
+        ],
+        "advantages": [
+          "2",
+          "2"
+        ]
+      },
+      {
+        "case": "PLG-03 independent GAE arithmetic",
+        "terminals": [
+          false,
+          true
+        ],
+        "returns": [
+          "2",
+          "2"
+        ],
+        "advantages": [
+          "7/4",
+          "3/2"
+        ]
+      },
+      {
+        "case": "PLG-03 independent GAE arithmetic",
+        "terminals": [
+          true,
+          true
+        ],
+        "returns": [
+          "1",
+          "2"
+        ],
+        "advantages": [
+          "3/4",
+          "3/2"
+        ]
+      },
+      {
+        "case": "PLG-03 ideal-real clipped normal-density scalar oracle; not float32 backend qualification",
+        "ratios": [
+          1.3,
+          0.7
+        ],
+        "loss": -0.19999999999999996,
+        "finite_difference_mu_gradient": 0.0
+      },
+      {
+        "case": "PLG-03 ideal-real clipped normal-density scalar oracle; not float32 backend qualification",
+        "ratios": [
+          0.9,
+          1.1
+        ],
+        "loss": 0.10000000000000003,
+        "finite_difference_mu_gradient": -1.000000000001
+      },
+      {
+        "case": "PLG-03 ideal-real clipped normal-density scalar oracle; not float32 backend qualification",
+        "ratios": [
+          0.7,
+          1.3
+        ],
+        "loss": 0.30000000000000004,
+        "finite_difference_mu_gradient": -0.9999999999732445
+      },
+      {
+        "case": "UQP-03 retained half-law exact rational mean",
+        "mean": "50/99"
+      }
+    ],
+    "scope": "Exact rational/analytic consistency of selected explicit numerical anchors; no imports of product or third-party packages"
+  },
+  "limitations": [
+    "Product/native tests NOT_RUN; no implementation or scientific/empirical PASS inferred.",
+    "No installs, product/spec edits, external mutations or subagents.",
+    "Historical v1 snapshots were not current targets.",
+    "Owner declarations in scenario JSON are author-supplied historical metadata, not independently executed tests in this pass.",
+    "Unavailable native profile, named DEC and conditional capability gaps remain explicit bounded acceptance work, not new formulation defects.",
+    "CAL-01 unique-target discussion sent to parent/fabric reviewer; not duplicated as a finding in this 32-packet scope."
+  ],
+  "validation": {
+    "all_entities_exact_70_once": true,
+    "all_input_hashes_rechecked": true,
+    "all_evidence_paths_exist": true,
+    "shared_edges_resolve": true,
+    "native_tests": "NOT_RUN",
+    "md_json_semantic_placement_and_bidirectional_edges": {
+      "status": "PASSED",
+      "requirements": 158,
+      "tests": 151,
+      "requirement_test_edges": 241,
+      "checks": "Every test setup/action/oracle/seams string occurs in its own exact MD TEST section; all requirement texts occur in MD; all local REQ↔TEST references resolve symmetrically."
+    },
+    "final_wording_qa": {
+      "status": "PASSED",
+      "packet": "EMP-01",
+      "change": "Equal endpoints → Equal-endpoint proxy in audit rationale; legitimate point [2,2] remains explicitly allowed. No product/specification finding or source change.",
+      "criterion_disposition_sets_unchanged": true,
+      "replacements": {
+        "review.md": 1,
+        "assessments.json": 11,
+        "build_assessments.py": 1
+      }
+    }
+  }
+}

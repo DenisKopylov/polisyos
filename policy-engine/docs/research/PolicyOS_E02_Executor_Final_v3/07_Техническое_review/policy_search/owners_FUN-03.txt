@@ -1,0 +1,420 @@
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/stages.py:682-714
+  682     def _metrics_for_records(self, records: list[CorrelationRecord]) -> dict[str, float]:
+  683         if not records:
+  684             return {
+  685                 "false_positive_rate": 0.0,
+  686                 "true_positive_rate": 0.0,
+  687                 "false_negative_rate": 0.0,
+  688                 "spearman_correlation": 0.0,
+  689             }
+  690 
+  691         passed_a = [record for record in records if record.stage_a_passed]
+  692         rejected_a = [record for record in records if not record.stage_a_passed]
+  693 
+  694         true_positives = sum(1 for record in passed_a if record.stage_b_approved)
+  695         false_positives = sum(1 for record in passed_a if not record.stage_b_approved)
+  696         false_negatives = sum(1 for record in rejected_a if record.stage_b_approved)
+  697 
+  698         fp_rate = false_positives / len(passed_a) if passed_a else 0.0
+  699         tp_rate = true_positives / len(passed_a) if passed_a else 0.0
+  700         fn_rate = false_negatives / len(rejected_a) if rejected_a else 0.0
+  701 
+  702         if len(records) > 2:
+  703             a_scores = [record.stage_a_score for record in records]
+  704             b_scores = [record.stage_b_score for record in records]
+  705             correlation = self._spearman(a_scores, b_scores)
+  706         else:
+  707             correlation = 0.0
+  708 
+  709         return {
+  710             "false_positive_rate": fp_rate,
+  711             "true_positive_rate": tp_rate,
+  712             "false_negative_rate": fn_rate,
+  713             "spearman_correlation": correlation,
+  714         }
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/calibration_report.py:80-183
+   80 def build_calibration_report(
+   81     *,
+   82     correlation_tracker: CorrelationTracker | None = None,
+   83     lesson_registry: LessonRegistry | LessonIndexSnapshot | None = None,
+   84     sentinel_set: SentinelSet | None = None,
+   85     sentinel_observations: list[SentinelObservation] | None = None,
+   86     burn_in_report: BurnInRunReport | None = None,
+   87 ) -> FunnelCalibrationReport:
+   88     """Build the funnel calibration report from tracker, lessons, and sentinels."""
+   89 
+   90     tracker = correlation_tracker or CorrelationTracker()
+   91     metrics = tracker.compute_metrics()
+   92     alerts = tracker.drift_alerts()
+   93     observations = list(sentinel_observations or [])
+   94     sentinel_pass_rate = metrics.get("sentinel_pass_rate")
+   95     if sentinel_pass_rate is None and observations:
+   96         sentinel_pass_rate = sum(1 for item in observations if item.stage_a_passed) / len(
+   97             observations
+   98         )
+   99 
+  100     gaps: list[str] = []
+  101     if burn_in_report is None:
+  102         gaps.append("missing_burn_in")
+  103     if sentinel_set is None and sentinel_pass_rate is None:
+  104         gaps.append("missing_sentinels")
+  105     if int(metrics.get("rolling_sample_count", 0)) < 3:
+  106         gaps.append("insufficient_correlation_window")
+  107 
+  108     top_lessons = _resolve_top_lessons(lesson_registry)
+  109     expensive_stage_load_reduction = (
+  110         burn_in_report.expensive_stage_load_reduction if burn_in_report is not None else None
+  111     )
+  112     acceptance_criteria = [
+  113         AcceptanceCriterionStatus(
+  114             name="false_negative_rate",
+  115             target="< 0.02",
+  116             actual=float(metrics.get("false_negative_rate", 0.0)),
+  117             passed=float(metrics.get("false_negative_rate", 0.0)) < 0.02,
+  118         ),
+  119         AcceptanceCriterionStatus(
+  120             name="spearman_l2_l4",
+  121             target="> 0.6",
+  122             actual=float(metrics.get("spearman_correlation", 0.0)),
+  123             passed=float(metrics.get("spearman_correlation", 0.0)) > 0.6,
+  124         ),
+  125         AcceptanceCriterionStatus(
+  126             name="expensive_stage_load_reduction",
+  127             target="> 0.5",
+  128             actual=expensive_stage_load_reduction,
+  129             passed=(
+  130                 None
+  131                 if expensive_stage_load_reduction is None
+  132                 else expensive_stage_load_reduction > 0.5
+  133             ),
+  134             note=(
+  135                 "No burn-in or operational evaluation totals available."
+  136                 if expensive_stage_load_reduction is None
+  137                 else None
+  138             ),
+  139         ),
+  140         AcceptanceCriterionStatus(
+  141             name="sentinel_pass_rate",
+  142             target="> 0.95",
+  143             actual=None if sentinel_pass_rate is None else float(sentinel_pass_rate),
+  144             passed=None if sentinel_pass_rate is None else float(sentinel_pass_rate) > 0.95,
+  145             note="Sentinel set missing." if sentinel_pass_rate is None else None,
+  146         ),
+  147     ]
+  148 
+  149     recommended_actions = _recommended_actions(alerts, gaps)
+  150     sentinel_health = {
+  151         "configured_injection_rate": (
+  152             None if sentinel_set is None else sentinel_set.injection_rate
+  153         ),
+  154         "configured_pass_rate_floor": (
+  155             None if sentinel_set is None else sentinel_set.pass_rate_floor
+  156         ),
+  157         "observed_pass_rate": None if sentinel_pass_rate is None else float(sentinel_pass_rate),
+  158         "observation_count": len(observations),
+  159     }
+  160 
+  161     return FunnelCalibrationReport(
+  162         current_mode=str(metrics.get("routing_mode", "normal")),
+  163         gaps=gaps,
+  164         routing_health={
+  165             "sample_count": metrics.get("sample_count", 0),
+  166             "rolling_sample_count": metrics.get("rolling_sample_count", 0),
+  167             "false_positive_rate": metrics.get("false_positive_rate", 0.0),
+  168             "false_negative_rate": metrics.get("false_negative_rate", 0.0),
+  169             "spearman_correlation": metrics.get("spearman_correlation", 0.0),
+  170             "rolling_spearman_correlation": metrics.get("rolling_spearman_correlation", 0.0),
+  171             "promotion_ban_active": metrics.get("promotion_ban_active", False),
+  172         },
+  173         expensive_stage_load_reduction=expensive_stage_load_reduction,
+  174         sentinel_health=sentinel_health,
+  175         top_lessons=top_lessons,
+  176         recommended_actions=recommended_actions,
+  177         acceptance_criteria=acceptance_criteria,
+  178         drift_alerts=alerts,
+  179         metadata={
+  180             "burn_in_present": burn_in_report is not None,
+  181             "lesson_pattern_count": len(top_lessons),
+  182         },
+  183     )
+
+### e02_repository/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_engine.py:244-400
+  244 def _build_search_uncertainty_owner_context(
+  245     session: _RuntimeSession,
+  246     stages: list[Any],
+  247 ) -> SearchUncertaintyOwnerTaskContext:
+  248     """Persist owner-derived selected inputs after the real stage stack exists."""
+  249     store = resolve_search_uncertainty_store(session.ctx.store)
+  250     if store is None:
+  251         raise TypeError("search_uncertainty_core_store_unavailable")
+  252     stage_entries, unresolved_stage_bindings = _stage_configuration_entries(stages)
+  253     stage_payload = {
+  254         "owner_fqn": "polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_engine.run_runtime_funnel",
+  255         "stages": stage_entries,
+  256         "unresolved_bindings": unresolved_stage_bindings,
+  257     }
+  258     stage_digest = hashlib.sha256(
+  259         json.dumps(stage_payload, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+  260     ).hexdigest()
+  261     stage_configuration_ref = persist_search_uncertainty_v2(
+  262         store,
+  263         SearchRuntimeStageConfiguration(
+  264             owner_fqn=stage_payload["owner_fqn"],
+  265             stages=stage_entries,
+  266             unresolved_bindings=unresolved_stage_bindings,
+  267             configuration_sha256=stage_digest,
+  268         ),
+  269     )
+  270 
+  271     candidate_ref = session.candidate_ref
+  272     selected_roots: dict[str, ArtifactRef] = {"candidate": candidate_ref}
+  273     for attr, ref in (
+  274         ("observational_data", session.state.observational_data_ref),
+  275         ("execution_plan", session.state.execution_plan_ref),
+  276         ("method_catalog_snapshot", session.state.method_catalog_snapshot_ref),
+  277         ("policy_selection", session.selection_ref),
+  278         ("stage_configuration", stage_configuration_ref),
+  279     ):
+  280         if isinstance(ref, ArtifactRef):
+  281             selected_roots[attr] = ref
+  282     for field_name in sorted(ExperimentState.model_fields):
+  283         ref = getattr(session.state, field_name, None)
+  284         if isinstance(ref, ArtifactRef):
+  285             selected_roots[f"state.{field_name}"] = ref
+  286     for group_name, values in (
+  287         ("state_input", session.state.inputs),
+  288         ("state_artifact", session.state.artifacts_index),
+  289         ("state_report", session.state.reports_index),
+  290     ):
+  291         for name, ref in sorted(values.items()):
+  292             if isinstance(ref, ArtifactRef):
+  293                 selected_roots[f"{group_name}.{name}"] = ref
+  294     profiled_roots = tuple(
+  295         SearchInputDependency(role_path=role, ref=ref)
+  296         for role, ref in sorted(selected_roots.items())
+  297         if ref.manifest_profile_sha256 is not None
+  298     )
+  299     missing: set[str] = set()
+  300     unprofiled_roles = sorted(
+  301         role for role, ref in selected_roots.items() if ref.manifest_profile_sha256 is None
+  302     )
+  303     if unprofiled_roles:
+  304         missing.add("selected_source_ref_manifest_profile")
+  305         missing.update(f"selected_source_ref_manifest_profile:{role}" for role in unprofiled_roles)
+  306     source_graph_ref = None
+  307     if profiled_roots:
+  308         source_graph_ref = persist_search_uncertainty_v2(
+  309             store,
+  310             SearchOwnerSelectedSourceGraph(roots=profiled_roots),
+  311         )
+  312     else:
+  313         missing.add("selected_source_graph_owner")
+  314 
+  315     plan_ref = session.state.execution_plan_ref
+  316     selection_ref = session.selection_ref
+  317     method_fqn = session.state.causal_method_fqn
+  318     if not method_fqn:
+  319         missing.add("selected_method_owner")
+  320     tenant_id = session.ctx.run.tenant_id
+  321     if not tenant_id:
+  322         missing.add("owner_tenant_scope")
+  323     if plan_ref is None or plan_ref.manifest_profile_sha256 is None:
+  324         missing.add("selected_executable_plan_configuration_graph_rule_profile_procedure_selection")
+  325         plan_ref = None
+  326     if source_graph_ref is None:
+  327         missing.add("selected_executable_plan_configuration_graph_rule_profile_procedure_selection")
+  328     if selection_ref is None or selection_ref.manifest_profile_sha256 is None:
+  329         missing.add("selected_executable_plan_configuration_graph_rule_profile_procedure_selection")
+  330         selection_ref = None
+  331     if unresolved_stage_bindings:
+  332         missing.update(unresolved_stage_bindings)
+  333     missing.update(
+  334         {
+  335             "selected_executable_plan_configuration_graph_rule_profile_procedure_selection",
+  336             "selected_rule_owner",
+  337             "selected_method_profile_owner",
+  338             "selected_procedure_owner",
+  339             "selected_method_abi_owner",
+  340             "selected_inference_profile_owner",
+  341             "selected_method_abi_params_profile",
+  342             "semantic_scope_owner",
+  343             "owned_hte_request_projection",
+  344             "selected_method_seed",
+  345             "selected_method_input_owner",
+  346             "selected_method_input_content_digest",
+  347         }
+  348     )
+  349     try:
+  350         params_payload = json.dumps(
+  351             session.state.causal_method_params,
+  352             sort_keys=True,
+  353             separators=(",", ":"),
+  354             allow_nan=False,
+  355         )
+  356     except (TypeError, ValueError):
+  357         params_digest = None
+  358         missing.add("selected_method_params_not_canonical")
+  359     else:
+  360         params_digest = hashlib.sha256(params_payload.encode("utf-8")).hexdigest()
+  361     state_inputs = tuple(
+  362         SearchInputDependency(role_path=role, ref=ref)
+  363         for role, ref in sorted(selected_roots.items())
+  364         if ref.manifest_profile_sha256 is not None
+  365         and role not in {"candidate", "execution_plan", "policy_selection", "stage_configuration"}
+  366     )
+  367     missing.update(
+  368         reconcile_search_method_selection_sources(
+  369             store,
+  370             expected_run_id=session.state.run_id,
+  371             plan_ref=plan_ref,
+  372             selected_state_input_refs=state_inputs,
+  373             selected_method_fqn=method_fqn,
+  374             selected_method_params=session.state.causal_method_params,
+  375         )
+  376     )
+  377     return SearchUncertaintyOwnerTaskContext(
+  378         owner_fqn="polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_engine.run_runtime_funnel",
+  379         run_id=session.state.run_id,
+  380         subject_ref=candidate_ref,
+  381         selected_plan_ref=plan_ref,
+  382         selected_configuration_ref=stage_configuration_ref,
+  383         selected_source_graph_ref=source_graph_ref,
+  384         selected_rule_ref=None,
+  385         selected_profile_ref=None,
+  386         selected_procedure_ref=None,
+  387         selected_selection_ref=selection_ref,
+  388         selected_method_fqn=method_fqn,
+  389         selected_method_abi_version=None,
+  390         selected_method_params_sha256=params_digest,
+  391         selected_method_params=dict(session.state.causal_method_params),
+  392         selected_inference_profile_id=None,
+  393         tenant_id=tenant_id,
+  394         cell_id=session.ctx.run.cell_id,
+  395         semantic_scope=None,
+  396         selected_stage_config_sha256=stage_digest,
+  397         selected_state_input_refs=state_inputs,
+  398         status="not_established",
+  399         missing_slices=tuple(sorted(missing)),
+  400     )
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py:64-121
+   64     def evaluate(
+   65         self,
+   66         candidate: dict[str, Any],
+   67         context: dict[str, Any],
+   68     ) -> FunnelStageResult:
+   69         start = datetime.now(UTC)
+   70         prior_result = _prior_result(context)
+   71         objective_value = prior_result.objective_value if prior_result is not None else None
+   72         score_status = (
+   73             selected_score_admission_status(
+   74                 prior_result.score_assessment,
+   75                 prior_result.simulation_results,
+   76             )
+   77             if prior_result is not None
+   78             else ObjectiveScoreStatus.UNAVAILABLE
+   79         )
+   80         if score_status is not ObjectiveScoreStatus.AVAILABLE:
+   81             objective_value = None
+   82         promotion_payload = context.get("promotion_result")
+   83         failure_cards: list[TypedFailureCard] = []
+   84         terminal_action = "complete"
+   85         audit_refs = list(getattr(prior_result, "audit_refs", []))
+   86         feedback = dict(getattr(prior_result, "feedback", {}) or {})
+   87         if promotion_payload is not None:
+   88             feedback["promotion_result_read_only"] = True
+   89         degradation_mode = str(context.get("funnel_degradation_mode", "normal"))
+   90         preflight_blocked = degradation_mode in {
+   91             "no_promotion",
+   92             "reduced_judge",
+   93             "auto_cap",
+   94         }
+   95 
+   96         if (
+   97             promotion_payload is None
+   98             and self._promotion_runner is not None
+   99             and not preflight_blocked
+  100         ):
+  101             # No promotion-purpose issuer/verifier and revoke-serialized commit
+  102             # port is integrated here. A callback or retained bool is preflight
+  103             # self-attestation, not current admission at the protected writer.
+  104             terminal_action = "defer_to_human"
+  105             failure_cards.append(_owner_recheck_failure_card())
+  106             feedback["promotion_admission_status"] = "bridge_missing"
+  107             feedback["promotion_required_contract"] = (
+  108                 "owner_issued_promotion_permit_and_revoke_serialized_commit"
+  109             )
+  110 
+  111         if preflight_blocked:
+  112             terminal_action = "defer_to_human"
+  113             failure_cards.append(
+  114                 TypedFailureCard(
+  115                     judge_name="L6_promotion",
+  116                     failure_type="degraded_mode_promotion_cap",
+  117                     severity=FailureSeverity.WARNING,
+  118                     description=(
+  119                         f"Promotion is capped by degraded funnel mode '{degradation_mode}'."
+  120                     ),
+  121                 )
+
+### e02_repository/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py:1530-1587
+ 1530 def run_promotion_with_evidence(
+ 1531     *,
+ 1532     ctx: ExecutionContext,
+ 1533     state: ExperimentState,
+ 1534     candidate: PolicyCandidateSchema,
+ 1535     candidate_ref: ArtifactRef,
+ 1536     evaluation_vector: PolicyEvaluationVector,
+ 1537     evidence_bundle: PromotionEvidenceBundle,
+ 1538     promotion_context: dict[str, Any] | None = None,
+ 1539     evaluation_provenance: dict[str, Any] | None = None,
+ 1540 ) -> PolicyPromotionResult:
+ 1541     """Run promotion with evidence."""
+ 1542     policy_runtime_store, registry_root = _require_policy_runtime_store(ctx.store)
+ 1543     policy_runtime_context = replace(ctx, store=policy_runtime_store)
+ 1544     evidence_metadata = dict(evidence_bundle.metadata)
+ 1545     raw_artifact_family = evidence_metadata.get("artifact_family")
+ 1546     raw_claim_mode = evidence_metadata.get("claim_mode")
+ 1547     if (
+ 1548         not isinstance(raw_artifact_family, str)
+ 1549         or not raw_artifact_family.strip()
+ 1550         or not isinstance(raw_claim_mode, str)
+ 1551         or not raw_claim_mode.strip()
+ 1552     ):
+ 1553         raise ValueError("promotion_benchmark_scope_unavailable")
+ 1554     artifact_family = normalize_phase2_artifact_family(raw_artifact_family)
+ 1555     claim_mode = _parse_policy_claim_mode(raw_claim_mode)
+ 1556     expected_loop_id = str(state.params.get("policy_loop_id") or state.run_id)
+ 1557     selection_ref = evidence_bundle.selection_evaluation_ref
+ 1558     if selection_ref is None:
+ 1559         raise ValueError("PromotionEvidenceBundle selection_evaluation_ref is required.")
+ 1560     verification_ref = evidence_bundle.replay_verification_ref
+ 1561     verification_report = None
+ 1562     if verification_ref is not None:
+ 1563         verification_report = load_replay_verification_report(
+ 1564             policy_runtime_store, verification_ref
+ 1565         )
+ 1566     elif evidence_bundle.replay_bundle_ref is not None:
+ 1567         verification_ref = verify_and_persist_replay_bundle(
+ 1568             policy_runtime_store,
+ 1569             run_id=state.run_id,
+ 1570             replay_bundle_ref=evidence_bundle.replay_bundle_ref,
+ 1571             candidate_ref=candidate_ref,
+ 1572             evaluation_ref=evidence_bundle.evaluation_ref or selection_ref,
+ 1573             registry=ReplayRegistry(registry_root / "search_registry" / "replay_registry"),
+ 1574         )
+ 1575         verification_report = load_replay_verification_report(
+ 1576             policy_runtime_store, verification_ref
+ 1577         )
+ 1578         evidence_bundle = evidence_bundle.model_copy(
+ 1579             update={"replay_verification_ref": verification_ref}
+ 1580         )
+ 1581     evidence_bundle.assert_runtime_compatible(
+ 1582         run_id=state.run_id,
+ 1583         store=policy_runtime_store,
+ 1584         expected_loop_id=expected_loop_id,
+ 1585         expected_refs={
+ 1586             "candidate_ref": candidate_ref,
+ 1587             "selection_evaluation_ref": selection_ref,

@@ -1,0 +1,380 @@
+{
+  "schema": "e02.runtime_delivery.proposed_changes.v1",
+  "status": "PROPOSED_NOT_IMPLEMENTED_PENDING_INDEPENDENT_REVIEW",
+  "based_on_repository": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "baseline_zip_sha256": "e08baa70c8acf92f8f2e5afd8ced38c94213355dea07c4b33b14a417aefdebf3",
+  "authorization": "Root message2026-11-01 after six-finding triage: only own affected packet MD/JSON; no baseline/product/sharedintegration/aggregate edits.",
+  "changed_packets": [
+    {
+      "packet_id": "EXE-01",
+      "finding_ids": [
+        "RD-01"
+      ],
+      "status": "PROPOSED_SPECIFICATION_NOT_IMPLEMENTED_NOT_INDEPENDENTLY_ACCEPTED",
+      "requirement_ids": [
+        "REQ-EXE-01-01",
+        "REQ-EXE-01-02",
+        "REQ-EXE-01-03",
+        "REQ-EXE-01-04"
+      ],
+      "test_ids": [
+        "TEST-EXE-01-01",
+        "TEST-EXE-01-02",
+        "TEST-EXE-01-03",
+        "TEST-EXE-01-04"
+      ],
+      "new_ids": [],
+      "preservation_and_residual_bindings": "unchanged",
+      "files": [
+        {
+          "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/EXE-01.md",
+          "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/EXE-01.md",
+          "old_sha256": "4568f6b3b3080dd3dddc8cf9e839c826cbc0337f4017d9cfa12a3b5bab19aa39",
+          "new_sha256": "3847d3d580e2a05b39dfcb2ec6636d6907d22cf9295aeb42e8231a15e26b7519"
+        },
+        {
+          "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/EXE-01.json",
+          "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/EXE-01.json",
+          "old_sha256": "880a0d2282ff874e338f123f240e63d462ea7a316c5a9816780a235d941d898a",
+          "new_sha256": "1fa6106d9bf422671517a72241152524d666817177b3976ad6d6460c3c6ae7c1"
+        }
+      ],
+      "edits": [
+        {
+          "field": "REQ-EXE-01-01",
+          "old": "run_blocking_async при completed-before-wrap и saturated owner не должен ждать capacity или future.result синхронно на event-loop thread. Delivery существующего timely receipt выполняется без повторного callable; arbitrary user callbacks остаются bounded и reentrancy guards сохраняются.",
+          "new": "Все поддержанные async-await routes над _SharedFuture — run_blocking_async, SharedExecutionHandle.result_async и async thread-timeout bridge — при completed-before-registration и saturated owner не должны ждать capacity или future.result синхронно на event-loop thread. Delivery существующего timely receipt выполняется без повторного callable; arbitrary user callbacks остаются bounded и reentrancy guards сохраняются. Физическая reservation принадлежит underlying job, не waiter; cancellation/shutdown и закрытый loop не создают duplicate delivery или ложного освобождения capacity."
+        },
+        {
+          "field": "technical_solution.private_shared_adapter",
+          "old": "У _SharedFuture.add_done_callback сейчас любой callback идёт в run_callback_sync; asyncio.wrap_future регистрирует внутренний delivery callback и при already-completed future блокирует loop. Предпочтительно добавить private transport-only registration у _SharedFuture, вызывающий base Future.add_done_callback для крошечного проверенного delivery adapter; adapter только делает loop.call_soon_threadsafe и не исполняет arbitrary user callback. run_blocking_async связывает отдельный asyncio.Future через этот adapter; cancellation передаётся worker_future, completion проверяет done/cancelled и receipt. Альтернатива — отдельный неблокирующий внутренний completion signal в уже существующем receipt; выбрать меньшую поверхность после полного чтения cancellation code. Обычный add_done_callback contract не делать unbounded. Deadline должен охватывать setup/delivery с сохранением timely-completion receipt semantics.",
+          "new": "У _SharedFuture.add_done_callback сейчас любой callback идёт в run_callback_sync; asyncio.wrap_future регистрирует внутренний delivery callback и при already-completed future блокирует loop. Один private transport-only registration/adapter у Common связывает отдельный asyncio.Future без синхронного ожидания worker capacity: base Future.add_done_callback вызывает только проверенный loop.call_soon_threadsafe handoff, не arbitrary user callback. Подключить его во всех действительных sibling routes: run_blocking_async, SharedExecutionHandle.result_async и retry._execute_with_timeout_thread_async. Прочитать прочие wrap_future callers и тип их future; чужие обычные futures не заменять механически. Cancellation передаётся worker_future, completion проверяет done/cancelled и receipt; closed-loop RuntimeError обрабатывается без duplicate delivery и утечки physical reservation. Альтернатива — один неблокирующий внутренний completion signal existing receipt; выбрать меньшую поверхность после чтения cancellation code. Обычный add_done_callback contract остаётся bounded. Deadline охватывает setup/delivery с сохранением timely-completion receipt semantics. Второй executor/AnyIO migration для этого repair не требуется."
+        },
+        {
+          "field": "TEST-EXE-01-01.setup",
+          "old": "Actual shared owner capacity1; first callable completed, second held barrier before wrap; event-loop heartbeat.",
+          "new": "Actual shared owner capacity1; first callable completed, second held barrier before registration; event-loop heartbeat. Параметризовать run_blocking_async, SharedExecutionHandle.result_async и actual async thread-timeout bridge; watchdog/release вне проверяемого loop."
+        },
+        {
+          "field": "TEST-EXE-01-01.action",
+          "old": "Register delivery через actual bridge до освобождения second worker; затем release. Повтор cancellation/shutdown race.",
+          "new": "Для каждого actual caller зарегистрировать completion до освобождения second worker; проверить heartbeat, затем release. Повтор queued/running cancellation, shutdown и closed-loop races; прежний adapter либо controlled removal служит различающим negative."
+        },
+        {
+          "field": "TEST-EXE-01-01.oracle",
+          "old": "Heartbeat/event marker продвигается до release; регистрация не ждёт worker. Receipt42 delivered once без повторного invoke; queue/workers bounded; timely result не объявлен ошибочным только из-за delivery delay.",
+          "new": "Во всех трёх routes heartbeat/event marker продвигается до release; регистрация не ждёт worker. Receipt42 либо исходное exception delivered once без повторного invoke; queue/workers bounded; running job удерживает physical slot до собственного завершения. Timely result не объявлен ошибочным только из-за delivery delay. Closed loop не вызывает duplicate delivery/утечку reservation; arbitrary user callback contract не ослаблен."
+        },
+        {
+          "field": "owners.sibling_bridges",
+          "old": "- policy-engine/src/polisyos/common/async_tools/__init__.py: _SharedFuture.add_done_callback, _SharedExecutor.run_callback_sync, run_blocking_async",
+          "new": "- policy-engine/src/polisyos/common/async_tools/__init__.py: _SharedFuture.add_done_callback, _SharedExecutor.run_callback_sync, run_blocking_async, SharedExecutionHandle.result_async\n- policy-engine/src/polisyos/scientist/orchestration/engine/retry.py: _submit_thread_attempt, _execute_with_timeout_thread_async"
+        },
+        {
+          "field": "library_rationale",
+          "old": "## 6. Локальная приёмка",
+          "new": "Library rationale (проверено 2026-11-01): [Python3.14 call_soon_threadsafe](https://docs.python.org/3.14/library/asyncio-eventloop.html#asyncio.loop.call_soon_threadsafe) допускает межпоточный handoff и явно сообщает RuntimeError при закрытом loop. [Locked AnyIO4.12.0](https://raw.githubusercontent.com/agronholm/anyio/4.12.0/src/anyio/to_thread.py) не прекращает running thread при abandon_on_cancel; его использование не заменяет existing physical-capacity/fence contract. Это обоснование выбора, не выполненный runtime test.\n\n## 6. Локальная приёмка"
+        }
+      ]
+    },
+    {
+      "packet_id": "STA-02",
+      "finding_ids": [
+        "RD-05"
+      ],
+      "status": "PROPOSED_SPECIFICATION_NOT_IMPLEMENTED_NOT_INDEPENDENTLY_ACCEPTED",
+      "requirement_ids": [
+        "REQ-STA-02-01",
+        "REQ-STA-02-02",
+        "REQ-STA-02-03",
+        "REQ-STA-02-04"
+      ],
+      "test_ids": [
+        "TEST-STA-02-01",
+        "TEST-STA-02-02",
+        "TEST-STA-02-03",
+        "TEST-STA-02-04"
+      ],
+      "new_ids": [],
+      "preservation_and_residual_bindings": "unchanged",
+      "files": [
+        {
+          "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/STA-02.md",
+          "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/STA-02.md",
+          "old_sha256": "3efe8a8ac1090d8c0b2570706af46a2b54709eef79111ec8350ef02b8545690c",
+          "new_sha256": "77dfdc8b59e5d65b6474e9915e6dabc355daffd6a72b91dc92d98a4b8bd361a4"
+        },
+        {
+          "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/STA-02.json",
+          "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/STA-02.json",
+          "old_sha256": "ae8247e7546456f3e5830243994311e510735bb30f0f596d6c53555bf38db291",
+          "new_sha256": "805a6b4ada6c6524619fe33b972bf9cd8b616782c6dabc3a4c351677c538ca2d"
+        }
+      ],
+      "edits": [
+        {
+          "field": "REQ-STA-02-01",
+          "old": "При accepted existing source-unbound bundle ResolveParametersNode должен заполнить объявленные literature_priors, uncertainty multipliers, runtime intervals/backend_used/ready для текущих effective backend/draws/seed. Изменение draws32→128 и seed1→9 не возвращает прежние intervals; imported bundle без derived fields не даёт пустой ok.",
+          "new": "При accepted existing source-unbound bundle ResolveParametersNode должен заполнить объявленные literature_priors, uncertainty multipliers, runtime intervals/backend_used/ready для текущих effective backend/draws/seed. Для draws32→128 и seed1→9 derivation использует текущую конфигурацию, а не сохранённые старые intervals; численное совпадение само по себе не доказывает и не опровергает корректное повторное вычисление. Imported bundle без derived fields не даёт пустой ok. Direct bridge parity подтверждает reuse wiring, но независимый pre-sampling mean/std oracle отдельно проверяет parameter/uncertainty mapping."
+        },
+        {
+          "field": "TEST-STA-02-01.setup",
+          "old": "Actual V1.1 beta=2,std=.2 bundle без current SKG; NumPy bridge; request32/seed1, затем128/seed9; imported no-derived case.",
+          "new": "Actual V1.1 bundle: beta.value=2, std_error=.2, confidence_interval отсутствует, applicability uncertainty_multiplier=3; без current SKG. NumPy bridge; request32/seed1, затем128/seed9; imported no-derived case. Отдельно второй параметр и перестановка keys; сохранить finite floor и unsupported-parameter cases."
+        },
+        {
+          "field": "TEST-STA-02-01.action",
+          "old": "Выполнить resolver reuse и direct bridge как numeric oracle.",
+          "new": "Выполнить resolver reuse и direct bridge как regression oracle wiring, не как независимое доказательство математики. Независимо задать expected pre-sampling beta prior mean=2/std=.6; проверить field correspondence и текущую effective runtime configuration. Для stochastic affine shift/positive-scale controls фиксировать backend/draws/seed и tolerances заранее."
+        },
+        {
+          "field": "TEST-STA-02-01.oracle",
+          "old": "128 draws/current seed result точно равен direct bridge; missing outputs восстановлены; selector calls=0; unchanged request не меняет selected bundle ref. Искусственный bridge failure не публикует ready=true.",
+          "new": "128 draws/current seed result равен direct bridge на том же declared backend; missing outputs восстановлены; selector calls=0; unchanged request не меняет selected bundle ref. Независимый prior oracle до sampling: beta mean2/std.6; это не требование exact sample mean. Второй параметр не перепутан, key permutation сохраняет mapping; finite floor/unsupported behavior сохранены. Мутант, одинаково игнорирующий multiplier в обеих ветках, не проходит независимый oracle. Искусственный bridge failure не публикует ready=true."
+        },
+        {
+          "field": "TEST-STA-02-04.oracle",
+          "old": "Consumer использовал exact parameters/uncertainty/scope; GCM unsupported explicit; empirical applicability не повышена synthetic prior. Таблица actual bytes/calls/time с данными источника; нет выдуманного SLA.",
+          "new": "Consumer действительно использовал exact parameters/uncertainty/scope: сопоставить фактический fit/request с независимым field-by-field prior oracle, не только с тем же production bridge. GCM unsupported explicit; empirical applicability не повышена synthetic prior. Таблица actual bytes/calls/time с данными источника; нет выдуманного SLA. Qualification actual consumer/математики отделена от acceptance узкого reuse repair; Python<3.13-only optional dependency не объявляется native Python3.14 support."
+        },
+        {
+          "field": "oracle_scope",
+          "old": "### Проверенные owners на срезе",
+          "new": "Разделить два oracle: прямой ParameterTransfer.pure_step проверяет правильность reuse handoff, но не собственную математику bridge. Независимые expected mean/std задаются через actual DTO (std_error=.2 и отсутствующий confidence_interval, иначе действует CI precedence); stochastic checks не требуют точного sample mean или обязательного различия любых двух seeds. Не заменять sampling аналитическими интервалами ради теста и не вводить новую probabilistic library без доказанного algorithm gap.\n\n### Проверенные owners на срезе"
+        }
+      ]
+    },
+    {
+      "packet_id": "RUN-02",
+      "finding_ids": [
+        "RD-04"
+      ],
+      "status": "PROPOSED_SPECIFICATION_NOT_IMPLEMENTED_NOT_INDEPENDENTLY_ACCEPTED",
+      "requirement_ids": [
+        "REQ-RUN-02-01",
+        "REQ-RUN-02-02",
+        "REQ-RUN-02-03"
+      ],
+      "test_ids": [
+        "TEST-RUN-02-01",
+        "TEST-RUN-02-02",
+        "TEST-RUN-02-03"
+      ],
+      "new_ids": [],
+      "preservation_and_residual_bindings": "unchanged",
+      "files": [
+        {
+          "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/RUN-02.md",
+          "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/RUN-02.md",
+          "old_sha256": "fa1c749e841dfd9aa241cdb6f938f3794f07f950dd5e4ec45dfe7d76b4fa8a21",
+          "new_sha256": "ebebd0c2f88692edeb925ff72baf200c36fa42f3dbb056b55bb807588b60fff3"
+        },
+        {
+          "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/RUN-02.json",
+          "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/RUN-02.json",
+          "old_sha256": "81109abea8b404ca9eb1cfdb1c53973a280fdd8604089f9fc3a8c963e962f246",
+          "new_sha256": "b745f3333e6c2bad85eebe19c27b8909247795d44766d36cb60c3e2c5d4d1757"
+        }
+      ],
+      "edits": [
+        {
+          "field": "REQ-RUN-02-03",
+          "old": "Native Linux supervisor очищает подтверждённо принадлежащих descendants или явно сообщает cleanup incomplete; не сигналит parent/foreign group. Native macOS supported canonical nodes используют closed spawn task/context и exact attempt binding, unsupported node/context явно отказывается без silent fallback.",
+          "new": "Native Linux supervisor очищает подтверждённо принадлежащих descendants или явно сообщает cleanup incomplete; не сигналит parent/foreign group. Native macOS supported canonical nodes используют closed spawn task/context и exact attempt binding, unsupported node/context явно отказывается без silent fallback. Linux numerical-timeout qualification отдельно называет actual start method и состояние parent после JAX/BLAS/thread-pool initialization. Cold callable не доказывает warm numerical support: выбранный supported route должен завершить meaningful bounded calculation, либо именно эта topology явно остаётся unsupported/NOT_RUN без broad numerical PASS. Это не утверждение уже воспроизведённого deadlock и не блокер независимого EOF repair."
+        },
+        {
+          "field": "TEST-RUN-02-03.setup",
+          "old": "Owned process subtree only; Linux descendants fixture and supported Darwin canonical node/context.",
+          "new": "Owned process subtree only; Linux descendants fixture and supported Darwin canonical node/context. Отдельный Linux Python3.14/locked-JAX profile: parent выполняет реальную маленькую JAX operation до timeout invocation, с recorded start method/backend/env; внешний bounded watchdog не зависит от child."
+        },
+        {
+          "field": "TEST-RUN-02-03.action",
+          "old": "Timeout/worker exit/cancel; new request after cleanup; unsupported context negative.",
+          "new": "Timeout/worker exit/cancel; new request after cleanup; unsupported context negative. На выбранном warm-parent route выполнить actual bounded child numerical calculation→typed delivery; отдельно stalled-child control и cleanup. При unsafe/unsupported topology выбрать и обосновать existing closed spawn route либо controlled clean forkserver/profile limitation, не менять global start method молча."
+        },
+        {
+          "field": "TEST-RUN-02-03.oracle",
+          "old": "Own subtree reaped or explicit incomplete; foreign/parent never signalled. Darwin exact allowed bindings succeed; unsupported rejects before execution. Each platform labelled independently; unavailable platform NOT_RUN.",
+          "new": "Own subtree reaped or explicit incomplete; foreign/parent never signalled. Darwin exact allowed bindings succeed; unsupported rejects before execution. Warm Linux поддержка принимается только при actual expected numerical value, typed run/attempt binding и deadline/cleanup; cold-only success её не закрывает. Если warm topology незаквалифицирована, ограничение named и numerical claim не повышен. Each platform/profile labelled independently; unavailable platform NOT_RUN. Startup/RSS costs — measured characterization, не выдуманный SLO."
+        },
+        {
+          "field": "warm_parent_qualification",
+          "old": "### Проверенные owners на срезе",
+          "new": "Отдельное qualification-решение: retry._timeout_worker_start_method явно выбирает Linux fork. [Python3.14 start methods](https://docs.python.org/3.14/library/multiprocessing.html#contexts-and-start-methods) предупреждает о многопоточном fork; [locked JAX0.8.2 source _at_fork](https://raw.githubusercontent.com/jax-ml/jax/jax-v0.8.2/jax/_src/xla_bridge.py) содержит соответствующий deadlock warning (проверено 2026-11-01). Это основание warm-parent test, не product FAIL. Не предписывать смену одной строки: reuse existing closed task/context/parent receipt boundary и сохранить Linux supervisor/subreaper/group cleanup; forkserver preload также требует проверки отсутствия numerical threads.\n\n### Проверенные owners на срезе"
+        }
+      ]
+    },
+    {
+      "packet_id": "MIG-05",
+      "finding_ids": [
+        "RD-03"
+      ],
+      "status": "PROPOSED_SPECIFICATION_NOT_IMPLEMENTED_NOT_INDEPENDENTLY_ACCEPTED",
+      "requirement_ids": [
+        "REQ-MIG-05-01",
+        "REQ-MIG-05-02",
+        "REQ-MIG-05-03",
+        "REQ-MIG-05-04"
+      ],
+      "test_ids": [
+        "TEST-MIG-05-01",
+        "TEST-MIG-05-02",
+        "TEST-MIG-05-03",
+        "TEST-MIG-05-04"
+      ],
+      "new_ids": [],
+      "preservation_and_residual_bindings": "unchanged",
+      "files": [
+        {
+          "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/MIG-05.md",
+          "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/MIG-05.md",
+          "old_sha256": "18ef45c179c16e9598edfe0f733cf63063bd0accb1d68b9684550a33b60212c0",
+          "new_sha256": "c43fad07954078f6418d740daee490b6c00c3b14d2ac05f8696419da9a86ebb2"
+        },
+        {
+          "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/MIG-05.json",
+          "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/MIG-05.json",
+          "old_sha256": "d6a2c7e91f50c598c8cec6e759b5f37936fcf2b34d750c8d2ba3649c63566de3",
+          "new_sha256": "1ea3190f21cf89033767f9eef5bd86904fb9084e19203deb4caef30f1dbb8025"
+        }
+      ],
+      "edits": [
+        {
+          "field": "passport.semantic_boundary",
+          "old": "Регистрация callback либо действительно сохраняет тот же смысл, либо явно отказывает. Общий traversal уже существует; не заказывать его повторную консолидацию.",
+          "new": "Регистрация callback различает одинаковые и конфликтующие поддержанные registration descriptors, а unsupported capture явно отказывает. Fingerprint при регистрации не доказывает эквивалентность произвольного поведения Python или неизменность live внешних зависимостей. Общий traversal уже существует; не заказывать его повторную консолидацию."
+        },
+        {
+          "field": "REQ-MIG-05-04",
+          "old": "Supported release composition должна предъявить конечный inventory фактически поддерживаемых callback registrations/import paths и доступных historical inputs с результатами public/installed consumer. Неизвестные внешние plugins/historical corpus обозначаются как незаквалифицированные, не как отсутствующие и не как обязательная бесконечная универсальность.",
+          "new": "Supported release composition должна предъявить конечный inventory фактически поддерживаемых callback registrations/import paths и доступных historical inputs с результатами public/installed consumer. Неизвестные внешние plugins/historical corpus обозначаются как незаквалифицированные, не как отсутствующие и не как обязательная бесконечная универсальность. Для converters с заявленной воспроизводимостью отдельно назвать semantic configuration и implementation/environment binding: одноразовый fingerprint live mutable closure не даёт такой гарантии. Не вводить blanket freeze/rehash всех captures; harmless observer/logging captures из поддержанного корпуса сохраняются. Отсутствие более сильного semantic identity contract не блокирует узкий except fix."
+        },
+        {
+          "field": "TEST-MIG-05-04.setup",
+          "old": "Supported package/entrypoints, перечисленные реальные callbacks и доступные historical fixtures с hashes; изолированный process.",
+          "new": "Supported package/entrypoints, перечисленные реальные callbacks и доступные historical fixtures с hashes; изолированный process. Отдельно finite semantic-config example, меняющий captured dict после регистрации без re-registration, immutable-config positive и harmless mutable observer control."
+        },
+        {
+          "field": "TEST-MIG-05-04.action",
+          "old": "Импортировать supported compositions по объявленным order, invoke actual manifest converter/Trinity helper и current/historical readers; интегрировать с MIG-01/02/04.",
+          "new": "Импортировать supported compositions по объявленным order, invoke actual manifest converter/Trinity helper и current/historical readers; интегрировать с MIG-01/02/04. Для post-registration semantic-config mutation зафиксировать выбранный контракт: явная versioned identity/re-registration/refusal либо bounded non-reproducible profile, не произвольный semantic-equivalence PASS."
+        },
+        {
+          "field": "TEST-MIG-05-04.oracle",
+          "old": "Все заявленные supported callbacks зарегистрированы либо имеют точный compatibility refusal; profile outputs соответствуют golden semantics. Ненайденные historical inputs не сфабрикованы; список ограничений явный.",
+          "new": "Все заявленные supported callbacks зарегистрированы либо имеют точный compatibility refusal; profile outputs соответствуют golden semantics. Одноразовый fingerprint не выдаётся за обнаружение post-registration config/global/file drift без отдельного механизма. Заявленный reproducible converter использует explicit stable semantic config binding; mutable observer сам по себе не запрещён. Ненайденные historical inputs не сфабрикованы; список ограничений явный. Narrow unsupported-vs-empty fix принимается отдельно от этой qualification."
+        },
+        {
+          "field": "semantic_identity_qualification",
+          "old": "### Проверенные owners на срезе",
+          "new": "Граница identity: текущий stable encoder допускает dict/list/set и сохраняет snapshot, а registry вызывает live fn позднее. Mutable semantic config может измениться после регистрации при прежнем fingerprint. Поэтому для реального reproducible consumer выбирать explicit immutable/versioned semantic configuration; не строить universal Python behavior hash. Blanket rehash/freeze closures нарушил бы existing characterization callbacks с captured observer list. Возможность introspect globals/I/O не обещается; historical IDs не менять молча.\n\n### Проверенные owners на срезе"
+        }
+      ]
+    },
+    {
+      "packet_id": "CLI-01",
+      "finding_ids": [
+        "RD-02",
+        "RD-06"
+      ],
+      "status": "PROPOSED_SPECIFICATION_NOT_IMPLEMENTED_NOT_INDEPENDENTLY_ACCEPTED",
+      "requirement_ids": [
+        "REQ-CLI-01-01",
+        "REQ-CLI-01-02",
+        "REQ-CLI-01-03",
+        "REQ-CLI-01-04",
+        "REQ-CLI-01-05"
+      ],
+      "test_ids": [
+        "TEST-CLI-01-01",
+        "TEST-CLI-01-02",
+        "TEST-CLI-01-03",
+        "TEST-CLI-01-04",
+        "TEST-CLI-01-05"
+      ],
+      "new_ids": [],
+      "preservation_and_residual_bindings": "unchanged",
+      "files": [
+        {
+          "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/CLI-01.md",
+          "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CLI-01.md",
+          "old_sha256": "5102642dba5394677db593dfe67ddef6c33039378c8edd3189b8f1f54ba2065d",
+          "new_sha256": "c3c0681f4f20c2b2bc24c2583b39c08ffb6b5142d47b67b7e8b0f8dd682dab87"
+        },
+        {
+          "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/CLI-01.json",
+          "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CLI-01.json",
+          "old_sha256": "996494c1ff841976493c4a686ea9aa9f38dede27c2d02f8f24ca5c581738d2cf",
+          "new_sha256": "d674dc4134ea01e49252bf7b70175fdd11018dd3719ad744a2cabf09cebc6214"
+        }
+      ],
+      "edits": [
+        {
+          "field": "REQ-CLI-01-01",
+          "old": "TS/JS path/query generation должна безопасно адресовать допустимые non-identifier wire names, сохраняя точные keys и encoding; malformed/unrepresentable input отказывает явно.",
+          "new": "TS/JS path/query generation должна безопасно адресовать допустимые non-identifier wire names, сохраняя точные keys и encoding; malformed/unrepresentable input отказывает явно. В поддержанном params-record contract совпадение key с __proto__/constructor/toString не меняет data-key semantics; отсутствующий optional параметр не сериализует inherited значение. Class-instance/inherited-property support не предполагается случайно и, если нужен реальному caller, получает отдельный явный contract без endpoint-specific branches."
+        },
+        {
+          "field": "technical_solution.safe_wire_keys",
+          "old": "В generate_runtime_client.py path substitutions использовать _typescript_param_access(name); query object keys json.dumps(name), JS optional access helper поддерживает params?.[quoted] либо params?.identifier. TS params required access existing shape. Для literal path text безопасно экранировать backtick/backslash/${ или собирать quoted string segments+encoded values, не интерполировать raw OpenAPI text как executable template. Один общий helper для TS/JS, no endpoint special cases.",
+          "new": "В generate_runtime_client.py path substitutions использовать общий safe access helper; query keys создавать как computed data properties [json.dumps(name)] либо entries для URLSearchParams, не как quoted-only object-literal __proto__. Для поддержанного params-record contract учитывать own-property presence (Object.hasOwn при текущем ES2023 либо portable Object.prototype.hasOwnProperty.call); params?.[quoted] само по себе не исключает inherited constructor/toString. TS/JS используют одинаковый emitter/access contract, required access сохраняет объявленную shape; не навязывать compiler/lib upgrade. Для literal path text безопасно экранировать backtick/backslash/${ или собирать quoted string segments+encoded values, не интерполировать raw OpenAPI text как executable template. Нет endpoint-specific blacklist; class-instance support только по отдельному действительному caller contract."
+        },
+        {
+          "field": "TEST-CLI-01-01.setup",
+          "old": "GET path{item-id}, query filter-mode, identifier controls item_id/filter_mode, header X-Trace-ID; quoted/backslash names and template delimiters in literal path negative/escaping controls.",
+          "new": "GET path{item-id}, query filter-mode, identifier controls item_id/filter_mode, header X-Trace-ID; __proto__, constructor, toString, quoted/backslash names и template delimiters. Params для reserved-key positive создавать JSON.parse либо null-prototype record; отдельный absent optional record={} negative, не ошибочный literal, теряющий key ещё до клиента."
+        },
+        {
+          "field": "TEST-CLI-01-01.action",
+          "old": "Generate raw TS/JS→actual canonical pipeline; Node parse/call with local recording fetch, tsc.",
+          "new": "Generate raw TS/JS→actual canonical pipeline; Node22 parse/call with local recording fetch, tsc. Проверить exact URLSearchParams.getAll/keys и unchanged object prototype; повторить с переименованными/переставленными совместимыми wire keys без правки generator."
+        },
+        {
+          "field": "TEST-CLI-01-01.oracle",
+          "old": "No SyntaxError/ReferenceError; path value a/b encoded a%2Fb, query key exactly filter-mode/value preserved. Quoted keys/access safe, no template interpolation from wire text. Existing identifier corpus stable except intentional formatting.",
+          "new": "No SyntaxError/ReferenceError; path value a/b encoded a%2Fb, query keys/values сохранены точно, включая __proto__. Quoted-only object-literal emitter обязан провалить reserved-key control; inherited constructor/toString не сериализуются при отсутствии own optional value. Quoted access/path literal safe, no template interpolation from wire text. Existing identifier corpus stable except intentional formatting; optional own-property policy явная."
+        },
+        {
+          "field": "REQ-CLI-01-05",
+          "old": "Existing generated-client→Runtime service bridge должен проверять actual request/resource/auth/currentness boundaries; transport fixtures и bytes не authority, external raw imports требуют конечного compatibility решения.",
+          "new": "Existing generated-client→Runtime service bridge должен проверять actual request/resource/auth/currentness boundaries; transport fixtures и bytes не authority, external raw imports требуют конечного compatibility решения. Для full service acceptance actual response status/headers/body bytes возвращаются через тот же generated client и наблюдаются на его public API. Fake always-200 fetch плюс отдельный Python service call учитываются лишь как split request-contract smoke, не как полный roundtrip."
+        },
+        {
+          "field": "TEST-CLI-01-05.setup",
+          "old": "tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py with local actual Runtime test service and scoped auth fixtures.",
+          "new": "Расширить existing tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py: local actual Runtime service/store и scoped auth; bounded bidirectional relay передаёт полный method/URL/query/headers/body и возвращает actual status/headers/body bytes в JS Response. Альтернатива — разрешённый isolated ephemeral local server; не live deployment."
+        },
+        {
+          "field": "TEST-CLI-01-05.action",
+          "old": "Generated client calls allowed selected routes; denied/missing-resource/stale-context negatives; external import census.",
+          "new": "Generated client вызывает selected supported GET и доступные allowlisted POST/binary transport families; фактический service response проходит обратно через client decode/error path. Положительный scoped resource, denied/missing-resource/stale-context negatives; deliberate required-header drop/status alteration/binary corruption controls. External import census остаётся отдельным."
+        },
+        {
+          "field": "TEST-CLI-01-05.oracle",
+          "old": "Actual service enforces auth/resource/currentness independently; client conveys status/limitation, no fabricated permission. Selected POST allowlist remains scope;103operation census not103executions. No external deployment/action performed.",
+          "new": "Actual service независимо enforce-ит auth/resource/currentness, а public JS API получает настоящий decoded result/status limitation/error/binary bytes, не constant fake200. Полные request/response envelope проверены; consumer не фабрикует permission. Split path-only bridge не закрывает этот oracle. Selected POST allowlist сохранён;103operation census не103executions. Нет external deployment/action; неподдержанный route явно не включён в claim."
+        },
+        {
+          "field": "library_and_service_boundary",
+          "old": "## 6. Локальные проверки",
+          "new": "Library/bridge boundary (проверено 2026-11-01): [ECMAScript Object Initializer](https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-object-initializer) различает noncomputed __proto__ setter и computed data property. Existing bridge сейчас записывает request через fake200 fetch, затем отдельно вызывает Python service только с parsed.path; это полезный split smoke, но full roundtrip требует обратной передачи actual ответа. Переиспользовать тот же test owner, не создавать второй E2E framework и не менять public error ABI ради теста.\n\n## 6. Локальные проверки"
+        }
+      ]
+    }
+  ],
+  "validation": {
+    "document_json_parse": "PASS",
+    "same_requirement_test_ID_sets": "PASS",
+    "preservation_residual_obligation_bindings_unchanged": "PASS",
+    "MD_JSON_requirement_setup_action_oracle_parity": "PASS",
+    "product_tests": "NOT_RUN",
+    "native_tests": "NOT_RUN"
+  },
+  "unchanged_scope": [
+    "baseline",
+    "repository",
+    "03_Интеграция",
+    "04_Трассировка aggregate indices",
+    "lane overviews: no extra edits required; root coordinates shared integration wording"
+  ]
+}

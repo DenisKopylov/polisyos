@@ -1,0 +1,73 @@
+{
+  "catalog_path": "catalog/criteria_catalog.json",
+  "sha256": "8c8c77e13d9151349b7410b441f97f0f94fbfb7d097150f32c9872fe35a3cb59",
+  "counts": {
+    "criteria": 70,
+    "read_source_records": 67,
+    "excluded_source_records": 1
+  },
+  "baseline_zip_sha256": "7f22b1737f67b20137ce57b95bc77b244c479d4c850e96aab3f3e518e68501ed",
+  "phase": "SOURCES_FROZEN_AUDIT_MAY_START",
+  "inputs": [
+    {
+      "path": "research_requirements/criteria.json",
+      "sha256": "713e020696dbfc9836c971a550331d4bdf95a5691864f290a65ffcb57b3d6476",
+      "bytes": 38458
+    },
+    {
+      "path": "research_requirements/sources.json",
+      "sha256": "3b8dff95da1d9fecdd5db79c93c250853a952b04d7391ed38bfbff5c3ee7cf64",
+      "bytes": 14269
+    },
+    {
+      "path": "research_requirements/review.md",
+      "sha256": "b53c2b0644642f2c8fb1052e028bcbe42bd57a7abce0610ab67edffb791be0c3",
+      "bytes": 13405
+    },
+    {
+      "path": "research_distributed/criteria.json",
+      "sha256": "df31984a8ca8a95bbc69585fc6f68a2e24d18dc929ff29230fa156ed48321f6a",
+      "bytes": 38252
+    },
+    {
+      "path": "research_distributed/sources.json",
+      "sha256": "1888724fb747f886adc11b622aa0f78853f7dee230e63a805204a7e4220fbad1",
+      "bytes": 16999
+    },
+    {
+      "path": "research_distributed/review.md",
+      "sha256": "767f90c2d9ebad56b8ddcb194cbb79a38fd9c026eb1d07ec9232c2f8659db70b",
+      "bytes": 8748
+    },
+    {
+      "path": "research_data_tests/criteria.json",
+      "sha256": "864c312b3b5f273b9d80907e117e9a84f46569c341bb9edd2507c78cad125299",
+      "bytes": 49448
+    },
+    {
+      "path": "research_data_tests/sources.json",
+      "sha256": "8e1c52fbad6fbf6a62b77a73a7f53dbc00eebd78668694f13d2ebcd15c2b6be9",
+      "bytes": 32189
+    },
+    {
+      "path": "research_data_tests/review.md",
+      "sha256": "8548f671a2509d1e30fd7ef0f7b2d6661d9782b6511e449222bec9cc01eae29a",
+      "bytes": 64536
+    },
+    {
+      "path": "research_security_release/criteria.json",
+      "sha256": "257f1b31a9ee9e0d14e9d0027cceac179699fdf8a57bc666dbf4711fa8d8c5ca",
+      "bytes": 53977
+    },
+    {
+      "path": "research_security_release/sources.json",
+      "sha256": "048ee708832cbae0f0bb1f9fc274300a9f9f7bfdff0af7025bf18e0cf57ba240",
+      "bytes": 28962
+    },
+    {
+      "path": "research_security_release/review.md",
+      "sha256": "b400113cb0756b4558d476b933b2e69c4886677f0324f8752ec977ea0b8fd5b3",
+      "bytes": 80325
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "phase": "FINAL_STATIC",
+  "errors": [],
+  "product_tests": "NOT_RUN",
+  "canonical_scenarios": 42,
+  "bindings": 159,
+  "source_hashes_checked": 128
+}

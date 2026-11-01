@@ -1,0 +1,84 @@
+{
+  "pass": "C28",
+  "bundle": "EMP-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C28-R01",
+      "type": "unit_dependent_width_validation",
+      "severity": "medium_contract_numeric",
+      "source_ids": [
+        "B31"
+      ],
+      "location": "value_outer_set.py:78–82,190–191,375–391",
+      "evidence": [
+        "P06",
+        "P07"
+      ],
+      "mechanism": "Absolute 1e-9 proxy threshold changes acceptance after unit scaling; round(...,12) reports zero for nonzero 1e-13 width.",
+      "preserve": "Separate identification/statistical bounds; reject truly degenerate proxy without arbitrary widening.",
+      "remaining": "Make numerical contract explicit and coordinate-aware; preserve nonzero width under valid unit conversion.",
+      "limits": "No native production-value bypass observed; candidate source projection currently uses partial/search_only."
+    },
+    {
+      "id": "C28-R02",
+      "type": "finite_endpoints_nonfinite_derived_width",
+      "severity": "low_extreme_numeric_roundtrip",
+      "source_ids": [
+        "B31"
+      ],
+      "location": "value_outer_set.py:78–82,241–289,390–398",
+      "evidence": [
+        "P08"
+      ],
+      "mechanism": "Finite [-1e308,1e308] accepted with width Infinity; model_dump_json writes null; canonical readback rejects width_tampered.",
+      "preserve": "Finite endpoint and persisted checksum guards.",
+      "remaining": "Refuse unrepresentable derived width or use a numerically suitable representation before serialization.",
+      "limits": "Extreme input, not observed real empirical data."
+    },
+    {
+      "id": "C28-G01",
+      "type": "country_scope_not_full_measurement_population_scope",
+      "source_ids": [
+        "B16"
+      ],
+      "evidence": [
+        "P16",
+        "P17",
+        "S02:5999–6076,16538–16697"
+      ],
+      "remaining": "Country filter repaired. Population/time/regime source semantics are not selected through this gateway signature; extra condition_json fields are dropped from normal row projection. Need explicit supported measurement scope or precise refusal; do not infer subgroup semantics from an arbitrary fixture key. Activated projection separately revalidates complete physical row content.",
+      "limits": "No claim of production empirical promotion or proved real catalog subgroup collision."
+    },
+    {
+      "id": "C28-G02",
+      "type": "candidate_method_and_graph_basis_not_empirical_authority",
+      "source_ids": [
+        "B31",
+        "B33"
+      ],
+      "evidence": [
+        "S02:6750–6885,21788–22574,18251–18677"
+      ],
+      "remaining": "Existing native-method/CAS and selected-graph/fresh-solver paths are useful candidate research. Source treatment roles/support remain consumer-asserted; bounds_estimand_relation_not_established and candidate_fixture_only/search_only are explicit. A real evidence case must establish model, assignment, estimand/support relation and calibration without erasing these limits.",
+      "limits": "Absence of a universal deterministic model inventor is not a defect; LLM may propose hypotheses, not self-certify them."
+    },
+    {
+      "id": "C28-G03",
+      "type": "native_execution_qualification",
+      "source_ids": [
+        "B16",
+        "B31",
+        "B33"
+      ],
+      "evidence": [
+        "S03",
+        "S04",
+        "P17",
+        "P24"
+      ],
+      "remaining": "Run supported pytest/DuckDB/catalog/CAS/Foundry/transport chain and existing selected-profile/fresh-consumer controls. Here native imports/tests/SQL engine/solver were not run; dependencies were not installed."
+    }
+  ]
+}

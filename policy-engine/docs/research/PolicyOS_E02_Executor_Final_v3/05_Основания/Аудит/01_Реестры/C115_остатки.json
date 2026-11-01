@@ -1,0 +1,43 @@
+{
+  "pass_id": "C115",
+  "bundle": "UQP-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C115-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Width stopping не квалифицирован как точность выбранного функционала",
+      "evidence": [
+        "P02",
+        "P03",
+        "S01:1978–2004",
+        "S02",
+        "S08",
+        "S15",
+        "S17"
+      ],
+      "remaining": "Явно сохранить/назвать width-based decision heuristic либо согласовать отдельный functional-specific precision contract и допустимый stopping plan. Устранить двусмысленность имени half_width при actual full relative width. Не подменять физический interval sigma/sqrt(n) и не считать arbitrary sequential checks доверительной гарантией.",
+      "limits": "Batch boundary repair подтверждён; existing test намеренно оставляет99/101 широким при любомn. Early stop output candidate-only. Само отсутствие MCSE режима не объявлено новым runtime defect, а historical formula не научная аттестация."
+    },
+    {
+      "id": "C115-G02",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Полезный conditional result ещё не даёт verified served-source/normative authority",
+      "evidence": [
+        "P04",
+        "P05",
+        "S07:2321–2483",
+        "S09:2041–2118",
+        "S16",
+        "commands.json"
+      ],
+      "remaining": "Квалифицировать существующую producer→persisted report→fresh Science/normative intake цепочку на поддерживаемой среде, сохраняя exact source/selected-profile/draw binding и ограничения непокрытой области. Доказывать treatment of missingness отдельно; не снимать blanket safety limits только ради successful complete fixture и не строить новый универсальный реестр вместо существующего bridge.",
+      "limits": "Actual legacy result builder сохраняет50 полезных samples, failures/draw IDs и gate=false. Generic IR reader source-only всегда добавляет draw_success_ledger_missing/draw_basis_verifier_missing; full native bridge не выполнен. JSON DTO roundtrip не CAS. Complete local gate=true control не реальное нормативное разрешение."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "Batch scheduling и conditional failure accounting/retry содержательно подтверждены. Width stopping намеренно остаётся heuristic; functional/sequential и served-source/native authority qualification открыты."
+}

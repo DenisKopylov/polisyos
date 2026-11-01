@@ -1,0 +1,398 @@
+{
+  "packet_id": "SIM-01",
+  "lane": "LANE-01",
+  "title": "Полная применимость плана до выбора",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B06",
+    "B07"
+  ],
+  "audit_reports": [
+    "02_Пакеты/SIM-01.md"
+  ],
+  "audit_report_sha256": "3ecffd971c41fa651cdb847ea69468c0c024ea759510b95e1b39f46d32bb6d85",
+  "sourceplan_lines": [
+    1091,
+    1177
+  ],
+  "practical_goal": "Непригодный первый engine не лишает пользователя имеющегося подходящего второго; принятый результат связан с фактической физической спецификацией, а журнал отказов сохраняется.",
+  "requirements": [
+    {
+      "id": "REQ-SIM-01-01",
+      "text": "Обязательные фактические coupled inputs должны проверяться bounded engine-owned preflight до selected; отсутствие/неверная форма initial_income отклоняет этот план, не весь допустимый список.",
+      "source_ids": [
+        "B06",
+        "B07"
+      ],
+      "audit_ids": [
+        "remaining:0016",
+        "remaining:0017",
+        "preserve:0020",
+        "preserve:0021",
+        "audit-residual:C08_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-SIM-01-01"
+      ]
+    },
+    {
+      "id": "REQ-SIM-01-02",
+      "text": "Coupling, actual horizon и atom composition должны проверяться до окончательного выбора; unsupported history не запрещает корректный selected result.",
+      "source_ids": [
+        "B06",
+        "B07"
+      ],
+      "audit_ids": [
+        "remaining:0014",
+        "preserve:0016",
+        "preserve:0019",
+        "preserve:0020",
+        "audit-residual:C08_остатки:1"
+      ],
+      "test_ids": [
+        "TEST-SIM-01-02"
+      ]
+    },
+    {
+      "id": "REQ-SIM-01-03",
+      "text": "Selected numerical result должен проверяться относительно actual request/plan/seed/model/atoms/outcomes; согласованно пересчитанный receipt не легализует чужую physical ref.",
+      "source_ids": [
+        "B06",
+        "B07"
+      ],
+      "audit_ids": [
+        "remaining:0014",
+        "remaining:0015",
+        "preserve:0016",
+        "preserve:0017",
+        "preserve:0018",
+        "audit-residual:C08_остатки:1"
+      ],
+      "test_ids": [
+        "TEST-SIM-01-03"
+      ]
+    },
+    {
+      "id": "REQ-SIM-01-04",
+      "text": "Поддержанный upstream producer альтернатив должен передавать несколько семантически сопоставимых планов существующему N5 без потери списка; singleton допустим при одном реальном варианте.",
+      "source_ids": [
+        "B06",
+        "B07"
+      ],
+      "audit_ids": [
+        "remaining:0018",
+        "preserve:0021",
+        "audit-residual:C08_остатки:2"
+      ],
+      "test_ids": [
+        "TEST-SIM-01-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-SIM-01-01",
+      "requirement_ids": [
+        "REQ-SIM-01-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Настоящие WMR/registry/request с двумя coupled plans: первый missing/2D initial_income, второй корректный finite vector; actual backend counter.",
+      "action": "Запустить actual _select_engine→controller→adapter; затем оба bad, wrong domain, optional-default inputs и общий budget exhausted.",
+      "oracle": "Первый producer не вызван, rejection reason сохранён; второй действительно считает и даёт читаемое число; all-bad no-run.",
+      "expected": "Global resource/access failure не обходится вторым engine; optional defaults сохраняются; known bad first не создаёт physical failed work.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-SIM-01-02",
+      "requirement_ids": [
+        "REQ-SIM-01-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Существующий tests/unit/remediation/test_sim_01.py: NCM/coupling→coupled, static→stock-flow и both-unsupported paths, actual backend где предусмотрен.",
+      "action": "Исполнить эти малые native cases, сохранить engine decision history и actual chosen output.",
+      "oracle": "Неподходящий первый оставляет причину, selected второй принимается в области; no-run сохраняет весь отказный denominator.",
+      "expected": "Не объявлять пять engine kinds проверенными по injected selector; unknown/system-wide coupling guards остаются.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-SIM-01-03",
+      "requirement_ids": [
+        "REQ-SIM-01-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Actual finite result и CAS; existing forged-reference test и same engine/method/objective triple с изменённым variable map/seed/plan.",
+      "action": "Подменить ref и work facts, пересчитать валидный receipt; прочитать actual consumer с правильным и чужим request.",
+      "oracle": "Foreign physical spec отвергается даже при корректном hash; unchanged positive readback содержит весь history; без request результат только limited candidate.",
+      "expected": "Нет снятия selected profile/tenant/model guard; один selected label не proof.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-SIM-01-04",
+      "requirement_ids": [
+        "REQ-SIM-01-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Один реальный upstream candidate с двумя supported compatible plans и один genuine singleton; не подавать Python-list вручную как доказательство server discovery.",
+      "action": "Пройти actual proposal/profile→builder→controller→consumer; заблокировать первый input и наблюдать второй.",
+      "oracle": "Реальные alternatives дошли, второй численно полезен, подготовка/selection envelope раскрыты; singleton не становится error.",
+      "expected": "Несопоставимый outcome/estimand не удачный fallback; new compatible method resource подключается общим контрактом.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C08_остатки:0",
+      "requirement_ids": [
+        "REQ-SIM-01-01"
+      ],
+      "rationale": "Согласовать preflight с реальным required-vector contract.",
+      "disposition": "fix",
+      "audit_id": "C08-R1",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C08_остатки:1",
+      "requirement_ids": [
+        "REQ-SIM-01-02",
+        "REQ-SIM-01-03"
+      ],
+      "rationale": "Существующие сильные native tests сначала использовать.",
+      "disposition": "qualify",
+      "audit_id": "C08-V1",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C08_остатки:2",
+      "requirement_ids": [
+        "REQ-SIM-01-04"
+      ],
+      "rationale": "Установить actual producer и связать supported alternate, не обещать automatic universal model choice.",
+      "disposition": "capability",
+      "audit_id": "C08-G1",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B06",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-SIM-01-02",
+        "REQ-SIM-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B07",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-SIM-01-01",
+        "REQ-SIM-01-02",
+        "REQ-SIM-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0014",
+      "requirement_ids": [
+        "REQ-SIM-01-02",
+        "REQ-SIM-01-03"
+      ],
+      "rationale": "Native выбранный backend/adapter/CAS.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0015",
+      "requirement_ids": [
+        "REQ-SIM-01-03"
+      ],
+      "rationale": "Forged reissued receipt и same-triple changed plan.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0016",
+      "requirement_ids": [
+        "REQ-SIM-01-01"
+      ],
+      "rationale": "Engine-owned required input preflight.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0017",
+      "requirement_ids": [
+        "REQ-SIM-01-01"
+      ],
+      "rationale": "Реальный viable second и controls.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0018",
+      "requirement_ids": [
+        "REQ-SIM-01-04"
+      ],
+      "rationale": "Actual upstream multi-plan path, singleton сохранить.",
+      "disposition": "capability"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0016",
+      "requirement_ids": [
+        "REQ-SIM-01-02",
+        "REQ-SIM-01-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Coupling, actual horizon и atom composition должны проверяться до окончательного выбора; unsupported history не запрещает корректный selected result.; Selected numerical result должен проверяться относительно actual request/plan/seed/model/atoms/outcomes; согласованно пересчитанный receipt не легализует чужую physical ref.",
+      "test_ids": [
+        "TEST-SIM-01-02",
+        "TEST-SIM-01-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0017",
+      "requirement_ids": [
+        "REQ-SIM-01-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Selected numerical result должен проверяться относительно actual request/plan/seed/model/atoms/outcomes; согласованно пересчитанный receipt не легализует чужую physical ref.",
+      "test_ids": [
+        "TEST-SIM-01-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0018",
+      "requirement_ids": [
+        "REQ-SIM-01-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Selected numerical result должен проверяться относительно actual request/plan/seed/model/atoms/outcomes; согласованно пересчитанный receipt не легализует чужую physical ref.",
+      "test_ids": [
+        "TEST-SIM-01-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0019",
+      "requirement_ids": [
+        "REQ-SIM-01-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Coupling, actual horizon и atom composition должны проверяться до окончательного выбора; unsupported history не запрещает корректный selected result.",
+      "test_ids": [
+        "TEST-SIM-01-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0020",
+      "requirement_ids": [
+        "REQ-SIM-01-01",
+        "REQ-SIM-01-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Обязательные фактические coupled inputs должны проверяться bounded engine-owned preflight до selected; отсутствие/неверная форма initial_income отклоняет этот план, не весь допустимый список.; Coupling, actual horizon и atom composition должны проверяться до окончательного выбора; unsupported history не запрещает корректный selected result.",
+      "test_ids": [
+        "TEST-SIM-01-01",
+        "TEST-SIM-01-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0021",
+      "requirement_ids": [
+        "REQ-SIM-01-01",
+        "REQ-SIM-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Обязательные фактические coupled inputs должны проверяться bounded engine-owned preflight до selected; отсутствие/неверная форма initial_income отклоняет этот план, не весь допустимый список.; Поддержанный upstream producer альтернатив должен передавать несколько семантически сопоставимых планов существующему N5 без потери списка; singleton допустим при одном реальном варианте.",
+      "test_ids": [
+        "TEST-SIM-01-01",
+        "TEST-SIM-01-04"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I01-A"
+  ],
+  "dependencies": [
+    "SIM-01 owns engine-plan input preflight; CYC-04 owns кандидатные alternatives после локального N5/N8 отказа.",
+    "SIM-02 owns resolved write paths/interruption reasons; SIM-03 comparator/replications/joint math.",
+    "CYC-01 builder handoff и CYC-02 reader должны использовать один exact request/selected binding; shared horizon.py один writer."
+  ],
+  "preservation": [
+    "Attempted-engine history remains complete",
+    "Actual request-aware selected-result validation, seed/plan/atom matching",
+    "Selected CAS view and explicit no-request provenance limitation",
+    "Coupling/temporal/atom composition checks before selected return",
+    "No-run when all candidates rejected",
+    "Budget/access protections and useful optional defaults"
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    "Free-grow — новый совместимый method/plan проходит registry и общую применимость, а не hardcoded предпочтение второго имени."
+  ],
+  "open_decisions": [],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "symbol_or_anchor": "def _select_coupled_engine",
+      "lines": [
+        2455,
+        2487
+      ],
+      "sha256": "333deedcd2d85bf4a75f58d698a0d487a8a163256609d0825f2063fb087a2454",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L2455-L2487"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "symbol_or_anchor": "def _select_engine",
+      "lines": [
+        2175,
+        2207
+      ],
+      "sha256": "333deedcd2d85bf4a75f58d698a0d487a8a163256609d0825f2063fb087a2454",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L2175-L2207"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "symbol_or_anchor": "def validate_selected_result",
+      "lines": [
+        2227,
+        2259
+      ],
+      "sha256": "333deedcd2d85bf4a75f58d698a0d487a8a163256609d0825f2063fb087a2454",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L2227-L2259"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+      "symbol_or_anchor": "def _vector",
+      "lines": [
+        33,
+        65
+      ],
+      "sha256": "f607a9e1d78157fb9e53475280b129a04c8d7400a76ad24771b0c70268038e60",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py#L33-L65"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-SIM-01-01",
+      "text": "Выделить дешёвый общий input validation у coupled method owner и вызвать из _select_coupled_engine/существующего selection loop; runner использует тот же контракт. Проверять реальный coupled_state, не только наличие signature slot. Не запрещать отсутствующие initial_savings/is_employed/risk_aversion, когда method задаёт законный default. Preflight не выполняет симуляцию и не делает catch-all retry после расходов."
+    },
+    {
+      "requirement_id": "REQ-SIM-01-02",
+      "text": "Сохранить existing _select_engine порядок selector→coupling→temporal→composition→selected; request.horizon.steps определяет multi-period даже без caller-label. Result verifier не any(non_selected), а точное согласование выбранного плана. Нельзя подменить joint coupling суммой independent effects."
+    },
+    {
+      "requirement_id": "REQ-SIM-01-03",
+      "text": "JointSimulationPort передаёт request в _joint_simulation_port_outcome/validate_selected_result, load_joint_simulation_result(expected_request=...) сохраняет selected manifest view. Полная plan.model_dump и runtime refs входят в physical identity; compare projection effects отдельно от raw work. Историческое чтение без request сохраняет n5_execution_request_provenance_not_established, не blanket отказ."
+    },
+    {
+      "requirement_id": "REQ-SIM-01-04",
+      "text": "C08-G1 не доказывает отсутствие всех callers: сначала finite census factory/typed builders и actual served handoff. Для выбранного multi-method case расширить существующий typed request builder/profile так, чтобы admitted alternatives с same estimand/scope/horizon доходили в engine_plan; owner validates bindings каждого. LLM может предложить plans, но method registry/input preflight решают исполнимость. Не требовать всем запросам два метода и не создавать новый optimizer."
+    }
+  ]
+}

@@ -1,0 +1,249 @@
+{
+  "packet_id": "REP-01",
+  "lane": "LANE-06",
+  "source_ids": [
+    "LA-033"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/REP-01.md",
+    "../05_Основания/Аудит/01_Реестры/C77_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C77-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-REP-01-01",
+        "REQ-REP-01-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Native full imports, persisted backend replay и remaining-node resume, shared package check вместо fixture factory.",
+      "inventory_id": "audit-residual:C77_остатки:0"
+    },
+    {
+      "audit_id": "C77-G02",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-REP-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Compatibility retirement получает явное окно и downstream census; сейчас supported shim сохраняется.",
+      "inventory_id": "audit-residual:C77_остатки:1"
+    },
+    {
+      "audit_id": "C77-G03",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-REP-01-02",
+        "REQ-REP-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Historical corpus и точный смысл verification требуют самостоятельных evidence, не API availability.",
+      "inventory_id": "audit-residual:C77_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-REP-01-01",
+      "text": "На supported native и installed package root import не загружает Scientist/compatibility до обращения, __all__ содержит прежние10; каждый root binding и20 shim exports identity/signature/enum-compatible с Scientist. Unknown attribute отказан. Core direct delayed path, dynamic inventory и benchmark разрешаются к тому же canonical object без транзита через shim.",
+      "source_ids": [
+        "LA-033"
+      ],
+      "audit_ids": [
+        "C77-G01"
+      ],
+      "test_ids": [
+        "TEST-REP-01-01"
+      ]
+    },
+    {
+      "id": "REQ-REP-01-02",
+      "text": "Малый настоящий producer создаёт complete replayable packet в local CAS; fresh CLI --check-only оценивает graph, обычный replay действительно исполняет выбранный backend, а resume исполняет только оставшийся узел из свежего checkpoint head. Incomplete/tampered packet не исполняется. Verification SKIP явно skipped; bit-exact сравнение refs не scientific validation; CI-bounded получает собственный фактический oracle либо остаётся UNQUALIFIED.",
+      "source_ids": [
+        "LA-033"
+      ],
+      "audit_ids": [
+        "C77-G01",
+        "C77-G03"
+      ],
+      "test_ids": [
+        "TEST-REP-01-02"
+      ]
+    },
+    {
+      "id": "REQ-REP-01-03",
+      "text": "До согласованного retirement supported shim20 и root10 остаются; source-qualified исторический RunManifest1.0 читается прежним Runtime owner без изменения bytes и без подмены quality replay/Core DTO. Census фиксирует denominator, FQN/string/monkeypatch/docs/package callers и внешние неизвестные; отсутствие внешнего usage не выдумывается. Удаление shim — отдельный approved change.",
+      "source_ids": [
+        "LA-033"
+      ],
+      "audit_ids": [
+        "C77-G02",
+        "C77-G03"
+      ],
+      "test_ids": [
+        "TEST-REP-01-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-REP-01-01",
+      "requirement_ids": [
+        "REQ-REP-01-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Fresh P-CORE process и затем isolated installed wheel environment; existing compatibility tests.",
+      "action": "Import runtime, inspect sys.modules, получить все10 root и20 shim exports, unknown symbol; check delayed CLI and dynamic inventory targets.",
+      "oracle": "До обращения нет heavy modules; exact identities/signatures/enums unchanged; root10 не20; canonical target Scientist, не shim. Installed и checkout imports совпадают, import trace приложен.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-REP-01-02",
+      "requirement_ids": [
+        "REQ-REP-01-02"
+      ],
+      "level": "native producer → CAS → fresh CLI → backend/checkpoint",
+      "setup": "Исполнимый tiny Scientist/Foundry-supported workflow с known seed и2 узлами, первый persisted, второй callback счётчик; реальный CAS/profile admission.",
+      "action": "--check-only, replay, resume, повтор resume; missing/tampered binding; отдельно skip/bit-exact modes и --check-only --export conflict.",
+      "oracle": "check-only не вызывает backend; actual replay даёт исполнимый persisted result, resume оставшийся узел ровно1, completed не повторён. Incomplete даёт nonzero без execution; conflicting flags exit2 без output. SKIP не passed verification; recovery/complete уровни не слиты.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-REP-01-03",
+      "requirement_ids": [
+        "REQ-REP-01-03"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Source-qualified finite historical RunManifest corpus с provenance/hash, current writer sample и separate quality schema; consumer census.",
+      "action": "Read/finalize/readback поддержанных1.0 samples; resolve old imports/FQN/monkeypatch fixtures; документировать support window.",
+      "oracle": "Bytes существующих manifests не переписаны, refs/status прочитаны прежним owner; quality algorithm не заменён. Census сообщает границы, неизвестный downstream остаётся неизвестным. Без принятого окна shim не удалён.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-B"
+  ],
+  "dependencies": [],
+  "preservation": [
+    "Root ровно10 lazy exports прямо Scientist; runtime.replay сохраняет20 точных objects, enum values и signatures.",
+    "Core CLI импортирует deterministic/backend/checkpoint отложенно; dynamic inventory и benchmark direct owner остаются согласованными.",
+    "RunManifest1.0 reader/writer и независимый runtime.quality.replay сохраняются (LK15).",
+    "Complete/recoverable/incomplete, snapshot availability/actual execution, bit-exact/CI-bounded/skip не сливаются."
+  ],
+  "design_alignment": [
+    "Direct canonical owner уменьшает compatibility hops без нового контракта.",
+    "Артефактная полнота, replay execution и scientific confidence имеют разное доказательство."
+  ],
+  "open_decisions": [
+    "Зафиксировать реально поддержанные historical manifest версии и окно old module support; нет evidence — сохранить compatibility, не удалять.",
+    "CI-bounded scientific interpretation требует отдельного domain oracle, не переименования existing tolerance calculation."
+  ],
+  "source_obligations": [
+    "LA-033: actual source/string/FQN/monkeypatch consumers, documentation и installed paths квалифицируются раздельно; literal census не production census.",
+    "Удаление shim возможно только после реального окна поддержки; прекращение root API отдельное решение, не часть этого ремонта.",
+    "LK15: похожий Core DTO не конвертер historical RunManifest schema; сохранить старые run directories и quality replay."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/runtime/__init__.py: _LAZY_IMPORTS, __getattr__",
+    "policy-engine/src/polisyos/runtime/replay.py: exact compatibility aliases",
+    "policy-engine/src/polisyos/core/components/_cli_replay.py: _cmd_replay, _cmd_resume",
+    "policy-engine/src/polisyos/scientist/replay/backend.py: replay_packet",
+    "policy-engine/src/polisyos/scientist/replay/deterministic.py: completeness_check, verify_replay",
+    "policy-engine/src/polisyos/runtime/manifest: RunManifest schema owner",
+    "policy-engine/architecture/imports/dynamic.toml",
+    "policy-engine/benchmarks/advanced/common.py"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_rep_01.py",
+    "policy-engine/tests/unit/scientist/replay/test_deterministic_compatibility.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0430",
+      "requirement_ids": [
+        "REQ-REP-01-01",
+        "REQ-REP-01-02"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native full imports, persisted backend replay и remaining-node resume, shared package check вместо fixture factory."
+    },
+    {
+      "inventory_id": "remaining:0431",
+      "requirement_ids": [
+        "REQ-REP-01-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Compatibility retirement получает явное окно и downstream census; сейчас supported shim сохраняется."
+    },
+    {
+      "inventory_id": "remaining:0432",
+      "requirement_ids": [
+        "REQ-REP-01-02",
+        "REQ-REP-01-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Historical corpus и точный смысл verification требуют самостоятельных evidence, не API availability."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0687",
+      "requirement_ids": [
+        "REQ-REP-01-01"
+      ],
+      "test_ids": [
+        "TEST-REP-01-01"
+      ],
+      "rationale": "Root10 lazy bindings прямо в Scientist — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0688",
+      "requirement_ids": [
+        "REQ-REP-01-01",
+        "REQ-REP-01-03"
+      ],
+      "test_ids": [
+        "TEST-REP-01-01",
+        "TEST-REP-01-03"
+      ],
+      "rationale": "Shim20 exact identities и enum/signature ABI — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0689",
+      "requirement_ids": [
+        "REQ-REP-01-01"
+      ],
+      "test_ids": [
+        "TEST-REP-01-01"
+      ],
+      "rationale": "Delayed Core import и dynamic inventory — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0690",
+      "requirement_ids": [
+        "REQ-REP-01-02",
+        "REQ-REP-01-03"
+      ],
+      "test_ids": [
+        "TEST-REP-01-02",
+        "TEST-REP-01-03"
+      ],
+      "rationale": "Historical RunManifest1.0 и separate quality replay — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0691",
+      "requirement_ids": [
+        "REQ-REP-01-02"
+      ],
+      "test_ids": [
+        "TEST-REP-01-02"
+      ],
+      "rationale": "Явные completeness/verification distinctions — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

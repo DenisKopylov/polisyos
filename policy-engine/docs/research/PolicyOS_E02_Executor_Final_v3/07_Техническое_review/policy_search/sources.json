@@ -1,0 +1,110 @@
+{
+  "binom": {
+    "url": "https://docs.scipy.org/doc/scipy-1.16.0/reference/generated/scipy.stats.binomtest.html",
+    "checked_date": "2026-11-01",
+    "section_or_observation": "binomtest: число успехов k в n Bernoulli trials; proportion_ci",
+    "locked_applicability": "SciPy 1.16.3 уже locked; применимость iid Bernoulli должна следовать из sampling contract, не из наличия API"
+  },
+  "binom_ci": {
+    "url": "https://docs.scipy.org/doc/scipy-1.16.1/reference/generated/scipy.stats._result_classes.BinomTestResult.proportion_ci.html",
+    "checked_date": "2026-11-01",
+    "section_or_observation": "exact / wilson / wilsoncc interval methods",
+    "locked_applicability": "API той же minor 1.16; точный interval не устраняет selective labels или зависимость наблюдений"
+  },
+  "recall": {
+    "url": "https://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html",
+    "checked_date": "2026-11-01",
+    "section_or_observation": "Recall = TP/(TP+FN)",
+    "locked_applicability": "Используется определение, не предложение добавить sklearn в core; locked sklearn 1.8.0 optional ml, current docs могут быть новее"
+  },
+  "gp": {
+    "url": "https://botorch.readthedocs.io/en/v0.16.1/models.html",
+    "checked_date": "2026-11-01",
+    "section_or_observation": "SingleTaskGP(train_X, train_Y, train_Yvar), condition_on_observations, MixedSingleTaskGP",
+    "locked_applicability": "Точно locked BoTorch 0.16.1; observation data и состояние proposer GP — разные сущности"
+  },
+  "discrete": {
+    "url": "https://botorch.readthedocs.io/en/v0.16.1/optim.html",
+    "checked_date": "2026-11-01",
+    "section_or_observation": "optimize_acqf_discrete: choices, unique, X_avoid; mixed/discrete alternatives",
+    "locked_applicability": "Точно locked API, optional search_bo; не заменяет domain effective identity и provenance"
+  },
+  "acq": {
+    "url": "https://botorch.readthedocs.io/en/v0.16.1/acquisition.html",
+    "checked_date": "2026-11-01",
+    "section_or_observation": "ExpectedImprovement/qExpectedImprovement рекомендуют Log-варианты; qNEI учитывает uncertain baseline; X_pending",
+    "locked_applicability": "Точно locked API; семантика логарифма acquisition требует версии/metadata, шумовой профиль требует отдельной квалификации"
+  },
+  "logei_paper": {
+    "url": "https://arxiv.org/abs/2310.20708",
+    "checked_date": "2026-11-01",
+    "section_or_observation": "Ament et al., Unexpected Improvements to Expected Improvement for Bayesian Optimization",
+    "locked_applicability": "Первичная работа о численных ограничениях EI; не обещание ускорения именно нашего workload"
+  },
+  "sobol": {
+    "url": "https://docs.scipy.org/doc/scipy-1.16.0/reference/generated/scipy.stats.qmc.Sobol.html",
+    "checked_date": "2026-11-01",
+    "section_or_observation": "random_base2, random, fast_forward, предупреждение о balance при произвольном n/skip/thinning",
+    "locked_applicability": "Locked SciPy 1.16.3, rng transition уже применим; сохранять exact continuation, не заявлять arbitrary-prefix QMC balance"
+  },
+  "hnsw": {
+    "url": "https://github.com/nmslib/hnswlib/blob/v0.8.0/README.md",
+    "checked_date": "2026-11-01",
+    "section_or_observation": "Python API thread safety, save/load ef, filter GIL, cosine get_items normalization",
+    "locked_applicability": "Точно locked hnswlib 0.8.0; lock содержит только sdist, native Python 3.14 qualification NOT_RUN"
+  },
+  "hv": {
+    "url": "https://raw.githubusercontent.com/anyoptimization/pymoo/0.6.1.6/pymoo/indicators/hv/__init__.py",
+    "checked_date": "2026-11-01",
+    "section_or_observation": "Hypervolume delegates to moocore; explicit reference point",
+    "locked_applicability": "Точно locked pymoo 0.6.1.6, уже base dependency; не добавлять второй MO framework"
+  },
+  "os": {
+    "url": "https://docs.python.org/3.14/library/os.html#os.replace",
+    "checked_date": "2026-11-01",
+    "section_or_observation": "os.replace atomic successful rename on POSIX; same filesystem boundary",
+    "locked_applicability": "Точно Python 3.14 contract; атомарная видимость не равна fsync durability"
+  },
+  "flock": {
+    "url": "https://docs.python.org/3.14/library/fcntl.html",
+    "checked_date": "2026-11-01",
+    "section_or_observation": "flock LOCK_EX / LOCK_UN, Unix availability",
+    "locked_applicability": "Поддержанный local POSIX profile; не обещать Windows/network filesystem semantics"
+  },
+  "math": {
+    "url": "https://docs.python.org/3.14/library/math.html#math.fsum",
+    "checked_date": "2026-11-01",
+    "section_or_observation": "fsum, frexp/ldexp, isfinite",
+    "locked_applicability": "Stdlib; stable sums не оправдывают clipping overflow или loss of units"
+  },
+  "pydantic": {
+    "url": "https://raw.githubusercontent.com/pydantic/pydantic/v2.12.5/pydantic/main.py",
+    "checked_date": "2026-11-01",
+    "section_or_observation": "model_copy update не валидируется, deep=False по умолчанию; model_construct trusted input",
+    "locked_applicability": "Точно locked 2.12.5; нужны owner validation и owned snapshots, не доверие frozen/model_copy"
+  },
+  "hypothesis": {
+    "url": "https://hypothesis.readthedocs.io/en/latest/stateful.html",
+    "checked_date": "2026-11-01",
+    "section_or_observation": "RuleBasedStateMachine generated sequences",
+    "locked_applicability": "Locked 6.151.2; current docs новее, использовать давно существующий API, не заявлять проверку новых функций"
+  },
+  "jax": {
+    "url": "https://docs.jax.dev/en/latest/101/arrays.html",
+    "checked_date": "2026-11-01",
+    "section_or_observation": "JAX default 32-bit; explicit x64 enablement",
+    "locked_applicability": "Locked JAX/jaxlib 0.8.2, current docs применены только к давнему dtype contract; actual backend NOT_RUN"
+  },
+  "normaldist": {
+    "url": "https://docs.python.org/3.14/library/statistics.html#statistics.NormalDist.inv_cdf",
+    "checked_date": "2026-11-01",
+    "section_or_observation": "NormalDist.inv_cdf: deterministic inverse normal CDF",
+    "locked_applicability": "Точный Python3.14 stdlib; не новая dependency. Floating-point quantile, не обещание exact real arithmetic или interval coverage"
+  },
+  "normal_scipy": {
+    "url": "https://docs.scipy.org/doc/scipy-1.16.0/reference/generated/scipy.stats.norm.html",
+    "checked_date": "2026-11-01",
+    "section_or_observation": "norm.ppf/isf deterministic inverse CDF/survival function",
+    "locked_applicability": "Locked SciPy1.16.3 уже есть; stable lower-tail/isf form избегает округления upper probability к1"
+  }
+}

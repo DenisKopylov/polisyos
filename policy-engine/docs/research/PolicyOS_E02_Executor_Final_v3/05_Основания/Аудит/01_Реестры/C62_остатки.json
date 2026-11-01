@@ -1,0 +1,73 @@
+{
+  "pass": "C62",
+  "bundle": "STA-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C62-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high_bounded",
+      "source_ids": [
+        "B60"
+      ],
+      "title": "Source-unbound bundle reuse не восстанавливает актуальный runtime bridge payload",
+      "evidence": [
+        "S01:85–108",
+        "S01:232–254",
+        "S01:419–443",
+        "S12:95–175",
+        "P03",
+        "P04"
+      ],
+      "remaining": "Разделить reuse пригодного выбранного bundle и материализацию его runtime outputs. Через существующий ParameterTransfer обновлять/валидировать declared derived fields для текущих backend/draws/seed, не повторяя дорогой selector без необходимости. Проверить first imported bundle, changed runtime request и unchanged reuse.",
+      "limits": "Actual v1.1 DTO, matcher, execute, canonical key и NumPy bridge; fixture store/manifest/profile resolution. Новый key отличается, shortcut возвращает32draws вместо128 и не создаёт отсутствующие outputs. Selected live/retained v1.2 route не обвинён; native CAS и downstream invocation UNRUN."
+    },
+    {
+      "id": "C62-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B60",
+        "B61",
+        "B62"
+      ],
+      "title": "Native CAS/DuckDB/WorkflowExecutor replay chain не выполнена",
+      "evidence": [
+        "S03",
+        "S04",
+        "S08",
+        "S15",
+        "S16",
+        "native_pytest.log",
+        "native_import.log"
+      ],
+      "remaining": "На supported Python3.14 и существующем dependency profile выполнить actual resolver, presence и retained-snapshot regressions; подтвердить same-path bytes change→new value/key, stable selected bytes→hit, same owned reader и close/recovery semantics.",
+      "limits": "Четыре skip bodies и selected owners исполнены с явными fixtures; SQL row stub не доказывает настоящий database snapshot, а manifest map не удостоверяет custody. Нет installs. Pydantic2.13.4 вне pinned<2.13."
+    },
+    {
+      "id": "C62-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B60",
+        "B61"
+      ],
+      "title": "Reusable numerical payload не равен научно пригодному prior и не имеет измеренного I/O cost profile",
+      "evidence": [
+        "S04",
+        "S05:446–526",
+        "S12",
+        "S13:499–563",
+        "S21",
+        "S22",
+        "P08"
+      ],
+      "remaining": "Сохранить distinction selected source custody vs query execution vs scientific relevance. Измерить повторный full-file digest/materialization cost на representative source и использовать уже имеющиеся immutable owner identities, не ослабляя byte verification. Проверить explicit downstream prior mapping/transport applicability в общем causal integration lane.",
+      "limits": "Выполнены только synthetic beta mean2/std.2 и controlled file bytes. Fingerprint доказывает query execution, не output dependence. Selected GCM profile прямо не поддерживает literature priors; manual profile — отдельная семантика. Automatic Scientist state→fit wiring и empirical calibration не доказаны."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C62-R01"
+  ],
+  "decision": "Request/source/presence repairs содержательны. Узкий source-unbound runtime bridge reuse residual воспроизведён; native и scientific qualification открыты."
+}

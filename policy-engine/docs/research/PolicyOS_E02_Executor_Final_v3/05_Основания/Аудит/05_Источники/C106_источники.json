@@ -1,0 +1,316 @@
+{
+  "pass_id": "C106",
+  "bundle": "LLM-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/llm/traced_client.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1686
+        ]
+      ],
+      "evidence_level": "Полностью прочитан. Нативный импорт и actual generate/settlement/metrics/span paths исполнены; provider и optional sinks — явно fixtures. Нет project AST extraction или import shim.",
+      "git_blob": "454023e4ddbd00ecace8b57b7747743787bb3260",
+      "sha256": "7e4cf1bbceeb2573354b597128fabe202ba8d13a1cc6783913fa0f5ff636fbfa",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/llm/response.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          579
+        ]
+      ],
+      "evidence_level": "Полностью прочитан, нативно импортирован; actual extractor различает origin usage, billable reuse и unknown cost. Фальшивый raw marker не становится authority.",
+      "git_blob": "4f5ee3a4630d3fd7843d30b7741a7680db9c2b63",
+      "sha256": "dd5c38428a6d8ff5933f4aa437baac630d672de0fd26565de1dfb5436e384ac5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1593
+        ]
+      ],
+      "evidence_level": "Полностью прочитан. Actual cache miss/hit/expiry, freeze/thaw, producer hooks и reuse attestation исполнены. Полная concurrent authorization qualification отложена к LLM-02.",
+      "git_blob": "1cb18cf2f135a588d599457fa7e9468ff24fcc20",
+      "sha256": "d1553de4c7f710ee2483593f92e1fae8760d811398f1cb8f545b1d5072df8351",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          531
+        ]
+      ],
+      "evidence_level": "Полностью прочитан. Actual non-simulation/non-fallback factory с явным config; gateway _post_json заменён finite transport fixture; sanitizer явно выключен. .env и реальные credentials не читались.",
+      "git_blob": "dc6b05adcb91eb2ab1ce5f5f4c9e75c89ce9fa10",
+      "sha256": "47497d983c315b370982f7549eec0cf3ac35b8df198e65380a572daed1fcd32a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          394
+        ]
+      ],
+      "evidence_level": "Полностью прочитан и нативно импортирован. Actual begin/settle/readback через настоящий FileBudgetLedger вне checkout; не fixture ledger.",
+      "git_blob": "587b8842bcadb67535185f01ce63e5b6350e5272",
+      "sha256": "8abd43ad46b34b1dc2865ec8fe5d60f04bfbb20693ec8cbe0b1de6a89660e8f1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          135
+        ],
+        [
+          206,
+          497
+        ],
+        [
+          578,
+          597
+        ],
+        [
+          744,
+          900
+        ]
+      ],
+      "evidence_level": "Прочитаны complete selected request-preparation, generate, message construction, response parser и DTO boundaries. _post_json/HTTP/streaming не исполнялись; весь большой transport module не объявлен прочитанным.",
+      "git_blob": "7dd8714caa35448c3faf46214d93275b18c1a4d8",
+      "sha256": "4163475f21651920bb80bde605a877e7b769a741458eb6fe87957ac4ef5ea930",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          471
+        ]
+      ],
+      "evidence_level": "Полный модуль прочитан/импортирован. Actual generate и post-record с failing optional latency/cost histogram. Local budget accounting и inner durable ledger различены.",
+      "git_blob": "97396bc7e8f946cc24e3b3e1012ee30f52f92f48",
+      "sha256": "9481d8a70630390a0b29dc150b21c58c780bf4cc21208b004664e0be6560fae3",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/budget.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          171
+        ]
+      ],
+      "evidence_level": "Полный BudgetState/Limit contract прочитан и исполнен; local spend/reservation не равны ledger receipt.",
+      "git_blob": "1a2fbb73bb87d60674d168791a214f882e79347f",
+      "sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          704,
+          781
+        ],
+        [
+          1129,
+          1410
+        ],
+        [
+          1425,
+          1636
+        ]
+      ],
+      "evidence_level": "Прочитаны выбранные complete begin/settle/readback, constructor/bootstrap и filesystem publication boundaries. Actual file ledger/reopen исполнен без shim. Остальные DTO/decode primitives импортированы, но полный1636-line файл в C106 не перечитан; power-loss/parallel proof не заявлен.",
+      "git_blob": "9aeb1a13f592bd9ad3903649ccd70164008b3dcf",
+      "sha256": "c16ce6380ef81fffbcdf96986046033e0110d20ac7fbd37d6b0f9d9834a40e00",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/llm/settlement.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          523
+        ]
+      ],
+      "evidence_level": "Полный typed event/envelope и private cache owner contract прочитан. Actual unique reuse IDs, origin link и payload digest; external invoice authority не следует.",
+      "git_blob": "6d16b985a872ad612deceb883d92b3c9f9902231",
+      "sha256": "442d0ddf13d30a91d442ce58a3a6e6cd4178d508edb8b284f1d0de0fda6dc8a1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/core/llm/cache_settlement.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/llm/cache_settlement.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          475
+        ]
+      ],
+      "evidence_level": "Полный exact owner/session/attestation contract прочитан и исполнен через native cache chain. Это in-process provenance, не доказательство external permission или multi-process cache.",
+      "git_blob": "752cbfa4f51a41c4848a307fed1ed8c0482059e0",
+      "sha256": "fde6449b48571ec167e3ee4ee462476ca948026e3f33b6725c6205842b9b0473",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prepared_request.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/llm/prepared_request.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          256
+        ]
+      ],
+      "evidence_level": "Полностью прочитан. Actual immutable provider preparation; fixture successful transport identity подаётся через предусмотренный callback. Реальная HTTP dispatch equivalence здесь не квалифицирована.",
+      "git_blob": "eab77f16446c3ef4cc510c1222fff63fc2995634",
+      "sha256": "b147b4788ae96373af086703752b40d74b686a350301e9e351386360745e779f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_llm_01.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          420
+        ]
+      ],
+      "evidence_level": "10 существующих неизменённых тел /15 cases PASS через маленький pytest-fixture adapter; decorators и import pytest исключены, project imports настоящие. Не native pytest suite.",
+      "git_blob": "c21aa16272bb0dd571e7d1046e55494c111a6db5",
+      "sha256": "9260c3b187580699aa139a6b5c48d9772a8b5a373f0f99f1aa830d09f5bc83e6",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/policy_design/translator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          176,
+          263
+        ]
+      ],
+      "evidence_level": "Прочитан actual translator factory→optional budget wrapper→generate→fallback consumer, source-only. Не исполнялся и не объявлен production activation proof.",
+      "git_blob": "6b3bac9e054559146050e44634dd41a3445b5061",
+      "sha256": "a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          90,
+          193
+        ]
+      ],
+      "evidence_level": "Прочитан actual adversary optional budget wrapper и response/fallback consumer, source-only. Не выполнялись proposal/DOE/stress outputs.",
+      "git_blob": "6f14dc32e8a9e0b30ef2a50c6c94c99ea56cc3aa",
+      "sha256": "b11f21cc4275df6e7089aca13e0044d5aab2feedf1023bb3517e6fb6217220fc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/src/polisyos/core/llm/README.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/llm/README.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          75
+        ]
+      ],
+      "evidence_level": "Прочитан описанный contract: unknown versus reuse, durable/unmanaged, scope owner; документ не заменяет execution evidence.",
+      "git_blob": "c5bc77eea8811f775cacab45de14eb18b364cd19",
+      "sha256": "27e25ad37d62679de663eaa8392248a5040e5d5d4fc2f6df2d2c7c5c8eaf8bc9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          45
+        ]
+      ],
+      "evidence_level": "Прочитаны declared Python3.14 и Pydantic<2.13/OTel зависимости. Actual environment3.12.14/Pydantic2.13.4; импорт выбранного пути работает, поддерживаемая среда не подменяется.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

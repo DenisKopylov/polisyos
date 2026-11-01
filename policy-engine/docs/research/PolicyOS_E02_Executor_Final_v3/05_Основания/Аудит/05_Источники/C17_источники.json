@@ -1,0 +1,115 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+      "git_blob": "9a4aa572b840d87096a3dce845e400ffadd65761",
+      "read_ranges": [
+        [
+          1,
+          716
+        ]
+      ],
+      "evidence_level": "complete Git-blob-verified module executed; real Pydantic; logger/error/degradation fixtures; no real embedder/provider",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py"
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "git_blob": "dda3875d68e1dd43002835ee332270cf3d4e23b5",
+      "read_ranges": [
+        [
+          1,
+          476
+        ]
+      ],
+      "evidence_level": "complete Git-blob-verified stdlib module executed",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/stopping.py"
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/tests/unit/scientist/search/test_stopping_c49.py",
+      "git_blob": "1af81ab647009489a1da4b1224a229bb8e6d41ed",
+      "read_ranges": [
+        [
+          1,
+          163
+        ]
+      ],
+      "evidence_level": "unchanged test file executed through isolated import loader, repository conftest disabled",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/search/test_stopping_c49.py"
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_c49.py",
+      "git_blob": "1ac50faca9cfbb1cb2652c85733330c032695065",
+      "read_ranges": [
+        [
+          1,
+          147
+        ]
+      ],
+      "evidence_level": "unchanged test file executed through isolated import loader",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_c49.py"
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_semantic.py",
+      "git_blob": "13ef143d9428cdd694f125957699261e59899e58",
+      "read_ranges": [
+        [
+          1,
+          350
+        ]
+      ],
+      "evidence_level": "selected test design read; not run",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_semantic.py"
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/tests/unit/scientist/search/test_plateau_lifecycle_c49.py",
+      "git_blob": "6ed37d360a2d70ae08081b9df758539af4f217e0",
+      "read_ranges": [
+        [
+          1,
+          80
+        ]
+      ],
+      "evidence_level": "complete returned file read; lifecycle test UNRUN; range upper bound requested",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/search/test_plateau_lifecycle_c49.py"
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/scientist/agent/_drafter_orchestrator.py",
+      "git_blob": "f79e83aa8ab9c7a80d3f7bc5d5529f305a157965",
+      "read_ranges": [
+        [
+          1,
+          260
+        ],
+        [
+          400,
+          760
+        ],
+        [
+          930,
+          1140
+        ]
+      ],
+      "evidence_level": "selected caller ranges read; no real provider or full drafter execution; upper bounds are requested ranges",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/agent/_drafter_orchestrator.py"
+    }
+  ],
+  "search_limits": "Index search is discovery, not complete caller census. No absence-of-all-consumers claim.",
+  "external_math_only": [
+    {
+      "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.cosine.html",
+      "purpose": "independent cosine definition; no repository-status evidence"
+    },
+    {
+      "url": "https://docs.python.org/3/library/math.html",
+      "purpose": "finite/norm arithmetic reference; not product execution"
+    }
+  ]
+}

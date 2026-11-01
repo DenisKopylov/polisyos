@@ -1,0 +1,3968 @@
+{
+  "kind": "packet_code_link_identity_and_bounds_only",
+  "status": "PASS",
+  "rows": [
+    {
+      "packet": "ACQ-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "9937",
+      "last_line": "9969",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "ACQ-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "9542",
+      "last_line": "9574",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "ACQ-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py",
+      "first_line": "2274",
+      "last_line": "2306",
+      "exists": true,
+      "sha256": "28aa0291325c1ec26d471a90cdf9204a0a298c90c42fbe0b14342cbaedc4ed90",
+      "line_count": 2901
+    },
+    {
+      "packet": "ACQ-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_evaluation_dispatch.py",
+      "first_line": "851",
+      "last_line": "883",
+      "exists": true,
+      "sha256": "e16ab7c54cb9b74c613e6190890070ee00ba05eb561821fc98af8cb4d14458ba",
+      "line_count": 1060
+    },
+    {
+      "packet": "API-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/__init__.py",
+      "first_line": "1",
+      "last_line": "42",
+      "exists": true,
+      "sha256": "bee3c5d4996e31f9d3808d489a6dbecf26cff686e06c5e42e9ff8a944c6a2feb",
+      "line_count": 42
+    },
+    {
+      "packet": "API-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/interference/__init__.py",
+      "first_line": "1",
+      "last_line": "67",
+      "exists": true,
+      "sha256": "2fe2af3d15064c0aeb03b1a8d0f37e82ebf9aeb20b5e77f3dddc1490c1583f85",
+      "line_count": 67
+    },
+    {
+      "packet": "API-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+      "first_line": "94",
+      "last_line": "115",
+      "exists": true,
+      "sha256": "8724287a101c321e88f3bc67f0d6154cdc96629574f38e4cbc3655c8c4b4ea8a",
+      "line_count": 2499
+    },
+    {
+      "packet": "API-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+      "first_line": "2163",
+      "last_line": "2223",
+      "exists": true,
+      "sha256": "8724287a101c321e88f3bc67f0d6154cdc96629574f38e4cbc3655c8c4b4ea8a",
+      "line_count": 2499
+    },
+    {
+      "packet": "API-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+      "first_line": "167",
+      "last_line": "212",
+      "exists": true,
+      "sha256": "324133c606c6110ce765ad84937ece3e0190e7b4e8a2a17806de76e3e754f48f",
+      "line_count": 380
+    },
+    {
+      "packet": "API-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+      "first_line": "1",
+      "last_line": "237",
+      "exists": true,
+      "sha256": "d34eb4fd933972068b5f00b6b05a4d2165aee0b517aec515f6437ff9f737ea85",
+      "line_count": 237
+    },
+    {
+      "packet": "BER-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/berl/contracts/validation_rules.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "b3619593fb6b649b9617c830185ce3985ff33c5722470fc2fa45f764c954ea0d",
+      "line_count": 291
+    },
+    {
+      "packet": "BER-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/berl/contracts/schema.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "794c65480aa3ea3ed9da188e24019183c36d117c13c8e45425d80a745447aef7",
+      "line_count": 62
+    },
+    {
+      "packet": "BER-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/berl/persistence.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "8383348da5cfc4e1e19be1e34e2d07e93f5469c19e01b008dd02670f0b57fcdc",
+      "line_count": 214
+    },
+    {
+      "packet": "BER-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/berl/service/__init__.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "fed9d155517e13cc28b96d31c119c30d9bc187a1b18e1c304c344e8ee6c294df",
+      "line_count": 594
+    },
+    {
+      "packet": "BER-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/berl/service/cache_identity.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "a2d001c737d2e24ac6545a40edaa57ac99aff1b7496c15cb6a43bac9ac185d5c",
+      "line_count": 274
+    },
+    {
+      "packet": "BER-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/validation/phase5_preflight.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "0880f16efcd4b57d36412494b0c8db31e0f7b4aebcca079dc83381ce768cc404",
+      "line_count": 1395
+    },
+    {
+      "packet": "BER-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_ber_01.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "e7f90aa1f880b3d1d6d9aac619f11a1349687ad64b056e172113583b8d0dc536",
+      "line_count": 1282
+    },
+    {
+      "packet": "BER-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/berl/test_persisted_wire_profile.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "c45ab6836060fe66606a1a305127af2d6bfd722249fc0112c4c85b85b60ffda0",
+      "line_count": 573
+    },
+    {
+      "packet": "BKT-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/masking.py",
+      "first_line": "24",
+      "last_line": "158",
+      "exists": true,
+      "sha256": "2a39f65b41ccb9bc818b3f77bc3aa7304dfdcce9a678a5ad651f47e4275e891a",
+      "line_count": 161
+    },
+    {
+      "packet": "BKT-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/plan.py",
+      "first_line": "26",
+      "last_line": "124",
+      "exists": true,
+      "sha256": "b37c79921d42a7b7f1226e6a4ba10d9f6ccc2d0181a62f69f03d883b5de4f8f1",
+      "line_count": 136
+    },
+    {
+      "packet": "BKT-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "first_line": "205",
+      "last_line": "241",
+      "exists": true,
+      "sha256": "b8da4c1aa45c6cd22576c34e6360fc2c34de29a4a6cfaaa9fa85cace9d51a46c",
+      "line_count": 1762
+    },
+    {
+      "packet": "BKT-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "first_line": "703",
+      "last_line": "880",
+      "exists": true,
+      "sha256": "b8da4c1aa45c6cd22576c34e6360fc2c34de29a4a6cfaaa9fa85cace9d51a46c",
+      "line_count": 1762
+    },
+    {
+      "packet": "BKT-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "first_line": "933",
+      "last_line": "1024",
+      "exists": true,
+      "sha256": "b8da4c1aa45c6cd22576c34e6360fc2c34de29a4a6cfaaa9fa85cace9d51a46c",
+      "line_count": 1762
+    },
+    {
+      "packet": "BKT-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "first_line": "1215",
+      "last_line": "1235",
+      "exists": true,
+      "sha256": "b8da4c1aa45c6cd22576c34e6360fc2c34de29a4a6cfaaa9fa85cace9d51a46c",
+      "line_count": 1762
+    },
+    {
+      "packet": "BKT-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "first_line": "1261",
+      "last_line": "1310",
+      "exists": true,
+      "sha256": "b8da4c1aa45c6cd22576c34e6360fc2c34de29a4a6cfaaa9fa85cace9d51a46c",
+      "line_count": 1762
+    },
+    {
+      "packet": "BKT-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/uncertainty_source_projection.py",
+      "first_line": "377",
+      "last_line": "473",
+      "exists": true,
+      "sha256": "37e4ffd9dad1395947442df93c80c0ff3c449f0a2718d0a1b00f22f58e3cd002",
+      "line_count": 512
+    },
+    {
+      "packet": "BKT-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+      "first_line": "72",
+      "last_line": "205",
+      "exists": true,
+      "sha256": "d60ea4b569b28e64187842bb191c9541d64cf83d548f5fd2008c69d68ced66be",
+      "line_count": 209
+    },
+    {
+      "packet": "BKT-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/trust_scorer.py",
+      "first_line": "43",
+      "last_line": "106",
+      "exists": true,
+      "sha256": "1cb1651302b2a0c23b0a113642f729506236e59c0049b90ec6564a2dfd7101c9",
+      "line_count": 108
+    },
+    {
+      "packet": "BKT-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "first_line": "1378",
+      "last_line": "1474",
+      "exists": true,
+      "sha256": "b8da4c1aa45c6cd22576c34e6360fc2c34de29a4a6cfaaa9fa85cace9d51a46c",
+      "line_count": 1762
+    },
+    {
+      "packet": "BKT-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "first_line": "368",
+      "last_line": "578",
+      "exists": true,
+      "sha256": "5fc6db3c90220efd194175e6a6cab7d0a11f1a526a0e4182e011d4a3b42c7480",
+      "line_count": 858
+    },
+    {
+      "packet": "BKT-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+      "first_line": "172",
+      "last_line": "363",
+      "exists": true,
+      "sha256": "bae5165b80e26b1ba4479512b47e78fe748528505e46989c453d27dd1ee888fe",
+      "line_count": 675
+    },
+    {
+      "packet": "BKT-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_bkt_02.py",
+      "first_line": "331",
+      "last_line": "495",
+      "exists": true,
+      "sha256": "d4f9ebc58199ab0cd4e3f8fc3f312b8fc5e20baac1539e2adc2e0f950d480afb",
+      "line_count": 495
+    },
+    {
+      "packet": "BKT-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/outcome_sections.py",
+      "first_line": "255",
+      "last_line": "349",
+      "exists": true,
+      "sha256": "aa4a5d818e804807e557b0114382869d94ec8237922d9fbcebab4f697b07ad15",
+      "line_count": 972
+    },
+    {
+      "packet": "BKT-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "first_line": "1542",
+      "last_line": "1726",
+      "exists": true,
+      "sha256": "b8da4c1aa45c6cd22576c34e6360fc2c34de29a4a6cfaaa9fa85cace9d51a46c",
+      "line_count": 1762
+    },
+    {
+      "packet": "BKT-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "first_line": "153",
+      "last_line": "204",
+      "exists": true,
+      "sha256": "5fc6db3c90220efd194175e6a6cab7d0a11f1a526a0e4182e011d4a3b42c7480",
+      "line_count": 858
+    },
+    {
+      "packet": "BKT-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "first_line": "583",
+      "last_line": "736",
+      "exists": true,
+      "sha256": "5fc6db3c90220efd194175e6a6cab7d0a11f1a526a0e4182e011d4a3b42c7480",
+      "line_count": 858
+    },
+    {
+      "packet": "BKT-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+      "first_line": "172",
+      "last_line": "322",
+      "exists": true,
+      "sha256": "bae5165b80e26b1ba4479512b47e78fe748528505e46989c453d27dd1ee888fe",
+      "line_count": 675
+    },
+    {
+      "packet": "BKT-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/outcome_sections.py",
+      "first_line": "255",
+      "last_line": "350",
+      "exists": true,
+      "sha256": "aa4a5d818e804807e557b0114382869d94ec8237922d9fbcebab4f697b07ad15",
+      "line_count": 972
+    },
+    {
+      "packet": "BKT-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+      "first_line": "4066",
+      "last_line": "4622",
+      "exists": true,
+      "sha256": "11e9237b98349c4570391bb65d390ee12da8dcd5ba8231f1ec5668f21009c326",
+      "line_count": 4879
+    },
+    {
+      "packet": "BKT-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/cv.py",
+      "first_line": "1",
+      "last_line": "160",
+      "exists": true,
+      "sha256": "8b4e347c71bd53ee2d3929ae3e3e890cf05d31e5eba65731ab78d86a0585a910",
+      "line_count": 160
+    },
+    {
+      "packet": "BKT-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py",
+      "first_line": "25",
+      "last_line": "246",
+      "exists": true,
+      "sha256": "eb8ae5af0f32881b41a5fd229666050c81ad9790ff6f3deea28ebb407b25c47f",
+      "line_count": 246
+    },
+    {
+      "packet": "BKT-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/__init__.py",
+      "first_line": "1",
+      "last_line": "106",
+      "exists": true,
+      "sha256": "ab32305ff929db821a069fd481a21e4bbda6215bd3ee448ef1d876bc7fd41559",
+      "line_count": 106
+    },
+    {
+      "packet": "BKT-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+      "first_line": "1",
+      "last_line": "153",
+      "exists": true,
+      "sha256": "ee5acacd4382d853a3996e7ca227c7a7c33a2e2790b326eb5b28167812180856",
+      "line_count": 153
+    },
+    {
+      "packet": "BKT-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+      "first_line": "1",
+      "last_line": "263",
+      "exists": true,
+      "sha256": "11f28e7d72e303cd14c8a5c00153b5cd805e2c5a13825eefc67bc038c0013490",
+      "line_count": 263
+    },
+    {
+      "packet": "CAL-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "f23b724aa07a447fbf10effad60c28f7e286ff137e2805e4e4a195adc28ac6a1",
+      "line_count": 3682
+    },
+    {
+      "packet": "CAL-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/calibration/loss.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "a3c7dcf6b118d88b7b3f1b0bc60f8ec390cd2229232f75e8f7ff0b6c022f9e58",
+      "line_count": 156
+    },
+    {
+      "packet": "CAL-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/calibration/measurement.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "be1de99f1764725d501ddaf2f1136ed40c39d02df456aef4478a497138ace350",
+      "line_count": 681
+    },
+    {
+      "packet": "CAL-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/observation/compiler.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "1a445f61eee78e47c191ea1ef2ab55fc7e9483111d1b9f9f2c8837831b58c9fe",
+      "line_count": 217
+    },
+    {
+      "packet": "CAL-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_cal_02.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "8b06fb3d9c3a350ea71e21adbabb80f25b9fd9a6eada705297959ab1ff199644",
+      "line_count": 152
+    },
+    {
+      "packet": "CAL-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_loss.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "bf6ff2494c3f307afd9364665c48409a608ae1054cf8066146d7c6e43cd59cdb",
+      "line_count": 99
+    },
+    {
+      "packet": "CAL-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_lifecycle.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "8662008e66ab9e92d1f4d3115d4ceba11459894b41d201b2b1e83424b0079acf",
+      "line_count": 303
+    },
+    {
+      "packet": "CAL-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "f23b724aa07a447fbf10effad60c28f7e286ff137e2805e4e4a195adc28ac6a1",
+      "line_count": 3682
+    },
+    {
+      "packet": "CAL-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/calibration/multi_start.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "b3988d200da684ba6cf323381e6021de357be594f1a56c22f39cb5ff5c29c260",
+      "line_count": 171
+    },
+    {
+      "packet": "CAL-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/calibration/hessian.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "f136b9d4195ae6b66a0261c271c6f00f6a58b3ac93692e4d65f997956c3d9361",
+      "line_count": 173
+    },
+    {
+      "packet": "CAL-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_cal_03.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "189adf915ccdf055e44dad8ab3fb9717ca90a05ecece454630bcff134a73ef62",
+      "line_count": 211
+    },
+    {
+      "packet": "CAL-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_multi_start.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "8a32656a3b600834a458fa47ef5362e21d1c17d5d0049e0b09d6d39f3f76a86e",
+      "line_count": 109
+    },
+    {
+      "packet": "CAL-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_lifecycle.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "8662008e66ab9e92d1f4d3115d4ceba11459894b41d201b2b1e83424b0079acf",
+      "line_count": 303
+    },
+    {
+      "packet": "CAL-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "f23b724aa07a447fbf10effad60c28f7e286ff137e2805e4e4a195adc28ac6a1",
+      "line_count": 3682
+    },
+    {
+      "packet": "CAL-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/calibration/hessian.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "f136b9d4195ae6b66a0261c271c6f00f6a58b3ac93692e4d65f997956c3d9361",
+      "line_count": 173
+    },
+    {
+      "packet": "CAL-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_cal_04.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "31b7b6afb4e3e8587865c168ad8953ba0138271737185633df3400a351ebe4f7",
+      "line_count": 468
+    },
+    {
+      "packet": "CAL-06",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "f23b724aa07a447fbf10effad60c28f7e286ff137e2805e4e4a195adc28ac6a1",
+      "line_count": 3682
+    },
+    {
+      "packet": "CAL-06",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "4a7218269ba505f188066441116c1781c37681b2f9879b88b74de11aad133cdb",
+      "line_count": 922
+    },
+    {
+      "packet": "CAL-06",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/covariance.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "26c5dbfcd60dd773ce77f5ad8dbf45c118a47832c19705e11e88af0342883236",
+      "line_count": 298
+    },
+    {
+      "packet": "CAL-06",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_cal_06.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "c9afbd837ae8b3b6defed9a588492e67fb1d084c493ad6ffa8ee43a77c85aa13",
+      "line_count": 143
+    },
+    {
+      "packet": "CAL-06",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "2ece8527030a089ef40515aa11c5ca5b993b185eb6fd04089bf0461ad83f11ba",
+      "line_count": 516
+    },
+    {
+      "packet": "CAU-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "first_line": "197",
+      "last_line": "265",
+      "exists": true,
+      "sha256": "3a66ea7ed5ce149254beefbc355867696d51757b9e6832c36a7df91c919b8075",
+      "line_count": 1288
+    },
+    {
+      "packet": "CAU-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "first_line": "322",
+      "last_line": "523",
+      "exists": true,
+      "sha256": "3a66ea7ed5ce149254beefbc355867696d51757b9e6832c36a7df91c919b8075",
+      "line_count": 1288
+    },
+    {
+      "packet": "CAU-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "first_line": "1014",
+      "last_line": "1288",
+      "exists": true,
+      "sha256": "3a66ea7ed5ce149254beefbc355867696d51757b9e6832c36a7df91c919b8075",
+      "line_count": 1288
+    },
+    {
+      "packet": "CAU-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "first_line": "45",
+      "last_line": "144",
+      "exists": true,
+      "sha256": "ece93225711e7702b9dace607ab6cf9ab4941baa56bc847e19b3f35c7e8ca44b",
+      "line_count": 2271
+    },
+    {
+      "packet": "CAU-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+      "first_line": "453",
+      "last_line": "645",
+      "exists": true,
+      "sha256": "eb2505f40b8a5ad464b5669f5432a8152859aa81ce98e9668787f7208ba8ba43",
+      "line_count": 645
+    },
+    {
+      "packet": "CAU-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "first_line": "541",
+      "last_line": "705",
+      "exists": true,
+      "sha256": "70eb563ecf417ef467bf651a1e84921d2a3e07dced337cfb270445cd1194f249",
+      "line_count": 2427
+    },
+    {
+      "packet": "CAU-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "first_line": "526",
+      "last_line": "694",
+      "exists": true,
+      "sha256": "3a66ea7ed5ce149254beefbc355867696d51757b9e6832c36a7df91c919b8075",
+      "line_count": 1288
+    },
+    {
+      "packet": "CAU-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "first_line": "716",
+      "last_line": "765",
+      "exists": true,
+      "sha256": "3a66ea7ed5ce149254beefbc355867696d51757b9e6832c36a7df91c919b8075",
+      "line_count": 1288
+    },
+    {
+      "packet": "CAU-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "first_line": "808",
+      "last_line": "835",
+      "exists": true,
+      "sha256": "3a66ea7ed5ce149254beefbc355867696d51757b9e6832c36a7df91c919b8075",
+      "line_count": 1288
+    },
+    {
+      "packet": "CAU-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "first_line": "909",
+      "last_line": "998",
+      "exists": true,
+      "sha256": "3a66ea7ed5ce149254beefbc355867696d51757b9e6832c36a7df91c919b8075",
+      "line_count": 1288
+    },
+    {
+      "packet": "CAU-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "first_line": "462",
+      "last_line": "651",
+      "exists": true,
+      "sha256": "1a58d1736ca2d16b11cf2c6792bf0e4742dd73f57960aa045e55d05b9a7062d6",
+      "line_count": 1713
+    },
+    {
+      "packet": "CAU-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py",
+      "first_line": "237",
+      "last_line": "274",
+      "exists": true,
+      "sha256": "29e180cdb670246728487766d5a1d8e21aafeb56c9038cb15d243402044d1349",
+      "line_count": 274
+    },
+    {
+      "packet": "CAU-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+      "first_line": "69",
+      "last_line": "177",
+      "exists": true,
+      "sha256": "eb2505f40b8a5ad464b5669f5432a8152859aa81ce98e9668787f7208ba8ba43",
+      "line_count": 645
+    },
+    {
+      "packet": "CAU-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+      "first_line": "300",
+      "last_line": "318",
+      "exists": true,
+      "sha256": "eb2505f40b8a5ad464b5669f5432a8152859aa81ce98e9668787f7208ba8ba43",
+      "line_count": 645
+    },
+    {
+      "packet": "CAU-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+      "first_line": "420",
+      "last_line": "642",
+      "exists": true,
+      "sha256": "eb2505f40b8a5ad464b5669f5432a8152859aa81ce98e9668787f7208ba8ba43",
+      "line_count": 645
+    },
+    {
+      "packet": "CAU-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py",
+      "first_line": "55",
+      "last_line": "152",
+      "exists": true,
+      "sha256": "4c8398b42efa15eeba4b28c9900a18541269931322edb8122412443d081f1585",
+      "line_count": 292
+    },
+    {
+      "packet": "CAU-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py",
+      "first_line": "199",
+      "last_line": "264",
+      "exists": true,
+      "sha256": "4c8398b42efa15eeba4b28c9900a18541269931322edb8122412443d081f1585",
+      "line_count": 292
+    },
+    {
+      "packet": "CAU-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_dml_input_materialization.py",
+      "first_line": "33",
+      "last_line": "77",
+      "exists": true,
+      "sha256": "50dd1ccf1da320de26312873b2ac8e9368a90cdf37f534d9ec3189047379a038",
+      "line_count": 105
+    },
+    {
+      "packet": "CAU-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+      "first_line": "350",
+      "last_line": "630",
+      "exists": true,
+      "sha256": "b962bb0eed9914172fb71d96eac213dcc7a3c7daf0475832f726389de740046c",
+      "line_count": 653
+    },
+    {
+      "packet": "CAU-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/workers/dowhy-014/worker.py",
+      "first_line": "69",
+      "last_line": "151",
+      "exists": true,
+      "sha256": "1e5d09d5956fd2bff6e79efb38b53d065e91dbf6aa54c76fefc72576dc54a97d",
+      "line_count": 276
+    },
+    {
+      "packet": "CAU-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+      "first_line": "146",
+      "last_line": "299",
+      "exists": true,
+      "sha256": "b3fab16731fbf1243905a48b157d5600ef1cb97ffa356e45679ac41fbfde4238",
+      "line_count": 422
+    },
+    {
+      "packet": "CAU-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "first_line": "462",
+      "last_line": "536",
+      "exists": true,
+      "sha256": "1a58d1736ca2d16b11cf2c6792bf0e4742dd73f57960aa045e55d05b9a7062d6",
+      "line_count": 1713
+    },
+    {
+      "packet": "CAU-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "first_line": "582",
+      "last_line": "615",
+      "exists": true,
+      "sha256": "1a58d1736ca2d16b11cf2c6792bf0e4742dd73f57960aa045e55d05b9a7062d6",
+      "line_count": 1713
+    },
+    {
+      "packet": "CAU-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/workers/dowhy-014/tests/test_worker.py",
+      "first_line": "72",
+      "last_line": "122",
+      "exists": true,
+      "sha256": "4101ad1b27fe8c443de16b927f10bf9a14ce90acb263d6e4ead015eefa7dc2f0",
+      "line_count": 328
+    },
+    {
+      "packet": "CAU-05",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "first_line": "44",
+      "last_line": "57",
+      "exists": true,
+      "sha256": "3a66ea7ed5ce149254beefbc355867696d51757b9e6832c36a7df91c919b8075",
+      "line_count": 1288
+    },
+    {
+      "packet": "CAU-05",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "first_line": "106",
+      "last_line": "153",
+      "exists": true,
+      "sha256": "3a66ea7ed5ce149254beefbc355867696d51757b9e6832c36a7df91c919b8075",
+      "line_count": 1288
+    },
+    {
+      "packet": "CAU-05",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "first_line": "1074",
+      "last_line": "1279",
+      "exists": true,
+      "sha256": "3a66ea7ed5ce149254beefbc355867696d51757b9e6832c36a7df91c919b8075",
+      "line_count": 1288
+    },
+    {
+      "packet": "CAU-05",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_registry_boot.py",
+      "first_line": "266",
+      "last_line": "299",
+      "exists": true,
+      "sha256": "85aac57a527c5e84bf3ff2e768d880e7476d4cd60a54f57cff41afd0e4586c4b",
+      "line_count": 506
+    },
+    {
+      "packet": "CAU-05",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+      "first_line": "685",
+      "last_line": "733",
+      "exists": true,
+      "sha256": "edff22cea0972c0d6f95006edd50a6c21d99f3f8cc8710da34b44842846270ed",
+      "line_count": 1074
+    },
+    {
+      "packet": "CAU-05",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py",
+      "first_line": "5746",
+      "last_line": "5804",
+      "exists": true,
+      "sha256": "950b2d83bcfce73b5882df34794ea11a71a2a39f09bc58ccf8dcad0e8c4c08fe",
+      "line_count": 6202
+    },
+    {
+      "packet": "CAU-05",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "first_line": "539",
+      "last_line": "615",
+      "exists": true,
+      "sha256": "1a58d1736ca2d16b11cf2c6792bf0e4742dd73f57960aa045e55d05b9a7062d6",
+      "line_count": 1713
+    },
+    {
+      "packet": "CLI-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tools/ops_runners/runtime/generate_runtime_client.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "19a097bc6dc4ec95a0d236a58c3e969ded3789e33bdc691fe99cba986292b1cf",
+      "line_count": 699
+    },
+    {
+      "packet": "CLI-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/packages/runtime-api-client/scripts/check-architecture.mjs",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "588c2ab388fb41bc3a989cdf370dd10b10b74a8329110a348c62a86894767457",
+      "line_count": 141
+    },
+    {
+      "packet": "CLI-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/packages/runtime-api-client/scripts/generate-runtime-api-client.sh",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "3bd20e2c421ec6e703ce0b48c5a0a9ca5ced8e73a9464e33e1706136fbc5cc53",
+      "line_count": 85
+    },
+    {
+      "packet": "CLI-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/packages/runtime-api-client/scripts/generate-openapi-types.mjs",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "38b865d77baa1cfcc6663dc3dceba64533b70ca914f9e4203e44fd5b7015d0cd",
+      "line_count": 1522
+    },
+    {
+      "packet": "CLI-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "c723f936eb67d54f7b6dc428206b0dc87c60b78749ee8c3ed6f017d34fa64a8c",
+      "line_count": 709
+    },
+    {
+      "packet": "CLI-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "6a294253f2099cea6205a0865a52aa3caa48962da1564666afe22f84208071c3",
+      "line_count": 222
+    },
+    {
+      "packet": "CLI-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/packages/runtime-api-client/runtimeApiClient.test.mjs",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "752244f9d01516236a9b104cda0b37c00a9c4027b232cff6d94ca60d5da2368d",
+      "line_count": 406
+    },
+    {
+      "packet": "CLI-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/packages/runtime-api-client/runtimeApiClient.type-test.ts",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "08bd3544019ad9d5a6723c378c80057cd9015256b5cd552b51fceea114d907f0",
+      "line_count": 211
+    },
+    {
+      "packet": "CLI-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/packages/runtime-api-client/remediation.test.mjs",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "a3cd0fa9f0fc6c7508a38ad421d1b711abc4c9796e7dc0a0c68c33009b2ab840",
+      "line_count": 103
+    },
+    {
+      "packet": "CLI-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "a2a2ffaa91733b70a3d0a4bf709d0a418b5287aa1314d6aca4a536fec42de7b1",
+      "line_count": 208
+    },
+    {
+      "packet": "CLI-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "739d5a08f6ecd23d594a7d2506dc0e9f0c3fb80bf9bc2fb727a0141c1efb1baf",
+      "line_count": 9171
+    },
+    {
+      "packet": "CLI-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "759722a3d2f6e7fdad9937dfec423e7cf9737ac5e6551d865ab622d82b0086cc",
+      "line_count": 401
+    },
+    {
+      "packet": "CTL-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "first_line": "177",
+      "last_line": "209",
+      "exists": true,
+      "sha256": "782fb7b060955c6139db7ed6d9d77740ce5453f0fe6f31d3be44224ddd67e907",
+      "line_count": 326
+    },
+    {
+      "packet": "CTL-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "first_line": "199",
+      "last_line": "231",
+      "exists": true,
+      "sha256": "782fb7b060955c6139db7ed6d9d77740ce5453f0fe6f31d3be44224ddd67e907",
+      "line_count": 326
+    },
+    {
+      "packet": "CTL-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "first_line": "234",
+      "last_line": "266",
+      "exists": true,
+      "sha256": "f4615f237197b7f03195d63aabd9d115df0865165b5c897a6928c3fc52f29d53",
+      "line_count": 1814
+    },
+    {
+      "packet": "CTL-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "first_line": "437",
+      "last_line": "469",
+      "exists": true,
+      "sha256": "f4615f237197b7f03195d63aabd9d115df0865165b5c897a6928c3fc52f29d53",
+      "line_count": 1814
+    },
+    {
+      "packet": "CTL-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "first_line": "117",
+      "last_line": "200",
+      "exists": true,
+      "sha256": "03509e648e38abe043906da542fc077129e1e998086fc3da2db259a289e0cf00",
+      "line_count": 460
+    },
+    {
+      "packet": "CTL-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "first_line": "438",
+      "last_line": "460",
+      "exists": true,
+      "sha256": "03509e648e38abe043906da542fc077129e1e998086fc3da2db259a289e0cf00",
+      "line_count": 460
+    },
+    {
+      "packet": "CTL-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "first_line": "256",
+      "last_line": "288",
+      "exists": true,
+      "sha256": "03509e648e38abe043906da542fc077129e1e998086fc3da2db259a289e0cf00",
+      "line_count": 460
+    },
+    {
+      "packet": "CTL-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "first_line": "175",
+      "last_line": "207",
+      "exists": true,
+      "sha256": "d9ef05678efc7b6cb59e32cb6be1ff94bf778ece6a0de394605771bb1040cd72",
+      "line_count": 299
+    },
+    {
+      "packet": "CTL-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "first_line": "64",
+      "last_line": "96",
+      "exists": true,
+      "sha256": "69a4ed41941be6b8545ab78be653cc89a889886f8ed69de8fb9904aef2855185",
+      "line_count": 126
+    },
+    {
+      "packet": "CTL-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "first_line": "99",
+      "last_line": "126",
+      "exists": true,
+      "sha256": "69a4ed41941be6b8545ab78be653cc89a889886f8ed69de8fb9904aef2855185",
+      "line_count": 126
+    },
+    {
+      "packet": "CTL-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "first_line": "289",
+      "last_line": "321",
+      "exists": true,
+      "sha256": "d34d8ccd041ac2b6372346e956bd489be7e1500c7f10e94e15bc5c1dc98d21d0",
+      "line_count": 476
+    },
+    {
+      "packet": "CTL-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "first_line": "1299",
+      "last_line": "1331",
+      "exists": true,
+      "sha256": "f4615f237197b7f03195d63aabd9d115df0865165b5c897a6928c3fc52f29d53",
+      "line_count": 1814
+    },
+    {
+      "packet": "CYC-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py",
+      "first_line": "290",
+      "last_line": "350",
+      "exists": true,
+      "sha256": "c3708768ecb6ac9e2b4ec4d64133588e133f01331d4ec409893566aa1739a59f",
+      "line_count": 1088
+    },
+    {
+      "packet": "CYC-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "first_line": "1639",
+      "last_line": "1779",
+      "exists": true,
+      "sha256": "bdce8e32b0a07d3b9b85c59740f2e6583c1c175b64eddac1cc57d18ddf2b85b0",
+      "line_count": 3001
+    },
+    {
+      "packet": "CYC-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "4020",
+      "last_line": "4475",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "CYC-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+      "first_line": "1568",
+      "last_line": "1633",
+      "exists": true,
+      "sha256": "0f7d905373d0156483cf591c76239268b970fe648b1dbd508e5d98d02c07f33b",
+      "line_count": 2485
+    },
+    {
+      "packet": "CYC-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "6940",
+      "last_line": "6972",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "CYC-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "6961",
+      "last_line": "6993",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "CYC-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "7008",
+      "last_line": "7040",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "CYC-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_cyc_02.py",
+      "first_line": "829",
+      "last_line": "861",
+      "exists": true,
+      "sha256": "b99173035ad634c0bbb1c5c7f84582c74324aa7c5e28042bc01657ea3f86c2ca",
+      "line_count": 1181
+    },
+    {
+      "packet": "CYC-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_evaluation_dispatch.py",
+      "first_line": "851",
+      "last_line": "883",
+      "exists": true,
+      "sha256": "e16ab7c54cb9b74c613e6190890070ee00ba05eb561821fc98af8cb4d14458ba",
+      "line_count": 1060
+    },
+    {
+      "packet": "CYC-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "11928",
+      "last_line": "11960",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "CYC-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "3296",
+      "last_line": "3328",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "CYC-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+      "first_line": "843",
+      "last_line": "875",
+      "exists": true,
+      "sha256": "3318faca0a908b81a86603e89dc12b886cc265656d795f6b924aa768d47f6088",
+      "line_count": 6584
+    },
+    {
+      "packet": "CYC-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "13562",
+      "last_line": "13594",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "CYC-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "18979",
+      "last_line": "19011",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "CYC-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py",
+      "first_line": "890",
+      "last_line": "922",
+      "exists": true,
+      "sha256": "0eee002679b09d85cd4b9a4e235d3e4f94abe09645692c9c41014197b4a5ebab",
+      "line_count": 1955
+    },
+    {
+      "packet": "CYC-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/producer_budget.py",
+      "first_line": "122",
+      "last_line": "154",
+      "exists": true,
+      "sha256": "4df7b278314117b05e49ee17157cb3c1dd41fbcff614540ac9479a84813ea420",
+      "line_count": 336
+    },
+    {
+      "packet": "CYC-05",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+      "first_line": "5548",
+      "last_line": "5580",
+      "exists": true,
+      "sha256": "f7e770b6d170dafcaaa9fe566355ff9b64dc138b38b29848726cda3dbf0206c8",
+      "line_count": 16184
+    },
+    {
+      "packet": "CYC-05",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+      "first_line": "5577",
+      "last_line": "5609",
+      "exists": true,
+      "sha256": "f7e770b6d170dafcaaa9fe566355ff9b64dc138b38b29848726cda3dbf0206c8",
+      "line_count": 16184
+    },
+    {
+      "packet": "CYC-05",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "499",
+      "last_line": "531",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "CYC-05",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "first_line": "218",
+      "last_line": "250",
+      "exists": true,
+      "sha256": "bdce8e32b0a07d3b9b85c59740f2e6583c1c175b64eddac1cc57d18ddf2b85b0",
+      "line_count": 3001
+    },
+    {
+      "packet": "CYC-05",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "first_line": "1594",
+      "last_line": "1626",
+      "exists": true,
+      "sha256": "33c4fbcaf9afe49c1f4dce5ec82271a46a7dbebd5d54e5c9fa0ea168416cc253",
+      "line_count": 3983
+    },
+    {
+      "packet": "DDM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ddm/__init__.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "adbf26cc868a931b8ad4b2951558a065a52169a5d55acb3993e137d6657322fc",
+      "line_count": 85
+    },
+    {
+      "packet": "DDM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ddm/contracts/events.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "bb61dc020f9c905b7a3b47a9cec4ebdd98b002be5bb5692919bddc117a7a7ab7",
+      "line_count": 334
+    },
+    {
+      "packet": "DDM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ddm/contracts/metric_budget.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "5f607000142ec570fdbd89297ea00039b7e2b2fef6cf825753eac24e7f4a4cdc",
+      "line_count": 47
+    },
+    {
+      "packet": "DDM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ddm/integration/__init__.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "426bfbc35a951ff24434e755720fc7592ec27386ce046a7db3d05d07baff62b8",
+      "line_count": 113
+    },
+    {
+      "packet": "DDM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ddm/integration/events.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "894151bedc3046b2b41c469f15b42565818162dbd8d7a3d2d587a36ebcc9eb50",
+      "line_count": 35
+    },
+    {
+      "packet": "DDM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ddm/integration/shift_event.schema.json",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "1bb48c1e7bd3531d8a8e81213f392f42fd91649654e41b42a8a4a2fb76045f65",
+      "line_count": 104
+    },
+    {
+      "packet": "DDM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/ddm/test_facade.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "8ec5c49f05af963762f8fdb583ce71ea6258a3ef5300bc51d51ff782a3ee4491",
+      "line_count": 129
+    },
+    {
+      "packet": "DDM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/ddm/test_contract_compatibility.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "e2931688daf033f9ed9b95e16a6e462bf87ce67908505c186312cdd5b2728813",
+      "line_count": 285
+    },
+    {
+      "packet": "DDM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/ddm/test_contract_fresh_consumers.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "1d0d22a06c28bbdd550686e99ca767fe49573041fdeb496f806fbc70ca38c7d5",
+      "line_count": 1197
+    },
+    {
+      "packet": "DDM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "b6356224aa4a9c1a7cbefaa8cd3a50266dd716c0f96e2e9a7d9cc5c5d4553619",
+      "line_count": 803
+    },
+    {
+      "packet": "DDM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ddm/integration/monitor.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "c3c1a1eebbeccf88f59fb3a365390333a05e9d91beebe22109fa19d79f7b012c",
+      "line_count": 204
+    },
+    {
+      "packet": "DDM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ddm/calibration/audit.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "b954fecb026acfac711d01c414492e0b46b0a18f03aa9815cd886076f5e6fbbe",
+      "line_count": 269
+    },
+    {
+      "packet": "DDM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ddm/calibration/observations.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "69e0e169db3d3fe08a39b8ff26ddabb646fa7fea99d97303bfec5efa9a07cb22",
+      "line_count": 205
+    },
+    {
+      "packet": "DDM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ddm/calibration/calibrate.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "eee9493030c961f89159d7d1f298b319377ff0656b0fe4555a443f3ac98409a8",
+      "line_count": 475
+    },
+    {
+      "packet": "DDM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ddm/readiness/readiness_mapper.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "040c993e244c868c897456429738e5140c9607eae4157cca33b70c849f9ca7d0",
+      "line_count": 209
+    },
+    {
+      "packet": "DDM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ddm/readiness/readiness_policy.yaml",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "f6debfb9cfab3b04e24247f6f8a2ac7e0d2fa48d7acc75b4ff7ad83ec79e987e",
+      "line_count": 53
+    },
+    {
+      "packet": "DDM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "3925e7b8d3413e8df0d3b9e1a211251cd73dc90c8f1a6e772023fe4a6eeb3a41",
+      "line_count": 1046
+    },
+    {
+      "packet": "DDM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/ddm/test_observation_source_admission.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "b4c29c2f20b7f6a0e15c89fce121ee38aa9af91a21be12d0657775629d6dc910",
+      "line_count": 450
+    },
+    {
+      "packet": "DDM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/ddm/test_readiness_mapping.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "2e42c1f75113a8a443610e143497a2d9a0356154119da83bc564075bba9e0f95",
+      "line_count": 153
+    },
+    {
+      "packet": "DFK-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/domain/schema.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "9795fe24efddc4cd27ceb537c82a3663d8f4052bf063b65cf7b70d4e348ee347",
+      "line_count": 34
+    },
+    {
+      "packet": "DFK-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "2e4d9bf7791b0cccce090fd80afde9bb51809506a51666dfd9fde2a8ef4c685e",
+      "line_count": 16
+    },
+    {
+      "packet": "DFK-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "0ab76067bbdd73818cda5d79fbac01c24c4b6f8ac03c80835ead6403ea80b9bf",
+      "line_count": 11
+    },
+    {
+      "packet": "DFK-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/registry.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "4dedf30cb437833c3e27be21a765c03f546c84860e92139b8f930906c126a165",
+      "line_count": 71
+    },
+    {
+      "packet": "DFK-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/evolution.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "d342099817d0ac50c73727bc0ed0b24fe6793ed8c3d921e764eaa9731fb2d44c",
+      "line_count": 280
+    },
+    {
+      "packet": "DFK-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/migrations.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "51fc6ebacfdbe3c310ccc45ac152fd484c9d97fd13dd3e5c4f5107531051d4b2",
+      "line_count": 147
+    },
+    {
+      "packet": "DFK-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "c12cefb7dda1b82ef0f7e309421c5cbccc6804a3ab60bf27d1aa674f43df7e1a",
+      "line_count": 1418
+    },
+    {
+      "packet": "DFK-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "2a472d9c21c9a58dcf4bb2a80f18812d63c40f44476533b86de1b06af15454b0",
+      "line_count": 2075
+    },
+    {
+      "packet": "DFK-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/foundry/hygiene/test_no_compat_facade_imports.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "8597717d4d8e24d3a0fd6d882a6c7159f927e556d9448031193213986752f50a",
+      "line_count": 26
+    },
+    {
+      "packet": "DFK-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/data_forge/test_phase7_schema_quality_observability.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "f0f9d778a0510111ba50bda4ed8a22a554ae760e5a29a72d7563647604129d96",
+      "line_count": 528
+    },
+    {
+      "packet": "DFK-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/repo_quality/tools/test_e02_installed_census_contract.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "0d36dcb94628fde07f9857691fad718d25d34d1ab0c9afd045054de8e63d73f8",
+      "line_count": 708
+    },
+    {
+      "packet": "DOE-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/adaptive.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "37535ed7077b17575a96dc9cf7cd54ef0b58f154ff39f276a198ec79d9a60314",
+      "line_count": 306
+    },
+    {
+      "packet": "DOE-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "8cd056fde7b64825baa33c440ec0f05e96b2b12313355a4228e00279ce36e596",
+      "line_count": 109
+    },
+    {
+      "packet": "DOE-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "b8420f14abb36aa0e1e4423c8215aec836f637e69060992308ef47b12ffe9a8f",
+      "line_count": 401
+    },
+    {
+      "packet": "DOE-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_doe_01.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "ff011b78e081941498c4ade5c10ae44ba7a7a46a28f13f6b5e675bcb358de78a",
+      "line_count": 462
+    },
+    {
+      "packet": "DOE-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "b8420f14abb36aa0e1e4423c8215aec836f637e69060992308ef47b12ffe9a8f",
+      "line_count": 401
+    },
+    {
+      "packet": "DOE-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "8cd056fde7b64825baa33c440ec0f05e96b2b12313355a4228e00279ce36e596",
+      "line_count": 109
+    },
+    {
+      "packet": "DOE-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "7b58b2f9c8e1f94a1fff30e5d9aae8b8408960cf583aa28e12d06f3ee1145239",
+      "line_count": 393
+    },
+    {
+      "packet": "DOE-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/uncertainty.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "7972fc93335e2104cab133c92f040d68a67183fd71971fc10c5c4c59d74bb5be",
+      "line_count": 1787
+    },
+    {
+      "packet": "DOE-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_doe_02.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "cce40927263a910511d0acb2f1eec461539d9900e5a6c6df26982edff26ef03f",
+      "line_count": 367
+    },
+    {
+      "packet": "DOE-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "7b58b2f9c8e1f94a1fff30e5d9aae8b8408960cf583aa28e12d06f3ee1145239",
+      "line_count": 393
+    },
+    {
+      "packet": "DOE-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/multi_output.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "2363477e97c4c98bba93e8453322eeb546e789eb2efc743272140293af6b299a",
+      "line_count": 239
+    },
+    {
+      "packet": "DOE-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/uncertainty.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "7972fc93335e2104cab133c92f040d68a67183fd71971fc10c5c4c59d74bb5be",
+      "line_count": 1787
+    },
+    {
+      "packet": "DOE-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_doe_03.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "13f6d8549d933b03b22f0b33ef632583e695aab9bcb6608fe94d0df8a2cd71ca",
+      "line_count": 391
+    },
+    {
+      "packet": "EMP-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/core/contracts/value_outer_set.py",
+      "first_line": "58",
+      "last_line": "82",
+      "exists": true,
+      "sha256": "35d9fb3880239d6cc2d7c7829c5be62f65d73cc79c3ff6b5577b8f49489580ec",
+      "line_count": 548
+    },
+    {
+      "packet": "EMP-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/core/contracts/value_outer_set.py",
+      "first_line": "151",
+      "last_line": "398",
+      "exists": true,
+      "sha256": "35d9fb3880239d6cc2d7c7829c5be62f65d73cc79c3ff6b5577b8f49489580ec",
+      "line_count": 548
+    },
+    {
+      "packet": "EMP-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "5999",
+      "last_line": "6076",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "EMP-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "16154",
+      "last_line": "16410",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "EMP-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "16538",
+      "last_line": "16697",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "EMP-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "16970",
+      "last_line": "17122",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "EMP-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/observation/contracts.py",
+      "first_line": "131",
+      "last_line": "209",
+      "exists": true,
+      "sha256": "efbe3ca78107dc47158d01c30b03cca4f16074b2ad37f3573fb581e423fdf2d4",
+      "line_count": 254
+    },
+    {
+      "packet": "FIT-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "first_line": "244",
+      "last_line": "351",
+      "exists": true,
+      "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+      "line_count": 1478
+    },
+    {
+      "packet": "FIT-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "first_line": "746",
+      "last_line": "819",
+      "exists": true,
+      "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+      "line_count": 1478
+    },
+    {
+      "packet": "FIT-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "first_line": "878",
+      "last_line": "1048",
+      "exists": true,
+      "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+      "line_count": 1478
+    },
+    {
+      "packet": "FIT-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+      "first_line": "378",
+      "last_line": "524",
+      "exists": true,
+      "sha256": "83c101402001d6eb4890b8a5740c6fba2d8fde10905f143ae1416760352133dc",
+      "line_count": 949
+    },
+    {
+      "packet": "FIT-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_pool.py",
+      "first_line": "117",
+      "last_line": "206",
+      "exists": true,
+      "sha256": "0292ca10adebf681d70867ea7dbe322ee6dccac27f9d8c4d003a6edcb330b8ee",
+      "line_count": 347
+    },
+    {
+      "packet": "FIT-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+      "first_line": "377",
+      "last_line": "747",
+      "exists": true,
+      "sha256": "0dd02251c4d7476761e5475fb6eea67a4c412e87c315b2087682291c57f71bf1",
+      "line_count": 747
+    },
+    {
+      "packet": "FRC-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "17173",
+      "last_line": "17186",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "FRC-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+      "first_line": "105",
+      "last_line": "257",
+      "exists": true,
+      "sha256": "a223585ff8ddc5e0d183753885d1c1f016490441279e9c0235005c012d6db877",
+      "line_count": 939
+    },
+    {
+      "packet": "FRC-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+      "first_line": "590",
+      "last_line": "649",
+      "exists": true,
+      "sha256": "a223585ff8ddc5e0d183753885d1c1f016490441279e9c0235005c012d6db877",
+      "line_count": 939
+    },
+    {
+      "packet": "FRC-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "17217",
+      "last_line": "17590",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "FRC-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "17649",
+      "last_line": "17829",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "FRC-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "first_line": "345",
+      "last_line": "366",
+      "exists": true,
+      "sha256": "953abaf6021ebc35629f03c4c132851515903eb96aba53a242ec450d855ca750",
+      "line_count": 1882
+    },
+    {
+      "packet": "FRC-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "first_line": "105",
+      "last_line": "185",
+      "exists": true,
+      "sha256": "ac0b73ca4e69e8d817b3ac8964e5780333729a8a40e95b3548b76c38de377a44",
+      "line_count": 242
+    },
+    {
+      "packet": "FRC-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "first_line": "440",
+      "last_line": "580",
+      "exists": true,
+      "sha256": "953abaf6021ebc35629f03c4c132851515903eb96aba53a242ec450d855ca750",
+      "line_count": 1882
+    },
+    {
+      "packet": "FRC-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "first_line": "748",
+      "last_line": "786",
+      "exists": true,
+      "sha256": "953abaf6021ebc35629f03c4c132851515903eb96aba53a242ec450d855ca750",
+      "line_count": 1882
+    },
+    {
+      "packet": "FRC-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "first_line": "1446",
+      "last_line": "1463",
+      "exists": true,
+      "sha256": "953abaf6021ebc35629f03c4c132851515903eb96aba53a242ec450d855ca750",
+      "line_count": 1882
+    },
+    {
+      "packet": "FRC-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "first_line": "1852",
+      "last_line": "1859",
+      "exists": true,
+      "sha256": "953abaf6021ebc35629f03c4c132851515903eb96aba53a242ec450d855ca750",
+      "line_count": 1882
+    },
+    {
+      "packet": "FRC-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "first_line": "647",
+      "last_line": "800",
+      "exists": true,
+      "sha256": "e246e670e007e0d9da0438fb7ec65dc4398d2b409131fac6de52b3f10de36587",
+      "line_count": 1299
+    },
+    {
+      "packet": "FRC-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "first_line": "1239",
+      "last_line": "1254",
+      "exists": true,
+      "sha256": "e246e670e007e0d9da0438fb7ec65dc4398d2b409131fac6de52b3f10de36587",
+      "line_count": 1299
+    },
+    {
+      "packet": "FRC-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+      "first_line": "595",
+      "last_line": "630",
+      "exists": true,
+      "sha256": "c93d9322231521d77b3da7c3bd1d63c0ac8d1d84b9fac1fac127a31d2f94dd71",
+      "line_count": 2317
+    },
+    {
+      "packet": "FRC-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+      "first_line": "961",
+      "last_line": "980",
+      "exists": true,
+      "sha256": "c93d9322231521d77b3da7c3bd1d63c0ac8d1d84b9fac1fac127a31d2f94dd71",
+      "line_count": 2317
+    },
+    {
+      "packet": "FRC-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+      "first_line": "1948",
+      "last_line": "2036",
+      "exists": true,
+      "sha256": "c93d9322231521d77b3da7c3bd1d63c0ac8d1d84b9fac1fac127a31d2f94dd71",
+      "line_count": 2317
+    },
+    {
+      "packet": "FRC-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "17203",
+      "last_line": "17217",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "FRC-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+      "first_line": "1191",
+      "last_line": "1251",
+      "exists": true,
+      "sha256": "1532c8b7e947ca341bcd9d6492fbe0d9b2dc955930c990d18e1b3142a51ba1f7",
+      "line_count": 1251
+    },
+    {
+      "packet": "FUN-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "first_line": "471",
+      "last_line": "503",
+      "exists": true,
+      "sha256": "b01a4e6277e45b17379a75734586d16383271f8e7e41bbfe926a3dea96577502",
+      "line_count": 2313
+    },
+    {
+      "packet": "FUN-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "first_line": "648",
+      "last_line": "680",
+      "exists": true,
+      "sha256": "b01a4e6277e45b17379a75734586d16383271f8e7e41bbfe926a3dea96577502",
+      "line_count": 2313
+    },
+    {
+      "packet": "FUN-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_reporting.py",
+      "first_line": "574",
+      "last_line": "606",
+      "exists": true,
+      "sha256": "56b5f5ada5c8cec5a825c888d5d1acdd83e98256398eea530f000e44fe324094",
+      "line_count": 1414
+    },
+    {
+      "packet": "FUN-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+      "first_line": "191",
+      "last_line": "223",
+      "exists": true,
+      "sha256": "e7c50a6e660bd8f86cf91608bc8c47713cb3a68408b0e86443eedde09c88c124",
+      "line_count": 601
+    },
+    {
+      "packet": "FUN-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+      "first_line": "250",
+      "last_line": "282",
+      "exists": true,
+      "sha256": "ee9faccc6bd4d370f3a4bbd88ffc206e7001fc3756212873fcf81ea0591b459a",
+      "line_count": 359
+    },
+    {
+      "packet": "FUN-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_metrics.py",
+      "first_line": "450",
+      "last_line": "482",
+      "exists": true,
+      "sha256": "6b1fa26b61b70809b906aa850e15f80329b28edd86450a1bbd2e8cc5eabe171e",
+      "line_count": 538
+    },
+    {
+      "packet": "FUN-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stages.py",
+      "first_line": "682",
+      "last_line": "714",
+      "exists": true,
+      "sha256": "13a5d9b19e4966b7b18b5aa3ac74e0c7ad155b726d46a09f96268601a4ab83c2",
+      "line_count": 750
+    },
+    {
+      "packet": "FUN-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+      "first_line": "80",
+      "last_line": "112",
+      "exists": true,
+      "sha256": "62c26dc393bf89d093b05be18bda03cb1ba04a9483715ab55a6866a0883d6f2f",
+      "line_count": 305
+    },
+    {
+      "packet": "FUN-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_engine.py",
+      "first_line": "244",
+      "last_line": "276",
+      "exists": true,
+      "sha256": "b5fedeec4a249624ac8e40a79156f42eb6f0e2f021718c2d70664bdeae80ce97",
+      "line_count": 945
+    },
+    {
+      "packet": "FUN-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+      "first_line": "64",
+      "last_line": "96",
+      "exists": true,
+      "sha256": "109885a157b4a9ee7622765bed53be617f542d31ac6630e83edf0a4024da23db",
+      "line_count": 361
+    },
+    {
+      "packet": "FUN-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+      "first_line": "1530",
+      "last_line": "1562",
+      "exists": true,
+      "sha256": "f036a2a231814ef29cff2690a61df0115d7aef617d4672e4a887db1a5bec0f6f",
+      "line_count": 1929
+    },
+    {
+      "packet": "FUN-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stages.py",
+      "first_line": "370",
+      "last_line": "408",
+      "exists": true,
+      "sha256": "13a5d9b19e4966b7b18b5aa3ac74e0c7ad155b726d46a09f96268601a4ab83c2",
+      "line_count": 750
+    },
+    {
+      "packet": "FUN-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stage_contracts.py",
+      "first_line": "23",
+      "last_line": "61",
+      "exists": true,
+      "sha256": "00a45aa0010e6a85812602ff52a7489610da7098ceef33258b8ed6a2ad950701",
+      "line_count": 95
+    },
+    {
+      "packet": "FUN-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/cold_start.py",
+      "first_line": "257",
+      "last_line": "276",
+      "exists": true,
+      "sha256": "c0324ccd02b7de154b53b2836c772e1263c7a370ce34698925acdfaeefd810f0",
+      "line_count": 357
+    },
+    {
+      "packet": "GRF-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "first_line": "184",
+      "last_line": "307",
+      "exists": true,
+      "sha256": "27cdde2cdfe43631d4b087ab446c80f5b444200cc959a2913d2dd6b71c6d61ff",
+      "line_count": 1420
+    },
+    {
+      "packet": "GRF-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "first_line": "485",
+      "last_line": "584",
+      "exists": true,
+      "sha256": "27cdde2cdfe43631d4b087ab446c80f5b444200cc959a2913d2dd6b71c6d61ff",
+      "line_count": 1420
+    },
+    {
+      "packet": "GRF-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "first_line": "699",
+      "last_line": "801",
+      "exists": true,
+      "sha256": "27cdde2cdfe43631d4b087ab446c80f5b444200cc959a2913d2dd6b71c6d61ff",
+      "line_count": 1420
+    },
+    {
+      "packet": "GRF-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "first_line": "80",
+      "last_line": "267",
+      "exists": true,
+      "sha256": "e21c54a8c30758d260eac1b021cb0d0f8c413573e24a62269f730d5e8627d5a7",
+      "line_count": 460
+    },
+    {
+      "packet": "GRF-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "first_line": "1081",
+      "last_line": "1253",
+      "exists": true,
+      "sha256": "6621df83ef7838c967460598231033354ac0973be8b8cb3013676885ae3e6dbe",
+      "line_count": 2913
+    },
+    {
+      "packet": "GRF-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+      "first_line": "1",
+      "last_line": "164",
+      "exists": true,
+      "sha256": "4ea4c07555000dee55d3b1b4d7ed15b07862899b3776c8362485322a9e64a253",
+      "line_count": 164
+    },
+    {
+      "packet": "GRF-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "first_line": "768",
+      "last_line": "870",
+      "exists": true,
+      "sha256": "2facb531db2ea4bbb6361f9bd7ccf66c14a7f0213d7647b92620a879efa4db5a",
+      "line_count": 1204
+    },
+    {
+      "packet": "GRF-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "first_line": "956",
+      "last_line": "1057",
+      "exists": true,
+      "sha256": "2facb531db2ea4bbb6361f9bd7ccf66c14a7f0213d7647b92620a879efa4db5a",
+      "line_count": 1204
+    },
+    {
+      "packet": "GRF-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph_kuzu.py",
+      "first_line": "94",
+      "last_line": "203",
+      "exists": true,
+      "sha256": "d53e9c159c4dca77a80dfb8553b1b9d69f4fb09e4c2e3d21ba0bdfe3cc9fe822",
+      "line_count": 297
+    },
+    {
+      "packet": "GRF-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "first_line": "135",
+      "last_line": "278",
+      "exists": true,
+      "sha256": "27cdde2cdfe43631d4b087ab446c80f5b444200cc959a2913d2dd6b71c6d61ff",
+      "line_count": 1420
+    },
+    {
+      "packet": "GRF-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "first_line": "418",
+      "last_line": "451",
+      "exists": true,
+      "sha256": "27cdde2cdfe43631d4b087ab446c80f5b444200cc959a2913d2dd6b71c6d61ff",
+      "line_count": 1420
+    },
+    {
+      "packet": "GRF-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "first_line": "699",
+      "last_line": "777",
+      "exists": true,
+      "sha256": "27cdde2cdfe43631d4b087ab446c80f5b444200cc959a2913d2dd6b71c6d61ff",
+      "line_count": 1420
+    },
+    {
+      "packet": "GRF-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+      "first_line": "1",
+      "last_line": "92",
+      "exists": true,
+      "sha256": "b307a855c3ba0c29dc170d7f9e00206f655efaa43cabbd9d372c58cd6af2f8c1",
+      "line_count": 92
+    },
+    {
+      "packet": "GRF-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "first_line": "610",
+      "last_line": "651",
+      "exists": true,
+      "sha256": "2facb531db2ea4bbb6361f9bd7ccf66c14a7f0213d7647b92620a879efa4db5a",
+      "line_count": 1204
+    },
+    {
+      "packet": "GRF-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "first_line": "722",
+      "last_line": "743",
+      "exists": true,
+      "sha256": "2facb531db2ea4bbb6361f9bd7ccf66c14a7f0213d7647b92620a879efa4db5a",
+      "line_count": 1204
+    },
+    {
+      "packet": "GRF-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "first_line": "1054",
+      "last_line": "1182",
+      "exists": true,
+      "sha256": "2facb531db2ea4bbb6361f9bd7ccf66c14a7f0213d7647b92620a879efa4db5a",
+      "line_count": 1204
+    },
+    {
+      "packet": "GRF-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "first_line": "610",
+      "last_line": "641",
+      "exists": true,
+      "sha256": "93e2e3d18b740d8d67c6e3e6e15850b804c9295b953f06b61f1f03c005428af0",
+      "line_count": 827
+    },
+    {
+      "packet": "GRF-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "first_line": "785",
+      "last_line": "827",
+      "exists": true,
+      "sha256": "93e2e3d18b740d8d67c6e3e6e15850b804c9295b953f06b61f1f03c005428af0",
+      "line_count": 827
+    },
+    {
+      "packet": "GRF-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+      "first_line": "189",
+      "last_line": "227",
+      "exists": true,
+      "sha256": "48cc3cd1cd5461cd34c1a520ef2d78e0b0139578f518b747fabace9f4ff09601",
+      "line_count": 471
+    },
+    {
+      "packet": "GRF-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "first_line": "112",
+      "last_line": "141",
+      "exists": true,
+      "sha256": "dadf52ccc3feea534915521431c70a0adf5c5996339d6595e44834c25270d751",
+      "line_count": 1901
+    },
+    {
+      "packet": "GRF-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_grf_03.py",
+      "first_line": "1",
+      "last_line": "219",
+      "exists": true,
+      "sha256": "db1f6eeec9e37d047332b0db5bee1cb802cbf61f810208af83c7aeb96ee7ae41",
+      "line_count": 219
+    },
+    {
+      "packet": "HYG-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/evidence/_shim.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "e938666ef00230f9092c9481fcb11ee8a2f65fc62c15496609da7b62440f23c7",
+      "line_count": 63
+    },
+    {
+      "packet": "HYG-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/evidence/compatibility.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "02c57a574714c07a95ea71f81d1271dde59b63594f448d67929dd62834aa4b1e",
+      "line_count": 68
+    },
+    {
+      "packet": "HYG-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/governance/passes/__init__.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "2c5e37b892f1031f7b1edae740215890b892414bc0e043a0d727f7d06d189aa0",
+      "line_count": 134
+    },
+    {
+      "packet": "HYG-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/governance/pass_entrypoints.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "94a433b3516c1e710fc9095cec95a95886ce19ae65ecc7294311a6c36cfce4e6",
+      "line_count": 196
+    },
+    {
+      "packet": "HYG-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/lex/normpack/select_sources.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "0b6f52bd9f0dc81ce8c7815e84a05e593170117a5a118db04ea8d0a8223a1be0",
+      "line_count": 352
+    },
+    {
+      "packet": "HYG-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/fabric/world/store/segments.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "9cd8b006fbe5eefd4fb04727181e552f9044c47ee3979a2d5186095efe92aafb",
+      "line_count": 570
+    },
+    {
+      "packet": "HYG-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/scientist/governance/test_shared_shims.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "cb85ff02de9f67e0d67e571830ff7d1f4fd32da66ca6312bad18df4f877fe30b",
+      "line_count": 38
+    },
+    {
+      "packet": "HYG-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/scientist/methods/test_import_shims.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "a81ca75580d44b94946eee782ba08f471d5092377dfca347ea7939baad7830b7",
+      "line_count": 214
+    },
+    {
+      "packet": "HYG-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/lex/normpack/test_fabric_world_reader.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "f84d099a33cf9534e677dc57ba3b8da7673263de360c43fd0e138a1f8b6bbfe6",
+      "line_count": 49
+    },
+    {
+      "packet": "HYG-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/scientist/evidence/test_phase44_taxonomy.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "3a993bc31b7bb271b816cb1a235e1bc4870571747e2c45c8a4b593d444ae8903",
+      "line_count": 43
+    },
+    {
+      "packet": "HYG-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/common/jax_env/__init__.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "20bacc55f166addc9ba94138793d1b90d6374118bccbb95f49a6666362b0afcc",
+      "line_count": 36
+    },
+    {
+      "packet": "HYG-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tools/devx/workspace/bootstrap.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "dc49dfbd183e39aae4aac40564fe20245b75633c0a2393035fc411402e4ffd56",
+      "line_count": 184
+    },
+    {
+      "packet": "HYG-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tools/research/benchmarks/metrics.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "20d0b7fc74e6b524047b5f468290b1c566a0e9e529d3b950ebec2563f8bf4469",
+      "line_count": 9
+    },
+    {
+      "packet": "HYG-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tools/research/benchmarks/harness.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "49795c36771ba70f44ed8cddb96e4ae37eda9fb9ea5eaad5e788d74b4d6df4d1",
+      "line_count": 9
+    },
+    {
+      "packet": "HYG-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tools/research/benchmarks/suite_registry.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "811893ca062906e8b5a55c151063d749edc8df20f47b559f49a38bbe74785ff4",
+      "line_count": 13
+    },
+    {
+      "packet": "HYG-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tools/quality/validation/check_docs_lifecycle.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "25b855dc300fd6d029e28a05c6ff215707c3cba8535e7174d3ff4292d1af592e",
+      "line_count": 819
+    },
+    {
+      "packet": "HYG-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/common/jax_env/test__policy.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "bb25d1f8c0aedd0f762f1686c81b869468f027acf1788adf6a3cb8456b43713c",
+      "line_count": 44
+    },
+    {
+      "packet": "HYG-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_hyg_04.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "23af8e255ae6b967f6bcc4ed5e9779affb4463345cd8acad2758356a9625f383",
+      "line_count": 1670
+    },
+    {
+      "packet": "LEX-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "8252c8af680a77006a08fd187a10a287919c4f2d5e323822d27e1556b0ce31dc",
+      "line_count": 721
+    },
+    {
+      "packet": "LEX-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/lex/normpack/diff.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "bb8aabfb791ef3fa5d4624d90039db99a2904bbdd0cff30e0c7aaad2f98f7c0d",
+      "line_count": 184
+    },
+    {
+      "packet": "LEX-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/lex/simulator/cli.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "6a76a22289ac9a37d69808097b0a3c0f9bf17602efd395975c493035cd7b38e3",
+      "line_count": 134
+    },
+    {
+      "packet": "LEX-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/core/components/_cli_lex.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "890fbc404b5fc05d7dde4be16499e7c3a23fbdf13d058a45b502b777c67d9d35",
+      "line_count": 124
+    },
+    {
+      "packet": "LEX-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_lex_01.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "d84a1fd719e43220d53c77bbc19b084b1353a9f66afe4a46c0ec840453fef2c1",
+      "line_count": 185
+    },
+    {
+      "packet": "LEX-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_lex_impact_semantics.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "0c95601db1785e7f0543ed25fa2f6e46cd86c15443e8e863d0b91617d330e2f0",
+      "line_count": 788
+    },
+    {
+      "packet": "LEX-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "f45085e041d7f9d9040b189ed156b3420f7e7dbfa7caa43765dcb98702d0a3b7",
+      "line_count": 236
+    },
+    {
+      "packet": "LEX-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/lex/simulator/test_diff.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "0f5ebae8904636a562ec492affe384f90c1c27b38b69f51fc4538dc1357d9b6b",
+      "line_count": 47
+    },
+    {
+      "packet": "OPT-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "first_line": "268",
+      "last_line": "300",
+      "exists": true,
+      "sha256": "a17a8590e44a445a54f3649564f675514c6f2468ce2b6cad5de40ceb913a2716",
+      "line_count": 725
+    },
+    {
+      "packet": "OPT-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "first_line": "385",
+      "last_line": "417",
+      "exists": true,
+      "sha256": "a17a8590e44a445a54f3649564f675514c6f2468ce2b6cad5de40ceb913a2716",
+      "line_count": 725
+    },
+    {
+      "packet": "OPT-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "first_line": "2072",
+      "last_line": "2104",
+      "exists": true,
+      "sha256": "1e9fefdb189b7bb6afc9aa5fa01f410c14dbdd70afa2918670f41e0017352f66",
+      "line_count": 2871
+    },
+    {
+      "packet": "OPT-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "first_line": "896",
+      "last_line": "928",
+      "exists": true,
+      "sha256": "51635c530d94f185049a559016fa92c3e98da2cae4452ccc342162228b195c15",
+      "line_count": 1679
+    },
+    {
+      "packet": "OPT-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "first_line": "962",
+      "last_line": "994",
+      "exists": true,
+      "sha256": "51635c530d94f185049a559016fa92c3e98da2cae4452ccc342162228b195c15",
+      "line_count": 1679
+    },
+    {
+      "packet": "OPT-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "first_line": "869",
+      "last_line": "901",
+      "exists": true,
+      "sha256": "f933be68848e16cc3cc1b7757d5434d89a68a158b6cb3633c8d33e5576203bd1",
+      "line_count": 1412
+    },
+    {
+      "packet": "OPT-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "first_line": "1290",
+      "last_line": "1322",
+      "exists": true,
+      "sha256": "f933be68848e16cc3cc1b7757d5434d89a68a158b6cb3633c8d33e5576203bd1",
+      "line_count": 1412
+    },
+    {
+      "packet": "OPT-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "first_line": "1601",
+      "last_line": "1649",
+      "exists": true,
+      "sha256": "51635c530d94f185049a559016fa92c3e98da2cae4452ccc342162228b195c15",
+      "line_count": 1679
+    },
+    {
+      "packet": "OPT-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "first_line": "1085",
+      "last_line": "1117",
+      "exists": true,
+      "sha256": "51635c530d94f185049a559016fa92c3e98da2cae4452ccc342162228b195c15",
+      "line_count": 1679
+    },
+    {
+      "packet": "OPT-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "first_line": "1197",
+      "last_line": "1229",
+      "exists": true,
+      "sha256": "51635c530d94f185049a559016fa92c3e98da2cae4452ccc342162228b195c15",
+      "line_count": 1679
+    },
+    {
+      "packet": "OPT-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "first_line": "1373",
+      "last_line": "1405",
+      "exists": true,
+      "sha256": "51635c530d94f185049a559016fa92c3e98da2cae4452ccc342162228b195c15",
+      "line_count": 1679
+    },
+    {
+      "packet": "OPT-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "first_line": "724",
+      "last_line": "756",
+      "exists": true,
+      "sha256": "99ce5e98e88e524f19a4dd1f166aa46b2fa06edce21170280415bb8b1015e33a",
+      "line_count": 1006
+    },
+    {
+      "packet": "OPT-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "first_line": "943",
+      "last_line": "975",
+      "exists": true,
+      "sha256": "99ce5e98e88e524f19a4dd1f166aa46b2fa06edce21170280415bb8b1015e33a",
+      "line_count": 1006
+    },
+    {
+      "packet": "OPT-04",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "first_line": "152",
+      "last_line": "184",
+      "exists": true,
+      "sha256": "143ecb1eac1e33f916656a0b6dbb15dabc77c8c949bd453544dd4f2f87426dec",
+      "line_count": 2369
+    },
+    {
+      "packet": "PCL-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/calibration/curve/_compute.py",
+      "first_line": "12",
+      "last_line": "86",
+      "exists": true,
+      "sha256": "ca9f8332372cc85b0e1690fcf3647cc5bc1224b7fa43e002380054939ba0e6fc",
+      "line_count": 93
+    },
+    {
+      "packet": "PCL-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/calibration/diagnostics/continuous.py",
+      "first_line": "24",
+      "last_line": "187",
+      "exists": true,
+      "sha256": "c7202a9d529919d1231fe8ce301700251705b3e742f31074ff66ba5a5036093b",
+      "line_count": 403
+    },
+    {
+      "packet": "PCL-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py",
+      "first_line": "93",
+      "last_line": "325",
+      "exists": true,
+      "sha256": "d62583344c7a85ebc25869adc65917bfbcd0d1419f1824877d1fd81635ff5e95",
+      "line_count": 334
+    },
+    {
+      "packet": "PCL-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/analytics/_truthfulness.py",
+      "first_line": "183",
+      "last_line": "240",
+      "exists": true,
+      "sha256": "a450f6a11c8b8e6519088527d50828bd51343cf7ea655e20ad8d45a47503193f",
+      "line_count": 254
+    },
+    {
+      "packet": "PCL-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "first_line": "387",
+      "last_line": "417",
+      "exists": true,
+      "sha256": "222c73c76919254e23cfa9ca50db1faec5694c0845630809cc4e0d4d17b6c3bc",
+      "line_count": 1158
+    },
+    {
+      "packet": "PCL-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/protocol.py",
+      "first_line": "199",
+      "last_line": "222",
+      "exists": true,
+      "sha256": "9ba67c48b5b812c9e4ffa465c18db56173f28acca7083ceab1ec2c5ae1d52946",
+      "line_count": 276
+    },
+    {
+      "packet": "PCL-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "first_line": "1",
+      "last_line": "34",
+      "exists": true,
+      "sha256": "a024673903c01bdf0dfb9ef461132581653265cab8135e3e7799788526bf0a17",
+      "line_count": 34
+    },
+    {
+      "packet": "REQ-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+      "first_line": "122",
+      "last_line": "196",
+      "exists": true,
+      "sha256": "01664bd6b6f4863bdead5b420ecbf685fa06985c4fef9e4557a270f1aacfc509",
+      "line_count": 2384
+    },
+    {
+      "packet": "REQ-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+      "first_line": "486",
+      "last_line": "572",
+      "exists": true,
+      "sha256": "01664bd6b6f4863bdead5b420ecbf685fa06985c4fef9e4557a270f1aacfc509",
+      "line_count": 2384
+    },
+    {
+      "packet": "REQ-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+      "first_line": "797",
+      "last_line": "812",
+      "exists": true,
+      "sha256": "01664bd6b6f4863bdead5b420ecbf685fa06985c4fef9e4557a270f1aacfc509",
+      "line_count": 2384
+    },
+    {
+      "packet": "REQ-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+      "first_line": "1435",
+      "last_line": "1478",
+      "exists": true,
+      "sha256": "01664bd6b6f4863bdead5b420ecbf685fa06985c4fef9e4557a270f1aacfc509",
+      "line_count": 2384
+    },
+    {
+      "packet": "REQ-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+      "first_line": "2279",
+      "last_line": "2300",
+      "exists": true,
+      "sha256": "01664bd6b6f4863bdead5b420ecbf685fa06985c4fef9e4557a270f1aacfc509",
+      "line_count": 2384
+    },
+    {
+      "packet": "REQ-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/governance/problem_frame.py",
+      "first_line": "49",
+      "last_line": "68",
+      "exists": true,
+      "sha256": "a1f61785d8afeb523faf8e7b48471f3f939c505b6681581fb38ae5cd77e2b3db",
+      "line_count": 490
+    },
+    {
+      "packet": "REQ-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "9937",
+      "last_line": "9963",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "REQ-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": "10090",
+      "last_line": "10118",
+      "exists": true,
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "line_count": 22574
+    },
+    {
+      "packet": "REQ-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/data_requirement/test_compiler.py",
+      "first_line": "725",
+      "last_line": "799",
+      "exists": true,
+      "sha256": "61d3ca8af4245ba9853e20d59b4d867415491112e1bde77edd259cb6a25ea0a0",
+      "line_count": 1731
+    },
+    {
+      "packet": "SCM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "first_line": "172",
+      "last_line": "258",
+      "exists": true,
+      "sha256": "dadf52ccc3feea534915521431c70a0adf5c5996339d6595e44834c25270d751",
+      "line_count": 1901
+    },
+    {
+      "packet": "SCM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "first_line": "1238",
+      "last_line": "1327",
+      "exists": true,
+      "sha256": "dadf52ccc3feea534915521431c70a0adf5c5996339d6595e44834c25270d751",
+      "line_count": 1901
+    },
+    {
+      "packet": "SCM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+      "first_line": "198",
+      "last_line": "318",
+      "exists": true,
+      "sha256": "1fc139c4f81799f801e53e1abaf6db9cbd7a7d0f2e290f42694d5bb4f9367aeb",
+      "line_count": 635
+    },
+    {
+      "packet": "SCM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+      "first_line": "450",
+      "last_line": "490",
+      "exists": true,
+      "sha256": "1fc139c4f81799f801e53e1abaf6db9cbd7a7d0f2e290f42694d5bb4f9367aeb",
+      "line_count": 635
+    },
+    {
+      "packet": "SCM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "first_line": "665",
+      "last_line": "716",
+      "exists": true,
+      "sha256": "93e2e3d18b740d8d67c6e3e6e15850b804c9295b953f06b61f1f03c005428af0",
+      "line_count": 827
+    },
+    {
+      "packet": "SCM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+      "first_line": "202",
+      "last_line": "302",
+      "exists": true,
+      "sha256": "48cc3cd1cd5461cd34c1a520ef2d78e0b0139578f518b747fabace9f4ff09601",
+      "line_count": 471
+    },
+    {
+      "packet": "SCM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+      "first_line": "252",
+      "last_line": "393",
+      "exists": true,
+      "sha256": "0cedf70070ff9799ecb9372583130dd6e2b8a9bfc237ea6c13f26797a10de0c3",
+      "line_count": 434
+    },
+    {
+      "packet": "SCM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "first_line": "788",
+      "last_line": "1015",
+      "exists": true,
+      "sha256": "dadf52ccc3feea534915521431c70a0adf5c5996339d6595e44834c25270d751",
+      "line_count": 1901
+    },
+    {
+      "packet": "SCM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "first_line": "1069",
+      "last_line": "1163",
+      "exists": true,
+      "sha256": "dadf52ccc3feea534915521431c70a0adf5c5996339d6595e44834c25270d751",
+      "line_count": 1901
+    },
+    {
+      "packet": "SCM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "first_line": "1371",
+      "last_line": "1489",
+      "exists": true,
+      "sha256": "dadf52ccc3feea534915521431c70a0adf5c5996339d6595e44834c25270d751",
+      "line_count": 1901
+    },
+    {
+      "packet": "SCM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "first_line": "458",
+      "last_line": "507",
+      "exists": true,
+      "sha256": "93e2e3d18b740d8d67c6e3e6e15850b804c9295b953f06b61f1f03c005428af0",
+      "line_count": 827
+    },
+    {
+      "packet": "SCM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/workers/dowhy-014/worker.py",
+      "first_line": "220",
+      "last_line": "245",
+      "exists": true,
+      "sha256": "1e5d09d5956fd2bff6e79efb38b53d065e91dbf6aa54c76fefc72576dc54a97d",
+      "line_count": 276
+    },
+    {
+      "packet": "SCM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "first_line": "491",
+      "last_line": "527",
+      "exists": true,
+      "sha256": "716a15e0a93e0063a112effec1acb6f4578db2906da95f427011687bb170e761",
+      "line_count": 527
+    },
+    {
+      "packet": "SCM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py",
+      "first_line": "657",
+      "last_line": "680",
+      "exists": true,
+      "sha256": "fba8fd922ef5c0c9115aa9f9c5ecda974cd03480787f7e57fe49f7032a965fa4",
+      "line_count": 884
+    },
+    {
+      "packet": "SCM-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "first_line": "52",
+      "last_line": "146",
+      "exists": true,
+      "sha256": "dadf52ccc3feea534915521431c70a0adf5c5996339d6595e44834c25270d751",
+      "line_count": 1901
+    },
+    {
+      "packet": "SCM-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "first_line": "277",
+      "last_line": "437",
+      "exists": true,
+      "sha256": "dadf52ccc3feea534915521431c70a0adf5c5996339d6595e44834c25270d751",
+      "line_count": 1901
+    },
+    {
+      "packet": "SCM-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "first_line": "893",
+      "last_line": "1015",
+      "exists": true,
+      "sha256": "dadf52ccc3feea534915521431c70a0adf5c5996339d6595e44834c25270d751",
+      "line_count": 1901
+    },
+    {
+      "packet": "SCM-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "first_line": "1238",
+      "last_line": "1489",
+      "exists": true,
+      "sha256": "dadf52ccc3feea534915521431c70a0adf5c5996339d6595e44834c25270d751",
+      "line_count": 1901
+    },
+    {
+      "packet": "SCM-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+      "first_line": "208",
+      "last_line": "242",
+      "exists": true,
+      "sha256": "48cc3cd1cd5461cd34c1a520ef2d78e0b0139578f518b747fabace9f4ff09601",
+      "line_count": 471
+    },
+    {
+      "packet": "SCM-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "first_line": "340",
+      "last_line": "390",
+      "exists": true,
+      "sha256": "2facb531db2ea4bbb6361f9bd7ccf66c14a7f0213d7647b92620a879efa4db5a",
+      "line_count": 1204
+    },
+    {
+      "packet": "SCM-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "first_line": "1078",
+      "last_line": "1177",
+      "exists": true,
+      "sha256": "2facb531db2ea4bbb6361f9bd7ccf66c14a7f0213d7647b92620a879efa4db5a",
+      "line_count": 1204
+    },
+    {
+      "packet": "SCM-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_scm_03.py",
+      "first_line": "190",
+      "last_line": "309",
+      "exists": true,
+      "sha256": "d2b00eca3bbcd0c99d431ebc7ed4bc53938583b95be3f6d0ccdeb13c9763abc4",
+      "line_count": 410
+    },
+    {
+      "packet": "SEL-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+      "first_line": "1753",
+      "last_line": "1785",
+      "exists": true,
+      "sha256": "ae87e8a3453becad9f57dbcac7097b4b8f80cff9519e40a1435c98911066b315",
+      "line_count": 4357
+    },
+    {
+      "packet": "SEL-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+      "first_line": "1519",
+      "last_line": "1551",
+      "exists": true,
+      "sha256": "ae87e8a3453becad9f57dbcac7097b4b8f80cff9519e40a1435c98911066b315",
+      "line_count": 4357
+    },
+    {
+      "packet": "SEL-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+      "first_line": "1952",
+      "last_line": "1984",
+      "exists": true,
+      "sha256": "ae87e8a3453becad9f57dbcac7097b4b8f80cff9519e40a1435c98911066b315",
+      "line_count": 4357
+    },
+    {
+      "packet": "SEL-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/receipt.py",
+      "first_line": "32",
+      "last_line": "64",
+      "exists": true,
+      "sha256": "6e71cc64f8eee2d9ca6f459b4f9b5253a3cb9db869924111ac92be9f2d4345a0",
+      "line_count": 128
+    },
+    {
+      "packet": "SIM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "first_line": "2455",
+      "last_line": "2487",
+      "exists": true,
+      "sha256": "333deedcd2d85bf4a75f58d698a0d487a8a163256609d0825f2063fb087a2454",
+      "line_count": 4930
+    },
+    {
+      "packet": "SIM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "first_line": "2175",
+      "last_line": "2207",
+      "exists": true,
+      "sha256": "333deedcd2d85bf4a75f58d698a0d487a8a163256609d0825f2063fb087a2454",
+      "line_count": 4930
+    },
+    {
+      "packet": "SIM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "first_line": "2227",
+      "last_line": "2259",
+      "exists": true,
+      "sha256": "333deedcd2d85bf4a75f58d698a0d487a8a163256609d0825f2063fb087a2454",
+      "line_count": 4930
+    },
+    {
+      "packet": "SIM-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+      "first_line": "33",
+      "last_line": "65",
+      "exists": true,
+      "sha256": "f607a9e1d78157fb9e53475280b129a04c8d7400a76ad24771b0c70268038e60",
+      "line_count": 646
+    },
+    {
+      "packet": "SIM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "first_line": "3598",
+      "last_line": "3630",
+      "exists": true,
+      "sha256": "333deedcd2d85bf4a75f58d698a0d487a8a163256609d0825f2063fb087a2454",
+      "line_count": 4930
+    },
+    {
+      "packet": "SIM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "first_line": "4224",
+      "last_line": "4256",
+      "exists": true,
+      "sha256": "333deedcd2d85bf4a75f58d698a0d487a8a163256609d0825f2063fb087a2454",
+      "line_count": 4930
+    },
+    {
+      "packet": "SIM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "first_line": "1118",
+      "last_line": "1150",
+      "exists": true,
+      "sha256": "333deedcd2d85bf4a75f58d698a0d487a8a163256609d0825f2063fb087a2454",
+      "line_count": 4930
+    },
+    {
+      "packet": "SIM-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "first_line": "3835",
+      "last_line": "3867",
+      "exists": true,
+      "sha256": "333deedcd2d85bf4a75f58d698a0d487a8a163256609d0825f2063fb087a2454",
+      "line_count": 4930
+    },
+    {
+      "packet": "SIM-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/coupling/estimation.py",
+      "first_line": "438",
+      "last_line": "470",
+      "exists": true,
+      "sha256": "5b1def0424a30640175cb9602d77ab3d28870eb6da1f39df9799c1e1aeb9e584",
+      "line_count": 512
+    },
+    {
+      "packet": "SIM-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+      "first_line": "353",
+      "last_line": "385",
+      "exists": true,
+      "sha256": "f607a9e1d78157fb9e53475280b129a04c8d7400a76ad24771b0c70268038e60",
+      "line_count": 646
+    },
+    {
+      "packet": "SIM-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "first_line": "4438",
+      "last_line": "4470",
+      "exists": true,
+      "sha256": "333deedcd2d85bf4a75f58d698a0d487a8a163256609d0825f2063fb087a2454",
+      "line_count": 4930
+    },
+    {
+      "packet": "SIM-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "first_line": "908",
+      "last_line": "940",
+      "exists": true,
+      "sha256": "333deedcd2d85bf4a75f58d698a0d487a8a163256609d0825f2063fb087a2454",
+      "line_count": 4930
+    },
+    {
+      "packet": "SIM-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+      "first_line": "1045",
+      "last_line": "1138",
+      "exists": true,
+      "sha256": "6db900ee270a88ef20f9b5c000eb5b612417ce96be2781aab109ea279eb2a948",
+      "line_count": 1150
+    },
+    {
+      "packet": "SIM-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "first_line": "2880",
+      "last_line": "2907",
+      "exists": true,
+      "sha256": "333deedcd2d85bf4a75f58d698a0d487a8a163256609d0825f2063fb087a2454",
+      "line_count": 4930
+    },
+    {
+      "packet": "SIM-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_ncm_engine.py",
+      "first_line": "524",
+      "last_line": "559",
+      "exists": true,
+      "sha256": "c82c3b48447157d6f635cdf167a1e92ba9bd81e91942dfcc21b06d5f92e2a902",
+      "line_count": 601
+    },
+    {
+      "packet": "SRV-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "first_line": "111",
+      "last_line": "143",
+      "exists": true,
+      "sha256": "782fb7b060955c6139db7ed6d9d77740ce5453f0fe6f31d3be44224ddd67e907",
+      "line_count": 326
+    },
+    {
+      "packet": "SRV-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "first_line": "46",
+      "last_line": "78",
+      "exists": true,
+      "sha256": "782fb7b060955c6139db7ed6d9d77740ce5453f0fe6f31d3be44224ddd67e907",
+      "line_count": 326
+    },
+    {
+      "packet": "SRV-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "first_line": "254",
+      "last_line": "286",
+      "exists": true,
+      "sha256": "f4615f237197b7f03195d63aabd9d115df0865165b5c897a6928c3fc52f29d53",
+      "line_count": 1814
+    },
+    {
+      "packet": "SRV-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "first_line": "609",
+      "last_line": "631",
+      "exists": true,
+      "sha256": "b95d17e62e55a5e16e7d76bc42a2a5dd2d07d95ea3febc589a7cbb7b050bef6d",
+      "line_count": 631
+    },
+    {
+      "packet": "SRV-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adapters.py",
+      "first_line": "28",
+      "last_line": "60",
+      "exists": true,
+      "sha256": "41607306fbde2e0f5b0e3797fc0844a0fddcc19560b60d287e25462cb8bf7d0f",
+      "line_count": 64
+    },
+    {
+      "packet": "SRV-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "first_line": "1796",
+      "last_line": "1828",
+      "exists": true,
+      "sha256": "143ecb1eac1e33f916656a0b6dbb15dabc77c8c949bd453544dd4f2f87426dec",
+      "line_count": 2369
+    },
+    {
+      "packet": "SRV-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "first_line": "1938",
+      "last_line": "1970",
+      "exists": true,
+      "sha256": "143ecb1eac1e33f916656a0b6dbb15dabc77c8c949bd453544dd4f2f87426dec",
+      "line_count": 2369
+    },
+    {
+      "packet": "SRV-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "first_line": "728",
+      "last_line": "760",
+      "exists": true,
+      "sha256": "a83f8ee607349126395658143040510f4a5c4245155f8e1481f47f532e79a2ae",
+      "line_count": 1055
+    },
+    {
+      "packet": "SRV-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sentinels.py",
+      "first_line": "219",
+      "last_line": "244",
+      "exists": true,
+      "sha256": "a2fa7bf353e3d432b4cdd2ba4cc60446cd0365f86adc36fc4a812a0df17cabff",
+      "line_count": 244
+    },
+    {
+      "packet": "STP-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+      "first_line": "354",
+      "last_line": "386",
+      "exists": true,
+      "sha256": "9beda13c8b3d06c230ec698f93a165495b347587b1d92f90e83029da24ae96f1",
+      "line_count": 716
+    },
+    {
+      "packet": "STP-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+      "first_line": "588",
+      "last_line": "620",
+      "exists": true,
+      "sha256": "9beda13c8b3d06c230ec698f93a165495b347587b1d92f90e83029da24ae96f1",
+      "line_count": 716
+    },
+    {
+      "packet": "STP-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "first_line": "150",
+      "last_line": "182",
+      "exists": true,
+      "sha256": "d34d8ccd041ac2b6372346e956bd489be7e1500c7f10e94e15bc5c1dc98d21d0",
+      "line_count": 476
+    },
+    {
+      "packet": "STR-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "3eb6740376acad7af30de5fd6b548363b52ff7e33e59719600227e4ebf254a8d",
+      "line_count": 1240
+    },
+    {
+      "packet": "STR-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "2626703c3906b338d6cedb428b4fe53bbc511c6c68a0f3f082759fd9fa30a5c7",
+      "line_count": 1491
+    },
+    {
+      "packet": "STR-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "1e9fefdb189b7bb6afc9aa5fa01f410c14dbdd70afa2918670f41e0017352f66",
+      "line_count": 2871
+    },
+    {
+      "packet": "STR-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial_direction_c49.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "c4a7114101ddbccd46b5c4d25dbb138044fc12f066e92137b1e3f8ed11d7fdf6",
+      "line_count": 33
+    },
+    {
+      "packet": "STR-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "9bd8ce83a3171af119f1988ef788460113bf21c59ca90a0bd3366cf72a531174",
+      "line_count": 1615
+    },
+    {
+      "packet": "TRN-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "first_line": "537",
+      "last_line": "569",
+      "exists": true,
+      "sha256": "47cf5b8f4e1553aa6419ea54c09274e60375ef4e8e52fb91876e1d787c016102",
+      "line_count": 919
+    },
+    {
+      "packet": "TRN-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "first_line": "222",
+      "last_line": "254",
+      "exists": true,
+      "sha256": "47cf5b8f4e1553aa6419ea54c09274e60375ef4e8e52fb91876e1d787c016102",
+      "line_count": 919
+    },
+    {
+      "packet": "TRN-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "first_line": "78",
+      "last_line": "110",
+      "exists": true,
+      "sha256": "112e9a272240c92fd736c2d1f2b7c65958a47863185e4251845c6ff7346fbc86",
+      "line_count": 161
+    },
+    {
+      "packet": "TRN-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "first_line": "184",
+      "last_line": "216",
+      "exists": true,
+      "sha256": "47cf5b8f4e1553aa6419ea54c09274e60375ef4e8e52fb91876e1d787c016102",
+      "line_count": 919
+    },
+    {
+      "packet": "TRN-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "first_line": "465",
+      "last_line": "497",
+      "exists": true,
+      "sha256": "47cf5b8f4e1553aa6419ea54c09274e60375ef4e8e52fb91876e1d787c016102",
+      "line_count": 919
+    },
+    {
+      "packet": "TRN-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "first_line": "362",
+      "last_line": "394",
+      "exists": true,
+      "sha256": "c51ec0fb39598b0ff98ad1de0ec576f2cc428be90e11028a9489738ec79dbf6e",
+      "line_count": 959
+    },
+    {
+      "packet": "TRN-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "first_line": "317",
+      "last_line": "349",
+      "exists": true,
+      "sha256": "c51ec0fb39598b0ff98ad1de0ec576f2cc428be90e11028a9489738ec79dbf6e",
+      "line_count": 959
+    },
+    {
+      "packet": "TRN-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+      "first_line": "352",
+      "last_line": "384",
+      "exists": true,
+      "sha256": "25554eb9ed0c58837dfd2e9fe9cb906fea15f5abaf4a09cb8958eed3b0d30ad7",
+      "line_count": 731
+    },
+    {
+      "packet": "TRN-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+      "first_line": "308",
+      "last_line": "340",
+      "exists": true,
+      "sha256": "25554eb9ed0c58837dfd2e9fe9cb906fea15f5abaf4a09cb8958eed3b0d30ad7",
+      "line_count": 731
+    },
+    {
+      "packet": "TRN-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "first_line": "872",
+      "last_line": "904",
+      "exists": true,
+      "sha256": "fad33246110f243d831dfaf4daefbfc4e525d9c6f32c245121d5cdcd7034ef89",
+      "line_count": 1656
+    },
+    {
+      "packet": "TRN-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "first_line": "784",
+      "last_line": "816",
+      "exists": true,
+      "sha256": "fad33246110f243d831dfaf4daefbfc4e525d9c6f32c245121d5cdcd7034ef89",
+      "line_count": 1656
+    },
+    {
+      "packet": "UQP-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/delta.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "73df40a046d6a94e480c0e14a79385f40ac2a4233a4d03a35dd36b67419468f6",
+      "line_count": 262
+    },
+    {
+      "packet": "UQP-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "782c1743c82f9b948e25521a9df087615949140da3fb1768080a282496e98049",
+      "line_count": 381
+    },
+    {
+      "packet": "UQP-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/protocol.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "9727dee3e23c0b51b65c375a474c708e7dc70c18d29f3ecef7d57c0af8496537",
+      "line_count": 225
+    },
+    {
+      "packet": "UQP-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "9c0f44033e30938640b59f5251f1c79616e1c1ba8b7c03347b673e91923baf64",
+      "line_count": 1938
+    },
+    {
+      "packet": "UQP-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_uqp_01.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "bb5c5b50314e8e36b6ffd06dcc9862fe7e47bbff7dd8d8982b18bd4353cbd55b",
+      "line_count": 222
+    },
+    {
+      "packet": "UQP-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_delta.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "0a525981f217d96c5aa1b6aa3f9bb7f07bb773399f97b0c9d35598abc1962fdc",
+      "line_count": 183
+    },
+    {
+      "packet": "UQP-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "da9d8c7732027064b3bf4b690fe8e75551761f9ad2b399bd9f6c71cede689e8a",
+      "line_count": 450
+    },
+    {
+      "packet": "UQP-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "23a3893fdecade9ac108ab01aa3b03218b1fc3d57fa2f803fe022c58cf9488e2",
+      "line_count": 2771
+    },
+    {
+      "packet": "UQP-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/covariance.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "26c5dbfcd60dd773ce77f5ad8dbf45c118a47832c19705e11e88af0342883236",
+      "line_count": 298
+    },
+    {
+      "packet": "UQP-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/analytical.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "b7b862e2c64b5ebf873e21c302858360c9eaaddcb0a9c80495617be87ce1eece",
+      "line_count": 170
+    },
+    {
+      "packet": "UQP-02",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_uqp_02.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "2575b728027eab9d40163d9dc7eca99b912e1d11a5be1fdc350cb31ce93b57d1",
+      "line_count": 593
+    },
+    {
+      "packet": "UQP-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/config.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "6673edb094513652007a15655697f9c6a7b65a2c6c22854308365acc12ae9e16",
+      "line_count": 47
+    },
+    {
+      "packet": "UQP-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "23a3893fdecade9ac108ab01aa3b03218b1fc3d57fa2f803fe022c58cf9488e2",
+      "line_count": 2771
+    },
+    {
+      "packet": "UQP-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/evaluation_failures.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "df1016b30fad624aae373bea23ccfc3b36e875c2a33546fa724b30c86f966c48",
+      "line_count": 140
+    },
+    {
+      "packet": "UQP-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "f97f6eac54f67c3b94c74a3f1bcfb78b07f87a5debf097d6384892c51dd27dd5",
+      "line_count": 3373
+    },
+    {
+      "packet": "UQP-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_uqp_03.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "1b9a503167e3c879e8c15c3cb05f3c361627ce9c62238ada305a0a65dc5fb55c",
+      "line_count": 78
+    },
+    {
+      "packet": "UQP-03",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "56b5275b2227686e261639002aca3094d529c71ce52f442c62b76f6153f9e8f1",
+      "line_count": 2569
+    },
+    {
+      "packet": "UQS-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "a1342fac260fa1906a94d66859f245455608d58ad8baa9906ebe0af3b2436801",
+      "line_count": 717
+    },
+    {
+      "packet": "UQS-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/protocol.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "9727dee3e23c0b51b65c375a474c708e7dc70c18d29f3ecef7d57c0af8496537",
+      "line_count": 225
+    },
+    {
+      "packet": "UQS-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "4a7218269ba505f188066441116c1781c37681b2f9879b88b74de11aad133cdb",
+      "line_count": 922
+    },
+    {
+      "packet": "UQS-01",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "path": "policy-engine/tests/unit/remediation/test_uqs_01.py",
+      "first_line": null,
+      "last_line": null,
+      "exists": true,
+      "sha256": "9d3b57193c543a55deb56505982d3b7bf5e26e693bfd3b14893e05ff8f3d7046",
+      "line_count": 309
+    }
+  ],
+  "errors": [],
+  "content_correctness": "NOT_PROVEN_BY_SCRIPT"
+}

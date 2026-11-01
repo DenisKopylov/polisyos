@@ -1,0 +1,425 @@
+{
+  "pass_id": "C120",
+  "bundle": "BER-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/berl/contracts/explanation_bundle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/berl/contracts/explanation_bundle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          227
+        ]
+      ],
+      "evidence_level": "Полный read; actual Pydantic DTO input/JSON projection.",
+      "git_blob": "347d899f4c5d8f82519c105b611a2cf735149f7f",
+      "sha256": "42910606e937fc0435ea01e9e40f117c0993b57fcc8d3e6a05c2963b889ab965",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/berl/contracts/schema.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/berl/contracts/schema.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          62
+        ]
+      ],
+      "evidence_level": "Полный read; actual generated persisted profile и deterministic writer выполнены.",
+      "git_blob": "bd52297ca0a16f7d3864fa813e10ba8b7b38e89b",
+      "sha256": "794c65480aa3ea3ed9da188e24019183c36d117c13c8e45425d80a745447aef7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/berl/service/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/berl/service/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          594
+        ]
+      ],
+      "evidence_level": "Полный read; actual leaf orchestrator import/execute при обходе только public BERL facade.",
+      "git_blob": "6393f1d304a6febb39ebd9853370c6dae452b53d",
+      "sha256": "fed9d155517e13cc28b96d31c119c30d9bc187a1b18e1c304c344e8ee6c294df",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/berl/service/cache_identity.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/berl/service/cache_identity.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          274
+        ]
+      ],
+      "evidence_level": "Полный read; actual typed freeze/effective request cache, без глобального cross-request cache.",
+      "git_blob": "3bc31a186c919ed80b1e392003e3490fc4a6a04a",
+      "sha256": "a2d001c737d2e24ac6545a40edaa57ac99aff1b7496c15cb6a43bac9ac185d5c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/berl/service/results.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/berl/service/results.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          134
+        ]
+      ],
+      "evidence_level": "Полный read; actual kernel-first tree alias projection. Direct tree path отдельно FAIL на3.12.",
+      "git_blob": "b5bfab58d4394b67769358fa58d20ee442060984",
+      "sha256": "6f1a1745d21d20f77eb8999030c2493ebbb48892d0a2800227a686d0d8b2da72",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/berl/adapters/protocol.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/berl/adapters/protocol.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          141
+        ]
+      ],
+      "evidence_level": "Полный read; actual protocols/dataclasses/explicit unavailable.",
+      "git_blob": "c896a614ea92fa6d9737e2978b3d9aef4443a917",
+      "sha256": "2357d2a067c2c54faa330700d4468b8228fda0b9d2c5720568429df4f77d745e",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/berl/adapters/shap_kernel.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/berl/adapters/shap_kernel.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          157
+        ]
+      ],
+      "evidence_level": "Полный read; actual exact empirical kernel и guards исполнены.",
+      "git_blob": "4134ecc747d313d18e8ccadd0e1e2433377d64ec",
+      "sha256": "1da84b6d2cc5caccf29c29df379c0b42f159122435e5a9a2acddd2d786c23d78",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/berl/adapters/shap_tree.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/berl/adapters/shap_tree.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          63
+        ]
+      ],
+      "evidence_level": "Полный read; прямой unchanged test FAIL TypeError наPython3.12; не переносить на3.14 без выполнения.",
+      "git_blob": "05abb077c6f8fc8d680abc1f53fdbfb8ab9217ce",
+      "sha256": "eec2042fb36bcde5fc150d053a1cd2e072366dc0b1c2f91077934b167a491781",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/berl/adapters/_utils.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/berl/adapters/_utils.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          81
+        ]
+      ],
+      "evidence_level": "Полный read; actual background parsing и deterministic fixture PRNG.",
+      "git_blob": "c4a6c773fe7a7a8036aba688b49a2489742342cc",
+      "sha256": "6d5c005f4e007d0c861691a7ad0154d9251b8f66bb36acce6684e5cbe4fbca1a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/berl/contracts/validation_rules.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/berl/contracts/validation_rules.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          291
+        ]
+      ],
+      "evidence_level": "Полный read; actual public persisted semantic helper и threshold gate. Version/default/strict-type mismatch воспроизведён.",
+      "git_blob": "4cf27924501113d940686a6aeda5f82f2f3930f8",
+      "sha256": "b3619593fb6b649b9617c830185ce3985ff33c5722470fc2fa45f764c954ea0d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/berl/persistence.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/berl/persistence.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          214
+        ]
+      ],
+      "evidence_level": "Полный read; selected writer/reader version/profile/strict JSON guards, native CAS UNRUN.",
+      "git_blob": "127d379c2e5029dba41e3136f5046dfe2e824fb0",
+      "sha256": "8383348da5cfc4e1e19be1e34e2d07e93f5469c19e01b008dd02670f0b57fcdc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/berl/metrics/empirical_bounds.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/berl/metrics/empirical_bounds.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          174
+        ]
+      ],
+      "evidence_level": "Полный read; actual confidence allocation и bounded loss arithmetic. Coverage theorem/empirical applicability не аттестованы.",
+      "git_blob": "9b375d146c631054571c8860fefe5608e0b2b52a",
+      "sha256": "25988bdede100d265d3d3655e8a1f3fdbe25d440ab226957628381851e413722",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/berl/metrics/infidelity.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/berl/metrics/infidelity.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          110
+        ]
+      ],
+      "evidence_level": "Полный read; actual heldout reconstruction metric выполнен на fixture.",
+      "git_blob": "8ca992ef9c4832c2b473c6c674c9a0b422d9bc1d",
+      "sha256": "8b7bb9d67136af6615c842bf274a2c9fcab1efde15f00577d6b17cd3bf992e2d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/berl/perturbations/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/berl/perturbations/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          46
+        ]
+      ],
+      "evidence_level": "Полный read; actual models/import graph.",
+      "git_blob": "cbfc5c48303e3804b282c658fa0158cbe8389bff",
+      "sha256": "34e02156d21733c9a5f11ccb8b3d3d15287d5d9f005c0f8ce455de5e1f2596f7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/src/polisyos/berl/perturbations/heldout.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/berl/perturbations/heldout.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          54
+        ]
+      ],
+      "evidence_level": "Полный read; actual model residual construction.",
+      "git_blob": "b2a46f47fdc6d518a54d88e4b6e03ea0c825bb35",
+      "sha256": "062d71f3b4dbb55b3610d12cdfa7fe0c8969f28fd4793c602a7be4ccbbdc11db",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/src/polisyos/berl/perturbations/sampling.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/berl/perturbations/sampling.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          55
+        ]
+      ],
+      "evidence_level": "Полный read; actual local deterministic perturbations, не fitted conditional law.",
+      "git_blob": "bcc8c4a03495b76f402b4f015ba3af5e5d5fbcd0",
+      "sha256": "cf6d058427e208512725efd08e079a78859af50d3ab2ee60b26c11bd4c90404b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/src/polisyos/berl/contracts/explanation_bundle.schema.json",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/berl/contracts/explanation_bundle.schema.json",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1039
+        ]
+      ],
+      "evidence_level": "Полный файл структурно прочитан JSON parser, сравнен со generated dict и двумя writer outputs; 1039 строк не заявлены вручную line-by-line reviewed.",
+      "git_blob": "ba3cbb8e3a045a2c337a8710b8dfa7afa55e4a95",
+      "sha256": "f00e059aad29fbadc1ee057430ae490c3846d35323e519f14fea61b9db51b824",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S18",
+      "path": "policy-engine/tests/unit/remediation/test_ber_01.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_ber_01.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          264
+        ],
+        [
+          421,
+          429
+        ],
+        [
+          452,
+          461
+        ],
+        [
+          505,
+          867
+        ],
+        [
+          1039,
+          1282
+        ]
+      ],
+      "evidence_level": "Точные reads. Из них22 unchanged function bodies executed через AST без pytest decorators:21 PASS,1 environment FAIL. Custom subclass cases и прочие неисполненные ranges не переаттестованы.",
+      "git_blob": "87b166e6e8ef173c637c91e6576e6a4622b9f708",
+      "sha256": "e7f90aa1f880b3d1d6d9aac619f11a1349687ad64b056e172113583b8d0dc536",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S19",
+      "path": "policy-engine/tests/unit/berl/test_persisted_wire_profile.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/berl/test_persisted_wire_profile.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          200
+        ],
+        [
+          420,
+          573
+        ]
+      ],
+      "evidence_level": "Selected CAS test setup и конечный wire corpus read, native UNRUN. Middle schema traversal не объявлен полностью прочитанным.",
+      "git_blob": "03285caa78a34ee36fb4ebc0a8f017781285fa09",
+      "sha256": "c45ab6836060fe66606a1a305127af2d6bfd722249fc0112c4c85b85b60ffda0",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S20",
+      "path": "policy-engine/src/polisyos/scientist/validation/phase5_preflight.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/validation/phase5_preflight.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          260,
+          315
+        ],
+        [
+          597,
+          650
+        ],
+        [
+          1070,
+          1082
+        ],
+        [
+          1222,
+          1247
+        ]
+      ],
+      "evidence_level": "Selected reader route/component и semantic wrapper read; только unchanged _run_berl_validation AST выполнен, full Phase5 UNRUN.",
+      "git_blob": "dff3e1acac7e7a9e32a878e56b9408286efa9d86",
+      "sha256": "0880f16efcd4b57d36412494b0c8db31e0f7b4aebcca079dc83381ce768cc404",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S21",
+      "path": "policy-engine/src/polisyos/runtime/quality/explanation_reliability.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/explanation_reliability.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          150,
+          220
+        ],
+        [
+          300,
+          410
+        ],
+        [
+          638,
+          710
+        ],
+        [
+          820,
+          935
+        ]
+      ],
+      "evidence_level": "Read candidate vs selected-CAS distinction и semantic helper consumer. Не выполнено; final normative admission не выводится из inline diagnostic.",
+      "git_blob": "7ef8e2ed95ea0c412ca78210b675013e0aea5014",
+      "sha256": "4863ce5d6e06d8c31e73415927bd44510b497187e5ccff21aa8b54d54cbc6cd5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S22",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          105
+        ]
+      ],
+      "evidence_level": "Унаследованный read C117; declared runtime/tooling отличны от available environment.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

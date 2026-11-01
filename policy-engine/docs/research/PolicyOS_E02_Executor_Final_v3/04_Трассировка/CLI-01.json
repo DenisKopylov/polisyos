@@ -1,0 +1,389 @@
+{
+  "packet_id": "CLI-01",
+  "title": "Безопасные wire names и AST-based package architecture gate",
+  "goal": "Генерировать один полезный public client из выбранного OpenAPI и проверять реальную import surface без false positives строк.",
+  "work_type": "C127-R01/R02 fix; G01 frozen native generation; G02 actual service/external qualification",
+  "preservation": [
+    "Canonical public types/operations, private raw handoff, LK22 canonicalizer/recursive normalizer.",
+    "Package-pinned openapi-typescript7.13.0, three-output family, LK21 existing freshness/UNRUN, dashboard formatting profile.",
+    "Binary/exposure/header/body/error transport и LK16/LK23 shell/styleguide roles."
+  ],
+  "technical_solution": [
+    "В generate_runtime_client.py path substitutions использовать общий safe access helper; query keys создавать как computed data properties [json.dumps(name)] либо entries для URLSearchParams, не как quoted-only object-literal __proto__. Для поддержанного params-record contract учитывать own-property presence (Object.hasOwn при текущем ES2023 либо portable Object.prototype.hasOwnProperty.call); params?.[quoted] само по себе не исключает inherited constructor/toString. TS/JS используют одинаковый emitter/access contract, required access сохраняет объявленную shape; не навязывать compiler/lib upgrade. Для literal path text безопасно экранировать backtick/backslash/${ или собирать quoted string segments+encoded values, не интерполировать raw OpenAPI text как executable template. Нет endpoint-specific blacklist; class-instance support только по отдельному действительному caller contract.",
+    "В check-architecture.mjs использовать уже package-owned TypeScript parser (createSourceFile) для ImportDeclaration/ExportDeclaration(moduleSpecifier)/ImportEquals и import() literal; обход AST видит interpolation expression, но не строковый payload. Nonliteral dynamic imports explicitly unsupported/violation по narrow contract. Обновить allowed files ровно actual generate-openapi-types pair и import lists typescript/node:path/openapi-typescript; checker own typescript import учесть. Не добавлять runtime dependency в public client.",
+    "Existing full-family generator/guardrails остаются owners. Не удалять canonicalizer/normalizer и не возвращать committed raw. Frozen provisioning если требуется — отдельный согласованный CP6 execution, не в этой authoring фазе. Native Node22 test profile, не observed Node24."
+  ],
+  "owners": [
+    "tools/ops_runners/runtime/generate_runtime_client.py",
+    "packages/runtime-api-client/scripts/check-architecture.mjs",
+    "packages/runtime-api-client/scripts/generate-runtime-api-client.sh",
+    "packages/runtime-api-client/scripts/generate-openapi-types.mjs",
+    "packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs",
+    "packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs",
+    "packages/runtime-api-client/runtimeApiClient.test.mjs",
+    "packages/runtime-api-client/runtimeApiClient.type-test.ts",
+    "packages/runtime-api-client/remediation.test.mjs",
+    "tools/ops_runners/runtime/check_runtime_api_contract.py",
+    "tools/devx/architecture/guardrails.py",
+    "tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py"
+  ],
+  "shared_scenarios": [
+    "E02-I12-B"
+  ],
+  "coordination": "LANE-12 производит actual build/distribution/census evidence с artifact binding. CYC-05 владеет positive build/deployment→N6 readiness bridge в existing confidence_ledger и runtime currentness; здесь не создавать второй issuer/registry. CP6 — одно общее окно Q2/package qualification, не build на каждый alias. CLI-01 owns generator/gate changes; HYG-04 consumes same build evidence; no third checker.",
+  "compatibility": "Current public canonical operation/type surface remains; custom wire names corrected. Historical external raw filesystem imports require named window/route, not raw resurrection by default. Lock ownership/profile unchanged; unknown dynamic imports explicit not silently ignored.",
+  "design_alignment": [
+    "[North Star §2](../05_Основания/Архитектура/policy-design-causal-operating-system-north-star.md#2-everything-reduces-to-data--but-the-causal-structure-is-not-data) и [синтез §4](../05_Основания/Исследование/design_direction.md): общий действующий owner сохраняется, удаление исторического адреса не заменяет способность; новые compatible resources подключаются через существующий механизм."
+  ],
+  "open_decisions": [
+    "DEC-CLI-01-01: finite external/filesystem raw-import census; choose migration instruction or narrow supported bridge only for actual obligation, no universal-client promise. AST checker dynamic loading policy bounded to actual package needs."
+  ],
+  "acceptance": "R01 actual generation+execution and R02 positive/negative gate. Native regeneration/type/service proof separately. Transport output does not assert authority/verified policy ranking.",
+  "lane": "LANE-12",
+  "source_ids": [
+    "LA-043",
+    "LA-044"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/CLI-01.md"
+  ],
+  "requirements": [
+    {
+      "text": "TS/JS path/query generation должна безопасно адресовать допустимые non-identifier wire names, сохраняя точные keys и encoding; malformed/unrepresentable input отказывает явно. В поддержанном params-record contract совпадение key с __proto__/constructor/toString не меняет data-key semantics; отсутствующий optional параметр не сериализует inherited значение. Class-instance/inherited-property support не предполагается случайно и, если нужен реальному caller, получает отдельный явный contract без endpoint-specific branches.",
+      "source_ids": [
+        "LA-043"
+      ],
+      "audit_ids": [
+        "C127-R01"
+      ],
+      "id": "REQ-CLI-01-01",
+      "test_ids": [
+        "TEST-CLI-01-01"
+      ]
+    },
+    {
+      "text": "Package architecture check должен проверять настоящие import/export/dynamic-import syntax и exact allowed surface, не import-like text внутри строк/комментариев/templates.",
+      "source_ids": [
+        "LA-043",
+        "LA-044"
+      ],
+      "audit_ids": [
+        "C127-R02"
+      ],
+      "id": "REQ-CLI-01-02",
+      "test_ids": [
+        "TEST-CLI-01-02"
+      ]
+    },
+    {
+      "text": "Один selected OpenAPI должен породить ровно types.ts/canonicalRuntimeApiClient.ts/js через private raw handoff; freshness различает measured clean, drift и UNRUN.",
+      "source_ids": [
+        "LA-043"
+      ],
+      "audit_ids": [
+        "C127-G01"
+      ],
+      "id": "REQ-CLI-01-03",
+      "test_ids": [
+        "TEST-CLI-01-03"
+      ]
+    },
+    {
+      "text": "Native pinned package tooling, canonicalizer/recursive types и dashboard formatting должны сохранять public type/runtime contract без dashboard runtime dependency.",
+      "source_ids": [
+        "LA-044"
+      ],
+      "audit_ids": [
+        "C127-G01"
+      ],
+      "id": "REQ-CLI-01-04",
+      "test_ids": [
+        "TEST-CLI-01-03",
+        "TEST-CLI-01-04"
+      ]
+    },
+    {
+      "text": "Existing generated-client→Runtime service bridge должен проверять actual request/resource/auth/currentness boundaries; transport fixtures и bytes не authority, external raw imports требуют конечного compatibility решения. Для full service acceptance actual response status/headers/body bytes возвращаются через тот же generated client и наблюдаются на его public API. Fake always-200 fetch плюс отдельный Python service call учитываются лишь как split request-contract smoke, не как полный roundtrip.",
+      "source_ids": [
+        "LA-043",
+        "LA-044"
+      ],
+      "audit_ids": [
+        "C127-G02"
+      ],
+      "id": "REQ-CLI-01-05",
+      "test_ids": [
+        "TEST-CLI-01-04",
+        "TEST-CLI-01-05"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "actual raw + canonical custom OpenAPI",
+      "setup": "GET path{item-id}, query filter-mode, identifier controls item_id/filter_mode, header X-Trace-ID; __proto__, constructor, toString, quoted/backslash names и template delimiters. Params для reserved-key positive создавать JSON.parse либо null-prototype record; отдельный absent optional record={} negative, не ошибочный literal, теряющий key ещё до клиента.",
+      "action": "Generate raw TS/JS→actual canonical pipeline; Node22 parse/call with local recording fetch, tsc. Проверить exact URLSearchParams.getAll/keys и unchanged object prototype; повторить с переименованными/переставленными совместимыми wire keys без правки generator.",
+      "oracle": "No SyntaxError/ReferenceError; path value a/b encoded a%2Fb, query keys/values сохранены точно, включая __proto__. Quoted-only object-literal emitter обязан провалить reserved-key control; inherited constructor/toString не сериализуются при отсутствии own optional value. Quoted access/path literal safe, no template interpolation from wire text. Existing identifier corpus stable except intentional formatting; optional own-property policy явная.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-CLI-01-01",
+      "requirement_ids": [
+        "REQ-CLI-01-01"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "architecture parser regression",
+      "setup": "Legitimate generate-openapi-types.mjs/test; string/template/comment import decoys; real forbidden import/dynamic import/reexport.",
+      "action": "Registered node scripts/check-architecture.mjs on actual package and isolated mutated copies.",
+      "oracle": "Current legitimate surface passes; decoys ignored; real forbidden dependency/export/unknown computed load receives explicit violation. Raw committed pair/extra file still denied, not broad exemption.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-CLI-01-02",
+      "requirement_ids": [
+        "REQ-CLI-01-02"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "E02-I12-B native full family",
+      "setup": "Node22/Python3.14, actual frozen lock dependencies, custom/default OpenAPI, isolated output root.",
+      "action": "Existing shell/check_runtime_api_contract/general guardrails; corrupt/miss each3output, addextra, force unavailable generator.",
+      "oracle": "Exactly3public outputs; private raw cleaned; same input all stages. Clean0/drift1/UNRUN2 per current checker; no worktree escape; dashboard own formatter separately. Repeat canonicalization idempotent, collision and recursive unguarded cycle refuse.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-CLI-01-03",
+      "requirement_ids": [
+        "REQ-CLI-01-03",
+        "REQ-CLI-01-04"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "public native transport/types",
+      "setup": "Existing canonical runtimeApiClient.test/type-test and normalizer/canonicalizer tests; minimal consumer no dashboard runtime.",
+      "action": "Run selected package scripts on supported toolchain; binary exposure and discriminated aliases.",
+      "oracle": "Public imports/types valid; supplied headers/body/query/error and arrayBuffer/exposure bytes preserved. Package resolves own tool7.13.0 from lock, no version upgrade; formatter profiles not assumed byte-identical.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-CLI-01-04",
+      "requirement_ids": [
+        "REQ-CLI-01-04",
+        "REQ-CLI-01-05"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "existing service bridge",
+      "setup": "Расширить existing tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py: local actual Runtime service/store и scoped auth; bounded bidirectional relay передаёт полный method/URL/query/headers/body и возвращает actual status/headers/body bytes в JS Response. Альтернатива — разрешённый isolated ephemeral local server; не live deployment.",
+      "action": "Generated client вызывает selected supported GET и доступные allowlisted POST/binary transport families; фактический service response проходит обратно через client decode/error path. Положительный scoped resource, denied/missing-resource/stale-context negatives; deliberate required-header drop/status alteration/binary corruption controls. External import census остаётся отдельным.",
+      "oracle": "Actual service независимо enforce-ит auth/resource/currentness, а public JS API получает настоящий decoded result/status limitation/error/binary bytes, не constant fake200. Полные request/response envelope проверены; consumer не фабрикует permission. Split path-only bridge не закрывает этот oracle. Selected POST allowlist сохранён;103operation census не103executions. Нет external deployment/action; неподдержанный route явно не включён в claim.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-CLI-01-05",
+      "requirement_ids": [
+        "REQ-CLI-01-05"
+      ],
+      "status": "NOT_RUN"
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "LA-043",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Raw retirement done; custom name/gate defects and native consumers remain.",
+      "requirement_ids": [
+        "REQ-CLI-01-01",
+        "REQ-CLI-01-02",
+        "REQ-CLI-01-03",
+        "REQ-CLI-01-05"
+      ]
+    },
+    {
+      "audit_id": "LA-044",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Package dependency ownership done; native frozen/profile proof required.",
+      "requirement_ids": [
+        "REQ-CLI-01-02",
+        "REQ-CLI-01-04",
+        "REQ-CLI-01-05"
+      ]
+    },
+    {
+      "audit_id": "C127-R01",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Existing safe accessor использовать для path/query, no per-endpoint patches.",
+      "requirement_ids": [
+        "REQ-CLI-01-01"
+      ],
+      "inventory_id": "audit-residual:C127_остатки:0"
+    },
+    {
+      "audit_id": "C127-R02",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Regex читает fixture strings, exact surface stale; no allow-all.",
+      "requirement_ids": [
+        "REQ-CLI-01-02"
+      ],
+      "inventory_id": "audit-residual:C127_остатки:1"
+    },
+    {
+      "audit_id": "C127-G01",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Real3-output family/tools, no fixture freshness claim.",
+      "requirement_ids": [
+        "REQ-CLI-01-03",
+        "REQ-CLI-01-04"
+      ],
+      "inventory_id": "audit-residual:C127_остатки:2"
+    },
+    {
+      "audit_id": "C127-G02",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Actual service/auth/resource and finite external compatibility.",
+      "requirement_ids": [
+        "REQ-CLI-01-05"
+      ],
+      "inventory_id": "audit-residual:C127_остатки:3"
+    }
+  ],
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "SPECIFICATION_NOT_IMPLEMENTED",
+  "dependencies": [],
+  "protected_distinction_ids": [
+    "LK16",
+    "LK21",
+    "LK22",
+    "LK23"
+  ],
+  "original_source": "../05_Основания/Аудит/05_Источники/CLI-01_исходные_строки.txt",
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0454",
+      "requirement_ids": [
+        "REQ-CLI-01-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Existing safe accessor использовать для path/query, no per-endpoint patches."
+    },
+    {
+      "inventory_id": "remaining:0455",
+      "requirement_ids": [
+        "REQ-CLI-01-02"
+      ],
+      "disposition": "fix",
+      "rationale": "Regex читает fixture strings, exact surface stale; no allow-all."
+    },
+    {
+      "inventory_id": "remaining:0456",
+      "requirement_ids": [
+        "REQ-CLI-01-03",
+        "REQ-CLI-01-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Real3-output family/tools, no fixture freshness claim."
+    },
+    {
+      "inventory_id": "remaining:0457",
+      "requirement_ids": [
+        "REQ-CLI-01-05"
+      ],
+      "disposition": "qualify",
+      "rationale": "Actual service/auth/resource and finite external compatibility."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0750",
+      "requirement_ids": [
+        "REQ-CLI-01-01",
+        "REQ-CLI-01-04"
+      ],
+      "test_ids": [
+        "TEST-CLI-01-01",
+        "TEST-CLI-01-03",
+        "TEST-CLI-01-04"
+      ],
+      "rationale": "Canonical public client/DTO aliases — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0751",
+      "requirement_ids": [
+        "REQ-CLI-01-03"
+      ],
+      "test_ids": [
+        "TEST-CLI-01-03"
+      ],
+      "rationale": "Private raw handoff — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0752",
+      "requirement_ids": [
+        "REQ-CLI-01-03",
+        "REQ-CLI-01-04"
+      ],
+      "test_ids": [
+        "TEST-CLI-01-03",
+        "TEST-CLI-01-04"
+      ],
+      "rationale": "Canonicalizer and recursive normalizer — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0753",
+      "requirement_ids": [
+        "REQ-CLI-01-04"
+      ],
+      "test_ids": [
+        "TEST-CLI-01-03",
+        "TEST-CLI-01-04"
+      ],
+      "rationale": "Package-pinned toolchain — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0754",
+      "requirement_ids": [
+        "REQ-CLI-01-03"
+      ],
+      "test_ids": [
+        "TEST-CLI-01-03"
+      ],
+      "rationale": "Three-output freshness/UNRUN — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0755",
+      "requirement_ids": [
+        "REQ-CLI-01-03",
+        "REQ-CLI-01-04"
+      ],
+      "test_ids": [
+        "TEST-CLI-01-03",
+        "TEST-CLI-01-04"
+      ],
+      "rationale": "Dashboard formatting profile — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0756",
+      "requirement_ids": [
+        "REQ-CLI-01-04",
+        "REQ-CLI-01-05"
+      ],
+      "test_ids": [
+        "TEST-CLI-01-03",
+        "TEST-CLI-01-04",
+        "TEST-CLI-01-05"
+      ],
+      "rationale": "Binary/exposure transport tests — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    }
+  ]
+}

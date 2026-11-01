@@ -1,0 +1,285 @@
+{
+  "packet_id": "NET-02",
+  "lane": "LANE-08",
+  "source_ids": [
+    "B91",
+    "B92",
+    "B93"
+  ],
+  "protected_distinction_ids": [],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/NET-02.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "work_types": "fix + native resilience qualification",
+  "practical_goal": "Rate limiter восстанавливает пропускную способность после успешных вызовов, не забывая quota/circuit protection.",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C103_остатки:0",
+      "audit_id": "C103-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-NET-02-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Single common success feedback edge, no regulator reset."
+    },
+    {
+      "inventory_id": "audit-residual:C103_остатки:1",
+      "audit_id": "C103-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-NET-02-02",
+        "REQ-NET-02-03",
+        "REQ-NET-02-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Native telemetry/REST and scoped quota evidence."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-NET-02-01",
+      "text": "Оба adaptive wrappers должны передать каждый successful provider completion существующему AdaptiveRateLimiter.record_success ровно один раз после result и до release registry lease.",
+      "source_ids": [
+        "B91",
+        "B92",
+        "B93"
+      ],
+      "audit_ids": [
+        "C103-R01"
+      ],
+      "test_ids": [
+        "TEST-NET-02-01"
+      ]
+    },
+    {
+      "id": "REQ-NET-02-02",
+      "text": "Fractional refill и unit capacity сохраняются, invalid rates/overweight отказывают до provider; actual long-lived REST wrapper разделяет правильный quota key.",
+      "source_ids": [
+        "B91",
+        "B92",
+        "B93"
+      ],
+      "audit_ids": [
+        "C103-G01"
+      ],
+      "test_ids": [
+        "TEST-NET-02-02"
+      ]
+    },
+    {
+      "id": "REQ-NET-02-03",
+      "text": "Circuit завершает issued lease его поколения, сохраняя original provider result/error и distinguish local admission overload. Protected registry не теряет cooldown/balance/pins.",
+      "source_ids": [
+        "B91",
+        "B92",
+        "B93"
+      ],
+      "audit_ids": [
+        "C103-G01"
+      ],
+      "test_ids": [
+        "TEST-NET-02-03"
+      ]
+    },
+    {
+      "id": "REQ-NET-02-04",
+      "text": "Native telemetry/dependency graph и конкретный selected transport дают useful provider result без masking admission errors; measurement scope не distributed guarantee.",
+      "source_ids": [
+        "B91",
+        "B92",
+        "B93"
+      ],
+      "audit_ids": [
+        "C103-G01"
+      ],
+      "test_ids": [
+        "TEST-NET-02-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-NET-02-01",
+      "requirement_ids": [
+        "REQ-NET-02-01"
+      ],
+      "level": "native unit / integration",
+      "setup": "with_rate_limit и apply_resilience adaptive=True,429 rate1→0.5, затем 100 и 800 successes; plain limiter control, cancellation/provider failure.",
+      "action": "Actual public wrappers, controlled clock and provider result identity; registry cap1 pressure after recovery.",
+      "oracle": "100 successes дают 0.55,800 достигают 1 по текущему owner contract; success_count изменяется; cooldown/pacing соблюдены; neutral owner освобождается безопасно. Plain API не требует record_success; cancellation/error не recovery vote.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не direct-call limiter вместо wrappers, не reset owner/skip quiescent guard.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-NET-02-02",
+      "requirement_ids": [
+        "REQ-NET-02-02"
+      ],
+      "level": "native unit / integration",
+      "setup": "Rates0.1/0.2/1/2, capacity1, request weight2, NaN/inf/zero; pagination и subsequent fetch, same numeric key1/1.0, distinct domain.",
+      "action": "Actual GenericRESTConnector с controlled local provider; native telemetry profile.",
+      "oracle": "0.2: первый request допускается, следующий через 5 clock units; refill не округлён; invalid/overweight provider calls0; pages/fetches share owner, domains independent.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Конкретный source start burst/quota scope подтверждается отдельно; default adaptive=False не объявлен affected R01.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-NET-02-03",
+      "requirement_ids": [
+        "REQ-NET-02-03"
+      ],
+      "level": "native unit / integration",
+      "setup": "Old CLOSED success/failure после OPEN→HALF_OPEN; stale half-open, foreign/double completion, cancellation; TTL/pressure while pinned/cooldown/depleted.",
+      "action": "Actual execute/registry lease paths и next current probe.",
+      "oracle": "Stale result/error preserved без recovery vote; foreign/double diagnostic; local overload не provider failure; protected capacity отказ, neutral reclaim; active state не duplicated.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не swallow любой CircuitLeaseError, не unbounded second map или reset Retry-After.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-NET-02-04",
+      "requirement_ids": [
+        "REQ-NET-02-04"
+      ],
+      "level": "native unit / integration",
+      "setup": "Supported runtime с current telemetry dependencies и optional no-op profile; actual REST test transport, success/invalid rate/429.",
+      "action": "Existing suite плюс new success-feedback regression, full E02-I08-C consumer.",
+      "oracle": "Correct result/error reached через actual wrappers; optional instrumentation не маскирует expected refusal. Команды/clock/seams/versions записаны, quotas scoped.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Observed audit no-op SLO seam issue квалифицировать и исправить existing fallback owner при воспроизведении, не объявлять fixture workaround native PASS.",
+      "status": "NOT_RUN"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I08-C"
+  ],
+  "dependencies": [
+    "NET-01 owns physical pool independently; E02-I08-C",
+    "Optional telemetry fallback coordinated with existing core observability owner"
+  ],
+  "preservation": [
+    "Fractional refill/unit capacity",
+    "Invalid rate and overweight refusal",
+    "Generation-specific lease finalization",
+    "Local admission origin distinction",
+    "Mandatory cooldown/balance/pins",
+    "Long-lived REST wrappers and numeric-key equivalence",
+    "Neutral state reclamation"
+  ],
+  "design_alignment": [
+    "[Vision §3, §6–§7, §11](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md) — существующий owner, реально подключённый consumer, совместимые новые ресурсы через общий контракт; не бесконечный реестр вместо работы. [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md) — candidate/conditional вычисление не равно эмпирической или институциональной authority.",
+    "Полезная адаптация строится обратной связью producer→existing owner, не дополнительным registry. Новые transports используют общий wrapper contract; source semantics и scientific authority остаются отдельными."
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0156",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-NET-02-01"
+      ],
+      "rationale": "Single common success feedback edge, no regulator reset."
+    },
+    {
+      "inventory_id": "remaining:0157",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-NET-02-02",
+        "REQ-NET-02-03",
+        "REQ-NET-02-04"
+      ],
+      "rationale": "Native telemetry/REST and scoped quota evidence."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0249",
+      "requirement_ids": [
+        "REQ-NET-02-02"
+      ],
+      "test_ids": [
+        "TEST-NET-02-02"
+      ],
+      "rationale": "Fractional refill/unit capacity."
+    },
+    {
+      "inventory_id": "preserve:0250",
+      "requirement_ids": [
+        "REQ-NET-02-02"
+      ],
+      "test_ids": [
+        "TEST-NET-02-02"
+      ],
+      "rationale": "Invalid/overweight refusal."
+    },
+    {
+      "inventory_id": "preserve:0251",
+      "requirement_ids": [
+        "REQ-NET-02-03"
+      ],
+      "test_ids": [
+        "TEST-NET-02-03"
+      ],
+      "rationale": "Issued generation lease."
+    },
+    {
+      "inventory_id": "preserve:0252",
+      "requirement_ids": [
+        "REQ-NET-02-03"
+      ],
+      "test_ids": [
+        "TEST-NET-02-03"
+      ],
+      "rationale": "Local admission origin."
+    },
+    {
+      "inventory_id": "preserve:0253",
+      "requirement_ids": [
+        "REQ-NET-02-01",
+        "REQ-NET-02-03"
+      ],
+      "test_ids": [
+        "TEST-NET-02-01",
+        "TEST-NET-02-03"
+      ],
+      "rationale": "Cooldown/balance/pins."
+    },
+    {
+      "inventory_id": "preserve:0254",
+      "requirement_ids": [
+        "REQ-NET-02-02"
+      ],
+      "test_ids": [
+        "TEST-NET-02-02"
+      ],
+      "rationale": "Long-lived REST/numeric key."
+    },
+    {
+      "inventory_id": "preserve:0255",
+      "requirement_ids": [
+        "REQ-NET-02-01",
+        "REQ-NET-02-03"
+      ],
+      "test_ids": [
+        "TEST-NET-02-01",
+        "TEST-NET-02-03"
+      ],
+      "rationale": "Safe neutral reclaim."
+    }
+  ],
+  "owners": [
+    "src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+    "src/polisyos/fabric/connectors/resilience/__init__.py",
+    "src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+    "src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+    "src/polisyos/fabric/connectors/reference/rest_json.py"
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "pass": "C21",
+  "bundle": "OPT-04",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C21-R01",
+      "type": "confirmed_local_comparison_binding_defect",
+      "severity": "medium_conditional",
+      "confidence": "high_local",
+      "source_ids": [
+        "B116"
+      ],
+      "location": "registry.py:750–805,859–901",
+      "mechanism": "Incumbent policy/split сохранены, но новая policy сравнивает метрики без проверки прежней comparison basis.",
+      "evidence": [
+        "P09",
+        "P10",
+        "P11",
+        "P12"
+      ],
+      "preserve": "Candidate/evaluation/suite/selected-profile binding и допустимое явное развитие постановки.",
+      "remaining": "Сопоставить metric/split/direction/unit с incumbent либо выполнить явную переоценку/transition.",
+      "limits": "Generic registry, actual Pydantic DTO и filesystem с fixture CAS; не claim authority или production вред."
+    },
+    {
+      "id": "C21-G01",
+      "type": "native_source_and_authority_qualification",
+      "source_ids": [
+        "B116",
+        "B117"
+      ],
+      "evidence": [
+        "S01",
+        "S05",
+        "S06",
+        "S08"
+      ],
+      "remaining": "Native evaluator→CAS→registry→loader, MethodJob trusted executor и specialised claim consumer не исполнялись."
+    },
+    {
+      "id": "C21-G02",
+      "type": "seeded_baseline_capability_qualification",
+      "source_ids": [
+        "B116"
+      ],
+      "evidence": [
+        "P13",
+        "S06"
+      ],
+      "remaining": "Связать/переоценить seeded baseline на активной suite; сохранять champion_suite_basis_unknown, не выдумывать measured basis."
+    },
+    {
+      "id": "C21-G03",
+      "type": "finite_source_boundary_characterization",
+      "source_ids": [
+        "B116"
+      ],
+      "evidence": [
+        "P18",
+        "S02",
+        "S03"
+      ],
+      "remaining": "Прямой registry пропускает nonfinite bootstrap в permissive fixture; actual canonical CAS default запрещает NaN/Inf. Native достижимость не доказана."
+    },
+    {
+      "id": "C21-G04",
+      "type": "deployment_crash_durability_qualification",
+      "source_ids": [
+        "B117"
+      ],
+      "evidence": [
+        "P15",
+        "P16",
+        "P17",
+        "S01",
+        "S08"
+      ],
+      "remaining": "Локальный cross-process lock подтверждён; power loss, network filesystem и specialised envelope crash consumer UNRUN."
+    }
+  ]
+}

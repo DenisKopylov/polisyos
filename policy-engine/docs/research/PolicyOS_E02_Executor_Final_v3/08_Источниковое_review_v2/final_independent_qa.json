@@ -1,0 +1,475 @@
+{
+  "status": "PASS_DOCUMENTARY_QA",
+  "completed_utc": "2026-11-01T13:15:29.993369+00:00",
+  "product_tests": "NOT_RUN",
+  "baseline_changed": false,
+  "archive_integrity": "NOT_CHECKED_YET_PARENT_RELEASE_STEP",
+  "catalog_sha256": "8c8c77e13d9151349b7410b441f97f0f94fbfb7d097150f32c9872fe35a3cb59",
+  "scope": {
+    "structural_entities": 181,
+    "packets": 127,
+    "scenarios": 42,
+    "lanes": 12,
+    "criteria_per_entity": 70,
+    "dispositions": 12670,
+    "semantic_sample_entities": 23,
+    "semantic_sample_packets": 14,
+    "semantic_sample_scenarios": 6,
+    "semantic_sample_lanes": 3,
+    "findings_independently_rechecked": 3
+  },
+  "independence_limit": "This reviewer authored the preceding 26-packet runtime/delivery review; final structural checks include those artifacts, and two runtime semantic samples are disclosed self-QA. Findings FAC01/FAC02/CM001 and other groups received an independent reviewer. Not a second full semantic reading of all12670 dispositions.",
+  "structural": {
+    "status_counts": {
+      "addressed": 5005,
+      "bounded": 2881,
+      "not_applicable": 4770,
+      "gap": 14
+    },
+    "duplicate_or_missing_criterion_ids": 0,
+    "missing_evidence_paths": 0,
+    "exact_locator_errors": 0,
+    "evidence_path_records_checked": 18417,
+    "exact_req_test_dec_locator_occurrences_checked": 9952,
+    "source_ref_mismatches": 0,
+    "inline_source_refs_absent_but_catalog_resolvable": {
+      "audit_causal_monitoring": 1190,
+      "audit_fabric_acquisition": 1750
+    },
+    "frozen_research_input_hashes_checked": 12,
+    "baseline_sha256_rows_checked": 1205,
+    "baseline_hash_mismatches": 0,
+    "parent_table_rows_match": 181,
+    "consolidated_findings_exact_parity": true,
+    "source_records": 68,
+    "read_source_records": 67,
+    "excluded_source_records": 1,
+    "requirements": 606,
+    "test_contracts": 613,
+    "shared_bindings": 159
+  },
+  "finding_reviews": [
+    {
+      "id": "FAC-01",
+      "decision": "CONFIRMED_NARROW_CONTRACT_TEST_CLARIFICATION",
+      "severity": "medium",
+      "confidence": "high",
+      "reason": "The local oracle includes fsync failures yet unconditionally preserves prior file. The actual owner replaces at atomic.py:26 then fsyncs directory at27/61; common contract expressly disclaims rollback after publication.",
+      "not_established": [
+        "runtime data-loss defect",
+        "native fault-test result",
+        "all-platform power-loss durability"
+      ],
+      "correction": "Narrow prior-file preservation to before successful replace; separate visible-but-unconfirmed post-replace outcome using existing evidence."
+    },
+    {
+      "id": "FAC-02",
+      "decision": "CONFIRMED_NARROW_PREDICATE_TRACE_CLARIFICATION",
+      "severity": "low",
+      "confidence": "high textual drift; bounded model admissibility",
+      "reason": "Current local contract rejects duplicate source absent declared policy; target axis follows declared coordinate/model rules. B01 says unique source/target without that distinction. Existing query code evaluates each target and retains order, but code absence of a validator alone is not scientific permission.",
+      "not_established": [
+        "universal repeated model-time support",
+        "incorrect actual fitted result",
+        "need for new optimizer or model family"
+      ],
+      "correction": "Keep finite source/target and source duplicate policy separate; target admissibility per existing declared profile, no hidden sorting/dedup."
+    },
+    {
+      "id": "CM-001",
+      "decision": "KEEP_OPTIONAL_NONBLOCKING_CLARIFICATION",
+      "severity": "low",
+      "mandatory": false,
+      "reason": "SCM §7 and LANE05 give coherent closure/law/refit/native acceptance roles; short common map is broader. Actual numerical/native evidence is not lost.",
+      "not_established": [
+        "runtime defect",
+        "missing mandatory test",
+        "new ownership registry need"
+      ],
+      "correction": "Clarify short map or point to detailed canonical role table; no code ownership transfer or new runtime suite."
+    }
+  ],
+  "semantic_samples": {
+    "CYC-05": {
+      "criteria": [
+        "RA-08",
+        "SR-02",
+        "SR-04",
+        "SR-17"
+      ],
+      "result": "Actual appointed issuer/build/census/loaded-baseline→N6, not hash-only; full contract was read in preceding runtime review."
+    },
+    "FUN-03": {
+      "criteria": [
+        "SR-04",
+        "SR-05",
+        "SR-06",
+        "SR-11"
+      ],
+      "result": "REQ04/TEST04/DEC02 require bound permit and actual serialized revoke/commit; ordinary candidate work retained."
+    },
+    "EMP-01": {
+      "criteria": [
+        "DAT-05",
+        "DAT-07",
+        "DRT-03"
+      ],
+      "result": "Proxy exact-equal refusal differs from valid point [2,2]; representability limits retained; numeric repair does not own network dedupe."
+    },
+    "CAL-02": {
+      "criteria": [
+        "DAT-05",
+        "DAT-10"
+      ],
+      "result": "Actual tax forward/penalty has independent quadratic anchors; train support precedes nonlinear loss and evaluation mutation covers AD/JIT/update."
+    },
+    "SCM-02": {
+      "criteria": [
+        "DAT-05",
+        "DAT-08",
+        "RA-10"
+      ],
+      "result": "Independent scalar per-replica OLS/quantile oracle retained; refit distinct from closure/native-query owners."
+    },
+    "CAU-04": {
+      "criteria": [
+        "DAT-05",
+        "RA-08"
+      ],
+      "result": "Underlying Statsmodels parity is not called independent; TEST08 has explicit eight-row algebraic/t5 oracle; real-data coverage separate."
+    },
+    "LLM-02": {
+      "criteria": [
+        "DRT-01",
+        "DRT-06",
+        "DRT-14"
+      ],
+      "result": "Finite materialization/per-consumer receipts/current owner; one flight not global exactly-once; follower cancellation TEST06 locator corrected."
+    },
+    "SCL-03": {
+      "criteria": [
+        "DRT-17",
+        "DRT-24"
+      ],
+      "result": "Exact selected raw/profile→docs, no snippet reconstruction; unaffected documents retained, not a service-queue SLO."
+    },
+    "DUR-02": {
+      "criteria": [
+        "DRT-18",
+        "SR-18"
+      ],
+      "result": "Actual SQL fencing across inlets plus post-lost-reply reconciliation; verified using prior full read, not independent second reviewer."
+    },
+    "CLI-01": {
+      "criteria": [
+        "SR-08",
+        "RA-09"
+      ],
+      "result": "Own properties/computed __proto__/escaped URL and real bidirectional response path; prior full-read self-QA disclosed."
+    },
+    "UDF-02": {
+      "criteria": [
+        "RA-03",
+        "RA-07",
+        "RA-09",
+        "DRT-07",
+        "SR-13"
+      ],
+      "result": "FAC01 phase-specific oracle inconsistency confirmed in complete current MD/REQ/TEST JSON and actual atomic owner."
+    },
+    "CAL-01": {
+      "criteria": [
+        "RA-03",
+        "RA-09",
+        "RA-10"
+      ],
+      "result": "FAC02 source duplicate vs declared target predicate drift confirmed; no universal repeated model-time permission."
+    },
+    "SCM-01": {
+      "criteria": [
+        "RA-10"
+      ],
+      "result": "Detailed §7 acceptance owner matches lane; only short map ambiguity, optional."
+    },
+    "SCM-03": {
+      "criteria": [
+        "RA-10"
+      ],
+      "result": "Detailed §7 closure/coordinates ownership matches lane; no missing native acceptance."
+    },
+    "E02-I01-A": {
+      "criteria": [
+        "RA-07",
+        "SR-04"
+      ],
+      "result": "Actual first-bad/second-good and coupled/seed/basis negatives grounded in current scenario and local TEST inheritance."
+    },
+    "E02-I05-C": {
+      "criteria": [
+        "DAT-05",
+        "RA-10"
+      ],
+      "result": "Actual SCM refit OLS oracle and separate fit-fold nuisance test retained; CM001 bounded."
+    },
+    "E02-I07-C": {
+      "criteria": [
+        "RA-03",
+        "RA-10"
+      ],
+      "result": "FAC02 linked once across packet/scenario/lane, not counted as three unique defects."
+    },
+    "E02-I09-B": {
+      "criteria": [
+        "DRT-14",
+        "SR-11"
+      ],
+      "result": "Factory/cache/ledger current admission and cancellation oracle supported; no quality/authority from reusable proposal."
+    },
+    "E02-X03": {
+      "criteria": [
+        "RA-08",
+        "DAT-10"
+      ],
+      "result": "Independent compatible case selected after freeze, new freeze after new semantics; bounded portability not universal discovery."
+    },
+    "E02-X04": {
+      "criteria": [
+        "SR-12",
+        "SR-18"
+      ],
+      "result": "Existing conditional resource/dependency owner bounds retained; no invented global transaction or optimizer."
+    },
+    "LANE-05": {
+      "criteria": [
+        "RA-10"
+      ],
+      "result": "Detailed owners coherent; optional short-map clarification correctly bounded."
+    },
+    "LANE-07": {
+      "criteria": [
+        "RA-03"
+      ],
+      "result": "Shared local predicate drift linked FAC02; local TEST remain required."
+    },
+    "LANE-09": {
+      "criteria": [
+        "DRT-01",
+        "DRT-14"
+      ],
+      "result": "Distinct raw-acquisition and LLM effect boundaries; not every packet forced into one pipeline."
+    }
+  },
+  "audit_editorial_corrections": [
+    {
+      "id": "QA-EDITORIAL-01",
+      "status": "RESOLVED_BY_OWNER_AND_READ_BACK",
+      "target": "audit_foundry_numeric/assessments.json EMP-01 DAT-07 and review_details.controls; matching review wording",
+      "reason": "Equal-endpoint rejection is proxy-specific, not rejection of valid point identification.",
+      "readback": "Equal-endpoint proxy, overflow width, wrong profile/context и unsupported subgroup отвергаются; point [2,2] и asymmetric CI [0,10] сохраняют разные роли."
+    },
+    {
+      "id": "QA-EDITORIAL-02",
+      "status": "RESOLVED_BY_OWNER_AND_READ_BACK",
+      "target": "audit_fabric_acquisition/assessments.json LLM-02 DRT-01/DRT-14 evidence locators",
+      "reason": "Four callers→one producer is TEST05, cancellation/cleanup TEST06. Correct requirements already supported substantive status."
+    }
+  ],
+  "independent_audit_only_arithmetic": [
+    {
+      "case": "CAU-04 TEST08 scalar sums and t5 elementary CDF/bisection",
+      "result": {
+        "SSE": 8,
+        "variance": 0.8,
+        "SE": 0.8944271909999159,
+        "t975_df5": 2.570581835636312,
+        "CI": [
+          -0.2991982904835937,
+          4.299198290483593
+        ]
+      },
+      "status": "MATCHED_SPEC; NOT_PRODUCT_EXECUTION"
+    },
+    {
+      "case": "CAL-02 TEST04 quadratic arithmetic",
+      "result": {
+        "total": [
+          96,
+          736
+        ],
+        "gradient": [
+          -36,
+          -164
+        ],
+        "hessian": 20,
+        "u_hessian": 1.25
+      },
+      "status": "MATCHED_SPEC; NOT_PRODUCT_EXECUTION"
+    }
+  ],
+  "code_inspection": [
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/kernel/io/atomic.py",
+      "sha256": "38cae9207be0d3d3d6ff810f62b79a433b13ff0dd0b9aac86a53d2fbb9598c41",
+      "read_ranges": [
+        [
+          1,
+          71
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/io.py",
+      "sha256": "5f2bfe31a2ed8ee0cea4bdec800670dbe8df6749ea7a4d810ab5a88f38bc7686",
+      "read_ranges": [
+        [
+          1,
+          115
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_udf_02.py",
+      "sha256": "a881994611813ad38820523045799eab1ba95454b0258188aae0575d1ce63853",
+      "read_ranges": [
+        [
+          100,
+          155
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/calibration/preflight.py",
+      "sha256": "bd8dde0b985904a6d1a9af5da06885055adf78242933e8af48d559ec389cc8cf",
+      "read_ranges": [
+        [
+          63,
+          111
+        ],
+        [
+          230,
+          310
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/ir/analytics/calibration.py",
+      "sha256": "0fbfec3e929f2562c31a2b554c8d61e6dc2162a6312d8576984e2d7d5fcd2c79",
+      "read_ranges": [
+        [
+          410,
+          470
+        ]
+      ]
+    }
+  ],
+  "input_snapshots": [
+    {
+      "path": "catalog/criteria_catalog.json",
+      "sha256": "8c8c77e13d9151349b7410b441f97f0f94fbfb7d097150f32c9872fe35a3cb59",
+      "bytes": 437270
+    },
+    {
+      "path": "catalog/FREEZE.json",
+      "sha256": "5b0d6eabb89e587e6f862b9eae8a556988966b87b95aad2d18ef1d56eb0ccd41",
+      "bytes": 2427
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/SHA256SUMS.txt",
+      "sha256": "994811a22166f00cac95b374734106046e1bba1aafc70f59494a9f81d98e212c",
+      "bytes": 168014
+    },
+    {
+      "path": "audit_causal_monitoring/assessments.json",
+      "sha256": "1594301416cb1e1de0b8314014b75247b45eddb82ebe0f0356f675c9f7507e30",
+      "bytes": 796337
+    },
+    {
+      "path": "audit_fabric_acquisition/assessments.json",
+      "sha256": "76aace0e6aaf169b37672807b9d71456a862ad488b1870be6cb66908a8d5f11a",
+      "bytes": 1841555
+    },
+    {
+      "path": "audit_foundry_numeric/assessments.json",
+      "sha256": "cd90b207c53c5adfe0e001f233d491e3fe2dbd0052a35bf81dc8614bbbca65ed",
+      "bytes": 1707399
+    },
+    {
+      "path": "audit_lane_integration/assessments.json",
+      "sha256": "dc42bda767244909e8ecfec6b1f5bf702f3dff6d68179b85909e9ab158b2546a",
+      "bytes": 8863944
+    },
+    {
+      "path": "audit_policy_search/assessments.json",
+      "sha256": "c83e7fd701de215f58d6a795ce38c75d6c85f8d37d4c1f1f686ab3371f9df8bc",
+      "bytes": 2374882
+    },
+    {
+      "path": "audit_runtime_delivery/assessments.json",
+      "sha256": "cf1efe2584eff2abe27df4a041b67c417f8387a1517c3310294f0bd2fae2e1de",
+      "bytes": 2436823
+    },
+    {
+      "path": "audit_causal_monitoring/findings.json",
+      "sha256": "4b655fdcdd0d378235c707d16600ed45050db27a7da1760c5e15e73a7e5a5f38",
+      "bytes": 8177
+    },
+    {
+      "path": "audit_fabric_acquisition/findings.json",
+      "sha256": "6090c8c5675e86200622d6c0777bd3f9955cfa11caecbe841219fe4c34a0a14a",
+      "bytes": 19502
+    },
+    {
+      "path": "audit_foundry_numeric/findings.json",
+      "sha256": "be63dbfc4053c8114116e5038d32d69eb9cf8a36b7d8655b45efcfedd75966d1",
+      "bytes": 319
+    },
+    {
+      "path": "audit_lane_integration/findings.json",
+      "sha256": "10a0c5d2cfcc94cff81a5e1c5121ffa549a2b472aa1b656b89409bf7fae34c2a",
+      "bytes": 6768
+    },
+    {
+      "path": "audit_policy_search/findings.json",
+      "sha256": "aabe0ee7e2af1e6314f4ac604958ed24b5806e4e6c1ff91ba0c2e6cb7b7ba8c4",
+      "bytes": 396
+    },
+    {
+      "path": "audit_runtime_delivery/findings.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3
+    },
+    {
+      "path": "README.md",
+      "sha256": "69c30d31d5a983f0ce8d18b532d19687abeb6ef1fbbdbaada09a127741fcdca4",
+      "bytes": 5695
+    },
+    {
+      "path": "Итоговый_обзор.md",
+      "sha256": "13dac6e65ffb21073a77225472e53bdee7eca537eb8fe684808bbee0e3214577",
+      "bytes": 16428
+    },
+    {
+      "path": "Точечные_уточнения.md",
+      "sha256": "b149652392d61f864f583e0b3775ed582f456b45e1d39550c167d46b10b1fc86",
+      "bytes": 4721
+    },
+    {
+      "path": "Полнота_проверки.md",
+      "sha256": "e04235fc46785fe953b1e1a93c8368869cef444368898dd30a0e41dd452e23e9",
+      "bytes": 7149
+    },
+    {
+      "path": "Консолидированные_замечания.json",
+      "sha256": "3cc15258c2770f6c6f69d20d21bc0d3c118e64c35af2445f1b2aedc685b61c5a",
+      "bytes": 28242
+    }
+  ],
+  "limitations": [
+    "Only existing frozen catalog/source metadata used; no new web-source/full-document-reading claim.",
+    "No product imports/native tests/installs/external mutations. Code read only for already supplied findings.",
+    "SHA/coverage checks prove documentary consistency, not truth of every judgment or runtime correctness.",
+    "No broad new product area opened during final QA.",
+    "Archive checksum/CRC and uploaded artifact identity are parent release verification, not claimed complete here."
+  ],
+  "blocked_actions": []
+}

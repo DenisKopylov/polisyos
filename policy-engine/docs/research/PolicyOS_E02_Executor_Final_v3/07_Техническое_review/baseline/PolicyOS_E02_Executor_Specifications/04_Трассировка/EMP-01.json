@@ -1,0 +1,671 @@
+{
+  "packet_id": "EMP-01",
+  "lane": "LANE-03",
+  "status": "AUTHORED_PENDING_FINAL_QA",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "test_status": "NOT_RUN",
+  "audit_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "source_ids": [
+    "B16",
+    "B31",
+    "B33"
+  ],
+  "audit_reports": [
+    "05_Основания/Аудит/02_Пакеты/EMP-01.md"
+  ],
+  "source_plan_lines": [
+    3413,
+    3529
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C28_остатки:0",
+      "audit_id": "C28-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-EMP-01-01",
+        "REQ-EMP-01-08"
+      ],
+      "shared_owner": null,
+      "rationale": "Убрать зависимость численного admission от абсолютной единицы с явной совместимостью.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C28_остатки.json",
+        "sha256": "2f77f07dcf3b79c7bd3e8d79a74c1bdb5d2ffa78b13f5b4f5632d8882d825d30",
+        "json_pointer": "/findings/0"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C28_остатки:1",
+      "audit_id": "C28-R02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-EMP-01-02",
+        "REQ-EMP-01-08"
+      ],
+      "shared_owner": null,
+      "rationale": "Не допускать nonfinite derived width до сохранения; checksum не ослаблять.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C28_остатки.json",
+        "sha256": "2f77f07dcf3b79c7bd3e8d79a74c1bdb5d2ffa78b13f5b4f5632d8882d825d30",
+        "json_pointer": "/findings/1"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C28_остатки:2",
+      "audit_id": "C28-G01",
+      "disposition": "capability",
+      "requirement_ids": [
+        "REQ-EMP-01-04",
+        "REQ-EMP-01-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Это не только запуск теста: определить/связать поддержанную измерительную область через существующие owners; unsupported срез ограничить адресно.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C28_остатки.json",
+        "sha256": "2f77f07dcf3b79c7bd3e8d79a74c1bdb5d2ffa78b13f5b4f5632d8882d825d30",
+        "json_pointer": "/findings/2"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C28_остатки:3",
+      "audit_id": "C28-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-EMP-01-03",
+        "REQ-EMP-01-06",
+        "REQ-EMP-01-07"
+      ],
+      "shared_owner": null,
+      "rationale": "Работающий candidate путь сохраняется; scientific/model/assignment основания устанавливаются отдельно.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C28_остатки.json",
+        "sha256": "2f77f07dcf3b79c7bd3e8d79a74c1bdb5d2ffa78b13f5b4f5632d8882d825d30",
+        "json_pointer": "/findings/3"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C28_остатки:4",
+      "audit_id": "C28-G03",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-EMP-01-03",
+        "REQ-EMP-01-04",
+        "REQ-EMP-01-05",
+        "REQ-EMP-01-06",
+        "REQ-EMP-01-07",
+        "REQ-EMP-01-08"
+      ],
+      "shared_owner": null,
+      "rationale": "Реальные SQL, registry, CAS, solver и fresh consumers вместо прежних внешних fixtures.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C28_остатки.json",
+        "sha256": "2f77f07dcf3b79c7bd3e8d79a74c1bdb5d2ffa78b13f5b4f5632d8882d825d30",
+        "json_pointer": "/findings/4"
+      }
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0041",
+      "requirement_ids": [
+        "REQ-EMP-01-05"
+      ],
+      "disposition": "capability",
+      "rationale": "Population/time/regime нельзя терять за country фильтром.",
+      "source_ids": [
+        "B16"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0042",
+      "requirement_ids": [
+        "REQ-EMP-01-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Нужен настоящий SQL reader.",
+      "source_ids": [
+        "B16"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0075",
+      "requirement_ids": [
+        "REQ-EMP-01-01",
+        "REQ-EMP-01-08"
+      ],
+      "disposition": "fix",
+      "rationale": "Единицы и numerical-policy compatibility.",
+      "source_ids": [
+        "B31"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0076",
+      "requirement_ids": [
+        "REQ-EMP-01-02",
+        "REQ-EMP-01-08"
+      ],
+      "disposition": "fix",
+      "rationale": "Finite endpoints и безопасная производная/roundtrip.",
+      "source_ids": [
+        "B31"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0077",
+      "requirement_ids": [
+        "REQ-EMP-01-03",
+        "REQ-EMP-01-07"
+      ],
+      "disposition": "qualify",
+      "rationale": "Bounds/estimand и authority не создаются сохранением bytes.",
+      "source_ids": [
+        "B31"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0078",
+      "requirement_ids": [
+        "REQ-EMP-01-03",
+        "REQ-EMP-01-07",
+        "REQ-EMP-01-08"
+      ],
+      "disposition": "qualify",
+      "rationale": "Настоящий method-run/persistence consumer.",
+      "source_ids": [
+        "B31"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0083",
+      "requirement_ids": [
+        "REQ-EMP-01-06",
+        "REQ-EMP-01-07"
+      ],
+      "disposition": "qualify",
+      "rationale": "Выбранный граф сохраняется, scientific basis не выводится из topology marker.",
+      "source_ids": [
+        "B33"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0084",
+      "requirement_ids": [
+        "REQ-EMP-01-06"
+      ],
+      "disposition": "qualify",
+      "rationale": "Actual selected graph/CAS/fresh solver.",
+      "source_ids": [
+        "B33"
+      ]
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0049",
+      "requirement_ids": [
+        "REQ-EMP-01-04"
+      ],
+      "test_ids": [
+        "TEST-EMP-01-04"
+      ],
+      "rationale": "Country filter before LIMIT."
+    },
+    {
+      "inventory_id": "preserve:0050",
+      "requirement_ids": [
+        "REQ-EMP-01-04"
+      ],
+      "test_ids": [
+        "TEST-EMP-01-04"
+      ],
+      "rationale": "Cap+1 truncation refusal."
+    },
+    {
+      "inventory_id": "preserve:0051",
+      "requirement_ids": [
+        "REQ-EMP-01-04",
+        "REQ-EMP-01-05"
+      ],
+      "test_ids": [
+        "TEST-EMP-01-04",
+        "TEST-EMP-01-05"
+      ],
+      "rationale": "Unit/source binding and source row hashes."
+    },
+    {
+      "inventory_id": "preserve:0052",
+      "requirement_ids": [
+        "REQ-EMP-01-04",
+        "REQ-EMP-01-05"
+      ],
+      "test_ids": [
+        "TEST-EMP-01-04",
+        "TEST-EMP-01-05"
+      ],
+      "rationale": "Activated row projection has separate full physical content checks."
+    },
+    {
+      "inventory_id": "preserve:0098",
+      "requirement_ids": [
+        "REQ-EMP-01-03"
+      ],
+      "test_ids": [
+        "TEST-EMP-01-03"
+      ],
+      "rationale": "Separate asymmetric statistical interval."
+    },
+    {
+      "inventory_id": "preserve:0099",
+      "requirement_ids": [
+        "REQ-EMP-01-07"
+      ],
+      "test_ids": [
+        "TEST-EMP-01-03"
+      ],
+      "rationale": "No report-only value projection."
+    },
+    {
+      "inventory_id": "preserve:0100",
+      "requirement_ids": [
+        "REQ-EMP-01-03",
+        "REQ-EMP-01-07"
+      ],
+      "test_ids": [
+        "TEST-EMP-01-03",
+        "TEST-EMP-01-07"
+      ],
+      "rationale": "Exact method input/run/report/estimand chain in source."
+    },
+    {
+      "inventory_id": "preserve:0105",
+      "requirement_ids": [
+        "REQ-EMP-01-06"
+      ],
+      "test_ids": [
+        "TEST-EMP-01-06"
+      ],
+      "rationale": "No topology invented from names."
+    },
+    {
+      "inventory_id": "preserve:0106",
+      "requirement_ids": [
+        "REQ-EMP-01-06"
+      ],
+      "test_ids": [
+        "TEST-EMP-01-06"
+      ],
+      "rationale": "Selected-profile graph and problem/world bindings."
+    },
+    {
+      "inventory_id": "preserve:0107",
+      "requirement_ids": [
+        "REQ-EMP-01-06",
+        "REQ-EMP-01-07"
+      ],
+      "test_ids": [
+        "TEST-EMP-01-06",
+        "TEST-EMP-01-07"
+      ],
+      "rationale": "Persisted run basis and fresh solver recomputation."
+    }
+  ],
+  "requirements": [
+    {
+      "text": "Новая численная политика interval_box должна сохранять положительную представимую ширину hi−lo без округления до фиксированного числа десятичных разрядов. При допустимой смене единиц масштаба a>0, не теряющей различимость endpoints и сохраняющей конечную представимую width, proxy/nonzero admissibility не меняется; вырожденный proxy с равными endpoints отклоняется. Point identification и statistical uncertainty не смешиваются.",
+      "source_ids": [
+        "B31"
+      ],
+      "audit_ids": [
+        "C28-R01"
+      ],
+      "id": "REQ-EMP-01-01",
+      "test_ids": [
+        "TEST-EMP-01-01"
+      ]
+    },
+    {
+      "text": "Если конечные endpoints дают непредставимую nonfinite производную width, live construction нового ValueOuterSet должен адресно отказать до сериализации. Ни Infinity, ни null вместо width не могут стать успешным сохраняемым контрактом; normal finite range продолжает проходить roundtrip.",
+      "source_ids": [
+        "B31"
+      ],
+      "audit_ids": [
+        "C28-R02"
+      ],
+      "id": "REQ-EMP-01-02",
+      "test_ids": [
+        "TEST-EMP-01-02"
+      ]
+    },
+    {
+      "text": "Point identification [2,2] с отдельно сообщённым asymmetric statistical CI [0,10] должно сохранять обе пары точно по их роли через JSON/CAS/readback. Bounds не расширяются произвольными 10%/0.01 и не симметризуются со сужением. Координата зависит от estimand/unit, а не только имени estimator.",
+      "source_ids": [
+        "B31"
+      ],
+      "audit_ids": [
+        "C28-G02",
+        "C28-G03"
+      ],
+      "id": "REQ-EMP-01-03",
+      "test_ids": [
+        "TEST-EMP-01-03"
+      ]
+    },
+    {
+      "text": "В действительном catalog SQL объявленный scope применяется до ORDER/LIMIT; cap+1 обнаруживает усечение и отличает его от пустой/слишком малой выборки. Неоднозначные unit-period, источники или единицы нельзя молча усреднять. Source identities и отдельная полная проверка activated observation projection сохраняются.",
+      "source_ids": [
+        "B16"
+      ],
+      "audit_ids": [
+        "C28-G01",
+        "C28-G03"
+      ],
+      "id": "REQ-EMP-01-04",
+      "test_ids": [
+        "TEST-EMP-01-04",
+        "TEST-EMP-01-05"
+      ]
+    },
+    {
+      "text": "Каждое поддержанное поле области измерения, существенно различающее population/entity/time/regime/source version, должно быть связано с фактическим owner contract, выбором rows до cap и content identity потреблённого профиля. Если источники/контракт не выражают запрошенный срез, gateway возвращает адресное unsupported scope/нужное основание, а не молча country-wide данные. Country-only candidate профиль может оставаться доступным с явно более узким смыслом, не притворяясь запрошенным subgroup estimate.",
+      "source_ids": [
+        "B16"
+      ],
+      "audit_ids": [
+        "C28-G01"
+      ],
+      "id": "REQ-EMP-01-05",
+      "test_ids": [
+        "TEST-EMP-01-05"
+      ]
+    },
+    {
+      "text": "Selection diagram сохраняет топологию выбранного causal artifact, его profile/schema/problem/WMR binding и measured S-nodes без выдуманной причинной роли. Две модели с одинаковыми именами узлов и разными рёбрами не сводятся к одному шаблону. Missing/wrong-profile/foreign-context граф не получает transport receipt; LLM hypothesis остаётся явно candidate до bridge.",
+      "source_ids": [
+        "B33"
+      ],
+      "audit_ids": [
+        "C28-G02",
+        "C28-G03"
+      ],
+      "id": "REQ-EMP-01-06",
+      "test_ids": [
+        "TEST-EMP-01-06"
+      ]
+    },
+    {
+      "text": "Положительный method/transport результат проходит actual owner→registry-selected runner/solver→persisted input/run/report→fresh resolver/consumer с проверкой исходного смысла и bytes. Bare report не заменяет run basis. Consumer-asserted assignment/support, неизвестная связь bounds/estimand и неустановленная калибровка сохраняют candidate/search_only/non-production роль; отдельно установленное основание может расширить только затронутое использование.",
+      "source_ids": [
+        "B31",
+        "B33"
+      ],
+      "audit_ids": [
+        "C28-G02",
+        "C28-G03"
+      ],
+      "id": "REQ-EMP-01-07",
+      "test_ids": [
+        "TEST-EMP-01-03",
+        "TEST-EMP-01-06",
+        "TEST-EMP-01-07"
+      ]
+    },
+    {
+      "text": "Изменение numerical width semantics должно иметь однозначно различимую версию/профиль записи и reader. Старый checksum проверяется по старому объявленному контракту, новый — по новому; historical bytes не переписываются, а reader не угадывает версию по тому, какой checksum случайно сошёлся. Tampered width отвергается в обоих профилях.",
+      "source_ids": [
+        "B31"
+      ],
+      "audit_ids": [
+        "C28-R01",
+        "C28-R02",
+        "C28-G03"
+      ],
+      "id": "REQ-EMP-01-08",
+      "test_ids": [
+        "TEST-EMP-01-01",
+        "TEST-EMP-01-02",
+        "TEST-EMP-01-08"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "native contract/numerical metamorphic",
+      "setup": "Новые interval_box fixtures с proxy bounds [0,1e-6], после unit scaling [0,1e-10], partial [0,1e-13], exact equal endpoints; добавить representable соседние floats и отрицательные bounds.",
+      "action": "Создать DTO, получить derived width, выполнить model_dump_json/from_persisted_payload и координатно согласованное масштабирование.",
+      "oracle": "Обе proxy ширины положительны и допустимы; partial width не 0; equal proxy отвергнут. Для этих fixtures width равна фактическому float hi−lo, без decimal rounding. Масштабирование оценивается с заранее заданной float tolerance и одинаковым физическим интервалом, не с битовой идентичностью разных units. Old round(...,12)/absolute1e-9 должен провалить контроль.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "src/polisyos/core/contracts/value_outer_set.py; tests/unit/remediation/test_emp_01.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-EMP-01-01",
+      "requirement_ids": [
+        "REQ-EMP-01-01",
+        "REQ-EMP-01-08"
+      ]
+    },
+    {
+      "level": "native overflow/roundtrip",
+      "setup": "Finite endpoints [-1e308,1e308] и обычный finite контроль [-1e100,1e100]; дополнительно умножить endpoints контроля на 1e208: endpoints остаются конечными ±1e308, но width переполняется.",
+      "action": "Вызвать live construction и JSON serializer только для принятых моделей.",
+      "oracle": "Непредставимая width, включая результат масштабирования с конечными endpoints, получает точный ValueError до записи: здесь инвариантность REQ-01 не применяется, отказ не означает вырожденность или рост определённости. Valid wide interval сохраняется и читается; никакого null/Infinity. Ослабление from_persisted_payload checksum не считается ремонтом.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "src/polisyos/core/contracts/value_outer_set.py; ближайший существующий contract suite",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-EMP-01-02",
+      "requirement_ids": [
+        "REQ-EMP-01-02",
+        "REQ-EMP-01-08"
+      ]
+    },
+    {
+      "level": "native report/value consumer",
+      "setup": "Существующий owner-run fixture с point2/CI[0,10] и полный actual run basis; отрицательный bare report, foreign run basis и метод другого имени при том же estimand.",
+      "action": "Запустить native producer/конверсию, сохранить ValueOuterSet, прочитать свежим reader и передать затронутому N8 consumer.",
+      "oracle": "Identification [2,2] отдельно от statistical[0,10], asymmetric CI не сужен; exact estimand/unit identity сохраняется, одно имя метода не создаёт новую предметную координату. Bare report/foreign binding отказываются; valid candidate сохраняется как search_only без выдуманной authority.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_emp_01.py; generation_cycle.py::_produce_value_owner_method_run_basis/_value_outer_set_from_owner_method_run_basis",
+      "allowed_doubles_and_prohibitions": "Допустим synthetic panel. Actual registry/runner, selected profile, CAS и resolver не подменяются. Новый testcase расширяет имеющийся owner-basis путь.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-EMP-01-03",
+      "requirement_ids": [
+        "REQ-EMP-01-03",
+        "REQ-EMP-01-07"
+      ]
+    },
+    {
+      "level": "native DuckDB/catalog",
+      "setup": "Существующий test_scope_filter_excludes_other_regions_before_profile_limit: более20000 чужих rows и подходящий малый country профиль; отдельно20001 подходящая строка, пустой набор, duplicate unit-period и mixed units/sources.",
+      "action": "Через real catalog reader/RealValueOwnerGateway загрузить профиль с выбранной страной.",
+      "oracle": "Чужие rows не вытесняют подходящие до LIMIT; cap+1 даёт value_owner_rows_truncated, empty не то же самое; ambiguous rows не усредняются. Activated projection physical-content negatives также остаются действительными.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_emp_01.py",
+      "allowed_doubles_and_prohibitions": "Тестовый DuckDB catalog и данные разрешены; reader с заранее ожидаемым массивом не доказывает SQL ordering/scope.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-EMP-01-04",
+      "requirement_ids": [
+        "REQ-EMP-01-04"
+      ]
+    },
+    {
+      "level": "native measurement-scope bridge",
+      "setup": "После DEC-EMP-01-SCOPE взять один реально поддержанный source mapping с различающей entity/population/time/regime координатой. Два набора могут иметь одинаковую численную summary, но разные scope/row IDs. Отдельно unsupported subgroup.",
+      "action": "Запросить каждый scope через gateway, сохранить actual selected rows/source profile, читать свежим consumer; изменить только значимое scope поле/condition.",
+      "oracle": "Поддержанные запросы выбирают разные правильные row sets до cap и имеют разную содержательную identity; unsupported scope даёт точный ограниченный исход, не fallback на другую популяцию. Нельзя засчитать произвольный fixture-key population как доказательство существующего catalog mapping.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "generation_cycle.py::RealValueOwnerGateway/_load_value_data_profile_from_catalog_reader; ir/observation/contracts.py::ObservationRecord",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-EMP-01-05",
+      "requirement_ids": [
+        "REQ-EMP-01-04",
+        "REQ-EMP-01-05"
+      ]
+    },
+    {
+      "level": "native selected graph/transport E02-I03-A",
+      "setup": "Переиспользовать _selected_profile_transport_case и два графа с теми же nodes, разными рёбрами; реальные selected artifact profiles и problem/WMR.",
+      "action": "Вызвать gateway.run_transport, сохранить graph/diagram/solver result, разрешить fresh _resolve_value_transport_run_basis. Затем remove graph, substitute profile/context или query node.",
+      "oracle": "Valid diagram.base_graph равен выбранному графу, два различающихся графа не превращены в T→Y template; S-nodes сохраняют measured source/target и role=None. Fresh native solver согласован; substitutions адресно отвергнуты, candidate scope сохранён.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_emp_01.py::test_selected_profile_graph_reaches_fresh_candidate_transport_receipt; test_fresh_transport_admission_refuses_removed_or_substituted_graph",
+      "allowed_doubles_and_prohibitions": "Synthetic graph/data допустимы; graph DTO admission, profile binding, actual CAS/solver/consumer не заменяются fixtures.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-EMP-01-06",
+      "requirement_ids": [
+        "REQ-EMP-01-06",
+        "REQ-EMP-01-07"
+      ]
+    },
+    {
+      "level": "bounded empirical-use decision + native negative",
+      "setup": "Candidate report с truthful consumer_asserted treatment/support и объявленной LLM hypothesis; отдельно реально доступный evidence case либо явное отсутствие такого case.",
+      "action": "Проследить все load-bearing основания и visible N8 limitation; попытаться повысить role одним finite CI/числом observations/receipt.",
+      "oracle": "Candidate полезен и читается, но production_value_eligible=False/search_only не исчезают от marker. Для более сильного claim нужен адресный комплект assignment/source/model/bounds-estimand/calibration evidence; при его отсутствии scientific closure NOT_ESTABLISHED, а не universal-inventor blocker.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "generation_cycle.py::RealValueOwnerGateway; существующие method-run/transport acceptance owners",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-EMP-01-07",
+      "requirement_ids": [
+        "REQ-EMP-01-07"
+      ]
+    },
+    {
+      "level": "versioned compatibility/integrity",
+      "setup": "Заморозить genuine old payloads до правки, включая округлённую малую width и ordinary point/proxy; новый численный профиль. Не создавать legacy bytes новым serializer.",
+      "action": "Проверить old reader/explicit migration и new writer/new reader; изменить только checksum, metadata версии или endpoint.",
+      "oracle": "Старые bytes проверяются собственным историческим правилом и не объявляются current semantic acceptance автоматически; новые проходят new roundtrip. Tampering отказан; попытка трактовать новую запись как legacy не обходит version admission. Выбранное решение DEC-EMP-01-NUMERIC фиксировано в test, не угадывается.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "ValueOuterSet.from_persisted_payload; существующий artifact/profile owner выбранный при DEC-EMP-01-NUMERIC",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-EMP-01-08",
+      "requirement_ids": [
+        "REQ-EMP-01-08"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I03-A"
+  ],
+  "dependencies": [
+    {
+      "packet": "CYC-01",
+      "relation": "Существующий selected problem/profile/context producer; наследованный предшественник, не повторный заказ его реализации."
+    },
+    {
+      "packet": "FRC-01/FRC-02",
+      "relation": "Время, calibration receipt и S10 находятся у этих owners. Scope/ValueOuterSet здесь не должны переписывать forecast gate."
+    },
+    {
+      "packet": "ACQ-01 / LANE-07",
+      "relation": "Activated projection и ObservationRecord semantics согласовать с настоящим producer; не новый параллельный measurement DTO."
+    },
+    {
+      "packet": "GRF-01/GRF-02",
+      "relation": "Переиспользовать canonical graph/solver contracts, не собственный graph engine."
+    }
+  ],
+  "preservation": [
+    "Country filter before LIMIT.",
+    "Cap+1 truncation refusal.",
+    "Unit/source binding and source row hashes.",
+    "Activated row projection has separate full physical content checks.",
+    "Separate asymmetric statistical interval.",
+    "No report-only value projection.",
+    "Exact method input/run/report/estimand chain in source.",
+    "No topology invented from names.",
+    "Selected-profile graph and problem/world bindings.",
+    "Persisted run basis and fresh solver recomputation."
+  ],
+  "protected_distinction_ids": [],
+  "design_alignment": [
+    {
+      "source": "policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+      "section": "D0, lines559–617",
+      "application": "Генеральность достигается общим numerical/scope механизмом и честной границей, а не branch по имени страны. Проверки масштаба и второго реально различающего scope показывают переносимость без требования всезнания."
+    },
+    {
+      "source": "policy-engine/docs/system-design-decisions/policy-design-execution-topology.md",
+      "section": "lines143–159: applicability versus semantic judgment",
+      "application": "Механические bindings/finite bounds не доказывают causal graph. LLM hypothesis может дать исследовательский candidate, но не самостоятельно empirical authority."
+    }
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-EMP-01-NUMERIC",
+      "question": "Какой существующий persisted profile/version владеет изменением width semantics?",
+      "owner": "ValueOuterSet и реальный artifact/profile owner, reviewer совместимости",
+      "bounded_action": "Проследить все writers/from_persisted_payload consumers и заморозить конечные genuine old fixtures; выбрать existing versioned profile либо минимальное explicit version field. Сдать карту old/new read/write и distinguishing checksum controls до изменения serializer.",
+      "default": "Не менять старые bytes и не угадывать version; локальная numerical правка не принимается без совместимого reader решения."
+    },
+    {
+      "id": "DEC-EMP-01-SCOPE",
+      "question": "Какие population/entity/time/regime координаты реально представлены выбранным источником?",
+      "owner": "Gateway и настоящий measurement/catalog producer",
+      "bounded_action": "На одном поддержанном источнике проверить полный mapping полей, одну содержательную смену scope и один неподдержанный срез. Выдать таблицу mapping и реализованный общий handoff либо точную объявленную границу плюс конкретный недостающий producer field. Не подменять отсутствие mapping произвольным fixture ключом.",
+      "default": "Country-only candidate сохраняет объявленный ограниченный scope; иной запрошенный scope не заменяется им молча."
+    }
+  ],
+  "technical_solution": "**Численный owner.** Изменять `_derive_interval_widths` и admission в `ValueOuterSet`, а не отдельные consumers. Предлагаемый новый контракт использует фактический представимый `hi-lo`, проверенный `math.isfinite`, без `round(...,12)`. Для нового exact-endpoint профиля point означает равенство endpoints, proxy — хотя бы одну строго положительную width. Это unit-covariant при смене масштаба, сохраняющей различимость endpoints и конечную представимость производной width; это не обещание восстановить информацию, уже потерянную float conversion. Если нужна измерительная tolerance, она должна быть declared coordinate/unit-bound параметром, а не общей константой1e-9. Не добавлять вымышленную минимальную ширину.\n\n**Совместимость — часть ремонта.** Current `from_persisted_payload` сравнивает derived checksum точно, поэтому простая смена функции сломает историческое чтение. До изменения определить существующий artifact/profile owner для persisted ValueOuterSet (DEC-NUMERIC). Предпочесть его versioned numerical profile; если он не выражает различие, минимальное явное version field в текущем контракте допустимо после обзора consumers. Старый reader должен проверять old checksum старым алгоритмом. Новый writer выдаёт только новую версию; legacy acceptance не служит promotion нового результата. Не принимать любой из двух checksum без версии. Проверить также canonical payload/hash и static JAX tree roundtrip: их presentation rounding не должно незаметно схлопывать deciding численное различие нового профиля. Это квалификация затронутого представления, а не заявление о найденной production hash-коллизии.\n\n**Измерительный scope.** У `RealValueOwnerGateway._load_value_data_profile_from_source` сейчас outcome и country идут в loader, но не полный measurement scope. Не читать произвольный `condition_json.population` как универсальный стандарт. В DEC-SCOPE составить точную таблицу `DesignProblem/selected source profile → существующее поле ObservationRecord/catalog → SQL predicate → retained provenance/hash`. Для поддержанного mapping передавать его через существующий loader, фильтровать до LIMIT и включать значимые scope/source-version данные в selected profile identity. Неуспешное разрешение означает адресный unsupported scope; оно не должно silently расширять популяцию. Activated projection уже проверяет полный физический content, эту сильную ветку не заменять упрощённым общим hash.\n\n**Граф/метод.** Сохранить `_build_candidate_selection_diagram`, producer-owned method-run basis и fresh resolver. Исполнитель расширяет только подтверждённо отсутствующую связь, не заново строит T→Y. LLM может предложить граф и estimand; существующий выбранный artifact bridge и реальный runner/solver должны потребить именно их. Численный результат остаётся полезным условным расчётом, пока отсутствует отдельное основание empirical promotion.",
+  "compatibility_and_rollback": "Изменение допустимости point/proxy и checksum — намеренный versioned numerical delta, не equivalent move. Исторические ValueOuterSet/run artifacts сохраняются byte-for-byte; читатель должен различать историческую проверку целостности и текущую пригодность. Scope extension меняет содержательную identity только при изменении решающих входов; одинаковые summaries не разрешают reuse чужого scope. Rollback возвращает согласованную пару writer/reader и сохраняет новый профиль как явно unsupported там, где старый код его не умеет; нельзя падать назад к guessed legacy или отключать checksum. Неподдержанный empirical scope не блокирует независимый simulation-only K1.",
+  "source_locators": [
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/value_outer_set.py",
+      "first_line": 58,
+      "last_line": 82,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/contracts/value_outer_set.py#L58-L82"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/value_outer_set.py",
+      "first_line": 151,
+      "last_line": 398,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/contracts/value_outer_set.py#L151-L398"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": 5999,
+      "last_line": 6076,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L5999-L6076"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": 16154,
+      "last_line": 16410,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L16154-L16410"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": 16538,
+      "last_line": 16697,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L16538-L16697"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": 16970,
+      "last_line": 17122,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L16970-L17122"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/observation/contracts.py",
+      "first_line": 131,
+      "last_line": 209,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/observation/contracts.py#L131-L209"
+    }
+  ]
+}

@@ -1,0 +1,530 @@
+{
+  "packet_id": "CYC-03",
+  "lane": "LANE-01",
+  "title": "Новая исследовательская основа без фиктивного нового кандидата",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B09",
+    "B27",
+    "B28"
+  ],
+  "audit_reports": [
+    "02_Пакеты/CYC-03.md"
+  ],
+  "audit_report_sha256": "d88d97012690b9f1f829831474c6b718b18a29b5a99e4d7c792668fa123d05ea",
+  "sourceplan_lines": [
+    508,
+    616
+  ],
+  "practical_goal": "Пользователь видит новый содержательный расчёт при изменившемся основании, экономный reuse при полной эквивалентности и доступную историю ухудшений, а не только новый receipt.",
+  "requirements": [
+    {
+      "id": "REQ-CYC-03-01",
+      "text": "При equivalent эффективном input новое admission должно сохранить прежние numerical refs/bytes, но выполнить актуальные cheap grounding/value/VOI/requirement consequences; при different вызвать реальный повтор N5, при not_established не утверждать reuse.",
+      "source_ids": [
+        "B09",
+        "B27",
+        "B28"
+      ],
+      "audit_ids": [
+        "remaining:0022",
+        "preserve:0025",
+        "preserve:0026",
+        "audit-residual:C03_C04_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-CYC-03-01"
+      ]
+    },
+    {
+      "id": "REQ-CYC-03-02",
+      "text": "Revision служебных grammar hints должна перевыпускать context существующим owner; смена предмета, модели, популяции или метода не должна идти через grammar-only rebind старого доказательства.",
+      "source_ids": [
+        "B09",
+        "B27",
+        "B28"
+      ],
+      "audit_ids": [
+        "remaining:0066",
+        "remaining:0067",
+        "preserve:0027",
+        "preserve:0086",
+        "preserve:0087"
+      ],
+      "test_ids": [
+        "TEST-CYC-03-02"
+      ]
+    },
+    {
+      "id": "REQ-CYC-03-03",
+      "text": "Для model/method/constraint change и разрешённой независимой реплики должен быть задан исполняемый тип перехода с целью и полной dependency basis; новый независимый measurement равного значения не теряет independence/time/sample-size.",
+      "source_ids": [
+        "B09",
+        "B27",
+        "B28"
+      ],
+      "audit_ids": [
+        "remaining:0023",
+        "remaining:0067",
+        "audit-residual:C03_C04_остатки:4",
+        "audit-residual:C03_C04_остатки:5"
+      ],
+      "test_ids": [
+        "TEST-CYC-03-03"
+      ]
+    },
+    {
+      "id": "REQ-CYC-03-04",
+      "text": "История должна сохранять все occurrences и old runs, а current frontier/потребитель выбирать последнюю валидную occurrence, включая ухудшение; promotion не привязывается только к candidate_id.",
+      "source_ids": [
+        "B09",
+        "B27",
+        "B28"
+      ],
+      "audit_ids": [
+        "remaining:0068",
+        "preserve:0088",
+        "preserve:0089",
+        "preserve:0090"
+      ],
+      "test_ids": [
+        "TEST-CYC-03-04"
+      ]
+    },
+    {
+      "id": "REQ-CYC-03-05",
+      "text": "Каждый реально используемый HTTP/export/UI consumer должен показывать выбранную current occurrence и происхождение numerical результата, не выдавая retained computation за новое исполнение.",
+      "source_ids": [
+        "B09",
+        "B27",
+        "B28"
+      ],
+      "audit_ids": [
+        "remaining:0068",
+        "remaining:0069",
+        "preserve:0090",
+        "audit-residual:C03_C04_остатки:6"
+      ],
+      "test_ids": [
+        "TEST-CYC-03-05"
+      ]
+    },
+    {
+      "id": "REQ-CYC-03-06",
+      "text": "Второй содержательно иной поддержанный case должен проходить тот же acquisition/basis механизм с раскрытым объёмом специальной подготовки.",
+      "source_ids": [
+        "B09",
+        "B27",
+        "B28"
+      ],
+      "audit_ids": [
+        "preserve:0087",
+        "audit-residual:C03_C04_остатки:3"
+      ],
+      "test_ids": [
+        "TEST-CYC-03-06"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-CYC-03-01",
+      "requirement_ids": [
+        "REQ-CYC-03-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Существующий tests/integration/core_runtime/test_acquisition_retained_sequential_served.py и его selector test_served_actual_acquisition_retains_equal_b_then_reenters_for_c; реальные N5/store, локальные разрешённые source bytes.",
+      "action": "Исполнить A→B→B→B→C с двумя новыми одинаковыми admissions и затем −17.1→−9.0.",
+      "oracle": "Равные B сохраняют exact N4/context/input/execution/result refs и bytes, но имеют новые admission/current-continuation; C вызывает actual controller и меняет dependent input/result.",
+      "expected": "Unknown basis не equivalent; failure нового расчёта не возвращает старый success под новой датой; no fake grammar/ID-only retry.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-03-02",
+      "requirement_ids": [
+        "REQ-CYC-03-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Настоящий DesignProblem и source-backed context; existing fence/context test test_fenced_nl_owner_reopens_same_store_candidate_world_and_refuses_without_fence.",
+      "action": "Раздельно изменить служебный hint, problem text при том же ID, population, model/method binding, снять execution fence.",
+      "oracle": "Только разрешённый hint получает новый согласованный context; иной предмет не принимает old context; actual owner reread и правильный error code.",
+      "expected": "Допустимая revision положительна; foreign/stale/terminal lease отказывает до использования; grammar guard сохраняется.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-03-03",
+      "requirement_ids": [
+        "REQ-CYC-03-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Один текущий compatible model/method resource и объявленный experimental replicate intent; два observations с равным числом, но разным independence/time; контроль того же occurrence.",
+      "action": "Пропустить объявленные изменения через actual continuation, сравнить basis и consumed request; выполнить новый sample с отдельным seed/measurement identity.",
+      "oracle": "Meaningful declared change вызывает нужный owner ровно один раз; equal scalar с новой независимой информацией не сливается; технический replay идемпотентен.",
+      "expected": "Положительный полезный второй исследовательский шаг обязателен; неопределённый owner route даёт адресный непокрытый профиль, не универсальную поддержку.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-03-04",
+      "requirement_ids": [
+        "REQ-CYC-03-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Два цикла того же stable candidate, первый research, второй quarantine/blocked; old/new N4/N5 и source lineage.",
+      "action": "Сохранить, открыть новый HTTP reader, затем отдельно подменить только occurrence cycle/hash и root origin.",
+      "oracle": "Текущий front показывает второе худшее состояние; оба historical runs читаются; чужая occurrence/ref и inconsistent lineage отвергаются.",
+      "expected": "Дубликат exact occurrence запрещён; актуальный adverse result не заменяется удобным прошлым success.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-03-05",
+      "requirement_ids": [
+        "REQ-CYC-03-05"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Persisted sequence TEST-01 и реальные активные readers; новый app/reader, для browser нужен отдельно разрешённый тестовый frontend.",
+      "action": "Открыть current и historical представления через actual consumers, заменить selected ref либо удалить bytes.",
+      "oracle": "Current и historical метки, effect/basis и retained-versus-reexecuted различимы; missing не выглядит числом/успехом.",
+      "expected": "Полезный результат доступен consumer; отсутствие browser execution остаётся UNRUN, не скрывается screen snapshot.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-03-06",
+      "requirement_ids": [
+        "REQ-CYC-03-06"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Совместный E02-I01-B с ACQ-01: другой осмысленный ресурс и явная model/input связь.",
+      "action": "Подключить ресурс через common adapter, пройти новый admission и subsequent evaluation.",
+      "oracle": "Есть actual changed/retained decision на полной basis, таблица manual/server-derived preparation и новый полезный output.",
+      "expected": "Нет special-case switch по имени, invented units или требования нулевого нового кода при реально новой семантике.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C03_C04_остатки:0",
+      "requirement_ids": [
+        "REQ-CYC-03-01"
+      ],
+      "rationale": "Actual A→B→B→B→C.",
+      "disposition": "qualify",
+      "audit_id": "R01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C03_C04_остатки:3",
+      "requirement_ids": [
+        "REQ-CYC-03-06"
+      ],
+      "rationale": "ACQ-01 владеет общим profile expansion; CYC-03 — basis/occurrence.",
+      "disposition": "shared",
+      "audit_id": "R04",
+      "shared_owner": "ACQ-01"
+    },
+    {
+      "inventory_id": "audit-residual:C03_C04_остатки:4",
+      "requirement_ids": [
+        "REQ-CYC-03-03"
+      ],
+      "rationale": "Не только запуск теста: поддержанный owner-bound новый transition.",
+      "disposition": "capability",
+      "audit_id": "R05",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C03_C04_остатки:5",
+      "requirement_ids": [
+        "REQ-CYC-03-03"
+      ],
+      "rationale": "Не сливать равное число с независимостью наблюдения.",
+      "disposition": "capability",
+      "audit_id": "R06",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C03_C04_остатки:6",
+      "requirement_ids": [
+        "REQ-CYC-03-05"
+      ],
+      "rationale": "Actual consumers, не предположение по GET.",
+      "disposition": "qualify",
+      "audit_id": "R07",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B09",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CYC-03-01",
+        "REQ-CYC-03-03",
+        "REQ-CYC-03-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B27",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CYC-03-02",
+        "REQ-CYC-03-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B28",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CYC-03-04",
+        "REQ-CYC-03-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0022",
+      "requirement_ids": [
+        "REQ-CYC-03-01"
+      ],
+      "rationale": "Существующий сильный sequential selector, не новый демонстрационный дубль.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0023",
+      "requirement_ids": [
+        "REQ-CYC-03-03"
+      ],
+      "rationale": "Конечные transition profiles и реальный второй шаг.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0066",
+      "requirement_ids": [
+        "REQ-CYC-03-02"
+      ],
+      "rationale": "Раздельно grammar rebind и acquired world.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0067",
+      "requirement_ids": [
+        "REQ-CYC-03-02",
+        "REQ-CYC-03-03"
+      ],
+      "rationale": "Содержательные изменения требуют своих owners, не служебных hints.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0068",
+      "requirement_ids": [
+        "REQ-CYC-03-04",
+        "REQ-CYC-03-05"
+      ],
+      "rationale": "Occurrence/removal controls и потребитель.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0069",
+      "requirement_ids": [
+        "REQ-CYC-03-05"
+      ],
+      "rationale": "Конечный surface census, GET не обобщается на UI/export.",
+      "disposition": "qualify"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0025",
+      "requirement_ids": [
+        "REQ-CYC-03-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: При equivalent эффективном input новое admission должно сохранить прежние numerical refs/bytes, но выполнить актуальные cheap grounding/value/VOI/requirement consequences; при different вызвать реальный повтор N5, при not_established не утверждать reuse.",
+      "test_ids": [
+        "TEST-CYC-03-01"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0026",
+      "requirement_ids": [
+        "REQ-CYC-03-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: При equivalent эффективном input новое admission должно сохранить прежние numerical refs/bytes, но выполнить актуальные cheap grounding/value/VOI/requirement consequences; при different вызвать реальный повтор N5, при not_established не утверждать reuse.",
+      "test_ids": [
+        "TEST-CYC-03-01"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0027",
+      "requirement_ids": [
+        "REQ-CYC-03-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Revision служебных grammar hints должна перевыпускать context существующим owner; смена предмета, модели, популяции или метода не должна идти через grammar-only rebind старого доказательства.",
+      "test_ids": [
+        "TEST-CYC-03-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0086",
+      "requirement_ids": [
+        "REQ-CYC-03-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Revision служебных grammar hints должна перевыпускать context существующим owner; смена предмета, модели, популяции или метода не должна идти через grammar-only rebind старого доказательства.",
+      "test_ids": [
+        "TEST-CYC-03-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0087",
+      "requirement_ids": [
+        "REQ-CYC-03-02",
+        "REQ-CYC-03-06"
+      ],
+      "rationale": "Конкретный контракт и oracle: Revision служебных grammar hints должна перевыпускать context существующим owner; смена предмета, модели, популяции или метода не должна идти через grammar-only rebind старого доказательства.; Второй содержательно иной поддержанный case должен проходить тот же acquisition/basis механизм с раскрытым объёмом специальной подготовки.",
+      "test_ids": [
+        "TEST-CYC-03-02",
+        "TEST-CYC-03-06"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0088",
+      "requirement_ids": [
+        "REQ-CYC-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: История должна сохранять все occurrences и old runs, а current frontier/потребитель выбирать последнюю валидную occurrence, включая ухудшение; promotion не привязывается только к candidate_id.",
+      "test_ids": [
+        "TEST-CYC-03-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0089",
+      "requirement_ids": [
+        "REQ-CYC-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: История должна сохранять все occurrences и old runs, а current frontier/потребитель выбирать последнюю валидную occurrence, включая ухудшение; promotion не привязывается только к candidate_id.",
+      "test_ids": [
+        "TEST-CYC-03-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0090",
+      "requirement_ids": [
+        "REQ-CYC-03-04",
+        "REQ-CYC-03-05"
+      ],
+      "rationale": "Конкретный контракт и oracle: История должна сохранять все occurrences и old runs, а current frontier/потребитель выбирать последнюю валидную occurrence, включая ухудшение; promotion не привязывается только к candidate_id.; Каждый реально используемый HTTP/export/UI consumer должен показывать выбранную current occurrence и происхождение numerical результата, не выдавая retained computation за новое исполнение.",
+      "test_ids": [
+        "TEST-CYC-03-04",
+        "TEST-CYC-03-05"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I01-B",
+    "E02-X02"
+  ],
+  "dependencies": [
+    "REQ-01 domain/construct contract → ACQ-01 actual admission/world → CYC-03 continuation/current occurrence.",
+    "generation_cycle.py общий mutex с CYC-01/02/04/05; ACQ-01 writer общего world bridge, CYC-03 writer basis-transition/occurrence.",
+    "Независимая реплика не создаёт empirical authority автоматически; SIM-03 владеет replication statistics."
+  ],
+  "preservation": [
+    "Существующий acquisition dispatcher, полная эффективная quantity и retained evaluation.",
+    "Актуальные grounding/value/VOI/requirement checks при численном reuse.",
+    "Grammar guard для обычного grammar-driven advance.",
+    "Stable subject и active problem basis; grammar-only rebind с domain/scope checks.",
+    "Acquired data→native state/model→WMR/context producer и повторный owner read.",
+    "Полные old/new refs и immutable old runs; сохранение occurrence identities.",
+    "Текущий фронт выбирает новую occurrence даже при худшем результате.",
+    "GET recomputes semantic identity и root-origin lineage; специальный continuation validator."
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    "Универсальность здесь — повторяемое расширение одного basis/dispatch механизма на обоснованный новый класс изменения, не разрешение бесконечного retry."
+  ],
+  "open_decisions": [],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_evaluation_dispatch.py",
+      "symbol_or_anchor": "if comparison == \"equivalent\" and prior is not None:",
+      "lines": [
+        851,
+        883
+      ],
+      "sha256": "e16ab7c54cb9b74c613e6190890070ee00ba05eb561821fc98af8cb4d14458ba",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/acquisition_evaluation_dispatch.py#L851-L883"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "symbol_or_anchor": "def _rebind_cycle_substrate_context_for_revision",
+      "lines": [
+        11928,
+        11960
+      ],
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L11928-L11960"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "symbol_or_anchor": "def validate_acquisition_overlay_continuation",
+      "lines": [
+        3296,
+        3328
+      ],
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L3296-L3328"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+      "symbol_or_anchor": "origin_source_ref",
+      "lines": [
+        843,
+        875
+      ],
+      "sha256": "3318faca0a908b81a86603e89dc12b886cc265656d795f6b924aa768d47f6088",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/routes/runs.py#L843-L875"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-CYC-03-01",
+      "text": "Оставить AcquisitionEvaluationBasis/dispatcher единственными owners сравнения. Сравнивать сохранённое typed содержимое state/rules/NCM/request/model/configuration/implementation, не только scalar/hash. Existing equivalent-ветвь выполняет _current_cheap_continuation под native-writer fence; different вызывает bridge.resume. Новые audit timestamps/UUID не самостоятельная причина работы."
+    },
+    {
+      "requirement_id": "REQ-CYC-03-02",
+      "text": "Сохранить stable design_problem_ref и active design_problem_basis_ref, _rebind_cycle_substrate_context_for_revision и acquisition materialization/readback. Вход rebind ограничить действительно разрешёнными hints; содержательные поля маршрутизировать к их настоящим model/data/context owners. Не удалять enforce_no_retry_without_new_grammar: он нужен обычному grammar advance."
+    },
+    {
+      "requirement_id": "REQ-CYC-03-03",
+      "text": "Расширять существующий basis/dispatch profile, а не общий research bypass. Составить конечную таблицу четырёх видов перехода: producer изменения, fields влияния, actual consumer, повторяемый шаг и разрешённый бюджет. Для поддержанного нового model/method и replica связать конкретный owner; если интерфейса нет, реализовать один typed transition в текущем owner с явным not_supported для остальных. Повторные технические attempts отделены от новых scientific samples."
+    },
+    {
+      "requirement_id": "REQ-CYC-03-04",
+      "text": "Использовать existing tuple(candidate_id, content_hash, cycle_index), _current_candidate_summaries/_derive_fronts и validate_acquisition_overlay_continuation. Не применять blind dedupe. Старый run/bytes неизменны, новая summary-проекция может менять currentness. origin_source_ref сохраняет root-origin, не принудительно immediate predecessor."
+    },
+    {
+      "requirement_id": "REQ-CYC-03-05",
+      "text": "Начать с routes/runs.py full semantic join; конечный census активных consumers по DTO/caller references. Для выбранного реального export/UI пройти его projection, сохранить exact selected refs/limits. Не обещать проверку всех UI на основании GET; если реальный потребитель отсутствует, назвать конкретный surface gap и добавить согласованную projection в существующем API/Atlas owner."
+    },
+    {
+      "requirement_id": "REQ-CYC-03-06",
+      "text": "Общий owner расширения acquisition profile — ACQ-01; здесь проверить identity/continuation semantics. Выбрать существующий другой slot/resource, не rename первого; зависимости units/time/causal role фиксируются в typed profile. LLM может предложить постановку, но не подделывает actual basis."
+    }
+  ]
+}

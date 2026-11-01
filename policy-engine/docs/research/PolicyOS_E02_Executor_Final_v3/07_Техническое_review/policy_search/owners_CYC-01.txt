@@ -1,0 +1,807 @@
+
+### e02_repository/policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py:290-375
+  290         ):
+  291             compiled = async_tools.run_coro_sync(
+  292                 self.compile_and_run_recursive_generation_cycle(
+  293                     raw_request=str(payload.get("request") or ""),
+  294                     context=compiler_context,
+  295                     model_name=model_name,
+  296                     execution_intent=execution_intent,
+  297                     joint_interaction_candidate_intent=payload.get(
+  298                         "joint_interaction_candidate_intent"
+  299                     ),
+  300                     # A configured generic handoff owner selects the N4/N5 route;
+  301                     # without one, simulate_only stays on the N4 proposal-only lane.
+  302                     n4_proposal_only=(
+  303                         intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+  304                         and generic_cycle_simulation_handoff_resolver is None
+  305                     ),
+  306                     n4_proposal_only_origin="derived_legacy_default",
+  307                     producer_run_id=(str(job.run_id) if job.run_id is not None else None),
+  308                     producer_run_binding=producer_run_binding,
+  309                     compiler_gateway=None,
+  310                     budget_state=BudgetState.model_validate(
+  311                         {
+  312                             "limits": {
+  313                                 "run": {"key": "run", "max_usd": budget_usd},
+  314                             }
+  315                         }
+  316                     ),
+  317                     recursive_budget=RecursiveCycleBudget(
+  318                         max_depth=0,
+  319                         max_nodes=1,
+  320                         min_cycles_per_leaf=1,
+  321                         max_cycles_per_leaf=max_cycles,
+  322                     ),
+  323                     recursive_budget_resolution=recursive_budget_resolution,
+  324                     target_world_scope_profile_id=(
+  325                         profile_id if isinstance(profile_id, str) else None
+  326                     ),
+  327                     cycle_substrate_context_resolver=cycle_substrate_context_resolver,
+  328                     generic_cycle_simulation_handoff_resolver=(
+  329                         generic_cycle_simulation_handoff_resolver
+  330                     ),
+  331                     generic_cycle_simulation_currentness_resolver=(
+  332                         generic_cycle_simulation_currentness_resolver
+  333                     ),
+  334                     verified_nl_job_scope=verified_nl_job_scope,
+  335                     candidate_simulation_currentness_resolver=(
+  336                         candidate_simulation_currentness_resolver
+  337                     ),
+  338                     recursive_leaf_context_owner=recursive_leaf_context_owner,
+  339                     root_evaluation_context=(
+  340                         evaluation_safety.execution_context
+  341                         if evaluation_safety is not None
+  342                         else None
+  343                     ),
+  344                     trusted_source_context=trusted_source_context,
+  345                     measurement_root_execution_binding=measurement_root_execution_binding,
+  346                 ),
+  347                 timeout_seconds=max(120.0, 120.0 * max_cycles),
+  348             )
+  349         return compiled
+  350 
+  351     def _complete_nl_scenario_proposal_only(
+  352         self,
+  353         context: _ControlNLJobContext,
+  354         compiled: N4CandidateScenarioProposalOnlyExecution,
+  355     ) -> None:
+  356         """Persist and complete a scenario proposal-only outcome."""
+  357         job = context.job
+  358         payload = context.payload
+  359         execution_scope = context.execution_scope
+  360         capability_manifest_ref = context.capability_manifest_ref
+  361         intent_band = context.intent_band
+  362         execution_intent_limitation = context.execution_intent_limitation
+  363         recursive_budget_resolution = context.recursive_budget_resolution
+  364         candidate_simulation_currentness_resolver = (
+  365             context.candidate_simulation_currentness_resolver
+  366         )
+  367         core_run_id = context.core_run_id
+  368         core_run_context = context.core_run_context
+  369         from polisyos.runtime.quality.generation_source import (
+  370             GenerationSourceRepository,
+  371             N4CandidateScenarioSourceLocator,
+  372             N4CandidateScenarioSourceRecordV1,
+  373             N4CandidateScenarioSourceRecordV2,
+  374             N4CandidateScenarioSourceRecordV3,
+  375             _generation_source_read_result,
+
+### e02_repository/policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py:1639-1804
+ 1639     if root_evaluation_context is _ROOT_EVALUATION_CONTEXT_UNSET:
+ 1640         raise DesignProblemAuthorityError(
+ 1641             "eval_safety_execution_context_not_established",
+ 1642             "The caller must explicitly choose the ordinary simulation-only route "
+ 1643             "or provide an EvalSafety context.",
+ 1644         )
+ 1645     if recursive_budget_resolution is not None:
+ 1646         observed_budget = recursive_budget_resolution.recursive_budget
+ 1647         if (
+ 1648             observed_budget.max_depth != recursive_budget.max_depth
+ 1649             or observed_budget.max_nodes != recursive_budget.max_nodes
+ 1650             or observed_budget.min_cycles_per_leaf != recursive_budget.min_cycles_per_leaf
+ 1651             or observed_budget.max_cycles_per_leaf != recursive_budget.max_cycles_per_leaf
+ 1652             or recursive_budget_resolution.effective_max_iterations
+ 1653             != recursive_budget.max_cycles_per_leaf
+ 1654         ):
+ 1655             raise DesignProblemAuthorityError(
+ 1656                 "recursive_budget_resolution_mismatch",
+ 1657                 "The visible HTTP budget resolution must match the recursive budget used.",
+ 1658             )
+ 1659     from polisyos.runtime.quality.evaluation_modes import (
+ 1660         ExecutionIntentBand,
+ 1661         execution_intent_band_for_mode,
+ 1662     )
+ 1663     from polisyos.runtime.quality.evaluation_safety import EvaluationExecutionContext
+ 1664     from polisyos.runtime.quality.generation_cycle import (
+ 1665         FOUNDRY_VALUE_PORT_EVALUATOR_ID,
+ 1666     )
+ 1667 
+ 1668     if root_evaluation_context is not None and not isinstance(
+ 1669         root_evaluation_context, EvaluationExecutionContext
+ 1670     ):
+ 1671         raise DesignProblemAuthorityError(
+ 1672             "eval_safety_execution_context_not_canonical",
+ 1673             "The root EvalSafety context must be the canonical typed contract.",
+ 1674         )
+ 1675     if execution_intent is None:
+ 1676         # Direct internal callers predating the served intent map retain their
+ 1677         # explicit context's mode. The HTTP worker always supplies this value.
+ 1678         execution_intent = (
+ 1679             root_evaluation_context.evaluation_mode
+ 1680             if root_evaluation_context is not None
+ 1681             else "candidate_only"
+ 1682         )
+ 1683     elif execution_intent_band_for_mode(execution_intent) is ExecutionIntentBand.NOT_ESTABLISHED:
+ 1684         raise DesignProblemAuthorityError(
+ 1685             "execution_intent_not_canonical",
+ 1686             "Execution intent must be selected from the server-owned mode vocabulary.",
+ 1687         )
+ 1688     if execution_intent == "candidate_only" and root_evaluation_context is not None:
+ 1689         raise DesignProblemAuthorityError(
+ 1690             "candidate_execution_intent_context_mismatch",
+ 1691             "Candidate-only execution cannot carry an attempted EvalSafety context.",
+ 1692         )
+ 1693     intent_band = execution_intent_band_for_mode(execution_intent)
+ 1694     if joint_interaction_candidate_intent is not None and (
+ 1695         joint_interaction_candidate_intent != "n4_unique_parent_source_members.v1"
+ 1696         or execution_intent != "simulate_only"
+ 1697         or generic_cycle_simulation_handoff_resolver is None
+ 1698         or n4_proposal_only
+ 1699     ):
+ 1700         raise DesignProblemAuthorityError(
+ 1701             "joint_interaction_candidate_intent_scope_mismatch",
+ 1702             "The compound interaction diagnostic requires the simulate_only generic-profile route.",
+ 1703         )
+ 1704     if n4_proposal_only and (
+ 1705         execution_intent != "simulate_only"
+ 1706         or controller is not None
+ 1707         or root_evaluation_context is not None
+ 1708         or cycle_substrate_context is not None
+ 1709         or root_n4_generation_port is not None
+ 1710     ):
+ 1711         raise DesignProblemAuthorityError(
+ 1712             "n4_proposal_only_context_conflict",
+ 1713             "The N4-only selector requires simulate_only and no admitted EvalSafety "
+ 1714             "context, CycleSubstrateContext, recursive controller, or explicit N4 port.",
+ 1715         )
+ 1716     if cycle_substrate_context_resolver is not None and (
+ 1717         (not n4_proposal_only and n4_recursive_source is None)
+ 1718         or execution_intent != "simulate_only"
+ 1719     ):
+ 1720         raise DesignProblemAuthorityError(
+ 1721             "cycle_substrate_context_resolver_scope_mismatch",
+ 1722             "The served context resolver is restricted to the simulate_only N4 handoff.",
+ 1723         )
+ 1724     if intent_band is ExecutionIntentBand.DATA_TRUST_REQUIRED:
+ 1725         raise DesignProblemAuthorityError(
+ 1726             "data_trust_owner_not_established",
+ 1727             "DataTrust mode cannot reuse EvalSafety context; its owner bridge is not wired here.",
+ 1728         )
+ 1729     if intent_band is ExecutionIntentBand.EVAL_SAFETY_REQUIRED:
+ 1730         if root_evaluation_context is None:
+ 1731             raise DesignProblemAuthorityError(
+ 1732                 "eval_safety_execution_context_not_established",
+ 1733                 "Protected evaluation intent requires its admitted current context.",
+ 1734             )
+ 1735         if root_evaluation_context.evaluation_mode != execution_intent:
+ 1736             raise DesignProblemAuthorityError(
+ 1737                 "eval_safety_execution_mode_mismatch",
+ 1738                 "Execution intent must match the canonical EvalSafety context mode.",
+ 1739             )
+ 1740     if (
+ 1741         root_evaluation_context is not None
+ 1742         and intent_band
+ 1743         not in {
+ 1744             ExecutionIntentBand.CANDIDATE_ONLY,
+ 1745             ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT,
+ 1746         }
+ 1747         and root_evaluation_context.evaluation_mode != execution_intent
+ 1748     ):
+ 1749         raise DesignProblemAuthorityError(
+ 1750             "eval_safety_execution_mode_mismatch",
+ 1751             "Execution intent must match the canonical EvalSafety context mode.",
+ 1752         )
+ 1753     if (
+ 1754         root_evaluation_context is not None
+ 1755         and root_evaluation_context.evaluator_owner_id != FOUNDRY_VALUE_PORT_EVALUATOR_ID
+ 1756     ):
+ 1757         raise DesignProblemAuthorityError(
+ 1758             "eval_safety_evaluator_owner_mismatch",
+ 1759             "The root EvalSafety context must name the canonical Foundry value owner.",
+ 1760         )
+ 1761     from polisyos.runtime.http.services.control.response_shapes import (
+ 1762         _project_call_event_cost,
+ 1763     )
+ 1764 
+ 1765     nl_preflight_cost_events: list[AgentPipelineCostEvent] = []
+ 1766     n4_generation_cost_events: list[AgentPipelineCostEvent] = []
+ 1767 
+ 1768     def _observe_preflight_call(event: dict[str, object]) -> None:
+ 1769         projected = _project_call_event_cost(event)
+ 1770         nl_preflight_cost_events.append(AgentPipelineCostEvent.model_validate(projected))
+ 1771 
+ 1772     def _observe_n4_call(event: dict[str, object]) -> None:
+ 1773         projected = _project_call_event_cost(event)
+ 1774         n4_generation_cost_events.append(AgentPipelineCostEvent.model_validate(projected))
+ 1775 
+ 1776     problem = await build_design_problem_from_nl_request(
+ 1777         nl_request=raw_request,
+ 1778         context=context,
+ 1779         trusted_source_context=trusted_source_context,
+ 1780         model_name=model_name,
+ 1781         run_id=producer_run_id,
+ 1782         producer_settlement_store=producer_settlement_store,
+ 1783         call_observer=_observe_preflight_call,
+ 1784         gateway_client=compiler_gateway,
+ 1785         span_support_client=span_support_client,
+ 1786     )
+ 1787     if problem.nl_provenance.raw_request != raw_request:
+ 1788         raise DesignProblemAuthorityError(
+ 1789             "cycle_plain_language_content_mismatch",
+ 1790             "compiled DesignProblem does not preserve the caller's raw request",
+ 1791         )
+ 1792     from polisyos.runtime.quality.cycle_substrate import (
+ 1793         CycleSubstrateContextArtifactOwner,
+ 1794         CycleSubstrateContextOwnerError,
+ 1795         VerifiedNLJobScope,
+ 1796         candidate_cycle_substrate_source_profile_selection,
+ 1797     )
+ 1798 
+ 1799     try:
+ 1800         candidate_source_profile_selection = candidate_cycle_substrate_source_profile_selection(
+ 1801             problem
+ 1802         )
+ 1803     except CycleSubstrateContextOwnerError as exc:
+ 1804         raise DesignProblemAuthorityError(
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/generation_cycle.py:4020-4475
+ 4020                         candidate=candidate, problem=problem
+ 4021                     )
+ 4022                 return SimulationPortObservation(
+ 4023                     candidate_id=candidate_id,
+ 4024                     status="simulation_blocked",
+ 4025                     authority_blockers=(code,),
+ 4026                     diagnostics={
+ 4027                         "port": "N5",
+ 4028                         "reason": code,
+ 4029                         "request_builder": "persisted_generic_cycle_simulation_profile",
+ 4030                         "request_builder_error": str(exc),
+ 4031                     },
+ 4032                     k_world_ref_before=(
+ 4033                         world_record.content_hash if world_record is not None else None
+ 4034                     ),
+ 4035                     k_world_ref_after=(
+ 4036                         world_record.content_hash if world_record is not None else None
+ 4037                     ),
+ 4038                     world_model_record=world_record,
+ 4039                 )
+ 4040         elif candidate_simulation_input is not None:
+ 4041             try:
+ 4042                 from polisyos.runtime.quality.candidate_simulation import (
+ 4043                     CandidateSimulationN5InputV3,
+ 4044                     CandidateSimulationN5InputV4,
+ 4045                     CandidateSimulationN5InputV5,
+ 4046                 )
+ 4047 
+ 4048                 if type(candidate_simulation_input) in {
+ 4049                     CandidateSimulationN5InputV3,
+ 4050                     CandidateSimulationN5InputV4,
+ 4051                     CandidateSimulationN5InputV5,
+ 4052                 }:
+ 4053                     if self._artifact_store is None or candidate_simulation_input_ref is None:
+ 4054                         raise ValueError("candidate_simulation_v3_persisted_input_ref_missing")
+ 4055                     from polisyos.runtime.quality.generation_source import (
+ 4056                         GenerationSourceRepository,
+ 4057                     )
+ 4058 
+ 4059                     source_repository = GenerationSourceRepository(self._artifact_store)
+ 4060                     if type(candidate_simulation_input) is CandidateSimulationN5InputV5:
+ 4061                         persisted_input = source_repository.resolve_candidate_simulation_v5(
+ 4062                             ref=candidate_simulation_input_ref,
+ 4063                             expected_run_id=candidate_simulation_input.run_id,
+ 4064                             expected_job_id=candidate_simulation_input.job_id,
+ 4065                             expected_tenant_id=candidate_simulation_input.tenant_id,
+ 4066                             expected_cell_id=candidate_simulation_input.cell_id,
+ 4067                         )
+ 4068                     elif type(candidate_simulation_input) is CandidateSimulationN5InputV4:
+ 4069                         persisted_input = source_repository.resolve_candidate_simulation_v4(
+ 4070                             ref=candidate_simulation_input_ref,
+ 4071                             expected_run_id=candidate_simulation_input.run_id,
+ 4072                             expected_job_id=candidate_simulation_input.job_id,
+ 4073                             expected_tenant_id=candidate_simulation_input.tenant_id,
+ 4074                             expected_cell_id=candidate_simulation_input.cell_id,
+ 4075                         )
+ 4076                     else:
+ 4077                         persisted_input = source_repository.resolve_candidate_simulation_v3(
+ 4078                             ref=candidate_simulation_input_ref,
+ 4079                             expected_run_id=candidate_simulation_input.run_id,
+ 4080                             expected_job_id=candidate_simulation_input.job_id,
+ 4081                             expected_tenant_id=candidate_simulation_input.tenant_id,
+ 4082                             expected_cell_id=candidate_simulation_input.cell_id,
+ 4083                         )
+ 4084                     if (
+ 4085                         type(persisted_input) is not type(candidate_simulation_input)
+ 4086                         or persisted_input.content_hash != candidate_simulation_input.content_hash
+ 4087                     ):
+ 4088                         raise ValueError("candidate_simulation_persisted_input_mismatch")
+ 4089                     if (
+ 4090                         candidate_simulation_currentness_resolver is None
+ 4091                         or candidate_simulation_currentness_resolver() is not True
+ 4092                     ):
+ 4093                         raise ValueError("candidate_simulation_worker_lease_not_current")
+ 4094                     candidate_simulation_input = persisted_input
+ 4095                 request = self._build_candidate_simulation_request(
+ 4096                     candidate=candidate,
+ 4097                     problem=problem,
+ 4098                     input_record=candidate_simulation_input,
+ 4099                 )
+ 4100             except (TypeError, ValueError, WorldModelRecordError) as exc:
+ 4101                 code = str(getattr(exc, "code", None) or "candidate_simulation_n5_input_invalid")
+ 4102                 world_record = None
+ 4103                 with suppress(TypeError, ValueError):
+ 4104                     world_record = self._context_world_model_record(
+ 4105                         candidate=candidate,
+ 4106                         problem=problem,
+ 4107                     )
+ 4108                 return SimulationPortObservation(
+ 4109                     candidate_id=candidate_id,
+ 4110                     status="simulation_blocked",
+ 4111                     authority_blockers=(code,),
+ 4112                     diagnostics={
+ 4113                         "port": "N5",
+ 4114                         "reason": code,
+ 4115                         "request_builder": "configured_candidate_simulation_profile",
+ 4116                         "request_builder_error": str(exc),
+ 4117                     },
+ 4118                     k_world_ref_before=(
+ 4119                         world_record.content_hash if world_record is not None else None
+ 4120                     ),
+ 4121                     k_world_ref_after=(
+ 4122                         world_record.content_hash if world_record is not None else None
+ 4123                     ),
+ 4124                     world_model_record=world_record,
+ 4125                 )
+ 4126         else:
+ 4127             factory = problem.runtime_hints.get("joint_simulation_request_factory")
+ 4128             if callable(factory):
+ 4129                 request = factory(candidate=candidate, problem=problem, cycle_index=cycle_index)
+ 4130             elif problem.runtime_hints.get("joint_simulation_request") is not None:
+ 4131                 request = problem.runtime_hints["joint_simulation_request"]
+ 4132             elif self._request_builder_is_requested(problem):
+ 4133                 try:
+ 4134                     request = self._build_joint_simulation_request(
+ 4135                         candidate=candidate,
+ 4136                         problem=problem,
+ 4137                     )
+ 4138                 except (TypeError, ValueError, WorldModelRecordError) as exc:
+ 4139                     code = str(getattr(exc, "code", None) or "joint_simulation_request_invalid")
+ 4140                     blocked_world_model_record: WorldModelRecord | None = None
+ 4141                     if self._cycle_substrate_context is not None:
+ 4142                         try:
+ 4143                             blocked_world_model_record = self._context_world_model_record(
+ 4144                                 candidate=candidate,
+ 4145                                 problem=problem,
+ 4146                             )
+ 4147                         except TypeError, ValueError:
+ 4148                             blocked_world_model_record = None
+ 4149                     blocked_diagnostics: dict[str, Any] = {
+ 4150                         "port": "N5",
+ 4151                         "reason": code,
+ 4152                         "world_model_source": (
+ 4153                             "cycle_substrate_context"
+ 4154                             if self._cycle_substrate_context is not None
+ 4155                             else "real_substrate_registry_boundary"
+ 4156                         ),
+ 4157                         "request_builder": "runtime_quality_joint_simulation_port",
+ 4158                         "request_builder_error": str(exc),
+ 4159                     }
+ 4160                     if blocked_world_model_record is not None:
+ 4161                         blocked_diagnostics.update(
+ 4162                             {
+ 4163                                 "world_model_record_id": (
+ 4164                                     blocked_world_model_record.world_model_record_id
+ 4165                                 ),
+ 4166                                 "world_model_record_content_hash": (
+ 4167                                     blocked_world_model_record.content_hash
+ 4168                                 ),
+ 4169                             }
+ 4170                         )
+ 4171                     return SimulationPortObservation(
+ 4172                         candidate_id=candidate_id,
+ 4173                         status="simulation_blocked",
+ 4174                         authority_blockers=(code,),
+ 4175                         diagnostics=blocked_diagnostics,
+ 4176                         k_world_ref_before=(
+ 4177                             blocked_world_model_record.content_hash
+ 4178                             if blocked_world_model_record is not None
+ 4179                             else None
+ 4180                         ),
+ 4181                         k_world_ref_after=(
+ 4182                             blocked_world_model_record.content_hash
+ 4183                             if blocked_world_model_record is not None
+ 4184                             else None
+ 4185                         ),
+ 4186                         world_model_record=blocked_world_model_record,
+ 4187                     )
+ 4188         if request is None:
+ 4189             world_record = None
+ 4190             world_error_code: str | None = None
+ 4191             diagnostics: dict[str, Any] = {
+ 4192                 "port": "N5",
+ 4193                 "reason": "joint_simulation_request_missing",
+ 4194             }
+ 4195             try:
+ 4196                 world_record = self._boundary_world_model_record(
+ 4197                     candidate=candidate,
+ 4198                     problem=problem,
+ 4199                 )
+ 4200                 diagnostics.update(
+ 4201                     {
+ 4202                         "world_model_record_id": world_record.world_model_record_id,
+ 4203                         "world_model_record_content_hash": world_record.content_hash,
+ 4204                         "world_model_source": (
+ 4205                             "cycle_substrate_context"
+ 4206                             if self._cycle_substrate_context is not None
+ 4207                             else "real_substrate_registry_boundary"
+ 4208                         ),
+ 4209                         "simulation_status": "pending_full_joint_request",
+ 4210                     }
+ 4211                 )
+ 4212             except Exception as exc:
+ 4213                 world_error_code = str(
+ 4214                     getattr(exc, "code", None) or "world_model_record_unavailable"
+ 4215                 )
+ 4216                 diagnostics.update(
+ 4217                     {
+ 4218                         "world_model_source": "unavailable",
+ 4219                         "world_model_error_code": world_error_code,
+ 4220                         "world_model_error": str(exc),
+ 4221                     }
+ 4222                 )
+ 4223                 # A valid enclosing context is insufficient after the active
+ 4224                 # candidate/problem binding failed. Reattaching its WMR here
+ 4225                 # would turn the failed identity check into usable N5 input.
+ 4226             return SimulationPortObservation(
+ 4227                 candidate_id=candidate_id,
+ 4228                 status=(
+ 4229                     "simulation_pending_n5" if world_record is not None else "simulation_blocked"
+ 4230                 ),
+ 4231                 authority_blockers=tuple(
+ 4232                     item
+ 4233                     for item in (
+ 4234                         "joint_simulation_request_missing",
+ 4235                         world_error_code,
+ 4236                     )
+ 4237                     if item is not None
+ 4238                 ),
+ 4239                 diagnostics=diagnostics,
+ 4240                 k_world_ref_before=(
+ 4241                     world_record.content_hash if world_record is not None else None
+ 4242                 ),
+ 4243                 k_world_ref_after=(world_record.content_hash if world_record is not None else None),
+ 4244                 world_model_record=world_record,
+ 4245             )
+ 4246         request = (
+ 4247             request
+ 4248             if isinstance(request, JointSimulationRequest)
+ 4249             else JointSimulationRequest.model_validate(request)
+ 4250         )
+ 4251         try:
+ 4252             request = self._request_with_verified_world_model(
+ 4253                 request=request,
+ 4254                 candidate=candidate,
+ 4255                 problem=problem,
+ 4256             )
+ 4257         except WorldModelRecordError as exc:
+ 4258             source = (
+ 4259                 "cycle_substrate_context"
+ 4260                 if self._cycle_substrate_context is not None
+ 4261                 else "joint_simulation_request"
+ 4262             )
+ 4263             return SimulationPortObservation(
+ 4264                 candidate_id=candidate_id,
+ 4265                 status="simulation_blocked",
+ 4266                 authority_blockers=(exc.code,),
+ 4267                 diagnostics={
+ 4268                     "port": "N5",
+ 4269                     "reason": exc.code,
+ 4270                     "world_model_source": source,
+ 4271                     "world_model_error": str(exc),
+ 4272                 },
+ 4273             )
+ 4274         if self._artifact_store is None:
+ 4275             return SimulationPortObservation(
+ 4276                 candidate_id=candidate_id,
+ 4277                 status="simulation_blocked",
+ 4278                 authority_blockers=("n5_runtime_store_not_established",),
+ 4279                 diagnostics={
+ 4280                     "port": "N5",
+ 4281                     "reason": "n5_runtime_store_not_established",
+ 4282                     "world_model_record_id": request.world_model_record.world_model_record_id,
+ 4283                     "world_model_record_content_hash": request.world_model_record.content_hash,
+ 4284                 },
+ 4285                 k_world_ref_before=request.world_model_record.content_hash,
+ 4286                 k_world_ref_after=request.world_model_record.content_hash,
+ 4287                 world_model_record=request.world_model_record,
+ 4288             )
+ 4289         try:
+ 4290             request, state_consumptions, program_binding_failures = (
+ 4291                 self._request_with_bound_program_state(request)
+ 4292             )
+ 4293         except (
+ 4294             ArtifactIntegrityError,
+ 4295             ArtifactOwnershipError,
+ 4296             FileNotFoundError,
+ 4297             RuntimeDependencyError,
+ 4298             TypeError,
+ 4299             ValueError,
+ 4300         ) as exc:
+ 4301             code = str(getattr(exc, "code", None) or "n5_program_state_unavailable")
+ 4302             return SimulationPortObservation(
+ 4303                 candidate_id=candidate_id,
+ 4304                 status="simulation_blocked",
+ 4305                 authority_blockers=(code,),
+ 4306                 diagnostics={"port": "N5", "reason": code, "state_error": str(exc)},
+ 4307                 k_world_ref_before=request.world_model_record.content_hash,
+ 4308                 k_world_ref_after=request.world_model_record.content_hash,
+ 4309                 world_model_record=request.world_model_record,
+ 4310             )
+ 4311         generic_request_binding = None
+ 4312         if generic_cycle_simulation_input is not None:
+ 4313             try:
+ 4314                 generic_request_binding = GenericCycleSimulationN5RequestBindingV2.from_request(
+ 4315                     request
+ 4316                 )
+ 4317             except (TypeError, ValueError) as exc:
+ 4318                 code = "generic_cycle_simulation_n5_typed_request_binding_invalid"
+ 4319                 return SimulationPortObservation(
+ 4320                     candidate_id=candidate_id,
+ 4321                     status="simulation_blocked",
+ 4322                     authority_blockers=(code,),
+ 4323                     diagnostics={
+ 4324                         "port": "N5",
+ 4325                         "reason": code,
+ 4326                         "binding_error": str(exc),
+ 4327                     },
+ 4328                     k_world_ref_before=request.world_model_record.content_hash,
+ 4329                     k_world_ref_after=request.world_model_record.content_hash,
+ 4330                     world_model_record=request.world_model_record,
+ 4331                 )
+ 4332         if (
+ 4333             type(candidate_simulation_input) is CandidateSimulationN5InputV5
+ 4334             and candidate_simulation_input_ref is not None
+ 4335         ):
+ 4336             from polisyos.runtime.quality.n5_execution_basis import (
+ 4337                 bind_n5_execution_implementation,
+ 4338                 observe_candidate_n5_execution_input,
+ 4339             )
+ 4340 
+ 4341             with observe_candidate_n5_execution_input(
+ 4342                 port=self,
+ 4343                 candidate=candidate,
+ 4344                 problem=problem,
+ 4345                 request=request,
+ 4346                 input_ref=candidate_simulation_input_ref,
+ 4347             ):
+ 4348                 result = self._controller.run(request)
+ 4349             result = bind_n5_execution_implementation(
+ 4350                 result,
+ 4351                 input_ref=candidate_simulation_input_ref,
+ 4352                 capture=getattr(self._controller, "_last_n5_implementation_capture", None),
+ 4353             )
+ 4354         else:
+ 4355             result = self._controller.run(request)
+ 4356         if generic_request_binding is not None:
+ 4357             try:
+ 4358                 result = _bind_generic_n5_request_to_result(result, generic_request_binding)
+ 4359             except (ProofReceiptError, TypeError, ValueError) as exc:
+ 4360                 return SimulationPortObservation(
+ 4361                     candidate_id=candidate_id,
+ 4362                     status="simulation_blocked",
+ 4363                     authority_blockers=(
+ 4364                         "generic_cycle_simulation_n5_result_request_binding_invalid",
+ 4365                     ),
+ 4366                     diagnostics={
+ 4367                         "port": "N5",
+ 4368                         "reason": "generic_cycle_simulation_n5_result_request_binding_invalid",
+ 4369                         "binding_error": str(exc),
+ 4370                     },
+ 4371                     k_world_ref_before=request.world_model_record.content_hash,
+ 4372                     k_world_ref_after=request.world_model_record.content_hash,
+ 4373                     world_model_record=request.world_model_record,
+ 4374                 )
+ 4375         selected_program_index = next(
+ 4376             (
+ 4377                 index
+ 4378                 for index, item in enumerate(result.engine_decisions)
+ 4379                 if item.engine_kind == "program_graph" and item.decision == "selected"
+ 4380             ),
+ 4381             None,
+ 4382         )
+ 4383         if selected_program_index is not None and result.trajectories:
+ 4384             state_consumption = state_consumptions.get(selected_program_index)
+ 4385             if state_consumption is None:
+ 4386                 return SimulationPortObservation(
+ 4387                     candidate_id=candidate_id,
+ 4388                     status="simulation_blocked",
+ 4389                     authority_blockers=("n5_selected_program_state_not_bound",),
+ 4390                     generic_n5_request_binding=generic_request_binding,
+ 4391                     diagnostics={
+ 4392                         "port": "N5",
+ 4393                         "reason": "n5_selected_program_state_not_bound",
+ 4394                     },
+ 4395                     k_world_ref_before=request.world_model_record.content_hash,
+ 4396                     k_world_ref_after=request.world_model_record.content_hash,
+ 4397                     world_model_record=request.world_model_record,
+ 4398                 )
+ 4399             try:
+ 4400                 result = bind_world_state_consumption(result, state_consumption)
+ 4401             except ProofReceiptError as exc:
+ 4402                 return SimulationPortObservation(
+ 4403                     candidate_id=candidate_id,
+ 4404                     status="simulation_blocked",
+ 4405                     authority_blockers=("n5_state_consumption_receipt_invalid",),
+ 4406                     generic_n5_request_binding=generic_request_binding,
+ 4407                     diagnostics={"port": "N5", "reason": str(exc)},
+ 4408                     k_world_ref_before=request.world_model_record.content_hash,
+ 4409                     k_world_ref_after=request.world_model_record.content_hash,
+ 4410                     world_model_record=request.world_model_record,
+ 4411                 )
+ 4412         k_world_ref = request.world_model_record.content_hash
+ 4413         status, authority_blockers = _joint_simulation_port_outcome(
+ 4414             result, request=request, controller=self._controller
+ 4415         )
+ 4416         if status == "joint_simulated" and generic_request_binding is None:
+ 4417             # The live check used the actual request, but this older producer
+ 4418             # does not yet persist a replayable selected owner request.
+ 4419             authority_blockers = tuple(
+ 4420                 dict.fromkeys(
+ 4421                     (*authority_blockers, "n5_execution_request_provenance_not_established")
+ 4422                 )
+ 4423             )
+ 4424         if "selected_plan_execution_binding_missing" in authority_blockers:
+ 4425             return SimulationPortObservation(
+ 4426                 candidate_id=candidate_id,
+ 4427                 status="simulation_blocked",
+ 4428                 authority_blockers=authority_blockers,
+ 4429                 diagnostics={"port": "N5", "reason": "selected_plan_execution_binding_missing"},
+ 4430                 k_world_ref_before=k_world_ref,
+ 4431                 k_world_ref_after=k_world_ref,
+ 4432                 world_model_record=request.world_model_record,
+ 4433             )
+ 4434         if status == "simulation_blocked" and program_binding_failures:
+ 4435             authority_blockers = tuple(
+ 4436                 dict.fromkeys((*authority_blockers, *program_binding_failures.values()))
+ 4437             )
+ 4438         try:
+ 4439             simulation_result_ref = persist_joint_simulation_result(
+ 4440                 result,
+ 4441                 store=self._artifact_store,
+ 4442                 tenant_context=(
+ 4443                     ArtifactTenantContextInfo(
+ 4444                         tenant_id=self._candidate_simulation_handoff.tenant_id,
+ 4445                         cell_id=self._candidate_simulation_handoff.cell_id,
+ 4446                     )
+ 4447                     if self._candidate_simulation_handoff is not None
+ 4448                     else ArtifactTenantContextInfo(
+ 4449                         tenant_id=self._generic_cycle_simulation_handoff.tenant_id,
+ 4450                         cell_id=self._generic_cycle_simulation_handoff.cell_id,
+ 4451                     )
+ 4452                     if self._generic_cycle_simulation_handoff is not None
+ 4453                     else None
+ 4454                 ),
+ 4455             )
+ 4456         except GenerationCycleError as exc:
+ 4457             return SimulationPortObservation(
+ 4458                 candidate_id=candidate_id,
+ 4459                 status="simulation_blocked",
+ 4460                 simulation_ref=result.receipt.payload_hash,
+ 4461                 uncertainty_kind=result.uncertainty_kind,
+ 4462                 generic_n5_request_binding=generic_request_binding,
+ 4463                 authority_blockers=(
+ 4464                     "joint_simulation_result_persistence_failed",
+ 4465                     str(exc.code),
+ 4466                 ),
+ 4467                 diagnostics={
+ 4468                     "port": "N5",
+ 4469                     "reason": "joint_simulation_result_persistence_failed",
+ 4470                     "persistence_error": str(exc),
+ 4471                     "world_model_record_id": request.world_model_record.world_model_record_id,
+ 4472                     "world_model_record_content_hash": request.world_model_record.content_hash,
+ 4473                 },
+ 4474                 k_world_ref_before=k_world_ref,
+ 4475                 k_world_ref_after=k_world_ref,
+
+### e02_repository/policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py:1568-1658
+ 1568         assert observation.status == "joint_simulated"
+ 1569         assert observation.uncertainty_kind == "K_sim"
+ 1570         assert observation.k_world_ref_before == observation.k_world_ref_after
+ 1571         assert observation.k_world_ref_before == context_job.context.world_model_record.content_hash
+ 1572         assert observation.simulation_result_ref is not None
+ 1573         assert isinstance(observation.simulation_result_ref, ArtifactRef)
+ 1574         assert observation.simulation_result_ref.manifest_profile_sha256 is None
+ 1575         n5_result = read_private_artifact_in_job_scope(
+ 1576             lambda: load_joint_simulation_result(
+ 1577                 observation.simulation_result_ref,
+ 1578                 store=service._artifact_store,
+ 1579                 expected_world_model_record_content_hash=context_job.context.world_model_record.content_hash,
+ 1580                 expected_selected_outcomes=(outcome_variable,),
+ 1581             ),
+ 1582             job_id=completed.job_id,
+ 1583             run_id=str(completed.run_id),
+ 1584         )
+ 1585         assert n5_result.uncertainty_kind == "K_sim"
+ 1586         assert n5_result.diagnostics["effect_basis_status"] == "not_established"
+ 1587         assert n5_result.diagnostics["effect_basis"] == ("outcome_minus_request_baseline_state")
+ 1588         assert n5_result.diagnostics["comparator_refs_status"] == "not_established"
+ 1589         assert (
+ 1590             "simulation_effect_basis_not_established"
+ 1591             in (n5_result.promotion_ready_value_packet["authority_blockers"])
+ 1592         )
+ 1593         assert n5_result.world_credal_state_before == n5_result.world_credal_state_after
+ 1594         effects = [
+ 1595             point.effect[outcome_variable]
+ 1596             for trajectory in n5_result.trajectories
+ 1597             for point in trajectory.points
+ 1598             if outcome_variable in point.effect
+ 1599         ]
+ 1600         profile_target_baseline = profile.n5.baseline_state[model_declaration.target_world_slot]
+ 1601         assert profile_target_baseline == model_declaration.target_baseline
+ 1602         assert (
+ 1603             profile.n5.baseline_state[model_declaration.outcome_variable]
+ 1604             == model_declaration.outcome_baseline
+ 1605         )
+ 1606         expected_effect = model_declaration.outcome_per_target_unit * (
+ 1607             input_record.materialization.value - profile_target_baseline
+ 1608         )
+ 1609         assert expected_effect == pytest.approx(0.5, abs=1e-12)
+ 1610         assert len(effects) == profile.n5.replications
+ 1611         assert effects == pytest.approx(
+ 1612             [expected_effect] * profile.n5.replications,
+ 1613             abs=0.02,
+ 1614         )
+ 1615 
+ 1616         assert leaf_run.terminal_status == "blocked"
+ 1617         assert leaf_run.value_port.status == "value_pending_n8"
+ 1618         assert leaf_run.value_port.authority_blockers == ("candidate_scenario_n5_only",)
+ 1619         assert leaf_run.promotion_port.status == "not_promoted"
+ 1620         assert leaf_run.promotion_port.reason.startswith("generation_cycle_blocked_before_n9:")
+ 1621         assert leaf_run.promotion_port.certified_candidate_ids == ()
+ 1622         assert leaf_run.fronts.decision.candidate_ids == ()
+ 1623         assert all(not summary.certified_by_n9 for summary in leaf_run.candidate_summaries)
+ 1624         assert all(summary.front != "decision" for summary in leaf_run.candidate_summaries)
+ 1625         assert len(candidate_leaf_controllers) == 1
+ 1626         actual_leaf_controller = candidate_leaf_controllers[0]
+ 1627         assert type(actual_leaf_controller._value_port) in {
+ 1628             FoundryValuePort,
+ 1629             _DefaultSimulationBoundFoundryValuePort,
+ 1630         }
+ 1631         assert type(actual_leaf_controller._promotion_port) is CanonicalN9PromotionPort
+ 1632         assert n8_owner_calls == []
+ 1633         assert n9_owner_calls == []
+ 1634 
+ 1635         # A content-valid atom that names neither the exact selected projection
+ 1636         # nor the complete historical source PolicySpec must stop at N5. The
+ 1637         # N4 source and candidate-only status markers remain persisted.
+ 1638         original_candidate_builder = (
+ 1639             design_generation_module.build_candidate_scenario_proposal_candidate
+ 1640         )
+ 1641         foreign_policy_spec_ref = "sha256:" + "f" * 64
+ 1642 
+ 1643         def issue_candidate_with_foreign_policy_ref(*args, **kwargs):
+ 1644             candidate = original_candidate_builder(*args, **kwargs)
+ 1645             if candidate is None:
+ 1646                 return None
+ 1647             foreign_atom_draft = candidate.atom.model_copy(
+ 1648                 update={"policy_spec_ref": foreign_policy_spec_ref}
+ 1649             )
+ 1650             foreign_atom_hash = intervention_atom_content_hash(foreign_atom_draft)
+ 1651             foreign_atom_payload = foreign_atom_draft.model_dump(mode="python")
+ 1652             foreign_atom_payload.update(
+ 1653                 {
+ 1654                     "atom_id": f"atom_{foreign_atom_hash.removeprefix('sha256:')[:16]}",
+ 1655                     "content_hash": foreign_atom_hash,
+ 1656                 }
+ 1657             )
+ 1658             foreign_atom = InterventionAtomBinding.model_validate(foreign_atom_payload)

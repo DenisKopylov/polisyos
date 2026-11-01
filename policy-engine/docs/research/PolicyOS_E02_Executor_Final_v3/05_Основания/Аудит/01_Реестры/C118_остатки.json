@@ -1,0 +1,55 @@
+{
+  "pass_id": "C118",
+  "bundle": "DOE-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C118-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "title": "Median-imputed outputs получают обычный Morris uncertainty_status=ok без imputation qualification",
+      "evidence": [
+        "P06",
+        "S01:298–320",
+        "S01:352–387",
+        "S03:532–611",
+        "run01/imputed_result.json"
+      ],
+      "remaining": "Сохранить explicit exploratory imputation и original failure accounting, но не повышать median-filled trajectory до обычного CI без обоснованного missingness/imputation contract. Связать limited/unavailable posture с existing uncertainty owner либо передать квалифицированную модель восстановления и её дополнительную неопределённость. Не удалять все полезные complete observations и не ослаблять DROP_FAILED guards.",
+      "limits": "В actual preparation/attachment/bootstrap: 1 failed row из48,24 synthetic trajectories; original counts сохранены. DROP_FAILED даёт limited/unavailable, IMPUTE_BASELINE даёт uncertainty_status=ok и все three diagnostics ci_status=ok без imputation warning. SALib point fixed fake; не измерены native point error, coverage или downstream admission. Сам explicit exploratory median policy не объявлен запрещённым; дефект — unqualified UQ promotion."
+    },
+    {
+      "id": "C118-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Native SALib point/UQ parity и downstream научная квалификация не выполнены",
+      "evidence": [
+        "S06",
+        "commands.json",
+        "P05"
+      ],
+      "remaining": "В поддерживаемом профиле выполнить существующие native tests на y=2x и nonlinear unit transformations, затем сохранённый trajectory artifact→fresh consumer. Проверять declared estimator/coordinate convention, source identity и scientific adequacy отдельно от shape/JSON/неизменного CI.",
+      "limits": "Actual EE/percentile bootstrap и JSON retained matrix повторяются; independent algebraic oracle подтверждает normalized units. Native SALib point не аттестован. Repeated synthetic trajectories не empirical coverage campaign; PCA rank admissibility не достаточность sample size."
+    },
+    {
+      "id": "C118-G02",
+      "kind": "qualification_gap",
+      "severity": "low",
+      "title": "Geometry, positional trajectory IDs и aggregate ranking не доказывают источник и модель отказов",
+      "evidence": [
+        "S01:218–295",
+        "S02:86–173",
+        "S04",
+        "P02",
+        "P03"
+      ],
+      "remaining": "Сохранять original denominator, failed reasons, whole-block IDs и limited selection posture в существующей downstream передаче. Квалифицировать source-bound trajectory identity и допустимость PCA metric/units/ranking без нового параллельного DoE. Сохранить полезные outputs через явно разрешённые отдельные ветви, не считать complete-case результат исходным экспериментом.",
+      "limits": "IDs в preparation позиционные, native persisted lineage не проверен. Whole-block filtering устраняет склейку, но не selection bias. Вызов с finite synthetic data не доказывает causal/model adequacy."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C118-R01"
+  ],
+  "decision": "Whole-block filtering, pre-PCA policy/accounting, centered-rank cap и normalized EE repair подтверждены bounded; median-imputation UQ promotion остаётся R01, native/scientific qualification G01/G02."
+}

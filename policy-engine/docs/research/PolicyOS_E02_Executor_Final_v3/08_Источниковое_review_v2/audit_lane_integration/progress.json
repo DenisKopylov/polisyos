@@ -1,0 +1,30 @@
+{
+  "status": "COMPLETE_CROSS_REVIEWED",
+  "lanes": 12,
+  "scenarios": 42,
+  "criteria": 70,
+  "dispositions": 3780,
+  "new_findings": 0,
+  "product_tests": "NOT_RUN",
+  "blockers": [],
+  "outputs": [
+    "review.md",
+    "assessments.json",
+    "findings.json",
+    "coverage.json",
+    "static_qa.json",
+    "cross_review.py"
+  ],
+  "linked_confirmed_findings": [
+    "FAC-02"
+  ],
+  "linked_bounded_refinements": [
+    "CM-001"
+  ],
+  "disposition_statuses": {
+    "addressed": 1484,
+    "bounded": 1132,
+    "not_applicable": 1158,
+    "gap": 6
+  }
+}

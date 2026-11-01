@@ -1,0 +1,42 @@
+{
+  "status": "PASS_AUDIT_ARTIFACT_VALIDATION_NOT_PRODUCT_TEST",
+  "packet_count": 25,
+  "requirement_count": 112,
+  "test_count": 115,
+  "criteria_per_packet": 70,
+  "dispositions": 1750,
+  "status_counts": {
+    "addressed": 631,
+    "bounded": 428,
+    "not_applicable": 683,
+    "gap": 8
+  },
+  "finding_ids": [
+    "FAC-01",
+    "FAC-02"
+  ],
+  "finding_link_counts": {
+    "FAC-01": 5,
+    "FAC-02": 3
+  },
+  "invalid_references": [],
+  "hash_checks": "All50 target packet MD/JSON hashes match assessments; frozen catalog exact hash verified.",
+  "readback_checks": [
+    "All audit JSON parsed",
+    "Exactly70 distinct criterion IDs per packet",
+    "All evidence target paths exist",
+    "All spelled/compact REQ/TEST IDs exist in current v2",
+    "Gap dispositions have existing findings",
+    "All25 packet verdicts and finding IDs appear in Russian review",
+    "25/25 companion semantics equality retained"
+  ],
+  "native_product_tests": "NOT_RUN",
+  "artifact_sha256": {
+    "assessments.json": "76aace0e6aaf169b37672807b9d71456a862ad488b1870be6cb66908a8d5f11a",
+    "findings.json": "6090c8c5675e86200622d6c0777bd3f9955cfa11caecbe841219fe4c34a0a14a",
+    "review.md": "7045269a5291ab1e6a4d96ab53dfa1a2e03fe77c9ff442dadedfff743d7abcc3",
+    "coverage.json": "b09678be73df8620d645dd9a8f246b7b0a6d4dd3e9a8e87e3c05e15e678adb3a",
+    "companion_consistency.json": "3684a5bedfa243d573b5aea643c49313e8a983c6806599006fedb4c4a66a7e79"
+  },
+  "validated_at_utc": "2026-11-01T13:12:45.561242+00:00"
+}

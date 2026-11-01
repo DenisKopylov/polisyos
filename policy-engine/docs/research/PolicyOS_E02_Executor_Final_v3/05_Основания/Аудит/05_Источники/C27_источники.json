@@ -1,0 +1,220 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          731
+        ]
+      ],
+      "evidence_level": "complete_source_and_exact_definitions_executed",
+      "git_blob": "32b9bde137b6f81c740ef4491002d04e689a12d9",
+      "sha256": "25554eb9ed0c58837dfd2e9fe9cb906fea15f5abaf4a09cb8958eed3b0d30ad7",
+      "local_file": null,
+      "note": "Live AccessScope and routed tenant readers explicit fixtures."
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1656
+        ]
+      ],
+      "evidence_level": "complete_source_read; exact_registry_resolver_persistence_query_transfer_owners_executed",
+      "git_blob": "1609635dc947bbdc95ec6926cff9e5b6b8d773dc",
+      "sha256": "fad33246110f243d831dfaf4daefbfc4e525d9c6f32c245121d5cdcd7034ef89",
+      "local_file": null,
+      "note": "Real index/access filesystem; CAS/profile owner fixture. Failure/success producer bodies source-read only."
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          65
+        ],
+        [
+          187,
+          296
+        ],
+        [
+          588,
+          686
+        ],
+        [
+          1154,
+          1961
+        ]
+      ],
+      "evidence_level": "selected_existing_test_bodies_read_UNRUN",
+      "git_blob": "c0bccac0c90b86f4f2755671e77722ed761b02a8",
+      "sha256": "1fe065c8209d7d07ce92f8c99aaae6b90fc777e276864f898daee118d4a80ec5",
+      "local_file": null,
+      "note": "Not all1961lines read. Selected source helper, auth, resolver, filters, age, handoff and source-run tests."
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          2135,
+          2303
+        ]
+      ],
+      "evidence_level": "actual_lesson_producer_and_neighbor_context_calls_read_UNRUN",
+      "git_blob": "6f8826e2744eef7dd6e41b083320f8b07637d453",
+      "sha256": "b01a4e6277e45b17379a75734586d16383271f8e7e41bbfe926a3dea96577502",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          30,
+          58
+        ],
+        [
+          79,
+          183
+        ],
+        [
+          240,
+          305
+        ]
+      ],
+      "evidence_level": "actual_complete_lesson_projection_executed; report_builder_call_site_read_UNRUN",
+      "git_blob": "fba6dce189afc669cc483d4e46f53ce65bd31192",
+      "sha256": "62c26dc393bf89d093b05be18bda03cb1ba04a9483715ab55a6866a0883d6f2f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          100
+        ],
+        [
+          1451,
+          1535
+        ]
+      ],
+      "evidence_level": "actual_facade_owner_boundary_read_UNRUN",
+      "git_blob": "4b25698f56165167e10b7f79a97753ec1d84f342",
+      "sha256": "e1c962c7e47ab9b726c2016c8d1b116f210659adc33280052d9636fbb7868a18",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1210,
+          1297
+        ]
+      ],
+      "evidence_level": "actual_complete_build_lesson_hints_method_executed_exact1241–1288",
+      "git_blob": "754e942a21b3198c3989ac9175c54342b6c67ab3",
+      "sha256": "f4615f237197b7f03195d63aabd9d115df0865165b5c897a6928c3fc52f29d53",
+      "local_file": null,
+      "note": "No full lifecycle/search/LLM invocation. Exact dedented method body used on Python3.12."
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/core/artifacts/ids.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/ids.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          149
+        ]
+      ],
+      "evidence_level": "actual_ArtifactID_definition_executed",
+      "git_blob": "3c2c8b3269ca290bc8c6b413e2e96c3012a17558",
+      "sha256": "6fbfc522d960556af66e44a8c3d6b59e478ca1ff4578b49a3573c95d33c01b4d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          32,
+          39
+        ],
+        [
+          219,
+          319
+        ],
+        [
+          371,
+          377
+        ]
+      ],
+      "evidence_level": "actual_selected_ref_input_schema_DTO_definitions_executed",
+      "git_blob": "f1b3372d9e209cf823bacf7dc38eecd76b6780bb",
+      "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          692,
+          699
+        ]
+      ],
+      "evidence_level": "actual_status_enum_definition_executed",
+      "git_blob": "19f375b836d59954649ac120530df055d42e2758",
+      "sha256": "1e9fefdb189b7bb6afc9aa5fa01f410c14dbdd70afa2918670f41e0017352f66",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      3301,
+      3412
+    ]
+  },
+  "discovery": {
+    "census": false,
+    "scope": "Complete lessons/resolver and actual lifecycle/funnel/calibration consumers; no whole scientific validation claim"
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace"
+}

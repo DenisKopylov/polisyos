@@ -1,0 +1,304 @@
+{
+  "packet_id": "UDF-04",
+  "lane": "LANE-07",
+  "source_ids": [
+    "LA-029"
+  ],
+  "protected_distinction_ids": [],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/UDF-04.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "work_types": "fix + native/deployment qualification",
+  "practical_goal": "Installed console честно сообщает отсутствие repository workload, а допустимый server route сохраняет явные roots и доказуемый C7 lifecycle.",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C87_остатки:0",
+      "audit_id": "C87-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-UDF-04-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Неисполняющая availability диагностика предшествует server action admission; actual action guard сохраняется."
+    },
+    {
+      "inventory_id": "audit-residual:C87_остатки:1",
+      "audit_id": "C87-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-UDF-04-02",
+        "REQ-UDF-04-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Installed/native child receipt lifecycle в разрешённой среде."
+    },
+    {
+      "inventory_id": "audit-residual:C87_остатки:2",
+      "audit_id": "C87-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-UDF-04-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Deployment отдельно; render/capabilities не право и не исполнение."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-UDF-04-01",
+      "text": "Actual public validate-part-a route при отсутствующем usable checkout должен возвращать документированный typed unavailable без repository subprocess/provisioning, включая default server-required config без marker. Для существующего checkout server guard остаётся обязательным до любого исполнения.",
+      "source_ids": [
+        "LA-029"
+      ],
+      "audit_ids": [
+        "C87-R01"
+      ],
+      "test_ids": [
+        "TEST-UDF-04-01"
+      ]
+    },
+    {
+      "id": "REQ-UDF-04-02",
+      "text": "Workspace root должен идти из CLI/composition отдельно от artifact build root; repo_root compatibility alias сохраняется с конфликтным отказом. Ops владеет callbacks/commands, domain не импортирует tools и не вычисляет checkout по parents[N].",
+      "source_ids": [
+        "LA-029"
+      ],
+      "audit_ids": [
+        "C87-G01"
+      ],
+      "test_ids": [
+        "TEST-UDF-04-02"
+      ]
+    },
+    {
+      "id": "REQ-UDF-04-03",
+      "text": "Native installed console/package должен включать actual Ops/receipt plugin и выдавать source-bound C7 lifecycle receipt только для complete same-child collection/setup/call/teardown. Stdout passed/exit0 не достаточны; skip/fail и narrowed collection остаются различимыми.",
+      "source_ids": [
+        "LA-029"
+      ],
+      "audit_ids": [
+        "C87-G01"
+      ],
+      "test_ids": [
+        "TEST-UDF-04-03"
+      ]
+    },
+    {
+      "id": "REQ-UDF-04-04",
+      "text": "Deployment qualification должна сохранять distinction rendered plan/capabilities/environment admission/institutional authority. Без фактического target execution результат ограничивается render/readonly capability checks, а не утверждением provisioning.",
+      "source_ids": [
+        "LA-029"
+      ],
+      "audit_ids": [
+        "C87-G02"
+      ],
+      "test_ids": [
+        "TEST-UDF-04-04"
+      ]
+    },
+    {
+      "id": "REQ-UDF-04-05",
+      "text": "Domain stages должны потреблять shared lazy facade fix UDF-01 без снятия server guards и без новой import implementation.",
+      "source_ids": [
+        "LA-029"
+      ],
+      "audit_ids": [],
+      "test_ids": [
+        "TEST-UDF-04-05"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-UDF-04-01",
+      "requirement_ids": [
+        "REQ-UDF-04-01"
+      ],
+      "level": "native unit / integration",
+      "setup": "Default config; installed-layout root/no marker, admitted server/no checkout, valid checkout/blocked server.",
+      "action": "Console→Ops factory→domain orchestrator.validate_part_a; recording subprocess.",
+      "oracle": "Первые два case дают unavailable receipt/exit1 и 0 subprocess; valid checkout+blocked server даёт policy denial и 0 subprocess. Old public route ошибочно бросает block раньше unavailable.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Только собственный tempfile installed-layout fixture; marker не institutional permission, no real C7/provisioning.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-UDF-04-02",
+      "requirement_ids": [
+        "REQ-UDF-04-02"
+      ],
+      "level": "native unit / integration",
+      "setup": "Два разных roots, path с пробелами, cwd fallback, conflicting aliases.",
+      "action": "Actual console target и factory, render bootstrap, inspect command/cwd/env and domains imports.",
+      "oracle": "Explicit workspace используется для repository action, outputs в build root; conflict отказ; quoting корректен; renderer не исполняет apt/uv.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Recording subprocess разрешён; не подменять CLI/factory/orchestrator.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-UDF-04-03",
+      "requirement_ids": [
+        "REQ-UDF-04-03"
+      ],
+      "level": "native unit / integration",
+      "setup": "Supported заранее подготовленное installed environment и разрешённый server checkout; реальные pytest/pluggy hooks, synthetic local test cases pass/skip/fail.",
+      "action": "Installed console route и child C7 qualification на разрешённом target; tamper own receipt attempt/hash/phase controls.",
+      "oracle": "Valid complete receipt accepted; missing teardown/wrong attempt/narrowed collection/source hash mismatch rejected. Command/cwd/env/source/config hashes совпадают; private attempt вне checkout.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Native server execution только с отдельным разрешением/подходящим profile; local parser fixture не C7 PASS.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-UDF-04-04",
+      "requirement_ids": [
+        "REQ-UDF-04-04"
+      ],
+      "level": "native unit / integration",
+      "setup": "Actual requested deployment profile или только доступная локальная readonly среда; existing server policy.",
+      "action": "Проверить target prerequisites и rendered commands; исполнение лишь в отдельно разрешённой deployment операции.",
+      "oracle": "Точный scope RUN/BLOCKED/NOT_AUTHORIZED; Mac/marker0 не запускают server action; quoted plan и capability facts полезны без выдуманного deployment PASS.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не apt/uv/install/remote mutation в текущей подготовке ТЗ.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-UDF-04-05",
+      "requirement_ids": [
+        "REQ-UDF-04-05"
+      ],
+      "level": "native unit / integration",
+      "setup": "Common native E02-I07-A import/CLI fixture.",
+      "action": "Проверить installed/domain import и deferred stage activation.",
+      "oracle": "Unrelated activation устранена shared owner, valid explicit route доступен; server policy unchanged.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не считать native lazy root import всей pipeline.",
+      "status": "NOT_RUN"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I07-A"
+  ],
+  "dependencies": [
+    "UDF-01 shared import owner; no required original predecessor",
+    "Ops sole writer receipt plugin/commands; server qualification отдельным разрешённым job"
+  ],
+  "preservation": [
+    "Explicit workspace/root separation",
+    "Ops callbacks и domain orchestration",
+    "Server-only guard",
+    "Structured source-bound complete lifecycle receipts",
+    "Skip/failure reasons и private scratch"
+  ],
+  "design_alignment": [
+    "[Vision §3, §6–§7, §11](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md) — существующий owner, реально подключённый consumer, совместимые новые ресурсы через общий контракт; не бесконечный реестр вместо работы. [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md) — candidate/conditional вычисление не равно эмпирической или институциональной authority.",
+    "[Execution topology](../05_Основания/Архитектура/policy-design-execution-topology.md) поддерживает раздельные deployment и domain roles. Не превращать marker в authority, но полезный rendered plan/unavailable diagnostic не блокировать требованием несуществующей институциональной подписи."
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0413",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-UDF-04-01"
+      ],
+      "rationale": "Неисполняющая availability диагностика предшествует server action admission; actual action guard сохраняется."
+    },
+    {
+      "inventory_id": "remaining:0414",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-UDF-04-02",
+        "REQ-UDF-04-03"
+      ],
+      "rationale": "Installed/native child receipt lifecycle в разрешённой среде."
+    },
+    {
+      "inventory_id": "remaining:0415",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-UDF-04-04"
+      ],
+      "rationale": "Deployment отдельно; render/capabilities не право и не исполнение."
+    },
+    {
+      "inventory_id": "remaining:0416",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-UDF-04-05"
+      ],
+      "rationale": "C83-R01 owner UDF-01, не отдельный defect."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0667",
+      "requirement_ids": [
+        "REQ-UDF-04-02"
+      ],
+      "test_ids": [
+        "TEST-UDF-04-02"
+      ],
+      "rationale": "Explicit workspace/build roots."
+    },
+    {
+      "inventory_id": "preserve:0668",
+      "requirement_ids": [
+        "REQ-UDF-04-02",
+        "REQ-UDF-04-03"
+      ],
+      "test_ids": [
+        "TEST-UDF-04-02",
+        "TEST-UDF-04-03"
+      ],
+      "rationale": "Ops callbacks/domain orchestration."
+    },
+    {
+      "inventory_id": "preserve:0669",
+      "requirement_ids": [
+        "REQ-UDF-04-01",
+        "REQ-UDF-04-04"
+      ],
+      "test_ids": [
+        "TEST-UDF-04-01",
+        "TEST-UDF-04-04"
+      ],
+      "rationale": "Server-only policy."
+    },
+    {
+      "inventory_id": "preserve:0670",
+      "requirement_ids": [
+        "REQ-UDF-04-03"
+      ],
+      "test_ids": [
+        "TEST-UDF-04-03"
+      ],
+      "rationale": "Complete structured receipts."
+    },
+    {
+      "inventory_id": "preserve:0671",
+      "requirement_ids": [
+        "REQ-UDF-04-01",
+        "REQ-UDF-04-03"
+      ],
+      "test_ids": [
+        "TEST-UDF-04-01",
+        "TEST-UDF-04-03"
+      ],
+      "rationale": "Exact unavailable/skip/fail reasons и private scratch."
+    }
+  ],
+  "owners": [
+    "src/polisyos/data_forge/domains/ukraine/orchestrator.py::validate_part_a",
+    "src/polisyos/data_forge/domains/ukraine/server.py::run_part_a_gate",
+    "src/polisyos/data_forge/domains/ukraine/cli.py",
+    "tools/ops_runners/ukraine_data_cli.py",
+    "tools/ops_runners/ukraine_data/validate_part_a.py"
+  ]
+}

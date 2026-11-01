@@ -1,0 +1,16 @@
+{
+  "errors": [],
+  "scenario_count": 42,
+  "binding_count": 159,
+  "product_tests": "NOT_RUN",
+  "scope": "stdlib specification consistency only",
+  "source_inventory_rows_checked": 128,
+  "source_inventory_hash_mismatches": [],
+  "rendered_binding_missing_fields": [],
+  "cross_scope_review": {
+    "scope": "Text/spec comparison only; static copy equality never implied semantic consistency.",
+    "linked_gap_id": "FAC-02",
+    "bounded_refinement_id": "CM-001",
+    "product_execution": "NOT_RUN"
+  }
+}

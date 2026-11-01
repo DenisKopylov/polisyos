@@ -1,0 +1,67 @@
+{
+  "pass": "C45",
+  "bundle": "JIT-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C45-R01",
+      "kind": "confirmed_local_defect",
+      "source_ids": [
+        "B50"
+      ],
+      "title": "Cache miss до claim_flight не перепроверяется после завершения прежнего flight",
+      "evidence": [
+        "S01:643–650",
+        "S01:692–710",
+        "S01:188–212",
+        "P12"
+      ],
+      "remaining": "В существующей cache/coordinator boundary атомарно согласовать повторную проверку допустимого результата и получение лидерства либо перепроверить cache после leader claim до тяжёлой сборки с правильным terminal outcome для присоединившихся followers. Сохранить generation/implementation identity и не удерживать global lock во время сборки.",
+      "limits": "Управляемые Event boundaries дают 2 разных kernel wrappers для одной specialization/identity/generation, оба результата 20. Это остаточная дублирующая работа, не stale numerical output и не две измеренные XLA-компиляции. Joined followers и publish-before-notify control проходят."
+    },
+    {
+      "id": "C45-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B49",
+        "B50",
+        "B53"
+      ],
+      "title": "Native JAX/JIT acceptance и реальная стоимость компиляции не выполнены",
+      "evidence": [
+        "native_attempt.log",
+        "native_jax_import.log",
+        "P01",
+        "P04",
+        "P05",
+        "P14",
+        "P17"
+      ],
+      "remaining": "На поддержанном Python 3.14 с существующими JAX/pytest dependencies выполнить прочитанный tiny native test и согласованные warm/cold/first-execution measurements. Kernel wrapper builds, tracing/lowering/XLA и warmup считать отдельно.",
+      "limits": "22 итоговых actual-body observations; JIT/vmap shim намеренно отказывает, а normalization использует NumPy. Пробный warmup явно форсирует jit=False. Ни native speedup, ни machine kernel reuse, ни native test PASS не заявлены."
+    },
+    {
+      "id": "C45-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B53"
+      ],
+      "title": "Declared shape propagation не устанавливает весь dtype/runtime/portable-plan контракт",
+      "evidence": [
+        "S01:945–1019",
+        "S12:42–59",
+        "P14",
+        "P15",
+        "P16",
+        "P21"
+      ],
+      "remaining": "Для расширения квалификации проверить actual downstream dtype/profile при смене типа производителем, стоимость временных shape arrays и согласованный supported whole-state route. Использовать существующую shape/abstract/lazy boundary, не возвращать скрытое дорогое pure_step только ради подготовки.",
+      "limits": "P21: prepared specialization помечена float32 по placeholder, actual consumer получает int64; non-JIT результат 6 правильный. Не измерены native retracing/неверный JIT result. CompiledChainExecutor требует live compiled plan, возвращает raw state и отдельно exposes diagnostics; full DAG slot routing и portable persisted executable не обещаны текущим README. Это не основание требовать новую архитектуру."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C45-R01"
+  ],
+  "decision": "B49 current binding и B53 no-evaluation preparation существуют. B50 publication/shared-cache fixes сохранены; конкретная miss→claim race остаётся. Native и shape/dtype qualification отдельно."
+}

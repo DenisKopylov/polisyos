@@ -1,0 +1,59 @@
+{
+  "pass": "C35",
+  "bundle": "BKT-04",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C35-G01",
+      "type": "native_test_and_activation_qualification",
+      "source_ids": [
+        "B174",
+        "B175"
+      ],
+      "evidence": [
+        "P01",
+        "P03",
+        "P06",
+        "P10",
+        "S04:1–153",
+        "S05:1–263"
+      ],
+      "remaining": "Run found focused CV/bootstrap tests in supported environment and identify actual intended caller before attributing end-to-end speedup or scientific artifact authority. Public helper execution/ordinary JSON readback is established; mandatory production/GY activation is not.",
+      "limits": "25 bounded MATCH, real NumPy/actual helper and errors. pytest absent before collection; no repository tests or normal package import. Proposed test_bkt_04.py absent but actual tests are present in focused modules, not a missing implementation claim."
+    },
+    {
+      "id": "C35-G02",
+      "type": "cv_metric_quality_and_sampling_unit_contract",
+      "source_ids": [
+        "B174"
+      ],
+      "evidence": [
+        "P07",
+        "P23",
+        "P24",
+        "S01:119–160"
+      ],
+      "remaining": "At the selected evaluator/caller define permitted observation shape, finite/missing metric policy, per-metric denominators and weighting. CV currently forwards2D arrays despite1D docstring and averages only folds exposing a metric; NaN metric can remain in ordinary CVResult. Preserve useful generic/multivariate callback support where deliberate; do not silently flatten or fill missing metrics with zero.",
+      "limits": "P23/P24 are bounded executable limits of a generic helper, not a proven authoritative consumer defect or production bypass. Original max_folds/progress repair remains effective."
+    },
+    {
+      "id": "C35-G03",
+      "type": "bootstrap_scientific_scope_and_callable_identity",
+      "source_ids": [
+        "B175"
+      ],
+      "evidence": [
+        "P15",
+        "P16",
+        "P21",
+        "P25",
+        "S02:25–42,179–184"
+      ],
+      "remaining": "Use this resampling only for a justified exchangeable observation unit, or wire the existing scientifically appropriate block/cluster method when dependence demands it. Preserve consumer_asserted/not_established callable identity; declaration, seed and dataclass JSON are not authority or proof of coverage. Qualify effective n/small-sample convention and downstream interpretation of selected statistic.",
+      "limits": "Finite1D inputs and executed builtin selector identity are established. Arbitrary callable meaning, population transport and empirical confidence coverage are not; no universal model generator or new provenance architecture requested."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "note": "No new concrete defect in the two original local repairs established; capability/native qualification remains explicit."
+}

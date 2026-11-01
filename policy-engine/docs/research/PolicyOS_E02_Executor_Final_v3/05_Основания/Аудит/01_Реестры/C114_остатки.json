@@ -1,0 +1,58 @@
+{
+  "pass_id": "C114",
+  "bundle": "UQP-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C114-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "title": "Нулевая дисперсия Normal искусственно повышается до sampling scale 1e-12",
+      "evidence": [
+        "P05",
+        "S03:552–572",
+        "S03:2572–2585",
+        "S03:2662–2669",
+        "S03:586–636"
+      ],
+      "remaining": "Сохранять допустимый degenerate Normal как точечный закон в marginal random/QMC transforms, не подменяя declared std floor. Согласовать с существующим singular Gaussian path и проверить непрерывные/пороговые functionals. Не снимать lawful guards и не объявлять jitter частью исходного закона.",
+      "limits": "Actual admission принимает std0. Actual SciPy QMC transform даёт ненулевые ±1e-12; actual 128-draw loops/evaluator recorder для 1[a>0] дают .4921875 Sobol и .5546875 NumPy-random против0 при том же законе с explicit zero covariance. Native JAX random/full report/gate не выполнялись; величины — bounded fixture, не production rate."
+    },
+    {
+      "id": "C114-R02",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "title": "Клиппинг empirical uniform coordinate удаляет допустимую малую крайнюю массу",
+      "evidence": [
+        "P06",
+        "S03:788–796",
+        "S03:2638–2650",
+        "S08:569–592"
+      ],
+      "remaining": "Разделить numerical protection Gaussian inverse-CDF и empirical index lookup. Для empirical закона соблюдать допустимые endpoint/zero-weight conventions без обрезания положительных масс, сохранить shared row coordinate и реальные веса.",
+      "limits": "Typed weights (1e-12,1−1e-12) admitted; u=0 и5e-13 должны выбирать первый атом−1, actual clipping до1e-10 выбирает+1. Конкретный редкий boundary, не вывод о распространённости или QMC convergence."
+    },
+    {
+      "id": "C114-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Native successful propagation/persistence и scientific joint authority не квалифицированы",
+      "evidence": [
+        "P01",
+        "P03",
+        "P04",
+        "S05",
+        "S09",
+        "commands.json"
+      ],
+      "remaining": "Квалифицировать native JAX random, actual supported numeric profiles, full result builder, persistence/reload/re-propagation и selected posterior consumer в общей lane цепочке. Сохранить distinction declared joint identity vs verified authority и не превращать повторный resampling в новые наблюдения.",
+      "limits": "Actual public typed-refusal/analytical dispatcher paths выполнены с selected dependencies, successful MC только до buffers. DTO JSON не CAS. NumPy PRNG не JAX, finite-difference не autodiff. Covariance не универсальный nonlinear joint law; multivariate outputs остаются non-gating."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C114-R01",
+    "C114-R02"
+  ],
+  "decision": "Оси, shared Gaussian covariance и empirical carrier repairs подтверждены. Два numerical law boundary residuals; native end-to-end и scientific qualification открыты."
+}

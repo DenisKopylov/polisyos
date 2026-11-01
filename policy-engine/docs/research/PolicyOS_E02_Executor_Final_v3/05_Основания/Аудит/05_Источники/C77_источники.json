@@ -1,0 +1,368 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/runtime/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          98
+        ]
+      ],
+      "evidence_level": "Полный root facade прочитан. Настоящий unmodified native root import/laziness/unknown check выполнен без stubs. Последующее связывание actual canonical definitions — bounded harness.",
+      "git_blob": "967b92442bf6c49e0db07c2ae2a157b5248650dd",
+      "sha256": "9a186c21390e1c1282659a4afea846e49a1d53f6602789fa5004def977142287",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/runtime/replay.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/replay.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          54
+        ]
+      ],
+      "evidence_level": "Полный20-export compatibility facade прочитан и whole module исполнен; objects взяты из actual canonical definitions с explicit dependency seams.",
+      "git_blob": "9ec3225c6832d00391430468d8c0c0eb7c10b573",
+      "sha256": "c8de51a24b7587505ba1677a98b3853c7a39d4a43ec03c55797b5f42d0d03dde",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/scientist/replay/deterministic.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/replay/deterministic.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          972
+        ]
+      ],
+      "evidence_level": "Весь canonical owner прочитан. Все исходные top-level definitions/statements, кроме import statements, исполнены unchanged с явным namespace. Нормализация/strategy/seed/completeness/bit-exact/skip исполнены; Foundry/contracts/environment/semantic replay paths UNRUN.",
+      "git_blob": "f7d5cc80b2178c0a7caf9c87783f1303ce834c35",
+      "sha256": "c568fc6ff5a9dbba7aa75d59ab2972d63c90aeff49e0d994ce398f2350896481",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/core/components/_cli_replay.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/components/_cli_replay.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          336
+        ]
+      ],
+      "evidence_level": "Полный CLI прочитан, whole module исполнен с initializer/store factory fixtures. Actual persisted check-only выполнен. Replay backend/resume execution UNRUN.",
+      "git_blob": "427e5ffe383f2d7c7d33e12222a6a59347358809",
+      "sha256": "cb433628d1eedacde5ced5d768a501d95222639764fb9be4a8d93245f7c973eb",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/core/components/_cli_store.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/components/_cli_store.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          36
+        ]
+      ],
+      "evidence_level": "Полный native factory bridge прочитан; в bounded CLI run заменён fixture factory, не проверен build_artifact_store.",
+      "git_blob": "63caae2f39daf32b56919e5ac826f3c98daace27",
+      "sha256": "9a8c5a622e6547e2214e53a978bfa0149a7fb51427c264a411fbbe789d99704a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/architecture/imports/dynamic.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/architecture/imports/dynamic.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          282,
+          316
+        ]
+      ],
+      "evidence_level": "Все три relevant replay/backend/checkpoint entries прочитаны; entire TOML разобран existing test. Статический line metadata не объявлен фактическим runtime адресом.",
+      "git_blob": "87a646830fb9b5d1537fffcf5061c3334f232d81",
+      "sha256": "2a1db6a9cb58910e50b653669ec7c8f10b811149631963fe8810f67f9aed30f6",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/benchmarks/advanced/common.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/benchmarks/advanced/common.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          26
+        ],
+        [
+          1015,
+          1075
+        ],
+        [
+          1193,
+          1210
+        ]
+      ],
+      "evidence_level": "Direct import/local alias и relevant cold-start/strategy slices прочитаны. Только complete top-level import24/alias26 исполнены; весь benchmark не прочитан и не запущен.",
+      "git_blob": "e4ea81899015b645f9807ad3b4784cddae9f2b0b",
+      "sha256": "17db1c406c130892dbeb4ba438dcc326aa71645ba9136153b4f63ba119a31a0d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/tests/unit/remediation/test_rep_01.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_rep_01.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          406
+        ]
+      ],
+      "evidence_level": "Весь regression прочитан.3 light unchanged bodies исполнены;2 CLI scenarios воспроизведены отдельным bounded probe, не выданы за native existing bodies. Full resume/benchmark/package bodies UNRUN.",
+      "git_blob": "2f19c3120b2fa07b794430a8ea890aa455f0090f",
+      "sha256": "b9dfe67825c85accb175885bb43b0fbae86e71d0fe2adffa045561f3898c6856",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/tests/unit/scientist/replay/test_deterministic_compatibility.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/replay/test_deterministic_compatibility.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          82
+        ]
+      ],
+      "evidence_level": "Весь compatibility regression прочитан. Exact20 identity/signature/enum body исполнен unchanged с actual canonical definitions; native backend consumer body UNRUN.",
+      "git_blob": "63e3e5644d349e89c872c82374e7111c1a00b6f8",
+      "sha256": "e5abc478aeb408d9d1539656f8e06dc04f985139b2387235b1b0cc9c9e4d9fa8",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/core/artifacts/graph.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/graph.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          270
+        ]
+      ],
+      "evidence_level": "Полный graph owner прочитан и whole module исполнен над selected actual store methods/fixture owner. No fake graph statuses.",
+      "git_blob": "a119eaba49814886706e98a9f55e75fc547f2429",
+      "sha256": "df411de5c31cca320583e3c86cdda88584f1d21879f3184ce30bbbd162ea3b8b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/runtime/manifest/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/manifest/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          54
+        ]
+      ],
+      "evidence_level": "Полный on-disk DTO прочитан и whole module исполнен; actual EnvironmentManifestRef bridge обходит unrelated Foundry import. Это сохранённый import-path package, не удалённый контракт.",
+      "git_blob": "25e19e6ffc65b1d482108045bf6a8fb6ff7e4c17",
+      "sha256": "5e5f91842264829ec3ece3ecd8e9c3069002b28f4382addd9a4d302332f9a30b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/runtime/api.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/api.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          582
+        ]
+      ],
+      "evidence_level": "Полный run writer/reader/journal owner прочитан. Whole module исполнен; start/log/finalize/readback actual files. Failure recovery ветки только прочитаны, не переаттестованы.",
+      "git_blob": "e3ca7a402efc624be7ed723cf726e8bbc0e1fe83",
+      "sha256": "066a36a4d525ebea3ac4aa3d55fda48156af7491a4ac800d69e0f921de26d118",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/runtime/quality/replay.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/replay.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          178
+        ]
+      ],
+      "evidence_level": "Отдельный canary replay schema и complete build_replay_manifest прочитаны. Whole module imported за initializer shell, только availability/callability; алгоритмы не исполнены.",
+      "git_blob": "70998197febcedd3909309670ca50c5a4fab3dcf",
+      "sha256": "4e3f81743c97b117f8b6f1a6da999e0739b81f269e8c8cbbf8ed63aa749fc186",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/scientist/replay/backend.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/replay/backend.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          204
+        ],
+        [
+          545,
+          552
+        ]
+      ],
+      "evidence_level": "Imports/DTO и complete replay_packet dispatch прочитаны; native execution UNRUN. Source move не выдаётся за checkpoint repair.",
+      "git_blob": "50dad3ce7edc0a2ea3a63181ef0e00a1f74f3b65",
+      "sha256": "d0da515551437789bbcafc3c0d26eb1fdd4ed30522893762a7b9453768b4bb98",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/src/polisyos/core/artifacts/_env_models.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/_env_models.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          35
+        ],
+        [
+          322,
+          326
+        ]
+      ],
+      "evidence_level": "Actual EnvironmentManifestRef subclass прочитан и whole module imported; прочий environment model/collector scope не аттестован.",
+      "git_blob": "88d507e9bcb08ced66ff0b83b14ae201ffab6793",
+      "sha256": "379ac8610fe00a270e10848399120094b4509166b0a722fdedbaf1db5a10dd76",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/store.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          709,
+          716
+        ],
+        [
+          744,
+          952
+        ],
+        [
+          970,
+          1117
+        ],
+        [
+          1259,
+          1261
+        ],
+        [
+          1656,
+          1664
+        ],
+        [
+          2162,
+          2225
+        ],
+        [
+          2349,
+          2392
+        ],
+        [
+          3056,
+          3062
+        ],
+        [
+          3358,
+          3707
+        ],
+        [
+          3709,
+          3814
+        ],
+        [
+          3876,
+          3914
+        ],
+        [
+          3971,
+          4124
+        ],
+        [
+          6167,
+          6193
+        ]
+      ],
+      "evidence_level": "Source-qualified C74 selected complete base methods повторно исполнены; fixture owner/index сохранены. Не новый полный store audit.",
+      "git_blob": "f855f9f023d8152b67bb4c1e71a8b9568d0c6994",
+      "sha256": "208b9aa6867c2303e5444ce6d7e446af2fcf2e9ca60e43c6205d68cf45a0ccc7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          30
+        ]
+      ],
+      "evidence_level": "Runtime/dependency baseline для native limits.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      8893,
+      9007
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "scope": "Direct-owner migration and separate compatibility/capability axes. Native root import is real; canonical/CLI persisted diagnostics use explicit import/loader/custody seams."
+}

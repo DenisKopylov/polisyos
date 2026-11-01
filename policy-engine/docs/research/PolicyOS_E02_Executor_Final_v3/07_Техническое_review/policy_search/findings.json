@@ -1,0 +1,952 @@
+{
+  "schema_version": 1,
+  "review_scope": [
+    "LANE-01",
+    "LANE-02"
+  ],
+  "status": "COMPLETE_SOURCE_REVIEW_PRODUCT_TESTS_NOT_RUN",
+  "findings": [
+    {
+      "id": "PS-F01",
+      "title": "Калибровка смешивает три conditional rates, не определяет sampling estimand и допускает статистически неподтверждённый PASS",
+      "severity": "HIGH",
+      "classification": "confirmed_specification_defect_and_capability_qualification_gap",
+      "blocking_scope": "Блокирует acceptance FUN-03-03 как калибровочной гарантии и соответствующий promotion qualification в I02-C; не запрещает сбор данных, exploratory search, descriptive observed counts или отдельный проверенный writer.",
+      "packets": [
+        "FUN-03"
+      ],
+      "requirements": [
+        "REQ-FUN-03-02",
+        "REQ-FUN-03-03"
+      ],
+      "tests": [
+        "TEST-FUN-03-02",
+        "TEST-FUN-03-03"
+      ],
+      "scenarios": [
+        "E02-I02-C"
+      ],
+      "faulty_proposition": "Решение допускает observed0 при любом ненулевом rejected denominator как PASS, называя величину false_negative_rate. При этом фактические false_positive_rate, true_positive_rate и false_negative_rate используют predicted-class denominators, а не стандартные actual-class denominators; operational purpose и population scope не зафиксированы.",
+      "evidence": [
+        {
+          "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/FUN-03.md",
+          "lines": [
+            47,
+            56
+          ],
+          "claim": "Typed availability исправляет empty/constant, но не semantics/power; observed0 может PASS"
+        },
+        {
+          "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/FUN-03.md",
+          "lines": [
+            85,
+            89
+          ],
+          "claim": "Пять rejected-A без ошибок — положительный criterion fixture"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/stages.py",
+          "lines": [
+            398,
+            408
+          ],
+          "claim": "Метод false_negative_rate возвращает FN/(FN+TN), то есть FOR"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/stages.py",
+          "lines": [
+            682,
+            714
+          ],
+          "claim": "FP/(TP+FP)=FDR; TP/(TP+FP)=precision; FN/(FN+TN)=FOR"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/stages.py",
+          "lines": [
+            502,
+            545
+          ],
+          "claim": "FP/TP full corpus и FN rolling corpus — разные окна под одной metrics projection"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+          "lines": [
+            112,
+            171
+          ],
+          "claim": "Порог <0.02 и routing_health читают старый смысл"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/cold_start.py",
+          "lines": [
+            190,
+            276
+          ],
+          "claim": "Burn-in calibration/lesson corpus и тот же <2% criterion"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/funnel/correlation.py",
+          "lines": [
+            83,
+            97
+          ],
+          "claim": "Compatibility wrapper экспортирует те же имена"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "lines": [
+            781,
+            804
+          ],
+          "claim": "Burn-in действительно продолжает rejected levels1–3; отсутствие механизма rejected labels НЕ утверждается"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "lines": [
+            2096,
+            2134
+          ],
+          "claim": "Обычный record появляется лишь при обеих доступных labels; sampling cohort/inclusion не являются обязательными полями"
+        }
+      ],
+      "counterexample": [
+        "Пусть actual qualified positives=10, все 10 отклонены A; ещё 990 actual negatives тоже отклонены. TP=0,FN=10,TN=990,FP=0. В явно выбранном окне 1000, не default20, текущий FOR=1% проходит <2%, хотя FNR=100%: система теряет все полезные случаи. Это не ошибка FOR как operational metric — это ошибка его названия/использования как FNR.",
+        "Если ошибок 0 из 5, observed rate действительно 0; для иллюстративного one-sided95% exact iid interval верхняя граница 1-0.05**(1/5)=45.07%, а не <2%. Уровень95% здесь демонстрация, не навязанный policy threshold.",
+        "Корпус из обычных surviving candidates, выбранных burn-in lessons и специальных sentinel cases может улучшать наблюдаемую rate без улучшения target traffic. Интервал iid для такого смешанного/adaptive корпуса сам по себе неправомерен."
+      ],
+      "alternatives": [
+        {
+          "option": "Сохранить FOR как показатель вероятности полезного результата среди rejected",
+          "benefit": "Может быть именно полезной метрикой для стоимости пропущенной дорогостоящей оценки; соответствует существующему знаменателю",
+          "cost": "Нужно переименовать claim, согласовать operational tolerance, cohort и qualification; не обещать recall"
+        },
+        {
+          "option": "Выбрать FNR/recall как protection от пропуска полезных случаев",
+          "benefit": "Измеряет долю потерянных actual positives",
+          "cost": "Нужны source-bound labels accepted и representative audited rejected с известным inclusion/selection design; простой swap denominator недостаточен"
+        },
+        {
+          "option": "Только descriptive rates и typed insufficient_evidence",
+          "benefit": "Немедленно полезно без ложной гарантии",
+          "cost": "Не закрывает population-level calibration acceptance"
+        }
+      ],
+      "preferred_solution": "Один versioned confusion-metric contract у CorrelationTracker; counts TP/FP/FN/TN, определение gate/truth, target population, eligibility, missing-label count, cohort/audit selection, window и metric definition. Ограниченный DEC выбирает FOR или FNR и назначение порога. Existing burn-in используется для бюджетного audit, а не новый registry. Descriptive observed zero сохраняется, qualification требует обоснованного интервала/дизайна и мощности под выбранную operational tolerance. Исторические bytes не переписывать; reader выдаёт legacy semantic projection и новую явную версию. Миграция охватывает прямой tracker, wrappers, calibration report Markdown/JSON, cold-start acceptance, routing/drift и snapshots.",
+      "tradeoffs": "Audit расходует реальную stage-B работу и может не набрать evidence в доступном budget: это insufficient_evidence, не автоматический PASS и не бесконечный burn-in. Ни confidence bound, ни metric PASS не заменяют permit authority. Для адаптивных/коррелированных данных выбрать соответствующий дизайн либо ограничить вывод наблюдаемым корпусом; не назначать произвольный n.",
+      "replacement_requirement": "Заменить уточнением REQ-FUN-03-02/03: «Каждая публикуемая calibration rate содержит versioned metric_name/definition, numerator/denominator counts, target population, window/cohort и label-availability/selection scope. FOR, FDR, precision не называются FNR, FPR, TPR. До DEC operational metric/tolerance observed value является descriptive; acceptance qualification не выводится из одного условия denominator>0. Для выбранного confidence/power criterion предъявляются sampling assumptions и интервальная оценка либо honest insufficient_evidence. Legacy snapshots сохраняют исходный смысл; все consumers используют одну явную metric projection».",
+      "replacement_tests": [
+        "Добавить к TEST-FUN-03-03 независимую таблицу всех четырёх confusion cells и counterexample TP0,FN10,TN990,FP0; проверять count/window во всех public projections. При FNR добавление TN не меняет значение; при FOR меняет по объявленной формуле. Добавление TP различает оба estimands.",
+        "0/5 → observed0 допустим, но qualification GAP/insufficient_evidence для tolerance2% при illustrative95% iid profile. Положительный qualified case берётся из заранее обоснованного sampling design; размер определяется power/tolerance/budget, не magic fixture.",
+        "Разделить обычный поток, independent audit, lesson seeds и sentinels; изменить доли cohort, скрыть часть labels и проверить запрет population claim без correction/ограничения scope.",
+        "Actual stage-A/B record → persisted JSON/CAS snapshot → fresh compatible reader → report/routing; historical legacy payload остаётся читаемым без silent denominator migration. Source-bound labels, costs и все rejected/accepted counts сохраняются."
+      ],
+      "shared_owner": "FUN-03 / existing CorrelationTracker; cold_start/calibration_report/funnel compatibility consumers. FUN-01/02 только поставщики attempt/cost/source; отдельный статистический registry не нужен.",
+      "preservation_risks": [
+        "Не превратить true observed0 в missing; различать value и qualification",
+        "Не выключить exploration из-за недоказанной population guarantee",
+        "Не переписать исторические именованные значения молча",
+        "Не считать sentinel targeted controls representative traffic",
+        "Не заменить protected-writer authority статистическим PASS"
+      ],
+      "validation_plan": "Сначала согласовать DEC и полный consumer census, затем локальные независимые arithmetic matrices и actual producer/snapshot/fresh-reader chain; отдельно бюджетный audit design. Product execution требует отдельной авторизации и поддержанного runtime.",
+      "uncertainty": "Оригинальный B163 требует честной empty/routing calibration, но не определяет однозначно FNR против FOR. Поэтому требование обязательного FNR было бы необоснованным. Наблюдаемая ошибка формул/названий и слабость n>0 PASS подтверждены чтением; реальные production rates не измерялись.",
+      "sources": [
+        {
+          "url": "https://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "Recall = TP/(TP+FN)",
+          "locked_applicability": "Используется определение, не предложение добавить sklearn в core; locked sklearn 1.8.0 optional ml, current docs могут быть новее"
+        },
+        {
+          "url": "https://docs.scipy.org/doc/scipy-1.16.0/reference/generated/scipy.stats.binomtest.html",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "binomtest: число успехов k в n Bernoulli trials; proportion_ci",
+          "locked_applicability": "SciPy 1.16.3 уже locked; применимость iid Bernoulli должна следовать из sampling contract, не из наличия API"
+        },
+        {
+          "url": "https://docs.scipy.org/doc/scipy-1.16.1/reference/generated/scipy.stats._result_classes.BinomTestResult.proportion_ci.html",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "exact / wilson / wilsoncc interval methods",
+          "locked_applicability": "API той же minor 1.16; точный interval не устраняет selective labels или зависимость наблюдений"
+        }
+      ],
+      "product_validation_status": "NOT_RUN"
+    },
+    {
+      "id": "PS-F02",
+      "title": "Переиспользуемое измерение ошибочно связано с наличием fitted GP у предлагающей стратегии",
+      "severity": "MEDIUM",
+      "classification": "deliberate_scope_limitation_with_redesign_recommendation",
+      "blocking_scope": "Не блокирует локальный OPT-03 repair или существующий узкий fitted-GP profile. Ограничивает claim reusable search/free-grow и требует отдельного bounded observation-reuse profile, если заявляется reuse настоящих измерений независимо от proposer.",
+      "packets": [
+        "OPT-03",
+        "TRN-01",
+        "OPT-02"
+      ],
+      "requirements": [
+        "REQ-OPT-03-04",
+        "REQ-TRN-01-03",
+        "REQ-OPT-02-04"
+      ],
+      "tests": [
+        "TEST-OPT-03-04",
+        "TEST-TRN-01-03",
+        "TEST-OPT-02-04"
+      ],
+      "scenarios": [
+        "E02-I02-B",
+        "E02-I02-D",
+        "E02-X03"
+      ],
+      "faulty_proposition": "TEST-OPT-03-04 закрепляет cold initial rows не fitted sources. Сохранённый actual MethodJob outcome может быть отклонён target training только потому, что source proposer ещё не обучил GP, хотя такой же cold measured row участвует в training внутри текущего run.",
+      "evidence": [
+        {
+          "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/OPT-03.md",
+          "lines": [
+            52,
+            55
+          ],
+          "claim": "Source reuse требует replay source fit basis"
+        },
+        {
+          "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/OPT-03.md",
+          "lines": [
+            86,
+            90
+          ],
+          "claim": "Явно сохранён запрет cold initial rows как fitted source"
+        },
+        {
+          "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/TRN-01.md",
+          "lines": [
+            56,
+            59
+          ],
+          "claim": "Native source и candidate-only варианты без независимого measurement reuse profile"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "lines": [
+            430,
+            507
+          ],
+          "claim": "Warm start проверяет warm_start_eligible и source-fit verifier"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "lines": [
+            249,
+            312
+          ],
+          "claim": "Historical admission зависит от fitted native GP profile"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "lines": [
+            1209,
+            1266
+          ],
+          "claim": "Current-run cold configured rows допускаются как наблюдения"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "lines": [
+            1938,
+            2167
+          ],
+          "claim": "Actual MethodJob receipt/history создаётся отдельно; non-fitted outcome получает warm_start_eligible=False"
+        },
+        {
+          "path": "e02_repository/policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+          "lines": [
+            2063,
+            2104
+          ],
+          "claim": "Native source four-row run ожидает accepted1/rejected3"
+        }
+      ],
+      "counterexample": [
+        "Одинаковый source-bound measurement y(x), единицы, split, tenant и input/data refs: до перезапуска это current observation, после fresh warm import — rejected как cold proposer. Семантика измерения не изменилась, изменилось место в run и готовность модели, которая выбрала x.",
+        "Random/Sobol proposer может заказать валидный expensive MethodJob и получить полезную observation. Принудительно повторять тот же MethodJob лишь для смены producer strategy — лишняя стоимость, не улучшение measurement validity."
+      ],
+      "alternatives": [
+        {
+          "option": "Оставить только fitted-native-GP continuation",
+          "benefit": "Минимальный scope; строгий существующий guard",
+          "cost": "Честно ограничить reuse claim и признать потерю cold measurements"
+        },
+        {
+          "option": "Отдельный measured_observation reuse profile и отдельно model/prediction continuation",
+          "benefit": "Generic reuse actual evidence; не требует повторять source hyperparameter fit",
+          "cost": "Новый versioned admission profile и migration; нельзя просто ослабить существующий guard"
+        },
+        {
+          "option": "Всегда target reevaluation",
+          "benefit": "Полезно при несовместимых units/data/split",
+          "cost": "Избыточно для точно совместимых измерений"
+        }
+      ],
+      "preferred_solution": "Разделить три сущности: verified measurement (actual selected MethodJob outcome), source prediction/uncertainty и surrogate state continuation. Для первой проверять existing source resolver, objective/units/direction/data/split/tenant/space/replica; proposer strategy не admission condition. Target GP строится по собственному declared profile. Для model continuation оставить fit lineage/full-refit replay OPT-03. Для incompatible measurement оставить candidate-only reevaluation TRN-01.",
+      "tradeoffs": "Это bounded capability expansion, не скрытый дефект нынешнего intentionally narrow profile. Не нужно переносить произвольный старый score; source-backed measured result остаётся обязательным. Полезный reuse экономит source evaluation, но GP fit/conditioning costs учитываются отдельно.",
+      "replacement_requirement": "Только при отдельном выборе расширения DEC-OPT-03-02 добавить bounded profile: «Допуск actual measured observation не зависит от стратегии, предложившей её параметры, при совпадающем declared measurement basis и проверенном selected source. Source GP predictions и continuation state имеют отдельный более сильный fit-basis contract. До отдельной квалификации нового profile существующий fitted-native guard, cold rows≠fitted sources и локальный repair DoD сохраняются; extension не является обязательным условием их приёмки».",
+      "replacement_tests": [
+        "Actual source Sobol/random и fitted-GP proposals заказывают одинаково квалифицированные MethodJobs; fresh CAS target принимает measured outcomes по одному measurement profile, при этом cold rows не получают fitted-state status.",
+        "Whole/current corpus против split/persist/reload/warm corpus: одинаковый eligible observation multiset, canonical coordinates и source refs; повтор origin один раз, independent replicate отдельно.",
+        "Мутации units/split/data/tenant/objective rules и forged raw score отклоняются; prediction mean/std без actual measurement не входят как y.",
+        "Сравнить реальную evaluation/fit/IO work warm и cold без обещания universally better regret."
+      ],
+      "shared_owner": "OPT-03 fit verifier + OPT-02 actual observation admission + TRN-01 WarmStartBridge. Один versioned source-profile union, не новый GP registry.",
+      "preservation_risks": [
+        "Нельзя снять unitless/closed-holdout/tenant guards",
+        "Не смешивать posterior uncertainty с измеренной variance",
+        "Не переносить source model_state как target truth",
+        "Не активировать unused benchmark converter"
+      ],
+      "validation_plan": "Сначала source-profile DEC; затем existing native MethodJob source fixture с дополнительным cold-row bridge, independent selected receipt verification и fresh target process. Native optional backend profile обязателен.",
+      "uncertainty": "Intentional rejection подтверждён кодом/ожиданиями; экономия зависит от reusable workload и измеряется отдельно. Не утверждается, что нынешний test ошибается в своём узком контракте.",
+      "sources": [
+        {
+          "url": "https://botorch.readthedocs.io/en/v0.16.1/models.html",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "SingleTaskGP(train_X, train_Y, train_Yvar), condition_on_observations, MixedSingleTaskGP",
+          "locked_applicability": "Точно locked BoTorch 0.16.1; observation data и состояние proposer GP — разные сущности"
+        }
+      ],
+      "product_validation_status": "NOT_RUN"
+    },
+    {
+      "id": "PS-F03",
+      "title": "Ограниченное число неудачных proposals не доказывает исчерпание конечного пространства",
+      "severity": "MEDIUM",
+      "classification": "specification_ambiguity_and_discriminating_test_gap",
+      "blocking_scope": "Уточнение REQ/TEST-OPT-02-01 до приёмки exhaustion semantics; не требует полного перебора больших пространств.",
+      "packets": [
+        "OPT-02",
+        "CTL-01"
+      ],
+      "requirements": [
+        "REQ-OPT-02-01"
+      ],
+      "tests": [
+        "TEST-OPT-02-01"
+      ],
+      "scenarios": [
+        "E02-I02-A",
+        "E02-I02-B"
+      ],
+      "faulty_proposition": "Спецификация направляет все branches в существующий _is_duplicate и после bounded search предлагает exhausted. Текущий owner проверяет pending, а bounded random failure не является доказанным finite-domain exhaustion; тест только tiny binary batch не различает эти случаи.",
+      "evidence": [
+        {
+          "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/OPT-02.md",
+          "lines": [
+            39,
+            42
+          ],
+          "claim": "Bounded search → exhausted/repeat-intent без различения причин"
+        },
+        {
+          "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/OPT-02.md",
+          "lines": [
+            67,
+            71
+          ],
+          "claim": "Binary pending/batch fixture"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "lines": [
+            1601,
+            1652
+          ],
+          "claim": "20 random trials, затем random; duplicate только pending, effective coordinate/replica predicates"
+        }
+      ],
+      "counterexample": [
+        "В равномерном пространстве100 действий уже99 seen. За20 независимых draws вероятность не найти единственное новое равна0.99**20≈81.79%. Возвращать finite_domain_exhausted — ложный claim.",
+        "После tell pending опустел: копирование существующего pending-only guard во все branches само по себе позволяет заново выдать completed deterministic action как новый. Автоматически изменённый optimizer seed не всегда означает независимый stochastic MethodJob replicate."
+      ],
+      "alternatives": [
+        {
+          "option": "Bounded resampling и honest proposal_search_budget_exhausted",
+          "benefit": "Простой универсальный bounded behavior",
+          "cost": "Может не находить существующие новые actions"
+        },
+        {
+          "option": "Enumeration для маленького finite domain + existing optimize_acqf_discrete(unique,X_avoid)",
+          "benefit": "Даёт проверяемое finite-domain exhaustion и использует уже locked dependency",
+          "cost": "Только в заранее ограниченной cardinality/constraint-cost области"
+        },
+        {
+          "option": "Полный перебор любого mixed/continuous domain",
+          "benefit": "Нет реалистического общего преимущества",
+          "cost": "Отвергнуть: неограниченная стоимость, неверная цель"
+        }
+      ],
+      "preferred_solution": "Единый effective-action owner учитывает pending+completed в declared evaluation basis; replicas разрешаются отдельной явной политикой. Разделить proposal_search_budget_exhausted, finite_domain_exhausted и explicit_replica. Exact finite exhaustion только при доказанном census/enumeration; большие/mixed domains сохраняют bounded attempt limit.",
+      "tradeoffs": "Повторные measurements бывают ценны: не вводить глобальный forever-dedup. Ключ включает модель/evaluation basis, действительные params и declared replica, но не cosmetic ID. Continuous values не округлять без принятого tolerances contract.",
+      "replacement_requirement": "Уточнить REQ-OPT-02-01: «Все branches применяют общий effective identity к pending и completed в текущем measurement scope. Неудача bounded proposal search сообщает только budget-exhausted unless complete finite-domain census доказал отсутствие нового feasible action. Repetition имеет explicit measurement/seed provenance и не маркируется новым действием. API service сохраняет причину».",
+      "replacement_tests": [
+        "Сохранить binary batch; дополнительно completed binary history после tell, constrained100-point domain с99seen, controlled20 duplicate proposals при реально свободном action.",
+        "В последнем случае ожидать proposal_search_budget_exhausted, не finite_domain_exhausted; exact tiny enumerator обязан найти последний point и лишь затем доказать exhaustion.",
+        "Relaxed integer aliases и category aliases дедуплицируются по actual execution; continuous distinct остаются distinct; настоящая stochastic replica допускается, cosmetic newID/optimizer RNG change не получает бесплатное исключение."
+      ],
+      "shared_owner": "OPT-02 existing SearchSpace/effective identity и BayesianOptimizer; CTL-01 только lifecycle projection, SRV-01 pending/tell owner.",
+      "preservation_risks": [
+        "Не превратить отказ proposal в научное утверждение о convergence",
+        "Не лишить stochastic evaluator законных повторов",
+        "Не увеличить attempt/evaluator budget скрыто"
+      ],
+      "validation_plan": "Local exact finite-domain oracle, source-level controlled proposal stream через actual suggest/service, then actual completed/tell lifecycle; optional BoTorch discrete profile тестируется отдельно.",
+      "uncertainty": "Слово exhausted в delivered packet можно понимать как attempt exhaustion; finding требует убрать неоднозначность, а не обвиняет уже реализованную новую спецификацию. Product patch ещё не выполнен.",
+      "sources": [
+        {
+          "url": "https://botorch.readthedocs.io/en/v0.16.1/optim.html",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "optimize_acqf_discrete: choices, unique, X_avoid; mixed/discrete alternatives",
+          "locked_applicability": "Точно locked API, optional search_bo; не заменяет domain effective identity и provenance"
+        }
+      ],
+      "product_validation_status": "NOT_RUN"
+    },
+    {
+      "id": "PS-F04",
+      "title": "Детерминированный NCM comparator не различает испорченное native seed propagation",
+      "severity": "MEDIUM",
+      "classification": "capability_test_gap_not_existing_comparator_error",
+      "blocking_scope": "Блокирует расширенный claim native stochastic paired Monte Carlo; deterministic model-bound comparator и integer interaction tests сохранить и принимать в их области.",
+      "packets": [
+        "SIM-03"
+      ],
+      "requirements": [
+        "REQ-SIM-03-02",
+        "REQ-SIM-03-03",
+        "REQ-SIM-03-06"
+      ],
+      "tests": [
+        "TEST-SIM-03-02",
+        "TEST-SIM-03-03",
+        "TEST-SIM-03-06"
+      ],
+      "scenarios": [
+        "E02-I01-A",
+        "E02-X04"
+      ],
+      "faulty_proposition": "Actual NCM fixture y=u+2a+3b+4ab с evidence, фиксирующим u, доказывает контраст и interactions, но не является численным свидетельством того, что различные native seeds реально дают различные stochastic samples. Call count и seed labels отдельно не закрывают это.",
+      "evidence": [
+        {
+          "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/SIM-03.md",
+          "lines": [
+            103,
+            115
+          ],
+          "claim": "Evidence фиксирует u; outcomes/effects по seeds не меняются, хотя calls считаются"
+        },
+        {
+          "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/SIM-03.md",
+          "lines": [
+            135,
+            139
+          ],
+          "claim": "Joint integer fixture и positive-SE unsupported scope"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+          "lines": [
+            101,
+            147
+          ],
+          "claim": "Existing noise_expression context имеет u/noise и actual equation evaluation"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+          "lines": [
+            862,
+            890
+          ],
+          "claim": "Fresh noise sampled, но evidence overrides observed nodes"
+        },
+        {
+          "path": "e02_repository/policy-engine/tests/unit/remediation/test_sim_03.py",
+          "lines": [
+            201,
+            327
+          ],
+          "claim": "Handwritten helper outcomes / replaced pure_step проверяют plumbing/aggregation, не native noise"
+        },
+        {
+          "path": "e02_repository/policy-engine/tests/unit/remediation/test_sim_03.py",
+          "lines": [
+            618,
+            733
+          ],
+          "claim": "Seed-varying mocked results полезны как локальная paired-summary проверка"
+        }
+      ],
+      "counterexample": [
+        "Мутант передаёт в native engine один и тот же seed, но сохраняет запрошенные labels и вызывает backend нужное число раз. При evidence-fixed u integer fixture даёт ожидаемые2/3/9 и counts; mocked per-seed unit outputs тоже не проверяют эту native границу.",
+        "Если effects различны, непарное вычитание может сохранять mean, но менять SE. Для baseline[-1,0,1], policy[0,2,4] правильные differences[1,2,3], SE=1/sqrt(3); reversed baseline даёт[-1,2,5], SE=sqrt(3)."
+      ],
+      "alternatives": [
+        {
+          "option": "Оставить current fixture только deterministic conditional capability",
+          "benefit": "Очень сильный точный независимый oracle без arbitrary tolerance",
+          "cost": "Не заявлять stochastic seed execution qualification"
+        },
+        {
+          "option": "Добавить tiny actual seed-sensitive model и raw draw trace",
+          "benefit": "Различает native seed propagation и pairing без нового simulator",
+          "cost": "Нужен bounded noise/evidence profile и независимая проверка trace"
+        },
+        {
+          "option": "Только mocked varied endpoints",
+          "benefit": "Дёшево для helper boundary",
+          "cost": "Не закрывает engine boundary; оставить как дополнение"
+        }
+      ],
+      "preferred_solution": "Добавить actual NCM noise_expression y=u+(2+u)*a при a baseline0/policy1 и явно unobserved outcome noise (evidence={} либо declared partial evidence). Через настоящий existing engine выполнить заранее заданные несколько seeds; наблюдающая wrapper только делегирует и фиксирует generated noise/roles. Независимая подстановка по сохранённым draws даёт baseline u, policy2+2u, paired effect2+u; expected mean/SE вычислить вне product helper. Проверить, что fixture действительно имеет ненулевую variation, а not fixed law from seed label. При необходимости отдельный controlled evidence heterogeneous helper witness полезен, но не заменяет same-request native stochastic test.",
+      "tradeoffs": "Малое число draws — software discrimination, не оценка population coverage/power. Нельзя ослаблять positive-SE interaction unsupported ради green. Полная empirical calibration stochastic inference требует другого evidence profile.",
+      "replacement_requirement": "Дополнить REQ-SIM-03-03: «Native replication qualification содержит хотя бы один поддержанный model/evidence profile, где разные seed realizations влияют на actual endpoints и paired effects. Сохранённые raw role outcomes и seed-to-noise association проверяются независимым oracle; совпадение counts/labels без различающей numerical variation недостаточно. Deterministic comparator сохраняет свой отдельный qualification scope».",
+      "replacement_tests": [
+        "Добавить к TEST-SIM-03-03 actual noise-sensitive model y=u+(2+u)*a, empty/partial evidence, bounded declared seeds, source-persisted per-role samples и fresh consumer.",
+        "Mutation: seed argument всегда первый; replay first trajectory с изменёнными labels; permute baseline pairing; cachekey без seed. Каждая mutation ломает distinct native trace или numerical SE oracle.",
+        "Сохранить exact integer A2/B3/joint9/no-op0/additive5/third-order1 controls; не переносить stochastic positive-SE classification в point-estimate scope."
+      ],
+      "shared_owner": "SIM-03 paired adapter + existing NCM noise producer; SIM-02 retains failure cause, CYC-02 exposes conditional consumer; не новый Monte Carlo framework.",
+      "preservation_risks": [
+        "Не смешать conditional abduction и population sampling",
+        "Не объявлять случайные Gaussian draws равными выбранным целым u",
+        "Не подменять actual method заранее готовыми numerical endpoints"
+      ],
+      "validation_plan": "Сначала fixture declaration и независимая formula/trace oracle; в поддержанном native runtime выполнить actual NCM→coupled adapter→CAS→fresh conditional reader плюс mutation controls. Продуктовые тесты пока NOT_RUN.",
+      "uncertainty": "Чтение доказывает недостаточную различимость конкретного fixture. Не утверждается, что native engine сейчас игнорирует seed; это контрпример неправильной реализации, способной пройти текущую приёмку.",
+      "sources": [
+        {
+          "url": "https://docs.python.org/3.14/library/math.html#math.fsum",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "fsum, frexp/ldexp, isfinite",
+          "locked_applicability": "Stdlib; stable sums не оправдывают clipping overflow или loss of units"
+        }
+      ],
+      "product_validation_status": "NOT_RUN"
+    },
+    {
+      "id": "PS-F07",
+      "title": "Валидный нулевой calibration score теряется через truthiness fallback",
+      "severity": "MEDIUM",
+      "classification": "confirmed_code_defect_omitted_by_spec_tests",
+      "blocking_scope": "Точечное дополнение FUN-03-02 до приёмки calibration correctness; не требует redesign statistical engine.",
+      "packets": [
+        "FUN-03"
+      ],
+      "requirements": [
+        "REQ-FUN-03-02"
+      ],
+      "tests": [
+        "TEST-FUN-03-02"
+      ],
+      "scenarios": [
+        "E02-I02-C"
+      ],
+      "faulty_proposition": "Текущий record выбирает predicted_score or objective_value и actual_score or objective_value. Ноль — валидный score, но заменяется fallback. Новые aligned1..5/constant/ties fixtures не обязаны различать carrier fields.",
+      "evidence": [
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/stages.py",
+          "lines": [
+            370,
+            393
+          ],
+          "claim": "Две or-ветви заменяют0 на objective_value до record append"
+        },
+        {
+          "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/FUN-03.md",
+          "lines": [
+            47,
+            50
+          ],
+          "claim": "Typed availability не исправляет выбор численного carrier"
+        },
+        {
+          "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/FUN-03.md",
+          "lines": [
+            77,
+            81
+          ],
+          "claim": "Нет explicit zero-versus-distinct-fallback witness"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/stage_contracts.py",
+          "lines": [
+            23,
+            61
+          ],
+          "claim": "StageResult score carriers float|None; admission/state rules remain mandatory"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/objective.py",
+          "lines": [
+            1146,
+            1158
+          ],
+          "claim": "Unbound diagnostic objective rejects bool/nonfinite; generic numeric type has no nonnegative lower bound"
+        }
+      ],
+      "counterexample": [
+        "Actual pairs predicted=[0,1,2], truth=[0,1,2], но первый fallback objective_value=3. Правильный Spearman=1; record превращает prediction в[3,1,2] и rho=-0.5. Нулевой actual_score имеет симметричную проблему."
+      ],
+      "alternatives": [
+        {
+          "option": "Explicit is not None plus typed finite value admission",
+          "benefit": "Минимальное исправление exact root cause",
+          "cost": "Нужны tests обоих carriers и явная compatibility policy"
+        },
+        {
+          "option": "Всегда objective_value",
+          "benefit": "Просто",
+          "cost": "Неправильный source, скрывает intended predicted/actual score"
+        },
+        {
+          "option": "Новая metrics library",
+          "benefit": "Не решает input selection",
+          "cost": "Лишняя зависимость"
+        }
+      ],
+      "preferred_solution": "В существующем CorrelationTracker.record выбирать named score при is not None, не truthiness; затем validate numeric type/finite и declared score basis до append. Ноль/negative остаются значениями; None — availability. Если objective_value имеет иной units/direction basis, не fallback без declared conversion/admission. Не расширять domain: negative допускается только там, где это разрешено существующим concrete score profile; status/source-admission validation сохраняется. Более широкие malformed-carrier guards — согласованное typed boundary hardening, не причина менять domain law.",
+      "tradeoffs": "Старые ошибочно записанные records нельзя исправить без source evidence; legacy snapshots помечать старой metric extraction version, не выдумывать true historical values.",
+      "replacement_requirement": "Добавить REQ-FUN-03-02: «record сохраняет explicit finite predicted_score/actual_score, включая +0.0/-0.0 и уже допустимые конкретным score profile negative values; domain/admission guards не ослабляются. Fallback применяется только при None и при совместимом score basis. Malformed/nonfinite pair не изменяет corpus; reason source-bound. Extraction version сохраняется в snapshot».",
+      "replacement_tests": [
+        "Предъявить distinct carriers: predicted0/fallback3, actual0/fallback3; independent rank oracle даёт expected1 вместо-0.5.",
+        "Проверить None fallback, finite negative, ±0, malformed bool/string/NaN/Inf и atomic no-append; граница bool определяется strict metric schema.",
+        "Actual tracker→snapshot→fresh report/routing сохраняет0 и согласованный extraction version; прежние aligned/inverse/ties/constant controls остаются."
+      ],
+      "shared_owner": "FUN-03 CorrelationTracker.record; единый extraction contract для compute/routing/report, не второй converter.",
+      "preservation_risks": [
+        "Не спутать missing и0",
+        "Не перемешать разные units/directions carrier fields",
+        "Не мигрировать ошибочные historical observations без source reconstruction"
+      ],
+      "validation_plan": "Independent arithmetic уже выполнена только stdlib; product regression NOT_RUN. Потом exact local record fixture и native pipeline readback.",
+      "uncertainty": "Code defect непосредственно подтверждён. Масштаб влияния на реальные отчёты неизвестен; actual snapshot corpus не исполнялся/не анализировался.",
+      "sources": [
+        {
+          "url": "https://docs.python.org/3.14/library/math.html#math.fsum",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "fsum, frexp/ldexp, isfinite",
+          "locked_applicability": "Stdlib; stable sums не оправдывают clipping overflow или loss of units"
+        }
+      ],
+      "product_validation_status": "NOT_RUN"
+    },
+    {
+      "id": "PS-F08",
+      "title": "Native NCM тратит100000 global random draws на normal quantile каждого вызова и делает CI зависимым от ambient RNG",
+      "severity": "MEDIUM",
+      "classification": "confirmed_native_numerical_reproducibility_and_unnecessary_work_defect",
+      "blocking_scope": "Адресный supporting numerical-owner repair SIM-03-01; не блокирует сам correct paired endpoint mean и не превращает normal quantile fix в универсальный inference framework.",
+      "packets": [
+        "SIM-03"
+      ],
+      "requirements": [
+        "REQ-SIM-03-01"
+      ],
+      "tests": [
+        "TEST-SIM-03-01"
+      ],
+      "scenarios": [
+        "E02-I01-A"
+      ],
+      "faulty_proposition": "Статический normal quantile вычисляется как percentile100000 случайных normal draws через global np.random, хотя actual model simulation использует request-local seeded RNG. Delivered finite/paired tests не проверяют это supporting native work и replay CI.",
+      "evidence": [
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+          "lines": [
+            1050,
+            1097
+          ],
+          "claim": "Model worlds связаны с request seed через np.random.default_rng"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+          "lines": [
+            1099,
+            1119
+          ],
+          "claim": "Unconditional100000 global draws, percentile, std ddof0 и CI bounds"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "lines": [
+            2880,
+            2907
+          ],
+          "claim": "Каждая N5 replication вызывает native NCM с n_samples1 и своим seed"
+        },
+        {
+          "path": "e02_repository/policy-engine/tests/unit/foundry/methods/catalog/causal/test_ncm_engine.py",
+          "lines": [
+            524,
+            559
+          ],
+          "claim": "Existing pure_step tests проверяют keys/counts/finite mean/serialization, не ambient RNG или CI reproducibility"
+        },
+        {
+          "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/SIM-03.md",
+          "lines": [
+            55,
+            58
+          ],
+          "claim": "Finite paired-helper solution не охватывает лишний random quantile computation"
+        }
+      ],
+      "counterexample": [
+        "Один и тот же request seed при n_samples>1 и ненулевой variation воспроизводит model worlds, но разные ambient global NumPy RNG states меняют z и ci_lower/ci_upper. Время выполнения исключается из replay comparison как diagnostic, CI — нет.",
+        "В N5 n_samples1 даёт std0: quantile вообще не влияет на mean/endpoint, но каждый physical call всё равно создаёт100000 unrelated draws. Для3/6/9 физических calls это300000/600000/900000 лишних quantile draws, не requested model samples. Это source-derived work count, не измеренное ускорение."
+      ],
+      "alternatives": [
+        {
+          "option": "stdlib statistics.NormalDist.inv_cdf",
+          "benefit": "Детерминированный normal quantile без новой зависимости и MC work",
+          "cost": "Требуется bounded confidence domain и numerical profile"
+        },
+        {
+          "option": "existing SciPy norm.ppf/isf",
+          "benefit": "Та же семантика в уже locked numerical stack",
+          "cost": "Для scalar quantile более тяжёлый import; можно переиспользовать уже загруженный module"
+        },
+        {
+          "option": "Оставить Monte Carlo z, но seed его отдельно",
+          "benefit": "Улучшит replay",
+          "cost": "Лишняя работа и approximation остаются; не предпочтительно"
+        }
+      ],
+      "preferred_solution": "Заменить случайную аппроксимацию normal quantile детерминированным existing stdlib/SciPy inverse-normal. После finite0<confidence<1 validation использовать stable lower-tail expression -NormalDist().inv_cdf((1-confidence)/2) либо norm.isf((1-confidence)/2), а не upper probability, округляющуюся к1. Не менять request-local model RNG и результаты world simulation. Отдельно явно определить estimand/qualification interval: нынешние ddof0 и n1 zero-width не доказывают measured certainty; bounded compatibility DEC сохраняет paired endpoint path и legacy history, не вводит новый inference engine. Для confidence0.50/0.80/0.95/0.99 и nextafter(1,0) independent CDF/erfc oracle должен отвергать constant z=1.96. Tiny positive confidence, чья float tail projection схлопнулась к0.5, не получает fabricated qualified zero-width CI. По actual DTO сохранять mean/trajectory/n, ограничивая interval; если unavailable interval не представим в legacy schema, DEC выбирает explicit compatibility/versioned projection, не unconditional отказ всей paired simulation.",
+      "tradeoffs": "Исправление убирает гарантированную source-level лишнюю работу и ambient RNG mutation; wall-clock benefit не измерен. Детерминированный z не исправляет sampling bias, малый n, неизвестную variance или causal identification. Глобальная стандартизация CI всех методов не нужна.",
+      "replacement_requirement": "Дополнить REQ-SIM-03-01: «Supporting NCM normal quantile детерминирован при объявленном confidence, не вызывает auxiliary global RNG и не добавляет simulated draws сверх модели. Legitimate world-noise request-owned RNG сохраняется. Confidence finite и строго между0 и1; stable lower-tail inversion и declared numerical profile определяют supported interval. Несколько confidence levels и near1/tiny boundaries проверяются независимо. Numerical mean/trajectory/n и paired endpoints сохраняются, где это позволяет actual result contract; interval estimand, singleton/ddof policy и legacy compatibility ограничены DEC-SIM-03-02. Tiny-level unrepresentability/n1 zero-width не qualifies uncertainty и не создаёт blanket отказ полезной simulation».",
+      "replacement_tests": [
+        "Actual NCM variable-noise profile с n_samples>1: same request seed при разных ambient global RNG states даёт одинаковые numerical world summaries/CI; global RNG state до/после actual call неизменен. Timing diagnostic исключить явно.",
+        "Spy/trap global np.random.standard_normal обнаруживает прежние100000 quantile draws, не подменяя request-local rng.normal numerical producer. n_samples1 не запускает этот лишний MC; actual requested model draws сохраняются.",
+        "Confidence0.50/0.80/0.95/0.99 плюс nextafter(1,0): независимый normal-CDF/erfc residual или high-precision reference с заранее выбранной float64 bound проверяет quantile; hardcoded1.96 и upper-tail rounding-to1 проваливают oracle. Invalid0/1/out-of-range/NaN/Inf не дают qualified interval. Tiny positive=nextafter(0,1) выявляет collapse tail0.5 и должен получить explicit unsupported interval/profile, не ложную certainty. Mean/paired samples сохраняются по совместимому contract.",
+        "Singleton, ddof0 legacy и tiny-level boundary ограничивают только interval claim, где actual DTO это позволяет; mean/trajectory/n и paired endpoint продолжают быть полезными. При недостаточной legacy schema DEC-SIM-03-02 выбирает explicit compatibility/versioned projection. Исторические intervals не переписываются и не становятся автоматически empirical uncertainty."
+      ],
+      "shared_owner": "SIM-03 existing NCMEngineMethod.pure_step numerical summary; existing statistics/SciPy API. DEC-SIM-03-02 только interval semantic/compatibility boundary, не новый statistical registry.",
+      "preservation_risks": [
+        "Не менять seeded model draws и N5 paired means ради supporting quantile",
+        "Не присвоить confidence coverage guarantee после замены одной функции",
+        "Не переписать old CI bytes под прежней version",
+        "Не ослабить finite checks и positive-SE interaction guard"
+      ],
+      "validation_plan": "Источник и arithmetic рассмотрены; product NOT_RUN. Native actual method replay/RNG-isolation/work-counter controls плюс fresh persisted consumer и interval compatibility decision; поддержанный dtype/backend явно фиксируются.",
+      "uncertainty": "Сам100000/global-RNG path подтверждён чтением и root review; реальные latency и downstream CI consumer prevalence не измерялись. Статистическая корректность всех NCM intervals отдельно не объявляется установленной.",
+      "sources": [
+        {
+          "url": "https://docs.python.org/3.14/library/statistics.html#statistics.NormalDist.inv_cdf",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "NormalDist.inv_cdf: deterministic inverse normal CDF",
+          "locked_applicability": "Точный Python3.14 stdlib; не новая dependency. Floating-point quantile, не обещание exact real arithmetic или interval coverage"
+        },
+        {
+          "url": "https://docs.scipy.org/doc/scipy-1.16.0/reference/generated/scipy.stats.norm.html",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "norm.ppf/isf deterministic inverse CDF/survival function",
+          "locked_applicability": "Locked SciPy1.16.3 уже есть; stable lower-tail/isf form избегает округления upper probability к1"
+        }
+      ],
+      "product_validation_status": "NOT_RUN"
+    }
+  ],
+  "considered_not_findings": [
+    {
+      "id": "PS-F05",
+      "title": "Многомерный bounding-box proxy не должен ранжировать как hypervolume; exact путь уже есть в зависимости",
+      "severity": "LOW",
+      "classification": "bounded_qualification_and_optional_library_optimization",
+      "blocking_scope": "Не блокирует текущие 2D/schema/immutability repairs. Блокирует только claim true multiobjective hypervolume improvement для >2D proxy без consumer qualification.",
+      "packets": [
+        "OPT-01"
+      ],
+      "requirements": [
+        "REQ-OPT-01-06"
+      ],
+      "tests": [
+        "TEST-OPT-01-06"
+      ],
+      "scenarios": [
+        "E02-I02-B"
+      ],
+      "faulty_proposition": "Delivered spec уже честно требует proxy label/fixed reference; этого недостаточно, если downstream still compares proxy как quality/hypervolume. Точная библиотечная альтернатива уже locked, поэтому при действительной потребности в3D HV не нужен новый собственный алгоритм.",
+      "evidence": [
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+          "lines": [
+            645,
+            707
+          ],
+          "claim": "Reference min(front), exact2D and product bounding box >2D"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+          "lines": [
+            314,
+            325
+          ],
+          "claim": "Public compute_front не показывает explicit reference input"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+          "lines": [
+            215,
+            235
+          ],
+          "claim": "Existing multiobjective owner использует BoTorch partitioning"
+        },
+        {
+          "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/OPT-01.md",
+          "lines": [
+            1,
+            160
+          ],
+          "claim": "Packet уже ограничивает >2D proxy; finding не повторяет якобы отсутствующий label"
+        }
+      ],
+      "counterexample": [
+        "Maximize, fixed reference(0,0,0): A={(10,1,1),(1,10,1),(1,1,10)} имеет bbox1000, exact union HV28; B={(4,4,4)} имеет bbox64, exact HV64. Proxy ранжирует A выше B, true HV наоборот."
+      ],
+      "alternatives": [
+        {
+          "option": "Retain labelled bounding_box_upper_bound diagnostic",
+          "benefit": "O(nd), проще и достаточно для bounded current scope",
+          "cost": "Нельзя использовать как trueHV ranking/stop/improvement"
+        },
+        {
+          "option": "Existing pymoo0.6.1.6 HV или existing BoTorch owner для bounded dimensions",
+          "benefit": "Проверенный algorithm без новой зависимости",
+          "cost": "Exact HV стоимость зависит от dimension/front size; reference/sign convention должны быть общими"
+        },
+        {
+          "option": "Собственный общий high-dimensional HV",
+          "benefit": "Нет обоснованной необходимости",
+          "cost": "Дублирование сложного numerical algorithm"
+        }
+      ],
+      "preferred_solution": "Проверить actual consumers и зафиксировать non-HV use proxy. Если требуется true3D quality, использовать уже locked pymoo.HV через existing Pareto owner с explicit frozen reference в objective schema; max→min conversion явна. Не менять 2D formula без причины и не заявлять high-dimensional unlimited support.",
+      "tradeoffs": "Это выбор capability, не обязательное расширение small patch. Dynamic per-front reference ломает сравнение даже exact HV; fixed reference must be part of schema/basis.",
+      "replacement_requirement": "Уточнить REQ-OPT-01-06: «>2D proxy публикуется как bounding_box_upper_bound с dimensions/reference/schema и не используется consumers как true hypervolume improvement/ranking. Если выбран supported exact-HV profile, reference заранее фиксируется в objective basis, а расчёт делегируется existing locked library; supported size/dimension/cost envelope объявлен».",
+      "replacement_tests": [
+        "A/B counterexample проверяет semantic label и actual consuming decision; trueHV path даёт28/64, proxy не делает trueHV conclusion.",
+        "Reference/unit/direction mutation делает cross-run comparison incompatible; positive coordinate unit scaling преобразует reference согласованно; dominated/duplicate points не меняют trueHV; empty/singlepoint отдельно."
+      ],
+      "shared_owner": "OPT-01 Pareto objective schema; existing multi_objective strategy для numerical implementation, не второй front registry.",
+      "preservation_risks": [
+        "Не поменять min/max orientation молча",
+        "Не пересчитать historical metrics с новымreference под старымID",
+        "Не навязать expensive exact HV всем high-dimensional runs"
+      ],
+      "validation_plan": "Independent inclusion-exclusion oracle + source-bound stored schema/fresh consumer; benchmark only if exact profile chosen.",
+      "uncertainty": "Downstream misuse proxy не доказан и не заявляется текущим дефектом. Counterexample подтверждает ограниченность метрики; consumer qualification и optional alternative — рекомендации.",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/anyoptimization/pymoo/0.6.1.6/pymoo/indicators/hv/__init__.py",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "Hypervolume delegates to moocore; explicit reference point",
+          "locked_applicability": "Точно locked pymoo 0.6.1.6, уже base dependency; не добавлять второй MO framework"
+        }
+      ],
+      "product_validation_status": "NOT_RUN",
+      "disposition": "NOT_A_NEW_DEFECT__RETAIN_BASELINE_WITH_OPTIONAL_OPTIMIZATION",
+      "reason_not_new_finding": "Delivered REQ/TEST-OPT-01-06 уже задаёт proxy, fixed reference, actual ranking consumer и exact3D oracle1000≠28; новый вклад только library choice и дополнительное сравнениеA/B."
+    },
+    {
+      "id": "PS-F06",
+      "title": "Native HNSW rollback snapshot на каждый add может доминировать стоимость bulk growth",
+      "severity": "LOW",
+      "classification": "performance_opportunity_not_measured_regression",
+      "blocking_scope": "Не блокирует корректность TRN-02. Оптимизация только после измерения целевого bulk workload; existing simple path допустим для маленького store.",
+      "packets": [
+        "TRN-02"
+      ],
+      "requirements": [
+        "REQ-TRN-02-03"
+      ],
+      "tests": [
+        "TEST-TRN-02-03"
+      ],
+      "scenarios": [
+        "E02-I02-D",
+        "E02-X03"
+      ],
+      "faulty_proposition": "Полная native serialization перед каждым add обеспечивает strong rollback, но не должна считаться автоматически scalable free-grow strategy.",
+      "evidence": [
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+          "lines": [
+            347,
+            359
+          ],
+          "claim": "save_index tempfile + read_bytes full index snapshot"
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+          "lines": [
+            362,
+            424
+          ],
+          "claim": "metadata copy, snapshot и native add под lock"
+        },
+        {
+          "path": "e02_repository/policy-engine/tests/unit/scientist/agent/test_vector_memory_snapshot_consistency.py",
+          "lines": [
+            265,
+            325
+          ],
+          "claim": "Existing partial-native-mutation rollback/poison controls нужно сохранить"
+        }
+      ],
+      "counterexample": [
+        "При примерно линейном размере nativeindex B(k)=c*k последовательная загрузка N items копирует ∑B(k)=c*N*(N-1)/2 bytes только для rollback snapshots, помимо metadata copies. Это asymptotic evidence, не измеренная latency/RSS regression."
+      ],
+      "alternatives": [
+        {
+          "option": "Сохранить per-add snapshot",
+          "benefit": "Самый простой атомарный boundary и recovery",
+          "cost": "Высокие bytes/IO при bulk growth"
+        },
+        {
+          "option": "Bounded batch staged generation + один atomic publish/checkpoint",
+          "benefit": "Амортизирует snapshot; сохраняет single owner и old generation",
+          "cost": "Больше staging memory, batch rollback scope, нужно определить readers"
+        },
+        {
+          "option": "Убрать lock/snapshot или перейти на remote vector DB",
+          "benefit": "Первое ломает correctness; второе не доказано необходимым",
+          "cost": "Отвергнуть как default fix: native concurrent add/query не thread-safe и новая инфраструктура"
+        }
+      ],
+      "preferred_solution": "Оставить current approach для малого online mutation profile. Для имеющегося bulk/import use case измерить actual snapshot bytes, I/O, lock duration, native peak memory; при доминировании использовать existing generation owner для staged bounded batch build и atomic publication. Без нового внешнего сервиса; portable JSON+NPZ остаётся authoritative data, native index rebuildable.",
+      "tradeoffs": "Нельзя оптимизировать снятием RLock или отказом от native failure poison. RAM может увеличиться при staged generation; лимит batch и retained generations должен быть declared, не arbitrary SLO.",
+      "replacement_requirement": "При расширении TRN-02 добавить optional bulk profile: «Запись batch materializes isolated native+metadata generation, валидирует всё до publish и либо публикует всю генерацию, либо сохраняет прежнюю. Admission/schema/byte budgets одинаковы для single и bulk paths. Выбор bulk оптимизации опирается на measured snapshot work, не предположение о latency».",
+      "replacement_tests": [
+        "Native wrapper вызывает original add_items, затем бросает исключение в середине batch; fresh reader видит целиком old либо committed new generation, не смесь.",
+        "Сравнить portable snapshots и retrieval admitted refs single/batch, restore ef/profile, filter denominator; measure bytes/IO counts без invented pass threshold.",
+        "Сохранить запрет untrusted native graph loading и poison behavior при невозможном rollback."
+      ],
+      "shared_owner": "TRN-02 existing vector_memory generation/RLock owner; transfer cache отдельная bounded byte custody, не дублировать.",
+      "preservation_risks": [
+        "Нельзя считать Python object bytes полным native RSS",
+        "Не сериализовать add/query без нужного lock",
+        "Не доверять pickle/native graph от external source"
+      ],
+      "validation_plan": "Только после отдельной авторизации native test execution; hnswlib0.8 sdist/Python3.14 build availability не квалифицирована. Сначала профиль размера и memory budget.",
+      "uncertainty": "Это cost-model suggestion. Реальная production scale, distributions, index size и slowdown не измерены.",
+      "sources": [
+        {
+          "url": "https://github.com/nmslib/hnswlib/blob/v0.8.0/README.md",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "Python API thread safety, save/load ef, filter GIL, cosine get_items normalization",
+          "locked_applicability": "Точно locked hnswlib 0.8.0; lock содержит только sdist, native Python 3.14 qualification NOT_RUN"
+        }
+      ],
+      "product_validation_status": "NOT_RUN",
+      "disposition": "NOT_A_NEW_DEFECT__RETAIN_BASELINE_WITH_OPTIONAL_OPTIMIZATION",
+      "reason_not_new_finding": "Delivered REQ/TEST-TRN-02-04 уже требует measurement snapshot-per-add/recovery/rebuild; staged batch — условное дальнейшее улучшение, не пропущенный обязательный repair."
+    }
+  ]
+}

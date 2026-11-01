@@ -1,0 +1,82 @@
+{
+  "pass_id": "C88",
+  "bundle": "UDF-05",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C88-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high",
+      "source_ids": [
+        "LA-032"
+      ],
+      "title": "Внутри одного выбранного снимка priors могут молча заменить поля targets при aggregate merge",
+      "evidence": [
+        "S01:298–315",
+        "S02:712–756",
+        "S04:25–31",
+        "P03"
+      ],
+      "remaining": "В существующем composition owner определить владение полями roles: запретить конфликтующие target/prior/donor-owned значения либо собирать aggregate из явно выбранных role keys. Сохранить легитимную metadata и historical compatibility. Проверять scalar→aggregate→static-aging consistency и actual candidate pipeline на conflicting state_ids/totals, а не только равенство shapes.",
+      "limits": "Actual public historical reader принимает coherent new layout: scalar targets [100,250], aggregate/consumer [900,800], state axis заменена priors. Candidate claim-check и subsequent composition воспроизведены только post-resolution fixture, без настоящего receipt/CAS admission; native bypass не заявлен. Это не возвращение old/new per-file fallback и не эмпирическая ошибка production data."
+    },
+    {
+      "id": "C88-R02",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high",
+      "source_ids": [
+        "LA-032"
+      ],
+      "title": "Дробные donor indices принимаются и молча меняют дискретную идентичность при int64 cast",
+      "evidence": [
+        "S01:251–270",
+        "S04:36–39",
+        "P04"
+      ],
+      "remaining": "Проверять конечность и целочисленность donor_state_index и donor_record_index до преобразования к integer dtype; не подменять исходную identity truncation. Сохранить допустимые integer arrays и optional donor. Добавить fractional/negative-fractional/overflow controls с проверкой actual typed reader и pure consumer.",
+      "limits": "Публичный historical reader допускает [0.9,1.9] и [-0.9,1], затем pure aging получает [0,1]; record IDs [1001.9,1002.9] становятся [1001,1002]. Integer out-of-range control отказал. Полный Foundry run и влияние на итоговую популяцию не измерены."
+    },
+    {
+      "id": "C88-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-032"
+      ],
+      "title": "Native producer → inventory → profile-aware CAS receipt → consumer acceptance не исполнена",
+      "evidence": [
+        "S02",
+        "S03:894–1080",
+        "S03:1381–1405",
+        "S06",
+        "S09",
+        "P05"
+      ],
+      "remaining": "В поддержанном разрешённом окружении исполнить существующие native inventory tests и одну сквозную цепь с selected producer inputs, profile status, exact record membership, hash/size, prior snapshot, version conflict и утратой/повреждением CAS blob. Сохранить candidate-only limits и отсутствие filesystem fallback. Не выдавать constructed ResolvedDemographySource за успешный verified-stage admission.",
+      "limits": "Native import blocked на Python3.14-only syntax в Core store при доступном Python3.12; pytest отсутствует. Нижние actual DTOs и pure modules исполнены за initializer shell; native builder, CAS, orchestration и full Foundry UNRUN. Это ограничение доказательств, не product defect от отсутствующих dependencies."
+    },
+    {
+      "id": "C88-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-032"
+      ],
+      "title": "Происхождение и научная пригодность конкретного demographic input остаются отдельно от content identity",
+      "evidence": [
+        "S02",
+        "S05",
+        "S10",
+        "P02"
+      ],
+      "remaining": "Для конкретного использования явно квалифицировать source-owner facts, состав/семантику states, targets, priors и entrants, currentness и допустимость reuse. Использовать existing bounded evidence contract и реальный declared denominator; не строить новую универсальную платформу только ради закрытия LA-032.",
+      "limits": "candidate_only и legacy_limited — намеренные ограничения, а не автоматически дефекты. Hash/basis/shape не устанавливают truth, completeness или governance authority. Отсутствие универсального детерминированного изобретателя/верификатора моделей само по себе не R. Synthetic unit fixtures не эмпирическая база."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C88-R01",
+    "C88-R02"
+  ],
+  "decision": "Исходный per-file fallback исправлен и исторические readers сохранены. Два bounded array/composition residual и native/semantic qualification gaps не позволяют объявить full closure."
+}

@@ -1,0 +1,243 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1147
+        ]
+      ],
+      "evidence_level": "Полный compiler/cache/binding/shape/executor owner прочитан. Actual definitions исполнены в non-JIT режиме с NumPy normalization и явным fixture backend; настоящие threading locks/events.",
+      "git_blob": "1b1358c8469020e44adee3155a1d8ea2505f779a",
+      "sha256": "5bf3d05a9a926e95d95b229f483d93f30aa53cd5ca81b1354eb03e0e0f889787",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/compiler/specialization.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          429
+        ]
+      ],
+      "evidence_level": "Полный specialization owner прочитан/исполнен; deterministic static/shape/dtype/flag fields реальные, hashlib/canonical fallback и backend fingerprint fixture, не native JAX profile.",
+      "git_blob": "0a8a46ac3bf7e28960e84e251823503ba594c942",
+      "sha256": "e9b74f80a390310dd43d93572f281c5f1a6f92e07b3b0cda8b0ea67547ed7237",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/foundry/methods/_internal/executable_identity.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/_internal/executable_identity.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          77
+        ]
+      ],
+      "evidence_level": "Полный process-local identity owner прочитан и исполнен; выбранные classes/functions/signature bindings сохраняются.",
+      "git_blob": "e702b1ec4b26109b033af91f7ea4c0f8623ebf88",
+      "sha256": "baeee61b468f3d04fe6cd63bb0aed0d37eb33e3ed30fc28de33934bceb93f5a5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/foundry/methods/base.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/base.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          78
+        ],
+        [
+          225,
+          763
+        ],
+        [
+          1785,
+          1902
+        ]
+      ],
+      "evidence_level": "Typed signature/slot/parameter/stable helpers прочитаны на неизменном commit и исполнены; capability enum/hash seams явные.",
+      "git_blob": "e7a5c5c8c68c8cef191abe688d2a17f8c2872f76",
+      "sha256": "21f0a6bffb2a4a015a8b6da18d5e53aa2401bf6994b6b56542f0af241ee88f09",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/components/composer.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          979
+        ]
+      ],
+      "evidence_level": "Полный owner прочитан ранее на том же commit; actual builder/requirements ordering/context replay исполнены для whole-state compiled chain, не slot routing.",
+      "git_blob": "2e93c3fea11b5cfbfe961e99e497aaf38f0ff35b",
+      "sha256": "9e2cfd63c0347f9d1db91ef9e47a3d084c11c3a72ad02632d54b6eb253c7ef53",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/components/linker.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          693
+        ]
+      ],
+      "evidence_level": "Полный owner прочитан в C44 на том же commit; здесь исполнены только configuration/empty-edge final checker, не новый autolink test.",
+      "git_blob": "5d4900ff0d82db9bb55625cb45ac70d6fe9fc6de",
+      "sha256": "2a45b57d05b7d124cd737cddfcfffa75ee456fec8d6af31088630155028aaccc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/semantic_validator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/components/semantic_validator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          376
+        ]
+      ],
+      "evidence_level": "Полный owner прочитан ранее на том же commit; actual validator используется composer для нейтральных tagged methods.",
+      "git_blob": "1f6cb3bcdeab334d8629381fb1263423aebbe03c",
+      "sha256": "70dbd42d2b95bc4e1a636a962f8f9b65344b8ecfcf7e93c37fcaccabd60343f4",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/foundry/methods/exceptions.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/exceptions.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          33
+        ],
+        [
+          285,
+          298
+        ],
+        [
+          433,
+          510
+        ]
+      ],
+      "evidence_level": "Полные применённые exception definitions прочитаны/исполнены с явно заменённым базовым FoundryMethodError=Exception и category fixture. Core structured error serialization не квалифицирована.",
+      "git_blob": "7da6ef645662be55bc6bb32f4ad85d0b72c1b682",
+      "sha256": "b2e42f6445b5306c706206f247e06855c0137f2fa1c04a38cd831ad5002d1823",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/jax_runner.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/backends/jax_runner.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          137
+        ]
+      ],
+      "evidence_level": "Полный JaxRunner прочитан: selected-owner compile, актуальный dynamic payload, seed/RNG, runtime envelope. Не исполнен: JAX отсутствует.",
+      "git_blob": "9fea930bf30eda8ce568b7e7518b4f774028e942",
+      "sha256": "f57cfc50eba6308ddd423643ee6359f6fcb58b578901861c069eb3000cfbb448",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          116
+        ],
+        [
+          970,
+          1032
+        ],
+        [
+          1134,
+          1158
+        ]
+      ],
+      "evidence_level": "Imports и полные deciding backend execution/factory methods прочитаны; actual dispatcher native flow не исполнен и не объявлен полностью рассмотренным.",
+      "git_blob": "d4dd104a9b8ced2c9b257cdedced82197195757b",
+      "sha256": "222c73c76919254e23cfa9ca50db1faec5694c0845630809cc4e0d4d17b6c3bc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/tests/unit/remediation/test_jit_01.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_jit_01.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          656
+        ]
+      ],
+      "evidence_level": "Полный focused test прочитан: scalar/native JAX, coordinated flight, generation/error/cancel/deadline, declared/unknown shapes. Native попытка BLOCKED до collection.",
+      "git_blob": "1e694d6eb36ce7b895c1e403689ca91c092beb70",
+      "sha256": "ee7158540e9fb686b295e71d7981f1476f3d1b66e868b0963fb4135c0f3d0a69",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/README.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/compiler/README.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          89
+        ]
+      ],
+      "evidence_level": "Полный текущий owner contract прочитан; raw-state diagnostics, process-local identity, full DAG routing и mutable closure boundaries не переобъявлены дефектами.",
+      "git_blob": "ec1e36d1903c2e28d6d74054ccf4bb5e72df3d8e",
+      "sha256": "68afcd30491b8e1c0f40f82309df6c6c3ee931a9db765fd2135de91d60e6d796",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      5530,
+      5648
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "scope": "Последовательный JIT-01: actual non-JIT compiler/cache/threading/shape controls; native JAX/XLA не выполнен"
+}

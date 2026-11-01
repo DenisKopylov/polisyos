@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "packets": 127,
+  "normative_fields_checked": 2445,
+  "mismatches": [],
+  "limits": "Text consistency, not implementation acceptance. Whitespace/backticks ignored; arithmetic stars are retained."
+}

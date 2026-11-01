@@ -1,0 +1,296 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "hash_semantics": "Git blob IDs reported by the GitHub connector; no independent full-byte repository hash reconstruction in this pass. Local dossier hashes are a separate SHA256SUMS file.",
+  "sources": [
+    {
+      "source_key": "N",
+      "path": "policy-engine/docs/system-design-decisions/policy-design-causal-operating-system-north-star.md",
+      "git_blob_sha_reported": "cf2f3193561a546a4e8acf543048ad73d8172021",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/policy-design-causal-operating-system-north-star.md",
+      "read_windows_requested": [
+        [
+          1,
+          240
+        ]
+      ],
+      "scope": "Short strategic document read; proposed framing and ratified identity amendment distinguished.",
+      "evidence_kind": "source_inspection_not_execution",
+      "pass": "dossier_v001_CYC01"
+    },
+    {
+      "source_key": "V",
+      "path": "policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md",
+      "git_blob_sha_reported": "ace72e4066409340b3367459a4d8e56ccd1b7282",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md",
+      "read_windows_requested": [
+        [
+          1,
+          310
+        ]
+      ],
+      "scope": "Opening, vision, Rules 1–12, capability reality bar and adapter discipline; later sections not reviewed.",
+      "evidence_kind": "source_inspection_not_execution",
+      "pass": "dossier_v001_CYC01"
+    },
+    {
+      "source_key": "H",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "git_blob_sha_reported": "635cf3bee84da0fc4b33b89c7e8747abd0c32c65",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "read_windows_requested": [
+        [
+          1,
+          360
+        ],
+        [
+          900,
+          2150
+        ],
+        [
+          2580,
+          2870
+        ]
+      ],
+      "scope": "Selected windows only; compile preconditions, context resolution, parent candidate semantics and recursive dispatch; intermediate uninspected branches remain.",
+      "evidence_kind": "source_inspection_not_execution",
+      "pass": "dossier_v001_CYC01"
+    },
+    {
+      "source_key": "J",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py",
+      "git_blob_sha_reported": "4c982cb5764d0b787faa70dde696ffa32d4e35f1",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py",
+      "read_windows_requested": [
+        [
+          1,
+          405
+        ]
+      ],
+      "scope": "Actual job caller, prior resource/scope checks, dispatch intent and explicit None context; remainder not reviewed.",
+      "evidence_kind": "source_inspection_not_execution",
+      "pass": "dossier_v001_CYC01"
+    },
+    {
+      "source_key": "R",
+      "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "git_blob_sha_reported": "eaa0eb558d3e195dc4107bb2d771df20de29b03e",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "read_windows_requested": [
+        [
+          3000,
+          3270
+        ],
+        [
+          3350,
+          3630
+        ]
+      ],
+      "scope": "Context/handoff denominator validation and actual leaf controller construction/run; not whole recursion file.",
+      "evidence_kind": "source_inspection_not_execution",
+      "pass": "dossier_v001_CYC01"
+    },
+    {
+      "source_key": "G",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "git_blob_sha_reported": "9761de868301e6fb90e69cd03aa3270b9a8187aa",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "read_windows_requested": [
+        [
+          2050,
+          2360
+        ],
+        [
+          3740,
+          4780
+        ],
+        [
+          4830,
+          5300
+        ],
+        [
+          5480,
+          5790
+        ]
+      ],
+      "scope": "Actual N5 dispatch, builders, owner resolution, controller call, persistence and context binding; not the complete module or N6 runtime.",
+      "evidence_kind": "source_inspection_not_execution",
+      "pass": "dossier_v001_CYC01"
+    },
+    {
+      "source_key": "A",
+      "path": "policy-engine/src/polisyos/runtime/quality/generic_simulation_admission.py",
+      "git_blob_sha_reported": "d32bdd5ced507f004272b673630ca6c98dcbdc77",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generic_simulation_admission.py",
+      "read_windows_requested": [
+        [
+          1,
+          620
+        ],
+        [
+          900,
+          1190
+        ]
+      ],
+      "scope": "Typed configured profiles and selected admission/reissue/matching paths; complete owner implementation not reviewed.",
+      "evidence_kind": "source_inspection_not_execution",
+      "pass": "dossier_v001_CYC01"
+    },
+    {
+      "source_key": "T",
+      "path": "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+      "git_blob_sha_reported": "15a29dbeccb017a695e45f8370b7553bf33e3905",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+      "read_windows_requested": [
+        [
+          1,
+          560
+        ],
+        [
+          650,
+          1240
+        ]
+      ],
+      "scope": "Fixture setup, unknown/stale profile outcomes and core positive POST/N5/GET assertions; tail controls beyond1240 and gap561–649 not read; test not run.",
+      "evidence_kind": "source_inspection_not_execution",
+      "pass": "dossier_v001_CYC01"
+    },
+    {
+      "source_key": "prior_REQ01_01",
+      "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+      "git_blob_sha": "895f0b5ec81fa0988a79e20ff9277f352b4ef6bd",
+      "read_or_execute_scope": "full source read through contiguous overlapping ranges; selected definitions executed only",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_requirement/compiler.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "pass": "prior_audit01_carried_forward",
+      "evidence_kind": "see_original_read_or_execute_scope"
+    },
+    {
+      "source_key": "prior_REQ01_02",
+      "path": "policy-engine/src/polisyos/data_requirement/__init__.py",
+      "git_blob_sha": "0c41394d1fb51a4917b0024b1152fd016f3ecd7f",
+      "read_or_execute_scope": "full facade read; not imported as native package",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_requirement/__init__.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "pass": "prior_audit01_carried_forward",
+      "evidence_kind": "see_original_read_or_execute_scope"
+    },
+    {
+      "source_key": "prior_REQ01_03",
+      "path": "policy-engine/src/polisyos/data_requirement/_impl/models.py",
+      "git_blob_sha": "7099771e3b85b9186324db8ec89030feb25bf563",
+      "read_or_execute_scope": "lines 1-300; actual scope DTO definition executed in isolation",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_requirement/_impl/models.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "pass": "prior_audit01_carried_forward",
+      "evidence_kind": "see_original_read_or_execute_scope"
+    },
+    {
+      "source_key": "prior_REQ01_04",
+      "path": "policy-engine/src/polisyos/core/contracts/capability_resolution.py",
+      "git_blob_sha": "77a95bfbba863998e40d5b9d0ebc38966b71325a",
+      "read_or_execute_scope": "full file read; not executed",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/contracts/capability_resolution.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "pass": "prior_audit01_carried_forward",
+      "evidence_kind": "see_original_read_or_execute_scope"
+    },
+    {
+      "source_key": "prior_REQ01_05",
+      "path": "policy-engine/src/polisyos/ir/governance/problem_frame.py",
+      "git_blob_sha": "605d9d2eadbd33219a822fbea843910eada8e8bb",
+      "read_or_execute_scope": "lines 1-230; actual ProblemDomain class executed in isolation",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/governance/problem_frame.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "pass": "prior_audit01_carried_forward",
+      "evidence_kind": "see_original_read_or_execute_scope"
+    },
+    {
+      "source_key": "prior_REQ01_06",
+      "path": "policy-engine/src/polisyos/runtime/quality/design_problem.py",
+      "git_blob_sha": "3745d1cc0f784d6c06384dd5600598692ea53cae",
+      "read_or_execute_scope": "lines 1-345; not executed",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/design_problem.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "pass": "prior_audit01_carried_forward",
+      "evidence_kind": "see_original_read_or_execute_scope"
+    },
+    {
+      "source_key": "prior_REQ01_07",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "git_blob_sha": "9761de868301e6fb90e69cd03aa3270b9a8187aa",
+      "read_or_execute_scope": "lines 1-160, 9830-10200; N7 compiler handoff only, not full file or runtime",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "pass": "prior_audit01_carried_forward",
+      "evidence_kind": "see_original_read_or_execute_scope"
+    },
+    {
+      "source_key": "prior_REQ01_08",
+      "path": "policy-engine/tests/unit/data_requirement/test_compiler.py",
+      "git_blob_sha": "4b58d8e50e64598b83b01d01f05dd6b0c532bf84",
+      "read_or_execute_scope": "requested 1-1350; first response truncated near 390; later 400-1350 read; not full test file, not run",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/data_requirement/test_compiler.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "pass": "prior_audit01_carried_forward",
+      "evidence_kind": "see_original_read_or_execute_scope"
+    },
+    {
+      "source_key": "prior_REQ01_09",
+      "path": "policy-engine/tests/unit/remediation/test_req_01_installed.py",
+      "git_blob_sha": "c51e506c7ee250f3191fde6f056a65514709ea61",
+      "read_or_execute_scope": "lines 1-330; not run",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_req_01_installed.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "pass": "prior_audit01_carried_forward",
+      "evidence_kind": "see_original_read_or_execute_scope"
+    },
+    {
+      "source_key": "prior_REQ01_10",
+      "path": "policy-engine/tests/unit/remediation/test_acq_01.py",
+      "git_blob_sha": "3865540bee0556f9fc65595178f5dff75a3f4424",
+      "read_or_execute_scope": "lines 1-540; not full test file, not run",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_acq_01.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "pass": "prior_audit01_carried_forward",
+      "evidence_kind": "see_original_read_or_execute_scope"
+    },
+    {
+      "source_key": "prior_REQ01_11",
+      "path": "policy-engine/architecture/shims.toml",
+      "git_blob_sha": "8f303d26e9948721b2ba565825daa44b8691e086",
+      "read_or_execute_scope": "full registry read",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/architecture/shims.toml",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "pass": "prior_audit01_carried_forward",
+      "evidence_kind": "see_original_read_or_execute_scope"
+    },
+    {
+      "source_key": "prior_REQ01_12",
+      "path": "policy-engine/CONTRIBUTING.md",
+      "git_blob_sha": "8ff414198e306e671abff1f76f31330a1f29d765",
+      "read_or_execute_scope": "lines 1-220 read",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/CONTRIBUTING.md",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "pass": "prior_audit01_carried_forward",
+      "evidence_kind": "see_original_read_or_execute_scope"
+    },
+    {
+      "source_key": "prior_REQ01_13",
+      "path": "E02-WORK-PLAN.md",
+      "git_blob_sha": "37ffe14ebd92407e4ef93e6b6df10d7df7da26da",
+      "read_or_execute_scope": "opening sections and lines 230-EOF; source statements not inherited as new test outcomes",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/E02-WORK-PLAN.md",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "pass": "prior_audit01_carried_forward",
+      "evidence_kind": "see_original_read_or_execute_scope"
+    }
+  ]
+}

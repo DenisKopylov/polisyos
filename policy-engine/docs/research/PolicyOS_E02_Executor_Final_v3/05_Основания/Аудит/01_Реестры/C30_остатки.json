@@ -1,0 +1,75 @@
+{
+  "pass": "C30",
+  "bundle": "PCL-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C30-R01",
+      "type": "serialized_mapping_loses_typed_report_precedence_in_dispatch_merge",
+      "severity": "medium_conditional_local_consumer",
+      "source_ids": [
+        "LA-052"
+      ],
+      "location": "_truthfulness.py:183–233;dispatch.py:387–417",
+      "evidence": [
+        "P16",
+        "P17",
+        "P18"
+      ],
+      "mechanism": "Same empty continuous report in MethodResult.output plus positive artifacts sidecar: typed report rewrites sidecar to unverified; JSON mapping keeps approximate_calibrated. output Any accepts both; extraction recognizes only typed continuous report before trusting sidecar.",
+      "preserve": "Typed report priority and canonical model_validate_json/readback remain safe; generic receipt reconciliation and task scopes.",
+      "remaining": "At supported serialized report boundary restore/validate known owner DTO before reconciliation, or refuse unbound positive sidecar; do not recognize arbitrary dict by a self-asserted task label.",
+      "limits": "Actual local merge and DTO definitions executed. No native method/serialization dispatcher path, CAS, institution gate or production publication bypass established."
+    },
+    {
+      "id": "C30-G01",
+      "type": "native_short_chain_and_public_distribution_qualification",
+      "source_ids": [
+        "LA-052",
+        "LA-053"
+      ],
+      "evidence": [
+        "P01",
+        "P09",
+        "P11",
+        "P22",
+        "S07",
+        "S08",
+        "S09"
+      ],
+      "remaining": "Run canonical numerical/readback/native public-import tests in supported environment; current exact numerical/report/receipt definitions and filesystem roundtrip are real but package graph isolated. Root startup and installed distribution identity/performance not measured."
+    },
+    {
+      "id": "C30-G02",
+      "type": "compatibility_alias_lifecycle_not_closed",
+      "source_ids": [
+        "LA-053"
+      ],
+      "evidence": [
+        "S09",
+        "S10",
+        "S11",
+        "S12",
+        "S16"
+      ],
+      "remaining": "Numerical tests have moved to canonical API, old test now identity-only; alias still intentionally supported. Addressed Python src/tests search finds old imports in compatibility test, not zero external callers. Complete FQN/config/notebook/generated-surface and external support-window decision before retiring; no arbitrary sunset and no new alias chain.",
+      "limits": "Alias presence itself not runtime defect; code not deleted."
+    },
+    {
+      "id": "C30-G03",
+      "type": "numeric_quality_not_authenticated_measurement_source",
+      "source_ids": [
+        "LA-052"
+      ],
+      "evidence": [
+        "P11",
+        "P12",
+        "P13",
+        "P19",
+        "S04:151–240"
+      ],
+      "remaining": "95/100 keeps candidate_numeric_tier approximate_calibrated while actual continuous receipt remains unverified/source_not_established. This is intentional conservative separation, not loss of valid numerical result. Actual source/experiment qualification belongs to existing measurement bridge, not a global lower ECE threshold."
+    }
+  ]
+}

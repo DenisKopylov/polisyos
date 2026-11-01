@@ -1,0 +1,278 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          913
+        ]
+      ],
+      "evidence_level": "Полный bridge прочитан; exact admission/train/readback/predicate/reward/action-delta definitions исполнены с явными fixtures; native conversion/executor не исполнены",
+      "git_blob": "6150c77a7fa6b609b0899806a403e937ea32763e",
+      "sha256": "36aed5a1740a2075f3a7728e251b7e04b5eaf5f565a4da38b9cb7bb6b9f8cbb2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/jit_training.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/agent_sim/jit_training.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1063
+        ]
+      ],
+      "evidence_level": "Полностью прочитаны оба trainer owner, rollout, terminal monitor и PPO update; exact nested _run_step обоих collectors исполнены с NumPy/actor/executor/RNG seams, без JIT/gradient",
+      "git_blob": "53306ddf6becf170f80e9381598f8f889b9ab4a3",
+      "sha256": "6730c202d77ba15d2107b79d88b0a9a31149effa7eb25b3da8c9835cd0c30927",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/temporal_mechanisms.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/agent_sim/temporal_mechanisms.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          127
+        ]
+      ],
+      "evidence_level": "Полный actual temporal action→consumption owner исполнен с NumPy и fixture actor/state/RNG; не native JAX",
+      "git_blob": "8a70641a66d67369fcfd8a5f5c130b44491b94b6",
+      "sha256": "5081a3ceff2ec556b97d5503c0194903292b049ed9ce3358abd8074e2f1c8f4c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/training.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/agent_sim/training.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          375
+        ]
+      ],
+      "evidence_level": "Полный wrapper/ordinary trainer/trajectory/artifact handoff прочитан; native trainer не исполнен",
+      "git_blob": "bb83c64bdd85e30d7e8c267ecc7e3bd43b926951",
+      "sha256": "3e65855fb44c74132169af99c7ca8832fa2b20157137a30f37f56eb1277c4b1d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/artifact.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/agent_sim/artifact.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          764
+        ]
+      ],
+      "evidence_level": "Полный artifact producer/DTO/storage/reader прочитан; actual DTO/metric/store/hash-reader definitions исполнены с fixture storage и fingerprint, не Core CAS/Equinox weights",
+      "git_blob": "95e6d11d7fb32d8d410d920b2e5e484ad61b303d",
+      "sha256": "3f48b553dbf0300a1eeb4ad22be5847fc91c953c3e921cd146f9857643423a54",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/training_config.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/agent_sim/training_config.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          48
+        ]
+      ],
+      "evidence_level": "Полный config прочитан и exact dataclass исполнен; selected-profile field в harness подклассе",
+      "git_blob": "bd2a8a72b585faa04dc5a73e563b0bd15480ea40",
+      "sha256": "9fc317d7c2d49fdb4c2711695545fe4ad32d99065f9a4251361d5d8c12198510",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/rl.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/agent_sim/rl.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          168
+        ]
+      ],
+      "evidence_level": "Полный PPO loss/GAE/Trajectory consumer прочитан; не исполнен",
+      "git_blob": "c33a704c78f63ea5e232707ca893d55b6bb30746",
+      "sha256": "7497f31a3d89011d34cdb908013749e9e9a6cb16090463c202260c9950a4b9cb",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/actor_critic.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/agent_sim/actor_critic.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          273
+        ]
+      ],
+      "evidence_level": "Полный actor/distribution producer прочитан; exact sample_actions исполнен с scripted normal noise; network/log-prob function не исполнены",
+      "git_blob": "5a2c6cd7196484910035163c2146ad7f5e500bfe",
+      "sha256": "09163b55ebfcd24cbf3c42062e192c82b3e3a02fc94dc99f0b9618b7c7b2d40f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          27,
+          40
+        ],
+        [
+          453,
+          500
+        ]
+      ],
+      "evidence_level": "Полные selected profile enum и population schema/predicate прочитаны и исполнены с NumPy; Gini numerical execution не заявлен",
+      "git_blob": "135b8548a287243155a7e5445391cf5f9111d8df",
+      "sha256": "c48e539781f73c3ff6d4261da274db7f9586c31c057a5565c39f2b5fac0a2746",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/rewards.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/plugins/economics/rewards.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          48
+        ]
+      ],
+      "evidence_level": "Полный economic reward прочитан и исполнен на конечном NumPy fixture",
+      "git_blob": "a0451cdc3727c2423045ac40e27aa9a3d40436c5",
+      "sha256": "a57a2050eaa58961141deb257d19468e098392c0a30fa1097234b50101a20ae2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/rewards.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/agent_sim/rewards.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          130
+        ]
+      ],
+      "evidence_level": "Полные UtilityFunction и compute_agent_reward прочитаны/исполнены; credit wrapper вне цели",
+      "git_blob": "37a0657d7bdc5ddeb004cf64a8db27dded3391b0",
+      "sha256": "b479ee30e0b7ba75f05a44c680f462f7e3859f23d3629d2c45b60d4abf4e8d31",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/foundry/contracts/fidelity.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/contracts/fidelity.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          11
+        ]
+      ],
+      "evidence_level": "Полный fidelity enum прочитан и исполнен",
+      "git_blob": "8ccd4ccccddba9edfdcf6d483c82a323264ffb59",
+      "sha256": "199447bcebf51ddf7c91c3f0f65b40c9b987ed832cb5a533a0f78cd6f9e027bd",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/foundry/plugins/api.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/plugins/api.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          418
+        ]
+      ],
+      "evidence_level": "Полный public train/run/reset/result прочитан в последовательном C40/C41 разборе; здесь не переисполнен",
+      "git_blob": "baf7a5ba5b334f6fc1a7294677f9a391c9b4f0bd",
+      "sha256": "9148f082534ba061d0703987f317b80332bf9567ff8f0a3c7b218b3536c270a2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/foundry/plugins/cli.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/plugins/cli.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          201
+        ]
+      ],
+      "evidence_level": "Полный CLI прочитан в C40; carry-forward result-role остаток, без повторного execution claim",
+      "git_blob": "fea6f24bcae4ef758b946a4aaa9129348de5f0b1",
+      "sha256": "5ef58d68cb3fb7e59e94e7a114703448b6473d006e6949bf4f1aed80b1e3bba2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/tests/unit/remediation/test_plg_03.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_plg_03.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1812
+        ]
+      ],
+      "evidence_level": "Полный focused test прочитан; real gradient observer/fresh CAS consumer/reset/removal и явно stubbed tenant cases различены. Native attempt BLOCKED",
+      "git_blob": "45b691268a929407c72fdc8ccabd5a28ca1a566e",
+      "sha256": "8cb458316a40efad54c1890ad229ea1ff8b959c620b816012ef0dbcc701c97a5",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      5090,
+      5199
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "discovery": {
+    "census": false,
+    "log": "04_Проверки/C41_PLG03/fidelity_discovery.log",
+    "scope": "Полные deciding owners и focused tests; не полный реестр всех callers/fidelity tests"
+  }
+}

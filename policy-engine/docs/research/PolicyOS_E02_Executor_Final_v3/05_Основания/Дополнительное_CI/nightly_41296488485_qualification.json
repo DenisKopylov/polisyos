@@ -1,0 +1,392 @@
+{
+  "kind": "additional_readonly_CI_qualification",
+  "run_id": 41296488485,
+  "observed_at_utc": "2026-11-01T10:47:00Z",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "source": "GitHub read-only fetch_workflow_run_jobs and fetch_workflow_job_logs; four decoded logs saved in research scratch",
+  "reading_scope": "Job metadata and focused exact error/summary log ranges; not a full CI or security audit. No rerun, installation, credentials, configuration or repository changes.",
+  "records": [
+    {
+      "job_id": 124818314221,
+      "url": "https://github.com/DenisKopylov/polisyos/actions/runs/41296488485/job/124818314221",
+      "checkout_sha_seen": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "decoded_log_sha256": "13059905d612f243a67e394d054d35b2e90f4e18750f648f35354cb966a1d995",
+      "decoded_log_bytes": 270646,
+      "decoded_log_lines": 3635,
+      "events": [
+        {
+          "line": 765,
+          "excerpt": "2026-11-01T10:14:35.9088294Z KeyError: 'np'"
+        },
+        {
+          "line": 819,
+          "excerpt": "2026-11-01T10:14:35.9178423Z RuntimeError: restricted_exante_builtin_numpy_dependency_missing"
+        },
+        {
+          "line": 2029,
+          "excerpt": "2026-11-01T10:16:41.5039754Z ModuleNotFoundError: No module named 'tests.foundry'"
+        },
+        {
+          "line": 2312,
+          "excerpt": "2026-11-01T10:17:05.0177822Z phase2_identification_frontier.py: error: unrecognized arguments: --mode smoke"
+        },
+        {
+          "line": 2864,
+          "excerpt": "2026-11-01T10:18:05.3913222Z demo_krusell_smith_multiplicity.py: error: unrecognized arguments: --quiet --mode smoke"
+        },
+        {
+          "line": 3570,
+          "excerpt": "2026-11-01T10:19:22.7003207Z   Circuits run   : 40"
+        },
+        {
+          "line": 3571,
+          "excerpt": "2026-11-01T10:19:22.7003845Z   Circuits passed: 3"
+        },
+        {
+          "line": 3575,
+          "excerpt": "2026-11-01T10:19:22.7005849Z   Circuit errors : 37"
+        }
+      ],
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Checkout repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Setup Policy Engine Python",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Run benchmark contours",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 4
+        },
+        {
+          "name": "Upload benchmark summaries",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Post Setup Policy Engine Python",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Post Checkout repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11
+        }
+      ]
+    },
+    {
+      "job_id": 124818314104,
+      "url": "https://github.com/DenisKopylov/polisyos/actions/runs/41296488485/job/124818314104",
+      "checkout_sha_seen": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "decoded_log_sha256": "2e0d99626baefbd3d0702c1a98465ecf2ab02b0fa68d7776b960bfa5d19d7e95",
+      "decoded_log_bytes": 87505,
+      "decoded_log_lines": 941,
+      "events": [
+        {
+          "line": 798,
+          "excerpt": "2026-11-01T10:14:32.0585891Z \u001b[32m✓ built in 12.29s\u001b[39m"
+        },
+        {
+          "line": 841,
+          "excerpt": "2026-11-01T10:14:33.4523844Z Initial JS gzip budget exceeded: 536.8 kB > 244.1 kB"
+        },
+        {
+          "line": 843,
+          "excerpt": "2026-11-01T10:14:33.4532445Z Largest app chunk gzip budget exceeded (assets/index-DitaQMBH.js): 233.9 kB > 53.7 kB"
+        }
+      ],
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Checkout repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Setup Policy Engine Python",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Setup runtime dashboard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Build dashboard for bundle budgets",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Check bundle budgets",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 6
+        },
+        {
+          "name": "Start fixture runtime API",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 7
+        },
+        {
+          "name": "Start dashboard preview server",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8
+        },
+        {
+          "name": "Wait for Lighthouse services",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 9
+        },
+        {
+          "name": "Run Lighthouse CI",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 10
+        },
+        {
+          "name": "Summarize Lighthouse report",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11
+        },
+        {
+          "name": "Upload nightly frontend benchmark artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12
+        },
+        {
+          "name": "Stop Lighthouse services",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13
+        },
+        {
+          "name": "Post Setup runtime dashboard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 24
+        },
+        {
+          "name": "Post Setup Policy Engine Python",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 25
+        },
+        {
+          "name": "Post Checkout repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 26
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 27
+        }
+      ]
+    },
+    {
+      "job_id": 124818313902,
+      "url": "https://github.com/DenisKopylov/polisyos/actions/runs/41296488485/job/124818313902",
+      "checkout_sha_seen": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "decoded_log_sha256": "53af757b612a047ed83fd0ca356c31f5b68f89887c604e7b195db73f81aa61ab",
+      "decoded_log_bytes": 34556,
+      "decoded_log_lines": 427,
+      "events": [
+        {
+          "line": 402,
+          "excerpt": "2026-11-01T10:14:01.3545115Z 2026/11/01 10:14:01 creating result file: open /github/workspace/tmp/scorecard.sarif: no such file or directory"
+        },
+        {
+          "line": 415,
+          "excerpt": "2026-11-01T10:14:01.6649364Z ##[error]No files were found with the provided path: /tmp/scorecard.sarif. No artifacts will be uploaded."
+        }
+      ],
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Pull ghcr.io/ossf/scorecard-action:v2.4.3",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Checkout repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Run OpenSSF Scorecard",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 4
+        },
+        {
+          "name": "Upload SARIF to GitHub Security",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 5
+        },
+        {
+          "name": "Upload Scorecard SARIF",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 6
+        },
+        {
+          "name": "Post Checkout repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13
+        }
+      ]
+    },
+    {
+      "job_id": 124818314246,
+      "url": "https://github.com/DenisKopylov/polisyos/actions/runs/41296488485/job/124818314246",
+      "checkout_sha_seen": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "decoded_log_sha256": "8a032fad3839bbf634456a1cd7362a3e1fcc00eaee7e7f18b317502cd1f3c5eb",
+      "decoded_log_bytes": 28494,
+      "decoded_log_lines": 337,
+      "events": [
+        {
+          "line": 219,
+          "excerpt": "2026-11-01T10:14:14.5496505Z Blocking vulnerability: GHSA-38jv-5279-wg99 high urllib3@2.6.2"
+        }
+      ],
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Checkout repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Install supply-chain tooling",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Generate repository SBOM",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Generate vulnerability report",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Evaluate vulnerability policy",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 6
+        },
+        {
+          "name": "Upload supply-chain audit artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Post Checkout repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15
+        }
+      ]
+    }
+  ],
+  "qualification": {
+    "benchmark": "Selected legacy_floor smoke reported40 circuits,3passed,37errors,0failed; import/CLI failures are not model-quality scores or evidence that every numerical method is broken.",
+    "frontend": "Build succeeded; configured bundle budget failed, LighthouseCI skipped. Summary step success with empty table is not performancePASS.",
+    "scorecard": "Result-file creation/upload failed; no low score inferred.",
+    "supply_chain": "Policy failed on scanner advisory/package matches. This is not an independently verified exposed or exploitable vulnerability finding."
+  },
+  "existing_acceptance_links": [
+    {
+      "requirement_id": "REQ-HYG-04-04",
+      "test_id": "TEST-HYG-04-04",
+      "scenario_id": "E02-I12-A",
+      "role": "Concrete fresh qualification limitation and entrypoint diagnosis under existing bounded build/benchmark smoke, not new repair scope."
+    },
+    {
+      "requirement_id": "REQ-FRY-01-02",
+      "test_id": "TEST-FRY-01-02",
+      "scenario_id": "E02-I04-A",
+      "role": "Runtime MethodRegistry/catalog availability must be actually reached before positive execution claim; this CI import fault is not automatic attribution to this packet."
+    }
+  ],
+  "scope_limits": [
+    "No new phase1 R/G or127 packet is created.",
+    "No blanket np injection, guard bypass, automatic dependency upgrade, arbitrary budget change or new performanceSLO authorized.",
+    "Any independently found additional implementation scope requires explicit bounded disposition; do not redefine existing acceptance to pass.",
+    "All executor-pack future tests remain NOT_RUN; remoteCI is separate observed evidence at pinned source."
+  ]
+}

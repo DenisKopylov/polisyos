@@ -1,0 +1,86 @@
+{
+  "pass": "C29",
+  "bundle": "FRC-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C29-R01",
+      "type": "summary_recreates_pass_from_counts_ignoring_input_floor",
+      "severity": "medium_diagnostic_semantics",
+      "source_ids": [
+        "LA-051"
+      ],
+      "location": "outcome_prediction.py:590–649",
+      "evidence": [
+        "P16",
+        "S10:3533–3565"
+      ],
+      "mechanism": "Typed input record limit/floor=False with10/10 becomes summary pass/floor=True, issues empty. Summary ignores input calibration_status/floor and does not establish new governed threshold.",
+      "preserve": "Numerical totals, typed denominator checks and purpose denials.",
+      "remaining": "Preserve upstream governed status/floor and distinguish descriptive coverage totals from admitted calibration; no independent summary producer authority.",
+      "limits": "Summary/helper and sibling caller source, not native G2/production promotion bypass."
+    },
+    {
+      "id": "C29-G01",
+      "type": "accountable_empirical_bridge_qualification",
+      "source_ids": [
+        "B32",
+        "LA-051"
+      ],
+      "evidence": [
+        "S01:17217–17400",
+        "S09"
+      ],
+      "remaining": "Actual HTTP producer and reopened reader call canonical evidence loader and S10; not absent. Full selected-profile custody, compatible estimand/method/rule/history/time and served chain remain for FRC-02. Existing positive wrapper test is injected fixture, not empirical authority.",
+      "closure_owner": "FRC-02"
+    },
+    {
+      "id": "C29-G02",
+      "type": "support_reference_spine_not_bound_to_persisted_content",
+      "source_ids": [
+        "B32",
+        "LA-051"
+      ],
+      "evidence": [
+        "P21",
+        "S01:17443–17587"
+      ],
+      "remaining": "Calibration refs now come from resolved evidence, but support still manufactures interval://.../95 and source-contract/method-validity/sensitivity/equilibrium/distribution URIs. P21 report nominal0.8 still yields /95; content existence/interval relation not established by builder. Keep conditional diagnostics, bind actual persisted producer refs where claimed.",
+      "limits": "Not a demonstrated production authority bypass; fixed suffix is not proof empirical coverage=0.95."
+    },
+    {
+      "id": "C29-G03",
+      "type": "supported_temporal_profile_and_stale_characterization",
+      "source_ids": [
+        "B32",
+        "LA-051"
+      ],
+      "evidence": [
+        "P07",
+        "P08",
+        "P09",
+        "S03:105–185",
+        "S08:345–366"
+      ],
+      "remaining": "S10 and bridge deliberately require six distinct aware timestamps and fixed temporal order. This is a bounded profile, not universal semantics for every design; do not fabricate different dates to satisfy it. Old FRC01 test expects raw mapping with an incompatible time order to create record; update characterization to actual admitted owner path without restoring bypass."
+    },
+    {
+      "id": "C29-G04",
+      "type": "native_test_and_scientific_limits",
+      "source_ids": [
+        "B32",
+        "LA-051"
+      ],
+      "evidence": [
+        "P01",
+        "P17",
+        "S03",
+        "S04",
+        "S05"
+      ],
+      "remaining": "Native pytest/HTTP/CAS/method/calibration bridge unrun; finite helper and resolved bridge seams explicit. Curve examples are numerical controls, not calibration of causal effect parameter by individual outcomes. Historical records not rewritten."
+    }
+  ],
+  "LA-051_phase": "FRC-01 stage1 only; accountable FRC-02 remains unassessed"
+}

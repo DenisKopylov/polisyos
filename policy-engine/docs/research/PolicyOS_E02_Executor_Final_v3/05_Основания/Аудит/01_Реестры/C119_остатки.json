@@ -1,0 +1,56 @@
+{
+  "pass_id": "C119",
+  "bundle": "STR-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C119-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "title": "Typed unavailable occurrence одновременно учитывается как valid evaluation",
+      "evidence": [
+        "P05",
+        "S01:753–765",
+        "S01:1033–1037",
+        "run03/unavailable_result.json"
+      ],
+      "remaining": "Согласовать diagnostic valid count с отдельными unavailable/invalid occurrence counts до presentation. Сохранить typed unavailable reason, total attempted, unverified posture и refusal положительного score; не переобозначать unknown как invalid numerical failure только ради арифметики.",
+      "limits": "Actual run без CAS: 1 attempted,1 unavailable,0 invalid, но valid_evaluation_count=1, поскольку формула total-invalid не вычитает unavailable. Robustness_score=None, is_robust=False, set_adequacy_status=unverified; false acceptance не доказан. Не объявлять всю оценку или ledger потерянными."
+    },
+    {
+      "id": "C119-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Source replay не имеет независимого selected-objective intent binding",
+      "evidence": [
+        "S03:569–582",
+        "S03:1075–1090",
+        "S09:861–1027"
+      ],
+      "remaining": "Квалифицировать существующую request/run-state selected-objective связь с exact candidate/plan/outcome/source profiles и fresh consumer. Сохранить текущий unbound refusal; не превращать self-carried rule или producer available flag в authority и не создавать второй optimizer.",
+      "limits": "Actual native CAS/Level5 chain UNRUN. Source reader намеренно сохраняет selected_objective_intent_not_independently_established даже после replay. Численная доля finite occurrences не генеральная вероятность; отсутствие authority не аннулирует полезные diagnostics."
+    },
+    {
+      "id": "C119-G02",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Native end-to-end direction/score qualification остаётся открытой",
+      "evidence": [
+        "commands.json",
+        "S09",
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P06"
+      ],
+      "remaining": "На поддерживаемом профиле выполнить существующие native scalar, CompositeObjective cost, adaptive invalid-feedback и persisted replay tests. Проверять occurrence units, top-k independence, empty/partial status и candidate-binding раздельно; G01 не снимать за успешный fixture.",
+      "limits": "Actual selected typed direct objective и adaptive runner выполнены; built-in metric assessment, CAS, real StrategyAdapter и Level5 не выполнялись. Retired/compat NegatedCompositeObjective не использован actual main loop; наличие его старого sign helper само по себе не новый defect."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C119-R01"
+  ],
+  "decision": "Direction и pre-top-k occurrence repair подтверждены bounded. Unavailable diagnostic count остаётся R01; protected score/source intent authority и native chain G01/G02."
+}

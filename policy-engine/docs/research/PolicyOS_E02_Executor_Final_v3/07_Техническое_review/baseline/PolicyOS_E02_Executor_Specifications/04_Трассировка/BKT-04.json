@@ -1,0 +1,507 @@
+{
+  "packet_id": "BKT-04",
+  "lane": "LANE-03",
+  "status": "AUTHORED_PENDING_FINAL_QA",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "test_status": "NOT_RUN",
+  "audit_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "source_ids": [
+    "B174",
+    "B175"
+  ],
+  "audit_reports": [
+    "05_Основания/Аудит/02_Пакеты/BKT-04.md"
+  ],
+  "source_plan_lines": [
+    4309,
+    4396
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C35_остатки:0",
+      "audit_id": "C35-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-BKT-04-01",
+        "REQ-BKT-04-04",
+        "REQ-BKT-04-05",
+        "REQ-BKT-04-07"
+      ],
+      "shared_owner": null,
+      "rationale": "Native public tests и finite actual activation census; не forced runtime dependency.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C35_остатки.json",
+        "sha256": "0df6aa1d87b33898603fb11be5cae308d096bd849da2e71e7c72d4bc1ec36861",
+        "json_pointer": "/findings/0"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C35_остатки:1",
+      "audit_id": "C35-G02",
+      "disposition": "capability",
+      "requirement_ids": [
+        "REQ-BKT-04-02",
+        "REQ-BKT-04-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Явный selected evaluator shape/metric denominator contract, generic limitations не production defect.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C35_остатки.json",
+        "sha256": "0df6aa1d87b33898603fb11be5cae308d096bd849da2e71e7c72d4bc1ec36861",
+        "json_pointer": "/findings/1"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C35_остатки:2",
+      "audit_id": "C35-G03",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-BKT-04-04",
+        "REQ-BKT-04-05",
+        "REQ-BKT-04-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Sampling-unit/scientific scope и honest arbitrary-callable identity.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C35_остатки.json",
+        "sha256": "0df6aa1d87b33898603fb11be5cae308d096bd849da2e71e7c72d4bc1ec36861",
+        "json_pointer": "/findings/2"
+      }
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0294",
+      "requirement_ids": [
+        "REQ-BKT-04-01",
+        "REQ-BKT-04-04",
+        "REQ-BKT-04-05",
+        "REQ-BKT-04-07"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native tests/actual caller, без invented speedup.",
+      "source_ids": [
+        "B174",
+        "B175"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0295",
+      "requirement_ids": [
+        "REQ-BKT-04-02",
+        "REQ-BKT-04-03"
+      ],
+      "disposition": "capability",
+      "rationale": "Selected caller принимает useful partial CV metrics с явной policy.",
+      "source_ids": [
+        "B174"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0296",
+      "requirement_ids": [
+        "REQ-BKT-04-04",
+        "REQ-BKT-04-05",
+        "REQ-BKT-04-06"
+      ],
+      "disposition": "qualify",
+      "rationale": "Научно допустимый unit/resampler и truthful callable basis.",
+      "source_ids": [
+        "B175"
+      ]
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0442",
+      "requirement_ids": [
+        "REQ-BKT-04-01"
+      ],
+      "test_ids": [
+        "TEST-BKT-04-01"
+      ],
+      "rationale": "Old valid grid"
+    },
+    {
+      "inventory_id": "preserve:0443",
+      "requirement_ids": [
+        "REQ-BKT-04-01"
+      ],
+      "test_ids": [
+        "TEST-BKT-04-02"
+      ],
+      "rationale": "Early parameter validation"
+    },
+    {
+      "inventory_id": "preserve:0444",
+      "requirement_ids": [
+        "REQ-BKT-04-01"
+      ],
+      "test_ids": [
+        "TEST-BKT-04-01"
+      ],
+      "rationale": "Selected6 lists/1504 elements"
+    },
+    {
+      "inventory_id": "preserve:0445",
+      "requirement_ids": [
+        "REQ-BKT-04-02"
+      ],
+      "test_ids": [
+        "TEST-BKT-04-02"
+      ],
+      "rationale": "Callback isolation"
+    },
+    {
+      "inventory_id": "preserve:0446",
+      "requirement_ids": [
+        "REQ-BKT-04-04"
+      ],
+      "test_ids": [
+        "TEST-BKT-04-04"
+      ],
+      "rationale": "Early selector resolution"
+    },
+    {
+      "inventory_id": "preserve:0447",
+      "requirement_ids": [
+        "REQ-BKT-04-05"
+      ],
+      "test_ids": [
+        "TEST-BKT-04-04"
+      ],
+      "rationale": "Finite1D inputs/results"
+    },
+    {
+      "inventory_id": "preserve:0448",
+      "requirement_ids": [
+        "REQ-BKT-04-04"
+      ],
+      "test_ids": [
+        "TEST-BKT-04-05"
+      ],
+      "rationale": "Builtin/callable identity distinction"
+    },
+    {
+      "inventory_id": "preserve:0449",
+      "requirement_ids": [
+        "REQ-BKT-04-05",
+        "REQ-BKT-04-06"
+      ],
+      "test_ids": [
+        "TEST-BKT-04-06"
+      ],
+      "rationale": "Local RNG and direct RMSE bootstrap"
+    }
+  ],
+  "requirements": [
+    {
+      "text": "Сохранить current valid forward-chaining grid и выбранные позиции: max_folds ограничивает создание index lists, а не только final slice. Discrete positive step/train/cap проверяются до range/materialization; bool/fraction недопустимы, NumPy integers поддержаны. Full-grid запрос честно несёт свою неизбежную стоимость.",
+      "source_ids": [
+        "B174"
+      ],
+      "audit_ids": [
+        "C35-G01"
+      ],
+      "id": "REQ-BKT-04-01",
+      "test_ids": [
+        "TEST-BKT-04-01",
+        "TEST-BKT-04-02"
+      ]
+    },
+    {
+      "text": "Callback получает изолированные train/test arrays только выбранных folds, без мутации original/соседнего fold. Shape policy задаётся явно у selected evaluator/caller: deliberate multivariate first-axis observations допустимы, silent flatten и расхождение1D docstring/контракта устраняются документацией/validation в правильной boundary.",
+      "source_ids": [
+        "B174"
+      ],
+      "audit_ids": [
+        "C35-G02"
+      ],
+      "id": "REQ-BKT-04-02",
+      "test_ids": [
+        "TEST-BKT-04-02",
+        "TEST-BKT-04-03"
+      ]
+    },
+    {
+      "text": "При использовании CVResult как measurement selected caller сохраняет requested folds, per-metric evaluated/missing/invalid counts и weighting policy. NaN либо отсутствующий metric не превращаются в measured zero/full success. Полезные finite fold metrics остаются доступны; aggregate вычисляется только по declared denominator и не скрывает missing folds. Generic raw helper result не получает authority от dataclass serialization.",
+      "source_ids": [
+        "B174"
+      ],
+      "audit_ids": [
+        "C35-G02"
+      ],
+      "id": "REQ-BKT-04-03",
+      "test_ids": [
+        "TEST-BKT-04-03",
+        "TEST-BKT-04-07"
+      ]
+    },
+    {
+      "text": "Unknown explicit statistic отвергается до callback/RNG/sampling; default применяется только при отсутствии параметра. Named mean/median/std сохраняют реальный resolved selector отдельно от display metric. Callable declaration остаётся consumer_asserted, anonymous callable not_established, function name/closure label не считается verified semantic identity.",
+      "source_ids": [
+        "B175"
+      ],
+      "audit_ids": [
+        "C35-G01",
+        "C35-G03"
+      ],
+      "id": "REQ-BKT-04-04",
+      "test_ids": [
+        "TEST-BKT-04-04",
+        "TEST-BKT-04-05"
+      ]
+    },
+    {
+      "text": "Оба bootstrap entrypoints сохраняют finite1D observation unit, early empty/count/confidence guards, finite scalar callback/result/CI и caller exception semantics. Bad point statistic не расходует draws; bad sampled statistic прекращает computation без нормального CI. Local seeded RNG воспроизводим; RMSE вычисляется внутри каждого resample, не как sqrt интервала другой статистики.",
+      "source_ids": [
+        "B175"
+      ],
+      "audit_ids": [
+        "C35-G01",
+        "C35-G03"
+      ],
+      "id": "REQ-BKT-04-05",
+      "test_ids": [
+        "TEST-BKT-04-04",
+        "TEST-BKT-04-06"
+      ]
+    },
+    {
+      "text": "Selected resampling protocol обосновывает exchangeable observation unit/effective n и назначение confidence interval. Для time/cluster dependence использовать подходящий existing method с block/cluster unit либо сохранить explicit unsupported scientific claim, а не flatten/pretend iid. Singleton std0 остаётся convention, не доказанная population variance/coverage.",
+      "source_ids": [
+        "B175"
+      ],
+      "audit_ids": [
+        "C35-G03"
+      ],
+      "id": "REQ-BKT-04-06",
+      "test_ids": [
+        "TEST-BKT-04-06",
+        "TEST-BKT-04-07"
+      ]
+    },
+    {
+      "text": "Native public tests и конкретный intended caller/consumer квалифицируются без обязательного искусственного runtime hook. Если finite census не находит active runtime caller, сдать supported public helper contract и честную неустановленную activation; end-to-end speedup/empirical authority не заявлять. Если caller есть, result→persisted representation→fresh consumer сохраняет counts/statistic identity/limits.",
+      "source_ids": [
+        "B174",
+        "B175"
+      ],
+      "audit_ids": [
+        "C35-G01"
+      ],
+      "id": "REQ-BKT-04-07",
+      "test_ids": [
+        "TEST-BKT-04-01",
+        "TEST-BKT-04-07"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "native materialization and reference-grid regression",
+      "setup": "n1000,min_train2,step1,max_folds3; controlled observer materialization; finite exhaustive small parameter grid с independent old full-grid/linspace reference.",
+      "action": "Actual forward_chaining_splits; observer считает реальные list allocations/elements, не оценивает по final object.",
+      "oracle": "Ровно6 index lists,1504 elements, train sizes[2,500,999], test[2]/[500]/[999]. Valid small grids совпадают со reference; no hidden grid change. Это preparation evidence, не системный speedup multiplier.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/scientist/methods/backtesting/test_cv.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-BKT-04-01",
+      "requirement_ids": [
+        "REQ-BKT-04-01",
+        "REQ-BKT-04-07"
+      ]
+    },
+    {
+      "level": "native invalid-progress and isolation",
+      "setup": "step0/-1/1.5/True, invalid train/cap, numpy integer positive, train=n; callback пытается изменить arrays.",
+      "action": "Проверить validation до first range; actual run_forward_chaining_cv на3folds.",
+      "oracle": "Invalid parameters быстро ValueError без loop/materialization. np.integer valid; train=n zero folds. Callback mutations не меняют original/другой fold, only selected callback invocations. Не запускать unbounded hang как тест.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/scientist/methods/backtesting/test_cv.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-BKT-04-02",
+      "requirement_ids": [
+        "REQ-BKT-04-01",
+        "REQ-BKT-04-02"
+      ]
+    },
+    {
+      "level": "selected caller CV metric contract",
+      "setup": "Two folds: metric finite в первом, missing во втором; NaN metric; несколько metrics с разными missing patterns;1D и deliberate2D observations.",
+      "action": "Caller/evaluator adapter применяет declared shape/metric policy, сохраняет fold inventory и читает result.",
+      "oracle": "Finite values доступны с correct per-metric denominator1/2 и reason; invalidNaN не silent zero/normal mean. Whole-fold n2 не выдаётся за metric n2. Explicit multivariate first-axis policy preserves columns; unsupported shape refused before expensive evaluation, no flatten. Weighting equal-fold либо test-cell явно названо.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "cv.py::run_forward_chaining_cv плюс actual selected caller из DEC-CALLER",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-BKT-04-03",
+      "requirement_ids": [
+        "REQ-BKT-04-02",
+        "REQ-BKT-04-03"
+      ]
+    },
+    {
+      "level": "native selector-before-RNG and finite guards",
+      "setup": "[0,0,9], labelmedian/statisticmedain,n_bootstrap1000;2D,NaN/inf,empty,badcount/badconfidence; invalid callback point/sample outputs.",
+      "action": "Count actual RNG constructions/callback calls; invoke both public entrypoints.",
+      "oracle": "medain unknown_statistic с0RNG; invalid input0callback/0RNG. Invalid point0draw, bad first draw толькоpoint+1sample и noCI. Callable-raised TypeError сохраняет причину, не fallbackmean.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-BKT-04-04",
+      "requirement_ids": [
+        "REQ-BKT-04-04",
+        "REQ-BKT-04-05"
+      ]
+    },
+    {
+      "level": "native identity/readback matrix",
+      "setup": "Same display label, named mean/median/std; two same-name closures q.5/q1 с разными IDs; anonymous maximum; blankID/nonstringID/builtin override.",
+      "action": "BootstrapCI dataclass→ordinary JSON→explicit reader; selected consumer проверяет identity basis.",
+      "oracle": "[0,0,9]: mean3,median0,stdsqrt27; resolved names сохранены. Closures outputs0/9 consumer_asserted, anonymous9/not_established; invalid declaration rejected before callback. Ни JSON ни function name не повышают basis до recomputed.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-BKT-04-05",
+      "requirement_ids": [
+        "REQ-BKT-04-04"
+      ]
+    },
+    {
+      "level": "native RNG and direct resampled statistic",
+      "setup": "Fixed errors/seed и конечный n_bootstrap; independent reference rng.choice+per-draw sqrt(mean(square))→percentile; singleton std.",
+      "action": "Both entrypoints twice same seed; compare exact generated summary по закреплённому backend/version.",
+      "oracle": "Same-seed samebounds; actual RMSE bootstrap совпадает с independent per-resample oracle, MAE mean(abs) сохранён. Singleton std0 маркируется convention в intended interpretation; seed не называется independent population evidence.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-BKT-04-06",
+      "requirement_ids": [
+        "REQ-BKT-04-05",
+        "REQ-BKT-04-06"
+      ]
+    },
+    {
+      "level": "finite activation and scoped consumer E02-I03-C",
+      "setup": "Полный actual src/public facade/callsite/config census данного helper, не всего проекта; selected intended caller либо public-library use. Один justified iid observation sample и один time/cluster-dependent counterexample.",
+      "action": "Запустить current public imports/tests; для actual caller — result transport/readback и проверку bounded policy. Сохранить caller path, sampling unit, confidence/statistic identity/denominators.",
+      "oracle": "Active caller подтверждён actual route, либо честно not established без forced runtime registration. iid helper полезен; dependent claim использует подходящий existing resampler или остаётся ограниченным без псевдоcoverage. Нет публикации generic NaN mean как admitted measurement; partial finite values доступны. Native source/profile claims требуют actual owner, ordinary dataclass JSON только transport.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "backtesting/__init__.py; test_cv.py; test_bootstrap.py; selected caller из DEC-CALLER",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-BKT-04-07",
+      "requirement_ids": [
+        "REQ-BKT-04-03",
+        "REQ-BKT-04-06",
+        "REQ-BKT-04-07"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I03-C"
+  ],
+  "dependencies": [
+    {
+      "packet": "BKT-01",
+      "relation": "Historical feature leakage отдельно от CV boundaries; selected folds не доказывают as-of admissibility."
+    },
+    {
+      "packet": "BKT-02",
+      "relation": "Переиспользовать per-metric completeness/weight semantics у actual consumer, не смешивать CV mean с microRMSE."
+    },
+    {
+      "packet": "BKT-03",
+      "relation": "Independence/effective-n scientific assumptions сохраняются при bootstrap interpretation."
+    }
+  ],
+  "preservation": [
+    "Old valid grid",
+    "Early parameter validation",
+    "Selected6 lists/1504 elements",
+    "Callback isolation",
+    "Early selector resolution",
+    "Finite1D inputs/results",
+    "Builtin/callable identity distinction",
+    "Local RNG and direct RMSE bootstrap"
+  ],
+  "protected_distinction_ids": [],
+  "design_alignment": [
+    {
+      "source": "policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+      "section": "D0, extensible computation contracts",
+      "application": "Generic callable/evaluator остаются расширяемыми; реальные limits/observation semantics задаются contract, не жёстким перечнем задач."
+    },
+    {
+      "source": "policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md",
+      "section": "K01 и K07–K08",
+      "application": "Имя callable, seed и JSON не заменяют проверку научного смысла/coverage; полезный conditional result сохраняется."
+    }
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-BKT-04-CALLER",
+      "question": "Кто фактически потребляет generic CV/bootstrap как measurement?",
+      "owner": "Scientist backtesting/public API owner",
+      "bounded_action": "Finite census exact imports/calls/public facade/config и объявленного intended usage; выбрать actual caller с shape/metric policy либо supported public-only status. Сдать конкретный route и TEST07; не объявлять отсутствующими dynamic callers без evidence.",
+      "default": "Public helper supported, runtime activation not established; никакой forced global hook."
+    },
+    {
+      "id": "DEC-BKT-04-SAMPLING",
+      "question": "Обосновано ли iid resampling для выбранной observation unit?",
+      "owner": "Selected study/method owner",
+      "bounded_action": "Назвать unit, dependence/effective-n и confidence target; iid оставить при обосновании, иначе выбрать existing block/cluster method с distinguishing dependent control. Недоступная domain evidence остаётся qualification gap.",
+      "default": "Численный bootstrap conditional, без empirical coverage/causal/population authority."
+    }
+  ],
+  "technical_solution": "**Не менять работающие алгоритмы ради diff.** `forward_chaining_splits` уже вычисляет count/selected positions до list(range), проверяет operator.index и bool, сохраняет прежний linspace grid. `bootstrap_metric` уже разрешает statistic и point до RNG и сохраняет identity basis. First action — current native tests, затем только воспроизведённое несоответствие или выбранный caller-contract gap.\n\n**CV consumer policy:** generic callback возвращает dict, а aggregate берёт только folds с данным ключом и допускаетNaN. Это не автоматически authoritative defect. У actual intended consumer определить observation axis и metric inventory; предпочтительно adapter к существующему backtest completeness/report контракту с requested/evaluated/missing/invalid по каждому metric и явно выбранными weights. Не flatten2D, если rows — multivariate observations. Либо generic public contract действительно1D и проверяет ndim, либо docstring/typed expectation честно поддерживает first-axis arrays. Решение основывается на finite caller census, не на предположении. Missing metric сохраняется как missing, raw folds полезны; не подставлять0 и не silently renormalize admission.\n\n**Bootstrap:** сохранить independent scalar statistic от display label. Для arbitrary callable нельзя обеспечить универсальный mathematical verifier; consumer_asserted/not_established — правильный честный контракт, не повод запретить useful callbacks. Effective method identity в downstream содержит selector/declaration/basis, n_bootstrap/seed/backend context, без нового provenance registry.\n\n**Sampling protocol и activation:** этот helper ресэмплирует elements iid. Если selected study требует clusters/time blocks, подключить существующий подходящий owner для того случая с declared sampling unit, а не ломать iid helper и не автоматически группировать по форме arrays. Если active caller пока отсутствует, не заказывать глобальную регистрацию: public API qualified, runtime activation отдельно not established. Shared E02-I03-C получает лёгкий variant только для фактически выбранного consumer; helper performance measure не выдаётся за ускорение всей системы.",
+  "compatibility_and_rollback": "Сохранить public builtins, anonymous/custom callable support, local RNG, valid grid и evaluator isolation. Новый selected consumer validation не меняет generic valid multivariate use без census. Existing raw CVResult не переаттестовывается; any typed measurement adapter явно отличается от ordinary dataclass. Rollback adapter оставляет raw descriptive result и limitation, не возвращает unknown-statistic fallback или NaN positive qualification.",
+  "source_locators": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/cv.py",
+      "first_line": 1,
+      "last_line": 160,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/cv.py#L1-L160"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py",
+      "first_line": 25,
+      "last_line": 246,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py#L25-L246"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/__init__.py",
+      "first_line": 1,
+      "last_line": 106,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/__init__.py#L1-L106"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+      "first_line": 1,
+      "last_line": 153,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py#L1-L153"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+      "first_line": 1,
+      "last_line": 263,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py#L1-L263"
+    }
+  ]
+}

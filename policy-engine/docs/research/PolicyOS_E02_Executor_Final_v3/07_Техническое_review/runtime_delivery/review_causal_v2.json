@@ -1,0 +1,441 @@
+{
+  "schema": "e02.independent.causal_v2_readback.v1",
+  "status": "ACCEPT_PROPOSED_SPEC_AT_RECORDED_HASHES_NATIVE_NOT_RUN",
+  "review_date": "2026-11-01",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "scope": "5 revised packet MD+JSON and2lane overviews; full documents plus baseline semantic/unified diffs; focused actual sources",
+  "files": [
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/CAU-03.md",
+      "sha256": "32649aa29d84f4d0abb3aa0afb03360e29055c78b2ed402c242c0065e8ccfd92",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAU-03.md",
+      "baseline_sha256": "42e0a6b3db86ebb7129a057893854355dd5fa83533ddc5a1ba37da25607a57b8",
+      "manifest_hashes_match": true,
+      "read_scope": "full MD"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/CAU-03.json",
+      "sha256": "8e26e424e078172d1cb5e1e725f149f4b2979d2d83e8a884891cd34b812900d7",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAU-03.json",
+      "baseline_sha256": "78aab12423191f9ccafe68db916c2b0163295f7a4b9d188d2706c1211d301298",
+      "manifest_hashes_match": true,
+      "read_scope": "full JSON parsed; normative fields, metadata, bindings, solutions/compatibility/decisions reviewed"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/CAU-04.md",
+      "sha256": "407c656e4a44d1fefa767f2c3756bba405b8e4ed509e7d428f7cb714e3327783",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAU-04.md",
+      "baseline_sha256": "5c6e4fca86f1948f759b53f19caab0cf56a0f89f368d0b734a7919a7c0ff3f76",
+      "manifest_hashes_match": true,
+      "read_scope": "full MD"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/CAU-04.json",
+      "sha256": "004b25230cf6cae317ce7554eae938871c46c8517a57128321348b585b610915",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAU-04.json",
+      "baseline_sha256": "5f2ee237428ce1d95e6823675a630583a8fa80ada9dfac79be60a1ae40f11b26",
+      "manifest_hashes_match": true,
+      "read_scope": "full JSON parsed; normative fields, metadata, bindings, solutions/compatibility/decisions reviewed"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/FIT-01.md",
+      "sha256": "ac4b636b2db998d6a49f55514194351ac58160b0b366ddffe92f911b8f8ae611",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/FIT-01.md",
+      "baseline_sha256": "0b2d6d2ae529f0c7f9b77dea8d8b0ec15e3c2dd151401daec856574033c410dd",
+      "manifest_hashes_match": true,
+      "read_scope": "full MD"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/FIT-01.json",
+      "sha256": "ebfe9b071643ca9cfe391c01daad119cdb4ee97be92c1f163915139fc2ed4544",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/FIT-01.json",
+      "baseline_sha256": "faf83b3483f896f12959e6b44036a33a7537a201603b1b3a1245f64d5b9962ea",
+      "manifest_hashes_match": true,
+      "read_scope": "full JSON parsed; normative fields, metadata, bindings, solutions/compatibility/decisions reviewed"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/DDM-02.md",
+      "sha256": "64d77f00860f16e2f6e9a06024ebd7963833225b2bf348dc3b6935a9c1b53e0d",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/DDM-02.md",
+      "baseline_sha256": "8ea6fdd3d48d89903a466409b722c7060d1812c775d23bfd167c8bfa9bd75f4a",
+      "manifest_hashes_match": true,
+      "read_scope": "full MD"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/DDM-02.json",
+      "sha256": "7bbf7c4b08c8b8485b26c19f93fbba6f1ee4a342ba4493b885131d15e29ecfc8",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/DDM-02.json",
+      "baseline_sha256": "c4d549a2647029719133677cf95e311d49c0578a7ce98eaa5a4ca15d80facb2e",
+      "manifest_hashes_match": true,
+      "read_scope": "full JSON parsed; normative fields, metadata, bindings, solutions/compatibility/decisions reviewed"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/SCM-02.md",
+      "sha256": "442a1b178533d695191df5d202bd5dcbc69d06130bac57b5293d51265570e7af",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/SCM-02.md",
+      "baseline_sha256": "16de4d89d8a60c2bacb0cf9937978ce7133f0c9b423062ace07c952a5ba5c36e",
+      "manifest_hashes_match": true,
+      "read_scope": "full MD"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/SCM-02.json",
+      "sha256": "1bad193f324ce2b4c4e5c95adc09d4d92005294369c6e6753c1e6799aed5efc9",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/SCM-02.json",
+      "baseline_sha256": "e0615d776113370ef91eef1109e64dde5d1635e8ae7d71d238aa8feccc017e9c",
+      "manifest_hashes_match": true,
+      "read_scope": "full JSON parsed; normative fields, metadata, bindings, solutions/compatibility/decisions reviewed"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/01_Лейны/LANE-05.md",
+      "sha256": "fc111556b51776ced9f2f7198d10ad01bfbd58c3aab1d62186be967663bba229",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/01_Лейны/LANE-05.md",
+      "baseline_sha256": "c7a22698e3d83f6d0c93d3aecc4d2dc4fb3b9a30dc9a2a3338cf6debfc9be174",
+      "manifest_hashes_match": true,
+      "read_scope": "full MD"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/01_Лейны/LANE-11.md",
+      "sha256": "21706b5c7de0d010311eda7228baf81df89571e19173652daccfd628adfd12d6",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/01_Лейны/LANE-11.md",
+      "baseline_sha256": "f93c1e7d3dfa855d8bf4d7298baf5b4858ca2e1dcfbd3509e9f68bdd0494e587",
+      "manifest_hashes_match": true,
+      "read_scope": "full MD"
+    }
+  ],
+  "claims": [
+    {
+      "path": "e02_final_technical_review/causal_statistics/findings.json",
+      "sha256": "d2ef72a51d87beb7cfb7e2ecb616b23875e44cc9498c77138a8860a00144339e"
+    },
+    {
+      "path": "e02_final_technical_review/causal_statistics/proposed_changes.json",
+      "sha256": "19ea2cc88d463b34284c9a10fa621b4fed2de92808b3fea4cde0005673fd4687"
+    }
+  ],
+  "packet_checks": [
+    {
+      "packet_id": "CAU-03",
+      "requirements": 6,
+      "tests": 8,
+      "new_tests": [
+        "TEST-CAU-03-08"
+      ],
+      "original_req_test_ids_retained": true,
+      "unchanged_binding_fields": [
+        "source_ids",
+        "residual_dispositions",
+        "obligation_dispositions",
+        "preservation_bindings",
+        "source_locators",
+        "protected_distinction_ids"
+      ],
+      "reciprocal_links": true,
+      "all_tests_NOT_RUN": true,
+      "changed_json_fields": [
+        "requirements",
+        "tests",
+        "open_decisions",
+        "technical_solution",
+        "compatibility_and_rollback",
+        "technical_review_revision"
+      ]
+    },
+    {
+      "packet_id": "CAU-04",
+      "requirements": 6,
+      "tests": 8,
+      "new_tests": [
+        "TEST-CAU-04-08"
+      ],
+      "original_req_test_ids_retained": true,
+      "unchanged_binding_fields": [
+        "source_ids",
+        "residual_dispositions",
+        "obligation_dispositions",
+        "preservation_bindings",
+        "source_locators",
+        "protected_distinction_ids"
+      ],
+      "reciprocal_links": true,
+      "all_tests_NOT_RUN": true,
+      "changed_json_fields": [
+        "requirements",
+        "tests",
+        "technical_solution",
+        "technical_review_revision"
+      ]
+    },
+    {
+      "packet_id": "FIT-01",
+      "requirements": 8,
+      "tests": 10,
+      "new_tests": [
+        "TEST-FIT-01-10"
+      ],
+      "original_req_test_ids_retained": true,
+      "unchanged_binding_fields": [
+        "source_ids",
+        "residual_dispositions",
+        "obligation_dispositions",
+        "preservation_bindings",
+        "source_locators",
+        "protected_distinction_ids"
+      ],
+      "reciprocal_links": true,
+      "all_tests_NOT_RUN": true,
+      "changed_json_fields": [
+        "requirements",
+        "tests",
+        "technical_solution",
+        "technical_review_revision"
+      ]
+    },
+    {
+      "packet_id": "DDM-02",
+      "requirements": 7,
+      "tests": 8,
+      "new_tests": [
+        "TEST-DDM-02-08"
+      ],
+      "original_req_test_ids_retained": true,
+      "unchanged_binding_fields": [
+        "source_ids",
+        "residual_dispositions",
+        "obligation_dispositions",
+        "preservation_bindings",
+        "original_source",
+        "protected_distinction_ids"
+      ],
+      "reciprocal_links": true,
+      "all_tests_NOT_RUN": true,
+      "changed_json_fields": [
+        "technical_solution",
+        "requirements",
+        "tests",
+        "technical_review_revision"
+      ]
+    },
+    {
+      "packet_id": "SCM-02",
+      "requirements": 8,
+      "tests": 10,
+      "new_tests": [
+        "TEST-SCM-02-10"
+      ],
+      "original_req_test_ids_retained": true,
+      "unchanged_binding_fields": [
+        "source_ids",
+        "residual_dispositions",
+        "obligation_dispositions",
+        "preservation_bindings",
+        "source_locators",
+        "protected_distinction_ids"
+      ],
+      "reciprocal_links": true,
+      "all_tests_NOT_RUN": true,
+      "changed_json_fields": [
+        "requirements",
+        "tests",
+        "technical_solution",
+        "technical_review_revision"
+      ]
+    }
+  ],
+  "new_tests": [
+    "TEST-CAU-03-08",
+    "TEST-CAU-04-08",
+    "TEST-FIT-01-10",
+    "TEST-DDM-02-08",
+    "TEST-SCM-02-10"
+  ],
+  "source_readback": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+      "sha256": "eb2505f40b8a5ad464b5669f5432a8152859aa81ce98e9668787f7208ba8ba43",
+      "read_scope": [
+        [
+          50,
+          177
+        ]
+      ]
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/worker.py",
+      "sha256": "1e5d09d5956fd2bff6e79efb38b53d065e91dbf6aa54c76fefc72576dc54a97d",
+      "read_scope": [
+        [
+          69,
+          255
+        ]
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "sha256": "dadf52ccc3feea534915521431c70a0adf5c5996339d6595e44834c25270d751",
+      "read_scope": [
+        [
+          1015,
+          1248
+        ]
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "sha256": "93e2e3d18b740d8d67c6e3e6e15850b804c9295b953f06b61f1f03c005428af0",
+      "read_scope": [
+        [
+          300,
+          450
+        ]
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+      "read_scope": [
+        [
+          430,
+          490
+        ],
+        [
+          730,
+          1048
+        ]
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+      "sha256": "2cc4b6a8686a967615acc4024247570b44581fbcbf4b3728610435ddd7e0c040",
+      "read_scope": [
+        [
+          320,
+          385
+        ]
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ddm/calibration/calibrate.py",
+      "sha256": "eee9493030c961f89159d7d1f298b319377ff0656b0fe4555a443f3ac98409a8",
+      "read_scope": [
+        [
+          96,
+          238
+        ],
+        [
+          405,
+          450
+        ]
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "sha256": "716a15e0a93e0063a112effec1acb6f4578db2906da95f427011687bb170e761",
+      "read_scope": [
+        [
+          491,
+          530
+        ]
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+      "sha256": "0dd02251c4d7476761e5475fb6eea67a4c412e87c315b2087682291c57f71bf1",
+      "read_scope": [
+        [
+          330,
+          368
+        ]
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/ddm/test_stationary_replay.py",
+      "sha256": "9f58711f6842d115e343506941b089f8b9a62a555d860c3901a7b84be084dead",
+      "read_scope": [
+        [
+          20,
+          85
+        ]
+      ]
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+      "read_scope": "full TOML parse; selected package version inventory"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/uv.lock",
+      "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+      "read_scope": "full TOML parse; selected package version inventory"
+    }
+  ],
+  "algebra": {
+    "script": "e02_final_technical_review/runtime_delivery/causal_v2_independent_algebra.py",
+    "sha256": "351806eb44408d410f38a74c5ddb926dd3c94b68fe4ad063d015040df3759447",
+    "result": "e02_final_technical_review/runtime_delivery/causal_v2_independent_algebra.json",
+    "result_sha256": "c96add4b8625245aa794d356e229f1c0fe2c0497dfe9049b619152d7b58d7620",
+    "status": "STDLIB_ANALYTIC_CHECKS_PASS_NOT_PRODUCT_EXECUTION",
+    "independence": "New Fraction/matrix/trigonometric calculations; no author oracle script or product/helper import"
+  },
+  "substantive_verdicts": [
+    {
+      "finding": "CS-001",
+      "verdict": "ACCEPT",
+      "reason": "Exact variance counterexample verified; new HC0 profile/legacy distinction mathematically coherent"
+    },
+    {
+      "finding": "CS-002",
+      "verdict": "ACCEPT",
+      "reason": "Actual same backend established; independent finite OLS/t5 arithmetic and sign reversal verified"
+    },
+    {
+      "finding": "CS-003",
+      "verdict": "ACCEPT",
+      "reason": "Global target scaler source path and regularization dependence confirmed; selected-fold invariance correctly excludes final EIF"
+    },
+    {
+      "finding": "CS-004",
+      "verdict": "ACCEPT",
+      "reason": "Actual fallback/method-label source gap confirmed; source coordinate resolution and external MBB positive scope retained"
+    },
+    {
+      "finding": "CS-005",
+      "verdict": "ACCEPT_TEST_STRENGTHENING",
+      "reason": "Independent per-replica target/quantile formulas coherent; no new actual target error claimed"
+    },
+    {
+      "finding": "CS-006",
+      "verdict": "ACCEPT_BOUNDED_PROFILE_WORDING",
+      "reason": "Parent/worker lock separation and Linux3.12 guard verified; optional backend/migration not overclaimed"
+    }
+  ],
+  "open_findings": [],
+  "nonblocking_execution_conditions": [
+    "No native product/worker/coverage/mutation tests executed",
+    "Actual NumPy seed45 bootstrap corpus/full-rank outcomes not observed; cannot infer native success from illustrative algebra",
+    "Future fold test must inspect selected fold, not aggregate repeated-crossfit predictions",
+    "Disjoint source coordinates are necessary provenance, not independent time-series sampling proof",
+    "Final aggregate/scenario/index/hash QA awaits all writers and root freeze"
+  ],
+  "primary_sources": [
+    {
+      "url": "https://www.pywhy.org/dowhy/v0.14/_modules/dowhy/causal_estimators/linear_regression_estimator.html",
+      "checked": "2026-11-01"
+    },
+    {
+      "url": "https://www.statsmodels.org/v0.14.6/generated/statsmodels.regression.linear_model.WLS.html",
+      "checked": "2026-11-01"
+    },
+    {
+      "url": "https://scikit-learn.org/1.8/modules/generated/sklearn.linear_model.ElasticNet.html",
+      "checked": "2026-11-01"
+    },
+    {
+      "url": "https://github.com/kuzudb/kuzu/",
+      "checked": "2026-11-01"
+    }
+  ],
+  "product_tests": "NOT_RUN",
+  "native_tests": "NOT_RUN",
+  "report_sha256": "ee9301eab9b0ad86496a15b0f365dd1d79e58a7dcb881c8d5fbca4abf61db25e",
+  "diff_sha256": "32853ba0aadfcd0bb7a772873ccee539db8f1879c8ccc6c15c0f6862986a339a"
+}

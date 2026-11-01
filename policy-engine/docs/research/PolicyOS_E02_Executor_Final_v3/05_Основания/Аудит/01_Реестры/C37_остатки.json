@@ -1,0 +1,53 @@
+{
+  "pass": "C37",
+  "bundle": "FRY-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C37-G01",
+      "type": "native_kernel_registry_compiler_replay_qualification",
+      "source_ids": [
+        "LA-003"
+      ],
+      "evidence": [
+        "P01–P22",
+        "S22–S27"
+      ],
+      "remaining": "В поддерживаемой среде выполнить уже найденные FRY-03, fiscal/labor, gradient, precision и real spec/compiler/fresh-CAS replay tests. Проверить настоящий JAX PRNG/key progression, eqx state, native registry registration и persisted output.",
+      "limits": "22 bounded MATCH подтверждают actual control flow и NumPy algebra с явными seams, не native JAX. pytest отсутствует до collection. Настоящий MergeEngine, state snapshot, gradient/JIT не исполнены."
+    },
+    {
+      "id": "C37-G02",
+      "type": "relocation_vs_intentional_numeric_delta",
+      "source_ids": [
+        "LA-003"
+      ],
+      "evidence": [
+        "P01",
+        "P07",
+        "P08",
+        "S21:1–58",
+        "S27:1–184"
+      ],
+      "remaining": "Сохранять прямые старые aliases и разграничивать адресный перенос с позднейшим намеренным dtype/precision исправлением. Для исторических serialized modules проверить фактически сохранённую rate precision; не обещать восстановления исходного Decimal из float32 и одинаковых bytes для всех x64 profiles.",
+      "limits": "Old/new aliases сейчас тот же объект; их сравнение не независимый oracle исторической математики. Документированный precision delta не классифицирован как скрытая relocation-регрессия."
+    },
+    {
+      "id": "C37-G03",
+      "type": "baseline_model_and_authority_scope",
+      "source_ids": [
+        "LA-003"
+      ],
+      "evidence": [
+        "P09–P12",
+        "P20",
+        "P21",
+        "S07:27–45,288–357"
+      ],
+      "remaining": "Использовать линейный tax/subsidy и threshold/uniform-employer labor как ограниченные baseline kernels. При выборе в LLM/Scientist пути не превращать metadata/citation или patch success в causal effect, calibration, welfare или универсальную модель рынка. Семантику отрицательной налоговой базы и допустимых состояний определить в выбранной предметной модели, не вводя молча clipping в relocation.",
+      "limits": "Сохранены active/target masks, employer IDs и active firm counts. Inactive/non-target agent preservation не означает сохранение устаревшего aggregate firm count. Простота модели не является дефектом; готовая равноценная замена не установлена."
+    }
+  ],
+  "confirmed_local_defects": []
+}

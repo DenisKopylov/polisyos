@@ -1,0 +1,107 @@
+{
+  "pass_id": "C16",
+  "bundle": "CTL-02",
+  "items": [
+    {
+      "id": "C16-R01",
+      "original_ids": [
+        "B126"
+      ],
+      "status": "confirmed_local",
+      "severity": "medium",
+      "confidence": "high_local",
+      "title": "Missing Sobol checkpoint becomes compatible after re-export",
+      "location": "strategies/base.py:103-115, 176-200, 256-286",
+      "reproductions": [
+        "P24",
+        "P25"
+      ],
+      "controls": [
+        "P10",
+        "P26",
+        "P27"
+      ],
+      "consequence": "unsupported replay can be relabeled compatible without original sampler state; changed scientific output or publication not established",
+      "preserve": "valid versioned stream; legitimate fresh empty stream; independent Python stream",
+      "minimal_direction": "preserve missing/incompatible sampler state across export or refuse replay claim, not reset with an invented compatible empty stream"
+    },
+    {
+      "id": "C16-R02",
+      "original_ids": [
+        "B125"
+      ],
+      "status": "confirmed_local",
+      "severity": "medium_conditional",
+      "confidence": "high_local",
+      "title": "Incomplete Python RNG validation and non-atomic rejection for Gaussian cache",
+      "location": "strategies/base.py:117-200, 406-460",
+      "reproductions": [
+        "P11",
+        "P12"
+      ],
+      "controls": [
+        "P07",
+        "P09",
+        "P13"
+      ],
+      "subcases": [
+        "gauss_next accepts nonfinite",
+        "invalid internal index rejection changes gauss_next before failure"
+      ],
+      "consequence": "next Gaussian value can change or become nonfinite; uniform vector unchanged in tested rejection; actual search consumers of gauss not established",
+      "minimal_direction": "validate actual cursor/finite cache and temporary native state before committing; never reseed silently"
+    },
+    {
+      "id": "C16-T01",
+      "original_ids": [
+        "B124"
+      ],
+      "status": "test_contract_drift_source_and_bounded",
+      "severity": "test_quality",
+      "title": "Raw-dictionary volatile expectations conflict with typed subject contract",
+      "evidence": [
+        "S07",
+        "S08",
+        "P05"
+      ],
+      "minimal_direction": "use actual declared transport in tests; retain semantic keys and date distinction; do not revive stripping"
+    },
+    {
+      "id": "C16-G01",
+      "original_ids": [
+        "B126"
+      ],
+      "status": "measured_local_preparation_cost",
+      "title": "Full Sobol prefix rebuilt on each extension",
+      "evidence": [
+        "P28"
+      ],
+      "observed": {
+        "logical_points": 32,
+        "incremental_generated_points": 528,
+        "batch_generated_points": 32
+      },
+      "minimal_direction": "reuse live sampler and restore once, preserving current sequence; optimize only when workload justifies; no whole-system speed claim"
+    },
+    {
+      "id": "C16-G02",
+      "original_ids": [
+        "B124",
+        "B125",
+        "B126"
+      ],
+      "status": "deferred_native_scope",
+      "title": "Whole project producers/consumers and concrete strategy model checkpoints remain unrun",
+      "scope": [
+        "PolicyCandidateSchema/actual StrategyAdapter/evaluation/CAS readers",
+        "supported Python 3.14 target",
+        "concrete Bayesian/Neural/MultiObjective model/RNG states"
+      ],
+      "dependency_note": "OPT-02 and OPT-03 remain separate; not all RNGs qualified by RandomSearchStrategy"
+    }
+  ],
+  "not_new_independent_findings": [
+    "R02 subcases share the same RNG validation/application contract"
+  ],
+  "product_changes": false
+}

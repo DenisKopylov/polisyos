@@ -1,0 +1,382 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1990
+        ]
+      ],
+      "evidence_level": "Полный owner прочитан; whole actual module исполняется без переписывания numerical/state bodies. Actual declared subtree, journal, tracked containers, alias/finite profile и completed projection definitions доступны; не все model/hook profiles выполнены.",
+      "git_blob": "206c6bda883d8ab50fc751f7135c34736117cecd",
+      "sha256": "9a4484c6dd96e4de4c9a2a31e0bb6e6f351c0645fc1b68c9081bf50ae8ad42c1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          666
+        ]
+      ],
+      "evidence_level": "Полный owner прочитан и whole actual module исполнен; полный merge regression файл и дополнительные adversarial controls.",
+      "git_blob": "dee9b969c328a4ecdf464848a56b8336e8f65e55",
+      "sha256": "7cbd92c9afd24a40deb483bbe9f6ff6a66357662ded1d79f2765346aab39239b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1017
+        ]
+      ],
+      "evidence_level": "Полный owner прочитан. Actual entry/proof DTO/helpers и _replay_proof_valid метод исполнены unchanged через AST. Store custody/get/put/load/trace integration только source-only.",
+      "git_blob": "c11ec345110e29c665434b5c1e610fa8a12890f0",
+      "sha256": "12cfb068a2f9d563be46396caa48631a6a5cca19ff435af1d0e3bf7926694eac",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          90
+        ],
+        [
+          527,
+          542
+        ],
+        [
+          1498,
+          1555
+        ],
+        [
+          1598,
+          1647
+        ],
+        [
+          1955,
+          2010
+        ]
+      ],
+      "evidence_level": "Полный cached merge helper исполнен unchanged; полный relevant cache hit/bypass, fresh enforced branch и completed commit blocks прочитаны. WorkflowExecutor целиком UNRUN.",
+      "git_blob": "701bbf3aa624f60a7e77c005b9ffe26cb6da9c4e",
+      "sha256": "e81c8c0b0d5da54be31d801f14d14278173cb37d476fccf863cb2d2e619c6e30",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/guards.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/nodes/builtins/guards.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          168
+        ]
+      ],
+      "evidence_level": "Полный guard прочитан; whole actual module импортирован и post_check реально отказывает removed protected keys. Его вызов из native engine не утверждается.",
+      "git_blob": "72594e91a75ec59cb33bc88bebc975f3dc880ed6",
+      "sha256": "bce5ae3e0aae9a52014b94d142b8f277873d8e523a340b724619d7e9792dba6b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          81
+        ]
+      ],
+      "evidence_level": "Полный actual ExperimentState contract прочитан и импортирован; реальные typed ArtifactRef входы, не fake state DTO.",
+      "git_blob": "3724db92babaa2e2da1d1e35f8467159d3afe980",
+      "sha256": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          105
+        ]
+      ],
+      "evidence_level": "Полные NodeError/Event/Outcome/Spec contracts прочитаны и actual whole module импортирован. Остальные protocol capabilities не квалифицированы.",
+      "git_blob": "9beb3b3c46c72ac46f333a1028e453288d3d6011",
+      "sha256": "335125a09166458c151d749ca1f8a8548df356f349d288db584c63f2a9000e0f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          2219,
+          2337
+        ],
+        [
+          2540,
+          2690
+        ]
+      ],
+      "evidence_level": "Полные materialize_checkpoint_state и deciding restored-state/cache seed/resume blocks прочитаны source-only; full checkpoint отличается от journal replay. Native chain UNRUN.",
+      "git_blob": "c674b33a66c254b4cfd4a1e47a628960703ebb4f",
+      "sha256": "ef30d956f8aa58254bd8bd3a67c55e79d20c16e60497143d536576ec94103fe9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          239,
+          330
+        ]
+      ],
+      "evidence_level": "Полный relevant worker branch-before-execute/completed-before-wire flow прочитан; native process runner UNRUN.",
+      "git_blob": "fc69d4afa1fb1b1e7ca61e19750978b2b13249fb",
+      "sha256": "2c804006cc89edb772250b7af6980834fd0ad88c399f1004be4bd3cbd0a72a4b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          358
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан, все21 unchanged test bodies/25 cases выполнены с минимальным pytest fixture.",
+      "git_blob": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+      "sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          314
+        ],
+        [
+          478,
+          541
+        ]
+      ],
+      "evidence_level": "Прочитаны полные selected branch/typed model/snapshot/depth/cycle owners.8 unchanged bodies/9cases исполнены. Остальные tests файла не выданы за выполненные.",
+      "git_blob": "be72bf04eb1bd0c9c8ef83d01acf188f51c5b32c",
+      "sha256": "c3b5411d5ebd813b2f946f8498e7b5353b90242a4ae398dc6f6f9b9a4136a81f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          260,
+          305
+        ],
+        [
+          341,
+          409
+        ],
+        [
+          453,
+          481
+        ]
+      ],
+      "evidence_level": "Полные native replay/current-state, bool-int mismatch, incompatible replay retry и failed-state tests прочитаны. Native command blocked before collection, tests UNRUN.",
+      "git_blob": "244b1e7bea6e027f2cd91165b4b1ef52f734a017",
+      "sha256": "fba66d60a432be2f3d219a1b22f25e7f44e422e470fb22dc1c7397777951c4c7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          312,
+          405
+        ]
+      ],
+      "evidence_level": "Полный legacy-v1 reread test и начало scope sibling прочитаны; store-backed test UNRUN. Предыдущий wire не blanket rejected; historical snapshot без proof отдельно ограничен.",
+      "git_blob": "66a3ca19aca4509fca856f57f6f2c76da1747c5b",
+      "sha256": "e5a409bc49f58db53a131e39f06785b65dff1cc8f32aa1bcfdb196c28b877f06",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          65
+        ],
+        [
+          90,
+          122
+        ],
+        [
+          174,
+          188
+        ],
+        [
+          261,
+          326
+        ]
+      ],
+      "evidence_level": "Полные используемые ArtifactRef/ProducerInfo/tenant/schema owners прочитаны; actual module импортирован. Manifest custody не подменена моделью.",
+      "git_blob": "f1b3372d9e209cf823bacf7dc38eecd76b6780bb",
+      "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/canon/canon_json.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          161
+        ]
+      ],
+      "evidence_level": "Полная Core facade прочитана и actual canonical bytes encode/decode исполнены. Shared canonical dependencies импортированы реально, весь codec не переаудирован.",
+      "git_blob": "1ac08b27c4aaca38b902ec26e81c95619ce45da1",
+      "sha256": "896418d1b5b76637c052d128f1f6efabe36704142d0d151422d85791ba8f8b76",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/src/polisyos/core/canon/hashing.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/canon/hashing.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          99
+        ]
+      ],
+      "evidence_level": "Полная facade прочитана; actual content hash для proof, не synthetic JSON surrogate.",
+      "git_blob": "91bc6aa047647a95346a06a9e423c36d827af4d2",
+      "sha256": "cedb873bdcc2970493498af29fd35145d5fa05c641f30e54c7352664d03b2e8d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/src/polisyos/core/components/metadata.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/components/metadata.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          78
+        ]
+      ],
+      "evidence_level": "Полный metadata contract прочитан и импортирован для actual NodeSpec/Outcome module; registry bootstrap не выполняется.",
+      "git_blob": "8dc3a616b855fb1f7c2a5193abd37525c7e2b0ac",
+      "sha256": "efba84687477aaf838aa55db88c82eedfdbbc0b414020d9190cc6e2b0b10df05",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S18",
+      "path": "policy-engine/src/polisyos/core/artifacts/ids.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/ids.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          149
+        ]
+      ],
+      "evidence_level": "Полный ref identity contract прочитан и actual ArtifactID validation действует.",
+      "git_blob": "3c2c8b3269ca290bc8c6b413e2e96c3012a17558",
+      "sha256": "6fbfc522d960556af66e44a8c3d6b59e478ca1ff4578b49a3573c95d33c01b4d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S19",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          70
+        ]
+      ],
+      "evidence_level": "Readset C60 тот же pinned blob; fresh environment/native logs C61.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      7249,
+      7365
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "scope": "Свежий C61 после внешнего сохранения C60. Whole actual branch/merge/state/guard/protocol плюс selected replay proof/helper; native runner/CAS UNRUN."
+}

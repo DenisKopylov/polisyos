@@ -1,0 +1,357 @@
+{
+  "pass_id": "C100",
+  "bundle": "ING-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          3243
+        ]
+      ],
+      "evidence_level": "Полный основной маршрут до конца async window writer прочитан: session, accumulator, state/frontier, admission, process, recovery и writer. Whole module импортирован без изменений тела и исполнен в bounded graph. Synchronous legacy/CDC tail3244–3519 не переаттестован. CAS fixture; sanitizer — existing valid-row test helper.",
+      "git_blob": "91401712105c621eedfde95088d94ec5370176e2",
+      "sha256": "e78057b42ce52cb33a0fecea0b36c1365e003304886fc9f384e44c786e0cef8f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          92
+        ],
+        [
+          176,
+          505
+        ],
+        [
+          646,
+          720
+        ],
+        [
+          752,
+          926
+        ]
+      ],
+      "evidence_level": "Полные stream pair commit/conditional compensation/save/read/latest и async adapters прочитаны. Whole module исполнен, реальные lock/index файлы и повторное открытие; blob/profile custody и load_core_json_artifact заменены explicit filesystem fixture.",
+      "git_blob": "f51131ed761ffaacaef6c4dc76cc2bc4c243a9eb",
+      "sha256": "5b6bf7b89d077bcb84a01160c5108ca8dd8abcaeaa44634f646ebe6af23fe812",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          280
+        ],
+        [
+          290,
+          1269
+        ],
+        [
+          2008,
+          2134
+        ]
+      ],
+      "evidence_level": "Три unchanged test bodies исполнены:8 crash strategy/boundary cases,1 final ref,4 contract mismatch cases. Остальные прочитанные B79/B80/B88 tests — SOURCE_ONLY, не ретроспективный PASS C99. Local HTTP/served tests не запускались.",
+      "git_blob": "76919ebe72122be0883b0f6550784d71a63a41b9",
+      "sha256": "8283dd1fc531306d8f1dbd6550390e2d769dab622fa8dab2c33f9e59646f9a39",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          162
+        ],
+        [
+          743,
+          1140
+        ],
+        [
+          1974,
+          2058
+        ]
+      ],
+      "evidence_level": "Пять unchanged accumulator test bodies /7 cases исполнены. Старшие process tests здесь только прочитаны: некоторые старые default-dedupe fixtures не передают current source owner, их нельзя объявлять современным положительным evidence без actual admission.",
+      "git_blob": "0728b6177dbf50952ae1b7d7192dd75f4d51872a",
+      "sha256": "38247c331825e7cb2ab0fc8fc7b6d6700f6e2912eb156c9671ae5dbbd3a417c5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          150
+        ]
+      ],
+      "evidence_level": "Полный actual JSONL connect/fetch_stream producer прочитан и исполнен. Читает ограниченный локальный файл, chunking настоящий; fetch/remote family целиком не квалифицированы.",
+      "git_blob": "2e52afb20d75990ae04fa4ca1c20899984d3b886",
+      "sha256": "f375f47f2aeefaee47d501474692afb0e62c744838e1b471a06f2c96516ec176",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          175
+        ]
+      ],
+      "evidence_level": "Actual local file read/byte limit прочитаны и исполнены. HTTP/cloud branches не запускались.",
+      "git_blob": "07e88c4ed5e4a32f4b1e157292bbcaa23e4f7dcf",
+      "sha256": "f1fb4e3523129b6657d32272ce8432606b0fd71e2fad031942a6d7f8319f1564",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/data_plane/modes.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1212,
+          1586
+        ]
+      ],
+      "evidence_level": "Полные sanitizer binding и selected run_streaming_windowed consumer прочитаны source-only: собирает chunk/window/CDC refs в manifest/evidence/snapshot и сохраняет production_currentness=not_established. Native whole mode не запускался.",
+      "git_blob": "cecfb85f24ae6ff85c46a8b22161af403f915abb",
+      "sha256": "05c9e4c5f058945eb2d7c4b4cd8d9b06e62d98bba0684026912af9b4d9ce1fbc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/fabric/quality/processing_guarantees.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/quality/processing_guarantees.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          287
+        ]
+      ],
+      "evidence_level": "Полный соседний контракт прочитан/импортирован. At-least-once и replay scope отличены от narrow exactly-once proof; формальная маркировка не выдаётся за атомарность внешнего source commit.",
+      "git_blob": "9b735015bb3b2d82b6d601a3f943873c7b303f32",
+      "sha256": "e605650290698d7efc7da670a15f99c792e947a93c47ec63d8331361df019973",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/core/contracts/cursor.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/contracts/cursor.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          128
+        ]
+      ],
+      "evidence_level": "Полный DTO прочитан и actual validation исполнена. Offset>=0; explicit frontier_committed=False нужен для представления пустой границы.",
+      "git_blob": "0e5e772008545beab99ef5ea9c489d0febed406e",
+      "sha256": "7c635464b897b73fd2e5b462d0a49acddf1581dca4994d285b1da5a9c47c6b16",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/watermark.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/data_plane/watermark.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          160
+        ]
+      ],
+      "evidence_level": "WindowPolicy/WindowAssignment прочитаны и используются actual accumulator. Остальные batch assign_windows implementations не подменяли streaming owner.",
+      "git_blob": "34859661ca557d00131a64739ca9f0080f822c4e",
+      "sha256": "5c33baf61f0b46c38d7fd051b63517b9de79ecbaf1cb44b5c5491cefde219bda",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          176
+        ],
+        [
+          303,
+          328
+        ]
+      ],
+      "evidence_level": "Полный используемый AsyncArtifactStoreAdapter и ensure_async_artifact_store прочитаны/исполнены, actual shared blocking bridge. AsyncFileSystemArtifactStore соседний маршрут не заявлен исполнявшимся.",
+      "git_blob": "952d37babd8c8bbfb4118f1e65d004a45b24333f",
+      "sha256": "71d5a1a8362fb63fe23249bb8007a8cace1a78f9761905e6bbcc5cc3c02e8387",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/store.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          3842,
+          3890
+        ]
+      ],
+      "evidence_level": "Native put_json переносит opts.inputs в put_bytes; source-only. Native import отказывает раньше на Python3.14 except syntax2118; настоящая CAS custody/withdrawal/revalidation здесь не доказана.",
+      "git_blob": "f855f9f023d8152b67bb4c1e71a8b9568d0c6994",
+      "sha256": "208b9aa6867c2303e5444ce6d7e446af2fcf2e9ca60e43c6205d68cf45a0ccc7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/fabric/ingestion/source_progress.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/ingestion/source_progress.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          147,
+          237
+        ],
+        [
+          393,
+          494
+        ],
+        [
+          740,
+          761
+        ]
+      ],
+      "evidence_level": "Actual physical transport binding, stream event/version membership, witness and retained witness checks прочитаны заново и исполняются whole module. Полный history parser был прочитан C99 на том же blob; в C100 не выдаётся за новый exhaustive review.",
+      "git_blob": "0bd9559f3090807ec487c906481667baeeb6f54f",
+      "sha256": "750528baf5ceaa56901ba702fa6ccf4eee1904c168be35d3474f8dc15f534b3d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/tests/_helpers/source_progress.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/_helpers/source_progress.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          147
+        ]
+      ],
+      "evidence_level": "Полный helper прочитан и исполнен unchanged: actual owner JSON и отдельный physical JSONL. Trust synthetic; fixture не удостоверяет внешнюю истинность/права.",
+      "git_blob": "95f47b82e58d7e8456bf37f009083bef615e768d",
+      "sha256": "0cb6a040c4d370b12a2bad85d0755e4d65377c6d9e1fa8fc728ad2f89fdb0083",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          167,
+          227
+        ],
+        [
+          259,
+          345
+        ]
+      ],
+      "evidence_level": "Actual selected factory/runtime owner и registry initialization прочитаны/исполнены. В probe вручную зарегистрирован один actual EventStreamConnector, broad builtin bootstrap не запускался.",
+      "git_blob": "18521ec29660b40582c90ee9bea2e3d37024db16",
+      "sha256": "c0e0176ebd9099f369adc883ee1c9111ff38266dfce965367346e6d2ff989c26",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          780,
+          900
+        ]
+      ],
+      "evidence_level": "Полный register owner binding прочитан и исполнен. Actual private pool/session lifecycle используется, NET01/NET02 ещё по очереди, не закрыты этим пакетом.",
+      "git_blob": "4b779aef2c3ae17ec98d979e27800621916773d5",
+      "sha256": "91ad2b9c34f1895cd7ed2feded64e2fe373156f0fb2505f4383cf54fd74a9de1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          12617,
+          12845
+        ]
+      ],
+      "evidence_level": "Полный run_data_ingestion consumer прочитан source-only: served Replay/streaming dispatch, dependency/tenant scope, failure projection. C99 supplement не означает исполненный HTTP integration.",
+      "git_blob": "a2b69e73be76af5247dd41acd9d8d5949243f3fe",
+      "sha256": "55ae6b7a043d70ba2d48bcf78ed6e512830407ea7f7dfe3f18656a87905d1848",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S18",
+      "path": "policy-engine/src/polisyos/ir/kernel/units.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/kernel/units.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          45
+        ]
+      ],
+      "evidence_level": "Ранее прочитанный точный dependency blocker сверяется по blob: одна import adaptation typing.TypeVar→typing_extensions.TypeVar на Python3.12. Никаких правок production streaming functions; не native3.14.",
+      "git_blob": "b6cdaf4c59d5e952a2afb4eccd7d89203988516f",
+      "sha256": "f060c028e64ba4320c5f78f3899bacd0971b3aa49c285dcb1b89218c52c1ea47",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

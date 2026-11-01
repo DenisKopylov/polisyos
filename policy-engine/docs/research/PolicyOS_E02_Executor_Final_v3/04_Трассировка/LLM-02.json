@@ -1,0 +1,427 @@
+{
+  "packet_id": "LLM-02",
+  "lane": "LANE-09",
+  "source_ids": [
+    "B67",
+    "B68"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/LLM-02.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "title": "Разрешённый frozen reuse и общий single-flight без лишней генерации",
+  "practical_goal": "Повторное потребление реально зафиксированного evidence-rich plain-completion input экономит physical calls, не теряя current authorization, отдельного учёта, LLM proposal semantics или полезного первого ответа.",
+  "work_types": "fix + positive capability + shared native qualification",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C107_остатки:0",
+      "audit_id": "C107-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-LLM-02-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Одна fresh re-admission устраняет redundant physical dispatch при стабильном разрешённом опубликованном entry; stale owner не обходится."
+    },
+    {
+      "inventory_id": "audit-residual:C107_остатки:1",
+      "audit_id": "C107-G01",
+      "disposition": "capability",
+      "requirement_ids": [
+        "REQ-LLM-02-02",
+        "REQ-LLM-02-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Реализовать узкий materialization-bound strict reuse и actual positive consumer, сохранив live/unknown guards. Это отсутствующая способность, не только квалификационный запуск."
+    },
+    {
+      "inventory_id": "audit-residual:C107_остатки:2",
+      "audit_id": "C107-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-LLM-02-06",
+        "REQ-LLM-02-07"
+      ],
+      "shared_owner": "LLM-01",
+      "rationale": "LLM-01 владеет no-OTel fallback repair; LLM-02 обновляет stale contract assertions и исполняет native factory/cache/CAS coverage без shims."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-LLM-02-01",
+      "text": "Если publication revision изменился между разрешённым miss admission и claim shared flight, CachingLLMClient должен выполнить одну новую owner-guarded authorization+lookup, прежде чем выбирать physical fallback. Найденный действительный entry возвращается как reuse с отдельным consumer receipt, без второй physical генерации. Повторная гонка не создаёт бесконечный retry; используется существующий разрешённый physical путь с deadline/producer admission.",
+      "source_ids": [
+        "B68"
+      ],
+      "audit_ids": [
+        "C107-R01"
+      ],
+      "test_ids": [
+        "TEST-LLM-02-01",
+        "TEST-LLM-02-02"
+      ]
+    },
+    {
+      "id": "REQ-LLM-02-02",
+      "text": "Strict reuse должен поддерживать конечный объявленный класс полностью materialized plain-completion inputs: реальные selected artifact bytes/версии, точный prepared request, provider route/model/settings, purpose и current principal/epoch связываются существующим owner. URL и uncertainty_notes внутри зафиксированного текста не являются сами по себе запретом или разрешением. Live/unresolved input role и неполная materialization остаются physical-only; tools/stream/intentional seed repeats не получают разрешение этим расширением.",
+      "source_ids": [
+        "B67"
+      ],
+      "audit_ids": [
+        "C107-G01"
+      ],
+      "test_ids": [
+        "TEST-LLM-02-03",
+        "TEST-LLM-02-04"
+      ]
+    },
+    {
+      "id": "REQ-LLM-02-03",
+      "text": "Trusted closure контекст создаёт producer/binder для конкретного вызова из конечных известных input roles и фактически прочитанных artifacts, а не LLM/caller cacheable flag. Авторизатор сверяет exact evidence и prepared call binding при каждом reuse; иной content/version/model/settings/route/purpose/tenant/epoch либо утраченное право исключают hit/join по старому grant. Неизвестные роли обозначаются явно и не считаются закрытыми.",
+      "source_ids": [
+        "B67",
+        "B68"
+      ],
+      "audit_ids": [
+        "C107-G01"
+      ],
+      "test_ids": [
+        "TEST-LLM-02-03",
+        "TEST-LLM-02-04",
+        "TEST-LLM-02-05"
+      ]
+    },
+    {
+      "id": "REQ-LLM-02-04",
+      "text": "Две wrapper instances с одним cache и совпадающими разрешёнными identities, в том числе на разных event loops, должны разделять один physical producer для четырёх одновременных miss. Каждый consumer получает detached response и собственный reuse/settlement receipt, сохраняя original producer attribution и Core response-projection proof; mutation одного response не меняет остальные.",
+      "source_ids": [
+        "B68"
+      ],
+      "audit_ids": [],
+      "test_ids": [
+        "TEST-LLM-02-01",
+        "TEST-LLM-02-05",
+        "TEST-LLM-02-06"
+      ]
+    },
+    {
+      "id": "REQ-LLM-02-05",
+      "text": "Отмена одного follower не отменяет нужный остальным producer. Deadline/error/closed scope освобождают соответствующие flight registrations и bounded Core bookkeeping без вечной записи; новый разрешённый запрос после завершённого error может выполнить новую работу. Ошибка owner guard не превращается в обход admission через uncached transport.",
+      "source_ids": [
+        "B68"
+      ],
+      "audit_ids": [],
+      "test_ids": [
+        "TEST-LLM-02-02",
+        "TEST-LLM-02-05",
+        "TEST-LLM-02-06"
+      ]
+    },
+    {
+      "id": "REQ-LLM-02-06",
+      "text": "Native cache/factory/owner-admission suite должна пройти на поддержанном runtime без test shims, скрывающих отсутствующий observability API. No-OTel tracer repair выполняется единственным owner LLM-01; LLM-02 подтверждает свой actual factory/cache путь с ним. Устаревшие expectations менять по текущему публичному контракту, а не ослаблением assertions.",
+      "source_ids": [
+        "B67",
+        "B68"
+      ],
+      "audit_ids": [
+        "C107-G02"
+      ],
+      "test_ids": [
+        "TEST-LLM-02-07",
+        "TEST-LLM-02-08"
+      ]
+    },
+    {
+      "id": "REQ-LLM-02-07",
+      "text": "Opaque Python inputs, не допускающие exact reusable snapshot, остаются physical-only с исходными объектами; они не нормализуются ради cache. Non-finite Gateway JSON отклоняется Gateway до transport. TEST cleanup проверяет lifecycle/resource outcomes, а не историческую приватную форму shield(flight.task).",
+      "source_ids": [
+        "B67",
+        "B68"
+      ],
+      "audit_ids": [
+        "C107-G02"
+      ],
+      "test_ids": [
+        "TEST-LLM-02-06",
+        "TEST-LLM-02-08"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-LLM-02-01",
+      "requirement_ids": [
+        "REQ-LLM-02-01",
+        "REQ-LLM-02-04"
+      ],
+      "level": "native deterministic race / two wrappers two loops",
+      "setup": "Общий real cache, current exact owner grant, два wrappers/event loops. Barrier останавливает первый после фактического miss admission, не копируя generate. Второй публикует valid entry; затем первый продолжается.",
+      "action": "Сначала показать, что второй sequential lookup даёт hit; отпустить первый и собрать provider count, guard/authorize calls, receipts и ответы.",
+      "oracle": "Всего один physical provider call; первый повторно вызывает live guard+authorizer и получает опубликованный response с отдельным receipt/original producer. Old code делает второй call, что обязано нарушить oracle.",
+      "expected": "Positive race repair; без вмешательства оба результата равны immutable saved projection, а учёт consumer различен.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Controlled provider и scheduling barriers разрешены. Real generate/cache/Core settlement/factory metadata identity обязательны; нельзя вручную подложить _CacheAdmission/подменить admission body."
+    },
+    {
+      "id": "TEST-LLM-02-02",
+      "requirement_ids": [
+        "REQ-LLM-02-01",
+        "REQ-LLM-02-05"
+      ],
+      "level": "native race boundaries",
+      "setup": "Та же гонка; между admission и retry: epoch/owner closure, deadline, authorization revocation; отдельно два revision changes подряд.",
+      "action": "Возобновить pending caller и проверить точный дальнейший путь.",
+      "oracle": "Старый grant не используется. Closed guard даёт existing typed ownership error и 0 новых unauthorized dispatch. При разрешённом owner и повторной churn ровно одна повторная admission попытка, затем bounded existing physical fallback, не spin/deadlock; deadline respected.",
+      "expected": "Revoked/closed — refusal или current-authorized independent physical только по действующему producer rule, никогда stale hit. Churn не означает новый free provider call.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Позволены deterministic fence callbacks/barriers; запрет заменить guard no-op в assertions про owner currentness."
+    },
+    {
+      "id": "TEST-LLM-02-03",
+      "requirement_ids": [
+        "REQ-LLM-02-02",
+        "REQ-LLM-02-03"
+      ],
+      "level": "native integration strict binder→factory→consumer",
+      "setup": "Actual FileSystemCAS с двумя immutable materialized bundles; finite plain-completion profile, URL/uncertainty_notes как literal frozen input. Current execution scope, real binder/factory/cache/traced ledger и controlled provider. Для полезного consumer — PolicyTranslatorWorker.translate_async при explicit temperature=0, fallback_on_error=False; frozen typed six-role TranslatorInputBundle, без tools/retrieval.",
+      "action": "Сформировать closure из реально сериализованного bundle/prompt через owner, выполнить два identical calls в strict scope и повторить с совместимым вторым bundle без отдельной case branch.",
+      "oracle": "На каждом bundle один provider miss затем authorized hit; authorizer вызывается, URL/text bytes не удалены, точный PolicyBrief получен actual consumer, current scope и separate consumer receipt присутствуют. Default translator temperature0.1 не изменён. Existing lexical strict guard должен провалить provider-count oracle.",
+      "expected": "Два positive closed-input examples; cached response остаётся proposal/text и не повышает readiness/authority.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Provider response контролируемый допустим; реальны CAS/profile read, materialization, prepared request identity, scoped factory/cache/ledger и consumer parse. Не stub translator/factory/CAS и не выдавать это за качество живой модели или full NL tool-calling route."
+    },
+    {
+      "id": "TEST-LLM-02-04",
+      "requirement_ids": [
+        "REQ-LLM-02-02",
+        "REQ-LLM-02-03"
+      ],
+      "level": "native closure rejection and non-lexical boundary",
+      "setup": "Valid closed TEST-03 плюс: uncovered/live input role, mismatch artifact hash/profile/version, changed prepared text/settings/route, caller forged cacheable/closure, literal URL not fetched, trusted live retrieval descriptor.",
+      "action": "Повторить вызов; сравнить actual provider args и reuse/skip cause.",
+      "oracle": "Pure literal URL не автоматически live access request и не портится; complete closed case reusable. Uncovered/live/tampered roles не дают cache hit; exact current call может физически выполниться только с обычным producer admission. Tools/stream/seed и explicit retrieval freshness guards не снимаются для unsupported profile.",
+      "expected": "Positive literal frozen text плюс negative coverage/identity matrix; инъекция arbitrary closure flag не проходит.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Можно fixtures ролей и transport counter; нельзя доказывать closure LLM заявлением, regex commit или произвольным snapshot unrelated prompt."
+    },
+    {
+      "id": "TEST-LLM-02-05",
+      "requirement_ids": [
+        "REQ-LLM-02-03",
+        "REQ-LLM-02-04",
+        "REQ-LLM-02-05"
+      ],
+      "level": "native singleflight identity and currentness",
+      "setup": "Четыре одновременных same-key callers; отдельные variants tenant/scope/issuer epoch/purpose/model/route/seed/snapshot/parameters. Current owner revocation после ожидания producer. Real Core attestation.",
+      "action": "Собрать calls/events, изменить один returned payload и повторно читать другой; повреждённую projection proof попробовать использовать.",
+      "oracle": "Same allowed key →1 physical,4 correct consumer accounting outcomes. Разные identities/intentional seeds не сливаются; follower после revoke не получает stale authorized reuse. Projection proof mismatch не выдаёт cached response. Detached copies неизменны, original producer event сохраняется.",
+      "expected": "Полезная coalesced работа сохраняется; boundary cases дают separate physical/typed refusal по actual admission, не ошибочный shared hit.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Controlled provider разрешён; Core proof/ledger и final current guard реальные, не handmade success receipt."
+    },
+    {
+      "id": "TEST-LLM-02-06",
+      "requirement_ids": [
+        "REQ-LLM-02-04",
+        "REQ-LLM-02-05",
+        "REQ-LLM-02-07"
+      ],
+      "level": "native lifecycle",
+      "setup": "Shared cross-loop flight; один canceled follower, два live consumers; затем provider error и deadline variants; наблюдаемые Core registration/flight counters и повторная permitted попытка.",
+      "action": "Cancel follower, завершить producer; дождаться остальных. Повторить error/deadline; после cleanup запустить новый разрешённый запрос.",
+      "oracle": "Другие получают результат; canceled consumer не получает выдуманный receipt success; inflight registrations возвращаются к baseline после окончания/waiter release; новые permitted calls не зависают на tombstone. Проверка не требует await shield(flight.task), допустим текущий wrap_future result.",
+      "expected": "Positive isolation/recovery плюс bounded cleanup; provider error не кэшируется как successful reusable answer.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Scheduling/barriers allowed; нельзя проверять только private task shape, удалять registry вручную или заменить реальные cleanup hooks."
+    },
+    {
+      "id": "TEST-LLM-02-07",
+      "requirement_ids": [
+        "REQ-LLM-02-06"
+      ],
+      "level": "native factory with optional observability profiles",
+      "setup": "Существующий supported no-OTel profile и обычный tracer profile; LLM-01 shared repair опубликован. No injected shim добавляющего start_as_current_span(kind=...).",
+      "action": "Исполнить actual factory→traced client→cache miss/hit/failure path, затем existing unit suite owners.",
+      "oracle": "Оба поддержанных profiles соблюдают public start_as_current_span call contract; проверки доходят до cache/receipt assertions, не только import. Ошибки не скрыты blanket catching. Native results содержат точный runtime/profile и trace outcome.",
+      "expected": "No-OTel compatibility не требует OTel install. Это shared fix consumption, не дублированный repair.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Можно детерминированный transport; no-op tracer разрешён только штатный fallback, не test replacement. Unsupported profile явно N/A с основанием, не PASS."
+    },
+    {
+      "id": "TEST-LLM-02-08",
+      "requirement_ids": [
+        "REQ-LLM-02-06",
+        "REQ-LLM-02-07"
+      ],
+      "level": "native regression contract maintenance",
+      "setup": "Opaque custom Python object и float NaN в opaque provider path; отдельно настоящий Gateway JSON request с non-finite numeric field. Current cache Core lifecycle test.",
+      "action": "Вызвать opaque twice; Gateway once; выполнить обновлённые cleanup tests.",
+      "oracle": "Opaque:2 physical,0 entries, исходный object/value сохранён, не превращён в None/string. Gateway: отказ до transport,0 dispatch. Cleanup oracle из TEST-06, не old implementation coupling.",
+      "expected": "NaN expectation исправлена по actual provider boundary; ни blanket reject всех Python inputs, ни permissive nonfinite wire.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Opaque provider double допустим как этот контракт; настоящий Gateway preparation/JSON validation обязателен для pretransport assertion."
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I09-B"
+  ],
+  "dependencies": [
+    "LLM-01 shared write mutex and no-OTel fallback owner",
+    "E02-I09-B shared factory/cache/ledger evidence",
+    "Current runtime binder and translator caller owner review; existing LANE-06 CAS/ledger contracts"
+  ],
+  "preservation": [
+    "Exact owner/epoch/tenant/model/request identity",
+    "Core response projection proof",
+    "Shared cache flight и cross-loop Future",
+    "Follower cancel isolation и error/deadline cleanup",
+    "Scoped factory closure и original producer attribution",
+    "Separate reuse ledger receipts",
+    "Live freshness/tool/stream/seed guards",
+    "Opaque Python physical-only semantics"
+  ],
+  "design_alignment": [
+    "Vision §6–7,11; North Star §2,7; Identity/custody §5,7; finite input roles, semantic proposal separate execution/evidence"
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0133",
+      "requirement_ids": [
+        "REQ-LLM-02-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Одна fresh re-admission устраняет redundant physical dispatch при стабильном разрешённом опубликованном entry; stale owner не обходится."
+    },
+    {
+      "inventory_id": "remaining:0134",
+      "requirement_ids": [
+        "REQ-LLM-02-02",
+        "REQ-LLM-02-03"
+      ],
+      "disposition": "capability",
+      "rationale": "Реализовать узкий materialization-bound strict reuse и actual positive consumer, сохранив live/unknown guards. Это отсутствующая способность, не только квалификационный запуск."
+    },
+    {
+      "inventory_id": "remaining:0135",
+      "requirement_ids": [
+        "REQ-LLM-02-06",
+        "REQ-LLM-02-07"
+      ],
+      "disposition": "qualify",
+      "rationale": "LLM-01 владеет no-OTel fallback repair; LLM-02 обновляет stale contract assertions и исполняет native factory/cache/CAS coverage без shims."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0192",
+      "requirement_ids": [
+        "REQ-LLM-02-03"
+      ],
+      "test_ids": [
+        "TEST-LLM-02-04",
+        "TEST-LLM-02-05"
+      ],
+      "rationale": "Exact owner/model/request/epoch binding и current read authorization."
+    },
+    {
+      "inventory_id": "preserve:0193",
+      "requirement_ids": [
+        "REQ-LLM-02-04"
+      ],
+      "test_ids": [
+        "TEST-LLM-02-05"
+      ],
+      "rationale": "Не удалять Core projection proof ради нового hit."
+    },
+    {
+      "inventory_id": "preserve:0194",
+      "requirement_ids": [
+        "REQ-LLM-02-04"
+      ],
+      "test_ids": [
+        "TEST-LLM-02-01",
+        "TEST-LLM-02-05",
+        "TEST-LLM-02-06"
+      ],
+      "rationale": "Real shared cache и cross-loop Future сохраняются."
+    },
+    {
+      "inventory_id": "preserve:0195",
+      "requirement_ids": [
+        "REQ-LLM-02-05"
+      ],
+      "test_ids": [
+        "TEST-LLM-02-02",
+        "TEST-LLM-02-06"
+      ],
+      "rationale": "Follower cancel isolation и error/deadline bounded cleanup."
+    },
+    {
+      "inventory_id": "preserve:0196",
+      "requirement_ids": [
+        "REQ-LLM-02-03",
+        "REQ-LLM-02-04",
+        "REQ-LLM-02-05"
+      ],
+      "test_ids": [
+        "TEST-LLM-02-02",
+        "TEST-LLM-02-03",
+        "TEST-LLM-02-05"
+      ],
+      "rationale": "Scope closure, actual producer owner и attribution."
+    },
+    {
+      "inventory_id": "preserve:0197",
+      "requirement_ids": [
+        "REQ-LLM-02-04"
+      ],
+      "test_ids": [
+        "TEST-LLM-02-01",
+        "TEST-LLM-02-03",
+        "TEST-LLM-02-05"
+      ],
+      "rationale": "Отдельный receipt/accounting каждого consumer, не общий fake success."
+    },
+    {
+      "inventory_id": "preserve:0198",
+      "requirement_ids": [
+        "REQ-LLM-02-02",
+        "REQ-LLM-02-03"
+      ],
+      "test_ids": [
+        "TEST-LLM-02-04",
+        "TEST-LLM-02-05"
+      ],
+      "rationale": "Live/tool/stream/seed exclusions сохранены вне narrow supported closure."
+    },
+    {
+      "inventory_id": "preserve:0199",
+      "requirement_ids": [
+        "REQ-LLM-02-07"
+      ],
+      "test_ids": [
+        "TEST-LLM-02-08"
+      ],
+      "rationale": "Opaque objects physical-only с исходными значениями; JSON boundary отдельно."
+    }
+  ],
+  "owners": [
+    "src/polisyos/scientist/orchestration/llm/prompt_cache.py::CachingLLMClient.generate",
+    "src/polisyos/scientist/orchestration/llm/prompt_cache.py::PreparedCacheRequest",
+    "src/polisyos/scientist/orchestration/llm/prompt_cache.py::_authorize_reuse",
+    "src/polisyos/scientist/orchestration/llm/factory.py::create_traced_gateway_client",
+    "src/polisyos/runtime/http/services/control/nl_pipeline.py::_nl_snapshot_cache_reuse_binding",
+    "src/polisyos/scientist/policy_design/translator.py::PolicyTranslatorWorker.translate_async"
+  ]
+}

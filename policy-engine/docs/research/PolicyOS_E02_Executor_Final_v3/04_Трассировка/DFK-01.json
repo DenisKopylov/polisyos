@@ -1,0 +1,380 @@
+{
+  "packet_id": "DFK-01",
+  "title": "Конечные lifecycle решения трёх schema surfaces и installed evidence",
+  "goal": "Завершить точную очистку legacy addresses, сохранив работающие schema/evolution/migration/materialization contracts.",
+  "work_type": "C124-G01 lifecycle; G02 installed/native qualification; G03 preservation qualification, R нет",
+  "preservation": [
+    "LA-006 mechanisms tombstone уже отсутствует, negative tests сохраняются.",
+    "LK03 ABI reference registry, LK10 materialize planner, LK25 deterministic graph migrations не placeholders.",
+    "Canonical classes/evolution и honest partial census: unsupported/ignored/unknown не zero."
+  ],
+  "technical_solution": [
+    "C124-G01 сначала finite census точных surfaces. Для LA-005 migrate реально используемые fields к existing plugin config или fixture; если consumers отсутствуют в согласованной поддержанной области — удалить точный file. Для LA-026 retain descriptor у actual registry owner только если доказан contract, иначе удалить; generator не строить. LA-027 переключить found consumers на kernel.schemas, снять alias после реального compatibility window.",
+    "Existing schema_fqn_census v3 и test_e02_installed_census_contract — reuse. Зафиксировать partial reasons, receipt exact files/read bytes; no wildcard exemption для unsupported. Q2 build-chain/origin invariant source-owned, этот packet его consumer, не installer framework.",
+    "Product changes только принятые lifecycle deltas или reproduced mismatch. Сохранить registry/evolution/migrations и ABI/materialize отдельно от legacy files."
+  ],
+  "owners": [
+    "src/polisyos/foundry/domain/schema.py",
+    "src/polisyos/data_forge/kernel/schemas/codegen.py",
+    "src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py",
+    "src/polisyos/data_forge/kernel/schemas/registry.py",
+    "src/polisyos/data_forge/kernel/schemas/evolution.py",
+    "src/polisyos/data_forge/kernel/schemas/migrations.py",
+    "tools/quality/validation/schema_fqn_census.py",
+    "tests/unit/remediation/test_dfk_01.py",
+    "tests/unit/foundry/hygiene/test_no_compat_facade_imports.py",
+    "tests/unit/data_forge/test_phase7_schema_quality_observability.py",
+    "tests/repo_quality/tools/test_e02_installed_census_contract.py"
+  ],
+  "shared_scenarios": [
+    "E02-I12-A"
+  ],
+  "coordination": "LANE-12 производит actual build/distribution/census evidence с artifact binding. CYC-05 владеет positive build/deployment→N6 readiness bridge в existing confidence_ledger и runtime currentness; здесь не создавать второй issuer/registry. CP6 — одно общее окно Q2/package qualification, не build на каждый alias.",
+  "compatibility": "Historical payloads immutable; exact converter/window only for found supported contract. Retained aliases narrow identity forwarding, no duplicate model. Tombstone absence remains independent of pending DTO retirement.",
+  "design_alignment": [
+    "[North Star §2](../05_Основания/Архитектура/policy-design-causal-operating-system-north-star.md#2-everything-reduces-to-data--but-the-causal-structure-is-not-data) и [синтез §4](../05_Основания/Исследование/design_direction.md): общий действующий owner сохраняется, удаление исторического адреса не заменяет способность; новые compatible resources подключаются через существующий механизм."
+  ],
+  "open_decisions": [
+    "DEC-DFK-01-01/02/03: separate finite outcome for DTO file, descriptor, pipeline alias. Required outputs: caller evidence/exclusions, supported external obligation, chosen action, owner and objective exit condition; unknown obligation remains named, no invented sunset."
+  ],
+  "acceptance": "Source lifecycle decisions и actual installed proof separately. Census не retirement authorization; canonical tests не universal JSON Schema algebra или empirical model validation.",
+  "lane": "LANE-12",
+  "source_ids": [
+    "LA-005",
+    "LA-006",
+    "LA-026",
+    "LA-027"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/DFK-01.md"
+  ],
+  "requirements": [
+    {
+      "text": "Для foundry.domain.schema трёх DTO, kernel.schemas.codegen descriptor и kernel.pipeline.schemas aliases должны быть отдельные конечные consumer/lifecycle dispositions с конкретным owner/exit criterion.",
+      "source_ids": [
+        "LA-005",
+        "LA-026",
+        "LA-027"
+      ],
+      "audit_ids": [
+        "C124-G01"
+      ],
+      "id": "REQ-DFK-01-01",
+      "test_ids": [
+        "TEST-DFK-01-01"
+      ]
+    },
+    {
+      "text": "Retired mechanisms package/reexports должны отсутствовать в source и установленной distribution; никакая очистка не удаляет canonical registry/evolution/migrations/materialize/ABI owners.",
+      "source_ids": [
+        "LA-006",
+        "LA-026",
+        "LA-027"
+      ],
+      "audit_ids": [
+        "C124-G02",
+        "C124-G03"
+      ],
+      "id": "REQ-DFK-01-02",
+      "test_ids": [
+        "TEST-DFK-01-02",
+        "TEST-DFK-01-03"
+      ]
+    },
+    {
+      "text": "Native census должен связывать exact Git denominator и прочитанные bytes, exclusions/unsupported/computed loaders с partial status; ACTIVE discovery не разрешает retirement.",
+      "source_ids": [
+        "LA-005",
+        "LA-006",
+        "LA-026",
+        "LA-027"
+      ],
+      "audit_ids": [
+        "C124-G02"
+      ],
+      "id": "REQ-DFK-01-03",
+      "test_ids": [
+        "TEST-DFK-01-01",
+        "TEST-DFK-01-03"
+      ]
+    },
+    {
+      "text": "Wheel→sdist→rebuilt wheel и non-editable installed consumer должны предъявить actual artifact/source/origin binding; skipped missing profile не installed PASS.",
+      "source_ids": [
+        "LA-006",
+        "LA-027"
+      ],
+      "audit_ids": [
+        "C124-G02"
+      ],
+      "id": "REQ-DFK-01-04",
+      "test_ids": [
+        "TEST-DFK-01-03"
+      ]
+    },
+    {
+      "text": "Canonical schema capability и обнаруженные historical inputs должны сохранять свой реальный contract, без automatic migration данных от смены import address.",
+      "source_ids": [
+        "LA-005",
+        "LA-026",
+        "LA-027"
+      ],
+      "audit_ids": [
+        "C124-G03"
+      ],
+      "id": "REQ-DFK-01-05",
+      "test_ids": [
+        "TEST-DFK-01-02",
+        "TEST-DFK-01-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "finite census + lifecycle acceptance",
+      "setup": "Exact3surfaces/all DTO/helper symbols; source/config/relative/string/generated/file-loader/package/historical inventory.",
+      "action": "Existing schema_fqn_census plus targeted review of unsupported/computed/external obligations.",
+      "oracle": "Each surface has retain-with-owner+exit-condition, migrate-known-consumers+remove, либо explicit unresolved external obligation. No universal no-client claim. Distinct other AgentType/SimulationConfig не mistaken caller; output не count-only.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DFK-01-01",
+      "requirement_ids": [
+        "REQ-DFK-01-01",
+        "REQ-DFK-01-03"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "canonical native behavior",
+      "setup": "Actual registry versions/evolution rules, branching graph with two equal-length paths, materialize missing/cycle controls.",
+      "action": "Existing schema tests and canonical classes; old alias if retained.",
+      "oracle": "Identity same; graph chooses low→vialow independent registration order, duplicate edge refuses. Existing shallow copy/no auto-stamp retained. Materialize binds callable/plans dependencies; ABI registry refs retained. No universal schema inclusion theorem.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DFK-01-02",
+      "requirement_ids": [
+        "REQ-DFK-01-02",
+        "REQ-DFK-01-05"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "E02-I12-A Q2 installed",
+      "setup": "Actual source Git pinned, wheel/sdist/rebuilt wheel, prefix outside checkout, existing origin gate/binding.",
+      "action": "Existing installed census test + native CLI, inspect resources/negative FQNs and exact bytes.",
+      "oracle": "Retired paths absent each artifact; canonical resources present; actual executed files originate installed distribution and reconcile hashes. Missing binding SKIP/NOT_RUN, never PASS; partial unsupported stays partial.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DFK-01-03",
+      "requirement_ids": [
+        "REQ-DFK-01-02",
+        "REQ-DFK-01-03",
+        "REQ-DFK-01-04"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "historical/native consumer",
+      "setup": "Only discovered supported historical DTO/descriptor inputs; native JAX economics consumer where applicable.",
+      "action": "Roundtrip/converter at actual owner and current scenario.",
+      "oracle": "Actual retained semantics match declared converter; unknown archives not claimed tested. Unused DTO not relocated into common contracts; valid scientific consumer remains usable.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DFK-01-04",
+      "requirement_ids": [
+        "REQ-DFK-01-05"
+      ],
+      "status": "NOT_RUN"
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "LA-005",
+      "disposition": "lifecycle",
+      "shared_owner": null,
+      "rationale": "Три DTO остаются; finite decision вместо предположенного удаления.",
+      "requirement_ids": [
+        "REQ-DFK-01-01",
+        "REQ-DFK-01-05"
+      ]
+    },
+    {
+      "audit_id": "LA-006",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Tombstone отсутствует; не удалять negative tests.",
+      "requirement_ids": [
+        "REQ-DFK-01-02",
+        "REQ-DFK-01-04"
+      ]
+    },
+    {
+      "audit_id": "LA-026",
+      "disposition": "lifecycle",
+      "shared_owner": null,
+      "rationale": "Descriptor3fields не generator; не создавать новый ради имени.",
+      "requirement_ids": [
+        "REQ-DFK-01-01",
+        "REQ-DFK-01-02",
+        "REQ-DFK-01-05"
+      ]
+    },
+    {
+      "audit_id": "LA-027",
+      "disposition": "lifecycle",
+      "shared_owner": null,
+      "rationale": "Alias identity есть; адресная миграция, не перенос registry.",
+      "requirement_ids": [
+        "REQ-DFK-01-01",
+        "REQ-DFK-01-02",
+        "REQ-DFK-01-05"
+      ]
+    },
+    {
+      "audit_id": "C124-G01",
+      "disposition": "lifecycle",
+      "shared_owner": null,
+      "rationale": "Три независимые decisions, неизвестность одного не блокирует другие.",
+      "requirement_ids": [
+        "REQ-DFK-01-01"
+      ],
+      "inventory_id": "audit-residual:C124_остатки:0"
+    },
+    {
+      "audit_id": "C124-G02",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Existing census/Q2 oracle actual profile.",
+      "requirement_ids": [
+        "REQ-DFK-01-03",
+        "REQ-DFK-01-04"
+      ],
+      "inventory_id": "audit-residual:C124_остатки:1"
+    },
+    {
+      "audit_id": "C124-G03",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Preserve useful owners, native/historical boundary отдельно.",
+      "requirement_ids": [
+        "REQ-DFK-01-02",
+        "REQ-DFK-01-05"
+      ],
+      "inventory_id": "audit-residual:C124_остатки:2"
+    }
+  ],
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "SPECIFICATION_NOT_IMPLEMENTED",
+  "dependencies": [],
+  "protected_distinction_ids": [
+    "LK03",
+    "LK10",
+    "LK25"
+  ],
+  "original_source": "../05_Основания/Аудит/05_Источники/DFK-01_исходные_строки.txt",
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0365",
+      "requirement_ids": [
+        "REQ-DFK-01-01"
+      ],
+      "disposition": "lifecycle",
+      "rationale": "Три независимые decisions, неизвестность одного не блокирует другие."
+    },
+    {
+      "inventory_id": "remaining:0366",
+      "requirement_ids": [
+        "REQ-DFK-01-03",
+        "REQ-DFK-01-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Existing census/Q2 oracle actual profile."
+    },
+    {
+      "inventory_id": "remaining:0367",
+      "requirement_ids": [
+        "REQ-DFK-01-02",
+        "REQ-DFK-01-05"
+      ],
+      "disposition": "qualify",
+      "rationale": "Preserve useful owners, native/historical boundary отдельно."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0590",
+      "requirement_ids": [
+        "REQ-DFK-01-02",
+        "REQ-DFK-01-05"
+      ],
+      "test_ids": [
+        "TEST-DFK-01-02",
+        "TEST-DFK-01-03",
+        "TEST-DFK-01-04"
+      ],
+      "rationale": "Canonical classes identity — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0591",
+      "requirement_ids": [
+        "REQ-DFK-01-02",
+        "REQ-DFK-01-05"
+      ],
+      "test_ids": [
+        "TEST-DFK-01-02",
+        "TEST-DFK-01-03",
+        "TEST-DFK-01-04"
+      ],
+      "rationale": "Schema registry/evolution — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0592",
+      "requirement_ids": [
+        "REQ-DFK-01-02"
+      ],
+      "test_ids": [
+        "TEST-DFK-01-02",
+        "TEST-DFK-01-03"
+      ],
+      "rationale": "Deterministic graph migrations — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0593",
+      "requirement_ids": [
+        "REQ-DFK-01-02",
+        "REQ-DFK-01-04"
+      ],
+      "test_ids": [
+        "TEST-DFK-01-02",
+        "TEST-DFK-01-03"
+      ],
+      "rationale": "Negative retired-FQN tests — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0594",
+      "requirement_ids": [
+        "REQ-DFK-01-02"
+      ],
+      "test_ids": [
+        "TEST-DFK-01-02",
+        "TEST-DFK-01-03"
+      ],
+      "rationale": "Materialize and ABI reference owners — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0595",
+      "requirement_ids": [
+        "REQ-DFK-01-03"
+      ],
+      "test_ids": [
+        "TEST-DFK-01-01",
+        "TEST-DFK-01-03"
+      ],
+      "rationale": "Honest partial census — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    }
+  ]
+}

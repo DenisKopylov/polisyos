@@ -1,0 +1,83 @@
+{
+  "scope": "FAC-01, FAC-02, CM-001 only; baseline and product immutable; product NOT_RUN",
+  "files": {
+    "02_Пакеты/UDF-02.md": {
+      "before_sha256": "7681d85440cdf4cde3f86791d591808609785f1aa0bae63c63b002177986d12a",
+      "reasons": [
+        "FAC-01 phase-aware setup/oracle"
+      ],
+      "after_sha256": "9867ff8fdea07af9144d4d62e9872adfa80a20a87e6a60e0a8f3e608dd4956a4"
+    },
+    "04_Трассировка/UDF-02.json": {
+      "before_sha256": "152a34aba81e1e3eecf39f16f9bd8c347ab6296c509c465a216f5fe4a457e67a",
+      "reasons": [
+        "FAC-01 phase-aware setup/oracle"
+      ],
+      "after_sha256": "7729d4983d8da7866f1c42a157831d00a323ec0c6b40b6a4536855c00f2c48f8"
+    },
+    "04_Трассировка/Требования_и_проверки.json": {
+      "before_sha256": "2b92733a43b1b938c802675681e100355b159bd9d2ff94cf4ce641e2ce97a3ac",
+      "reasons": [
+        "FAC-01 phase-aware setup/oracle"
+      ],
+      "after_sha256": "af7ab36e1c8eccd586b4ceaf1b69c71acd0e6cd581d4626a38d88e710c015595"
+    },
+    "04_Трассировка/Связь_требований_с_интеграцией.json": {
+      "before_sha256": "60194c4970de884d13c7f1f9029f0d45ab43e439f91016f0939ff86f861cf4a8",
+      "reasons": [
+        "FAC-02 exact source/target predicate and aggregate mirror",
+        "FAC-02 canonical negative oracle and exact mirror use the same bounded admission predicate",
+        "refresh affected canonical source inventory digests"
+      ],
+      "after_sha256": "044cac2779096f2505139d15a03b56f07fc88acc06575806d922508892db578a"
+    },
+    "04_Трассировка/Связь_требований_с_интеграцией.md": {
+      "before_sha256": "165ec557929da4724615ea49a74c356b68f67a107266054cbccfe2fa32c36c90",
+      "reasons": [
+        "FAC-02 exact source/target predicate and aggregate mirror",
+        "FAC-02 canonical negative oracle and exact mirror use the same bounded admission predicate"
+      ],
+      "after_sha256": "2ae731bde6c227a3c8e0601dcab9869dca87f9c92122433a50c4c561014c0b3c"
+    },
+    "03_Интеграция/Сценарии.json": {
+      "before_sha256": "e2db814faf6e1d824c93ace6682dd6058e8729941ccdeeb04f4b4cdfcb048616",
+      "reasons": [
+        "FAC-02 canonical negative oracle and exact mirror use the same bounded admission predicate"
+      ],
+      "after_sha256": "fce46b6e65f12db5ec36baf5ee88d0dee03541cb0e41853f2d7be3e6cbefe20f"
+    },
+    "03_Интеграция/LANE-07.md": {
+      "before_sha256": "7a49a7e65ba9311e3a31151df720a885e498ef3ceeb49efec2cb66a09bce8490",
+      "reasons": [
+        "FAC-02 canonical negative oracle and exact mirror use the same bounded admission predicate"
+      ],
+      "after_sha256": "d1b4461951ef95ecc5e9e8b015f607f27a2705d0f7e7844f1798757a50e21bd1"
+    },
+    "00_Общее/Общие_владельцы_и_границы_изменений.md": {
+      "before_sha256": "036a9db1db0158424fc6428a70130df05558b88e2a671188647c47eb6d20ee78",
+      "reasons": [
+        "CM-001 align short coordination map with existing detailed owners"
+      ],
+      "after_sha256": "85f37e89bd22b780a51514e9763c63aaf39ea62427ec0cf8f59ed29f77ba99fd"
+    },
+    "04_Трассировка/Индекс.json": {
+      "before_sha256": "e6b69fdbf65f5b0968e2d00520b7eeceb35ce73b59122ceb398068bdfa5fe8c7",
+      "reasons": [
+        "refresh UDF-02 MD/JSON SHA256"
+      ],
+      "after_sha256": "52cebfe79028a1b8ef7e7dd57a590a2a20aa2fea7e0a10b72a675d5199ec5519"
+    }
+  },
+  "source_inventory_updates": [
+    {
+      "source_path": "../03_Интеграция/Сценарии.json",
+      "before": "e2db814faf6e1d824c93ace6682dd6058e8729941ccdeeb04f4b4cdfcb048616",
+      "after": "fce46b6e65f12db5ec36baf5ee88d0dee03541cb0e41853f2d7be3e6cbefe20f"
+    },
+    {
+      "source_path": "UDF-02.json",
+      "before": "152a34aba81e1e3eecf39f16f9bd8c347ab6296c509c465a216f5fe4a457e67a",
+      "after": "7729d4983d8da7866f1c42a157831d00a323ec0c6b40b6a4536855c00f2c48f8"
+    }
+  ]
+}

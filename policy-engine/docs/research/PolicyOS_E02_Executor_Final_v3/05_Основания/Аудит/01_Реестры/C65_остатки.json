@@ -1,0 +1,74 @@
+{
+  "pass": "C65",
+  "bundle": "RES-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C65-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B63",
+        "B70",
+        "B71"
+      ],
+      "title": "Native durable resume и protected artifact boundaries не исполнены",
+      "evidence": [
+        "S02:2210–2350",
+        "S02:2466–2693",
+        "S05",
+        "S06",
+        "S13",
+        "P01",
+        "P06",
+        "P08",
+        "P09",
+        "native_pytest.log",
+        "native_import.log"
+      ],
+      "remaining": "В поддерживаемом runtime выполнить существующие exact-ref/scope/corruption и double-resume tests через actual CAS, selected owner, lock/head/history, LocalWorkflowRunner и executor. Проверить successful frontier, отсутствие повторного запуска A/B, настоящее changed input refusal, полное reopen, missing external artifact и read denial; использовать общий lane integration набор, не новый storage service.",
+      "limits": "Probe выполняет реальные owners, но store/loader/lock/resolve/publication/runner fixtures. P06 не native restart; P09 не protected-store admission. Existing tests прочитаны, UNRUN. Missing dependencies не продуктовый дефект."
+    },
+    {
+      "id": "C65-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B63"
+      ],
+      "title": "Экономия ограничена точными дублями; tail и стоимость первого полезного шага не квалифицированы",
+      "evidence": [
+        "S01:699–762",
+        "S01:864–1009",
+        "S03",
+        "S04",
+        "P01",
+        "P02",
+        "P05",
+        "P11"
+      ],
+      "remaining": "Измерить реальные bytes, calls и time-to-first-useful-result. Current recovery всё ещё сканирует trace целиком; get повторно проверяет outcome. Если измерения оправдывают checkpoint-tail, связать границу с подлинной историей/попыткой и сохранить selected-ref, scope, replay-proof и read guards; не заменять их числовым offset или hit-rate.",
+      "limits": "201 occurrences двухv2refs дают2fixture payload reads, первыйget добавляет1.100distinctrefs дают100reads. Это не production speedup; повторная проверка перед использованием не объявлена багом."
+    },
+    {
+      "id": "C65-G03",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B71"
+      ],
+      "title": "Достаточность state зависит от полных declarations и поддерживаемой грамматики путей",
+      "evidence": [
+        "S02:1553–1628",
+        "S01:238–257",
+        "S08",
+        "S09:88–97",
+        "P08",
+        "P09",
+        "P10"
+      ],
+      "remaining": "На actual residual consumers подтвердить completeness state_reads/state_writes, typed artifact ownership и отсутствие неучтённых hidden inputs. Согласовать поддерживаемую dot-path grammar между existing read/admission/merge owners; при расширении на list indices добавить negative/current-state controls, не превращая произвольный JSON в ArtifactRef.",
+      "limits": "Проверяются reads остатка, пересекающие declared writes завершённых узлов. P10 params.items.0 недоступен для resume, но тот же read limitation есть у idempotency; native supported consumer не установлен, поэтому не R. JSON shape не является доказательством external blob availability."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "Original repair существенно присутствует и bounded producer→resume-consumer control flow подтверждён. Новый продуктовый R не установлен; native custody/lifecycle, workload cost и declared-input completeness остаются квалификацией."
+}

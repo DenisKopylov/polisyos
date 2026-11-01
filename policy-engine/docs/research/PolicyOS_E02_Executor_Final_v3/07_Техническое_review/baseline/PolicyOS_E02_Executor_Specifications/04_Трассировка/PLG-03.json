@@ -1,0 +1,301 @@
+{
+  "packet_id": "PLG-03",
+  "lane": "LANE-04",
+  "source_ids": [
+    "LA-023"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/PLG-03.md",
+    "../05_Основания/Аудит/01_Реестры/C41_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C41-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-PLG-03-01"
+      ],
+      "shared_owner": null,
+      "rationale": "HARD sampled-action/mean-transition несогласованность устранить на shared training admission/action contract, оба collectors.",
+      "inventory_id": "audit-residual:C41_остатки:0"
+    },
+    {
+      "audit_id": "C41-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-PLG-03-02",
+        "REQ-PLG-03-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Реальный pre-clipping gradient/update, same-seed control, fresh policy consumer/reset/continuation.",
+      "inventory_id": "audit-residual:C41_остатки:1"
+    },
+    {
+      "audit_id": "C41-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-PLG-03-02",
+        "REQ-PLG-03-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Zero update pending и narrow profile честны; tiny policy effect не empirical learning quality.",
+      "inventory_id": "audit-residual:C41_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-PLG-03-01",
+      "text": "PPO trajectory action/log_prob должны относиться к действию, реально исполненному temporal transition, в обоих create_jit_trainer collectors. Минимальное принятое направление: HARD_DISCRETE training явно unsupported до collector/optimizer/artifact/output creation, пока deterministic-mean behavior не имеет согласованной PPO sampling law; ordinary HARD evaluation сохраняется. Fluid/relaxed продолжают shared mechanism-key sampled action law. Альтернативное полноценное HARD обучение допустимо только после общего action-selection/execution контракта и доказанного likelihood oracle, не простого log_prob(mean) для прежней Gaussian sampling law.",
+      "source_ids": [
+        "LA-023"
+      ],
+      "audit_ids": [
+        "C41-R01"
+      ],
+      "test_ids": [
+        "TEST-PLG-03-01"
+      ]
+    },
+    {
+      "id": "REQ-PLG-03-02",
+      "text": "Supported one-domain Economics/CRRA native tiny run выполняет1–2 настоящих updates: конечный ненулевой pre-clipping gradient, original Optax update, parameter delta и next-action effect отличны от independent same-seed no-update control. Train/eval/reset/continuation и supplied seed сохраняются. Zero/nonfinite/no-action-effect даёт existing typed pending; active negative/nonfinite wealth или income и любой intermediate terminal transition останавливают до PPO/publication, даже если final state мог восстановиться.",
+      "source_ids": [
+        "LA-023"
+      ],
+      "audit_ids": [
+        "C41-G01",
+        "C41-G02"
+      ],
+      "test_ids": [
+        "TEST-PLG-03-02"
+      ]
+    },
+    {
+      "id": "REQ-PLG-03-03",
+      "text": "Actual trained weights/optimizer metrics/schema1.1 source-defined training_profile публикуются через supplied store/tenant owner и exact selected ref, fresh store+skeleton strict loader восстанавливает policy с тем же действием. Missing/tampered weights, descriptor/schema/profile mismatch и nonfinite metrics не дают trained persisted artifact; invalid metrics до обоих writes. Legacy1.0 остаётся readable profileless без invented training metadata.",
+      "source_ids": [
+        "LA-023"
+      ],
+      "audit_ids": [
+        "C41-G01"
+      ],
+      "test_ids": [
+        "TEST-PLG-03-03"
+      ]
+    },
+    {
+      "id": "REQ-PLG-03-04",
+      "text": "Public result использует explicit current producer role PLG-02, losses только optimizer metrics, historical traces не PPO. Unsupported profiles/hard-training refusal сохраняют ordinary run и previous policy/state. Learned action difference означает узкую capability, а не гарантированное welfare/causal improvement; scientific usefulness требует отдельного data/model/eval основания. Accountable LA-023 закрывает оба этапа, не только честный отказ.",
+      "source_ids": [
+        "LA-023"
+      ],
+      "audit_ids": [
+        "C41-G02"
+      ],
+      "test_ids": [
+        "TEST-PLG-03-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-PLG-03-01",
+      "requirement_ids": [
+        "REQ-PLG-03-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Actor mean0,std1; deterministic controlled action fixture для unit плюс actual native temporal law; wealth100,income10; оба collector factories.",
+      "action": "Request HARD train через public API и direct canonical factory; ordinary HARD eval; fluid/relaxed collector/action transition fixed key.",
+      "oracle": "HARD training precise unsupported до sampler/optimizer/store, no output; evaluation mean0→consumption55 сохраняется. Fluid/relaxed recorded action equals applied action and log_prob соответствует same distribution/key; noise2 unit control даёт≈96.8876786. Никакого silent fidelity coercion.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-PLG-03-02",
+      "requirement_ids": [
+        "REQ-PLG-03-02"
+      ],
+      "level": "native JAX/Equinox/Optax tiny learning",
+      "setup": "Existing main test_plg_03 native profile, fixed actor seed and initial state; observer делегирует original update, same-seed run без observer и no-update/max_grad_norm0 control.",
+      "action": "1–2updates, evaluate next transition, public continue, initialize reset; signed/inactive padding/intermediate bad then recovered controls.",
+      "oracle": "Raw gradient finite/nonzero; original update вызван, parameter/action effect сверх no-update. Same-seed replay совпадает; eval0updates/0store. Zero clip→pending/no trained artifact; inactive padding allowed within profile, active violations terminal до optimizer, reset clears learned state.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-PLG-03-03",
+      "requirement_ids": [
+        "REQ-PLG-03-03"
+      ],
+      "level": "native owner-bound artifact → fresh strict policy",
+      "setup": "Real tenant-owned CAS, trained artifact from TEST02, independent fresh store/skeleton; second selected view same content.",
+      "action": "Store/load exact ref, compare next action; remove weights, tamper bytes/profile/descriptor, NaN metric; legacy1.0 read.",
+      "oracle": "Exact source profile/owner preserved, same policy action; no default-view substitution. Invalid metric writes0; missing/tamper refusal; legacy readable but no inferred metrics/authority. Runtime float metrics unaffected by Decimal storage copy.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-PLG-03-04",
+      "requirement_ids": [
+        "REQ-PLG-03-04"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Actual PLG-02 result predicate and shared native successful/unsupported outcomes.",
+      "action": "API→CLI→ordinary run; legacy3fields negative; no-CAS genuine positive.",
+      "oracle": "Only genuine explicit current producer result labelled trained/PPO; legacy remains evaluation/unknown, no training plot. Unsupported leaves state/policy intact; in-memory genuine allowed. Output states scope/limitations without scientific success claim.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I04-C"
+  ],
+  "dependencies": [
+    "PLG-02"
+  ],
+  "preservation": [
+    "Canonical JIT PPO/Optax owner и narrow Economics/CRRA bridge, active finite nonnegative wealth/income profile, terminal intermediate guards.",
+    "Typed unsupported/zero-update pending; ordinary simulation/HARD evaluation, reset и continuation.",
+    "Schema1.1 selected training profile, learned weights, strict readback через supplied owner; legacy1.0 не получает training attestation.",
+    "LA-023 stage1 result role и CLI исправляются у PLG-02, не дублируются."
+  ],
+  "design_alignment": [
+    "Полезный one-domain learned policy допускается с узким conditional scope; unsupported fidelity не закрывает остальные режимы.",
+    "Action/transition/likelihood общий контракт расширения, не специальная ветка по одному fixture."
+  ],
+  "open_decisions": [
+    "Если проект требует HARD training сейчас, выбрать полноценный action/likelihood contract вместо предложенного scoped refusal и предъявить native oracle до признания поддержки. Без такого выбора безопасный executable default — honest unsupported.",
+    "Предпочтительный HARD training refusal снимает неподдержанный семантический claim, но не закрывает полную HARD training capability. Release notes обязаны раскрыть потенциальное функциональное сужение; это не постоянный архитектурный запрет. Владелец может выбрать ограниченную реализацию общего action/likelihood контракта с native oracle; HARD evaluation и реальные fluid/relaxed updates сохраняются."
+  ],
+  "source_obligations": [
+    "LA-023 stage2: actual obs/action/reward/reset/state bridge уже существует; current old reward-loop отсутствует. Требуется квалифицировать, а не заново написать PPO.",
+    "Zero gradient вправе не менять policy; current training_update_not_observed pending допустим, не defect.",
+    "C40-R01/G01 carried к PLG-02; C40-G02 source-review этап2 superseded C41, native replacement остаётся здесь."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/foundry/agent_sim/jit_training.py: create_jit_trainer, create_jit_trainer_with_metrics",
+    "policy-engine/src/polisyos/foundry/agent_sim/temporal_mechanisms.py: TemporalConsumptionMechanism.apply",
+    "policy-engine/src/polisyos/foundry/plugins/training_adapter.py: EconomicsTrainingAdapter.train, _require_supported_evaluation_trajectory",
+    "policy-engine/src/polisyos/foundry/agent_sim/training.py: train_actor_critic_with_artifact",
+    "policy-engine/src/polisyos/foundry/agent_sim/artifact.py: store_policy_artifact, load_policy_artifact",
+    "policy-engine/src/polisyos/foundry/plugins/api.py: PolisySimulator.train"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_plg_03.py",
+    "policy-engine/tests/unit/remediation/test_plg_02.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0402",
+      "requirement_ids": [
+        "REQ-PLG-03-04"
+      ],
+      "disposition": "shared",
+      "rationale": "PLG-02 REQ-PLG-02-01 owns conservative legacy result role; этот accountable пакет проверяет current native outcome consumption."
+    },
+    {
+      "inventory_id": "remaining:0403",
+      "requirement_ids": [
+        "REQ-PLG-03-04"
+      ],
+      "disposition": "shared",
+      "rationale": "Native public CLI/capability boundary переиспользует PLG-02 REQ-PLG-02-02 и общий E02-I04-C witness."
+    },
+    {
+      "inventory_id": "remaining:0404",
+      "requirement_ids": [
+        "REQ-PLG-03-01"
+      ],
+      "disposition": "fix",
+      "rationale": "HARD sampled-action/mean-transition несогласованность устранить на shared training admission/action contract, оба collectors."
+    },
+    {
+      "inventory_id": "remaining:0405",
+      "requirement_ids": [
+        "REQ-PLG-03-02",
+        "REQ-PLG-03-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Реальный pre-clipping gradient/update, same-seed control, fresh policy consumer/reset/continuation."
+    },
+    {
+      "inventory_id": "remaining:0406",
+      "requirement_ids": [
+        "REQ-PLG-03-02",
+        "REQ-PLG-03-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Zero update pending и narrow profile честны; tiny policy effect не empirical learning quality."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0647",
+      "requirement_ids": [
+        "REQ-PLG-03-01",
+        "REQ-PLG-03-04"
+      ],
+      "test_ids": [
+        "TEST-PLG-03-01",
+        "TEST-PLG-03-04"
+      ],
+      "rationale": "Typed unsupported reasons — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0648",
+      "requirement_ids": [
+        "REQ-PLG-03-02",
+        "REQ-PLG-03-04"
+      ],
+      "test_ids": [
+        "TEST-PLG-03-02",
+        "TEST-PLG-03-04"
+      ],
+      "rationale": "Ordinary simulation and reset/continuation — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0649",
+      "requirement_ids": [
+        "REQ-PLG-03-02"
+      ],
+      "test_ids": [
+        "TEST-PLG-03-02"
+      ],
+      "rationale": "Existing canonical JIT PPO owner — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0650",
+      "requirement_ids": [
+        "REQ-PLG-03-02"
+      ],
+      "test_ids": [
+        "TEST-PLG-03-02"
+      ],
+      "rationale": "Selected Economics profile and intermediate terminal guards — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0651",
+      "requirement_ids": [
+        "REQ-PLG-03-03"
+      ],
+      "test_ids": [
+        "TEST-PLG-03-03"
+      ],
+      "rationale": "Learned artifact producer/strict readback — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0652",
+      "requirement_ids": [
+        "REQ-PLG-03-03",
+        "REQ-PLG-03-04"
+      ],
+      "test_ids": [
+        "TEST-PLG-03-03",
+        "TEST-PLG-03-04"
+      ],
+      "rationale": "Historical data without invented training authority — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

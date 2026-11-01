@@ -1,0 +1,172 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/cv.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/cv.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          160
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан; все actual definitions исполнены с настоящим NumPy",
+      "git_blob": "f9136c514c3559390164fb0210c94a4981201d8b",
+      "sha256": "8b4e347c71bd53ee2d3929ae3e3e890cf05d31e5eba65731ab78d86a0585a910",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          246
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан; все actual definitions исполнены с настоящим NumPy и PolicyOSError",
+      "git_blob": "439dad88f9b13bf807faee6432035ae8e21ddbd6",
+      "sha256": "eb8ae5af0f32881b41a5fd229666050c81ad9790ff6f3deea28ebb407b25c47f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/core/errors/base.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/errors/base.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          81
+        ]
+      ],
+      "evidence_level": "Полные actual error definitions прочитаны и исполнены",
+      "git_blob": "ab56a6e4cc36ab91891415b25819cd70ef57c743",
+      "sha256": "f013683b373b4bf947dbdaf0b5e6fc4c830da6fa6b74ef431d59a215bbbeaaed",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          153
+        ]
+      ],
+      "evidence_level": "Полный найденный CV test прочитан; native attempt BLOCKED до collection",
+      "git_blob": "9709522f780101533bd3a8163a162434a2e2bd70",
+      "sha256": "ee5acacd4382d853a3996e7ca227c7a7c33a2e2790b326eb5b28167812180856",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          263
+        ]
+      ],
+      "evidence_level": "Полный найденный bootstrap test прочитан; native attempt BLOCKED до collection",
+      "git_blob": "e0dfdc0f95f44770b5d46524d594a6b882731c4e",
+      "sha256": "11f28e7d72e303cd14c8a5c00153b5cd805e2c5a13825eefc67bc038c0013490",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/plan.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/plan.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          136
+        ]
+      ],
+      "evidence_level": "Полный соседний plan contract прочитан; C35 не исполнялся",
+      "git_blob": "b2f977a9cfe51f7509a0f96894c2a67652c36a99",
+      "sha256": "b37c79921d42a7b7f1226e6a4ba10d9f6ccc2d0181a62f69f03d883b5de4f8f1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          106
+        ]
+      ],
+      "evidence_level": "Полный actual facade прочитан для caller/activation scope; normal import UNRUN",
+      "git_blob": "8058931d9908cf8d9198ec37de58b626716dbe29",
+      "sha256": "ab32305ff929db821a069fd481a21e4bbda6215bd3ee448ef1d876bc7fd41559",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          116
+        ]
+      ],
+      "evidence_level": "Полное описание роли/ограничений прочитано; не заменяет execution evidence",
+      "git_blob": "ea91bceda785864b37a215b1c6ebd6f3339fc8db",
+      "sha256": "0c67ed5f9f87ac381f4955e8bcaefb68ec2cb89cc6d3d6e86b414808383e669b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          322,
+          562
+        ]
+      ],
+      "evidence_level": "Полные handoff helpers и run/run_with_ref прочитаны; C35 не исполнялись, проверена граница с публичными helper modules",
+      "git_blob": "bcf32f0beab30a28c36979fac4f79a5c12bca037",
+      "sha256": "b8da4c1aa45c6cd22576c34e6360fc2c34de29a4a6cfaaa9fa85cace9d51a46c",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      4309,
+      4396
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "discovery": {
+    "census": false,
+    "scope": "Bounded exact-symbol search across src plus complete helper/facade/run/test reading. No evidence that these helpers are mandatory on every GY/runtime route.",
+    "log": "04_Проверки/C35_BKT04/callsite_discovery.log"
+  }
+}

@@ -1,0 +1,1958 @@
+{
+  "schema": "e02.final-review.coverage.v1",
+  "reviewer": "fabric_acquisition",
+  "timestamp_utc_date": "2026-11-01",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "packet_count": 25,
+  "requirement_count": 112,
+  "test_spec_count": 115,
+  "packet_ids": [
+    "UDF-01",
+    "OBS-01",
+    "UDF-02",
+    "OBS-02",
+    "UDF-04",
+    "UDF-05",
+    "FED-01",
+    "FED-02",
+    "CAL-01",
+    "DFK-02",
+    "DFI-01",
+    "DFI-02",
+    "DFI-03",
+    "EMB-01",
+    "EMB-02",
+    "EMB-03",
+    "ING-01",
+    "ING-02",
+    "ING-03",
+    "NET-01",
+    "NET-02",
+    "SCL-01",
+    "SCL-03",
+    "LLM-01",
+    "LLM-02"
+  ],
+  "all_assigned_packets_full_solution_and_tests_read": true,
+  "product_tests": "NOT_RUN",
+  "execution_scope": "stdlib document analysis and small independent arithmetic only; no repository imports/test runs/install/network provider/external mutation",
+  "files": [
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/UDF-01.md",
+      "sha256": "a3ca06bf7e61dc64d8b5f962d3a4cb7a7f7a2d55e98650acc17d5411e89c4d94",
+      "line_count": 93,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          93
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/UDF-01.json",
+      "sha256": "2cbb165026ddd53cbc518769715238f26087b0c4421295f306cf36b029d8bdbe",
+      "line_count": 285,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          285
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/OBS-01.md",
+      "sha256": "afadaf0e6180e7f75a52856a20be04598216ab775cc51be7dcbadb2c147b9b45",
+      "line_count": 93,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          93
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/OBS-01.json",
+      "sha256": "bbd350102dd5642bfacff9af1da6ad47efc8ade6813526e3277abea30b31d035",
+      "line_count": 291,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          291
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/UDF-02.md",
+      "sha256": "7681d85440cdf4cde3f86791d591808609785f1aa0bae63c63b002177986d12a",
+      "line_count": 95,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          95
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/UDF-02.json",
+      "sha256": "152a34aba81e1e3eecf39f16f9bd8c347ab6296c509c465a216f5fe4a457e67a",
+      "line_count": 289,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          289
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/OBS-02.md",
+      "sha256": "b0944005cb79c59f6a69ffb9fc1aa73af98cfabcd0a9eb756814d0f420f586ac",
+      "line_count": 94,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          94
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/OBS-02.json",
+      "sha256": "e626c26f3603824b93d2a6361e455c8c66d4f1b66afc906e352d9075350816f2",
+      "line_count": 261,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          261
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/UDF-04.md",
+      "sha256": "4e2d94f006a29013606b64217cc78e0dcb33d40319b3984af231893be47adbde",
+      "line_count": 104,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          104
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/UDF-04.json",
+      "sha256": "2e584a08d4e64809c8e0969616387058159ddc1a508c40df0685978b848b80ee",
+      "line_count": 304,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          304
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/UDF-05.md",
+      "sha256": "193e2e542c94da6d07130f36444daab5a8a6c721063cd3bffc375abdc7668195",
+      "line_count": 139,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          139
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/UDF-05.json",
+      "sha256": "55b432e485f33617cc952c85192735febda2ba7530dd15016096ef2bab08a1b7",
+      "line_count": 382,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          382
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/FED-01.md",
+      "sha256": "fd18e7dbd098faaa67aac193c65a8f1b517b1a0ba69c42552ea3e10c36ebc9db",
+      "line_count": 110,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          110
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/FED-01.json",
+      "sha256": "5d68e851781f72fdd4152cef99bb4c53453c6816c270079160e35a674f7f4f0b",
+      "line_count": 350,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          350
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/FED-02.md",
+      "sha256": "b8d419b4c2df2d6c1848c23d3ec66a439a4d1b7dace4eb34cee63be6b0520c4c",
+      "line_count": 102,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          102
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/FED-02.json",
+      "sha256": "9012c60cd1c36e2e0a1c922f04c7c3370c6bf7b62a0bfa49d2cd560ccdec5b22",
+      "line_count": 331,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          331
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAL-01.md",
+      "sha256": "060690ec965bf10fb053a1e83c8408add5419ae6a1bcc57603acb268b53a5d0a",
+      "line_count": 106,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          106
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAL-01.json",
+      "sha256": "d20fa537db8903bdb706eecacd0a4aadb9bc7533f76f8393c56b93eedb4f76ac",
+      "line_count": 342,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          342
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/DFK-02.md",
+      "sha256": "b6c7c0e12d46ba144f15662c5904dae87e7f6bc8e30b1717684d8089a4aeea70",
+      "line_count": 97,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          97
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/DFK-02.json",
+      "sha256": "bde59586de52bf009097b21c3a7d77dd1d51c0f058d89b2341264234a17fcaab",
+      "line_count": 293,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          293
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/DFI-01.md",
+      "sha256": "8af9d92d29a9deea31ea3ce11d3b0038469962e3d8c2a057c11072e639251fa6",
+      "line_count": 93,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          93
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/DFI-01.json",
+      "sha256": "855a74a7006331f5fe9dc259a615515137bb883929289ff0689f5d154ddbc7ff",
+      "line_count": 267,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          267
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/DFI-02.md",
+      "sha256": "6bcaf9aa0be163ceed7452719e0914a6af48d7c2ee640b50a5f916963ccb2e0b",
+      "line_count": 97,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          97
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/DFI-02.json",
+      "sha256": "cf1305211011ced4a8c264047ca4dcda2163e6175aa3891f9cbd5088405b80f1",
+      "line_count": 304,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          304
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/DFI-03.md",
+      "sha256": "62c9a9784bef9a5fa7ccce4c29a4e16dba95c67c93ad08e89696df1ee5ea6e48",
+      "line_count": 98,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          98
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/DFI-03.json",
+      "sha256": "bea831bc86c51797db932b6bab1dbbf0ae679358f6537d2dc38262419a9d05d4",
+      "line_count": 311,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          311
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/EMB-01.md",
+      "sha256": "beba99b03e531f255d93d0318d735a125d810be4f05817ca4900840283b8b84c",
+      "line_count": 96,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          96
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/EMB-01.json",
+      "sha256": "beaf957679e823a02c983e4bfaaa849f5cb891bec8c928050df01a7c3376ddad",
+      "line_count": 273,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          273
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/EMB-02.md",
+      "sha256": "920dce2149f604a6b2b10ca132a1b40a26bdd207939fc858476e3400a39923f8",
+      "line_count": 97,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          97
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/EMB-02.json",
+      "sha256": "1542948d517b502fc7700308f237abd168a8a8cf74f183f9f7889da8bc3fa45d",
+      "line_count": 282,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          282
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/EMB-03.md",
+      "sha256": "8e6d6fe39800110ae582ae9aa41895aeb4404e27f2c3a30e453d448cd3cc54e2",
+      "line_count": 96,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          96
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/EMB-03.json",
+      "sha256": "9fd669d56526514f5a284d0e2fa41a65c67b41d2211370c2c6b1aabc47ec0eb1",
+      "line_count": 291,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          291
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/ING-01.md",
+      "sha256": "d8c65da830e1ffad0aef3a582dcea341f2589d705edaefb254bbac89e8b633f8",
+      "line_count": 98,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          98
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/ING-01.json",
+      "sha256": "d36378e03c0d0d8adcdaa31935f5c3fe7afca8aed42d0fe73405b82027ba0910",
+      "line_count": 314,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          314
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/ING-02.md",
+      "sha256": "4bfba826da6c7a8b4b42af589c5836ff91cbcc600ac94a93f37ef076cdf72f4f",
+      "line_count": 96,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          96
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/ING-02.json",
+      "sha256": "8e30be86073271bbd60d4a45946b2bd4a75078ca3a03a1e8e4806e563cce4a6c",
+      "line_count": 285,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          285
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/ING-03.md",
+      "sha256": "f60268f7e0ffa3cb30dc19bd34e8770196562b345bebd796f1220b2b920df76c",
+      "line_count": 97,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          97
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/ING-03.json",
+      "sha256": "fbb1abae47cb445e1bf6d0f0b04be11a977bfd8d362df7787247ddea6fb8db39",
+      "line_count": 313,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          313
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/NET-01.md",
+      "sha256": "cc5971ca783cedfa84e1ceb4f50c5d730a67eb6366f940988564f798180c0e62",
+      "line_count": 96,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          96
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/NET-01.json",
+      "sha256": "c543492ef7069a325850893aad41d5ddd389d685f254ff91555c933346c28090",
+      "line_count": 296,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          296
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/NET-02.md",
+      "sha256": "802add3e17efb87fa6a1e455c8795aea9cc5fa37add2c37de3821a9b9d5bb648",
+      "line_count": 96,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          96
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/NET-02.json",
+      "sha256": "a7642b00f2a820e0a5877253c6a32d51174a6338a84fc480e8ca9fb4b5ad70d3",
+      "line_count": 285,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          285
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/SCL-01.md",
+      "sha256": "a5f5f9671e8f79431ba2f949400fb06a95d80ed9ba40d45ea3bdbac31fd0299a",
+      "line_count": 123,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          123
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/SCL-01.json",
+      "sha256": "bc1bf5951244cc44e9d051cb2e0f5e2ffe034d5dd84dfe8c54904ef9a1b4f647",
+      "line_count": 339,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          339
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/SCL-03.md",
+      "sha256": "62aff5a8f116353efc60285c2cb29dc4c4961dc1b511db7a7c6d530a809c66ae",
+      "line_count": 111,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          111
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/SCL-03.json",
+      "sha256": "d83b24f04fe518bfd2cc5eccc7d97eb0526be18769a464ad519e855e49744044",
+      "line_count": 317,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          317
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/LLM-01.md",
+      "sha256": "acad62c4aa016e7df3688b1469c7f3d2a90911af0dd6ee7905b75bfde0bfe667",
+      "line_count": 129,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          129
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/LLM-01.json",
+      "sha256": "1726eccdda83d9bf2591576966e1f7fdf23e214b640073f144a6b9437d68b129",
+      "line_count": 347,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          347
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/LLM-02.md",
+      "sha256": "5ed23f57e9a0f1bf5d5bcde3cf5333a7c94fc4db6ffd93f407edd64c6f29ab72",
+      "line_count": 175,
+      "kind": "full_executor_packet",
+      "method": "Полный текст solutions, preservation, requirements, tests прочитан; truncation восстановлены до final coverage.",
+      "read_ranges": [
+        [
+          1,
+          175
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/LLM-02.json",
+      "sha256": "aad77544dc8a6673625b5587b0c15a7b4ef9838f95241baf46a981df815ad9ba",
+      "line_count": 427,
+      "kind": "companion_json",
+      "method": "Полностью parsed stdlib json; все requirement.text/test.setup/action/oracle/doubles deduplicated exact normalized match с прочитанным Markdown; unique obligation/preservation/dependency/open-decision поля inspected.",
+      "read_ranges": [
+        [
+          1,
+          427
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/01_Лейны/LANE-07.md",
+      "sha256": "d99c9af0a8811e2be5097bee891a34ea56aa69d012c81f030018a1d754884be0",
+      "line_count": 40,
+      "kind": "lane",
+      "method": "Full read, including recovered standalone LANE-08.",
+      "read_ranges": [
+        [
+          1,
+          40
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/03_Интеграция/LANE-07.md",
+      "sha256": "1235b482afb89d5dd5bacbdcf1ecf0089a375f12439e1590ec00278794691676",
+      "line_count": 78,
+      "kind": "lane",
+      "method": "Full read, including recovered standalone LANE-08.",
+      "read_ranges": [
+        [
+          1,
+          78
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/01_Лейны/LANE-08.md",
+      "sha256": "92183dcb6df9c6fa5ca61b4fb6474dc8add55ec9d729489d5cf5a29dba7f475e",
+      "line_count": 44,
+      "kind": "lane",
+      "method": "Full read, including recovered standalone LANE-08.",
+      "read_ranges": [
+        [
+          1,
+          44
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/03_Интеграция/LANE-08.md",
+      "sha256": "d86604bf5af89b653d9d32d4ff902f1dadbf3c3ea85141aabefced4bd9aceec9",
+      "line_count": 80,
+      "kind": "lane",
+      "method": "Full read, including recovered standalone LANE-08.",
+      "read_ranges": [
+        [
+          1,
+          80
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/01_Лейны/LANE-09.md",
+      "sha256": "82f79adab1aa022baccd10853b35c71ae108ea52a8134e84fb74c6b9676aa158",
+      "line_count": 36,
+      "kind": "lane",
+      "method": "Full read, including recovered standalone LANE-08.",
+      "read_ranges": [
+        [
+          1,
+          36
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/03_Интеграция/LANE-09.md",
+      "sha256": "45d6cbbd580be48331baf11a808535d3a3ebb5362279fbea8b5b131281cc1d76",
+      "line_count": 66,
+      "kind": "lane",
+      "method": "Full read, including recovered standalone LANE-08.",
+      "read_ranges": [
+        [
+          1,
+          66
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/00_Общее/Архитектурное_направление_и_отступления.md",
+      "sha256": "cfbabc5614a0d624940482536204aec687feb4c619f1892da09611d2c17d4317",
+      "line_count": 32,
+      "kind": "general_rules",
+      "method": "Full read.",
+      "read_ranges": [
+        [
+          1,
+          32
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/00_Общее/Правила_исполнения_и_приёмки.md",
+      "sha256": "d36682b96c32d58e3b5effe5ff7e14369d7000e6a32a0c20090ddebd6384f8b9",
+      "line_count": 57,
+      "kind": "general_rules",
+      "method": "Full read.",
+      "read_ranges": [
+        [
+          1,
+          57
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/00_Общее/Общие_владельцы_и_границы_изменений.md",
+      "sha256": "036a9db1db0158424fc6428a70130df05558b88e2a671188647c47eb6d20ee78",
+      "line_count": 27,
+      "kind": "general_rules",
+      "method": "Full read.",
+      "read_ranges": [
+        [
+          1,
+          27
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/Связь_требований_с_интеграцией.json",
+      "sha256": "9217638667c8c26a30e1b5f5ba20a7a3904268e233c67a0167f866864f18576c",
+      "line_count": 22274,
+      "kind": "integration_mapping",
+      "method": "Full JSON parsed. All I07/I08/I09 scenario concrete obligations, acceptance roles, limits, edges inspected; repeated requirement_index text deduplicated against full packets. Other lanes not substantively reviewed.",
+      "read_ranges": [
+        [
+          1,
+          22274
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/AGENTS.md",
+      "sha256": "919ae21b9ae3e6762dd72e5ab4ddef62b170917fc189de2700e09d978f63d638",
+      "line_count": 68,
+      "kind": "governance_technology",
+      "method": "Full read.",
+      "read_ranges": [
+        [
+          1,
+          68
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/CONTRIBUTING.md",
+      "sha256": "e78f1bdb99a900f6426f9f451b7e9cbc0e21007eb12012eaf209d89c505f3a1f",
+      "line_count": 227,
+      "kind": "governance_technology",
+      "method": "Full read.",
+      "read_ranges": [
+        [
+          1,
+          227
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/pyproject.toml",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "line_count": 295,
+      "kind": "governance_technology",
+      "method": "Full read.",
+      "read_ranges": [
+        [
+          1,
+          295
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/package.json",
+      "sha256": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f",
+      "line_count": 17,
+      "kind": "governance_technology",
+      "method": "Full read.",
+      "read_ranges": [
+        [
+          1,
+          17
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/uv.lock",
+      "sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+      "line_count": 7226,
+      "kind": "lock",
+      "method": "Full TOML parsed; relevant Python/native/optional dependency versions and wheel/sdist/group entries inspected, not every unrelated dependency license/source.",
+      "read_ranges": [
+        [
+          1,
+          7226
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/fabric/connectors/federation/resolver.py",
+      "sha256": "93658eca6990c50eb6765293d9e79170a72799c63e6a5770f56f5e0f2c1c19f9",
+      "line_count": 512,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          330,
+          365
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/fabric/connectors/federation/composer.py",
+      "sha256": "3ab46f4a5e71cff32e65e370bc2e1c808ba19a2ac58359555e2c1253e30c8b71",
+      "line_count": 1913,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          634,
+          775
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/fabric/connectors/federation/composer.py",
+      "sha256": "3ab46f4a5e71cff32e65e370bc2e1c808ba19a2ac58359555e2c1253e30c8b71",
+      "line_count": 1913,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1612,
+          1778
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+      "sha256": "6e7c51f66aa9a81f1f6a94804eea3d84fcffa78f4b14a5cdb04a5ed7c8f15a52",
+      "line_count": 2284,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1420,
+          1593
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/observation.py",
+      "sha256": "1181aa0b1d23395db623d3cb82cba18a8152ad9bef9026a806d6144e132b5a9f",
+      "line_count": 274,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          96,
+          274
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/io.py",
+      "sha256": "5f2bfe31a2ed8ee0cea4bdec800670dbe8df6749ea7a4d810ab5a88f38bc7686",
+      "line_count": 255,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          40,
+          96
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/governance_handoff.py",
+      "sha256": "edef1c80d3424e1cd10132fc674dcb20feb4483f8d6b377b06f142b765e03738",
+      "line_count": 52,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1,
+          52
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+      "sha256": "336db8edc8bc61bfb96da8113045dca52e8241493f7596183fca0830d1863ebb",
+      "line_count": 467,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          176,
+          380
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/data_plane/bindings.py",
+      "sha256": "41cf8d3fb68f6c4e323f0e0921d9b4bbedfa371da62a0b26352b05421bf9c00c",
+      "line_count": 3221,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1373,
+          1515
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/data_plane/bindings.py",
+      "sha256": "41cf8d3fb68f6c4e323f0e0921d9b4bbedfa371da62a0b26352b05421bf9c00c",
+      "line_count": 3221,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1943,
+          2075
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_udf_01.py",
+      "sha256": "7d7d72641e46ec3c02415b60f5df0fb961558caa9e8cd572514d8b9ffa3ebd96",
+      "line_count": 164,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          133,
+          164
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_udf_02.py",
+      "sha256": "a881994611813ad38820523045799eab1ba95454b0258188aae0575d1ce63853",
+      "line_count": 161,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          63,
+          161
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_obs_02.py",
+      "sha256": "0654a6d3c9cc9286bb7b491d6c17ccc614ab075cb32c6c9c0f3bbcf984f719f8",
+      "line_count": 727,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          248,
+          379
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/ukraine/orchestrator.py",
+      "sha256": "9a654fa0c80a19d88c36ad96bea2d7ac0420e68effe64d47e9e5de317c68deff",
+      "line_count": 569,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          442,
+          475
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/ukraine/server.py",
+      "sha256": "e9e6968a7537a76a2ebeb719b859c0009e553641fd0704febe202f80c450af8c",
+      "line_count": 146,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          57,
+          137
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+      "sha256": "c3a8019dce00106229de2ac207c1568ba44b743e64ca9e03620372131be0c040",
+      "line_count": 638,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1,
+          210
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py",
+      "sha256": "9421aaed384111df9d4539281a3fa742dd472674a1fd2af527db820d0d9ae0b1",
+      "line_count": 197,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1,
+          197
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+      "sha256": "979f24af1b2f54e30b5c9ffcf5df28860a99a923613567c68f81b3cf3ded3866",
+      "line_count": 1561,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          492,
+          616
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/catalog/batch/cli.py",
+      "sha256": "cce2d35c885368d53b5b2c36993739a98fabb6687666c168d061459bd876f9c1",
+      "line_count": 297,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          79,
+          126
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+      "sha256": "9c873a02b832b6d01dd3bff85193e73a89e78cf03926bba9c6d47081c93f206a",
+      "line_count": 338,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          50,
+          115
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+      "sha256": "cdc9587279db23a2d99b419bf385961e555db2b0c68dae252293f53733542c23",
+      "line_count": 3466,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1096,
+          1139
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+      "sha256": "979f24af1b2f54e30b5c9ffcf5df28860a99a923613567c68f81b3cf3ded3866",
+      "line_count": 1561,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1238,
+          1305
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+      "sha256": "c3a8019dce00106229de2ac207c1568ba44b743e64ca9e03620372131be0c040",
+      "line_count": 638,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          289,
+          370
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_dfi_03.py",
+      "sha256": "f9829ac9c95e57f76ffd356933f2e4a5859c4871e45bc9390b81711b37f6b02e",
+      "line_count": 2751,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1082,
+          1101
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_dfi_03.py",
+      "sha256": "f9829ac9c95e57f76ffd356933f2e4a5859c4871e45bc9390b81711b37f6b02e",
+      "line_count": 2751,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1339,
+          1366
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_dfi_02.py",
+      "sha256": "af2f206ad9127d58c6e9bfc5209cc5a64cd153b31434c86c1d1fa30a03ee93ad",
+      "line_count": 178,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1,
+          178
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "sha256": "e78057b42ce52cb33a0fecea0b36c1365e003304886fc9f384e44c786e0cef8f",
+      "line_count": 3519,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          954,
+          1080
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "sha256": "e78057b42ce52cb33a0fecea0b36c1365e003304886fc9f384e44c786e0cef8f",
+      "line_count": 3519,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1235,
+          1280
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "sha256": "e78057b42ce52cb33a0fecea0b36c1365e003304886fc9f384e44c786e0cef8f",
+      "line_count": 3519,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1540,
+          1591
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "sha256": "e78057b42ce52cb33a0fecea0b36c1365e003304886fc9f384e44c786e0cef8f",
+      "line_count": 3519,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          3040,
+          3120
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/fabric/connectors/pool.py",
+      "sha256": "f70fd628b4f99f26483e59965533e4d75b88b1d6fba1a58125d6cec6a95986b5",
+      "line_count": 1301,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          833,
+          919
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+      "sha256": "72ce19cb0939f73d703571ea8e733e3a95f025bb5cd1ff595d019f685acc1ca1",
+      "line_count": 572,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          380,
+          490
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scholar/search/fetcher.py",
+      "sha256": "2dd9e13a8f75cbc66bcd1a751012c7aee67d55f83556c9b6ba448acbbeedfe2f",
+      "line_count": 290,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1,
+          105
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scholar/search/providers.py",
+      "sha256": "6b245cf24ff8a25eace8dadf6806116031a86cc0537ec8fdc63e7f1fea996901",
+      "line_count": 989,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          118,
+          218
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "sha256": "d1553de4c7f710ee2483593f92e1fae8760d811398f1cb8f545b1d5072df8351",
+      "line_count": 1593,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          674,
+          910
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "sha256": "9481d8a70630390a0b29dc150b21c58c780bf4cc21208b004664e0be6560fae3",
+      "line_count": 471,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          424,
+          471
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scholar/search/security.py",
+      "sha256": "8813f9d6f2f4b78d2f4b3ba2743f60c6ea09d402617800e5056d12eb6503dbe7",
+      "line_count": 228,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          76,
+          120
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "sha256": "2d6d876276cdc93a8f66eb599d4481cf691c621fada3820720d82865499c739b",
+      "line_count": 1307,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          301,
+          378
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "sha256": "2d6d876276cdc93a8f66eb599d4481cf691c621fada3820720d82865499c739b",
+      "line_count": 1307,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          428,
+          476
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "sha256": "2d6d876276cdc93a8f66eb599d4481cf691c621fada3820720d82865499c739b",
+      "line_count": 1307,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          637,
+          727
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "sha256": "0ce31bac3c78143283b3e3c24960e7f5d2a6b2faffd0436da80ed692bbad04c6",
+      "line_count": 2233,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1240,
+          1302
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/policy_design/translator.py",
+      "sha256": "a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1",
+      "line_count": 405,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          48,
+          65
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/policy_design/translator.py",
+      "sha256": "a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1",
+      "line_count": 405,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          160,
+          240
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "sha256": "f926fffeaabb6293797a053a1ae8a194353cf20063d6ecdd4199b35cbe0c596a",
+      "line_count": 12427,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          222,
+          332
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/calibration/preflight.py",
+      "sha256": "bd8dde0b985904a6d1a9af5da06885055adf78242933e8af48d559ec389cc8cf",
+      "line_count": 326,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          63,
+          112
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/calibration/preflight.py",
+      "sha256": "bd8dde0b985904a6d1a9af5da06885055adf78242933e8af48d559ec389cc8cf",
+      "line_count": 326,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          230,
+          319
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/calibration/measurement.py",
+      "sha256": "be1de99f1764725d501ddaf2f1136ed40c39d02df456aef4478a497138ace350",
+      "line_count": 681,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          247,
+          338
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/fabric/data_plane/modes.py",
+      "sha256": "05c9e4c5f058945eb2d7c4b4cd8d9b06e62d98bba0684026912af9b4d9ce1fbc",
+      "line_count": 2014,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1124,
+          1210
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/fabric/data_plane/schema_rows.py",
+      "sha256": "646d8939fa39ac73dc0f6ea95e2039689e6f11a4afe54553003ce60a9051d8d6",
+      "line_count": 126,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1,
+          115
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/legal/runtime_material.py",
+      "sha256": "2ee5093f03bade9677abe9a5c3386dbd936cfc970eb9b77dbc89c1b6c36f9dbc",
+      "line_count": 949,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          271,
+          328
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/legal/runtime_material.py",
+      "sha256": "2ee5093f03bade9677abe9a5c3386dbd936cfc970eb9b77dbc89c1b6c36f9dbc",
+      "line_count": 949,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          568,
+          610
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/legal/runtime_material.py",
+      "sha256": "2ee5093f03bade9677abe9a5c3386dbd936cfc970eb9b77dbc89c1b6c36f9dbc",
+      "line_count": 949,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          641,
+          739
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_fed_02.py",
+      "sha256": "40851a788100cc5b51fb560d734d17dd7949231541135b5833bed44c1de1cc81",
+      "line_count": 913,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          115,
+          205
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_fed_02.py",
+      "sha256": "40851a788100cc5b51fb560d734d17dd7949231541135b5833bed44c1de1cc81",
+      "line_count": 913,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          661,
+          785
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_udf_04.py",
+      "sha256": "a51ea46fbd74138f3a8371c6a3c29e5c2fe52ad73ee3be42e0a8a5c7172d1de3",
+      "line_count": 497,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          361,
+          413
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "sha256": "9481d8a70630390a0b29dc150b21c58c780bf4cc21208b004664e0be6560fae3",
+      "line_count": 471,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          221,
+          294
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/core/llm/traced_client.py",
+      "sha256": "7e4cf1bbceeb2573354b597128fabe202ba8d13a1cc6783913fa0f5ff636fbfa",
+      "line_count": 1686,
+      "kind": "repository_code_or_test",
+      "method": "Numbered source range read, NOT executed.",
+      "read_ranges": [
+        [
+          1301,
+          1365
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+      "sha256": "ffd121f70aece50096ac6e96b10327f09a08692356074b07c85aed80334cc59e",
+      "line_count": 1450,
+      "kind": "repository_code_or_test",
+      "method": "Source ranges read with sed/cat before read_log or outside helper; NOT executed.",
+      "read_ranges": [
+        [
+          349,
+          463
+        ],
+        [
+          1118,
+          1182
+        ],
+        [
+          1217,
+          1412
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/__init__.py",
+      "sha256": "0a368cb92a79bd4f905640cfe40ed5a88dd55933c9f8297e466393ef0845194b",
+      "line_count": 88,
+      "kind": "repository_code_or_test",
+      "method": "Source ranges read with sed/cat before read_log or outside helper; NOT executed.",
+      "read_ranges": [
+        [
+          1,
+          88
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/fabric/connectors/federation/resolver.py",
+      "sha256": "93658eca6990c50eb6765293d9e79170a72799c63e6a5770f56f5e0f2c1c19f9",
+      "line_count": 512,
+      "kind": "repository_code_or_test",
+      "method": "Source ranges read with sed/cat before read_log or outside helper; NOT executed.",
+      "read_ranges": [
+        [
+          1,
+          330
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/ukraine/static_aging.py",
+      "sha256": "b41eef2e01aa7291c770fd81b593bd750c444faac5439f4aed1b3e22f6c3899b",
+      "line_count": 50,
+      "kind": "repository_code_or_test",
+      "method": "Source ranges read with sed/cat before read_log or outside helper; NOT executed.",
+      "read_ranges": [
+        [
+          1,
+          49
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scholar/discover/http_fetch.py",
+      "sha256": "29dcb67f926d7a6b7921db82796d8228195164bc6f7dd98caab96185131a49b0",
+      "line_count": 144,
+      "kind": "repository_code_or_test",
+      "method": "Source ranges read with sed/cat before read_log or outside helper; NOT executed.",
+      "read_ranges": [
+        [
+          1,
+          137
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scholar/search/security.py",
+      "sha256": "8813f9d6f2f4b78d2f4b3ba2743f60c6ea09d402617800e5056d12eb6503dbe7",
+      "line_count": 228,
+      "kind": "repository_code_or_test",
+      "method": "Source ranges read with sed/cat before read_log or outside helper; NOT executed.",
+      "read_ranges": [
+        [
+          110,
+          235
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/common/async_tools/__init__.py",
+      "sha256": "f986fb79507b7c81d8d680f61abcf8e94115db13fb90e7706bca83fcd1a634ec",
+      "line_count": 978,
+      "kind": "repository_code_or_test",
+      "method": "Source ranges read with sed/cat before read_log or outside helper; NOT executed.",
+      "read_ranges": [
+        [
+          1,
+          230
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "sha256": "0ce31bac3c78143283b3e3c24960e7f5d2a6b2faffd0436da80ed692bbad04c6",
+      "line_count": 2233,
+      "kind": "repository_code_or_test",
+      "method": "Source ranges read with sed/cat before read_log or outside helper; NOT executed.",
+      "read_ranges": [
+        [
+          1015,
+          1242
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+      "sha256": "979f24af1b2f54e30b5c9ffcf5df28860a99a923613567c68f81b3cf3ded3866",
+      "line_count": 1561,
+      "kind": "repository_code_or_test",
+      "method": "Source ranges read with sed/cat before read_log or outside helper; NOT executed.",
+      "read_ranges": [
+        [
+          1370,
+          1450
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py",
+      "sha256": "e99b1b3ba38a28264497477cb064fed6cddf0f8a4affb3e57eb25bd06bdbd927",
+      "line_count": 7707,
+      "kind": "repository_code_or_test",
+      "method": "Source ranges read with sed/cat before read_log or outside helper; NOT executed.",
+      "read_ranges": [
+        [
+          1867,
+          1990
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py",
+      "sha256": "7d63e11e3ede5cd5c0e70c7be9d69d5dc5a996c90e2dc033bc1b71127a31f2a8",
+      "line_count": 4020,
+      "kind": "repository_code_or_test",
+      "method": "Source ranges read with sed/cat before read_log or outside helper; NOT executed.",
+      "read_ranges": [
+        [
+          905,
+          960
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_obs_01.py",
+      "sha256": "2d99bc2aac50c7de0a858e9e0fb69186f3216cdf858f906137e5cb007c84931e",
+      "line_count": 366,
+      "kind": "repository_code_or_test",
+      "method": "Source ranges read with sed/cat before read_log or outside helper; NOT executed.",
+      "read_ranges": [
+        [
+          1,
+          125
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_emb_02.py",
+      "sha256": "b830738c7656c015c5afc48c5c48076ceb4257139ee0f73aac2266ee9480ac9b",
+      "line_count": 545,
+      "kind": "repository_code_or_test",
+      "method": "Source ranges read with sed/cat before read_log or outside helper; NOT executed.",
+      "read_ranges": [
+        [
+          94,
+          127
+        ],
+        [
+          399,
+          488
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_cal_01.py",
+      "sha256": "8c343db6ca5d1003606156e47cc9fd47da3c484dd2a5b946a8527bc785628441",
+      "line_count": 326,
+      "kind": "repository_code_or_test",
+      "method": "Source ranges read with sed/cat before read_log or outside helper; NOT executed.",
+      "read_ranges": [
+        [
+          196,
+          248
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py",
+      "sha256": "8b5ddea43d7c70f34ac8b1484bd7062ccca65f789ebdc1bd29a76c33870cbe5c",
+      "line_count": 406,
+      "kind": "repository_code_or_test",
+      "method": "Source ranges read with sed/cat before read_log or outside helper; NOT executed.",
+      "read_ranges": [
+        [
+          60,
+          108
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/scientist/orchestration/llm/test_factory_cache_composition.py",
+      "sha256": "8436d312b802d7ed8c73795ecf4f1916166ae7b44671602c8eebb1ac925bdafe",
+      "line_count": 465,
+      "kind": "repository_code_or_test",
+      "method": "Source ranges read with sed/cat before read_log or outside helper; NOT executed.",
+      "read_ranges": [
+        [
+          229,
+          430
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+      "sha256": "8283dd1fc531306d8f1dbd6550390e2d769dab622fa8dab2c33f9e59646f9a39",
+      "line_count": 2813,
+      "kind": "repository_code_or_test",
+      "method": "Source ranges read with sed/cat before read_log or outside helper; NOT executed.",
+      "read_ranges": [
+        [
+          805,
+          945
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/fabric/data_plane/test_stream_pool_physical_cleanup_oracle.py",
+      "sha256": "3bb2b8c5e3b413787685114dcca9fa4d469d5ba8688be87aaaab030f52cc9baf",
+      "line_count": 463,
+      "kind": "repository_code_or_test",
+      "method": "Source ranges read with sed/cat before read_log or outside helper; NOT executed.",
+      "read_ranges": [
+        [
+          146,
+          260
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md",
+      "sha256": "791d7028932d0b8097c8d6b1962e068b956136ae5d314ae0c7f60d5863d8b44d",
+      "line_count": 467,
+      "kind": "architecture",
+      "method": "Selected relevant sections read; not full20-document re-review.",
+      "read_ranges": [
+        [
+          154,
+          245
+        ],
+        [
+          326,
+          352
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md",
+      "sha256": "000736b6d70f52f4d3aeb8550f34bacf539e8d22fb8e4e926ec6eb5d78610a79",
+      "line_count": 2705,
+      "kind": "architecture",
+      "method": "Selected D2.5 and D2.8–D2.10 read.",
+      "read_ranges": [
+        [
+          984,
+          1038
+        ],
+        [
+          1211,
+          1294
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/05_Основания/Аудит/02_Пакеты/UDF-05.md",
+      "sha256": "e51b99cf31548fdb726be114b3249b38ebe94e99084eddd7356eb5e7aaddbd80",
+      "line_count": 61,
+      "kind": "historical_audit",
+      "method": "Full read as historical context, not current verification.",
+      "read_ranges": [
+        [
+          1,
+          61
+        ]
+      ]
+    }
+  ],
+  "research": {
+    "primary_source_count": 14,
+    "sources_file": "library_decisions.json",
+    "failed_source_fetches": [
+      "Arrow22 versioned docs URL unavailable→exact maintainer22.0.0 source used",
+      "cachetools6.2.4 docs/tag fetch unavailable→latest docs only generic comparison",
+      "JAX old URL redirects; no recommendation based on unread redirected content"
+    ],
+    "not_run": [
+      "Python3.14 native suite",
+      "HNSW/ST native ABI/load",
+      "real model retrieval quality",
+      "performance/RSS benchmarks",
+      "OS process kill/FD qualification",
+      "live provider/TLS deployment"
+    ]
+  },
+  "bounded_unread_context": [
+    "pnpm-lock.yaml not read in full: frontend not changed/recommended by these lanes; package.json inspected",
+    "24 other historical audit packet bodies and original source-card corpus not re-read in full: current executor packets/companion normative obligations reviewed, current code is evidence",
+    "18 remaining architecture documents not fully read: root/cross-lane reviewer owns global synthesis; selected principles read here",
+    "Repository source/tests read at recorded relevant ranges, not complete all modules or whole test suite"
+  ],
+  "shared_mapping_scenarios": [
+    "E02-I07-A",
+    "E02-I07-B",
+    "E02-I07-C",
+    "E02-I08-A",
+    "E02-I08-B",
+    "E02-I08-C",
+    "E02-I09-A",
+    "E02-I09-B"
+  ],
+  "verdict_counts": {
+    "bounded qualification": 4,
+    "retain": 17,
+    "targeted revision": 4
+  }
+}

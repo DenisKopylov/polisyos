@@ -1,0 +1,596 @@
+{
+  "packet_id": "SCM-02",
+  "lane": "LANE-05",
+  "status": "AUTHORED_PENDING_FINAL_QA",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "test_status": "NOT_RUN",
+  "audit_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "source_ids": [
+    "B215",
+    "B223"
+  ],
+  "audit_reports": [
+    "05_Основания/Аудит/02_Пакеты/SCM-02.md"
+  ],
+  "source_plan_lines": [
+    6965,
+    7059
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C58_остатки:0",
+      "audit_id": "C58-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-SCM-02-01",
+        "REQ-SCM-02-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Scale-aware factor/draw owner без абсолютного physical covariance cutoff.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C58_остатки.json",
+        "sha256": "a16b4f0e85122c0d4f4695ca4b49a0717b4b23ed8b4af059a6f6508fed37c2ef",
+        "json_pointer": "/findings/0"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C58_остатки:1",
+      "audit_id": "C58-R02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-SCM-02-03",
+        "REQ-SCM-02-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Поддержанный finite joint conditional sampling с positive oracle, не только новый warning.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C58_остатки.json",
+        "sha256": "a16b4f0e85122c0d4f4695ca4b49a0717b4b23ed8b4af059a6f6508fed37c2ef",
+        "json_pointer": "/findings/1"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C58_остатки:2",
+      "audit_id": "C58-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-SCM-02-05",
+        "REQ-SCM-02-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Actual persisted query/ensemble custody, не local JSON-only.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C58_остатки.json",
+        "sha256": "a16b4f0e85122c0d4f4695ca4b49a0717b4b23ed8b4af059a6f6508fed37c2ef",
+        "json_pointer": "/findings/2"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C58_остатки:3",
+      "audit_id": "C58-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-SCM-02-02",
+        "REQ-SCM-02-07",
+        "REQ-SCM-02-08"
+      ],
+      "shared_owner": null,
+      "rationale": "Source-bound refit отдельно закреплён здесь; fixed-model law и scientific assumptions не смешиваются.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C58_остатки.json",
+        "sha256": "a16b4f0e85122c0d4f4695ca4b49a0717b4b23ed8b4af059a6f6508fed37c2ef",
+        "json_pointer": "/findings/3"
+      }
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0340",
+      "requirement_ids": [
+        "REQ-SCM-02-01",
+        "REQ-SCM-02-02"
+      ],
+      "disposition": "fix",
+      "rationale": "Ненулевая posterior covariance сохраняет sampling.",
+      "source_ids": [
+        "B215",
+        "B223"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0341",
+      "requirement_ids": [
+        "REQ-SCM-02-03",
+        "REQ-SCM-02-04"
+      ],
+      "disposition": "fix",
+      "rationale": "Joint row conditioning вместо независимого root pin.",
+      "source_ids": [
+        "B215",
+        "B223"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0342",
+      "requirement_ids": [
+        "REQ-SCM-02-05",
+        "REQ-SCM-02-06"
+      ],
+      "disposition": "qualify",
+      "rationale": "Actual source/request/manifest/ensemble consumers.",
+      "source_ids": [
+        "B215",
+        "B223"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0343",
+      "requirement_ids": [
+        "REQ-SCM-02-07",
+        "REQ-SCM-02-08"
+      ],
+      "disposition": "qualify",
+      "rationale": "Refit actual qualification и explicit inference scope, не SCM03-by-default.",
+      "source_ids": [
+        "B215",
+        "B223"
+      ]
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0548",
+      "requirement_ids": [
+        "REQ-SCM-02-01",
+        "REQ-SCM-02-02"
+      ],
+      "test_ids": [
+        "TEST-SCM-02-01",
+        "TEST-SCM-02-03"
+      ],
+      "rationale": "Independent linear-Gaussian posterior and full factual control"
+    },
+    {
+      "inventory_id": "preserve:0549",
+      "requirement_ids": [
+        "REQ-SCM-02-03",
+        "REQ-SCM-02-08"
+      ],
+      "test_ids": [
+        "TEST-SCM-02-05"
+      ],
+      "rationale": "Explicit unsupported abduction limitations"
+    },
+    {
+      "inventory_id": "preserve:0550",
+      "requirement_ids": [
+        "REQ-SCM-02-05"
+      ],
+      "test_ids": [
+        "TEST-SCM-02-06",
+        "TEST-SCM-02-07"
+      ],
+      "rationale": "Typed distinct target/comparator and legacy normalization"
+    },
+    {
+      "inventory_id": "preserve:0551",
+      "requirement_ids": [
+        "REQ-SCM-02-02",
+        "REQ-SCM-02-05"
+      ],
+      "test_ids": [
+        "TEST-SCM-02-02",
+        "TEST-SCM-02-06"
+      ],
+      "rationale": "Shared-U ITE versus independent arm means distinction"
+    },
+    {
+      "inventory_id": "preserve:0552",
+      "requirement_ids": [
+        "REQ-SCM-02-06",
+        "REQ-SCM-02-07",
+        "REQ-SCM-02-08"
+      ],
+      "test_ids": [
+        "TEST-SCM-02-07",
+        "TEST-SCM-02-08",
+        "TEST-SCM-02-09"
+      ],
+      "rationale": "Conservative non-gating envelopes and raw provenance refusal"
+    }
+  ],
+  "requirements": [
+    {
+      "text": "Shared Gaussian draw owner сохраняет любую представимую ненулевую PSD posterior covariance при допустимой смене единиц. Абсолютный allclose-atol1e-12 не может объявлять random posterior deterministic. Rank/PSD handling выполняется в нормированных координатах с контролируемой roundoff policy; exact deterministic structure и incompatible factual evidence остаются различимыми.",
+      "source_ids": [
+        "B215"
+      ],
+      "audit_ids": [
+        "C58-R01"
+      ],
+      "id": "REQ-SCM-02-01",
+      "test_ids": [
+        "TEST-SCM-02-01",
+        "TEST-SCM-02-02",
+        "TEST-SCM-02-03"
+      ]
+    },
+    {
+      "text": "Для supported independent linear-Gaussian SCM partial factual input condition-ит совместный закон U, а не фиксирует residual по imputed parent. Один posterior draw используется в сравниваемых worlds; ненулевая marginal variance не обязана означать ненулевую ITE variance. Полный factual input сохраняет точную residual-инверсию.",
+      "source_ids": [
+        "B215"
+      ],
+      "audit_ids": [
+        "C58-R01",
+        "C58-G02"
+      ],
+      "id": "REQ-SCM-02-02",
+      "test_ids": [
+        "TEST-SCM-02-01",
+        "TEST-SCM-02-02",
+        "TEST-SCM-02-03"
+      ]
+    },
+    {
+      "text": "В declared finite aligned empirical joint-root profile factual root evidence condition-ит общий row index: выбираются только rows, совместимые со всеми observed roots данного group, с сохранением их исходных multiplicities. Нельзя выбирать unconditional row и затем перезаписывать один root. Empty compatible support — incompatible evidence; unsupported partial nonlinear evidence — явная limitation/refusal, не exact fallback.",
+      "source_ids": [
+        "B215"
+      ],
+      "audit_ids": [
+        "C58-R02"
+      ],
+      "id": "REQ-SCM-02-03",
+      "test_ids": [
+        "TEST-SCM-02-04",
+        "TEST-SCM-02-05"
+      ]
+    },
+    {
+      "text": "Conditional-row plan и evidence dependencies общие для GCM/twin и согласованы с SCM-01 relevance closure. Root observation не становится do-intervention и non-ancestor evidence не удаляется, если общий закон связывает его с outcome. Unconditional common-row sampling и genuinely exact full-parent residual сохраняются.",
+      "source_ids": [
+        "B215"
+      ],
+      "audit_ids": [
+        "C58-R02"
+      ],
+      "id": "REQ-SCM-02-04",
+      "test_ids": [
+        "TEST-SCM-02-04",
+        "TEST-SCM-02-05",
+        "TEST-SCM-02-06"
+      ]
+    },
+    {
+      "text": "Canonical typed target/comparator, observational regime и no-override sentinel сохраняются в request/result/persisted metadata. Explicit do0, natural comparator и identical arms различаются; shared-U ITE не заменяется разностью независимых arm samples. Ensemble требует совпадающие canonical arms до aggregation.",
+      "source_ids": [
+        "B223"
+      ],
+      "audit_ids": [
+        "C58-G01"
+      ],
+      "id": "REQ-SCM-02-05",
+      "test_ids": [
+        "TEST-SCM-02-06",
+        "TEST-SCM-02-07"
+      ]
+    },
+    {
+      "text": "Native selected method→CAS→fresh reader→Scientist/ensemble проверяет actual source, whole output/aliases/request, manifest versions и derived envelope. Raw DTO normalization не создаёт source provenance; partial unsupported law остаётся non-gating.",
+      "source_ids": [
+        "B215",
+        "B223"
+      ],
+      "audit_ids": [
+        "C58-G01"
+      ],
+      "id": "REQ-SCM-02-06",
+      "test_ids": [
+        "TEST-SCM-02-07"
+      ]
+    },
+    {
+      "text": "Fixed-model outcome/ITE distribution не является estimator sampling CI. Для заявленного iid refit interval реальный worker переобучает все mechanisms на каждом полном aligned row resample; interval связывает source/data/rows/graph/target/indices/fit response и читается fresh validator. Conditional individual counterfactual, undeclared iid unit или native/manual SCM не получают этот interval. Each replica target/contrast and final percentile endpoints должны совпадать с независимым finite-design oracle, а не только source-row coefficient validator или width-shrink ratio. Quantile convention и полный replica denominator фиксируются; same interval helper producer/validator не считается независимым numerical oracle.",
+      "source_ids": [
+        "B215",
+        "B223"
+      ],
+      "audit_ids": [
+        "C58-G02"
+      ],
+      "id": "REQ-SCM-02-07",
+      "test_ids": [
+        "TEST-SCM-02-08",
+        "TEST-SCM-02-09",
+        "TEST-SCM-02-10"
+      ]
+    },
+    {
+      "text": "Synthetic Gaussian/finite empirical/refit controls квалифицируют только названные laws/estimands. Causal graph correctness, scientific identification и real-data sampling assumptions имеют отдельное основание; candidate calculation остаётся полезным без автоматической authority.",
+      "source_ids": [
+        "B215",
+        "B223"
+      ],
+      "audit_ids": [
+        "C58-G02"
+      ],
+      "id": "REQ-SCM-02-08",
+      "test_ids": [
+        "TEST-SCM-02-05",
+        "TEST-SCM-02-08",
+        "TEST-SCM-02-09",
+        "TEST-SCM-02-10"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "native posterior analytic/metamorphic",
+      "setup": "X=Ux,Y=X+Uy, independent U~N(0,s²), evidenceY=2s; s=1 и1e-7; query doX0.",
+      "action": "Сравнить actual posterior с closed form mean(s,s),cov=s²[[.5,-.5],[-.5,.5]], затем4096 draws fixedseed.",
+      "oracle": "Analytic covariance согласована с relative tolerance; нормированный draw mean≈1 (abs.05),variance≈.5 (abs.06),distinct draws>1 при обоих scales. Старый allclose branch проваливает small-scale control. Непредставимый underflow не требует фиктивного noise, получает numerical-range boundary.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_scm_02.py; gcm_query.py::_draw_linear_gaussian_noises",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-SCM-02-01",
+      "requirement_ids": [
+        "REQ-SCM-02-01",
+        "REQ-SCM-02-02"
+      ]
+    },
+    {
+      "level": "native twin marginal/shared-U",
+      "setup": "Тот же partial Gaussian s1e-7, twin armsX0/Xs с общим posterior draw.",
+      "action": "Получить обе potential-outcome arrays и ITE; нормировать к s.",
+      "oracle": "Marginal variance≈.5 у обеих worlds; ITE=s с roundoff-level variance при этой additive model. Нельзя использовать deterministic ITE как oracle отсутствия stochastic marginals.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "twin_network_query.py; shared posterior draw owner",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-SCM-02-02",
+      "requirement_ids": [
+        "REQ-SCM-02-01",
+        "REQ-SCM-02-02"
+      ]
+    },
+    {
+      "level": "native singular/full-factual boundary",
+      "setup": "X=s,Y=2s full factual; deterministic zero model с incompatibleY=2s; valid rank-deficient conditioning; finite rescaling.",
+      "action": "Подготовить posterior factor один раз и выполнить draws/query.",
+      "oracle": "Full factual givesY(0)=s без добавленного искусственного jitter; incompatible evidence refused. PSD roundoff negative допускается лишь по explicit normalized relative rule, materially indefinite covariance refused. Removing absolute threshold не должно создать произвольный шум в exact branch.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "gcm_query.py::_linear_gaussian_posterior/_prepare_linear_gaussian_abduction",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-SCM-02-03",
+      "requirement_ids": [
+        "REQ-SCM-02-01",
+        "REQ-SCM-02-02"
+      ]
+    },
+    {
+      "level": "native finite joint-law distinguishing regression",
+      "setup": "Joint rows(W,Z)={(0,0),(10,1)},Y=T+W, factualZ1,doT0; second carrier duplicate rows to test empirical weights; unconditional control.",
+      "action": "Actual DTO→query и supported twin conditional path через общий row selector.",
+      "oracle": "ConditionalY10/std0, невозможная pair(0,1) никогда не создаётся; unconditional только original pairs. Для нескольких compatible rows selection frequencies сохраняют исходную multiplicity по предзаданному multinomial tolerance, не uniform по unique values. Старый pin-root путь проваливает exact support oracle.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_scm_02.py; _joint_root_sample_index/conditional companion",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-SCM-02-04",
+      "requirement_ids": [
+        "REQ-SCM-02-03",
+        "REQ-SCM-02-04"
+      ]
+    },
+    {
+      "level": "native evidence/error/limitation",
+      "setup": "EvidenceZ2 отсутствует в finite support; condition на двух roots с пустым intersection; nonlinear partial evidence вне bounded profile; full observed polynomial residual positive.",
+      "action": "Вызвать common abduction plan и обе consumers.",
+      "oracle": "Empty support адресно incompatible, не nearest-row match и не unconditional fallback. Unsupported nonlinear posterior имеет truthful limited/non-gating diagnostic, не exact_residual_fallback. Fully observed supported residual остаётся полезным. No automatic empirical identification claim.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "_fallback_residual_is_exact; _prepare_linear_gaussian_abduction; SCM-01 predictor",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-SCM-02-05",
+      "requirement_ids": [
+        "REQ-SCM-02-03",
+        "REQ-SCM-02-04",
+        "REQ-SCM-02-08"
+      ]
+    },
+    {
+      "level": "native explicit contrast laws",
+      "setup": "Y=1+3X, targetX2/comparatordo0; natural root mean4; identical arms; two declared stochastic uniform arms.",
+      "action": "Natural comparator и stochastic arms выполняются существующим GCM attribution route; public TwinNetworkQueryData проверяется отдельно только с двумя текущими float ATOMIC arms. Request→JSON result сохраняет обе arms и sharedU без расширения twin API.",
+      "oracle": "Explicit contrast6; identical arms0; natural comparator≈-6 в Monte Carlo tolerance, не0. Typed stochastic laws сохранены. Observed auxiliary root из TEST04 не вырезается structural-only closure.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_scm_02.py; causal_queries.py::CausalContrastSpec",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-SCM-02-06",
+      "requirement_ids": [
+        "REQ-SCM-02-04",
+        "REQ-SCM-02-05"
+      ]
+    },
+    {
+      "level": "native E02-I05-C custody/ensemble",
+      "setup": "Actual bound query jobs, real CAS/fresh process; valid common contrast ensemble и один foreign comparator member; current and declared legacy result profiles.",
+      "action": "Reopen typed result and reconcile whole canonical output/aliases/request; mutate arms/source/profile/diagnostics with valid new serialization.",
+      "oracle": "Valid result reaches consumer; mismatched member arms rejected before aggregation; foreign content/profile/request refused; raw legacy DTO не получает manifest provenance. Mock run_job tests отдельно labeled, genuine method job обязателен.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "scientist/nodes/builtins/causal/run_causal_queries.py; run_causal_ensemble.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-SCM-02-07",
+      "requirement_ids": [
+        "REQ-SCM-02-05",
+        "REQ-SCM-02-06"
+      ]
+    },
+    {
+      "level": "real selected refit qualification",
+      "setup": "Existing test_true_refit_sampling_interval_shrinks_predictive_distribution_does_not: n400/800,80refits,seed45,4000predictive draws; declared iid_observation_row and real locked worker.",
+      "action": "Source-bound fit→full-row resamples→actual gcm.fit каждого replica→interval→fresh validate_persisted_estimator_interval. Instrument actual fit count/indices без подмены fits.",
+      "oracle": "Все requested replicas реально refitted, aligned rows сохранены. Existing width ratio .45<ratio<.95 и predictive span ratio .8<ratio<1.2; полные результаты/denominators сохранены. Это finite synthetic qualification, не гарантированная real-data coverage.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py:491–527; workers/dowhy-014/worker.py",
+      "allowed_doubles_and_prohibitions": "Synthetic data разрешены; selected worker, resampling, fitter и validator не заменять записанными arrays. Full-worker reexecution один согласованный qualification job.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-SCM-02-08",
+      "requirement_ids": [
+        "REQ-SCM-02-07",
+        "REQ-SCM-02-08"
+      ]
+    },
+    {
+      "level": "native refit negative/target binding",
+      "setup": "Conditional individual query, missing iid declaration, manual/native_hybrid SCM, replicas19/501; genuine supported interval с altered target/indices/source/mechanisms.",
+      "action": "Запросить interval и перечитать tampered persisted interval при новом корректном payload hash.",
+      "oracle": "Unsupported estimand/unit/profile/count отказаны до дорогого refit; замены содержательных bindings отвергнуты. Valid interventional/attribution profile remains useful; posterior/ITE range не переименован estimator CI ради завершения job.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "gcm_query.py::_refit_bootstrap_interval/validate_persisted_estimator_interval",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-SCM-02-09",
+      "requirement_ids": [
+        "REQ-SCM-02-07",
+        "REQ-SCM-02-08"
+      ]
+    },
+    {
+      "id": "TEST-SCM-02-10",
+      "requirement_ids": [
+        "REQ-SCM-02-07",
+        "REQ-SCM-02-08"
+      ],
+      "level": "selected worker per-replica independent linear target and percentile oracle",
+      "setup": "Linear A→Y source rows A=(-3,-2,-1,0,1,2,3,4), Y=1+2A+r, r=(1,-1,0,1,-1,0,1,-1); declared iid_observation_row,80refits,seed45, selected actual worker. Persist exact bootstrap row indices; no filtering failed replicas. Queries E[Y|do(A=2)] and attribution do2 vs do−1.",
+      "action": "Для каждого actual resampled row corpus independent scalar sums дают beta1=sum((a−abar)(y−ybar))/sum((a−abar)²), beta0=ybar−beta1*abar. Reference intervention mean=beta0+2beta1; attribution=3beta1. Test не вызывает product target/interval helper. Sort replica estimates; q linear interpolation uses j=(R−1)q, lower=floor(j),fraction=j−lower, q=.025/.975. Compare every point and endpoints to persisted actual result/fresh validator.",
+      "oracle": "Все80 source-bound replica targets agree with independent sums within declared OLS tolerance; endpoints agree with explicit linear quantile convention. Reverse arms negates attribution and reverses interval. Constant target offset/scale, shuffled source-index pairing and wrong quantile convention mutants fail. Source rank failures recorded, not resampled until success; no blanket width monotonicity/coverage claim.",
+      "expected": "Positive actual refit numerical qualification + negative target/quantile mutants; NOT_RUN.",
+      "existing_owner": "gcm_query.py::_refit_target_estimate/_refit_interval_from_models/validate_persisted_estimator_interval; tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "allowed_doubles_and_prohibitions": "Independent test-only scalar sum oracle and observer allowed; actual selected worker full-row refits/CAS/fresh readback mandatory. No mock fit/no product target helper as oracle.",
+      "status": "NOT_RUN",
+      "evidence_required": "Complete replica index/target corpus and accepted/failed denominator; actual worker inventory, independent formulas/quantile convention. Width shrink and predictive range tests retained separately."
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I05-C"
+  ],
+  "dependencies": [
+    {
+      "packet": "SCM-01",
+      "relation": "Оригинальный predecessor; shared carrier/predictor и twin relevance closure сохраняют joint evidence dependencies."
+    },
+    {
+      "packet": "SCM-03",
+      "relation": "SCM-03 — единственный writer common closure/prepared-plan API и canonical stream coordinates; inference/refit qualification остаётся SCM-02."
+    },
+    {
+      "packet": "GRF-03",
+      "relation": "Static declared DAG/source disposition для selected fit; temporal/partial support отдельно."
+    }
+  ],
+  "preservation": [
+    "Independent linear-Gaussian posterior and full factual control",
+    "Explicit unsupported abduction limitations",
+    "Typed distinct target/comparator and legacy normalization",
+    "Shared-U ITE versus independent arm means distinction",
+    "Conservative non-gating envelopes and raw provenance refusal"
+  ],
+  "protected_distinction_ids": [],
+  "design_alignment": [
+    {
+      "source": "policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+      "section": "D0",
+      "application": "Общие dimensionless posterior и joint-row mechanisms работают для новых compatible models без branches по именам узлов; positive conditional case обязателен."
+    },
+    {
+      "source": "policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md",
+      "section": "K01/K07–K08",
+      "application": "Ни source hash, ни fixed-model distribution не заменяют scientific estimator evidence; полезный conditional result сохраняется отдельно."
+    }
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-SCM-02-PSD",
+      "question": "Какое нормированное factor representation сохраняет current public covariance contract и exact factual controls?",
+      "owner": "SCM-02 — conditional-row/PSD writer с независимым numerical reviewer",
+      "bounded_action": "Сравнить standardized-noise SVD factor с существующим covariance path на analytic2node, singular/full-factual и rescaled fixtures. Выбрать одно внутреннее representation с задокументированным epsilon/rank criterion, не внешний новый API.",
+      "default": "Никакого absolute covariance cutoff или artificial jitter; positive represented law сохраняется."
+    }
+  ],
+  "technical_solution": "**Gaussian.** Удалить shortcut `allclose(cov,0,atol=1e-12)`. Подготовить scale-normalized PSD factor один раз при abduction, переиспользовать draws. Предпочтительно оперировать стандартизованными structural noises и observation map: rank-revealing SVD/QR задаёт observed/null subspaces, а posterior factor переносится обратно в физические units. Если сохраняется covariance API, нормировать её согласованными noise scales, symmetrize, проверять negative eigenvalues относительно norm/epsilon и факторизовать положительную часть. Не отбрасывать положительные eigenvalues только потому, что они малы в физических units. Deterministic branch подтверждается нулевым structural factor, а не absolute magnitude. Не добавлять jitter как замену научно нулевой дисперсии. Сохранить explicit incompatible-evidence check, проверить его rescaling вместе с factor.\n\n**Empirical roots.** Для существующего aligned carrier group вычислить compatible row indices по всем factual root observations. В bounded finite discrete profile сравнение exact declared values, без nearest-match bandwidth. Выбирать общий index из этого списка с исходной multiplicity и использовать во всех связанных roots/обеих worlds. Empty intersection — incompatible evidence; descendant/nonlinear evidence требует собственного posterior и не притворяется root filter. Admission diagnostic exact только когда весь relevant evidence действительно покрыт этим rule/fully observed residual. Условия и selected carrier identity участвуют в request/result lineage. Unknown joint dependencies не заменять independence.\n\n**Refit.** Existing `_refit_bootstrap_interval`→`_fit_gcm_specs`→worker.gcm_fit уже resamples полные rows и возвращает каждую fitted model. Требуется actual qualification, не новая bootstrap архитектура. Выполнить source-bound positive и target/indices mutation controls; зафиксировать distinction n predictive draws vs n iid units vs n refits. General counterfactual posterior и real-study sampling validity не закрываются ростом Monte Carlo count.\n\n**v2 / CS-005:** сохранить real aligned full-row refits, source-row OLS validation и existing n400/800 shrink diagnostic. Дополнить независимый target/quantile audit на маленьком linear SCM: gcm_query validator повторно использует _refit_interval_from_models, поэтому сам не обнаруживает общую target aggregation ошибку. Новый test не обещает coverage и не заменяет iid row bootstrap другим law.",
+  "compatibility_and_rollback": "Small-scale posterior и conditional empirical result намеренно меняются с ошибочных deterministic/unconditional на declared conditional law. Сохранять historical bytes и явный computational profile/seed provenance; если replay draws изменились, не обещать bitwise historical reproduction. Current typed arms/legacy normalization сохраняются. Unsupported profile ограничивается адресно, а не блокирует все partial SCM.",
+  "source_locators": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "first_line": 788,
+      "last_line": 1015,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py#L788-L1015"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "first_line": 1069,
+      "last_line": 1163,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py#L1069-L1163"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "first_line": 1371,
+      "last_line": 1489,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py#L1371-L1489"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "first_line": 458,
+      "last_line": 507,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py#L458-L507"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/worker.py",
+      "first_line": 220,
+      "last_line": 245,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/workers/dowhy-014/worker.py#L220-L245"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "first_line": 491,
+      "last_line": 527,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py#L491-L527"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py",
+      "first_line": 657,
+      "last_line": 680,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py#L657-L680"
+    }
+  ],
+  "technical_review_revision": {
+    "version": "PROPOSED_v2",
+    "finding_ids": [
+      "CS-005"
+    ],
+    "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+    "product_test_status": "NOT_RUN",
+    "new_test_ids": [
+      "TEST-SCM-02-10"
+    ],
+    "compatibility": "Original source/residual/preservation mappings retained; added requirement-test edges are local companion evidence until aggregate map owner review."
+  }
+}

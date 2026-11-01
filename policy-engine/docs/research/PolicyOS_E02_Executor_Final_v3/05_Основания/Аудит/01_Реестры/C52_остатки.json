@@ -1,0 +1,96 @@
+{
+  "pass": "C52",
+  "bundle": "CAU-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C52-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "high",
+      "confidence": "high_bounded_reproduction",
+      "source_ids": [
+        "B205"
+      ],
+      "title": "Уникальный NaN cluster ID считается кластером, но его score полностью теряется",
+      "location": [
+        "S02:128–134",
+        "S01:212–265",
+        "S01:405–410"
+      ],
+      "evidence": [
+        "P09",
+        "S01:223–226",
+        "bounded_run.log"
+      ],
+      "reproduction": "Actual PanelObservationalData принимает unit_ids=[NaN,1,2,3]. _unit_cluster_ids считает 4 unique labels; _ols_cluster_cr0 использует cluster_ids == cluster, поэтому NaN group имеет пустую mask. Четыре observations первого unit не входят ни в один score. Тот же результат при explicit per-unit cluster_var. ATT=3.125 сохраняется; actual typed SUCCESS report содержит n_clusters=4 и SE≈0.5077524002897 вместо correct all-unit CR0≈0.5659615711336. Независимый unit-change oracle подтверждает ровно пропущенный вклад.",
+      "remaining": "На canonical unit-cluster admission определить допустимые identity labels и полноту partition; missing/non-reflexive label должен получить точный отказ либо явную корректную normalization, а не потерю rows. Проверить каждый observation принадлежит ровно одному cluster и reported count равен исполнившемуся grouping. Сохранить нормальные string/int labels, CR0 и replication invariance.",
+      "limits": "Конкретный finite synthetic panel; не утверждается prevalence в production, размер ошибки на реальных данных или обход downstream authority. Native installed chain не исполнялась; report validator настоящий AST, envelope constructor fixture. Severity обусловлена незаметным искажением uncertainty при SUCCESS, не установленной policy publication."
+    },
+    {
+      "id": "C52-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B204",
+        "B205",
+        "B206",
+        "LA-016"
+      ],
+      "title": "Native registry/report/CAS и независимый statsmodels reference остаются неисполненными",
+      "evidence": [
+        "S09",
+        "S10",
+        "S11",
+        "S12",
+        "native_attempt.log",
+        "native_did_import.log",
+        "statsmodels_import.log"
+      ],
+      "remaining": "В поддержанной среде исполнить существующие focused/native/consumer suites, statsmodels HC1/CR0 checks и persisted report→fresh consumer. Изолированная алгебра не заменяет dependency/registry/ABI qualification.",
+      "limits": "12 MATCH и 16 bodies — exact AST с явными seams. Pytest/statsmodels отсутствуют; Python 3.14 syntax не исполняется под Python 3.12. No installs/checkout edits."
+    },
+    {
+      "id": "C52-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B204",
+        "B205",
+        "B206"
+      ],
+      "title": "Честный asymptotic профиль не устанавливает causal identification или finite-cluster coverage",
+      "evidence": [
+        "S01:268–320",
+        "S01:444–472",
+        "S05:541–550",
+        "S05:645–705",
+        "P02",
+        "P04",
+        "P06",
+        "P11"
+      ],
+      "remaining": "Для реального дизайна отдельно проверить parallel trends/anticipation/independent unit basis и пригодность covariance/normal asymptotics. Сохранять not_testable/nonrejection/violation и candidate/non-gating status; при необходимости использовать обоснованную finite-cluster процедуру существующего owner.",
+      "limits": "CR0 явно uncorrected; method_params признаёт large_independent_units и finite_cluster_guarantee=False. 4-unit fixture — algebraic control, не coverage study. SUCCESS численный, не causal authority; правильный quantile не чинит чужие estimator/bias assumptions."
+    },
+    {
+      "id": "C52-G03",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-016"
+      ],
+      "title": "Metadata separation и old-slot standard equivalence не закрывают всё migration window",
+      "evidence": [
+        "S01:43–56",
+        "S01:1014–1288",
+        "S07:817–1000",
+        "P01",
+        "P10"
+      ],
+      "remaining": "Сохранить independent constants/copies и supported direct old adapter. Staggered effective request квалифицировать в CAU-02, прекращение old planning registration/FQN replay — у accountable CAU-05. Не удалять did.py или helpers по факту deprecation.",
+      "limits": "В C52 проверен standard old/dedicated путь; registry/signature/registration пропущены в AST. Финальная LA-016 closure здесь не заявляется."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C52-R01"
+  ],
+  "decision": "No-pre, covariance strategy и caller confidence-level исходные дефекты исправлены на проверенном standard профиле; metadata отвязаны. Остался конкретный cluster-label partition дефект. Native/coverage/migration gaps открыты."
+}

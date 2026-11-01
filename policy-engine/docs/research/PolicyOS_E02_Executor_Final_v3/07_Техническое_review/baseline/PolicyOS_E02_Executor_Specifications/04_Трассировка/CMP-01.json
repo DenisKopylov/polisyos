@@ -1,0 +1,235 @@
+{
+  "packet_id": "CMP-01",
+  "lane": "LANE-04",
+  "source_ids": [
+    "B42",
+    "B43",
+    "B44"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/CMP-01.md",
+    "../05_Основания/Аудит/01_Реестры/C42_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C42-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CMP-01-01",
+        "REQ-CMP-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Native imports и actual composer/dispatcher/runner вместо registry/materializer fixtures.",
+      "inventory_id": "audit-residual:C42_остатки:0"
+    },
+    {
+      "audit_id": "C42-G02",
+      "disposition": "capability",
+      "requirement_ids": [
+        "REQ-CMP-01-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Найти и исполнить существующий persisted recipe→fresh compiler путь; если полного восстановления нет, узко дополнить существующий artifact/compiler owner, не только запустить старый тест.",
+      "inventory_id": "audit-residual:C42_остатки:1"
+    },
+    {
+      "audit_id": "C42-G03",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CMP-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Ray/fused JAX/heterogeneous profiles аттестуются отдельно по реальному activation; equivalent copied merge не defect сам по себе.",
+      "inventory_id": "audit-residual:C42_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-CMP-01-01",
+      "text": "Fresh P-CORE процессы с двумя import order получают рабочий async wrapper и actual built chain. B.requires(A) без data-flow создаёт levels[A,C]→[B] с независимым C; cycle и missing requirement STRICT отказаны до dispatch. Internal import failure сохраняет причину, следующий вызов после устранения transient failure не permanently unavailable. Running event loop получает actionable await-route error для sync wrapper.",
+      "source_ids": [
+        "B42",
+        "B43"
+      ],
+      "audit_ids": [
+        "C42-G01"
+      ],
+      "test_ids": [
+        "TEST-CMP-01-01"
+      ]
+    },
+    {
+      "id": "REQ-CMP-01-02",
+      "text": "Persisted ChainArtifact/method-reference route в новом процессе восстанавливает или независимо recomputes у MethodComposer occurrence identities, requires-only adjacency, authored parameters, validation mode и parallel levels перед actual execution. Выполнить bounded inventory всех producers/loaders/callers; выбрать существующий route, если он достаточен. Если recipe не содержит достаточного основания и такого route нет, добавить минимальное versioned recipe/projection или loader у существующего owner, затем replay validation; не считать один execution_order доказательством dependencies. Edge-removal/unknown-context control отказан до dispatch.",
+      "source_ids": [
+        "B43"
+      ],
+      "audit_ids": [
+        "C42-G02"
+      ],
+      "test_ids": [
+        "TEST-CMP-01-02"
+      ]
+    },
+    {
+      "id": "REQ-CMP-01-03",
+      "text": "Actual MethodNode static window20, dynamic scale2 и per-call scale3 дают одинаковый полный payload/results sequential/async без повторного window override; seed не превращается в undeclared user parameter. Unknown authored/runtime parameter отказан. Ray/fused JAX/heterogeneous route получает отдельный native evidence либо явный NOT_QUALIFIED, не блокируя рабочий sequential; при изменении Ray merge использовать общий builder, сохраняя precedence.",
+      "source_ids": [
+        "B44"
+      ],
+      "audit_ids": [
+        "C42-G01",
+        "C42-G03"
+      ],
+      "test_ids": [
+        "TEST-CMP-01-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-CMP-01-01",
+      "requirement_ids": [
+        "REQ-CMP-01-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Два fresh native child imports chain-first/async-first; настоящий MethodRegistry. Начальный state={sentinel:7}; A возвращает {value:state[sentinel]+5}, B читает committed state[value] и возвращает {answer:state[value]*3}; C пишет независимое поле. B.requires(A), input_slots пусты как в существующем native regression, явных data-flow bindings нет; shared state merge публикует value до B.",
+      "action": "composer.add B before A,C→build→freeze→execute modes; barrier A/C; cycles; injected internal import failure then recovery.",
+      "oracle": "Answer36; A/C barrier одновременно достижим, B после A; data edges0 не стирают requires. Cycle/missingSTRICT до dispatch count0; internal cause виден, repeat succeeds, no module latch. OFF остаётся explicit limitation, не semantic approval.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-CMP-01-02",
+      "requirement_ids": [
+        "REQ-CMP-01-02"
+      ],
+      "level": "actual artifact producer → CAS → fresh process compiler → executor",
+      "setup": "Та же цепочка, real method artifacts и persisted recipe; discard in-memory chain/registry cache, заново resolve accepted refs.",
+      "action": "Восстановить через discovered route; сравнить adjacency/occurrence/mode/params; удалить requires edge либо изменить signature/context в отрицательной копии.",
+      "oracle": "Native fresh result/levels совпадают с исходным authored plan; removed edge/ABI/context mismatch отказ до dispatcher. Если отсутствует route, acceptance только после минимальной owner extension и actual fresh consumer, не после документации missing field.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-CMP-01-03",
+      "requirement_ids": [
+        "REQ-CMP-01-03"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Native dispatcher/runner, method с static default7, authored20 и dynamic2; optional supported profiles list.",
+      "action": "Run sequential/async без params_map, override scale3, затем window30/scale4; unknown override; activate supported optional route separately.",
+      "oracle": "40/60/120 по соответствующим inputs и equal payloads; отсутствие static regression контроль даёт14/21 и тест падает. Unknown refused; backend unavailable честно ограничен. Optional numeric parity не scientific method validation.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I04-A",
+    "E02-I04-B"
+  ],
+  "dependencies": [],
+  "preservation": [
+    "MethodComposer единственный effective DAG owner; ordering-only requires не data-flow; sibling остаётся parallel.",
+    "Sequential/async используют общий static→dynamic→override payload и separate seed dispatcher argument.",
+    "Local deferred async imports, honest internal failure и отсутствие permanent unavailable latch.",
+    "Current validation replay gate и ChainArtifact method refs/recipe остаются; recipe не объявляется executable plan автоматически."
+  ],
+  "design_alignment": [
+    "Persisted executable meaning должно быть воспроизводимо у текущего compiler owner; stored warning/mode не issuer authority.",
+    "Один effective plan позволяет новым compatible methods подключаться без case-specific scheduling ветвей."
+  ],
+  "open_decisions": [
+    "G02 обязательный выход: таблица actual persisted route и PASS witness, либо минимальный versioned owner patch с тем же witness; blanket 'нужно исследовать' не приёмка.",
+    "Optional backend список фиксируется по actual runtime/lock; отсутствующие environments остаются NOT_RUN без установки."
+  ],
+  "source_obligations": [
+    "B42: оба fresh import order, actual wrapper и правильная internal import diagnostic; missing optional backend не blanket unavailable.",
+    "B43: build→freeze→execute и persisted current owner восстановление требует requires adjacency/occurrences/mode/levels; цикл/edge removal отказ до dispatch.",
+    "B44: authored static values без повторного override достигают consumer; unknown parameter отказан. Optional backend qualification не блокирует исправный sequential профиль."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/foundry/methods/components/composer.py: MethodComposer._requirement_edges, CompositionDAG.freeze, reconcile_validation_context",
+    "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py: _build_node_param_payload, _validate_compiled_execution_plan, execute_heterogeneous_chain_async",
+    "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py: AsyncChainExecutor",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py: ChainArtifact.from_chain",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/parts.py: chain artifact persistence",
+    "policy-engine/src/polisyos/foundry/methods/backends/ray_chain_executor.py: effective-level/payload consumer"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_cmp_01.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0103",
+      "requirement_ids": [
+        "REQ-CMP-01-01",
+        "REQ-CMP-01-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native imports и actual composer/dispatcher/runner вместо registry/materializer fixtures."
+    },
+    {
+      "inventory_id": "remaining:0104",
+      "requirement_ids": [
+        "REQ-CMP-01-02"
+      ],
+      "disposition": "capability",
+      "rationale": "Найти и исполнить существующий persisted recipe→fresh compiler путь; если полного восстановления нет, узко дополнить существующий artifact/compiler owner, не только запустить старый тест."
+    },
+    {
+      "inventory_id": "remaining:0105",
+      "requirement_ids": [
+        "REQ-CMP-01-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Ray/fused JAX/heterogeneous profiles аттестуются отдельно по реальному activation; equivalent copied merge не defect сам по себе."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0134",
+      "requirement_ids": [
+        "REQ-CMP-01-01",
+        "REQ-CMP-01-02"
+      ],
+      "test_ids": [
+        "TEST-CMP-01-01",
+        "TEST-CMP-01-02"
+      ],
+      "rationale": "Existing composer/effective DAG — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0135",
+      "requirement_ids": [
+        "REQ-CMP-01-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-01-03"
+      ],
+      "rationale": "Shared local payload owner — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0136",
+      "requirement_ids": [
+        "REQ-CMP-01-01"
+      ],
+      "test_ids": [
+        "TEST-CMP-01-01"
+      ],
+      "rationale": "Lazy imports and honest failures — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0137",
+      "requirement_ids": [
+        "REQ-CMP-01-02"
+      ],
+      "test_ids": [
+        "TEST-CMP-01-02"
+      ],
+      "rationale": "Existing compiler replay and recipe artifacts — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

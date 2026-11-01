@@ -1,0 +1,231 @@
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/transfer_context.py:352-409
+  352 def resolve_transfer_context(
+  353     *,
+  354     candidate: Any | None = None,
+  355     context: Mapping[str, Any] | TransferContext | None = None,
+  356     transfer_context: TransferContext | None = None,
+  357     task_family: str | None = None,
+  358     domain: str | None = None,
+  359     run_id: str | None = None,
+  360     fallback_run_id: str | None = None,
+  361     cross_tenant_opt_in: bool | None = None,
+  362     tenant_hash: str | None = None,
+  363     tenant_hash_is_explicit: bool = False,
+  364 ) -> TransferContext:
+  365     """Resolve scope after reconciling every supplied declaration.
+  366 
+  367     Defaults on typed contexts remain fallback values, not declarations: only
+  368     model_fields_set participates in conflict detection. Mapping keys, explicit
+  369     keyword values, and set fields on typed contexts are reconciled before a
+  370     selected context or candidate fallback can influence the result. `fallback_run_id`
+  371     supplies a run identity only when no declaration exists; it never competes with one.
+  372     """
+  373 
+  374     def refuse(reason: TransferScopeRefusalReason) -> None:
+  375         raise TransferScopeRefusedError(
+  376             [make_transfer_scope_refusal(Path("current-request-scope"), reason)]
+  377         )
+  378 
+  379     def validated_typed(value: object) -> TransferContext:
+  380         if not isinstance(value, TransferContext):
+  381             refuse(TransferScopeRefusalReason.INVALID_REQUEST_SCOPE)
+  382         try:
+  383             return TransferContext.model_validate(value.model_dump(mode="python"))
+  384         except (ValidationError, TypeError, ValueError):
+  385             refuse(TransferScopeRefusalReason.INVALID_REQUEST_SCOPE)
+  386 
+  387     def validated_nested_mapping(value: object) -> tuple[TransferContext, set[str]]:
+  388         if not isinstance(value, Mapping) or any(not isinstance(key, str) for key in value):
+  389             refuse(TransferScopeRefusalReason.INVALID_REQUEST_SCOPE)
+  390         raw = dict(value)
+  391         if not {"task_family", "domain", "run_id"} <= raw.keys():
+  392             refuse(TransferScopeRefusalReason.INVALID_REQUEST_SCOPE)
+  393         try:
+  394             model = TransferContext.model_validate(raw)
+  395         except (ValidationError, TypeError, ValueError):
+  396             refuse(TransferScopeRefusalReason.INVALID_REQUEST_SCOPE)
+  397         return model, set(raw)
+  398 
+  399     def parsed_value(field_name: str, value: object) -> object:
+  400         if field_name in {"task_family", "domain", "run_id"}:
+  401             if not isinstance(value, str) or not value.strip():
+  402                 refuse(TransferScopeRefusalReason.INVALID_REQUEST_SCOPE)
+  403             return value
+  404         if field_name == "tenant_hash":
+  405             if value is not None and (not isinstance(value, str) or not value.strip()):
+  406                 refuse(TransferScopeRefusalReason.INVALID_REQUEST_SCOPE)
+  407             return value
+  408         if field_name == "tenant_scope_status":
+  409             try:
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/transfer_context.py:308-349
+  308 def compute_provenance_weight(
+  309     source: TransferContext,
+  310     target: TransferContext,
+  311     *,
+  312     created_at: datetime | None = None,
+  313     policy: TransferPolicy | None = None,
+  314 ) -> float:
+  315     """Weight transferred knowledge by scope distance and age."""
+  316 
+  317     active_policy = policy or TransferPolicy()
+  318     if source.task_family != target.task_family:
+  319         return 0.0
+  320 
+  321     if source.tenant_scope_status is not target.tenant_scope_status:
+  322         return 0.0
+  323     same_scope = source.tenant_hash == target.tenant_hash
+  324     same_domain = source.domain == target.domain
+  325 
+  326     if same_scope and same_domain:
+  327         base = 1.0
+  328     elif same_scope and active_policy.allow_cross_domain:
+  329         base = 0.65
+  330     elif (
+  331         active_policy.allow_cross_tenant
+  332         and active_policy.allow_cross_domain
+  333         and target.cross_tenant_opt_in
+  334         and source.tenant_scope_status is TransferTenantScopeStatus.AUTHENTICATED
+  335         and target.tenant_scope_status is TransferTenantScopeStatus.AUTHENTICATED
+  336     ):
+  337         base = 0.35
+  338     else:
+  339         return 0.0
+  340 
+  341     if created_at is None:
+  342         return base
+  343 
+  344     age = max(timedelta(), target.timestamp - created_at)
+  345     if age > timedelta(days=active_policy.ttl_days * 2):
+  346         return 0.0
+  347     if age > timedelta(days=active_policy.ttl_days):
+  348         return base * 0.5
+  349     return base
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/lessons.py:872-907
+  872     def top_patterns(
+  873         self,
+  874         limit: int = 5,
+  875         *,
+  876         context: TransferContext | None = None,
+  877     ) -> list[LessonPattern]:
+  878         snapshot = self.index_snapshot(context=context)
+  879         patterns: list[LessonPattern] = []
+  880         for entry in self._sorted_entries(snapshot):
+  881             if entry.invalidated:
+  882                 continue
+  883             patterns.append(
+  884                 LessonPattern(
+  885                     lesson_id=entry.lesson_id,
+  886                     artifact_ref=entry.artifact_ref,
+  887                     occurrence_count=entry.occurrence_count,
+  888                     kind=entry.kind,
+  889                     summary=entry.summary,
+  890                     failure_type=entry.failure_type,
+  891                     stage_name=entry.stage_name,
+  892                     fidelity_level=entry.fidelity_level,
+  893                     confidence=entry.confidence,
+  894                     trust_level=entry.trust_level,
+  895                     task_family=entry.task_family,
+  896                     domain=entry.domain,
+  897                     origin_tenant_scope_status=entry.origin_tenant_scope_status,
+  898                     provenance_weight=entry.provenance_weight,
+  899                     tags=list(entry.tags),
+  900                     remediation_hint=entry.remediation_hint,
+  901                     last_seen=entry.last_seen,
+  902                     last_accessed_at=entry.last_accessed_at,
+  903                 )
+  904             )
+  905             if len(patterns) >= limit:
+  906                 break
+  907         return patterns
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/lessons.py:784-870
+  784     def materialize_transfer(
+  785         self,
+  786         card: LessonCard,
+  787         *,
+  788         target_context: TransferContext,
+  789         query: LessonQuery | None = None,
+  790         policy: TransferPolicy | None = None,
+  791     ) -> LessonCard | None:
+  792         # Source provenance is verified from the stored source record; it is not
+  793         # an additional declaration of the destination TransferContext.
+  794         target_context = resolve_transfer_context(transfer_context=target_context)
+  795         active_policy = policy or self._transfer_policy
+  796         source_binding = self._verified_source_binding_for_card(card)
+  797         if source_binding is None:
+  798             raise TransferScopeRefusedError(
+  799                 [
+  800                     _scope_refusal(
+  801                         Path(card.lesson_id), TransferScopeRefusalReason.SOURCE_BINDING_MISSING
+  802                     )
+  803                 ]
+  804             )
+  805         source_scope, source_entry = source_binding
+  806         source_context = source_scope.context(run_id=card.origin_run_id or card.source_run_id)
+  807         effective_card = self._materialize_query_card(
+  808             source_entry,
+  809             now=datetime.now(UTC),
+  810             source_context=source_context,
+  811             ttl_days=active_policy.ttl_days,
+  812         )
+  813         # A caller may present an already-demoted candidate; never raise it.
+  814         effective_card = effective_card.model_copy(
+  815             update={
+  816                 "confidence": min(effective_card.confidence, card.confidence),
+  817                 "trust_level": (
+  818                     LessonTrustLevel.LOW_CONFIDENCE
+  819                     if card.trust_level is LessonTrustLevel.LOW_CONFIDENCE
+  820                     else effective_card.trust_level
+  821                 ),
+  822             }
+  823         )
+  824         weight = compute_provenance_weight(
+  825             source_context,
+  826             target_context,
+  827             created_at=self._evidence_anchor(source_entry, effective_card),
+  828             policy=active_policy,
+  829         )
+  830         if weight <= 0.0:
+  831             return None
+  832         if query is not None and not self._revalidate_transfer(
+  833             effective_card,
+  834             query,
+  835             target_context=target_context,
+  836         ):
+  837             return None
+  838 
+  839         transfer_hop = build_transfer_hop(
+  840             source_context,
+  841             target_context,
+  842             provenance_weight=weight,
+  843         )
+  844         materialized = self._normalize_card(
+  845             effective_card.model_copy(
+  846                 update={
+  847                     "lesson_id": uuid4().hex,
+  848                     "task_family": target_context.task_family,
+  849                     "domain": target_context.domain,
+  850                     "trust_level": (
+  851                         LessonTrustLevel.TRANSFERRED
+  852                         if weight >= 0.5
+  853                         and effective_card.trust_level is not LessonTrustLevel.LOW_CONFIDENCE
+  854                         else LessonTrustLevel.LOW_CONFIDENCE
+  855                     ),
+  856                     "provenance_weight": weight,
+  857                     "last_accessed_at": target_context.timestamp,
+  858                     "transfer_chain": [*card.transfer_chain, transfer_hop],
+  859                     "metadata": {
+  860                         **card.metadata,
+  861                         "materialized_transfer": True,
+  862                     },
+  863                 }
+  864             ),
+  865             resolved_context=target_context,
+  866         )
+  867         if query is not None and not self._matches_materialized_transfer(materialized, query):
+  868             return None
+  869         self.record_local(materialized, context=target_context)
+  870         return materialized

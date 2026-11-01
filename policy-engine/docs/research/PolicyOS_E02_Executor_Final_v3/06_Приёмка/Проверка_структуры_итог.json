@@ -1,0 +1,18 @@
+{
+  "kind": "executor_spec_structure_traceability_only",
+  "product_execution": "NOT_RUN",
+  "substantive_quality": "REQUIRES_REVIEW_NOT_PROVEN_BY_SCRIPT",
+  "final_mode": true,
+  "counts": {
+    "packets": 127,
+    "expected": 127,
+    "requirements": 606,
+    "tests": 613,
+    "source_ids": 282
+  },
+  "missing_packets": [],
+  "errors": [],
+  "warnings": [],
+  "unresolved_local_links": [],
+  "status": "PASS"
+}

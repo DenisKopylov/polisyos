@@ -1,0 +1,202 @@
+{
+  "source_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "C07-S01",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "blob_sha_reported_by_connector": "635cf3bee84da0fc4b33b89c7e8747abd0c32c65",
+      "read_ranges": [
+        [
+          150,
+          285
+        ],
+        [
+          2300,
+          2600
+        ],
+        [
+          2590,
+          2750
+        ]
+      ],
+      "role": "Requested/effective budget, source-derived children, exact graph and actual recursive call",
+      "verification_level": "pinned source read; native UNRUN",
+      "urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py#L150-L285",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py#L2300-L2600",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py#L2590-L2750"
+      ]
+    },
+    {
+      "id": "C07-S02",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "blob_sha_reported_by_connector": "9761de868301e6fb90e69cd03aa3270b9a8187aa",
+      "read_ranges": [
+        [
+          495,
+          525
+        ],
+        [
+          19590,
+          19752
+        ]
+      ],
+      "role": "Complete terminal map and producer stop/abstain projections",
+      "verification_level": "source read; isolated transcribed branch probes; project DTO UNRUN",
+      "urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L495-L525",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L19590-L19752"
+      ]
+    },
+    {
+      "id": "C07-S03",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "blob_sha_reported_by_connector": "9761de868301e6fb90e69cd03aa3270b9a8187aa",
+      "read_ranges": [
+        [
+          8400,
+          8820
+        ],
+        [
+          14790,
+          14935
+        ],
+        [
+          15195,
+          15590
+        ]
+      ],
+      "role": "Run/safety cap, post-loop identity and N9 refusal, history/candidate/current validators",
+      "verification_level": "pinned source read; native UNRUN",
+      "urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L8400-L8820",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L14790-L14935",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L15195-L15590"
+      ]
+    },
+    {
+      "id": "C07-S04",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "blob_sha_reported_by_connector": "9761de868301e6fb90e69cd03aa3270b9a8187aa",
+      "read_ranges": [
+        [
+          2800,
+          3140
+        ],
+        [
+          20040,
+          20410
+        ]
+      ],
+      "role": "Legacy direct AST census versus explicit non-authoritative source inspector",
+      "verification_level": "source read; old direct-census transcription over tiny files; new inspector not executed",
+      "urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L2800-L3140",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L20040-L20410"
+      ]
+    },
+    {
+      "id": "C07-S05",
+      "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+      "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "blob_sha_reported_by_connector": "47e3c2e777a0390f764967c7859c8319f600d2a6",
+      "read_ranges": [
+        [
+          800,
+          1080
+        ],
+        [
+          5430,
+          5680
+        ],
+        [
+          5700,
+          5840
+        ]
+      ],
+      "role": "Existing loaded identity owner; unconditional packaged UNRUN; currentness and source-bound authority checks",
+      "verification_level": "source read; decision transcription with injected identity; actual owner not imported",
+      "urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/confidence_ledger.py#L800-L1080",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/confidence_ledger.py#L5430-L5680",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/confidence_ledger.py#L5700-L5840"
+      ]
+    },
+    {
+      "id": "C07-S06",
+      "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "blob_sha_reported_by_connector": "eaa0eb558d3e195dc4107bb2d771df20de29b03e",
+      "read_ranges": [
+        [
+          1,
+          285
+        ],
+        [
+          1470,
+          1780
+        ]
+      ],
+      "role": "Explicit recursion budget; child bindings; hypothetical alternatives are not authored compound policy",
+      "verification_level": "pinned source read; native UNRUN",
+      "urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py#L1-L285",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py#L1470-L1780"
+      ]
+    },
+    {
+      "id": "C07-S07",
+      "path": "policy-engine/tests/unit/remediation/test_cyc_05.py",
+      "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "blob_sha_reported_by_connector": "c0659464f870a6aabcbe17d43ddbc9de36f96779",
+      "read_ranges": [
+        [
+          1,
+          340
+        ],
+        [
+          340,
+          740
+        ],
+        [
+          740,
+          825
+        ]
+      ],
+      "role": "Existing missing/parse/source tests, proposal-only budget progress, fixture two-child numerical parent and negatives",
+      "verification_level": "full test-source read; all native tests UNRUN",
+      "urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_cyc_05.py#L1-L340",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_cyc_05.py#L340-L740",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_cyc_05.py#L740-L825"
+      ]
+    },
+    {
+      "id": "C07-S08",
+      "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+      "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "blob_sha_reported_by_connector": "89ed30f691ccd34a30297bbd3f922656672358a0",
+      "read_ranges": [
+        [
+          560,
+          635
+        ],
+        [
+          760,
+          1120
+        ]
+      ],
+      "role": "Stronger two-meaningful-child POST/worker/N5/GET test; controlled recorded source",
+      "verification_level": "bounded test-source read; fixture preparation not fully reaudited; native UNRUN",
+      "urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py#L560-L635",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py#L760-L1120"
+      ]
+    }
+  ],
+  "qualification": "Connector-reported blob IDs are locators, not independently recomputed full-file hashes. Executable audit snippets are transcriptions, not a repository checkout. Search hits are locators, not a complete consumer census."
+}

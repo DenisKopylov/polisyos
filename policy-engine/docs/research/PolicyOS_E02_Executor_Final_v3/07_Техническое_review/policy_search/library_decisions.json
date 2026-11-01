@@ -1,0 +1,531 @@
+{
+  "schema_version": 1,
+  "checked_date": "2026-11-01",
+  "status": "PRIMARY_SOURCE_REVIEW_COMPLETE_NATIVE_EXECUTION_NOT_RUN",
+  "decisions": [
+    {
+      "id": "PS-L01",
+      "topic": "GP posterior и continuation",
+      "packets": [
+        "OPT-03",
+        "TRN-01",
+        "OPT-02"
+      ],
+      "current_owner_and_dependencies": "Existing BayesianOptimizer + BoTorch0.16.1/GPyTorch1.15.1/Torch2.10.0, NumPy2.3.5 oracle",
+      "decision": "RETAIN existing GP stack; отдельно измерения/модель по PS-F02",
+      "alternatives": [
+        "Собственный GP solver",
+        "Full refit каждого шага",
+        "Existing condition_on_observations с periodic declared refit"
+      ],
+      "rationale": "Нынешний реальный witness проверяет learned RBF/ConstantMean, transforms, latent posterior и UCB независимо через NumPy Cholesky. Это существенно сильнее сравнения двух calls одного backend. Сохранять state_dict/transform replay и atomic staged restore; fit fingerprint не приравнивать measurement validity.",
+      "cost_and_complexity": "Exact GP dense factorization обычно O(n^3) time/O(n^2) memory; cap512 — уже declared ограничение, не научная достаточность. Conditioning снижает некоторые повторные затраты, не означает бесплатное обучение hyperparameters. Считать fit/condition отдельно.",
+      "version_backend_os_compatibility": "search_bo/search_mo optional; research/all не включают их автоматически. Torch native cp314 wheels в lock для отдельных OS/arch; actual install/runtime не проверен. GPU не обязателен tiny CPU witness.",
+      "qualification": "Сохранить actual 8→9→12 и removal mutations; posterior tolerance profile explicit. Свежий процесс, не только новый объект; exception fallback bounded и source truthful.",
+      "sources": [
+        {
+          "url": "https://botorch.readthedocs.io/en/v0.16.1/models.html",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "SingleTaskGP(train_X, train_Y, train_Yvar), condition_on_observations, MixedSingleTaskGP",
+          "locked_applicability": "Точно locked BoTorch 0.16.1; observation data и состояние proposer GP — разные сущности"
+        }
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "id": "PS-L02",
+      "topic": "Acquisition numerics и шумовая модель",
+      "packets": [
+        "OPT-02",
+        "OPT-03",
+        "STP-01"
+      ],
+      "current_owner_and_dependencies": "bayesian.py1014 qExpectedImprovement,1548 ExpectedImprovement; existing dependency уже содержит log variants",
+      "decision": "TARGETED EXPERIMENT: предложить versioned LogEI/qLogEI profile; не молчаливую замену и не обещание universal speedup",
+      "alternatives": [
+        "Retain EI для backward replay",
+        "LogEI/qLogEI из pinned BoTorch",
+        "qLogNEI только для обоснованного noisy objective profile"
+      ],
+      "rationale": "Документация pinned release рекомендует log formulations из-за numerical behavior. Текущий defaultEI может давать плоские/underflow acquisition gradients на некоторых landscapes; это риск, не измеренный здесь production failure. qNEI имеет другой baseline-noise смысл, поэтому его нельзя выбирать только как «более новый».",
+      "cost_and_complexity": "Одинаковые evaluation/optimizer restarts/raw-sample budgets сравнить на заранее заданном tiny suite, включая finite mixed domain и small-variance tail. log acquisition value не сопоставим со старым EI value; rank/metadata version обязателен.",
+      "version_backend_os_compatibility": "Новых dependencies не требуется; imports через existing _deps optional owner. Старые serialized acquisition identifiers replay по старому profile, не переинтерпретировать.",
+      "qualification": "Independent analytical tail/rank cases; actual proposal validity и duplicate controls; held-out objective families без tuning after reveal; finite outputs/gradients и spend, не одно better-best score. Noise variance source должен быть измеренный/declared, не fabricated.",
+      "sources": [
+        {
+          "url": "https://botorch.readthedocs.io/en/v0.16.1/acquisition.html",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "ExpectedImprovement/qExpectedImprovement рекомендуют Log-варианты; qNEI учитывает uncertain baseline; X_pending",
+          "locked_applicability": "Точно locked API; семантика логарифма acquisition требует версии/metadata, шумовой профиль требует отдельной квалификации"
+        },
+        {
+          "url": "https://arxiv.org/abs/2310.20708",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "Ament et al., Unexpected Improvements to Expected Improvement for Bayesian Optimization",
+          "locked_applicability": "Первичная работа о численных ограничениях EI; не обещание ускорения именно нашего workload"
+        }
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "id": "PS-L03",
+      "topic": "Finite/mixed search и duplicate avoidance",
+      "packets": [
+        "OPT-02"
+      ],
+      "current_owner_and_dependencies": "SearchSpace normalization/denormalization owner + existing random/Sobol/BoTorch",
+      "decision": "RETAIN SearchSpace; use pinned optimize_acqf_discrete only within bounded finite profile",
+      "alternatives": [
+        "Bounded random resampling",
+        "Small exact enumeration + existing discrete acquisition",
+        "Mixed optimization for typed categories/integers"
+      ],
+      "rationale": "Domain identity остаётся приложением: solver X_pending/unique не знают model basis, alias semantics и independent replicas. Tiny enumeration даёт genuine exhaustion; large continuous enumeration невозможно. MixedSingleTaskGP может быть полезен при доказанной categorical geometry, но необязателен для duplicate repair.",
+      "cost_and_complexity": "O(cardinality) feasible choices допустим только до заранее заданного resource cap; X_avoid materialization bounded. После20 unsuccessful draws сообщать search-budget limit, не математическую пустоту.",
+      "version_backend_os_compatibility": "Pinned BoTorch0.16.1 supports unique/X_avoid; random/Sobol path остаётся полезным без backend. Ни one-hot aliases, ни relaxed rounded proposal не являются final execution coordinate.",
+      "qualification": "PS-F03 exact/near-exhaustion matrices, all branches and completed/pending history; explicit replica basis. Изменить размер finite domain без case-ID code.",
+      "sources": [
+        {
+          "url": "https://botorch.readthedocs.io/en/v0.16.1/optim.html",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "optimize_acqf_discrete: choices, unique, X_avoid; mixed/discrete alternatives",
+          "locked_applicability": "Точно locked API, optional search_bo; не заменяет domain effective identity и provenance"
+        },
+        {
+          "url": "https://botorch.readthedocs.io/en/v0.16.1/models.html",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "SingleTaskGP(train_X, train_Y, train_Yvar), condition_on_observations, MixedSingleTaskGP",
+          "locked_applicability": "Точно locked BoTorch 0.16.1; observation data и состояние proposer GP — разные сущности"
+        }
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "id": "PS-L04",
+      "topic": "Sobol continuation без квадратичного prefix replay",
+      "packets": [
+        "CTL-02",
+        "OPT-02"
+      ],
+      "current_owner_and_dependencies": "SciPy1.16.3 qmc.Sobol through existing SearchSpace",
+      "decision": "RETAIN SciPy; incremental owner/cursor и bounded restore",
+      "alternatives": [
+        "Заново вычислять prefix до cursor каждый suggest",
+        "Сохранять versioned seed/cursor и fast_forward/rebuild once",
+        "Собственный QMC generator"
+      ],
+      "rationale": "Выбранное исправление CTL-02 правильно: не менять deterministic sequence при восстановлении и не повторять весь prefix на каждом шаге. SciPy покрывает direction numbers/scrambling; свой generator не оправдан. random_base2 полезен только для совместимого batch profile.",
+      "cost_and_complexity": "Repeated prefix1+…+N даёт quadratic generated points; incremental generation linear в количестве новых точек, restore cost отдельно. Cursor и work bounds валидировать до allocation.",
+      "version_backend_os_compatibility": "SciPy1.16 minor уже содержит rng migration; не смешивать seed/rng profiles в старом snapshot. Arbitrary n, skip/thinning не имеют того же balance guarantee, что power-of-two construction.",
+      "qualification": "Exact next-point whole/split/fresh-reader equality и malformed state no-mutation; не проверять «QMC quality» лишь по конечным0..1 bounds.",
+      "sources": [
+        {
+          "url": "https://docs.scipy.org/doc/scipy-1.16.0/reference/generated/scipy.stats.qmc.Sobol.html",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "random_base2, random, fast_forward, предупреждение о balance при произвольном n/skip/thinning",
+          "locked_applicability": "Locked SciPy 1.16.3, rng transition уже применим; сохранять exact continuation, не заявлять arbitrary-prefix QMC balance"
+        }
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "id": "PS-L05",
+      "topic": "Калибровочная статистика: определения прежде библиотеки",
+      "packets": [
+        "FUN-03"
+      ],
+      "current_owner_and_dependencies": "CorrelationTracker + существующий Spearman average ties, SciPy1.16.3 already locked",
+      "decision": "REVISE metric/sampling contract; existing SciPy binomtest/proportion_ci only for suitable declared design",
+      "alternatives": [
+        "Сохранить owner Spearman с independent oracle",
+        "Использовать scipy.stats для проверяемой interval/rank calculation",
+        "Добавить sklearn только ради confusion ratios"
+      ],
+      "rationale": "Основные ошибки PS-F01/07 — selection и denominator semantics, а не отсутствие библиотеки. Для четырёх confusion counts stdlib проще. SciPy exact interval полезен при валидном Bernoulli sampling; сам API не доказывает representative corpus. sklearn можно использовать как secondary oracle в optional profile, не увеличивать core dependency ради деления.",
+      "cost_and_complexity": "Window processing O(n), bounded corpus. Audit label cost обычно важнее CPU статистики; уже существующий burn-in включить в total stage-B budget. Power выводится из tolerance/risk/design, не magic minimum5.",
+      "version_backend_os_compatibility": "SciPy1.16.3 соответствует1.16 docs; sklearn1.8 optional, current docs нужны только для определения recall. No network/live traffic required for software fixture.",
+      "qualification": "Zero/constant/ties, all confusion cells, mixed cohorts, snapshot migration и both score carriers. Population guarantee только при объявленных assumptions; writer permission отдельно.",
+      "sources": [
+        {
+          "url": "https://docs.scipy.org/doc/scipy-1.16.0/reference/generated/scipy.stats.binomtest.html",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "binomtest: число успехов k в n Bernoulli trials; proportion_ci",
+          "locked_applicability": "SciPy 1.16.3 уже locked; применимость iid Bernoulli должна следовать из sampling contract, не из наличия API"
+        },
+        {
+          "url": "https://docs.scipy.org/doc/scipy-1.16.1/reference/generated/scipy.stats._result_classes.BinomTestResult.proportion_ci.html",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "exact / wilson / wilsoncc interval methods",
+          "locked_applicability": "API той же minor 1.16; точный interval не устраняет selective labels или зависимость наблюдений"
+        },
+        {
+          "url": "https://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "Recall = TP/(TP+FN)",
+          "locked_applicability": "Используется определение, не предложение добавить sklearn в core; locked sklearn 1.8.0 optional ml, current docs могут быть новее"
+        }
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "id": "PS-L06",
+      "topic": "Pareto и hypervolume",
+      "packets": [
+        "OPT-01"
+      ],
+      "current_owner_and_dependencies": "Existing fast skyline/2D union + locked pymoo0.6.1.6; BoTorch multiobjective owner already exists",
+      "decision": "RETAIN delivered OPT-01 design; exact>2D only if consumer needs it",
+      "alternatives": [
+        "Labelled bounding-box upper-bound diagnostic",
+        "pymoo.indicators.hv.HV/moocore for bounded dimensions",
+        "Existing BoTorch partitioner",
+        "Собственный general exact algorithm"
+      ],
+      "rationale": "Исходное ТЗ уже даёт proxy≠exact counterexample и actual ranking consumer: это не новая находка. Для нового exact3D capability библиотека уже есть. Не менять работающий skyline или2D ради унификации; independent slow oracle остаётся правильным test tool.",
+      "cost_and_complexity": "Dominance/skyline и HV — разные задачи. HV complexity быстро растёт с dimension/frontsize; bound input envelope. Fixed reference часть objective schema; dynamic reference не даёт comparable progress.",
+      "version_backend_os_compatibility": "pymoo0.6.1.6 base locked, cp314 wheel entries присутствуют. Pinned HV source delegates moocore; actual installed native compatibility не исполнена. Explicit max/min sign mapping.",
+      "qualification": "Сохранить delivered3D1000≠28, добавить A/B rank reversal28<64 при желании; duplicates/dominated points/ref changes/unit scale; actual registry consumer, не только helper.",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/anyoptimization/pymoo/0.6.1.6/pymoo/indicators/hv/__init__.py",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "Hypervolume delegates to moocore; explicit reference point",
+          "locked_applicability": "Точно locked pymoo 0.6.1.6, уже base dependency; не добавлять второй MO framework"
+        }
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "id": "PS-L07",
+      "topic": "HNSW concurrency, portable source и native rebuild",
+      "packets": [
+        "TRN-02",
+        "TRN-01"
+      ],
+      "current_owner_and_dependencies": "hnswlib0.8.0 + vector_memory RLock/_Generation, portable JSON+NPZ",
+      "decision": "RETAIN; не заменять сервисом и не снимать locks ради latency",
+      "alternatives": [
+        "Existing native HNSW bounded profile",
+        "Exact vector scan как tiny independent test oracle",
+        "Remote vector DB или другой native ANN backend без workload evidence"
+      ],
+      "rationale": "Pinned README согласуется с single mutation/publication owner: add/query нельзя считать одновременно safe. Approximate retrieval не admission: совместимость, tenant и exact selected ref проверяет текущий owner. Default отказ external native graph остаётся правильным; переносимые rows позволяют rebuild.",
+      "cost_and_complexity": "Filter refill bounded, не exhaustive recall. Python callbacks/GIL могут менять throughput; tiny test не stress. Cache32MiB — payload retention, не общий RSS. Snapshot-per-add уже измеряется по ТЗ; batch generation только после доказанной потребности (рассмотренный PS-F06).",
+      "version_backend_os_compatibility": "Lock имеет hnswlib0.8 только sdist: не заявлять Python3.14 wheel или runtime qualification. save/load ef требуется profile restore; cosine get_items normalized, не байт-в-байт исходные vectors.",
+      "qualification": "Actual native partial mutation then fail + rollback/poison, fresh portable process, top2 incompatible/third compatible within sufficient scan budget; record native build/runtime. Нет installs в этом review.",
+      "sources": [
+        {
+          "url": "https://github.com/nmslib/hnswlib/blob/v0.8.0/README.md",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "Python API thread safety, save/load ef, filter GIL, cosine get_items normalization",
+          "locked_applicability": "Точно locked hnswlib 0.8.0; lock содержит только sdist, native Python 3.14 qualification NOT_RUN"
+        }
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "id": "PS-L08",
+      "topic": "Малые owned snapshots и atomic restore",
+      "packets": [
+        "CTL-01",
+        "CTL-02",
+        "SRV-01",
+        "OPT-01",
+        "FUN-02"
+      ],
+      "current_owner_and_dependencies": "Dataclass/Pydantic2.12.5, stdlib copies/locks; existing owner transactions",
+      "decision": "RETAIN staged validation and one commit; validate after parsing raw subject",
+      "alternatives": [
+        "Selective deep copy immutable contract leaves",
+        "Whole-service deepcopy",
+        "Frozen DTO/model_copy как единственная защита",
+        "Новый generic transaction framework"
+      ],
+      "rationale": "Pydantic model_copy(update=...) не проверяет update; frozen не делает вложенный mutable dict immutable. Поэтому snapshot config/schema мал, отделён от live services и валидируется owner. Полный deepcopy datasets/services дорогостоящ и семантически неверен. Existing prepared delta лучше нового framework.",
+      "cost_and_complexity": "Копировать bounded config/DTO, не datasets; staging nativeGP/index memory учитывать отдельно. Callbacks/preparation outside lock, final current-state commit under one serialization predicate.",
+      "version_backend_os_compatibility": "Точно pinned Pydantic2.12.5 source; Python3.14 semantics. Snapshot compatibility и unknown fields отдельно: permissive parse не означает признанный current schema.",
+      "qualification": "Caller alias mutation, failed validation/backend restore, retained old snapshot; одновременно model/RNG/counters не меняются при failure. Fresh reader required, not only frozen marker.",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/pydantic/pydantic/v2.12.5/pydantic/main.py",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "model_copy update не валидируется, deep=False по умолчанию; model_construct trusted input",
+          "locked_applicability": "Точно locked 2.12.5; нужны owner validation и owned snapshots, не доверие frozen/model_copy"
+        }
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "id": "PS-L09",
+      "topic": "Local champion publication и locking",
+      "packets": [
+        "OPT-04"
+      ],
+      "current_owner_and_dependencies": "Existing POSIX flock stable lockfile + atomic pointer replacement",
+      "decision": "RETAIN local POSIX profile; no distributed coordinator for this patch",
+      "alternatives": [
+        "Stable lock + same-filesystem replace",
+        "Versioned CAS DB compare-and-swap для будущего distributed scope",
+        "Thread-only lock или replace без read-modify-write serialization"
+      ],
+      "rationale": "Один lock вокруг basis/check/compare/publish устраняет lost update в local multiprocess profile; thread lock недостаточен. os.replace даёт atomic visibility, но не весь transaction/durability. Новый distributed lock нужен только при реальном multi-host writer scope.",
+      "cost_and_complexity": "Малый pointer/write critical section, expensive evaluation outside lock. Утилита filelock transitive не автоматически даёт нужный fence/durability contract. Stable lock inode, не заменяемый pointer inode.",
+      "version_backend_os_compatibility": "Python3.14 fcntl Unix-only; локальный FS в заявленном profile. Windows/NFS/SMB не обещать; если crash durability заявлена, fsync file+directory и crash fixture отдельно.",
+      "qualification": "Two-process barriers, stale basis, revoke/permit не смешивать с champion policy act, fresh pointer reader, finite objective/source bound.",
+      "sources": [
+        {
+          "url": "https://docs.python.org/3.14/library/os.html#os.replace",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "os.replace atomic successful rename on POSIX; same filesystem boundary",
+          "locked_applicability": "Точно Python 3.14 contract; атомарная видимость не равна fsync durability"
+        },
+        {
+          "url": "https://docs.python.org/3.14/library/fcntl.html",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "flock LOCK_EX / LOCK_UN, Unix availability",
+          "locked_applicability": "Поддержанный local POSIX profile; не обещать Windows/network filesystem semantics"
+        }
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "id": "PS-L10",
+      "topic": "Непрерывная численная семантика и dtype",
+      "packets": [
+        "SIM-02",
+        "SIM-03",
+        "STP-01",
+        "FUN-02"
+      ],
+      "current_owner_and_dependencies": "NumPy/SciPy/JAX existing numerical owners, Python math",
+      "decision": "RETAIN existing kernels with finite-aware boundaries; no generic arbitrary precision engine",
+      "alternatives": [
+        "math.frexp/ldexp/fsum and scale-safe reductions",
+        "Naive float sum/products",
+        "Decimal/Fraction только small independent oracle",
+        "Поменять весь simulator на новый backend"
+      ],
+      "rationale": "Typed metric endpoint/units/horizon checks важнее blanket numerical library swap. Integer NCM oracle хорош и exact в float64; scale cases нуждаются в derived numerical tolerance, не удобном epsilon. frexp ratio может избегать intermediate overflow, но настоящий unrepresentable result остаётся unavailable.",
+      "cost_and_complexity": "Не копировать целые runtime trees; owned path/token update лучше deepcopy wholemodel. NaN/Inf checks O(n) неизбежны на admitted arrays. Small independent Fraction/Decimal oracle не production engine.",
+      "version_backend_os_compatibility": "Python3.14 math; NumPy2.3.5; JAX0.8.2 defaultdtype нельзя принимать за64. x64 profile задавать до native computation, фактический dtype assert. Torch double profile отдельно.",
+      "qualification": "Finite endpoints/diffs/mean/SE, n1/constant/overflow, negative list indices vs dictionary keys, temporal aggregation contract. PS-F04 actual noise variation; numerical precision не causal evidence.",
+      "sources": [
+        {
+          "url": "https://docs.python.org/3.14/library/math.html#math.fsum",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "fsum, frexp/ldexp, isfinite",
+          "locked_applicability": "Stdlib; stable sums не оправдывают clipping overflow или loss of units"
+        },
+        {
+          "url": "https://docs.jax.dev/en/latest/101/arrays.html",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "JAX default 32-bit; explicit x64 enablement",
+          "locked_applicability": "Locked JAX/jaxlib 0.8.2, current docs применены только к давнему dtype contract; actual backend NOT_RUN"
+        }
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "id": "PS-L11",
+      "topic": "State-machine/property tests как дополнение actual lane witness",
+      "packets": [
+        "CTL-01",
+        "CTL-02",
+        "SRV-01",
+        "SRV-03",
+        "FUN-01",
+        "TRN-03"
+      ],
+      "current_owner_and_dependencies": "pytest9.0.2 + hypothesis6.151.2 already locked",
+      "decision": "USE existing Hypothesis for short model-based sequences; retain native integration tests",
+      "alternatives": [
+        "Handwritten scenario only",
+        "RuleBasedStateMachine against simple independent reference",
+        "Mock all producers and assert DTO shape"
+      ],
+      "rationale": "lifecycle/attempt/pending/restore/expiry имеют комбинаторные interleavings. State machine полезна для последовательностей ask→tell→cancel→snapshot→restore; oracle должен быть простой отдельной моделью, не вызывать проверяемый owner для expected result. Она не заменяет native numerical/source/authority bridge.",
+      "cost_and_complexity": "Bound examples/steps fixture-work budget; seeds/repro artifacts сохранять. Concurrency race требует deterministic barriers, не flaky sleep. Shrinking помогает диагностике, но покрытие не универсальная гарантия.",
+      "version_backend_os_compatibility": "Current primary docs newer than lock, используется longstanding API, no upgrade required. NativeGP/HNSW jobs координируются по одному heavy slot.",
+      "qualification": "Mutants always-refuse, stale acceptance, double tell, callbacks under lock, history edits, restored clock rejuvenation должны различаться. Не всё превращать в giant e2e; shared test covers only explicit claims.",
+      "sources": [
+        {
+          "url": "https://hypothesis.readthedocs.io/en/latest/stateful.html",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "RuleBasedStateMachine generated sequences",
+          "locked_applicability": "Locked 6.151.2; current docs новее, использовать давно существующий API, не заявлять проверку новых функций"
+        }
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "id": "PS-L12",
+      "topic": "Generic policy contracts вместо нового orchestration/NLP engine",
+      "packets": [
+        "CYC-01",
+        "REQ-01",
+        "CYC-03",
+        "ACQ-01",
+        "CYC-04",
+        "CYC-05",
+        "SIM-01",
+        "SEL-01"
+      ],
+      "current_owner_and_dependencies": "Existing compiler→requirements→planner→model producer→N5/CAS→consumer owners",
+      "decision": "RETAIN composable existing owners; do not add framework for this repair",
+      "alternatives": [
+        "Targeted normalizer/resolver/census and source bridge",
+        "Case-ID branches for accepted fixtures",
+        "One universal workflow/model engine"
+      ],
+      "rationale": "Прочитанный код и пакетные solutions правильно локализуют alias normalization, context wiring, missing required vector, budget fallback и reusable basis. Здесь библиотека не решает measurement semantics или authority. Growth означает новый совместимый ресурс через contract, не запрет любого нового semantics code.",
+      "cost_and_complexity": "One shared mechanism per concern снижает duplicated validation и stale projections; caches numerical immutable, gates current. Cost counts actual acquisition/evaluator/native work, не synthetic dollar values.",
+      "version_backend_os_compatibility": "Repo Python3.14/Node22/pnpm10.33.2 baseline не требует frontend или orchestration migration. Dependency upgrade без observed issue не предлагается.",
+      "qualification": "Materially different frozen holdout resource; no case-ID branching; raw construct ambiguity addressed DEC; actual positive producer/readback and fresh gates. Architecture source and exact code ranges in coverage; external library source не нужен для вывода retain-domain-API.",
+      "sources": [],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "id": "PS-L13",
+      "topic": "Детерминированный normal quantile вместо вспомогательного Monte Carlo",
+      "packets": [
+        "SIM-03"
+      ],
+      "current_owner_and_dependencies": "NCMEngineMethod.pure_step1099–1118; NumPy global100000 draws на каждый вызов",
+      "decision": "REPLACE narrow quantile implementation with qualified stdlib NormalDist.inv_cdf or existing SciPy norm.isf",
+      "alternatives": [
+        "Current random percentile approximation",
+        "stdlib inverse normal lower tail",
+        "existing SciPy inverse survival function"
+      ],
+      "rationale": "Стандартный normal quantile не требует Monte Carlo. Seeded model draws и summary quantile — разные задачи; supporting quantile не должен мутировать ambient RNG или добавлять100000 draws. Интервал при этом не становится автоматически статистически квалифицированным.",
+      "cost_and_complexity": "Вместо O(100000) auxiliary sample allocation/generation/percentile на каждый call — scalar deterministic quantile. Source-level saved work доказуем, latency/memory benefit измеряется отдельно. При N5 n_samples1 overhead особенно бессмыслен.",
+      "version_backend_os_compatibility": "Python3.14 stdlib доступен; SciPy1.16.3 уже locked. Stable lower-tail -inv_cdf((1-c)/2) либо isf((1-c)/2); finite0<c<1 до model execution. Не применять новое backend/runtime installation.",
+      "qualification": "PS-F08 actual native method, ambient RNG unchanged, same-seed numerical CI replay, no extra quantile draws и near1 boundary. Singleton/ddof0 contract отдельно ограничить DEC-SIM-03-02, paired endpoint сохранить. Проверить0.50/0.80/0.95/0.99, near1 и tiny positive против independent erfc/reference; constant1.96 не проходит. При interval unavailability сохранить mean/trajectory/n через согласованную projection, не blanket отказ.",
+      "sources": [
+        {
+          "url": "https://docs.python.org/3.14/library/statistics.html#statistics.NormalDist.inv_cdf",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "NormalDist.inv_cdf: deterministic inverse normal CDF",
+          "locked_applicability": "Точный Python3.14 stdlib; не новая dependency. Floating-point quantile, не обещание exact real arithmetic или interval coverage"
+        },
+        {
+          "url": "https://docs.scipy.org/doc/scipy-1.16.0/reference/generated/scipy.stats.norm.html",
+          "checked_date": "2026-11-01",
+          "section_or_observation": "norm.ppf/isf deterministic inverse CDF/survival function",
+          "locked_applicability": "Locked SciPy1.16.3 уже есть; stable lower-tail/isf form избегает округления upper probability к1"
+        }
+      ],
+      "product_tests": "NOT_RUN"
+    }
+  ],
+  "sources": {
+    "binom": {
+      "url": "https://docs.scipy.org/doc/scipy-1.16.0/reference/generated/scipy.stats.binomtest.html",
+      "checked_date": "2026-11-01",
+      "section_or_observation": "binomtest: число успехов k в n Bernoulli trials; proportion_ci",
+      "locked_applicability": "SciPy 1.16.3 уже locked; применимость iid Bernoulli должна следовать из sampling contract, не из наличия API"
+    },
+    "binom_ci": {
+      "url": "https://docs.scipy.org/doc/scipy-1.16.1/reference/generated/scipy.stats._result_classes.BinomTestResult.proportion_ci.html",
+      "checked_date": "2026-11-01",
+      "section_or_observation": "exact / wilson / wilsoncc interval methods",
+      "locked_applicability": "API той же minor 1.16; точный interval не устраняет selective labels или зависимость наблюдений"
+    },
+    "recall": {
+      "url": "https://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html",
+      "checked_date": "2026-11-01",
+      "section_or_observation": "Recall = TP/(TP+FN)",
+      "locked_applicability": "Используется определение, не предложение добавить sklearn в core; locked sklearn 1.8.0 optional ml, current docs могут быть новее"
+    },
+    "gp": {
+      "url": "https://botorch.readthedocs.io/en/v0.16.1/models.html",
+      "checked_date": "2026-11-01",
+      "section_or_observation": "SingleTaskGP(train_X, train_Y, train_Yvar), condition_on_observations, MixedSingleTaskGP",
+      "locked_applicability": "Точно locked BoTorch 0.16.1; observation data и состояние proposer GP — разные сущности"
+    },
+    "discrete": {
+      "url": "https://botorch.readthedocs.io/en/v0.16.1/optim.html",
+      "checked_date": "2026-11-01",
+      "section_or_observation": "optimize_acqf_discrete: choices, unique, X_avoid; mixed/discrete alternatives",
+      "locked_applicability": "Точно locked API, optional search_bo; не заменяет domain effective identity и provenance"
+    },
+    "acq": {
+      "url": "https://botorch.readthedocs.io/en/v0.16.1/acquisition.html",
+      "checked_date": "2026-11-01",
+      "section_or_observation": "ExpectedImprovement/qExpectedImprovement рекомендуют Log-варианты; qNEI учитывает uncertain baseline; X_pending",
+      "locked_applicability": "Точно locked API; семантика логарифма acquisition требует версии/metadata, шумовой профиль требует отдельной квалификации"
+    },
+    "logei_paper": {
+      "url": "https://arxiv.org/abs/2310.20708",
+      "checked_date": "2026-11-01",
+      "section_or_observation": "Ament et al., Unexpected Improvements to Expected Improvement for Bayesian Optimization",
+      "locked_applicability": "Первичная работа о численных ограничениях EI; не обещание ускорения именно нашего workload"
+    },
+    "sobol": {
+      "url": "https://docs.scipy.org/doc/scipy-1.16.0/reference/generated/scipy.stats.qmc.Sobol.html",
+      "checked_date": "2026-11-01",
+      "section_or_observation": "random_base2, random, fast_forward, предупреждение о balance при произвольном n/skip/thinning",
+      "locked_applicability": "Locked SciPy 1.16.3, rng transition уже применим; сохранять exact continuation, не заявлять arbitrary-prefix QMC balance"
+    },
+    "hnsw": {
+      "url": "https://github.com/nmslib/hnswlib/blob/v0.8.0/README.md",
+      "checked_date": "2026-11-01",
+      "section_or_observation": "Python API thread safety, save/load ef, filter GIL, cosine get_items normalization",
+      "locked_applicability": "Точно locked hnswlib 0.8.0; lock содержит только sdist, native Python 3.14 qualification NOT_RUN"
+    },
+    "hv": {
+      "url": "https://raw.githubusercontent.com/anyoptimization/pymoo/0.6.1.6/pymoo/indicators/hv/__init__.py",
+      "checked_date": "2026-11-01",
+      "section_or_observation": "Hypervolume delegates to moocore; explicit reference point",
+      "locked_applicability": "Точно locked pymoo 0.6.1.6, уже base dependency; не добавлять второй MO framework"
+    },
+    "os": {
+      "url": "https://docs.python.org/3.14/library/os.html#os.replace",
+      "checked_date": "2026-11-01",
+      "section_or_observation": "os.replace atomic successful rename on POSIX; same filesystem boundary",
+      "locked_applicability": "Точно Python 3.14 contract; атомарная видимость не равна fsync durability"
+    },
+    "flock": {
+      "url": "https://docs.python.org/3.14/library/fcntl.html",
+      "checked_date": "2026-11-01",
+      "section_or_observation": "flock LOCK_EX / LOCK_UN, Unix availability",
+      "locked_applicability": "Поддержанный local POSIX profile; не обещать Windows/network filesystem semantics"
+    },
+    "math": {
+      "url": "https://docs.python.org/3.14/library/math.html#math.fsum",
+      "checked_date": "2026-11-01",
+      "section_or_observation": "fsum, frexp/ldexp, isfinite",
+      "locked_applicability": "Stdlib; stable sums не оправдывают clipping overflow или loss of units"
+    },
+    "pydantic": {
+      "url": "https://raw.githubusercontent.com/pydantic/pydantic/v2.12.5/pydantic/main.py",
+      "checked_date": "2026-11-01",
+      "section_or_observation": "model_copy update не валидируется, deep=False по умолчанию; model_construct trusted input",
+      "locked_applicability": "Точно locked 2.12.5; нужны owner validation и owned snapshots, не доверие frozen/model_copy"
+    },
+    "hypothesis": {
+      "url": "https://hypothesis.readthedocs.io/en/latest/stateful.html",
+      "checked_date": "2026-11-01",
+      "section_or_observation": "RuleBasedStateMachine generated sequences",
+      "locked_applicability": "Locked 6.151.2; current docs новее, использовать давно существующий API, не заявлять проверку новых функций"
+    },
+    "jax": {
+      "url": "https://docs.jax.dev/en/latest/101/arrays.html",
+      "checked_date": "2026-11-01",
+      "section_or_observation": "JAX default 32-bit; explicit x64 enablement",
+      "locked_applicability": "Locked JAX/jaxlib 0.8.2, current docs применены только к давнему dtype contract; actual backend NOT_RUN"
+    },
+    "normaldist": {
+      "url": "https://docs.python.org/3.14/library/statistics.html#statistics.NormalDist.inv_cdf",
+      "checked_date": "2026-11-01",
+      "section_or_observation": "NormalDist.inv_cdf: deterministic inverse normal CDF",
+      "locked_applicability": "Точный Python3.14 stdlib; не новая dependency. Floating-point quantile, не обещание exact real arithmetic или interval coverage"
+    },
+    "normal_scipy": {
+      "url": "https://docs.scipy.org/doc/scipy-1.16.0/reference/generated/scipy.stats.norm.html",
+      "checked_date": "2026-11-01",
+      "section_or_observation": "norm.ppf/isf deterministic inverse CDF/survival function",
+      "locked_applicability": "Locked SciPy1.16.3 уже есть; stable lower-tail/isf form избегает округления upper probability к1"
+    }
+  }
+}

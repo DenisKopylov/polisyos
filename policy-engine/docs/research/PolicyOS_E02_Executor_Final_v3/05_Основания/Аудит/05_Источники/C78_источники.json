@@ -1,0 +1,388 @@
+{
+  "pass_id": "C78",
+  "bundle": "CAN-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/common/canonical.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/canonical.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1074
+        ]
+      ],
+      "evidence_level": "Полный shared encoder/decoder, version dispatch, spec admission, carriers и bounded snapshot прочитаны. Actual native module без stubs исполнен в codec corpus.",
+      "git_blob": "f946e0d182729f120800f253b20f1c60f6d0d71f",
+      "sha256": "84dafbfed8852efdab14727600ce17dd1bb29783c614216c069adafb2448090c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/common/canonical_profile.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/canonical_profile.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          456
+        ]
+      ],
+      "evidence_level": "Полный общий profile parser, same-byte bridge и proof-marker/value boundary прочитаны и исполнены.",
+      "git_blob": "91bb8ffa982f9cf76683546932ee4304f42361d2",
+      "sha256": "7fdcd41b3b415441214893e76c6c0ec6b461f920b8d1ddf106b7f67ce975f85a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/common/hashing.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/hashing.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          118
+        ]
+      ],
+      "evidence_level": "Полный raw hash owner прочитан; native SHA256/BLAKE2/SHA1 warning, streaming и truncation checks.",
+      "git_blob": "696c4fde5d733e242275aebfa1bc9c86c3163c76",
+      "sha256": "c5b6e883821a3e11c11c361cd2aebec80002095304b7ed7592d7ca77be299c5d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/canon/canon_json.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          161
+        ]
+      ],
+      "evidence_level": "Полный Core facade прочитан и native module исполнен. Core tag-policy и conformance gate настоящие.",
+      "git_blob": "1ac08b27c4aaca38b902ec26e81c95619ce45da1",
+      "sha256": "896418d1b5b76637c052d128f1f6efabe36704142d0d151422d85791ba8f8b76",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/core/canon/hashing.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/canon/hashing.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          99
+        ]
+      ],
+      "evidence_level": "Полный Core hash facade прочитан и native исполнен; structured fingerprint идёт через actual encoder.",
+      "git_blob": "91bc6aa047647a95346a06a9e423c36d827af4d2",
+      "sha256": "cedb873bdcc2970493498af29fd35145d5fa05c641f30e54c7352664d03b2e8d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/core/canon/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/canon/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          33
+        ]
+      ],
+      "evidence_level": "Полный публичный export surface прочитан; current unchanged facade regression исполнен.",
+      "git_blob": "80e9d6f236225e48a733ebbe65fc0c95fae56954",
+      "sha256": "e07283aba023e34aa41f9c0e0c1b90b9ed512eb63a06576000e8c3403a423888",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          151
+        ]
+      ],
+      "evidence_level": "Полный IR facade прочитан и native исполнен. Старые Core-only tags не стали IR-native tags.",
+      "git_blob": "1693c1e53ad20dbecfbdc6e0fa5ffc7f9bdd9eca",
+      "sha256": "bc029b5984492623d3286954b367657828a6b5860571c72f073925e000726436",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/ir/model_layer/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/model_layer/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          37
+        ]
+      ],
+      "evidence_level": "Полный lazy package facade прочитан; свежий native IR IO import не загрузил ни одного Core module.",
+      "git_blob": "de7bd12fa5bd86f801657ca83a7d81d72e44d28a",
+      "sha256": "713f5c055de97ab858c5586e26d05c0e57e657543d89925ce45f100941615e34",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/artifacts/io.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          114
+        ],
+        [
+          386,
+          514
+        ],
+        [
+          631,
+          786
+        ],
+        [
+          1432,
+          1458
+        ]
+      ],
+      "evidence_level": "Прочитаны полный generic put/get и profile helpers, imported contracts и explicit owned-callback codec fence. Native whole module import; actual generic writer/reader над собственным persisted storage fixture. Остальной owned lifecycle не аттестован.",
+      "git_blob": "25114ae94a0e0db8310060237e4cfb3d60e36cc9",
+      "sha256": "93bc59240493a1d8d75b2b3c2d5e4461555c88538c0cc2976c5e6426a7274160",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/artifacts/contracts.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          254,
+          281
+        ]
+      ],
+      "evidence_level": "Полный CanonInfo contract/from_spec прочитан и native actual class использован; остальные imports не равны полному ручному чтению contracts.",
+      "git_blob": "96399f4df54d51ab1e832d5d340d547da513d4c0",
+      "sha256": "e90869b1ae2ed3b0d3693e91c9542c35ccfe96e154168a32ec336d6cccc29841",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          64
+        ],
+        [
+          523,
+          662
+        ],
+        [
+          1351,
+          1400
+        ],
+        [
+          1912,
+          1998
+        ]
+      ],
+      "evidence_level": "Прочитаны complete selected unbounded reader/manifest bridge/spec helpers и decode dispatcher. Whole actual module исполнен за artifacts initializer shell. Bounded owner receipts/typed model lifecycle целиком здесь не проверяются.",
+      "git_blob": "fff4427c59fc56b4fff229cb2d97ec2a2fa9d824",
+      "sha256": "6985a7fded1fa635017fd3a8db603353feb8803847e45c4e285ed414cfa79bdc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          71
+        ]
+      ],
+      "evidence_level": "Actual CanonInfo прочитан и whole manifest module imported за initializer shell. Не замена модели fixture.",
+      "git_blob": "f1b3372d9e209cf823bacf7dc38eecd76b6780bb",
+      "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          235,
+          245
+        ]
+      ],
+      "evidence_level": "Два public profile delegates прочитаны; exact artifact_manifest_profile_sha256 function extracted unchanged и связан с actual ManifestLifecycle. Whole heavy initializer не выполнен.",
+      "git_blob": "cd56c3d72091bd42efe0c1e40ef922f2dc000379",
+      "sha256": "81c423202e396199b19a6bba6fa2293fba0b02618560e1b046b12e04e04c04d6",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/tests/unit/remediation/test_can_01.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_can_01.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          216
+        ]
+      ],
+      "evidence_level": "Полный characterization прочитан. 9 unchanged bodies / 19 cases:17 PASS,2 FAIL сохранены; pytest helper, не native pytest.",
+      "git_blob": "d4cb77099597b0888b4a68c065ff2ca74dc9a222",
+      "sha256": "68ca756cdd6999d91b5fe89835fdef7071258ee8849a75213cdd4b283f9668e3",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/tests/unit/common/test_canonical_v3.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/common/test_canonical_v3.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          694
+        ]
+      ],
+      "evidence_level": "Полный corpus прочитан.33 unchanged bodies/98 cases PASS с actual native codec modules и временными monkeypatch helpers.",
+      "git_blob": "106b4f4e59253d0d9ace31c5a371113b411b692a",
+      "sha256": "85a3432e61053a8c84e03a46a6174eb55de514d76a9d5ebd9e0bba127137e149",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/tests/unit/common/test_canonical_profile.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/common/test_canonical_profile.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          269
+        ]
+      ],
+      "evidence_level": "Полный corpus прочитан.10 unchanged bodies/10 cases PASS; actual profile models/module за artifacts initializer shell.",
+      "git_blob": "f362360920ca4e415da5fd3f01f372e10e65304a",
+      "sha256": "f3cdac4912c0de9599ef4758ce3c0ecaf3aef4dc5ad9073aa67f3cd856f4b4b5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/tests/unit/core/artifacts/test_core_json_producer_conformance.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/core/artifacts/test_core_json_producer_conformance.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          129
+        ]
+      ],
+      "evidence_level": "Полный current writer/async regression прочитан: явное требование refusing aliases before persistence. Bodies не исполнены; full native CAS blocked.",
+      "git_blob": "e40cb681fb71d2e5d9fd2f9b945dd8a175a51b29",
+      "sha256": "1204e1355a53376f43eea6ee8ae938656bbdd8c9079e273aa83b75ba828b1b72",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S18",
+      "path": "policy-engine/docs/reference/canonical-json-profile-reads.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/reference/canonical-json-profile-reads.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          104
+        ]
+      ],
+      "evidence_level": "Полный current contract прочитан. Generic .3 writers fenced; узкий sidecar cohort описан, но в C78 не квалифицирован целиком.",
+      "git_blob": "c3eaf343bf0fd77130f5cf4c74335ef1999c6b14",
+      "sha256": "603fd224d32759780fe9cdce66a315996332272e746661e813ef6145375534b1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S19",
+      "path": "policy-engine/architecture/imports/policy.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/architecture/imports/policy.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          61,
+          67
+        ]
+      ],
+      "evidence_level": "Направление Common/Core/IR прочитано. Native fresh IR IO import отдельно проверяет отсутствие Core; full architecture scanner UNRUN.",
+      "git_blob": "3d5ed5cd0d8ae494b0ebb4d4063966da634744d4",
+      "sha256": "a233241dd0b8999b8b124c775fbd0bcd3b9bf480e23cff8a0e5df98c2d9acafa",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S20",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          30
+        ]
+      ],
+      "evidence_level": "Поддержанный Python/dependency baseline для ограничения исполнения.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S21",
+      "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          489
+        ]
+      ],
+      "evidence_level": "Дополнение к C76, не CAN scope: ранее полностью source-qualified файл теперь whole imported/executed включая actual PEP695 trampoline. Остальные C76 fixture owner/index seams сохранены; прежний source index C76 остаётся отдельным.",
+      "git_blob": "0479a05898e3902038a5c341ed92a3c85527b671",
+      "sha256": "0f37f8534184ee6e7b783b24b1e1d525536a604480f02da21e585719350243bb",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

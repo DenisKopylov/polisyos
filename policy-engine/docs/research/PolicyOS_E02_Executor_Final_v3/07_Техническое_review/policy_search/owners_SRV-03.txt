@@ -1,0 +1,194 @@
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py:1796-1853
+ 1796 class SearchLoopRunner:
+ 1797     """Search loop runner public type."""
+ 1798 
+ 1799     def __init__(
+ 1800         self,
+ 1801         *,
+ 1802         store: CoreJSONArtifactStore | None = None,
+ 1803         registry: ChampionRegistry | None = None,
+ 1804     ) -> None:
+ 1805         selected_store = store if store is not None else _default_core_json_store()
+ 1806         normalized_store = with_ambient_ownership_enforcement_if_supported(selected_store)
+ 1807         if not _is_core_json_artifact_store(normalized_store):
+ 1808             raise TypeError("SearchLoopRunner requires a tenant-safe Core JSON artifact store")
+ 1809         self._store = normalized_store
+ 1810         self._registry = registry or ChampionRegistry(store=self._store)
+ 1811 
+ 1812     def run(
+ 1813         self,
+ 1814         spec: SearchLoopSpec,
+ 1815         *,
+ 1816         suite_ref: ArtifactRef,
+ 1817         initial_candidate: MutationArtifact | dict[str, Any] | None = None,
+ 1818         context: dict[str, Any] | None = None,
+ 1819         max_iterations: int = 10,
+ 1820         scheduler: Any | None = None,
+ 1821         dedup: Any | None = None,
+ 1822         warm_start_bridge: Any | None = None,
+ 1823         warm_start_fingerprint: Any | None = None,
+ 1824         producer_settlement_store: BudgetMiddleware | None = None,
+ 1825         producer_run_binding: BudgetLedgerProducerRunBinding | None = None,
+ 1826     ) -> SearchResult:
+ 1827         del scheduler  # reserved for future Hyperband integration
+ 1828         generator = spec.candidate_generator
+ 1829         if generator is None:
+ 1830             raise ValueError(f"Search loop '{spec.loop_id}' is missing a candidate generator")
+ 1831         if spec.loop_id == "claim_adjudication":
+ 1832             suite_profile = suite_ref.manifest_profile_sha256
+ 1833             if suite_profile is None:
+ 1834                 raise ValueError("claim_adjudication_selected_profile_required:benchmark_suite")
+ 1835             resolve_manifest_by_profile(self._store, suite_ref.artifact_id, suite_profile)
+ 1836         if (producer_settlement_store is None) != (producer_run_binding is None):
+ 1837             raise ValueError("durable producer budget requires both owner and run binding")
+ 1838         if producer_settlement_store is not None:
+ 1839             assert producer_run_binding is not None
+ 1840             TracedLLMCandidateGenerator.require_bound_owner(
+ 1841                 generator,
+ 1842                 producer_settlement_store,
+ 1843                 producer_run_binding,
+ 1844             )
+ 1845         search_context = dict(context or {})
+ 1846         runtime_context = dict(search_context)
+ 1847         if producer_run_binding is not None:
+ 1848             supplied_run_id = runtime_context.get("run_id")
+ 1849             if supplied_run_id is not None and supplied_run_id != producer_run_binding.run_id:
+ 1850                 raise ValueError("search run_id conflicts with producer run binding")
+ 1851             runtime_context["run_id"] = producer_run_binding.run_id
+ 1852         else:
+ 1853             runtime_context.setdefault("run_id", f"search-run:{uuid4().hex}")
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py:1938-1995
+ 1938     def _evaluate_candidate(
+ 1939         self,
+ 1940         spec: SearchLoopSpec,
+ 1941         *,
+ 1942         suite_ref: ArtifactRef,
+ 1943         candidate_payload: dict[str, Any],
+ 1944         context: dict[str, Any],
+ 1945         generator: Any,
+ 1946     ) -> dict[str, Any]:
+ 1947         codec = spec.mutation_codec
+ 1948         if codec is None:
+ 1949             raise ValueError(f"Search loop '{spec.loop_id}' is missing a mutation codec")
+ 1950         projected_payload = dict(candidate_payload)
+ 1951         generation_metadata = projected_payload.pop("_strategy_metadata", None)
+ 1952         if (
+ 1953             isinstance(codec, PydanticMutationCodec)
+ 1954             and "semantic" not in codec._model_cls.model_fields
+ 1955         ):
+ 1956             projected_payload.pop("semantic", None)
+ 1957         candidate = codec.decode(projected_payload)
+ 1958         from .bayesian_generator import BayesianCandidateGenerator
+ 1959 
+ 1960         claim_selected_profile = spec.loop_id == "claim_adjudication"
+ 1961         bayesian_selected_profile = type(generator) is BayesianCandidateGenerator
+ 1962         method_job_selected_profile = isinstance(
+ 1963             spec.benchmark_evaluator,
+ 1964             MethodJobBenchmarkEvaluator,
+ 1965         )
+ 1966         method_job_evaluator: MethodJobBenchmarkEvaluator | None = None
+ 1967         method_split: Literal["selection", "holdout"] | None = None
+ 1968         if _is_method_job_benchmark_evaluator(spec.benchmark_evaluator):
+ 1969             method_job_evaluator = spec.benchmark_evaluator
+ 1970             method_split = _search_method_split_label(method_job_evaluator._split)
+ 1971         if claim_selected_profile and suite_ref.manifest_profile_sha256 is None:
+ 1972             raise ValueError("claim_adjudication_selected_profile_required:benchmark_suite")
+ 1973         candidate_ref = persist_mutation_artifact(
+ 1974             self._store,
+ 1975             candidate,
+ 1976             inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+ 1977             return_selected_profile=(
+ 1978                 claim_selected_profile or method_job_selected_profile or bayesian_selected_profile
+ 1979             ),
+ 1980         )
+ 1981         if claim_selected_profile and candidate_ref.manifest_profile_sha256 is None:
+ 1982             raise ValueError("claim_adjudication_selected_profile_required:candidate")
+ 1983         if method_job_selected_profile and candidate_ref.manifest_profile_sha256 is None:
+ 1984             raise ValueError("methodjob_selected_profile_required:candidate")
+ 1985         if bayesian_selected_profile and candidate_ref.manifest_profile_sha256 is None:
+ 1986             raise ValueError("bayesian_selected_profile_required:candidate")
+ 1987         evaluation_id = f"search-evaluation:{uuid4().hex}"
+ 1988         evaluation_attempt_id = f"search-attempt:{uuid4().hex}"
+ 1989         evaluation = spec.benchmark_evaluator.evaluate(
+ 1990             candidate_ref,
+ 1991             suite_ref,
+ 1992             {
+ 1993                 **dict(context),
+ 1994                 "store": self._store,
+ 1995                 "registry": self._registry,
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/autotune/models.py:728-785
+  728 class PydanticMutationCodec(Generic[_MutationModelT]):
+  729     """Pydantic mutation codec public type."""
+  730 
+  731     def __init__(self, model_cls: type[_MutationModelT]) -> None:
+  732         self._model_cls = model_cls
+  733 
+  734     def encode(self, payload: MutationArtifact) -> MutationArtifact:
+  735         return self._model_cls.model_validate(payload)
+  736 
+  737     def decode(self, payload: dict[str, Any]) -> MutationArtifact:
+  738         return self._model_cls.model_validate(payload)
+  739 
+  740 
+  741 PydanticMutationCodec.__module__ = "polisyos.scientist.methods.autotune.runtime"
+  742 
+  743 
+  744 class RuntimeLoader(Protocol):
+  745     """Protocol for loading the latest mutation artifact or baseline runtime state."""
+  746 
+  747     def load(self, context: dict[str, Any] | None = None) -> MutationArtifact | None: ...
+  748 
+  749 
+  750 @dataclass(frozen=True)
+  751 class SearchLoopSpec:
+  752     """Wiring contract for one autotune loop."""
+  753 
+  754     loop_id: str
+  755     mutation_codec: MutationCodec | None
+  756     candidate_generator: Any | None
+  757     benchmark_evaluator: BenchmarkedEvaluator
+  758     promotion_policy: PromotionPolicy
+  759     runtime_loader: RuntimeLoader | None = None
+  760 
+  761 
+  762 def default_cas_root() -> Path:
+  763     """Return the default CAS root used by autotune persistence helpers."""
+  764     return Path(os.environ.get("POLISYOS_CAS_ROOT", ".polisyos/cas"))
+  765 
+  766 
+  767 def default_search_registry_root() -> Path:
+  768     """Return the default filesystem root for autotune search registries."""
+  769     return Path(os.environ.get("POLISYOS_SEARCH_REGISTRY_ROOT", ".polisyos/search_registry"))
+  770 
+  771 
+  772 def default_store(root: Path | None = None) -> ArtifactStore:
+  773     """Construct the default autotune artifact store from the storage factory boundary."""
+  774     return build_artifact_store(
+  775         ArtifactStoreConfig(
+  776             backend="filesystem",
+  777             root=str(root or default_cas_root()),
+  778         )
+  779     )
+  780 
+  781 
+  782 def load_json_artifact(store: ArtifactStore, ref: ArtifactRef | str) -> object:
+  783     """Load json artifact."""
+  784     from polisyos.core.artifacts import load_core_json_artifact
+  785 
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/sentinels.py:219-230
+  219     def _decorated_sentinel(self, sentinel: SentinelCandidate) -> dict[str, Any]:
+  220         candidate = strip_internal_candidate_metadata(sentinel.candidate)
+  221         candidate[SENTINEL_METADATA_KEY] = {
+  222             "sentinel_id": sentinel.sentinel_id,
+  223             "sentinel_kind": sentinel.kind.value,
+  224             "candidate_hash": sentinel.candidate_hash,
+  225             "expected_stage_a_pass": sentinel.expected_stage_a_pass,
+  226             "expected_stage_b_approve": sentinel.expected_stage_b_approve,
+  227             "expected_min_level": sentinel.expected_min_level,
+  228             **sentinel.metadata,
+  229         }
+  230         return candidate

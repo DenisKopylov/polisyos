@@ -1,0 +1,185 @@
+{
+  "pass_id": "C90",
+  "bundle": "FED-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/fabric/connectors/federation/composer.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/federation/composer.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1913
+        ]
+      ],
+      "evidence_level": "Полный source прочитан C89 на том же unchanged blob; collector, union, output profile и overlay повторно разобраны C90. Whole runtime copy исполнена: только3 except headers получают скобки для Python3.12, exact identity manifest сохранён.",
+      "git_blob": "f74a65431f376ee169f176e5f3d4bd5fb5f90df6",
+      "sha256": "3ab46f4a5e71cff32e65e370bc2e1c808ba19a2ac58359555e2c1253e30c8b71",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/fabric/connectors/federation/resolver.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/federation/resolver.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          512
+        ]
+      ],
+      "evidence_level": "Полный source-qualified C89 owner с неизменённым hash. Actual module fresh imported/executed; native log cap и _build_log_entry наблюдались без подмены результата.",
+      "git_blob": "a9865595738a0bf7b0ee303b7532c344f3bede82",
+      "sha256": "93658eca6990c50eb6765293d9e79170a72799c63e6a5770f56f5e0f2c1c19f9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/fabric/connectors/federation/types.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/federation/types.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          393
+        ]
+      ],
+      "evidence_level": "Полный source-qualified C89 contract, actual whole module imported; FULL/SUMMARY/NONE, samples/full-details различены.",
+      "git_blob": "76351c8e23c502bde05a282d6fcdee60710b0582",
+      "sha256": "0527564a94885092d1853274c42741fefdcb487ed901be7ac16bbee33fbbb8f5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/fabric/connectors/federation/profile.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/federation/profile.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          332
+        ]
+      ],
+      "evidence_level": "Полный source-qualified C89 engineering profile. Actual fresh execution; bounded input/output/lineage work не обещает O(1) memory.",
+      "git_blob": "7903707f6c3cd6329d0b81650f8602d4c4e6fcf4",
+      "sha256": "6b0eff5449cc23d6b1f95a680e3ea1d08fc904503753e90b45389de4b80e48e1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/fabric/connectors/federation/artifact.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/federation/artifact.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          769
+        ]
+      ],
+      "evidence_level": "Полный source-qualified C89 producer/replay owner. Actual C90 temporary JSON persistence and reread исполнялись, включая empty schema residual; не Parquet или CAS.",
+      "git_blob": "b75e0f2f45cf8ff725b7fa5ef035bceb2db29fa8",
+      "sha256": "5164f1b6105762f9e32092e75368e3d70cef4c4b3c28128248550ff0f06ae8d9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_federation.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/fabric/connectors/test_federation.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          98
+        ],
+        [
+          646,
+          692
+        ]
+      ],
+      "evidence_level": "Полные helper и2 existing bounded internal-log/FULL-cap bodies прочитаны и unchanged AST исполнены PASS.",
+      "git_blob": "183fde464b72969f575e91be851473b410e51108",
+      "sha256": "0544fd3e07b0e7a8121e566112320d0eeeeb67fd94141d2f7ee7881261235404",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_federation_artifact.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/fabric/connectors/test_federation_artifact.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          54
+        ],
+        [
+          371,
+          397
+        ]
+      ],
+      "evidence_level": "Полные helper/request и existing typed-empty persistence/query body прочитаны и unchanged исполнены PASS.",
+      "git_blob": "25549ebccab66406c3886e9f29d03420abd8b1f8",
+      "sha256": "9f11c281ef2d9100cc62005575cd29f1fb9ad0eb335c48fc34caff3434174109",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_federation_cold_c93.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/fabric/connectors/test_federation_cold_c93.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          113
+        ]
+      ],
+      "evidence_level": "Полный cold-process test driver и child command/receipt helper прочитаны; native six-process test НЕ исполнялся. Worker целиком не квалифицирован; DuckDB отсутствует.",
+      "git_blob": "0b3104c84ead3778e88b0421de8df9de07ebf73a",
+      "sha256": "5a23329edc3fe8cb9b3d35b06ec07c56abdc1a9a2676680d41ea1891a590fd49",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/fabric/federated_fetch.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/federated_fetch.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          444,
+          704
+        ]
+      ],
+      "evidence_level": "Relevant full caller/intake/result source-qualified C89: captured materialized rows/failed delivery distinction и candidate limits сохранены. Service/network pipeline UNRUN.",
+      "git_blob": "48a7aaeabf0acc60f9f7a662fde9b39c5fb0e6b7",
+      "sha256": "0a674c183da98f56da86adab04ea2bac300b620af7fd4e814dbdaac23133dd36",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          30
+        ]
+      ],
+      "evidence_level": "Supported environment constraints source-qualified earlier unchanged packets; native3.14 acceptance не заявлена.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

@@ -1,0 +1,224 @@
+{
+  "pass_id": "C11_SEL01",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "C11-S01",
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+      "read_ranges": [
+        [
+          1,
+          300
+        ],
+        [
+          650,
+          1090
+        ],
+        [
+          1080,
+          1425
+        ],
+        [
+          1420,
+          1810
+        ],
+        [
+          1810,
+          2100
+        ]
+      ],
+      "topic": "Selection, typed query, hard filter before top-k, explicit requests, signal parsing and receipt builders",
+      "reported_git_blob_sha": "d385780167a664f3227485d8954ff83a30cbc47e",
+      "full_blob_independently_reconstructed": false,
+      "connector_citations": [
+        "turn122file0",
+        "turn126file0",
+        "turn127file0",
+        "turn128file0",
+        "turn134file0"
+      ],
+      "urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/selection/advisor.py#L1-L300",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/selection/advisor.py#L650-L1090",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/selection/advisor.py#L1080-L1425",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/selection/advisor.py#L1420-L1810",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/selection/advisor.py#L1810-L2100"
+      ],
+      "limitations": [
+        "The 650–1090 response was truncated at its tail; decisive later ranges were reread separately. Full raw response was not treated as fully inspected. Function excerpts are manual transcriptions, not a complete reconstructed advisor blob."
+      ]
+    },
+    {
+      "id": "C11-S02",
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/receipt.py",
+      "read_ranges": [
+        [
+          1,
+          128
+        ]
+      ],
+      "topic": "Complete receipt DTO and validation; preserved historical module identity",
+      "reported_git_blob_sha": "534196e115cc485392382fcf8e9fb370c28dd4db",
+      "full_blob_independently_reconstructed": true,
+      "connector_citations": [
+        "GitHub.fetch_file receipt.py full response"
+      ],
+      "urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/selection/receipt.py#L1-L128"
+      ],
+      "limitations": [
+        "Common serialization artifact_self_identity_projection was injected in the bounded harness; this is not a native package import."
+      ]
+    },
+    {
+      "id": "C11-S03",
+      "path": "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py",
+      "read_ranges": [
+        [
+          1,
+          360
+        ],
+        [
+          340,
+          730
+        ],
+        [
+          730,
+          1110
+        ],
+        [
+          1110,
+          1435
+        ]
+      ],
+      "topic": "Existing singleton/top-k/modality/context/capability/mutation tests and their fixture boundaries",
+      "reported_git_blob_sha": "5369f87da5479559bdc041c112d1bee7c27008b7",
+      "full_blob_independently_reconstructed": false,
+      "connector_citations": [
+        "turn132file0",
+        "turn133file0",
+        "turn137file0",
+        "turn138file0"
+      ],
+      "urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/test_selection_advisor.py#L1-L360",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/test_selection_advisor.py#L340-L730",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/test_selection_advisor.py#L730-L1110",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/test_selection_advisor.py#L1110-L1435"
+      ],
+      "limitations": [
+        "Partial file read, not full test census; no repository pytest execution."
+      ]
+    },
+    {
+      "id": "C11-S04",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/snapshot.py",
+      "read_ranges": [
+        [
+          1,
+          255
+        ],
+        [
+          300,
+          440
+        ],
+        [
+          620,
+          800
+        ],
+        [
+          775,
+          880
+        ]
+      ],
+      "topic": "Real catalog owner, output capabilities, report-bound registry completeness and content checks",
+      "reported_git_blob_sha": "36b52c080972b5eb6c64798996764785cd65baec",
+      "full_blob_independently_reconstructed": false,
+      "connector_citations": [
+        "turn135file0",
+        "turn136file0",
+        "turn142file0",
+        "turn144file0"
+      ],
+      "urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/snapshot.py#L1-L255",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/snapshot.py#L300-L440",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/snapshot.py#L620-L800",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/snapshot.py#L775-L880"
+      ],
+      "limitations": [
+        "Candidate/default construction and require_bound_discovery profiles are distinct; not all served catalog paths audited."
+      ]
+    },
+    {
+      "id": "C11-S05",
+      "path": "policy-engine/src/polisyos/foundry/methods/types/checker.py",
+      "read_ranges": [
+        [
+          1,
+          240
+        ]
+      ],
+      "topic": "Adjacent unit/type/shape adapter plans; no invented modality converter",
+      "reported_git_blob_sha": "8fa4823bc3d297d42366bf033c8358481f0b0544",
+      "full_blob_independently_reconstructed": false,
+      "connector_citations": [
+        "turn139file0"
+      ],
+      "urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/types/checker.py#L1-L240"
+      ],
+      "limitations": [
+        "Declarations read only; runtime conversions and full checker not executed."
+      ]
+    },
+    {
+      "id": "C11-S06",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "read_ranges": [
+        [
+          6000,
+          6320
+        ],
+        [
+          6500,
+          6860
+        ]
+      ],
+      "topic": "Actual value owner data profile and N8 selector/receipt/context consumer",
+      "reported_git_blob_sha": "9761de868301e6fb90e69cd03aa3270b9a8187aa",
+      "full_blob_independently_reconstructed": false,
+      "connector_citations": [
+        "turn147file0",
+        "turn148file0"
+      ],
+      "urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L6000-L6320",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L6500-L6860"
+      ],
+      "limitations": [
+        "Addressed source trace only, not the whole module or a complete served HTTP pass."
+      ]
+    },
+    {
+      "id": "C11-S07",
+      "path": "policy-engine/tests/unit/remediation/test_sel_01.py",
+      "status": "404_not_found_at_pinned_ref",
+      "interpretation": "This was a proposed path in E02, not evidence that tests are absent; actual coverage is in C11-S03."
+    }
+  ],
+  "original_source": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      1443,
+      1582
+    ],
+    "citation": "turn121file1",
+    "historical_base": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8"
+  },
+  "limitations": [
+    "No full repository caller census",
+    "No native registry/discovery/HTTP/CAS execution",
+    "Source code facts are separated from review recommendations and fixture observations"
+  ]
+}

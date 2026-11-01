@@ -1,0 +1,185 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/core/contracts/value_outer_set.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/contracts/value_outer_set.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          548
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан и исполнен вне package import; реальные Pydantic модели",
+      "git_blob": "c409fee463851c4a7022c8a3447b3b0a378acdd3",
+      "sha256": "35d9fb3880239d6cc2d7c7829c5be62f65d73cc79c3ff6b5577b8f49489580ec",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          556,
+          580
+        ],
+        [
+          1740,
+          1915
+        ],
+        [
+          5856,
+          6210
+        ],
+        [
+          6550,
+          6900
+        ],
+        [
+          16120,
+          16780
+        ],
+        [
+          16840,
+          17140
+        ],
+        [
+          18251,
+          18785
+        ],
+        [
+          18786,
+          18850
+        ],
+        [
+          20530,
+          20548
+        ],
+        [
+          21040,
+          21100
+        ],
+        [
+          21788,
+          22574
+        ]
+      ],
+      "evidence_level": "Полные относящиеся к пакету owners прочитаны; выбранные неизменённые определения исполнены",
+      "git_blob": "9761de868301e6fb90e69cd03aa3270b9a8187aa",
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "local_file": null,
+      "note": "Не все 22574 строки файла. Точные исполненные диапазоны в source_integrity.json; SQL/CAS/hash/context — явные фикстуры."
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_emp_01.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          889
+        ]
+      ],
+      "evidence_level": "Полный существующий тестовый файл прочитан; UNRUN",
+      "git_blob": "e3e82d7233e3374a244fafdb5c0480f56412cecb",
+      "sha256": "ea3644d6252f10674cdd3fbca0129d0eb7c217591276b73fd5e02814ebdc67bb",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/tests/unit/core/contracts/test_value_outer_set.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/core/contracts/test_value_outer_set.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          443
+        ]
+      ],
+      "evidence_level": "Полный существующий тестовый файл прочитан; UNRUN",
+      "git_blob": "1e378f4e02704a99672b4d42f58acb7f6aae6497",
+      "sha256": "d4e59e728dc10de31a174ddc933fc6ce810eede602d34c965d54088385e392d7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/ir/analytics/transportability.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/transportability.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          460
+        ],
+        [
+          1958,
+          2025
+        ]
+      ],
+      "evidence_level": "Builder и соседние DTO прочитаны; определения 113–337,1966–1981 исполнены",
+      "git_blob": "716ac165dcf90768721156df06d0d5b57e18b2d4",
+      "sha256": "33d690f10cc7c71220d5f8a97490952b10caae591f88d6e6d0eb95fcec0883cc",
+      "local_file": null,
+      "note": "CausalGraphModel и ContextProfile в диагностике — явные облегчённые модели. Solver не исполнялся."
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          587,
+          740
+        ],
+        [
+          1014,
+          1095
+        ]
+      ],
+      "evidence_level": "Основная валидация графа и полные persist/load boundaries прочитаны; UNRUN",
+      "git_blob": "cd207643eba4a4a975beedda59d06bbe339a8105",
+      "sha256": "2facb531db2ea4bbb6361f9bd7ccf66c14a7f0213d7647b92620a879efa4db5a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/ir/observation/contracts.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/observation/contracts.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          250
+        ]
+      ],
+      "evidence_level": "Контракт семантики наблюдений прочитан; UNRUN",
+      "git_blob": "0e0aa931227d023ce5691b17ef26562a0dbc9117",
+      "sha256": "efbe3ca78107dc47158d01c30b03cca4f16074b2ad37f3573fb581e423fdf2d4",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      3413,
+      3529
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "discovery": {
+    "census": false,
+    "scope": "Отбор owner rows, ValueOuterSet, выбранный causal graph и действующие producer/persist/consumer связи"
+  }
+}

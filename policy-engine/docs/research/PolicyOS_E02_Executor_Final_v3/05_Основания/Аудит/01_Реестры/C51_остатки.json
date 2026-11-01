@@ -1,0 +1,51 @@
+{
+  "pass": "C51",
+  "bundle": "API-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C51-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-020"
+      ],
+      "title": "Native leaf, installed consumer и реальная историческая совместимость не аттестованы",
+      "evidence": [
+        "S01:1–42",
+        "S02:1–67",
+        "S04:94–115",
+        "S04:247–624",
+        "S04:2163–2407",
+        "S08–S11",
+        "P01–P13",
+        "native_attempt.log",
+        "causal_engine_native_import.log",
+        "interference_native_import.log"
+      ],
+      "remaining": "В поддержанном окружении выполнить focused и installed contracts, реальные public imports/FQN/pickle/docs и end-to-end monkeypatch consumption/restoration. Использовать существующие тесты/owners; не заменять façade новым центральным механизмом.",
+      "limits": "13 MATCH используют actual initializer/dispatcher, но synthetic leaves/algorithms. Native pytest отсутствует; public imports блокируются Python 3.14 syntax в uncertainty.py под Python 3.12. Ни product defect, ни реальная scientific validity из этого не выводятся."
+    },
+    {
+      "id": "C51-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-020"
+      ],
+      "title": "Literal consumer census имеет подтверждённый пропуск относительных imports и не закрывает computed/external clients",
+      "evidence": [
+        "S09:167–212",
+        "S01:5",
+        "S03:12–14",
+        "S13:7",
+        "source_import_census_initial_text_prefilter.json",
+        "source_import_census.json",
+        "S11:54–101"
+      ],
+      "remaining": "Расширить prefilter существующего census с учётом package path/relative resolution, сохранить named denominator и реальные imports на поддержанном runtime. Отдельно перечислить поддержанное окно computed/configuration/external clients и требуемые migration/FQN checks; не удалять все underscore symbols по отсутствию в одном grep.",
+      "limits": "На 8231 pinned .py files: content-only 66 occurrences/47 files против path-aware 71/50; добавлены 5 относительных submodule imports. Их runtime break не показан; это qualification gap, не подтверждённый дефект public dispatch. AST inventory не выполняет imports, не доказывает production use и не является внешним consumer census."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "Исходный reflection-copy в двух initializer заменён explicit identity-preserving bindings; supported compatibility names сохранены, actual dispatch sync различающе проверен. Нового runtime R нет. Native/installed/FQN и census qualification открыты."
+}

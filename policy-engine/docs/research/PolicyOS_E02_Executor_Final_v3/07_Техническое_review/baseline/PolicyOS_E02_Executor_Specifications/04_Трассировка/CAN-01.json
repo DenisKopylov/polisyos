@@ -1,0 +1,253 @@
+{
+  "packet_id": "CAN-01",
+  "lane": "LANE-06",
+  "source_ids": [
+    "LA-021"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/CAN-01.md",
+    "../05_Основания/Аудит/01_Реестры/C78_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C78-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CAN-01-01",
+        "REQ-CAN-01-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Два красных старых oracle оформить как intentional producer/selected-reader delta; raw historical compatibility отдельно, gate не снимать.",
+      "inventory_id": "audit-residual:C78_остатки:0"
+    },
+    {
+      "audit_id": "C78-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CAN-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Реальные sync/async writer→CAS→selected reader и only enrolled bounded0.3 route.",
+      "inventory_id": "audit-residual:C78_остатки:1"
+    },
+    {
+      "audit_id": "C78-G03",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CAN-01-01",
+        "REQ-CAN-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Расширить source-qualified supported corpus, сохранить separate policies/ABI и границы hash; малый golden не exhaustive proof.",
+      "inventory_id": "audit-residual:C78_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-CAN-01-01",
+      "text": "Core и IR продолжают вызывать один neutral primitive с собственными allowed tags, CanonViolation identity/catches и reader policy IDs. На source-qualified supported corpus сохраняются exact bytes/hash ordinary0.2 и low-level чтение поддержанных aliases; IR не получает Core tags/import. Unknown version/profile не fallback default. Goldens отдельно фиксируют exception type/message/code и SHA1 warning.",
+      "source_ids": [
+        "LA-021"
+      ],
+      "audit_ids": [
+        "C78-G01",
+        "C78-G03"
+      ],
+      "test_ids": [
+        "TEST-CAN-01-01"
+      ]
+    },
+    {
+      "id": "REQ-CAN-01-02",
+      "text": "Старые characterization ожидания записи float_hex/bytes_hex согласовать с явным current contract: low-level raw decoder читает aliases, но current producer и selected-profile admission отказывают non-roundtrippable bytes canon_profile_payload_nonconformant. array_digest positive остаётся. Если реальные поддержанные historical aliases нужны, использовать явный read-only/candidate path без authority elevation и без переписи IDs; необходимость/границы фиксируются из реального corpus, не синтетического предположения.",
+      "source_ids": [
+        "LA-021"
+      ],
+      "audit_ids": [
+        "C78-G01"
+      ],
+      "test_ids": [
+        "TEST-CAN-01-02"
+      ]
+    },
+    {
+      "id": "REQ-CAN-01-03",
+      "text": "Native filesystem и async writer preflight→exact selected manifest→fresh reader сохраняют canon declaration, payload hash, profile selection и current owner admission. Malformed/mismatched declaration отказывает до payload IO там, где текущий boundary это гарантирует; generic0.3 producer остаётся fenced. Only enrolled bounded0.3 cohort проверяется по собственному allowed payload/resource/custody policy; успех codec не расширяет enrollment.",
+      "source_ids": [
+        "LA-021"
+      ],
+      "audit_ids": [
+        "C78-G02",
+        "C78-G03"
+      ],
+      "test_ids": [
+        "TEST-CAN-01-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-CAN-01-01",
+      "requirement_ids": [
+        "REQ-CAN-01-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Два фасада и common primitive; ordinary corpus Decimal/date/datetime/bytes/null/numeric, typed tags, depth exact/one-over, malformed JSON/duplicate keys/NaN; исторические файлы с provenance.",
+      "action": "Encode/decode/hash и exact exception tests; fresh import IR IO; v0.2/v0.3 mappings с _type, unknown version/name combinations.",
+      "oracle": "Поддержанные goldens byte/hash identical, separate Core/IR errors/tags/policy IDs; fresh IR не импортирует Core. v0.3 escapes не влияют на default0.2; unknown не default. Corpus denominator/version зафиксирован, не заявление universal parity.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-CAN-01-02",
+      "requirement_ids": [
+        "REQ-CAN-01-02"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Два unchanged failing characterization из test_can_01 и текущие producer conformance regressions; raw float_hex/bytes_hex/array_digest vectors.",
+      "action": "Переписать только устаревшие expected outcomes после explicit decision: raw read отдельно, encode и selected admission отдельно; проверить реальный historical object если доступен.",
+      "oracle": "Raw aliases readable; producer/selected reader дают established nonconformance refusal до persistence; array_digest проходит. Не удалены negative tests/gate. Historical candidate помечен unqualified, не выдаётся authority value; исходные bytes/IDs неизменны.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-CAN-01-03",
+      "requirement_ids": [
+        "REQ-CAN-01-03"
+      ],
+      "level": "native writer + local CAS + fresh selected consumer",
+      "setup": "Current sync/async producer, real CAS and owner context; exact0.2 profile и explicitly enrolled bounded0.3 cohort, limits exact/one-over.",
+      "action": "Write/read, tamper bytes/raw-vs-typed manifest/profile, missing/unknown declaration; generic0.3 write; enrolled0.3 valid/overbudget/unsupported callback.",
+      "oracle": "Exact selected ref и same bytes roundtrip; negatives refusal без publication/authority. Generic0.3 storage call count0; enrolled profile только accepted cohort, no callback before refusal. Hash validates bytes, не completeness/producer authority. Fresh package same behavior.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-E",
+    "E02-I06-D"
+  ],
+  "dependencies": [],
+  "preservation": [
+    "Common canonical/hashing нейтральны; Core/IR фасады сохраняют разные tag sets, exact exception catches и policy IDs.",
+    "Исторический default0.2.0 и подтверждённые byte/hash identities; explicit0.3 grammar не включается молча по сходству version/name.",
+    "Текущий same-byte conformance, bounded callback-free encoding и generic0.3 writer fence.",
+    "Runtime JsonDataVisitor/WIRE — другой контракт (LK07); hash не authority/reuse/closeout (LK20)."
+  ],
+  "design_alignment": [
+    "Профиль декодирования не удостоверяет producer; current admission и историческая читаемость раздельны.",
+    "Нейтральная механика позволяет рост новых явно версионированных profiles без Core→IR coupling."
+  ],
+  "open_decisions": [
+    "Назвать supported historical corpus и решить, нужен ли alias candidate consumer; если реального корпуса нет, не заявлять blanket compatibility.",
+    "Обновление двух expectations требует явного записанного behavior-delta решения; просто сделать suite green не acceptance."
+  ],
+  "source_obligations": [
+    "LA-021: эквивалентное выделение shared primitive отдельно от intended format/conformance behavior delta; Core не единственный правильный профиль.",
+    "Все numeric/Decimal/date/bytes/null/depth/tags/error/hash-warning обязательства сохраняются; корпус конечный и его provenance явны.",
+    "LK07/LK20 запрещают merge всех serializers и повышение digest до полномочия на scientific/reuse result."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/common/canonical.py: shared strict encoding/decoding",
+    "policy-engine/src/polisyos/common/canonical_profile.py: _decode_and_reencode_profiled_bytes, profile admission",
+    "policy-engine/src/polisyos/common/hashing.py: content_hash",
+    "policy-engine/src/polisyos/core/canon/canon_json.py: to_canonical_bytes, _validate_core_json_payload_conformance",
+    "policy-engine/src/polisyos/ir/model_layer/canon.py: to_canonical_bytes, _validate_ir_json_payload_conformance",
+    "policy-engine/src/polisyos/ir/artifacts/io.py: put_json_artifact, _read_json_artifact_with_bytes"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_can_01.py",
+    "policy-engine/tests/unit/common/test_canonical_profile.py",
+    "policy-engine/tests/unit/common/test_canonical_v3.py",
+    "policy-engine/tests/unit/core/artifacts/test_canonical_v3_writer_fence.py",
+    "policy-engine/tests/unit/ir/test_canon_v3.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0395",
+      "requirement_ids": [
+        "REQ-CAN-01-01",
+        "REQ-CAN-01-02"
+      ],
+      "disposition": "qualify",
+      "rationale": "Два красных старых oracle оформить как intentional producer/selected-reader delta; raw historical compatibility отдельно, gate не снимать."
+    },
+    {
+      "inventory_id": "remaining:0396",
+      "requirement_ids": [
+        "REQ-CAN-01-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Реальные sync/async writer→CAS→selected reader и only enrolled bounded0.3 route."
+    },
+    {
+      "inventory_id": "remaining:0397",
+      "requirement_ids": [
+        "REQ-CAN-01-01",
+        "REQ-CAN-01-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Расширить source-qualified supported corpus, сохранить separate policies/ABI и границы hash; малый golden не exhaustive proof."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0638",
+      "requirement_ids": [
+        "REQ-CAN-01-01"
+      ],
+      "test_ids": [
+        "TEST-CAN-01-01"
+      ],
+      "rationale": "Общий neutral primitive — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0639",
+      "requirement_ids": [
+        "REQ-CAN-01-01",
+        "REQ-CAN-01-02"
+      ],
+      "test_ids": [
+        "TEST-CAN-01-01",
+        "TEST-CAN-01-02"
+      ],
+      "rationale": "Раздельные tag policies и exceptions — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0640",
+      "requirement_ids": [
+        "REQ-CAN-01-01",
+        "REQ-CAN-01-02"
+      ],
+      "test_ids": [
+        "TEST-CAN-01-01",
+        "TEST-CAN-01-02"
+      ],
+      "rationale": "Historical bytes/IDs и default .2 — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0641",
+      "requirement_ids": [
+        "REQ-CAN-01-02",
+        "REQ-CAN-01-03"
+      ],
+      "test_ids": [
+        "TEST-CAN-01-02",
+        "TEST-CAN-01-03"
+      ],
+      "rationale": "Current conformance guard и explicit .3 fences — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0642",
+      "requirement_ids": [
+        "REQ-CAN-01-03"
+      ],
+      "test_ids": [
+        "TEST-CAN-01-03"
+      ],
+      "rationale": "LK07/LK20 — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

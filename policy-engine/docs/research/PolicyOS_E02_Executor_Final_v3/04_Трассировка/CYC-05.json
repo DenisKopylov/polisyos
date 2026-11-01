@@ -1,0 +1,650 @@
+{
+  "packet_id": "CYC-05",
+  "lane": "LANE-01",
+  "title": "Реальная декомпозиция, правдивый stop и положительный deployment bridge",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B15",
+    "B29",
+    "B30"
+  ],
+  "audit_reports": [
+    "02_Пакеты/CYC-05.md"
+  ],
+  "audit_report_sha256": "3fa417be785890317d18999a3205521b532d5954288b117a5d10472385cff315",
+  "sourceplan_lines": [
+    980,
+    1090
+  ],
+  "practical_goal": "Два содержательных child проходят настоящий маршрут с видимыми лимитами; частичный результат сохраняется; проверенный deployment имеет достижимый currentness consumer, а неизвестный не самосертифицируется.",
+  "requirements": [
+    {
+      "id": "REQ-CYC-05-01",
+      "text": "HTTP/worker должен сохранять requested/effective limits/reason и exact source-derived child denominator; каждый исполняемый child связан с собственными problem/context/N5, а proposal-only не выдаёт применённый recursive budget.",
+      "source_ids": [
+        "B15",
+        "B29",
+        "B30"
+      ],
+      "audit_ids": [
+        "remaining:0038",
+        "preserve:0045",
+        "preserve:0046",
+        "preserve:0047",
+        "audit-residual:C07_остатки:1"
+      ],
+      "test_ids": [
+        "TEST-CYC-05-01"
+      ]
+    },
+    {
+      "id": "REQ-CYC-05-02",
+      "text": "Остановка по общему ресурсу после первого child должна сохранять его результат и явный неисследованный frontier; standalone и enclosing budget projection согласуются.",
+      "source_ids": [
+        "B15",
+        "B29",
+        "B30"
+      ],
+      "audit_ids": [
+        "remaining:0039",
+        "preserve:0045",
+        "preserve:0048",
+        "preserve:0093",
+        "audit-residual:C07_остатки:1",
+        "audit-residual:C07_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-CYC-05-02"
+      ]
+    },
+    {
+      "id": "REQ-CYC-05-03",
+      "text": "Normal stop, resource stop и abstention должны сохранять разные смыслы в decision/iteration/history/API/реальном UI; изменение только соседней проекции не должно давать согласованный результат.",
+      "source_ids": [
+        "B15",
+        "B29",
+        "B30"
+      ],
+      "audit_ids": [
+        "remaining:0070",
+        "remaining:0071",
+        "preserve:0091",
+        "preserve:0092",
+        "preserve:0093",
+        "preserve:0096",
+        "audit-residual:C07_остатки:2"
+      ],
+      "test_ids": [
+        "TEST-CYC-05-03"
+      ]
+    },
+    {
+      "id": "REQ-CYC-05-04",
+      "text": "Должен существовать положительный назначенный build/deployment→N6 readiness путь для конечного поддержанного профиля, привязанный к фактически загруженному коду; константа UNRUN не заменяется без доказательства.",
+      "source_ids": [
+        "B15",
+        "B29",
+        "B30"
+      ],
+      "audit_ids": [
+        "remaining:0072",
+        "remaining:0073",
+        "preserve:0095",
+        "preserve:0097",
+        "audit-residual:C07_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-CYC-05-04"
+      ]
+    },
+    {
+      "id": "REQ-CYC-05-05",
+      "text": "Смена существенного code/lock/runtime/import binding должна инвалидировать ранее положительное deployment основание; неизменный run не повторяет full AST и не лишается исторической читаемости.",
+      "source_ids": [
+        "B15",
+        "B29",
+        "B30"
+      ],
+      "audit_ids": [
+        "remaining:0073",
+        "remaining:0074",
+        "preserve:0095",
+        "preserve:0096",
+        "audit-residual:C07_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-CYC-05-05"
+      ]
+    },
+    {
+      "id": "REQ-CYC-05-06",
+      "text": "Прямой structural census должен различать missing/empty/unreadable/parse error и настоящий запрещённый caller; недостаточный знаменатель не даёт positive verdict.",
+      "source_ids": [
+        "B15",
+        "B29",
+        "B30"
+      ],
+      "audit_ids": [
+        "preserve:0094"
+      ],
+      "test_ids": [
+        "TEST-CYC-05-06"
+      ]
+    },
+    {
+      "id": "REQ-CYC-05-07",
+      "text": "Декомпозиция должна различать alternatives, joint components и sequential steps; граф детей не превращает alternatives в authored compound, но поддержанный явно сформулированный compound должен иметь проверяемый путь исполнения.",
+      "source_ids": [
+        "B15",
+        "B29",
+        "B30"
+      ],
+      "audit_ids": [
+        "remaining:0040",
+        "preserve:0046",
+        "audit-residual:C07_остатки:3"
+      ],
+      "test_ids": [
+        "TEST-CYC-05-07"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-CYC-05-01",
+      "requirement_ids": [
+        "REQ-CYC-05-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Existing tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py selector test_original_second_capture_serves_two_meaningful_children_through_fresh_get; два разных предложения tax credit/procurement backstop, третье blocked.",
+      "action": "Пройти ordinary POST/worker и fresh GET, затем удалить одного source-derived child при прежней graph оболочке; запросить7итераций и конфликт профилей.",
+      "oracle": "Точные child refs и реальные численные результаты обоих; requested/effective/reason читаемы; missing denominator отказан, proposal-only not_applied_n4_proposal_only сохраняется.",
+      "expected": "Два aliases одного fixture не meaningful decomposition; третий configured child не молча отрезан, budget cap не обещает полноту.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-05-02",
+      "requirement_ids": [
+        "REQ-CYC-05-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Реальный two-child setup TEST-01 с разрешённым budget ровно на первый child, actual result store.",
+      "action": "Выполнить первый, исчерпать общую allocation, прочитать completed/partial graph; попытаться подменить enclosing cap.",
+      "oracle": "Первый actual output доступен, второй not_run с frontier reason, spent/iterations соответствуют разрешению; cap tamper не current accepted.",
+      "expected": "Budget stop не scientific exhaustion и не blanket invalidity всех результатов; разрешённый более дешёвый next action требует собственного admission.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-05-03",
+      "requirement_ids": [
+        "REQ-CYC-05-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Настоящие DTO terminal frontier_stable, grounded_partial, budget_exhausted, abstained; persisted history и actual visible consumer.",
+      "action": "Roundtrip каждый тип; отдельно изменить только refinement decision, только iteration status без изменения terminal.",
+      "oracle": "Успешный ограниченный stop не abstained; budget kind сохранён; истинное abstention видно; sibling corruption обнаруживается.",
+      "expected": "Historical read остаётся возможным без нынешней deployment-currentness; не объединять candidate/strict/history validators.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-05-04",
+      "requirement_ids": [
+        "REQ-CYC-05-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Реальный ограниченный source-checkout либо installed distribution профиль, произведённый lane12 build/test artifact и назначенный допустимый issuer; настоящее confidence_ledger/load/reader, не injected ready(PASS).",
+      "action": "Build→persist artifact→load qualified process→inspect readiness→finish N6→strict current consumer; затем удалить issuer binding/census или заменить artifact.",
+      "oracle": "Положительный current/PASS достижим только на согласованном реально загруженном профиле; effective consumer принимает точное structural основание, но не присваивает N9 по одной identity.",
+      "expected": "Self-issued manifest, clean git или matching source hashes недостаточны; no issuer остаётся not_established, candidate результаты продолжаются.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-05-05",
+      "requirement_ids": [
+        "REQ-CYC-05-05"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Positive TEST-04, два deployment baselines и одна disk mutation после import; instrument только чтения/время, не verifier.",
+      "action": "Изменить по одному source, lock, relevant binding и artifact bytes; открыть historical run и candidate/strict readers; повторить unchanged N6.",
+      "oracle": "Meaningful drift stale/not_established до strict use; historical bytes читаются, candidate limitations видимы; unchanged identity использует canonical snapshot без full source census per finish.",
+      "expected": "Не объявлять alias scan полной динамической недостижимостью; границы profile/denominator остаются в evidence.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-05-06",
+      "requirement_ids": [
+        "REQ-CYC-05-06"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Малый настоящий filesystem с missing src, empty, invalidUTF8, parse failure, direct call и permitted fixture-site; installed profile без source отдельно.",
+      "action": "Исполнить actual inspector/receipt reader; удалить часть declared denominator либо заменить issuer-produced census digest.",
+      "oracle": "Причины различимы, direct violation не смешан с parse error; incomplete не current/PASS. Alias limitation явно указана, не fake proof.",
+      "expected": "Пакетный build допускает source-free runtime только при верифицированном declared build evidence, не пустом обходе.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-CYC-05-07",
+      "requirement_ids": [
+        "REQ-CYC-05-07"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Два meaningful components с явным authored joint intent и совместимой моделью из SIM-03; исходные alternatives как negative/control.",
+      "action": "Сохранить relationships, построить graph/request, выполнить совместный agreed numerical scenario и fresh consumer.",
+      "oracle": "Relations/units/basis/limits переживают readback; compound actual joint result имеет отдельную правильную модельную постановку; alternatives остаются alternatives.",
+      "expected": "Неизвестное refinement/causal coupling сохраняется как limitation, не автоматически запрещает independent candidate исследование.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C07_остатки:0",
+      "requirement_ids": [
+        "REQ-CYC-05-04",
+        "REQ-CYC-05-05"
+      ],
+      "rationale": "CYC-05 bridge consumes lane12 actual build/census artifacts; назначение issuer не выдумывается.",
+      "disposition": "capability",
+      "audit_id": "C07-R1",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C07_остатки:1",
+      "requirement_ids": [
+        "REQ-CYC-05-01",
+        "REQ-CYC-05-02"
+      ],
+      "rationale": "Actual two-child и budget stop.",
+      "disposition": "qualify",
+      "audit_id": "C07-V1",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C07_остатки:2",
+      "requirement_ids": [
+        "REQ-CYC-05-03"
+      ],
+      "rationale": "Normal stop producer сохранить; полная projection проверить.",
+      "disposition": "qualify",
+      "audit_id": "C07-V2",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C07_остатки:3",
+      "requirement_ids": [
+        "REQ-CYC-05-07"
+      ],
+      "rationale": "CYC-05 authoring relationships, SIM-03 joint numerical semantics; не смешивать.",
+      "disposition": "capability",
+      "audit_id": "C07-L1",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C07_остатки:4",
+      "requirement_ids": [
+        "REQ-CYC-05-02"
+      ],
+      "rationale": "Численный cap принимать по enclosing artifact, не standalone shape.",
+      "disposition": "qualify",
+      "audit_id": "C07-V3",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B15",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CYC-05-01",
+        "REQ-CYC-05-02",
+        "REQ-CYC-05-07"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B29",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CYC-05-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B30",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CYC-05-04",
+        "REQ-CYC-05-05",
+        "REQ-CYC-05-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0038",
+      "requirement_ids": [
+        "REQ-CYC-05-01"
+      ],
+      "rationale": "Actual meaningful children, не aliases.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0039",
+      "requirement_ids": [
+        "REQ-CYC-05-02"
+      ],
+      "rationale": "Первый результат + явный frontier.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0040",
+      "requirement_ids": [
+        "REQ-CYC-05-07"
+      ],
+      "rationale": "Typed relationships и bounded authored joint путь с SIM-03.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0070",
+      "requirement_ids": [
+        "REQ-CYC-05-03"
+      ],
+      "rationale": "DTO/persisted/consumer roundtrip.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0071",
+      "requirement_ids": [
+        "REQ-CYC-05-03"
+      ],
+      "rationale": "Sibling-field corruption controls.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0072",
+      "requirement_ids": [
+        "REQ-CYC-05-04"
+      ],
+      "rationale": "Реальный положительный issuer bridge, не тест fixed UNRUN.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0073",
+      "requirement_ids": [
+        "REQ-CYC-05-04",
+        "REQ-CYC-05-05"
+      ],
+      "rationale": "Supported profile и invalidation.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0074",
+      "requirement_ids": [
+        "REQ-CYC-05-05"
+      ],
+      "rationale": "Фактический I/O замер, не заявленное ускорение.",
+      "disposition": "qualify"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0045",
+      "requirement_ids": [
+        "REQ-CYC-05-01",
+        "REQ-CYC-05-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: HTTP/worker должен сохранять requested/effective limits/reason и exact source-derived child denominator; каждый исполняемый child связан с собственными problem/context/N5, а proposal-only не выдаёт применённый recursive budget.; Остановка по общему ресурсу после первого child должна сохранять его результат и явный неисследованный frontier; standalone и enclosing budget projection согласуются.",
+      "test_ids": [
+        "TEST-CYC-05-01",
+        "TEST-CYC-05-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0046",
+      "requirement_ids": [
+        "REQ-CYC-05-01",
+        "REQ-CYC-05-07"
+      ],
+      "rationale": "Конкретный контракт и oracle: HTTP/worker должен сохранять requested/effective limits/reason и exact source-derived child denominator; каждый исполняемый child связан с собственными problem/context/N5, а proposal-only не выдаёт применённый recursive budget.; Декомпозиция должна различать alternatives, joint components и sequential steps; граф детей не превращает alternatives в authored compound, но поддержанный явно сформулированный compound должен иметь проверяемый путь исполнения.",
+      "test_ids": [
+        "TEST-CYC-05-01",
+        "TEST-CYC-05-07"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0047",
+      "requirement_ids": [
+        "REQ-CYC-05-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: HTTP/worker должен сохранять requested/effective limits/reason и exact source-derived child denominator; каждый исполняемый child связан с собственными problem/context/N5, а proposal-only не выдаёт применённый recursive budget.",
+      "test_ids": [
+        "TEST-CYC-05-01"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0048",
+      "requirement_ids": [
+        "REQ-CYC-05-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Остановка по общему ресурсу после первого child должна сохранять его результат и явный неисследованный frontier; standalone и enclosing budget projection согласуются.",
+      "test_ids": [
+        "TEST-CYC-05-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0091",
+      "requirement_ids": [
+        "REQ-CYC-05-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Normal stop, resource stop и abstention должны сохранять разные смыслы в decision/iteration/history/API/реальном UI; изменение только соседней проекции не должно давать согласованный результат.",
+      "test_ids": [
+        "TEST-CYC-05-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0092",
+      "requirement_ids": [
+        "REQ-CYC-05-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Normal stop, resource stop и abstention должны сохранять разные смыслы в decision/iteration/history/API/реальном UI; изменение только соседней проекции не должно давать согласованный результат.",
+      "test_ids": [
+        "TEST-CYC-05-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0093",
+      "requirement_ids": [
+        "REQ-CYC-05-02",
+        "REQ-CYC-05-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Остановка по общему ресурсу после первого child должна сохранять его результат и явный неисследованный frontier; standalone и enclosing budget projection согласуются.; Normal stop, resource stop и abstention должны сохранять разные смыслы в decision/iteration/history/API/реальном UI; изменение только соседней проекции не должно давать согласованный результат.",
+      "test_ids": [
+        "TEST-CYC-05-02",
+        "TEST-CYC-05-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0094",
+      "requirement_ids": [
+        "REQ-CYC-05-06"
+      ],
+      "rationale": "Конкретный контракт и oracle: Прямой structural census должен различать missing/empty/unreadable/parse error и настоящий запрещённый caller; недостаточный знаменатель не даёт positive verdict.",
+      "test_ids": [
+        "TEST-CYC-05-06"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0095",
+      "requirement_ids": [
+        "REQ-CYC-05-04",
+        "REQ-CYC-05-05"
+      ],
+      "rationale": "Конкретный контракт и oracle: Должен существовать положительный назначенный build/deployment→N6 readiness путь для конечного поддержанного профиля, привязанный к фактически загруженному коду; константа UNRUN не заменяется без доказательства.; Смена существенного code/lock/runtime/import binding должна инвалидировать ранее положительное deployment основание; неизменный run не повторяет full AST и не лишается исторической читаемости.",
+      "test_ids": [
+        "TEST-CYC-05-04",
+        "TEST-CYC-05-05"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0096",
+      "requirement_ids": [
+        "REQ-CYC-05-03",
+        "REQ-CYC-05-05"
+      ],
+      "rationale": "Конкретный контракт и oracle: Normal stop, resource stop и abstention должны сохранять разные смыслы в decision/iteration/history/API/реальном UI; изменение только соседней проекции не должно давать согласованный результат.; Смена существенного code/lock/runtime/import binding должна инвалидировать ранее положительное deployment основание; неизменный run не повторяет full AST и не лишается исторической читаемости.",
+      "test_ids": [
+        "TEST-CYC-05-03",
+        "TEST-CYC-05-05"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0097",
+      "requirement_ids": [
+        "REQ-CYC-05-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Должен существовать положительный назначенный build/deployment→N6 readiness путь для конечного поддержанного профиля, привязанный к фактически загруженному коду; константа UNRUN не заменяется без доказательства.",
+      "test_ids": [
+        "TEST-CYC-05-04"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I01-C",
+    "E02-X01"
+  ],
+  "dependencies": [
+    "CYC-05 единственный writer положительного confidence_ledger readiness bridge/current consumer. LANE-12 DFK/HYG/CLI — фактические build/distribution/census/test artifact producers; не второй readiness issuer.",
+    "Issuer appointment и purpose/baseline contract согласовать с существующим identity owner до coding; не создавать внешний authority факт самостоятельно.",
+    "SIM-03 owns actual compound contrast/math; CYC-05 owns authored relationships, decomposition и propagation.",
+    "CYC-02 preserved numeric readback; CYC-03 current vs historical identities; общий generation_cycle.py mutex."
+  ],
+  "preservation": [
+    "Requested/effective limit and reason",
+    "Exact N4 child-set and contexts",
+    "Proposal-only not_applied marker",
+    "Accumulated numerical history at stop",
+    "Exhaustive typed stop partition",
+    "stop/stopped distinct from abstain/abstained",
+    "Resource stop does not claim scientific exhaustion",
+    "Missing/parse/read/direct caller distinctions",
+    "Existing import-time loaded identity and currentness owner",
+    "Candidate-band continuation, historical readability",
+    "No automatic authority from clean source/identity equality"
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    "Развитие не ограничено UNRUN diagnostics: требуются достижимый положительный readiness bridge и полезная малая декомпозиция. Fail-closed касается strict current/authority, не всех candidate вычислений."
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-CYC-05-01",
+      "question": "Какой реально поддержанный deployment профиль и существующий issuer appointment дают конечный положительный structural contract?",
+      "owner": "CYC-05 совместно с LANE-12 producer/identity owner",
+      "options": [
+        "Source-checkout профиль с полным build/census artifact и canonical loaded baseline.",
+        "Installed distribution профиль с verified package manifest, declared build census и loaded binding."
+      ],
+      "selection_evidence": "Найденные actual build outputs, назначенный purpose/issuer и возможность проверить весь relevant denominator; не только наличие json.",
+      "required_output": "Один именованный профиль, versioned artifact/issuer interface, valid positive и invalidation tests; отсутствие appointment оформляется точным внешним предусловием, а bridge/consumer всё равно реализуются и проверяются на допустимом тестовом principal"
+    }
+  ],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+      "symbol_or_anchor": "def inspect_packaged_deployment_identity",
+      "lines": [
+        5548,
+        5580
+      ],
+      "sha256": "f7e770b6d170dafcaaa9fe566355ff9b64dc138b38b29848726cda3dbf0206c8",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/confidence_ledger.py#L5548-L5580"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+      "symbol_or_anchor": "def observe_n6_deployment_currentness",
+      "lines": [
+        5577,
+        5609
+      ],
+      "sha256": "f7e770b6d170dafcaaa9fe566355ff9b64dc138b38b29848726cda3dbf0206c8",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/confidence_ledger.py#L5577-L5609"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "symbol_or_anchor": "_N6_TERMINAL_STOP_PROJECTIONS",
+      "lines": [
+        499,
+        531
+      ],
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L499-L531"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "symbol_or_anchor": "def _resolve_http_recursive_budget",
+      "lines": [
+        218,
+        250
+      ],
+      "sha256": "bdce8e32b0a07d3b9b85c59740f2e6583c1c175b64eddac1cc57d18ddf2b85b0",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py#L218-L250"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "symbol_or_anchor": "class ParentJointCandidateSelectionV2",
+      "lines": [
+        1594,
+        1626
+      ],
+      "sha256": "33c4fbcaf9afe49c1f4dce5ec82271a46a7dbebd5d54e5c9fa0ea168416cc253",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py#L1594-L1626"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-CYC-05-01",
+      "text": "Сохранить _resolve_http_recursive_budget и derive_n4_candidate_child_problems→derive_recursive_design_graph→recursive controller. Не снимать cap3/configured child cap2; generic source-complete profile использует весь подтверждённый набор в разрешённом depth/nodes. Parent/source/context/job/scope согласуются до вызова. Не выдумывать graph простым увеличением depth."
+    },
+    {
+      "requirement_id": "REQ-CYC-05-02",
+      "text": "Existing recursive partial builder/frontier continuation использовать без второго loop. Проверять numerical cap по enclosing HTTP budget resolution, поскольку standalone N6 не несёт max_cycles. Каждый начатый child/iteration привязан к admitted budget; не считать intrinsic shape validator доказательством численного cap."
+    },
+    {
+      "requirement_id": "REQ-CYC-05-03",
+      "text": "Сохранить _N6_TERMINAL_STOP_PROJECTIONS полным по SearchTerminalKind, _refinement_decision/_search_iteration и intrinsic validator. Не исправлять уже правильный stop→stopped заново. Проверить конечный consumer; при несогласованной sibling decision/action/terminal адресно отказывать, не нормализовать к удобному success."
+    },
+    {
+      "requirement_id": "REQ-CYC-05-04",
+      "text": "CYC-05 owns typed bridge в confidence_ledger: расширить inspect_packaged_deployment_identity, входом сделать проверяемый artifact от существующих build/distribution/census producers LANE-12. Artifact связывает exact distribution/source/lock/project/runtime baseline, relevant entrypoint/import bindings, census denominator/rule version/result и назначенного issuer/purpose. Existing ledger/identity verifier перечитывает artifact и проверяет issuer appointment/subject/scope/bytes; сам manifest/hash equality не issuer. Затем reconcile с import-time loaded baseline и известной disk/runtime consistency. Только совместный success даёт PackagedDeploymentIdentityReadiness PASS и observe_n6_deployment_currentness current; stale/missing/malformed/unappointed остаются точными limitations. Не создавать второй registry/receipt framework, не выдавать institutional authority из build integrity."
+    },
+    {
+      "requirement_id": "REQ-CYC-05-05",
+      "text": "Использовать capture_loaded_deployment_identity frozen snapshot + existing canonical ledger revalidation; issuer artifact key включает весь заявленный relevant baseline. Verify-on-admission/readiness сохраняет loaded-vs-disk distinction: смена диска не переписывает identity уже загруженного процесса. Производить новый immutable artifact для новой basis, а не обновлять прежний PASS. Измерять actual I/O на unchanged run, без недоказанного speedup claim."
+    },
+    {
+      "requirement_id": "REQ-CYC-05-06",
+      "text": "Сохранить _collect_strangle_source_census и inspect_n6_source_census как ограниченные diagnostics; manifest/proof производителя TEST-04 обязан назвать path denominator и неподдержанные динамические вызовы. LANE-12 owns фактический census/build artifact production; здесь проверяется чтение и bounded semantics, не новый AST framework."
+    },
+    {
+      "requirement_id": "REQ-CYC-05-07",
+      "text": "LLM/author может предложить typed relationships и composition intent. Расширять существующий ParentJointCandidateSelection/profile contract только для конкретного supported relation; сохранить source_candidate_relationship=alternatives/composition_status=not_established для старых inputs. CYC-05 owns authoring/decomposition→persisted relationship→consumer binding; SIM-03 owns actual model-bound joint comparator/effect/interaction computation. Для compound предъявить actual combined intervention/model, не сумму отдельных child outputs или hypothetical diagnostic."
+    }
+  ]
+}

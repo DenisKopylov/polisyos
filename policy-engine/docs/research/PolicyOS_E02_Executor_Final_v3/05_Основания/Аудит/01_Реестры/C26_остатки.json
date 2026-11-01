@@ -1,0 +1,72 @@
+{
+  "pass": "C26",
+  "bundle": "TRN-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C26-R01",
+      "type": "compatibility_filter_after_fixed_ann_candidate_cap",
+      "severity": "medium_available_history_discovery",
+      "source_ids": [
+        "B129"
+      ],
+      "location": "transfer.py:194–219",
+      "evidence": [
+        "P09"
+      ],
+      "mechanism": "query top_k*2 truncates candidates before binding filter. Two incompatible nearest entries hide third compatible source when top_k1; top_k2 finds it.",
+      "preserve": "Exact snapshot reads and tenant/split/source compatibility filters.",
+      "remaining": "Existing index compatible filtering or bounded refill/continuation with explicit exhausted discovery budget.",
+      "limits": "Deterministic index fixture, not native ANN recall measurement; known ref stays addressable."
+    },
+    {
+      "id": "C26-G01",
+      "type": "native_snapshot_custody_and_portable_runtime_chain_qualification",
+      "source_ids": [
+        "B129",
+        "B133",
+        "B134"
+      ],
+      "evidence": [
+        "P01",
+        "P17",
+        "P21",
+        "P22",
+        "S04",
+        "S07",
+        "S08",
+        "S09"
+      ],
+      "remaining": "Native HNSW0.8.0, actual Core owner/profile, portable NPZ and fresh-process runtime chain unrun. Caller-supplied portable index source orchestration not fully established. Preserve default native-graph refusal."
+    },
+    {
+      "id": "C26-G02",
+      "type": "native_resource_and_recovery_cost_qualification",
+      "source_ids": [
+        "B133",
+        "B134"
+      ],
+      "evidence": [
+        "P06",
+        "P07",
+        "P13",
+        "P14",
+        "P23",
+        "P24"
+      ],
+      "remaining": "Snapshot-per-add cost, recovery and bounded rebuild need measured supported tiny native profile; bytes cap is not total RSS. Actual locks executed with interface fixture, not native stress."
+    },
+    {
+      "id": "C26-G03",
+      "type": "existing_test_fixture_reconciliation",
+      "source_ids": [
+        "B133"
+      ],
+      "evidence": [
+        "S03:44–84,216–257"
+      ],
+      "remaining": "Cache test expects metrics.coverage absent from its current helper source. Source contradiction only, pytest not executed."
+    }
+  ]
+}

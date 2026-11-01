@@ -1,0 +1,266 @@
+{
+  "packet_id": "CAS-02",
+  "lane": "LANE-06",
+  "source_ids": [
+    "B148",
+    "B149"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/CAS-02.md",
+    "../05_Основания/Аудит/01_Реестры/C75_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C75-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CAS-02-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Убрать recursive delete старого output после swap: поздняя foreign запись не входит в доказанный export ownership.",
+      "inventory_id": "audit-residual:C75_остатки:0"
+    },
+    {
+      "audit_id": "C75-R02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CAS-02-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Tar строится во временном sibling файле и заменяет destination только после полного close/verification; fail не уничтожает A.",
+      "inventory_id": "audit-residual:C75_остатки:1"
+    },
+    {
+      "audit_id": "C75-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CAS-02-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Проверить importer/exporter с initialized CAS, реальными owners/signatures/recovery.",
+      "inventory_id": "audit-residual:C75_остатки:2"
+    },
+    {
+      "audit_id": "C75-G02",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-CAS-02-01",
+        "REQ-CAS-02-02",
+        "REQ-CAS-02-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Fault/concurrency/fs profile проверяют требуемую замкнутую группу и сохранность старого результата; не объявлять универсальную транзакционность.",
+      "inventory_id": "audit-residual:C75_остатки:3"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-CAS-02-01",
+      "text": "Publication directory-generation не удаляет recursively previous_root, который мог получить foreign data после preflight. Минимальное безопасное решение: после swap сохранить прежнее поколение под отдельным sibling именем и явно сообщить его location/cleanup disposition; автоматический cleanup допускает только ранее доказанные export-owned entries с проверкой identity/bindings и не удаляет неизвестные/replaced entries. При невозможности доказать ownership сохранить, а не удалять. Новый target содержит ровно B.",
+      "source_ids": [
+        "B149"
+      ],
+      "audit_ids": [
+        "C75-R01",
+        "C75-G02"
+      ],
+      "test_ids": [
+        "TEST-CAS-02-01"
+      ]
+    },
+    {
+      "id": "REQ-CAS-02-02",
+      "text": "Compressed export создаёт уникальный private temp file на filesystem destination, полностью записывает tar и закрывает gzip/tar, фиксирует exact inventory и выполняет flush/fsync согласно принятому durability profile, затем atomic replace. При ошибке source/read/archive/finalization до replace старый архив A byte-identical и импортируем; temp удаляется только собственный. Ошибка после replace не называется rollback A и получает честный visibility/durability outcome.",
+      "source_ids": [
+        "B149"
+      ],
+      "audit_ids": [
+        "C75-R02",
+        "C75-G02"
+      ],
+      "test_ids": [
+        "TEST-CAS-02-02"
+      ]
+    },
+    {
+      "id": "REQ-CAS-02-03",
+      "text": "На native FileSystemCAS и durable owner index import directory/tar публикует только проверенные closed groups и exact profile bindings. Tampered bytes, symlink, unknown member, manifest conflict, wrong tenant, revoked signature при обязательной signature policy или pending recovery не дают успешной публикации; previously valid artifact остаётся читаем. Counts и ошибки описывают фактически received/verified/reused/published, а не число copied files.",
+      "source_ids": [
+        "B148",
+        "B149"
+      ],
+      "audit_ids": [
+        "C75-G01",
+        "C75-G02"
+      ],
+      "test_ids": [
+        "TEST-CAS-02-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-CAS-02-01",
+      "requirement_ids": [
+        "REQ-CAS-02-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Экспорт A в reusable directory; callback после _validate_directory_export, но до generation swap, создаёт user-note.txt и отдельно заменяет старый member пользовательскими bytes.",
+      "action": "Экспорт B; затем import нового target. Также существующая foreign file до preflight и fault второго os.replace.",
+      "oracle": "Новый inventory ровно B без A; note/replaced bytes сохранены в old generation либо операция отказана до потери данных. Нет recursive deletion foreign entries. При swap failure A restored либо явный restore failure с сохранёнными путями; ни ложного B success, ни silent loss.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-CAS-02-02",
+      "requirement_ids": [
+        "REQ-CAS-02-02"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Valid archive A; экспорт B открывает blob, а чтение manifest выбрасывает OSError. Отдельные faults write, close/gzip footer, fsync, replace.",
+      "action": "Повторить failed export; сравнить SHA256 всего archive A; import A fresh reader. Затем successful B и absence stale A.",
+      "oracle": "Любой pre-replace отказ сохраняет A byte-for-byte и пригодным к import; successful archive closed и inventory B; собственный temp очищен, пользовательские sibling files не затронуты. Post-replace fsync refusal явно не обещает старый A.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-CAS-02-03",
+      "requirement_ids": [
+        "REQ-CAS-02-03"
+      ],
+      "level": "native CAS → transfer → fresh CAS",
+      "setup": "Реальный source CAS профили A/B из CAS-01, отдельный destination root/index, configured trust/tenant; малый directory и tar.",
+      "action": "Valid transfer, corrupt payload, altered manifest, extra member, symlink, tenant mismatch; fault на verified group publication и restart/retry.",
+      "oracle": "Точные selected refs/manifest bytes сохраняются; отрицательный набор не портит старый valid destination; partial disposition честен по каждому объекту. Нет опубликованного объекта без admission, обязательного для выбранного профиля и configured policy; допустимый unsigned профиль остаётся пригодным и проверяется положительным control. Отсутствие подписи само по себе не invalid; recovery читает действующие intents, не перескакивает проверку.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-D"
+  ],
+  "dependencies": [
+    "CAS-01"
+  ],
+  "preservation": [
+    "Закрытый inventory и измеренные hash/size bindings: экспорт B не включает остатки A; manifests=False не оставляет старую sidecar.",
+    "Import проверяет private staging, ownership/admission/conflicts до публикации; staged/received не равно published/verified.",
+    "Immutable profile views, nofollow/path containment и раздельные counts received/published/reused/verified остаются."
+  ],
+  "design_alignment": [
+    "Custody требует проверенный producer→transfer→consumer, а не успешный copy.",
+    "Безопасное удержание предыдущего поколения предпочтительнее дорогостоящего универсального transactional storage."
+  ],
+  "open_decisions": [
+    "Согласовать канал передачи retained generation path и bounded retention policy; отсутствие автоматического cleanup допустимо, потеря чужих данных — нет.",
+    "Для fsync после replace зафиксировать существующий error/report surface и поддержанный filesystem; не изобретать гарантированный rollback."
+  ],
+  "source_obligations": [
+    "B148: corrupt/read-interrupted/conflicting import не повреждает ранее доступный объект; минимальная замкнутая группа атомарности, а не обязательная giant archive transaction.",
+    "B149: A→B replacement выдаёт только B; foreign data не принадлежит exporter даже если появилась после preflight. Старое поколение может жить отдельно, но не в новом inventory."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py: _validate_directory_export, _publish_directory_generation, export_subgraph, import_subgraph",
+    "policy-engine/src/polisyos/core/artifacts/store.py: FileSystemCAS.export_subgraph, import_subgraph",
+    "policy-engine/src/polisyos/core/artifacts/_atomic_write.py: fsync_directory, AtomicFileDurabilityError"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_cas_02.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0254",
+      "requirement_ids": [
+        "REQ-CAS-02-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Убрать recursive delete старого output после swap: поздняя foreign запись не входит в доказанный export ownership."
+    },
+    {
+      "inventory_id": "remaining:0255",
+      "requirement_ids": [
+        "REQ-CAS-02-02"
+      ],
+      "disposition": "fix",
+      "rationale": "Tar строится во временном sibling файле и заменяет destination только после полного close/verification; fail не уничтожает A."
+    },
+    {
+      "inventory_id": "remaining:0256",
+      "requirement_ids": [
+        "REQ-CAS-02-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Проверить importer/exporter с initialized CAS, реальными owners/signatures/recovery."
+    },
+    {
+      "inventory_id": "remaining:0257",
+      "requirement_ids": [
+        "REQ-CAS-02-01",
+        "REQ-CAS-02-02",
+        "REQ-CAS-02-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Fault/concurrency/fs profile проверяют требуемую замкнутую группу и сохранность старого результата; не объявлять универсальную транзакционность."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0376",
+      "requirement_ids": [
+        "REQ-CAS-02-01",
+        "REQ-CAS-02-02",
+        "REQ-CAS-02-03"
+      ],
+      "test_ids": [
+        "TEST-CAS-02-01",
+        "TEST-CAS-02-02",
+        "TEST-CAS-02-03"
+      ],
+      "rationale": "Exact closed inventory и measured bindings — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0377",
+      "requirement_ids": [
+        "REQ-CAS-02-03"
+      ],
+      "test_ids": [
+        "TEST-CAS-02-03"
+      ],
+      "rationale": "Private staging и admission до publication — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0378",
+      "requirement_ids": [
+        "REQ-CAS-02-03"
+      ],
+      "test_ids": [
+        "TEST-CAS-02-03"
+      ],
+      "rationale": "Immutable default/selected profiles — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0379",
+      "requirement_ids": [
+        "REQ-CAS-02-01",
+        "REQ-CAS-02-03"
+      ],
+      "test_ids": [
+        "TEST-CAS-02-01",
+        "TEST-CAS-02-03"
+      ],
+      "rationale": "No-follow/path safeguards — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0380",
+      "requirement_ids": [
+        "REQ-CAS-02-03"
+      ],
+      "test_ids": [
+        "TEST-CAS-02-03"
+      ],
+      "rationale": "Раздельные received/published/reused/verified refs — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

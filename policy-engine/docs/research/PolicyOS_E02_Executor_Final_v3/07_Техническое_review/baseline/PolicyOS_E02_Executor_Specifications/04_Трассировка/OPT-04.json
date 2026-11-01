@@ -1,0 +1,375 @@
+{
+  "packet_id": "OPT-04",
+  "lane": "LANE-02",
+  "title": "Сопоставимый champion и атомарная публикация",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B116",
+    "B117"
+  ],
+  "audit_reports": [
+    "02_Пакеты/OPT-04.md"
+  ],
+  "audit_report_sha256": "ea34111cee3a3a4c2dd0dd38c6b5b6cbb31da8891a88921c67046565d94a2ca3",
+  "sourceplan_lines": [
+    2600,
+    2696
+  ],
+  "practical_goal": "Реальная оценка правильного кандидата улучшает champion на одной явной comparison basis; развитие цели разрешено через честный переход.",
+  "requirements": [
+    {
+      "id": "REQ-OPT-04-01",
+      "text": "Incumbent и challenger сравниваются по полной metric/split/direction/unit basis; смена basis — явный переход.",
+      "source_ids": [
+        "B116",
+        "B117"
+      ],
+      "audit_ids": [
+        "remaining:0189",
+        "preserve:0303",
+        "audit-residual:C21_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-OPT-04-01"
+      ]
+    },
+    {
+      "id": "REQ-OPT-04-02",
+      "text": "Обеспечить положительный loader-first путь seeded baseline→active suite evaluation→bound champion.",
+      "source_ids": [
+        "B116",
+        "B117"
+      ],
+      "audit_ids": [
+        "remaining:0190",
+        "remaining:0191",
+        "preserve:0303",
+        "preserve:0304",
+        "audit-residual:C21_остатки:1",
+        "audit-residual:C21_остатки:2"
+      ],
+      "test_ids": [
+        "TEST-OPT-04-02"
+      ]
+    },
+    {
+      "id": "REQ-OPT-04-03",
+      "text": "Квалифицировать существующий cross-process compare-and-publish и envelope crash consistency в заявленном deployment profile.",
+      "source_ids": [
+        "B116",
+        "B117"
+      ],
+      "audit_ids": [
+        "remaining:0191",
+        "remaining:0192",
+        "preserve:0305",
+        "preserve:0306",
+        "audit-residual:C21_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-OPT-04-03"
+      ]
+    },
+    {
+      "id": "REQ-OPT-04-04",
+      "text": "Finite/source admission прямого registry доказать на настоящем producer и canonical CAS, не permissive fixture.",
+      "source_ids": [
+        "B116",
+        "B117"
+      ],
+      "audit_ids": [
+        "remaining:0190",
+        "preserve:0303",
+        "audit-residual:C21_остатки:1",
+        "audit-residual:C21_остатки:3"
+      ],
+      "test_ids": [
+        "TEST-OPT-04-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-OPT-04-01",
+      "requirement_ids": [
+        "REQ-OPT-04-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Последовательные policies одной suite: holdout10→selection20, metric score→other=-999, maximize→minimize, USD→EUR; same-basis1→3→2.",
+      "action": "Вызвать actual registry и loader; для нового profile выполнить явную baseline reevaluation/transition.",
+      "oracle": "Same-basis итог3; каждое mismatch даёт адресный transition-required и не меняет старый pointer. После реальной переоценки новая задача может работать.",
+      "expected": "Не запрещать изменение цели навсегда; не снимать canonical specialised claim policy checks.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-OPT-04-02",
+      "requirement_ids": [
+        "REQ-OPT-04-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Actual authorized evaluator, temporary native CAS, seeded baseline без suite refs; normal candidate; MethodJob provenance missing и valid assigned test principal.",
+      "action": "Loader→baseline evaluation→registry promotion→fresh loader; затем source ref/profile mismatch и отсутствующий trusted execution provenance.",
+      "oracle": "Полезный measured baseline и candidate путь работает; unknown seed сохраняет champion_suite_basis_unknown до измерения; чужие candidate/loop/suite/split/profile не меняют pointer.",
+      "expected": "Один generic benchmark не квалифицирует specialised claim authority; если authorized issuer unavailable — точный BLOCKED, не guard removal.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-OPT-04-03",
+      "requirement_ids": [
+        "REQ-OPT-04-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Два управляемых процесса, current1, slow2 остановлен после predecessor read, fast3; actual native store/loader. Fault injection до replace и на declared crash boundaries.",
+      "action": "Исполнить race, fresh reader и sanctioned envelope consumer; отдельный no-lock removal control только test profile.",
+      "oracle": "Итог3 и каждый writer сравнивает актуального predecessor; old-or-new согласованный pointer+basis после отказа; no-lock control воспроизводит2.",
+      "expected": "Local POSIX PASS не network FS/multihost PASS; если deployment не заявлен, scope local filesystem и limitation явны.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-OPT-04-04",
+      "requirement_ids": [
+        "REQ-OPT-04-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Native CanonSpec default запрета NaN/Inf, bootstrap finite0 и invalid values; exact source manifest/profile.",
+      "action": "Persist evaluation→consider_promotion→fresh loader; отдельно documented direct entry если существует.",
+      "oracle": "Finite0 допустим при valid source; invalid не создаёт unreadable null pointer; upstream denial зафиксирован как owner результата.",
+      "expected": "Не дублировать несовместимые error codes; candidate/evaluation/suite exact refs и lineage checks не ослаблены.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C21_остатки:0",
+      "requirement_ids": [
+        "REQ-OPT-04-01"
+      ],
+      "rationale": "Comparison basis до числа.",
+      "disposition": "fix",
+      "audit_id": "C21-R01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C21_остатки:1",
+      "requirement_ids": [
+        "REQ-OPT-04-02",
+        "REQ-OPT-04-04"
+      ],
+      "rationale": "Реальные owners, не fixture CAS.",
+      "disposition": "qualify",
+      "audit_id": "C21-G01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C21_остатки:2",
+      "requirement_ids": [
+        "REQ-OPT-04-02"
+      ],
+      "rationale": "Положительное измерение baseline, guard сохранён.",
+      "disposition": "capability",
+      "audit_id": "C21-G02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C21_остатки:3",
+      "requirement_ids": [
+        "REQ-OPT-04-04"
+      ],
+      "rationale": "Native достижимость отдельно, не объявленный bypass.",
+      "disposition": "qualify",
+      "audit_id": "C21-G03",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C21_остатки:4",
+      "requirement_ids": [
+        "REQ-OPT-04-03"
+      ],
+      "rationale": "Фактическая deployment durability.",
+      "disposition": "qualify",
+      "audit_id": "C21-G04",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B116",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-OPT-04-01",
+        "REQ-OPT-04-02",
+        "REQ-OPT-04-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B117",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-OPT-04-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0189",
+      "requirement_ids": [
+        "REQ-OPT-04-01"
+      ],
+      "rationale": "Полный profile и explicit transition.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0190",
+      "requirement_ids": [
+        "REQ-OPT-04-02",
+        "REQ-OPT-04-04"
+      ],
+      "rationale": "Native chain и measured seeded baseline.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0191",
+      "requirement_ids": [
+        "REQ-OPT-04-02",
+        "REQ-OPT-04-03"
+      ],
+      "rationale": "Actual authority consumer и crash/durability.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0192",
+      "requirement_ids": [
+        "REQ-OPT-04-03"
+      ],
+      "rationale": "Deployment scope не выводить из local filesystem.",
+      "disposition": "qualify"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0303",
+      "requirement_ids": [
+        "REQ-OPT-04-01",
+        "REQ-OPT-04-02",
+        "REQ-OPT-04-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Incumbent и challenger сравниваются по полной metric/split/direction/unit basis; смена basis — явный переход.; Обеспечить положительный loader-first путь seeded baseline→active suite evaluation→bound champion.; Finite/source admission прямого registry доказать на настоящем producer и canonical CAS, не permissive fixture.",
+      "test_ids": [
+        "TEST-OPT-04-01",
+        "TEST-OPT-04-02",
+        "TEST-OPT-04-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0304",
+      "requirement_ids": [
+        "REQ-OPT-04-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Обеспечить положительный loader-first путь seeded baseline→active suite evaluation→bound champion.",
+      "test_ids": [
+        "TEST-OPT-04-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0305",
+      "requirement_ids": [
+        "REQ-OPT-04-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Квалифицировать существующий cross-process compare-and-publish и envelope crash consistency в заявленном deployment profile.",
+      "test_ids": [
+        "TEST-OPT-04-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0306",
+      "requirement_ids": [
+        "REQ-OPT-04-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Квалифицировать существующий cross-process compare-and-publish и envelope crash consistency в заявленном deployment profile.",
+      "test_ids": [
+        "TEST-OPT-04-03"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I02-B"
+  ],
+  "dependencies": [
+    "OPT-01 — comparison coordinate contract; OPT-02/03 — source-admitted evaluations, не issuer полномочий.",
+    "SRV-03/OPT-02 разделяют runtime.py: один writer.",
+    "Existing claim verifier владеет appointment/signature/expiry; этот пакет интегрирует разрешённый test principal, не создаёт право из score."
+  ],
+  "preservation": [
+    "Полные candidate/evaluation/suite/split/loop проверки и source edges.",
+    "Неподтверждённый baseline и MethodJob execution provenance не допускаются молча.",
+    "Стабильный per-loop flock вокруг current read/comparison/publish.",
+    "Atomic replace и claim pointer+basis envelope."
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    ""
+  ],
+  "open_decisions": [],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "symbol_or_anchor": "    def _consider_promotion_locked(",
+      "lines": [
+        724,
+        756
+      ],
+      "sha256": "99ce5e98e88e524f19a4dd1f166aa46b2fa06edce21170280415bb8b1015e33a",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/registry.py#L724-L756"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "symbol_or_anchor": "    def _promotion_lock(",
+      "lines": [
+        943,
+        975
+      ],
+      "sha256": "99ce5e98e88e524f19a4dd1f166aa46b2fa06edce21170280415bb8b1015e33a",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/registry.py#L943-L975"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "symbol_or_anchor": "def seed_loop_baseline(",
+      "lines": [
+        152,
+        184
+      ],
+      "sha256": "143ecb1eac1e33f916656a0b6dbb15dabc77c8c949bd453544dd4f2f87426dec",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py#L152-L184"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-OPT-04-01",
+      "text": "В _consider_promotion_locked до current.metrics.get использовать сохранённый promoted_by_policy/compare_split и canonical effective profile. Несовпадение не missing metric→automatic promotion. Существующий evaluator переоценивает incumbent на новой suite/profile либо создаётся отдельная начальная точка сравнения с explicit transition и predecessor linkage. Не объявлять старое число измеренным в новой единице. OPT-01 определяет coordinate identity, registry её потребляет."
+    },
+    {
+      "requirement_id": "REQ-OPT-04-02",
+      "text": "В существующем seed_loop_baseline/runner хранить unknown status честно; если suite basis не установлена, запланировать/выполнить существующим evaluator измерение baseline на активной suite и связать candidate/evaluation/profile refs. Только такой bound result участвует в сравнении. Не добавлять фиктивную suite metadata к старому score. Проверить MethodJob trusted execution issuer/consumer и specialised claim путь отдельно; техническое число не право исполнения."
+    },
+    {
+      "requirement_id": "REQ-OPT-04-03",
+      "text": "Сохранить стабильный per-loop flock вокруг current read/binding/compare/publish, дорогой evaluator снаружи. Actual pointer+basis claim envelope пишется единым atomic replace; legacy reader не переименовывать как новый. Проверить deployment filesystem semantics и durability требование; если требуется surviving power loss, обосновать fsync parent directory/эквивалентный existing storage primitive. Не строить distributed registry по локальному тесту."
+    },
+    {
+      "requirement_id": "REQ-OPT-04-04",
+      "text": "Исполнить actual persist helpers с NaN/Inf и обычным finite bootstrap; проверить кто уже отвергает invalid. Только при реально поддержанном public direct API без upstream guard добавить адресную finite validation перед pointer write. Не регистрировать C21-G03 как доказанный native дефект без достижимого replay. Fresh reader обязан читать каждый успешно опубликованный pointer."
+    }
+  ]
+}

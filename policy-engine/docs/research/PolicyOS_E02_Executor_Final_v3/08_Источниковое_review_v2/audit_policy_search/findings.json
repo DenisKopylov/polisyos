@@ -1,0 +1,7 @@
+{
+  "schema": "e02-source-audit-findings-v1",
+  "review_group": "audit_policy_search",
+  "finding_id_prefix": "PS",
+  "findings": [],
+  "reason": "После чтения полного current v2 contract и applicable shared bindings новый подтверждённый defect не установлен; нет квоты находок. Bounded/NOT_RUN не объявлены failure."
+}

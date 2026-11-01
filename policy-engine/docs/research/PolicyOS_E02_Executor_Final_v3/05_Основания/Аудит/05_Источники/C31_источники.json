@@ -1,0 +1,254 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1882
+        ]
+      ],
+      "evidence_level": "Полный owner прочитан; все definitions исполнены без изменения тела, с явными fixture CAS/ref/IR IO seams",
+      "git_blob": "91a5a1897851b179d51b77a3f73645790691b931",
+      "sha256": "953abaf6021ebc35629f03c4c132851515903eb96aba53a242ec450d855ca750",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1299
+        ]
+      ],
+      "evidence_level": "Полный producer прочитан; настоящие TrainHoldoutSplit, ForecastMethodParams, ForecastTemporalRoles, CalibrationRuleArtifact исполнены; ForecastOwner.run не исполнялся",
+      "git_blob": "07d4e46c0d015e9090bab2446b3407dd0e7dbc55",
+      "sha256": "e246e670e007e0d9da0438fb7ec65dc4398d2b409131fac6de52b3f10de36587",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          858
+        ]
+      ],
+      "evidence_level": "Полный DTO/persistence contract прочитан; все шесть настоящих DTO classes исполнены. Owned JSON IO и native admission не исполнялись",
+      "git_blob": "00cb21226f292127497c8c818b16ff2b65081fed",
+      "sha256": "5fc6db3c90220efd194175e6a6cab7d0a11f1a526a0e4182e011d4a3b42c7480",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/forecasting/univariate.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/forecasting/univariate.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          118
+        ],
+        [
+          249,
+          330
+        ]
+      ],
+      "evidence_level": "Численный Holt helper и ETS pure_step прочитаны; полные _holt_linear и _exponential_smoothing_result исполнены; registration/dispatcher/uncertainty не запускались",
+      "git_blob": "6c71a9a38b958af3193d139d3b1f0f93f8186703",
+      "sha256": "f24e1dd14d34012698a90af9bd2a798c168f031bdc83cff3aeb03eb4bace0f22",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/forecasting/uncertainty.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/forecasting/uncertainty.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          461,
+          620
+        ]
+      ],
+      "evidence_level": "Адресно прочитана первая часть реального rolling-origin interval producer; неполный файл и неполная функция, не исполнены",
+      "git_blob": "fae5edf598fd3c03f5101effbb9bf216d2ae62aa",
+      "sha256": "30678d3f80051bf60ecac204b7c10dcdf99a05892188cf1cc253501e94d4e786",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          361,
+          825
+        ],
+        [
+          1176,
+          1367
+        ],
+        [
+          1948,
+          2038
+        ]
+      ],
+      "evidence_level": "Полный run producer, role-ref/context helpers и fresh S10 recomputation прочитаны; service/native CAS/event log не исполнялись",
+      "git_blob": "996b0d27d524019fd50611a008d0b9b89cac0925",
+      "sha256": "c93d9322231521d77b3da7c3bd1d63c0ac8d1d84b9fac1fac127a31d2f94dd71",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          6114,
+          6133
+        ],
+        [
+          17140,
+          17918
+        ]
+      ],
+      "evidence_level": "Gateway, полный S10 empirical resolver/projection/builder, estimator diagnostics и purpose boundary прочитаны; в C31 не исполнялись, Python 3.14 syntax не преобразовывался",
+      "git_blob": "9761de868301e6fb90e69cd03aa3270b9a8187aa",
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/tests/unit/remediation/test_frc_02.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_frc_02.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          228
+        ]
+      ],
+      "evidence_level": "Полный найденный reference transport test прочитан; UNRUN",
+      "git_blob": "a2333287f8ea56392a5e847d8b4df70e773b1554",
+      "sha256": "3c509a43bb335f0f5c35dba15328637bd5f454d5f123f98f30b9d2804dbcecbf",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          295
+        ],
+        [
+          577,
+          617
+        ],
+        [
+          1121,
+          1261
+        ]
+      ],
+      "evidence_level": "Полные выбранные fixture helpers, owner roundtrip/observations и rule/temporal negative tests прочитаны; остальная HTTP часть не объявлена прочитанной; UNRUN",
+      "git_blob": "e40bcd73f9102ee8da9a16ee18c686a9fe0b31e4",
+      "sha256": "a6731d2c17a5dc133b1b2d5424b4b0c8853396386be936880d419174e0c1b566",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/tests/unit/remediation/test_frc_02_empirical_bridge.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_frc_02_empirical_bridge.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          418
+        ]
+      ],
+      "evidence_level": "Полный owner→bridge→limited S10 test файл прочитан; native attempt BLOCKED отсутствием pytest",
+      "git_blob": "21beb41c84079ef54a330a33fac1f861e83fea60",
+      "sha256": "09d018eed152f96937aa96184092c40ad03587a6b8dee8818b4e5d82db3c06bf",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          307,
+          1251
+        ]
+      ],
+      "evidence_level": "Полные выбранные report/context fixtures и actual gateway tests прочитаны; начало файла и context-source fixture construction отдельно не переаттестованы; UNRUN",
+      "git_blob": "245f6379e0a1e79243ba6235dcd993e302b0966b",
+      "sha256": "1532c8b7e947ca341bcd9d6492fbe0d9b2dc955930c990d18e1b3142a51ba1f7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/tests/unit/calibration/test_forecast_bridge.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/calibration/test_forecast_bridge.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          663,
+          751
+        ],
+        [
+          884,
+          958
+        ],
+        [
+          1284,
+          1389
+        ]
+      ],
+      "evidence_level": "Полные выбранные selected-profile, neutral readback и observed-vs-nominal tests прочитаны; UNRUN",
+      "git_blob": "efe2a5c273b56db48e7a0e861d57d07d3e7a3219",
+      "sha256": "27fee8f6252106f3a6cfd68734f2bb6056b7faccbd81bd405d319203fa0eccbb",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      3846,
+      3973
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "discovery": {
+    "census": false,
+    "scope": "Actual ETS owner→report→neutral evidence→run-bound S10 candidate service; full native chain unrun"
+  }
+}

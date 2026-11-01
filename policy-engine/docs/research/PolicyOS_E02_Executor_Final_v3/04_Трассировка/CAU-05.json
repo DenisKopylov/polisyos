@@ -1,0 +1,475 @@
+{
+  "packet_id": "CAU-05",
+  "lane": "LANE-05",
+  "status": "AUTHORED_PENDING_FINAL_QA",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "test_status": "NOT_RUN",
+  "audit_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "source_ids": [
+    "LA-016"
+  ],
+  "audit_reports": [
+    "05_Основания/Аудит/02_Пакеты/CAU-05.md"
+  ],
+  "source_plan_lines": [
+    6783,
+    6871
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C56_остатки:0",
+      "audit_id": "C56-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CAU-05-01",
+        "REQ-CAU-05-02",
+        "REQ-CAU-05-03",
+        "REQ-CAU-05-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Actual bootstrap/dispatch/CAS вместо isolated AST.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C56_остатки.json",
+        "sha256": "e1bc3dceeb90efd861781c62866f710c0e109af5a75b59902267d7dcb99eab3c",
+        "json_pointer": "/findings/0"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C56_остатки:1",
+      "audit_id": "C56-G02",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-CAU-05-03",
+        "REQ-CAU-05-04",
+        "REQ-CAU-05-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Сначала finite supported history, затем existing versioned reader либо explicit retirement boundary.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C56_остатки.json",
+        "sha256": "e1bc3dceeb90efd861781c62866f710c0e109af5a75b59902267d7dcb99eab3c",
+        "json_pointer": "/findings/1"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C56_остатки:2",
+      "audit_id": "C56-G03",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-CAU-05-01",
+        "REQ-CAU-05-06"
+      ],
+      "shared_owner": "CAU-01/CAU-02",
+      "rationale": "Accountable LA016 связывает numerical companions, не повторяет и не закрывает их переносом metadata.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C56_остатки.json",
+        "sha256": "e1bc3dceeb90efd861781c62866f710c0e109af5a75b59902267d7dcb99eab3c",
+        "json_pointer": "/findings/2"
+      }
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0387",
+      "requirement_ids": [
+        "REQ-CAU-05-01",
+        "REQ-CAU-05-02",
+        "REQ-CAU-05-03",
+        "REQ-CAU-05-06"
+      ],
+      "disposition": "qualify",
+      "rationale": "Реальные owners и output ABI.",
+      "source_ids": [
+        "LA-016"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0388",
+      "requirement_ids": [
+        "REQ-CAU-05-04",
+        "REQ-CAU-05-05"
+      ],
+      "disposition": "capability",
+      "rationale": "Conditional replay extension только для declared supported version; иначе exact narrowed lifecycle disposition.",
+      "source_ids": [
+        "LA-016"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0389",
+      "requirement_ids": [
+        "REQ-CAU-05-06"
+      ],
+      "disposition": "shared",
+      "rationale": "Numerical/inferential acceptance остаётся у CAU-01/02.",
+      "source_ids": [
+        "LA-016"
+      ]
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0622",
+      "requirement_ids": [
+        "REQ-CAU-05-01"
+      ],
+      "test_ids": [
+        "TEST-CAU-05-01"
+      ],
+      "rationale": "Independent metadata/common numerical helpers"
+    },
+    {
+      "inventory_id": "preserve:0623",
+      "requirement_ids": [
+        "REQ-CAU-05-02"
+      ],
+      "test_ids": [
+        "TEST-CAU-05-02",
+        "TEST-CAU-05-03"
+      ],
+      "rationale": "Dedicated default planning and maintained callers"
+    },
+    {
+      "inventory_id": "preserve:0624",
+      "requirement_ids": [
+        "REQ-CAU-05-03"
+      ],
+      "test_ids": [
+        "TEST-CAU-05-03",
+        "TEST-CAU-05-04"
+      ],
+      "rationale": "Strict old-slot/bool direct adapter"
+    },
+    {
+      "inventory_id": "preserve:0625",
+      "requirement_ids": [
+        "REQ-CAU-05-03",
+        "REQ-CAU-05-06"
+      ],
+      "test_ids": [
+        "TEST-CAU-05-03",
+        "TEST-CAU-05-07"
+      ],
+      "rationale": "Complete report/warnings and output aliases"
+    },
+    {
+      "inventory_id": "preserve:0626",
+      "requirement_ids": [
+        "REQ-CAU-05-06"
+      ],
+      "test_ids": [
+        "TEST-CAU-05-07",
+        "TEST-CAU-05-08"
+      ],
+      "rationale": "Non-gating candidate/scientific limits"
+    }
+  ],
+  "requirements": [
+    {
+      "text": "Standard/Staggered metadata и общие _run_* helpers не зависят от deprecated DifferenceInDifferences metadata/class binding. Assumptions/citations/equations сохраняются в независимых definitions и принадлежащих dedicated methods mappings, без cross-mutation.",
+      "source_ids": [
+        "LA-016"
+      ],
+      "audit_ids": [
+        "C56-G01",
+        "C56-G03"
+      ],
+      "id": "REQ-CAU-05-01",
+      "test_ids": [
+        "TEST-CAU-05-01"
+      ]
+    },
+    {
+      "text": "Actual family component bridge/default registry/planner предлагают dedicated causal.inference.did.standard@1.0.0 и staggered@1.0.0, не retired generic. Maintained requests и benchmark callers достигают соответствующего numerical owner без legacy delegation.",
+      "source_ids": [
+        "LA-016"
+      ],
+      "audit_ids": [
+        "C56-G01"
+      ],
+      "id": "REQ-CAU-05-02",
+      "test_ids": [
+        "TEST-CAU-05-02",
+        "TEST-CAU-05-03"
+      ]
+    },
+    {
+      "text": "Direct legacy adapter сохраняет old slots outcome_panel/treatment_indicator и bool/np.bool_ mode mapping. Конфликт old/new slots и ambiguous truthy values адресно отказаны. Equivalent effective old/dedicated запросы совпадают по всему corrected report, method_params, diagnostics и warnings; output aliases остаются согласованными.",
+      "source_ids": [
+        "LA-016"
+      ],
+      "audit_ids": [
+        "C56-G01",
+        "C56-G02"
+      ],
+      "id": "REQ-CAU-05-03",
+      "test_ids": [
+        "TEST-CAU-05-03",
+        "TEST-CAU-05-04"
+      ]
+    },
+    {
+      "text": "До заявления historical replay определить конечный supported plan/schema/FQN/version scope и реальный persisted reader. Для поддержанной версии reader/migration однозначно преобразует old slots/mode в dedicated request, сохраняет original bytes/provenance и вычисляет новые corrected outputs с явным текущим method identity. Не добавлять implicit old-name alias в общий registry lookup ради обхода retirement.",
+      "source_ids": [
+        "LA-016"
+      ],
+      "audit_ids": [
+        "C56-G02"
+      ],
+      "id": "REQ-CAU-05-04",
+      "test_ids": [
+        "TEST-CAU-05-05",
+        "TEST-CAU-05-06"
+      ]
+    },
+    {
+      "text": "Если historical support не заявлен или genuine fixtures недоступны, выходом lifecycle решения служит явно более узкий direct-import-only/retirement contract с unsupported version diagnostic и actionable migration boundary, а не обещание бесконечной совместимости. Не удалять полезный adapter до finite caller/artifact census и согласованного support window.",
+      "source_ids": [
+        "LA-016"
+      ],
+      "audit_ids": [
+        "C56-G02"
+      ],
+      "id": "REQ-CAU-05-05",
+      "test_ids": [
+        "TEST-CAU-05-05",
+        "TEST-CAU-05-06"
+      ]
+    },
+    {
+      "text": "Native selected causal job→CAS→fresh reader сверяет whole persisted/offered report и envelope относительно фактических inputs и selected method; CAU-01/02 numerical oracles являются prerequisites общей приёмки. Source-bound numerical candidate сохраняется без automatic causal authority.",
+      "source_ids": [
+        "LA-016"
+      ],
+      "audit_ids": [
+        "C56-G01",
+        "C56-G03"
+      ],
+      "id": "REQ-CAU-05-06",
+      "test_ids": [
+        "TEST-CAU-05-07",
+        "TEST-CAU-05-08"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "native metadata ownership",
+      "setup": "Заменить deprecated metadata poison object, затем отдельным контролем убрать legacy class binding; получить standard и staggered dedicated metadata.",
+      "action": "Вызвать оба actual dedicated paths; мутировать допустимую копию assumptions одного потребителя и снова прочитать другого.",
+      "oracle": "Оба вычисления работают; definitions/citations/equations сохраняются; чужая mutation не меняет независимый owner. Не удалять numerical module для проверки retirement.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py; tests/unit/remediation/test_cau_05.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-05-01",
+      "requirement_ids": [
+        "REQ-CAU-05-01"
+      ]
+    },
+    {
+      "level": "native boot/request route",
+      "setup": "Actual builtin component family loader, clean registry; maintained _default_g2_runtime_method_candidate.",
+      "action": "Bootstrap без fixture registry; resolve dedicated FQNs, inspect actual request signature, request old full/short FQN.",
+      "oracle": "Dedicated owners зарегистрированы и исполнимы, standard signature без staggered flag; retired generic не предложен и default lookup отказывает. Synthetic planner refs не становятся empirical evidence.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/runtime/quality/test_did_request_route.py; _registry_boot.py; extensions/_builtin_loader.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-05-02",
+      "requirement_ids": [
+        "REQ-CAU-05-02"
+      ]
+    },
+    {
+      "level": "native equivalent route/callers",
+      "setup": "Standard cluster80% и staggered not-yet-treated95%,399 draws, fixed seed; обе формы slots. Poison legacy pure_step для maintained benchmark controls.",
+      "action": "Сравнить legacy direct adapter и dedicated result целиком; отдельно вызвать maintained benchmark runners.",
+      "oracle": "Report/result и envelope/uncertainty_envelope aliases согласованы; whole JSON report и warnings одинаковы для equivalent requests. Maintained callers не обращаются к poison legacy; numerical semantics остаются corrected, не исторически flawed.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_cau_05.py; benchmarks/interference/policy_did_interference.py; benchmarks/natural_experiments/policy_natural_experiments.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-05-03",
+      "requirement_ids": [
+        "REQ-CAU-05-02",
+        "REQ-CAU-05-03"
+      ]
+    },
+    {
+      "level": "native ambiguity boundary",
+      "setup": "Mode values string false/true,0,1,None,empty collection; old+new aliases вместе; unknown DTO field; positive bool and np.bool_.",
+      "action": "Materialize и dispatch через соответствующий actual entrypoint.",
+      "oracle": "Неподдержанные mode/slots не выбирают другой estimator через truthiness. Valid booleans и однозначные old slots сохраняют intended route. Ошибка остаётся typed/адресной, не generic success.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "did.py::_legacy_staggered_flag; DifferenceInDifferences.materialize_input",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-05-04",
+      "requirement_ids": [
+        "REQ-CAU-05-03"
+      ]
+    },
+    {
+      "level": "finite caller/artifact census",
+      "setup": "Git-tracked Python плюс declared serialization/config/plan formats и доступный historical fixture corpus; denominator отдельно для каждого.",
+      "action": "Найти FQN literals, import/alias usages, computed method identity producers и persisted plan/schema versions; назвать недоступные external domains.",
+      "oracle": "Таблица exact old→new scope с реальным owner reader, evidence и support decision. Отсутствие literal в Python не доказывает отсутствие frozen plans; counts8231/101 из аудита не вечный acceptance oracle.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "Существующий replay/migration owner обнаружить по actual plan DTO/reader; C56 census как исторический locator, не новый runtime registry",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-05-05",
+      "requirement_ids": [
+        "REQ-CAU-05-04",
+        "REQ-CAU-05-05"
+      ]
+    },
+    {
+      "level": "native versioned compatibility",
+      "setup": "Для каждой объявленной supported version genuine old plan bytes и equivalent dedicated plan; unsupported version и ambiguous aliases negatives.",
+      "action": "Прочитать actual existing versioned reader, выполнить migration/replay в свежем процессе и сохранить explicit original→effective identity mapping. Если support не заявлен — выполнить точный retirement refusal case.",
+      "oracle": "Supported old plan воспроизводимо даёт corrected effective request/report/warnings, historical bytes не переписаны; unsupported version не угадывается, не fallback на arbitrary newest. Default new planning остаётся dedicated. Без genuine fixture историческая квалификация NOT_ESTABLISHED, не fake PASS.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "DEC-CAU-05-REPLAY; existing versioned plan owner",
+      "allowed_doubles_and_prohibitions": "Синтетический old-shaped dict годится для нового adapter unit test, не заменяет genuine historical replay evidence.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-05-06",
+      "requirement_ids": [
+        "REQ-CAU-05-04",
+        "REQ-CAU-05-05"
+      ]
+    },
+    {
+      "level": "native E02-I05-B whole lifecycle",
+      "setup": "Actual standard/staggered registered source-bound jobs с synthetic panels; actual CAS и fresh reader.",
+      "action": "Выполнить primary job, сверить canonical report/envelope; изменить diagnostic window, target, unit score metadata или envelope при согласованной peer serialization.",
+      "oracle": "Valid outputs доходят до consumer. Подмена решающих facts отклонена относительно actual source/producer, не просто report==peer. Full report и candidate role сохраняются; прямой pure_step не считается этой проверкой.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "scientist/nodes/builtins/simulate/run_causal_evaluation.py; existing selected DiD consumer tests",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-05-07",
+      "requirement_ids": [
+        "REQ-CAU-05-06"
+      ]
+    },
+    {
+      "level": "shared numerical/scientific closeout",
+      "setup": "Результаты CAU-01 partition/CR0/quantile и CAU-02 influence/anticipation/bootstrap/DGP в том же accepted revision.",
+      "action": "Связать exact commands/results с LA-016 closeout; проверить non-gating projection на реальном report.",
+      "oracle": "Metadata migration не объявляет numerical tests PASS автоматически. Все требуемые исправления/qualified boundaries видимы; empirical identification не выводится из CI, синтетического planner marker или interface name.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "CAU-01/CAU-02; E02-I05-B",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-CAU-05-08",
+      "requirement_ids": [
+        "REQ-CAU-05-06"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I05-B"
+  ],
+  "dependencies": [
+    {
+      "packet": "CAU-01",
+      "relation": "Оригинальный predecessor: detached metadata и corrected standard inference, включая partition repair."
+    },
+    {
+      "packet": "CAU-02",
+      "relation": "Оригинальный predecessor: corrected staggered target/variance/anticipation/bootstrap."
+    },
+    {
+      "packet": "CAU-03/CAU-04",
+      "relation": "Переиспользуют shared whole-report lifecycle сценарий, но не являются новой обязательной зависимостью локального DiD migration."
+    }
+  ],
+  "preservation": [
+    "Independent metadata/common numerical helpers",
+    "Dedicated default planning and maintained callers",
+    "Strict old-slot/bool direct adapter",
+    "Complete report/warnings and output aliases",
+    "Non-gating candidate/scientific limits"
+  ],
+  "protected_distinction_ids": [],
+  "design_alignment": [
+    {
+      "source": "policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+      "section": "D0",
+      "application": "Явные reusable method contracts дают рост через registry; legacy mapping — ограниченная совместимость, не вечная новая ветка для каждого plan."
+    },
+    {
+      "source": "policy-engine/docs/system-design-decisions/policy-design-execution-topology.md",
+      "section": "Applicability versus semantic judgment",
+      "application": "Interface migration не обосновывает parallel trends/identification. Полезный numerical candidate сохраняется без authority fiction."
+    }
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-CAU-05-REPLAY",
+      "question": "Какие frozen plan/schema/FQN версии действительно поддерживаются и каким reader?",
+      "owner": "DiD lifecycle owner и actual persisted-plan owner",
+      "bounded_action": "Сдать finite census, доступные genuine fixtures и таблицу supported/retired/unknown. Для supported scope расширить existing reader минимальным versioned mapping и actual replay test; иначе документировать direct-import-only support и actionable migration, не заявляя original broad replay исполненным.",
+      "default": "Dedicated new planning; direct adapter сохранён; unknown external history не считается доказанно отсутствующей."
+    }
+  ],
+  "technical_solution": "Existing `_DID_*` constants, dedicated classes и factory inventory уже правильны; не выполнять cosmetic relocation. Сохранить маленький direct compatibility adapter. Общий registry exact FQN branch намеренно не делает alias fallback. Историческую совместимость реализовывать на реальном versioned plan reader, где известны schema/version и old mode/slots, а не регистрировать umbrella для нового planning.\n\nВ DEC-REPLAY найти конечный поддерживаемый набор. Для него migration выдаёт явный dedicated FQN, canonical inputs и resolved parameters; конфликт identities отказывает до compute. Записать original plan identity и effective corrected method identity через существующую provenance связь, без параллельного migration store. Численная correction и interface mapping проверяются раздельно: не обещать битовое воспроизведение старой ошибочной статистики новым estimator. Если нужно именно historical execution, это отдельный pinned replay profile с явным статусом, не default result.\n\nCAU-05 координирует один E02-I05-B: actual registry/dispatcher, persisted report и fresh consumer. Каждый numerical owner приносит свой oracle; shared scaffold не создаётся пять раз. Foreign report с правильными числовыми point/CI, но чужими diagnostics/inputs, не должен пройти. Отсутствие external corpus не мешает текущему dedicated пути, но ограничивает historical claim.",
+  "compatibility_and_rollback": "Dedicated cutover уже intentionally excludes generic from default registry. Preserve direct adapter до explicit retirement decision. New migration не изменяет archived bytes; old/new effective results маркируются exact method/version. Rollback возвращает совместимую пару reader/mapping, а не незаметно выбирает другой estimator. Поддержка всех неопределённых старых FQN не требуется.",
+  "source_locators": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "first_line": 44,
+      "last_line": 57,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py#L44-L57"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "first_line": 106,
+      "last_line": 153,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py#L106-L153"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "first_line": 1074,
+      "last_line": 1279,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py#L1074-L1279"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_registry_boot.py",
+      "first_line": 266,
+      "last_line": 299,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/_registry_boot.py#L266-L299"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+      "first_line": 685,
+      "last_line": 733,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/selection/registry.py#L685-L733"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py",
+      "first_line": 5746,
+      "last_line": 5804,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py#L5746-L5804"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "first_line": 539,
+      "last_line": 615,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py#L539-L615"
+    }
+  ]
+}

@@ -1,0 +1,247 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "C08-S01",
+      "path": "05_Источники/E02_исходный_план.md",
+      "line_range": [
+        1090,
+        1171
+      ],
+      "role": "Original SIM-01 assignment and unchanged B06/B07 cards"
+    },
+    {
+      "id": "C08-S02",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "blob_sha": "2e3e5d5ec22f886eca00fcaa78265ab0db8d4f18",
+      "read_ranges": [
+        [
+          1,
+          265
+        ],
+        [
+          335,
+          560
+        ],
+        [
+          730,
+          1080
+        ],
+        [
+          1090,
+          1355
+        ],
+        [
+          2170,
+          2370
+        ],
+        [
+          2440,
+          2525
+        ]
+      ],
+      "focus_ranges": [
+        [
+          2175,
+          2227
+        ],
+        [
+          2229,
+          2350
+        ],
+        [
+          2455,
+          2486
+        ],
+        [
+          1090,
+          1255
+        ],
+        [
+          900,
+          970
+        ],
+        [
+          1848,
+          2025
+        ]
+      ],
+      "role": "Selector, request/trajectory binding, coupled input preflight, physical-call recorder; partial file read, not whole-file census",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "evidence_type": "pinned connector source read; reported blob SHA, no full local blob reconstruction",
+      "additional_text_bodies_read": [
+        "run",
+        "_resolve_engine_semantics",
+        "_run_ncm_horizon",
+        "_run_coupled_horizon",
+        "_run_system_dynamics_horizon",
+        "_run_registry_method_horizon (partial)",
+        "_resolve_coupling_support",
+        "_aggregate_no_run_coupling_support",
+        "_validate_atom_composition",
+        "_coupled_params_for_subset",
+        "_system_dynamics_state_for_subset",
+        "_physical_run_ref",
+        "interaction and source-time helpers (adjacent only; no SIM-02/03 closure)"
+      ],
+      "range_note": "read_ranges lists direct fetch_file source windows. Additional expanded tool text was read by named body; not asserted as a contiguous complete source-file census."
+    },
+    {
+      "id": "C08-S03",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "blob_sha": "9761de868301e6fb90e69cd03aa3270b9a8187aa",
+      "read_ranges": [
+        [
+          840,
+          1125
+        ],
+        [
+          1125,
+          1405
+        ],
+        [
+          1460,
+          1760
+        ],
+        [
+          4310,
+          4600
+        ],
+        [
+          4900,
+          5180
+        ],
+        [
+          5650,
+          5880
+        ]
+      ],
+      "focus_ranges": [
+        [
+          1315,
+          1363
+        ],
+        [
+          4410,
+          4500
+        ],
+        [
+          4510,
+          4565
+        ],
+        [
+          1480,
+          1635
+        ],
+        [
+          4900,
+          5170
+        ]
+      ],
+      "role": "Outcome projection, request-aware CAS read, per-plan program preflight, live adapter and singular builders; full module not reconstructed",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "evidence_type": "pinned connector source read; reported blob SHA, no full local blob reconstruction"
+    },
+    {
+      "id": "C08-S04",
+      "path": "policy-engine/tests/unit/remediation/test_sim_01.py",
+      "blob_sha": "731f1df7952f89d3cd35b28dcd7d3e01cf61963f",
+      "read_ranges": [
+        [
+          1,
+          300
+        ],
+        [
+          300,
+          640
+        ],
+        [
+          641,
+          960
+        ]
+      ],
+      "role": "Existing native/intended tests and explicit fixture boundaries; file read to end, tests NOT RUN",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_sim_01.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "evidence_type": "pinned connector source read; reported blob SHA, no full local blob reconstruction",
+      "range_note": "Last requested window returned end of file, not 960 populated lines."
+    },
+    {
+      "id": "C08-S05",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+      "blob_sha": "88e0b025e44c20f491856716044017d6275572c5",
+      "read_ranges": [
+        [
+          1,
+          320
+        ]
+      ],
+      "focus_ranges": [
+        [
+          33,
+          49
+        ],
+        [
+          69,
+          102
+        ],
+        [
+          173,
+          271
+        ]
+      ],
+      "role": "Actual _vector input reader, native call order, declared required input and legitimate optional defaults",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "evidence_type": "pinned connector source read; reported blob SHA, no full local blob reconstruction"
+    },
+    {
+      "id": "C08-S06",
+      "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "blob_sha": "eaa0eb558d3e195dc4107bb2d771df20de29b03e",
+      "read_ranges": [
+        [
+          170,
+          220
+        ]
+      ],
+      "role": "Availability predicate only; this is not independent foreign-producer authentication",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "evidence_type": "pinned connector source read; reported blob SHA, no full local blob reconstruction"
+    },
+    {
+      "id": "C08-S07",
+      "path": "AGENTS.md",
+      "blob_sha": "5f144a27e35130b60e2c3537d97f0c7bbcda57f5",
+      "read_ranges": [
+        [
+          1,
+          230
+        ]
+      ],
+      "role": "Read-only scope, use existing owners and candidate/authority distinctions",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/AGENTS.md",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "evidence_type": "pinned connector source read; reported blob SHA, no full local blob reconstruction"
+    },
+    {
+      "id": "C08-S08",
+      "path": "policy-engine/CONTRIBUTING.md",
+      "blob_sha": "8ff414198e306e671abff1f76f31330a1f29d765",
+      "read_ranges": [
+        [
+          1,
+          170
+        ]
+      ],
+      "role": "Supported Python 3.14.x and verification context",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/CONTRIBUTING.md",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "evidence_type": "pinned connector source read; reported blob SHA, no full local blob reconstruction"
+    }
+  ],
+  "note": "Line ranges are source windows, not proof every callable in the window was executed. Search hits used only for navigation."
+}

@@ -1,0 +1,111 @@
+[
+  {
+    "lane": "LANE-01",
+    "verdict": "BOUNDARY-QUALIFIED DESIGN; targeted SIM-03 witness revision; no executed capability PASS",
+    "claim": "Обычный запрос создаёт полезный условный результат на реальном model-bound пути, сохраняет его и продолжает исследование при новом совместимом основании; новое подходящее resource не требует case-specific кода.",
+    "actual_chain": "HTTP/job ingress → actual compiler/DesignProblem + data requirements → candidate/method selection → selected grounded model/WMR + admitted source → N5 native simulation/comparator → persisted request/input/result refs → fresh conditional N8/public consumer; re-entry читает это основание, повторяет current gates и либо reuse numerical result, либо исполняет изменённый model/source.",
+    "existing_evidence_strengths": [
+      "Полные packet solutions не ограничиваются запретами: есть actual supported alternate engine, singleton, source acquisition, exact conditional joint model, positive issuer/readiness и retained useful partial result.",
+      "I01-A/B/C разнесены по capability, concrete bindings точнее membership. Existing served test наблюдает actual compiler/N5 delegate, не готовый числовой result.",
+      "SIM-03 integer equation и OPT-style независимый arithmetic подход дают настоящие expected values; CYC-03 A→B→B→B→C отличает экономию от stale context."
+    ],
+    "acceptance_gaps": [
+      "Existing served candidate-only fixture с N8/N9 traps не доказывает полный ordinary request→saved conditional N8. Нужен отдельный допустимый consumer route, не снятие traps/authority ради green.",
+      "SIM-03 deterministic evidence-fixed fixture не квалифицирует native seed-sensitive stochastic pairing (PS-F04).",
+      "Один synthetic model не доказывает generality даже при полной lineage. Второй случай должен иметь materially different contract content и frozen no-case-code boundary; X03/X04 уже требуют transfer, это надо исполнить, не объявить новым missing REQ.",
+      "Readiness LANE12/appointed issuer и real source admission — внешние prerequisites; если owner unavailable, зависимая capability BLOCKED, но unrelated conditional computation остаётся полезной."
+    ],
+    "improved_bounded_plan": [
+      {
+        "step": "L1-0 — predeclare profile/holdout",
+        "actions": "До запуска сохранить build/lock/backend/dtype, model expressions, units/time/outcomes, source schema, expected formulas, allowed doubles и resource budget. Отдельный reviewer фиксирует второй совместимый model/source profile после freeze общего кода. Изменение fixtures/config/resources разрешено; case-ID branch запрещён. Любая необходимая общая semantics implementation раскрывается и перезапускает freeze.",
+        "oracle": "Список разрешённых generic extension surfaces; diff/caller census; input hashes и независимые algebraic formulas. Не просто count changed files."
+      },
+      {
+        "step": "L1-1 — positive ordinary request and fresh consumer",
+        "actions": "Через actual served ingress без заранее вложенного prepared leaf context пройти compile→ground→method→native N5. Persist actual source/model/comparator/request/result. Новый процесс и current selected ref выводят conditional value/units/horizon/limitations. На supported alternate profile первый method несовместим, второй действительно исполняется.",
+        "oracle": "Малый independent expression/data-law oracle, exact source refs, actual call count и fresh-read value. Always-refuse/constant fixture output/input-ref-only mutant обязан провалиться. Claims ограничены conditional model."
+      },
+      {
+        "step": "L1-2 — acquisition and re-entry",
+        "actions": "Исходное A имеет declared unresolved requirement; source rows B проходят настоящий admission и строят новый WMR. Выполнить A→B→B→B→C: одинаковое B reuse physical result, C меняет substantive row/model/time basis. На одном B отдельно поменять current access/budget/epoch gate. Multirow aggregation explicit; stale concurrent acquisition completion history-only.",
+        "oracle": "Независимо пересчитать B/C из source rows; producer-work counters различают1 computation и повторный replay. Current gate control меняет только зависимую eligibility, не historical bytes. Один hash/receipt без re-evaluated consumer не PASS."
+      },
+      {
+        "step": "L1-3 — numerical/local adversarial controls",
+        "actions": "Провести required-input absence, canonical path aliases, temporal mismatch, finite overflow, duplicate SMM moment before dictionary, paired interruption and missing sample, authored joint vs alternatives. Сохранить fixed-evidence integer comparator; добавить PS-F04 actual varying noise trace и seed/pair permutation mutants.",
+        "oracle": "Независимая формула и per-role outcomes, planned/completed denominators. No success-shaped numerical stub. Positive-SE interaction остаётся unsupported до отдельного inference profile."
+      },
+      {
+        "step": "L1-4 — useful next step, readiness and stop",
+        "actions": "Late candidate-local failure выбирает следующий grounded viable candidate в том же remaining budget; global cap не обходит. Actual loaded build evidence проходит appointed existing confidence_ledger issuer/verifier. Budget stop сохраняет partial frontier и concrete next action; revoke/stale readiness ограничивает dependent transition.",
+        "oracle": "Measured operations/spend, all child statuses, useful retained result; normal readiness positive и stale/unappointed negative в одной supported fixture. Technical readiness не institutional enactment."
+      },
+      {
+        "step": "L1-5 — materially different held-out compatible case",
+        "actions": "Поменять минимум semantic problem content: variable/outcome mapping, time profile и source values/measurement law в пределах уже supported semantics; например второй actual model с heterogeneous intervention effect и другой required source layout, а не тот же коэффициент под UUID. Пройти тот же ordinary ingress→persist→fresh consumer без product edit после reveal.",
+        "oracle": "Заранее заданный независимый expected result и omission/unknown behavior; стоимость first/second case, ручная подготовка, changed resources/code раскрыты. Это evidence bounded transfer envelope, не утверждение «любой домен решён»."
+      }
+    ],
+    "cost_controls": "Использовать существующие packet request/sample/child/byte limits; tiny deterministic fixture bounds выводятся из declared model/replicate count, не выдуманного SLO. Считать отдельно acquisition rows/bytes, physical native calls, cache hits и current gate reads, rebuild/IO и elapsed/peak memory если заявляется. Один shared heavy run не несколько независимых подтверждений. Не добавлять обязательный live provider.",
+    "what_pass_does_not_mean": "Synthetic pipeline PASS не empirical calibration, causal identification в реальном мире, universal NLP coverage, оптимальность всех политик, N9 permission или уже назначенный issuer. Новые общие semantics могут требовать кода; запрет только fixture/case-specific подгонки.",
+    "ownership": "REQ01 requirement meaning; CYC03 numerical basis/current gates; ACQ01 source bridge; SIM01 method eligibility, SIM02 typed path/cause/time, SIM03 numerical contrast; CYC05 authored relationships/readiness, SEL01 rank; LANE06 persistence и LANE12 build evidence owners не дублируются."
+  },
+  {
+    "lane": "LANE-02",
+    "verdict": "USEFUL COMPOSABLE DESIGN; revise FUN-03 and OPT-02; stronger measurement reuse is separate opt-in capability",
+    "claim": "Поиск исполняет допустимые различные actions, сохраняет partial work и воспроизводимый state, использует совместимое source evidence, расходует реальный budget и делает только разрешённый promotion; смена совместимой задачи/ресурса не case-specific workflow.",
+    "actual_chain": "SearchService/lifecycle ask→pending → typed proposal/codec → actual SearchLoopRunner MethodJob/selected metric source → tell preparation/current commit → persisted history + RNG/Sobol/GP snapshot → fresh target source verifier/corpus → GP/Pareto/champion; funnel uses actual current evidence and independent protected writer; transfer discovers candidate source via ANN but exact ref/source custody decides reuse.",
+    "existing_evidence_strengths": [
+      "Native GP witness действительно сравнивает learned posterior mean/covariance/UCB с независимым NumPy Cholesky и содержит destructive load/transform mutations; это стоит сохранить, не переписать.",
+      "TRN02 native mutation failure test вызывает original add перед exception, проверяя rollback реально изменённого индекса. Portable source→fresh runtime handoff и refusal untrusted graph разумно разделены.",
+      "Delivered specs хорошо отделяют sentinel от training, actual attempt work от iterations/warm rows, current gates от immutable numerical reuse, comparison champion от institutional permit."
+    ],
+    "acceptance_gaps": [
+      "FUN03 observed rate threshold без definition/cohort/power не квалифицирует population-level calibration; неправильные labels FOR/FDR/precision и zero fallback могут менять routing/report (PS-F01/07).",
+      "OPT02 binary batch не различает proposal budget exhaustion и finite-domain exhaustion и не закрывает completed-scope duplicate guard (PS-F03).",
+      "Current source profile deliberately требует fitted native GP. Это честный узкий scope, но не strategy-neutral reuse уже оплаченных actual measurements (PS-F02 separate DEC, не local repair blocker).",
+      "Один posterior test не доказывает search benefit, как один retrieval hit не доказывает recall. Native libraries optional; skips по отсутствию backend не green."
+    ],
+    "improved_bounded_plan": [
+      {
+        "step": "L2-0 — fixture and budget declaration",
+        "actions": "Выбрать supported locked P-SEARCH: explicit search_bo/search_mo и отдельно vector-search, actual OS/arch/Python3.14; tiny CPU native workloads, один heavy slot. Объявить source objective/unit/direction/split/data/tenant, measurement law, allowed replicates, random state, total/evaluator/sentinel/audit limits. Predeclare independent finite-domain objective oracle и holdout profile.",
+        "oracle": "Build/lock/input binding; нет объявления «all extras» вместо доказанного backend. Numeric tolerances вывoдятся из specific algorithm/dtype; отсутствующий stack→точный NOT_RUN/BLOCKED."
+      },
+      {
+        "step": "L2-1 — actual search and lifecycle",
+        "actions": "Actual service/codec/runner заказывает реальные tiny MethodJobs в конечном mixed typed space. Пройти обычный candidate, sentinel, valid tell, competing duplicate tells, delayed previous-run tell, cancel/error после оплаченной evaluation; persist partial state и fresh resume. Не подменять evaluator источником готовых receipts.",
+        "oracle": "Independent finite action enumeration/measurement function, counts attempts/evaluations/observations/replicas/sentinels и spent work. Correct exactly-once commit; useful partial result survives; malformed invalid typed result не successful0."
+      },
+      {
+        "step": "L2-2 — state/numerical consumers",
+        "actions": "Whole vs split save/load сравнить next RNG/Sobol proposal; malformed snapshot against live model leaves unchanged state. Fit/condition actual GP on admitted rows and compare NumPy posterior; Pareto computes exact known grid membership; actual champion compare/write under multiprocess barrier and fresh pointer reader.",
+        "oracle": "Не один cross-call same-library equality: independent coordinate/score table, Cholesky math and weak-all/strict-one dominance. Mutation removed model_state/transform restore, changed source split/unit, old normalized vector, double publish должны различаться."
+      },
+      {
+        "step": "L2-3 — honest exhaustion and cost",
+        "actions": "Tiny fully enumerated space действительно исчерпать; отдельно99/100seen с controlled20 duplicate proposals и non-exhaustive mixed space. Расходовать общий work budget включая sentinel/audit, но не warm history как новую evaluation. Не переплачивать за exact duplicate без explicit replica.",
+        "oracle": "finite_domain_exhausted только при census; bounded failure→proposal_search_budget_exhausted. Search regret/quality сравнивается с exact finite oracle только в declared finite fixture, не гарантия global optimum любого continuous BO."
+      },
+      {
+        "step": "L2-4 — funnel calibration and authority",
+        "actions": "Full vs bound staged attempts используют одинаковые immutable sources, но текущие gates перечитываются. Reduced/full actual work, zero/empty/partial/interval origin. Выбрать FUN03 operational FOR или FNR, source labels/cohorts и bounded audit design; persist tracker→fresh report. Отдельно appointed permit→actual protected writer normal/revoke-before-commit/idempotent retry.",
+        "oracle": "Independent confusion matrix/rank and zero-carrier oracle, observed value отдельно от qualified claim; exact source counts/cost. Permission positive даёт1 effect, revoke0; statistical PASS не grants permit и permit не manufactures calibration."
+      },
+      {
+        "step": "L2-5 — transfer and fresh target",
+        "actions": "Actual source history→portable rows artifact→fresh HNSW generation→bounded discovery с несовместимыми near hits→exact selected ref→current custody/source verifier→target. Source time не now-on-load. Compatible fitted profile и incompatible candidate-only reevaluation оба полезны. PS-F02 measured profile только если отдельно выбран/квалифицирован.",
+        "oracle": "Target corpus exact source identities/units/split/direction, no duplicate origin; independent actual replica отдельно. Changed tenant/data/closed split исключаются до numerical reuse; candidate hint получает новое measured target ref. Native partial mutation/rollback и cache old/new selectedref controls."
+      },
+      {
+        "step": "L2-6 — transfer holdout and benefit qualification",
+        "actions": "Freeze механизм и budget, затем раскрыть второй compatible objective/parameter layout/resource profile с иными optimum/constraints и source history. Без case-ID code пройти тот же loop. Для benefit сравнить warm/cold at equal real evaluator+fit budgets на заранее выбранном наборе seeds/profiles; tuning objective не совпадает со скрытым evaluation criterion.",
+        "oracle": "Ремонт accepts correctness независимо от stochastic better score. Benefit report содержит все runs, uncertainty и actual costs, не один удачный seed; размеры/мощность определяются задачей, не arbitrary SLA. Не объявлять universal superiority BO/transfer."
+      }
+    ],
+    "cost_controls": "Total work учитывает failed/partial evaluations, audit rejected stage-B labels, sentinels, GP fits/conditioning, HNSW snapshots/rebuild и portable reads; proposed iterations не proxy расходов. Source evaluation reuse не бесплатный GP fit. Existing max counts и byte caps сохраняются; peak native RSS измеряется отдельно. Local concurrency barriers без sleep timing guesses.",
+    "what_pass_does_not_mean": "Нельзя вывести из fake receipt или native posterior correctness: empirical truth objective, calibrated missed-positive bound, open-domain optimality, ANN exhaustive recall, distributed durability или authority. Population-level calibration требует отдельного sampling design. Empty/unsupported route не закрывает positive capability.",
+    "ownership": "SRV01 atomic tell, CTL01 lifecycle failure, SRV03 actual runner/resume, CTL03 budgets/sentinel; CTL02 RNG/base restore and OPT03 GP state sequential owner; OPT02 params/replicas, OPT01 coordinate schema; FUN01 attempts, FUN02 reduced/full, FUN03 metrics+promotion adapter; TRN02 discovery/custody, TRN01 source admission, TRN03 evidence age."
+  }
+]

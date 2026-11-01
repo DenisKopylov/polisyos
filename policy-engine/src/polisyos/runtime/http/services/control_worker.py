@@ -27,7 +27,7 @@ from polisyos.runtime.quality.diagnostic_events import (
     DiagnosticEvent,
 )
 
-from .control_plane_store import ControlJobRecord, ControlPlaneStore
+from .control_plane_store import ControlJobLeaseLostError, ControlJobRecord, ControlPlaneStore
 
 logger = get_logger(__name__)
 
@@ -193,11 +193,35 @@ class ControlWorker:
 
     def _run_with_lease_heartbeat(self, job: ControlJobRecord) -> None:
         stop_heartbeat = threading.Event()
+        lost = threading.Event()
+
+        def require_current_owner() -> None:
+            try:
+                current = self._store.current_execution_job_record()
+                if (
+                    current.job_id,
+                    current.run_id,
+                    current.lease_owner,
+                    current.attempt,
+                ) != (job.job_id, job.run_id, self._worker_id, job.attempt):
+                    raise ControlJobLeaseLostError("control_job_dispatch_owner_changed")
+            except (
+                ControlJobLeaseLostError,
+                RuntimeDependencyTimeoutError,
+                RuntimeDependencyUnavailableError,
+            ) as error:
+                lost.set()
+                raise JobExecutionInterrupted(
+                    f"lease not established for job {job.job_id} owner {self._worker_id} "
+                    f"attempt {job.attempt}"
+                ) from error
+
         interrupt = JobExecutionInterrupt(
             job_id=job.job_id,
             worker_id=self._worker_id,
             attempt=job.attempt,
-            lost=threading.Event(),
+            lost=lost,
+            current_owner_check=require_current_owner,
         )
 
         def _lease_pulse() -> None:
@@ -224,6 +248,7 @@ class ControlWorker:
                         metadata={"job_kind": job.kind},
                     )
                 except (RuntimeDependencyTimeoutError, RuntimeDependencyUnavailableError) as exc:
+                    interrupt.lost.set()
                     if self._stop.is_set():
                         return
                     logger.warning(

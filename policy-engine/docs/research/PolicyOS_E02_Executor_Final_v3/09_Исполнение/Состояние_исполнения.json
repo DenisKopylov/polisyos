@@ -140,14 +140,14 @@
       "implementation_status": "REVIEWED_LOCAL_SLICE",
       "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": "/root/lane06_state",
+      "assigned_executor": "/root/lane06_source_metrics",
       "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
       "integrated_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py",
         "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py"
       ],
-      "shared_writer": "/root/lane06_state",
+      "shared_writer": "/root/lane06_source_metrics",
       "decision_records": [],
       "requirement_ids": [
         "REQ-STA-01-01",
@@ -220,6 +220,10 @@
           "status": "NOT_RUN",
           "basis": "Cross-owner spend/event/external-operation identity/fence proof and declared performance workload remain open."
         }
+      ],
+      "qualification_write_set": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py"
       ]
     },
     {
@@ -231,15 +235,15 @@
       "implementation_status": "REVIEWED_LOCAL_SLICE",
       "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": "/root/lane06_state",
-      "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
-      "integrated_commit": null,
+      "assigned_executor": "/root/lane06_source_metrics",
+      "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
+      "integrated_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
         "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
         "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py"
       ],
-      "shared_writer": "/root/lane06_state",
+      "shared_writer": "/root/lane06_source_metrics",
       "decision_records": [
         {
           "id": "DEC-STA-02-01",
@@ -292,17 +296,9 @@
       ],
       "deferred_ids": [],
       "execution_profile": {
-        "test_slot": "released; relevant sources frozen through composition",
-        "source_scope": "Current reused bundle→ParameterTransfer materialization only; main executor/idempotency retained. No tests/shared files outside leased paths.",
-        "independent_review": "GO for the described local slice; no G or whole-packet acceptance",
-        "native_consumer_test_lease": {
-          "executor": "/root/lane06_state",
-          "paths": [
-            "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py"
-          ],
-          "test_slot": "held until CAS source freeze/native window complete",
-          "allowed_profile": "manual native_hybrid with actual method, selected source and fresh persisted consumer; no fake backend or invented institutional authority"
-        }
+        "test_slot": "Awaiting exclusive native admission; independent editing allowed",
+        "source_scope": "Explicit lease only; root sole index/refs/generated; no competing writer",
+        "delegate_limit": "One read-only leaf allowed, explicit permitted model; leaf no delegation"
       },
       "requirement_results": [
         {
@@ -329,6 +325,9 @@
           "status": "PARTIAL",
           "basis": "Named manual native_hybrid path is now freshly demonstrated with actual selected source, fit, persistence and consumer; automatic orchestration is not claimed. Measured digest/materialization calls/bytes/time and representative scientific applicability remain open."
         }
+      ],
+      "qualification_write_set": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py"
       ]
     },
     {
@@ -337,14 +336,17 @@
       "lane_sequence": 1,
       "track_id": "06-A",
       "track_position": 3,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane06_state",
+      "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "actual_write_set": [
+        "policy-engine/tests/unit/remediation/test_res_02.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py"
+      ],
+      "shared_writer": "/root/lane06_state",
       "decision_records": [],
       "requirement_ids": [
         "REQ-RES-02-01",
@@ -360,7 +362,12 @@
       ],
       "evidence": [],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "Awaiting root admission; read-only research and disjoint editing concurrent",
+        "source_scope": "Explicit paths only, root sole index/refs; additional owner changes need overlap reconciliation",
+        "delegate_limit": "One read-only leaf with allowed explicit model; no further delegation"
+      }
     },
     {
       "packet_id": "RES-01",
@@ -572,7 +579,7 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_async",
       "base_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
-      "integrated_commit": null,
+      "integrated_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "actual_write_set": [
         "policy-engine/src/polisyos/common/async_tools/__init__.py",
         "policy-engine/src/polisyos/common/README.md",
@@ -669,14 +676,18 @@
       "lane_sequence": 1,
       "track_id": "06-B",
       "track_position": 3,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_SLICE",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane06_async",
+      "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_timeout_transport_attempt_binding.py"
+      ],
+      "shared_writer": "/root/lane06_async",
       "decision_records": [],
       "requirement_ids": [
         "REQ-RUN-02-01",
@@ -688,9 +699,48 @@
         "TEST-RUN-02-02",
         "TEST-RUN-02-03"
       ],
-      "evidence": [],
-      "blockers": [],
-      "deferred_ids": []
+      "evidence": [
+        {
+          "output": "policy-engine/_cache/e02/lane06-run02-final",
+          "observed_result": "34 PASS / 0 SKIP / 0 FAIL / 0 ERROR; 42.823s; sampled RSS 2576072704 bytes; four pins unchanged",
+          "scope": "Real EOF matrix, native pipe, direct/IPC no-blind-retry, actual Darwin canonical Core/CAS-bound sync+async 64B/1MiB; domain result is an explicit skip, transport is tested."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-run02-ipc-red",
+          "observed_result": "Six actual IPC no-replay property failures before canonical typed category/code repair"
+        }
+      ],
+      "blockers": [
+        "Native Linux profile unavailable locally (limactl installed but no instances); no platform substitution or new VM provisioned.",
+        "Complete existing corrupt receipt/nonce/control and shared I06-C consumer qualification remain."
+      ],
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "Released; three owned paths frozen for root commit",
+        "source_scope": "Preserve EXE-01; exact three paths; root sole index/refs",
+        "delegate_limit": "One read-only leaf; explicit allowed model; leaf never delegates",
+        "independent_review": "GO after IPC material-delta review; all four final-run pins verified"
+      },
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-RUN-02-01",
+          "test_id": "TEST-RUN-02-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Fresh mark→delivery, confirmed exit→crash even elapsed, alive elapsed→compute, early EOF→transport; exact sync/async and actual live child pipe."
+        },
+        {
+          "requirement_id": "REQ-RUN-02-02",
+          "test_id": "TEST-RUN-02-02",
+          "status": "PARTIAL",
+          "basis": "Actual Core/CAS-bound native Darwin sync/async 64B/1MiB and IPC terminal classification qualified; broader malformed frame/nonce/corrupt-receipt consumer cohort remains to reconcile."
+        },
+        {
+          "requirement_id": "REQ-RUN-02-03",
+          "test_id": "TEST-RUN-02-03",
+          "status": "PARTIAL",
+          "basis": "Actual Darwin allowed-node/current-attempt path qualified. No available Linux instance: native Linux descendant supervisor and warm JAX numerical topology remain NOT_RUN."
+        }
+      ]
     },
     {
       "packet_id": "WIRE-01",
@@ -698,14 +748,19 @@
       "lane_sequence": 1,
       "track_id": "06-B",
       "track_position": 4,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane06_wire",
+      "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+        "policy-engine/tests/unit/remediation/test_wire_01.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/runner/decimal_worker_transport.py"
+      ],
+      "shared_writer": "/root/lane06_wire",
       "decision_records": [],
       "requirement_ids": [
         "REQ-WIRE-01-01",
@@ -719,7 +774,12 @@
       ],
       "evidence": [],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "Queued; codec editing must not coincide with RUN-02 native deciding check",
+        "source_scope": "Four paths; engine README companion root-composed after budget owner release; no retry.py writes",
+        "delegate_limit": "One read-only leaf explicit allowed model"
+      }
     },
     {
       "packet_id": "RUN-03",
@@ -758,14 +818,20 @@
       "lane_sequence": 1,
       "track_id": "06-B",
       "track_position": 6,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane06_budget",
+      "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+        "policy-engine/tests/unit/core/llm/test_traced_client_settlement.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/README.md"
+      ],
+      "shared_writer": "/root/lane06_budget",
       "decision_records": [],
       "requirement_ids": [
         "REQ-DUR-01-01",
@@ -779,7 +845,12 @@
       ],
       "evidence": [],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "Awaiting exclusive native admission; independent editing allowed",
+        "source_scope": "Explicit lease only; root sole index/refs/generated; no competing writer",
+        "delegate_limit": "One read-only leaf allowed, explicit permitted model; leaf no delegation"
+      }
     },
     {
       "packet_id": "DUR-02",
@@ -787,14 +858,18 @@
       "lane_sequence": 1,
       "track_id": "06-B",
       "track_position": 7,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane06_durable_worker",
+      "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "actual_write_set": [
+        "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+        "policy-engine/tests/unit/remediation/test_dur_02.py",
+        "policy-engine/tests/unit/remediation/test_dur_02_process.py"
+      ],
+      "shared_writer": "/root/lane06_durable_worker",
       "decision_records": [],
       "requirement_ids": [
         "REQ-DUR-02-01",
@@ -808,7 +883,11 @@
       ],
       "evidence": [],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "Queued; source-only heartbeat repair independent; final continuation awaits exact RES-01/02/fallback contract",
+        "source_scope": "Three explicitpaths; fallback_runner expansion requires reviewed actual inputcontract; no checkpoint writes"
+      }
     },
     {
       "packet_id": "CAS-01",
@@ -901,7 +980,7 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_cas",
       "base_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
-      "integrated_commit": null,
+      "integrated_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "actual_write_set": [
         "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
         "policy-engine/src/polisyos/core/artifacts/__init__.py",
@@ -996,14 +1075,25 @@
       "lane_sequence": 1,
       "track_id": "06-C",
       "track_position": 3,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane06_cas",
+      "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "actual_write_set": [
+        "policy-engine/src/polisyos/core/artifacts/store.py",
+        "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+        "policy-engine/src/polisyos/core/artifacts/batch_control.py",
+        "policy-engine/tests/unit/remediation/test_cas_03.py",
+        "policy-engine/tests/unit/remediation/test_b154_batch_completion.py",
+        "policy-engine/src/polisyos/core/artifacts/README.md",
+        "policy-engine/src/polisyos/core/components/_cli_crypto.py",
+        "policy-engine/tests/unit/core/phase0/test_cli_signing.py",
+        "policy-engine/src/polisyos/runtime/http/authorization.py",
+        "policy-engine/tests/unit/runtime/http/test_authorization.py"
+      ],
+      "shared_writer": "/root/lane06_cas",
       "decision_records": [],
       "requirement_ids": [
         "REQ-CAS-03-01",
@@ -1019,7 +1109,12 @@
       ],
       "evidence": [],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "Awaiting root admission; read-only research and disjoint editing concurrent",
+        "source_scope": "Explicit paths only, root sole index/refs; additional owner changes need overlap reconciliation",
+        "delegate_limit": "One read-only leaf with allowed explicit model; no further delegation"
+      }
     },
     {
       "packet_id": "CAN-01",
@@ -1189,7 +1284,7 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_canonical",
       "base_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
-      "integrated_commit": null,
+      "integrated_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "actual_write_set": [
         "policy-engine/tools/lib/fs.py",
         "policy-engine/tests/unit/remediation/test_mig_01.py",
@@ -1258,14 +1353,17 @@
       "lane_sequence": 1,
       "track_id": "06-D",
       "track_position": 4,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane06_canonical",
+      "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "actual_write_set": [
+        "policy-engine/tests/unit/remediation/test_mig_02.py",
+        "policy-engine/src/polisyos/runtime/README.md"
+      ],
+      "shared_writer": "/root/lane06_canonical",
       "decision_records": [],
       "requirement_ids": [
         "REQ-MIG-02-01",
@@ -1279,7 +1377,12 @@
       ],
       "evidence": [],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "Queued; existing native CLI and fresh reader; no new environment",
+        "source_scope": "Two paths only, request actual defect owner separately",
+        "delegate_limit": "One read-only leaf, explicit allowed model"
+      }
     },
     {
       "packet_id": "MIG-04",
@@ -1287,14 +1390,17 @@
       "lane_sequence": 1,
       "track_id": "06-D",
       "track_position": 5,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane06_canonical",
+      "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "actual_write_set": [
+        "policy-engine/tests/unit/remediation/test_mig_04.py",
+        "policy-engine/src/polisyos/fabric/README.md"
+      ],
+      "shared_writer": "/root/lane06_canonical",
       "decision_records": [],
       "requirement_ids": [
         "REQ-MIG-04-01",
@@ -1308,7 +1414,11 @@
       ],
       "evidence": [],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "Queued, independent test authorship; migration owner only",
+        "source_scope": "Two paths; preserve per-call selected_edges; no source edits without actual reproduced defect"
+      }
     },
     {
       "packet_id": "DFK-02",

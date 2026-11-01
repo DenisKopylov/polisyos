@@ -37,7 +37,7 @@ from datetime import time as _time_type
 from decimal import Decimal, InvalidOperation
 from functools import wraps
 from types import GetSetDescriptorType, SimpleNamespace
-from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Literal, NoReturn, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
@@ -64,6 +64,7 @@ from polisyos.core.contracts import (
     BoundedLivenessConfig,
     bounded_liveness_config_from_mapping,
 )
+from polisyos.core.errors import ErrorCategory
 from polisyos.core.run.context import RunContext as _RunContext
 from polisyos.ir.artifacts.contracts import _register_trusted_artifact_ref_facade
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
@@ -155,12 +156,27 @@ class _WorkerComputeTimeout(Exception):
     """The worker did not finish computation before the node deadline."""
 
 
-class _WorkerProcessExited(RuntimeError):
+class _WorkerOutcomeUnknown(RuntimeError):
+    """No authenticated outcome exists; replay requires reconciliation."""
+
+    default_category = ErrorCategory.FATAL
+    code = "node.worker_outcome_unknown"
+
+
+class _WorkerProcessExited(_WorkerOutcomeUnknown):
     """The worker exited without publishing a completion mark."""
 
     def __init__(self, exitcode: int | None) -> None:
         super().__init__(f"timeout worker exited before completion (exitcode={exitcode})")
         self.exitcode = exitcode
+
+
+class _WorkerTransportError(_WorkerOutcomeUnknown):
+    """The result transport closed before the worker published completion."""
+
+
+class _WorkerDeliveryError(_WorkerOutcomeUnknown):
+    """A completed worker result could not be admitted after bounded delivery."""
 
 
 class _WorkerDeliveryTimeout(Exception):
@@ -2694,6 +2710,25 @@ def _require_worker_result_frame(value: object) -> tuple[str, object]:
     return status, payload
 
 
+def _raise_worker_result_boundary(
+    process: mp.Process,
+    *,
+    compute_deadline: float,
+    completion_time: Any,
+) -> NoReturn:
+    """Classify a closed channel using one fresh, nonblocking observation."""
+    if _completion_before_deadline(completion_time, compute_deadline):
+        raise _WorkerDeliveryTimeout
+    exitcode = process.exitcode
+    if exitcode is not None or not process.is_alive():
+        raise _WorkerProcessExited(process.exitcode)
+    if time.monotonic() >= compute_deadline:
+        raise _WorkerComputeTimeout
+    raise _WorkerTransportError(
+        f"timeout worker result channel closed before completion (exitcode={process.exitcode})"
+    )
+
+
 def _drain_result_sync(
     process: mp.Process,
     result_queue: Any,
@@ -2714,7 +2749,9 @@ def _drain_result_sync(
         try:
             raw_frame: object = result_queue.get(timeout=min(_PROCESS_RESULT_POLL_S, remaining))
         except EOFError:
-            raise _WorkerComputeTimeout from None
+            _raise_worker_result_boundary(
+                process, compute_deadline=compute_deadline, completion_time=completion_time
+            )
         except queue.Empty:
             continue
         if not _completion_before_deadline(completion_time, compute_deadline):
@@ -2726,8 +2763,6 @@ def _drain_result_sync(
         completion_time,
         compute_deadline,
     ):
-        if time.monotonic() >= compute_deadline:
-            raise _WorkerComputeTimeout
         raise _WorkerProcessExited(process.exitcode)
     if not _completion_before_deadline(completion_time, compute_deadline):
         raise _WorkerComputeTimeout
@@ -2766,7 +2801,9 @@ async def _drain_result_async(
         try:
             raw_frame: object = result_queue.get_nowait()
         except EOFError:
-            raise _WorkerComputeTimeout from None
+            _raise_worker_result_boundary(
+                process, compute_deadline=compute_deadline, completion_time=completion_time
+            )
         except queue.Empty:
             remaining = compute_deadline - time.monotonic()
             if remaining <= 0:
@@ -2782,8 +2819,6 @@ async def _drain_result_async(
         completion_time,
         compute_deadline,
     ):
-        if time.monotonic() >= compute_deadline:
-            raise _WorkerComputeTimeout
         raise _WorkerProcessExited(process.exitcode)
     if not _completion_before_deadline(completion_time, compute_deadline):
         raise _WorkerComputeTimeout
@@ -3477,7 +3512,7 @@ def _execute_with_timeout_process(
         if not cleanup_complete:
             raise _worker_timeout_error(timeout_s, cleanup_complete=False) from exc
         cleanup_suffix = ""
-        raise RuntimeError(
+        raise _WorkerDeliveryError(
             "Node timeout worker result delivery exceeded bounded grace "
             f"(exitcode={process.exitcode}{cleanup_suffix})"
         ) from exc
@@ -3690,7 +3725,7 @@ async def _execute_with_timeout_process_async(
         if not cleanup_complete:
             raise _worker_timeout_error(timeout_s, cleanup_complete=False) from exc
         cleanup_suffix = ""
-        raise RuntimeError(
+        raise _WorkerDeliveryError(
             "Node timeout worker result delivery exceeded bounded grace "
             f"(exitcode={process.exitcode}{cleanup_suffix})"
         ) from exc

@@ -2417,9 +2417,176 @@ def test_late_worker_completion_is_not_delivery_success(mode, expired) -> None:
                 )
             )
 
-    expected = retry_module._WorkerComputeTimeout if expired else retry_module._WorkerProcessExited
-    with pytest.raises(expected):
+    with pytest.raises(retry_module._WorkerProcessExited):
         invoke()
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize(
+    ("completed", "exited", "elapsed", "expected"),
+    [
+        (False, False, False, "transport"),
+        (False, True, False, "exit"),
+        (False, True, True, "exit"),
+        (False, False, True, "compute"),
+        (True, True, True, "delivery"),
+    ],
+)
+def test_eof_is_classified_from_fresh_worker_state(mode, completed, exited, elapsed, expected):
+    """EOF consults the completion mark, exit status and budget in that order."""
+    started = _time.monotonic()
+    deadline = started + 0.2
+    completion = type("Completion", (), {"value": 0.0})()
+
+    class Process:
+        alive = True
+        exitcode = None
+
+        def is_alive(self):
+            return self.alive
+
+    process = Process()
+
+    class EofChannel:
+        def get(self, *, timeout):
+            assert timeout > 0
+            if completed:
+                completion.value = started + 0.001
+            if exited:
+                process.alive = False
+                process.exitcode = 23
+            if elapsed:
+                _time.sleep(0.21)
+            raise EOFError
+
+        def get_nowait(self):
+            return self.get(timeout=1.0)
+
+    errors = {
+        "transport": RuntimeError,
+        "exit": retry_module._WorkerProcessExited,
+        "compute": retry_module._WorkerComputeTimeout,
+        "delivery": retry_module._WorkerDeliveryTimeout,
+    }
+    def invoke():
+        if mode == "sync":
+            retry_module._drain_result_sync(
+                process, EofChannel(), compute_deadline=deadline, completion_time=completion
+            )
+        else:
+            asyncio.run(retry_module._drain_result_async(
+                process, EofChannel(), compute_deadline=deadline, completion_time=completion
+            ))
+
+    with pytest.raises(errors[expected]) as raised:
+        invoke()
+    if expected == "exit":
+        assert raised.value.exitcode == 23
+    if expected == "transport":
+        assert "exitcode=None" in str(raised.value)
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_real_pipe_eof_before_child_exit_is_transport_failure(mode):
+    """A live native child closing its result pipe is not a compute timeout."""
+    channel = retry_module._WorkerResultChannel(mp.get_context("spawn"))
+    writer_fd = channel._writer.fileno()
+    child = subprocess.Popen(
+        [sys.executable, "-c", "import os, sys, time; os.close(int(sys.argv[1])); time.sleep(5)",
+         str(writer_fd)],
+        pass_fds=(writer_fd,),
+    )
+    channel.close_writer()
+
+    class Child:
+        def is_alive(self):
+            return child.poll() is None
+
+        @property
+        def exitcode(self):
+            return child.poll()
+
+    def invoke():
+        deadline = _time.monotonic() + 2.0
+        if mode == "sync":
+            retry_module._drain_result_sync(Child(), channel, compute_deadline=deadline)
+        else:
+            asyncio.run(retry_module._drain_result_async(
+                Child(), channel, compute_deadline=deadline
+            ))
+
+    try:
+        with pytest.raises(retry_module._WorkerTransportError, match="exitcode=None"):
+            invoke()
+        assert child.poll() is None
+    finally:
+        if child.poll() is None:
+            child.terminate()
+        child.wait(timeout=3)
+        channel.close_reader()
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize("reason", ["transport", "exit", "delivery"])
+@pytest.mark.parametrize("route", ["direct", "ipc"])
+def test_uncertain_process_failure_does_not_retry_automatically(
+    ctx, state, monkeypatch, mode, reason, route
+):
+    """The public retry consumer must not replay an unresolved process outcome."""
+    calls = []
+
+    def failure():
+        calls.append(1)
+        if reason == "exit":
+            exc = retry_module._WorkerProcessExited(23)
+        elif reason == "delivery":
+            exc = retry_module._WorkerDeliveryError("delivery exceeded bounded grace")
+        else:
+            exc = retry_module._WorkerTransportError("channel closed; exitcode=None")
+        if route == "ipc":
+            exc = retry_module._worker_node_error(retry_module._worker_error_payload(exc))
+        raise exc
+
+    def sync_attempt(*args, **kwargs):
+        return failure()
+
+    async def async_attempt(*args, **kwargs):
+        return failure()
+
+    monkeypatch.setattr(retry_module, "_execute_with_timeout_sync", sync_attempt)
+    monkeypatch.setattr(retry_module, "_execute_with_timeout_async", async_attempt)
+    monkeypatch.setattr(retry_module, "_execute_with_timeout_process_async", async_attempt)
+    kwargs = {
+        "retry_policy": RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+        "timeout_s": 10.0,
+        "alias": "unknown-process-outcome",
+    }
+
+    def invoke():
+        if mode == "sync":
+            execute_with_retry_sync(_PayloadTransportNode(64), ctx, state, **kwargs)
+        else:
+            asyncio.run(execute_with_retry_async(_PayloadTransportNode(64), ctx, state, **kwargs))
+
+    with pytest.raises(RetryExhaustedError) as raised:
+        invoke()
+    assert len(calls) == 1
+    expected = {
+        "exit": retry_module._WorkerProcessExited,
+        "transport": retry_module._WorkerTransportError,
+        "delivery": retry_module._WorkerDeliveryError,
+    }
+    if route == "ipc":
+        assert isinstance(raised.value.__cause__, retry_module._WorkerNodeError)
+        assert raised.value.__cause__.category == "fatal"
+        assert raised.value.__cause__.code == "node.worker_outcome_unknown"
+    else:
+        assert isinstance(raised.value.__cause__, expected[reason])
+
+
+def test_unclassified_runtime_error_keeps_existing_retry_contract():
+    policy = RetryPolicy(max_retries=1)
+    assert retry_module._should_retry_exception(RuntimeError("ordinary error"), policy)
 
 
 class _DescendantProcessNode:

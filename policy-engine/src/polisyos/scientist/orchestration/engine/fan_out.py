@@ -23,8 +23,10 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.protocol import (
+    InputAwareNodeSpec,
     NodeError,
     NodeEvent,
+    NodeInputRule,
     NodeOutcome,
     NodeSpec,
 )
@@ -32,7 +34,9 @@ from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.orchestration.engine.state_merge import (
+    _MISSING,
     MergeConflictPolicy,
+    _get_path,
     merge_parallel_outcomes,
 )
 from polisyos.scientist.orchestration.engine.workflow_spec import JsonValue
@@ -141,16 +145,8 @@ class FanOutResult(BaseModel):
 
 
 def _resolve_path(state: ExperimentState, path: str) -> Any:
-    parts = path.split(".")
-    current: Any = state
-    for part in parts:
-        if isinstance(current, BaseModel):
-            current = getattr(current, part, None)
-        elif isinstance(current, dict):
-            current = current.get(part)
-        else:
-            return None
-    return current
+    value = _get_path(state, tuple(path.split(".")))
+    return None if value is _MISSING else value
 
 
 def _set_nested(target: dict[str, Any], path_parts: list[str], value: Any) -> None:
@@ -187,7 +183,7 @@ class FanOutNode:
 
     @property
     def spec(self) -> NodeSpec:
-        return NodeSpec(
+        return InputAwareNodeSpec(
             metadata=ComponentMetadata(
                 component_id=ComponentId.parse("scientist.node_fan_out@1.0.0"),
                 kind=ComponentKind.SCIENTIST_NODE,
@@ -198,6 +194,13 @@ class FanOutNode:
                 capabilities=Capability.SCIENTIST_NODE,
             ),
             state_reads=[self._config.items_state_path],
+            input_rules=(
+                NodeInputRule(
+                    path=self._config.items_state_path,
+                    availability="optional",
+                    allow_null=True,
+                ),
+            ),
             state_writes=[self._config.result_state_path],
             produces=["fan_out_result"],
         )

@@ -20,8 +20,8 @@ from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core import errors as core_errors
 from polisyos.core.canon import CanonSpec, content_hash, to_canonical_bytes
-from polisyos.core.errors import ErrorCategory
 from polisyos.core.llm.cache_settlement import CacheSettlementSession
 from polisyos.core.llm.settlement import LLMProducerEvent
 from polisyos.scientist.orchestration.engine.budget import BudgetState
@@ -395,7 +395,7 @@ class BudgetLedgerSettlementOutcomeUnknownError(RuntimeError):
 
     # Fatal means a retry dispatcher must not repeat a potentially executed
     # effect. It does not assert that the settlement itself failed.
-    default_category = ErrorCategory.FATAL
+    default_category = core_errors.ErrorCategory.FATAL
     code = "node.budget_settlement_outcome_unknown"
 
     def __init__(self, event_id: str, payload_digest: str) -> None:

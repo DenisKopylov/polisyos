@@ -397,3 +397,164 @@ def test_dynamic_source_resolution_is_explicitly_unsupported_before_effect(
     with pytest.raises(ExecutionAdmissionError, match="original_definition_not_established"):
         _verify(store, registry, workflow, workflow_ref, ref)
     assert not node.database.exists()
+
+
+def _managed_wrapper():
+    from polisyos.scientist.orchestration.engine.sub_workflow import (
+        StateMapping,
+        SubWorkflowConfig,
+        SubWorkflowNode,
+    )
+
+    class NoChildLookupRegistry(NodeRegistry):
+        def get(self, _node_id):
+            raise AssertionError("terminal wrapper observation must not look up completed children")
+
+        def values(self):
+            raise AssertionError(
+                "terminal wrapper observation must not enumerate completed children"
+            )
+
+    config = SubWorkflowConfig(
+        workflow=WorkflowSpec(
+            workflow_id="source_bound_child",
+            nodes=[NodeInvocation(alias="done", node_id="scientist.node_unavailable_child@1.0.0")],
+        ),
+        input_mappings=[StateMapping(source_path="params.input", target_path="params.child_input")],
+        output_mappings=[
+            StateMapping(source_path="params.result", target_path="params.child_result")
+        ],
+    )
+    return SubWorkflowNode(config, NoChildLookupRegistry(), alias="child")
+
+
+def test_managed_wrapper_observation_excludes_completed_registry_and_roundtrips() -> None:
+    from polisyos.scientist.orchestration.engine.execution_admission import (
+        ManagedSubWorkflowDefinition,
+        capture_managed_subworkflow_definition,
+    )
+
+    node = _managed_wrapper()
+    observed = capture_managed_subworkflow_definition(node)
+    assert observed.profile == "managed_subworkflow_wrapper_v1"
+    assert observed.purpose == "candidate_wrapper_mapping_continuity"
+    assert len(observed.definition_sha256) == 64
+    assert ManagedSubWorkflowDefinition.model_validate_json(observed.model_dump_json()) == observed
+    assert capture_managed_subworkflow_definition(_managed_wrapper()) == observed
+
+
+def test_managed_wrapper_observation_matches_a_fresh_process_without_registry_lookup() -> None:
+    from polisyos.scientist.orchestration.engine.execution_admission import (
+        ManagedSubWorkflowDefinition,
+        capture_managed_subworkflow_definition,
+    )
+
+    observed = capture_managed_subworkflow_definition(_managed_wrapper())
+    command = (
+        "from tests.unit.scientist.orchestration.engine.test_execution_admission "
+        "import _managed_wrapper; "
+        "from polisyos.scientist.orchestration.engine.execution_admission "
+        "import capture_managed_subworkflow_definition; "
+        "print(capture_managed_subworkflow_definition(_managed_wrapper()).model_dump_json())"
+    )
+    completed = subprocess.run(
+        [sys.executable, "-B", "-c", command],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=45,
+        env={**os.environ, "PYTHONPATH": f"{Path.cwd() / 'src'}{os.pathsep}{Path.cwd()}"},
+    )
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert ManagedSubWorkflowDefinition.model_validate_json(completed.stdout) == observed
+
+
+@pytest.mark.parametrize("change", ["alias", "input_mapping", "output_mapping", "child_workflow"])
+def test_managed_wrapper_definition_tracks_actual_selected_configuration(change: str) -> None:
+    from polisyos.scientist.orchestration.engine.execution_admission import (
+        capture_managed_subworkflow_definition,
+    )
+
+    node = _managed_wrapper()
+    original = capture_managed_subworkflow_definition(node)
+    if change == "alias":
+        node._alias = "other_child"
+    elif change == "input_mapping":
+        node._config.input_mappings[0].target_path = "params.different_input"
+    elif change == "output_mapping":
+        node._config.output_mappings[0].target_path = "params.different_output"
+    else:
+        node._config.workflow.nodes[0].params["different"] = True
+    assert capture_managed_subworkflow_definition(node) != original
+
+
+def test_managed_wrapper_definition_tracks_real_mapping_helper_replacement(monkeypatch) -> None:
+    from polisyos.scientist.orchestration.engine import sub_workflow
+    from polisyos.scientist.orchestration.engine.execution_admission import (
+        capture_managed_subworkflow_definition,
+    )
+
+    node = _managed_wrapper()
+    original = capture_managed_subworkflow_definition(node)
+    # Use another real source-backed function from this actual module: source
+    # reconciliation succeeds, so only the selected behavior/source binding
+    # distinguishes this substitution.
+    monkeypatch.setattr(sub_workflow, "_write_to_state", sub_workflow._set_nested)
+    assert capture_managed_subworkflow_definition(node) != original
+
+
+def test_managed_wrapper_refuses_forged_actual_helper_code(monkeypatch) -> None:
+    from polisyos.scientist.orchestration.engine import sub_workflow
+    from polisyos.scientist.orchestration.engine.execution_admission import (
+        capture_managed_subworkflow_definition,
+    )
+
+    node = _managed_wrapper()
+    original = sub_workflow._write_to_state
+    forged_module = compile(
+        "def forged(*args):\n    return None\n", original.__code__.co_filename, "exec"
+    )
+    forged = next(value for value in forged_module.co_consts if hasattr(value, "co_code"))
+    monkeypatch.setattr(original, "__code__", forged)
+    with pytest.raises(ExecutionAdmissionError, match="managed_subworkflow_source_not_established"):
+        capture_managed_subworkflow_definition(node)
+
+
+def test_managed_wrapper_observes_changed_spec_without_calling_it(monkeypatch) -> None:
+    from polisyos.scientist.orchestration.engine import sub_workflow
+    from polisyos.scientist.orchestration.engine.execution_admission import (
+        capture_managed_subworkflow_definition,
+    )
+
+    node = _managed_wrapper()
+    original = capture_managed_subworkflow_definition(node)
+    calls = []
+
+    def changed_spec(self):
+        calls.append(self)
+        raise AssertionError("an unverified changed getter must never run in the observer")
+
+    monkeypatch.setattr(sub_workflow.SubWorkflowNode, "spec", property(changed_spec))
+    assert capture_managed_subworkflow_definition(node) != original
+    assert calls == []
+
+
+def test_managed_wrapper_rejects_changed_method_descriptor_before_binding(monkeypatch) -> None:
+    from polisyos.scientist.orchestration.engine import sub_workflow
+    from polisyos.scientist.orchestration.engine.execution_admission import (
+        capture_managed_subworkflow_definition,
+    )
+
+    node = _managed_wrapper()
+    calls = []
+
+    def changed_execute(self):
+        calls.append(self)
+        raise AssertionError("unverified dispatch descriptors must not execute")
+
+    monkeypatch.setattr(sub_workflow.SubWorkflowNode, "execute", property(changed_execute))
+    with pytest.raises(
+        ExecutionAdmissionError, match="managed_subworkflow_dispatch_not_established"
+    ):
+        capture_managed_subworkflow_definition(node)
+    assert calls == []

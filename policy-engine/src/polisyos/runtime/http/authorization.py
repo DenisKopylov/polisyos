@@ -13,7 +13,7 @@ from enum import StrEnum
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
-from polisyos.core.security.exceptions import AuthorizationDeniedError
+from polisyos.core.security import AuthorizationDeniedError
 from polisyos.runtime.http.access_audit import (
     RuntimeAuthorizationAuditError,
     RuntimeAuthorizationOutcome,
@@ -36,8 +36,12 @@ if TYPE_CHECKING:
     from fastapi import Request
     from fastapi.routing import APIRoute as _ImportedAPIRoute
 
-    from polisyos.core.artifacts import ArtifactID, FileSystemCAS
-    from polisyos.core.artifacts.signing import BulkVerificationReport, Ed25519Verifier
+    from polisyos.core.artifacts import (
+        ArtifactID,
+        BulkVerificationReport,
+        Ed25519Verifier,
+        FileSystemCAS,
+    )
 
     _APIRoute: type[_ImportedAPIRoute] | None
 

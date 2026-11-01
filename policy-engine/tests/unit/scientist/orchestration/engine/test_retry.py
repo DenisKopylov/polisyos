@@ -2468,15 +2468,18 @@ def test_eof_is_classified_from_fresh_worker_state(mode, completed, exited, elap
         "compute": retry_module._WorkerComputeTimeout,
         "delivery": retry_module._WorkerDeliveryTimeout,
     }
+
     def invoke():
         if mode == "sync":
             retry_module._drain_result_sync(
                 process, EofChannel(), compute_deadline=deadline, completion_time=completion
             )
         else:
-            asyncio.run(retry_module._drain_result_async(
-                process, EofChannel(), compute_deadline=deadline, completion_time=completion
-            ))
+            asyncio.run(
+                retry_module._drain_result_async(
+                    process, EofChannel(), compute_deadline=deadline, completion_time=completion
+                )
+            )
 
     with pytest.raises(errors[expected]) as raised:
         invoke()
@@ -2492,8 +2495,12 @@ def test_real_pipe_eof_before_child_exit_is_transport_failure(mode):
     channel = retry_module._WorkerResultChannel(mp.get_context("spawn"))
     writer_fd = channel._writer.fileno()
     child = subprocess.Popen(
-        [sys.executable, "-c", "import os, sys, time; os.close(int(sys.argv[1])); time.sleep(5)",
-         str(writer_fd)],
+        [
+            sys.executable,
+            "-c",
+            "import os, sys, time; os.close(int(sys.argv[1])); time.sleep(5)",
+            str(writer_fd),
+        ],
         pass_fds=(writer_fd,),
     )
     channel.close_writer()
@@ -2511,9 +2518,9 @@ def test_real_pipe_eof_before_child_exit_is_transport_failure(mode):
         if mode == "sync":
             retry_module._drain_result_sync(Child(), channel, compute_deadline=deadline)
         else:
-            asyncio.run(retry_module._drain_result_async(
-                Child(), channel, compute_deadline=deadline
-            ))
+            asyncio.run(
+                retry_module._drain_result_async(Child(), channel, compute_deadline=deadline)
+            )
 
     try:
         with pytest.raises(retry_module._WorkerTransportError, match="exitcode=None"):
@@ -2663,7 +2670,7 @@ def test_cleanup_kills_descendant_after_worker_exit(tmp_path, ctx, state) -> Non
     descendant_pid: int | None = None
 
     try:
-        with pytest.raises(NodeTimeoutError):
+        with pytest.raises((retry_module._WorkerProcessExited, retry_module._WorkerTransportError)):
             retry_module._execute_with_timeout_process(
                 node,
                 ctx,
@@ -4343,3 +4350,153 @@ def test_engine_node_run_view_exposes_only_artifact_tenant_context_reader() -> N
     assert calls == ["read"]
     with pytest.raises(AttributeError):
         _ = view._owner_snapshot_ref
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize("completion_error", [False, True])
+def test_child_outcome_unknown_preserves_locator_and_never_redispatches(
+    tmp_path, ctx, mode, completion_error, monkeypatch
+):
+    """A child uncertainty is terminal even if attempt persistence also fails."""
+    from decimal import Decimal
+
+    from polisyos.core.run.context import ChildOutcomeUnknownError
+
+    baseline = ExperimentState(run_id="R_child_unknown", budgets={"run_spent_usd": Decimal("5")})
+    unknown = ChildOutcomeUnknownError("child_outcome_unknown", run_id="child-1", run_dir=tmp_path)
+    completed = []
+
+    class Producer:
+        def __init__(self):
+            self.calls = 0
+
+        def execute(self, _ctx, state):
+            self.calls += 1
+            if self.calls == 1:
+                state.budgets["run_spent_usd"] += Decimal("2")
+                return _fail_outcome(state)
+            raise unknown
+
+        async def execute_async(self, ctx, state):
+            return self.execute(ctx, state)
+
+    def started(attempt, _state):
+        return f"attempt-{attempt}"
+
+    def finished(attempt, outcome):
+        completed.append((attempt, outcome))
+        if attempt == "attempt-2" and completion_error:
+            raise OSError("cannot persist attempt completion")
+
+    async def async_started(attempt, state):
+        return started(attempt, state)
+
+    async def async_finished(attempt, outcome):
+        finished(attempt, outcome)
+
+    async def no_delay(_delay, _deadline):
+        return None
+
+    monkeypatch.setattr(retry_module, "_retry_delay_async", no_delay)
+    monkeypatch.setattr(retry_module.time, "sleep", lambda _seconds: None)
+    node = Producer()
+    kwargs = {
+        "retry_policy": RetryPolicy(max_retries=2, backoff_base_s=0.1, jitter="none"),
+        "timeout_s": None,
+        "alias": "child-unknown",
+    }
+
+    def invoke():
+        if mode == "sync":
+            execute_with_retry_sync(
+                node, ctx, baseline, attempt_started=started, attempt_completed=finished, **kwargs
+            )
+        else:
+            asyncio.run(
+                execute_with_retry_async(
+                    node,
+                    ctx,
+                    baseline,
+                    attempt_started=async_started,
+                    attempt_completed=async_finished,
+                    **kwargs,
+                )
+            )
+
+    with pytest.raises(ChildOutcomeUnknownError) as raised:
+        invoke()
+    assert raised.value is unknown
+    assert raised.value.run_id == "child-1"
+    assert raised.value.run_dir == tmp_path
+    assert node.calls == 2
+    assert baseline.budgets["run_spent_usd"] == Decimal("7")
+    assert [(attempt, outcome is None) for attempt, outcome in completed] == [
+        ("attempt-1", False),
+        ("attempt-2", True),
+    ]
+    if completion_error:
+        assert raised.value.__cause__ is not None
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_zero_retry_child_unknown_discards_unknown_current_cost(tmp_path, ctx, mode):
+    from decimal import Decimal
+
+    from polisyos.core.run.context import ChildOutcomeUnknownError
+
+    state = ExperimentState(run_id="R_child_zero", budgets={"run_spent_usd": Decimal("5")})
+    unknown = ChildOutcomeUnknownError("unknown", run_id="child-1", run_dir=tmp_path)
+
+    class Producer:
+        def execute(self, _ctx, attempt_state):
+            attempt_state.budgets["run_spent_usd"] += Decimal("100")
+            raise unknown
+
+        async def execute_async(self, ctx, attempt_state):
+            return self.execute(ctx, attempt_state)
+
+    def invoke():
+        kwargs = {"retry_policy": RetryPolicy(max_retries=0), "timeout_s": None, "alias": "child"}
+        if mode == "sync":
+            execute_with_retry_sync(Producer(), ctx, state, **kwargs)
+        else:
+            asyncio.run(execute_with_retry_async(Producer(), ctx, state, **kwargs))
+
+    with pytest.raises(ChildOutcomeUnknownError) as raised:
+        invoke()
+    assert raised.value is unknown
+    assert state.budgets["run_spent_usd"] == Decimal("5")
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_owned_timeout_process_refuses_untransportable_live_owner(ctx, state, mode):
+    """A native child cannot silently lose the worker's fresh SQL owner check."""
+    from threading import Event
+
+    from polisyos.common.job_execution_interrupt import (
+        JobExecutionInterrupt,
+        job_execution_interrupt_scope,
+    )
+
+    calls = []
+    signal = JobExecutionInterrupt(
+        "job", "owner", 1, Event(), current_owner_check=lambda: calls.append("check")
+    )
+    node = MagicMock()
+
+    def invoke():
+        if mode == "sync":
+            retry_module._execute_with_timeout_process(node, ctx, state, timeout_s=1.0)
+        else:
+            asyncio.run(
+                retry_module._execute_with_timeout_process_async(node, ctx, state, timeout_s=1.0)
+            )
+
+    with (
+        job_execution_interrupt_scope(signal),
+        pytest.raises(NodeTimeoutError, match="live_owner_check_not_transportable"),
+    ):
+        invoke()
+    node.execute.assert_not_called()
+    assert calls == []
+    assert not signal.lost.is_set()

@@ -108,14 +108,18 @@ class _TenantQuotaAdmission:
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
-    from polisyos.core.artifacts import ExportReport, ImportReport, VerificationReport
+    from polisyos.core.artifacts import (
+        Ed25519Verifier,
+        ExportReport,
+        ImportReport,
+        VerificationReport,
+    )
     from polisyos.core.artifacts.ids import ArtifactID
     from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef
     from polisyos.core.artifacts.protocol import (
         CoreJSONArtifactStore,
         _CASStorageMember,
     )
-    from polisyos.core.artifacts.signing import Ed25519Verifier
     from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.core.security import QuotaEnforcer, TenantQuotaLimits

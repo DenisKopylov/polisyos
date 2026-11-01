@@ -26,7 +26,10 @@ from polisyos.scientist.orchestration.engine.checkpoint import (
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
-from polisyos.scientist.orchestration.engine.idempotency import NodeResultCache
+from polisyos.scientist.orchestration.engine.idempotency import (
+    NodeResultCache,
+    compute_idempotency_key,
+)
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -319,8 +322,10 @@ def _resume_registry() -> NodeRegistry:
     return registry
 
 
-def _context(store: FileSystemCAS, run_id: str) -> tuple[ExecutionContext, object]:
-    bundle = build_default_registry_bundle(store)
+def _context(
+    store: FileSystemCAS, run_id: str, *, selected_profile: bool = False
+) -> tuple[ExecutionContext, object]:
+    bundle = build_default_registry_bundle(store, return_selected_profile=selected_profile)
     run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id=run_id)
     return ExecutionContext(
         store=store, run=run, logger=logging.getLogger("res_01")
@@ -336,6 +341,7 @@ def _write_known_successful_frontier_checkpoint(
     completed_node_id: str,
     completed_nodes: list[str],
     workflow: WorkflowSpec,
+    cache_entry_ref: ArtifactRef | None = None,
 ) -> CheckpointWriteResult:
     """Persist a successful test frontier through the canonical checkpoint hook."""
     hook = CASCheckpointHook(store=store, run_dir=run_dir)
@@ -348,7 +354,7 @@ def _write_known_successful_frontier_checkpoint(
         completed_nodes=completed_nodes,
         workflow_id=workflow.workflow_id,
         workflow_fingerprint=compute_workflow_fingerprint(workflow),
-        cache_entry_ref=None,
+        cache_entry_ref=cache_entry_ref,
     )
     assert result is not None
     return result
@@ -490,6 +496,92 @@ def test_allow_replay_rebuilds_completed_nodes_for_missing_state(tmp_path: Path)
 
     assert resumed.report.status == "ok"
     assert [record.alias for record in resumed.report.nodes] == ["a", "b", "c"]
+
+
+def test_allow_replay_restart_publishes_only_new_frontier(tmp_path: Path) -> None:
+    class ReplayInterrupted(BaseException):
+        pass
+
+    class InterruptOnceNode(_ResumeNode):
+        def execute(self, _ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+            self.invocations += 1
+            if self.invocations == 1:
+                raise ReplayInterrupted()
+            return self._finish(state)
+
+    store = FileSystemCAS(tmp_path)
+    workflow = _resume_workflow()
+    registry = _resume_registry()
+    registry.register(
+        InterruptOnceNode(node_id="scientist.node_res_b@1.0.0", name="B", read_path="params.a"),
+        override=True,
+    )
+    run_id = "R_res_01_replay_frontier"
+    original_state = ExperimentState(run_id=run_id, params={"a": 1})
+    node_a = registry.get(ComponentId.parse("scientist.node_res_a@1.0.0"))
+    cached_branch = branch_state(original_state, write_paths=("params.a",))
+    cached_branch.state.params["a"] = 11
+    matching_cache_ref = NodeResultCache(store, run_id=run_id).put(
+        compute_idempotency_key(node_a.spec, original_state),
+        node_id="scientist.node_res_a@1.0.0",
+        outcome=NodeOutcome(status="ok", state=cached_branch.state),
+    )
+    _write_known_successful_frontier_checkpoint(
+        store,
+        run_dir=tmp_path / "runs" / run_id,
+        state=original_state,
+        completed_node_alias="b",
+        completed_node_id="scientist.node_res_b@1.0.0",
+        completed_nodes=["a", "b"],
+        workflow=workflow,
+        cache_entry_ref=matching_cache_ref,
+    )
+    ctx, bundle_ref = _context(store, run_id, selected_profile=True)
+    ctx.run.suspend_for_resume()
+    with pytest.raises(ReplayInterrupted):
+        resume_from_checkpoint(
+            store,
+            run_id,
+            workflow=workflow,
+            registry=registry,
+            registry_bundle_ref=bundle_ref,
+            resume_strategy="allow_replay",
+        )
+    latest = resolve_latest_checkpoint(store, run_id)
+    assert latest is not None
+    assert latest[1].metadata.completed_nodes == ["a"]
+    assert matching_cache_ref in latest[1].metadata.cache_entry_refs
+    assert latest[1].metadata.origin_workflow_fingerprint == compute_workflow_fingerprint(workflow)
+    assert node_a.invocations == 0
+
+    registry.get(ComponentId.parse("scientist.node_res_c@1.0.0")).fail_once = False
+    resumed = resume_from_checkpoint(
+        store, run_id, workflow=workflow, registry=registry, registry_bundle_ref=bundle_ref
+    )
+    assert resumed.report.status == "ok"
+    assert resumed.state.params["a"] == 11
+    assert [record.alias for record in resumed.report.nodes] == ["b", "c"]
+
+
+def test_strict_budget_executor_refuses_fake_owner_before_dispatch(tmp_path: Path) -> None:
+    from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
+
+    class FakeBudgetOwner:
+        invocation_settlement_profile = "single_owner_local_v1"
+
+    store = FileSystemCAS(tmp_path)
+    ctx, _ = _context(store, "R_fake_budget_owner")
+    registry = _resume_registry()
+    with pytest.raises(ValueError, match="strict_budget_attempts_profile_not_established"):
+        AsyncWorkflowExecutor(
+            ctx,
+            registry,
+            budget_middleware=FakeBudgetOwner(),
+            max_parallelism=1,
+            strict_budget_attempts=True,
+        )
+    assert all(registry.get(node.node_id).invocations == 0 for node in _resume_workflow().nodes)
+    ctx.run.suspend_for_resume()
 
 
 def test_changed_functional_input_remains_incompatible_with_checkpoint(tmp_path: Path) -> None:

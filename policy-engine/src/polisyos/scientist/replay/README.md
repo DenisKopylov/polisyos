@@ -91,8 +91,4 @@ as a substitute. Older schema `1.0` or unbound records remain listable but repla
 `dead_letter_dispatch_basis_not_established`; new direct retry callers without an owner-issued attempt
 also persist an explicit `not_established` source status.
 
-Do not add new modules under `polisyos.scientist.replay.backend`. The retired legacy module
-is a Phase 4.4 compatibility shim for `polisyos.scientist.replay.backend` and
-sunsets on 2026-11-30.
-
 Tests live under `tests/unit/scientist/replay`.

@@ -97,7 +97,7 @@ class WorkflowSpec(BaseModel):
 
 def _normalize_json_value(value: Any) -> JsonValue:
     if isinstance(value, Decimal):
-        return str(value)
+        return value
     if isinstance(value, dict):
         return _normalize_json_mapping(value)
     if isinstance(value, (list, tuple)):

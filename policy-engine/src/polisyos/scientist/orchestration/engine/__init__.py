@@ -73,6 +73,8 @@ __all__ = [
     "NodeEvent",
     "NodeExecutionError",
     "NodeInvocation",
+    "NodeInputRule",
+    "InputAwareNodeSpec",
     "NodeOutcome",
     "NodeOutputRule",
     "OutputAwareNodeSpec",
@@ -123,6 +125,14 @@ __all__ = [
 ]
 
 _EXPORTS = {
+    "NodeInputRule": (
+        "polisyos.scientist.orchestration.engine.protocol",
+        "NodeInputRule",
+    ),
+    "InputAwareNodeSpec": (
+        "polisyos.scientist.orchestration.engine.protocol",
+        "InputAwareNodeSpec",
+    ),
     "NodeOutputRule": (
         "polisyos.scientist.orchestration.engine.protocol",
         "NodeOutputRule",

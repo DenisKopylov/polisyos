@@ -523,3 +523,54 @@ def test_declared_any_normalizations_remain_compatible(backend: str) -> None:
     assert holder["bytearray"] == b"x"
     assert type(holder["view"]) is bytes
     assert holder["view"] == b"y"
+
+
+def test_node_error_optional_category_preserves_legacy_wire_shape(backend):
+    """Old error payloads omit category and remain readable on both codecs."""
+    state = ExperimentState(run_id="legacy-node-error")
+    outcome = NodeOutcome(
+        status="fail", state=state, error=NodeError(code="node.old", message="old")
+    )
+    payload = json.loads(wire.serialize_outcome(outcome))
+    value = payload["value"]
+    if "outcome" in value:
+        value = value["outcome"]
+    assert value["error"] == {"code": "node.old", "message": "old", "details": {}}
+    assert value["skip_blocker"] is None
+    restored = wire.deserialize_outcome(wire._dumps(payload))
+    assert restored.error is not None
+    assert restored.error.category is None
+
+
+@pytest.mark.parametrize("category", ["transient", "fatal", "validation"])
+def test_node_error_typed_category_roundtrips_through_outcome_wire(backend, category):
+    from polisyos.scientist.orchestration.engine.errors import ErrorCategory
+
+    original = NodeOutcome(
+        status="fail",
+        state=ExperimentState(run_id="typed-error"),
+        error=NodeError(code="node.reason", message="typed", category=ErrorCategory(category)),
+    )
+    restored = wire.deserialize_outcome(wire.serialize_outcome(original))
+    assert restored.error is not None
+    assert restored.error.category is ErrorCategory(category)
+
+
+def test_node_error_unknown_category_is_refused():
+    with pytest.raises(ValueError):
+        NodeError(code="node.reason", message="bad", category="invented")
+
+
+def test_node_error_unknown_wire_category_is_refused(backend):
+    outcome = NodeOutcome(
+        status="fail",
+        state=ExperimentState(run_id="bad-category"),
+        error=NodeError(code="node.reason", message="typed"),
+    )
+    payload = json.loads(wire.serialize_outcome(outcome))
+    value = payload["value"]
+    if "outcome" in value:
+        value = value["outcome"]
+    value["error"]["category"] = "invented"
+    with pytest.raises(wire.DeserializationError):
+        wire.deserialize_outcome(wire._dumps(payload))

@@ -6,6 +6,7 @@ import uuid
 from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Literal, cast
 
 from pydantic import BaseModel, ConfigDict
@@ -49,6 +50,10 @@ from .job_attempt_publication import (
 )
 
 if TYPE_CHECKING:
+    from typing import NoReturn
+
+    from polisyos.scientist.orchestration.engine import BudgetMiddleware
+
     from ..control_plane_store import (
         ControlJobExecutionAdmission,
         ControlJobExecutionScope,
@@ -57,7 +62,7 @@ if TYPE_CHECKING:
 
 
 def _strict_json_value_equal(actual: object, expected: object) -> bool:
-    """Compare decoded JSON values without Python's bool/int equality coercion."""
+    """Compare decoded values without scalar coercion or typed-envelope collisions."""
     if type(actual) is not type(expected):
         return False
     if isinstance(expected, dict):
@@ -77,7 +82,11 @@ def _strict_json_value_equal(actual: object, expected: object) -> bool:
             _strict_json_value_equal(actual_item, expected_item)
             for actual_item, expected_item in zip(actual, expected, strict=True)
         )
-    if expected is None or type(expected) in {bool, int, float, str}:
+    if isinstance(expected, Decimal):
+        return isinstance(actual, Decimal) and actual.as_tuple() == expected.as_tuple()
+    if isinstance(expected, float):
+        return isinstance(actual, float) and actual.hex() == expected.hex()
+    if expected is None or type(expected) in {bool, int, str}:
         return actual == expected
     return False
 
@@ -198,6 +207,315 @@ def _limit_quality_scorecard(limited: dict[str, Any], limitation: dict[str, Any]
 
 class ControlJobScopeAdmissionMixin:
     """Own one control-job lifecycle facet without changing service entrypoints."""
+
+    @contextmanager
+    def _workflow_checkpoint_execution_scope(self) -> Iterator[None]:
+        """Install only the configured executor scope after current SQL admission."""
+        from polisyos.core.security import (
+            AccessScope,
+            reset_current_access_scope,
+            set_current_access_scope,
+        )
+
+        scope = getattr(self, "_workflow_continuation_access_scope", None)
+        if scope is None:
+            yield
+            return
+        admission = self._control_store.current_execution_job_admission()
+        if (
+            not isinstance(scope, AccessScope)
+            or admission.job.kind != "workflow_run"
+            or admission.job.state != "running"
+            or admission.scope.status != "established"
+            or (scope.tenant_id, scope.cell_id)
+            != (admission.scope.tenant_id, admission.scope.cell_id)
+        ):
+            raise RuntimeError("workflow_checkpoint_execution_scope_not_admitted")
+        token = set_current_access_scope(scope)
+        try:
+            yield
+        finally:
+            reset_current_access_scope(token)
+
+    def _configured_workflow_budget_middleware(self) -> BudgetMiddleware | None:
+        """Open the configured ledger without bootstrapping an absent budget."""
+        from polisyos.scientist.orchestration.engine import BudgetMiddleware
+
+        ledger = getattr(self, "_workflow_continuation_ledger", None)
+        if ledger is None:
+            return None
+        state = ledger.load()
+        identity = ledger.settlement_owner_identity
+        profile = getattr(self, "_workflow_continuation_profile", None)
+        if profile == "single_owner_local_v1":
+            owner, resource, anchor = ledger.continuation_binding()
+            return BudgetMiddleware(
+                state,
+                ledger=ledger,
+                continuation_owner_identity=owner,
+                continuation_resource_identity=resource,
+                continuation_snapshot_anchor=anchor,
+                invocation_settlement_profile=profile,
+            )
+        return BudgetMiddleware(
+            state,
+            ledger=ledger,
+            continuation_owner_identity=identity,
+        )
+
+    def _resume_checkpointed_control_workflow(self) -> _LegacyShadowWorkflowResult:
+        """Continue one verified candidate operation under the actual replacement lease.
+
+        Preliminary reads select the original workflow; strict resume repeats the
+        owner/job, checkpoint, execution-budget and attempt checks under its run lock.
+        No failure here grants permission to start the original workflow again.
+        """
+        from pathlib import Path
+
+        from polisyos.core import errors as core_errors
+        from polisyos.core.security import get_current_access_scope_or_none
+        from polisyos.scientist.orchestration.engine import ExperimentState, WorkflowSpec
+        from polisyos.scientist.orchestration.engine.checkpoint import (
+            load_checkpoint,
+            load_checkpoint_head,
+            resume_from_checkpoint,
+        )
+        from polisyos.scientist.orchestration.workflows.builder import (
+            _pin_cross_layer_input_ref,
+            _prepare_workflow_state,
+            build_registry_with_builtin_nodes,
+        )
+        from polisyos.scientist.orchestration.workflows.selection import resolve_workflow_id
+
+        admission = self._control_store.current_execution_job_admission()
+        job = admission.job
+
+        def refuse(reason: str, error: Exception | None = None) -> NoReturn:
+            progress: dict[str, Any] = {
+                "state": "failed",
+                "phase": "checkpoint_handover",
+                "runtime_state": "candidate_only",
+                "effect_state": "outcome_unknown",
+                "authority_path": "legacy_shadow",
+                "authority_result": "candidate_only",
+                "run_id": job.run_id,
+                "job_id": job.job_id,
+                "attempt": job.attempt,
+                "failure": {
+                    "code": "checkpoint_handover_outcome_unknown",
+                    "layer": "scientist_checkpoint",
+                    "phase": "checkpoint_handover",
+                    "message": reason,
+                    "retryable": False,
+                    "next_action": (
+                        "Reconcile the original operation's owner, checkpoint and ledger; "
+                        "do not start a replacement operation or replay an unknown effect."
+                    ),
+                },
+            }
+            if error is not None:
+                progress["failure"]["exception_type"] = type(error).__name__
+                detail = str(error)
+                if (
+                    0 < len(detail) <= 120
+                    and detail[0].islower()
+                    and all(
+                        character.islower() or character.isdigit() or character == "_"
+                        for character in detail
+                    )
+                ):
+                    progress["failure"]["reason_code"] = detail
+            exception = _WorkflowExecutionNonAuthorityError(reason, progress=progress)
+            if error is None:
+                raise exception
+            raise exception from error
+
+        if (
+            job.kind != "workflow_run"
+            or job.state != "running"
+            or not job.run_id
+            or job.attempt <= 1
+            or admission.scope.status != "established"
+            or getattr(self, "_workflow_continuation_access_scope", None) is None
+            or getattr(self, "_workflow_continuation_profile", None)
+            not in {"reconciled_local_v1", "single_owner_local_v1"}
+        ):
+            refuse("checkpoint_handover_current_owner_not_established")
+        try:
+            payload = self._load_payload_ref(
+                self._require_control_job_payload_ref(job),
+                kind="runtime.control_job_payload.workflow_run",
+            )
+            payload = self._payload_for_execution_scope(
+                payload, job=job, execution_scope=admission.scope
+            )
+            state_payload = payload.get("state_payload")
+            params = state_payload.get("params") if isinstance(state_payload, Mapping) else None
+            if (
+                payload.get("run_id") != job.run_id
+                or payload.get("checkpoint_policy") != "strict"
+                or not isinstance(params, Mapping)
+                or params.get("control_plane_transition") != "legacy_shadow"
+            ):
+                refuse("checkpoint_handover_original_payload_not_admitted")
+            root = getattr(self._artifact_store, "root", None)
+            if (
+                not isinstance(root, (str, Path))
+                or Path(root).resolve() != self._cas_root.resolve()
+            ):
+                refuse("checkpoint_handover_filesystem_owner_not_established")
+            run_dir = derive_core_run_dir(Path(root) / "runs", job.run_id)
+            with self._workflow_checkpoint_execution_scope():
+                owner = run.read_run_owner_snapshot(
+                    self._artifact_store,
+                    run_dir / "trace.jsonl",
+                    run_id=job.run_id,
+                    access_scope=get_current_access_scope_or_none(),
+                )
+                manifest = owner.run_manifest
+                if (
+                    manifest.run_id != job.run_id
+                    or manifest.control_job_id != job.job_id
+                    or (manifest.tenant_id, manifest.cell_id)
+                    != (admission.scope.tenant_id, admission.scope.cell_id)
+                ):
+                    refuse("checkpoint_handover_core_job_owner_mismatch")
+                attempts = run.read_runtime_invocation_attempts(
+                    self._artifact_store, run_dir / "trace.jsonl", run_id=job.run_id
+                )
+                if not attempts:
+                    refuse("checkpoint_handover_original_attempts_not_established")
+                original_workflow_ref = attempts[0].basis.workflow_spec_ref
+                original_workflow = WorkflowSpec.model_validate(
+                    read_core_json_artifact(self._artifact_store, original_workflow_ref).value
+                )
+                requested_workflow_id = resolve_workflow_id(
+                    ExperimentState(
+                        run_id=job.run_id,
+                        params=dict(params),
+                        inputs=dict(state_payload.get("inputs") or {}),
+                        execution_profile=job.effective_execution_profile,
+                    )
+                )
+                if original_workflow.workflow_id != requested_workflow_id:
+                    refuse("checkpoint_handover_original_workflow_selection_mismatch")
+                # Reuse only the pure canonical preparation. Never recreate a
+                # report, materialization or other producer output to justify A.
+                # Profiles with additional unbound transformations are refused.
+                expected_payload = dict(state_payload)
+                for key in ("job_id", "tenant_id", "cell_id"):
+                    expected_payload.pop(key, None)
+                expected_payload.update(
+                    control_job_id=job.job_id,
+                    execution_profile=job.effective_execution_profile,
+                    capability_manifest_ref=manifest.capability_manifest_ref,
+                )
+                expected_initial = _prepare_workflow_state(
+                    ExperimentState.model_validate(expected_payload),
+                    workflow_id=requested_workflow_id,
+                )
+                _pin_cross_layer_input_ref(
+                    expected_initial,
+                    input_key="registry_bundle_ref",
+                    provided_ref=manifest.registry_bundle,
+                )
+                admitted_initial = ExperimentState.model_validate(
+                    read_core_json_artifact(
+                        self._artifact_store, attempts[0].basis.input_state_ref
+                    ).value
+                )
+                if not _strict_json_value_equal(
+                    admitted_initial.model_dump(), expected_initial.model_dump()
+                ):
+                    refuse("checkpoint_handover_original_payload_state_mismatch")
+                registry = getattr(self, "_workflow_continuation_registry", None)
+                if registry is None:
+                    registry = build_registry_with_builtin_nodes(include_discovered_nodes=False)
+                result = resume_from_checkpoint(
+                    self._artifact_store,
+                    job.run_id,
+                    workflow_ref=original_workflow_ref,
+                    require_reconciled_attempts=True,
+                    expected_control_job_id=job.job_id,
+                    registry=registry,
+                    registry_bundle_ref=manifest.registry_bundle,
+                    checkpoint_policy="strict",
+                    resume_strategy="require_cache_seed",
+                    run_dir=run_dir,
+                    continuation_ledger=getattr(self, "_workflow_continuation_ledger", None),
+                )
+                current = self._control_store.current_execution_job_record()
+                if (
+                    current.job_id != job.job_id
+                    or current.run_id != job.run_id
+                    or current.attempt != job.attempt
+                ):
+                    refuse("checkpoint_handover_owner_changed_before_projection")
+                if result.report.status != "ok":
+                    error = next(
+                        (node.error for node in result.report.nodes if node.error is not None), None
+                    )
+                    raise _WorkflowExecutionNonAuthorityError(
+                        "checkpoint continuation did not complete successfully",
+                        progress={
+                            "state": "failed",
+                            "phase": "checkpoint_handover",
+                            "runtime_state": "candidate_only",
+                            "authority_path": "legacy_shadow",
+                            "authority_result": "candidate_only",
+                            "run_id": job.run_id,
+                            "failure": {
+                                "code": (
+                                    error.code
+                                    if error is not None
+                                    else "checkpoint_handover_remaining_failed"
+                                ),
+                                "layer": "scientist_checkpoint",
+                                "phase": "checkpoint_handover",
+                                "message": (
+                                    error.message
+                                    if error is not None
+                                    else "Remaining work was refused or failed."
+                                ),
+                                "retryable": False,
+                                "next_action": (
+                                    "Inspect the original bound budget and remaining-work failure; "
+                                    "do not reset the ledger or replay an unknown effect."
+                                ),
+                            },
+                        },
+                    )
+                head = load_checkpoint_head(run_dir)
+                if head is None:
+                    refuse("checkpoint_handover_final_head_not_established")
+                final_checkpoint = load_checkpoint(self._artifact_store, head.checkpoint_ref)
+        except _WorkflowExecutionNonAuthorityError:
+            raise
+        except (OSError, RuntimeError, TypeError, ValueError, core_errors.PolicyOSError) as error:
+            refuse("checkpoint_handover_evidence_not_reconciled", error)
+        progress = self._legacy_shadow_progress(
+            job=job,
+            phase="checkpoint_handover_completed",
+            reason="The original operation's remaining work completed as a candidate only.",
+        )
+        progress.update(
+            {
+                "checkpoint_ref": head.checkpoint_ref.model_dump(mode="json"),
+                "completed_nodes": final_checkpoint.metadata.completed_nodes,
+                "checkpoint_handover": "reconciled",
+                "logical_operation_id": job.run_id,
+                "artifacts_index": result.state.model_dump(mode="json")["artifacts_index"],
+                "scientist_run_manifest_ref": (
+                    result.run_ref.model_dump(mode="json") if result.run_ref is not None else None
+                ),
+            }
+        )
+        return _LegacyShadowWorkflowResult(
+            progress=progress,
+            graph_output_refs=None,
+            source_experiment_state_ref=None,
+            graph_producer_receipt=None,
+        )
 
     @staticmethod
     def _derive_decision_validity_dedupe_key(
@@ -948,19 +1266,37 @@ class ControlJobScopeAdmissionMixin:
             state_payload[_EVALUATION_SAFETY_EXECUTION_CONTEXT_KEY] = (
                 evaluation_safety.execution_context.model_dump(mode="json")
             )
-        transition_result = self._execute_workflow_control_transition(
-            state_payload,
-            payload["checkpoint_policy"],
-            job=job,
-            endpoint="/api/v1/control/runs",
-            execution_scope_status=execution_scope.status,
-            admission=admission,
-            execution_scope=execution_scope,
-            execution_scope_binding=execution_scope_binding,
-            http_request_id=str(
-                (payload.get("_telemetry") or {}).get("request_id") or f"control-job:{job.job_id}"
-            ),
-        )
+        from ..control_plane_store import ControlJobLeaseLostError
+
+        current = self._control_store.current_execution_job_record()
+        if (current.job_id, current.run_id, current.attempt) != (
+            job.job_id,
+            job.run_id,
+            job.attempt,
+        ):
+            raise ControlJobLeaseLostError("workflow_job_dispatch_owner_changed")
+        params = state_payload.get("params")
+        if (
+            current.attempt > 1
+            and isinstance(params, Mapping)
+            and params.get("control_plane_transition") == "legacy_shadow"
+        ):
+            transition_result = self._resume_checkpointed_control_workflow()
+        else:
+            transition_result = self._execute_workflow_control_transition(
+                state_payload,
+                payload["checkpoint_policy"],
+                job=job,
+                endpoint="/api/v1/control/runs",
+                execution_scope_status=execution_scope.status,
+                admission=admission,
+                execution_scope=execution_scope,
+                execution_scope_binding=execution_scope_binding,
+                http_request_id=str(
+                    (payload.get("_telemetry") or {}).get("request_id")
+                    or f"control-job:{job.job_id}"
+                ),
+            )
         producer_output_refs = (
             transition_result.graph_output_refs
             if isinstance(transition_result, _LegacyShadowWorkflowResult)

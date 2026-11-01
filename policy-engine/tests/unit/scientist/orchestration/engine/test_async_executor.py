@@ -22,10 +22,12 @@ from polisyos.core.artifacts.manifest import (
     artifact_ref_identity_key,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run import context as run_context
 from polisyos.core.run.context import RunContext
+from polisyos.core.run.manifest import RunManifest
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
 from polisyos.scientist.orchestration.engine.budget import (
     BudgetExhaustedError,
@@ -35,6 +37,12 @@ from polisyos.scientist.orchestration.engine.budget import (
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.errors import WorkflowTimeoutError
+from polisyos.scientist.orchestration.engine.executor import WorkflowReport
+from polisyos.scientist.orchestration.engine.finalization import (
+    FINAL_WORKFLOW_REPORT_STATE_PATH,
+    FINALIZATION_KIND,
+    WorkflowStateFinalization,
+)
 from polisyos.scientist.orchestration.engine.idempotency import (
     NodeResultCache,
     compute_idempotency_key,
@@ -180,6 +188,112 @@ class _AsyncSelectedArtifactOutputNode:
                 error=NodeError(code="node.test_failure", message="expected test failure"),
             )
         return NodeOutcome(status="ok", state=next_state, artifacts=declared_refs)
+
+
+class _NativeReadinessNode:
+    """Real node collaborator for selected-profile readiness/lifecycle tests."""
+
+    def __init__(
+        self,
+        alias: str,
+        *,
+        node_id: str,
+        state_reads: list[str],
+        state_writes: list[str],
+        payload: dict[str, object] | None = None,
+        started: asyncio.Event | None = None,
+        release: asyncio.Event | None = None,
+        finished: asyncio.Event | None = None,
+        fail: bool = False,
+    ) -> None:
+        self.alias = alias
+        self.payload = payload or {"alias": alias}
+        self.started = started
+        self.release = release
+        self.finished = finished
+        self.fail = fail
+        self.observed_input: object | None = None
+        self.spec = _cache_node_spec(
+            node_id,
+            state_reads=state_reads,
+            state_writes=state_writes,
+        )
+
+    def execute(self, _ctx: ExecutionContext, _state: ExperimentState) -> NodeOutcome:
+        raise AssertionError("native async fixture must dispatch through execute_async")
+
+    async def execute_async(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        if self.alias == "a":
+            state.params["a"] = "done"
+            state.params["c_input"] = "from-a"
+        elif self.alias == "b":
+            if self.started is not None:
+                self.started.set()
+            if self.release is not None:
+                await asyncio.wait_for(self.release.wait(), timeout=3)
+            state.params["b"] = "done"
+        else:
+            self.observed_input = state.params.get("c_input")
+            state.params["result"] = "from-c"
+            if self.started is not None:
+                self.started.set()
+
+        if self.fail:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(code="node.exe_02_expected", message="expected failure"),
+            )
+
+        payload = {**self.payload, "seed": state.params.get("seed")}
+        if self.alias == "c":
+            payload["observed_input"] = self.observed_input
+        ref = ctx.store.put_json(
+            payload,
+            PutOptions(
+                kind="test.async_exe_02_output",
+                media_type="application/json",
+                schema=SchemaInfo(name="test.AsyncExe02Output", version="1.0"),
+            ),
+            return_selected_profile=True,
+        )
+        state.artifacts_index[f"{self.alias}_output"] = ref
+        if self.finished is not None:
+            self.finished.set()
+        return NodeOutcome(status="ok", state=state, artifacts=[ref])
+
+
+class _NativePendingNode:
+    """Async node that exposes whether TaskGroup waits for cancelled children."""
+
+    def __init__(
+        self,
+        alias: str,
+        *,
+        node_id: str,
+        started: asyncio.Event,
+        cancelled: asyncio.Event,
+    ) -> None:
+        self.alias = alias
+        self.started = started
+        self.cancelled = cancelled
+        self.spec = _cache_node_spec(
+            node_id,
+            state_reads=["params.seed"],
+            state_writes=[f"params.{alias}"],
+        )
+
+    def execute(self, _ctx: ExecutionContext, _state: ExperimentState) -> NodeOutcome:
+        raise AssertionError("native async fixture must dispatch through execute_async")
+
+    async def execute_async(self, _ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        self.started.set()
+        try:
+            await asyncio.Future()
+        except asyncio.CancelledError:
+            self.cancelled.set()
+            raise
+        return NodeOutcome(status="ok", state=state)
 
 
 def _make_real_store_ctx(
@@ -640,6 +754,305 @@ class TestAsyncWorkflowExecutor:
             ],
         ]
         assert all("budget_key" not in record["metrics"] for record in alerts)
+
+
+class TestExe02NativeQualification:
+    @pytest.mark.asyncio
+    async def test_native_readiness_selected_outputs_and_finalization_are_fresh_readable(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+        record_property,
+    ) -> None:
+        """A committed A result reaches C and all selected CAS outputs survive reopen."""
+        run_id = "async-exe-02-native-readback"
+        store, bundle, ctx = _make_owned_run_context(tmp_path, run_id=run_id)
+        b_started = asyncio.Event()
+        b_release = asyncio.Event()
+        b_finished = asyncio.Event()
+        c_started = asyncio.Event()
+        nodes = {
+            "a": _NativeReadinessNode(
+                "a",
+                node_id="test.exe_02_a@1.0.0",
+                state_reads=["params.seed"],
+                state_writes=[
+                    "params.a",
+                    "params.c_input",
+                    "artifacts_index.a_output",
+                ],
+            ),
+            "b": _NativeReadinessNode(
+                "b",
+                node_id="test.exe_02_b@1.0.0",
+                state_reads=["params.seed"],
+                state_writes=["params.b", "artifacts_index.b_output"],
+                started=b_started,
+                release=b_release,
+                finished=b_finished,
+            ),
+            "c": _NativeReadinessNode(
+                "c",
+                node_id="test.exe_02_c@1.0.0",
+                state_reads=["params.c_input"],
+                state_writes=["params.result", "artifacts_index.c_output"],
+                started=c_started,
+            ),
+        }
+        registry = NodeRegistry()
+        for node in nodes.values():
+            registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="async_exe_02_native_readback",
+            error_policy="continue",
+            nodes=[
+                NodeInvocation(alias="a", node_id=nodes["a"].spec.metadata.component_id),
+                NodeInvocation(alias="b", node_id=nodes["b"].spec.metadata.component_id),
+                NodeInvocation(
+                    alias="c",
+                    node_id=nodes["c"].spec.metadata.component_id,
+                    depends_on=["a"],
+                ),
+            ],
+        )
+        state = ExperimentState(
+            run_id=run_id,
+            inputs={"registry_bundle_ref": bundle.bundle_ref},
+            params={"seed": 23},
+        )
+        snapshot_costs: list[tuple[float, int]] = []
+        original_snapshot_pair = AsyncWorkflowExecutor._readiness_launch_pair
+
+        def _measure_snapshot_pair(snapshot: ExperimentState):
+            started_at = time.perf_counter()
+            pair = original_snapshot_pair(snapshot)
+            elapsed = time.perf_counter() - started_at
+            input_bytes = len(snapshot.model_dump_json().encode("utf-8"))
+            snapshot_costs.append((elapsed, input_bytes))
+            return pair
+
+        monkeypatch.setattr(
+            AsyncWorkflowExecutor,
+            "_readiness_launch_pair",
+            staticmethod(_measure_snapshot_pair),
+        )
+        executor = AsyncWorkflowExecutor(ctx, registry, max_parallelism=2)
+        execution_started = time.perf_counter()
+        execution = asyncio.create_task(executor.execute(workflow, state))
+
+        await asyncio.wait_for(b_started.wait(), timeout=2)
+        try:
+            await asyncio.wait_for(c_started.wait(), timeout=1)
+            c_released_before_b = True
+            first_useful_result_seconds = time.perf_counter() - execution_started
+        except TimeoutError:
+            c_released_before_b = False
+            first_useful_result_seconds = time.perf_counter() - execution_started
+        c_observed_input = nodes["c"].observed_input
+        b_was_still_running = not b_finished.is_set()
+        b_release.set()
+        result = await execution
+
+        record_property("exe02_first_useful_result_seconds", first_useful_result_seconds)
+        record_property("exe02_snapshot_pair_count", len(snapshot_costs))
+        record_property(
+            "exe02_snapshot_pair_seconds_total",
+            sum(elapsed for elapsed, _size in snapshot_costs),
+        )
+        record_property(
+            "exe02_snapshot_input_json_bytes_total",
+            sum(size for _elapsed, size in snapshot_costs),
+        )
+        assert c_released_before_b
+        assert b_was_still_running
+        assert c_observed_input == "from-a"
+        assert result.report.status == "ok"
+        assert [record.alias for record in result.report.nodes] == ["a", "b", "c"]
+        assert [record.status for record in result.report.nodes] == ["ok", "ok", "ok"]
+        assert result.state.params == {
+            "seed": 23,
+            "a": "done",
+            "c_input": "from-a",
+            "b": "done",
+            "result": "from-c",
+        }
+
+        fresh = FileSystemCAS(store.root)
+        assert result.run_ref.manifest_profile_sha256 is not None
+        run_manifest = RunManifest.model_validate(
+            from_canonical_bytes(fresh.get_bytes(result.run_ref))
+        )
+        assert run_manifest.run_id == run_id
+        assert run_manifest.status == "ok"
+        assert run_manifest.finished_at is not None
+        finalization_ref = next(
+            ref for ref in run_manifest.outputs if ref.kind == FINALIZATION_KIND
+        )
+        report_ref = next(
+            ref for ref in run_manifest.outputs if ref.kind == "scientist.workflow_report"
+        )
+        finalization = WorkflowStateFinalization.model_validate(
+            from_canonical_bytes(fresh.get_bytes(finalization_ref))
+        )
+        final_state = ExperimentState.model_validate(
+            from_canonical_bytes(fresh.get_bytes(finalization.final_state_ref))
+        )
+        report = WorkflowReport.model_validate(from_canonical_bytes(fresh.get_bytes(report_ref)))
+        report_binding = next(
+            binding
+            for binding in finalization.output_bindings
+            if binding.state_path == FINAL_WORKFLOW_REPORT_STATE_PATH
+        )
+        assert report_binding.artifact_ref == report_ref
+        assert final_state.reports_index["workflow_report"] == report_ref
+        assert report.workflow_id == workflow.workflow_id
+        assert [record.alias for record in report.nodes] == ["a", "b", "c"]
+        assert final_state.params == result.state.params
+        assert finalization.workflow_spec_ref.manifest_profile_sha256 is not None
+        assert finalization.prior_state_ref.manifest_profile_sha256 is not None
+        assert finalization.final_state_ref.manifest_profile_sha256 is not None
+        selected_refs = [
+            finalization_ref,
+            report_ref,
+            finalization.workflow_spec_ref,
+            finalization.prior_state_ref,
+            finalization.final_state_ref,
+            *(ref for record in report.nodes for ref in record.artifacts),
+        ]
+        assert all(ref.manifest_profile_sha256 is not None for ref in selected_refs)
+        assert all(fresh.verify(ref).ok for ref in selected_refs)
+        for record in report.nodes:
+            assert record.artifacts
+            assert fresh.get_bytes(record.artifacts[0])
+
+    @pytest.mark.asyncio
+    async def test_native_fail_fast_rollback_waits_for_running_sibling(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        """Tier failure finalizes only after a pending sibling settles and rolls back."""
+        run_id = "async-exe-02-native-rollback"
+        store, bundle, ctx = _make_owned_run_context(tmp_path, run_id=run_id)
+        b_started = asyncio.Event()
+        b_release = asyncio.Event()
+        b_finished = asyncio.Event()
+        nodes = {
+            "a": _NativeReadinessNode(
+                "a",
+                node_id="test.exe_02_rollback_a@1.0.0",
+                state_reads=["params.seed"],
+                state_writes=["params.a"],
+                fail=True,
+            ),
+            "b": _NativeReadinessNode(
+                "b",
+                node_id="test.exe_02_rollback_b@1.0.0",
+                state_reads=["params.seed"],
+                state_writes=["params.b", "artifacts_index.b_output"],
+                started=b_started,
+                release=b_release,
+                finished=b_finished,
+            ),
+        }
+        registry = NodeRegistry()
+        for node in nodes.values():
+            registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="async_exe_02_native_rollback",
+            error_policy="fail_fast",
+            nodes=[
+                NodeInvocation(alias=alias, node_id=node.spec.metadata.component_id)
+                for alias, node in nodes.items()
+            ],
+        )
+        state = ExperimentState(
+            run_id=run_id,
+            inputs={"registry_bundle_ref": bundle.bundle_ref},
+            params={"seed": 29},
+        )
+        execution = asyncio.create_task(
+            AsyncWorkflowExecutor(ctx, registry, max_parallelism=2).execute(workflow, state)
+        )
+
+        await asyncio.wait_for(b_started.wait(), timeout=2)
+        await asyncio.sleep(0)
+        assert not b_finished.is_set()
+        assert not execution.done()
+        b_release.set()
+        result = await execution
+
+        assert b_finished.is_set()
+        assert result.report.status == "fail"
+        assert result.state.params == {"seed": 29}
+        assert [record.alias for record in result.report.nodes] == ["a", "b"]
+        fresh = FileSystemCAS(store.root)
+        run_manifest = RunManifest.model_validate(
+            from_canonical_bytes(fresh.get_bytes(result.run_ref))
+        )
+        finalization_ref = next(
+            ref for ref in run_manifest.outputs if ref.kind == FINALIZATION_KIND
+        )
+        finalization = WorkflowStateFinalization.model_validate(
+            from_canonical_bytes(fresh.get_bytes(finalization_ref))
+        )
+        final_state = ExperimentState.model_validate(
+            from_canonical_bytes(fresh.get_bytes(finalization.final_state_ref))
+        )
+        assert run_manifest.status == "fail"
+        assert final_state.params == {"seed": 29}
+
+    @pytest.mark.asyncio
+    async def test_native_cancellation_waits_for_pending_children_and_suspends_run(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        """Cancellation waits for real child tasks and leaves the run resumable."""
+        run_id = "async-exe-02-native-cancel"
+        store, bundle, ctx = _make_owned_run_context(tmp_path, run_id=run_id)
+        started = {alias: asyncio.Event() for alias in ("a", "b")}
+        cancelled = {alias: asyncio.Event() for alias in ("a", "b")}
+        nodes = {
+            alias: _NativePendingNode(
+                alias,
+                node_id=f"test.exe_02_cancel_{alias}@1.0.0",
+                started=started[alias],
+                cancelled=cancelled[alias],
+            )
+            for alias in ("a", "b")
+        }
+        registry = NodeRegistry()
+        for node in nodes.values():
+            registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="async_exe_02_native_cancel",
+            error_policy="continue",
+            nodes=[
+                NodeInvocation(alias=alias, node_id=node.spec.metadata.component_id)
+                for alias, node in nodes.items()
+            ],
+        )
+        state = ExperimentState(
+            run_id=run_id,
+            inputs={"registry_bundle_ref": bundle.bundle_ref},
+            params={"seed": 31},
+        )
+        execution = asyncio.create_task(
+            AsyncWorkflowExecutor(ctx, registry, max_parallelism=2).execute(workflow, state)
+        )
+
+        await asyncio.wait_for(
+            asyncio.gather(*(event.wait() for event in started.values())),
+            timeout=2,
+        )
+        execution.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await execution
+
+        assert all(event.is_set() for event in cancelled.values())
+        assert ctx.run._suspended is True
+        assert ctx.run._active_lease is None
+        assert ctx.run.run_manifest.status == "running"
+        assert list(store.iter_artifact_ids())
 
     @pytest.mark.asyncio
     async def test_readiness_releases_disjoint_successor_before_unrelated_node_finishes(self):

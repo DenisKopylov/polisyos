@@ -10,10 +10,11 @@ import secrets
 import stat
 import threading
 from contextlib import contextmanager
+from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Protocol, cast
+from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import fast_json_dumps
@@ -47,7 +48,7 @@ from .manifest import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Callable, Iterator, Sequence
 
     from polisyos.core.run.worker_lifecycle import WorkerLifecycleCapability
     from polisyos.core.security.access_scope import AccessScope
@@ -80,6 +81,22 @@ _ACTIVE_RUN_THREAD_LOCKS_GUARD = threading.Lock()
 
 class _FinalizeRecoveryError(ValueError):
     """A pending finalize journal cannot be reconciled from its durable facts."""
+
+
+class ChildOutcomeUnknownError(Exception):
+    """A child operation may have persisted state; automatic retry is unsafe."""
+
+    def __init__(self, message: str, *, run_id: str, run_dir: Path) -> None:
+        self.run_id = run_id
+        self.run_dir = run_dir
+        super().__init__(message)
+
+
+class ChildRunStartUnknownError(ChildOutcomeUnknownError):
+    """Child start may have persisted state before its acknowledgment."""
+
+    def __init__(self, *, run_id: str, run_dir: Path) -> None:
+        super().__init__("child_run_start_outcome_unknown", run_id=run_id, run_dir=run_dir)
 
 
 @contextmanager
@@ -143,6 +160,9 @@ class _RunExecutionLease:
         self._descriptor: int | None = None
         self._fcntl: _FcntlModule | None = None
         self._owner_pid: int | None = None
+        self._pin_lock = threading.Lock()
+        self._pins = 0
+        self._release_requested = False
 
     def acquire(self) -> None:
         try:
@@ -212,6 +232,44 @@ class _RunExecutionLease:
         self._thread_lock = None
 
     def release(self) -> None:
+        """Release when the owner and all physical-work pins are finished."""
+        if self._owner_pid is not None and self._owner_pid != os.getpid():
+            # A forked child must never acquire a possibly inherited locked
+            # mutex or unlock the parent's shared open-file description.
+            return
+        with self._pin_lock:
+            if self._pins:
+                self._release_requested = True
+                return
+            self._release_locked()
+
+    def pin(self) -> Callable[[], None]:
+        """Keep the real run lease until an already admitted worker completes."""
+        self.require_owner_process()
+        with self._pin_lock:
+            self.require_owner_process()
+            if self._descriptor is None or self._release_requested:
+                raise _FinalizeRecoveryError("run_execution_lease_not_active")
+            self._pins += 1
+            pin_owner_pid = os.getpid()
+        released = False
+
+        def unpin() -> None:
+            nonlocal released
+            if pin_owner_pid != os.getpid():
+                raise _FinalizeRecoveryError("run_execution_lease_inherited_process")
+            with self._pin_lock:
+                if released:
+                    return
+                self.require_owner_process()
+                released = True
+                self._pins -= 1
+                if self._pins == 0 and self._release_requested:
+                    self._release_locked()
+
+        return unpin
+
+    def _release_locked(self) -> None:
         descriptor = self._descriptor
         fcntl = self._fcntl
         owner_pid = self._owner_pid
@@ -246,6 +304,10 @@ class _RunInvocationAttempt:
     basis_ref: ArtifactRef
     outcome: RunInvocationCompleted | None
     outcome_ref: ArtifactRef | None
+
+
+# Public name for the existing immutable owner result, not a second DTO.
+RunInvocationAttempt = _RunInvocationAttempt
 
 
 def _run_invocation_attempt_chain(
@@ -466,6 +528,8 @@ def _run_invocation_record_write_options(
                 (record.input_state_ref, "input_state"),
             ]
         )
+        if record.workflow_execution_admission_ref is not None:
+            refs.append((record.workflow_execution_admission_ref, "workflow_execution_admission"))
     else:
         refs.append((record.basis_ref, "attempt_basis"))
         if record.outcome_state_ref is not None:
@@ -572,6 +636,8 @@ def _load_run_invocation_record(
             refs.append(record.previous_record_ref)
         if isinstance(record, RunInvocationStarted):
             refs.extend([record.workflow_spec_ref, record.input_state_ref])
+            if record.workflow_execution_admission_ref is not None:
+                refs.append(record.workflow_execution_admission_ref)
         else:
             refs.append(record.basis_ref)
             if record.outcome_state_ref is not None:
@@ -941,11 +1007,14 @@ def _run_owner_snapshot_chain(
     records: list[TraceRecord],
     started: TraceRecord,
     allow_incomplete_worker_invocation_id: str | None = None,
+    require_registry_profile: bool = True,
 ) -> tuple[RunOwnerSnapshot | RunOwnerSnapshotV101, ArtifactRef, int]:
     if started.refs.inputs or len(started.refs.outputs) != 1:
         raise _FinalizeRecoveryError("run_resume_owner_snapshot_ref_invalid")
     owner_ref = started.refs.outputs[0]
-    snapshot = _validate_run_owner_snapshot_ref(store, owner_ref)
+    snapshot = _validate_run_owner_snapshot_ref(
+        store, owner_ref, require_registry_profile=require_registry_profile
+    )
     if snapshot.previous_snapshot_ref is not None:
         raise _FinalizeRecoveryError("run_resume_owner_snapshot_chain_invalid")
     if (
@@ -986,7 +1055,9 @@ def _run_owner_snapshot_chain(
             if record.phase != "core" or record.refs.inputs or len(record.refs.outputs) != 1:
                 raise _FinalizeRecoveryError("run_resume_owner_snapshot_event_invalid")
             next_ref = record.refs.outputs[0]
-            next_snapshot = _validate_run_owner_snapshot_ref(store, next_ref)
+            next_snapshot = _validate_run_owner_snapshot_ref(
+                store, next_ref, require_registry_profile=require_registry_profile
+            )
             previous = next_snapshot.previous_snapshot_ref
             if previous != owner_ref:
                 raise _FinalizeRecoveryError("run_resume_owner_snapshot_chain_invalid")
@@ -1388,6 +1459,7 @@ def _read_run_owner_records(
     trace_path: Path,
     *,
     run_id: str,
+    require_registry_profile: bool = True,
 ) -> tuple[list[TraceRecord], RunOwnerSnapshot | RunOwnerSnapshotV101, int]:
     """Read and validate the persisted Core owner trace and snapshot chain."""
     trace_bytes = _read_run_trace_bytes(
@@ -1425,6 +1497,7 @@ def _read_run_owner_records(
         store,
         records=records,
         started=started,
+        require_registry_profile=require_registry_profile,
     )
     return records, snapshot, last_snapshot_index
 
@@ -1434,15 +1507,159 @@ def _read_runtime_invocation_attempts(
     trace_path: Path,
     *,
     run_id: str,
+    require_registry_profile: bool = True,
 ) -> list[_RunInvocationAttempt]:
     """Read attempt bases from a fresh CAS/trace view, without producer memory."""
-    _, snapshot, _ = _read_run_owner_records(store, trace_path, run_id=run_id)
+    _, snapshot, _ = _read_run_owner_records(
+        store, trace_path, run_id=run_id, require_registry_profile=require_registry_profile
+    )
     tail_ref = getattr(snapshot, "runtime_invocation_tail_ref", None)
     return _run_invocation_attempt_chain(
         store,
         tail_ref=tail_ref,
         run_manifest=snapshot.run_manifest,
     )
+
+
+def read_runtime_invocation_attempts(
+    store: ArtifactStore, trace_path: Path, *, run_id: str
+) -> list[RunInvocationAttempt]:
+    """Read validated invocation history without acquiring or resuming a run.
+
+    An empty history establishes no invocation or authority. Callers requiring
+    a stable continuation must hold their own run lock and applicable fence.
+    """
+    return _read_runtime_invocation_attempts(store, trace_path, run_id=run_id)
+
+
+def read_run_owner_snapshot(
+    store: ArtifactStore, trace_path: Path, *, run_id: str, access_scope: AccessScope | None
+) -> RunOwnerSnapshot | RunOwnerSnapshotV101:
+    """Read the validated run owner without starting or resuming execution.
+
+    The supplied active scope must match the owner's exact saved scope.
+    Callers performing continuation still own locking and external fencing.
+    """
+    _, snapshot, _ = _read_run_owner_records(store, trace_path, run_id=run_id)
+    manifest = snapshot.run_manifest
+    if (
+        snapshot.access_scope_sha256 != _access_scope_sha256(access_scope)
+        or (
+            access_scope is None
+            and (manifest.tenant_id is not None or manifest.cell_id is not None)
+        )
+        or (
+            access_scope is not None
+            and (
+                manifest.tenant_id != access_scope.tenant_id
+                or manifest.cell_id != access_scope.cell_id
+            )
+        )
+    ):
+        raise _FinalizeRecoveryError("run_resume_owner_inputs_mismatch")
+    return snapshot
+
+
+@dataclass(frozen=True)
+class TerminalRunRead:
+    """Verified terminal run and the exact transition inputs in its owner trace."""
+
+    run_manifest: RunManifest
+    run_ref: ArtifactRef
+    owner_snapshot: RunOwnerSnapshot | RunOwnerSnapshotV101
+    terminal_inputs: tuple[ArtifactRef, ...]
+
+
+def read_terminal_run(
+    store: ArtifactStore, run_dir: Path, *, run_id: str, access_scope: AccessScope | None
+) -> TerminalRunRead:
+    """Read a selected terminal run under its owner lease without resuming it.
+
+    The transition input references are exposed for their owning consumer to
+    validate; an absent terminal transition is not reconstructed here.
+    """
+    lease = _RunExecutionLease(run_dir)
+    lease.acquire()
+    try:
+        trace_path = run_dir / "trace.jsonl"
+        owner = _trace_run_started_identity(trace_path)
+        if owner is None or owner.run_id != run_id:
+            raise _FinalizeRecoveryError("run_terminal_owner_mismatch")
+        run_ref = _trace_terminal_run_finalized_ref(trace_path, owner=owner)
+        if run_ref is None or run_ref.manifest_profile_sha256 is None:
+            raise _FinalizeRecoveryError("run_terminal_not_established")
+        records, _, _ = _read_run_owner_records(store, trace_path, run_id=run_id)
+        snapshot = read_run_owner_snapshot(
+            store, trace_path, run_id=run_id, access_scope=access_scope
+        )
+        try:
+            manifest = RunManifest.model_validate(from_canonical_bytes(store.get_bytes(run_ref)))
+        except (OSError, TypeError, ValueError) as exc:
+            raise _FinalizeRecoveryError("run_terminal_manifest_unavailable") from exc
+        _validate_terminal_run_manifest_ref(
+            store, run_manifest=manifest, run_ref=run_ref, require_selected_profile=True
+        )
+        if (
+            manifest.run_id != run_id
+            or (manifest.tenant_id, manifest.cell_id) != (owner.tenant_id, owner.cell_id)
+            or manifest.parent_run_id != snapshot.run_manifest.parent_run_id
+            or manifest.registry_bundle != snapshot.run_manifest.registry_bundle
+        ):
+            raise _FinalizeRecoveryError("run_terminal_manifest_owner_mismatch")
+        immutable_fields = (
+            "started_at",
+            "producer",
+            "env",
+            "seed",
+            "replay_source_ref",
+            "execution_profile",
+            "control_job_id",
+            "capability_manifest_ref",
+            "environment_manifest_ref",
+            "sbom_ref",
+            "tee_attestation_ref",
+        )
+        if any(
+            getattr(manifest, field) != getattr(snapshot.run_manifest, field)
+            for field in immutable_fields
+        ):
+            raise _FinalizeRecoveryError("run_terminal_provenance_mismatch")
+        if (
+            not manifest.status
+            or manifest.status == "running"
+            or manifest.finished_at is None
+            or manifest.trace_ref is None
+        ):
+            raise _FinalizeRecoveryError("run_terminal_state_not_established")
+        if (
+            manifest.trace_ref.kind != "core.trace.jsonl"
+            or manifest.trace_ref.media_type != "application/jsonl"
+            or not store.verify(manifest.trace_ref).ok
+        ):
+            raise _FinalizeRecoveryError("run_terminal_trace_artifact_invalid")
+        trace_bytes = _read_run_trace_bytes(
+            trace_path, failure_code="run_terminal_trace_unreadable"
+        )
+        trace_lines = trace_bytes.splitlines(keepends=True)
+        terminal_index = next(
+            (index for index in range(len(trace_lines) - 1, -1, -1) if trace_lines[index].strip()),
+            None,
+        )
+        if terminal_index is None or store.get_bytes(manifest.trace_ref) != b"".join(
+            trace_lines[:terminal_index]
+        ):
+            raise _FinalizeRecoveryError("run_terminal_trace_artifact_mismatch")
+        recorded_inputs, recorded_outputs = RunContext._owner_refs_from_records(records)
+        if recorded_inputs != tuple(manifest.inputs) or recorded_outputs != tuple(manifest.outputs):
+            raise _FinalizeRecoveryError("run_owner_refs_trace_manifest_mismatch")
+        return TerminalRunRead(
+            run_manifest=manifest,
+            run_ref=run_ref,
+            owner_snapshot=snapshot,
+            terminal_inputs=tuple(records[-1].refs.inputs),
+        )
+    finally:
+        lease.release()
 
 
 @dataclass
@@ -1467,6 +1684,11 @@ class RunContext:
     _worker_staging: bool = field(default=False, repr=False, compare=False)
     _worker_merge_lock: threading.RLock = field(
         default_factory=threading.RLock,
+        repr=False,
+        compare=False,
+    )
+    _workflow_execution_lock: threading.Lock = field(
+        default_factory=threading.Lock,
         repr=False,
         compare=False,
     )
@@ -1529,6 +1751,46 @@ class RunContext:
             else:
                 with _run_finalize_lease(self._trace_path.parent):
                     yield
+
+    def _pin_active_execution(self) -> Callable[[], None]:
+        """Pin this active owner's physical lease until a worker actually ends."""
+        with self._parent_state_transition_lease(run_scoped=False):
+            self._require_worker_receipt_reconciled()
+            if self._closed or self._suspended or self._active_lease is None:
+                raise _FinalizeRecoveryError("run_execution_lease_not_active")
+            return self._active_lease.pin()
+
+    @contextmanager
+    def _workflow_execution_guard(self) -> Iterator[None]:
+        """Refuse overlapping workflow owners on the same live run context."""
+        self._require_active_lease_owner()
+        if self._closed or self._suspended:
+            raise _FinalizeRecoveryError("run_workflow_owner_not_active")
+        if not self._workflow_execution_lock.acquire(blocking=False):
+            raise _FinalizeRecoveryError("run_workflow_execution_busy")
+        release_pin: Callable[[], None] | None = None
+        try:
+            # The prior owner may have finished between the first lifecycle
+            # check and acquiring this independent execution lock.
+            with self._parent_state_transition_lease(run_scoped=False):
+                self._require_active_lease_owner()
+                if self._closed or self._suspended:
+                    raise _FinalizeRecoveryError("run_workflow_owner_not_active")
+                if self._active_lease is not None:
+                    release_pin = self._active_lease.pin()
+            yield
+        except BaseException as exc:
+            if release_pin is not None:
+                try:
+                    release_pin()
+                except BaseException as cleanup:
+                    exc.add_note(f"run_workflow_lease_release_failed: {cleanup!r}")
+            raise
+        else:
+            if release_pin is not None:
+                release_pin()
+        finally:
+            self._workflow_execution_lock.release()
 
     def _require_worker_receipt_reconciled(self, *, invocation_id: str | None = None) -> None:
         """Reject unrelated mutations while an appended receipt awaits reconciliation."""
@@ -1622,6 +1884,35 @@ class RunContext:
         cell_id: str | None = None,
         access_scope: AccessScope | None = None,
     ) -> RunContext:
+        """Start an independent run with no caller-asserted parent provenance."""
+        return cls._start(
+            store,
+            registry_bundle,
+            producer=producer,
+            env=env,
+            run_dir=run_dir,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            access_scope=access_scope,
+            _parent_manifest=None,
+        )
+
+    @classmethod
+    def _start(
+        cls,
+        store: ArtifactStore,
+        registry_bundle: ArtifactRef,
+        producer: ProducerInfo | None = None,
+        env: EnvInfo | None = None,
+        run_dir: Path | None = None,
+        run_id: str | None = None,
+        *,
+        tenant_id: str | None = None,
+        cell_id: str | None = None,
+        access_scope: AccessScope | None = None,
+        _parent_manifest: RunManifest | None = None,
+    ) -> RunContext:
         """Start a new run, persisting its selected-profile owner before RUN_STARTED."""
         _require_return_selected_profile_writer(store, "put_json")
         run_id = run_id or new_run_id()
@@ -1652,6 +1943,22 @@ class RunContext:
                     env=env,
                     tenant_id=tenant_id,
                     cell_id=cell_id,
+                    parent_run_id=_parent_manifest.run_id if _parent_manifest else None,
+                    seed=_parent_manifest.seed if _parent_manifest else None,
+                    execution_profile=_parent_manifest.execution_profile
+                    if _parent_manifest
+                    else None,
+                    control_job_id=_parent_manifest.control_job_id if _parent_manifest else None,
+                    capability_manifest_ref=_parent_manifest.capability_manifest_ref
+                    if _parent_manifest
+                    else None,
+                    environment_manifest_ref=_parent_manifest.environment_manifest_ref
+                    if _parent_manifest
+                    else None,
+                    sbom_ref=_parent_manifest.sbom_ref if _parent_manifest else None,
+                    tee_attestation_ref=_parent_manifest.tee_attestation_ref
+                    if _parent_manifest
+                    else None,
                 ),
                 _trace_path=trace_path,
                 _audit_sink=audit_sink,
@@ -1681,6 +1988,110 @@ class RunContext:
         finally:
             if active_lease is not None:
                 active_lease.release()
+
+    @classmethod
+    def start_child(
+        cls,
+        parent: RunContext,
+        *,
+        store: ArtifactStore,
+        parent_basis_ref: ArtifactRef,
+        run_id: str,
+        run_dir: Path,
+    ) -> RunContext:
+        """Start a distinct child from an active, selected parent invocation.
+
+        The caller must recheck the parent attempt before dispatching the first
+        child producer; this method does not grant an external execution fence.
+        """
+        if type(parent) is not RunContext or cls is not RunContext or store is not parent.store:
+            raise _FinalizeRecoveryError("child_run_requires_actual_parent_owner")
+        from polisyos.core.security.tenant_context import (
+            get_current_access_scope_or_none,
+            get_current_cell_id,
+            get_current_tenant_id_or_none,
+        )
+
+        active_scope = get_current_access_scope_or_none()
+        active_tenant = get_current_tenant_id_or_none() or (
+            active_scope.tenant_id if active_scope else None
+        )
+        active_cell = get_current_cell_id() or (active_scope.cell_id if active_scope else None)
+        if _access_scope_sha256(active_scope) != _access_scope_sha256(parent.access_scope) or (
+            active_tenant,
+            active_cell,
+        ) != (parent.tenant_id, parent.cell_id):
+            raise _FinalizeRecoveryError("child_run_parent_scope_mismatch")
+        if (
+            type(parent_basis_ref) is not ArtifactRef
+            or parent_basis_ref.manifest_profile_sha256 is None
+        ):
+            raise _FinalizeRecoveryError("child_run_parent_basis_profile_required")
+        parent._require_active_lease_owner()
+        tail = deepcopy(parent._runtime_invocation_tail_ref)
+        parent._validate_run_owner_binding()
+        matching = [
+            item
+            for item in parent.read_runtime_invocation_attempts()
+            if item.basis_ref == parent_basis_ref
+        ]
+        if len(matching) != 1 or matching[0].outcome is not None:
+            raise _FinalizeRecoveryError("child_run_parent_attempt_not_active")
+        if not run_id or run_id == parent.run_manifest.run_id:
+            raise _FinalizeRecoveryError("child_run_identity_not_distinct")
+        with parent._parent_state_transition_lease(run_scoped=False):
+            parent._require_active_lease_owner()
+            parent._require_worker_receipt_reconciled()
+            if (
+                parent._closed
+                or parent._suspended
+                or parent._active_lease is None
+                or parent._runtime_invocation_tail_ref != tail
+            ):
+                raise _FinalizeRecoveryError("child_run_parent_not_active")
+            manifest = parent.run_manifest.model_copy(deep=True)
+            tenant_id, cell_id = parent.tenant_id, parent.cell_id
+            access_scope = deepcopy(parent.access_scope)
+        child: RunContext | None = None
+        try:
+            child = cls._start(
+                store,
+                manifest.registry_bundle,
+                producer=manifest.producer,
+                env=manifest.env,
+                run_dir=run_dir,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                access_scope=access_scope,
+                _parent_manifest=manifest,
+            )
+            child.add_input(parent_basis_ref)
+            with parent._parent_state_transition_lease(run_scoped=False):
+                parent._require_active_lease_owner()
+                parent._require_worker_receipt_reconciled()
+                if (
+                    parent._closed
+                    or parent._suspended
+                    or parent._runtime_invocation_tail_ref != tail
+                ):
+                    raise _FinalizeRecoveryError("child_run_parent_not_active")
+            return child
+        except Exception as exc:
+            if child is not None:
+                try:
+                    child.suspend_for_resume()
+                except BaseException as cleanup_exc:
+                    exc.add_note(f"child_start_suspend_failed: {cleanup_exc!r}")
+            raise ChildRunStartUnknownError(run_id=run_id, run_dir=run_dir) from exc
+        except BaseException as exc:
+            exc.add_note(f"child_run_start_outcome_unknown: run_id={run_id}, run_dir={run_dir}")
+            if child is not None:
+                try:
+                    child.suspend_for_resume()
+                except BaseException as cleanup_exc:
+                    exc.add_note(f"child_start_suspend_failed: {cleanup_exc!r}")
+            raise
 
     @classmethod
     def resume(
@@ -1915,8 +2326,56 @@ class RunContext:
         component_id: str,
         input_state_ref: ArtifactRef,
         implementation_identity: RunInvocationImplementationIdentity | None = None,
+        execution_budget_contract: Literal["admitted_workflow_budget_v1"] | None = None,
+        execution_deadline_at: datetime | None = None,
+        budget_middleware_active: bool | None = None,
+        budget_owner_identity: tuple[str, str, str] | None = None,
+        budget_start_revision: int | None = None,
+        workflow_execution_admission_ref: ArtifactRef | None = None,
+        budget_resource_identity: tuple[int, int, str, int, int] | None = None,
+        budget_start_snapshot_sha256: str | None = None,
+        invocation_settlement_profile: Literal["single_owner_local_v1"] | None = None,
     ) -> ArtifactRef:
         """Record the exact state and workflow invocation before node execution."""
+        budget_fields: dict[str, Any] = {}
+        if execution_budget_contract is not None:
+            budget_fields = {
+                "schema_version": "1.2",
+                "execution_budget_contract": execution_budget_contract,
+                "execution_deadline_at": execution_deadline_at,
+                "budget_middleware_active": budget_middleware_active,
+                "budget_owner_identity": budget_owner_identity,
+                "budget_start_revision": budget_start_revision,
+            }
+            if any(
+                value is not None
+                for value in (
+                    workflow_execution_admission_ref,
+                    budget_resource_identity,
+                    budget_start_snapshot_sha256,
+                    invocation_settlement_profile,
+                )
+            ):
+                budget_fields.update(
+                    {
+                        "schema_version": "1.3",
+                        "workflow_execution_admission_ref": workflow_execution_admission_ref,
+                        "budget_resource_identity": budget_resource_identity,
+                        "budget_start_snapshot_sha256": budget_start_snapshot_sha256,
+                        "invocation_settlement_profile": invocation_settlement_profile,
+                    }
+                )
+        elif (
+            execution_deadline_at is not None
+            or budget_middleware_active is not None
+            or budget_owner_identity is not None
+            or budget_start_revision is not None
+            or workflow_execution_admission_ref is not None
+            or budget_resource_identity is not None
+            or budget_start_snapshot_sha256 is not None
+            or invocation_settlement_profile is not None
+        ):
+            raise _FinalizeRecoveryError("run_invocation_budget_not_established")
         return self._append_runtime_invocation_record(
             RunInvocationStarted(
                 run_id=self.run_manifest.run_id,
@@ -1928,6 +2387,7 @@ class RunContext:
                 input_state_ref=input_state_ref,
                 previous_record_ref=self._runtime_invocation_tail_ref,
                 implementation_identity=implementation_identity,
+                **budget_fields,
             )
         )
 
@@ -1940,10 +2400,33 @@ class RunContext:
         status: str,
         outcome_state_ref: ArtifactRef | None,
         output_refs: list[ArtifactRef],
+        budget_owner_identity: tuple[str, str, str] | None = None,
+        budget_snapshot_sha256: str | None = None,
+        budget_snapshot_revision: int | None = None,
+        budget_snapshot_canon: Literal["polisyos.canon.json/0.2.0;forbid_floats=false"]
+        | None = None,
+        budget_receipt_ref: ArtifactRef | None = None,
     ) -> ArtifactRef:
         """Record the exact engine-observed attempt outcome and output references."""
         if status not in {"ok", "fail", "skip", "unknown"}:
             raise _FinalizeRecoveryError("run_invocation_outcome_status_invalid")
+        budget_fields: dict[str, Any] = {}
+        if budget_owner_identity is not None:
+            budget_fields = {
+                "schema_version": "1.1",
+                "budget_owner_identity": budget_owner_identity,
+                "budget_snapshot_sha256": budget_snapshot_sha256,
+                "budget_snapshot_revision": budget_snapshot_revision,
+                "budget_snapshot_canon": budget_snapshot_canon,
+                "budget_receipt_ref": budget_receipt_ref,
+            }
+        elif (
+            budget_snapshot_sha256 is not None
+            or budget_snapshot_revision is not None
+            or budget_snapshot_canon is not None
+            or budget_receipt_ref is not None
+        ):
+            raise _FinalizeRecoveryError("run_invocation_completion_budget_not_established")
         return self._append_runtime_invocation_record(
             RunInvocationCompleted(
                 run_id=self.run_manifest.run_id,
@@ -1954,6 +2437,7 @@ class RunContext:
                 status=status,
                 outcome_state_ref=outcome_state_ref,
                 output_refs=output_refs,
+                **budget_fields,
             )
         )
 
@@ -2112,6 +2596,43 @@ class RunContext:
             raise _FinalizeRecoveryError("run_owner_refs_trace_manifest_mismatch")
         return records
 
+    def _read_active_runtime_owner_trace(self) -> list[TraceRecord]:
+        """Reconcile the live owner's trace, including legacy registry profiles."""
+        with self._parent_state_transition_lease(run_scoped=False):
+            self._require_active_lease_owner()
+            self._require_worker_receipt_reconciled()
+            self._validate_run_owner_binding()
+            if (
+                self._active_lease is None
+                or self._closed
+                or self._suspended
+                or self._trace_path is None
+            ):
+                raise _FinalizeRecoveryError("run_owner_output_trace_not_established")
+            release_pin = self._active_lease.pin()
+            try:
+                records, snapshot, last_snapshot_index = _read_run_owner_records(
+                    self.store,
+                    self._trace_path,
+                    run_id=self.run_manifest.run_id,
+                    require_registry_profile=False,
+                )
+                _validate_worker_receipt_history(records)
+                if (
+                    records[last_snapshot_index].refs.outputs != [self._owner_snapshot_ref]
+                    or getattr(snapshot, "runtime_invocation_tail_ref", None)
+                    != self._runtime_invocation_tail_ref
+                ):
+                    raise _FinalizeRecoveryError("run_owner_snapshot_tail_mismatch")
+                recorded_inputs, recorded_outputs = self._owner_refs_from_records(records)
+                if recorded_inputs != tuple(self.run_manifest.inputs) or recorded_outputs != tuple(
+                    self.run_manifest.outputs
+                ):
+                    raise _FinalizeRecoveryError("run_owner_refs_trace_manifest_mismatch")
+                return records
+            finally:
+                release_pin()
+
     @staticmethod
     def _owner_refs_from_records(
         records: list[TraceRecord],
@@ -2139,11 +2660,47 @@ class RunContext:
         """
         if self._trace_path is None:
             return []
-        return _read_runtime_invocation_attempts(
+        return read_runtime_invocation_attempts(
             self.store,
             self._trace_path,
             run_id=self.run_manifest.run_id,
         )
+
+    def _read_active_runtime_invocation_attempts(self) -> list[_RunInvocationAttempt]:
+        """Reconcile this live owner's attempts without upgrading legacy profiles."""
+        with self._parent_state_transition_lease(run_scoped=False):
+            self._require_active_lease_owner()
+            self._require_worker_receipt_reconciled()
+            self._validate_run_owner_binding()
+            if (
+                self._active_lease is None
+                or self._closed
+                or self._suspended
+                or self._trace_path is None
+            ):
+                raise _FinalizeRecoveryError("run_execution_lease_not_active")
+            release_pin = self._active_lease.pin()
+            try:
+                records, snapshot, last_snapshot_index = _read_run_owner_records(
+                    self.store,
+                    self._trace_path,
+                    run_id=self.run_manifest.run_id,
+                    require_registry_profile=False,
+                )
+                _validate_worker_receipt_history(records)
+                if (
+                    records[last_snapshot_index].refs.outputs != [self._owner_snapshot_ref]
+                    or getattr(snapshot, "runtime_invocation_tail_ref", None)
+                    != self._runtime_invocation_tail_ref
+                ):
+                    raise _FinalizeRecoveryError("run_owner_snapshot_tail_mismatch")
+                return _run_invocation_attempt_chain(
+                    self.store,
+                    tail_ref=self._runtime_invocation_tail_ref,
+                    run_manifest=snapshot.run_manifest,
+                )
+            finally:
+                release_pin()
 
     def merge_worker_events(
         self,

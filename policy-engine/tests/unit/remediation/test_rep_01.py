@@ -19,6 +19,7 @@ from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
 import pytest
+from _helpers.installed_profile import installed_child_environment
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactRef, FileSystemCAS
@@ -65,7 +66,10 @@ COMPATIBILITY_EXPORTS = (
 
 
 def _isolated_environment() -> dict[str, str]:
-    """Return an import environment that resolves this checkout, not an editable sibling."""
+    """Preserve the admitted source or installed profile in a fresh child."""
+    installed = installed_child_environment(os.environ)
+    if installed is not None:
+        return installed
     environment = os.environ.copy()
     existing = environment.get("PYTHONPATH")
     paths = [str(SRC_ROOT), str(PROJECT_ROOT)]
@@ -77,10 +81,12 @@ def _isolated_environment() -> dict[str, str]:
 
 def _run_isolated(code: str) -> subprocess.CompletedProcess[str]:
     """Run one import-boundary probe in a fresh interpreter."""
+    environment = _isolated_environment()
+    flags = ["-I", "-B"] if "POLISYOS_INSTALLED_PROFILE_PURELIB" in os.environ else []
     return subprocess.run(
-        [sys.executable, "-c", code],
+        [sys.executable, *flags, "-c", code],
         cwd=PROJECT_ROOT,
-        env=_isolated_environment(),
+        env=environment,
         capture_output=True,
         text=True,
         check=False,
@@ -470,9 +476,12 @@ print(json.dumps(selected[0].model_dump(mode="json"), sort_keys=True))
         ]
 
     assert started_aliases() == ["start"]
+    environment = _isolated_environment()
+    environment["POLISYOS_RUNNER_BACKEND"] = "local"
+    flags = ["-I", "-B"] if "POLISYOS_INSTALLED_PROFILE_PURELIB" in os.environ else ["-B"]
     command = [
         sys.executable,
-        "-B",
+        *flags,
         "-m",
         "tools.ops_runners.runtime_cli",
         "resume",
@@ -487,8 +496,6 @@ print(json.dumps(selected[0].model_dump(mode="json"), sort_keys=True))
         "strict",
         "--json",
     ]
-    environment = _isolated_environment()
-    environment["POLISYOS_RUNNER_BACKEND"] = "local"
     for _attempt in range(2):
         resumed = subprocess.run(
             command,

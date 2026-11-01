@@ -11,6 +11,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
+from _helpers.installed_profile import installed_child_environment
 
 from polisyos.core.artifacts import store as store_module
 from polisyos.core.artifacts._transfer_ops import ImportReport
@@ -384,16 +385,22 @@ def _fresh_replay_cli(
     *arguments: str,
     protect_json: bool = True,
 ) -> subprocess.CompletedProcess[str]:
-    """Invoke the actual registered CLI from a fresh process on this checkout."""
+    """Invoke the actual CLI without crossing the admitted package profile."""
     product = Path(__file__).resolve().parents[4]
-    environment = os.environ.copy()
-    environment["PYTHONPATH"] = os.pathsep.join((str(product / "src"), str(product)))
-    command = [sys.executable, "-B", "-m", "tools.ops_runners.runtime_cli", *arguments]
+    installed = installed_child_environment(os.environ)
+    if installed is None:
+        environment = os.environ.copy()
+        environment["PYTHONPATH"] = os.pathsep.join((str(product / "src"), str(product)))
+        flags = ["-B"]
+    else:
+        environment = installed
+        flags = ["-I", "-B"]
+    command = [sys.executable, *flags, "-m", "tools.ops_runners.runtime_cli", *arguments]
     if not protect_json:
         # A test-only removal of the real stream boundary; execution stays native.
         command = [
             sys.executable,
-            "-B",
+            *flags,
             "-c",
             "import sys; from contextlib import nullcontext; "
             "from polisyos.core.components import _cli_replay; "

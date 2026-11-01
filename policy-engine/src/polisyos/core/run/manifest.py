@@ -2,10 +2,17 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
 
 from ..artifacts.manifest import ArtifactRef, EnvInfo, ProducerInfo
 
@@ -174,7 +181,7 @@ class RunInvocationStarted(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.0", "1.1"] = "1.1"
+    schema_version: Literal["1.0", "1.1", "1.2", "1.3"] = "1.1"
     record_type: Literal["started"] = "started"
     run_id: str = Field(min_length=1)
     attempt_id: str = Field(
@@ -187,7 +194,65 @@ class RunInvocationStarted(BaseModel):
     input_state_ref: ArtifactRef
     previous_record_ref: ArtifactRef | None
     implementation_identity: RunInvocationImplementationIdentity | None = None
+    execution_budget_contract: Literal["admitted_workflow_budget_v1"] | None = None
+    execution_deadline_at: datetime | None = None
+    budget_middleware_active: bool | None = None
+    budget_owner_identity: tuple[str, str, str] | None = None
+    budget_start_revision: int | None = Field(default=None, ge=0)
+    workflow_execution_admission_ref: ArtifactRef | None = None
+    budget_resource_identity: tuple[int, int, str, int, int] | None = None
+    budget_start_snapshot_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    invocation_settlement_profile: Literal["single_owner_local_v1"] | None = None
     started_at: datetime = Field(default_factory=utc_now)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _refuse_legacy_budget_fields(cls, value: Any) -> Any:
+        if (
+            isinstance(value, dict)
+            and value.get("schema_version", "1.1") in {"1.0", "1.1", "1.2"}
+            and any(
+                key in value
+                for key in (
+                    "workflow_execution_admission_ref",
+                    "budget_resource_identity",
+                    "budget_start_snapshot_sha256",
+                    "invocation_settlement_profile",
+                )
+            )
+        ):
+            raise ValueError("run_invocation_legacy_admission_fields_forbidden")
+        if (
+            isinstance(value, dict)
+            and value.get("schema_version", "1.1") in {"1.0", "1.1"}
+            and (
+                "execution_budget_contract" in value
+                or "execution_deadline_at" in value
+                or "budget_middleware_active" in value
+                or "budget_owner_identity" in value
+                or "budget_start_revision" in value
+            )
+        ):
+            raise ValueError("run_invocation_legacy_budget_fields_forbidden")
+        return value
+
+    @model_serializer(mode="wrap")
+    def _serialize_versioned_budget(self, handler: Any) -> dict[str, Any]:
+        payload = handler(self)
+        if self.schema_version in {"1.0", "1.1", "1.2"}:
+            payload.pop("workflow_execution_admission_ref", None)
+            payload.pop("budget_resource_identity", None)
+            payload.pop("budget_start_snapshot_sha256", None)
+            payload.pop("invocation_settlement_profile", None)
+        if self.schema_version in {"1.0", "1.1"}:
+            payload.pop("execution_budget_contract", None)
+            payload.pop("execution_deadline_at", None)
+            payload.pop("budget_middleware_active", None)
+            payload.pop("budget_owner_identity", None)
+            payload.pop("budget_start_revision", None)
+        if self.schema_version == "1.0" and "implementation_identity" not in self.model_fields_set:
+            payload.pop("implementation_identity", None)
+        return payload
 
     @model_validator(mode="after")
     def _validate_selected_input_profiles(self) -> RunInvocationStarted:
@@ -203,6 +268,37 @@ class RunInvocationStarted(BaseModel):
             raise ValueError("run_invocation_start_selected_profile_missing")
         if self.started_at.tzinfo is None or self.started_at.utcoffset() is None:
             raise ValueError("run_invocation_start_time_not_aware")
+        if self.schema_version in {"1.2", "1.3"} and self.execution_budget_contract is None:
+            raise ValueError("run_invocation_budget_not_established")
+        if self.schema_version in {"1.2", "1.3"} and self.budget_middleware_active is None:
+            raise ValueError("run_invocation_budget_middleware_not_established")
+        if self.budget_middleware_active is False and self.budget_owner_identity is not None:
+            raise ValueError("run_invocation_unconfigured_budget_has_owner")
+        if self.budget_middleware_active is False and self.budget_start_revision is not None:
+            raise ValueError("run_invocation_unconfigured_budget_has_revision")
+        if (self.budget_resource_identity is None) != (self.budget_start_snapshot_sha256 is None):
+            raise ValueError("run_invocation_budget_resource_binding_incomplete")
+        if self.budget_resource_identity is not None and (
+            not self.budget_middleware_active
+            or self.budget_owner_identity is None
+            or self.budget_start_revision is None
+            or self.invocation_settlement_profile != "single_owner_local_v1"
+        ):
+            raise ValueError("run_invocation_budget_resource_without_owner")
+        if self.invocation_settlement_profile is not None and self.budget_resource_identity is None:
+            raise ValueError("run_invocation_budget_profile_without_resource")
+        if self.workflow_execution_admission_ref is not None and (
+            self.workflow_execution_admission_ref.manifest_profile_sha256 is None
+            or self.workflow_execution_admission_ref.kind
+            != "scientist.workflow_execution_admission"
+            or self.workflow_execution_admission_ref.media_type != "application/json"
+        ):
+            raise ValueError("run_invocation_execution_admission_ref_invalid")
+        if self.execution_deadline_at is not None and (
+            self.execution_deadline_at.tzinfo is None
+            or self.execution_deadline_at.utcoffset() != timedelta(0)
+        ):
+            raise ValueError("run_invocation_deadline_must_be_utc")
         if self.schema_version == "1.0" and self.implementation_identity is not None:
             raise ValueError("run_invocation_v10_identity_not_supported")
         if (
@@ -214,11 +310,16 @@ class RunInvocationStarted(BaseModel):
 
 
 class RunInvocationCompleted(BaseModel):
-    """Bind one attempt's engine-observed status and exact returned outputs."""
+    """Bind engine-observed status and returned outputs, not external authority.
+
+    Optional budget snapshot fields record a matching returned receipt and
+    ledger observation. They do not independently establish the issuer or
+    attribute an external charge to this attempt.
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = "1.0"
     record_type: Literal["completed"] = "completed"
     run_id: str = Field(min_length=1)
     attempt_id: str = Field(
@@ -230,7 +331,43 @@ class RunInvocationCompleted(BaseModel):
     status: Literal["ok", "fail", "skip", "unknown"]
     outcome_state_ref: ArtifactRef | None
     output_refs: list[ArtifactRef] = Field(default_factory=list)
+    budget_owner_identity: tuple[str, str, str] | None = None
+    budget_snapshot_sha256: str | None = Field(default=None, pattern=r"^[a-f0-9]{64}$")
+    budget_snapshot_revision: int | None = Field(default=None, ge=0)
+    budget_snapshot_canon: Literal["polisyos.canon.json/0.2.0;forbid_floats=false"] | None = None
+    budget_receipt_ref: ArtifactRef | None = None
     completed_at: datetime = Field(default_factory=utc_now)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _refuse_legacy_budget_fields(cls, value: Any) -> Any:
+        if (
+            isinstance(value, dict)
+            and value.get("schema_version", "1.0") == "1.0"
+            and any(
+                key in value
+                for key in (
+                    "budget_owner_identity",
+                    "budget_snapshot_sha256",
+                    "budget_snapshot_revision",
+                    "budget_snapshot_canon",
+                    "budget_receipt_ref",
+                )
+            )
+        ):
+            raise ValueError("run_invocation_legacy_budget_fields_forbidden")
+        return value
+
+    @model_serializer(mode="wrap")
+    def _serialize_versioned_budget(self, handler: Any) -> dict[str, Any]:
+        payload = handler(self)
+        if self.schema_version == "1.0":
+            payload.pop("budget_owner_identity", None)
+            payload.pop("budget_snapshot_sha256", None)
+            payload.pop("budget_snapshot_revision", None)
+            payload.pop("budget_snapshot_canon", None)
+            payload.pop("budget_receipt_ref", None)
+        return payload
 
     @model_validator(mode="after")
     def _validate_completion_binding(self) -> RunInvocationCompleted:
@@ -240,6 +377,16 @@ class RunInvocationCompleted(BaseModel):
             or self.previous_record_ref.manifest_profile_sha256 is None
         ):
             raise ValueError("run_invocation_completion_basis_invalid")
+        if self.schema_version == "1.1" and (
+            self.budget_owner_identity is None
+            or self.budget_snapshot_sha256 is None
+            or self.budget_snapshot_revision is None
+            or self.budget_snapshot_canon is None
+            or self.budget_receipt_ref is None
+        ):
+            raise ValueError("run_invocation_completion_budget_not_established")
+        if self.budget_receipt_ref is not None and self.budget_receipt_ref not in self.output_refs:
+            raise ValueError("run_invocation_completion_receipt_not_returned")
         if self.completed_at.tzinfo is None or self.completed_at.utcoffset() is None:
             raise ValueError("run_invocation_completion_time_not_aware")
         if (self.status == "unknown") != (self.outcome_state_ref is None):

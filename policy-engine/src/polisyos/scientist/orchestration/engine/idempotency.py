@@ -34,6 +34,7 @@ from polisyos.core.security import (
     get_current_tenant_id_or_none,
 )
 from polisyos.scientist.orchestration.engine.protocol import (
+    InputAwareNodeSpec,
     NodeOutcome,
     NodeSpec,
     OutputAwareNodeOutcome,
@@ -47,6 +48,8 @@ from polisyos.scientist.orchestration.engine.state_branching import (
     mutation_journal_for_state,
     mutation_journal_from_operations,
 )
+from polisyos.scientist.orchestration.engine.state_merge import _MISSING as _PATH_MISSING
+from polisyos.scientist.orchestration.engine.state_merge import _get_path
 
 logger = get_logger(__name__)
 
@@ -256,9 +259,15 @@ def _effective_state_read_value(
     read_path: str,
     *,
     node_id: str | None,
+    input_contract_path: bool = False,
 ) -> Any:
     """Resolve a declared read while applying only a known consumer default."""
-    value = _resolve_path(state, read_path)
+    if input_contract_path:
+        value = _get_path(state, tuple(read_path.split(".")))
+        if value is _PATH_MISSING:
+            value = _MISSING
+    else:
+        value = _resolve_path(state, read_path)
     if (
         node_id == _DATA_PLANE_GATE_NODE_ID
         and read_path == "params.tenant_tier"
@@ -286,10 +295,23 @@ def extract_state_slice(
     *,
     node_id: str | None = None,
 ) -> dict[str, Any]:
-    """Capture the declared state-read paths that participate in a node idempotency hash."""
+    """Capture ordinary NodeSpec reads using their established model/dict profile."""
+    return _extract_state_slice(state, state_reads, node_id=node_id, input_contract_path=False)
+
+
+def _extract_state_slice(
+    state: ExperimentState,
+    state_reads: list[str],
+    *,
+    node_id: str | None,
+    input_contract_path: bool,
+) -> dict[str, Any]:
+    """Capture reads using the same finite path profile as their selected contract."""
     slice_data: dict[str, Any] = {}
     for read_path in sorted(state_reads):
-        value = _effective_state_read_value(state, read_path, node_id=node_id)
+        value = _effective_state_read_value(
+            state, read_path, node_id=node_id, input_contract_path=input_contract_path
+        )
         slice_data[read_path] = _state_read_snapshot_value(value, read_path)
     return slice_data
 
@@ -305,18 +327,36 @@ def compute_idempotency_payload(
     bind_params: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build the canonical payload hashed to decide whether a node execution can be reused."""
-    return {
+    if isinstance(spec, InputAwareNodeSpec):
+        read_snapshot = _extract_state_slice(
+            state,
+            spec.state_reads,
+            node_id=str(spec.metadata.component_id),
+            input_contract_path=True,
+        )
+    else:
+        read_snapshot = extract_state_slice(
+            state,
+            spec.state_reads,
+            node_id=str(spec.metadata.component_id),
+        )
+    payload = {
         "contract_version": IDEMPOTENCY_CONTRACT_VERSION,
         "scope": "run",
         "run_id": state.run_id,
         "node_id": str(spec.metadata.component_id),
-        "state_reads_snapshot": extract_state_slice(
-            state,
-            spec.state_reads,
-            node_id=str(spec.metadata.component_id),
-        ),
+        "state_reads_snapshot": read_snapshot,
         "bind_params": _normalize_bind_params(bind_params),
     }
+    if isinstance(spec, InputAwareNodeSpec):
+        payload["state_input_contract"] = {
+            "version": "state_input_rules.v1",
+            "rules": [
+                rule.model_dump(mode="json")
+                for rule in sorted(spec.input_rules, key=lambda rule: rule.path)
+            ],
+        }
+    return payload
 
 
 def compute_idempotency_key(

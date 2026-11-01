@@ -11,6 +11,9 @@ if TYPE_CHECKING:
     from polisyos.data_forge.read_api.academic import PreparedSKGRead
     from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext
     from polisyos.scientist.evidence.claims.head_index import ClaimLedgerOwnerPort
+    from polisyos.scientist.orchestration.engine._invocation_settlement import (
+        _InvocationSettlementView,
+    )
     from polisyos.scientist.orchestration.engine.metrics_protocol import (
         EngineMetricsCollector,
     )
@@ -233,6 +236,9 @@ class _EngineInvocationBinding:
     require_successful_completion: bool = False
     effective_timeout_s: float | None = None
     supervisor_deadline_monotonic: float | None = None
+    settlement_view: _InvocationSettlementView | None = field(
+        default=None, repr=False, compare=False
+    )
 
 
 @dataclass(frozen=True)

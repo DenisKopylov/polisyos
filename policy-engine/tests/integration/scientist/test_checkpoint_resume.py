@@ -21,6 +21,7 @@ from _helpers.run_lifecycle import (
     interrupt_before_finalize_async,
 )
 
+from polisyos.core.artifacts import ProducerInfo, PutOptions
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -46,6 +47,7 @@ from polisyos.scientist.orchestration.engine.checkpoint import (
     CASCheckpointHook,
     CheckpointError,
     _build_resume_workflow_spec,
+    acquire_run_lock,
     compute_workflow_fingerprint,
     load_checkpoint,
     load_checkpoint_head,
@@ -260,6 +262,233 @@ def _workflow() -> WorkflowSpec:
             ),
         ],
     )
+
+
+class _OnceAuditNode:
+    """Observe a real node invocation across fresh process boundaries."""
+
+    def __init__(self, node: Any, log_path: str) -> None:
+        self.node = node
+        self.spec = node.spec.model_copy(
+            update={"state_writes": [*node.spec.state_writes, "artifacts_index"]}
+        )
+        self.log_path = log_path
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        with open(self.log_path, "a", encoding="utf-8") as handle:
+            handle.write(f"{self.spec.metadata.component_id}\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        outcome = self.node.execute(ctx, state)
+        if outcome.status != "ok":
+            return outcome
+        key = str(self.spec.metadata.component_id)
+        ref = ctx.store.put_json(
+            {"node": key},
+            PutOptions(
+                kind="scientist.test_resume_value",
+                media_type="application/json",
+                producer=ProducerInfo(component="tests.resume", version="1.0.0"),
+            ),
+            return_selected_profile=True,
+        )
+        outcome.state.artifacts_index[key] = ref
+        outcome.artifacts.append(ref)
+        return outcome
+
+
+def _once_registry(log_path: str) -> NodeRegistry:
+    registry = NodeRegistry()
+    for node in (StepOneNode(), StepTwoNode(), FlakyFinalNode()):
+        registry.register(_OnceAuditNode(node, log_path))
+    return registry
+
+
+def _double_resume_worker(root: str, stage: int, queue: Any) -> None:
+    """Stop after an actual accepted checkpoint or finish the real resume."""
+    os.environ["POLISYOS_RUNNER_BACKEND"] = "local"
+    store = FileSystemCAS(Path(root))
+    run_id = "R_res01_two_stops"
+    workflow = _workflow()
+    registry = _once_registry(str(Path(root) / "invocations.txt"))
+    FlakyFinalNode.fail_once = False
+    if stage == 0:
+        ctx, bundle = _context(store, run_id)
+
+        class FirstStop(CASCheckpointHook):
+            def on_node_complete(self, **kwargs: Any) -> Any:
+                result = super().on_node_complete(**kwargs)
+                if kwargs["alias"] == "step1":
+                    os._exit(71)
+                return result
+
+        lock = acquire_run_lock(Path(root) / "runs" / run_id, run_id=run_id, mode="execute")
+        try:
+            WorkflowExecutor(
+                ctx,
+                registry,
+                checkpoint_hook=FirstStop(store=store, run_dir=Path(root) / "runs" / run_id),
+            ).execute(
+                workflow,
+                ExperimentState(
+                    run_id=run_id, inputs={"registry_bundle_ref": bundle}, params={"seed": 7}
+                ),
+            )
+        finally:
+            lock.release()
+    elif stage == 1:
+        original = CASCheckpointHook.on_node_complete_async
+
+        async def stop_after_second(self: Any, **kwargs: Any) -> Any:
+            result = await original(self, **kwargs)
+            if kwargs["alias"] == "step2":
+                os._exit(72)
+            return result
+
+        CASCheckpointHook.on_node_complete_async = stop_after_second  # type: ignore[method-assign]
+        resume_from_checkpoint(store, run_id, workflow=workflow, registry=registry)
+    elif stage == 2:
+        result = resume_from_checkpoint(store, run_id, workflow=workflow, registry=registry)
+        queue.put(
+            {
+                "status": result.report.status,
+                "state": result.state.params,
+                "registry_ref": result.state.inputs["registry_bundle_ref"].model_dump(mode="json"),
+                "saved_refs": {
+                    key: ref.model_dump(mode="json")
+                    for key, ref in result.state.artifacts_index.items()
+                },
+                "node_output_refs": [
+                    ref.model_dump(mode="json")
+                    for node in result.report.nodes
+                    for ref in node.artifacts
+                ],
+            }
+        )
+    else:
+        resolved = resolve_latest_checkpoint(store, run_id)
+        assert resolved is not None
+        registry_ref = ExperimentState.model_validate(resolved[1].state).inputs[
+            "registry_bundle_ref"
+        ]
+        control_id = "R_res01_uninterrupted_control"
+        run = RunContext.start(store, registry_ref, run_id=control_id)
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("res01.control"))
+        result = WorkflowExecutor(
+            ctx, _once_registry(str(Path(root) / "control_invocations.txt"))
+        ).execute(
+            workflow,
+            ExperimentState(
+                run_id=control_id, inputs={"registry_bundle_ref": registry_ref}, params={"seed": 7}
+            ),
+        )
+        queue.put(
+            {
+                "status": result.report.status,
+                "state": result.state.params,
+                "registry_ref": result.state.inputs["registry_bundle_ref"].model_dump(mode="json"),
+                "saved_refs": {
+                    key: ref.model_dump(mode="json")
+                    for key, ref in result.state.artifacts_index.items()
+                },
+                "node_output_refs": [
+                    ref.model_dump(mode="json")
+                    for node in result.report.nodes
+                    for ref in node.artifacts
+                ],
+            }
+        )
+
+
+def test_two_fresh_resumes_execute_each_node_once(tmp_path: Path) -> None:
+    """A/B/C keep the original workflow identity across two real process stops."""
+    root = tmp_path / "cas"
+    process_context = multiprocessing.get_context("spawn")
+    queue = process_context.Queue()
+    workflow = _workflow()
+    fingerprints: list[str] = []
+    retained_refs: dict[str, ArtifactRef] = {}
+    for stage, expected_exit in ((0, 71), (1, 72), (2, 0)):
+        child = process_context.Process(
+            target=_double_resume_worker, args=(str(root), stage, queue)
+        )
+        try:
+            child.start()
+            child.join(timeout=60)
+            assert child.exitcode == expected_exit
+        finally:
+            if child.is_alive():
+                child.terminate()
+                child.join(timeout=5)
+        resolved = resolve_latest_checkpoint(FileSystemCAS(root), "R_res01_two_stops")
+        assert resolved is not None
+        head, checkpoint = resolved
+        assert checkpoint.metadata.origin_workflow_fingerprint == compute_workflow_fingerprint(
+            workflow
+        )
+        fingerprints.append(checkpoint.metadata.workflow_fingerprint)
+        assert checkpoint.metadata.completed_nodes == ["step1", "step2", "final"][: stage + 1]
+        checkpoint_state = ExperimentState.model_validate(
+            materialize_checkpoint_state(FileSystemCAS(root), head.checkpoint_ref)
+        )
+        current_refs = checkpoint_state.artifacts_index
+        assert len(current_refs) == stage + 1
+        assert all(current_refs[key] == ref for key, ref in retained_refs.items())
+        for ref in current_refs.values():
+            assert ref.manifest_profile_sha256 is not None
+            assert FileSystemCAS(root).verify(ref).ok
+            assert FileSystemCAS(root).get_bytes(ref)
+        retained_refs = dict(current_refs)
+    observed = queue.get(timeout=5)
+    queue.close()
+    assert observed["status"] == "ok"
+    assert len(observed["saved_refs"]) == 3
+    assert observed["state"] == {"seed": 7, "step1": 1, "step2": 2, "final": True}
+    assert fingerprints == [
+        compute_workflow_fingerprint(workflow),
+        compute_workflow_fingerprint(
+            _build_resume_workflow_spec(workflow, completed_nodes=["step1"])
+        ),
+        compute_workflow_fingerprint(
+            _build_resume_workflow_spec(workflow, completed_nodes=["step1", "step2"])
+        ),
+    ]
+    events = (root / "invocations.txt").read_text(encoding="utf-8").splitlines()
+    assert events == [str(inv.node_id) for inv in workflow.nodes]
+
+    class PoisonRegistry:
+        def get(self, _node_id: Any) -> Any:
+            raise AssertionError("completed reopen must not look up a node")
+
+    reopened = resume_from_checkpoint(
+        FileSystemCAS(root), "R_res01_two_stops", workflow=workflow, registry=PoisonRegistry()
+    )
+    assert reopened.report.status == "ok" and reopened.report.nodes == []
+    assert (root / "invocations.txt").read_text(encoding="utf-8").splitlines() == events
+    control_queue = process_context.Queue()
+    control = process_context.Process(
+        target=_double_resume_worker, args=(str(root), 3, control_queue)
+    )
+    try:
+        control.start()
+        control.join(timeout=60)
+        assert control.exitcode == 0
+        control_observed = control_queue.get(timeout=5)
+        assert control_observed["status"] == observed["status"]
+        assert control_observed["state"] == observed["state"]
+        assert control_observed["registry_ref"] == observed["registry_ref"]
+        assert set(control_observed["saved_refs"]) == set(observed["saved_refs"])
+        for key, ref in observed["saved_refs"].items():
+            expected_ref = ArtifactRef.model_validate(ref)
+            control_ref = ArtifactRef.model_validate(control_observed["saved_refs"][key])
+            assert FileSystemCAS(root).get_bytes(expected_ref) == FileSystemCAS(root).get_bytes(
+                control_ref
+            )
+    finally:
+        if control.is_alive():
+            control.terminate()
+            control.join(timeout=5)
+        control_queue.close()
 
 
 def _parallel_workflow() -> WorkflowSpec:
@@ -1085,12 +1314,12 @@ def _install_b73_left_frontier_removal() -> dict[str, Any]:
 
     module_path = Path(executor_module.__file__).resolve()
     class_path = Path(inspect.getsourcefile(executor_class) or "").resolve()
-    code_path = Path(executor_class.execute.__code__.co_filename).resolve()
+    code_path = Path(executor_class._execute_admitted.__code__.co_filename).resolve()
     if class_path != module_path or code_path != module_path:
         raise AssertionError("B73 removal probe executor source origin changed")
     source_bytes = module_path.read_bytes()
     source_sha256 = hashlib.sha256(source_bytes).hexdigest()
-    if source_sha256 != ("df4857a73b177854553f244612779a43ca377dabbff986c2feda4db576220c45"):
+    if source_sha256 != ("d32c9066207047c5a6341e4c6347442923dcf4b42c6513ef41e7160223ee0351"):
         raise AssertionError("B73 removal probe executor source digest changed")
 
     source_tree = ast.parse(source_bytes.decode("utf-8"), filename=str(module_path))
@@ -1104,7 +1333,7 @@ def _install_b73_left_frontier_removal() -> dict[str, Any]:
     execute_methods = [
         node
         for node in executor_classes[0].body
-        if isinstance(node, ast.AsyncFunctionDef) and node.name == "execute"
+        if isinstance(node, ast.AsyncFunctionDef) and node.name == "_execute_admitted"
     ]
     if len(execute_methods) != 1 or execute_methods[0].decorator_list:
         raise AssertionError("B73 removal probe found an unexpected execute method")
@@ -1188,15 +1417,15 @@ def _install_b73_left_frontier_removal() -> dict[str, Any]:
         compile(compiled_module, filename=str(module_path), mode="exec"),
         namespace,
     )
-    replacement = namespace.get("execute")
+    replacement = namespace.get("_execute_admitted")
     if replacement is None or not inspect.iscoroutinefunction(replacement):
         raise AssertionError("B73 removal probe did not compile the async owner method")
     if Path(replacement.__code__.co_filename).resolve() != module_path:
         raise AssertionError("B73 removal probe replacement lost source identity")
-    executor_class.execute = replacement
+    executor_class._execute_admitted = replacement
     return {
         "source_sha256": source_sha256,
-        "method": "AsyncWorkflowExecutor.execute",
+        "method": "AsyncWorkflowExecutor._execute_admitted",
         "original_expression": "completed_nodes.extend(tier_completed)",
         "mutated_expression": mutated_expression,
         "mutant_installed": True,
@@ -1229,7 +1458,11 @@ def _b73_pause_writer_at_owner_phase(
     if remove_left_from_frontier:
         if cut != "after_artifact_before_head":
             raise AssertionError("B73 removal probe is limited to the first publication cut")
-        mutation_receipt = _install_b73_left_frontier_removal()
+        try:
+            mutation_receipt = _install_b73_left_frontier_removal()
+        except Exception as exc:
+            phase_queue.put({"phase": "probe_error", "error": repr(exc)})
+            raise
 
     if cut == "after_artifact_before_head":
         original_update_head = checkpoint_module.update_checkpoint_head
@@ -1473,9 +1706,9 @@ def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
             if remove_left_for_cut:
                 assert observed["mutation_receipt"] == {
                     "source_sha256": (
-                        "df4857a73b177854553f244612779a43ca377dabbff986c2feda4db576220c45"
+                        "d32c9066207047c5a6341e4c6347442923dcf4b42c6513ef41e7160223ee0351"
                     ),
-                    "method": "AsyncWorkflowExecutor.execute",
+                    "method": "AsyncWorkflowExecutor._execute_admitted",
                     "original_expression": "completed_nodes.extend(tier_completed)",
                     "mutated_expression": (
                         "completed_nodes.extend(("

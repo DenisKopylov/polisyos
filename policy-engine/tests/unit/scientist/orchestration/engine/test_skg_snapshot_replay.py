@@ -946,6 +946,137 @@ def test_selected_bundle_matcher_and_real_recompute_honor_changed_request(
         )
 
 
+def test_managed_subworkflow_admits_and_reads_selected_skg_snapshot(tmp_path: Path) -> None:
+    """The real child intake binds its normalized input before the actual SKG leaf."""
+    from polisyos.core.canon import from_canonical_bytes, to_canonical_bytes
+    from polisyos.core.run.manifest import RunManifest
+    from polisyos.ir.analytics.parameters import ContextAdaptiveParameterBundleV12
+    from polisyos.scientist.orchestration.engine.child_workflow import (
+        _ChildBinding,
+        _ChildInputAdmission,
+    )
+    from polisyos.scientist.orchestration.engine.executor import WorkflowReport
+    from polisyos.scientist.orchestration.engine.sub_workflow import (
+        StateMapping,
+        SubWorkflowConfig,
+        SubWorkflowNode,
+    )
+
+    scope = AccessScope.for_service(
+        tenant_id="retained-tenant",
+        cell_id="retained-cell",
+        spiffe_id="spiffe://polisyos.test/cell/retained-cell/svc/managed-child",
+    )
+    with (
+        tenant_scope(None, tenant_id=scope.tenant_id, cell_id=scope.cell_id),
+        _access_scope_context(scope),
+    ):
+        live_path, store, run, ctx, state, source_ref = _workflow_fixture(
+            tmp_path, access_scope=scope
+        )
+        state.inputs[SNAPSHOT_INPUT_KEY] = source_ref
+        state.params["phase15_runtime_backend"] = "numpy"
+        child_registry = NodeRegistry()
+        leaf = ResolveParametersNode()
+        child_registry.register(leaf)
+        child_workflow = WorkflowSpec(
+            workflow_id="selected_skg_child",
+            nodes=[NodeInvocation(alias="resolve", node_id=leaf.spec.metadata.component_id)],
+        )
+        mappings = [
+            f"inputs.{SNAPSHOT_INPUT_KEY}",
+            f"artifacts_index.{ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF}",
+            *(
+                f"params.{key}"
+                for key in (
+                    "target_context",
+                    "required_parameters",
+                    "domain",
+                    "skg_db_path",
+                    "phase15_runtime_backend",
+                )
+            ),
+        ]
+        result_path = f"artifacts_index.{ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF}"
+        child = SubWorkflowNode(
+            SubWorkflowConfig(
+                workflow=child_workflow,
+                input_mappings=[
+                    StateMapping(source_path=path, target_path=path) for path in mappings
+                ],
+                output_mappings=[StateMapping(source_path=result_path, target_path=result_path)],
+            ),
+            child_registry,
+            alias="child",
+        )
+        registry = NodeRegistry()
+        registry.register(child)
+        workflow = WorkflowSpec(
+            workflow_id="selected_skg_parent",
+            nodes=[NodeInvocation(alias="child", node_id=child.spec.metadata.component_id)],
+        )
+        result = WorkflowExecutor(ctx, registry).execute(workflow, state)
+        assert result.report.status == "ok", result.report.model_dump_json(indent=2)
+        child_ref = next(
+            ref for ref in result.report.nodes[0].artifacts if ref.kind == "core.run_manifest"
+        )
+        fresh = FileSystemCAS(store.root).for_tenant("retained-tenant", "retained-cell")
+        assert fresh.verify(child_ref).ok
+        manifest = RunManifest.model_validate(from_canonical_bytes(fresh.get_bytes(child_ref)))
+        assert manifest.parent_run_id == run.run_manifest.run_id
+        assert manifest.status == "ok"
+        admission_ref = next(
+            ref for ref in manifest.inputs if ref.kind == "scientist.child_workflow_input_admission"
+        )
+        admission = _ChildInputAdmission.model_validate(
+            from_canonical_bytes(fresh.get_bytes(admission_ref))
+        )
+        binding = _ChildBinding.model_validate(
+            from_canonical_bytes(fresh.get_bytes(admission.binding_ref))
+        )
+        admitted = ExperimentState.model_validate(
+            from_canonical_bytes(fresh.get_bytes(admission.state_ref))
+        )
+        assert admission.child_run_id == binding.child_run_id == manifest.run_id == admitted.run_id
+        assert admission.requested_sha256 == binding.input_sha256
+        assert admission.requested_sha256 != admission.admitted_sha256
+        assert (
+            admission.admitted_sha256
+            == hashlib.sha256(
+                to_canonical_bytes(admitted.model_dump(mode="json"), CanonSpec(forbid_floats=False))
+            ).hexdigest()
+        )
+        assert admitted.inputs[SNAPSHOT_INPUT_KEY] == source_ref
+        assert admission.state_ref in manifest.inputs
+        assert admission.workflow_ref in manifest.inputs
+        snapshot = load_retained_skg_snapshot(fresh, source_ref)
+        admitted_path = Path(admitted.params["skg_db_path"])
+        assert admitted_path != live_path
+        assert admitted_path.name == f"{snapshot.source_sha256}.duckdb"
+        assert hashlib.sha256(admitted_path.read_bytes()).hexdigest() == snapshot.source_sha256
+        assert hashlib.sha256(live_path.read_bytes()).hexdigest() != snapshot.source_sha256
+        live_reader = SKGQuery.prepare_read(db_path=live_path, index_dir=tmp_path)
+        try:
+            assert _value(live_reader) == 9.75
+        finally:
+            live_reader.close()
+        bundle_ref = result.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+        bundle = load_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(fresh), bundle_ref
+        )
+        assert isinstance(bundle, ContextAdaptiveParameterBundleV12)
+        assert bundle.parameters["fiscal_multiplier"].value == 1.25
+        assert bundle.selected_skg_source.descriptor_ref == source_ref
+        report_ref = next(
+            ref for ref in manifest.outputs if ref.kind == "scientist.workflow_report"
+        )
+        fresh_report = WorkflowReport.model_validate(
+            from_canonical_bytes(fresh.get_bytes(report_ref))
+        )
+        assert fresh_report.status == "ok"
+        assert [(node.alias, node.status) for node in fresh_report.nodes] == [("resolve", "ok")]
+
+
 def test_source_bound_prior_reaches_native_hybrid_fit_and_fresh_query(tmp_path: Path) -> None:
     """A named manual research route consumes the actual selected SKG prior.
 
@@ -1014,7 +1145,9 @@ def test_source_bound_prior_reaches_native_hybrid_fit_and_fresh_query(tmp_path: 
             bundle_ref = selected.state.artifacts_index[
                 ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
             ]
-            bundle = load_context_adaptive_parameter_bundle(_ensure_ir_artifact_store(store), bundle_ref)
+            bundle = load_context_adaptive_parameter_bundle(
+                _ensure_ir_artifact_store(store), bundle_ref
+            )
             assert isinstance(bundle, ContextAdaptiveParameterBundleV12)
             source_ref = bundle.selected_skg_source.descriptor_ref
             assert source_ref.manifest_profile_sha256 is not None
@@ -1079,9 +1212,9 @@ def test_source_bound_prior_reaches_native_hybrid_fit_and_fresh_query(tmp_path: 
             fresh_model = load_structural_causal_model_spec(
                 _ensure_ir_artifact_store(fresh_store), model_ref
             )
-            assert [ref.model_dump(mode="json") for ref in fresh_store.get_manifest(model_ref).inputs] == [
-                ref.model_dump(mode="json") for ref in refs
-            ]
+            assert [
+                ref.model_dump(mode="json") for ref in fresh_store.get_manifest(model_ref).inputs
+            ] == [ref.model_dump(mode="json") for ref in refs]
             fresh_bundle = load_context_adaptive_parameter_bundle(
                 _ensure_ir_artifact_store(fresh_store), bundle_ref
             )

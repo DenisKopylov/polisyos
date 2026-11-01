@@ -2117,7 +2117,11 @@ if TYPE_CHECKING:
         MethodMetricProjectionWorkLike,
         _MethodMetricProjectionArtifactStore,
     )
-    from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRunBinding
+    from polisyos.scientist.orchestration.engine import (
+        BudgetLedger,
+        BudgetLedgerProducerRunBinding,
+        NodeRegistry,
+    )
     from polisyos.scientist.orchestration.engine.context import (
         FoundryPort as _FoundryPortProtocol,
     )
@@ -3989,6 +3993,11 @@ class ControlPlaneService(
         published_signature_population_provider: PublicSignaturePopulationProvider | None = None,
         normative_authority_trust: NormativeAuthorityTrust | None = None,
         llm_producer_settlement_store: BudgetMiddleware | None = None,
+        workflow_continuation_registry: NodeRegistry | None = None,
+        workflow_continuation_ledger: BudgetLedger | None = None,
+        workflow_continuation_access_scope: AccessScope | None = None,
+        workflow_continuation_profile: Literal["reconciled_local_v1", "single_owner_local_v1"]
+        | None = None,
         llm_cache_reuse_authorizer: CacheReuseAuthorizer | None = None,
         llm_prompt_cache: PromptCacheProtocol | None = None,
         cycle_substrate_context_admission_owner: _CycleSubstrateContextAdmissionOwner | None = None,
@@ -4001,6 +4010,48 @@ class ControlPlaneService(
 
         self._cas_root = cas_root
         self._core_runs_root = core_runs_root
+        from polisyos.scientist.orchestration.engine import (
+            FileBudgetLedger as _WorkflowFileBudgetLedger,
+        )
+        from polisyos.scientist.orchestration.engine import (
+            NodeRegistry as _WorkflowNodeRegistry,
+        )
+
+        if workflow_continuation_registry is not None and not isinstance(
+            workflow_continuation_registry, _WorkflowNodeRegistry
+        ):
+            raise TypeError("workflow_continuation_registry_must_be_node_registry")
+        if (
+            workflow_continuation_ledger is not None
+            and type(workflow_continuation_ledger) is not _WorkflowFileBudgetLedger
+        ):
+            raise TypeError("workflow_continuation_ledger_requires_file_backend")
+        if workflow_continuation_access_scope is not None and not isinstance(
+            workflow_continuation_access_scope, AccessScope
+        ):
+            raise TypeError("workflow_continuation_access_scope_must_be_access_scope")
+        if workflow_continuation_profile not in (
+            None,
+            "reconciled_local_v1",
+            "single_owner_local_v1",
+        ):
+            raise ValueError("workflow_continuation_profile_invalid")
+        if workflow_continuation_profile is not None and workflow_continuation_access_scope is None:
+            raise ValueError("workflow_continuation_profile_requires_scope")
+        if (
+            workflow_continuation_profile == "single_owner_local_v1"
+            and workflow_continuation_ledger is None
+        ):
+            raise ValueError("workflow_continuation_profile_requires_ledger_and_scope")
+        if (
+            workflow_continuation_profile == "reconciled_local_v1"
+            and workflow_continuation_ledger is not None
+        ):
+            raise ValueError("workflow_unbudgeted_continuation_received_ledger")
+        self._workflow_continuation_registry = workflow_continuation_registry
+        self._workflow_continuation_ledger = workflow_continuation_ledger
+        self._workflow_continuation_access_scope = workflow_continuation_access_scope
+        self._workflow_continuation_profile = workflow_continuation_profile
         if (
             llm_producer_settlement_store is not None
             and type(llm_producer_settlement_store) is not BudgetMiddleware
@@ -11717,20 +11768,32 @@ class ControlPlaneService(
                 lease_owner=job.lease_owner,
             )
         try:
-            final_state = run_experiment(
-                execution_payload,
-                store=self._artifact_store,
-                foundry=foundry_capture,
-                epoch_certificate_issuance_owner=self._epoch_certificate_issuance_owner,
-                eval_safety_execution_context=execution_context,
-                eval_safety_verifier=(
-                    self._evaluation_safety_admission_verifier
-                    if execution_context is not None
-                    else None
-                ),
-                method_metric_selection_owner=self if job is not None else None,
-                completed_method_hte_selection_owner=self if job is not None else None,
-            )
+            with self._workflow_checkpoint_execution_scope():
+                budget_middleware = self._configured_workflow_budget_middleware()
+                budget_kwargs: dict[str, Any] = (
+                    {"budget_middleware": budget_middleware}
+                    if budget_middleware is not None
+                    else {}
+                )
+                if self._workflow_continuation_profile == "single_owner_local_v1":
+                    budget_kwargs["strict_budget_attempts"] = True
+                if self._workflow_continuation_profile is not None:
+                    budget_kwargs["capture_workflow_execution_admission"] = True
+                final_state = run_experiment(
+                    execution_payload,
+                    store=self._artifact_store,
+                    foundry=foundry_capture,
+                    epoch_certificate_issuance_owner=self._epoch_certificate_issuance_owner,
+                    eval_safety_execution_context=execution_context,
+                    eval_safety_verifier=(
+                        self._evaluation_safety_admission_verifier
+                        if execution_context is not None
+                        else None
+                    ),
+                    method_metric_selection_owner=self if job is not None else None,
+                    completed_method_hte_selection_owner=self if job is not None else None,
+                    **budget_kwargs,
+                )
             if not isinstance(final_state, dict):
                 raise TypeError("legacy_scientist_workflow_final_state_not_mapping")
         except Exception as exc:

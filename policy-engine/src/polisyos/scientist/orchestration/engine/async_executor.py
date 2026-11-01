@@ -15,7 +15,8 @@ import threading
 import time
 from copy import deepcopy
 from dataclasses import replace
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
@@ -31,8 +32,11 @@ from polisyos.core.artifacts.manifest import (
     WarningRecord,
 )
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError
+from polisyos.scientist.orchestration.engine.budget_ledger import (
+    BudgetLedgerSettlementOutcomeUnknownError,
+)
 from polisyos.scientist.orchestration.engine.checkpoint import (
     CheckpointError,
     CheckpointPublicationBudget,
@@ -109,9 +113,13 @@ from polisyos.scientist.orchestration.engine.state_branching import (
     snapshot_state,
 )
 from polisyos.scientist.orchestration.engine.state_merge import (
+    _MISSING,
     MergeConflict,
     MergeConflictPolicy,
     StateReplayIncompatible,
+    _get_path,
+    _mutation_is_declared,
+    _state_paths_may_overlap,
     merge_parallel_outcomes,
 )
 from polisyos.scientist.orchestration.engine.telemetry import set_span_attribute
@@ -134,7 +142,7 @@ if TYPE_CHECKING:
     from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 _module_logger = get_logger(__name__)
-_READINESS_MISSING = object()
+_READINESS_MISSING = _MISSING
 
 
 def _executor_degraded(
@@ -168,7 +176,12 @@ class AsyncWorkflowExecutor:
         provenance_dag: RunProvenanceDAG | None = None,
         semaphore_timeout_s: float | None = None,
         workflow_timeout_s: float | None = None,
+        workflow_deadline_at: datetime | None = None,
         budget_middleware: Any | None = None,
+        workflow_execution_admission_ref: ArtifactRef | None = None,
+        workflow_execution_admission_origin: tuple[ArtifactRef, WorkflowSpec] | None = None,
+        strict_budget_attempts: bool = False,
+        capture_workflow_execution_admission: bool = False,
         merge_conflict_policy: MergeConflictPolicy = MergeConflictPolicy.ERROR,
         compensation_hook: RollbackCompensationHook | None = None,
     ) -> None:
@@ -185,6 +198,12 @@ class AsyncWorkflowExecutor:
         self._provenance_dag = provenance_dag
         self._semaphore_timeout_s = semaphore_timeout_s
         self._workflow_timeout_s = workflow_timeout_s
+        if workflow_deadline_at is not None and (
+            workflow_deadline_at.tzinfo is None or workflow_deadline_at.utcoffset() != timedelta(0)
+        ):
+            raise ValueError("workflow deadline must be timezone-aware UTC")
+        self._workflow_deadline_at = workflow_deadline_at
+        self._admitted_workflow_deadline_at: datetime | None = None
         self._workflow_deadline: float | None = None
         self._workflow_publication_operation: str | None = None
         self._workflow_task: asyncio.Task[Any] | None = None
@@ -192,12 +211,45 @@ class AsyncWorkflowExecutor:
         self._workflow_spec_ref: ArtifactRef | None = None
         self._workflow_spec_payload: str | None = None
         self._budget_middleware = budget_middleware
+        self._workflow_execution_admission_ref = workflow_execution_admission_ref
+        self._workflow_execution_admission_origin = workflow_execution_admission_origin
+        self._capture_workflow_execution_admission = (
+            capture_workflow_execution_admission or strict_budget_attempts
+        )
+        if (workflow_execution_admission_ref is None) != (
+            workflow_execution_admission_origin is None
+        ):
+            raise ValueError("workflow_execution_admission_origin_incomplete")
+        self._strict_budget_attempts = strict_budget_attempts
+        if strict_budget_attempts and (budget_middleware is None or self._max_parallelism != 1):
+            raise ValueError("strict_budget_attempts_require_serial_durable_owner")
+        if strict_budget_attempts:
+            from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+            if (
+                type(budget_middleware) is not BudgetMiddleware
+                or budget_middleware.invocation_settlement_profile != "single_owner_local_v1"
+            ):
+                raise ValueError("strict_budget_attempts_profile_not_established")
         self._merge_conflict_policy = merge_conflict_policy
         self._compensation_hook = compensation_hook
         self._node_outputs: dict[str, list[ArtifactRef]] = {}
         self._pre_node_state_keys: dict[str, set[str]] = {}
 
     async def execute(
+        self,
+        workflow: WorkflowSpec,
+        state: ExperimentState,
+    ) -> WorkflowExecutionResult:
+        """Execute one workflow while excluding another owner of the same run."""
+        from polisyos.core import run as core_run
+
+        if isinstance(self._ctx.run, core_run.RunContext):
+            with self._ctx.run._workflow_execution_guard():
+                return await self._execute_workflow_guarded(workflow, state)
+        return await self._execute_workflow_guarded(workflow, state)
+
+    async def _execute_workflow_guarded(
         self,
         workflow: WorkflowSpec,
         state: ExperimentState,
@@ -243,12 +295,18 @@ class AsyncWorkflowExecutor:
             )
 
         try:
-            return await self._execute_admitted(workflow, state, invocations)
-        finally:
-            # An unhandled exception or cancellation leaves an incomplete,
-            # owner-bound trace that an explicit RunContext.resume can reopen.
-            # Normal finalization already released the lease, making this a no-op.
+            result = await self._execute_admitted(workflow, state, invocations)
+        except BaseException as exc:
+            try:
+                self._ctx.run.suspend_for_resume()
+            except BaseException as cleanup:
+                exc.add_note(f"run_suspend_after_execution_failed: {cleanup!r}")
+            raise
+        else:
+            # Normal finalization already released the lease; an incomplete
+            # result remains explicitly resumable when suspension succeeds.
             self._ctx.run.suspend_for_resume()
+            return result
 
     async def _execute_admitted(
         self,
@@ -267,11 +325,27 @@ class AsyncWorkflowExecutor:
             self._workflow_task.cancelling() if self._workflow_task is not None else 0
         )
         workflow_started = time.perf_counter()
-        self._workflow_deadline = (
-            workflow_started + self._workflow_timeout_s
+        admitted_at = datetime.now(UTC)
+        relative_deadline = (
+            admitted_at + timedelta(seconds=self._workflow_timeout_s)
             if self._workflow_timeout_s is not None
             else None
         )
+        deadlines = [
+            deadline
+            for deadline in (self._workflow_deadline_at, relative_deadline)
+            if deadline is not None
+        ]
+        execution_deadline_at = min(deadlines) if deadlines else None
+        self._admitted_workflow_deadline_at = execution_deadline_at
+        remaining = (
+            (execution_deadline_at - admitted_at).total_seconds()
+            if execution_deadline_at is not None
+            else None
+        )
+        if remaining is not None and remaining <= 0:
+            raise WorkflowTimeoutError("Workflow execution deadline expired before dispatch")
+        self._workflow_deadline = workflow_started + remaining if remaining is not None else None
         owner_task = self._workflow_task
         owner_cancelling = self._workflow_cancelling
         checkpoint_budget = CheckpointPublicationBudget(
@@ -280,6 +354,8 @@ class AsyncWorkflowExecutor:
             caller_cancelled=lambda: (
                 owner_task is not None and owner_task.cancelling() > owner_cancelling
             ),
+            execution_budget_contract="admitted_workflow_budget_v1",
+            execution_deadline_at=execution_deadline_at,
         )
 
         if SNAPSHOT_INPUT_KEY in state.inputs:
@@ -308,6 +384,63 @@ class AsyncWorkflowExecutor:
         self._workflow_spec_ref = workflow_ref
         self._workflow_spec_payload = workflow.model_dump_json()
         self._ctx.run.add_input(workflow_ref)
+        if self._workflow_execution_admission_ref is not None:
+            existing_attempts = await _run_checkpoint_blocking(
+                self._ctx.run.read_runtime_invocation_attempts,
+                publication_budget=checkpoint_budget,
+                operation="workflow_execution_admission_binding",
+            )
+            if (
+                not existing_attempts
+                or self._workflow_execution_admission_origin is None
+                or self._workflow_execution_admission_origin[0]
+                != existing_attempts[0].basis.workflow_spec_ref
+                or any(
+                    attempt.basis.workflow_execution_admission_ref
+                    != self._workflow_execution_admission_ref
+                    for attempt in existing_attempts
+                )
+            ):
+                raise ValueError("workflow_execution_admission_owner_binding_mismatch")
+        if self._workflow_execution_admission_ref is None:
+            from polisyos.core import run as core_run
+
+            if (
+                isinstance(self._ctx.run, core_run.RunContext)
+                and self._checkpoint_hook is not None
+                and self._capture_workflow_execution_admission
+            ):
+                from polisyos.scientist.orchestration.engine.execution_admission import (
+                    persist_workflow_execution_admission,
+                )
+
+                try:
+                    self._workflow_execution_admission_ref = await _run_checkpoint_blocking(
+                        persist_workflow_execution_admission,
+                        self._ctx.store,
+                        workflow,
+                        self._registry,
+                        workflow_ref=workflow_ref,
+                        run_id=state.run_id,
+                        publication_budget=checkpoint_budget,
+                        operation="workflow_execution_admission",
+                    )
+                except TimeoutError:
+                    raise
+                except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                    # Ordinary candidate execution remains available; absent
+                    # admission can never qualify strict continuation.
+                    emit_degraded_path(
+                        component="scientist.execution_admission",
+                        operation="capture",
+                        reason="workflow_execution_admission_not_established",
+                        exc=exc,
+                        message="Candidate execution continues without strict continuation admission",
+                        retryable=False,
+                        details={"run_id": state.run_id},
+                        log=self._ctx.logger,
+                    )
+                    self._workflow_execution_admission_ref = None
         state_input_ref = await self._persist_state(initial_state)
         self._ctx.run.add_input(state_input_ref)
 
@@ -478,8 +611,12 @@ class AsyncWorkflowExecutor:
                     records.append(record)
                     if node_failed:
                         failed.add(alias)
+                        if self._strict_budget_attempts:
+                            if workflow.error_policy == "fail_fast":
+                                state = self._preserve_verified_run_spend(tier_savepoint, state)
                         if workflow.error_policy == "fail_fast":
-                            state = tier_savepoint
+                            if not self._strict_budget_attempts:
+                                state = tier_savepoint
                             self._emit_rollback_compensation(
                                 workflow_id=workflow.workflow_id,
                                 run_id=state.run_id,
@@ -521,7 +658,11 @@ class AsyncWorkflowExecutor:
                         failed.add(alias)
                     tier_completed = [rec.alias for rec in tier_records if rec.status == "ok"]
                     if tier_failed and workflow.error_policy == "fail_fast":
-                        state = tier_savepoint
+                        state = (
+                            self._preserve_verified_run_spend(tier_savepoint, state)
+                            if self._strict_budget_attempts
+                            else tier_savepoint
+                        )
                         self._emit_rollback_compensation(
                             workflow_id=workflow.workflow_id,
                             run_id=state.run_id,
@@ -791,7 +932,7 @@ class AsyncWorkflowExecutor:
         # Execute tiers with optional workflow-level timeout
         execution_body = (
             _execute_readiness
-            if self._can_use_readiness_schedule(workflow, invocations)
+            if self._can_use_readiness_schedule(workflow, invocations, initial_state)
             else _execute_tiers
         )
         if self._workflow_deadline is not None:
@@ -938,6 +1079,7 @@ class AsyncWorkflowExecutor:
         self,
         workflow: WorkflowSpec,
         invocations: dict[str, NodeInvocation],
+        admitted_state: ExperimentState,
     ) -> bool:
         """Return whether the conservative readiness path is applicable.
 
@@ -950,6 +1092,8 @@ class AsyncWorkflowExecutor:
         its outcome could depend on an unordered mutable access.
         """
         if workflow.error_policy != "continue":
+            return False
+        if self._strict_budget_attempts:
             return False
         if self._checkpoint_hook is not None:
             return False
@@ -997,17 +1141,17 @@ class AsyncWorkflowExecutor:
                     continue
                 right_reads, right_writes = state_access[right_alias]
                 if any(
-                    self._readiness_paths_overlap(left, right)
+                    _state_paths_may_overlap(admitted_state, left, right)
                     for left in left_writes
                     for right in right_writes
                 ):
                     return False
                 if any(
-                    self._readiness_paths_overlap(left, right)
+                    _state_paths_may_overlap(admitted_state, left, right)
                     for left in left_writes
                     for right in right_reads
                 ) or any(
-                    self._readiness_paths_overlap(left, right)
+                    _state_paths_may_overlap(admitted_state, left, right)
                     for left in right_writes
                     for right in left_reads
                 ):
@@ -1029,12 +1173,6 @@ class AsyncWorkflowExecutor:
                 ancestors[alias].add(dependency)
                 stack.extend(invocations[dependency].depends_on)
         return ancestors
-
-    @staticmethod
-    def _readiness_paths_overlap(left: tuple[str, ...], right: tuple[str, ...]) -> bool:
-        """Return whether two declared state paths overlap by containment."""
-        shortest = min(len(left), len(right))
-        return left[:shortest] == right[:shortest]
 
     @staticmethod
     def _readiness_launch_pair(
@@ -1077,7 +1215,7 @@ class AsyncWorkflowExecutor:
 
         journal = mutation_journal_for_state(outcome.state)
         merge_journal = (
-            cls._readiness_merge_journal(outcome.state, write_specs)
+            cls._readiness_merge_journal(launch_baseline, outcome.state, write_specs)
             if journal is not None and journal.operations
             else cls._readiness_synthetic_journal(
                 launch_baseline,
@@ -1110,6 +1248,7 @@ class AsyncWorkflowExecutor:
 
     @staticmethod
     def _readiness_merge_journal(
+        launch_baseline: ExperimentState,
         outcome_state: ExperimentState,
         write_specs: list[str],
     ) -> StateMutationJournal | None:
@@ -1131,12 +1270,7 @@ class AsyncWorkflowExecutor:
 
         owned_operations = []
         for operation in journal.operations:
-            operation_parts = tuple(part for part in operation.path.split(".") if part)
-            if any(
-                len(write_path) <= len(operation_parts)
-                and write_path == operation_parts[: len(write_path)]
-                for write_path in write_parts
-            ):
+            if any(_mutation_is_declared(launch_baseline, path, operation) for path in write_parts):
                 owned_operations.append(operation)
         if len(owned_operations) != len(journal.operations):
             undeclared = next(
@@ -1215,24 +1349,7 @@ class AsyncWorkflowExecutor:
 
     @staticmethod
     def _readiness_get_path(root: Any, path: tuple[str, ...]) -> Any:
-        current = root
-        for part in path:
-            if isinstance(current, BaseModel):
-                if not hasattr(current, part):
-                    return _READINESS_MISSING
-                current = getattr(current, part)
-            elif isinstance(current, dict):
-                if part not in current:
-                    return _READINESS_MISSING
-                current = current[part]
-            elif isinstance(current, list):
-                try:
-                    current = current[int(part)]
-                except (IndexError, TypeError, ValueError):
-                    return _READINESS_MISSING
-            else:
-                return _READINESS_MISSING
-        return current
+        return _get_path(root, path)
 
     @staticmethod
     def _readiness_target_kind(value: Any) -> str:
@@ -1364,6 +1481,8 @@ class AsyncWorkflowExecutor:
         )
         if outcome.status == "ok":
             state = outcome.state
+        elif outcome.status == "fail" and self._strict_budget_attempts:
+            state = self._preserve_verified_run_spend(state, outcome.state)
         node_failed = outcome.status == "fail"
 
         if outcome.status == "ok" and self._checkpoint_hook is not None:
@@ -1526,9 +1645,14 @@ class AsyncWorkflowExecutor:
         write_specs: dict[str, list[str]] = {}
         records: list[NodeRunRecord] = []
         tier_failed: set[str] = set()
+        known_run_spend = state.budgets.get("run_spent_usd", Decimal(0))
 
         for alias in aliases:
             outcome, duration_ms, _cache_hit, cache_entry_ref = results[alias]
+            if self._strict_budget_attempts:
+                known_run_spend = max(
+                    known_run_spend, outcome.state.budgets.get("run_spent_usd", Decimal(0))
+                )
             records.append(
                 NodeRunRecord(
                     alias=alias,
@@ -1587,6 +1711,9 @@ class AsyncWorkflowExecutor:
                     if conflict_ref is not None:
                         record.artifacts.append(conflict_ref)
                     tier_failed.add(record.alias)
+                if self._strict_budget_attempts:
+                    state = snapshot_state(state)
+                    state.budgets["run_spent_usd"] = known_run_spend
                 return records, state, tier_failed, {}
 
             state = merge_result.state
@@ -1596,6 +1723,11 @@ class AsyncWorkflowExecutor:
                     self._merge_conflict_policy.value,
                     [str(conflict) for conflict in merge_result.resolved_conflicts],
                 )
+        if tier_failed and self._strict_budget_attempts:
+            state = snapshot_state(state)
+            state.budgets["run_spent_usd"] = max(
+                state.budgets.get("run_spent_usd", Decimal(0)), known_run_spend
+            )
         return records, state, tier_failed, cache_entry_refs
 
     async def _recover_cache(
@@ -1716,6 +1848,18 @@ class AsyncWorkflowExecutor:
                     )
                 ],
             )
+
+    @staticmethod
+    def _preserve_verified_run_spend(
+        state: ExperimentState, retry_state: ExperimentState
+    ) -> ExperimentState:
+        """Keep only retry-owner-confirmed run spend while rolling back node writes."""
+        projected = snapshot_state(state)
+        projected.budgets["run_spent_usd"] = max(
+            state.budgets.get("run_spent_usd", Decimal(0)),
+            retry_state.budgets.get("run_spent_usd", Decimal(0)),
+        )
+        return projected
 
     async def _put_cache_entry(
         self,
@@ -1983,6 +2127,42 @@ class AsyncWorkflowExecutor:
                 )
                 span_attrs["polisyos.node.cache.bypass_reason"] = _CACHE_BYPASS_REPLAY_INCOMPATIBLE
             else:
+                if self._strict_budget_attempts:
+                    try:
+                        _, _, _, budget_snapshot = await run_blocking_async(
+                            self._budget_middleware._continuation_state,
+                            timeout_seconds=self._remaining_deadline_seconds(cache_deadline),
+                            unbounded=cache_deadline is None,
+                        )
+                        current_spend = budget_snapshot.state.spent.get("run", Decimal(0))
+                        original_budget = dict(state.budgets)
+                        replay_budget = dict(merged_cached_state.budgets)
+                        original_spend = original_budget.pop("run_spent_usd", Decimal(0))
+                        replay_budget.pop("run_spent_usd", None)
+                        if original_spend != current_spend or replay_budget != original_budget:
+                            raise ValueError("budget_cache_projection_not_established")
+                        # A cached node must not roll back a later confirmed
+                        # charge. Its non-budget outputs remain replayable.
+                        merged_cached_state = merged_cached_state.model_copy(
+                            update={"budgets": dict(state.budgets)}
+                        )
+                    except TimeoutError:
+                        raise
+                    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                        return (
+                            NodeOutcome(
+                                status="fail",
+                                state=state,
+                                error=NodeError(
+                                    code="node.budget_cache_state_not_established",
+                                    message="Cached outcome cannot be bound to the current budget",
+                                    details={"type": type(exc).__name__},
+                                ),
+                            ),
+                            int((time.perf_counter() - started) * 1000),
+                            False,
+                            None,
+                        )
                 cache_hit = True
                 self._ctx.run.emit(
                     f"scientist.node.{alias}",
@@ -2021,6 +2201,12 @@ class AsyncWorkflowExecutor:
                 else None
             )
             attempt_basis_refs: dict[str, tuple[ArtifactRef, int]] = {}
+            attempt_budget_starts: dict[str, tuple[Any, Any, Any, Any]] = {}
+            attempt_settlement_views: dict[str, Any] = {}
+
+            class _ConfirmedNoCharge(Exception):
+                pass
+
             workflow_payload = workflow.model_dump_json()
             workflow_spec_ref = self._workflow_spec_ref
             if workflow_spec_ref is None or self._workflow_spec_payload != workflow_payload:
@@ -2033,6 +2219,7 @@ class AsyncWorkflowExecutor:
                 self._ctx.run.add_input(workflow_spec_ref)
 
             selected_params_snapshot = dict(inv.params or {})
+            selected_execution_deadline_at = self._admitted_workflow_deadline_at
 
             async def record_attempt_started(
                 attempt_number: int,
@@ -2040,8 +2227,47 @@ class AsyncWorkflowExecutor:
                 *,
                 selected_node: object = node,
                 selected_params: dict[str, Any] = selected_params_snapshot,
+                selected_deadline_at: datetime | None = selected_execution_deadline_at,
+                selected_budget_middleware_active: bool = self._budget_middleware is not None,
             ) -> str:
                 attempt_id = str(uuid4())
+                if self._workflow_execution_admission_origin is not None:
+                    from polisyos.scientist.orchestration.engine.execution_admission import (
+                        verify_workflow_execution_admission,
+                    )
+
+                    original_ref, original_workflow = self._workflow_execution_admission_origin
+                    await run_blocking_async(
+                        verify_workflow_execution_admission,
+                        self._ctx.store,
+                        self._workflow_execution_admission_ref,
+                        original_workflow_ref=original_ref,
+                        original_workflow=original_workflow,
+                        residual_workflow=workflow.model_copy(update={"nodes": [inv]}),
+                        registry=self._registry,
+                        run_id=self._ctx.run.run_manifest.run_id,
+                        timeout_seconds=self._remaining_deadline_seconds(self._workflow_deadline),
+                        unbounded=self._workflow_deadline is None,
+                    )
+                    if self._registry.get(inv.node_id) is not selected_node:
+                        raise ValueError("workflow_execution_admission_dispatch_node_changed")
+                budget_owner = budget_resource = budget_anchor = starting_snapshot = None
+                if self._strict_budget_attempts:
+                    try:
+                        (
+                            budget_owner,
+                            budget_resource,
+                            budget_anchor,
+                            starting_snapshot,
+                        ) = await run_blocking_async(
+                            self._budget_middleware._continuation_state,
+                            timeout_seconds=self._remaining_deadline_seconds(
+                                self._workflow_deadline
+                            ),
+                            unbounded=self._workflow_deadline is None,
+                        )
+                    except TimeoutError:
+                        raise
                 input_state_ref = await self._persist_state(
                     attempt_state,
                     return_selected_profile=True,
@@ -2059,8 +2285,45 @@ class AsyncWorkflowExecutor:
                     component_id=node_id,
                     input_state_ref=input_state_ref,
                     implementation_identity=implementation_identity,
+                    execution_budget_contract="admitted_workflow_budget_v1",
+                    execution_deadline_at=selected_deadline_at,
+                    budget_middleware_active=selected_budget_middleware_active,
+                    budget_owner_identity=budget_owner,
+                    budget_start_revision=budget_anchor[0] if budget_anchor is not None else None,
+                    budget_resource_identity=budget_resource,
+                    budget_start_snapshot_sha256=budget_anchor[1]
+                    if budget_anchor is not None
+                    else None,
+                    invocation_settlement_profile=(
+                        self._budget_middleware.invocation_settlement_profile
+                        if budget_anchor is not None
+                        else None
+                    ),
+                    workflow_execution_admission_ref=self._workflow_execution_admission_ref,
                 )
                 attempt_basis_refs[attempt_id] = (basis_ref, attempt_number)
+                if budget_anchor is not None:
+                    from polisyos.scientist.orchestration.engine._invocation_settlement import (
+                        _issue_invocation_settlement_view,
+                    )
+
+                    view = await run_blocking_async(
+                        _issue_invocation_settlement_view,
+                        self._budget_middleware,
+                        self._ctx,
+                        alias=alias,
+                        attempt_id=attempt_id,
+                        basis_ref=basis_ref,
+                        timeout_seconds=self._remaining_deadline_seconds(self._workflow_deadline),
+                        unbounded=self._workflow_deadline is None,
+                    )
+                    attempt_budget_starts[attempt_id] = (
+                        budget_owner,
+                        budget_resource,
+                        budget_anchor,
+                        starting_snapshot,
+                    )
+                    attempt_settlement_views[attempt_id] = view
                 return attempt_id
 
             async def record_attempt_completed(
@@ -2079,6 +2342,96 @@ class AsyncWorkflowExecutor:
                     if attempt_outcome is not None
                     else None
                 )
+                budget_fields: dict[str, Any] = {}
+                budget_start = attempt_budget_starts.pop(attempt_id, None)
+                attempt_view = attempt_settlement_views.pop(attempt_id, None)
+                if budget_start is not None and attempt_outcome is not None:
+                    budget_owner, budget_resource, budget_anchor, starting_snapshot = budget_start
+                    try:
+                        from polisyos.scientist.orchestration.engine._invocation_settlement import (
+                            _verify_invocation_settlement_receipt,
+                        )
+
+                        post_owner, post_resource, post_anchor, snapshot = await run_blocking_async(
+                            self._budget_middleware._continuation_state,
+                            timeout_seconds=self._remaining_deadline_seconds(
+                                self._workflow_deadline
+                            ),
+                            unbounded=self._workflow_deadline is None,
+                        )
+                        if post_owner != budget_owner or post_resource != budget_resource:
+                            raise ValueError("budget_snapshot_owner_mismatch")
+                        receipt_refs = [
+                            ref
+                            for ref in attempt_outcome.artifacts
+                            if ref.kind == "scientist.budget_spend_receipt"
+                            and ref.media_type == "application/json"
+                            and ref.manifest_profile_sha256 is not None
+                        ]
+                        if (
+                            not receipt_refs
+                            and attempt_view is not None
+                            and not attempt_view.settlement_attempted
+                            and snapshot == starting_snapshot
+                        ):
+                            raise _ConfirmedNoCharge
+                        if len(receipt_refs) != 1:
+                            raise ValueError("budget_attempt_receipt_not_returned")
+                        receipt_ref = receipt_refs[0]
+                        receipt = await run_blocking_async(
+                            _verify_invocation_settlement_receipt,
+                            self._ctx.store,
+                            receipt_ref,
+                            attempt_outcome.artifacts,
+                            run_id=self._ctx.run.run_manifest.run_id,
+                            alias=alias,
+                            attempt_id=attempt_id,
+                            basis_ref=basis_ref,
+                            snapshot=snapshot,
+                            timeout_seconds=self._remaining_deadline_seconds(
+                                self._workflow_deadline
+                            ),
+                            unbounded=self._workflow_deadline is None,
+                        )
+                        expected_state = starting_snapshot.state.model_copy(deep=True)
+                        expected_state.record_spend(
+                            receipt.key, receipt.amount, provider=receipt.provider
+                        )
+                        if (
+                            receipt.key != "run"
+                            or receipt.revision <= budget_anchor[0]
+                            or snapshot.spend_receipts.get(receipt.event_id) != receipt
+                            or receipt.event_id in starting_snapshot.spend_receipts
+                            or snapshot.revision != budget_anchor[0] + 1
+                            or to_canonical_bytes(snapshot.state, CanonSpec(forbid_floats=False))
+                            != to_canonical_bytes(expected_state, CanonSpec(forbid_floats=False))
+                            or set(snapshot.spend_receipts)
+                            != set(starting_snapshot.spend_receipts) | {receipt.event_id}
+                            or any(
+                                snapshot.spend_receipts.get(event_id) != prior_receipt
+                                for event_id, prior_receipt in starting_snapshot.spend_receipts.items()
+                            )
+                            or snapshot.producer_settlements
+                            != starting_snapshot.producer_settlements
+                            or snapshot.compute_reservations
+                            != starting_snapshot.compute_reservations
+                        ):
+                            raise ValueError("budget_attempt_receipt_not_reconciled")
+                        budget_fields = {
+                            "budget_owner_identity": budget_owner,
+                            "budget_snapshot_revision": snapshot.revision,
+                            "budget_snapshot_sha256": post_anchor[1],
+                            "budget_snapshot_canon": "polisyos.canon.json/0.2.0;forbid_floats=false",
+                            "budget_receipt_ref": receipt_ref,
+                        }
+                    except _ConfirmedNoCharge:
+                        pass
+                    except TimeoutError:
+                        raise
+                    except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
+                        # Once a durable view was issued, an unconfirmed
+                        # outcome must not become a successful completion.
+                        raise
                 self._ctx.run._record_runtime_invocation_completed(
                     attempt_id=attempt_id,
                     attempt_number=attempt_number,
@@ -2088,7 +2441,10 @@ class AsyncWorkflowExecutor:
                     output_refs=(
                         list(attempt_outcome.artifacts) if attempt_outcome is not None else []
                     ),
+                    **budget_fields,
                 )
+                if budget_start is not None and attempt_outcome is None:
+                    raise RuntimeError("budget_attempt_outcome_not_established")
 
             def bind_attempt_context(
                 attempt_id: str,
@@ -2105,12 +2461,34 @@ class AsyncWorkflowExecutor:
                         run_id=selected_run_id,
                         attempt_id=attempt_id,
                         basis_ref=attempt_basis[0],
+                        settlement_view=attempt_settlement_views.get(attempt_id),
                     ),
+                )
+
+            async def admit_budget_attempt() -> None:
+                await run_blocking_async(
+                    self._check_budget,
+                    alias,
+                    budget_key="run",
+                    timeout_seconds=self._remaining_deadline_seconds(self._workflow_deadline),
+                    unbounded=self._workflow_deadline is None,
+                )
+
+            from polisyos.scientist.orchestration.engine.sub_workflow import SubWorkflowNode
+
+            dispatch_node = node
+            if type(node) is SubWorkflowNode:
+                from polisyos.scientist.orchestration.engine.child_workflow import (
+                    _ManagedSubWorkflowDispatch,
+                )
+
+                dispatch_node = _ManagedSubWorkflowDispatch(
+                    node, self._ctx, alias=alias, timeout_s=inv.timeout_s
                 )
 
             try:
                 raw_outcome = await execute_with_retry_async(
-                    node,
+                    dispatch_node,
                     self._ctx,
                     node_state,
                     retry_policy=retry_policy,
@@ -2122,9 +2500,35 @@ class AsyncWorkflowExecutor:
                     attempt_started=record_attempt_started,
                     attempt_completed=record_attempt_completed,
                     attempt_context=bind_attempt_context,
+                    **(
+                        {"attempt_admission": admit_budget_attempt}
+                        if self._strict_budget_attempts
+                        else {}
+                    ),
                 )
                 outcome = NodeOutcome.model_validate(raw_outcome)
                 self._guard_workflow_admission(operation=f"node.{alias}", execution_state="unknown")
+            except BudgetLedgerSettlementOutcomeUnknownError as exc:
+                outcome = NodeOutcome(
+                    status="fail",
+                    state=node_state,
+                    error=NodeError(
+                        code=exc.code,
+                        category=exc.default_category,
+                        message=str(exc),
+                        details={"event_id": exc.event_id, "payload_digest": exc.payload_digest},
+                    ),
+                )
+            except BudgetExhaustedError as exc:
+                outcome = NodeOutcome(
+                    status="fail",
+                    state=node_state,
+                    error=NodeError(
+                        code="node.budget_exhausted",
+                        message=str(exc),
+                        details={"budget_key": "run"},
+                    ),
+                )
             except NodeTimeoutError as exc:
                 if exc.code == "node.timeout_worker_unsupported":
                     self._ctx.logger.error("Node %s refused before timeout worker start", alias)

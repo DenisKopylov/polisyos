@@ -15,11 +15,13 @@ from __future__ import annotations
 import dis
 import hashlib
 import inspect
+import logging
 import marshal
 import math
 import platform
 import sys
 import types
+from dataclasses import fields, is_dataclass
 from decimal import Decimal
 from enum import Enum
 from pathlib import Path
@@ -51,6 +53,23 @@ _MAX_FUNCTIONS = 128
 
 class ExecutionAdmissionError(ValueError):
     """Refuse a continuation whose original executable basis is unestablished."""
+
+
+class ManagedSubWorkflowDefinition(BaseModel):
+    """Original managed wrapper behavior; not its completed child registry.
+
+    Core and host services remain trusted platform dependencies. A child binding
+    must persist this observation before its first producer. Re-observing a
+    wrapper later cannot establish an absent historical binding.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    profile: Literal["managed_subworkflow_wrapper_v1"] = "managed_subworkflow_wrapper_v1"
+    purpose: Literal["candidate_wrapper_mapping_continuity"] = (
+        "candidate_wrapper_mapping_continuity"
+    )
+    definition_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
 
 
 class CandidateNodeDefinition(BaseModel):
@@ -395,6 +414,197 @@ def _node_definition(registry: NodeRegistry, invocation: NodeInvocation) -> Cand
         status="recomputed",
         definition_sha256=digest,
     )
+
+
+class _ManagedWrapperCapture:
+    """Observe canonical wrapper functions without inspecting live services."""
+
+    def __init__(self) -> None:
+        self.passive = _DefinitionCapture()
+        self.functions: dict[str, object] = {}
+        self.sentinels: dict[int, set[str]] = {}
+
+    def function(self, function: types.FunctionType) -> str:
+        code_sha256 = hashlib.sha256(marshal.dumps(_portable_code(function.__code__))).hexdigest()
+        key = f"{function.__module__}:{function.__qualname__}:{code_sha256}"
+        if key in self.functions:
+            return key
+        if len(self.functions) >= _MAX_FUNCTIONS:
+            raise ExecutionAdmissionError("managed_subworkflow_source_capture_limit")
+        observation = describe_callable_source(function, expected_module=function.__module__)
+        if observation.get("basis") != "recomputed":
+            raise ExecutionAdmissionError("managed_subworkflow_source_not_established")
+        self.functions[key] = None
+        names = {
+            instruction.argval
+            for code in _code_family(function.__code__)
+            for instruction in dis.get_instructions(code)
+            if instruction.opname == "LOAD_GLOBAL"
+        }
+        globals_profile: list[object] = []
+        for name in sorted(names):
+            if name in function.__globals__:
+                logical_binding = f"{function.__module__}:{name}"
+                globals_profile.append(
+                    [name, self.value(function.__globals__[name], logical_binding)]
+                )
+        closure_profile = [
+            [name, self.value(value, f"{key}:closure:{name}")]
+            for name, value in sorted(inspect.getclosurevars(function).nonlocals.items())
+        ]
+        self.functions[key] = {
+            "source": observation,
+            "defaults": self.passive.passive(function.__defaults__),
+            "kwdefaults": self.passive.passive(function.__kwdefaults__),
+            "globals": globals_profile,
+            "closure": closure_profile,
+        }
+        return key
+
+    def value(self, value: object, logical_binding: str) -> object:
+        if isinstance(value, types.FunctionType):
+            wrapper_modules = {
+                "polisyos.scientist.orchestration.engine.sub_workflow",
+                "polisyos.scientist.orchestration.engine.child_workflow",
+            }
+            if value.__module__ in wrapper_modules or (
+                value.__module__.startswith("polisyos.scientist.orchestration.engine.")
+                and value.__name__ in {"_get_path", "_model_field_value"}
+            ):
+                return ["engine_function", self.function(value)]
+            # Canonical verification and platform services are dependencies,
+            # not another recursively self-verifying implementation owner.
+            observation = describe_callable_source(value, expected_module=value.__module__)
+            if observation.get("basis") != "recomputed":
+                raise ExecutionAdmissionError("managed_subworkflow_source_not_established")
+            return [
+                "platform_function",
+                observation,
+                hashlib.sha256(marshal.dumps(_portable_code(value.__code__))).hexdigest(),
+            ]
+        if isinstance(value, types.ModuleType):
+            return ["platform_module", _module_profile(value)]
+        if isinstance(value, type):
+            return [
+                "platform_type",
+                _type_name(value),
+                _module_profile(sys.modules[value.__module__]),
+            ]
+        if isinstance(value, logging.Logger):
+            # Logging is an observation channel, not an input/mapping owner.
+            # Host logger handlers and mutable service state are not attested.
+            return ["platform_logger", value.name]
+        logger_module = sys.modules.get("polisyos.common.logger")
+        if isinstance(logger_module, types.ModuleType) and type(value) is vars(logger_module).get(
+            "_CompatLogger"
+        ):
+            # get_logger() deliberately returns the host's compatibility
+            # handle, whose wrapped Loguru/stdlib service is not node config.
+            return ["platform_logger", _module_profile(logger_module)]
+        if type(value) is object:
+            # Preserve alias relationships of missing-value sentinels without
+            # writing process-local id() tokens into the portable digest.
+            self.sentinels.setdefault(id(value), set()).add(logical_binding)
+            return ["engine_sentinel", logical_binding]
+        if is_dataclass(value) and not isinstance(value, type):
+            return [
+                "platform_data",
+                _type_name(type(value)),
+                self.passive.passive(
+                    {field.name: getattr(value, field.name) for field in fields(value)}
+                ),
+                _module_profile(sys.modules[type(value).__module__]),
+            ]
+        if type(value) in {set, frozenset}:
+            items = [self.passive.passive(item) for item in value]
+            return [
+                type(value).__name__,
+                sorted(items, key=lambda item: to_canonical_bytes(item, _CANON)),
+            ]
+        return self.passive.passive(value)
+
+    def owner(self, owner: type[Any]) -> list[object]:
+        functions: list[object] = []
+        for name, member in sorted(vars(owner).items()):
+            if isinstance(member, (staticmethod, classmethod)):
+                member = member.__func__
+            if isinstance(member, types.FunctionType):
+                functions.append([name, self.function(member)])
+            elif isinstance(member, property):
+                for role, accessor in (
+                    ("get", member.fget),
+                    ("set", member.fset),
+                    ("delete", member.fdel),
+                ):
+                    if accessor is not None:
+                        functions.append([name, role, self.function(accessor)])
+            elif not name.startswith("__"):
+                functions.append([name, self.value(member, f"{_type_name(owner)}:{name}")])
+        return [_type_name(owner), functions]
+
+
+def capture_managed_subworkflow_definition(node: object) -> ManagedSubWorkflowDefinition:
+    """Observe the actual canonical managed wrapper before any child producer.
+
+    Args:
+        node: The exact registered ``SubWorkflowNode`` whose configuration and
+            wrapper-side dispatch/mapping are selected by the parent engine.
+
+    Returns:
+        A portable, candidate-scoped observation to bind into the original
+        child binding and compare before terminal-recovery mapping executes.
+
+    Raises:
+        ExecutionAdmissionError: The wrapper/source/config cannot be reconciled.
+
+    The child registry is intentionally neither read nor enumerated. New child
+    execution still uses its actual registry and normal execution admission;
+    terminal-only recovery verifies its persisted history instead. Missing old
+    observations cannot be upgraded by this function.
+    """
+    from polisyos.scientist.orchestration.engine import child_workflow, sub_workflow
+
+    if type(node) is not sub_workflow.SubWorkflowNode:
+        raise ExecutionAdmissionError("managed_subworkflow_owner_not_established")
+    attributes = object.__getattribute__(node, "__dict__")
+    if set(attributes) != {"_config", "_registry", "_alias"}:
+        raise ExecutionAdmissionError("managed_subworkflow_configuration_not_established")
+    if type(attributes["_config"]) is not sub_workflow.SubWorkflowConfig:
+        raise ExecutionAdmissionError("managed_subworkflow_configuration_not_established")
+    capture = _ManagedWrapperCapture()
+    for name in ("execute", "_execute_admitted", "_prepare_child_input", "_execute_with_child"):
+        descriptor = inspect.getattr_static(type(node), name, None)
+        if not isinstance(descriptor, types.FunctionType):
+            raise ExecutionAdmissionError("managed_subworkflow_dispatch_not_established")
+        actual = object.__getattribute__(node, name)
+        if (
+            not isinstance(actual, types.MethodType)
+            or actual.__self__ is not node
+            or actual.__func__ is not descriptor
+        ):
+            raise ExecutionAdmissionError("managed_subworkflow_dispatch_not_established")
+    owners = [
+        capture.owner(sub_workflow.SubWorkflowNode),
+        capture.owner(child_workflow._ManagedSubWorkflowDispatch),
+    ]
+    for name, value in sorted(vars(sub_workflow).items()):
+        if isinstance(value, types.FunctionType) and value.__module__ == sub_workflow.__name__:
+            # Bind module-level mapping call targets by their actual lookup
+            # name, even when replaced by another real source-backed function.
+            owners.append([f"{sub_workflow.__name__}:{name}", capture.function(value)])
+    payload = {
+        "python": _python_profile(),
+        "config": capture.passive.passive(attributes["_config"]),
+        "alias": capture.passive.passive(attributes["_alias"]),
+        # The spec accessor's actual code and all of its configuration are
+        # already observed. Do not invoke an offered getter before comparing
+        # against the original definition during terminal recovery.
+        "owners": owners,
+        "functions": capture.functions,
+        "sentinel_aliases": sorted(sorted(names) for names in capture.sentinels.values()),
+        "boundary": "trusted_platform_services_no_child_registry",
+    }
+    return ManagedSubWorkflowDefinition(definition_sha256=_digest(payload))
 
 
 def _python_profile() -> str:

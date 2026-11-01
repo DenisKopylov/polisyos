@@ -14,7 +14,12 @@ from polisyos.scientist.orchestration.engine.fan_out import (
     FanOutResult,
     MergeConflictPolicy,
 )
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.protocol import (
+    InputAwareNodeSpec,
+    NodeError,
+    NodeOutcome,
+    NodeSpec,
+)
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
@@ -121,6 +126,20 @@ class TestFanOutResultModel:
 
 
 class TestFanOutNodeSpec:
+    def test_items_contract_preserves_optional_null_semantics(self) -> None:
+        fan = FanOutNode(
+            FanOutConfig(
+                items_state_path="params.items",
+                task_node_id="test.node@1.0.0",
+                result_state_path="params.results",
+            ),
+            _make_registry(_make_mock_node()),
+        )
+        assert isinstance(fan.spec, InputAwareNodeSpec)
+        assert len(fan.spec.input_rules) == 1
+        rule = fan.spec.input_rules[0]
+        assert (rule.path, rule.availability, rule.allow_null) == ("params.items", "optional", True)
+
     def test_spec_reads_items_path(self) -> None:
         cfg = FanOutConfig(
             items_state_path="params.countries",
@@ -146,6 +165,22 @@ class TestFanOutNodeSpec:
 
 
 class TestFanOutExecution:
+    def test_terminal_list_and_list_segment_use_the_same_finite_reader(self) -> None:
+        state = ExperimentState(run_id="R_nested_items", params={"rows": [{"items": []}]})
+        registry = _make_registry(_make_mock_node())
+        fan = FanOutNode(
+            FanOutConfig(
+                items_state_path="params.rows.0.items",
+                task_node_id="test.node@1.0.0",
+                result_state_path="params.results",
+            ),
+            registry,
+        )
+        outcome = fan.execute(_make_ctx(), state)
+        assert outcome.status == "skip"
+        assert [event.code for event in outcome.events] == ["fan_out.empty_items"]
+        registry.get.assert_not_called()
+
     def test_processes_all_items(self) -> None:
         state = ExperimentState(
             run_id="r1",

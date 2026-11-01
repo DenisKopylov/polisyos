@@ -474,6 +474,13 @@ def _wire_model_payload(
         field_info = model_type.model_fields[field_name]
         key = field_info.serialization_alias or field_info.alias or field_name
         field_value = getattr(value, field_name)
+        if (
+            field_name == "category"
+            and field_value is None
+            and model_type
+            is _wire_model_types().get("polisyos.scientist.orchestration.engine.protocol.NodeError")
+        ):
+            continue
         child_in_state = in_state_subtree or (
             context is not None
             and not in_state_subtree
@@ -1800,6 +1807,11 @@ def serialize_timeout_context(
         raise ValueError("timeout_worker_engine_invocation_wire_type_invalid")
     if type(ctx) is not ExecutionContext:
         raise ValueError("timeout_worker_unsupported_execution_context")
+    binding = ctx._engine_invocation
+    if binding is not None and (
+        not isinstance(binding, _EngineInvocationBinding) or binding.settlement_view is not None
+    ):
+        raise ValueError("timeout_worker_invocation_settlement_not_transportable")
     store = ctx.store
     run = ctx.run
     if type(store) is not FileSystemCAS:

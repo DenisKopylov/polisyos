@@ -403,9 +403,21 @@ def test_terminal_spend_projection_excludes_failed_state_mutation() -> None:
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "cancel_at",
-    ["first_body", "second_body", "second_start", "finish", "second_error_finish", "error_backoff", "first_error_finish_cost", "second_error_finish_cost", "finalizer_fails"],
+    [
+        "first_body",
+        "second_body",
+        "second_start",
+        "finish",
+        "second_error_finish",
+        "error_backoff",
+        "first_error_finish_cost",
+        "second_error_finish_cost",
+        "finalizer_fails",
+    ],
 )
-async def test_cancel_projects_only_known_completed_failure_spend(cancel_at: str, monkeypatch) -> None:
+async def test_cancel_projects_only_known_completed_failure_spend(
+    cancel_at: str, monkeypatch
+) -> None:
     """Known failed work survives cancellation at every async callback boundary."""
     state = ExperimentState(
         run_id="run-03-cancel-settlement",
@@ -478,8 +490,10 @@ async def test_cancel_projects_only_known_completed_failure_spend(cancel_at: str
         )
 
     expected_spend = (
-        Decimal("5") if cancel_at == "first_body"
-        else Decimal("10") if cancel_at == "second_error_finish_cost"
+        Decimal("5")
+        if cancel_at == "first_body"
+        else Decimal("10")
+        if cancel_at == "second_error_finish_cost"
         else Decimal("7")
     )
     if cancel_at == "finalizer_fails":
@@ -488,7 +502,16 @@ async def test_cancel_projects_only_known_completed_failure_spend(cancel_at: str
     assert state.budgets["run_spent_usd"] == expected_spend
     assert state.params == {"counter": 0, "items": []}
     assert node.calls == (
-        2 if cancel_at in {"second_body", "second_error_finish", "error_backoff", "second_error_finish_cost", "finalizer_fails"} else 1
+        2
+        if cancel_at
+        in {
+            "second_body",
+            "second_error_finish",
+            "error_backoff",
+            "second_error_finish_cost",
+            "finalizer_fails",
+        }
+        else 1
     )
 
 
@@ -605,9 +628,13 @@ async def test_completed_outcome_cost_survives_finish_cancellation(kind, prior, 
     node = Producer()
     with pytest.raises(asyncio.CancelledError):
         await execute_with_retry_async(
-            node, _context(), state,
+            node,
+            _context(),
+            state,
             retry_policy=RetryPolicy(max_retries=2, backoff_base_s=0.1, jitter="none"),
-            timeout_s=None, alias="all-completed", attempt_started=started,
+            timeout_s=None,
+            alias="all-completed",
+            attempt_started=started,
             attempt_completed=finished,
         )
     assert state.budgets["run_spent_usd"] == Decimal("10" if prior else "8")
@@ -623,8 +650,10 @@ async def test_zero_retry_copy_outcome_keeps_cost_on_finish_cancel(kind):
         async def execute_async(self, _ctx, attempt_state):
             result = attempt_state.model_copy(deep=True)
             result.budgets["run_spent_usd"] += Decimal("3")
-            return _fail(result, "node.permanent") if kind == "terminal" else NodeOutcome(
-                status="ok" if kind == "success" else "skip", state=result
+            return (
+                _fail(result, "node.permanent")
+                if kind == "terminal"
+                else NodeOutcome(status="ok" if kind == "success" else "skip", state=result)
             )
 
     async def started(_n, _state):
@@ -635,8 +664,13 @@ async def test_zero_retry_copy_outcome_keeps_cost_on_finish_cancel(kind):
 
     with pytest.raises(asyncio.CancelledError):
         await execute_with_retry_async(
-            Producer(), _context(), state, retry_policy=RetryPolicy(max_retries=0),
-            timeout_s=None, alias="zero-copy", attempt_started=started,
+            Producer(),
+            _context(),
+            state,
+            retry_policy=RetryPolicy(max_retries=0),
+            timeout_s=None,
+            alias="zero-copy",
+            attempt_started=started,
             attempt_completed=finished,
         )
     assert state.budgets["run_spent_usd"] == Decimal("8")
@@ -667,9 +701,12 @@ async def test_completed_failure_cost_is_not_counted_twice_after_retry_event_err
     )
     with pytest.raises(asyncio.CancelledError):
         await execute_with_retry_async(
-            Producer(), context, state,
+            Producer(),
+            context,
+            state,
             retry_policy=RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
-            timeout_s=None, alias="once",
+            timeout_s=None,
+            alias="once",
         )
     assert state.budgets["run_spent_usd"] == Decimal("7")
 
@@ -688,7 +725,265 @@ async def test_zero_retry_in_place_error_does_not_double_known_cost():
     breaker.allow_request.return_value = True
     with pytest.raises(RetryExhaustedError):
         await execute_with_retry_async(
-            Producer(), _context(), state, retry_policy=RetryPolicy(max_retries=0),
-            timeout_s=None, alias="zero-circuit", circuit_breaker=breaker,
+            Producer(),
+            _context(),
+            state,
+            retry_policy=RetryPolicy(max_retries=0),
+            timeout_s=None,
+            alias="zero-circuit",
+            circuit_breaker=breaker,
         )
     assert state.budgets["run_spent_usd"] == Decimal("7")
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize(
+    ("category", "expected_calls"),
+    [
+        (None, 2),
+        (ErrorCategory.TRANSIENT, 2),
+        (ErrorCategory.FATAL, 1),
+        (ErrorCategory.VALIDATION, 1),
+    ],
+)
+def test_returned_typed_category_composes_with_retry_filter(mode, category, expected_calls):
+    """Declared categories constrain the existing filter; legacy remains code-only."""
+
+    class Producer:
+        spec = SimpleNamespace(
+            metadata=SimpleNamespace(component_id="category-producer"), state_writes=[]
+        )
+
+        def __init__(self):
+            self.calls = 0
+
+        def execute(self, _ctx, state):
+            self.calls += 1
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(code="node.exception", message="controlled", category=category),
+            )
+
+        async def execute_async(self, ctx, state):
+            return self.execute(ctx, state)
+
+    producer = Producer()
+    kwargs = {
+        "retry_policy": RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+        "timeout_s": None,
+        "alias": "category-producer",
+    }
+    with patch("polisyos.scientist.orchestration.engine.retry.time.sleep"):
+        if mode == "sync":
+            result = execute_with_retry_sync(
+                producer, _context(), ExperimentState(run_id="R_cat"), **kwargs
+            )
+        else:
+            result = asyncio.run(
+                execute_with_retry_async(
+                    producer, _context(), ExperimentState(run_id="R_cat"), **kwargs
+                )
+            )
+    assert result.status == "fail"
+    assert producer.calls == expected_calls
+
+
+def test_unclassified_node_error_preserves_legacy_serialized_shape():
+    assert NodeError(code="node.old", message="old").model_dump(mode="json") == {
+        "code": "node.old",
+        "message": "old",
+        "details": {},
+    }
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize("lost_at", ["before", "after"])
+def test_live_owner_is_refreshed_at_dispatch_and_publication(mode, lost_at):
+    """The actual retry consumer must stop on stale ownership, not just an event bit."""
+    from threading import Event
+
+    from polisyos.common.job_execution_interrupt import (
+        JobExecutionInterrupt,
+        JobExecutionInterrupted,
+        job_execution_interrupt_scope,
+    )
+
+    owner_current = [lost_at != "before"]
+    calls = []
+
+    def check_owner():
+        if not owner_current[0]:
+            raise JobExecutionInterrupted("owner changed in external store")
+
+    class Producer:
+        def execute(self, _ctx, state):
+            calls.append("executed")
+            owner_current[0] = lost_at != "after"
+            return _ok(state)
+
+        async def execute_async(self, ctx, state):
+            return self.execute(ctx, state)
+
+    signal = JobExecutionInterrupt("job", "worker", 1, Event(), current_owner_check=check_owner)
+    kwargs = {"retry_policy": RetryPolicy(max_retries=0), "timeout_s": None, "alias": "owner"}
+
+    def invoke():
+        if mode == "sync":
+            execute_with_retry_sync(
+                Producer(), _context(), ExperimentState(run_id="R_owner"), **kwargs
+            )
+        else:
+            asyncio.run(
+                execute_with_retry_async(
+                    Producer(), _context(), ExperimentState(run_id="R_owner"), **kwargs
+                )
+            )
+
+    with job_execution_interrupt_scope(signal), pytest.raises(JobExecutionInterrupted):
+        invoke()
+    assert calls == ([] if lost_at == "before" else ["executed"])
+    assert signal.lost.is_set()
+
+
+def test_diagnostic_details_category_cannot_override_legacy_retry_policy():
+    """Untrusted details are never promoted into a retry-authority category."""
+    from polisyos.scientist.orchestration.engine.retry import _should_retry
+
+    error = NodeError(code="node.exception", message="legacy", details={"category": "fatal"})
+    assert error.category is None
+    assert _should_retry(error, RetryPolicy(max_retries=1))
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize("retries", [0, 1])
+def test_settlement_unknown_remains_primary_when_completion_fails(mode, retries):
+    """A completion error cannot launder the producer's unknown settlement."""
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerSettlementOutcomeUnknownError,
+    )
+
+    unknown = BudgetLedgerSettlementOutcomeUnknownError("event", "digest")
+    state = ExperimentState(run_id="unknown-primary", budgets={"run_spent_usd": Decimal("5")})
+    calls = []
+
+    class Producer:
+        def execute(self, _ctx, _state):
+            calls.append("dispatch")
+            raise unknown
+
+        async def execute_async(self, ctx, state):
+            return self.execute(ctx, state)
+
+    def started(_n, _state):
+        return "attempt-1"
+
+    def failed_completion(_id, _outcome):
+        raise OSError("completion unavailable")
+
+    async def async_started(n, input_state):
+        return started(n, input_state)
+
+    async def async_finished(attempt_id, outcome):
+        failed_completion(attempt_id, outcome)
+
+    def invoke():
+        kwargs = {
+            "retry_policy": RetryPolicy(max_retries=retries),
+            "timeout_s": None,
+            "alias": "unknown",
+        }
+        if mode == "sync":
+            execute_with_retry_sync(
+                Producer(),
+                _context(),
+                state,
+                attempt_started=started,
+                attempt_completed=failed_completion,
+                **kwargs,
+            )
+        else:
+            asyncio.run(
+                execute_with_retry_async(
+                    Producer(),
+                    _context(),
+                    state,
+                    attempt_started=async_started,
+                    attempt_completed=async_finished,
+                    **kwargs,
+                )
+            )
+
+    with pytest.raises(BudgetLedgerSettlementOutcomeUnknownError) as raised:
+        invoke()
+    assert raised.value is unknown
+    assert raised.value.__cause__ is not None
+    assert len(calls) == 1
+    assert state.budgets["run_spent_usd"] == Decimal("5")
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize("retries", [0, 1])
+def test_original_interruption_survives_owner_loss_during_finalization(mode, retries):
+    """A second worker-loss signal cannot erase the producer's original interruption."""
+    from polisyos.common.job_execution_interrupt import JobExecutionInterrupted
+
+    class LostReply(BaseException):
+        pass
+
+    original = LostReply("effect outcome unknown")
+    state = ExperimentState(run_id="original-interruption")
+    calls = []
+
+    class Producer:
+        def execute(self, _ctx, _state):
+            calls.append(1)
+            raise original
+
+        async def execute_async(self, ctx, attempt_state):
+            return self.execute(ctx, attempt_state)
+
+    def started(_n, _state):
+        return "attempt-1"
+
+    def finished(_id, _outcome):
+        raise JobExecutionInterrupted("owner lost during attempt finalization")
+
+    async def started_async(n, current_state):
+        return started(n, current_state)
+
+    async def finished_async(attempt_id, outcome):
+        finished(attempt_id, outcome)
+
+    def invoke():
+        kwargs = {
+            "retry_policy": RetryPolicy(max_retries=retries),
+            "timeout_s": None,
+            "alias": "primary",
+        }
+        if mode == "sync":
+            execute_with_retry_sync(
+                Producer(),
+                _context(),
+                state,
+                attempt_started=started,
+                attempt_completed=finished,
+                **kwargs,
+            )
+        else:
+            asyncio.run(
+                execute_with_retry_async(
+                    Producer(),
+                    _context(),
+                    state,
+                    attempt_started=started_async,
+                    attempt_completed=finished_async,
+                    **kwargs,
+                )
+            )
+
+    with pytest.raises(LostReply) as raised:
+        invoke()
+    assert raised.value is original
+    assert isinstance(raised.value.__cause__, JobExecutionInterrupted)
+    assert calls == [1]

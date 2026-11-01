@@ -20,8 +20,10 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import (
+    InputAwareNodeSpec,
     NodeError,
     NodeEvent,
+    NodeInputRule,
     NodeOutcome,
     NodeSpec,
 )
@@ -38,12 +40,16 @@ _METADATA = ComponentMetadata(
     capabilities=Capability.SCIENTIST_NODE,
 )
 
-_SPEC = NodeSpec(
+_SPEC = InputAwareNodeSpec(
     metadata=_METADATA,
     state_reads=[
         f"inputs.{INPUT_TRINITY_BUNDLE_REF}",
         f"inputs.{INPUT_REGISTRY_BUNDLE_REF}",
     ],
+    input_rules=(
+        NodeInputRule(path=f"inputs.{INPUT_TRINITY_BUNDLE_REF}"),
+        NodeInputRule(path=f"inputs.{INPUT_REGISTRY_BUNDLE_REF}"),
+    ),
     state_writes=[f"reports_index.{REPORT_LINK_REPORT_REF}"],
     produces=[REPORT_LINK_REPORT_REF],
 )

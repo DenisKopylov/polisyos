@@ -4710,13 +4710,6 @@
       "source_module": "polisyos.foundry.execute.patch_vm",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/execute/patch_vm.py",
-      "target_module": "polisyos.core.artifacts.store",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.foundry.execute.patch_vm",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/execute/patch_vm.py",
       "target_module": "polisyos.core.contracts.foundry",
       "target_root": "core"
     },
@@ -9352,6 +9345,27 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/services/control/job_nl_execution.py",
       "target_module": "polisyos.scientist.orchestration.llm.factory",
+      "target_root": "scientist"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.job_scope_admission",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/services/control/job_scope_admission.py",
+      "target_module": "polisyos.scientist.orchestration.engine.checkpoint",
+      "target_root": "scientist"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.job_scope_admission",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/services/control/job_scope_admission.py",
+      "target_module": "polisyos.scientist.orchestration.workflows.builder",
+      "target_root": "scientist"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.job_scope_admission",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/services/control/job_scope_admission.py",
+      "target_module": "polisyos.scientist.orchestration.workflows.selection",
       "target_root": "scientist"
     },
     {
@@ -19001,6 +19015,20 @@
       "target_root": "foundry"
     },
     {
+      "source_module": "polisyos.scientist.orchestration.engine._invocation_settlement",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/orchestration/engine/_invocation_settlement.py",
+      "target_module": "polisyos.common.job_execution_interrupt",
+      "target_root": "common"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine._invocation_settlement",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/orchestration/engine/_invocation_settlement.py",
+      "target_module": "polisyos.core.run.manifest",
+      "target_root": "core"
+    },
+    {
       "source_module": "polisyos.scientist.orchestration.engine.async_executor",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/orchestration/engine/async_executor.py",
@@ -19068,6 +19096,13 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/orchestration/engine/checkpoint.py",
       "target_module": "polisyos.common.async_tools",
+      "target_root": "common"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.checkpoint",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "target_module": "polisyos.common.job_execution_interrupt",
       "target_root": "common"
     },
     {

@@ -4,30 +4,45 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import logging
+from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.components import ComponentId
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run.context import RunContext
+from polisyos.scientist.nodes.builtins.causal.resolve_parameters import ResolveParametersNode
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
 from polisyos.scientist.orchestration.engine.checkpoint import (
+    CASCheckpointHook,
     CheckpointError,
     CheckpointWriteResult,
+    resolve_latest_checkpoint,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome
+from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 
-def _ref(tag: str, *, kind: str = "scientist.node_cache_entry") -> ArtifactRef:
+def _ref(
+    tag: str, *, kind: str = "scientist.node_cache_entry", selected: bool = False
+) -> ArtifactRef:
     return ArtifactRef(
         artifact_id=f"sha256:{hashlib.sha256(tag.encode('utf-8')).hexdigest()}",
         kind=kind,
         media_type="application/json",
+        manifest_profile_sha256=(
+            f"sha256:{hashlib.sha256((tag + '-profile').encode('utf-8')).hexdigest()}"
+            if selected
+            else None
+        ),
     )
 
 
@@ -102,14 +117,23 @@ def _executor(
     registry.get.side_effect = _get_node
     executor = AsyncWorkflowExecutor(ctx, registry, checkpoint_hook=hook, max_parallelism=2)
 
-    async def _persist_workflow_spec(workflow_spec: WorkflowSpec) -> ArtifactRef:
-        return _ref("a", kind="scientist.workflow_spec")
+    async def _persist_workflow_spec(
+        workflow_spec: WorkflowSpec, *, return_selected_profile: bool = False
+    ) -> ArtifactRef:
+        return _ref("a", kind="scientist.workflow_spec", selected=return_selected_profile)
 
-    async def _persist_state(state: ExperimentState) -> ArtifactRef:
-        return _ref("b", kind="scientist.experiment_state")
+    async def _persist_state(
+        state: ExperimentState, *, return_selected_profile: bool = False
+    ) -> ArtifactRef:
+        return _ref("b", kind="scientist.experiment_state", selected=return_selected_profile)
 
     async def _persist_report(report: Any) -> ArtifactRef:
-        return _ref("c", kind="scientist.workflow_report")
+        return _ref("c", kind="scientist.workflow_report", selected=True)
+
+    async def _put_workflow_artifact(
+        obj: object, opts: Any, *, canon_spec: Any = None, return_selected_profile: bool = False
+    ) -> ArtifactRef:
+        return _ref("finalization", kind=opts.kind, selected=return_selected_profile)
 
     async def _execute_node(
         alias: str,
@@ -125,6 +149,7 @@ def _executor(
     executor._persist_workflow_spec = _persist_workflow_spec  # type: ignore[method-assign]
     executor._persist_state = _persist_state  # type: ignore[method-assign]
     executor._persist_report = _persist_report  # type: ignore[method-assign]
+    executor._put_workflow_artifact = _put_workflow_artifact  # type: ignore[method-assign]
     executor._execute_node = _execute_node  # type: ignore[method-assign]
     return executor
 
@@ -407,3 +432,178 @@ def test_multi_node_tier_rejects_node_only_hook_before_node_execution() -> None:
 
     assert executed == []
     assert hook.node_calls == []
+
+
+def test_real_rollback_retains_output_bytes_without_selecting_them(tmp_path: Path) -> None:
+    """An independent artifact survives rollback without becoming a run output."""
+    store = FileSystemCAS(tmp_path / "cas")
+    bundle = build_default_registry_bundle(store, return_selected_profile=True).bundle_ref
+    run_id = "R_res02_rollback_output"
+    run = RunContext.start(store, bundle, run_id=run_id)
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("res02.rollback"))
+    events: list[tuple[Any, ExperimentState]] = []
+
+    class Compensation:
+        def on_tier_rollback(self, *, event: Any, restored_state: ExperimentState) -> None:
+            events.append((event, restored_state))
+
+    class Node:
+        def __init__(self, alias: str) -> None:
+            self.alias = alias
+            self.spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse(f"scientist.res02_{alias}@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name=f"RES02 {alias}",
+                    description="Real rollback output boundary",
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=[],
+                state_writes=["artifacts_index.left"] if alias == "left" else [f"params.{alias}"],
+            )
+
+        def execute(self, context: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+            if self.alias == "prior":
+                state.params["prior"] = 1
+                return NodeOutcome(status="ok", state=state)
+            if self.alias == "right":
+                return NodeOutcome(
+                    status="fail",
+                    state=state,
+                    error=NodeError(code="res02.expected", message="fail"),
+                )
+            ref = context.store.put_bytes(
+                b"real useful left output",
+                PutOptions(kind="test.res02.output", media_type="application/octet-stream"),
+                return_selected_profile=True,
+            )
+            state.artifacts_index["left"] = ref
+            return NodeOutcome(status="ok", state=state, artifacts=[ref])
+
+    registry = NodeRegistry()
+    nodes = [Node(alias) for alias in ("prior", "left", "right")]
+    for node in nodes:
+        registry.register(node)
+    workflow = WorkflowSpec(
+        workflow_id="res02_real_output_rollback",
+        error_policy="fail_fast",
+        nodes=[
+            NodeInvocation(
+                alias=node.alias,
+                node_id=node.spec.metadata.component_id,
+                depends_on=[] if node.alias == "prior" else ["prior"],
+            )
+            for node in nodes
+        ],
+    )
+    hook = CASCheckpointHook(store=store, run_dir=Path(store.root) / "runs" / run_id)
+    result = asyncio.run(
+        AsyncWorkflowExecutor(
+            ctx, registry, checkpoint_hook=hook, compensation_hook=Compensation(), max_parallelism=2
+        ).execute(workflow, ExperimentState(run_id=run_id, inputs={"registry_bundle_ref": bundle}))
+    )
+    assert result.report.status == "fail"
+    left = next(record for record in result.report.nodes if record.alias == "left")
+    assert left.status == "ok" and len(left.artifacts) == 1
+    output = left.artifacts[0]
+    assert FileSystemCAS(store.root).get_bytes(output) == b"real useful left output"
+    assert "left" not in result.state.artifacts_index
+    assert output not in run.run_manifest.outputs
+    assert len(events) == 1
+    assert events[0][0].completed_before_tier == ("prior",)
+    assert events[0][1].params == {"prior": 1}
+    _, checkpoint = resolve_latest_checkpoint(FileSystemCAS(store.root), run_id)
+    assert checkpoint.metadata.completed_nodes == ["prior"]
+    assert checkpoint.state["params"] == {"prior": 1}
+
+
+@pytest.mark.parametrize("with_neighbor", [False, True])
+def test_real_required_graph_consumer_and_optional_consumer_after_skip(
+    tmp_path: Path, with_neighbor: bool
+) -> None:
+    """A skipped producer leaves the actual graph consumer unready at either width."""
+    store = FileSystemCAS(tmp_path / "cas")
+    bundle = build_default_registry_bundle(store, return_selected_profile=True).bundle_ref
+    run_id = f"R_res02_graph_skip_{with_neighbor}"
+    run = RunContext.start(store, bundle, run_id=run_id)
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("res02.skip"))
+
+    class Node:
+        def __init__(self, alias: str) -> None:
+            self.alias = alias
+            self.calls = 0
+            self.spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse(f"scientist.res02_skip_{alias}@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name=f"RES02 {alias}",
+                    description="Declared optional graph consumer or skipped producer",
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=[],
+                state_writes=[f"params.{alias}"],
+            )
+
+        def execute(self, _ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+            self.calls += 1
+            if self.alias == "producer":
+                return NodeOutcome(status="skip", state=state)
+            state.params[self.alias] = True
+            return NodeOutcome(status="ok", state=state)
+
+    producer, optional, neighbor = (Node(alias) for alias in ("producer", "optional", "neighbor"))
+    required = ResolveParametersNode()
+    registry = NodeRegistry()
+    for node in (producer, optional, neighbor, required):
+        registry.register(node)
+    invocations = [NodeInvocation(alias="producer", node_id=producer.spec.metadata.component_id)]
+    if with_neighbor:
+        invocations.append(
+            NodeInvocation(alias="neighbor", node_id=neighbor.spec.metadata.component_id)
+        )
+    invocations.extend(
+        [
+            NodeInvocation(
+                alias="required",
+                node_id=required.spec.metadata.component_id,
+                depends_on=["producer"],
+            ),
+            NodeInvocation(
+                alias="optional",
+                node_id=optional.spec.metadata.component_id,
+                depends_on=["producer"],
+            ),
+        ]
+    )
+    workflow = WorkflowSpec(workflow_id="res02_graph_skip", nodes=invocations)
+    hook = CASCheckpointHook(store=store, run_dir=Path(store.root) / "runs" / run_id)
+    state = ExperimentState(
+        run_id=run_id,
+        inputs={"registry_bundle_ref": bundle},
+        params={
+            "target_context": {
+                "context_id": "us-2025",
+                "countries": ["US"],
+                "publication_year": 2025,
+            },
+            "required_parameters": ["fiscal_multiplier"],
+        },
+    )
+    result = asyncio.run(
+        AsyncWorkflowExecutor(ctx, registry, checkpoint_hook=hook, max_parallelism=2).execute(
+            workflow, state
+        )
+    )
+    records = {record.alias: record for record in result.report.nodes}
+    assert records["producer"].status == "skip"
+    assert records["required"].status == "skip"
+    assert records["required"].skip_blocker is not None
+    assert records["optional"].status == "ok" and optional.calls == 1
+    assert "phase15_runtime_ready" not in result.state.params
+    _, checkpoint = resolve_latest_checkpoint(FileSystemCAS(store.root), run_id)
+    assert "producer" not in checkpoint.metadata.completed_nodes
+    assert "required" not in checkpoint.metadata.completed_nodes
+    assert "optional" in checkpoint.metadata.completed_nodes
+    assert ("neighbor" in checkpoint.metadata.completed_nodes) is with_neighbor

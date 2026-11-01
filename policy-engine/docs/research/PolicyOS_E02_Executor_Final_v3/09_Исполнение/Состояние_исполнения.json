@@ -361,7 +361,12 @@
         "TEST-RES-02-03",
         "TEST-RES-02-04"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "output": "policy-engine/_cache/e02/managed-child-affected-composed-r2/",
+          "result": "87 PASS affected composition includes real active owner and worker receipt controls;74 inputs unchanged. Current B73 removal proof rebind remains a separate check."
+        }
+      ],
       "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
@@ -410,7 +415,16 @@
         "TEST-RES-01-03",
         "TEST-RES-01-04"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "output": "policy-engine/_cache/e02/state-res01-four-restart-r2/",
+          "result": "1 PASS; four independent fresh-process resumes, nonempty selected refs retained and freshly readable;11 inputs unchanged."
+        },
+        {
+          "output": "policy-engine/_cache/e02/state-replay-frontier-r4/",
+          "result": "1 PASS; actual matching cache and incomplete fresh frontier, no redispatch of A;11 inputs unchanged."
+        }
+      ],
       "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
@@ -447,7 +461,16 @@
         "TEST-EXE-02-02",
         "TEST-EXE-02-03"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "output": "policy-engine/_cache/e02/lane06-native-async-r1/",
+          "result": "3 PASS selected output/fresh finalization, fail-fast wait and cancellation/suspension;33 inputs unchanged."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-shared6-r2/",
+          "result": "6 PASS independent/join/alias real native composition;39 inputs unchanged."
+        }
+      ],
       "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
@@ -535,6 +558,10 @@
           "locator": "policy-engine/_cache/e02/rep01-original-source-and-budget-r7/",
           "result": "6PASS,27pins stable; native original-source Foundry/CLI/A-defaultB/budget scope. Prior r4 81PASS/6FAIL retained; later r6 3PASS has separate sourcebinding. Retry/resume/installed pending.",
           "independent_review": "GO for bounded coherent source delta; full packet/shared acceptance remains open"
+        },
+        {
+          "output": "policy-engine/_cache/e02/rep-source-controls-r1/",
+          "result": "3 PASS source-mode installed-helper companions;14 inputs unchanged;actual installed profile remains UNRUN."
         }
       ],
       "blockers": [],
@@ -690,6 +717,10 @@
           "output": "policy-engine/_cache/e02/lane06-second-composed",
           "result": "338 PASS /87 platform SKIP;25 named inputs unchanged",
           "scope": "One composed affected-family wave including real native CLI and the manual SCM consumer; not all I06 scenario bindings or all75 local TEST contracts."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-shared6-r2/",
+          "result": "6 PASS real Core/CAS/ledger/cache/read-budget and target scheduling cases;39 inputs unchanged; not all23 shared bindings."
         }
       ],
       "blockers": [],
@@ -908,6 +939,10 @@
           "result": "182 PASS /87 explicit Linux SKIP; 0 FAIL/ERROR; 4 pins unchanged; capture-once known cost and primary cancellation, not full return/raise parity",
           "independent_review": "GO, nonauthor final coherent delta",
           "source_binding": "Exact after.json source hashes verified before commit; full packet and shared qualification remain open"
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-parity-typed-r5/",
+          "result": "16 PASS actual registered return/raise + typed failure receipt/cause controls;34 inputs unchanged at retry3d2f. Later IPC source changes require their own qualifier."
         }
       ],
       "blockers": [],
@@ -960,7 +995,9 @@
           "source_binding": "Exact after.json source hashes verified before commit; full packet and shared qualification remain open"
         }
       ],
-      "blockers": [],
+      "blockers": [
+        "Only restore claim: DEC-DUR-01-01 needs an independently established latest owner/generation and complete receipts; none found in canonical code/retained handover. Unknown/authentic-but-stale backup refuses. Existing current-ledger/ack/continuation work proceeds."
+      ],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "Awaiting exclusive native admission; independent editing allowed",
@@ -1009,6 +1046,14 @@
           "locator": "policy-engine/_cache/e02/dur02-live-owner-r1/",
           "result": "24 PASS,13pins stable; actual SQL owner recheck primitive only. Earlier native-handover-r1 22PASS/3FAIL retained; changed full handover remains UNRUN.",
           "independent_review": "GO for bounded coherent source delta; full packet/shared acceptance remains open"
+        },
+        {
+          "output": "policy-engine/_cache/e02/dur02-preservation-r5/",
+          "result": "40 PASS current native/fallback/Runtime preservation;71 inputs unchanged."
+        },
+        {
+          "output": "policy-engine/_cache/e02/dur02-post-ack-owner-loss-r6/",
+          "result": "1 PASS actual receipt+2 then SQL takeover;fresh owner refuses unknown/no replay,ledger7 retained;71 inputs unchanged."
         }
       ],
       "blockers": [],
@@ -6840,6 +6885,45 @@
       "readback": "Released deciding source/test blobs verified from commits; remote d41804e34/tree af55d492fbb2f44b199f65dbe9f361874abe4389 matches author topic. PR70 not merged; required CI not green.",
       "shared_integration_status": "NOT_RUN",
       "next": "Finish actual continuation, child custody, typed path/journal, configured import policy and partial-result route; then one source/profile-frozen I06 wave plus eight local-only requirements."
+    },
+    {
+      "base_commit": "a33ce94cbbd601d7d28517e8a5f006aa730724a9",
+      "status": "REVIEWED_LANE06_COMPOSITION_WITH_NAMED_PENDING_PROFILES",
+      "source_binding": "The commit containing this record supplies the exact released source/test blobs; Root reads those blobs back. No self-referential SHA is invented.",
+      "packets": [
+        "CAN-01",
+        "CAS-01",
+        "CAS-02",
+        "CAS-03",
+        "DUR-01",
+        "DUR-02",
+        "EXE-01",
+        "EXE-02",
+        "MIG-01",
+        "MIG-02",
+        "MIG-04",
+        "MIG-05",
+        "REP-01",
+        "RES-01",
+        "RES-02",
+        "RES-03",
+        "RUN-01",
+        "RUN-02",
+        "RUN-03",
+        "STA-01",
+        "STA-02",
+        "WIRE-01"
+      ],
+      "local_result": "Actual paired verification: child87 PASS, shared6 PASS, typed/parity16 PASS on its recorded retry3d2f, current Core fresh-process resume with nonempty selected refs1 PASS, native async3 PASS, Runtime preservation40 PASS and post-ACK owner-loss1 PASS on their recorded pins. These overlapping cohorts are not criterion counts.",
+      "shared_integration_status": "PARTIAL; adjudicate all23 named I06 bindings and8 local-only requirements after final affected/source/installed checks.",
+      "pattern_pass": "P27/P31: canonical Core/IR/ledger/child owners and companions; P33/P38: actual producers, fresh readers and distinguishing removal/unknown controls; P37: observed/verified spend is separate from logical outcome; P40: class-wide completion and active-owner history gates; P13: existing state/navigation and concise outputs only.",
+      "remaining": [
+        "RES03 canonical NCM producer/default-representation admission compatibility and served partial-result trace are active LANE06 work, including mandatory IR/generation consumers; only late CYC projection is deferred.",
+        "Complete real IPC unknown/group/locator module and remaining warm Darwin cases; Linux topology remains separately named.",
+        "Final source/cache, RES02 current removal, REP checkpoint CLI, all23 shared binding dispositions, one frozen noneditable installed wheel/profile, required generated/CI checks.",
+        "DUR01 restore only: no independently established latest generation/full receipt history was found; preserve refusal and DEC-DUR-01-01, never reset confirmed spend."
+      ],
+      "delivery": "Author topic publication only until required Main PR gates are green; G acceptance/formal closure remains separate."
     }
   ]
 }

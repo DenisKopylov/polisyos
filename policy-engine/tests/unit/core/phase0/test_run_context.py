@@ -3407,11 +3407,235 @@ def test_worker_merge_readback_failure_preserves_receipt_for_exact_resume_recove
     resumed.suspend_for_resume()
 
 
+def test_run_lease_pins_hold_reopen_until_all_physical_workers_end(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer: Any,
+    env_info: Any,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_id = "R_execution_lease_pins"
+    run_dir = tmp_path / "runs" / run_id
+    run = RunContext.start(
+        store=store,
+        registry_bundle=bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id=run_id,
+    )
+    with run._workflow_execution_guard():
+        with pytest.raises(run_context._FinalizeRecoveryError, match="run_workflow_execution_busy"):
+            with run._workflow_execution_guard():
+                pytest.fail("overlapping workflow admitted")
+    original_guard = run._workflow_execution_lock
+
+    class ClosedDuringAcquire:
+        def acquire(self, *, blocking: bool) -> bool:
+            assert not blocking
+            run._closed = True
+            return True
+
+        def release(self) -> None:
+            run._closed = False
+
+    run._workflow_execution_lock = ClosedDuringAcquire()  # type: ignore[assignment]
+    try:
+        with pytest.raises(
+            run_context._FinalizeRecoveryError, match="run_workflow_owner_not_active"
+        ):
+            with run._workflow_execution_guard():
+                pytest.fail("closed workflow owner admitted")
+    finally:
+        run._workflow_execution_lock = original_guard
+    first = run._pin_active_execution()
+    second = run._pin_active_execution()
+    run.suspend_for_resume()
+
+    def reopen() -> RunContext:
+        return RunContext.resume(
+            store,
+            run_id=run_id,
+            run_dir=run_dir,
+            registry_bundle=bundle_ref,
+            producer=producer,
+            env=env_info,
+            access_scope=None,
+        )
+
+    with pytest.raises(run_context._FinalizeRecoveryError, match="run_execution_lease_busy"):
+        reopen()
+    first()
+    first()  # physical completion callbacks can race; release is idempotent
+    with pytest.raises(run_context._FinalizeRecoveryError, match="run_execution_lease_busy"):
+        reopen()
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        executor.submit(second).result()
+    second()  # last completion may also be reported more than once
+    resumed = reopen()
+    lease = resumed._active_lease
+    assert lease is not None
+    release = lease._release_locked
+
+    def fail_after_real_release() -> None:
+        release()
+        raise OSError("simulated lease release failure")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(lease, "_release_locked", fail_after_real_release)
+        with pytest.raises(KeyboardInterrupt) as primary:
+            with resumed._workflow_execution_guard():
+                resumed.suspend_for_resume()
+                raise KeyboardInterrupt("primary interruption")
+    assert any("run_workflow_lease_release_failed" in note for note in primary.value.__notes__)
+    assert not resumed._workflow_execution_lock.locked()
+    with pytest.raises(run_context._FinalizeRecoveryError, match="run_execution_lease_not_active"):
+        run._pin_active_execution()
+
+
+def test_terminal_reader_reconciles_selected_manifest_to_owner_events(
+    store: FileSystemCAS, tmp_path: Path, producer: Any, env_info: Any
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_id = "R_terminal_reader_reconcile"
+    run_dir = tmp_path / "runs" / run_id
+    run = RunContext.start(
+        store=store,
+        registry_bundle=bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id=run_id,
+    )
+    selected = store.put_json(
+        {"value": 1},
+        PutOptions(kind="test.payload", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    run.add_input(selected)
+    run.add_output(selected)
+    run.finalize(status="ok")
+    actual = run_context.read_terminal_run(store, run_dir, run_id=run_id, access_scope=None)
+    assert actual.run_manifest.inputs == [selected]
+    assert actual.run_manifest.outputs == [selected]
+    assert actual.run_ref.manifest_profile_sha256 is not None
+    assert actual.terminal_inputs == ()
+    trace_path = run_dir / "trace.jsonl"
+    trace_lines = trace_path.read_text().splitlines()
+    trace_path.write_text(
+        "\n".join(line for line in trace_lines if '"RUN_INPUT_ADDED"' not in line) + "\n"
+    )
+    with pytest.raises(run_context._FinalizeRecoveryError):
+        run_context.read_terminal_run(store, run_dir, run_id=run_id, access_scope=None)
+
+
+def test_started_record_binds_selected_admission_and_budget_resource(
+    store: FileSystemCAS, tmp_path: Path, producer: Any, env_info: Any
+) -> None:
+    from uuid import uuid4
+
+    from polisyos.core.run.manifest import RunInvocationStarted
+
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_id = "R_started_admission_binding"
+    run = RunContext.start(
+        store=store,
+        registry_bundle=bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=tmp_path / "runs" / run_id,
+        run_id=run_id,
+    )
+    workflow_ref = store.put_json(
+        {"workflow_id": "selected"},
+        PutOptions(kind="scientist.workflow_spec", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    state_ref = store.put_json(
+        {"run_id": run_id},
+        PutOptions(kind="scientist.experiment_state", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    admission_ref = store.put_json(
+        {"profile": "candidate"},
+        PutOptions(kind="scientist.workflow_execution_admission", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    ref = run._record_runtime_invocation_started(
+        attempt_id=str(uuid4()),
+        attempt_number=1,
+        workflow_spec_ref=workflow_ref,
+        node_alias="a",
+        component_id="scientist.test@1.0.0",
+        input_state_ref=state_ref,
+        execution_budget_contract="admitted_workflow_budget_v1",
+        budget_middleware_active=True,
+        budget_owner_identity=("ledger", "canon", "local"),
+        budget_start_revision=3,
+        budget_resource_identity=(1, 2, "ledger.json", 3, 4),
+        budget_start_snapshot_sha256="a" * 64,
+        invocation_settlement_profile="single_owner_local_v1",
+        workflow_execution_admission_ref=admission_ref,
+    )
+    attempt = run.read_runtime_invocation_attempts()[0]
+    assert attempt.basis.schema_version == "1.3"
+    assert attempt.basis.workflow_execution_admission_ref == admission_ref
+    assert attempt.basis.budget_resource_identity == (1, 2, "ledger.json", 3, 4)
+    assert attempt.basis.budget_start_snapshot_sha256 == "a" * 64
+    assert any(
+        item.role == "workflow_execution_admission"
+        and item.manifest_profile_sha256 == admission_ref.manifest_profile_sha256
+        for item in store.get_manifest(ref).inputs
+    )
+    old = attempt.basis.model_dump(mode="python")
+    old.update(schema_version="1.2")
+    for field_name in (
+        "workflow_execution_admission_ref",
+        "budget_resource_identity",
+        "budget_start_snapshot_sha256",
+        "invocation_settlement_profile",
+    ):
+        old.pop(field_name)
+    legacy = RunInvocationStarted.model_validate(old)
+    assert all(
+        field_name not in legacy.model_dump()
+        for field_name in (
+            "workflow_execution_admission_ref",
+            "budget_resource_identity",
+            "budget_start_snapshot_sha256",
+            "invocation_settlement_profile",
+        )
+    )
+    with pytest.raises(ValueError, match="legacy_admission_fields_forbidden"):
+        RunInvocationStarted.model_validate({**old, "budget_resource_identity": None})
+    missing_admission = type(admission_ref).model_validate(
+        {**admission_ref.model_dump(mode="python"), "artifact_id": "sha256:" + "f" * 64}
+    )
+    with pytest.raises(
+        run_context._FinalizeRecoveryError, match="run_invocation_record_linked_cas_invalid"
+    ):
+        run._record_runtime_invocation_started(
+            attempt_id=str(uuid4()),
+            attempt_number=1,
+            workflow_spec_ref=workflow_ref,
+            node_alias="b",
+            component_id="scientist.test@1.0.0",
+            input_state_ref=state_ref,
+            execution_budget_contract="admitted_workflow_budget_v1",
+            budget_middleware_active=False,
+            workflow_execution_admission_ref=missing_admission,
+        )
+    assert len(run.read_runtime_invocation_attempts()) == 1
+    run.suspend_for_resume()
+
+
 def test_owner_snapshot_with_mislinked_present_invocation_tail_is_rejected(
     store: FileSystemCAS,
     tmp_path: Path,
     producer: Any,
     env_info: Any,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """A present but mislinked owner tail cannot fall back to earlier attempts."""
     from uuid import uuid4
@@ -3473,7 +3697,189 @@ def test_owner_snapshot_with_mislinked_present_invocation_tail_is_rejected(
     )
     original_attempts = run.read_runtime_invocation_attempts()
     assert len(original_attempts) == 1
+    assert run.trace_path is not None
+    assert (
+        run_context.read_runtime_invocation_attempts(store, run.trace_path, run_id=run_id)
+        == original_attempts
+    )
+    owner = run_context.read_run_owner_snapshot(
+        store, run.trace_path, run_id=run_id, access_scope=run.access_scope
+    )
+    assert owner.run_manifest.run_id == run_id
     original = original_attempts[0]
+    child_dir = tmp_path / "runs" / "R_child_selected_parent"
+    child = RunContext.start_child(
+        run,
+        store=store,
+        parent_basis_ref=original.basis_ref,
+        run_id="R_child_selected_parent",
+        run_dir=child_dir,
+    )
+    assert child.run_manifest.parent_run_id == run_id
+    assert original.basis_ref in child.run_manifest.inputs
+    assert child.run_manifest.registry_bundle == run.run_manifest.registry_bundle
+    assert child.run_manifest.tenant_id == run.run_manifest.tenant_id
+    assert child.run_manifest.cell_id == run.run_manifest.cell_id
+    child.suspend_for_resume()
+    with pytest.raises(ValueError, match="child_run_requires_actual_parent_owner"):
+        RunContext.start_child(
+            run,
+            store=FileSystemCAS(tmp_path / "foreign-cas"),
+            parent_basis_ref=original.basis_ref,
+            run_id="R_child_foreign_store",
+            run_dir=tmp_path / "runs" / "R_child_foreign_store",
+        )
+    foreign_basis = original.basis_ref.model_copy(update={"artifact_id": "sha256:" + "f" * 64})
+    with pytest.raises(ValueError, match="child_run_parent_attempt_not_active"):
+        RunContext.start_child(
+            run,
+            store=store,
+            parent_basis_ref=foreign_basis,
+            run_id="R_child_foreign_basis",
+            run_dir=tmp_path / "runs" / "R_child_foreign_basis",
+        )
+    with (
+        tenant_scope(None, tenant_id="other-tenant", cell_id="other-cell"),
+        pytest.raises(ValueError, match="child_run_parent_scope_mismatch"),
+    ):
+        RunContext.start_child(
+            run,
+            store=store,
+            parent_basis_ref=original.basis_ref,
+            run_id="R_child_wrong_scope",
+            run_dir=tmp_path / "runs" / "R_child_wrong_scope",
+        )
+    with pytest.raises(
+        run_context.ChildRunStartUnknownError, match="child_run_start_outcome_unknown"
+    ):
+        RunContext.start_child(
+            run,
+            store=store,
+            parent_basis_ref=original.basis_ref,
+            run_id="R_child_selected_parent",
+            run_dir=child_dir,
+        )
+    partial_dir = tmp_path / "runs" / "R_child_partial_start"
+    starts = 0
+
+    def interrupted_start(_cls: Any, *_args: Any, **_kwargs: Any) -> RunContext:
+        nonlocal starts
+        starts += 1
+        partial_dir.mkdir(parents=True)
+        (partial_dir / "partial").write_text("durable partial", encoding="utf-8")
+        raise OSError("lost child start acknowledgment")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(RunContext, "_start", classmethod(interrupted_start))
+        with pytest.raises(run_context.ChildRunStartUnknownError) as unknown:
+            RunContext.start_child(
+                run,
+                store=store,
+                parent_basis_ref=original.basis_ref,
+                run_id="R_child_partial_start",
+                run_dir=partial_dir,
+            )
+    assert starts == 1
+    assert unknown.value.run_id == "R_child_partial_start"
+    assert unknown.value.run_dir == partial_dir
+    assert (partial_dir / "partial").read_text(encoding="utf-8") == "durable partial"
+
+    original_add_input = RunContext.add_input
+    original_suspend = RunContext.suspend_for_resume
+    for index, primary_error in enumerate((OSError("binding failed"), KeyboardInterrupt())):
+        failing_child = f"R_child_cleanup_primary_{index}"
+
+        def fail_child_binding(
+            self: RunContext,
+            ref: Any,
+            *,
+            child_id: str = failing_child,
+            error: BaseException = primary_error,
+        ) -> None:
+            if self.run_manifest.run_id == child_id:
+                raise error
+            original_add_input(self, ref)
+
+        def fail_after_suspend(self: RunContext, *, child_id: str = failing_child) -> None:
+            original_suspend(self)
+            if self.run_manifest.run_id == child_id:
+                raise SystemExit("cleanup interrupted")
+
+        with monkeypatch.context() as patch:
+            patch.setattr(RunContext, "add_input", fail_child_binding)
+            patch.setattr(RunContext, "suspend_for_resume", fail_after_suspend)
+            expected = run_context.ChildRunStartUnknownError if index == 0 else KeyboardInterrupt
+            with pytest.raises(expected) as raised:
+                RunContext.start_child(
+                    run,
+                    store=store,
+                    parent_basis_ref=original.basis_ref,
+                    run_id=failing_child,
+                    run_dir=tmp_path / "runs" / failing_child,
+                )
+        primary = raised.value.__cause__ if index == 0 else raised.value
+        assert primary is primary_error
+        assert any("child_start_suspend_failed" in note for note in primary.__notes__)
+
+    def interrupted_control_flow(_cls: Any, *_args: Any, **_kwargs: Any) -> RunContext:
+        raise KeyboardInterrupt
+
+    with monkeypatch.context() as patch:
+        patch.setattr(RunContext, "_start", classmethod(interrupted_control_flow))
+        with pytest.raises(KeyboardInterrupt) as interrupted:
+            RunContext.start_child(
+                run,
+                store=store,
+                parent_basis_ref=original.basis_ref,
+                run_id="R_child_interrupted",
+                run_dir=tmp_path / "runs" / "R_child_interrupted",
+            )
+    assert any("R_child_interrupted" in note for note in interrupted.value.__notes__)
+    with monkeypatch.context() as patch:
+        patch.setattr(run, "_worker_receipt_recovery_required", True)
+        patch.setattr(run, "_worker_receipt_recovery_invocation_id", "a" * 64)
+        with pytest.raises(
+            run_context._FinalizeRecoveryError, match="worker_receipt_recovery_required"
+        ):
+            RunContext.start_child(
+                run,
+                store=store,
+                parent_basis_ref=original.basis_ref,
+                run_id="R_child_pending_receipt",
+                run_dir=tmp_path / "runs" / "R_child_pending_receipt",
+            )
+    original_bytes = store.get_bytes(original.basis_ref)
+    assert b'"execution_budget_contract"' not in original_bytes
+    assert b'"execution_deadline_at"' not in original_bytes
+    assert (
+        to_canonical_bytes(original.basis, run_context._RUN_INVOCATION_RECORD_CANON)
+        == original_bytes
+    )
+    legacy_payload = original.basis.model_dump(mode="python")
+    v10_payload = {**legacy_payload, "schema_version": "1.0"}
+    v10_payload.pop("implementation_identity", None)
+    for payload in (v10_payload, {**v10_payload, "implementation_identity": None}):
+        wire = to_canonical_bytes(payload, run_context._RUN_INVOCATION_RECORD_CANON)
+        restored = RunInvocationStarted.model_validate(from_canonical_bytes(wire))
+        assert to_canonical_bytes(restored, run_context._RUN_INVOCATION_RECORD_CANON) == wire
+    with pytest.raises(ValueError, match="legacy_budget_fields_forbidden"):
+        RunInvocationStarted.model_validate({**legacy_payload, "execution_budget_contract": None})
+    current = RunInvocationStarted.model_validate(
+        {
+            **legacy_payload,
+            "schema_version": "1.2",
+            "execution_budget_contract": "admitted_workflow_budget_v1",
+            "execution_deadline_at": None,
+            "budget_middleware_active": False,
+        }
+    )
+    current_bytes = to_canonical_bytes(current, run_context._RUN_INVOCATION_RECORD_CANON)
+    assert b'"execution_budget_contract"' in current_bytes
+    assert RunInvocationStarted.model_validate(from_canonical_bytes(current_bytes)) == current
+    with pytest.raises(ValueError, match="budget_not_established"):
+        RunInvocationStarted.model_validate(
+            {**legacy_payload, "schema_version": "1.2", "execution_budget_contract": None}
+        )
 
     malformed = RunInvocationStarted(
         run_id=run_id,
@@ -3509,6 +3915,20 @@ def test_owner_snapshot_with_mislinked_present_invocation_tail_is_rejected(
         match="run_resume_invocation_tail_chain_invalid",
     ):
         run.read_runtime_invocation_attempts()
+    with pytest.raises(
+        run_context._FinalizeRecoveryError,
+        match="run_resume_invocation_tail_chain_invalid",
+    ):
+        run_context.read_runtime_invocation_attempts(store, run.trace_path, run_id=run_id)
+    run.suspend_for_resume()
+    with pytest.raises(run_context._FinalizeRecoveryError):
+        RunContext.start_child(
+            run,
+            store=store,
+            parent_basis_ref=original.basis_ref,
+            run_id="R_child_closed_parent",
+            run_dir=tmp_path / "runs" / "R_child_closed_parent",
+        )
 
 
 def test_run_context_emit_persists_warning_in_existing_trace_field(

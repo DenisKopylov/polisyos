@@ -87,7 +87,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | Package | Classification | Facade | Exports | Owner | README |
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 9 | `team-polisyos` | `src/polisyos/common/README.md` |
-| `polisyos.core` | `public_stable` | `lazy_facade` | 134 | `team-polisyos` | `src/polisyos/core/README.md` |
+| `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 134 |
 | `polisyos.ir` | `public_stable` | `lazy_facade` | 530 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
@@ -95,7 +95,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
 | `polisyos.fabric` | `public_stable` | `lazy_facade` | 54 | `team-polisyos` | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | `public_stable` | `lazy_facade` | 31 | `team-polisyos` | `src/polisyos/foundry/README.md` |
-| `polisyos.scientist` | `public_stable` | `lazy_facade` | 45 | `team-polisyos` | `src/polisyos/scientist/README.md` |
+| `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 45 |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
 | `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 973 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
@@ -6205,7 +6205,7 @@ validate_source_bound_gcm_spec
 | `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `lazy_facade` | 87 |
 | `polisyos.scientist.methods.backtesting` | `src/polisyos/scientist/methods/backtesting/__init__.py` | `lazy_facade` | 35 |
 | `polisyos.scientist.methods.research_dag` | `src/polisyos/scientist/methods/research_dag/__init__.py` | `eager_exports` | 44 |
-| `polisyos.scientist.orchestration.engine` | `src/polisyos/scientist/orchestration/engine/__init__.py` | `lazy_facade` | 115 |
+| `polisyos.scientist.orchestration.engine` | `src/polisyos/scientist/orchestration/engine/__init__.py` | `lazy_facade` | 117 |
 | `polisyos.scientist.replay` | `src/polisyos/scientist/replay/__init__.py` | `lazy_facade` | 25 |
 | `polisyos.scientist.replay.deterministic` | `src/polisyos/scientist/replay/deterministic.py` | `eager_exports` | 20 |
 | `polisyos.scientist.validation.policy_verified` | `src/polisyos/scientist/validation/policy_verified/__init__.py` | `eager_exports` | 28 |
@@ -6530,7 +6530,7 @@ validate_source_invalidation_event
 - Facade: `lazy_facade`
 - Summary: Scientist workflow engine public facade with lazy exports.
 
-<details><summary>Entrypoint exports (115)</summary>
+<details><summary>Entrypoint exports (117)</summary>
 
 ```text
 ATTR_CACHE_HIT
@@ -6601,6 +6601,8 @@ NodeError
 NodeEvent
 NodeExecutionError
 NodeInvocation
+NodeInputRule
+InputAwareNodeSpec
 NodeOutcome
 NodeOutputRule
 OutputAwareNodeSpec

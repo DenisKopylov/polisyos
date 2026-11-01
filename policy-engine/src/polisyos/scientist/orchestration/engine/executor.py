@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import time
-from contextlib import ExitStack
+from contextlib import ExitStack, nullcontext
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from enum import StrEnum
@@ -120,7 +120,7 @@ from polisyos.scientist.orchestration.memory.authority import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Callable, Iterable
 
     from polisyos.data_forge.read_api.academic import PreparedSKGRead
     from polisyos.scientist.orchestration.engine.checkpoint import CheckpointHook
@@ -145,6 +145,8 @@ _CACHE_DISABLED_NODE_IDS = frozenset(
         "scientist.node_emit_artifact@1.0.0",
         "scientist.node_enrich_knowledge@1.0.0",
         "scientist.node_enrich_knowledge@1.1.0",
+        # A sub-workflow must reconcile its independently owned child run.
+        "scientist.node_sub_workflow@1.0.0",
     }
 )
 
@@ -176,6 +178,27 @@ _NODE_BIND_ERRORS = _EXECUTOR_DEGRADED_ERRORS
 _NODE_EXECUTION_ERRORS = _EXECUTOR_DEGRADED_ERRORS
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
 _MEMORY_AUTHORITY_RECORD_PARAM = "memory_authority_record"
+
+
+class _WorkflowResumeFrontierUnreconciledError(ValueError):
+    """A prior run attempt has no verified frontier for full-DAG execution."""
+
+    code = "workflow_execution_admission_frontier_not_reconciled"
+
+    def __init__(
+        self,
+        *,
+        run_id: str,
+        run_dir: Path,
+        attempt_id: str | None,
+        basis_ref: ArtifactRef | None,
+    ) -> None:
+        super().__init__(self.code)
+        self.run_id = run_id
+        self.run_dir = run_dir
+        self.trace_path = run_dir / "trace.jsonl"
+        self.attempt_id = attempt_id
+        self.basis_ref = basis_ref
 
 
 class NodeRunRecord(BaseModel):
@@ -955,6 +978,8 @@ class WorkflowExecutor:
         checkpoint_hook: CheckpointHook | None = None,
         checkpoint_cache_seed_refs: list[ArtifactRef] | None = None,
         provenance_dag: Any | None = None,
+        _child_input_hook: Callable[[ArtifactRef, ArtifactRef], None] | None = None,
+        workflow_execution_admission_ref: ArtifactRef | None = None,
     ) -> None:
         self._ctx = ctx
         self._registry = registry
@@ -962,6 +987,8 @@ class WorkflowExecutor:
         self._checkpoint_hook = checkpoint_hook
         self._checkpoint_cache_seed_refs = list(checkpoint_cache_seed_refs or [])
         self._provenance_dag = provenance_dag
+        self._child_input_hook = _child_input_hook
+        self._workflow_execution_admission_ref = workflow_execution_admission_ref
         self._node_outputs: dict[str, list[ArtifactRef]] = {}
 
     def _ensure_memory_authority_for_serious_output(
@@ -1044,6 +1071,20 @@ class WorkflowExecutor:
         return next_state
 
     def execute(self, workflow: WorkflowSpec, state: ExperimentState) -> WorkflowExecutionResult:
+        from polisyos.core import run as core_run
+
+        run = self._ctx.run
+        guard = (
+            run._workflow_execution_guard()
+            if isinstance(run, core_run.RunContext)
+            else nullcontext()
+        )
+        with guard:
+            return self._execute_workflow(workflow, state)
+
+    def _execute_workflow(
+        self, workflow: WorkflowSpec, state: ExperimentState
+    ) -> WorkflowExecutionResult:
         _validate_aliases(workflow.nodes)
         invocations = {inv.alias: inv for inv in workflow.nodes}
         _validate_dependencies(invocations)
@@ -1055,11 +1096,16 @@ class WorkflowExecutor:
         order = _topo_sort(invocations)
         _validate_producer_state(state)
         try:
-            return self._execute_admitted(workflow, state, invocations, order)
-        finally:
-            # If execution raised before finalization, preserve only a strict,
-            # owner-bound incomplete lifecycle for explicit resume.
-            self._ctx.run.suspend_for_resume()
+            result = self._execute_admitted(workflow, state, invocations, order)
+        except BaseException as exc:
+            # A cleanup error cannot erase a child recovery locator or a cancellation.
+            try:
+                self._ctx.run.suspend_for_resume()
+            except BaseException as cleanup:
+                exc.add_note(f"run_suspend_for_resume_failed: {cleanup!r}")
+            raise
+        self._ctx.run.suspend_for_resume()
+        return result
 
     def _execute_admitted(
         self,
@@ -1077,8 +1123,243 @@ class WorkflowExecutor:
         initial_state = snapshot_state(state)
         workflow_ref = self._persist_workflow_spec(workflow, return_selected_profile=True)
         self._ctx.run.add_input(workflow_ref)
-        state_input_ref = self._persist_state(initial_state)
+        from polisyos.core import run as core_run
+        from polisyos.core.security import (
+            get_current_access_scope_or_none,
+            get_current_cell_id,
+            get_current_tenant_id_or_none,
+        )
+
+        actual_run = self._ctx.run
+        active_scope = get_current_access_scope_or_none()
+        active_tenant = get_current_tenant_id_or_none() or (
+            active_scope.tenant_id if active_scope is not None else None
+        )
+        active_cell = get_current_cell_id() or (
+            active_scope.cell_id if active_scope is not None else None
+        )
+        admission_eligible = (
+            type(actual_run) is core_run.RunContext
+            and actual_run.run_manifest.control_job_id is None
+            and actual_run.run_manifest.registry_bundle.manifest_profile_sha256 is not None
+            and actual_run.trace_path is not None
+            and actual_run._active_lease is not None
+            and state.run_id == actual_run.run_manifest.run_id
+            and (
+                (actual_run.tenant_id is None and actual_run.cell_id is None)
+                or actual_run.access_scope is not None
+            )
+            and active_scope == actual_run.access_scope
+            and (active_tenant, active_cell) == (actual_run.tenant_id, actual_run.cell_id)
+            and not state.budgets
+            and self._ctx._engine_invocation is None
+        )
+        admission_ref = self._workflow_execution_admission_ref
+
+        def require_admission(ref: ArtifactRef, original_ref: ArtifactRef) -> None:
+            from polisyos.core.artifacts import (
+                input_ref_from_artifact_ref,
+                validate_core_model_json_artifact,
+            )
+            from polisyos.scientist.orchestration.engine.execution_admission import (
+                WorkflowExecutionAdmission,
+            )
+
+            if ref.manifest_profile_sha256 is None or not self._ctx.store.verify(ref).ok:
+                raise ValueError("workflow_execution_admission_selected_ref_invalid")
+            admission = validate_core_model_json_artifact(
+                WorkflowExecutionAdmission, self._ctx.store, ref
+            )
+            if (
+                admission.run_id != state.run_id
+                or admission.workflow_spec_ref != original_ref
+                or self._ctx.store.get_manifest(ref).inputs
+                != [input_ref_from_artifact_ref(original_ref, role="original_workflow")]
+            ):
+                raise ValueError("workflow_execution_admission_content_mismatch")
+
+        def require_current_admission(
+            ref: ArtifactRef,
+            original_ref: ArtifactRef,
+            *,
+            terminal_alias: str | None = None,
+        ) -> None:
+            from polisyos.core.artifacts import validate_core_model_json_artifact
+            from polisyos.scientist.orchestration.engine.execution_admission import (
+                verify_workflow_execution_admission,
+            )
+            from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
+
+            original = validate_core_model_json_artifact(
+                WorkflowSpec, self._ctx.store, original_ref
+            )
+            original_fingerprint = compute_workflow_fingerprint(original)
+            if original_fingerprint != compute_workflow_fingerprint(workflow):
+                raise ValueError("workflow_execution_admission_residual_not_verified")
+            checked = {artifact_ref_identity_key(original_ref)}
+            for item in attempts:
+                history_ref = item.basis.workflow_spec_ref
+                identity = artifact_ref_identity_key(history_ref)
+                if identity in checked:
+                    continue
+                prior = validate_core_model_json_artifact(
+                    WorkflowSpec, self._ctx.store, history_ref
+                )
+                if compute_workflow_fingerprint(prior) != original_fingerprint:
+                    raise ValueError("workflow_execution_admission_history_mismatch")
+                checked.add(identity)
+            residual = (
+                workflow.model_copy(
+                    update={
+                        "nodes": [node for node in workflow.nodes if node.alias != terminal_alias]
+                    }
+                )
+                if terminal_alias is not None
+                else workflow
+            )
+            verify_workflow_execution_admission(
+                self._ctx.store,
+                ref,
+                original_workflow_ref=original_ref,
+                original_workflow=original,
+                residual_workflow=residual,
+                registry=self._registry,
+                run_id=state.run_id,
+            )
+
+        attempts = (
+            actual_run._read_active_runtime_invocation_attempts()
+            if type(actual_run) is core_run.RunContext and actual_run.trace_path is not None
+            else []
+        )
+        owner_records = (
+            actual_run._read_active_runtime_owner_trace()
+            if type(actual_run) is core_run.RunContext and actual_run.trace_path is not None
+            else []
+        )
+        terminal_recovery_alias: str | None = None
+        if not attempts and any(record.event == "NODE_STARTED" for record in owner_records):
+            assert actual_run.trace_path is not None
+            raise _WorkflowResumeFrontierUnreconciledError(
+                run_id=actual_run.run_manifest.run_id,
+                run_dir=actual_run.trace_path.parent,
+                attempt_id=None,
+                basis_ref=None,
+            )
+        if admission_ref is None and attempts:
+            previous = attempts[0]
+
+            def unreconciled() -> _WorkflowResumeFrontierUnreconciledError:
+                assert actual_run.trace_path is not None
+                return _WorkflowResumeFrontierUnreconciledError(
+                    run_id=actual_run.run_manifest.run_id,
+                    run_dir=actual_run.trace_path.parent,
+                    attempt_id=previous.basis.attempt_id,
+                    basis_ref=previous.basis_ref,
+                )
+
+            # A full-DAG replay has no right to repeat ordinary prior effects.
+            # The bounded exception is the first managed node whose original
+            # attempt is unknown and whose terminal child is freshly verified.
+            if (
+                not admission_eligible
+                or len(attempts) != 1
+                or not order
+                or previous.basis.node_alias != order[0]
+                or (previous.outcome is not None and previous.outcome.status != "unknown")
+            ):
+                raise unreconciled()
+            first_invocation = invocations[order[0]]
+            from polisyos.scientist.orchestration.engine.child_workflow import (
+                ChildWorkflowOutcomeUnknownError,
+                _ManagedSubWorkflowDispatch,
+                _ref_payload,
+                _verified_state,
+            )
+            from polisyos.scientist.orchestration.engine.sub_workflow import SubWorkflowNode
+            from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
+
+            first_node = self._registry.get(first_invocation.node_id)
+            if (
+                type(first_node) is not SubWorkflowNode
+                or first_invocation.condition is not None
+                or first_invocation.timeout_s is not None
+                or previous.basis.component_id != str(first_invocation.node_id)
+            ):
+                raise unreconciled()
+            try:
+                original_admission = previous.basis.workflow_execution_admission_ref
+                if original_admission is None:
+                    raise unreconciled()
+                require_admission(original_admission, previous.basis.workflow_spec_ref)
+                require_current_admission(
+                    original_admission, previous.basis.workflow_spec_ref, terminal_alias=order[0]
+                )
+                original_workflow = WorkflowSpec.model_validate(
+                    _ref_payload(
+                        self._ctx.store,
+                        previous.basis.workflow_spec_ref,
+                        kind="scientist.workflow_spec",
+                        schema="polisyos.scientist.orchestration.engine.WorkflowSpec",
+                    )
+                )
+                if original_workflow != workflow:
+                    raise unreconciled()
+                previous_state = _verified_state(self._ctx.store, previous.basis.input_state_ref)
+                dispatch = _ManagedSubWorkflowDispatch(
+                    first_node, self._ctx, alias=order[0], timeout_s=None
+                )
+                dispatch.preflight_terminal_recovery(
+                    state, original_basis_ref=previous.basis_ref, original_state=previous_state
+                )
+                terminal_recovery_alias = order[0]
+            except ChildWorkflowOutcomeUnknownError:
+                raise
+            except _WorkflowResumeFrontierUnreconciledError:
+                raise
+            except _EXECUTOR_DEGRADED_ERRORS as exc:
+                raise unreconciled() from exc
+        if admission_ref is not None:
+            if not admission_eligible:
+                raise ValueError("workflow_execution_admission_sync_owner_not_established")
+            if not attempts or any(
+                item.basis.workflow_execution_admission_ref != admission_ref for item in attempts
+            ):
+                raise ValueError("workflow_execution_admission_owner_binding_mismatch")
+            require_admission(admission_ref, attempts[0].basis.workflow_spec_ref)
+            require_current_admission(admission_ref, attempts[0].basis.workflow_spec_ref)
+            # Source continuity alone does not establish which prior effects
+            # completed or which nodes may safely be dispatched again.
+            raise ValueError("workflow_execution_admission_frontier_not_reconciled")
+        elif admission_eligible and not attempts:
+            try:
+                if any(record.event in {"RUN_RESUMED", "NODE_STARTED"} for record in owner_records):
+                    raise ValueError("workflow_execution_admission_original_not_established")
+                from polisyos.scientist.orchestration.engine.execution_admission import (
+                    persist_workflow_execution_admission,
+                )
+
+                admission_ref = persist_workflow_execution_admission(
+                    self._ctx.store,
+                    workflow,
+                    self._registry,
+                    workflow_ref=workflow_ref,
+                    run_id=state.run_id,
+                )
+                require_admission(admission_ref, workflow_ref)
+            except _EXECUTOR_DEGRADED_ERRORS as exc:
+                admission_ref = None
+                _executor_degraded(
+                    operation="capture_workflow_execution_admission",
+                    reason="workflow_execution_admission_not_established",
+                    exc=exc,
+                    details={"workflow_id": workflow.workflow_id},
+                )
+        self._workflow_execution_admission_ref = admission_ref
+        state_input_ref = self._persist_state(initial_state, return_selected_profile=True)
         self._ctx.run.add_input(state_input_ref)
+        if self._child_input_hook is not None:
+            self._child_input_hook(workflow_ref, state_input_ref)
         self._cache = NodeResultCache(self._ctx.store, run_id=state.run_id)
         restored_entries = self._cache.seed_from_trace(self._ctx.run.trace_path)
         restored_from_checkpoint = self._cache.seed_from_entry_refs(
@@ -1663,6 +1944,16 @@ class WorkflowExecutor:
                             component_id=selected_component_id,
                             input_state_ref=input_state_ref,
                             implementation_identity=implementation_identity,
+                            **(
+                                {
+                                    "execution_budget_contract": "admitted_workflow_budget_v1",
+                                    "execution_deadline_at": None,
+                                    "budget_middleware_active": False,
+                                    "workflow_execution_admission_ref": admission_ref,
+                                }
+                                if admission_ref is not None
+                                else {}
+                            ),
                         )
                         attempt_bases[attempt_id] = (basis_ref, attempt_number)
                         return attempt_id
@@ -1722,12 +2013,33 @@ class WorkflowExecutor:
                     try:
                         if prepared_read is not None:
                             query_execution_marker = prepared_read.query_execution_marker()
+                        from polisyos.scientist.orchestration.engine.sub_workflow import (
+                            SubWorkflowNode,
+                        )
+
+                        dispatch_node = node
+                        dispatch_timeout = inv.timeout_s
+                        if type(node) is SubWorkflowNode:
+                            from polisyos.scientist.orchestration.engine.child_workflow import (
+                                _ManagedSubWorkflowDispatch,
+                            )
+
+                            dispatch_node = _ManagedSubWorkflowDispatch(
+                                node,
+                                self._ctx,
+                                alias=alias,
+                                timeout_s=inv.timeout_s,
+                                recover_only=alias == terminal_recovery_alias,
+                            )
+                            # The local child owner refuses an unsupported timeout
+                            # before any worker or child producer is dispatched.
+                            dispatch_timeout = None
                         raw_outcome = execute_with_retry_sync(
-                            node,
+                            dispatch_node,
                             node_context,
                             node_state,
                             retry_policy=retry_policy,
-                            timeout_s=inv.timeout_s,
+                            timeout_s=dispatch_timeout,
                             alias=alias,
                             dispatch_params=inv.params or {},
                             attempt_started=record_attempt_started,

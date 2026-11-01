@@ -9,7 +9,7 @@ nodes, enforce run locks/checkpoint policy, and delegate to the selected
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from pydantic import ValidationError
 
@@ -76,6 +76,7 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.core.security import AuditLog
     from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
     from polisyos.scientist.orchestration.engine.context import (
         CompletedMethodHTESelectionOwnerPort,
         FabricPort,
@@ -598,6 +599,9 @@ def run_selected_workflow(
     epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
     method_metric_selection_owner: MethodMetricSelectionOwnerPort | None = None,
     completed_method_hte_selection_owner: CompletedMethodHTESelectionOwnerPort | None = None,
+    budget_middleware: BudgetMiddleware | None = None,
+    strict_budget_attempts: bool = False,
+    capture_workflow_execution_admission: bool = False,
 ) -> WorkflowExecutionResult:
     """Dispatch to the builtin workflow runner chosen by `resolve_workflow_id()`.
 
@@ -616,11 +620,20 @@ def run_selected_workflow(
         tracer: Optional tracer object.
         completed_method_hte_selection_owner: Runtime-owned HTE source reader forwarded only to
             the policy-design workflow.
+        budget_middleware: Trusted existing ledger for the supported local default workflow.
+        strict_budget_attempts: Deliberately selected serial invocation-settlement profile.
+        capture_workflow_execution_admission: Explicit original candidate definition capture.
 
     Returns:
         `WorkflowExecutionResult` from the concrete DAG runner.
     """
     workflow_id = resolve_workflow_id(initial_state)
+    if strict_budget_attempts and budget_middleware is None:
+        raise ValueError("strict_budget_attempts_require_durable_budget")
+    if budget_middleware is not None and workflow_id != "scientist_default":
+        raise ValueError("workflow_budget_profile_requires_scientist_default")
+    if capture_workflow_execution_admission and workflow_id != "scientist_default":
+        raise ValueError("workflow_continuation_profile_requires_scientist_default")
     if workflow_id == "scientist_policy_design":
         return run_policy_design_workflow(
             initial_state,
@@ -703,6 +716,13 @@ def run_selected_workflow(
             eval_safety_verifier=eval_safety_verifier,
             epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
         )
+    budget_kwargs: dict[str, Any] = (
+        {"budget_middleware": budget_middleware} if budget_middleware is not None else {}
+    )
+    if strict_budget_attempts:
+        budget_kwargs["strict_budget_attempts"] = True
+    if capture_workflow_execution_admission:
+        budget_kwargs["capture_workflow_execution_admission"] = True
     return run_default_workflow(
         initial_state,
         store=store,
@@ -722,6 +742,7 @@ def run_selected_workflow(
         eval_safety_execution_context=eval_safety_execution_context,
         eval_safety_verifier=eval_safety_verifier,
         epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
+        **budget_kwargs,
     )
 
 
@@ -933,8 +954,17 @@ def run_default_workflow(
     eval_safety_execution_context: EvaluationExecutionContext | None = None,
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
     epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
+    budget_middleware: BudgetMiddleware | None = None,
+    strict_budget_attempts: bool = False,
+    capture_workflow_execution_admission: bool = False,
 ) -> WorkflowExecutionResult:
     """Execute the baseline simulation/governance DAG."""
+    if strict_budget_attempts and budget_middleware is None:
+        raise ValueError("strict_budget_attempts_require_durable_budget")
+    if budget_middleware is not None and WorkflowRunnerConfig.from_env().backend != "local":
+        raise ValueError("workflow_budget_profile_requires_local_backend")
+    if capture_workflow_execution_admission and WorkflowRunnerConfig.from_env().backend != "local":
+        raise ValueError("workflow_continuation_profile_requires_local_backend")
     store = _resolve_store(store, store_factory=store_factory)
     policy = normalize_checkpoint_policy(checkpoint_policy)
 
@@ -996,6 +1026,31 @@ def run_default_workflow(
 
         runner_config = WorkflowRunnerConfig.from_env()
         workflow = default_workflow_spec()
+        if budget_middleware is not None or capture_workflow_execution_admission:
+            from polisyos.common import async_tools
+            from polisyos.scientist.orchestration.engine.runner.local_runner import (
+                LocalWorkflowRunner,
+            )
+
+            if runner_config.backend != "local":
+                raise ValueError("workflow_budget_profile_requires_local_backend")
+            runner = LocalWorkflowRunner(
+                max_parallelism=1,
+                budget_middleware=budget_middleware,
+                strict_budget_attempts=strict_budget_attempts,
+                capture_workflow_execution_admission=capture_workflow_execution_admission,
+            )
+            result = async_tools.run_coro_sync(
+                runner.execute_workflow(
+                    workflow,
+                    state,
+                    ctx,
+                    registry,
+                    checkpoint_hook=checkpoint_hook,
+                    max_parallelism=1,
+                )
+            )
+            return _attach_foundry_method_report_if_required(result, store=store)
         if runner_config.backend != "local":
             import asyncio
 

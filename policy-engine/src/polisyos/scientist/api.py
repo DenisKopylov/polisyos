@@ -49,6 +49,7 @@ if TYPE_CHECKING:
     from polisyos.core.governance.passes.base import ValidatorPass
     from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext
     from polisyos.scientist.governance.pipeline import ValidationPipeline
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
     from polisyos.scientist.orchestration.engine.context import (
         CompletedMethodHTESelectionOwnerPort,
         FabricPort,
@@ -235,6 +236,9 @@ def run_experiment(
     epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
     method_metric_selection_owner: MethodMetricSelectionOwnerPort | None = None,
     completed_method_hte_selection_owner: CompletedMethodHTESelectionOwnerPort | None = None,
+    budget_middleware: BudgetMiddleware | None = None,
+    strict_budget_attempts: bool = False,
+    capture_workflow_execution_admission: bool = False,
     on_run_finalized: Callable[[ArtifactRef], None] | None = None,
 ) -> dict[str, Any]:
     """Execute the Scientist workflow selected by the initial state contract.
@@ -258,6 +262,12 @@ def run_experiment(
         completed_method_hte_selection_owner: Separate Runtime-owned completed HTE source
             lookup installed for an authorized follow-up policy-design run; never read from
             workflow state.
+        budget_middleware: Trusted existing workflow ledger enforcement for the supported
+            local default workflow; never derived from experiment-state monetary claims.
+        strict_budget_attempts: Explicit serial invocation-accounting profile chosen by trusted
+            composition for the original execution; it grants no additional authority.
+        capture_workflow_execution_admission: Observe actual original candidate definitions for
+            configured local continuation; ordinary execution does not pay this capture cost.
         on_run_finalized: Optional consumer of the exact selected run-manifest ref
             emitted by the completed workflow owner.
 
@@ -326,6 +336,15 @@ def run_experiment(
         workflow_outcome_recorded = False
         try:
             with resolved_metrics.time_slo_dag({"workflow_id": workflow_id}):
+                budget_kwargs: dict[str, Any] = (
+                    {"budget_middleware": budget_middleware}
+                    if budget_middleware is not None
+                    else {}
+                )
+                if strict_budget_attempts:
+                    budget_kwargs["strict_budget_attempts"] = True
+                if capture_workflow_execution_admission:
+                    budget_kwargs["capture_workflow_execution_admission"] = True
                 result = run_selected_workflow(
                     initial_state,
                     store=store,
@@ -341,6 +360,7 @@ def run_experiment(
                     epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
                     method_metric_selection_owner=method_metric_selection_owner,
                     completed_method_hte_selection_owner=(completed_method_hte_selection_owner),
+                    **budget_kwargs,
                 )
             final_state = result.state
             status = "success" if result.report.status == "ok" else "error"

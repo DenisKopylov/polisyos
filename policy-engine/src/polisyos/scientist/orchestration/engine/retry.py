@@ -36,6 +36,7 @@ from datetime import UTC, date, datetime, timedelta
 from datetime import time as _time_type
 from decimal import Decimal, InvalidOperation
 from functools import wraps
+from pathlib import Path
 from types import GetSetDescriptorType, SimpleNamespace
 from typing import TYPE_CHECKING, Any, Literal, NoReturn, Protocol, runtime_checkable
 
@@ -50,6 +51,9 @@ from polisyos.common.async_tools import (
 from polisyos.common.canonical import _admit_canon_spec
 from polisyos.common.job_execution_interrupt import (
     JobExecutionInterrupted,
+    JobExecutionOwnerNotEstablishedError,
+    has_job_execution_owner_check,
+    has_job_execution_scope,
     raise_if_job_execution_interrupted,
 )
 from polisyos.core.artifacts.manifest import (
@@ -64,12 +68,14 @@ from polisyos.core.contracts import (
     BoundedLivenessConfig,
     bounded_liveness_config_from_mapping,
 )
-from polisyos.core.errors import ErrorCategory
+from polisyos.core.run.context import ChildOutcomeUnknownError
 from polisyos.core.run.context import RunContext as _RunContext
 from polisyos.ir.artifacts.contracts import _register_trusted_artifact_ref_facade
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.errors import (
     CircuitBreakerOpenError,
+    ErrorCategory,
+    NodeExecutionError,
     NodeTimeoutError,
     RetryExhaustedError,
 )
@@ -467,6 +473,7 @@ class _WorkerLifecycle:
 
 
 _RETRY_RUNTIME_ERRORS = (
+    NodeExecutionError,
     ArithmeticError,
     AssertionError,
     AttributeError,
@@ -684,6 +691,38 @@ class _AttemptAuthority:
                 self._active = False
             else:
                 self._shared_active.value = False
+
+
+class _AttemptSettlementFacade:
+    """Guard the existing issued view with the owning attempt's local authority."""
+
+    __slots__ = ("__authority", "__view")
+
+    def __init__(self, view: Any, authority: _AttemptAuthority) -> None:
+        self.__view = view
+        self.__authority = authority
+
+    def __invoke(self, operation: Any, *args: Any, **kwargs: Any) -> Any:
+        def checked() -> Any:
+            raise_if_job_execution_interrupted(check_current_owner=True)
+            return operation(*args, **kwargs)
+
+        return self.__authority.invoke_persistent_write(checked)
+
+    @property
+    def spent(self) -> Decimal:
+        return self.__invoke(lambda: self.__view.spent)
+
+    @property
+    def settlement_attempted(self) -> bool:
+        return self.__invoke(lambda: self.__view.settlement_attempted)
+
+    def settle_spend(
+        self, amount: Decimal, *, payload_ref: ArtifactRef, provider: str | None = None
+    ) -> ArtifactRef:
+        return self.__invoke(
+            self.__view.settle_spend, amount, payload_ref=payload_ref, provider=provider
+        )
 
 
 def _new_attempt_authority(
@@ -1594,7 +1633,10 @@ class _AttemptContext:
 def _build_attempt_context(target: Any, authority: _AttemptAuthority) -> Any:
     """Build a gated context without changing its concrete public type."""
     proxy = _AttemptContext(target, authority)
-    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.context import (
+        ExecutionContext,
+        _EngineInvocationBinding,
+    )
 
     if not isinstance(target, ExecutionContext):
         return proxy
@@ -1604,6 +1646,11 @@ def _build_attempt_context(target: Any, authority: _AttemptAuthority) -> Any:
         for name in field_names
         if name in {"store", "run", "audit", "claim_ledger_owner"}
     }
+    binding = target._engine_invocation
+    if isinstance(binding, _EngineInvocationBinding) and binding.settlement_view is not None:
+        replacements["_engine_invocation"] = dataclasses.replace(
+            binding, settlement_view=_AttemptSettlementFacade(binding.settlement_view, authority)
+        )
     try:
         return dataclasses.replace(target, **replacements)
     except (TypeError, ValueError) as exc:
@@ -1628,16 +1675,22 @@ class RetryPolicy(BaseModel):
     )
 
 
-_OUTCOME_UNKNOWN_CODES = frozenset({
-    _WorkerOutcomeUnknown.code,
-    "node.budget_settlement_outcome_unknown",
-})
+_OUTCOME_UNKNOWN_CODES = frozenset(
+    {
+        _WorkerOutcomeUnknown.code,
+        "node.budget_settlement_outcome_unknown",
+    }
+)
 
 
 def _should_retry(error: NodeError | None, policy: RetryPolicy) -> bool:
     if error is None:
         return False
-    return error.code not in _OUTCOME_UNKNOWN_CODES and error.code in policy.retry_on
+    return (
+        error.code not in _OUTCOME_UNKNOWN_CODES
+        and error.category not in {ErrorCategory.FATAL, ErrorCategory.VALIDATION}
+        and error.code in policy.retry_on
+    )
 
 
 def _retry_write_paths(node: Any) -> tuple[str, ...]:
@@ -1680,7 +1733,9 @@ def _exception_category(exc: BaseException) -> str:
         return "fatal"
     if category == "transient":
         return "transient"
-    if isinstance(exc, (AssertionError, AttributeError, LookupError)):
+    if isinstance(
+        exc, (AssertionError, AttributeError, LookupError, JobExecutionOwnerNotEstablishedError)
+    ):
         return "fatal"
     return str(classify_remote_error(exc).value)
 
@@ -1690,10 +1745,42 @@ def _exception_code(exc: BaseException) -> str:
     return code if isinstance(code, str) and code else "node.exception"
 
 
+def _error_chain(error: BaseException) -> Iterator[BaseException]:
+    """Traverse actual exception causes and standard groups once, including cycles."""
+    pending = [error]
+    seen: set[int] = set()
+    while pending:
+        current = pending.pop()
+        if id(current) in seen:
+            continue
+        seen.add(id(current))
+        yield current
+        if isinstance(current, BaseExceptionGroup):
+            pending.extend(current.exceptions)
+        if isinstance(current, _WorkerNodeError):
+            pending.extend(current.child_unknowns)
+        for linked in (current.__cause__, current.__context__, getattr(current, "error", None)):
+            if isinstance(linked, BaseException):
+                pending.append(linked)
+
+
+def _has_unknown_outcome(error: BaseException) -> bool:
+    """Keep nested unknown effects from becoming retryable typed failures."""
+    return any(
+        isinstance(current, (ChildOutcomeUnknownError, _WorkerOutcomeUnknown, NodeTimeoutError))
+        or _exception_code(current) in _OUTCOME_UNKNOWN_CODES
+        for current in _error_chain(error)
+    )
+
+
 def _should_retry_exception(exc: BaseException, policy: RetryPolicy) -> bool:
     """Apply the same semantic category/code on direct, thread and IPC routes."""
     code = _exception_code(exc)
-    return code not in _OUTCOME_UNKNOWN_CODES and _exception_category(exc) != "fatal" and code in policy.retry_on
+    return (
+        not _has_unknown_outcome(exc)
+        and _exception_category(exc) != "fatal"
+        and code in policy.retry_on
+    )
 
 
 def _worker_control_error(payload: Any) -> BaseException:
@@ -1727,22 +1814,31 @@ class _WorkerNodeError(RuntimeError):
         category: str,
         code: str,
         known_spend: dict[str, Decimal] | None = None,
+        child_unknowns: tuple[ChildOutcomeUnknownError, ...] = (),
     ) -> None:
         super().__init__(message)
         self.category = category
         self.code = code
         self.known_spend = known_spend
+        self.child_unknowns = child_unknowns
 
 
 class _CompletedAttemptError(RuntimeError):
     """Deliver only known completed-failure spend beside the original local error."""
 
-    def __init__(self, error: Exception, known_spend: dict[str, Decimal]) -> None:
+    def __init__(
+        self,
+        error: Exception,
+        known_spend: dict[str, Decimal],
+        *,
+        non_run_after: dict[str, Any] | None = None,
+    ) -> None:
         super().__init__(str(error))
         self.error = error
         self.category = _exception_category(error)
         self.code = _exception_code(error)
         self.known_spend = known_spend
+        self.non_run_after = non_run_after
 
 
 def _worker_error_payload(
@@ -1751,11 +1847,22 @@ def _worker_error_payload(
     known_spend: dict[str, Decimal] | None = None,
     run_id: str | None = None,
 ) -> dict[str, Any]:
+    code = _exception_code(exc)
+    unknown = _has_unknown_outcome(exc)
     payload: dict[str, Any] = {
         "message": f"{type(exc).__name__}: {exc}",
-        "category": _exception_category(exc),
-        "code": _exception_code(exc),
+        "category": "fatal" if unknown else _exception_category(exc),
+        "code": code
+        if not unknown or code in _OUTCOME_UNKNOWN_CODES
+        else _WorkerOutcomeUnknown.code,
     }
+    child_unknowns = [
+        {"run_id": item.run_id, "run_dir": str(item.run_dir)}
+        for item in _error_chain(exc)
+        if isinstance(item, ChildOutcomeUnknownError)
+    ]
+    if child_unknowns:
+        payload["child_unknowns"] = child_unknowns
     if known_spend is not None:
         from polisyos.scientist.orchestration.engine.runner.serialization import (
             serialize_state_safe,
@@ -1778,6 +1885,26 @@ def _worker_node_error(payload: Any, *, expected_run_id: str | None = None) -> _
         or not isinstance(payload.get("message"), str)
     ):
         raise ValueError("invalid typed node error payload")
+    child_unknowns = []
+    raw_children = payload.get("child_unknowns", [])
+    if not isinstance(raw_children, list):
+        raise ValueError("invalid child unknown locators")
+    for child in raw_children:
+        if (
+            not isinstance(child, dict)
+            or set(child) != {"run_id", "run_dir"}
+            or not isinstance(child["run_id"], str)
+            or not child["run_id"]
+            or not isinstance(child["run_dir"], str)
+            or not child["run_dir"]
+            or payload["code"] not in _OUTCOME_UNKNOWN_CODES
+        ):
+            raise ValueError("invalid child unknown locator")
+        child_unknowns.append(
+            ChildOutcomeUnknownError(
+                "child_outcome_unknown", run_id=child["run_id"], run_dir=Path(child["run_dir"])
+            )
+        )
     known_spend = None
     if "known_spend_state_v1" in payload:
         from polisyos.scientist.orchestration.engine.runner.serialization import (
@@ -1800,6 +1927,7 @@ def _worker_node_error(payload: Any, *, expected_run_id: str | None = None) -> _
         category=payload["category"],
         code=payload["code"],
         known_spend=known_spend,
+        child_unknowns=tuple(child_unknowns),
     )
 
 
@@ -1817,6 +1945,24 @@ def _spend_snapshot(state: ExperimentState) -> dict[str, Decimal]:
         except InvalidOperation, TypeError, ValueError:
             continue
     return snapshot
+
+
+def _non_run_spend_snapshot(state: ExperimentState) -> dict[str, Any]:
+    """Capture all non-run spend fields, including invalid mutations, for strict comparison."""
+    budgets = getattr(state, "budgets", {})
+    if not isinstance(budgets, dict):
+        return {}
+    return {
+        key: value
+        for key, value in budgets.items()
+        if isinstance(key, str) and key.endswith("_spent_usd") and key != "run_spent_usd"
+    }
+
+
+def _require_unchanged_non_run_spend(before: dict[str, Any], after: dict[str, Any]) -> None:
+    if before != after:
+        error = ValueError("budget_invocation_non_run_spend_not_established")
+        raise _SettlementProofNotEstablished(error) from error
 
 
 def _spend_delta(
@@ -1850,12 +1996,39 @@ def _require_node_outcome(value: object) -> NodeOutcome:
     return value
 
 
+def _execute_unbounded_sync(node: Any, ctx: Any, state: ExperimentState) -> Any:
+    """Revoke an issued settlement view when a direct sync invocation ends."""
+    from polisyos.scientist.orchestration.engine.context import (
+        ExecutionContext,
+        _EngineInvocationBinding,
+    )
+
+    binding = ctx._engine_invocation if isinstance(ctx, ExecutionContext) else None
+    if isinstance(binding, _EngineInvocationBinding) and binding.settlement_view is not None:
+        authority = _AttemptAuthority()
+        guarded_ctx = _build_attempt_context(ctx, authority)
+        try:
+            raise_if_job_execution_interrupted(check_current_owner=True)
+            return node.execute(_node_facing_context(guarded_ctx), state)
+        finally:
+            authority.revoke()
+    raise_if_job_execution_interrupted(check_current_owner=True)
+    return node.execute(_node_facing_context(ctx), state)
+
+
 def _execute_capture_failure(node: Any, ctx: Any, state: ExperimentState) -> NodeOutcome:
     before = _spend_snapshot(state)
     try:
+        raise_if_job_execution_interrupted(check_current_owner=True)
         return _require_node_outcome(node.execute(_node_facing_context(ctx), state))
+    except NodeTimeoutError:
+        raise
     except _RETRY_RUNTIME_ERRORS as exc:
-        raise _CompletedAttemptError(exc, _spend_changes(before, _spend_snapshot(state))) from exc
+        raise _CompletedAttemptError(
+            exc,
+            _spend_changes(before, _spend_snapshot(state)),
+            non_run_after=_non_run_spend_snapshot(state),
+        ) from exc
 
 
 def _accumulate_spend(
@@ -1881,6 +2054,182 @@ def _merge_spend(state: ExperimentState, spend: dict[str, Decimal]) -> None:
         except InvalidOperation, TypeError, ValueError:
             continue
         budgets[key] = current_decimal + value
+
+
+def _finish_base_error_sync(
+    error: BaseException,
+    callback: Callable[[str, NodeOutcome | None], None] | None,
+    attempt_id: str | None,
+) -> NoReturn:
+    """Keep the producer's original interruption if unknown completion persistence fails."""
+    try:
+        _finish_invocation_attempt(callback, attempt_id=attempt_id, outcome=None)
+    except BaseException as finalization_error:
+        error.add_note("Attempt finalization failed after producer interruption")
+        raise error from finalization_error
+    raise error
+
+
+async def _finish_base_error_async(
+    error: BaseException,
+    callback: Callable[[str, NodeOutcome | None], Awaitable[None]] | None,
+    attempt_id: str | None,
+) -> NoReturn:
+    """Keep the producer's original interruption if unknown completion persistence fails."""
+    try:
+        await _finish_invocation_attempt_async(callback, attempt_id=attempt_id, outcome=None)
+    except BaseException as finalization_error:
+        error.add_note("Attempt finalization failed after producer interruption")
+        raise error from finalization_error
+    raise error
+
+
+def _finish_unverified_sync(
+    proof: _SettlementProofNotEstablished,
+    callback: Callable[[str, NodeOutcome | None], None] | None,
+    attempt_id: str | None,
+) -> NoReturn:
+    """Persist unknown without replacing the original verification failure."""
+    try:
+        _finish_invocation_attempt(callback, attempt_id=attempt_id, outcome=None)
+    except BaseException as finalization_error:
+        proof.error.add_note("Attempt finalization failed after settlement verification refused")
+        raise proof.error from finalization_error
+    raise proof.error
+
+
+async def _finish_unverified_async(
+    proof: _SettlementProofNotEstablished,
+    callback: Callable[[str, NodeOutcome | None], Awaitable[None]] | None,
+    attempt_id: str | None,
+) -> NoReturn:
+    """Persist unknown without replacing the original verification failure."""
+    try:
+        await _finish_invocation_attempt_async(callback, attempt_id=attempt_id, outcome=None)
+    except BaseException as finalization_error:
+        proof.error.add_note("Attempt finalization failed after settlement verification refused")
+        raise proof.error from finalization_error
+    raise proof.error
+
+
+def _issued_settlement_view(ctx: Any) -> Any | None:
+    """Return only the engine-issued local settlement view, if one is bound."""
+    from polisyos.scientist.orchestration.engine._invocation_settlement import (
+        _InvocationSettlementView,
+    )
+    from polisyos.scientist.orchestration.engine.context import (
+        ExecutionContext,
+        _EngineInvocationBinding,
+    )
+
+    if not isinstance(ctx, ExecutionContext):
+        return None
+    binding = ctx._engine_invocation
+    if binding is None:
+        return None
+    if not isinstance(binding, _EngineInvocationBinding):
+        raise ValueError("budget_invocation_binding_invalid")
+    view = binding.settlement_view
+    if view is not None and type(view) is not _InvocationSettlementView:
+        raise ValueError("budget_invocation_settlement_view_invalid")
+    return view
+
+
+def _confirmed_view_spend(view: Any) -> Decimal:
+    """Read only the issued owner's confirmed cumulative run spend."""
+    amount = view.spent
+    if not isinstance(amount, Decimal) or not amount.is_finite() or amount < 0:
+        raise ValueError("budget_invocation_confirmed_spend_invalid")
+    return amount
+
+
+class _SettlementProofNotEstablished(Exception):
+    """Carry an original proof refusal to the attempt-completion boundary."""
+
+    def __init__(self, error: Exception) -> None:
+        self.error = error
+        super().__init__(str(error))
+
+
+def _acknowledged_view_spend(view: Any, before: Decimal) -> Decimal:
+    """Use only a receipt reconciled by its actual engine-issued owner."""
+    try:
+        verified = view._verify_acknowledged_settlement()
+        if verified is None:
+            return before
+        if verified.total != before + verified.amount:
+            raise ValueError("budget_invocation_receipt_total_mismatch")
+        return verified.total
+    except Exception as error:
+        raise _SettlementProofNotEstablished(error) from error
+
+
+def _typed_failure_completion(
+    error: BaseException, view: Any | None, before: Decimal | None, state: ExperimentState
+) -> NodeOutcome | None:
+    """Produce a failure only for a typed completion with a verifiable local receipt."""
+    if (
+        not isinstance(error, NodeExecutionError)
+        or isinstance(error, NodeTimeoutError)
+        or _has_unknown_outcome(error)
+        or view is None
+        or before is None
+    ):
+        return None
+    try:
+        proof = view._verify_acknowledged_settlement()
+        if proof is None:
+            if view.settlement_attempted:
+                raise ValueError("budget_invocation_receipt_not_established")
+            total = before
+            artifacts = []
+        else:
+            if proof.total != before + proof.amount:
+                raise ValueError("budget_invocation_receipt_total_mismatch")
+            total = proof.total
+            artifacts = [proof.payload_ref, proof.receipt_ref]
+    except Exception as exc:
+        raise _SettlementProofNotEstablished(exc) from exc
+    completed_state = state.model_copy(deep=True)
+    completed_state.budgets["run_spent_usd"] = total
+    return NodeOutcome(
+        status="fail",
+        state=completed_state,
+        artifacts=artifacts,
+        error=NodeError(code=_exception_code(error), message=str(error), category=error.category),
+    )
+
+
+def _known_unknown_view_spend(view: Any, before: Decimal, unknown: BaseException) -> Decimal:
+    """Reconcile the same pending event or retain only an independently verified prior receipt."""
+    try:
+        verified = view._reconcile_pending_settlement()
+    except BaseException as reconciliation_error:
+        unknown.add_note(
+            f"Settlement reconciliation did not establish the current cost: {type(reconciliation_error).__name__}"
+        )
+        try:
+            prior = view._verify_prior_acknowledged_settlement()
+        except BaseException as prior_error:
+            unknown.add_note(f"Prior settlement verification failed: {type(prior_error).__name__}")
+            return Decimal(0)
+        return Decimal(0) if prior is None else prior.amount
+    if verified is None:
+        return Decimal(0)
+    if verified.total != before + verified.amount:
+        unknown.add_note("Settlement reconciliation total did not match the original baseline")
+        return Decimal(0)
+    return verified.amount
+
+
+def _merge_failed_spend_for_outcome(
+    outcome: NodeOutcome, failed_spend: dict[str, Decimal], *, strict: bool
+) -> None:
+    """Avoid re-adding prior charges already in a confirmed strict total."""
+    _merge_spend(
+        outcome.state,
+        {key: value for key, value in failed_spend.items() if not strict or key != "run_spent_usd"},
+    )
 
 
 def _project_completed_spend(
@@ -2205,33 +2554,109 @@ def execute_with_retry_sync(
     )
     # Fast path — no retry, no timeout
     if retry_policy.max_retries == 0 and deadline is None and circuit_breaker is None:
+        baseline_spend = _spend_snapshot(state)
+        non_run_before = _non_run_spend_snapshot(state)
+        fast_known_spend: dict[str, Decimal] = {}
         attempt_id = _begin_invocation_attempt(
             attempt_started,
             attempt_number=1,
             state=state,
         )
+        strict_view = None
+        completion_baseline = state
+        strict_before = None
         try:
             attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
-            outcome_value = node.execute(_node_facing_context(attempt_ctx), state)
+            strict_view = _issued_settlement_view(attempt_ctx)
+            completion_baseline = state.model_copy(deep=True) if strict_view is not None else state
+            strict_before = _confirmed_view_spend(strict_view) if strict_view is not None else None
+            if strict_before is not None:
+                baseline_spend["run_spent_usd"] = strict_before
+            outcome_value = _execute_unbounded_sync(node, attempt_ctx, state)
             if not isinstance(outcome_value, NodeOutcome):
                 raise TypeError("node execution must return a NodeOutcome")
             outcome = outcome_value
-        except BaseException:
+            raise_if_job_execution_interrupted(check_current_owner=True)
+            if strict_view is not None and strict_before is not None:
+                strict_after = _acknowledged_view_spend(strict_view, strict_before)
+                if strict_after < strict_before:
+                    raise ValueError("budget_invocation_confirmed_spend_regressed")
+                fast_known_spend["run_spent_usd"] = strict_after - strict_before
+                _require_unchanged_non_run_spend(
+                    non_run_before, _non_run_spend_snapshot(outcome.state)
+                )
+                outcome.state.budgets["run_spent_usd"] = strict_after
+        except _SettlementProofNotEstablished as proof:
+            _project_completed_spend(state, baseline_spend, fast_known_spend)
+            _finish_unverified_sync(proof, attempt_completed, attempt_id)
+        except ChildOutcomeUnknownError as unknown:
+            known = {}
+            if strict_view is not None and strict_before is not None:
+                baseline_spend["run_spent_usd"] = strict_before
+                known["run_spent_usd"] = _known_unknown_view_spend(
+                    strict_view, strict_before, unknown
+                )
+            _project_completed_spend(state, baseline_spend, known)
+            try:
+                _finish_invocation_attempt(attempt_completed, attempt_id=attempt_id, outcome=None)
+            except BaseException as finalization_error:
+                unknown.add_note("Attempt finalization failed after child outcome became unknown")
+                raise unknown from finalization_error
+            raise
+        except _RETRY_RUNTIME_ERRORS as exc:
+            if strict_view is not None and strict_before is not None:
+                if _has_unknown_outcome(exc):
+                    amount = _known_unknown_view_spend(strict_view, strict_before, exc)
+                else:
+                    try:
+                        amount = (
+                            _acknowledged_view_spend(strict_view, strict_before) - strict_before
+                        )
+                    except _SettlementProofNotEstablished as proof:
+                        _project_completed_spend(state, baseline_spend, fast_known_spend)
+                        _finish_unverified_sync(proof, attempt_completed, attempt_id)
+                _project_completed_spend(state, baseline_spend, {"run_spent_usd": amount})
+            try:
+                completion = _typed_failure_completion(
+                    exc, strict_view, strict_before, completion_baseline
+                )
+                _finish_invocation_attempt(
+                    attempt_completed, attempt_id=attempt_id, outcome=completion
+                )
+            except _SettlementProofNotEstablished as proof:
+                _project_completed_spend(state, baseline_spend, fast_known_spend)
+                _finish_unverified_sync(proof, attempt_completed, attempt_id)
+            except BaseException as finalization_error:
+                if _has_unknown_outcome(exc):
+                    exc.add_note("Attempt finalization failed after outcome became unknown")
+                    raise exc from finalization_error
+                raise
+            raise
+        except BaseException as error:
+            if strict_view is not None and strict_before is not None:
+                baseline_spend["run_spent_usd"] = strict_before
+                known = {
+                    "run_spent_usd": _known_unknown_view_spend(strict_view, strict_before, error)
+                }
+                _project_completed_spend(state, baseline_spend, known)
+            _finish_base_error_sync(error, attempt_completed, attempt_id)
+        try:
             _finish_invocation_attempt(
                 attempt_completed,
                 attempt_id=attempt_id,
-                outcome=None,
+                outcome=outcome if isinstance(outcome, NodeOutcome) else None,
             )
+        except BaseException:
+            if strict_view is not None:
+                _project_completed_spend(state, baseline_spend, fast_known_spend)
             raise
-        _finish_invocation_attempt(
-            attempt_completed,
-            attempt_id=attempt_id,
-            outcome=outcome if isinstance(outcome, NodeOutcome) else None,
-        )
         return outcome
 
     last_outcome: NodeOutcome | None = None
     failed_spend: dict[str, Decimal] = {}
+    known_completed_spend: dict[str, Decimal] = {}
+    baseline_spend = _spend_snapshot(state)
+    strict_profile = False
     node_id = str((getattr(node, "spec", None) and node.spec.metadata.component_id) or alias)
 
     for attempt in range(retry_policy.max_retries + 1):
@@ -2252,11 +2677,24 @@ def execute_with_retry_sync(
             attempt_number=attempt + 1,
             state=attempt_state,
         )
+        non_run_before = _non_run_spend_snapshot(attempt_state)
         attempt_recorded = False
+        completed_attempt_spend: dict[str, Decimal] | None = None
+        failed_attempt_spend_recorded = False
+        strict_view = None
+        completion_baseline = state
+        strict_before = None
         attempt_dispatch_basis_ref: ArtifactRef | None = None
         try:
             attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
             attempt_dispatch_basis_ref = _attempt_dispatch_basis_ref(attempt_ctx)
+            strict_view = _issued_settlement_view(attempt_ctx)
+            completion_baseline = state.model_copy(deep=True) if strict_view is not None else state
+            strict_before = _confirmed_view_spend(strict_view) if strict_view is not None else None
+            if strict_before is not None:
+                if not strict_profile:
+                    baseline_spend["run_spent_usd"] = strict_before
+                strict_profile = True
             if remaining is not None:
                 outcome = _execute_with_timeout_sync(
                     node,
@@ -2268,18 +2706,38 @@ def execute_with_retry_sync(
                     dispatch_params=dispatch_params,
                 )
             else:
-                outcome_value = node.execute(_node_facing_context(attempt_ctx), attempt_state)
+                outcome_value = _execute_unbounded_sync(node, attempt_ctx, attempt_state)
                 if not isinstance(outcome_value, NodeOutcome):
                     raise TypeError("node execution must return a NodeOutcome")
                 outcome = outcome_value
 
+            raise_if_job_execution_interrupted(check_current_owner=True)
+            strict_attempt_spend = None
+            if strict_view is not None and strict_before is not None:
+                strict_after = _acknowledged_view_spend(strict_view, strict_before)
+                if strict_after < strict_before:
+                    raise ValueError("budget_invocation_confirmed_spend_regressed")
+                strict_attempt_spend = {"run_spent_usd": strict_after - strict_before}
+                completed_attempt_spend = strict_attempt_spend
+                _accumulate_spend(known_completed_spend, strict_attempt_spend)
+                _require_unchanged_non_run_spend(
+                    non_run_before, _non_run_spend_snapshot(outcome.state)
+                )
+                outcome.state.budgets["run_spent_usd"] = strict_after
             try:
                 _remaining_deadline(deadline, execution_state="completed_publication_rejected")
             except NodeTimeoutError:
-                _accumulate_spend(failed_spend, _spend_delta(state, outcome.state))
+                _accumulate_spend(
+                    failed_spend,
+                    strict_attempt_spend
+                    if strict_attempt_spend is not None
+                    else _spend_delta(state, outcome.state),
+                )
                 raise
             if outcome.status != "fail":
-                _merge_spend(outcome.state, failed_spend)
+                _merge_failed_spend_for_outcome(
+                    outcome, failed_spend, strict=strict_view is not None
+                )
                 if circuit_breaker is not None:
                     circuit_breaker.record_success()
                 _finish_invocation_attempt(
@@ -2295,8 +2753,13 @@ def execute_with_retry_sync(
                 circuit_breaker.record_failure()
 
             if attempt < retry_policy.max_retries and _should_retry(outcome.error, retry_policy):
-                attempt_spend = _spend_delta(state, outcome.state)
+                attempt_spend = (
+                    strict_attempt_spend
+                    if strict_attempt_spend is not None
+                    else _spend_delta(state, outcome.state)
+                )
                 _accumulate_spend(failed_spend, attempt_spend)
+                failed_attempt_spend_recorded = True
                 last_outcome = outcome
                 _finish_invocation_attempt(
                     attempt_completed,
@@ -2322,7 +2785,7 @@ def execute_with_retry_sync(
                 _retry_delay_sync(delay, deadline)
                 continue
 
-            _merge_spend(outcome.state, failed_spend)
+            _merge_failed_spend_for_outcome(outcome, failed_spend, strict=strict_view is not None)
             _finish_invocation_attempt(
                 attempt_completed,
                 attempt_id=attempt_id,
@@ -2331,6 +2794,34 @@ def execute_with_retry_sync(
             attempt_recorded = True
             return outcome
 
+        except _SettlementProofNotEstablished as proof:
+            _project_completed_spend(state, baseline_spend, known_completed_spend)
+            _finish_unverified_sync(
+                proof, None if attempt_recorded else attempt_completed, attempt_id
+            )
+        except ChildOutcomeUnknownError as unknown:
+            if strict_view is not None and strict_before is not None:
+                _accumulate_spend(
+                    known_completed_spend,
+                    {
+                        "run_spent_usd": _known_unknown_view_spend(
+                            strict_view, strict_before, unknown
+                        )
+                    },
+                )
+            if strict_profile:
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
+            else:
+                _merge_spend(state, failed_spend)
+            try:
+                if not attempt_recorded:
+                    _finish_invocation_attempt(
+                        attempt_completed, attempt_id=attempt_id, outcome=None
+                    )
+            except BaseException as finalization_error:
+                unknown.add_note("Attempt finalization failed after child outcome became unknown")
+                raise unknown from finalization_error
+            raise
         except NodeTimeoutError:
             if not attempt_recorded:
                 _finish_invocation_attempt(
@@ -2348,33 +2839,98 @@ def execute_with_retry_sync(
                     outcome=None,
                 )
             raise
-        except KeyboardInterrupt:
-            if not attempt_recorded:
-                _finish_invocation_attempt(
-                    attempt_completed,
-                    attempt_id=attempt_id,
-                    outcome=None,
+        except KeyboardInterrupt as error:
+            if (
+                strict_view is not None
+                and strict_before is not None
+                and completed_attempt_spend is None
+            ):
+                _accumulate_spend(
+                    known_completed_spend,
+                    {"run_spent_usd": _known_unknown_view_spend(strict_view, strict_before, error)},
                 )
-            raise
+            if strict_profile:
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
+            else:
+                _merge_spend(state, failed_spend)
+            _finish_base_error_sync(
+                error, None if attempt_recorded else attempt_completed, attempt_id
+            )
         except _InvocationAttemptPersistenceError:
             raise
         except _RETRY_RUNTIME_ERRORS as exc:
-            if not attempt_recorded:
-                _finish_invocation_attempt(
-                    attempt_completed,
-                    attempt_id=attempt_id,
-                    outcome=None,
-                )
             original_error = exc.error if isinstance(exc, _CompletedAttemptError) else exc
+            if (
+                strict_view is not None
+                and strict_before is not None
+                and completed_attempt_spend is None
+            ):
+                if _has_unknown_outcome(exc):
+                    amount = _known_unknown_view_spend(strict_view, strict_before, original_error)
+                else:
+                    try:
+                        amount = (
+                            _acknowledged_view_spend(strict_view, strict_before) - strict_before
+                        )
+                    except _SettlementProofNotEstablished as proof:
+                        _project_completed_spend(state, baseline_spend, known_completed_spend)
+                        _finish_unverified_sync(
+                            proof, None if attempt_recorded else attempt_completed, attempt_id
+                        )
+                completed_attempt_spend = {"run_spent_usd": amount}
+                _accumulate_spend(known_completed_spend, completed_attempt_spend)
+                try:
+                    _require_unchanged_non_run_spend(
+                        non_run_before,
+                        exc.non_run_after
+                        if isinstance(exc, _CompletedAttemptError) and exc.non_run_after is not None
+                        else _non_run_spend_snapshot(attempt_state),
+                    )
+                except _SettlementProofNotEstablished as proof:
+                    _project_completed_spend(state, baseline_spend, known_completed_spend)
+                    _finish_unverified_sync(
+                        proof, None if attempt_recorded else attempt_completed, attempt_id
+                    )
+            if not attempt_recorded:
+                try:
+                    completion = _typed_failure_completion(
+                        original_error, strict_view, strict_before, completion_baseline
+                    )
+                    _finish_invocation_attempt(
+                        attempt_completed,
+                        attempt_id=attempt_id,
+                        outcome=completion,
+                    )
+                except _SettlementProofNotEstablished as proof:
+                    _project_completed_spend(state, baseline_spend, known_completed_spend)
+                    _finish_unverified_sync(
+                        proof, None if attempt_recorded else attempt_completed, attempt_id
+                    )
+                except BaseException as finalization_error:
+                    if _has_unknown_outcome(exc):
+                        if strict_profile:
+                            _project_completed_spend(state, baseline_spend, known_completed_spend)
+                        else:
+                            _merge_spend(state, failed_spend)
+                        original_error.add_note(
+                            "Attempt finalization failed after outcome became unknown"
+                        )
+                        raise original_error from finalization_error
+                    raise
             captured_spend = (
                 exc.known_spend
                 if isinstance(exc, (_CompletedAttemptError, _WorkerNodeError))
                 else None
             )
             attempt_spend = (
-                captured_spend if captured_spend is not None else _spend_delta(state, attempt_state)
+                completed_attempt_spend
+                if completed_attempt_spend is not None
+                else captured_spend
+                if captured_spend is not None
+                else _spend_delta(state, attempt_state)
             )
-            _accumulate_spend(failed_spend, attempt_spend)
+            if not failed_attempt_spend_recorded:
+                _accumulate_spend(failed_spend, attempt_spend)
             try:
                 _remaining_deadline(
                     deadline, execution_state="completed_error_publication_rejected"
@@ -2410,7 +2966,10 @@ def execute_with_retry_sync(
                     raise
                 continue
 
-            _merge_spend(state, failed_spend)
+            if strict_profile:
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
+            else:
+                _merge_spend(state, failed_spend)
             dlq_ref = _persist_dead_letter(
                 ctx,
                 alias,
@@ -2432,6 +2991,23 @@ def execute_with_retry_sync(
             raise RetryExhaustedError(
                 f"Node {alias}: all {retry_policy.max_retries} retries exhausted",
             ) from original_error
+        except BaseException as error:
+            if (
+                strict_view is not None
+                and strict_before is not None
+                and completed_attempt_spend is None
+            ):
+                _accumulate_spend(
+                    known_completed_spend,
+                    {"run_spent_usd": _known_unknown_view_spend(strict_view, strict_before, error)},
+                )
+            if strict_profile:
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
+            else:
+                _merge_spend(state, failed_spend)
+            _finish_base_error_sync(
+                error, None if attempt_recorded else attempt_completed, attempt_id
+            )
 
     # Should not reach here, but for safety:
     if last_outcome is not None:
@@ -3365,6 +3941,23 @@ def _decode_worker_node_outcome(payload: object) -> NodeOutcome:
     return decode_node_outcome(payload)
 
 
+def _refuse_untransportable_process_context(ctx: Any) -> None:
+    """Do not drop local invocation or live-owner authority at a process boundary."""
+    if has_job_execution_owner_check():
+        raise _timeout_worker_unsupported("live_owner_check_not_transportable")
+    from polisyos.scientist.orchestration.engine.context import (
+        ExecutionContext,
+        _EngineInvocationBinding,
+    )
+
+    if isinstance(ctx, ExecutionContext):
+        binding = ctx._engine_invocation
+        if binding is not None and (
+            not isinstance(binding, _EngineInvocationBinding) or binding.settlement_view is not None
+        ):
+            raise _timeout_worker_unsupported("invocation_settlement_not_transportable")
+
+
 def _execute_with_timeout_process(
     node: Any,
     ctx: Any,
@@ -3377,6 +3970,7 @@ def _execute_with_timeout_process(
     process_context: BaseContext | None = None,
     dispatch_params: Mapping[str, Any] | None = None,
 ) -> NodeOutcome:
+    _refuse_untransportable_process_context(ctx)
     deadline = _invocation_deadline(timeout_s, deadline_monotonic)
     compute_deadline = deadline if deadline is not None else time.monotonic() + timeout_s
     start_method = _timeout_worker_start_method()
@@ -3474,6 +4068,7 @@ def _execute_with_timeout_process(
             )
         raise_if_job_execution_interrupted()
         _remaining_deadline(lifecycle.compute_deadline, execution_state="not_started")
+        raise_if_job_execution_interrupted(check_current_owner=True)
         process.start()
         result_queue.close_writer()
         lifecycle.process_group_id = _owned_process_group_id(
@@ -3586,6 +4181,7 @@ async def _execute_with_timeout_process_async(
     process_context: BaseContext | None = None,
     dispatch_params: Mapping[str, Any] | None = None,
 ) -> NodeOutcome:
+    _refuse_untransportable_process_context(ctx)
     deadline = _invocation_deadline(timeout_s, deadline_monotonic)
     compute_deadline = deadline if deadline is not None else time.monotonic() + timeout_s
     start_method = _timeout_worker_start_method()
@@ -3685,6 +4281,7 @@ async def _execute_with_timeout_process_async(
             )
         raise_if_job_execution_interrupted()
         _remaining_deadline(lifecycle.compute_deadline, execution_state="not_started")
+        raise_if_job_execution_interrupted(check_current_owner=True)
         process.start()
         result_queue.close_writer()
         lifecycle.process_group_id = _owned_process_group_id(
@@ -3815,12 +4412,15 @@ async def _execute_with_timeout_async(
         _remaining_deadline(deadline)
         before = _spend_snapshot(worker_state)
         try:
+            raise_if_job_execution_interrupted(check_current_owner=True)
             return _require_node_outcome(
                 await node.execute_async(_node_facing_context(worker_ctx), worker_state)
             )
         except _RETRY_RUNTIME_ERRORS as exc:
             raise _CompletedAttemptError(
-                exc, _spend_changes(before, _spend_snapshot(worker_state))
+                exc,
+                _spend_changes(before, _spend_snapshot(worker_state)),
+                non_run_after=_non_run_spend_snapshot(worker_state),
             ) from exc
         finally:
             completed[0] = time.monotonic()
@@ -4017,6 +4617,7 @@ async def execute_with_retry_async(
     attempt_started: Callable[[int, ExperimentState], Awaitable[str]] | None = None,
     attempt_completed: Callable[[str, NodeOutcome | None], Awaitable[None]] | None = None,
     attempt_context: Callable[[str], ExecutionContext] | None = None,
+    attempt_admission: Callable[[], Awaitable[None]] | None = None,
 ) -> NodeOutcome:
     """Async retry wrapper for ``AsyncWorkflowExecutor``.
 
@@ -4043,8 +4644,111 @@ async def execute_with_retry_async(
         attempt_ctx: ExecutionContext,
     ) -> NodeOutcome:
         remaining = _remaining_deadline(deadline)
+        node_type = type(node)
+        if (
+            node_type.__module__ == "polisyos.scientist.orchestration.engine.child_workflow"
+            and node_type.__name__ == "_ManagedSubWorkflowDispatch"
+        ):
+            from polisyos.scientist.orchestration.engine.child_workflow import (
+                _ManagedSubWorkflowDispatch,
+            )
+            from polisyos.scientist.orchestration.engine.context import (
+                ExecutionContext,
+                _EngineInvocationBinding,
+            )
+
+            if node_type is _ManagedSubWorkflowDispatch:
+                binding = (
+                    attempt_ctx._engine_invocation
+                    if isinstance(attempt_ctx, ExecutionContext)
+                    else None
+                )
+                if deadline is not None:
+                    raise _timeout_worker_unsupported("managed_child_async_profile_unsupported")
+                if has_job_execution_scope():
+                    return NodeOutcome(
+                        status="fail",
+                        state=attempt_state,
+                        error=NodeError(
+                            code="sub_workflow.control_job_fence_not_established",
+                            message="Managed child execution is not admitted under a job owner scope.",
+                            category=ErrorCategory.FATAL,
+                        ),
+                    )
+                if (
+                    isinstance(binding, _EngineInvocationBinding)
+                    and binding.settlement_view is not None
+                ):
+                    return NodeOutcome(
+                        status="fail",
+                        state=attempt_state,
+                        error=NodeError(
+                            code="sub_workflow.child_budget_settlement_not_established",
+                            message="Managed child budget settlement is not established.",
+                            category=ErrorCategory.FATAL,
+                        ),
+                    )
+                raise_if_job_execution_interrupted(check_current_owner=True)
+                authority = _AttemptAuthority()
+                guarded_ctx = _build_attempt_context(attempt_ctx, authority)
+                try:
+                    return _require_node_outcome(
+                        await node.execute_managed_async(
+                            _node_facing_context(guarded_ctx), attempt_state
+                        )
+                    )
+                finally:
+                    authority.revoke()
         if _has_async:
             if remaining is None:
+                from polisyos.scientist.orchestration.engine.context import (
+                    ExecutionContext,
+                    _EngineInvocationBinding,
+                )
+
+                binding = (
+                    attempt_ctx._engine_invocation
+                    if isinstance(attempt_ctx, ExecutionContext)
+                    else None
+                )
+                if (
+                    isinstance(binding, _EngineInvocationBinding)
+                    and binding.settlement_view is not None
+                ):
+                    authority = _AttemptAuthority()
+                    guarded_ctx = _build_attempt_context(attempt_ctx, authority)
+                    guarded_state = attempt_state.model_copy(deep=True)
+
+                    async def invoke_guarded() -> NodeOutcome:
+                        raise_if_job_execution_interrupted(check_current_owner=True)
+                        before = _spend_snapshot(guarded_state)
+                        try:
+                            return _require_node_outcome(
+                                await node.execute_async(
+                                    _node_facing_context(guarded_ctx), guarded_state
+                                )
+                            )
+                        except NodeTimeoutError:
+                            raise
+                        except _RETRY_RUNTIME_ERRORS as exc:
+                            raise _CompletedAttemptError(
+                                exc,
+                                _spend_changes(before, _spend_snapshot(guarded_state)),
+                                non_run_after=_non_run_spend_snapshot(guarded_state),
+                            ) from exc
+
+                    task = asyncio.create_task(invoke_guarded())
+                    try:
+                        return await asyncio.shield(task)
+                    except BaseException:
+                        authority.revoke()
+                        if not task.done():
+                            task.add_done_callback(_consume_finished_task)
+                            task.cancel()
+                        raise
+                    finally:
+                        authority.revoke()
+                raise_if_job_execution_interrupted(check_current_owner=True)
                 return _require_node_outcome(
                     await node.execute_async(_node_facing_context(attempt_ctx), attempt_state)
                 )
@@ -4086,6 +4790,7 @@ async def execute_with_retry_async(
             authority.revoke()
 
     baseline_spend = _spend_snapshot(state)
+    baseline_non_run = _non_run_spend_snapshot(state)
     known_completed_spend: dict[str, Decimal] = {}
 
     # Fast path
@@ -4093,60 +4798,192 @@ async def execute_with_retry_async(
         try:
             if retry_stats is not None:
                 retry_stats["attempts"] = 1
+            if attempt_admission is not None:
+                await attempt_admission()
             attempt_id = await _begin_invocation_attempt_async(
                 attempt_started,
                 attempt_number=1,
                 state=state,
             )
+            strict_view = None
+            completion_baseline = state
+            strict_before = None
             try:
                 attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
+                strict_view = _issued_settlement_view(attempt_ctx)
+                completion_baseline = (
+                    state.model_copy(deep=True) if strict_view is not None else state
+                )
+                strict_before = (
+                    _confirmed_view_spend(strict_view) if strict_view is not None else None
+                )
+                if strict_before is not None:
+                    baseline_spend["run_spent_usd"] = strict_before
                 outcome = await _invoke(state, attempt_ctx)
-                _accumulate_spend(
-                    known_completed_spend,
-                    _spend_changes(baseline_spend, _spend_snapshot(outcome.state)),
-                )
-            except _CompletedAttemptError as exc:
-                _accumulate_spend(known_completed_spend, exc.known_spend)
-                await _finish_invocation_attempt_async(
-                    attempt_completed,
-                    attempt_id=attempt_id,
-                    outcome=None,
-                )
-                _merge_spend(state, exc.known_spend)
-                raise exc.error from None
-            except asyncio.CancelledError as cancelled:
+                raise_if_job_execution_interrupted(check_current_owner=True)
+                completed_spend = _spend_changes(baseline_spend, _spend_snapshot(outcome.state))
+                if strict_view is not None and strict_before is not None:
+                    strict_after = _acknowledged_view_spend(strict_view, strict_before)
+                    if strict_after < strict_before:
+                        raise ValueError("budget_invocation_confirmed_spend_regressed")
+                    completed_spend = {"run_spent_usd": strict_after - strict_before}
+                    _accumulate_spend(known_completed_spend, completed_spend)
+                    _require_unchanged_non_run_spend(
+                        baseline_non_run, _non_run_spend_snapshot(outcome.state)
+                    )
+                    outcome.state.budgets["run_spent_usd"] = strict_after
+                else:
+                    _accumulate_spend(known_completed_spend, completed_spend)
+            except _SettlementProofNotEstablished as proof:
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
+                await _finish_unverified_async(proof, attempt_completed, attempt_id)
+            except ChildOutcomeUnknownError as unknown:
+                if strict_view is not None and strict_before is not None:
+                    _accumulate_spend(
+                        known_completed_spend,
+                        {
+                            "run_spent_usd": _known_unknown_view_spend(
+                                strict_view, strict_before, unknown
+                            )
+                        },
+                    )
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
                 try:
                     await _finish_invocation_attempt_async(
                         attempt_completed, attempt_id=attempt_id, outcome=None
                     )
-                except (_InvocationAttemptPersistenceError, asyncio.CancelledError) as finalization_error:
-                    cancelled.add_note("Attempt finalization was interrupted or failed during cancellation")
-                    _logger.warning("Attempt finalization failed during cancellation", exc_info=True)
+                except BaseException as finalization_error:
+                    unknown.add_note(
+                        "Attempt finalization failed after child outcome became unknown"
+                    )
+                    raise unknown from finalization_error
+                raise
+            except _CompletedAttemptError as exc:
+                completed_spend = exc.known_spend.copy()
+                if strict_view is not None and strict_before is not None:
+                    if _has_unknown_outcome(exc):
+                        completed_spend = {
+                            "run_spent_usd": _known_unknown_view_spend(
+                                strict_view, strict_before, exc.error
+                            )
+                        }
+                    else:
+                        try:
+                            strict_after = _acknowledged_view_spend(strict_view, strict_before)
+                        except _SettlementProofNotEstablished as proof:
+                            _project_completed_spend(state, baseline_spend, known_completed_spend)
+                            await _finish_unverified_async(proof, attempt_completed, attempt_id)
+                        if strict_after < strict_before:
+                            raise ValueError("budget_invocation_confirmed_spend_regressed")
+                        completed_spend = {"run_spent_usd": strict_after - strict_before}
+                    _accumulate_spend(known_completed_spend, completed_spend)
+                    if not _has_unknown_outcome(exc):
+                        try:
+                            _require_unchanged_non_run_spend(
+                                baseline_non_run,
+                                exc.non_run_after
+                                if exc.non_run_after is not None
+                                else _non_run_spend_snapshot(state),
+                            )
+                        except _SettlementProofNotEstablished as proof:
+                            _project_completed_spend(state, baseline_spend, known_completed_spend)
+                            await _finish_unverified_async(proof, attempt_completed, attempt_id)
+                else:
+                    _accumulate_spend(known_completed_spend, completed_spend)
+                try:
+                    completion = _typed_failure_completion(
+                        exc.error, strict_view, strict_before, completion_baseline
+                    )
+                    await _finish_invocation_attempt_async(
+                        attempt_completed,
+                        attempt_id=attempt_id,
+                        outcome=completion,
+                    )
+                except _SettlementProofNotEstablished as proof:
+                    _project_completed_spend(state, baseline_spend, known_completed_spend)
+                    await _finish_unverified_async(proof, attempt_completed, attempt_id)
+                except BaseException as finalization_error:
+                    if _has_unknown_outcome(exc):
+                        _project_completed_spend(state, baseline_spend, known_completed_spend)
+                        exc.error.add_note(
+                            "Attempt finalization failed after outcome became unknown"
+                        )
+                        raise exc.error from finalization_error
+                    raise
+                if strict_view is not None:
+                    _project_completed_spend(state, baseline_spend, known_completed_spend)
+                else:
+                    _merge_spend(state, completed_spend)
+                raise exc.error from None
+            except asyncio.CancelledError as cancelled:
+                if strict_view is not None and strict_before is not None:
+                    _accumulate_spend(
+                        known_completed_spend,
+                        {
+                            "run_spent_usd": _known_unknown_view_spend(
+                                strict_view, strict_before, cancelled
+                            )
+                        },
+                    )
+                try:
+                    await _finish_invocation_attempt_async(
+                        attempt_completed, attempt_id=attempt_id, outcome=None
+                    )
+                except BaseException as finalization_error:
+                    cancelled.add_note(
+                        "Attempt finalization was interrupted or failed during cancellation"
+                    )
+                    _logger.warning(
+                        "Attempt finalization failed during cancellation", exc_info=True
+                    )
                     raise cancelled from finalization_error
                 raise
-            except _RETRY_RUNTIME_ERRORS:
-                _accumulate_spend(
-                    known_completed_spend,
-                    _spend_changes(baseline_spend, _spend_snapshot(state)),
-                )
+            except _RETRY_RUNTIME_ERRORS as exc:
+                if strict_view is None and not _has_unknown_outcome(exc):
+                    _accumulate_spend(
+                        known_completed_spend,
+                        _spend_changes(baseline_spend, _spend_snapshot(state)),
+                    )
+                try:
+                    completion = _typed_failure_completion(
+                        exc, strict_view, strict_before, completion_baseline
+                    )
+                    await _finish_invocation_attempt_async(
+                        attempt_completed,
+                        attempt_id=attempt_id,
+                        outcome=completion,
+                    )
+                except _SettlementProofNotEstablished as proof:
+                    _project_completed_spend(state, baseline_spend, known_completed_spend)
+                    await _finish_unverified_async(proof, attempt_completed, attempt_id)
+                except BaseException as finalization_error:
+                    if _has_unknown_outcome(exc):
+                        _project_completed_spend(state, baseline_spend, known_completed_spend)
+                        exc.add_note("Attempt finalization failed after outcome became unknown")
+                        raise exc from finalization_error
+                    raise
+                raise
+            except BaseException as error:
+                if strict_view is not None and strict_before is not None:
+                    _accumulate_spend(
+                        known_completed_spend,
+                        {
+                            "run_spent_usd": _known_unknown_view_spend(
+                                strict_view, strict_before, error
+                            )
+                        },
+                    )
+                    _project_completed_spend(state, baseline_spend, known_completed_spend)
+                await _finish_base_error_async(error, attempt_completed, attempt_id)
+            try:
                 await _finish_invocation_attempt_async(
                     attempt_completed,
                     attempt_id=attempt_id,
-                    outcome=None,
+                    outcome=outcome if isinstance(outcome, NodeOutcome) else None,
                 )
-                raise
             except BaseException:
-                await _finish_invocation_attempt_async(
-                    attempt_completed,
-                    attempt_id=attempt_id,
-                    outcome=None,
-                )
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
                 raise
-            await _finish_invocation_attempt_async(
-                attempt_completed,
-                attempt_id=attempt_id,
-                outcome=outcome if isinstance(outcome, NodeOutcome) else None,
-            )
             return outcome
         except asyncio.CancelledError:
             _project_completed_spend(state, baseline_spend, known_completed_spend)
@@ -4154,10 +4991,11 @@ async def execute_with_retry_async(
 
     last_outcome: NodeOutcome | None = None
     failed_spend: dict[str, Decimal] = {}
+    strict_profile = False
     node_id = str((getattr(node, "spec", None) and node.spec.metadata.component_id) or alias)
 
     def settle_failed_spend(attempt_state: ExperimentState) -> None:
-        if attempt_state is state:
+        if strict_profile or attempt_state is state:
             _project_completed_spend(state, baseline_spend, known_completed_spend)
         else:
             _merge_spend(state, failed_spend)
@@ -4167,7 +5005,10 @@ async def execute_with_retry_async(
             try:
                 _remaining_deadline(deadline)
             except NodeTimeoutError:
-                _merge_spend(state, failed_spend)
+                if strict_profile:
+                    _project_completed_spend(state, baseline_spend, known_completed_spend)
+                else:
+                    _merge_spend(state, failed_spend)
                 raise
             # Circuit breaker check
             if circuit_breaker is not None and not circuit_breaker.allow_request():
@@ -4175,9 +5016,18 @@ async def execute_with_retry_async(
                     f"Circuit breaker '{circuit_breaker.name}' is open for node {alias}",
                 )
 
-            attempt_state = _fresh_retry_state(state, node) if retry_policy.max_retries > 0 else state
+            if attempt_admission is not None:
+                try:
+                    await attempt_admission()
+                except BaseException:
+                    _project_completed_spend(state, baseline_spend, known_completed_spend)
+                    raise
+            attempt_state = (
+                _fresh_retry_state(state, node) if retry_policy.max_retries > 0 else state
+            )
 
             attempt_baseline = _spend_snapshot(attempt_state)
+            non_run_before = _non_run_spend_snapshot(attempt_state)
             attempt_id = await _begin_invocation_attempt_async(
                 attempt_started,
                 attempt_number=attempt + 1,
@@ -4187,22 +5037,54 @@ async def execute_with_retry_async(
             completed_attempt_spend: dict[str, Decimal] | None = None
             failed_attempt_spend_recorded = False
             attempt_dispatch_basis_ref: ArtifactRef | None = None
+            strict_view = None
+            completion_baseline = state
+            strict_before = None
             try:
                 attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
                 attempt_dispatch_basis_ref = _attempt_dispatch_basis_ref(attempt_ctx)
-                outcome = await _invoke(attempt_state, attempt_ctx)
-                completed_attempt_spend = _spend_changes(
-                    attempt_baseline, _spend_snapshot(outcome.state)
+                strict_view = _issued_settlement_view(attempt_ctx)
+                completion_baseline = (
+                    state.model_copy(deep=True) if strict_view is not None else state
                 )
-                _accumulate_spend(known_completed_spend, completed_attempt_spend)
+                strict_before = (
+                    _confirmed_view_spend(strict_view) if strict_view is not None else None
+                )
+                if strict_before is not None:
+                    if not strict_profile:
+                        baseline_spend["run_spent_usd"] = strict_before
+                    strict_profile = True
+                outcome = await _invoke(attempt_state, attempt_ctx)
+                raise_if_job_execution_interrupted(check_current_owner=True)
+                candidate_spend = _spend_changes(attempt_baseline, _spend_snapshot(outcome.state))
+                if strict_view is not None and strict_before is not None:
+                    strict_after = _acknowledged_view_spend(strict_view, strict_before)
+                    if strict_after < strict_before:
+                        raise ValueError("budget_invocation_confirmed_spend_regressed")
+                    completed_attempt_spend = {"run_spent_usd": strict_after - strict_before}
+                    _accumulate_spend(known_completed_spend, completed_attempt_spend)
+                    _require_unchanged_non_run_spend(
+                        non_run_before, _non_run_spend_snapshot(outcome.state)
+                    )
+                    outcome.state.budgets["run_spent_usd"] = strict_after
+                else:
+                    completed_attempt_spend = candidate_spend
+                    _accumulate_spend(known_completed_spend, completed_attempt_spend)
 
                 try:
                     _remaining_deadline(deadline, execution_state="completed_publication_rejected")
                 except NodeTimeoutError:
-                    _accumulate_spend(failed_spend, _spend_delta(state, outcome.state))
+                    _accumulate_spend(
+                        failed_spend,
+                        completed_attempt_spend
+                        if strict_view is not None
+                        else _spend_delta(state, outcome.state),
+                    )
                     raise
                 if outcome.status != "fail":
-                    _merge_spend(outcome.state, failed_spend)
+                    _merge_failed_spend_for_outcome(
+                        outcome, failed_spend, strict=strict_view is not None
+                    )
                     if circuit_breaker is not None:
                         circuit_breaker.record_success()
                     if retry_stats is not None:
@@ -4218,8 +5100,14 @@ async def execute_with_retry_async(
                 if circuit_breaker is not None:
                     circuit_breaker.record_failure()
 
-                if attempt < retry_policy.max_retries and _should_retry(outcome.error, retry_policy):
-                    attempt_spend = _spend_delta(state, outcome.state)
+                if attempt < retry_policy.max_retries and _should_retry(
+                    outcome.error, retry_policy
+                ):
+                    attempt_spend = (
+                        completed_attempt_spend
+                        if strict_view is not None
+                        else _spend_delta(state, outcome.state)
+                    )
                     _accumulate_spend(failed_spend, attempt_spend)
                     failed_attempt_spend_recorded = True
                     last_outcome = outcome
@@ -4249,7 +5137,9 @@ async def execute_with_retry_async(
 
                 if retry_stats is not None:
                     retry_stats["attempts"] = attempt + 1
-                _merge_spend(outcome.state, failed_spend)
+                _merge_failed_spend_for_outcome(
+                    outcome, failed_spend, strict=strict_view is not None
+                )
                 await _finish_invocation_attempt_async(
                     attempt_completed,
                     attempt_id=attempt_id,
@@ -4258,6 +5148,33 @@ async def execute_with_retry_async(
                 attempt_recorded = True
                 return outcome
 
+            except _SettlementProofNotEstablished as proof:
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
+                await _finish_unverified_async(
+                    proof, None if attempt_recorded else attempt_completed, attempt_id
+                )
+            except ChildOutcomeUnknownError as unknown:
+                if strict_view is not None and strict_before is not None:
+                    _accumulate_spend(
+                        known_completed_spend,
+                        {
+                            "run_spent_usd": _known_unknown_view_spend(
+                                strict_view, strict_before, unknown
+                            )
+                        },
+                    )
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
+                try:
+                    if not attempt_recorded:
+                        await _finish_invocation_attempt_async(
+                            attempt_completed, attempt_id=attempt_id, outcome=None
+                        )
+                except BaseException as finalization_error:
+                    unknown.add_note(
+                        "Attempt finalization failed after child outcome became unknown"
+                    )
+                    raise unknown from finalization_error
+                raise
             except NodeTimeoutError:
                 if not attempt_recorded:
                     await _finish_invocation_attempt_async(
@@ -4276,6 +5193,19 @@ async def execute_with_retry_async(
                     )
                 raise
             except asyncio.CancelledError as cancelled:
+                if (
+                    strict_view is not None
+                    and strict_before is not None
+                    and completed_attempt_spend is None
+                ):
+                    _accumulate_spend(
+                        known_completed_spend,
+                        {
+                            "run_spent_usd": _known_unknown_view_spend(
+                                strict_view, strict_before, cancelled
+                            )
+                        },
+                    )
                 try:
                     if not attempt_recorded:
                         await _finish_invocation_attempt_async(
@@ -4283,9 +5213,13 @@ async def execute_with_retry_async(
                             attempt_id=attempt_id,
                             outcome=None,
                         )
-                except (_InvocationAttemptPersistenceError, asyncio.CancelledError) as finalization_error:
-                    cancelled.add_note("Attempt finalization was interrupted or failed during cancellation")
-                    _logger.warning("Attempt finalization failed during cancellation", exc_info=True)
+                except BaseException as finalization_error:
+                    cancelled.add_note(
+                        "Attempt finalization was interrupted or failed during cancellation"
+                    )
+                    _logger.warning(
+                        "Attempt finalization failed during cancellation", exc_info=True
+                    )
                     raise cancelled from finalization_error
                 _logger.info("Node %s cancelled during attempt %d", alias, attempt)
                 raise
@@ -4299,21 +5233,75 @@ async def execute_with_retry_async(
                     else None
                 )
                 if completed_attempt_spend is None:
-                    completed_attempt_spend = (
-                        captured_spend
+                    candidate_spend = (
+                        captured_spend.copy()
                         if captured_spend is not None
                         else _spend_changes(attempt_baseline, _spend_snapshot(attempt_state))
                     )
-                    _accumulate_spend(known_completed_spend, completed_attempt_spend)
+                    if strict_view is not None and strict_before is not None:
+                        if _has_unknown_outcome(exc):
+                            amount = _known_unknown_view_spend(
+                                strict_view, strict_before, original_error
+                            )
+                        else:
+                            try:
+                                strict_after = _acknowledged_view_spend(strict_view, strict_before)
+                            except _SettlementProofNotEstablished as proof:
+                                _project_completed_spend(
+                                    state, baseline_spend, known_completed_spend
+                                )
+                                await _finish_unverified_async(
+                                    proof,
+                                    None if attempt_recorded else attempt_completed,
+                                    attempt_id,
+                                )
+                            if strict_after < strict_before:
+                                raise ValueError("budget_invocation_confirmed_spend_regressed")
+                            amount = strict_after - strict_before
+                        completed_attempt_spend = {"run_spent_usd": amount}
+                        _accumulate_spend(known_completed_spend, completed_attempt_spend)
+                        try:
+                            _require_unchanged_non_run_spend(
+                                non_run_before,
+                                exc.non_run_after
+                                if isinstance(exc, _CompletedAttemptError)
+                                and exc.non_run_after is not None
+                                else _non_run_spend_snapshot(attempt_state),
+                            )
+                        except _SettlementProofNotEstablished as proof:
+                            _project_completed_spend(state, baseline_spend, known_completed_spend)
+                            await _finish_unverified_async(
+                                proof, None if attempt_recorded else attempt_completed, attempt_id
+                            )
+                    else:
+                        completed_attempt_spend = candidate_spend
+                        _accumulate_spend(known_completed_spend, completed_attempt_spend)
                 attempt_spend = completed_attempt_spend
                 if not failed_attempt_spend_recorded:
                     _accumulate_spend(failed_spend, attempt_spend)
                 if not attempt_recorded:
-                    await _finish_invocation_attempt_async(
-                        attempt_completed,
-                        attempt_id=attempt_id,
-                        outcome=None,
-                    )
+                    try:
+                        completion = _typed_failure_completion(
+                            original_error, strict_view, strict_before, completion_baseline
+                        )
+                        await _finish_invocation_attempt_async(
+                            attempt_completed,
+                            attempt_id=attempt_id,
+                            outcome=completion,
+                        )
+                    except _SettlementProofNotEstablished as proof:
+                        _project_completed_spend(state, baseline_spend, known_completed_spend)
+                        await _finish_unverified_async(
+                            proof, None if attempt_recorded else attempt_completed, attempt_id
+                        )
+                    except BaseException as finalization_error:
+                        if _has_unknown_outcome(exc):
+                            settle_failed_spend(attempt_state)
+                            original_error.add_note(
+                                "Attempt finalization failed after outcome became unknown"
+                            )
+                            raise original_error from finalization_error
+                        raise
                 try:
                     _remaining_deadline(
                         deadline, execution_state="completed_error_publication_rejected"
@@ -4373,6 +5361,24 @@ async def execute_with_retry_async(
                 raise RetryExhaustedError(
                     f"Node {alias}: all {retry_policy.max_retries} retries exhausted",
                 ) from original_error
+            except BaseException as error:
+                if (
+                    strict_view is not None
+                    and strict_before is not None
+                    and completed_attempt_spend is None
+                ):
+                    _accumulate_spend(
+                        known_completed_spend,
+                        {
+                            "run_spent_usd": _known_unknown_view_spend(
+                                strict_view, strict_before, error
+                            )
+                        },
+                    )
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
+                await _finish_base_error_async(
+                    error, None if attempt_recorded else attempt_completed, attempt_id
+                )
 
         if last_outcome is not None:  # pragma: no cover
             return last_outcome

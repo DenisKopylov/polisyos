@@ -8,35 +8,70 @@ filesystem/SQLite effect path are real production consumers.
 from __future__ import annotations
 
 import asyncio
+import copy
 import json
 import logging
 import os
+import socket
 import sqlite3
 import subprocess
 import sys
 import time
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
 import pytest
 
 import polisyos.runtime.http.services.control as _control_facade  # noqa: F401
+from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.canon import CanonSpec
 from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run import read_runtime_invocation_attempts
 from polisyos.core.run.context import RunContext
+from polisyos.core.security.access_scope import AccessScope
+from polisyos.core.security.tenant_context import (
+    reset_current_access_scope,
+    set_current_access_scope,
+    tenant_scope,
+)
 from polisyos.runtime.http.services.control_plane_store import (
     ControlJobLeaseLostError,
     ControlPlaneStore,
 )
 from polisyos.runtime.http.services.control_worker import ControlWorker
+from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
+from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.orchestration.engine.budget_ledger import (
+    BudgetLedgerSpendReceipt,
+    FileBudgetLedger,
+)
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+from polisyos.scientist.orchestration.engine.checkpoint import (
+    CASCheckpointHook,
+    CheckpointCorruptedError,
+    CheckpointError,
+    CheckpointHistory,
+    create_checkpoint,
+    load_checkpoint,
+    load_checkpoint_head,
+    load_checkpoint_history,
+    resume_from_checkpoint,
+    update_checkpoint_head,
+    write_checkpoint_history,
+)
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.errors import WorkflowTimeoutError
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutionResult, WorkflowReport
-from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
+from polisyos.scientist.orchestration.engine.retry import RetryPolicy
 from polisyos.scientist.orchestration.engine.runner.fallback_runner import (
     FallbackNotAuthorizedError,
     FallbackWorkflowRunner,
@@ -49,6 +84,17 @@ from polisyos.scientist.orchestration.engine.runner.protocol import (
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
+from tests._helpers.dur02_effects import (
+    _CheckpointedEffectNode,
+    _confirmed_effect_receipt,
+    _CostedRetryEffectNode,
+    _effects,
+    _LostCheckpointReply,
+    _PersistedEffectNode,
+    _RemainingEffectNode,
+    _UnbudgetedEffectNode,
+    _UnbudgetedRemainingEffectNode,
+)
 
 _WORKER_CHILD = r"""
 import json,sys
@@ -101,12 +147,17 @@ def test_actual_handler_loses_every_protected_write_after_expiry_and_takeover(
 ) -> None:
     database = tmp_path / "control.sqlite3"
     store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
-    cas = FileSystemCAS(tmp_path / "cas")
+    cas = FileSystemCAS(tmp_path / "cas").with_ambient_ownership_enforcement()
     options = ArtifactWriteOptions(
         kind="fixture.dur02.effect", media_type="application/octet-stream"
     )
-    original_ref = cas.put_bytes(b"current admitted evidence", options)
-    stale_ref = cas.put_bytes(b"stale result retained only for diagnostics", options)
+    with tenant_scope(None, tenant_id="dur02-tenant", cell_id="dur02-cell"):
+        original_ref = cas.put_bytes(
+            b"current admitted evidence", options, return_selected_profile=True
+        )
+        stale_ref = cas.put_bytes(
+            b"stale result retained only for diagnostics", options, return_selected_profile=True
+        )
     original_id, stale_id = str(original_ref.artifact_id), str(stale_ref.artifact_id)
     store.create_job(
         job_id="dur02-current-job",
@@ -181,7 +232,15 @@ def test_actual_handler_loses_every_protected_write_after_expiry_and_takeover(
     else:
         assert completed is not None and completed.state == "completed" and completed.attempt == 2
         assert completed.capability_manifest_ref == original_id
-    assert cas.get_bytes(stale_ref) == b"stale result retained only for diagnostics"
+    fresh = FileSystemCAS(tmp_path / "cas").with_ambient_ownership_enforcement()
+    with tenant_scope(None, tenant_id="dur02-tenant", cell_id="dur02-cell"):
+        assert fresh.get_bytes(stale_ref) == b"stale result retained only for diagnostics"
+        assert fresh.get_bytes(original_ref) == b"current admitted evidence"
+    with (
+        tenant_scope(None, tenant_id="foreign-tenant", cell_id="dur02-cell"),
+        pytest.raises(ArtifactOwnershipError),
+    ):
+        fresh.get_bytes(stale_ref)
 
 
 def _create_control_job(store: ControlPlaneStore, job_id: str) -> None:
@@ -371,6 +430,65 @@ def test_bound_terminal_event_fault_rolls_back_state_progress_history_and_outbox
     assert _database_rows(database) == before
 
 
+@pytest.mark.parametrize("terminal", ["complete", "fail"])
+def test_bound_terminal_commit_fault_rolls_back_all_native_sqlite_rows(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, terminal: str
+) -> None:
+    """A fault at the actual final commit rolls back every pending publication."""
+    database = tmp_path / "control.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+    _create_control_job(store, "dur02-current-job")
+    job = store.lease_next_job(worker_id="worker-A", lease_seconds=300)
+    assert job is not None
+    native_connection = store._sqlite_connection
+    observations: list[str] = []
+
+    class CommitFaultConnection:
+        def __init__(self, connection: sqlite3.Connection) -> None:
+            self.connection = connection
+
+        def __getattr__(self, name: str) -> Any:
+            return getattr(self.connection, name)
+
+        def commit(self) -> None:
+            rows = self.connection.execute(
+                "SELECT state FROM control_jobs WHERE job_id = ?", (job.job_id,)
+            ).fetchone()
+            assert rows["state"] == ("completed" if terminal == "complete" else "failed")
+            observations.append("commit-fault")
+            raise sqlite3.OperationalError("fixture native commit failure")
+
+        def rollback(self) -> None:
+            observations.append("rollback")
+            self.connection.rollback()
+
+    @contextmanager
+    def faulting_connection() -> Iterator[CommitFaultConnection]:
+        with native_connection() as connection:
+            yield CommitFaultConnection(connection)
+
+    def operation() -> None:
+        if terminal == "complete":
+            store.complete_job(job_id=job.job_id, progress={"terminal": terminal})
+        else:
+            store.fail_job(
+                job_id=job.job_id,
+                error_message="fixture",
+                progress={"terminal": terminal},
+            )
+
+    before = _database_rows(database)
+    with (
+        store.job_execution_fence(job_id=job.job_id, worker_id="worker-A", attempt=job.attempt),
+        monkeypatch.context() as patch,
+    ):
+        patch.setattr(store, "_sqlite_connection", faulting_connection)
+        with pytest.raises(sqlite3.OperationalError, match="native commit failure"):
+            operation()
+    assert observations == ["commit-fault", "rollback"]
+    assert _database_rows(database) == before
+
+
 def test_actual_lease_expiry_during_publication_rolls_back_all_rows(tmp_path: Path) -> None:
     database = tmp_path / "control.sqlite3"
     store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
@@ -462,47 +580,6 @@ def test_bound_handler_cannot_forge_a_new_transaction_admission(
     assert _database_rows(database) == before
 
 
-class _PersistedEffectNode:
-    """A real registered fixture producer with deliberately non-idempotent SQLite effects."""
-
-    def __init__(self, database: Path) -> None:
-        self.database = database
-        self.spec = NodeSpec(
-            metadata=ComponentMetadata(
-                component_id=ComponentId.parse("scientist.node_dur02_effect@1.0.0"),
-                kind=ComponentKind.SCIENTIST_NODE,
-                abi_targets={"world_abi": "1.x"},
-                display_name="DUR02 persisted fixture effect",
-                description="Real SQLite/CAS effect",
-                tags=["fixture"],
-                capabilities=Capability.SCIENTIST_NODE,
-            ),
-            state_reads=["params.backend"],
-            state_writes=["params.effect_ref"],
-            produces=[],
-        )
-        with sqlite3.connect(database) as connection:
-            connection.execute(
-                "CREATE TABLE effects (operation_id TEXT, backend TEXT, artifact_ref TEXT)"
-            )
-
-    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        backend = str(state.params["backend"])
-        payload = {"operation_id": "fixture-operation-1", "backend": backend}
-        ref = ctx.store.put_json(
-            payload,
-            ArtifactWriteOptions(kind="fixture.dur02.effect", media_type="application/json"),
-        )
-        with sqlite3.connect(self.database) as connection:
-            connection.execute(
-                "INSERT INTO effects VALUES (?, ?, ?)",
-                (payload["operation_id"], backend, ref.model_dump_json()),
-            )
-        changed = state.model_copy(deep=True)
-        changed.params["effect_ref"] = ref.model_dump(mode="json")
-        return NodeOutcome(status="ok", state=changed, artifacts=[ref])
-
-
 class _FixturePrimary:
     """Concrete typed fixture backend; it provides no external reconciliation authority."""
 
@@ -568,13 +645,6 @@ def _handover_inputs(tmp_path: Path) -> tuple[Any, ...]:
     return workflow, state, ctx, registry, database, cas
 
 
-def _effects(path: Path) -> list[tuple[str, str, str]]:
-    with sqlite3.connect(path) as connection:
-        return connection.execute(
-            "SELECT operation_id, backend, artifact_ref FROM effects"
-        ).fetchall()
-
-
 @pytest.mark.parametrize(
     "error", [RuntimeError("lost response after effect"), OSError("lost transport acknowledgment")]
 )
@@ -633,3 +703,774 @@ def test_access_failure_or_network_message_cannot_authorize_real_local_producer(
     with pytest.raises(FallbackNotAuthorizedError):
         asyncio.run(runner.execute_workflow(workflow, state, ctx, registry))
     assert _effects(database) == []
+
+
+class _PrimaryCheckpointHook(CASCheckpointHook):
+    def __init__(self, *, lose_after_first: bool, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.lose_after_first = lose_after_first
+
+    async def on_tier_complete_async(self, **kwargs: Any) -> Any:
+        result = await super().on_tier_complete_async(**kwargs)
+        if self.lose_after_first and kwargs["completed_nodes"] == ["effect"]:
+            raise _LostCheckpointReply("actual first-tier checkpoint published; reply lost")
+        return result
+
+
+class _CheckpointPrimary:
+    """A real in-process primary runner with a controlled lost response boundary."""
+
+    def __init__(self, hook: CASCheckpointHook, middleware: BudgetMiddleware | None = None) -> None:
+        self.hook = hook
+        self.middleware = middleware
+        self.calls = 0
+
+    async def health_check(self) -> RunnerHealth:
+        return RunnerHealth(backend="fixture-checkpoint-primary", healthy=True)
+
+    async def execute_workflow(
+        self,
+        workflow: WorkflowSpec,
+        state: ExperimentState,
+        ctx: ExecutionContext,
+        registry: NodeRegistry,
+        **_kwargs: Any,
+    ) -> WorkflowExecutionResult:
+        self.calls += 1
+        executor = AsyncWorkflowExecutor(
+            ctx,
+            registry,
+            checkpoint_hook=self.hook,
+            max_parallelism=1,
+            workflow_timeout_s=30,
+            budget_middleware=self.middleware,
+            strict_budget_attempts=self.middleware is not None,
+            capture_workflow_execution_admission=True,
+        )
+        try:
+            result = await executor.execute(workflow, state)
+        except _LostCheckpointReply as error:
+            raise OSError("controlled reply loss after native primary work") from error
+        raise AssertionError(
+            "fixture did not reach reply-loss boundary: " + result.report.model_dump_json()
+        )
+
+
+@pytest.mark.parametrize(
+    "continuation",
+    [
+        "remaining",
+        "ambiguous",
+        "expired",
+        "exhausted",
+        "stale_ledger",
+        "missing_ledger",
+        "tampered_state",
+        "known_retry",
+        "completed",
+        "missing_receipt",
+        "changed_receipt",
+        "copied_ledger",
+    ],
+)
+def test_actual_checkpoint_handover_preserves_operation_budget_and_deadline(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, continuation: str
+) -> None:
+    """Strict current-owner continuation consumes native completed work once."""
+    monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+    job_id, run_id = "dur02-checkpoint-job", "dur02-checkpoint-operation"
+    known_retry = continuation == "known_retry"
+    completed = continuation == "completed"
+    budget_path = tmp_path / "budget.json"
+    limit = Decimal(7) if continuation == "exhausted" else Decimal(10)
+    ledger = FileBudgetLedger(budget_path)
+    middleware = BudgetMiddleware(
+        BudgetState(
+            limits={"run": BudgetLimit(key="run", max_usd=limit)}, spent={"run": Decimal(5)}
+        ),
+        ledger=ledger,
+        invocation_settlement_profile="single_owner_local_v1",
+    )
+    initial_ledger_bytes = budget_path.read_bytes()
+    original_budget_identity = middleware.settlement_owner_identity
+    database = tmp_path / "effects.sqlite3"
+    effect = (
+        _CostedRetryEffectNode(database, mode="retry")
+        if known_retry
+        else _CheckpointedEffectNode(database, operation_id=run_id)
+    )
+    remaining = _RemainingEffectNode(
+        database, expected_spend=Decimal(8) if known_retry else Decimal(7)
+    )
+    registry = NodeRegistry()
+    registry.register(effect)
+    registry.register(remaining)
+    workflow = WorkflowSpec(
+        workflow_id="dur02_reconciled_handover",
+        nodes=[
+            NodeInvocation(
+                alias="effect",
+                node_id=effect.spec.metadata.component_id,
+                retry=(
+                    RetryPolicy(max_retries=1, jitter="none", backoff_base_s=0.1)
+                    if known_retry
+                    else None
+                ),
+            ),
+        ]
+        + (
+            []
+            if completed
+            else [
+                NodeInvocation(
+                    alias="remaining",
+                    node_id=remaining.spec.metadata.component_id,
+                    depends_on=["effect"],
+                ),
+            ]
+        ),
+    )
+    control_database = tmp_path / "control.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=control_database)
+    admin = ControlPlaneStore(backend="sqlite", sqlite_path=control_database)
+    store.create_job(
+        job_id=job_id,
+        kind="workflow_run",
+        run_id=run_id,
+        pipeline_id=None,
+        requested_execution_profile="dev",
+        effective_execution_profile="dev",
+        policy_flags={},
+        capability_manifest_ref=None,
+        payload_ref=None,
+        submitted_by="dur02-native-fixture",
+    )
+    cas_root, run_dir = tmp_path / "cas", tmp_path / "run"
+    cas = FileSystemCAS(cas_root).with_ambient_ownership_enforcement()
+    access_scope = AccessScope.for_service(
+        tenant_id="dur02-tenant",
+        cell_id="dur02-cell",
+        spiffe_id="spiffe://polisyos-test/dur02-native-handover",
+    )
+
+    @contextmanager
+    def operation_scope() -> Iterator[None]:
+        token = set_current_access_scope(access_scope)
+        try:
+            with tenant_scope(None, tenant_id="dur02-tenant", cell_id="dur02-cell"):
+                yield
+        finally:
+            reset_current_access_scope(token)
+
+    with operation_scope():
+        bundle = build_default_registry_bundle(cas, return_selected_profile=True)
+        run = RunContext.start(
+            store=cas,
+            registry_bundle=bundle.bundle_ref,
+            run_id=run_id,
+            run_dir=run_dir,
+            tenant_id="dur02-tenant",
+            cell_id="dur02-cell",
+            access_scope=access_scope,
+        )
+        run.update_manifest(control_job_id=job_id, execution_profile="dev")
+    ctx = ExecutionContext(store=cas, run=run, logger=logging.getLogger("dur02-handover"))
+    state = ExperimentState(
+        run_id=run_id,
+        control_job_id=job_id,
+        params={"backend": "primary", "lose_remaining_reply": continuation == "ambiguous"},
+        budgets={"run_spent_usd": Decimal(5), "run_max_usd": limit},
+    )
+    with operation_scope():
+        hook = _PrimaryCheckpointHook(
+            store=cas,
+            run_dir=run_dir,
+            lose_after_first=continuation != "ambiguous",
+        )
+    primary = _CheckpointPrimary(hook, middleware)
+    fallback = FallbackWorkflowRunner(primary, health_ttl_s=0)
+    observed: dict[str, Any] = {}
+
+    def primary_handler(job: Any) -> None:
+        with operation_scope():
+            with pytest.raises(PrimaryExecutionOutcomeUnknownError):
+                asyncio.run(fallback.execute_workflow(workflow, state, ctx, registry))
+            head = load_checkpoint_head(run_dir)
+            assert head is not None
+            checkpoint = load_checkpoint(cas, head.checkpoint_ref)
+            assert checkpoint.metadata.completed_nodes == ["effect"]
+            assert checkpoint.metadata.execution_budget_contract == "admitted_workflow_budget_v1"
+            observed["deadline"] = checkpoint.metadata.execution_deadline_at
+            assert observed["deadline"] is not None
+            observed["effect_ref"] = checkpoint.state["params"]["effect_ref"]
+            observed["checkpoint"] = checkpoint
+            observed["head"] = head
+            assert Decimal(checkpoint.state["budgets"]["run_spent_usd"]) == (
+                Decimal(8) if known_retry else Decimal(7)
+            )
+            assert "failed_body" not in checkpoint.state["params"]
+            receipt = _confirmed_effect_receipt(cas, run_dir, run_id)
+            assert receipt is not None
+            assert receipt.amount == (Decimal(1) if known_retry else Decimal(2))
+            assert middleware.resolve_spend_safe(receipt.event_id) == receipt
+            observed["receipt"] = receipt
+            effect_attempts = [
+                item
+                for item in read_runtime_invocation_attempts(
+                    cas, run_dir / "trace.jsonl", run_id=run_id
+                )
+                if item.basis.node_alias == "effect"
+            ]
+            receipts = []
+            for item in effect_attempts:
+                assert item.outcome is not None and item.outcome.budget_receipt_ref is not None
+                receipts.append(
+                    BudgetLedgerSpendReceipt.model_validate(
+                        read_core_json_artifact(cas, item.outcome.budget_receipt_ref).value
+                    )
+                )
+            assert [item.amount for item in receipts] == (
+                [Decimal(2), Decimal(1)] if known_retry else [Decimal(2)]
+            )
+            observed["all_receipts"] = receipts
+            assert middleware.settlement_owner_identity == original_budget_identity
+        with sqlite3.connect(control_database) as connection:
+            connection.execute(
+                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+            )
+        replacement = admin.lease_next_job(worker_id="worker-B", lease_seconds=300)
+        assert replacement is not None and replacement.attempt == 2
+        observed["replacement"] = replacement
+        with pytest.raises(ControlJobLeaseLostError):
+            store.complete_job(job_id=job.job_id, progress={"stale": True})
+
+    worker_a = ControlWorker(
+        store=store, handler=primary_handler, worker_id="worker-A", lease_seconds=300
+    )
+    assert worker_a.dispatch_once()
+    assert primary.calls == 1
+
+    def assert_primary_effect_count() -> None:
+        if known_retry:
+            with sqlite3.connect(database) as connection:
+                rows = connection.execute(
+                    "SELECT attempt_number FROM costed_effects ORDER BY rowid"
+                ).fetchall()
+            assert rows == [(1,), (2,)]
+        else:
+            assert len(_effects(database)) == 1
+
+    assert_primary_effect_count()
+    copied_budget_path = tmp_path / "copied-ledger" / "budget.json"
+    if continuation == "stale_ledger":
+        # Model an authentic earlier same-owner restore, not malformed bytes.
+        budget_path.write_bytes(initial_ledger_bytes)
+    if continuation in {"missing_receipt", "changed_receipt"}:
+        current_snapshot = json.loads(budget_path.read_text())
+        event_id = observed["receipt"].event_id
+        assert event_id in current_snapshot["spend_receipts"]
+        if continuation == "missing_receipt":
+            del current_snapshot["spend_receipts"][event_id]
+        else:
+            original_digest = current_snapshot["spend_receipts"][event_id]["payload_digest"]
+            replacement_digest = "0" * 64 if original_digest != "0" * 64 else "1" * 64
+            current_snapshot["spend_receipts"][event_id]["payload_digest"] = replacement_digest
+        budget_path.write_text(json.dumps(current_snapshot))
+    if continuation == "copied_ledger":
+        # Identical owner, receipt, revision and bytes are not the original
+        # physical local resource and stable lock configured by A.
+        copied_budget_path.parent.mkdir()
+        copied_budget_path.write_bytes(budget_path.read_bytes())
+    if continuation == "tampered_state":
+        # A valid new selected checkpoint and history retain the owner/budget
+        # bindings but change a field the real producer never wrote. Keep the
+        # original sequence/prior pointer so a pointer rejection cannot mask
+        # the independent full-state reconciliation oracle.
+        original = observed["checkpoint"]
+        tampered = copy.deepcopy(original.state)
+        tampered["params"]["lose_remaining_reply"] = True
+        metadata = original.metadata
+        with operation_scope():
+            replacement = create_checkpoint(
+                cas,
+                run_id=run_id,
+                state=tampered,
+                sequence_number=observed["head"].sequence_number,
+                completed_node_alias=metadata.completed_node_alias,
+                completed_node_id=metadata.completed_node_id,
+                completed_nodes=metadata.completed_nodes,
+                completed_node_status_contract=metadata.completed_node_status_contract,
+                workflow_id=metadata.workflow_id,
+                workflow_fingerprint=metadata.workflow_fingerprint,
+                origin_workflow_fingerprint=metadata.origin_workflow_fingerprint,
+                fsm_phase=metadata.fsm_phase,
+                cache_entry_refs=metadata.cache_entry_refs,
+                tenant_id=metadata.tenant_id,
+                cell_id=metadata.cell_id,
+                execution_budget_contract=metadata.execution_budget_contract,
+                execution_deadline_at=metadata.execution_deadline_at,
+            )
+            update_checkpoint_head(
+                run_dir,
+                run_id=run_id,
+                checkpoint_ref=replacement.checkpoint_ref,
+                sequence_number=observed["head"].sequence_number,
+                node_alias=metadata.completed_node_alias,
+                writer_pid=os.getpid(),
+                writer_hostname=socket.gethostname(),
+            )
+            history = load_checkpoint_history(run_dir)
+            assert history is not None
+            selected_entries = [
+                entry
+                for entry in history.entries
+                if entry.checkpoint_ref == replacement.checkpoint_ref
+            ]
+            assert len(selected_entries) == 1
+            # Replace this fixture's selected generation coherently. Keeping
+            # both same-sequence heads would test history conflict instead.
+            write_checkpoint_history(run_dir, CheckpointHistory(entries=selected_entries))
+    if continuation == "expired":
+        delay = (observed["deadline"] - datetime.now(UTC)).total_seconds()
+        if delay > 0:
+            time.sleep(delay + 0.02)
+
+    def resume_handler(job: Any) -> None:
+        current = admin.current_execution_job_record()
+        assert current.job_id == job_id and current.run_id == run_id and current.attempt == 2
+        fresh = FileSystemCAS(cas_root).with_ambient_ownership_enforcement()
+        fresh_registry = NodeRegistry()
+        fresh_registry.register(
+            _CostedRetryEffectNode(database, mode="retry")
+            if known_retry
+            else _CheckpointedEffectNode(database, operation_id=run_id)
+        )
+        fresh_registry.register(
+            _RemainingEffectNode(database, expected_spend=Decimal(8) if known_retry else Decimal(7))
+        )
+        with operation_scope():
+            continuation_ledger = (
+                None
+                if continuation == "missing_ledger"
+                else FileBudgetLedger(
+                    copied_budget_path if continuation == "copied_ledger" else budget_path
+                )
+            )
+            if continuation not in {"remaining", "exhausted", "known_retry", "completed"}:
+                rejection = CheckpointError if continuation == "ambiguous" else WorkflowTimeoutError
+                if continuation in {
+                    "stale_ledger",
+                    "missing_ledger",
+                    "tampered_state",
+                    "missing_receipt",
+                    "changed_receipt",
+                    "copied_ledger",
+                }:
+                    rejection = CheckpointError
+                pattern = (
+                    "checkpoint_attempt_state_not_reconciled"
+                    if continuation == "tampered_state"
+                    else None
+                )
+                with pytest.raises(rejection, match=pattern):
+                    resume_from_checkpoint(
+                        fresh,
+                        run_id,
+                        workflow=workflow,
+                        registry=fresh_registry,
+                        registry_bundle_ref=bundle.bundle_ref,
+                        run_dir=run_dir,
+                        require_reconciled_attempts=True,
+                        expected_control_job_id=job_id,
+                        continuation_ledger=continuation_ledger,
+                    )
+                return
+            result = resume_from_checkpoint(
+                fresh,
+                run_id,
+                workflow=workflow,
+                registry=fresh_registry,
+                registry_bundle_ref=bundle.bundle_ref,
+                run_dir=run_dir,
+                require_reconciled_attempts=True,
+                expected_control_job_id=job_id,
+                continuation_ledger=continuation_ledger,
+            )
+            if continuation == "exhausted":
+                assert result.report.status == "fail"
+                assert any(
+                    node.error is not None and node.error.code == "node.budget_exhausted"
+                    for node in result.report.nodes
+                )
+                return
+            assert result.report.status == "ok"
+            assert result.state.budgets["run_spent_usd"] == (
+                Decimal(9) if known_retry else Decimal(7) if completed else Decimal(8)
+            )
+            assert "failed_body" not in result.state.params
+            assert result.state.params["effect_ref"] == observed["effect_ref"]
+            head = load_checkpoint_head(run_dir)
+            assert head is not None
+            if completed:
+                assert head.checkpoint_ref == observed["head"].checkpoint_ref
+            checkpoint = load_checkpoint(fresh, head.checkpoint_ref)
+            assert checkpoint.metadata.completed_nodes == (
+                ["effect"] if completed else ["effect", "remaining"]
+            )
+            assert checkpoint.metadata.execution_deadline_at == observed["deadline"]
+            assert json.loads(
+                fresh.get_bytes(ArtifactRef.model_validate(observed["effect_ref"]))
+            ) == {
+                "operation_id": run_id,
+                "backend": "primary",
+            }
+        admin.complete_job(job_id=job.job_id, progress={"phase": "reconciled-completed"})
+
+    worker_b = ControlWorker(
+        store=admin, handler=resume_handler, worker_id="worker-B", lease_seconds=300
+    )
+    worker_b._run_with_lease_heartbeat(observed["replacement"])
+    assert_primary_effect_count()
+    with sqlite3.connect(database) as connection:
+        rows = connection.execute("SELECT operation_id, ref FROM remaining_effects").fetchall()
+    assert len(rows) == (1 if continuation in {"remaining", "ambiguous", "known_retry"} else 0)
+    if rows:
+        assert rows[0][0] == run_id
+    if continuation not in {"stale_ledger", "missing_receipt", "changed_receipt"}:
+        reopened = FileBudgetLedger(budget_path)
+        expected_spend = (
+            Decimal(9)
+            if known_retry
+            else Decimal(8)
+            if continuation in {"remaining", "ambiguous"}
+            else Decimal(7)
+        )
+        assert reopened.load().spent["run"] == expected_spend
+        assert reopened.resolve_spend(observed["receipt"].event_id) == observed["receipt"]
+        for receipt in observed["all_receipts"]:
+            assert reopened.resolve_spend(receipt.event_id) == receipt
+        assert reopened.settlement_owner_identity == original_budget_identity
+    final_job = admin.get_job(job_id)
+    assert final_job is not None and final_job.attempt == 2
+    assert final_job.state == (
+        "completed" if continuation in {"remaining", "known_retry", "completed"} else "running"
+    )
+
+
+@pytest.mark.parametrize("mode", ["retry", "lost_ack", "unknown", "exhausted_retry"])
+def test_actual_async_attempt_settlement_preserves_cost_and_unknown_boundary(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mode: str
+) -> None:
+    """Real retry execution owns distinct costs; same-attempt ACK recovery is not a new effect."""
+    cas = FileSystemCAS(tmp_path / "cas")
+    run_id, run_dir = f"dur02-costed-{mode}", tmp_path / "run"
+    bundle = build_default_registry_bundle(cas, return_selected_profile=True)
+    run = RunContext.start(
+        store=cas, registry_bundle=bundle.bundle_ref, run_id=run_id, run_dir=run_dir
+    )
+    ctx = ExecutionContext(store=cas, run=run, logger=logging.getLogger("dur02-costed"))
+    budget_path = tmp_path / "budget.json"
+    middleware = BudgetMiddleware(
+        BudgetState(
+            limits={
+                "run": BudgetLimit(
+                    key="run", max_usd=Decimal(7) if mode == "exhausted_retry" else Decimal(10)
+                )
+            },
+            spent={"run": Decimal(5)},
+        ),
+        ledger=FileBudgetLedger(budget_path),
+        invocation_settlement_profile="single_owner_local_v1",
+    )
+    database = tmp_path / "effects.sqlite3"
+    node = _CostedRetryEffectNode(database, mode="retry" if mode == "exhausted_retry" else mode)
+    registry = NodeRegistry()
+    registry.register(node)
+    workflow = WorkflowSpec(
+        workflow_id="dur02_costed_retry",
+        nodes=[
+            NodeInvocation(
+                alias="costed",
+                node_id=node.spec.metadata.component_id,
+                retry=RetryPolicy(
+                    max_retries=1,
+                    jitter="none",
+                    backoff_base_s=0.1,
+                    retry_on=["node.exception", "node.budget_settlement_outcome_unknown"],
+                ),
+            )
+        ],
+    )
+    lost_receipt_acks = []
+    if mode in {"lost_ack", "unknown"}:
+        put_json = cas.put_json
+
+        def commit_then_lose_receipt_ack(
+            obj: object,
+            opts: ArtifactWriteOptions,
+            canon_spec: CanonSpec | None = None,
+            *,
+            return_selected_profile: bool = False,
+        ) -> ArtifactRef:
+            ref = put_json(
+                obj, opts, canon_spec=canon_spec, return_selected_profile=return_selected_profile
+            )
+            if opts.kind == "scientist.budget_spend_receipt" and (
+                mode == "unknown" or not lost_receipt_acks
+            ):
+                lost_receipt_acks.append(ref)
+                raise OSError("actual selected receipt committed; response lost")
+            return ref
+
+        monkeypatch.setattr(cas, "put_json", commit_then_lose_receipt_ack)
+    result = asyncio.run(
+        AsyncWorkflowExecutor(
+            ctx,
+            registry,
+            max_parallelism=1,
+            budget_middleware=middleware,
+            strict_budget_attempts=True,
+        ).execute(
+            workflow,
+            ExperimentState(run_id=run_id, budgets={"run_spent_usd": Decimal(5)}),
+        )
+    )
+    with sqlite3.connect(database) as connection:
+        calls = connection.execute(
+            "SELECT run_id, attempt_number FROM costed_effects ORDER BY rowid"
+        ).fetchall()
+    expected_attempts = 2 if mode == "retry" else 1
+    assert calls == [(run_id, number) for number in range(1, expected_attempts + 1)]
+    history = read_runtime_invocation_attempts(cas, run_dir / "trace.jsonl", run_id=run_id)
+    snapshot = FileBudgetLedger(budget_path).snapshot()
+    assert snapshot.state.spent["run"] == (Decimal(8) if mode == "retry" else Decimal(7))
+    assert len(snapshot.spend_receipts) == expected_attempts
+    assert "failed_body" not in result.state.params
+    if mode == "exhausted_retry":
+        assert history and history[0].outcome is not None
+        assert history[0].outcome.budget_receipt_ref is not None
+        assert result.report.status == "fail"
+        assert result.report.nodes[0].error is not None
+        assert result.report.nodes[0].error.code == "node.budget_exhausted"
+        assert result.state.budgets["run_spent_usd"] == Decimal(7)
+        return
+    assert len(history) == expected_attempts
+    if mode == "unknown":
+        assert result.report.status == "fail"
+        assert result.report.nodes[0].error is not None
+        assert result.report.nodes[0].error.code == "node.budget_settlement_outcome_unknown"
+        assert lost_receipt_acks
+        return
+    assert result.report.status == "ok"
+    assert result.state.budgets["run_spent_usd"] == snapshot.state.spent["run"]
+    if mode == "lost_ack":
+        assert len(lost_receipt_acks) == 1
+    receipts = []
+    statuses = []
+    for attempt in history:
+        assert attempt.outcome is not None
+        statuses.append(attempt.outcome.status)
+        ref = attempt.outcome.budget_receipt_ref
+        assert ref is not None and ref.manifest_profile_sha256 is not None
+        receipt = BudgetLedgerSpendReceipt.model_validate(read_core_json_artifact(cas, ref).value)
+        assert snapshot.spend_receipts[receipt.event_id] == receipt
+        assert attempt.basis.budget_start_revision is not None
+        assert receipt.revision > attempt.basis.budget_start_revision
+        receipts.append(receipt)
+    assert [item.amount for item in receipts] == (
+        [Decimal(2), Decimal(1)] if mode == "retry" else [Decimal(2)]
+    )
+    assert len({item.event_id for item in receipts}) == expected_attempts
+    if mode == "retry":
+        assert [item.basis.budget_start_revision for item in history] == [0, 1]
+        assert statuses == ["fail", "ok"]
+
+
+@pytest.mark.parametrize("residual_mode", ["unchanged", "changed_definition", "missing_handoff"])
+def test_actual_unbudgeted_checkpoint_handover_reconciles_fresh_residual_definition(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, residual_mode: str
+) -> None:
+    """A no-ledger owner remains no-ledger; a changed B definition never executes."""
+    monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+    changed_residual = residual_mode == "changed_definition"
+    missing_handoff = residual_mode == "missing_handoff"
+    job_id, run_id = "dur02-unbudgeted-job", "dur02-unbudgeted-operation"
+    control_path = tmp_path / "control.sqlite3"
+    control = ControlPlaneStore(backend="sqlite", sqlite_path=control_path)
+    admin = ControlPlaneStore(backend="sqlite", sqlite_path=control_path)
+    control.create_job(
+        job_id=job_id,
+        kind="workflow_run",
+        run_id=run_id,
+        pipeline_id=None,
+        requested_execution_profile="dev",
+        effective_execution_profile="dev",
+        policy_flags={},
+        capability_manifest_ref=None,
+        payload_ref=None,
+        submitted_by="dur02-native-fixture",
+    )
+    cas_root, run_dir = tmp_path / "cas", tmp_path / "run"
+    cas = FileSystemCAS(cas_root).with_ambient_ownership_enforcement()
+    scope = AccessScope.for_service(
+        tenant_id="dur02-tenant",
+        cell_id="dur02-cell",
+        spiffe_id="spiffe://polisyos-test/dur02-unbudgeted-handover",
+    )
+
+    @contextmanager
+    def operation_scope() -> Iterator[None]:
+        token = set_current_access_scope(scope)
+        try:
+            with tenant_scope(None, tenant_id=scope.tenant_id, cell_id=scope.cell_id):
+                yield
+        finally:
+            reset_current_access_scope(token)
+
+    database, wrong_database = tmp_path / "effects.sqlite3", tmp_path / "wrong-effects.sqlite3"
+    effect = _UnbudgetedEffectNode(database, operation_id=run_id, invalid_handoff=missing_handoff)
+    remaining = _UnbudgetedRemainingEffectNode(database)
+    registry = NodeRegistry()
+    registry.register(effect)
+    registry.register(remaining)
+    workflow = WorkflowSpec(
+        workflow_id="dur02_unbudgeted_handover",
+        nodes=[
+            NodeInvocation(alias="effect", node_id=effect.spec.metadata.component_id),
+            NodeInvocation(
+                alias="remaining",
+                node_id=remaining.spec.metadata.component_id,
+                depends_on=["effect"],
+            ),
+        ],
+    )
+    with operation_scope():
+        bundle = build_default_registry_bundle(cas, return_selected_profile=True)
+        run = RunContext.start(
+            store=cas,
+            registry_bundle=bundle.bundle_ref,
+            run_id=run_id,
+            run_dir=run_dir,
+            tenant_id=scope.tenant_id,
+            cell_id=scope.cell_id,
+            access_scope=scope,
+        )
+        run.update_manifest(control_job_id=job_id, execution_profile="dev")
+        ctx = ExecutionContext(store=cas, run=run, logger=logging.getLogger("dur02-unbudgeted"))
+        hook = _PrimaryCheckpointHook(store=cas, run_dir=run_dir, lose_after_first=True)
+    runner = FallbackWorkflowRunner(_CheckpointPrimary(hook), health_ttl_s=0)
+    original = {}
+
+    def primary_handler(job) -> None:
+        with operation_scope():
+            with pytest.raises(PrimaryExecutionOutcomeUnknownError):
+                asyncio.run(
+                    runner.execute_workflow(
+                        workflow,
+                        ExperimentState(run_id=run_id, params={"backend": "primary"}),
+                        ctx,
+                        registry,
+                    )
+                )
+            original["head"] = load_checkpoint_head(run_dir)
+            assert original["head"] is not None
+            checkpoint = load_checkpoint(cas, original["head"].checkpoint_ref)
+            assert checkpoint.metadata.completed_nodes == ["effect"]
+            assert checkpoint.metadata.execution_budget_contract == "admitted_workflow_budget_v1"
+            original["deadline"] = checkpoint.metadata.execution_deadline_at
+            assert original["deadline"] is not None
+            history = read_runtime_invocation_attempts(cas, run_dir / "trace.jsonl", run_id=run_id)
+            assert history[0].basis.budget_middleware_active is False
+            assert history[0].basis.budget_owner_identity is None
+            if missing_handoff:
+                missing = ArtifactRef.model_validate(
+                    checkpoint.state["artifacts_index"]["effect_ref"]
+                )
+                with pytest.raises(ArtifactOwnershipError, match="payload is not readable"):
+                    cas.verify(missing)
+                assert history[0].outcome is not None
+                assert all(cas.verify(ref).ok for ref in history[0].outcome.output_refs)
+                assert all(
+                    ref.artifact_id != missing.artifact_id for ref in history[0].outcome.output_refs
+                )
+
+    worker_a = ControlWorker(store=control, handler=primary_handler, worker_id="worker-A")
+    assert worker_a.dispatch_once()
+    with sqlite3.connect(control_path) as connection:
+        connection.execute(
+            "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+            ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job_id),
+        )
+    fresh_registry = NodeRegistry()
+    fresh_registry.register(
+        _UnbudgetedEffectNode(database, operation_id=run_id, invalid_handoff=missing_handoff)
+    )
+    fresh_registry.register(
+        _UnbudgetedRemainingEffectNode(wrong_database if changed_residual else database)
+    )
+    observed = []
+
+    def replacement_handler(job) -> None:
+        with operation_scope():
+            fresh_cas = FileSystemCAS(cas_root).with_ambient_ownership_enforcement()
+
+            def resume():
+                return resume_from_checkpoint(
+                    fresh_cas,
+                    run_id,
+                    workflow=workflow,
+                    registry=fresh_registry,
+                    registry_bundle_ref=bundle.bundle_ref,
+                    run_dir=run_dir,
+                    require_reconciled_attempts=True,
+                    expected_control_job_id=job_id,
+                )
+
+            if changed_residual:
+                with pytest.raises(
+                    CheckpointError, match="checkpoint_residual_implementation_not_established"
+                ):
+                    resume()
+                observed.append("changed-definition-refused")
+                return
+            if missing_handoff:
+                with pytest.raises(CheckpointCorruptedError, match=r"artifacts_index\.effect_ref"):
+                    resume()
+                observed.append("missing-handoff-refused")
+                return
+            result = resume()
+            assert result.report.status == "ok" and result.state.budgets == {}
+            head = load_checkpoint_head(run_dir)
+            assert head is not None
+            checkpoint = load_checkpoint(fresh_cas, head.checkpoint_ref)
+            assert checkpoint.metadata.completed_nodes == ["effect", "remaining"]
+            assert checkpoint.metadata.execution_deadline_at == original["deadline"]
+            observed.append("remaining-only")
+        admin.complete_job(job_id=job.job_id, progress={"unbudgeted_reconciled": True})
+
+    worker_b = ControlWorker(store=admin, handler=replacement_handler, worker_id="worker-B")
+    assert worker_b.dispatch_once()
+    expected = (
+        "changed-definition-refused"
+        if changed_residual
+        else "missing-handoff-refused"
+        if missing_handoff
+        else "remaining-only"
+    )
+    assert observed == [expected]
+    assert len(_effects(database)) == 1
+    for path in (database, wrong_database) if changed_residual else (database,):
+        with sqlite3.connect(path) as connection:
+            count = connection.execute("SELECT COUNT(*) FROM remaining_effects").fetchone()[0]
+        assert count == (0 if changed_residual or missing_handoff else 1)
+    current = admin.get_job(job_id)
+    assert current is not None and current.attempt == 2
+    assert current.state == ("running" if changed_residual or missing_handoff else "completed")
+    with (
+        pytest.raises(ControlJobLeaseLostError),
+        control.job_execution_fence(job_id=job_id, worker_id="worker-A", attempt=1),
+    ):
+        control.complete_job(job_id=job_id)
+    assert admin.get_job(job_id) == current
+    assert not (tmp_path / "budget.json").exists()

@@ -14586,8 +14586,8 @@
         {
           "module": "polisyos.scientist.orchestration.engine",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 115,
-          "known_export_count": 115,
+          "export_count": 117,
+          "known_export_count": 117,
           "exports": [
             "ATTR_CACHE_HIT",
             "ATTR_CELL_ID",
@@ -14657,6 +14657,8 @@
             "NodeEvent",
             "NodeExecutionError",
             "NodeInvocation",
+            "NodeInputRule",
+            "InputAwareNodeSpec",
             "NodeOutcome",
             "NodeOutputRule",
             "OutputAwareNodeSpec",
@@ -14729,8 +14731,8 @@
                 "path": "src/polisyos/scientist/orchestration/engine/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 17843,
-                "sha256": "b6c29d5c10fff361cb8139c846c68d6220284ef58b0c07b62d29052980dde47a"
+                "bytes": 18130,
+                "sha256": "cd84ca856e846813217c98163e5fd0805b008dd90838abdfb54c55ff7ccaf023"
               },
               {
                 "path": "src/polisyos/scientist/orchestration/engine",
@@ -14755,6 +14757,12 @@
                 "operation": "is_dir",
                 "status": "present",
                 "result": false
+              },
+              {
+                "path": "src/polisyos/scientist/orchestration/engine/_invocation_settlement.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
               },
               {
                 "path": "src/polisyos/scientist/orchestration/engine/async_executor.py",
@@ -14794,6 +14802,12 @@
               },
               {
                 "path": "src/polisyos/scientist/orchestration/engine/child_output_closure.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/orchestration/engine/child_workflow.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true
@@ -14842,6 +14856,12 @@
               },
               {
                 "path": "src/polisyos/scientist/orchestration/engine/errors.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/orchestration/engine/execution_admission.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true

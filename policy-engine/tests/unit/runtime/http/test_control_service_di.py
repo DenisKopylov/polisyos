@@ -2141,6 +2141,22 @@ async def _run_controlled_simulate_only_job_fixture(
         check_layer3_gy_design_generation_contract as n4_contract,
     )
 
+    runtime_data_root = (source_repo_root or REPO_ROOT).resolve(strict=True)
+    actual_l6_reads: list[dict[str, Any]] = []
+    bind_l6_bundle = None
+    require_l6_reader = None
+    if source_root is not None:
+        assert runtime_data_root == source_root.resolve(strict=True)
+        assert l6_source_owner_root is not None
+        from tests._helpers.candidate_cycle_source_profile import (
+            install_candidate_cycle_l6_source_root_reader,
+        )
+
+        actual_l6_reads, bind_l6_bundle, require_l6_reader = (
+            install_candidate_cycle_l6_source_root_reader(
+                monkeypatch, code_root=REPO_ROOT, source_owner_root=l6_source_owner_root
+            )
+        )
     recording_id = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
     recording_matches = tuple(
         item
@@ -2175,6 +2191,30 @@ async def _run_controlled_simulate_only_job_fixture(
     # Revalidation through the current union owner materializes the strict v3
     # qualified outcome type required for a dotted canonical target.
     problem = type(original_problem).model_validate(problem_payload)
+
+    def assert_problem_value(actual: Any, expected: Any, *, location: str) -> None:
+        assert type(actual) is type(expected), location + ":problem_type"
+        assert cycle_job_design_problem_ref(actual) == cycle_job_design_problem_ref(expected), (
+            location + ":problem_basis"
+        )
+        same_complete_value = actual.model_dump(mode="json") == expected.model_dump(mode="json")
+        assert same_complete_value, location + ":complete_problem_value"
+
+    def assert_issued_scope_value(actual: Any, expected: Any, *, location: str) -> None:
+        assert type(actual) is type(expected), location + ":scope_type"
+        assert actual._was_issued_by_verified_nl_execution_owner, location + ":scope_issuer"
+        same_complete_value = actual.model_dump(mode="json") == expected.model_dump(mode="json")
+        assert same_complete_value, location + ":complete_scope_value"
+
+    def assert_context_replay_root(root: Path | None, context: Any, *, location: str) -> None:
+        # Static historical contexts consume no source-root admission. Actual
+        # K_ref I/O has its separate exact-root guard immediately before I/O.
+        if context.source_profile is not None:
+            assert root is not None, location + ":source_profile_root_missing"
+            assert root.resolve(strict=True) == runtime_data_root, (
+                location + ":source_profile_root_mismatch"
+            )
+
     outcome_variable = problem.outcome_of_interest.target_variable
     if registered_ncm_outcome:
         controlled_recording = _controlled_registered_tax_recording(
@@ -2217,6 +2257,12 @@ async def _run_controlled_simulate_only_job_fixture(
         )
     else:
         profile, model_declaration = _configured_procurement_profile(**profile_args)
+    if bind_l6_bundle is not None:
+        expected_l6_witness = bind_l6_bundle(profile.context_inputs.intervention_substrate)
+        assert actual_l6_reads
+        assert all(read["bundle"] == expected_l6_witness for read in actual_l6_reads)
+        assert require_l6_reader is not None
+        require_l6_reader()
     assert profile.profile_selection_ref == cycle_job_profile_selection_ref(problem)
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         service = _build_control_service(
@@ -2275,6 +2321,52 @@ async def _run_controlled_simulate_only_job_fixture(
     n4_proposal_ports = []
     execution_order: list[tuple[str, str]] = []
     started_core_contexts = []
+    actual_kref_repo_roots: list[str] = []
+    kref_observations: list[tuple[Path, Any, Exception | None]] = []
+    kref_diagnostic: dict[str, Any] = {"phase": "not_entered", "last_root": None}
+    if source_root is not None:
+        import logging
+
+        from polisyos.runtime.quality import design_generation as design_generation_module
+        from tests._helpers.candidate_cycle_source_profile import (
+            bind_candidate_cycle_kref_builder_root,
+        )
+
+        selected_kref_builder = bind_candidate_cycle_kref_builder_root(
+            design_generation_module.build_credal_reference,
+            expected_repo_root=source_root,
+            observed_repo_roots=actual_kref_repo_roots,
+            mismatch_code="controlled_simulate_only_kref_data_root_mismatch",
+        )
+
+        def observe_selected_kref_root(repo_root: Path | str, *args: Any, **kwargs: Any) -> Any:
+            actual_root = Path(repo_root).resolve(strict=True)
+            kref_diagnostic.clear()
+            kref_diagnostic.update(phase="kref_enter", last_root=str(actual_root))
+            logging.getLogger(__name__).warning(
+                "controlled_simulate_only_fixture %s", json.dumps(kref_diagnostic, sort_keys=True)
+            )
+            try:
+                assert require_l6_reader is not None
+                require_l6_reader()
+                reference = selected_kref_builder(repo_root, *args, **kwargs)
+            except Exception as error:
+                kref_observations.append((actual_root, None, error))
+                kref_diagnostic.update(phase="kref_refused", exception_type=type(error).__name__)
+                raise
+            else:
+                kref_observations.append((actual_root, reference, None))
+                kref_diagnostic.update(phase="kref_returned", result_type=type(reference).__name__)
+                return reference
+            finally:
+                logging.getLogger(__name__).warning(
+                    "controlled_simulate_only_fixture %s",
+                    json.dumps(kref_diagnostic, sort_keys=True),
+                )
+
+        monkeypatch.setattr(
+            design_generation_module, "build_credal_reference", observe_selected_kref_root
+        )
 
     from polisyos.core.run.context import RunContext
     from polisyos.core.trace import TraceRecord
@@ -2424,7 +2516,9 @@ async def _run_controlled_simulate_only_job_fixture(
     assert mismatch.value.code == "candidate_simulation_model_outcome_problem_mismatch"
     assert len(admission_attempts) == 1
     assert admission_attempts[0][0] is probe_owner
-    assert admission_attempts[0][1]["problem"] is probe_problem
+    assert_problem_value(
+        admission_attempts[0][1]["problem"], probe_problem, location="negative_profile_admission"
+    )
     assert admission_observations == []
     assert context_persist_attempts == []
     assert owner_refs == owner_replays == owner_replay_refs == verified_scope_observations == []
@@ -2494,7 +2588,6 @@ async def _run_controlled_simulate_only_job_fixture(
     ):
         assert owner._store is service._artifact_store
         assert get_current_access_scope_or_none() is None
-        assert repo_root == REPO_ROOT
         assert verified_nl_job_scope is not None
         verified_scope_observations.append(verified_nl_job_scope)
         if local_sibling_mechanism_witness:
@@ -2523,6 +2616,7 @@ async def _run_controlled_simulate_only_job_fixture(
             repo_root=repo_root,
             verified_nl_job_scope=verified_nl_job_scope,
         )
+        assert_context_replay_root(repo_root, artifact.context, location="current_owner_replay")
         if not owner_replay_currentness_refusals:
             # Job/problem mismatches refuse even with valid CAS bytes. Source-bound
             # contexts reject a foreign root; legacy ones cannot gain a source claim.
@@ -2749,6 +2843,7 @@ async def _run_controlled_simulate_only_job_fixture(
                 intents.update({first_ref: "simulate_only", second_ref: "simulate_only"})
                 run_kwargs["leaf_context_owner"] = RecursiveLeafContextOwner(
                     store=service._artifact_store,
+                    repo_root=kwargs["repo_root"],
                     context_owner=CycleSubstrateContextArtifactOwner(
                         store=service._artifact_store,
                         control_store=service._control_store,
@@ -2880,12 +2975,30 @@ async def _run_controlled_simulate_only_job_fixture(
         assert leased.lease_owner is not None
 
         completed = service._control_store.get_job(launch.job_id)
+        fixture_diagnostic = {
+            "phase": execution_order[-1][0] if execution_order else "not_started",
+            "expected_data_root": str(runtime_data_root),
+            "kref": dict(kref_diagnostic),
+            "job_state": None if completed is None else completed.state,
+            "job_error_code": completed.progress["failure"].get("code")
+            if completed is not None and isinstance(completed.progress.get("failure"), dict)
+            else None,
+        }
+        if source_root is not None:
+            assert require_l6_reader is not None
+            require_l6_reader()
+            assert all(read["bundle"] == expected_l6_witness for read in actual_l6_reads)
+            logging.getLogger(__name__).warning(
+                "controlled_simulate_only_fixture %s",
+                json.dumps(fixture_diagnostic, sort_keys=True),
+            )
         if same_leaf_failure_stage is not None:
             assert completed is not None and completed.state == "failed", {
                 "boundary": "controlled_same_leaf_failure_after_real_n5",
                 "state": None if completed is None else completed.state,
                 "error": None if completed is None else completed.error_message,
                 "n5_statuses": [row.observation.status for row in n5_port_observations],
+                **fixture_diagnostic,
             }
             assert same_leaf_error is not None and same_leaf_cause is not None
             assert completed.error_message == str(same_leaf_error)
@@ -2903,6 +3016,8 @@ async def _run_controlled_simulate_only_job_fixture(
             assert packet.completion.verified_scope == verified_scope_observations[0]
             assert packet.completion.verified_scope._was_issued_by_verified_nl_execution_owner
             assert len(started_core_contexts) == 1
+            if source_root is not None:
+                assert actual_kref_repo_roots, fixture_diagnostic
             service_transferred = True
             return SimpleNamespace(
                 service=service,
@@ -2920,8 +3035,13 @@ async def _run_controlled_simulate_only_job_fixture(
                 original_preserver=original_preserver,
                 finish_calls=finish_calls,
                 core_context=started_core_contexts[0],
+                kref_observations=tuple(kref_observations),
+                actual_kref_repo_roots=tuple(actual_kref_repo_roots),
+                actual_l6_reads=tuple(actual_l6_reads),
             )
-        assert completed is not None and completed.state == "completed"
+        assert completed is not None and completed.state == "completed", fixture_diagnostic
+        if source_root is not None:
+            assert actual_kref_repo_roots, fixture_diagnostic
         progress = completed.progress
         if proposal_source_persistence_failure:
             assert source_persistence_failures
@@ -2950,8 +3070,8 @@ async def _run_controlled_simulate_only_job_fixture(
             assert len(n4_proposal_ports) == 1
             assert n4_port_attempts[0][0] is not n4_proposal_ports[0]
             assert n4_port_attempts[1][0] is n4_proposal_ports[0]
-            assert n4_port_attempts[0][1] is problem
-            assert n4_port_attempts[1][1] is problem
+            for index, attempt in enumerate(n4_port_attempts):
+                assert_problem_value(attempt[1], problem, location=f"source_refusal_n4[{index}]")
 
             from polisyos.runtime.http.services.adapters.core_run import (
                 derive_control_job_core_run_id,
@@ -3071,52 +3191,61 @@ async def _run_controlled_simulate_only_job_fixture(
             ),
         ]
         assert len(owner_replay_calls) == len(owner_replays)
-        assert all(
-            type(owner) is CycleSubstrateContextArtifactOwner
-            and owner._store is service._artifact_store
-            and artifact_ref_identity_key(ref) == artifact_ref_identity_key(owner_refs[0])
-            and replay_problem is problem
-            and cycle_job_design_problem_ref(replay_problem) == problem_ref
-            and replay_repo_root == REPO_ROOT
-            and verified_scope is verified_scope_observations[0]
-            and verified_scope._was_issued_by_verified_nl_execution_owner
-            and (verified_scope.job_id, verified_scope.run_id) == (launch.job_id, str(job.run_id))
-            and (verified_scope.tenant_id, verified_scope.cell_id) == (tenant_id, cell_id)
-            for owner, ref, replay_problem, replay_repo_root, verified_scope in owner_replay_calls
-        )
+        for index, replay_call in enumerate(owner_replay_calls):
+            owner, ref, replay_problem, replay_repo_root, verified_scope = replay_call
+            location = f"owner_replay[{index}]"
+            assert type(owner) is CycleSubstrateContextArtifactOwner, location + ":owner_type"
+            assert owner._store is service._artifact_store, location + ":CAS_owner_identity"
+            assert artifact_ref_identity_key(ref) == artifact_ref_identity_key(owner_refs[0]), (
+                location + ":selected_context_ref"
+            )
+            assert_problem_value(replay_problem, problem, location=location)
+            assert_context_replay_root(
+                replay_repo_root, owner_replays[index].context, location=location
+            )
+            assert_issued_scope_value(
+                verified_scope, verified_scope_observations[0], location=location
+            )
+            assert (verified_scope.job_id, verified_scope.run_id) == (
+                launch.job_id,
+                str(job.run_id),
+            ), location + ":job_run_scope"
+            assert (verified_scope.tenant_id, verified_scope.cell_id) == (tenant_id, cell_id), (
+                location + ":tenant_cell_scope"
+            )
         assert admission_observations
         admitted_offer = admission_observations[0][1]
         assert type(source_owner) is ConfiguredCandidateSimulationContextAdmissionOwner
         assert source_owner.store is service._artifact_store
-        assert all(
-            type(offer) is CandidateSimulationContextOffer for _, offer in admission_observations
-        )
-        assert all(
-            type(call["problem"]) is type(problem)
-            and cycle_job_design_problem_ref(call["problem"]) == problem_ref
-            and call["job_id"] == launch.job_id
-            and call["run_id"] == str(job.run_id)
-            and call["tenant_id"] == tenant_id
-            and call["cell_id"] == cell_id
-            for call, _ in admission_observations
-        )
-        assert all(
-            offer.profile == profile
-            and offer.model_declaration == model_declaration
-            and offer.context.design_problem_ref == problem_ref
-            for _, offer in admission_observations
-        )
+        for index, (call, offer) in enumerate(admission_observations):
+            location = f"profile_admission[{index}]"
+            assert type(offer) is CandidateSimulationContextOffer, location + ":offer_type"
+            assert_problem_value(call["problem"], problem, location=location)
+            assert call["job_id"] == launch.job_id, location + ":job_scope"
+            assert call["run_id"] == str(job.run_id), location + ":run_scope"
+            assert call["tenant_id"] == tenant_id, location + ":tenant_scope"
+            assert call["cell_id"] == cell_id, location + ":cell_scope"
+            assert offer.profile == profile, location + ":profile_value"
+            assert offer.model_declaration == model_declaration, location + ":model_declaration"
+            assert offer.context.design_problem_ref == problem_ref, location + ":problem_basis"
         assert len(owner_refs) == 1
         assert len(owner_replay_refs) == len(owner_replays)
-        assert all(
-            artifact_ref_identity_key(ref) == artifact_ref_identity_key(owner_refs[0])
-            for ref in owner_replay_refs
-        )
+        for index, replay_ref in enumerate(owner_replay_refs):
+            assert artifact_ref_identity_key(replay_ref) == artifact_ref_identity_key(
+                owner_refs[0]
+            ), f"owner_replay_ref[{index}]:selected_context_ref"
         assert len(context_persist_attempts) == 4
-        assert context_persist_attempts[-1][1] is problem
-        assert context_persist_attempts[-1][2] is verified_scope_observations[0]
+        assert_problem_value(context_persist_attempts[-1][1], problem, location="context_persist")
+        assert_issued_scope_value(
+            context_persist_attempts[-1][2],
+            verified_scope_observations[0],
+            location="context_persist",
+        )
         assert len(verified_scope_observations) == len(owner_replays) + 1
-        assert all(scope is verified_scope_observations[0] for scope in verified_scope_observations)
+        for index, scope in enumerate(verified_scope_observations):
+            assert_issued_scope_value(
+                scope, verified_scope_observations[0], location=f"verified_scope[{index}]"
+            )
         assert verified_scope_observations[0]._was_issued_by_verified_nl_execution_owner
         assert verified_scope_observations[0].job_id == launch.job_id
         assert verified_scope_observations[0].run_id == str(job.run_id)
@@ -3133,23 +3262,29 @@ async def _run_controlled_simulate_only_job_fixture(
         assert context_artifact.run_id == str(job.run_id)
         assert context_artifact.tenant_id == tenant_id
         assert context_artifact.cell_id == cell_id
-        assert context_artifact.problem == problem
-        assert all(
-            replay.job_id == launch.job_id
-            and replay.run_id == str(job.run_id)
-            and replay.tenant_id == tenant_id
-            and replay.cell_id == cell_id
-            and replay.problem == problem
-            and replay.context.content_hash == context_artifact.context.content_hash
-            for replay in owner_replays
-        )
-        assert all(
-            offer.context.content_hash == context_artifact.context.content_hash
-            and offer.profile_config_ref == admitted_offer.profile_config_ref
-            and offer.model_declaration_ref == admitted_offer.model_declaration_ref
-            and offer.ncm_ref == admitted_offer.ncm_ref
-            for _, offer in admission_observations
-        )
+        assert_problem_value(context_artifact.problem, problem, location="context_artifact")
+        for index, replay in enumerate(owner_replays):
+            location = f"context_artifact_replay[{index}]"
+            assert replay.job_id == launch.job_id, location + ":job_scope"
+            assert replay.run_id == str(job.run_id), location + ":run_scope"
+            assert replay.tenant_id == tenant_id, location + ":tenant_scope"
+            assert replay.cell_id == cell_id, location + ":cell_scope"
+            assert_problem_value(replay.problem, problem, location=location)
+            assert replay.context.content_hash == context_artifact.context.content_hash, (
+                location + ":complete_context_hash"
+            )
+        for index, (_, offer) in enumerate(admission_observations):
+            location = f"profile_admission_replay[{index}]"
+            assert offer.context.content_hash == context_artifact.context.content_hash, (
+                location + ":complete_context_hash"
+            )
+            assert offer.profile_config_ref == admitted_offer.profile_config_ref, (
+                location + ":profile_config_ref"
+            )
+            assert offer.model_declaration_ref == admitted_offer.model_declaration_ref, (
+                location + ":model_declaration_ref"
+            )
+            assert offer.ncm_ref == admitted_offer.ncm_ref, location + ":selected_ncm_ref"
         assert context_artifact.profile_admission_status == "not_established"
         assert context_artifact.s8_status == "blocked"
         assert context_artifact.context.world_model_record.authority_status == "limited"
@@ -3162,7 +3297,8 @@ async def _run_controlled_simulate_only_job_fixture(
         assert len(n4_proposal_ports) == 1
         assert n4_port_attempts[0][0] is not n4_proposal_ports[0]
         assert n4_port_attempts[1][0] is n4_proposal_ports[0]
-        assert n4_port_attempts[0][1] is problem
+        for index, attempt in enumerate(n4_port_attempts):
+            assert_problem_value(attempt[1], problem, location=f"n4_problem[{index}]")
         proposal_run = n4_organ_runs[0]
         assert type(proposal_run) is N4CandidateScenarioProposalRun
         proposal_problem_ref = generation_cycle_service.gy_content_hash(
@@ -3177,7 +3313,7 @@ async def _run_controlled_simulate_only_job_fixture(
             )
         for observed in n5_port_observations:
             assert type(observed.candidate) is N4CandidateScenarioProposalCandidate
-            assert observed.problem == problem
+            assert_problem_value(observed.problem, problem, location="n5_observed_problem")
             assert observed.context.content_hash == context_artifact.context.content_hash
             assert observed.observation.candidate_id == observed.candidate.candidate_id
             assert observed.observation.status == "joint_simulated"
@@ -3248,7 +3384,7 @@ async def _run_controlled_simulate_only_job_fixture(
         selected_v2_source = selected_source.source_record
         selected_v1_source = selected_v2_source.source_record
         assert selected_v1_source.profile == profile
-        assert selected_v1_source.problem == problem
+        assert_problem_value(selected_v1_source.problem, problem, location="selected_n4_source")
         assert selected_v1_source.proposal.design_problem_ref == proposal_problem_ref
         assert selected_v1_source.cycle_problem_ref == problem_ref
         assert selected_v1_source.k_ref_limitation_code in {
@@ -3414,6 +3550,9 @@ async def _run_controlled_simulate_only_job_fixture(
             resolve_current_context=original_resolve,
             owner_replay_currentness_refusals=tuple(owner_replay_currentness_refusals),
             n5_result=n5_result,
+            kref_observations=tuple(kref_observations),
+            actual_kref_repo_roots=tuple(actual_kref_repo_roots),
+            actual_l6_reads=tuple(actual_l6_reads),
         )
         service_transferred = True
         return fixture
@@ -4170,7 +4309,6 @@ async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoi
     from tests._helpers.candidate_cycle_source_profile import (
         build_candidate_cycle_substrate_route_inputs,
     )
-    from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT
 
     bounded_source = build_candidate_cycle_substrate_route_inputs(
         tmp_path / "bounded-local-sibling-source",
@@ -4191,12 +4329,12 @@ async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoi
         monkeypatch,
         tmp_path,
         local_sibling_mechanism_witness=True,
-        source_repo_root=REPO_ROOT,
+        source_repo_root=bounded_source.root,
         source_root=bounded_source.root,
         basis_repo_root=bounded_source.root,
         l6_source_owner_root=bounded_source.root,
     )
-    assert fixture.service._repo_root == REPO_ROOT.resolve()
+    assert fixture.service._repo_root == bounded_source.root.resolve()
     core_run_id = str(fixture.job.progress["core_run_id"])
     compiled_payload = canon.from_canonical_bytes(fixture.compiled_payload)
     recursive_payload = compiled_payload["recursive_run"]
@@ -4265,11 +4403,11 @@ async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoi
             core_runs_root=tmp_path / ".polisyos" / "runs",
             candidate_simulation_profiles=(fixture.profile,),
             candidate_simulation_model_declarations=(fixture.model_declaration,),
-            repo_root=REPO_ROOT,
+            repo_root=bounded_source.root,
             allow_fixture_identity=True,
         )
     runtime_container = app.state.runtime_container
-    assert runtime_container.config.repo_root == REPO_ROOT.resolve()
+    assert runtime_container.config.repo_root == bounded_source.root.resolve()
     assert runtime_container.config.candidate_simulation_profiles == (fixture.profile,)
     assert runtime_container.config.candidate_simulation_model_declarations == (
         fixture.model_declaration,
@@ -4427,7 +4565,7 @@ async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoi
                         fixture.context_owner,
                         fixture.context_job_selected_ref,
                         problem=fixture.problem,
-                        repo_root=REPO_ROOT,
+                        repo_root=bounded_source.root,
                         verified_nl_job_scope=fixture.verified_scope,
                     )
                 assert "changed_problem_basis_refused" in fixture.owner_replay_currentness_refusals
@@ -4611,7 +4749,6 @@ async def test_same_leaf_n5_preservation_removal_then_restored_revision_body(
     from tests._helpers.candidate_cycle_source_profile import (
         build_candidate_cycle_substrate_route_inputs,
     )
-    from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT
 
     identities: list[tuple[str, str, Path]] = []
     original_errors: list[Exception] = []
@@ -4640,7 +4777,7 @@ async def test_same_leaf_n5_preservation_removal_then_restored_revision_body(
             fixture = await _run_controlled_simulate_only_job_fixture(
                 case_patch,
                 case_root,
-                source_repo_root=REPO_ROOT,
+                source_repo_root=bounded_source.root,
                 source_root=bounded_source.root,
                 basis_repo_root=bounded_source.root,
                 l6_source_owner_root=bounded_source.root,
@@ -4761,7 +4898,7 @@ async def test_same_leaf_n5_preservation_removal_then_restored_revision_body(
                     app = create_runtime_api_app(
                         cas_root=cas_root,
                         core_runs_root=cas_root / "runs",
-                        repo_root=REPO_ROOT,
+                        repo_root=bounded_source.root,
                         container_overrides=RuntimeContainerOverrides(
                             runtime_api_context=fresh_context
                         ),

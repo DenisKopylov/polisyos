@@ -737,6 +737,37 @@
           "named_inputs": 11,
           "inputs_unchanged_during_run": true,
           "scope": "Normal full Runtime OpenAPI byte/hardening and all three canonical SDK output drift checks; no skip-client-drift, endpoint execution or production readiness inferred."
+        },
+        "partial_current_native_pair": {
+          "output": "policy-engine/_cache/e02/res03-configured-removal-revision-r2/",
+          "observed": {
+            "PASS": 1
+          },
+          "actual_n5_jobs": 2,
+          "return_code": 0,
+          "named_inputs": 77,
+          "inputs_unchanged_during_run": true,
+          "junit_sha256": "f5d4be92ff75bb169a59179b9cb57e718faca55bf704f5f1683cf45a20af91b5",
+          "scope": "One pytest case runs two isolated real N5 jobs: removed value-preservation bridge withholds body; restored revision body retains exact numbers/full roots and original fresh Debug code/type/message/cause. Raw authority refusal remains. Actual macOS MEM max1381M/CMPRS0B,31.399s."
+        },
+        "partial_sibling_public_tail": {
+          "output": "policy-engine/_cache/e02/res03-retained-r3-sibling-public-numbers-r1/",
+          "return_code": 0,
+          "named_inputs": 144,
+          "inputs_unchanged_during_run": true,
+          "stdout_sha256": "ac84f53d18eed4ead240e2db51d8e179f31ab859b6a49d6aa2c37182aef4ae42",
+          "new_n5_executions": 0,
+          "scope": "Genuine R3 producer completed and retained two trajectories/two physical-work units. The original whole pytest remains FAIL at its old post-execution object-identity oracle. Independent retained fresh-reader continuation proves every numerical point/full ref, partial V3 topology/error/rootterminalNone, normative refusal persistFalse/True, changed-basis refusal, raw409/profile404/tenant403, blob removal/checkpoint retention/restoration, immutable job/history. Product bytes unchanged; no all-green whole R3 invocation claim."
+        },
+        "partial_portable55": {
+          "output": "policy-engine/_cache/e02/res03-composed-portable-consumers-r1/",
+          "observed": {
+            "PASS": 55
+          },
+          "named_inputs": 81,
+          "inputs_unchanged_during_run": true,
+          "junit_sha256": "719579c9d008706082afaf311185c72ebee4a178de1b5af975a34263d6bf076e",
+          "scope": "Final affected scoped-source/codec/history/recursive/publication consumers on a5f3 product; no N5 or production Catalog. Actual main MEM max1241M/CMPRS0B."
         }
       },
       "local_only_requirement_ids": [
@@ -750,14 +781,6 @@
         "REQ-STA-02-04"
       ],
       "current_remaining": [
-        {
-          "kind": "current_sibling_and_same_leaf_native_verification",
-          "requirements": [
-            "REQ-RES-03-02",
-            "REQ-RES-03-03"
-          ],
-          "basis": "Bounded same-leaf actual N5→fresh candidate numbers is now proven from retained R4 bytes, with adversarial/removal guards. Current producer bridge/removal/restored-revision Debug and fresh sibling targets remain UNRUN after aborted DI profile. Correct service data-root scope and measure one solo native job; do not repeat the pair."
-        },
         {
           "kind": "product_installed_profile",
           "requirements": [
@@ -781,7 +804,7 @@
         "formal_closure": false,
         "B198": "Historical closure preserved",
         "next_lanes_started": false,
-        "source_state": "Reviewed retained N5 producer/reader/UI source is saved as an author checkpoint; current native producer/sibling verification and installed checks remain pending. No lane PASS or formal closure.",
+        "source_state": "Product source frozen and publisheda5f3; mandatory RES03 local route qualified by explicit versioned split evidence. Final installed profile pending; late DA01 and trusted corrupt-ledger restore remain separate.",
         "repository_ci": "Fast/Standard remain red. All three named forbidden package edges predate20d9009; aggregate import/cycle and UI reds are not called inherited without exact complete replay. Main remains unmerged."
       },
       "reconciliation_binding": {
@@ -803,9 +826,9 @@
         "test_source_commit": "1758be1ffc91dc2847fa6425587d3e675b672514"
       },
       "resource_admission": {
-        "measured_free_disk_gib": 6.4,
+        "measured_free_disk_gib": 8.1,
         "swap_used_gib_approx": 9.0,
-        "native_di_policy": "SOLO until actual corrected profile is measured; include macOS MEM/CMPRS/physical footprint, not RSS alone. No heavy job while source/fixtures change. Existing resource aborts remain visible.",
+        "native_di_policy": "Corrected bounded fixture solo profiles measure about1.38GiB MEM/CMPRS0B; earlier production-root pair aborted and remains ERROR. Keep installed unknown profile solo; no automatic restoration of pairing.",
         "cleanup": "Prior8.39GiB move to Trash retained; no Trash emptying or source/environment/production deletion."
       }
     },
@@ -1674,7 +1697,7 @@
       "track_id": "06-A",
       "track_position": 6,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_partial",
       "base_commit": "e7a49fdf939b492fc7742906658159cd2fc89ff6",
@@ -1696,9 +1719,7 @@
         "TEST-RES-03-03"
       ],
       "evidence": [],
-      "blockers": [
-        "native_fixture_data_root_and_measured_solo_profile"
-      ],
+      "blockers": [],
       "deferred_ids": [
         "DA-01"
       ],
@@ -1708,7 +1729,7 @@
         "delegate_limit": "One read-only leaf explicit allowed model; grandchild no delegation",
         "mandatory_companions": "Authorized mirrored tests/helper/README companions may be added within the assigned mechanism after checking no competing writer; notify Root footprint, no separate approval per routine companion. Shared generated families/index/refs remain Root-owned."
       },
-      "current_assessment": "retained_same_leaf_public_numbers_qualified_current_native_producer_pending",
+      "current_assessment": "local_configured_n5_partial_mechanism_qualified_late_cyc_pending",
       "evidence_refs": [
         "partial_latest",
         "partial_n5_binding14",
@@ -1716,9 +1737,9 @@
         "partial_chain_controls"
       ],
       "remaining_kinds": [
-        "current_sibling_and_same_leaf_native_verification"
+        "late_CYC_dependent_authority_projection"
       ],
-      "reconciliation_note": "Actual retained same-leaf N5 numbers now reach the fresh scoped public reader with truthful blockers/purpose and negative controls. Current DI producer/removal/revision targets aborted before N5 and remain UNRUN. Correct bounded data-root fixture and measure solo. DA01 defers only later CYC projection/dependent authority, not local native checks.",
+      "reconciliation_note": "Local configured N5 retention/public numerical mechanism qualified by originalchain6, currentfresh2 removal/revision PASS, genuine siblingR3 producer plus independent retained-reader PASS, finalportable55/UI255/Core9/history24/API guards. Whole siblingR3 remains FAIL at old post-execution identity oracle; corrected661b fixture is source-reviewed and exercised by currentfresh2. No V6/actualN8/production authority or G acceptance. Only exact DA01 late dependent-authority/CYC edge remains.",
       "requirement_results": [
         {
           "requirement_id": "REQ-RES-03-01",
@@ -1747,7 +1768,7 @@
             "E02-I06-B-B03",
             "E02-X02-B05"
           ],
-          "assessment": "retained_same_leaf_public_numeric_body_qualified_current_native_target_pending",
+          "assessment": "local_configured_n5_partial_mechanism_qualified_late_cyc_pending",
           "evidence_refs": [
             "partial_latest",
             "partial_n5_binding14",
@@ -1757,13 +1778,15 @@
             "partial_core_dto9",
             "partial_core_history24",
             "partial_surface255",
-            "partial_native_pair_attempt"
+            "partial_native_pair_attempt",
+            "partial_current_native_pair",
+            "partial_sibling_public_tail",
+            "partial_portable55"
           ],
           "remaining_kinds": [
-            "current_sibling_and_same_leaf_native_verification",
             "late_CYC_dependent_authority_projection"
           ],
-          "basis": "Actual retained same-leaf N5 numbers now reach the fresh scoped public reader with truthful blockers/purpose and negative controls. Current DI producer/removal/revision targets aborted before N5 and remain UNRUN. Correct bounded data-root fixture and measure solo. DA01 defers only later CYC projection/dependent authority, not local native checks.",
+          "basis": "Local configured N5 retention/public numerical mechanism qualified by originalchain6, currentfresh2 removal/revision PASS, genuine siblingR3 producer plus independent retained-reader PASS, finalportable55/UI255/Core9/history24/API guards. Whole siblingR3 remains FAIL at old post-execution identity oracle; corrected661b fixture is source-reviewed and exercised by currentfresh2. No V6/actualN8/production authority or G acceptance. Only exact DA01 late dependent-authority/CYC edge remains.",
           "status": "PARTIAL",
           "capability_gaps": [
             "verification_missing"
@@ -1779,7 +1802,7 @@
             "E02-I06-B-B03",
             "E02-X02-B05"
           ],
-          "assessment": "retained_same_leaf_public_numeric_body_qualified_current_native_target_pending",
+          "assessment": "local_configured_n5_partial_mechanism_qualified_late_cyc_pending",
           "evidence_refs": [
             "partial_latest",
             "partial_configured_n5_boundary",
@@ -1787,13 +1810,15 @@
             "partial_core_dto9",
             "partial_core_history24",
             "partial_surface255",
-            "partial_native_pair_attempt"
+            "partial_native_pair_attempt",
+            "partial_current_native_pair",
+            "partial_sibling_public_tail",
+            "partial_portable55"
           ],
           "remaining_kinds": [
-            "current_sibling_and_same_leaf_native_verification",
             "late_CYC_dependent_authority_projection"
           ],
-          "basis": "Actual retained same-leaf N5 numbers now reach the fresh scoped public reader with truthful blockers/purpose and negative controls. Current DI producer/removal/revision targets aborted before N5 and remain UNRUN. Correct bounded data-root fixture and measure solo. DA01 defers only later CYC projection/dependent authority, not local native checks.",
+          "basis": "Local configured N5 retention/public numerical mechanism qualified by originalchain6, currentfresh2 removal/revision PASS, genuine siblingR3 producer plus independent retained-reader PASS, finalportable55/UI255/Core9/history24/API guards. Whole siblingR3 remains FAIL at old post-execution identity oracle; corrected661b fixture is source-reviewed and exercised by currentfresh2. No V6/actualN8/production authority or G acceptance. Only exact DA01 late dependent-authority/CYC edge remains.",
           "status": "PARTIAL",
           "capability_gaps": [
             "verification_missing"
@@ -7928,9 +7953,8 @@
           ],
           "edge_occurrences": 3,
           "req_test_pairs": 3,
-          "assessment": "retained_same_leaf_public_numbers_qualified_current_native_producer_pending",
+          "assessment": "local_configured_n5_partial_mechanism_qualified_late_cyc_pending",
           "remaining_kinds": [
-            "current_sibling_and_same_leaf_native_verification",
             "late_CYC_dependent_authority_projection"
           ],
           "evidence": [
@@ -7941,9 +7965,12 @@
             "partial_core_dto9",
             "partial_core_history24",
             "partial_surface255",
-            "partial_native_pair_attempt"
+            "partial_native_pair_attempt",
+            "partial_current_native_pair",
+            "partial_sibling_public_tail",
+            "partial_portable55"
           ],
-          "basis": "Actual retained same-leaf N5 numbers now reach the fresh scoped public reader with truthful blockers/purpose and negative controls. Current DI producer/removal/revision targets aborted before N5 and remain UNRUN. Correct bounded data-root fixture and measure solo. DA01 defers only later CYC projection/dependent authority, not local native checks."
+          "basis": "Local configured N5 retention/public numerical mechanism qualified by originalchain6, currentfresh2 removal/revision PASS, genuine siblingR3 producer plus independent retained-reader PASS, finalportable55/UI255/Core9/history24/API guards. Whole siblingR3 remains FAIL at old post-execution identity oracle; corrected661b fixture is source-reviewed and exercised by currentfresh2. No V6/actualN8/production authority or G acceptance. Only exact DA01 late dependent-authority/CYC edge remains."
         },
         {
           "binding_id": "E02-I06-B-B04",

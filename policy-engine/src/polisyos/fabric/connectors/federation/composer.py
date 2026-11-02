@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING, Any
 import pandas as pd
 
 from polisyos.common.logger import get_logger
+from polisyos.common.numeric_reductions import finite_binary64_mean, finite_binary64_midpoint
 from polisyos.core.canon import content_hash
 from polisyos.core.observability import PolicyOSTracer
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
@@ -32,6 +33,7 @@ from polisyos.fabric.connectors.federation.profile import (
     admit_frame,
     admit_key_index,
     admit_output_envelope,
+    admit_replay_dtype,
     admit_shape,
     align_scalar_series,
     bounded_encode,
@@ -556,6 +558,8 @@ class DataComposer:
                 sources[:1], len(sources[0][0]), token_bytes=token_bytes, request=request
             )
         columns = set().union(*(set(frame.columns) for frame, _ in sources))
+        if strategy == CompositionStrategy.UNION and total_rows == 0 and request.schema is not None:
+            columns.update(field.name for field in request.schema.fields)
         if strategy != CompositionStrategy.JOIN:
             admit_shape(total_rows, len(columns))
             output_wire = admit_output_envelope(
@@ -659,7 +663,12 @@ class DataComposer:
                 or request.aggregation_func
                 or "median"
             )
-            if (
+            if column in declared_empty_union_dtypes:
+                # Resolve a schema-only column before inferring from source
+                # templates: a lawful declared field may have no template.
+                target = declared_empty_union_dtypes[column]
+                admit_replay_dtype(target)
+            elif (
                 strategy == CompositionStrategy.CONSENSUS
                 and column not in keys
                 and aggregation in {"mean", "median"}
@@ -684,12 +693,6 @@ class DataComposer:
                     target = "object"
                 else:
                     target = str(target_dtype)
-            if column in declared_empty_union_dtypes:
-                # A valid zero-row UNION carries no observed values from which
-                # to reconstruct its declared output types. Preserve the
-                # request schema's typed empty through the same owned-lineage
-                # projection used for nonempty results.
-                target = declared_empty_union_dtypes[column]
             columns[column] = cast_series_losslessly(
                 result[column],
                 target,
@@ -828,7 +831,7 @@ class DataComposer:
             resolved_lineage.append(row_bases[int(group_rows[chosen][source_column])])
 
         if not resolved_rows:
-            empty = scalar_frame(sources[0][0].iloc[:0])
+            empty = self._empty_union_frame(sources, request, key_columns)
             _attach_persisted_lineage(empty, [], self._all_source_declarations, self._basis_status)
             return empty
 
@@ -839,6 +842,33 @@ class DataComposer:
             result, resolved_lineage, self._all_source_declarations, self._basis_status
         )
         return result
+
+    @staticmethod
+    def _empty_union_frame(
+        sources: list[tuple[pd.DataFrame, SourceMetadata]],
+        request: CompositionRequest,
+        key_columns: list[str],
+    ) -> pd.DataFrame:
+        """Retain the admitted column union with explicit schema order first."""
+        declared = request.schema.to_pandas_dtypes() if request.schema is not None else {}
+        source_columns = {column for frame, _ in sources for column in frame.columns}
+        leading = list(declared) if declared else list(key_columns)
+        columns = leading + sorted(source_columns - set(leading))
+        admit_shape(0, len(columns))
+        output = {}
+        for column in columns:
+            if column in declared:
+                target = declared[column]
+            else:
+                templates = [frame[column].iloc[:0] for frame, _ in sources if column in frame]
+                if not templates:
+                    raise SchemaIncompatibilityError(
+                        f"Empty UNION has no dtype basis for column {column!r}"
+                    )
+                target = str(pd.concat(templates, ignore_index=True).dtype)
+            admit_replay_dtype(target)
+            output[column] = pd.Series(dtype=target)
+        return pd.DataFrame(output)
 
     def _join(
         self,
@@ -1719,10 +1749,22 @@ class DataComposer:
 
             if not numeric_values:
                 result_values.append(float("nan"))
-            elif agg_func == "mean":
-                result_values.append(float(pd.Series(numeric_values).mean()))
             else:
-                result_values.append(float(pd.Series(numeric_values).median()))
+                if agg_func == "mean":
+                    point = finite_binary64_mean(numeric_values)
+                else:
+                    ordered = sorted(numeric_values)
+                    middle = len(ordered) // 2
+                    point = (
+                        ordered[middle]
+                        if len(ordered) % 2
+                        else finite_binary64_midpoint(ordered[middle - 1], ordered[middle])
+                    )
+                if not is_finite_number(point):
+                    raise ConflictResolutionError(
+                        f"CONSENSUS {agg_func} produced a non-finite point for column {column}"
+                    )
+                result_values.append(point)
 
         return pd.Series(result_values, index=values_df.index), {
             "participants": participant_count,

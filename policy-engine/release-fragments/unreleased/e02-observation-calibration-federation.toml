@@ -1,0 +1,47 @@
+id = "e02-observation-calibration-federation"
+title = "Preserve observed source identity through calibration and federation"
+type = "fixed"
+component = "data-forge"
+owner = "e02-coordinator"
+summary = "Preserve original donor identities and computational source roles; keep builder imports lazy and validate returned input bytes. Give each stage attempt a distinct run ID. Preserve finite paired calibration axes and declared units/intervals. Share finite binary64 reductions, retain lawful typed-empty federation results and bind changed replay rules explicitly."
+evidence = ["tests/unit/data_forge/domains/ukraine/test_demography_native_integrity.py", "tests/unit/data_forge/domains/ukraine/test_builder_imports.py", "tests/unit/foundry/data_plane/test_ukraine_native_consumer.py", "tests/unit/foundry/calibration/test_calibrator_mvp.py", "tests/unit/fabric/connectors/test_federation_lane07.py", "tests/unit/fabric/connectors/test_federation_audit_lane07.py", "tests/performance/test_federation_lane07.py"]
+compatibility = "Preserve builder aliases, public export names, stage ID prefixes and ordinary nonempty consumers. Run IDs remain opaque and now include a unique attempt suffix. Older undeclared measurement units/interval semantics remain unknown. Numeric overflow and malformed scalar inputs refuse instead of producing non-finite values or guessed identities."
+change_class = "persisted-artifact-format"
+surface_classification = "public_experimental: persisted measurement targets and federation derivations; public_stable: common.numeric_reductions direct entrypoint; internal: builder orchestration"
+limitations = "Synthetic mechanical profiles establish software behavior, not scientific validity, source currentness, institutional authority or G acceptance. Final CAL-02/CAL-06 objective composition remains in LANE-10; final cross-lane impact verification remains separate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+
+[[compatibility_change]]
+id = "common-finite-binary64-reductions"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.common.numeric_reductions finite_binary64_mean and finite_binary64_midpoint"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Expose one thin standard-library finite binary64 reduction owner through a supported direct entrypoint for Federation and future consumers. Keep the Common root facade unchanged. Finite admission and empty-input refusal do not establish units, independence or scientific authority."
+public_surface_inventory_reviewed = true
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "measurement-target-declared-unit-interval"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "public_experimental: MeasurementAwareTarget schema 1.1 and observation target bundles"
+owner = "team-foundry"
+version_owner = "team-ir"
+deprecation_window = "not_applicable"
+release_note = "Add optional source-declared unit and interval semantics. Preserve 1.0 reads without inventing missing declarations. Reject conflicting declared units/interval kinds and mismatched explicit axes; carry paired interval ends through placebo overlap and split classification. Regenerate the ABI schema and manifest."
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "federation-derivation-rule-version-three"
+change_class = "persisted-artifact-format"
+impact = "behavioral"
+surface = "public_experimental: persisted federation derivation/3 and selected replay"
+owner = "team-fabric"
+version_owner = "team-fabric"
+deprecation_window = "not_applicable"
+release_note = "Write derivation/3 with explicit composition-rule identity. Retain unaffected /2 JOIN, OVERLAY and ordinary nonempty UNION reads where no declared request schema or MEDIAN policy is present. Historical requests with declared schema, MEDIAN policy, affected numeric CONSENSUS or all-empty UNION remain inspectable but typed replay refuses historical rule unavailability. Recompute new selected derivations from retained inputs; do not rewrite historical claims. Empty SQL schema inference preserves declared dtype while reporting empirical quality as unestablished."
+generated_client_compatibility = "not_applicable"

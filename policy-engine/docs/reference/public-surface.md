@@ -110,7 +110,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 ## `polisyos.common`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.common`, `polisyos.common.text`, `polisyos.common.config`, `polisyos.common.canonical`, `polisyos.common.canonical_profile`, `polisyos.common.producer_request`, `polisyos.common.hashing`, `polisyos.common.migrations`
+- Supported entrypoints: `polisyos.common`, `polisyos.common.text`, `polisyos.common.config`, `polisyos.common.canonical`, `polisyos.common.canonical_profile`, `polisyos.common.producer_request`, `polisyos.common.hashing`, `polisyos.common.migrations`, `polisyos.common.numeric_reductions`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/common/README.md`
@@ -130,6 +130,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.common.producer_request` | `src/polisyos/common/producer_request.py` | `eager_exports` | 14 |
 | `polisyos.common.hashing` | `src/polisyos/common/hashing.py` | `eager_exports` | 5 |
 | `polisyos.common.migrations` | `src/polisyos/common/migrations/__init__.py` | `eager_exports` | 6 |
+| `polisyos.common.numeric_reductions` | `src/polisyos/common/numeric_reductions.py` | `eager_exports` | 2 |
 
 #### `polisyos.common`
 
@@ -293,6 +294,21 @@ LinearMigrationProfile
 migrate_artifact
 register_migration
 run_linear_migration
+```
+
+</details>
+
+#### `polisyos.common.numeric_reductions`
+
+- Source: `src/polisyos/common/numeric_reductions.py`
+- Facade: `eager_exports`
+- Summary: Finite binary64 point reductions over CPython's exact-sum mean owner.
+
+<details><summary>Entrypoint exports (2)</summary>
+
+```text
+finite_binary64_mean
+finite_binary64_midpoint
 ```
 
 </details>

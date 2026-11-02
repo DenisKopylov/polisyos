@@ -11,10 +11,10 @@ import json
 import threading
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
-import numpy as np
 import pandas as pd
 
 from polisyos.common.logger import get_logger
+from polisyos.common.numeric_reductions import finite_binary64_midpoint
 from polisyos.core.canon import content_hash
 from polisyos.fabric.connectors.federation.types import (
     AuditLevel,
@@ -106,7 +106,12 @@ class ConflictResolver:
         # Filter out nulls if any non-null values exist
         effective_candidates = self._filter_null_candidates(candidates)
 
-        if len(effective_candidates) == 1:
+        if policy == ConflictPolicy.MEDIAN:
+            # Numeric admission belongs before the single-effective-source
+            # shortcut. A null peer cannot turn an invalid point into authority.
+            resolution = self._resolve_by_median(effective_candidates, context)
+            resolution.all_candidates = candidates
+        elif len(effective_candidates) == 1:
             chosen = effective_candidates[0]
             resolution = ConflictResolution(
                 chosen_candidate=chosen,
@@ -120,8 +125,6 @@ class ConflictResolver:
                 resolution = self._resolve_by_recency(effective_candidates, context)
             elif policy == ConflictPolicy.MANUAL_PRIORITY:
                 resolution = self._resolve_by_manual_priority(effective_candidates, context)
-            elif policy == ConflictPolicy.MEDIAN:
-                resolution = self._resolve_by_median(effective_candidates, context)
             elif policy == ConflictPolicy.FIRST_AVAILABLE:
                 resolution = self._resolve_first_available(effective_candidates, context)
             else:
@@ -283,6 +286,11 @@ class ConflictResolver:
         For numeric data: compute median of all values.
         For non-numeric: fall back to TRUST_HIGHEST unless strict.
         """
+        if all(self._is_null(candidate.value) for candidate in candidates):
+            resolution = self._resolve_first_available(candidates, context)
+            resolution.reasoning = "MEDIAN: all values absent; no numeric point"
+            return resolution
+
         numeric_values: list[float] = []
         numeric_candidates: list[ConflictCandidate] = []
         skipped_non_finite = 0
@@ -296,6 +304,8 @@ class ConflictResolver:
                     numeric_candidates.append(candidate)
                 else:
                     skipped_non_finite += 1
+            except OverflowError:
+                skipped_non_finite += 1
             except (TypeError, ValueError):
                 skipped_non_numeric += 1
 
@@ -332,7 +342,13 @@ class ConflictResolver:
                 non_numeric=skipped_non_numeric,
             )
 
-        median_value = float(np.median(numeric_values))
+        ordered_values = sorted(numeric_values)
+        middle = len(ordered_values) // 2
+        median_value = (
+            ordered_values[middle]
+            if len(ordered_values) % 2
+            else finite_binary64_midpoint(ordered_values[middle - 1], ordered_values[middle])
+        )
         closest = [c for c in numeric_candidates if abs(float(c.value) - median_value) < 1e-10]
 
         if closest:

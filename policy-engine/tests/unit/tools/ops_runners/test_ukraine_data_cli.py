@@ -5,6 +5,7 @@ import os
 import shlex
 import subprocess
 import sys
+import sysconfig
 from pathlib import Path
 
 from polisyos.data_forge.domains.ukraine.models import build_default_pipeline_config
@@ -69,7 +70,7 @@ def test_cold_ops_cli_composes_server_bootstrap_and_persists_outputs(
             "--write-capabilities",
         ],
         cwd=tmp_path,
-        env=environment,
+        env=_cold_environment(product_root, fake_bin),
         check=False,
         capture_output=True,
         text=True,
@@ -97,6 +98,103 @@ def test_cold_ops_cli_composes_server_bootstrap_and_persists_outputs(
     )
     assert f"cd {workdir}" in bootstrap_path.read_text(encoding="utf-8")
     assert not uv_called.exists()
+
+
+def test_public_validate_part_a_reports_unavailable_before_server_guard(
+    tmp_path: Path,
+) -> None:
+    """A missing checkout is a typed diagnostic, even on a non-server host."""
+
+    product_root = _product_root()
+    artifact_root = tmp_path / "artifacts"
+    workspace_root = tmp_path / "installed-layout"
+    workspace_root.mkdir()
+    config = build_default_pipeline_config(root=artifact_root)
+    assert config.server.require_server_for_build is True
+
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    entrypoint = Path(sysconfig.get_path("scripts")) / "ukraine-data"
+    assert entrypoint.is_file()
+    uv_called = tmp_path / "uv-called"
+    uv = fake_bin / "uv"
+    uv.write_text(
+        f"#!/bin/sh\nprintf called > {shlex.quote(str(uv_called))}\nexit 97\n",
+        encoding="utf-8",
+    )
+    uv.chmod(0o755)
+    result = subprocess.run(
+        [
+            str(entrypoint),
+            "--root",
+            str(artifact_root),
+            "--workspace-root",
+            str(workspace_root),
+            "validate-part-a",
+        ],
+        cwd=tmp_path,
+        env=_cold_environment(product_root, fake_bin),
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+
+    assert result.returncode == 1, result.stdout + result.stderr
+    payload = json.loads(result.stdout)
+    gate_path = artifact_root / "manifests" / "part_a_gate_manifest.json"
+    gate = json.loads(gate_path.read_text(encoding="utf-8"))
+    assert payload["status"] == "unavailable"
+    assert payload["errors"] == ["part_a_gate_status=unavailable"]
+    assert gate["status"] == "unavailable"
+    assert gate["command"] == []
+    assert gate["passed"] is False
+    assert gate["skipped"] is False
+    assert "checkout is unavailable" in " ".join(gate["notes"]).lower()
+    assert not uv_called.exists()
+
+
+def test_public_validate_part_a_keeps_server_guard_for_real_checkout(
+    tmp_path: Path,
+) -> None:
+    """A real repository checkout still requires server admission before work."""
+
+    product_root = _product_root()
+    artifact_root = tmp_path / "artifacts"
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    entrypoint = Path(sysconfig.get_path("scripts")) / "ukraine-data"
+    assert entrypoint.is_file()
+    uv_called = tmp_path / "uv-called"
+    uv = fake_bin / "uv"
+    uv.write_text(
+        f"#!/bin/sh\nprintf called > {shlex.quote(str(uv_called))}\nexit 97\n",
+        encoding="utf-8",
+    )
+    uv.chmod(0o755)
+    environment = _cold_environment(product_root, fake_bin)
+    environment["PATH"] = os.pathsep.join((str(fake_bin), str(Path(sys.executable).parent)))
+    result = subprocess.run(
+        [
+            str(entrypoint),
+            "--root",
+            str(artifact_root),
+            "--workspace-root",
+            str(product_root),
+            "validate-part-a",
+        ],
+        cwd=tmp_path,
+        env=environment,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+
+    assert result.returncode != 0
+    assert "Server-only command blocked" in result.stderr
+    assert not uv_called.exists()
+    assert not artifact_root.exists()
 
 
 def test_cold_domain_cli_refuses_to_run_without_ops_factory(tmp_path: Path) -> None:

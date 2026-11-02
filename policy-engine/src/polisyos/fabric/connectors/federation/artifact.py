@@ -28,6 +28,7 @@ from polisyos.fabric.connectors.federation.composer import (
 )
 from polisyos.fabric.connectors.federation.profile import (
     MAX_CELLS,
+    MAX_COLUMNS,
     MAX_FILE_BYTES,
     MAX_GRAPH_CELLS,
     MAX_GRAPH_DEPTH,
@@ -44,6 +45,7 @@ from polisyos.fabric.connectors.federation.profile import (
     cast_series_losslessly,
     encode_scalar,
     frame_projection,
+    is_supported_replay_dtype,
 )
 from polisyos.fabric.connectors.federation.resolver import ConflictResolver
 from polisyos.fabric.connectors.federation.types import (
@@ -62,13 +64,11 @@ if TYPE_CHECKING:
 
 # v1 exists only in held, unapplied Cloud proposals. This replaces that candidate
 # protocol; it does not claim a supported product-v1 migration or reader fallback.
-_FORMAT = "policyos.federation.derivation/2"
+_FORMAT = "policyos.federation.derivation/3"
+_LEGACY_FORMAT = "policyos.federation.derivation/2"
+_COMPOSITION_RULE = "finite-binary64-points-and-typed-empty-union/1"
 _LINEAGE_ATTR = "policyos_federation_lineage_v1"
 _HASH = re.compile(r"[0-9a-f]{64}\Z")
-_DTYPE = re.compile(
-    r"(?:object|bool|boolean|str|string|[Uu]?[Ii]nt(?:8|16|32|64)|[Ff]loat(?:32|64)|"
-    r"datetime64\[ns(?:, [A-Za-z0-9_+:/-]+)?\])\Z"
-)
 
 
 @dataclass(frozen=True)
@@ -287,7 +287,7 @@ def _restore_frame(
         not all(isinstance(column, str) for column in columns)
         or len(set(columns)) != len(columns)
         or len(dtypes) != len(columns)
-        or not all(isinstance(dtype, str) and _DTYPE.fullmatch(dtype) for dtype in dtypes)
+        or not all(is_supported_replay_dtype(dtype) for dtype in dtypes)
     ):
         raise FederationError("Unsupported federation column/dtype profile")
     if any(not isinstance(row, list) or len(row) != len(columns) for row in encoded):
@@ -363,11 +363,13 @@ def _admit_typed(value: object, annotation: object) -> None:
 def _admit_dataclass(value: object, contract: type) -> None:
     if type(value) is not contract:
         raise FederationError("Unsupported replay contract subclass")
-    # These optional runtime-heavy types are explicitly unsupported above;
-    # the wire subprofile admits only None without importing their subsystems.
+    from polisyos.fabric.connectors.contracts.schema import DataSchema
+
+    # Quality/coverage stay unsupported. The /3 request admits an actual strict
+    # schema through its bounded model codec, rather than an arbitrary object.
     namespace = dict(vars(sys.modules[contract.__module__]))
     namespace.update(
-        datetime=datetime, timedelta=timedelta, DataSchema=type(None), DataQualityReport=type(None)
+        datetime=datetime, timedelta=timedelta, DataSchema=DataSchema, DataQualityReport=type(None)
     )
     try:
         annotations = get_type_hints(contract, globalns=namespace)
@@ -377,11 +379,31 @@ def _admit_dataclass(value: object, contract: type) -> None:
         _admit_typed(getattr(value, member.name), annotations[member.name])
 
 
+def _schema_projection(schema: object) -> dict[str, Any]:
+    """Encode the actual DataSchema, canonicalizing its declared set fields."""
+    from polisyos.fabric.connectors.contracts.schema import DataSchema
+
+    if type(schema) is not DataSchema or len(schema.fields) > MAX_COLUMNS:
+        raise FederationError("Unsupported or overbound federation schema contract")
+    value = schema.model_dump(mode="json")
+    value["tags"] = sorted(schema.tags)
+    value["allowed_null_fields"] = sorted(schema.allowed_null_fields)
+    for encoded, original in zip(value["fields"], schema.fields, strict=True):
+        encoded["tags"] = sorted(original.tags)
+        encoded["allowed_values"] = (
+            sorted(original.allowed_values) if original.allowed_values is not None else None
+        )
+    admit_json_tree(value)
+    bounded_encode(value, MAX_SCALAR_BYTES)
+    # A constructed model cannot bypass ordinary field/relationship admission.
+    DataSchema.model_validate(value)
+    return value
+
+
 def _request_projection(request: CompositionRequest) -> dict[str, Any]:
-    if request.schema is not None:
-        raise FederationError("Federation wire profile requires an explicit schema-free request")
     _admit_dataclass(request, CompositionRequest)
     value = asdict(request)
+    value["schema"] = _schema_projection(request.schema) if request.schema is not None else None
     value["strategy"] = request.strategy.value
     value["conflict_policy"] = request.conflict_policy.value
     value["audit_level"] = request.audit_level.value
@@ -419,6 +441,10 @@ def _restore_request(value: dict[str, Any]) -> CompositionRequest:
         if restored["max_staleness"] is not None
         else None
     )
+    if restored.get("schema") is not None:
+        from polisyos.fabric.connectors.contracts.schema import DataSchema
+
+        restored["schema"] = DataSchema.model_validate(restored["schema"])
     request = CompositionRequest(**restored)
     if _request_projection(request) != value:
         raise FederationError("Federation effective request is not exactly replayable")
@@ -569,6 +595,7 @@ def _persist(
     output_digest = _sha(output)
     manifest = {
         "format": _FORMAT,
+        "composition_rule": _COMPOSITION_RULE,
         "sources": source_records,
         "request": request_value,
         "resolver": {"tie_breaker_seed": seed},
@@ -678,9 +705,15 @@ def _read_node(
         "assurance",
         "limitations",
     }
+    if manifest.get("format") == _FORMAT:
+        expected_fields.add("composition_rule")
     if (
         set(manifest) != expected_fields
-        or manifest.get("format") != _FORMAT
+        or manifest.get("format") not in {_FORMAT, _LEGACY_FORMAT}
+        or (
+            manifest.get("format") == _FORMAT
+            and manifest.get("composition_rule") != _COMPOSITION_RULE
+        )
         or manifest["assurance"] != "software_derivation_candidate"
         or manifest["limitations"]
         != ["consumer_declared_issuer", "no_live_currentness", "no_source_universe_proof"]
@@ -728,6 +761,25 @@ def _read_node(
                 raise FederationError("Leaf source cannot assert derived lineage")
             frame = _restore_frame(value["frame"], budget)
         sources.append((frame, metadata))
+    if manifest["format"] == _LEGACY_FORMAT:
+        median_policy = request.conflict_policy is ConflictPolicy.MEDIAN or any(
+            policy is ConflictPolicy.MEDIAN for policy in (request.column_policies or {}).values()
+        )
+        numeric_consensus = request.strategy is CompositionStrategy.CONSENSUS and (
+            request.aggregation_func in {None, "mean", "median"}
+            or any(
+                aggregation in {"mean", "median"}
+                for aggregation in (request.column_aggregation_funcs or {}).values()
+            )
+        )
+        empty_union = request.strategy is CompositionStrategy.UNION and all(
+            frame.empty for frame, _ in sources
+        )
+        if request.schema is not None or median_policy or numeric_consensus or empty_union:
+            raise FederationError(
+                "Historical federation composition rule is unavailable for this request; "
+                "preserve the selected /2 bytes and issue a new /3 derivation"
+            )
     seed = manifest["resolver"]["tie_breaker_seed"]
     if seed is not None and not isinstance(seed, str):
         raise FederationError("Federation resolver seed must be a string or null")

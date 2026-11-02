@@ -19,7 +19,7 @@ from contextvars import ContextVar
 from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from dataclasses import fields as dataclass_fields
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from functools import wraps
 from typing import Any, Literal
 
@@ -88,6 +88,7 @@ from polisyos.foundry.calibration.measurement import (
     MeasurementAwareLossConfig,
 )
 from polisyos.foundry.calibration.preflight import (
+    _admit_target_axis,
     fetch_targets,
     prepare_targets,
     resolve_steps,
@@ -772,10 +773,16 @@ def _measurement_time_axis(values: Sequence[Any] | None) -> list[float] | None:
             continue
         text = str(value)
         try:
-            result.append(float(datetime.fromisoformat(text).date().toordinal()))
-        except ValueError:
-            result.append(float(len(result)))
-    return result
+            result.append(float(date.fromisoformat(text).toordinal()))
+        except ValueError as exc:
+            raise ValueError(
+                "Measurement time axis requires ISO dates or finite numeric labels"
+            ) from exc
+    admitted = _admit_target_axis(np.asarray(result))
+    assert admitted is not None
+    if np.any(admitted[1:] <= admitted[:-1]):
+        raise ValueError("Measurement time axis must be strictly ordered without duplicate labels")
+    return admitted.tolist()
 
 
 def _selector_key(value: Any) -> str:
@@ -1520,6 +1527,11 @@ def _persist_calibration_execution_basis(
     consumed_values = capture.get("target_values", {})
     captured_time_axes = capture.get("report_time_axes", {})
     measurement_bundle = inputs.measurement_bundle
+    measurement_specs = (
+        {item.target_id: item for item in measurement_bundle.targets}
+        if measurement_bundle is not None
+        else {}
+    )
     for target in inputs.config.targets:
         target_id = target.target_id
         comparison = report.series_comparison.get(target_id)
@@ -1568,8 +1580,12 @@ def _persist_calibration_execution_basis(
                     "split_label",
                     "identification_mode",
                     "time_grain",
+                    "period_end",
                 )
             }
+            target_spec = measurement_specs.get(target_id)
+            if target_spec is not None:
+                metadata["target_spec"] = target_spec.model_dump(mode="python")
             try:
                 measurement_digest = canonical_input_sha256(metadata)
             except (TypeError, ValueError, OverflowError):
@@ -2522,6 +2538,27 @@ class Calibrator:
                     )
             if self.inputs.controls_seq is not None and len(self.inputs.controls_seq) != steps:
                 raise ValueError("controls_seq length must match calibration steps")
+            if cfg.steps not in (None, steps):
+                raise ValueError("Measurement calibration steps must match observed row count")
+            time_axes = {
+                target.target_id: _measurement_time_axis(
+                    measurement_bundle.time_axis.get(target.target_id)
+                )
+                for target in targets
+            }
+            configured_axis = _admit_target_axis(
+                np.asarray(cfg.time_axis) if cfg.time_axis is not None else None
+            )
+            for target_id, axis in time_axes.items():
+                if axis is not None and len(axis) != steps:
+                    raise ValueError("Measurement time axis must match observed row count")
+                if configured_axis is not None and (
+                    axis is None or not np.array_equal(configured_axis, np.asarray(axis))
+                ):
+                    raise ValueError(
+                        "Configured time axis must exactly match the measurement time axis; "
+                        "an explicit upstream alignment is required"
+                    )
             scales: dict[str, float] = {}
             for target in targets:
                 target_id = target.target_id
@@ -2559,12 +2596,6 @@ class Calibrator:
                 scale_support[target_id] = bool(np.any(np.asarray(observed_mask & training_mask)))
                 if not scale_support[target_id]:
                     diagnostics.append(f"no_training_scale_support:{target_id}")
-            time_axes = {
-                target.target_id: _measurement_time_axis(
-                    measurement_bundle.time_axis.get(target.target_id)
-                )
-                for target in targets
-            }
 
         if self._execution_capture is not None:
             raw_target_ids = set(self.inputs.raw_targets or {})
@@ -3621,6 +3652,16 @@ class Calibrator:
                 },
             },
         )
+        if measurement_bundle is not None:
+            report.execution_context["measurement_target_semantics"] = {
+                target_id: {
+                    "declared_unit": measurement_targets[target_id].unit,
+                    "interval_semantics": measurement_targets[target_id].interval_semantics,
+                    "period_end": measurement_bundle.period_end.get(target_id),
+                    "unit_authority": "not_established",
+                }
+                for target_id in target_ids
+            }
         if batch_profile is not None:
             report.execution_context["ordered_batch"] = {
                 "profile_kind": "ordered_scalar_mse_v1",

@@ -27,6 +27,11 @@ migration primitives. Keep domain logic out of this package.
   private pure backend-selection predicate.
 - `src/polisyos/common/logger/__init__.py` owns the logger adapter classes and trace-context behavior.
 - `src/polisyos/common/migrations/README.md` documents package-local artifact migrations.
+- `src/polisyos/common/numeric_reductions.py` owns finite binary64 mean and
+  midpoint for numerical consumers. It delegates accumulation to CPython's
+  `statistics.mean`, refuses non-finite inputs/results and preserves typed
+  overflow rather than silently emitting infinity. It is a supported direct
+  module entrypoint; the Common root's lazy export list remains unchanged.
 
 ## Internal Markdown table syntax
 
@@ -49,7 +54,7 @@ follow the [measurement register decision](../../../docs/superpowers/specs/2026-
 
 - Supported package entrypoints: `polisyos.common`, `polisyos.common.text`,
   `polisyos.common.canonical`, `polisyos.common.canonical_profile`, and
-  `polisyos.common.hashing`.
+  `polisyos.common.hashing`, and `polisyos.common.numeric_reductions`.
 - `polisyos.common.text` provides pure shared whitespace normalization through
   `collapse_ws`; existing Lex consumers retain that same function object through
   the lazy root facade.

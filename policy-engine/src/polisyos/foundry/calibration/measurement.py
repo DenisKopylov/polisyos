@@ -10,9 +10,9 @@ from __future__ import annotations
 
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
-from typing import Any, Protocol, runtime_checkable
+from typing import Any, Literal, Protocol, runtime_checkable
 
 try:  # pragma: no cover - preferred in full Foundry runtime environments.
     import jax.numpy as jnp
@@ -68,7 +68,7 @@ class MeasurementAwareTarget(KernelModel):
     """
 
     schema_version: str = Field(
-        "1.0",
+        "1.1",
         pattern=SCHEMA_VERSION_PATTERN,
         description="Measurement target schema version persisted in observation bundles.",
     )
@@ -84,6 +84,18 @@ class MeasurementAwareTarget(KernelModel):
         min_length=1,
         max_length=120,
         description="Observed metric ID whose values are compared against synthetic traces.",
+    )
+    unit: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=32,
+        exclude_if=lambda value: value is None,
+        description="Source-declared unit shared by the series, not verified unit authority.",
+    )
+    interval_semantics: Literal["point", "inclusive_interval"] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        description="Whether source period bounds describe points or inclusive intervals.",
     )
     identification_mode: IdentificationMode
     observed_value_field: str = Field(default="observed_value", min_length=1, max_length=120)
@@ -139,6 +151,7 @@ class CalibrationTargetBundle:
         split_label: Optional split labels for train/validation style bundles.
         identification_mode: Identification semantics for each target.
         time_grain: Optional declared time grain per target.
+        period_end: Source interval ends paired with time_axis; None marks missing rows.
     """
 
     manifest: CalibrationTargetBundleManifest
@@ -155,6 +168,7 @@ class CalibrationTargetBundle:
     split_label: Mapping[str, tuple[str, ...]]
     identification_mode: Mapping[str, tuple[IdentificationMode, ...]]
     time_grain: Mapping[str, Any]
+    period_end: Mapping[str, tuple[str | None, ...]] = field(default_factory=dict)
 
     def target_ids(self) -> tuple[str, ...]:
         """Return target IDs in bundle order for validation and diagnostics."""
@@ -245,7 +259,18 @@ class CalibrationTargetBundleCompiler:
         )
 
     def compile(self, panel: ObservationPanel) -> CalibrationTargetBundle:
-        """Materialize one aligned JAX-backed target bundle from an IR panel."""
+        """Materialize aligned targets without choosing a unit or source policy.
+
+        Args:
+            panel: Validated observations with declared units and period bounds.
+
+        Returns:
+            Paired value, quality and lineage arrays with source declarations.
+
+        Raises:
+            ValueError: If a target-period is ambiguous or one target mixes
+                declared units or point and inclusive-interval observations.
+        """
         full_axis = tuple(sorted({record.period_start for record in panel.records}))
         axis_index = {value: idx for idx, value in enumerate(full_axis)}
         grouped: dict[str, list[ObservationRecord]] = defaultdict(list)
@@ -267,6 +292,7 @@ class CalibrationTargetBundleCompiler:
         split_label: dict[str, tuple[str, ...]] = {}
         identification_mode: dict[str, tuple[IdentificationMode, ...]] = {}
         time_grain: dict[str, TimeFrequency] = {}
+        period_end: dict[str, tuple[str | None, ...]] = {}
 
         for target_id, records in grouped.items():
             records_by_period: dict[date, list[ObservationRecord]] = defaultdict(list)
@@ -281,6 +307,21 @@ class CalibrationTargetBundleCompiler:
                 for period_start, period_records in sorted(records_by_period.items())
             )
             first = selected_records[0]
+            units = {record.unit for record in selected_records}
+            if len(units) != 1:
+                raise ValueError(
+                    f"Mixed observation units for target '{target_id}' require an explicit "
+                    f"upstream conversion: {sorted(units)!r}"
+                )
+            interval_semantics = {
+                "point" if record.period_start == record.period_end else "inclusive_interval"
+                for record in selected_records
+            }
+            if len(interval_semantics) != 1:
+                raise ValueError(
+                    f"Mixed observation interval semantics for target '{target_id}' "
+                    "require an explicit upstream alignment"
+                )
             values = [0.0] * len(full_axis)
             trust = [0.0] * len(full_axis)
             coverage = [0.0] * len(full_axis)
@@ -293,6 +334,7 @@ class CalibrationTargetBundleCompiler:
             ]
             split_labels = [split_plan.label_for_period(point, point).value for point in full_axis]
             routed_modes = [first.identification_mode] * len(full_axis)
+            interval_ends: list[str | None] = [None] * len(full_axis)
 
             for record in selected_records:
                 idx = axis_index[record.period_start]
@@ -307,6 +349,7 @@ class CalibrationTargetBundleCompiler:
                 observation_ids[idx] = record.observation_id
                 split_labels[idx] = self._splitter.label_record(record, split_plan=split_plan).value
                 routed_modes[idx] = route.selected_mode
+                interval_ends[idx] = record.period_end.isoformat()
 
             dominant_mode = Counter(routed_modes).most_common(1)[0][0]
             targets.append(
@@ -314,6 +357,10 @@ class CalibrationTargetBundleCompiler:
                     target_id=target_id,
                     observation_family=first.family,
                     metric_id=first.metric_id,
+                    unit=first.unit,
+                    interval_semantics=(
+                        "point" if first.period_start == first.period_end else "inclusive_interval"
+                    ),
                     identification_mode=dominant_mode,
                 )
             )
@@ -329,6 +376,7 @@ class CalibrationTargetBundleCompiler:
             split_label[target_id] = tuple(split_labels)
             identification_mode[target_id] = tuple(routed_modes)
             time_grain[target_id] = first.time_grain
+            period_end[target_id] = tuple(interval_ends)
 
         manifest = CalibrationTargetBundleManifest(
             contract_target=MEASUREMENT_AWARE_TARGET_CONTRACT,
@@ -361,6 +409,7 @@ class CalibrationTargetBundleCompiler:
             split_label=split_label,
             identification_mode=identification_mode,
             time_grain=time_grain,
+            period_end=period_end,
         )
 
 
@@ -391,6 +440,7 @@ class NegativeControlGenerator:
         split_label: dict[str, tuple[str, ...]] = {}
         identification_mode: dict[str, tuple[IdentificationMode, ...]] = {}
         time_grain: dict[str, TimeFrequency] = {}
+        period_end: dict[str, tuple[str | None, ...]] = {}
 
         for target in bundle.targets:
             source_target_id = target.target_id
@@ -400,21 +450,61 @@ class NegativeControlGenerator:
                 continue
             grain = bundle.time_grain[source_target_id]
             shift_periods = self._shift_periods or (len(source_dates) + 1)
-            placebo_dates = tuple(
-                _shift_period(point, grain, shift_periods) for point in source_dates
-            )
-            while set(placebo_dates).intersection(source_dates):
-                shift_periods += 1
-                placebo_dates = tuple(
-                    _shift_period(point, grain, shift_periods) for point in source_dates
+            source_end_labels = bundle.period_end.get(source_target_id)
+            if source_end_labels is not None and len(source_end_labels) != len(source_dates):
+                raise ValueError("Source interval ends must match the observation time axis")
+            source_ends = (
+                tuple(
+                    date.fromisoformat(end) if end is not None else None
+                    for end in source_end_labels
                 )
+                if source_end_labels is not None
+                else (None,) * len(source_dates)
+            )
+            if any(
+                end is not None and end < start
+                for start, end in zip(source_dates, source_ends, strict=True)
+            ):
+                raise ValueError("Source interval end must not precede its start")
+            # New bundles distinguish declared observations from missing rows.
+            # A legacy bundle without bounds retains its previous point policy.
+            occupied_source = tuple(
+                (start, end if end is not None else start)
+                for start, end in zip(source_dates, source_ends, strict=True)
+                if end is not None or source_end_labels is None
+            )
+            while True:
+                try:
+                    placebo_dates = tuple(
+                        _shift_period(point, grain, shift_periods) for point in source_dates
+                    )
+                    shifted_ends = tuple(
+                        end + (shifted - start) if end is not None else None
+                        for start, shifted, end in zip(
+                            source_dates, placebo_dates, source_ends, strict=True
+                        )
+                    )
+                except (OverflowError, ValueError) as exc:
+                    raise ValueError("No representable non-overlapping placebo interval") from exc
+                occupied_placebo = tuple(
+                    (start, end if end is not None else start)
+                    for start, end in zip(placebo_dates, shifted_ends, strict=True)
+                    if end is not None or source_end_labels is None
+                )
+                if not any(
+                    shifted_start <= source_end and source_start <= shifted_end
+                    for shifted_start, shifted_end in occupied_placebo
+                    for source_start, source_end in occupied_source
+                ):
+                    break
+                shift_periods += 1
 
             placebo_target_id = f"placebo.{source_target_id}"
             placebo_time = tuple(point.isoformat() for point in placebo_dates)
             placebo_labels = []
-            for point in placebo_dates:
+            for point, end in zip(placebo_dates, shifted_ends, strict=True):
                 label = (
-                    split_plan.label_for_period(point, point).value
+                    split_plan.label_for_period(point, end if end is not None else point).value
                     if split_plan is not None
                     else CalibrationSplitLabel.TEST.value
                 )
@@ -427,6 +517,8 @@ class NegativeControlGenerator:
                     target_id=placebo_target_id,
                     observation_family=target.observation_family,
                     metric_id=f"placebo_{target.metric_id}",
+                    unit=target.unit,
+                    interval_semantics=target.interval_semantics,
                     identification_mode=target.identification_mode,
                     base_weight=target.base_weight,
                 )
@@ -442,6 +534,12 @@ class NegativeControlGenerator:
                 f"placebo.{identifier}" for identifier in bundle.observation_id[source_target_id]
             )
             time_axis[placebo_target_id] = placebo_time
+            if source_end_labels is not None:
+                # Reuse exactly the admitted bounds for both split membership
+                # and materialized metadata; missing rows retain None.
+                period_end[placebo_target_id] = tuple(
+                    end.isoformat() if end is not None else None for end in shifted_ends
+                )
             split_label[placebo_target_id] = tuple(placebo_labels)
             identification_mode[placebo_target_id] = bundle.identification_mode[source_target_id]
             time_grain[placebo_target_id] = grain
@@ -470,6 +568,7 @@ class NegativeControlGenerator:
             split_label=split_label,
             identification_mode=identification_mode,
             time_grain=time_grain,
+            period_end=period_end,
         )
         return placebo_bundle, tuple(specs)
 

@@ -180,7 +180,8 @@
         "polisyos.common.canonical_profile",
         "polisyos.common.producer_request",
         "polisyos.common.hashing",
-        "polisyos.common.migrations"
+        "polisyos.common.migrations",
+        "polisyos.common.numeric_reductions"
       ],
       "major_subsystem": false,
       "export_count": 9,
@@ -338,6 +339,12 @@
               {
                 "path": "src/polisyos/common/migrations",
                 "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/common/numeric_reductions.py",
+                "operation": "is_file",
                 "status": "present",
                 "result": true
               },
@@ -802,6 +809,57 @@
                 "operation": "is_file",
                 "status": "present",
                 "result": true
+              }
+            ],
+            "unresolved_by_construction": [
+              "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+            ],
+            "complete": true,
+            "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
+          },
+          "source_export_profiles": []
+        },
+        {
+          "module": "polisyos.common.numeric_reductions",
+          "facade_mode_observed": "eager_exports",
+          "export_count": 2,
+          "known_export_count": 2,
+          "exports": [
+            "finite_binary64_mean",
+            "finite_binary64_midpoint"
+          ],
+          "has___getattr__": false,
+          "has___dir__": false,
+          "source_file": "src/polisyos/common/numeric_reductions.py",
+          "summary": "Finite binary64 point reductions over CPython's exact-sum mean owner.",
+          "export_resolution": {
+            "complete_verdict": true,
+            "finding_coverage": "explicit file-reader operations only",
+            "inputs": [
+              {
+                "path": "src/polisyos/common/numeric_reductions.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/common/numeric_reductions/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/common/numeric_reductions.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 2351,
+                "sha256": "39e90022c9ac8cbfa36d41e0a3555aba91048f962e60ff6932784382cd5535a9"
+              },
+              {
+                "path": "src/polisyos/common/numeric_reductions",
+                "operation": "is_dir",
+                "status": "absent",
+                "result": false
               }
             ],
             "unresolved_by_construction": [

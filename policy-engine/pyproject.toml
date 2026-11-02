@@ -43,6 +43,8 @@ dependencies = [
   "langchain>=0.1.0",
   "pymoo>=0.6.0",
   # Utils
+  # Patched TLS trust bundle required by the eMudhra certificate advisory.
+  "certifi>=2026.10.19",
   "python-dotenv>=1.0.0",
   "cryptography>=42.0.0",
   "loguru>=0.7.2",

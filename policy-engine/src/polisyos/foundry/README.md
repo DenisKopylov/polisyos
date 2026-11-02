@@ -54,6 +54,12 @@ boundaries.
 
 - [methods/README.md](methods/README.md) for the reusable method ABI, registry,
   dispatch, and catalog surfaces.
+- [methods/artifacts/README.md](methods/artifacts/README.md) for the supported
+  `polisyos.foundry.methods.artifacts` entrypoint. Selected executable recipes
+  reopen through `load_compiled_chain` and the real composer/dispatchers;
+  `load_execution_evidence` preserves declared provenance without independently
+  attesting the computation. Legacy inspection and executable reconstruction
+  have distinct version/profile contracts.
 - [methods/catalog/mechanism/README.md](methods/catalog/mechanism/README.md)
   for runtime mechanism descriptors derived from the canonical MethodRegistry.
 

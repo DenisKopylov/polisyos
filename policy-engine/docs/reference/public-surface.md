@@ -5243,7 +5243,7 @@ world
 ## `polisyos.foundry`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.foundry`, `polisyos.foundry.api`, `polisyos.foundry.compile`, `polisyos.foundry.analysis`, `polisyos.foundry.calibration`, `polisyos.foundry.data_plane`, `polisyos.foundry.execute`, `polisyos.foundry.methods`, `polisyos.foundry.methods.backends`, `polisyos.foundry.methods.causal`, `polisyos.foundry.uncertainty`, `polisyos.foundry.validation`
+- Supported entrypoints: `polisyos.foundry`, `polisyos.foundry.api`, `polisyos.foundry.compile`, `polisyos.foundry.analysis`, `polisyos.foundry.calibration`, `polisyos.foundry.data_plane`, `polisyos.foundry.execute`, `polisyos.foundry.methods`, `polisyos.foundry.methods.artifacts`, `polisyos.foundry.methods.backends`, `polisyos.foundry.methods.causal`, `polisyos.foundry.uncertainty`, `polisyos.foundry.validation`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/foundry/README.md`
@@ -5263,6 +5263,7 @@ world
 | `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 23 |
 | `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 25 |
 | `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `eager_exports` | 225 |
+| `polisyos.foundry.methods.artifacts` | `src/polisyos/foundry/methods/artifacts/__init__.py` | `eager_exports` | 15 |
 | `polisyos.foundry.methods.backends` | `src/polisyos/foundry/methods/backends/__init__.py` | `lazy_facade` | 25 |
 | `polisyos.foundry.methods.causal` | `src/polisyos/foundry/methods/causal/__init__.py` | `lazy_facade` | 229 |
 | `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `lazy_facade` | 30 |
@@ -5816,6 +5817,34 @@ validate_source_bound_causal_worker_response
 validate_source_bound_gcm_spec
 verify_backend_equivalence
 verify_persisted_equivalence_certificate
+```
+
+</details>
+
+#### `polisyos.foundry.methods.artifacts`
+
+- Source: `src/polisyos/foundry/methods/artifacts/__init__.py`
+- Facade: `eager_exports`
+- Summary: Artifact provenance APIs for Foundry method executions.
+
+<details><summary>Entrypoint exports (15)</summary>
+
+```text
+ChainArtifact
+ChainNodeRecord
+DeviceInfo
+ExecutionEvidence
+MethodArtifact
+MethodTiming
+SlotBindingRecord
+SourceFingerprint
+compute_source_fingerprint
+compute_source_hash
+load_compiled_chain
+load_execution_evidence
+store_chain_artifact
+store_execution_evidence
+store_method_artifact
 ```
 
 </details>

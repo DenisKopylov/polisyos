@@ -21,6 +21,8 @@ from polisyos.foundry.plugins.core import (
     DomainPlugin,
     PluginMetadata,
     PluginRegistry,
+    _registration_metadata_scope,
+    _snapshot_plugin_metadata,
     get_registry,
 )
 
@@ -117,7 +119,13 @@ def _discover_builtin_plugins() -> list[DomainPlugin]:
                             exc,
                             exc_info=True,
                         )
-        except ImportError:
+        except ImportError as exc:
+            logger.warning(
+                "Failed to import builtin plugin module '%s': %s: %s",
+                module_name,
+                type(exc).__name__,
+                exc,
+            )
             continue
 
     return plugins
@@ -236,8 +244,7 @@ def _coerce_domain_plugin(candidate: object) -> DomainPlugin:
     if not isinstance(candidate, DomainPlugin):
         raise TypeError("plugin candidate must be a DomainPlugin instance")
 
-    if not isinstance(candidate.metadata, PluginMetadata):
-        raise TypeError("DomainPlugin.metadata must return PluginMetadata")
+    _snapshot_plugin_metadata(candidate)
 
     return candidate
 
@@ -267,12 +274,22 @@ def auto_register_plugins(
     registered: list[str] = []
 
     for plugin in plugins:
+        source = f"{type(plugin).__module__}.{type(plugin).__qualname__}"
         try:
-            registry.register(plugin)
-            registered.append(plugin.metadata.name)
+            metadata = _snapshot_plugin_metadata(plugin)
+        except Exception as exc:
+            warnings.warn(
+                f"Could not admit {source}: {type(exc).__name__}: {exc}",
+                RuntimeWarning,
+            )
+            continue
+        try:
+            with _registration_metadata_scope(registry, plugin, metadata):
+                registry.register(plugin)
+            registered.append(metadata.name)
         except ValueError as exc:
             warnings.warn(
-                f"Could not register {plugin.metadata.name}: {exc}",
+                f"Could not register {metadata.name} from {source}: {exc}",
                 RuntimeWarning,
             )
 
@@ -289,7 +306,7 @@ def create_simple_plugin(
     **kwargs,
 ) -> DomainPlugin:
     """Create simple plugin."""
-    from polisyos.foundry.plugins.core import PluginCapability, PluginMetadata
+    from polisyos.foundry.plugins.core import PluginCapability
 
     class SimplePlugin(DomainPlugin):
         @property

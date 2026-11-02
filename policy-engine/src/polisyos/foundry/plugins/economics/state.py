@@ -198,15 +198,22 @@ class EconomicState:
         active = agents.active.astype(jnp.float32)
         n_active = jnp.maximum(jnp.sum(active), 1.0)
 
+        def _active_sum(values: jnp.ndarray) -> jnp.ndarray:
+            # Select the population before arithmetic: NaN * 0 is not an
+            # exclusion. Keep the existing float32 mask's dtype promotion.
+            selected = jnp.where(agents.active, values, jnp.zeros_like(values))
+            return jnp.sum(selected * active)
+
+        total_income = _active_sum(agents.income)
         return EconomicAggregates(
-            gdp=jnp.sum(agents.income * active),
-            total_consumption=jnp.sum(agents.consumption * active),
-            total_investment=jnp.sum(agents.savings * active),
+            gdp=total_income,
+            total_consumption=_active_sum(agents.consumption),
+            total_investment=_active_sum(agents.savings),
             unemployment_rate=1.0
             - jnp.sum(agents.employed.astype(jnp.float32) * active) / n_active,
             inflation_rate=jnp.array(0.02, dtype=jnp.float32),
-            mean_wealth=jnp.sum(agents.wealth * active) / n_active,
-            mean_income=jnp.sum(agents.income * active) / n_active,
+            mean_wealth=_active_sum(agents.wealth) / n_active,
+            mean_income=total_income / n_active,
         )
 
     def validate(self) -> bool:

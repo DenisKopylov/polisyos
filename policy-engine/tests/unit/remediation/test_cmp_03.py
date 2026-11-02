@@ -9,6 +9,10 @@ linking apply the same semantic and completeness gates.
 
 from __future__ import annotations
 
+from collections import Counter
+from dataclasses import replace
+from itertools import product
+
 import pytest
 
 from polisyos.foundry.methods.base import (
@@ -253,3 +257,141 @@ def test_contract_guard_remains_active_for_both_routes() -> None:
         linker.link(source, target, explicit_mapping={"source": "target"})
     with pytest.raises(SlotConnectionError):
         linker.link(source, target)
+
+
+def test_selected_edge_diagnostics_follow_actual_rematching() -> None:
+    """Rematching cannot report a structurally forbidden loop-local source."""
+    source, target = _bounded_matching_signatures(
+        ("a_flexible", "b_fixed"), ("c_first", "d_second")
+    )
+    result = SlotLinker(LinkerConfig.strict()).link(source, target)
+
+    assert _binding_sources_by_target(result) == {"c_first": "b_fixed", "d_second": "a_flexible"}
+    assert "Auto-linked: b_fixed -> c_first" in result.warnings
+    assert "Auto-linked: a_flexible -> d_second" in result.warnings
+    assert not any("b_fixed -> d_second" in warning for warning in result.warnings)
+    assert any(
+        "used 'b_fixed'" in warning and "['a_flexible']" in warning for warning in result.warnings
+    )
+
+
+@pytest.mark.parametrize("preference", [False, True])
+def test_single_source_name_preference_is_global_after_cardinality(preference: bool) -> None:
+    """An earlier target cannot consume the only exact-name source by accident."""
+    source = _signature("one", outputs=(_slot("right"),))
+    target = _signature("two", inputs=(_slot("left"), _slot("right")))
+    result = SlotLinker(LinkerConfig(prefer_exact_names=preference)).link(source, target)
+    assert _binding_sources_by_target(result) == {"right" if preference else "left": "right"}
+
+
+def test_global_unit_score_preserves_the_only_identity_conversion() -> None:
+    """A later indifferent target must not displace an earlier exact unit."""
+    source = _signature(
+        "units",
+        outputs=(
+            _slot("a", unit=Unit("length", "m", 1)),
+            _slot("b", unit=Unit("length", "cm", 0.01)),
+        ),
+    )
+    target = _signature(
+        "lengths",
+        inputs=(
+            _slot("first", unit=Unit("length", "m", 1)),
+            _slot("second", unit=Unit("length", "mm", 0.001)),
+        ),
+    )
+    result = SlotLinker(LinkerConfig(prefer_exact_names=False)).link(source, target)
+    # Both second-target choices need conversion, while only a→first keeps
+    # an identity. This is a unit-score optimum, not a name-score example.
+    assert _binding_sources_by_target(result) == {"first": "a", "second": "b"}
+    assert result.get_binding("first").requires_conversion is False
+    assert result.get_binding("second").conversion_factor == pytest.approx(10)
+
+
+def test_global_shape_score_retains_the_only_identity_shape() -> None:
+    source = _signature(
+        "shapes",
+        outputs=(
+            _slot("a", slot_type=SlotType.TENSOR, shape=(2,)),
+            _slot("b", slot_type=SlotType.TENSOR, shape=(1,)),
+        ),
+    )
+    target = _signature(
+        "targets",
+        inputs=(
+            _slot("first", slot_type=SlotType.TENSOR, shape=(2,)),
+            _slot("second", slot_type=SlotType.TENSOR, shape=(2, 2)),
+        ),
+    )
+    result = SlotLinker(LinkerConfig(prefer_exact_names=False)).link(source, target)
+    assert _binding_sources_by_target(result) == {"first": "a", "second": "b"}
+
+
+def test_global_warning_score_preserves_the_only_overlapping_bounds() -> None:
+    source = _signature(
+        "bounds",
+        outputs=(
+            replace(_slot("a"), bounds=(0, 10)),
+            replace(_slot("b"), bounds=(20, 30)),
+        ),
+    )
+    target = _signature(
+        "targets",
+        inputs=(
+            replace(_slot("first"), bounds=(0, 10)),
+            replace(_slot("second"), bounds=(40, 50)),
+        ),
+    )
+    result = SlotLinker(LinkerConfig(prefer_exact_names=False)).link(source, target)
+    assert _binding_sources_by_target(result) == {"first": "a", "second": "b"}
+    assert not result.get_binding("first").compatibility.warnings
+    assert result.get_binding("second").compatibility.warnings
+
+
+@pytest.mark.parametrize("preference", [False, True])
+def test_all_three_slot_contract_graphs_match_independent_exhaustive_oracle(
+    preference: bool,
+) -> None:
+    """All729 declared contract graphs maximize coverage, then exact-name score."""
+    histogram: Counter[int] = Counter()
+    names = ("slot0", "slot1", "slot2")
+    for declarations in product((None, "A", "B"), repeat=6):
+        source_contracts, target_contracts = declarations[:3], declarations[3:]
+        source = _signature(
+            "source",
+            outputs=tuple(
+                _slot(name, contract_id=contract)
+                for name, contract in zip(names, source_contracts, strict=True)
+            ),
+        )
+        target = _signature(
+            "target",
+            inputs=tuple(
+                _slot(name, contract_id=contract)
+                for name, contract in zip(names, target_contracts, strict=True)
+            ),
+        )
+        # Exhaustive assignments derive admissibility from the declared wildcard
+        # contract relation, without invoking the producer's matcher or score.
+        candidates = []
+        for assignment in product((None, 0, 1, 2), repeat=3):
+            used = [index for index in assignment if index is not None]
+            if len(used) != len(set(used)):
+                continue
+            if any(
+                source_contracts[source_index] is not None
+                and target_contracts[target_index] is not None
+                and source_contracts[source_index] != target_contracts[target_index]
+                for target_index, source_index in enumerate(assignment)
+                if source_index is not None
+            ):
+                continue
+            pairs = tuple((names[t], names[v]) for t, v in enumerate(assignment) if v is not None)
+            exact = sum(t == v for t, v in enumerate(assignment)) if preference else 0
+            candidates.append((-len(pairs), -exact, pairs))
+        expected = min(candidates)
+        result = SlotLinker(LinkerConfig(prefer_exact_names=preference)).link(source, target)
+        actual = tuple(sorted((b.target_slot, b.source_slot) for b in result.bindings))
+        assert actual == expected[2], declarations
+        histogram[len(actual)] += 1
+    assert histogram == {3: 583, 2: 120, 1: 24, 0: 2}

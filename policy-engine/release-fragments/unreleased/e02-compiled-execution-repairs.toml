@@ -3,12 +3,59 @@ title = "Preserve current compiled requests and durable execution history"
 type = "fixed"
 component = "foundry"
 owner = "e02-coordinator"
-summary = "Close the JIT miss/claim publication race, propagate declared shapes without allocating guessed-dtype arrays, preserve checkpoint history and reachable sidecars across failures, and describe economic baseline laws accurately in runtime metadata."
-evidence = ["tests/unit/remediation/test_jit_01.py", "tests/unit/remediation/test_res_04.py", "tests/unit/foundry/methods/backends/test_checkpointing.py", "tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py", "tests/unit/foundry/plugins/test_economic_profiles.py"]
+summary = "Preserve executable chain parameters and selected implementations through actual CAS reconstruction/dispatch; optimize slot matching globally; close JIT publication and checkpoint history gaps; enforce truthful plugin training and recorded/executed action laws; preserve inactive payload isolation and historical RNG execution with source-qualified fixtures."
+evidence = ["tests/unit/remediation/test_jit_01.py", "tests/unit/remediation/test_res_04.py", "tests/unit/foundry/methods/backends/test_checkpointing.py", "tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py", "tests/unit/foundry/plugins/test_economic_profiles.py", "tests/unit/foundry/methods/test_compiled_chain_artifact.py", "tests/unit/foundry/methods/test_composition_native.py", "tests/unit/foundry/methods/test_artifact_numeric_profiles.py", "tests/unit/foundry/agent_sim/test_temporal_training_decisions.py", "tests/unit/foundry/agent_sim/test_ppo_analytic_oracle.py", "tests/unit/remediation/test_plg_03.py", "tests/unit/foundry/plugins/test_discovery_native.py"]
 change_class = "persisted-artifact-format"
-surface_classification = "public_stable: method specialization metadata and execution checkpoints; internal: runtime baseline descriptions"
+surface_classification = "public_stable: method specialization metadata, execution checkpoints, selected artifact readers, plugin registry/result and policy-training APIs; internal: runtime baseline descriptions and training-only decision capture"
 compatibility = "Keep caller-specific parameters, request statistics, existing numerical kernels and ordinary economic profiles. Planning dtype is explicitly unknown until native execution. Legacy missing restricted history remains inspectable but cannot become complete by resaving or flipping a declaration."
-limitations = "Named local native profiles only. No empirical economic calibration, institutional authority, portable executable, G acceptance or final composed-lane claim."
+limitations = "Named local native profiles only. Source-bound reconstruction supports ordinary class-declared Python operations, not arbitrary closures/decorated/native callables or external mutable module state. HARD training and policy-free/ambiguous training refuse while ordinary evaluation and supported fluid/relaxed training remain. Old invalid numeric canonical records remain immutable inspection data. Final changed Calibrator consumer belongs to DA04/LANE10. No empirical economic calibration, institutional authority, portable machine executable or G acceptance."
+public_surface_inventory_reviewed = true
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "selected-executable-chain-reconstruction"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.foundry.methods.artifacts selected chain and execution-evidence readers"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable"
+release_note = "Register the existing artifacts facade as a supported direct entrypoint. Reconstruct selected versioned recipes through MethodComposer with authored occurrence IDs, parameters, full ABI and requires-only adjacency. Existing process-local identities guard actual sequential/async/checkpoint execution, including implementation changes after load. Ordinary authored chains retain their existing mode. Slot assignment maximizes cardinality, then the sum of existing preference components, with deterministic final ties and actual selected-source diagnostics."
+public_surface_inventory_reviewed = true
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "method-artifact-finite-numeric-profiles"
+change_class = "persisted-artifact-format"
+impact = "behavioral"
+surface = "public_stable: ChainArtifact and ExecutionEvidence numeric version1.1"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable"
+release_note = "Use explicit existing CAN.2 finite-float profiles consistently in payloads and selected manifests. Executable recipes preserve nulls; numeric provenance records retain their legacy field/null semantics. Valid nonnumeric1.0 bytes/IDs remain exact. Old reserved float_hex numeric1.0 records are not canonical fixed points: keep original bytes as inspection data and reissue from available typed inputs, without reinterpreting their manifest profile. Strict fresh readers reject nonfinite/coercible timing values, wrong profiles and lineage. Core default float-forbid and IR remain unchanged."
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "plugin-training-role-and-consumer-admission"
+change_class = "python-public-api"
+impact = "behavioral"
+surface = "public_stable: PluginRegistry admission, TrainingResult and policy-training factories"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable"
+release_note = "Snapshot admitted plugin metadata once while preserving one-argument registration overrides and isolating failed discovery. Keep legacy three-positional-field TrainingResult construction unqualified; actual native producers explicitly supply role/status and CLI preserves failure exits. Policy training requires one actual temporal consumer and supported fluid/relaxed fidelity; HARD, absent and ambiguous consumers refuse before optimizer/store. This narrows previously misleading training claims while preserving ordinary evaluation and historical artifact inspection."
+public_surface_inventory_reviewed = true
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "actual-temporal-decision-training-lineage"
+change_class = "persisted-artifact-format"
+impact = "behavioral"
+surface = "public_stable: training trajectories and selected policy-weight lineage"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable"
+release_note = "Training-only capture records the actual temporal observation, action, log probability, active mask and key after preceding mechanisms; bootstrap uses that same decision context. Ordinary evaluation metrics remain unchanged. Select inactive operands before nonlinear/gradient arithmetic while preserving raw state and active-invalid refusal; the historical all-entry economics baseline stays unchanged. Preserve exact weight manifest profiles through policy storage/readback, including equal weight bytes under distinct tenants. Historical RNG fixtures are generated today from pinned pre-marker source with the declared modern backend, not represented as production history."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
 

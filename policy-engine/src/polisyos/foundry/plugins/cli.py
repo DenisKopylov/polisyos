@@ -135,11 +135,13 @@ def cmd_train(args: argparse.Namespace) -> int:
 
     result = sim.train(n_episodes=args.n_episodes, output_dir=args.output)
 
-    if result.status != "trained" or result.reason is not None:
-        reason = result.reason
-        reason_code = reason.code if reason is not None else "training_execution_adapter_missing"
-        _write("\nTraining bridge pending.")
-        _write(f"  Status: {result.status}")
+    if getattr(result, "is_qualified_training", False) is not True:
+        reason = getattr(result, "reason", None)
+        reason_code = reason.code if reason is not None else "training_result_unqualified"
+        _write(
+            "\nTraining bridge pending." if reason is not None else "\nTraining result unqualified."
+        )
+        _write(f"  Status: {getattr(result, 'status', 'unqualified')}")
         _write(f"  Reason: {reason_code}")
         if reason is not None:
             _write(f"  Detail: {reason.message}")

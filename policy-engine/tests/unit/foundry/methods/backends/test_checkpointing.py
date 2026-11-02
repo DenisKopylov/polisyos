@@ -599,8 +599,19 @@ def _assert_native_checkpoint_origins(*owners):
     import inspect
 
     product = Path(__file__).resolve().parents[5]
+    expected_root = product / "src"
+    if not expected_root.is_dir():
+        import sysconfig
+
+        from tests._helpers.installed_profile import installed_child_environment
+
+        expected_root = Path(sysconfig.get_path("purelib")).resolve(strict=True)
+        assert (
+            installed_child_environment({"POLISYOS_INSTALLED_PROFILE_PURELIB": str(expected_root)})
+            is not None
+        )
     for owner in owners:
-        expected = product / "src" / (owner.__module__.replace(".", "/") + ".py")
+        expected = expected_root / (owner.__module__.replace(".", "/") + ".py")
         assert Path(inspect.getsourcefile(owner)).resolve() == expected
 
 
@@ -870,3 +881,73 @@ def test_native_request_identity_removal_exposes_stale_reuse(tmp_path, monkeypat
     assert stale.final_state["value"] == 7
     assert cold.final_state["value"] == 10
     assert stale.final_state != cold.final_state
+
+
+@pytest.mark.parametrize("mutation", ["selected_registry", "operation", "signature"])
+def test_replayed_recipe_complete_checkpoint_reconciles_selected_implementation(
+    tmp_path, monkeypatch, mutation
+):
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.foundry.methods.artifacts import load_compiled_chain
+    from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+    from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
+    from polisyos.foundry.methods.selection.registry import MethodRegistry
+    from tests._helpers.method_chain import METHODS, Required
+    from tests.unit.foundry.methods.test_compiled_chain_artifact import _persist, _required_chain
+
+    def registry_for(*, replacement=None):
+        registry = object.__new__(MethodRegistry)
+        registry._initialize()
+        for method in METHODS:
+            registry.register(replacement if method is Required and replacement else method)
+        return registry
+
+    registry = registry_for()
+    cas = FileSystemCAS(tmp_path / "cas")
+    _, ref = _persist(cas, _required_chain(registry), registry)
+    chain = load_compiled_chain(FileSystemCAS(tmp_path / "cas"), ref, registry=registry)
+    dispatcher = MethodDispatcher(enable_runtime_selection=False)
+    dispatcher.register_runner(NumpyRunner())
+    observed_dispatches = []
+    actual_dispatch = dispatcher.dispatch
+
+    def observe_dispatch(**kwargs):
+        observed_dispatches.append(kwargs["signature"].fqn)
+        return actual_dispatch(**kwargs)
+
+    monkeypatch.setattr(dispatcher, "dispatch", observe_dispatch)
+    source = CheckpointingChainExecutor(
+        checkpoint_dir=tmp_path / "checkpoints", registry=registry, dispatcher=dispatcher
+    )
+    result = source.execute(chain, initial_state={"sentinel": 7}, seed=7)
+    assert result.final_state["answer"] == 36
+    assert len(observed_dispatches) == 3
+    path = next((tmp_path / "checkpoints").glob("*_0002_*.json"))
+    saved_bytes = path.read_bytes()
+    checkpoint = ChainCheckpoint.load(path)
+    assert checkpoint.history_complete and checkpoint.n_completed == 3
+    selected = registry
+    if mutation == "selected_registry":
+
+        class Replacement:
+            signature = Required.signature
+            metadata = Required.metadata
+
+            @staticmethod
+            def pure_step(state, params):
+                return {"value": 777}
+
+        selected = registry_for(replacement=Replacement)
+    elif mutation == "operation":
+        monkeypatch.setattr(
+            Required, "pure_step", staticmethod(lambda state, params: {"value": 777})
+        )
+    else:
+        monkeypatch.setattr(Required, "signature", replace(Required.signature, family="changed"))
+    observed_dispatches.clear()
+    fresh = CheckpointingChainExecutor(registry=selected, dispatcher=dispatcher)
+    with pytest.raises((ValueError, CheckpointDigestMismatchError), match="implementation"):
+        fresh.execute(chain, initial_state={"sentinel": 7}, checkpoint=checkpoint, seed=7)
+    assert observed_dispatches == []
+    assert path.read_bytes() == saved_bytes
+    assert ChainCheckpoint.load(path).intermediate_state["answer"] == 36

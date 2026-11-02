@@ -36,8 +36,9 @@ from polisyos.foundry.agent_sim.artifact import (
     store_policy_artifact,
 )
 from polisyos.foundry.agent_sim.executor import PureExecutor
-from polisyos.foundry.agent_sim.mechanism import Mechanism, MechanismSpec
+from polisyos.foundry.agent_sim.mechanism import MechanismSpec
 from polisyos.foundry.agent_sim.state import GlobalState
+from polisyos.foundry.agent_sim.temporal_mechanisms import TemporalConsumptionMechanism
 from polisyos.foundry.plugins.api import PolisySimulator, TrainingResult
 from polisyos.foundry.plugins.cli import cmd_train
 from polisyos.foundry.plugins.composite import CompositeState
@@ -49,6 +50,57 @@ from polisyos.foundry.plugins.training_adapter import (
     TrainingBridgeError,
 )
 from polisyos.foundry.runtime.fingerprint import DeterminismTier, EnvironmentFingerprint
+
+
+@pytest.mark.parametrize("with_metrics", [False, True])
+@pytest.mark.parametrize("fidelity", ["hard", "not-a-profile", None])
+def test_hard_training_refuses_before_collector_factory(with_metrics: bool, fidelity) -> None:
+    """The unsupported likelihood law never reaches rollout or optimizer setup."""
+    from polisyos.foundry.agent_sim.jit_training import (
+        JITTrainingConfig,
+        create_jit_trainer,
+        create_jit_trainer_with_metrics,
+    )
+
+    def unexpected_factory(_actor):
+        raise AssertionError("unsupported HARD training reached the executor factory")
+
+    factory = create_jit_trainer_with_metrics if with_metrics else create_jit_trainer
+    config = JITTrainingConfig(fidelity=fidelity)
+    with pytest.raises(ValueError) as error:
+        factory(object(), unexpected_factory, object(), config)
+    assert getattr(error.value, "code", None) == "training_fidelity_unsupported"
+
+
+def test_public_hard_training_refuses_before_actor_or_store_setup(
+    simulator: PolisySimulator, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The public refusal preserves the existing state and leaves no output."""
+    from polisyos.foundry.contracts.fidelity import FidelityLevel
+    from polisyos.foundry.plugins import api as api_module
+
+    simulator.initialize(seed=7)
+    _set_supported_nonnegative_active_wealth(simulator, 1_000_000.0)
+    old_state = simulator.get_state()
+    output = tmp_path / "hard-training-not-created"
+
+    def unexpected_setup(*_args, **_kwargs):
+        raise AssertionError("unsupported HARD training reached actor/store setup")
+
+    monkeypatch.setattr(api_module, "ActorCritic", unexpected_setup)
+    monkeypatch.setattr(api_module, "build_artifact_store", unexpected_setup)
+    result = simulator.train(
+        training_config=dataclass_replace(_small_config(), fidelity=FidelityLevel.HARD_DISCRETE),
+        seed=7,
+        output_dir=output,
+    )
+    assert result.status == "bridge_pending"
+    assert result.reason is not None
+    assert result.reason.code == "training_fidelity_unsupported"
+    assert result.trained_policy is None
+    assert simulator.get_state() is old_state
+    assert simulator._agent_policy is None
+    assert not output.exists()
 
 
 @pytest.fixture
@@ -281,6 +333,8 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
     # below runs without it and checks that the observer did not alter results.
     gradient_norms: list[float] = []
     native_chain = optax.chain
+    cas_root = tmp_path / "training-output" / "artifacts"
+    supplied_store = FileSystemCAS(cas_root).for_tenant("native-owner", cell_id="native-cell")
 
     def observing_chain(*transforms):
         native_optimizer = native_chain(*transforms)
@@ -302,6 +356,7 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
             training_config=config,
             seed=7,
             output_dir=tmp_path / "training-output",
+            artifact_store=supplied_store,
         )
 
     assert gradient_norms, "the executing native optimizer did not emit a raw gradient"
@@ -309,6 +364,8 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
     assert any(value > 0.0 for value in gradient_norms)
     assert isinstance(result, TrainingResult)
     assert result.status == "trained"
+    assert result.is_qualified_training
+    assert result.result_role == "native_training_v1"
     assert result.trained_policy is not None
     assert result.artifact is not None
     assert result.artifact_refs is not None
@@ -356,7 +413,7 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
     # Reopen the CAS and reconstruct the model independently rather than using
     # either policy object retained by the producer.  This is the consumer
     # oracle: a success-shaped result cannot satisfy it with in-memory weights.
-    fresh_store = FileSystemCAS(tmp_path / "training-output" / "artifacts")
+    fresh_store = FileSystemCAS(cas_root).for_tenant("native-owner", cell_id="native-cell")
     fresh_skeleton = ActorCritic(
         jax.random.PRNGKey(7),
         obs_dim=obs.shape[-1],
@@ -374,6 +431,26 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
     assert fresh_warnings == []
     assert _tree_delta(fresh_skeleton, fresh_policy) > 0.0
     assert _tree_delta(result.trained_policy, fresh_policy) == 0.0
+    ownership = FileSystemCAS(cas_root).ownership_evidence(
+        tenant_id="native-owner", cell_id="native-cell"
+    )
+    assert ownership["tenant_artifact_count"] == 2
+    second_owner = FileSystemCAS(cas_root).for_tenant("second-owner", cell_id="second-cell")
+    with pytest.raises(ArtifactOwnershipError):
+        second_owner.get_bytes(result.artifact_refs[1])
+    second_refs = store_policy_artifact(second_owner, result.artifact)
+    assert second_refs[1].artifact_id == result.artifact_refs[1].artifact_id
+    assert second_refs[1].manifest_profile_sha256 != result.artifact_refs[1].manifest_profile_sha256
+    second_policy, second_warnings = load_policy_artifact(
+        FileSystemCAS(cas_root).for_tenant("second-owner", cell_id="second-cell"),
+        second_refs[1],
+        fresh_skeleton,
+        DeterminismTier.STRICT_CPU,
+        7,
+        strict=True,
+    )
+    assert second_warnings == []
+    assert _tree_delta(fresh_policy, second_policy) == 0.0
 
     trained_action, _ = fresh_policy(obs, deterministic=True)
     assert bool(jnp.all(jnp.isfinite(trained_action)))
@@ -431,8 +508,6 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
     assert not bool(jnp.array_equal(later_native.rng_key, alternate_native.rng_key))
 
     from polisyos.foundry.plugins import training_adapter as training_adapter_module
-
-    cas_root = tmp_path / "training-output" / "artifacts"
 
     def cas_snapshot() -> dict[str, str]:
         return {
@@ -497,7 +572,7 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
     copied_weight_blobs[0].unlink()
     with pytest.raises(FileNotFoundError):
         load_policy_artifact(
-            FileSystemCAS(copied_cas_root),
+            FileSystemCAS(copied_cas_root).for_tenant("native-owner", cell_id="native-cell"),
             result.artifact_refs[1],
             fresh_skeleton,
             DeterminismTier.STRICT_CPU,
@@ -505,7 +580,7 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
             strict=True,
         )
     intact_policy, _ = load_policy_artifact(
-        FileSystemCAS(cas_root),
+        FileSystemCAS(cas_root).for_tenant("native-owner", cell_id="native-cell"),
         result.artifact_refs[1],
         fresh_skeleton,
         DeterminismTier.STRICT_CPU,
@@ -533,6 +608,8 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
         seed=7,
     )
     assert reset_result.status == "trained"
+    assert reset_result.is_qualified_training
+    assert reset_result.artifact_refs is None
     assert reset_result.trained_policy is not None
     assert _tree_delta(result.trained_policy, reset_result.trained_policy) == 0.0
     assert reset_result.loss_history == result.loss_history
@@ -544,6 +621,26 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
     assert int(continuation.final_state.time_step) > reset_step
     assert simulator.get_state() is continuation.final_state
     assert simulator._agent_policy is reset_result.trained_policy
+
+    presented = []
+    with monkeypatch.context() as presenting:
+        presenting.setattr(PolisySimulator, "train", lambda *_args, **_kwargs: reset_result)
+        presenting.setattr(
+            TrainingResult, "plot_losses", lambda _self, path: presented.append(path)
+        )
+        assert (
+            cmd_train(
+                argparse.Namespace(
+                    config=None,
+                    domain=["economics"],
+                    n_episodes=1,
+                    output=tmp_path / "genuine-in-memory-presentation",
+                )
+            )
+            == 0
+        )
+    assert presented == [str(tmp_path / "genuine-in-memory-presentation" / "training_loss.png")]
+    assert reset_result.artifact_refs is None
 
 
 @pytest.mark.parametrize("signal", ["parameters", "action"], ids=["parameters", "action"])
@@ -1219,6 +1316,98 @@ def test_training_gini_profile_excludes_inactive_nonfinite_income_padding(
     assert jnp.isclose(gini, 0.0)
 
 
+def test_native_training_ignores_inactive_payload_without_rewriting_source(
+    simulator: PolisySimulator, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Only inactive income changes in the same-shape/key native training pair."""
+    simulator.initialize(seed=7)
+    _set_supported_nonnegative_active_wealth(simulator, 1_000_000.0)
+    source = simulator.get_state()
+    domain = source.get_domain("economics")
+    active = domain.agents.active.at[-1].set(False)
+    finite_agents = domain.agents.replace(
+        active=active, income=domain.agents.income.at[-1].set(1.0)
+    )
+    finite_source = source.update_domain("economics", domain.replace(agents=finite_agents))
+    nan_agents = finite_agents.replace(income=finite_agents.income.at[-1].set(jnp.nan))
+    nan_source = source.update_domain("economics", domain.replace(agents=nan_agents))
+    assert finite_agents.income.shape == nan_agents.income.shape
+    assert bool(jnp.array_equal(finite_agents.active, nan_agents.active))
+    assert bool(jnp.array_equal(finite_agents.income[active], nan_agents.income[active]))
+
+    gradients: dict[str, list[float]] = {"finite": [], "nan": []}
+    native_chain = optax.chain
+    outcomes = {}
+    for name, selected in (("finite", finite_source), ("nan", nan_source)):
+        simulator._state = selected
+        simulator._agent_policy = None
+        simulator._training_config = None
+
+        def observing_chain(*transforms, run_name=name):
+            original = native_chain(*transforms)
+
+            def observing_update(gradient, opt_state, params=None):
+                jax.debug.callback(
+                    lambda norm: gradients[run_name].append(float(norm)),
+                    optax.global_norm(gradient),
+                    ordered=True,
+                )
+                return original.update(gradient, opt_state, params)
+
+            return optax.GradientTransformation(original.init, observing_update)
+
+        with monkeypatch.context() as observing:
+            observing.setattr(optax, "chain", observing_chain)
+            result = simulator.train(
+                training_config=_small_config(),
+                seed=7,
+                artifact_store=FileSystemCAS(tmp_path / name),
+            )
+        assert result.status == "trained", (name, result.reason)
+        assert result.is_qualified_training
+        assert result.trained_policy is not None
+        assert result.artifact_refs is not None
+        assert gradients[name] and all(math.isfinite(x) for x in gradients[name])
+        assert any(x > 0.0 for x in gradients[name])
+        assert all(math.isfinite(x) for x in result.loss_history)
+        initial_adapter = EconomicsTrainingAdapter.from_composite(selected, simulator._executor)
+        assert initial_adapter is not None
+        native = initial_adapter.to_native_state(seed=7)
+        obs = build_temporal_observations(native, horizon=12, include_expectations=True)
+        skeleton = ActorCritic(
+            jax.random.PRNGKey(7), obs_dim=obs.shape[-1], hidden_dims=(64, 64), action_dim=1
+        )
+        fresh, warnings = load_policy_artifact(
+            FileSystemCAS(tmp_path / name),
+            result.artifact_refs[1],
+            skeleton,
+            DeterminismTier.STRICT_CPU,
+            7,
+            strict=True,
+        )
+        assert warnings == []
+        assert _tree_delta(fresh, result.trained_policy) == 0.0
+        action, _ = fresh(obs[active], deterministic=True)
+        outcomes[name] = (result, fresh, action)
+
+    finite, nan = outcomes["finite"], outcomes["nan"]
+    assert jnp.allclose(
+        jnp.asarray(gradients["finite"]), jnp.asarray(gradients["nan"]), rtol=1e-6, atol=1e-6
+    )
+    assert jnp.allclose(
+        jnp.asarray(finite[0].loss_history), jnp.asarray(nan[0].loss_history), rtol=1e-6, atol=1e-6
+    )
+    for left, right in zip(
+        jax.tree_util.tree_leaves(finite[1]), jax.tree_util.tree_leaves(nan[1]), strict=True
+    ):
+        if eqx.is_inexact_array(left):
+            assert bool(jnp.allclose(left, right, rtol=1e-6, atol=1e-6))
+    assert bool(jnp.allclose(finite[2], nan[2], rtol=1e-6, atol=1e-6))
+    # No computational repair may overwrite the immutable input payloads.
+    assert float(finite_source.get_domain("economics").agents.income[-1]) == 1.0
+    assert bool(jnp.isnan(nan_source.get_domain("economics").agents.income[-1]))
+
+
 def test_temporal_resource_overflow_is_terminal_before_optimizer_or_cas(
     simulator: PolisySimulator,
     tmp_path: Path,
@@ -1345,7 +1534,7 @@ def test_invalid_economics_producer_is_terminal_through_native_bridge_and_cas(
     assert not list(cas.root.rglob("*.manifest.json"))
 
 
-class _NegativeThenPositiveWealthMechanism(Mechanism):
+class _NegativeThenPositiveWealthMechanism(TemporalConsumptionMechanism):
     """Emit a negative first public-step state and a positive second one."""
 
     @property
@@ -1355,21 +1544,21 @@ class _NegativeThenPositiveWealthMechanism(Mechanism):
             reads=frozenset({"time_step", "agents.active"}),
             writes=frozenset({"agents.wealth"}),
             parameters={},
-            stochastic=False,
+            stochastic=True,
         )
 
     def apply(self, state, rng_key, fidelity):
-        del rng_key, fidelity
+        state, metrics = super().apply(state, rng_key, fidelity)
         step_wealth = jnp.where(
             state.time_step == 0,
             jnp.full_like(state.agents.wealth, -1.0),
             jnp.full_like(state.agents.wealth, 1.0),
         )
         wealth = jnp.where(state.agents.active, step_wealth, state.agents.wealth)
-        return state.replace(agents=state.agents.replace(wealth=wealth)), {}
+        return state.replace(agents=state.agents.replace(wealth=wealth)), metrics
 
 
-class _NativeValidationFailureMechanism(Mechanism):
+class _NativeValidationFailureMechanism(TemporalConsumptionMechanism):
     """Trigger Equinox's runtime guard on the native PureExecutor path."""
 
     @property
@@ -1379,20 +1568,21 @@ class _NativeValidationFailureMechanism(Mechanism):
             reads=frozenset({"agents.active", "agents.wealth"}),
             writes=frozenset({"agents.wealth"}),
             parameters={},
-            stochastic=False,
+            stochastic=True,
         )
 
     def apply(self, state, rng_key, fidelity):
-        del rng_key, fidelity
         guarded = eqx.error_if(
             state.agents.wealth,
             jnp.any(state.agents.active),
             "opaque validation failure fixture",
         )
-        return state.replace(agents=state.agents.replace(wealth=guarded)), {}
+        return super().apply(
+            state.replace(agents=state.agents.replace(wealth=guarded)), rng_key, fidelity
+        )
 
 
-class _NativeInfrastructureFailureMechanism(Mechanism):
+class _NativeInfrastructureFailureMechanism(TemporalConsumptionMechanism):
     """Raise an ordinary callback failure that is not an Equinox guard."""
 
     @property
@@ -1402,17 +1592,15 @@ class _NativeInfrastructureFailureMechanism(Mechanism):
             reads=frozenset(),
             writes=frozenset(),
             parameters={},
-            stochastic=False,
+            stochastic=True,
         )
 
     def apply(self, state, rng_key, fidelity):
-        del rng_key, fidelity
-
         def fail_callback() -> None:
             raise RuntimeError("infrastructure callback fixture")
 
         jax.debug.callback(fail_callback, ordered=True)
-        return state, {}
+        return super().apply(state, rng_key, fidelity)
 
 
 def test_native_monitor_observes_negative_public_step_even_when_final_step_recovers(
@@ -1435,8 +1623,9 @@ def test_native_monitor_observes_negative_public_step_even_when_final_step_recov
     )
 
     def make_executor(_actor):
-        del _actor
-        return PureExecutor([_NegativeThenPositiveWealthMechanism()])
+        return PureExecutor(
+            [_NegativeThenPositiveWealthMechanism(_actor, horizon=4, include_expectations=False)]
+        )
 
     executor = make_executor(actor)
     first_state, _ = executor.step(state, fidelity=config.fidelity)
@@ -1485,8 +1674,7 @@ def test_native_jit_factory_preserves_typed_validation_cause(with_metrics: bool)
     actor = ActorCritic(jax.random.PRNGKey(23), obs_dim=observation.shape[-1], hidden_dims=(8, 4))
 
     def make_executor(_actor):
-        del _actor
-        return PureExecutor([_NativeValidationFailureMechanism()])
+        return PureExecutor([_NativeValidationFailureMechanism(_actor)])
 
     factory = create_jit_trainer_with_metrics if with_metrics else create_jit_trainer
     with jax.enable_x64(True):
@@ -1520,8 +1708,7 @@ def test_native_jit_factory_preserves_unclassified_jax_failure(with_metrics: boo
     config = JITTrainingConfig(**base_config.common_kwargs(), track_active_wealth=True)
 
     def make_executor(_actor):
-        del _actor
-        return PureExecutor([_NativeInfrastructureFailureMechanism()])
+        return PureExecutor([_NativeInfrastructureFailureMechanism(_actor)])
 
     factory = create_jit_trainer_with_metrics if with_metrics else create_jit_trainer
     with jax.enable_x64(True):

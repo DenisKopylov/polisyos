@@ -196,8 +196,8 @@ class AsyncChainExecutor:
             completed ``ChainExecutionResult`` in ``partial_result`` while
             preserving the terminal failure and exact ``node_errors``.
         """
-        _validate_compiled_execution_plan(chain)
         reg = self._registry if self._registry is not None else get_registry()
+        _validate_compiled_execution_plan(chain, registry=reg)
         disp = self._dispatcher or MethodDispatcher.get_instance()
         params_map = params_map or {}
 
@@ -382,6 +382,7 @@ class AsyncChainExecutor:
 
         node = chain.get_node(node_id)
         method_class = registry.get(node.method_fqn)
+        chain_exec._validate_node_implementation(chain, node_id, method_class)
         signature = chain.get_signature(node_id)
         if not _signature_matches(method_class, signature):
             raise MethodContractError(

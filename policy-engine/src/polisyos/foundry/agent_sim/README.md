@@ -37,6 +37,31 @@ placeholder defaults; those values are not evidence of observed training
 metrics. When a metrics block is present, required fields are strict, while
 optional fields may be absent or explicit nulls.
 
+## Policy-training execution contract
+
+The canonical policy trainers admit `SURROGATE_FLUID` (`"fluid"`) or
+`RELAXED_DISCRETE` (`"relaxed"`) and exactly one `TemporalConsumptionMechanism`.
+HARD or unknown training fidelity and missing/ambiguous policy consumers fail
+with typed unsupported errors before optimizer or policy-artifact creation.
+Ordinary HARD evaluation and independent value/GAE utilities remain available;
+readable legacy artifacts alone are not evidence of training.
+
+Training uses a shallow, private capture view of the existing executor. The
+actual temporal producer records its observation, sampled action, log
+probability, value and active mask after preceding mechanisms, using the
+executor's actual PRNG salt. Bootstrap observations run the same prefix to
+the next decision and use the temporal mechanism's horizon. No second action
+is sampled from the initial step state. The caller's executor and ordinary
+scalar metric dictionary remain unchanged; evaluation does not collect
+per-agent observations or trajectories implicitly.
+
+Excluded inactive operands are selected before actor, utility, aggregation,
+GAE and PPO nonlinear arithmetic. This does not rewrite source arrays or
+sanitize active malformed values. Active invalid Economics inputs retain
+their terminal refusal, and no trained result is emitted without an observed
+native update. Supplied CAS tenant views are used for both persistence and
+strict fresh policy readback; callers must preserve the exact selected refs.
+
 ## Where to Start
 
 - [state.py](state.py) for the standalone agent-sim `GlobalState`.

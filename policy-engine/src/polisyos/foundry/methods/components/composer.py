@@ -31,6 +31,7 @@ from polisyos.foundry.methods.exceptions import CyclicDependencyError, MissingRe
 from polisyos.foundry.methods.selection.registry import MethodRegistry
 
 if TYPE_CHECKING:
+    from polisyos.foundry.methods._internal.executable_identity import _ExecutableIdentity
     from polisyos.foundry.methods.backends.chain_executor import ExecutorMode, FxRateProvider
 
 __all__ = [
@@ -852,6 +853,34 @@ class CompiledMethodChain:
     cache_keys: Mapping[UUID, str] = field(default_factory=lambda: MappingProxyType({}))
     validation_context: ValidationContext | None = None
     linker_config: LinkerConfig = field(default_factory=LinkerConfig)
+    _source_implementations: Mapping[UUID, _ExecutableIdentity] = field(
+        default_factory=lambda: MappingProxyType({}), repr=False, compare=False
+    )
+    _source_registry: MethodRegistry | None = field(default=None, repr=False, compare=False)
+
+    def _reconcile_implementation(self, node_id: UUID, method_class: type) -> None:
+        """Keep a replay-admitted implementation bound through actual dispatch."""
+        from polisyos.foundry.methods._internal.executable_identity import (
+            _ExecutableIdentity,
+            _signature_binding,
+            _signature_matches,
+        )
+        from polisyos.foundry.methods.artifacts._fingerprint import _require_source_bound_operation
+
+        if not self._source_implementations:
+            if self._source_registry is not None:
+                raise ValueError("chain_implementation_binding_missing")
+            return
+        if set(self._source_implementations) != set(self.dag.nodes):
+            raise ValueError("chain_implementation_binding_incomplete")
+        expected = self._source_implementations[node_id]
+        if not _signature_matches(
+            method_class, self.signatures[node_id]
+        ) or expected != _ExecutableIdentity(
+            method_class, method_class.pure_step, _signature_binding(method_class.signature)
+        ):
+            raise ValueError("chain_selected_implementation_changed")
+        _require_source_bound_operation(method_class)
 
     def __len__(self) -> int:
         return len(self.execution_order)
@@ -917,7 +946,9 @@ class CompiledMethodChain:
         )
 
 
-def reconcile_validation_context(chain: CompiledMethodChain) -> ValidationContext:
+def reconcile_validation_context(
+    chain: CompiledMethodChain, *, registry: MethodRegistry | None = None
+) -> ValidationContext:
     """Replay the current compiler owner and reconcile its performed checks.
 
     This establishes current validation, not historical issuer authenticity.
@@ -926,6 +957,12 @@ def reconcile_validation_context(chain: CompiledMethodChain) -> ValidationContex
     """
     if not isinstance(chain, CompiledMethodChain):
         raise ValueError("Compiler validation requires an actual CompiledMethodChain")
+    if chain._source_implementations or chain._source_registry is not None:
+        source_registry = registry if registry is not None else chain._source_registry
+        if source_registry is None:
+            raise ValueError("chain_implementation_registry_missing")
+        for node_id, signature in chain.signatures.items():
+            chain._reconcile_implementation(node_id, source_registry.get(signature.fqn))
     context = chain.validation_context
     if (
         not isinstance(context, ValidationContext)

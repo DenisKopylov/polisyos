@@ -14,6 +14,13 @@ method promotion, and input/output materialization helpers.
 - `semantic_validator.py` validates cross-method chain semantics.
 - `slot_schema.py` owns semantic slot labels and compatibility registration.
 
+Automatic slot linking maximizes admissible target coverage first, then the
+lexicographic sum of the existing name/unit/type/shape/warning scores, then
+sorted `(target, source)` ties. Residual augmenting paths may move an earlier
+pair; diagnostics always describe the final selected binding. Exact-name
+preference cannot sacrifice coverage, and unknown slot names remain
+unconstrained rather than semantically attested.
+
 ## Registration Boundary
 
 `bridge.py` may call `selection.registry.MethodRegistry.register_lazy()` for

@@ -21,6 +21,7 @@ from polisyos.core.canon import (
     content_hash as compute_content_hash,
 )
 from polisyos.core.canon import (
+    from_canonical_bytes,
     to_canonical_bytes,
 )
 
@@ -106,6 +107,58 @@ class MethodArtifact:
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "_artifact_id", _artifact_id_from_bytes(self.to_canonical_bytes()))
+
+    @classmethod
+    def from_canonical_bytes(cls, data: bytes) -> MethodArtifact:
+        """Read the existing 1.0 method record without executing serialized code.
+
+        Args:
+            data: Complete canonical method-artifact bytes.
+
+        Returns:
+            Historical identity/specialization record, not an executable method.
+
+        Raises:
+            ValueError: If the schema or canonical record cannot round-trip.
+        """
+        from ..compiler.specialization import BackendSpec, ShapeSpec
+
+        payload = from_canonical_bytes(data)
+        if not isinstance(payload, dict) or payload.get("schema_version") != cls.SCHEMA_VERSION:
+            raise ValueError("unsupported_method_artifact_schema")
+        try:
+            spec = payload["specialization"]
+            backend = dict(spec["backend"])
+            backend["xla_flags"] = frozenset(backend["xla_flags"])
+            backend["device_kinds"] = tuple(backend["device_kinds"])
+            specialization = Specialization(
+                method_fqn=spec["method_fqn"],
+                static_params_hash=spec["static_params_hash"],
+                input_shapes=tuple(
+                    (row["name"], ShapeSpec(tuple(row["shape"]), row["dtype"]))
+                    for row in spec["input_shapes"]
+                ),
+                backend=BackendSpec(**backend),
+                jit_enabled=spec["jit_enabled"],
+                vmap_axis=spec["vmap_axis"],
+                donate_argnums=tuple(spec["donate_argnums"]),
+            )
+            artifact = cls(
+                fqn=payload["fqn"],
+                signature_hash=payload["signature_hash"],
+                metadata_hash=payload["metadata_hash"],
+                source_module=payload["source_module"],
+                source_hash=payload["source_hash"],
+                source_available=payload["source_available"],
+                source_fingerprint=SourceFingerprint(**payload["source_fingerprint"]),
+                specialization=specialization,
+                compiled_at=_utc_now(),
+            )
+            if artifact.to_canonical_bytes() != data:
+                raise ValueError("method_artifact_not_canonical")
+            return artifact
+        except (KeyError, TypeError) as exc:
+            raise ValueError("invalid_method_artifact_record") from exc
 
     @classmethod
     def from_method(

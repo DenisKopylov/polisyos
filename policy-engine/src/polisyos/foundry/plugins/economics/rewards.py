@@ -24,10 +24,12 @@ class EconomicReward:
         prev_agents = state.agents
         active = agents.active.astype(jnp.float32)
 
-        consumption = agents.consumption + 1e-6
+        # Neutral computational operands must precede nonlinearities. A final
+        # multiplication by zero cannot suppress NaN values or their gradients.
+        consumption = jnp.where(agents.active, agents.consumption, 1.0) + 1e-6
 
         if self.utility_type == "crra":
-            gamma = agents.risk_aversion
+            gamma = jnp.where(agents.active, agents.risk_aversion, 2.0)
             denom = 1.0 - gamma + 1e-8
             utility = jnp.where(
                 gamma == 1.0,
@@ -39,7 +41,11 @@ class EconomicReward:
         else:
             utility = consumption / 10000.0
 
-        wealth_change = agents.wealth - prev_agents.wealth
+        wealth = jnp.where(agents.active, agents.wealth, jnp.zeros_like(agents.wealth))
+        previous_wealth = jnp.where(
+            agents.active, prev_agents.wealth, jnp.zeros_like(prev_agents.wealth)
+        )
+        wealth_change = wealth - previous_wealth
         wealth_utility = jnp.tanh(wealth_change / 10000.0) * 0.1
 
         employment_bonus = agents.employed.astype(jnp.float32) * 0.05

@@ -641,7 +641,13 @@ def store_policy_artifact(
                 name="polisyos.foundry.AgentPolicyArtifact",
                 version=artifact.schema_version,
             ),
-            inputs=[InputRef(artifact_id=weights_ref.artifact_id, role="weights")],
+            inputs=[
+                InputRef(
+                    artifact_id=weights_ref.artifact_id,
+                    role="weights",
+                    manifest_profile_sha256=weights_ref.manifest_profile_sha256,
+                )
+            ],
         ),
     )
     return weights_ref, manifest_ref
@@ -690,7 +696,12 @@ def _load_artifact_from_cas(
     cas: ArtifactStore,
     manifest_ref: ArtifactRef | ArtifactID | str,
 ) -> AgentPolicyArtifact:
-    manifest_payload = _load_payload(cas, manifest_ref)
+    manifest_reference = (
+        manifest_ref
+        if isinstance(manifest_ref, (ArtifactRef, ArtifactID))
+        else ArtifactID.model_validate(manifest_ref)
+    )
+    manifest_payload = _load_payload(cas, manifest_reference)
     if not isinstance(manifest_payload, dict):
         raise ValueError("Invalid agent policy manifest payload")
 
@@ -698,7 +709,25 @@ def _load_artifact_from_cas(
     if not isinstance(weights_hash, str) or not weights_hash:
         raise ValueError("Agent policy manifest missing weights_hash")
 
-    weights_bytes = cas.get_bytes(ArtifactID.from_sha256_hex(weights_hash))
+    weights_id = ArtifactID.from_sha256_hex(weights_hash)
+    weights_inputs = [
+        edge for edge in cas.get_manifest(manifest_reference).inputs if edge.role == "weights"
+    ]
+    if len(weights_inputs) > 1 or (weights_inputs and weights_inputs[0].artifact_id != weights_id):
+        raise ValueError("Agent policy weights lineage does not match its content hash")
+    # Preserve the selected owner view, including when identical learned bytes
+    # have several manifests. Legacy unprofiled lineage remains readable.
+    weights_reference = (
+        ArtifactRef(
+            artifact_id=weights_id,
+            kind="foundry.agent_policy",
+            media_type="application/octet-stream",
+            manifest_profile_sha256=weights_inputs[0].manifest_profile_sha256,
+        )
+        if weights_inputs
+        else weights_id
+    )
+    weights_bytes = cas.get_bytes(weights_reference)
     actual_hash = content_hash(weights_bytes)
     if actual_hash != weights_hash:
         raise ValueError("Weights hash mismatch for agent policy artifact")

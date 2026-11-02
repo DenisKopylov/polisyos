@@ -29,7 +29,9 @@ class TaxationMechanism(eqx.Module):
     def apply(self, state: EconomicState, **kwargs) -> EconomicState:
         del kwargs
         agents = state.agents
-        income = agents.income
+        # Inactive income is outside this tax population. Exclude it before
+        # bracket arithmetic and policy gradients, without rewriting the state.
+        income = jnp.where(agents.active, agents.income, jnp.zeros_like(agents.income))
         active = agents.active.astype(jnp.float32)
 
         tax = jnp.zeros_like(income)

@@ -69,24 +69,35 @@ class PureExecutor:
         state: GlobalState,
         fidelity: FidelityLevel = FidelityLevel.SURROGATE_FLUID,
     ) -> tuple[GlobalState, dict[str, Any]]:
-        all_metrics: dict[str, Any] = {}
-
-        for idx in self.order.order:
-            mechanism = self.mechanisms[idx]
-            if mechanism.spec.stochastic:
-                salt = self.prng_config.get(mechanism.spec.name, idx)
-                mech_key = get_mechanism_key(state.rng_key, state.time_step, salt)
-            else:
-                mech_key = None
-
-            state, metrics = mechanism.apply(state, mech_key, fidelity)
-            for key, value in metrics.items():
-                all_metrics[f"{mechanism.spec.name}/{key}"] = value
+        state, all_metrics = self._execute_prefix(state, fidelity)
 
         if self.aggregate_every is not None:
             state = self._maybe_update_aggregates(state)
 
         state = state.replace(time_step=state.time_step + 1)
+        return state, all_metrics
+
+    def _execute_prefix(
+        self,
+        state: GlobalState,
+        fidelity: FidelityLevel,
+        *,
+        stop_before: Mechanism | None = None,
+    ) -> tuple[GlobalState, dict[str, Any]]:
+        """Execute the ordinary mechanism order, optionally stopping before one owner."""
+        all_metrics: dict[str, Any] = {}
+        for idx in self.order.order:
+            mechanism = self.mechanisms[idx]
+            if mechanism is stop_before:
+                break
+            if mechanism.spec.stochastic:
+                salt = self.prng_config.get(mechanism.spec.name, idx)
+                mech_key = get_mechanism_key(state.rng_key, state.time_step, salt)
+            else:
+                mech_key = None
+            state, metrics = mechanism.apply(state, mech_key, fidelity)
+            for key, value in metrics.items():
+                all_metrics[f"{mechanism.spec.name}/{key}"] = value
         return state, all_metrics
 
     @partial(jax.jit, static_argnums=(0, 2, 3))

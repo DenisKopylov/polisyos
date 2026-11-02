@@ -280,6 +280,7 @@ supported_entrypoints = [
   "polisyos.foundry.data_plane",
   "polisyos.foundry.execute",
   "polisyos.foundry.methods",
+  "polisyos.foundry.methods.artifacts",
   "polisyos.foundry.methods.backends",
   "polisyos.foundry.methods.causal",
   "polisyos.foundry.uncertainty",

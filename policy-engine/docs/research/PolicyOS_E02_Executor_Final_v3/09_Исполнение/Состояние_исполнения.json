@@ -2890,8 +2890,8 @@
     {
       "lane_id": "LANE-04",
       "sequence": 4,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "PARTIAL",
+      "implementation_status": "LOCAL_IMPLEMENTATION_COMPLETE",
+      "local_qualification": "QUALIFIED_NAMED_PROFILES_WITH_DA04_REMAINDER",
       "capability_acceptance": "NOT_RUN",
       "transition_evidence": [
         {
@@ -2949,11 +2949,12 @@
         "initial_measured_profiles": "JIT actual miss\u2192claim red236MB/2.197s; CMP native406MB/4.362s and matcher140MB/1.642s; checkpoint225MB/2.187s; PLG status/discovery259MB/3.384s. Initial economics six-module accumulated JAX run exceeded its1.5GiB cap: HARNESS_ERROR/no complete verdict, split unchanged native groups for bounded qualification."
       },
       "execution_control": {
-        "only_active_implementation_lane": "LANE-04",
+        "only_active_implementation_lane": null,
         "next_lane": "LANE-10",
         "next_lane_started": false,
         "g_acceptance": false,
-        "final_acceptance": "NOT_RUN"
+        "final_acceptance": "NOT_RUN",
+        "completed_lane": "LANE-04"
       },
       "late_windows": [
         {
@@ -3259,7 +3260,7 @@
             "bytes": 11719,
             "sha256": "8a0eb1787687970cc1a74866ad7679e9a32e55f69e1127890936d38f243d50d6"
           },
-          "scope": "Exact author footprint, criterion/command/result/profile/oracle and actual output locators. Independent source/runtime review GO; source bytes independently verified by root."
+          "scope": "Exact author source/result/profile/command/oracle and original output locators. Historical receipt wording is not a current-source assertion: the final frozen source hashes and independent material-delta reviews below govern composition."
         },
         "checkpoint_release": {
           "path": "policy-engine/_cache/e02/lane04-checkpoint/release.json",
@@ -3267,7 +3268,7 @@
             "bytes": 16373,
             "sha256": "64c1be18a00132c841e569157d790224cc366a402ee8b53fe062082dca2c36b2"
           },
-          "scope": "Exact author footprint, criterion/command/result/profile/oracle and actual output locators. Independent source/runtime review GO; source bytes independently verified by root."
+          "scope": "Exact author source/result/profile/command/oracle and original output locators. Historical receipt wording is not a current-source assertion: the final frozen source hashes and independent material-delta reviews below govern composition."
         },
         "economics_release": {
           "path": "policy-engine/_cache/e02/lane04-economics/release.json",
@@ -3275,7 +3276,7 @@
             "bytes": 33454,
             "sha256": "d8266a03d6394e9a387566e933b1de5b268feca51704ff49db29af8e8cba09fe"
           },
-          "scope": "Exact author footprint, criterion/command/result/profile/oracle and actual output locators. Independent source/runtime review GO; source bytes independently verified by root."
+          "scope": "Exact author source/result/profile/command/oracle and original output locators. Historical receipt wording is not a current-source assertion: the final frozen source hashes and independent material-delta reviews below govern composition."
         },
         "conditional_release": {
           "path": "policy-engine/_cache/e02/lane04-conditional/release.json",
@@ -3283,19 +3284,258 @@
             "bytes": 18783,
             "sha256": "8fa5c3af488a28a3c82c8b61e345db6c9da8c3e97987b710b3abe12915ad5bb6"
           },
-          "scope": "Exact author footprint, criterion/command/result/profile/oracle and actual output locators. Independent source/runtime review GO; source bytes independently verified by root."
+          "scope": "Exact author source/result/profile/command/oracle and original output locators. Historical receipt wording is not a current-source assertion: the final frozen source hashes and independent material-delta reviews below govern composition."
+        },
+        "foundry_release": {
+          "path": "policy-engine/_cache/e02/lane04-foundry/release.json",
+          "identity": {
+            "bytes": 24513,
+            "sha256": "30be92050afc1da87a951eb8b3af66d85ca53cb6ea48824eaccc06cf4494c505"
+          },
+          "scope": "Exact author source/result/profile/command/oracle and original output locators. Historical receipt wording is not a current-source assertion: the final frozen source hashes and independent material-delta reviews below govern composition."
+        },
+        "compile_release": {
+          "path": "policy-engine/_cache/e02/lane04-compile/release.json",
+          "identity": {
+            "bytes": 48799,
+            "sha256": "66dea6d1365340edb6c76d013110df82b7d3cf89a20c52a8af80f1768a4e33bd"
+          },
+          "scope": "Exact author source/result/profile/command/oracle and original output locators. Historical receipt wording is not a current-source assertion: the final frozen source hashes and independent material-delta reviews below govern composition."
+        },
+        "training_release": {
+          "path": "policy-engine/_cache/e02/lane04-training/release.json",
+          "identity": {
+            "bytes": 65699,
+            "sha256": "9cb99731bbf3a279ee6167db57fa76ae4ffe41c4017ed815aae0382c9893aeb8"
+          },
+          "scope": "Exact author source/result/profile/command/oracle and original output locators. Historical receipt wording is not a current-source assertion: the final frozen source hashes and independent material-delta reviews below govern composition."
+        },
+        "checkpoint_implementation_delta": {
+          "path": "policy-engine/_cache/e02/lane04-checkpoint/implementation-release.json",
+          "identity": {
+            "bytes": 13283,
+            "sha256": "51166de17f3af05d0ea5913bf3190101c37f9f88510a9c0eaeb4b1f44c88619a"
+          },
+          "scope": "Actual local deciding outputs and hashes are accessible through this compact release. Named results and limitations are not broadened."
+        },
+        "checkpoint_installed_test_companion": {
+          "path": "policy-engine/_cache/e02/lane04-checkpoint/origin-companion.json",
+          "identity": {
+            "bytes": 1120,
+            "sha256": "9336fd5e5d5043b8cc2dabc4753e0f8ac6d551dbf769259d72facba8085d61e0"
+          },
+          "scope": "Actual local deciding outputs and hashes are accessible through this compact release. Named results and limitations are not broadened."
+        },
+        "economics_inactive_delta": {
+          "path": "policy-engine/_cache/e02/lane04-economics/inactive-release.json",
+          "identity": {
+            "bytes": 26875,
+            "sha256": "51c1abddd7d8b78ac2e72b6ed26ba7e85bb36122c62e852dc6d98cfeeae97a95"
+          },
+          "scope": "Actual local deciding outputs and hashes are accessible through this compact release. Named results and limitations are not broadened."
+        },
+        "installed_selected_profiles": {
+          "path": "policy-engine/_cache/e02/lane04-installed/release.json",
+          "identity": {
+            "bytes": 21462,
+            "sha256": "0153f7fbc87ab5a769b46f260ef175c64a24b9a1806a14802147f2eace56fb3d"
+          },
+          "scope": "Actual local deciding outputs and hashes are accessible through this compact release. Named results and limitations are not broadened."
+        },
+        "composed_A419": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane04-root/composed-A/result.json": {
+              "bytes": 1919,
+              "sha256": "6788a9461b667990a49e9066184abb9686613b88795b683ab5f9f4be6acff972"
+            },
+            "policy-engine/_cache/e02/lane04-root/composed-A/before.json": {
+              "bytes": 8784,
+              "sha256": "d852a37518c7036e139c2d128d3f8ae1a4d6f569e295c67c28f415b387d148ce"
+            },
+            "policy-engine/_cache/e02/lane04-root/composed-A/after.json": {
+              "bytes": 8784,
+              "sha256": "d852a37518c7036e139c2d128d3f8ae1a4d6f569e295c67c28f415b387d148ce"
+            },
+            "policy-engine/_cache/e02/lane04-root/composed-A/command.stdout.txt": {
+              "bytes": 2212,
+              "sha256": "962de5c69cdeea262e7871b97fbdd99d64f0b79c211d1ea19be4a3acb7713da1"
+            },
+            "policy-engine/_cache/e02/lane04-root/composed-A/command.stderr.txt": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "policy-engine/_cache/e02/lane04-root/composed-A/pytest.xml": {
+              "bytes": 74241,
+              "sha256": "bc2446ca49d9dfdc50269cf3741e5429a8cbd81227016749f2a494a7f9d6baac"
+            }
+          },
+          "scope": "Current final CMP/JIT/RES source: sixteen affected modules, actual native sequential/async persisted recipe, executable/registry tamper, strict/warn, exact checkpoint/history and dynamic cache consumers. All72 frozen input hashes remain current.",
+          "exit_code": 0,
+          "command_status": "passed",
+          "seconds": 28.10506379196886,
+          "max_rss_bytes": 731119616,
+          "named_inputs_unchanged_during_run": 72,
+          "availability": "Complete deciding bytes retained once locally at these paths; no remote output delivery is implied.",
+          "observed": {
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "PASS": 419
+          }
+        },
+        "composed_B166": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane04-root/composed-B-measured/result.json": {
+              "bytes": 1542,
+              "sha256": "28666b7c23176ef9ef4d929483dd3e6f8e7f257c94690911462228745657cd85"
+            },
+            "policy-engine/_cache/e02/lane04-root/composed-B-measured/before.json": {
+              "bytes": 8784,
+              "sha256": "d852a37518c7036e139c2d128d3f8ae1a4d6f569e295c67c28f415b387d148ce"
+            },
+            "policy-engine/_cache/e02/lane04-root/composed-B-measured/after.json": {
+              "bytes": 8784,
+              "sha256": "d852a37518c7036e139c2d128d3f8ae1a4d6f569e295c67c28f415b387d148ce"
+            },
+            "policy-engine/_cache/e02/lane04-root/composed-B-measured/command.stdout.txt": {
+              "bytes": 2313,
+              "sha256": "efa8831cfcc356928ab19cac7ec11a7c4bfbe7711c376458590247d215f7bbaf"
+            },
+            "policy-engine/_cache/e02/lane04-root/composed-B-measured/command.stderr.txt": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "policy-engine/_cache/e02/lane04-root/composed-B-measured/pytest.xml": {
+              "bytes": 28515,
+              "sha256": "183ca6ff31de780ed8fd47506127b88c22468b79716b70e06dadb572c913ef59"
+            }
+          },
+          "scope": "Current final PLG/economics source: nine affected modules including actual temporal decision/action law, independent PPO arithmetic, executable mutants, discovery/roles, real optimizer/CAS and inactive finite/dtype/active-invalid consumers. Clean rerun of identical selectors/72 inputs with measured3.25GiB supervisor budget.",
+          "exit_code": 0,
+          "command_status": "passed",
+          "seconds": 106.31228787498549,
+          "max_rss_bytes": 3391651840,
+          "named_inputs_unchanged_during_run": 72,
+          "availability": "Complete deciding bytes retained once locally at these paths; no remote output delivery is implied.",
+          "observed": {
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "PASS": 166
+          }
+        },
+        "composed_B_resource_abort": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane04-root/composed-B/result.json": {
+              "bytes": 1575,
+              "sha256": "1a4455b30fa674d1b3d2d082a58226a7272b9875ad2a996cbac86a853c776f29"
+            },
+            "policy-engine/_cache/e02/lane04-root/composed-B/before.json": {
+              "bytes": 8784,
+              "sha256": "d852a37518c7036e139c2d128d3f8ae1a4d6f569e295c67c28f415b387d148ce"
+            },
+            "policy-engine/_cache/e02/lane04-root/composed-B/after.json": {
+              "bytes": 8784,
+              "sha256": "d852a37518c7036e139c2d128d3f8ae1a4d6f569e295c67c28f415b387d148ce"
+            },
+            "policy-engine/_cache/e02/lane04-root/composed-B/command.stdout.txt": {
+              "bytes": 2313,
+              "sha256": "efa8831cfcc356928ab19cac7ec11a7c4bfbe7711c376458590247d215f7bbaf"
+            },
+            "policy-engine/_cache/e02/lane04-root/composed-B/command.stderr.txt": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "policy-engine/_cache/e02/lane04-root/composed-B/pytest.xml": {
+              "bytes": 28515,
+              "sha256": "a3bc752abeb33ae4e40bb5e3c6618c951af3ea919efc82751129b460a35b9b43"
+            }
+          },
+          "scope": "All166 JUnit test cases passed, but2.5GiB supervisor cap terminated command near finalization; HARNESS_ERROR, no clean-command PASS and no OOM/product FAIL inference. Same frozen assertions/inputs subsequently clean in composed_B166.",
+          "exit_code": -15,
+          "command_status": "resource_limit_abort",
+          "seconds": 105.49268141610082,
+          "max_rss_bytes": 2856681472,
+          "named_inputs_unchanged_during_run": 72,
+          "availability": "Complete deciding bytes retained once locally at these paths; no remote output delivery is implied.",
+          "observed": {
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "PASS": 166
+          }
+        },
+        "architecture_final": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane04-root/architecture-final/result.json": {
+              "bytes": 962,
+              "sha256": "5b4642e4b6d21e014f889d44f80a7d04eb9d9ff871eeb73826d92461d59e1c6c"
+            },
+            "policy-engine/_cache/e02/lane04-root/architecture-final/before.json": {
+              "bytes": 469,
+              "sha256": "4b2faeae37bfda973657192b5904b0bc0bd6f438f35ed9644368f9506239831e"
+            },
+            "policy-engine/_cache/e02/lane04-root/architecture-final/after.json": {
+              "bytes": 469,
+              "sha256": "4b2faeae37bfda973657192b5904b0bc0bd6f438f35ed9644368f9506239831e"
+            },
+            "policy-engine/_cache/e02/lane04-root/architecture-final/command.stdout.txt": {
+              "bytes": 8182,
+              "sha256": "f82f86743616287e6df81689dc18bdd8166034076f913157a2c5e06ada156035"
+            },
+            "policy-engine/_cache/e02/lane04-root/architecture-final/command.stderr.txt": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "scope": "Actual static check explicitly omits generated probes. FAIL: eight Fabric deep-import edges plus baseline drift outside LANE04 footprint. No new LANE04 finding; no inherited attribution without pre-slice replay. Global required CI/Main promotion remains unqualified.",
+          "exit_code": 1,
+          "command_status": "command_failed",
+          "seconds": 87.54884125001263,
+          "max_rss_bytes": 177848320,
+          "named_inputs_unchanged_during_run": 4,
+          "availability": "Complete deciding bytes retained once locally at these paths; no remote output delivery is implied."
+        },
+        "production_invocation_diagnostic": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane04-root/invocation/result.json": {
+              "bytes": 1124,
+              "sha256": "dd8ffd3331995e8887f19f4e3c65a37ddd4efdaf8f0a270a836d3e83e097ca03"
+            },
+            "policy-engine/_cache/e02/lane04-root/invocation/before.json": {
+              "bytes": 218,
+              "sha256": "7d8a12b740503c0b22f0377841f253cb1404dfc3ad44462ecbbd16e8d7b83b93"
+            },
+            "policy-engine/_cache/e02/lane04-root/invocation/after.json": {
+              "bytes": 218,
+              "sha256": "7d8a12b740503c0b22f0377841f253cb1404dfc3ad44462ecbbd16e8d7b83b93"
+            },
+            "policy-engine/_cache/e02/lane04-root/invocation/command.stdout.txt": {
+              "bytes": 4799,
+              "sha256": "0ad372adf693467557483994adb26171912b5f9ec010d7b63da960b7fdd6ba5e"
+            },
+            "policy-engine/_cache/e02/lane04-root/invocation/command.stderr.txt": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "exit_code": -15,
+          "command_status": "resource_limit_abort",
+          "seconds": 157.45362049993128,
+          "max_rss_bytes": 4353966080,
+          "scope": "Complete source-derived static production-invocation census attempted from exact lane entry.4GiB supervisorcap aborted at4353966080B/157.454s; no completed census/verdict. Two named tool/config pins unchanged. Runtime real producer/consumer persisted-value/removal witnesses are separate evidence, not a substitute claimed as static census PASS."
         }
       },
       "current_source_checkpoint": {
-        "binding": "Containing component commit binds the released16 code/test/README paths plus ordinary companions; deciding cohorts retain their exact actual coordinated inputs. Other authors remain visible uncommitted WIP and are not part of this component.",
+        "binding": "Containing lane04 composition commit binds current released blobs and ordinary generated/documentation companions; root reads all changed files and68 released hashes from that commit and checks published topic commit/tree. Entry and component commits remain append-only.",
         "released_sha256": {
           "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py": "110d247cb2157f00c8dc8883d30ab7b41d1760c7487f896b05097c4df2f05606",
           "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py": "c83ea3726a6b22b3585a0e83bff43a9191ed609e34741ab2c0190a7ffc7b8b44",
           "policy-engine/src/polisyos/foundry/methods/compiler/README.md": "2ec4449384dd803a6ed18bcfce22477539db5cd7ed1a29318d2737cccde41bff",
           "policy-engine/tests/unit/remediation/test_jit_01.py": "9f54c67b67318dee6843f5de57d9c47cf69310ca32732e94c9db9488b4a12a22",
-          "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py": "4e43325d3019c75fb2e0fa675ac3c48e5cd8ab765226b0723c05a4846abbb9f1",
+          "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py": "8a10b6276ba50cd1892f9f2dfd876a2b68707a3182ca0ece66818e568e40e263",
           "policy-engine/tests/unit/remediation/test_res_04.py": "531214ed34e8943476b1e6111cae5440162d40d1d3eb7adc7fc182cc106de51c",
-          "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py": "17da3072c6e1ef05c2e446959ed496c464ca7737912185a16d45482ec3a5811d",
+          "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py": "ac54f0dbcbbc64369e3351c5d95c90a35e4140b85e5a3ba37942d34aea0ae1b7",
           "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime.py": "f98637b95733b3a9664ee604964245434987f2c62fbe5109ebe754b874fcf1b1",
           "policy-engine/tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py": "0dfee0dcdd6b34fe9f4143ecc0920eb0fca6c767c14e454c425f829369cc1bfb",
           "policy-engine/tests/unit/foundry/execute/mechanisms/test_fiscal_precision.py": "1d90733906cc33e07fea8f8f366855449a158a1b0d60845e3b8d8cf2cdb4ef04",
@@ -3304,14 +3544,91 @@
           "policy-engine/src/polisyos/foundry/calibration/pure_executor.py": "1afb4bbf4b0705dda852ca2d4ed5c3f53babd7167e882c01e82a8ceba81685c4",
           "policy-engine/src/polisyos/foundry/calibration/README.md": "b64c8470c3def62986d1c1382ce00c357fa33454700b8b4b6a7e111df06a497b",
           "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py": "06d9a0e75672b8480c5d7b0f4fd0604eb0a003b787b75bbc20d9d645e042c038",
-          "policy-engine/tests/unit/foundry/calibration/test_ordered_batch_calibration.py": "e8b153b83e697f76627cb51a353cc2511d77bbf9d1b6a2ae0a76e351a9b5698b"
+          "policy-engine/tests/unit/foundry/calibration/test_ordered_batch_calibration.py": "e8b153b83e697f76627cb51a353cc2511d77bbf9d1b6a2ae0a76e351a9b5698b",
+          "policy-engine/src/polisyos/foundry/methods/components/composer.py": "1d2dfa6944e82e8bcb8a1d50652556e9c9c4e9afef216b765f6b5040cc7f8360",
+          "policy-engine/src/polisyos/foundry/methods/components/composer.pyi": "32eb49003f79ed286098a4654b841167f6702cb7a3887f4a26b83d5c02be10dc",
+          "policy-engine/src/polisyos/foundry/methods/components/linker.py": "91e5a88947d61d5d4ff8495ebc31b86138b70998d5b957ea15c0f185b7b7ee03",
+          "policy-engine/src/polisyos/foundry/methods/components/README.md": "620a0c88e785aded374cd4c792a55ec371ff2e61ced1a2793c3821bf2a3af4f3",
+          "policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py": "b742dd5e0dec6cf4ae492c140043fa746b2db5dbe88eccf9f083b14517d091aa",
+          "policy-engine/src/polisyos/foundry/methods/artifacts/_method.py": "7e1ef402a87db8b0920c1223da50611285038c4d822bf682be4442017ef1b922",
+          "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py": "830d57e70939136835205c8ad34631f92704fa7ca1621e2884198d1b5024ed7c",
+          "policy-engine/src/polisyos/foundry/methods/artifacts/parts.py": "2485ec33c30de18e1c8a3f8f52c0f68a3f17a3f32329252190af4551f2764991",
+          "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py": "dba64220351c7c7914008912808d32d4f59ffc61b6a8adf767e2ab04ac544304",
+          "policy-engine/src/polisyos/foundry/methods/artifacts/README.md": "e1be5478932ddabfde27c6c6c4388dae424198948a4d69f72e9013593f4eb7df",
+          "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py": "09be52a03b9b3a062de8eba5efdf39b17fb4ce89d22cf065962e41dc4ff310fb",
+          "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py": "6593aa710562d906c27adc0de7300b78b7790f3c9cb7e91f7fe721f39d1eb1ea",
+          "policy-engine/tests/_helpers/method_chain.py": "89d9ff8b2a7596a915d6c1f65b51f7a2b9d6e2298520b5e9dd10866bae6100c8",
+          "policy-engine/tests/unit/remediation/test_cmp_03.py": "f0130cdd109fc9a252618a61209b96a3eef393551ec65d3415a4079c688474e6",
+          "policy-engine/tests/unit/foundry/methods/test_compiled_chain_artifact.py": "faa01f2d47bf2294347437c7944352ba1f2b75d5e45abff832aadd6aafb13a1a",
+          "policy-engine/tests/unit/foundry/methods/test_composition_native.py": "0b0ed1b8fa88a40a24df9528f04158a5a6cc632161ddd46f6f21e91ef543ed56",
+          "policy-engine/src/polisyos/foundry/methods/artifacts/_evidence.py": "870c542d32b7410bc796270de654d53f30ac49a23db76a7bbeff5ce3937fa804",
+          "policy-engine/tests/unit/foundry/methods/test_artifact_numeric_profiles.py": "a75e0ea07f91bc5147dbe44352125b9dcc28c2d9895407f52944c0d63a8d6c2d",
+          "policy-engine/src/polisyos/foundry/plugins/core.py": "d65e9b011798f9f2597aa15a14e6ef1e96a4a38a1831254a912f0cd3dfcc6f6f",
+          "policy-engine/src/polisyos/foundry/plugins/discovery.py": "b003d56cb4e35c7002505db14643fb54ccb20ab2f65fce8407a7167b4469a220",
+          "policy-engine/src/polisyos/foundry/plugins/api.py": "97b69dc46925a2068d72b047ec2e38aad685edeeff0a4e97dae8f8e8b7221e55",
+          "policy-engine/src/polisyos/foundry/plugins/cli.py": "2cff0bc56a47fa10cd5151ae80822c65bc1365434bb0b2898e1526a631e2aa00",
+          "policy-engine/src/polisyos/foundry/plugins/training_adapter.py": "9269c10a6fa083f16d0b8d8907c4ea6a1b200ae71a04e84a9dfd10c258008cf5",
+          "policy-engine/src/polisyos/foundry/plugins/README.md": "7b02f5508508b12f2d4b32508403d4159727fdbb6a490ab999796f2cf00b77bd",
+          "policy-engine/src/polisyos/foundry/agent_sim/executor.py": "07b6e92527cb080eb4ab76b0c6e9a6337c28d52020b87b871843194ab6970e76",
+          "policy-engine/src/polisyos/foundry/agent_sim/jit_training.py": "2b756c460cbcec41162eae65c76863ff8c730653c7eb063041abedad9a552a02",
+          "policy-engine/src/polisyos/foundry/agent_sim/rl.py": "400b14a3be72df05c3b77de8f86623e6c568c45651d13b10d66c85054dffa4e5",
+          "policy-engine/src/polisyos/foundry/agent_sim/temporal_mechanisms.py": "91c1e419a51d8e9d0b33f345a4686ba38e6c17bdb66d42c3d2f3c33dc00e094a",
+          "policy-engine/src/polisyos/foundry/agent_sim/training.py": "e11063110096bb95a8c73a945722b55cf58a7762ff5412c8719e9e5d25de3fc4",
+          "policy-engine/src/polisyos/foundry/agent_sim/training_config.py": "f7ec6d30eb14547d21e859f2976f2acf5ce8ff91f5040bb4dd8d6ee07a626a2e",
+          "policy-engine/src/polisyos/foundry/agent_sim/artifact.py": "beee5ae6b177b61805178f1718ac74e1c962caacd9cf427745b08b71767bca85",
+          "policy-engine/src/polisyos/foundry/agent_sim/README.md": "5006ea14bc7f61d76cfc1bfed89f3d4cb45a16059634a699c7ecc174e601382e",
+          "policy-engine/tests/unit/remediation/test_plg_01.py": "5bec0e96fdcf44e71b0ca417df1dbc73f3278b84f4bb090a51aba9f4028f2c4c",
+          "policy-engine/tests/unit/remediation/test_plg_02.py": "d8eb47aaccb8900838e096e74d618f3ad7d97486b74a5fa69c4b995799089da8",
+          "policy-engine/tests/unit/remediation/test_plg_03.py": "f1f0247650b959fd65e9ab068c76432c64159096c794ab635180b3e8e65d67d5",
+          "policy-engine/tests/unit/foundry/agent_sim/test_agent_artifact.py": "07bf9049b6c2bbd30470b4068443c5a9c6d6cb90795b95d04577a15a469d1a58",
+          "policy-engine/tests/unit/foundry/agent_sim/test_jit_training.py": "dcd3546ec744555fde7ed76fdd3d72d04acc0d4af34d5182d42026f3be742dbb",
+          "policy-engine/tests/unit/foundry/agent_sim/test_training.py": "f2e5f78db56977373af15e7bbf7cbd27e6657a3a9c17a31a9218840a6eae953a",
+          "policy-engine/tests/unit/foundry/agent_sim/test_ppo_analytic_oracle.py": "e0d25b6cecb6e0490108efffb793538f57045619037be13117e3f2fc285cd82b",
+          "policy-engine/tests/unit/foundry/agent_sim/test_temporal_training_decisions.py": "4689fd6e1d42aa4ff7b30f7fad33287a8e903db6fa76e0447b84308e8d269a04",
+          "policy-engine/tests/unit/foundry/plugins/test_discovery_native.py": "7de4eff773a87b4662eec3eab6f68ef7c73c070d1c20db0474a25f085883dcfc",
+          "policy-engine/tests/unit/foundry/plugins/test_training_result_roles.py": "0fa6c0abfa86529cacb3a4e1cf77bfae6fbc2d8ab4d7dbceeb729dd7e9cc7053",
+          "policy-engine/tests/unit/foundry/compile/test_treasury_execution.py": "653e08acd2042a165f70543cf87c6199e4004c2b1f49b36f5691fa62b845d525",
+          "policy-engine/tests/unit/foundry/contracts/test_layout.py": "c21ecc7a3b920f2978c775a54a06a4b566d5d6d9e07ee9ef8c4537b21f7b209d",
+          "policy-engine/tests/fixtures/foundry/historical_randomization/unmarked_1980768_cpu.tar.gz": "d70123c0f9390a8a000c1ace0bd65ac4b31af7bdd45c3087a8991b1199035607",
+          "policy-engine/tests/fixtures/foundry/historical_randomization/unmarked_1980768_cpu.json": "14583319306583c2d6df42c42430048b00d48d3ac96ede3cded313ee1b7c809c",
+          "policy-engine/tests/fixtures/foundry/historical_randomization/generate.py": "73449bf1b4f6c25c67b0b6dff28e3e124d9ca29c78d744fd807d0e579928278c",
+          "policy-engine/tests/fixtures/foundry/historical_randomization/README.md": "f5ca85421074d45a1813a7fa8ebc0949c3e2d3d506fb49c1fc3cd993fe0acdcd",
+          "policy-engine/src/polisyos/foundry/plugins/economics/state.py": "7e0bd5d2dcc4f2b67d454e12d4866100ed65476462c6a2ef47700df08230c768",
+          "policy-engine/src/polisyos/foundry/plugins/economics/rewards.py": "6bb929c93066cbf80c3181d87e3eb3fe155195bac7fbfbc8ade0410869fc8d0d",
+          "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py": "1992b3d25a8bc582f8ca38979be989a897d4447c9036f842e918aff203d5211b",
+          "policy-engine/tests/unit/foundry/plugins/test_economic_profile_consumers.py": "fa6236b0962ebc1d864f30d21be3b1fbf6e1e1ddf180161adfdb74f186fc8a05"
         },
-        "local_qualified_requirements": 16,
-        "remaining": "FRY01 actual old unmarked runtime extent and full source qualification; CMP executable reconstruction/link/validation; PLG discovery/training/actual action law and native update; final joint/source/generated/installed impact checks and DA04 final changed LANE10 consumer."
+        "local_qualified_requirements": 39,
+        "remaining": "Only DA04 final changed CAL02/CAL04 loss/report consumer after LANE10; global DA08 impact-based final replay, required global CI/Main integration and G/formal closure remain separate. Next LANE10 has not started."
       },
-      "source_review": "JIT4paths, RES043paths, economics5paths and CAL054paths independently GO; current actual deciding outputs matched source pins at release. This is not whole I04/G qualification.",
+      "source_review": "Seven non-author coherent reviews plus material-delta reviews GO. Author/source/output identities independently reconciled; final source and installed-profile disposition reviews are recorded before commit. No G acceptance.",
       "branch_reuse": {
         "inspection": "Relevant topic-owner candidates are ancestors of admittedmain; reuse already-composed kernels/treasury/profiles. Older broadly divergent unified branch has three selected compile-adjacent commits, not merged wholesale; only compare a concrete needed delta. No branch deletion or ref mutation by assistants."
+      },
+      "local_result_summary": "All39 local REQ/39 TEST contracts across12 packets qualified in their named software profiles. I04 has13 bindings/34 repeated occurrences:12 demonstrated extents; D-B02 existing actual consumer demonstrated, final changed LANE10 consumer alone remainsDA04. Root419+166 clean; cohorts overlap, not criterion counts.",
+      "independent_review": {
+        "coherent_authors": "FRY01, CMP01\u201303, JIT01, RES04, economicsFRY03/ECO01, PLG01\u201303 and CAL05 each reviewed by a different executor; all GO after recorded material corrections.",
+        "scope": "Current68 author paths match released hashes; shared generated/public companions reviewed at final source. Installed/profile and final criterion census reviews are separate from authorship; root records actual outcomes before publication.",
+        "g_acceptance": false,
+        "formal_closure": false,
+        "installed": "GO /root/lane04_checkpoint_review: actual41evidencefiles/3396wheel=current=installed members/16copiedinputs/7finishedobservers889modules, same2declaredprofile retry independently reconciled. Originalx64True23PASS2FAIL retained; no wholef64/deployment/G claim.",
+        "foundry_historical": "GO /root/lane04_foundry_review: all6currentpath sizes/hashes,34output identities and934loadedhistoricalmodule Gitblobs independently verified. Actualoldsource\u2192current replay qualified; currentPython/JAXgeneratedfixture is notretainedproduction/olddependency provenance. Stale historicalauthor pending text superseded by this actualreview.",
+        "final_scope_census": "GO /root/lane07_scope_review: exact39criterion pointers/39TEST IDs,13binding records34occurrences32unique shared+7localonly; unifiedL06/DA03/DA04/DA08remainders correct, DA02notopen; all115otherpackets/otherlanes/otherDAs/other scenarios unchanged. No material overclaim."
+      },
+      "global_check_limitations": [
+        "Architecture static check FAIL: eight Fabric deep-import edges/baseline drift outside current LANE04 footprint; pre-slice attribution not established, full generated gates not implied.",
+        "Forced installed x64True:23PASS/2FAIL retained. Declared historical fixture x64False and default native training x64False: same2 selectors PASS unchanged. Wholefloat64 exact-reset reproducibility is not established.",
+        "OptionalRay/fusedJAX reconstruction, Linux/deployment/production-data provenance and scientific/institutional authority are not claimed.",
+        "Required global CI remains unqualified, so remote Main/integration is not updated.",
+        "Complete production-invocation static diagnostic HARNESS_ERROR at4GiB RSScap; no verdict/absence claim, no OOM inference. Full census may be retried only with separately admitted resources; no partial-source census substituted."
+      ],
+      "checks": {
+        "source_A": "419PASS cleanexit0,28.105s/731119616B;72 unchanged pins",
+        "source_B": "166PASS cleanexit0,106.312s/3391651840B;72 unchanged pins",
+        "source_B_first_attempt": "166PASS JUnit, but2.5GiB supervisor cap\u2192HARNESS_ERROR; clean same-input retry qualified, no OOM inference",
+        "installed": "One18MiB wheel SHA8e85ecaaa61fd167d392b63e31bb52dfe083d7f49e8aa4a712ed8b1e461dd214; all3396Pythonmembers=current source,7finished observers/889modules/16copiedinputs. Light17PASS; deepx64True23PASS2FAIL; same2declaredx64FalsePASS.",
+        "static": "59changed Python/stub Ruff+format PASS; normal public sync resolves15exports; ownedreleasefragment validatorPASS. Static fullarchitectureFAIL as separately recorded.",
+        "production_invocation": "HARNESS_ERROR/resource_limit_abort:4GiB sampledRSScap,4353966080B peak,157.454s; retained complete command stdout/stderr/result; no static verdict."
       }
     },
     {
@@ -9120,13 +9437,20 @@
       "lane_sequence": 4,
       "track_id": "04-A",
       "track_position": 1,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "QUALIFIED_NAMED_PROFILE",
       "assigned_executor": "/root/lane04_foundry",
       "base_commit": "211e8c333bbb86c8ab1671188d07638c3721849c",
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "integrated_commit": "containing_lane04_composition_commit",
+      "actual_write_set": [
+        "policy-engine/tests/fixtures/foundry/historical_randomization/README.md",
+        "policy-engine/tests/fixtures/foundry/historical_randomization/generate.py",
+        "policy-engine/tests/fixtures/foundry/historical_randomization/unmarked_1980768_cpu.json",
+        "policy-engine/tests/fixtures/foundry/historical_randomization/unmarked_1980768_cpu.tar.gz",
+        "policy-engine/tests/unit/foundry/compile/test_treasury_execution.py",
+        "policy-engine/tests/unit/foundry/contracts/test_layout.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -9141,10 +9465,86 @@
         "TEST-FRY-01-03",
         "TEST-FRY-01-04"
       ],
-      "evidence": [],
+      "evidence": [
+        "foundry_release",
+        "installed_selected_profiles"
+      ],
       "blockers": [],
       "deferred_ids": [
         "DA-02"
+      ],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-FRY-01-01",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/FRY-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-FRY-01-01"
+          ],
+          "binding_ids": [],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "foundry_release",
+            "installed_selected_profiles"
+          ],
+          "basis": "Actual current compiler/CAS/native and source-qualified old1980768 compiler/public executor\u2192exact old unmarked graph/ExecPlan/CAS views\u2192current fresh public replay. All0/17/\u22123 old-law draws/state agree; no forced Treasury read. Current marked profile and all15 adversarial/salt-removal controls remain qualified.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count.",
+          "limit": "Historical fixture generated today from exact old Git source using current Python/JAX dependencies. Not retained production provenance, old dependency environment or exhaustive historical production coverage. No current plan model_copy stands in for this historical artifact proof."
+        },
+        {
+          "requirement_id": "REQ-FRY-01-02",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/FRY-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-FRY-01-02"
+          ],
+          "binding_ids": [],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "foundry_release",
+            "installed_selected_profiles"
+          ],
+          "basis": "All4 catalog family declarations/assumptions, actual Scientist IC\u2192IR certificate sidecar\u2192fresh readers; monotone/nonmonotone and threshold-payment outcomes distinguish actual mathematics from membership. Existing MethodRegistry descriptors and real income-tax dispatch change native state and persist/fresh-read it.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count.",
+          "limit": "Bounded grids/declared assumptions, not empirical or global IC authority; no family-ID-to-kernel mapping invented."
+        },
+        {
+          "requirement_id": "REQ-FRY-01-03",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/FRY-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-FRY-01-03"
+          ],
+          "binding_ids": [
+            "E02-I04-A-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "foundry_release",
+            "installed_selected_profiles"
+          ],
+          "basis": "All31 original mappings are an extensible compatibility floor; no-state-path inventory-only, unknown-prefix global, added slot and detached outputs. Actual CompileFoundryNode/DefaultFoundryPort preserves selected report/layout/treasury edges through fresh readers; real unknown-mechanism compile failure retains honest report and manufactures no layout/treasury refs. Five old identities preserved.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count.",
+          "limit": "No unrelated whole-pipeline/empirical authority claim."
+        },
+        {
+          "requirement_id": "REQ-FRY-01-04",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/FRY-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-FRY-01-04"
+          ],
+          "binding_ids": [],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "foundry_release",
+            "installed_selected_profiles"
+          ],
+          "basis": "Both real installed old layout imports remain IR-direct under poisoning of either sibling, Treasury/catalog/certificate identities preserved;8 deciding installed modules exactly match source and all loaded first-party origins remain installed purelib. Finite maintained source/FQN/string/config/docs scan and actual retained support decision are explicit.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count.",
+          "limit": "Reuse of genuine LANE07 wheel only for unchanged alias modules, not final whole LANE04 wheel/package currentness. Nested layout aliases are internal per contract and retained until separate lifecycle decision; external usage unknown. Parent/compiler deltas need final composed package impact qualification.",
+          "composition_update": "Final wheel now reconciles all3396 Python members and both compatibility layout addresses; the older unchanged-alias-only wheel receipt is not the final package binding."
+        }
       ]
     },
     {
@@ -9153,13 +9553,32 @@
       "lane_sequence": 4,
       "track_id": "04-A",
       "track_position": 2,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "QUALIFIED_NAMED_PROFILE",
       "assigned_executor": "/root/lane04_compile",
       "base_commit": "211e8c333bbb86c8ab1671188d07638c3721849c",
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "integrated_commit": "containing_lane04_composition_commit",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_evidence.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_method.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/parts.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+        "policy-engine/src/polisyos/foundry/methods/components/README.md",
+        "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+        "policy-engine/src/polisyos/foundry/methods/components/composer.pyi",
+        "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+        "policy-engine/tests/_helpers/method_chain.py",
+        "policy-engine/tests/unit/foundry/methods/test_artifact_numeric_profiles.py",
+        "policy-engine/tests/unit/foundry/methods/test_compiled_chain_artifact.py",
+        "policy-engine/tests/unit/foundry/methods/test_composition_native.py",
+        "policy-engine/tests/unit/remediation/test_cmp_03.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -9172,11 +9591,76 @@
         "TEST-CMP-01-02",
         "TEST-CMP-01-03"
       ],
-      "evidence": [],
+      "evidence": [
+        "compile_release",
+        "composed_A419",
+        "installed_selected_profiles"
+      ],
       "blockers": [],
       "deferred_ids": [
         "DA-01",
         "DA-02"
+      ],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-CMP-01-01",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/CMP-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-CMP-01-01"
+          ],
+          "binding_ids": [
+            "E02-I04-A-B01",
+            "E02-I04-A-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "compile_release",
+            "composed_A419",
+            "installed_selected_profiles"
+          ],
+          "basis": "Actual registered requires-only A/C\u2192B graph, answer36 and simultaneous real-dispatch barrier; missing/cycle strict refusal, two fresh import orders and internal failure/recovery/await route.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
+        },
+        {
+          "requirement_id": "REQ-CMP-01-02",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/CMP-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-CMP-01-02"
+          ],
+          "binding_ids": [
+            "E02-I04-A-B01",
+            "E02-X01-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "compile_release",
+            "composed_A419",
+            "installed_selected_profiles"
+          ],
+          "basis": "Real MethodArtifact\u2192selectedCAS methodviews\u2192ChainArtifact1.1\u2192freshchild load_compiled_chain\u2192canonicalMethodComposer\u2192nativeSeq/Async. Preserves UUID/occurrence, authoredparams, mode, fullABI/requires-only adjacency/levels; corrupted edge/context/source/ABI/occurrence refused; legacy1.0 readable/notexecutable. Existing process-localExecutableIdentity is retained through actualconsumer entry/per-node checks; source class/code swapping afterload and midrun refused. Supportedordinary-class-source-v1; no arbitrary Python reconstruction.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
+        },
+        {
+          "requirement_id": "REQ-CMP-01-03",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/CMP-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-CMP-01-03"
+          ],
+          "binding_ids": [
+            "E02-I04-A-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "compile_release",
+            "composed_A419",
+            "installed_selected_profiles"
+          ],
+          "basis": "Actual static20/dynamic2\u219240, override3\u219260,window30/scale4\u2192120 inSeq/Async afterCASfreshread; seedseparate,unknownparamsrefuse. OptionalRayabsent/fusedJAXnotqualified; no claim of heterogeneous optionalbackendparity.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
+        }
       ]
     },
     {
@@ -9185,13 +9669,32 @@
       "lane_sequence": 4,
       "track_id": "04-A",
       "track_position": 3,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "QUALIFIED_NAMED_PROFILE",
       "assigned_executor": "/root/lane04_compile",
       "base_commit": "211e8c333bbb86c8ab1671188d07638c3721849c",
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "integrated_commit": "containing_lane04_composition_commit",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_evidence.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_method.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/parts.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+        "policy-engine/src/polisyos/foundry/methods/components/README.md",
+        "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+        "policy-engine/src/polisyos/foundry/methods/components/composer.pyi",
+        "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+        "policy-engine/tests/_helpers/method_chain.py",
+        "policy-engine/tests/unit/foundry/methods/test_artifact_numeric_profiles.py",
+        "policy-engine/tests/unit/foundry/methods/test_compiled_chain_artifact.py",
+        "policy-engine/tests/unit/foundry/methods/test_composition_native.py",
+        "policy-engine/tests/unit/remediation/test_cmp_03.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -9204,9 +9707,72 @@
         "TEST-CMP-02-02",
         "TEST-CMP-02-03"
       ],
-      "evidence": [],
+      "evidence": [
+        "compile_release",
+        "composed_A419",
+        "installed_selected_profiles"
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-CMP-02-01",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/CMP-02.json#/requirements/0",
+          "test_ids": [
+            "TEST-CMP-02-01"
+          ],
+          "binding_ids": [
+            "E02-I04-A-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "compile_release",
+            "composed_A419",
+            "installed_selected_profiles"
+          ],
+          "basis": "Real collision/endpoint/type validation beforedispatcher; actualexplicitmerge30\u219260 underbothUUIDassignmentsandSeq/Async; rootsanddistinctoccurrencespreserved.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
+        },
+        {
+          "requirement_id": "REQ-CMP-02-02",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/CMP-02.json#/requirements/1",
+          "test_ids": [
+            "TEST-CMP-02-02"
+          ],
+          "binding_ids": [
+            "E02-I04-A-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "compile_release",
+            "composed_A419",
+            "installed_selected_profiles"
+          ],
+          "basis": "WARN20/10 retainedaslimitedcandidate, fullfreshcheckpoint3results/0dispatch; warnings/mode/input/seed/prefix/historymutationsrefuse. Checkpointownerpreservesoriginaltypederroradapter aroundsharedregistrygate.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
+        },
+        {
+          "requirement_id": "REQ-CMP-02-03",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/CMP-02.json#/requirements/2",
+          "test_ids": [
+            "TEST-CMP-02-03"
+          ],
+          "binding_ids": [
+            "E02-I04-A-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "compile_release",
+            "composed_A419",
+            "installed_selected_profiles"
+          ],
+          "basis": "ActualregisteredtypedchainsESE/SES/SSE/self/neutral,eachconcreteUUID/indexwithstrict/errorvswarn/warning; heuristiconly, noempiricalattestation.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
+        }
+      ]
     },
     {
       "packet_id": "CMP-03",
@@ -9214,13 +9780,32 @@
       "lane_sequence": 4,
       "track_id": "04-A",
       "track_position": 4,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "QUALIFIED_NAMED_PROFILE",
       "assigned_executor": "/root/lane04_compile",
       "base_commit": "211e8c333bbb86c8ab1671188d07638c3721849c",
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "integrated_commit": "containing_lane04_composition_commit",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_evidence.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_method.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/parts.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+        "policy-engine/src/polisyos/foundry/methods/components/README.md",
+        "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+        "policy-engine/src/polisyos/foundry/methods/components/composer.pyi",
+        "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+        "policy-engine/tests/_helpers/method_chain.py",
+        "policy-engine/tests/unit/foundry/methods/test_artifact_numeric_profiles.py",
+        "policy-engine/tests/unit/foundry/methods/test_compiled_chain_artifact.py",
+        "policy-engine/tests/unit/foundry/methods/test_composition_native.py",
+        "policy-engine/tests/unit/remediation/test_cmp_03.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -9233,9 +9818,72 @@
         "TEST-CMP-03-02",
         "TEST-CMP-03-03"
       ],
-      "evidence": [],
+      "evidence": [
+        "compile_release",
+        "composed_A419",
+        "installed_selected_profiles"
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-CMP-03-01",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/CMP-03.json#/requirements/0",
+          "test_ids": [
+            "TEST-CMP-03-01"
+          ],
+          "binding_ids": [
+            "E02-I04-A-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "compile_release",
+            "composed_A419",
+            "installed_selected_profiles"
+          ],
+          "basis": "Correctselectededgefixed\u2192first/flexible\u2192secondandactual2010Seq/Async; warnings/alternativesfollowbinding, freshcheckpoint2results/0dispatchpreservessamediagnostics.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
+        },
+        {
+          "requirement_id": "REQ-CMP-03-02",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/CMP-03.json#/requirements/1",
+          "test_ids": [
+            "TEST-CMP-03-02"
+          ],
+          "binding_ids": [
+            "E02-I04-A-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "compile_release",
+            "composed_A419",
+            "installed_selected_profiles"
+          ],
+          "basis": "Maxcardinalitythenexisting5tuple-score sumthenstablepairs, viaresidualshortestaugmentingpaths; independent729contractgraphsexhaustiveoracleforbothnamepreferenceprofiles; unit/shape/warningdistinctglobaloptima. No newdependencyorbruteforceproducer. Real two-producer left10/right20 auto links in both connect orders, sequential/async weighted result1020.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
+        },
+        {
+          "requirement_id": "REQ-CMP-03-03",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/CMP-03.json#/requirements/2",
+          "test_ids": [
+            "TEST-CMP-03-03"
+          ],
+          "binding_ids": [
+            "E02-I04-A-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "compile_release",
+            "composed_A419",
+            "installed_selected_profiles"
+          ],
+          "basis": "Canonicalauto/explicitsemantic/unit/shape/concretecontractadmissionandboundswarning-only; typedfullmerge30andfinal60, corruptselectedbindings/unknowncontextrefuse. Unknownslotnamesunconstrainednotattested. Allowed outcome\u2192residual native30, forged complete same-type outcome\u2192treatment refused by actual replay before dispatch, auto/explicit \u00d7 sequential/async.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
+        }
+      ]
     },
     {
       "packet_id": "JIT-01",
@@ -9245,14 +9893,14 @@
       "track_position": 5,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
       "local_qualification": "QUALIFIED_NAMED_PROFILE",
-      "integration_qualification": "PARTIAL",
+      "integration_qualification": "QUALIFIED_NAMED_PROFILE",
       "assigned_executor": "/root/lane04_jit",
       "base_commit": "211e8c333bbb86c8ab1671188d07638c3721849c",
-      "integrated_commit": "containing_component_commit",
+      "integrated_commit": "containing_lane04_composition_commit",
       "actual_write_set": [
+        "policy-engine/src/polisyos/foundry/methods/compiler/README.md",
         "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
         "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py",
-        "policy-engine/src/polisyos/foundry/methods/compiler/README.md",
         "policy-engine/tests/unit/remediation/test_jit_01.py"
       ],
       "shared_writer": null,
@@ -9270,7 +9918,9 @@
       "evidence": [
         "jit80",
         "jit23",
-        "jit_release"
+        "jit_release",
+        "composed_A419",
+        "installed_selected_profiles"
       ],
       "blockers": [],
       "deferred_ids": [],
@@ -9288,11 +9938,13 @@
           "evidence_refs": [
             "jit80",
             "jit23",
-            "jit_release"
+            "jit_release",
+            "composed_A419",
+            "installed_selected_profiles"
           ],
           "basis": "Actual direct handles20/30/cold30/old20/override40 and array defaults/static admission; real MethodDispatcher\u2192JaxRunner\u2192_compile_resolved current params, __seed__/PRNGKey, native result and same-FQN selectedclass; dynamiconly shares wrapper, otherselectedimplementation distinct.",
           "capability_gaps": [],
-          "composition_scope": "Qualification belongs to the declared coordinated workspace inputs/source hashes. This component commit releases its own reviewed blobs; current neighboring CMP/PLG changes are not silently included or declared commit-wide PASS. Final affected composition remains pending."
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
         },
         {
           "requirement_id": "REQ-JIT-01-02",
@@ -9307,11 +9959,13 @@
           "evidence_refs": [
             "jit80",
             "jit23",
-            "jit_release"
+            "jit_release",
+            "composed_A419",
+            "installed_selected_profiles"
           ],
           "basis": "Precisely ordered actual cache misses then leader publication then new delayedclaim+actualjoinedfollower; one wrapper, own bindings, cache request stats retained. Actual threads exercise recheck/build/put failures ordinary/BaseException, invalidation, timeout/cancel and empty terminal flights.",
           "capability_gaps": [],
-          "composition_scope": "Qualification belongs to the declared coordinated workspace inputs/source hashes. This component commit releases its own reviewed blobs; current neighboring CMP/PLG changes are not silently included or declared commit-wide PASS. Final affected composition remains pending."
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
         },
         {
           "requirement_id": "REQ-JIT-01-03",
@@ -9324,11 +9978,13 @@
           "evidence_refs": [
             "jit80",
             "jit23",
-            "jit_release"
+            "jit_release",
+            "composed_A419",
+            "installed_selected_profiles"
           ],
           "basis": "Prepare zero method bodies; actual scalar0.5 and dtype-changing native6/int32; unknown declared dtype explicit, lazy JAX traces true dtype, output shape1e9 metadataonly. Actual unknown shape refusal, warmup3delegated realcalls, separate native phase observations and persisted MethodArtifact unknownmetadata freshread.",
           "capability_gaps": [],
-          "composition_scope": "Qualification belongs to the declared coordinated workspace inputs/source hashes. This component commit releases its own reviewed blobs; current neighboring CMP/PLG changes are not silently included or declared commit-wide PASS. Final affected composition remains pending."
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
         }
       ]
     },
@@ -9340,14 +9996,14 @@
       "track_position": 6,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
       "local_qualification": "QUALIFIED_NAMED_PROFILE",
-      "integration_qualification": "PARTIAL",
+      "integration_qualification": "QUALIFIED_NAMED_PROFILE",
       "assigned_executor": "/root/lane04_checkpoint",
       "base_commit": "211e8c333bbb86c8ab1671188d07638c3721849c",
-      "integrated_commit": "containing_component_commit",
+      "integrated_commit": "containing_lane04_composition_commit",
       "actual_write_set": [
         "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
-        "policy-engine/tests/unit/remediation/test_res_04.py",
-        "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py"
+        "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "policy-engine/tests/unit/remediation/test_res_04.py"
       ],
       "shared_writer": null,
       "decision_records": [],
@@ -9365,7 +10021,11 @@
       ],
       "evidence": [
         "checkpoint85",
-        "checkpoint_release"
+        "checkpoint_release",
+        "checkpoint_implementation_delta",
+        "checkpoint_installed_test_companion",
+        "composed_A419",
+        "installed_selected_profiles"
       ],
       "blockers": [],
       "deferred_ids": [],
@@ -9382,11 +10042,15 @@
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "checkpoint85",
-            "checkpoint_release"
+            "checkpoint_release",
+            "checkpoint_implementation_delta",
+            "checkpoint_installed_test_companion",
+            "composed_A419",
+            "installed_selected_profiles"
           ],
           "basis": "Actual local registry/composer/MethodDispatcher/NumpyRunner\u2192FS\u2192fresh executor: full/prefix 0/1 actual new calls; outputs6/7, seeds7/7, current effective request/context/history/prefix guards; changed factor3/input4 cold results10/9. Actual native removal returns stale7 vs cold10.",
           "capability_gaps": [],
-          "composition_scope": "Qualification belongs to the declared coordinated workspace inputs/source hashes. This component commit releases its own reviewed blobs; current neighboring CMP/PLG changes are not silently included or declared commit-wide PASS. Final affected composition remains pending."
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
         },
         {
           "requirement_id": "REQ-RES-04-02",
@@ -9400,11 +10064,15 @@
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "checkpoint85",
-            "checkpoint_release"
+            "checkpoint_release",
+            "checkpoint_implementation_delta",
+            "checkpoint_installed_test_companion",
+            "composed_A419",
+            "installed_selected_profiles"
           ],
           "basis": "All current MethodResult fields including strict typed original verified/unavailable RestrictedMethodInvocationEvidence; exact tuple restoration; malformed payloads refuse even in partial histories. Missing legacy field has explicit incomplete marker; values/seed survive forward save, serialized/in-memory complete-flag corruption cannot admit resume.",
           "capability_gaps": [],
-          "composition_scope": "Qualification belongs to the declared coordinated workspace inputs/source hashes. This component commit releases its own reviewed blobs; current neighboring CMP/PLG changes are not silently included or declared commit-wide PASS. Final affected composition remains pending."
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
         },
         {
           "requirement_id": "REQ-RES-04-03",
@@ -9418,11 +10086,15 @@
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "checkpoint85",
-            "checkpoint_release"
+            "checkpoint_release",
+            "checkpoint_implementation_delta",
+            "checkpoint_installed_test_companion",
+            "composed_A419",
+            "installed_selected_profiles"
           ],
           "basis": "Real post-manifest-rename fsync fault and uncertain-replace fault retain reachable generation while reporting SaveError; prepublication/unsupported-array controls preserve old bytes. Actual paired marker/array concurrent writers; permissive native computation7 retains explicit save issues and readable generation.",
           "capability_gaps": [],
-          "composition_scope": "Qualification belongs to the declared coordinated workspace inputs/source hashes. This component commit releases its own reviewed blobs; current neighboring CMP/PLG changes are not silently included or declared commit-wide PASS. Final affected composition remains pending."
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
         },
         {
           "requirement_id": "REQ-RES-04-04",
@@ -9436,11 +10108,15 @@
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "checkpoint85",
-            "checkpoint_release"
+            "checkpoint_release",
+            "checkpoint_implementation_delta",
+            "checkpoint_installed_test_companion",
+            "composed_A419",
+            "installed_selected_profiles"
           ],
           "basis": "One encoded envelope separates complete/partial history and state root namespaces, preserves both key orders and repeated saves. Actual fresh NumPy reads preserve1/2/3/4 arrays, with missing/content/shape/dtype/hash/path/symlink refusal.",
           "capability_gaps": [],
-          "composition_scope": "Qualification belongs to the declared coordinated workspace inputs/source hashes. This component commit releases its own reviewed blobs; current neighboring CMP/PLG changes are not silently included or declared commit-wide PASS. Final affected composition remains pending."
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
         }
       ]
     },
@@ -9452,14 +10128,18 @@
       "track_position": 1,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
       "local_qualification": "QUALIFIED_NAMED_PROFILE",
-      "integration_qualification": "PARTIAL",
+      "integration_qualification": "QUALIFIED_NAMED_PROFILE",
       "assigned_executor": "/root/lane04_economics",
       "base_commit": "211e8c333bbb86c8ab1671188d07638c3721849c",
-      "integrated_commit": "containing_component_commit",
+      "integrated_commit": "containing_lane04_composition_commit",
       "actual_write_set": [
         "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime.py",
+        "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+        "policy-engine/src/polisyos/foundry/plugins/economics/rewards.py",
+        "policy-engine/src/polisyos/foundry/plugins/economics/state.py",
         "policy-engine/tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py",
         "policy-engine/tests/unit/foundry/execute/mechanisms/test_fiscal_precision.py",
+        "policy-engine/tests/unit/foundry/plugins/test_economic_profile_consumers.py",
         "policy-engine/tests/unit/foundry/plugins/test_economic_profiles.py",
         "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py"
       ],
@@ -9479,7 +10159,9 @@
         "economics73",
         "economics50",
         "economics37",
-        "economics_release"
+        "economics_release",
+        "economics_inactive_delta",
+        "composed_B166"
       ],
       "blockers": [],
       "deferred_ids": [],
@@ -9498,11 +10180,13 @@
             "economics73",
             "economics50",
             "economics37",
-            "economics_release"
+            "economics_release",
+            "economics_inactive_delta",
+            "composed_B166"
           ],
           "basis": "Actual spec/class-path registry\u2192JAX kernel\u2192MergeEngine\u2192compiled public execution\u2192persisted state\u2192fresh CAS read; independent complete fiscal state oracle includes signed reported-income reversal. Exact masks/counteraccounts/keys, all-false labor target, active-firm recount, zero-firm and invalid eager rate refusal are exercised.",
           "capability_gaps": [],
-          "composition_scope": "Qualification belongs to the declared coordinated workspace inputs/source hashes. This component commit releases its own reviewed blobs; current neighboring CMP/PLG changes are not silently included or declared commit-wide PASS. Final affected composition remains pending."
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
         },
         {
           "requirement_id": "REQ-FRY-03-02",
@@ -9518,11 +10202,13 @@
             "economics73",
             "economics50",
             "economics37",
-            "economics_release"
+            "economics_release",
+            "economics_inactive_delta",
+            "composed_B166"
           ],
           "basis": "Actual float32/x64 eager/JIT/grad/rebinding/pickle and receiving-income minimum-float32 precision. The test-owned already-float32 serialized object preserves its quantization; it does not recreate lost Decimal information or qualify a historical production corpus. Existing precision implementation is reused, not reimplemented.",
           "capability_gaps": [],
-          "composition_scope": "Qualification belongs to the declared coordinated workspace inputs/source hashes. This component commit releases its own reviewed blobs; current neighboring CMP/PLG changes are not silently included or declared commit-wide PASS. Final affected composition remains pending."
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
         },
         {
           "requirement_id": "REQ-FRY-03-03",
@@ -9538,11 +10224,13 @@
             "economics73",
             "economics50",
             "economics37",
-            "economics_release"
+            "economics_release",
+            "economics_inactive_delta",
+            "composed_B166"
           ],
           "basis": "Real MethodRegistry-selected methods disclose actual conditional equations, supplied per-call units/no calendar conversion and empirical not_established. Unchanged authority exclusions and useful actual signed transfer/labor outputs are checked; no empirical/causal/welfare promotion.",
           "capability_gaps": [],
-          "composition_scope": "Qualification belongs to the declared coordinated workspace inputs/source hashes. This component commit releases its own reviewed blobs; current neighboring CMP/PLG changes are not silently included or declared commit-wide PASS. Final affected composition remains pending."
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
         }
       ]
     },
@@ -9554,14 +10242,18 @@
       "track_position": 2,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
       "local_qualification": "QUALIFIED_NAMED_PROFILE",
-      "integration_qualification": "PARTIAL",
+      "integration_qualification": "QUALIFIED_NAMED_PROFILE",
       "assigned_executor": "/root/lane04_economics",
       "base_commit": "211e8c333bbb86c8ab1671188d07638c3721849c",
-      "integrated_commit": "containing_component_commit",
+      "integrated_commit": "containing_lane04_composition_commit",
       "actual_write_set": [
         "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime.py",
+        "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+        "policy-engine/src/polisyos/foundry/plugins/economics/rewards.py",
+        "policy-engine/src/polisyos/foundry/plugins/economics/state.py",
         "policy-engine/tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py",
         "policy-engine/tests/unit/foundry/execute/mechanisms/test_fiscal_precision.py",
+        "policy-engine/tests/unit/foundry/plugins/test_economic_profile_consumers.py",
         "policy-engine/tests/unit/foundry/plugins/test_economic_profiles.py",
         "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py"
       ],
@@ -9581,7 +10273,9 @@
         "economics73",
         "economics50",
         "economics37",
-        "economics_release"
+        "economics_release",
+        "economics_inactive_delta",
+        "composed_B166"
       ],
       "blockers": [],
       "deferred_ids": [],
@@ -9600,11 +10294,13 @@
             "economics73",
             "economics50",
             "economics37",
-            "economics_release"
+            "economics_release",
+            "economics_inactive_delta",
+            "composed_B166"
           ],
           "basis": "Actual EconomicState and GlobalState consumers preserve base/debit/mask/counteraccount/units/clock/RNG distinctions. Flat observable match is explicitly mapped, progressive3250/7700 and native-vs-plugin unequal regimes remain distinct. Real CompositeExecutor and selected current Gini admission execute without scripted JAX/guard replacements.",
           "capability_gaps": [],
-          "composition_scope": "Qualification belongs to the declared coordinated workspace inputs/source hashes. This component commit releases its own reviewed blobs; current neighboring CMP/PLG changes are not silently included or declared commit-wide PASS. Final affected composition remains pending."
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
         },
         {
           "requirement_id": "REQ-ECO-01-02",
@@ -9618,11 +10314,13 @@
             "economics73",
             "economics50",
             "economics37",
-            "economics_release"
+            "economics_release",
+            "economics_inactive_delta",
+            "composed_B166"
           ],
           "basis": "Unmodified float32 normalized income/budget formula with independent rational/hand arithmetic, positive scale\u22121, zero/negative/mixed populations, active/inactive/padding distinction, budget9, empty/nonfinite/overflow+inf, JIT/grad and actual whole-vector finite guard. No new objective or population change.",
           "capability_gaps": [],
-          "composition_scope": "Qualification belongs to the declared coordinated workspace inputs/source hashes. This component commit releases its own reviewed blobs; current neighboring CMP/PLG changes are not silently included or declared commit-wide PASS. Final affected composition remains pending."
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
         },
         {
           "requirement_id": "REQ-ECO-01-03",
@@ -9636,11 +10334,13 @@
             "economics73",
             "economics50",
             "economics37",
-            "economics_release"
+            "economics_release",
+            "economics_inactive_delta",
+            "composed_B166"
           ],
           "basis": "Both policy_loss_fn aliases retain actual callable identity and native consumers; fresh process imports perform no guarded IO/registration/execution side effects. Current Python textual reference census is declared explicitly; external/dynamic/serialized-use absence is not inferred, so no alias is retired.",
           "capability_gaps": [],
-          "composition_scope": "Qualification belongs to the declared coordinated workspace inputs/source hashes. This component commit releases its own reviewed blobs; current neighboring CMP/PLG changes are not silently included or declared commit-wide PASS. Final affected composition remains pending."
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
         }
       ]
     },
@@ -9650,13 +10350,38 @@
       "lane_sequence": 4,
       "track_id": "04-C",
       "track_position": 1,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "QUALIFIED_NAMED_PROFILE",
       "assigned_executor": "/root/lane04_training",
       "base_commit": "211e8c333bbb86c8ab1671188d07638c3721849c",
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "integrated_commit": "containing_lane04_composition_commit",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/foundry/agent_sim/README.md",
+        "policy-engine/src/polisyos/foundry/agent_sim/artifact.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/executor.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/jit_training.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/rl.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/temporal_mechanisms.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/training.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/training_config.py",
+        "policy-engine/src/polisyos/foundry/plugins/README.md",
+        "policy-engine/src/polisyos/foundry/plugins/api.py",
+        "policy-engine/src/polisyos/foundry/plugins/cli.py",
+        "policy-engine/src/polisyos/foundry/plugins/core.py",
+        "policy-engine/src/polisyos/foundry/plugins/discovery.py",
+        "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+        "policy-engine/tests/unit/foundry/agent_sim/test_agent_artifact.py",
+        "policy-engine/tests/unit/foundry/agent_sim/test_jit_training.py",
+        "policy-engine/tests/unit/foundry/agent_sim/test_ppo_analytic_oracle.py",
+        "policy-engine/tests/unit/foundry/agent_sim/test_temporal_training_decisions.py",
+        "policy-engine/tests/unit/foundry/agent_sim/test_training.py",
+        "policy-engine/tests/unit/foundry/plugins/test_discovery_native.py",
+        "policy-engine/tests/unit/foundry/plugins/test_training_result_roles.py",
+        "policy-engine/tests/unit/remediation/test_plg_01.py",
+        "policy-engine/tests/unit/remediation/test_plg_02.py",
+        "policy-engine/tests/unit/remediation/test_plg_03.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -9669,9 +10394,76 @@
         "TEST-PLG-01-02",
         "TEST-PLG-01-03"
       ],
-      "evidence": [],
+      "evidence": [
+        "training_release",
+        "economics_inactive_delta",
+        "composed_B166",
+        "installed_selected_profiles"
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-PLG-01-01",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/PLG-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-PLG-01-01"
+          ],
+          "binding_ids": [
+            "E02-I04-C-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "training_release",
+            "economics_inactive_delta",
+            "composed_B166",
+            "installed_selected_profiles"
+          ],
+          "basis": "Canonical detached metadata admission; malformed source isolated without repeated unsafe callbacks or half-registration. One-argument registry override preserved.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
+        },
+        {
+          "requirement_id": "REQ-PLG-01-02",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/PLG-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-PLG-01-02"
+          ],
+          "binding_ids": [
+            "E02-I04-C-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "training_release",
+            "economics_inactive_delta",
+            "composed_B166",
+            "installed_selected_profiles"
+          ],
+          "basis": "Actual temporary declared dist-info/importlib entrypoint and native Economics initialize/ordinary run; lazy lifecycle/filter/duplicate/dependency/import diagnostic controls.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count.",
+          "limit": "Test distribution profile, not a claim that production entrypoints are installed; native group scan was empty. Composite clock advances; domain clock remains unchanged as documented."
+        },
+        {
+          "requirement_id": "REQ-PLG-01-03",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/PLG-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-PLG-01-03"
+          ],
+          "binding_ids": [],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "training_release",
+            "economics_inactive_delta",
+            "composed_B166",
+            "installed_selected_profiles"
+          ],
+          "basis": "Bounded maintained Python/TOML caller inventory recorded in existing README; retained prefix support/no approved sunset and one-pass child-before-parent semantics. No implicit topological loader or Components authority.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count.",
+          "limit": "External consumers not inventoried; no prefix removal."
+        }
+      ]
     },
     {
       "packet_id": "PLG-02",
@@ -9679,13 +10471,38 @@
       "lane_sequence": 4,
       "track_id": "04-C",
       "track_position": 2,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "QUALIFIED_NAMED_PROFILE",
       "assigned_executor": "/root/lane04_training",
       "base_commit": "211e8c333bbb86c8ab1671188d07638c3721849c",
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "integrated_commit": "containing_lane04_composition_commit",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/foundry/agent_sim/README.md",
+        "policy-engine/src/polisyos/foundry/agent_sim/artifact.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/executor.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/jit_training.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/rl.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/temporal_mechanisms.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/training.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/training_config.py",
+        "policy-engine/src/polisyos/foundry/plugins/README.md",
+        "policy-engine/src/polisyos/foundry/plugins/api.py",
+        "policy-engine/src/polisyos/foundry/plugins/cli.py",
+        "policy-engine/src/polisyos/foundry/plugins/core.py",
+        "policy-engine/src/polisyos/foundry/plugins/discovery.py",
+        "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+        "policy-engine/tests/unit/foundry/agent_sim/test_agent_artifact.py",
+        "policy-engine/tests/unit/foundry/agent_sim/test_jit_training.py",
+        "policy-engine/tests/unit/foundry/agent_sim/test_ppo_analytic_oracle.py",
+        "policy-engine/tests/unit/foundry/agent_sim/test_temporal_training_decisions.py",
+        "policy-engine/tests/unit/foundry/agent_sim/test_training.py",
+        "policy-engine/tests/unit/foundry/plugins/test_discovery_native.py",
+        "policy-engine/tests/unit/foundry/plugins/test_training_result_roles.py",
+        "policy-engine/tests/unit/remediation/test_plg_01.py",
+        "policy-engine/tests/unit/remediation/test_plg_02.py",
+        "policy-engine/tests/unit/remediation/test_plg_03.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -9698,9 +10515,78 @@
         "TEST-PLG-02-02",
         "TEST-PLG-02-03"
       ],
-      "evidence": [],
+      "evidence": [
+        "training_release",
+        "economics_inactive_delta",
+        "composed_B166",
+        "installed_selected_profiles"
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-PLG-02-01",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/PLG-02.json#/requirements/0",
+          "test_ids": [
+            "TEST-PLG-02-01"
+          ],
+          "binding_ids": [
+            "E02-I04-C-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "training_release",
+            "economics_inactive_delta",
+            "composed_B166",
+            "installed_selected_profiles"
+          ],
+          "basis": "Legacy 3-positional/old-layout results default unqualified; producer explicitly sets native role+trained; CLI/plot require qualified non-null policy/no reason. Genuine trained no-CAS outcome presented.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
+        },
+        {
+          "requirement_id": "REQ-PLG-02-02",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/PLG-02.json#/requirements/1",
+          "test_ids": [
+            "TEST-PLG-02-02"
+          ],
+          "binding_ids": [
+            "E02-I04-C-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "training_release",
+            "economics_inactive_delta",
+            "composed_B166",
+            "installed_selected_profiles"
+          ],
+          "basis": "Unsupported profiles/fidelity refused before actor/store; actual CLI process refusal1 versus usage2; ordinary run and prior state/policy remain; internal JAX failures not relabeled.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count.",
+          "limit": "The two process CLI cases pass; sole unrelated legacy-reference failure in affected-reference-cli superseded by legacy-reference-qualified."
+        },
+        {
+          "requirement_id": "REQ-PLG-02-03",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/PLG-02.json#/requirements/2",
+          "test_ids": [
+            "TEST-PLG-02-03"
+          ],
+          "binding_ids": [
+            "E02-I04-C-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "training_release",
+            "economics_inactive_delta",
+            "composed_B166",
+            "installed_selected_profiles"
+          ],
+          "basis": "Reuse PLG03 actual native optimizer/raw finite nonzero gradient, parameters/actions versus fresh strict policy and no-update oracle. Role fixtures alone are presentation tests.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count.",
+          "numerical_profile_limit": "Default native float32 whole training/reset/CAS reader passes. Installed forced-x64True command retains reset exact-equality FAIL at3.469446951953614e-17 after optimizer/artifact/fresh reader; identical selector/assertions passes atx64False. No whole-float64 training reproducibility qualification."
+        }
+      ]
     },
     {
       "packet_id": "PLG-03",
@@ -9708,13 +10594,38 @@
       "lane_sequence": 4,
       "track_id": "04-C",
       "track_position": 3,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "QUALIFIED_NAMED_PROFILE",
       "assigned_executor": "/root/lane04_training",
       "base_commit": "211e8c333bbb86c8ab1671188d07638c3721849c",
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "integrated_commit": "containing_lane04_composition_commit",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/foundry/agent_sim/README.md",
+        "policy-engine/src/polisyos/foundry/agent_sim/artifact.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/executor.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/jit_training.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/rl.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/temporal_mechanisms.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/training.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/training_config.py",
+        "policy-engine/src/polisyos/foundry/plugins/README.md",
+        "policy-engine/src/polisyos/foundry/plugins/api.py",
+        "policy-engine/src/polisyos/foundry/plugins/cli.py",
+        "policy-engine/src/polisyos/foundry/plugins/core.py",
+        "policy-engine/src/polisyos/foundry/plugins/discovery.py",
+        "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+        "policy-engine/tests/unit/foundry/agent_sim/test_agent_artifact.py",
+        "policy-engine/tests/unit/foundry/agent_sim/test_jit_training.py",
+        "policy-engine/tests/unit/foundry/agent_sim/test_ppo_analytic_oracle.py",
+        "policy-engine/tests/unit/foundry/agent_sim/test_temporal_training_decisions.py",
+        "policy-engine/tests/unit/foundry/agent_sim/test_training.py",
+        "policy-engine/tests/unit/foundry/plugins/test_discovery_native.py",
+        "policy-engine/tests/unit/foundry/plugins/test_training_result_roles.py",
+        "policy-engine/tests/unit/remediation/test_plg_01.py",
+        "policy-engine/tests/unit/remediation/test_plg_02.py",
+        "policy-engine/tests/unit/remediation/test_plg_03.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -9729,9 +10640,102 @@
         "TEST-PLG-03-03",
         "TEST-PLG-03-04"
       ],
-      "evidence": [],
+      "evidence": [
+        "training_release",
+        "economics_inactive_delta",
+        "composed_B166",
+        "installed_selected_profiles"
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-PLG-03-01",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/PLG-03.json#/requirements/0",
+          "test_ids": [
+            "TEST-PLG-03-01"
+          ],
+          "binding_ids": [
+            "E02-I04-C-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "training_release",
+            "economics_inactive_delta",
+            "composed_B166",
+            "installed_selected_profiles"
+          ],
+          "basis": "Training-only actual producer decision capture through canonical executor prefix and true next-decision bootstrap; both factories and legacy, real salts/default-index, horizon/active/observation law. Unsupported HARD/unknown/no/ambiguous policy refuse; ordinary HARD mean and metric dictionary preserved.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count.",
+          "limit": "All8 no/ambiguous and6 executable mutants pass in control-and-artifact; sole artifact wrong-content fixture setup failure superseded by affected-artifact-contract. Legacy action absolute error measured 1.1920928955078125e-07; explicit1e-6 native bound independently reviewed, all other assertions unchanged."
+        },
+        {
+          "requirement_id": "REQ-PLG-03-02",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/PLG-03.json#/requirements/1",
+          "test_ids": [
+            "TEST-PLG-03-02"
+          ],
+          "binding_ids": [
+            "E02-I04-C-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "training_release",
+            "economics_inactive_delta",
+            "composed_B166",
+            "installed_selected_profiles"
+          ],
+          "basis": "Real Optax updates/raw finite nonzero gradient/fresh policy versus no-update, same-seed reset; independent actor/critic/entropy/fixed-target GAE math and six executable owner mutants. Inactive operands masked before nonlinear arithmetic, source unchanged, active invalidity retained.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count.",
+          "limit": "Native padding red proves missing update, not directly measured native gradient NaN. Economics component separately measured gradient NaN. No universal learning or monotonic welfare claim.",
+          "numerical_profile_limit": "Default native float32 whole training/reset/CAS reader passes. Installed forced-x64True command retains reset exact-equality FAIL at3.469446951953614e-17 after optimizer/artifact/fresh reader; identical selector/assertions passes atx64False. No whole-float64 training reproducibility qualification."
+        },
+        {
+          "requirement_id": "REQ-PLG-03-03",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/PLG-03.json#/requirements/2",
+          "test_ids": [
+            "TEST-PLG-03-03"
+          ],
+          "binding_ids": [
+            "E02-I04-C-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "training_release",
+            "economics_inactive_delta",
+            "composed_B166",
+            "installed_selected_profiles"
+          ],
+          "basis": "Actual supplied tenant-trained artifact/fresh strict skeleton/second exact same-content selected view; canonical weights lineage profile retained through writer and loader; mismatched/duplicate lineage refuses, malformed metric zero-writes and legacy reading retained.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count.",
+          "limit": "First named receipt retains real second-owner failure before repair; unprofiled legacy artifacts readable without inferred metrics/authority."
+        },
+        {
+          "requirement_id": "REQ-PLG-03-04",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/PLG-03.json#/requirements/3",
+          "test_ids": [
+            "TEST-PLG-03-04"
+          ],
+          "binding_ids": [
+            "E02-I04-C-B03",
+            "E02-I04-C-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "training_release",
+            "economics_inactive_delta",
+            "composed_B166",
+            "installed_selected_profiles"
+          ],
+          "basis": "Shared actual native role/CLI/no-CAS result; legacy roles fail closed and ordinary continuation/reset/evaluation do not silently retrain or persist.",
+          "capability_gaps": [],
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count.",
+          "numerical_profile_limit": "Default native float32 whole training/reset/CAS reader passes. Installed forced-x64True command retains reset exact-equality FAIL at3.469446951953614e-17 after optimizer/artifact/fresh reader; identical selector/assertions passes atx64False. No whole-float64 training reproducibility qualification."
+        }
+      ]
     },
     {
       "packet_id": "CAL-05",
@@ -9741,15 +10745,15 @@
       "track_position": 1,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
       "local_qualification": "QUALIFIED_NAMED_PROFILE",
-      "integration_qualification": "PARTIAL",
+      "integration_qualification": "PARTIAL_DA04_FINAL_CONSUMER",
       "assigned_executor": "/root/lane04_conditional",
       "base_commit": "211e8c333bbb86c8ab1671188d07638c3721849c",
-      "integrated_commit": "containing_component_commit",
+      "integrated_commit": "containing_lane04_composition_commit",
       "actual_write_set": [
-        "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
         "policy-engine/src/polisyos/foundry/calibration/README.md",
-        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
-        "policy-engine/tests/unit/foundry/calibration/test_ordered_batch_calibration.py"
+        "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+        "policy-engine/tests/unit/foundry/calibration/test_ordered_batch_calibration.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py"
       ],
       "shared_writer": null,
       "decision_records": [],
@@ -9765,7 +10769,8 @@
       ],
       "evidence": [
         "conditional113",
-        "conditional_release"
+        "conditional_release",
+        "installed_selected_profiles"
       ],
       "blockers": [],
       "deferred_ids": [
@@ -9784,11 +10789,12 @@
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "conditional113",
-            "conditional_release"
+            "conditional_release",
+            "installed_selected_profiles"
           ],
           "basis": "Final113 includes real JIT/grad/Hessian/state-vmap/scalar-map numerical callbacks, inactive identity/keys, actual active invalid nonfinite/refusal, mapped-schedule refusal and guard-removal exposing unwanted inactive emission. No NumPy numerical surrogate.",
           "capability_gaps": [],
-          "composition_scope": "Qualification belongs to the declared coordinated workspace inputs/source hashes. This component commit releases its own reviewed blobs; current neighboring CMP/PLG changes are not silently included or declared commit-wide PASS. Final affected composition remains pending."
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
         },
         {
           "requirement_id": "REQ-CAL-05-02",
@@ -9802,11 +10808,12 @@
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "conditional113",
-            "conditional_release"
+            "conditional_release",
+            "installed_selected_profiles"
           ],
           "basis": "Complete5-descriptor registry census. Four GlobalState producers +zero-agent adaptive use real compile/runtime; queue is standalone QueueState without default GlobalState slots and remains excluded. Native multiple-record/empty/dtype and actual cond-joined weak-scalar controls; strong fixed receiving profiles positive, dtype-changing profiles precise trace-time refusal without numeric emission/downcast. Four merge kinds prove inactive records are not writers; dependency/independent-base and static selector controls retained.",
           "capability_gaps": [],
-          "composition_scope": "Qualification belongs to the declared coordinated workspace inputs/source hashes. This component commit releases its own reviewed blobs; current neighboring CMP/PLG changes are not silently included or declared commit-wide PASS. Final affected composition remains pending."
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count."
         },
         {
           "requirement_id": "REQ-CAL-05-03",
@@ -9820,11 +10827,18 @@
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "conditional113",
-            "conditional_release"
+            "conditional_release",
+            "installed_selected_profiles"
           ],
           "basis": "Real selected parameter artifact carries schedule[1,1]+age>=30. Actual Calibrator._build_bundle/evaluate_ordered_batch_objective rows0/1/2 yield [100,200]/0;[100,180]/20;[100,200]/0 with independent reset rows and exact rowkeys. Changed schedule and targets change plain MSE. Real1.2 selected row/config/graph/plan/registry/state/parameter basis and report survive fresh CAS read and independent final-forward replay; forged report target binding refused.",
           "capability_gaps": [],
-          "composition_scope": "Qualification belongs to the declared coordinated workspace inputs/source hashes. This component commit releases its own reviewed blobs; current neighboring CMP/PLG changes are not silently included or declared commit-wide PASS. Final affected composition remains pending."
+          "composition_scope": "Released current author blobs are bound by containing composition commit and final68-path hashes. Root source-frozen419/166 runs and selected genuine wheel demonstrate affected composition; conditional113 and profile-specific native oracles retain their actual inputs. No sum of test occurrences becomes a criterion/capability count.",
+          "late_extent": {
+            "id": "DA-04",
+            "binding_id": "E02-I04-D-B02",
+            "status": "FINAL_CHANGED_CONSUMER_PENDING",
+            "scope": "Only final LANE10 CAL02/CAL04 loss/report consumer after its actual edits; existing actual conditional\u2192ordered loss\u2192persisted report/fresh replay already qualified."
+          }
         }
       ]
     },
@@ -12461,51 +13475,398 @@
     },
     {
       "scenario_id": "E02-I04-A",
-      "status": "NOT_RUN",
-      "commit": null,
-      "profile": null,
-      "evidence": [],
+      "status": "QUALIFIED_NAMED_PROFILE",
+      "commit": "containing_lane04_composition_commit",
+      "profile": "Python3.14.3/JAX0.8.2 native CPU, exact named scalar/numeric/registry/fixture profiles. Sequential/async and real tiny optimizer; optional Ray/fused backend/whole float64 reset/Linux/deployment not qualified.",
+      "evidence": [
+        "foundry_release",
+        "compile_release",
+        "composed_A419",
+        "installed_selected_profiles"
+      ],
       "binding_ids": [
         "E02-I04-A-B01",
         "E02-I04-A-B02",
         "E02-I04-A-B03",
         "E02-I04-A-B04"
+      ],
+      "binding_results": [
+        {
+          "binding_id": "E02-I04-A-B01",
+          "canonical_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/\u0421\u0432\u044f\u0437\u044c_\u0442\u0440\u0435\u0431\u043e\u0432\u0430\u043d\u0438\u0439_\u0441_\u0438\u043d\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0435\u0439.json#/scenario_mappings/10/bindings/0",
+          "requirement_ids": [
+            "REQ-FRY-01-03",
+            "REQ-CMP-01-01",
+            "REQ-CMP-01-02"
+          ],
+          "local_test_ids": [
+            "TEST-CMP-01-01",
+            "TEST-CMP-01-02",
+            "TEST-FRY-01-03"
+          ],
+          "edge_occurrences": 3,
+          "req_test_pairs": 3,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "foundry_release",
+            "compile_release",
+            "composed_A419",
+            "installed_selected_profiles"
+          ],
+          "basis": "Actual semantic producer\u2192consumer and distinguishing adversarial/removal observations are mapped to each referenced packet requirement result. Profile-specific limits remain load-bearing; source membership alone is not evidence."
+        },
+        {
+          "binding_id": "E02-I04-A-B02",
+          "canonical_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/\u0421\u0432\u044f\u0437\u044c_\u0442\u0440\u0435\u0431\u043e\u0432\u0430\u043d\u0438\u0439_\u0441_\u0438\u043d\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0435\u0439.json#/scenario_mappings/10/bindings/1",
+          "requirement_ids": [
+            "REQ-CMP-01-01",
+            "REQ-CMP-01-03"
+          ],
+          "local_test_ids": [
+            "TEST-CMP-01-01",
+            "TEST-CMP-01-03"
+          ],
+          "edge_occurrences": 2,
+          "req_test_pairs": 2,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "foundry_release",
+            "compile_release",
+            "composed_A419",
+            "installed_selected_profiles"
+          ],
+          "basis": "Actual semantic producer\u2192consumer and distinguishing adversarial/removal observations are mapped to each referenced packet requirement result. Profile-specific limits remain load-bearing; source membership alone is not evidence."
+        },
+        {
+          "binding_id": "E02-I04-A-B03",
+          "canonical_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/\u0421\u0432\u044f\u0437\u044c_\u0442\u0440\u0435\u0431\u043e\u0432\u0430\u043d\u0438\u0439_\u0441_\u0438\u043d\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0435\u0439.json#/scenario_mappings/10/bindings/2",
+          "requirement_ids": [
+            "REQ-CMP-02-01",
+            "REQ-CMP-02-02",
+            "REQ-CMP-02-03"
+          ],
+          "local_test_ids": [
+            "TEST-CMP-02-01",
+            "TEST-CMP-02-02",
+            "TEST-CMP-02-03"
+          ],
+          "edge_occurrences": 3,
+          "req_test_pairs": 3,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "foundry_release",
+            "compile_release",
+            "composed_A419",
+            "installed_selected_profiles"
+          ],
+          "basis": "Actual semantic producer\u2192consumer and distinguishing adversarial/removal observations are mapped to each referenced packet requirement result. Profile-specific limits remain load-bearing; source membership alone is not evidence."
+        },
+        {
+          "binding_id": "E02-I04-A-B04",
+          "canonical_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/\u0421\u0432\u044f\u0437\u044c_\u0442\u0440\u0435\u0431\u043e\u0432\u0430\u043d\u0438\u0439_\u0441_\u0438\u043d\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0435\u0439.json#/scenario_mappings/10/bindings/3",
+          "requirement_ids": [
+            "REQ-CMP-03-01",
+            "REQ-CMP-03-02",
+            "REQ-CMP-03-03"
+          ],
+          "local_test_ids": [
+            "TEST-CMP-03-01",
+            "TEST-CMP-03-02",
+            "TEST-CMP-03-03"
+          ],
+          "edge_occurrences": 3,
+          "req_test_pairs": 3,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "foundry_release",
+            "compile_release",
+            "composed_A419",
+            "installed_selected_profiles"
+          ],
+          "basis": "Actual semantic producer\u2192consumer and distinguishing adversarial/removal observations are mapped to each referenced packet requirement result. Profile-specific limits remain load-bearing; source membership alone is not evidence."
+        }
       ]
     },
     {
       "scenario_id": "E02-I04-B",
-      "status": "NOT_RUN",
-      "commit": null,
-      "profile": null,
-      "evidence": [],
+      "status": "QUALIFIED_NAMED_PROFILE",
+      "commit": "containing_lane04_composition_commit",
+      "profile": "Python3.14.3/JAX0.8.2 native CPU, exact named scalar/numeric/registry/fixture profiles. Sequential/async and real tiny optimizer; optional Ray/fused backend/whole float64 reset/Linux/deployment not qualified.",
+      "evidence": [
+        "jit_release",
+        "checkpoint_implementation_delta",
+        "composed_A419",
+        "installed_selected_profiles"
+      ],
       "binding_ids": [
         "E02-I04-B-B01",
         "E02-I04-B-B02",
         "E02-I04-B-B03"
+      ],
+      "binding_results": [
+        {
+          "binding_id": "E02-I04-B-B01",
+          "canonical_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/\u0421\u0432\u044f\u0437\u044c_\u0442\u0440\u0435\u0431\u043e\u0432\u0430\u043d\u0438\u0439_\u0441_\u0438\u043d\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0435\u0439.json#/scenario_mappings/11/bindings/0",
+          "requirement_ids": [
+            "REQ-JIT-01-01",
+            "REQ-JIT-01-02"
+          ],
+          "local_test_ids": [
+            "TEST-JIT-01-01",
+            "TEST-JIT-01-02"
+          ],
+          "edge_occurrences": 2,
+          "req_test_pairs": 2,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "jit_release",
+            "checkpoint_implementation_delta",
+            "composed_A419",
+            "installed_selected_profiles"
+          ],
+          "basis": "Actual semantic producer\u2192consumer and distinguishing adversarial/removal observations are mapped to each referenced packet requirement result. Profile-specific limits remain load-bearing; source membership alone is not evidence."
+        },
+        {
+          "binding_id": "E02-I04-B-B02",
+          "canonical_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/\u0421\u0432\u044f\u0437\u044c_\u0442\u0440\u0435\u0431\u043e\u0432\u0430\u043d\u0438\u0439_\u0441_\u0438\u043d\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0435\u0439.json#/scenario_mappings/11/bindings/1",
+          "requirement_ids": [
+            "REQ-RES-04-01",
+            "REQ-RES-04-02"
+          ],
+          "local_test_ids": [
+            "TEST-RES-04-01",
+            "TEST-RES-04-02"
+          ],
+          "edge_occurrences": 2,
+          "req_test_pairs": 2,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "jit_release",
+            "checkpoint_implementation_delta",
+            "composed_A419",
+            "installed_selected_profiles"
+          ],
+          "basis": "Actual semantic producer\u2192consumer and distinguishing adversarial/removal observations are mapped to each referenced packet requirement result. Profile-specific limits remain load-bearing; source membership alone is not evidence."
+        },
+        {
+          "binding_id": "E02-I04-B-B03",
+          "canonical_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/\u0421\u0432\u044f\u0437\u044c_\u0442\u0440\u0435\u0431\u043e\u0432\u0430\u043d\u0438\u0439_\u0441_\u0438\u043d\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0435\u0439.json#/scenario_mappings/11/bindings/2",
+          "requirement_ids": [
+            "REQ-RES-04-03",
+            "REQ-RES-04-04"
+          ],
+          "local_test_ids": [
+            "TEST-RES-04-03",
+            "TEST-RES-04-04"
+          ],
+          "edge_occurrences": 2,
+          "req_test_pairs": 2,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "jit_release",
+            "checkpoint_implementation_delta",
+            "composed_A419",
+            "installed_selected_profiles"
+          ],
+          "basis": "Actual semantic producer\u2192consumer and distinguishing adversarial/removal observations are mapped to each referenced packet requirement result. Profile-specific limits remain load-bearing; source membership alone is not evidence."
+        }
       ]
     },
     {
       "scenario_id": "E02-I04-C",
-      "status": "NOT_RUN",
-      "commit": null,
-      "profile": null,
-      "evidence": [],
+      "status": "QUALIFIED_NAMED_PROFILE",
+      "commit": "containing_lane04_composition_commit",
+      "profile": "Python3.14.3/JAX0.8.2 native CPU, exact named scalar/numeric/registry/fixture profiles. Sequential/async and real tiny optimizer; optional Ray/fused backend/whole float64 reset/Linux/deployment not qualified.",
+      "evidence": [
+        "training_release",
+        "economics_release",
+        "economics_inactive_delta",
+        "composed_B166",
+        "installed_selected_profiles"
+      ],
       "binding_ids": [
         "E02-I04-C-B01",
         "E02-I04-C-B02",
         "E02-I04-C-B03",
         "E02-I04-C-B04"
+      ],
+      "binding_results": [
+        {
+          "binding_id": "E02-I04-C-B01",
+          "canonical_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/\u0421\u0432\u044f\u0437\u044c_\u0442\u0440\u0435\u0431\u043e\u0432\u0430\u043d\u0438\u0439_\u0441_\u0438\u043d\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0435\u0439.json#/scenario_mappings/12/bindings/0",
+          "requirement_ids": [
+            "REQ-PLG-01-01",
+            "REQ-PLG-01-02"
+          ],
+          "local_test_ids": [
+            "TEST-PLG-01-01",
+            "TEST-PLG-01-02"
+          ],
+          "edge_occurrences": 2,
+          "req_test_pairs": 2,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "training_release",
+            "economics_release",
+            "economics_inactive_delta",
+            "composed_B166",
+            "installed_selected_profiles"
+          ],
+          "basis": "Actual semantic producer\u2192consumer and distinguishing adversarial/removal observations are mapped to each referenced packet requirement result. Profile-specific limits remain load-bearing; source membership alone is not evidence."
+        },
+        {
+          "binding_id": "E02-I04-C-B02",
+          "canonical_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/\u0421\u0432\u044f\u0437\u044c_\u0442\u0440\u0435\u0431\u043e\u0432\u0430\u043d\u0438\u0439_\u0441_\u0438\u043d\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0435\u0439.json#/scenario_mappings/12/bindings/1",
+          "requirement_ids": [
+            "REQ-FRY-03-01",
+            "REQ-FRY-03-02",
+            "REQ-FRY-03-03",
+            "REQ-ECO-01-01"
+          ],
+          "local_test_ids": [
+            "TEST-ECO-01-01",
+            "TEST-FRY-03-01",
+            "TEST-FRY-03-02",
+            "TEST-FRY-03-03"
+          ],
+          "edge_occurrences": 4,
+          "req_test_pairs": 4,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "training_release",
+            "economics_release",
+            "economics_inactive_delta",
+            "composed_B166",
+            "installed_selected_profiles"
+          ],
+          "basis": "Actual semantic producer\u2192consumer and distinguishing adversarial/removal observations are mapped to each referenced packet requirement result. Profile-specific limits remain load-bearing; source membership alone is not evidence."
+        },
+        {
+          "binding_id": "E02-I04-C-B03",
+          "canonical_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/\u0421\u0432\u044f\u0437\u044c_\u0442\u0440\u0435\u0431\u043e\u0432\u0430\u043d\u0438\u0439_\u0441_\u0438\u043d\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0435\u0439.json#/scenario_mappings/12/bindings/2",
+          "requirement_ids": [
+            "REQ-PLG-03-02",
+            "REQ-PLG-03-03",
+            "REQ-PLG-03-04",
+            "REQ-PLG-02-03"
+          ],
+          "local_test_ids": [
+            "TEST-PLG-02-03",
+            "TEST-PLG-03-02",
+            "TEST-PLG-03-03",
+            "TEST-PLG-03-04"
+          ],
+          "edge_occurrences": 4,
+          "req_test_pairs": 4,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "training_release",
+            "economics_release",
+            "economics_inactive_delta",
+            "composed_B166",
+            "installed_selected_profiles"
+          ],
+          "basis": "Actual semantic producer\u2192consumer and distinguishing adversarial/removal observations are mapped to each referenced packet requirement result. Profile-specific limits remain load-bearing; source membership alone is not evidence."
+        },
+        {
+          "binding_id": "E02-I04-C-B04",
+          "canonical_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/\u0421\u0432\u044f\u0437\u044c_\u0442\u0440\u0435\u0431\u043e\u0432\u0430\u043d\u0438\u0439_\u0441_\u0438\u043d\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0435\u0439.json#/scenario_mappings/12/bindings/3",
+          "requirement_ids": [
+            "REQ-PLG-03-01",
+            "REQ-PLG-03-04",
+            "REQ-PLG-02-01",
+            "REQ-PLG-02-02"
+          ],
+          "local_test_ids": [
+            "TEST-PLG-02-01",
+            "TEST-PLG-02-02",
+            "TEST-PLG-03-01",
+            "TEST-PLG-03-04"
+          ],
+          "edge_occurrences": 4,
+          "req_test_pairs": 4,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "training_release",
+            "economics_release",
+            "economics_inactive_delta",
+            "composed_B166",
+            "installed_selected_profiles"
+          ],
+          "basis": "Actual semantic producer\u2192consumer and distinguishing adversarial/removal observations are mapped to each referenced packet requirement result. Profile-specific limits remain load-bearing; source membership alone is not evidence."
+        }
       ]
     },
     {
       "scenario_id": "E02-I04-D",
-      "status": "NOT_RUN",
-      "commit": null,
-      "profile": null,
-      "evidence": [],
+      "status": "PARTIAL_DA04_FINAL_CONSUMER",
+      "commit": "containing_lane04_composition_commit",
+      "profile": "Python3.14.3/JAX0.8.2 native CPU, exact named scalar/numeric/registry/fixture profiles. Sequential/async and real tiny optimizer; optional Ray/fused backend/whole float64 reset/Linux/deployment not qualified.",
+      "evidence": [
+        "conditional113",
+        "conditional_release",
+        "installed_selected_profiles"
+      ],
       "binding_ids": [
         "E02-I04-D-B01",
         "E02-I04-D-B02"
+      ],
+      "binding_results": [
+        {
+          "binding_id": "E02-I04-D-B01",
+          "canonical_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/\u0421\u0432\u044f\u0437\u044c_\u0442\u0440\u0435\u0431\u043e\u0432\u0430\u043d\u0438\u0439_\u0441_\u0438\u043d\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0435\u0439.json#/scenario_mappings/13/bindings/0",
+          "requirement_ids": [
+            "REQ-CAL-05-01",
+            "REQ-CAL-05-02"
+          ],
+          "local_test_ids": [
+            "TEST-CAL-05-01",
+            "TEST-CAL-05-02"
+          ],
+          "edge_occurrences": 2,
+          "req_test_pairs": 2,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "conditional113",
+            "conditional_release",
+            "installed_selected_profiles"
+          ],
+          "basis": "Actual semantic producer\u2192consumer and distinguishing adversarial/removal observations are mapped to each referenced packet requirement result. Profile-specific limits remain load-bearing; source membership alone is not evidence."
+        },
+        {
+          "binding_id": "E02-I04-D-B02",
+          "canonical_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/\u0421\u0432\u044f\u0437\u044c_\u0442\u0440\u0435\u0431\u043e\u0432\u0430\u043d\u0438\u0439_\u0441_\u0438\u043d\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0435\u0439.json#/scenario_mappings/13/bindings/1",
+          "requirement_ids": [
+            "REQ-CAL-05-03"
+          ],
+          "local_test_ids": [
+            "TEST-CAL-05-03"
+          ],
+          "edge_occurrences": 1,
+          "req_test_pairs": 1,
+          "assessment": "named_transition_demonstrated_final_changed_consumer_pending",
+          "remaining_kinds": [
+            "DA-04: final changed LANE10 calibration loss/report consumer only"
+          ],
+          "evidence": [
+            "conditional113",
+            "conditional_release",
+            "installed_selected_profiles"
+          ],
+          "basis": "Actual semantic producer\u2192consumer and distinguishing adversarial/removal observations are mapped to each referenced packet requirement result. Profile-specific limits remain load-bearing; source membership alone is not evidence."
+        }
       ]
     },
     {
@@ -13916,10 +15277,15 @@
       "local_only_or_separate_requirement_ids": [],
       "additional_invalidated_binding_ids": [],
       "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope.",
-      "status": "NOT_RUN",
-      "assigned_owner": null,
-      "actual_provider_commit": null,
-      "evidence": []
+      "status": "PARTIAL_FINAL_CHANGED_CONSUMER_PENDING",
+      "assigned_owner": "LANE-10 CAL-02/CAL-04 canonical Calibrator writer",
+      "actual_provider_commit": "containing_lane04_composition_commit",
+      "evidence": [
+        "LANE-04:conditional113",
+        "LANE-04:conditional_release",
+        "LANE-04:installed_selected_profiles"
+      ],
+      "current_disposition": "CAL05-01/02 and actual current CAL05-03 schedule\u2192ordered loss\u2192fresh persisted report/replay are qualified now. Only repeat the final changed CAL02/CAL04 loss/report consumer after those LANE10 edits; do not reopen independent local controls."
     },
     {
       "id": "DA-05",
@@ -14843,6 +16209,33 @@
         "Global required CI/Main integration and G/formal E02 acceptance; no LANE04 start."
       ],
       "delivery": "Author topic only; no Main/integration remote update."
+    },
+    {
+      "base_commit": "211e8c333bbb86c8ab1671188d07638c3721849c",
+      "status": "REVIEWED_LANE04_LOCAL_COMPOSITION",
+      "source_binding": "Containing commit supplies final released source/test/generated/documentation blobs; root readback and ordinary author-topic publication required.",
+      "packets": [
+        "FRY-01",
+        "CMP-01",
+        "CMP-02",
+        "CMP-03",
+        "JIT-01",
+        "RES-04",
+        "FRY-03",
+        "ECO-01",
+        "PLG-01",
+        "PLG-02",
+        "PLG-03",
+        "CAL-05"
+      ],
+      "local_result": "39localREQ/39TEST;12qualified I04 extents plus1DA04 finalchangedconsumer extent. Current-source419/166 clean; genuine installed namedprofiles with preservedx64TrueFAILs. No whole-float64/Linux/G claim.",
+      "remaining": [
+        "DA04 final changed LANE10 conditional calibration consumer only",
+        "DA08 final impact-based verification",
+        "Global required CI/Main integration and G/formal E02 acceptance"
+      ],
+      "next_lane_started": false,
+      "delivery": "Author topic only; no Main/integration remote update while required CI unqualified."
     }
   ],
   "open_remainders_index": "E02-WORK-PLAN.md#open-remainders-across-completed-lanes"

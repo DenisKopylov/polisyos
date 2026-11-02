@@ -72,6 +72,7 @@ from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
     _build_chain_reproducibility_contract,
     _collect_node_inputs,
+    _validate_compiled_execution_plan,
 )
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.protocol import (
@@ -418,8 +419,14 @@ class CheckpointingChainExecutor:
         -------
         ChainExecutionResult
         """
-        _validation_context_payload(chain)
         reg = self._registry if self._registry is not None else get_registry()
+        try:
+            _validate_compiled_execution_plan(chain, registry=reg)
+        except (ValueError, TypeError, KeyError, FoundryMethodError) as exc:
+            raise CheckpointDigestMismatchError(
+                f"Compiled validation context cannot be reconciled: {exc}"
+            ) from exc
+        _validation_context_payload(chain)
         disp = self._dispatcher or MethodDispatcher.get_instance()
         params_per_node = params_per_node or {}
 

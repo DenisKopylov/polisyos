@@ -244,6 +244,19 @@ class PolisySimulator:
                 n_episodes=n_episodes,
                 learning_rate=3e-4,
             )
+        try:
+            adapter.require_supported_training_config(training_config)
+        except TrainingBridgeError as exc:
+            assert self._state is not None
+            return TrainingResult(
+                trained_policy=None,
+                loss_history=[],
+                final_state=self._state,
+                status="bridge_pending",
+                reason=TrainingCapabilityReason(
+                    code=exc.code, status="bridge_pending", message=str(exc)
+                ),
+            )
         training_store = artifact_store
         if training_store is None and output_dir is not None:
             local_store = build_artifact_store(
@@ -296,6 +309,8 @@ class PolisySimulator:
             final_state=outcome.final_state,
             artifact=outcome.artifact,
             artifact_refs=outcome.artifact_refs,
+            status="trained",
+            result_role="native_training_v1",
         )
 
     def _training_adapter(
@@ -406,12 +421,30 @@ class TrainingResult:
     trained_policy: ActorCritic | None
     loss_history: list[float]
     final_state: CompositeState
-    status: Literal["trained", "bridge_pending"] = "trained"
+    status: Literal["trained", "bridge_pending", "unqualified"] = "unqualified"
     reason: TrainingCapabilityReason | None = None
     artifact: AgentPolicyArtifact[ActorCritic] | None = None
     artifact_refs: tuple[ArtifactRef, ArtifactRef] | None = None
+    result_role: Literal["native_training_v1", "legacy_or_evaluation"] = "legacy_or_evaluation"
+
+    @property
+    def is_qualified_training(self) -> bool:
+        """Whether this projection explicitly describes a current native producer outcome.
+
+        Historical objects inherit conservative class defaults. This projection
+        distinguishes result roles; native optimizer and policy-effect evidence
+        remains the producer's responsibility.
+        """
+        return (
+            self.status == "trained"
+            and self.result_role == "native_training_v1"
+            and self.trained_policy is not None
+            and self.reason is None
+        )
 
     def plot_losses(self, save_path: str | None = None):
+        if not self.is_qualified_training:
+            raise ValueError("Unqualified result has no attested optimizer loss curve")
         from polisyos.foundry.agent_sim.visualization import TrainingVisualizer
 
         viz = TrainingVisualizer()

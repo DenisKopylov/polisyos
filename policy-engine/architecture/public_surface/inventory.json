@@ -11098,6 +11098,7 @@
         "polisyos.foundry.data_plane",
         "polisyos.foundry.execute",
         "polisyos.foundry.methods",
+        "polisyos.foundry.methods.artifacts",
         "polisyos.foundry.methods.backends",
         "polisyos.foundry.methods.causal",
         "polisyos.foundry.uncertainty",
@@ -12695,6 +12696,149 @@
               {
                 "path": "src/polisyos/foundry/methods/types",
                 "operation": "is_dir",
+                "status": "present",
+                "result": true
+              }
+            ],
+            "unresolved_by_construction": [
+              "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+            ],
+            "complete": true,
+            "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
+          },
+          "source_export_profiles": []
+        },
+        {
+          "module": "polisyos.foundry.methods.artifacts",
+          "facade_mode_observed": "eager_exports",
+          "export_count": 15,
+          "known_export_count": 15,
+          "exports": [
+            "ChainArtifact",
+            "ChainNodeRecord",
+            "DeviceInfo",
+            "ExecutionEvidence",
+            "MethodArtifact",
+            "MethodTiming",
+            "SlotBindingRecord",
+            "SourceFingerprint",
+            "compute_source_fingerprint",
+            "compute_source_hash",
+            "load_compiled_chain",
+            "load_execution_evidence",
+            "store_chain_artifact",
+            "store_execution_evidence",
+            "store_method_artifact"
+          ],
+          "has___getattr__": false,
+          "has___dir__": false,
+          "source_file": "src/polisyos/foundry/methods/artifacts/__init__.py",
+          "summary": "Artifact provenance APIs for Foundry method executions.",
+          "export_resolution": {
+            "complete_verdict": true,
+            "finding_coverage": "explicit file-reader operations only",
+            "inputs": [
+              {
+                "path": "src/polisyos/foundry/methods/artifacts.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/artifacts/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/artifacts/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 1130,
+                "sha256": "dba64220351c7c7914008912808d32d4f59ffc61b6a8adf767e2ab04ac544304"
+              },
+              {
+                "path": "src/polisyos/foundry/methods/artifacts/parts.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/artifacts/parts/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/artifacts/parts.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 13549,
+                "sha256": "2485ec33c30de18e1c8a3f8f52c0f68a3f17a3f32329252190af4551f2764991"
+              },
+              {
+                "path": "src/polisyos/foundry/methods/artifacts/parts.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/artifacts/parts/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/artifacts",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/artifacts/README.md",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/artifacts/__init__.py",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/artifacts/_chain.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/artifacts/_evidence.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/artifacts/_method.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/artifacts/_records.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/artifacts/parts.py",
+                "operation": "is_file",
                 "status": "present",
                 "result": true
               }

@@ -11,22 +11,27 @@ from __future__ import annotations
 
 import ast
 import inspect
+import math
 import shutil
 import subprocess
+import sys
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from numbers import Real
 from pathlib import Path
+from types import CodeType, FunctionType
 from typing import Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import (
-    content_hash as compute_content_hash,
-)
-from polisyos.core.canon import (
+    CanonSpec,
     streaming_hash,
     to_canonical_bytes,
     truncated_hash,
+)
+from polisyos.core.canon import (
+    content_hash as compute_content_hash,
 )
 
 __all__ = [
@@ -41,6 +46,22 @@ logger = get_logger(__name__)
 ARTIFACTS_VERSION: str = "1.0.0"
 HASH_TRUNCATE_LENGTH: int = 32  # 128 bits of SHA256
 SOURCE_UNAVAILABLE: str = "unavailable"
+# New numeric records use Core's canonical float encoding, with the legacy field/null policy.
+_ARTIFACT_CANON = CanonSpec(version="0.2.0", forbid_floats=False, exclude_none=True)
+_ARTIFACT_CANON_PROFILE = "core-canon-0.2.0-finite-floats-legacy-null-v1"
+
+
+def _finite_artifact_float(value: float) -> float:
+    """Admit a finite real measurement without coercing strings or booleans."""
+    if isinstance(value, bool) or not isinstance(value, Real):
+        raise ValueError("artifact_numeric_field_requires_finite_real")
+    try:
+        result = float(value)
+    except (OverflowError, ValueError) as exc:
+        raise ValueError("artifact_numeric_field_requires_finite_real") from exc
+    if not math.isfinite(result):
+        raise ValueError("artifact_numeric_field_requires_finite_real")
+    return result
 
 
 # -- Shared utility helpers (package-private) --------------------------------
@@ -278,3 +299,48 @@ def compute_source_fingerprint(
         git_tree=git_tree,
         git_blob=git_blob,
     )
+
+
+def _require_source_bound_operation(method_class: type) -> None:
+    """Compare the live ordinary Python operation with compiled source bytes.
+
+    Compilation does not execute module statements. Native/decorated callables,
+    captured closure values and mutable runtime defaults lack this ordinary
+    source binding and are unavailable for this executable-recipe profile.
+    Legacy provenance inspection and ordinary method dispatch are unaffected.
+    """
+    operation = getattr(method_class, "pure_step", None)
+    module = inspect.getmodule(method_class)
+    if not isinstance(operation, FunctionType) or module is None:
+        raise ValueError("chain_method_source_code_unavailable")
+    if (
+        operation.__closure__
+        or operation.__defaults__
+        or operation.__kwdefaults__
+        or operation.__globals__ is not vars(module)
+    ):
+        raise ValueError("chain_method_source_code_runtime_binding_unavailable")
+    filename = getattr(module, "__file__", None)
+    if (
+        filename is None
+        or Path(operation.__code__.co_filename).resolve() != Path(filename).resolve()
+    ):
+        raise ValueError("chain_method_source_code_origin_mismatch")
+    try:
+        expected = compile(
+            Path(filename).read_bytes(),
+            operation.__code__.co_filename,
+            "exec",
+            dont_inherit=True,
+            optimize=sys.flags.optimize,
+        )
+    except (OSError, SyntaxError, ValueError) as exc:
+        raise ValueError("chain_method_source_code_compile_unavailable") from exc
+    pending = [expected]
+    expected_name = method_class.__qualname__ + ".pure_step"
+    while pending:
+        code = pending.pop()
+        if code.co_qualname == expected_name and code == operation.__code__:
+            return
+        pending.extend(value for value in code.co_consts if isinstance(value, CodeType))
+    raise ValueError("chain_method_source_code_mismatch")

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -134,3 +136,49 @@ def test_cmd_train_reports_unsupported_labor_market_profile_as_bridge_pending(
     assert "bridge_pending" in output
     assert "training_composite_profile_unsupported" in output
     assert not output_dir.exists()
+
+
+@pytest.mark.parametrize("usage_error", [False, True], ids=["unsupported", "invalid-usage"])
+def test_real_cli_process_distinguishes_unsupported_training_from_usage(
+    tmp_path: Path, usage_error: bool
+) -> None:
+    """The actual CLI process preserves refusal and argparse exit semantics."""
+    config_path = tmp_path / "unsupported.json"
+    config_path.write_text(
+        json.dumps(
+            {
+                "domains": {
+                    "economics": {
+                        "n_agents": 10,
+                        "max_agents": 10,
+                        "enabled_mechanisms": ["taxation", "transfers", "consumption", "savings"],
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    output = tmp_path / "not-created"
+    command = [
+        sys.executable,
+        "-B",
+        "-m",
+        "polisyos.foundry.plugins.cli",
+        "train",
+        "--config",
+        str(config_path),
+        "--n-episodes",
+        "invalid" if usage_error else "1",
+        "--output",
+        str(output),
+    ]
+    completed = subprocess.run(command, capture_output=True, text=True, check=False, timeout=45)
+    assert completed.returncode == (2 if usage_error else 1), completed.stdout + completed.stderr
+    if usage_error:
+        assert "invalid int value" in completed.stderr
+    else:
+        assert "training_composite_profile_unsupported" in completed.stdout
+        assert "bridge_pending" in completed.stdout
+        assert "Training complete!" not in completed.stdout
+        assert "PPO loss:" not in completed.stdout
+    assert not output.exists()

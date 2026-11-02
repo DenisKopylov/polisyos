@@ -7,6 +7,24 @@ from dataclasses import dataclass
 from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
+class _UnsupportedTrainingFidelityError(ValueError):
+    """Refuse a trajectory whose execution law lacks a matching PPO likelihood."""
+
+    code = "training_fidelity_unsupported"
+
+
+def _require_supported_training_fidelity(fidelity: FidelityLevel) -> None:
+    """Keep deterministic HARD evaluation separate from sampled-action training."""
+    if type(fidelity) not in (FidelityLevel, str):
+        raise _UnsupportedTrainingFidelityError("Training fidelity must name a supported profile")
+    if fidelity not in (FidelityLevel.SURROGATE_FLUID, FidelityLevel.RELAXED_DISCRETE):
+        raise _UnsupportedTrainingFidelityError(
+            "Training requires fluid or relaxed fidelity. HARD_DISCRETE's deterministic mean "
+            "transition does not execute the sampled action whose PPO likelihood is recorded. "
+            "HARD evaluation and fluid/relaxed training remain available."
+        )
+
+
 @dataclass(frozen=True)
 class TrainingConfigBase:
     """Training config base public type."""

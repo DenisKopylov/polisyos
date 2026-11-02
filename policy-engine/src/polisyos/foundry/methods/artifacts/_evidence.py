@@ -6,8 +6,9 @@ serving as the "receipt" for CAS-backed provenance (Law J).
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime
+from types import MappingProxyType
 from typing import Any, ClassVar
 from uuid import UUID, uuid4
 
@@ -15,6 +16,7 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
+    CanonInfo,
     InputRef,
     IntegrityInfo,
     ProducerInfo,
@@ -24,13 +26,16 @@ from polisyos.core.canon import (
     content_hash as compute_content_hash,
 )
 from polisyos.core.canon import (
+    from_canonical_bytes,
     to_canonical_bytes,
 )
 
 from ._fingerprint import (
+    _ARTIFACT_CANON,
+    _ARTIFACT_CANON_PROFILE,
     ARTIFACTS_VERSION,
     _artifact_id_from_bytes,
-    _float_payload,
+    _finite_artifact_float,
     _utc_now,
 )
 from ._records import DeviceInfo, MethodTiming
@@ -55,8 +60,8 @@ class ExecutionEvidence:
     """
     Evidence bundle for a method chain execution.
 
-    This is the "receipt" -- it proves what inputs produced what outputs,
-    how long it took, and with what RNG state (for reproducibility).
+    This receipt records declared execution provenance. Storage integrity does
+    not independently attest scientific correctness or institutional authority.
     """
 
     # Identity
@@ -88,11 +93,85 @@ class ExecutionEvidence:
     error_message: str | None = None
 
     # Schema version
-    SCHEMA_VERSION: ClassVar[str] = "1.0.0"
+    SCHEMA_VERSION: ClassVar[str] = "1.1.0"
 
     _artifact_id: str = field(init=False, repr=False, compare=False)
 
     def __post_init__(self) -> None:
+        if not isinstance(self.execution_id, UUID) or not all(
+            isinstance(value, datetime) for value in (self.started_at, self.completed_at)
+        ):
+            raise ValueError("invalid_execution_identity_or_time")
+        for value in (
+            self.chain_artifact_id,
+            self.input_state_hash,
+            self.input_params_hash,
+            self.output_state_hash,
+        ):
+            if type(value) is not str:
+                raise ValueError("invalid_execution_string_field")
+        for value in (self.params_artifact_id, self.rng_artifact_id, self.error_message):
+            if value is not None and type(value) is not str:
+                raise ValueError("invalid_execution_optional_string_field")
+        for values in (self.input_state_artifact_ids, self.output_state_artifact_ids):
+            if not isinstance(values, (tuple, list)) or any(type(v) is not str for v in values):
+                raise ValueError("invalid_execution_artifact_ids")
+        if not isinstance(self.method_timings, (tuple, list)) or any(
+            not isinstance(timing, MethodTiming)
+            or type(timing.method_fqn) is not str
+            or type(timing.node_id) is not str
+            for timing in self.method_timings
+        ):
+            raise ValueError("invalid_execution_method_timing")
+        if not isinstance(self.device_info, DeviceInfo):
+            raise ValueError("invalid_execution_device")
+        if type(self.device_info.device_count) is not int or any(
+            type(getattr(self.device_info, name)) is not str
+            for name in (
+                "platform",
+                "precision",
+                "jax_version",
+                "jaxlib_version",
+                "backend",
+                "solver_name",
+                "solver_version",
+            )
+        ):
+            raise ValueError("invalid_execution_device_field")
+        object.__setattr__(self, "input_state_artifact_ids", tuple(self.input_state_artifact_ids))
+        object.__setattr__(self, "output_state_artifact_ids", tuple(self.output_state_artifact_ids))
+        object.__setattr__(
+            self,
+            "method_timings",
+            tuple(
+                replace(
+                    timing,
+                    duration_seconds=_finite_artifact_float(timing.duration_seconds),
+                    jit_compile_time_seconds=_finite_artifact_float(timing.jit_compile_time_seconds)
+                    if timing.jit_compile_time_seconds is not None
+                    else None,
+                )
+                for timing in self.method_timings
+            ),
+        )
+        if self.rng_key_used is not None:
+            if (
+                not isinstance(self.rng_key_used, (tuple, list))
+                or len(self.rng_key_used) != 2
+                or any(type(v) is not int for v in self.rng_key_used)
+            ):
+                raise ValueError("invalid_execution_rng_key")
+            object.__setattr__(self, "rng_key_used", tuple(self.rng_key_used))
+        if type(self.success) is not bool:
+            raise ValueError("invalid_execution_success")
+        versions = dict(self.device_info.library_versions)
+        if any(type(k) is not str or type(v) is not str for k, v in versions.items()):
+            raise ValueError("invalid_execution_library_versions")
+        object.__setattr__(
+            self,
+            "device_info",
+            replace(self.device_info, library_versions=MappingProxyType(versions)),
+        )
         object.__setattr__(self, "_artifact_id", _artifact_id_from_bytes(self.to_canonical_bytes()))
 
     @property
@@ -167,6 +246,7 @@ class ExecutionEvidence:
     def _identity_payload(self) -> dict[str, Any]:
         return {
             "schema_version": self.SCHEMA_VERSION,
+            "canonical_profile": _ARTIFACT_CANON_PROFILE,
             "execution_id": str(self.execution_id),
             "chain_artifact_id": self.chain_artifact_id,
             "input_state_hash": self.input_state_hash,
@@ -178,8 +258,24 @@ class ExecutionEvidence:
             "rng_artifact_id": self.rng_artifact_id,
             "started_at": self.started_at.isoformat(),
             "completed_at": self.completed_at.isoformat(),
-            "duration_seconds": _float_payload(self.duration_seconds),
-            "method_timings": [t.to_dict() for t in self.method_timings],
+            "duration_seconds": _finite_artifact_float(self.duration_seconds),
+            "method_timings": [
+                {
+                    "method_fqn": t.method_fqn,
+                    "node_id": t.node_id,
+                    "duration_seconds": _finite_artifact_float(t.duration_seconds),
+                    **(
+                        {
+                            "jit_compile_time_seconds": _finite_artifact_float(
+                                t.jit_compile_time_seconds
+                            )
+                        }
+                        if t.jit_compile_time_seconds is not None
+                        else {}
+                    ),
+                }
+                for t in self.method_timings
+            ],
             "rng_key_used": list(self.rng_key_used) if self.rng_key_used else None,
             "device_info": self.device_info.to_dict(),
             "success": self.success,
@@ -188,7 +284,52 @@ class ExecutionEvidence:
 
     def to_canonical_bytes(self) -> bytes:
         """Serialize to canonical bytes for CAS storage."""
-        return to_canonical_bytes(self._identity_payload())
+        return to_canonical_bytes(self._identity_payload(), _ARTIFACT_CANON)
+
+    @classmethod
+    def from_canonical_bytes(cls, data: bytes) -> ExecutionEvidence:
+        """Read the finite-float 1.1 record and verify its exact canonical projection.
+
+        Args:
+            data: Complete canonical evidence bytes.
+
+        Returns:
+            The declared provenance record, not a new runtime or authority attestation.
+
+        Raises:
+            ValueError: If the schema, profile, numeric fields or bytes disagree.
+        """
+        payload = from_canonical_bytes(data)
+        if not isinstance(payload, dict) or payload.get("schema_version") != cls.SCHEMA_VERSION:
+            raise ValueError("historical_execution_evidence_profile_unavailable")
+        if payload.get("canonical_profile") != _ARTIFACT_CANON_PROFILE:
+            raise ValueError("execution_evidence_canonical_profile_mismatch")
+        try:
+            artifact = cls(
+                execution_id=UUID(payload["execution_id"]),
+                chain_artifact_id=payload["chain_artifact_id"],
+                input_state_hash=payload["input_state_hash"],
+                input_params_hash=payload["input_params_hash"],
+                output_state_hash=payload["output_state_hash"],
+                input_state_artifact_ids=tuple(payload["input_state_artifact_ids"]),
+                output_state_artifact_ids=tuple(payload["output_state_artifact_ids"]),
+                params_artifact_id=payload.get("params_artifact_id"),
+                rng_artifact_id=payload.get("rng_artifact_id"),
+                started_at=datetime.fromisoformat(payload["started_at"]),
+                completed_at=datetime.fromisoformat(payload["completed_at"]),
+                method_timings=tuple(MethodTiming(**row) for row in payload["method_timings"]),
+                rng_key_used=tuple(payload["rng_key_used"])
+                if payload.get("rng_key_used") is not None
+                else None,
+                device_info=DeviceInfo(**payload["device_info"]),
+                success=payload["success"],
+                error_message=payload.get("error_message"),
+            )
+            if artifact.to_canonical_bytes() != data:
+                raise ValueError("execution_evidence_not_canonical")
+            return artifact
+        except (KeyError, TypeError, AttributeError) as exc:
+            raise ValueError("invalid_execution_evidence_record") from exc
 
     def to_manifest(self) -> ArtifactManifest:
         """Convert to CAS-storable manifest."""
@@ -214,6 +355,7 @@ class ExecutionEvidence:
             kind="foundry.execution_evidence",
             media_type="application/json",
             byte_size=len(content),
+            canon=CanonInfo.from_spec(_ARTIFACT_CANON),
             created_at=self.completed_at,
             artifact_schema=SchemaInfo(
                 name="polisyos.foundry.execution_evidence",

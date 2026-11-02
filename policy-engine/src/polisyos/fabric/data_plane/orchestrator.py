@@ -83,6 +83,8 @@ class IngestionResult:
     warnings: list[str] = field(default_factory=list)
     cursor_ref: str | None = None
     mode_effective: str | None = None
+    record_session_ref: str | None = None
+    record_session_selected_ref: ArtifactRef | None = None
     status: Literal["completed", "partial", "failed"] = "completed"
 
 

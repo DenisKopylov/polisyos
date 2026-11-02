@@ -955,7 +955,7 @@ class _WindowEmission:
     """One emitted window and the raw chunks that contributed its rows."""
 
     assignment: WindowAssignment
-    contributor_refs: tuple[str, ...]
+    contributor_refs: tuple[ArtifactRef | str, ...]
 
 
 @dataclass(frozen=True)
@@ -963,7 +963,8 @@ class _RowRefEntry:
     """Contributor refs bound to the concrete row object, not only its id."""
 
     row: dict[str, Any]
-    refs: tuple[str, ...]
+    refs: tuple[ArtifactRef | str, ...]
+    serialized_bytes: int
 
 
 class StreamWindowAccumulator:
@@ -996,18 +997,22 @@ class StreamWindowAccumulator:
         # They are intentionally kept out of the row payload: input rows are
         # source data, while refs are runtime provenance for the emitted window.
         self._row_refs: dict[int, _RowRefEntry] = {}
+        self._buffered_bytes = 0
 
     def add_rows(self, rows: list[dict[str, Any]]) -> list[WindowAssignment]:
         assignments: list[WindowAssignment] = []
         for row in rows:
-            self._ensure_row_ref_entry(row)
-            assignments.extend(self._add_row(row))
+            owned_row = self._own_row(row, ())
+            try:
+                assignments.extend(self._add_row(owned_row))
+            finally:
+                self._prune_row_refs()
         return assignments
 
     def add_rows_with_refs(
         self,
         rows: list[dict[str, Any]],
-        contributor_refs: tuple[str, ...],
+        contributor_refs: tuple[ArtifactRef | str, ...],
     ) -> list[_WindowEmission]:
         """Add rows and return assignments with their actual source refs."""
         return list(self.iter_rows_with_refs(rows, contributor_refs))
@@ -1015,37 +1020,40 @@ class StreamWindowAccumulator:
     def iter_rows_with_refs(
         self,
         rows: list[dict[str, Any]],
-        contributor_refs: tuple[str, ...],
+        contributor_refs: tuple[ArtifactRef | str, ...],
     ) -> Iterator[_WindowEmission]:
         """Emit each window before retaining the next input row's windows."""
         refs = _validate_stream_refs(contributor_refs)
         for row in rows:
-            self._set_row_refs(row, refs)
-            for assignment in self._add_row(row):
-                yield _WindowEmission(
-                    assignment=assignment,
-                    contributor_refs=self._refs_for_assignment(assignment),
-                )
-            self._prune_row_refs()
+            owned_row = self._own_row(row, refs)
+            try:
+                for assignment in self._add_row(owned_row):
+                    yield _WindowEmission(
+                        assignment=assignment,
+                        contributor_refs=self._refs_for_assignment(assignment),
+                    )
+            finally:
+                self._prune_row_refs()
 
     def _admit_append(self, row: dict[str, Any]) -> None:
-        if self._max_rows is None or self._max_bytes is None:
-            return
-        _admit_stream_capacity(
-            stage="operator",
-            rows=self.buffered_rows() + 1,
-            bytes_size=self.buffered_bytes() + _estimate_row_bytes(row),
-            max_rows=self._max_rows,
-            max_bytes=self._max_bytes,
-            strategy=self.policy.strategy.value,
-        )
+        row_bytes = self._row_bytes(row)
+        if self._max_rows is not None and self._max_bytes is not None:
+            _admit_stream_capacity(
+                stage="operator",
+                rows=self.buffered_rows() + 1,
+                bytes_size=self._buffered_bytes + row_bytes,
+                max_rows=self._max_rows,
+                max_bytes=self._max_bytes,
+                strategy=self.policy.strategy.value,
+            )
+        self._buffered_bytes += row_bytes
 
     def admit_rows(self, rows: list[dict[str, Any]]) -> int:
         """Exercise the actual transition before publishing its input artifact.
 
-        The preview owns separate bounded containers, sharing the already
-        admitted immutable input row objects. It neither copies row payloads
-        nor changes this accumulator. No output or frontier is published here.
+        The preview owns separate bounded containers and accounting. Existing
+        owned rows stay private; candidate occurrences receive the same detached
+        snapshot as live intake. No output or frontier is published here.
         """
         preview = copy(self)
         for name, value in vars(self).items():
@@ -1058,18 +1066,21 @@ class StreamWindowAccumulator:
         assignments: list[WindowAssignment] = []
         if strategy in {WindowStrategy.COUNT, WindowStrategy.TUMBLING} and self._count_buffer:
             assignments.append(self._emit_count_window(strategy, self._count_buffer))
+            self._discard_rows(self._count_buffer)
             self._count_buffer = []
         if strategy == WindowStrategy.TUMBLING and self._bucket_rows:
             assignments.append(self._emit_bucket_window())
+            self._discard_rows(self._bucket_rows)
             self._bucket_rows = []
             self._bucket_key = None
         if strategy == WindowStrategy.SESSION and self._session_rows:
             assignments.append(self._emit_session_window())
+            self._discard_rows(self._session_rows)
             self._session_rows = []
             self._session_start = None
             self._previous_ts = None
         if strategy == WindowStrategy.SLIDING and self._sliding_time_rows:
-            batch = tuple(row for row, _ts in self._sliding_time_rows)
+            batch = self._emission_rows(row for row, _ts in self._sliding_time_rows)
             if batch:
                 assignments.append(
                     WindowAssignment(
@@ -1082,12 +1093,14 @@ class StreamWindowAccumulator:
                         ordinal=self._next_ordinal(),
                     )
                 )
+            self._discard_rows(row for row, _ts in self._sliding_time_rows)
             self._sliding_time_rows.clear()
             self._next_slide_at = None
         if strategy == WindowStrategy.SLIDING and self._sliding_rows:
             # Count-based sliding windows only emit complete windows during
             # ingestion.  Closing drops the incomplete tail, but it must not
             # remain in the committed operator state and emit again on replay.
+            self._discard_rows(self._sliding_rows)
             self._sliding_rows.clear()
             self._rows_since_emit = 0
         if not _retain_refs:
@@ -1130,9 +1143,8 @@ class StreamWindowAccumulator:
             "session_rows": [self._row_entry(row) for row in self._session_rows],
             "sliding_time_rows": [
                 {
-                    "row": row,
+                    **self._row_entry(row),
                     "timestamp": timestamp.isoformat(),
-                    "refs": list(self._refs_for_row(row)),
                 }
                 for row, timestamp in self._sliding_time_rows
             ],
@@ -1147,6 +1159,7 @@ class StreamWindowAccumulator:
                 raise ValueError("stream operator policy does not match checkpoint")
 
             self._row_refs = {}
+            self._buffered_bytes = 0
             self._ordinal = int(state["ordinal"])
             self._rows_since_emit = int(state["rows_since_emit"])
             bucket_key = state["bucket_key"]
@@ -1168,9 +1181,9 @@ class StreamWindowAccumulator:
             for entry in raw_sliding_time_rows:
                 if not isinstance(entry, dict) or not isinstance(entry.get("row"), dict):
                     raise TypeError("invalid sliding-time row entry")
-                row = dict(entry["row"])
                 refs = _validate_stream_refs(entry.get("refs"))
-                self._set_row_refs(row, refs)
+                row = self._own_row(entry["row"], refs)
+                self._buffered_bytes += self._row_bytes(row)
                 timestamp = self._parse_state_timestamp(entry.get("timestamp"))
                 if timestamp is None:
                     raise ValueError("sliding-time row is missing timestamp")
@@ -1190,8 +1203,11 @@ class StreamWindowAccumulator:
 
     def _row_entry(self, row: dict[str, Any]) -> dict[str, Any]:
         return {
-            "row": row,
-            "refs": list(self._refs_for_row(row)),
+            "row": self._snapshot_row(row),
+            "refs": [
+                ref.model_dump(mode="json") if isinstance(ref, ArtifactRef) else ref
+                for ref in self._refs_for_row(row)
+            ],
         }
 
     def _restore_row_entries(self, entries: object) -> list[dict[str, Any]]:
@@ -1201,8 +1217,8 @@ class StreamWindowAccumulator:
         for entry in entries:
             if not isinstance(entry, dict) or not isinstance(entry.get("row"), dict):
                 raise TypeError("invalid row entry")
-            row = dict(entry["row"])
-            self._set_row_refs(row, _validate_stream_refs(entry.get("refs")))
+            row = self._own_row(entry["row"], _validate_stream_refs(entry.get("refs")))
+            self._buffered_bytes += self._row_bytes(row)
             rows.append(row)
         return rows
 
@@ -1212,23 +1228,53 @@ class StreamWindowAccumulator:
             return None
         return parse_datetime_utc(str(value), what="stream operator timestamp")
 
-    def _refs_for_assignment(self, assignment: WindowAssignment) -> tuple[str, ...]:
-        refs: list[str] = []
+    def _refs_for_assignment(self, assignment: WindowAssignment) -> tuple[ArtifactRef | str, ...]:
+        refs: list[ArtifactRef | str] = []
         for row in assignment.rows:
             for ref in self._refs_for_row(row):
                 if ref not in refs:
-                    refs.append(ref)
+                    refs.append(
+                        ArtifactRef.model_validate(ref.model_dump(mode="python"))
+                        if isinstance(ref, ArtifactRef)
+                        else ref
+                    )
         return tuple(refs)
 
-    def _ensure_row_ref_entry(self, row: dict[str, Any]) -> None:
+    @staticmethod
+    def _snapshot_row(row: dict[str, Any]) -> dict[str, Any]:
+        from copy import deepcopy
+
+        return deepcopy(row)
+
+    def _own_row(self, row: dict[str, Any], refs: tuple[ArtifactRef | str, ...]) -> dict[str, Any]:
+        owned_row = self._snapshot_row(row)
+        self._row_refs[id(owned_row)] = _RowRefEntry(
+            row=owned_row, refs=refs, serialized_bytes=_estimate_row_bytes(owned_row)
+        )
+        return owned_row
+
+    def _row_bytes(self, row: dict[str, Any]) -> int:
         entry = self._row_refs.get(id(row))
         if not isinstance(entry, _RowRefEntry) or entry.row is not row:
-            self._row_refs[id(row)] = _RowRefEntry(row=row, refs=())
+            raise RuntimeError("stream accumulator row is not owned")
+        return entry.serialized_bytes
 
-    def _set_row_refs(self, row: dict[str, Any], refs: tuple[str, ...]) -> None:
-        self._row_refs[id(row)] = _RowRefEntry(row=row, refs=refs)
+    def _discard_rows(self, rows: Iterable[dict[str, Any]]) -> None:
+        self._buffered_bytes -= sum(self._row_bytes(row) for row in rows)
 
-    def _refs_for_row(self, row: dict[str, Any]) -> tuple[str, ...]:
+    def _emission_rows(self, rows: Iterable[dict[str, Any]]) -> tuple[dict[str, Any], ...]:
+        # Sliding windows retain their rows after emission. Exposed payloads and
+        # refs must not let a consumer mutate the retained accounting/provenance.
+        exposed_rows: list[dict[str, Any]] = []
+        for row in rows:
+            exposed = self._snapshot_row(row)
+            self._row_refs[id(exposed)] = _RowRefEntry(
+                row=exposed, refs=self._refs_for_row(row), serialized_bytes=self._row_bytes(row)
+            )
+            exposed_rows.append(exposed)
+        return tuple(exposed_rows)
+
+    def _refs_for_row(self, row: dict[str, Any]) -> tuple[ArtifactRef | str, ...]:
         entry = self._row_refs.get(id(row))
         if not isinstance(entry, _RowRefEntry) or entry.row is not row:
             return ()
@@ -1261,13 +1307,7 @@ class StreamWindowAccumulator:
         )
 
     def buffered_bytes(self) -> int:
-        rows: list[dict[str, Any]] = []
-        rows.extend(self._count_buffer)
-        rows.extend(self._bucket_rows)
-        rows.extend(self._session_rows)
-        rows.extend(self._sliding_rows)
-        rows.extend(row for row, _ts in self._sliding_time_rows)
-        return sum(_estimate_row_bytes(row) for row in rows)
+        return self._buffered_bytes
 
     def _add_row(self, row: dict[str, Any]) -> list[WindowAssignment]:
         strategy = self.policy.strategy
@@ -1293,6 +1333,7 @@ class StreamWindowAccumulator:
         if len(self._count_buffer) < size:
             return []
         assignment = self._emit_count_window(strategy, self._count_buffer[:size])
+        self._discard_rows(self._count_buffer[:size])
         self._count_buffer = self._count_buffer[size:]
         return [assignment]
 
@@ -1321,6 +1362,7 @@ class StreamWindowAccumulator:
             self._bucket_key = bucket_key
         if bucket_key != self._bucket_key and self._bucket_rows:
             assignment = self._emit_bucket_window()
+            self._discard_rows(self._bucket_rows)
             self._bucket_rows = []
             self._admit_append(row)
             self._bucket_rows = [row]
@@ -1357,6 +1399,7 @@ class StreamWindowAccumulator:
             self._session_start = ts
         if self._previous_ts is not None and (ts - self._previous_ts).total_seconds() > gap_seconds:
             assignment = self._emit_session_window()
+            self._discard_rows(self._session_rows)
             self._session_rows = []
             self._admit_append(row)
             self._session_rows = [row]
@@ -1390,7 +1433,7 @@ class StreamWindowAccumulator:
         size = max(1, int(self.policy.size))
         slide = max(1, int(self.policy.slide or 1))
         while len(self._sliding_rows) >= size:
-            self._sliding_rows.popleft()
+            self._discard_rows((self._sliding_rows.popleft(),))
         self._admit_append(row)
         self._sliding_rows.append(row)
         self._rows_since_emit += 1
@@ -1402,7 +1445,7 @@ class StreamWindowAccumulator:
                 window_id=f"sliding:{self._ordinal}",
                 strategy=WindowStrategy.SLIDING,
                 row_count=len(self._sliding_rows),
-                rows=tuple(self._sliding_rows),
+                rows=self._emission_rows(self._sliding_rows),
                 ordinal=self._next_ordinal(),
             )
         ]
@@ -1414,7 +1457,7 @@ class StreamWindowAccumulator:
             self._sliding_time_rows
             and (ts - self._sliding_time_rows[0][1]).total_seconds() > window_seconds
         ):
-            self._sliding_time_rows.popleft()
+            self._discard_rows((self._sliding_time_rows.popleft()[0],))
         self._admit_append(row)
         self._sliding_time_rows.append((row, ts))
         if self._next_slide_at is None:
@@ -1425,7 +1468,7 @@ class StreamWindowAccumulator:
             window_id=f"sliding:{self._ordinal}",
             strategy=WindowStrategy.SLIDING,
             row_count=len(self._sliding_time_rows),
-            rows=tuple(item[0] for item in self._sliding_time_rows),
+            rows=self._emission_rows(item[0] for item in self._sliding_time_rows),
             start_at=self._sliding_time_rows[0][1].isoformat(),
             end_at=self._sliding_time_rows[-1][1].isoformat(),
             ordinal=self._next_ordinal(),
@@ -1456,12 +1499,24 @@ def _estimate_row_bytes(row: object) -> int:
     return len(json.dumps(row, sort_keys=True, default=str).encode("utf-8"))
 
 
-def _validate_stream_refs(refs: object) -> tuple[str, ...]:
+def _validate_stream_refs(refs: object) -> tuple[ArtifactRef | str, ...]:
     if not isinstance(refs, list | tuple):
         raise TypeError("row contributor refs must be a list")
-    if any(not isinstance(ref, str) or not ref for ref in refs):
-        raise ValueError("row contributor refs cannot be empty")
-    return tuple(dict.fromkeys(refs))
+    normalized: list[ArtifactRef | str] = []
+    for ref in refs:
+        if isinstance(ref, ArtifactRef):
+            normalized_ref: ArtifactRef | str = ArtifactRef.model_validate(
+                ref.model_dump(mode="python")
+            )
+        elif isinstance(ref, dict):
+            normalized_ref = ArtifactRef.model_validate(ref)
+        elif isinstance(ref, str) and ref:
+            normalized_ref = ref
+        else:
+            raise ValueError("row contributor refs cannot be empty")
+        if normalized_ref not in normalized:
+            normalized.append(normalized_ref)
+    return tuple(normalized)
 
 
 def _ensure_async_store(
@@ -2244,7 +2299,7 @@ def _admit_restored_operator_state(
     if not isinstance(accumulator, dict):
         raise ValueError("corrupt stream operator state")
     rows = bytes_size = 0
-    refs: set[str] = set()
+    refs: set[tuple[str, str | None]] = set()
     for name in (
         "count_buffer",
         "sliding_rows",
@@ -2260,7 +2315,12 @@ def _admit_restored_operator_state(
                 raise ValueError("corrupt stream operator state")
             rows += 1
             bytes_size += _estimate_row_bytes(entry["row"])
-            refs.update(_validate_stream_refs(entry.get("refs")))
+            refs.update(
+                (str(ref.artifact_id), ref.manifest_profile_sha256)
+                if isinstance(ref, ArtifactRef)
+                else (ref, None)
+                for ref in _validate_stream_refs(entry.get("refs"))
+            )
             _admit_stream_capacity(
                 stage="restore",
                 rows=rows,
@@ -2862,7 +2922,7 @@ async def process_stream_dataset(
 
             for emission in accumulator.iter_rows_with_refs(
                 clean_rows,
-                (str(chunk_ref.artifact_id),),
+                (chunk_ref,),
             ):
                 _admit_output_ref(result, options)
                 result.window_refs.append(
@@ -3194,7 +3254,42 @@ async def _persist_stream_chunk_async(
             inputs=_source_progress_input_refs(source_progress_scope) or None,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
+
+
+def _stream_window_lineage(
+    refs: tuple[ArtifactRef | str, ...],
+) -> tuple[list[InputRef], dict[str, Any]]:
+    """Preserve selected contributor views without resolving legacy defaults."""
+    inputs: list[InputRef] = []
+    identities: set[tuple[str, str | None]] = set()
+    contributor_ids: list[str] = []
+    selected_refs: list[dict[str, Any]] = []
+    unbound_ids: list[str] = []
+    for ref in _validate_stream_refs(refs):
+        edge = (
+            input_ref_from_artifact_ref(ref, role="stream_chunk")
+            if isinstance(ref, ArtifactRef)
+            else InputRef(artifact_id=ArtifactID.model_validate(ref), role="stream_chunk")
+        )
+        artifact_id = str(edge.artifact_id)
+        identity = (artifact_id, edge.manifest_profile_sha256)
+        if identity in identities:
+            continue
+        identities.add(identity)
+        inputs.append(edge)
+        if artifact_id not in contributor_ids:
+            contributor_ids.append(artifact_id)
+        if isinstance(ref, ArtifactRef) and ref.manifest_profile_sha256 is not None:
+            selected_refs.append(ref.model_dump(mode="json"))
+        elif artifact_id not in unbound_ids:
+            unbound_ids.append(artifact_id)
+    return inputs, {
+        "contributor_chunk_refs": contributor_ids,
+        "selected_contributor_chunk_refs": selected_refs,
+        "unbound_contributor_chunk_refs": unbound_ids,
+    }
 
 
 async def _persist_stream_window_async(
@@ -3215,16 +3310,7 @@ async def _persist_stream_window_async(
     resolved_refs: tuple[ArtifactRef | str, ...] = input_refs or (
         (input_ref,) if input_ref is not None else ()
     )
-    unique_artifact_ids: dict[str, ArtifactID] = {}
-    for ref in resolved_refs:
-        artifact_id = (
-            ref.artifact_id if isinstance(ref, ArtifactRef) else ArtifactID.model_validate(ref)
-        )
-        unique_artifact_ids.setdefault(str(artifact_id), artifact_id)
-    inputs = [
-        InputRef(artifact_id=artifact_id, role="stream_chunk")
-        for artifact_id in unique_artifact_ids.values()
-    ] or None
+    inputs, lineage = _stream_window_lineage(resolved_refs)
     payload = {
         "connector_id": connector_id,
         "dataset_id": dataset_id,
@@ -3241,12 +3327,7 @@ async def _persist_stream_window_async(
         ),
         "processing": processing_contract_snapshot(processing_contract),
         "source_progress": source_progress_scope,
-        "lineage": {
-            "contributor_chunk_refs": [
-                str(ref.artifact_id) if isinstance(ref, ArtifactRef) else str(ref)
-                for ref in resolved_refs
-            ]
-        },
+        "lineage": lineage,
         "data": list(assignment.rows),
     }
     return await store.put_json(
@@ -3258,7 +3339,107 @@ async def _persist_stream_window_async(
             inputs=[*(inputs or []), *_source_progress_input_refs(source_progress_scope)] or None,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
+
+
+class StreamWindowBasisUnavailableError(RuntimeError):
+    """Withhold a window whose exact selected CAS basis is unavailable."""
+
+    def __init__(self, reason_code: str) -> None:
+        self.reason_code = reason_code
+        super().__init__(reason_code)
+
+
+def read_stream_window(store: ArtifactStore, selected_ref: ArtifactRef) -> dict[str, Any]:
+    """Read a window only while its complete selected CAS basis verifies.
+
+    This proves present, verified CAS bytes and contributor bindings. It does
+    not establish external rights, source currentness, or policy authority.
+
+    Args:
+        store: Artifact owner used for exact selected reads and graph verification.
+        selected_ref: Exact selected ``fabric.stream_window`` JSON artifact.
+
+    Returns:
+        The verified window payload, including its existing processing limitations.
+
+    Raises:
+        StreamWindowBasisUnavailableError: If selection, binding, or any basis member fails.
+    """
+    from polisyos.core.artifacts import read_core_json_artifact
+    from polisyos.core.artifacts.graph import resolve_dependency_graph
+
+    if (
+        not isinstance(selected_ref, ArtifactRef)
+        or selected_ref.kind != "fabric.stream_window"
+        or selected_ref.media_type != "application/json"
+        or selected_ref.manifest_profile_sha256 is None
+    ):
+        raise StreamWindowBasisUnavailableError("stream_window_selected_ref_required")
+    try:
+        ref = ArtifactRef.model_validate(selected_ref.model_dump(mode="python"))
+        payload = read_core_json_artifact(store, ref).value
+        if (
+            not isinstance(payload, dict)
+            or not isinstance(payload.get("data"), list)
+            or any(not isinstance(row, dict) for row in payload["data"])
+            or type(payload.get("row_count")) is not int
+            or payload["row_count"] != len(payload["data"])
+            or not isinstance(payload.get("lineage"), dict)
+        ):
+            raise StreamWindowBasisUnavailableError("stream_window_payload_invalid")
+        lineage = payload["lineage"]
+        if lineage.get("unbound_contributor_chunk_refs") != []:
+            raise StreamWindowBasisUnavailableError("stream_window_unbound_contributors")
+        raw_refs = lineage.get("selected_contributor_chunk_refs")
+        if not isinstance(raw_refs, list) or (payload["data"] and not raw_refs):
+            raise StreamWindowBasisUnavailableError("stream_window_unbound_contributors")
+        refs = [ArtifactRef.model_validate(value) for value in raw_refs]
+        if any(
+            item.kind != "fabric.stream_chunk"
+            or item.media_type != "application/json"
+            or item.manifest_profile_sha256 is None
+            for item in refs
+        ):
+            raise StreamWindowBasisUnavailableError("stream_window_contributor_mismatch")
+        selected_keys = [(str(item.artifact_id), item.manifest_profile_sha256) for item in refs]
+        if len(set(selected_keys)) != len(selected_keys) or lineage.get(
+            "contributor_chunk_refs"
+        ) != list(dict.fromkeys(str(item.artifact_id) for item in refs)):
+            raise StreamWindowBasisUnavailableError("stream_window_contributor_mismatch")
+        graph = resolve_dependency_graph(
+            store, ref, preserve_manifest_profiles=True, verify_integrity=True
+        )
+        if not graph.is_complete:
+            raise StreamWindowBasisUnavailableError("stream_window_basis_unavailable")
+        root_node = next(node for node in graph.nodes.values() if node.depth == 0)
+        manifest = root_node.manifest
+        if manifest is None or manifest.artifact_schema != SchemaInfo(
+            name="fabric.StreamWindow", version="1.0"
+        ):
+            raise StreamWindowBasisUnavailableError("stream_window_payload_invalid")
+        manifest_keys = [
+            (str(item.artifact_id), item.manifest_profile_sha256)
+            for item in manifest.inputs
+            if item.role == "stream_chunk"
+        ]
+        if len(manifest_keys) != len(selected_keys) or set(manifest_keys) != set(selected_keys):
+            raise StreamWindowBasisUnavailableError("stream_window_contributor_mismatch")
+        nodes = {
+            (str(node.artifact_id), node.manifest_profile_sha256): node
+            for node in graph.nodes.values()
+        }
+        if any(
+            nodes[key].kind != item.kind or nodes[key].media_type != item.media_type
+            for key, item in zip(selected_keys, refs, strict=True)
+        ):
+            raise StreamWindowBasisUnavailableError("stream_window_contributor_mismatch")
+        return payload
+    except StreamWindowBasisUnavailableError:
+        raise
+    except Exception as exc:
+        raise StreamWindowBasisUnavailableError("stream_window_basis_unavailable") from exc
 
 
 def resolve_dedupe_key(
@@ -3328,6 +3509,7 @@ def persist_stream_chunk(
             schema=SchemaInfo(name="fabric.StreamChunk", version="2.0"),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
 
@@ -3350,17 +3532,7 @@ def persist_stream_window(
     resolved_refs: tuple[ArtifactRef | str, ...] = input_refs or (
         (input_ref,) if input_ref is not None else ()
     )
-    unique_artifact_ids: dict[str, ArtifactID] = {}
-    for ref in resolved_refs:
-        artifact_id = (
-            ref.artifact_id if isinstance(ref, ArtifactRef) else ArtifactID.model_validate(ref)
-        )
-        unique_artifact_ids.setdefault(str(artifact_id), artifact_id)
-    unique_refs = tuple(unique_artifact_ids)
-    inputs = [
-        InputRef(artifact_id=artifact_id, role="stream_chunk")
-        for artifact_id in unique_artifact_ids.values()
-    ] or None
+    inputs, lineage = _stream_window_lineage(resolved_refs)
     payload = {
         "connector_id": connector_id,
         "dataset_id": dataset_id,
@@ -3376,7 +3548,7 @@ def persist_stream_window(
             fallback_strategy=assignment.strategy,
         ),
         "processing": processing_contract_snapshot(contract),
-        "lineage": {"contributor_chunk_refs": list(unique_refs)},
+        "lineage": lineage,
         "data": list(assignment.rows),
     }
     return store.put_json(
@@ -3388,6 +3560,7 @@ def persist_stream_window(
             inputs=inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
 
@@ -3528,6 +3701,7 @@ __all__ = [
     "StreamDedupeUnsupported",
     "StreamOwnerConflictError",
     "StreamRuntimeOptions",
+    "StreamWindowBasisUnavailableError",
     "StreamingSourceSession",
     "iter_record_batches",
     "normalize_connection_config",
@@ -3535,5 +3709,6 @@ __all__ = [
     "persist_stream_chunk",
     "persist_stream_window",
     "process_stream_dataset",
+    "read_stream_window",
     "resolve_dedupe_key",
 ]

@@ -858,8 +858,8 @@
     {
       "lane_id": "LANE-08",
       "sequence": 2,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "PARTIAL",
+      "implementation_status": "LOCAL_IMPLEMENTATION_COMPLETE",
+      "local_qualification": "QUALIFIED_NAMED_LOCAL_PROFILES",
       "capability_acceptance": "NOT_RUN",
       "transition_evidence": [
         {
@@ -1365,6 +1365,366 @@
             "max_rss_bytes": 498810880
           },
           "scope": "Existing actual same-ID source-policy bytes change with preserved size/mtime; warm and fresh consumers refuse, normal reissue restores usefulness. Disabled seed refusal and seed-edge/producer-registry controls preserve index bytes.469 loaded sources and other selected material inputs unchanged.45-second faulthandler stack is diagnostic, not watchdog termination; final exit0."
+        },
+        "legal_incremental_boundaries5": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane08-incremental-boundaries/source-profile-freeze.json": {
+              "bytes": 2538,
+              "sha256": "8fa82a9812210eb35c96a1d4cf87650670ee04ba925ddf13df2ad08bdee94ef8"
+            },
+            "policy-engine/_cache/e02/lane08-incremental-boundaries/result.json": {
+              "bytes": 1375,
+              "sha256": "38ae4042119ced792f8997032aa4a34f8adcd80783ac1600d608b0d6dee7931a"
+            },
+            "policy-engine/_cache/e02/lane08-incremental-boundaries/tests.stdout.txt": {
+              "bytes": 80,
+              "sha256": "4d2df7a96ce4a667da3ccf295f2d16c728a65ed0e861a3baa919f7bb469b02b5"
+            },
+            "policy-engine/_cache/e02/lane08-incremental-boundaries/tests.stderr.txt": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "policy-engine/_cache/e02/lane08-incremental-boundaries/tests.junit.xml": {
+              "bytes": 1218,
+              "sha256": "f9f1eb0b19fbef7644ac19c522b9ba552cc098af3e5a124c73533e08ea6b68cb"
+            }
+          },
+          "availability": "Actual local bytes read and hashed.",
+          "result": {
+            "PASS": 5,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "seconds": 2.091,
+            "max_sampled_rss_bytes": 173047808
+          },
+          "scope": "Tokenizer-only drift with fixed weights/config/model/dimension, coherently rehashed malformed actual basis in each of three projections, incremental=False after proven zero-call valid reuse. Actual canonical SQL/NPZ/HNSW/fresh selected readers, deterministic compute only. All11 pins unchanged, independent source and runtime binding review GO; no ST/model or authority claim."
+        },
+        "catalog_mixed_isolated": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane08-dfi-mixed-isolated.log": {
+              "bytes": 7318,
+              "sha256": "e983a943c1791b0989727e60459860e22433aa54c5bbffe9ec8042f5014a8adc"
+            },
+            "policy-engine/_cache/e02/lane08-dfi-mixed-isolated.basis.json": {
+              "bytes": 1138318,
+              "sha256": "7410ff1b35714f98e62898cfbae7b374f81ace00d781698ea9ee31be57c89faa"
+            }
+          },
+          "availability": "Actual local bytes read and hashed; no remote evidence-delivery claim.",
+          "result": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "seconds": 7.91,
+            "owned_process_tree_rss_bytes": 716865536
+          },
+          "scope": "Parent deliberately imports and retains the legacy facade; a fresh child exercises real canonical pipeline/all six leaf owners without that facade. Seven exact counters, success/complete_empty/ordinary controlled provider error, separate shard totals, failed-call budget, thirteen-field DB rows/condition IDs, recovery/current complete receipt and missing-receipt/no-plan refusal. No receipt, budget or checkpoint replacement.430 loaded sources describe the parent, not a complete child import closure. Independent source/runtime review GO; earlier expectation/API-spelling reds and standalone green retained."
+        },
+        "catalog_lease_native": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane08-dfi-lease.log": {
+              "bytes": 1645,
+              "sha256": "5af20d71e9eb0fc23dded7536c3d887137d2bdfcfd21b0f0134c1d4633b6f840"
+            },
+            "policy-engine/_cache/e02/lane08-dfi-lease.basis.json": {
+              "bytes": 1137565,
+              "sha256": "a8cc568f00b49b0d097e3f6cf3b2a81776ee443cbe56eb8733a99d6216fbbb09"
+            }
+          },
+          "availability": "Actual local bytes read and hashed; no remote evidence-delivery claim.",
+          "result": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "seconds": 7.956,
+            "owned_process_tree_rss_bytes": 739852288
+          },
+          "scope": "Actual source-owned asynchronous lease checkpoint, SIGKILL of only its owned producer, separate fresh PID resumes exact persisted token/source/dataset/profile with one submit total, clears lease and yields native DuckDB row/current complete receipt.426 loaded sources describe the parent; full owned worker outputs and events retained under policy-engine/_cache/e02/lane08-dfi-lease-run. Independent source/runtime review GO. This is controlled provider lifecycle, not external service authority."
+        },
+        "catalog_bindings_size_callers": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane08-dfi-bindings.log": {
+              "bytes": 3806,
+              "sha256": "e89c33e482a1dcf98feff19f826a6ab26fac100264aacb12941932129ea16ed5"
+            },
+            "policy-engine/_cache/e02/lane08-dfi-bindings.basis.json": {
+              "bytes": 1137956,
+              "sha256": "1e05876c0d3ccb4d13129e4fdf8bfbe6996137289315e59e33acda2dd0c22677"
+            },
+            "policy-engine/_cache/e02/lane08-dfi-bindings.static.json": {
+              "bytes": 9877,
+              "sha256": "78d0b6e190bee60fa7dc4a27278bcb639a2a038c3b952e5508d42a40b1e5cfa3"
+            },
+            "policy-engine/_cache/e02/lane08-dfi-bindings.callers.json": {
+              "bytes": 1511,
+              "sha256": "8fcbb151d162933d499529670139e63f2681585072101d1ad5b813b664044a14"
+            }
+          },
+          "availability": "Actual local bytes read and hashed; no remote evidence-delivery claim.",
+          "result": {
+            "PASS": 13,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "seconds": 2.814,
+            "max_rss_bytes": 334954496
+          },
+          "scope": "Canonical finite scoped delegate bindings pass13 nodes. Actual package_import_size_ratchet counts168 nonblank/noncomment facade lines against184, with zero target findings; its19 other findings are retained and are not a global PASS. Complete AST caller census:2868 src/polisyos Python files, zero parse errors, intentional live CLI facade caller retained and canonical pipeline calls API owner.420 parent-loaded sources and other pins unchanged. Separate earlier global69 contract errors/12 findings remain; no inherited attribution or threshold change."
+        },
+        "transport_final429": {
+          "outputs": {
+            "_cache/e02/lane08-ing01-proof-consumers-final-r3.txt": {
+              "bytes": 21724,
+              "sha256": "06c4b8bc8a36d666f50273594418f34303b66a028ec47eceeee2bcdb67963624"
+            }
+          },
+          "result": {
+            "PASS": 429,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "seconds": 56.641,
+            "max_rss_bytes": 1655652352
+          },
+          "scope": "One31-entry combined native/ingestion/provenance/source-collection/raw-sink/security/incremental/cursor/cache/Core/API cohort;23 new real proof/owner/loss controls, B79/B80 and six served selected-ref cases. All65 pins unchanged. Independent source/runtime review GO. Canonical owner verifies exact selected evidence kind/media/schema/bytes; selected graph binding is shared. Legacy generic inspection remains distinct. Not full E02/G or installed-artifact acceptance.",
+          "availability": "Actual local bytes read and hashed; no remote evidence-delivery claim."
+        },
+        "source_evidence_before8": {
+          "outputs": {
+            "_cache/e02/lane08-ing01-source-evidence-before.txt": {
+              "bytes": 49579,
+              "sha256": "1a3c2c0ad0e831277e9f71724d89cc32d0ac65b6afa8938cd2d04e98b1db7488"
+            }
+          },
+          "result": {
+            "FAIL": 8,
+            "seconds": 10.237
+          },
+          "scope": "Meaningful pre-fix same-bytes wrong-kind/schema/version retained-proof promotion, produced wrong selected owner/schema, actual missing selected manifest and corrupt blob. Other input edges and cursor markers retained; restoration is useful. Actual errors/ref leaks were fixed at one canonical source-evidence owner.",
+          "availability": "Actual local bytes read and hashed; no remote evidence-delivery claim."
+        },
+        "transport_consumer_repair_history": {
+          "outputs": {
+            "_cache/e02/lane08-ing01-proof-consumers-final.txt": {
+              "bytes": 170111,
+              "sha256": "850cba58ec9a49958f57ba0087e2e0196e08cb5c588bea4fca16083bce317ef5"
+            },
+            "_cache/e02/lane08-ing01-proof-consumers-released.txt": {
+              "bytes": 41895,
+              "sha256": "3495d561c94d46740d3275136250b2f30360933e3630b0afd33f488a1f1fd9af"
+            },
+            "_cache/e02/lane08-ing01-proof-consumers-final-r2.txt": {
+              "bytes": 27542,
+              "sha256": "78fc74341d44ef92ae015e22c3cdee7ea55135b6517dd16fe062b93fc83d622e"
+            }
+          },
+          "result": [
+            {
+              "PASS": 161,
+              "FAIL": 25,
+              "total": 186
+            },
+            {
+              "PASS": 419,
+              "FAIL": 2,
+              "total": 421
+            },
+            {
+              "PASS": 428,
+              "FAIL": 1,
+              "total": 429
+            }
+          ],
+          "scope": "Retained unsuccessful deciding attempts, not erased or called inherited: stale test payload/typed provider/R13 protocol contracts and invalid-ref partial-audit reread; later missing-schema diagnostic compatibility. Valid fixtures and production withholding repaired with assertions retained; final429 is separate.",
+          "availability": "Actual local bytes read and hashed; no remote evidence-delivery claim."
+        },
+        "streaming_e02c86": {
+          "outputs": {
+            "_cache/e02/lane08-e02c-native-released.txt": {
+              "bytes": 27670,
+              "sha256": "ecaa5dec9ba12ce7526d46c970520168248b481f1eb4c30d4a342fbae6f876c3"
+            }
+          },
+          "result": {
+            "PASS": 86,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "seconds": 47.247,
+            "max_rss_bytes": 1805795328
+          },
+          "scope": "Complete23-function E02-C oracle, including actual owned full-catalog served B88, B79/B80, fault-stage/restart/compensation, capacity, quarantine and UTC controls.45 input pins unchanged at this run. Later source-evidence changes affect batch proof; final429 requalifies those paths. Record/replay already used selected graph/context and ordinary batch-only intake is not invoked by B88; no automatic whole-model/catalog replay for this disjoint change.",
+          "availability": "Actual local bytes read and hashed; no remote evidence-delivery claim."
+        },
+        "streaming_runtime122": {
+          "outputs": {
+            "_cache/e02/lane08-streaming-source-progress-full.txt": {
+              "bytes": 32126,
+              "sha256": "9e3b4052404b224632801de1865facb5d0481ce7e0687b39b45070028615b139"
+            }
+          },
+          "result": {
+            "PASS": 122,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "seconds": 28.818,
+            "max_rss_bytes": 1579352064
+          },
+          "scope": "Full streaming runtime/schema/accounting/selected-withdrawal/source-progress cohort, including all first-frontier cases and actual two-OS-process UTC boundary.50 pins unchanged at its run. FiniteSourceProgressReader/window owners remain unchanged by later ReconciledSourceFrame/batch-only evidence-intake changes; final429 covers affected batch readers. These counts overlap other cohorts.",
+          "availability": "Actual local bytes read and hashed; no remote evidence-delivery claim."
+        },
+        "streaming_sigkill41": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane08-crash41/count/result.json": {
+              "bytes": 1099,
+              "sha256": "86683c6aebba0f4ffb5f9e2ff361bbf3be8ba8dc4cdf00acc1895c45bb0258c4"
+            },
+            "policy-engine/_cache/e02/lane08-crash41/count/command.stdout.txt": {
+              "bytes": 80,
+              "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+            },
+            "policy-engine/_cache/e02/lane08-crash41/count/command.stderr.txt": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "policy-engine/_cache/e02/lane08-crash41/count/pytest.xml": {
+              "bytes": 429,
+              "sha256": "5538ba3668ae2a0932c9418a3c9d8eadc6c2cc0ca4a87d57771a20ba40c5eb65"
+            },
+            "policy-engine/_cache/e02/lane08-crash41/count/before.json": {
+              "bytes": 1369,
+              "sha256": "7a55550fd567d14775e9726d828ca3ab40c49c7c80d968689fbda7457df40893"
+            },
+            "policy-engine/_cache/e02/lane08-crash41/count/after.json": {
+              "bytes": 1369,
+              "sha256": "7a55550fd567d14775e9726d828ca3ab40c49c7c80d968689fbda7457df40893"
+            },
+            "policy-engine/_cache/e02/lane08-crash41/remaining/result.json": {
+              "bytes": 1521,
+              "sha256": "e46d1d685f6bc82e2a784a9800ceccb90baf237266a1cb8dbfc70d6fc2712522"
+            },
+            "policy-engine/_cache/e02/lane08-crash41/remaining/command.stdout.txt": {
+              "bytes": 80,
+              "sha256": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830"
+            },
+            "policy-engine/_cache/e02/lane08-crash41/remaining/command.stderr.txt": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "policy-engine/_cache/e02/lane08-crash41/remaining/pytest.xml": {
+              "bytes": 942,
+              "sha256": "6f3e55b6fab081bc999bf015ce4e342fa0b31de3d528fd39ce85a01b2cc123be"
+            },
+            "policy-engine/_cache/e02/lane08-crash41/remaining/before.json": {
+              "bytes": 1369,
+              "sha256": "7a55550fd567d14775e9726d828ca3ab40c49c7c80d968689fbda7457df40893"
+            },
+            "policy-engine/_cache/e02/lane08-crash41/remaining/after.json": {
+              "bytes": 1369,
+              "sha256": "7a55550fd567d14775e9726d828ca3ab40c49c7c80d968689fbda7457df40893"
+            },
+            "policy-engine/_cache/e02/lane08-crash41/worker-observations.json": {
+              "bytes": 9287,
+              "sha256": "ac9f77f816af849e706a62e3922ca81f1414ce91caa8ed1f23b24cd768403a40"
+            }
+          },
+          "result": {
+            "PASS": 5,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "count_seconds": 13.518,
+            "remaining_seconds": 42.875,
+            "max_rss_bytes": 597147648
+          },
+          "scope": "Actual41-row/row19 paired-frontier SIGKILL and fresh-PID resume for count/session/sliding/tumbling, independent row/order/time/ordinal/contributor oracle and meaningful operator-restore removal control. All12 pins unchanged at each run, source/runtime independent GO. Finite file-token profile, no global/external exactly-once claim. Later optional TIMESTAMP helper defaults retain ETag behavior; unchanged finite/window owners and final source tests support reuse, not a byte-identical rerun claim.",
+          "availability": "Actual local bytes read and hashed; no remote evidence-delivery claim."
+        },
+        "runtime_generated_compat": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane08-runtime-contract-ts-compatible/result.json": {
+              "bytes": 925,
+              "sha256": "a2a5bb227466166d6ff06547af0a15fc8b0132fcc16da3b1523ef3d27d3edf23"
+            },
+            "policy-engine/_cache/e02/lane08-runtime-contract-ts-compatible/command.stdout.txt": {
+              "bytes": 304,
+              "sha256": "6177bcfe785610a3423d71ec60342148fb305d4b0d4111a2c217d89bdc1ae30a"
+            },
+            "policy-engine/_cache/e02/lane08-runtime-contract-ts-compatible/command.stderr.txt": {
+              "bytes": 6755,
+              "sha256": "24c7957801e4a42dd63801cfb023bc052c5bd103b65c618b17968eb1f6af6667"
+            },
+            "policy-engine/_cache/e02/lane08-runtime-contract-ts-compatible/before.json": {
+              "bytes": 979,
+              "sha256": "48809e06c15d7304e41453fee955eb2d5af90bdd7953a60c9c81d68cef272b2e"
+            },
+            "policy-engine/_cache/e02/lane08-runtime-contract-ts-compatible/after.json": {
+              "bytes": 979,
+              "sha256": "48809e06c15d7304e41453fee955eb2d5af90bdd7953a60c9c81d68cef272b2e"
+            },
+            "policy-engine/_cache/e02/lane08-ts-compat/before.log": {
+              "bytes": 3259,
+              "sha256": "c0f88032017565e8eb884e1007aec8f111aba27388c89e618d17d089d696a88f"
+            },
+            "policy-engine/_cache/e02/lane08-ts-compat/final.log": {
+              "bytes": 3368,
+              "sha256": "33692ec7a3cdef4cf08c8d731bc29de732c4ca0af8ec82ae4a25bad7ed374ea2"
+            },
+            "policy-engine/_cache/e02/lane08-ts-compat/full-client.log": {
+              "bytes": 11571,
+              "sha256": "677029f34f6df7926e65ce28cedc13c3ea0a02f4866c8212cffc45ff7ca4f0b9"
+            },
+            "policy-engine/_cache/e02/lane08-ts-compat/client-typecheck.log": {
+              "bytes": 174,
+              "sha256": "30c0345a42c6807171ac32f05013e11bfddcd60527ec43216428f10842948198"
+            },
+            "policy-engine/_cache/e02/lane08-ts-compat/regenerate.log": {
+              "bytes": 777,
+              "sha256": "5a0e105decf4e4298b2b4ea3e66db99232deb0d562d05617888b5207a490091c"
+            },
+            "policy-engine/_cache/e02/lane08-ts-compat/source-pins.json": {
+              "bytes": 421,
+              "sha256": "f0f745db6323cc39632dfdd7c145159d5bde42a6cd9827eede662b8661b959aa"
+            }
+          },
+          "result": {
+            "runtime_contract_exit": 0,
+            "node_PASS": 52,
+            "node_FAIL": 0,
+            "client_typecheck_exit": 0
+          },
+          "scope": "Ordinary OpenAPI export and both normal generators; no-skip contract gate passes17.922s with8 unchanged pins. SDK legacy DataSnapshotRef aliases exact Input alongside Input/Output; nested schema/collision controls preserve compatibility. New three-test red and15-case canonicalizer pass retained. All52 package tests and package typecheck pass; dashboard consumer corrected to Input and normal three-config pre-push typecheck is required at delivery. No API/Core DTO changes in later source-evidence fix.",
+          "availability": "Actual local bytes read and hashed; no remote evidence-delivery claim."
+        },
+        "public_inventory_final": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane08-public-inventory-final/result.json": {
+              "bytes": 957,
+              "sha256": "11e041a35bb2aed4a768cecc3b0d5cab1b3679a74a34cf77a4a961cac5e6ed04"
+            },
+            "policy-engine/_cache/e02/lane08-public-inventory-final/command.stdout.txt": {
+              "bytes": 44,
+              "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8"
+            },
+            "policy-engine/_cache/e02/lane08-public-inventory-final/before.json": {
+              "bytes": 683,
+              "sha256": "9c820fbb9637dfa3c2445a4dcb18219f8c2ac4361ecf23fef39849caf06d0af3"
+            },
+            "policy-engine/_cache/e02/lane08-public-inventory-final/after.json": {
+              "bytes": 683,
+              "sha256": "9c820fbb9637dfa3c2445a4dcb18219f8c2ac4361ecf23fef39849caf06d0af3"
+            }
+          },
+          "result": {
+            "exit_code": 0,
+            "seconds": 53.334
+          },
+          "scope": "Normal canonical inventory sync adds exactly the Core legacy_default_artifact_id export139→140 and its source binding/docs. Six pins unchanged. Internal source-evidence repair adds no facade exports; no global architecture/CI PASS is implied.",
+          "availability": "Actual local bytes read and hashed; no remote evidence-delivery claim."
         }
       },
       "current_source_checkpoint": {
@@ -1402,13 +1762,80 @@
           "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_store.py": "cbd8ac2ce8715c7ccf65419c071bb3c30407567e05300b99c9318db3fde3de25",
           "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local.py": "b1394400954ee096c2079884d66036432d29edacccfcd14d84876d9eeb4293d6",
           "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local_runtime_material.py": "565aaa1ef5a23f438d21cc9026917a7947ed81326edc6c5019c946a246330158",
-          "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py": "89471d6af4b5a0aff9d35bc1e210366fcea281244ad2cfdd3444fc184d4c90ad"
+          "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py": "89471d6af4b5a0aff9d35bc1e210366fcea281244ad2cfdd3444fc184d4c90ad",
+          "policy-engine/src/polisyos/core/artifacts/__init__.py": "6b1d54fdfb39bb15a157626b1c695ad4e0abb3b94025b82752c9c9581dc5cf8f",
+          "policy-engine/src/polisyos/core/artifacts/_profiled_ref.py": "67b49a0c933fd128aa6755d0433bfa36155c99dda6ec4c9c4eefcbbe37fa2df5",
+          "policy-engine/src/polisyos/core/contracts/control.py": "5aeba5e604f655e93eae44f1a1d32d2bb389a16d3681823f0a55aed4e66bcb15",
+          "policy-engine/src/polisyos/core/contracts/fabric.py": "3a438e6ba6e964e299960b02dc901dd8cb222dd32d185fd5d1feebbdab6577d5",
+          "policy-engine/src/polisyos/core/contracts/provenance.py": "07bbbc622b2f598e41edbcfd03ed18e59112a39e84a456e3f616bf60f9caada2",
+          "policy-engine/src/polisyos/fabric/connectors/base.py": "22624851ab40a0439868e46a673f33793ede77f648350c0bf8f91bca07d46016",
+          "policy-engine/src/polisyos/fabric/connectors/cache/_store_core.py": "16bf8839d21efbf0b26abb22f7af15dcf2b004166fb5ec76fe50ea0e51fe748d",
+          "policy-engine/src/polisyos/fabric/connectors/cache/_store_models.py": "0cc0afd1d2101d0b6f8761ef41d49bfd060e6fcea9143fdd7ae7130700df116b",
+          "policy-engine/src/polisyos/fabric/connectors/testing/simulator.py": "786358d23c78afb53e023d9cebeeccd77ce72140e3bf00cb37bfc5cd91f70665",
+          "policy-engine/src/polisyos/fabric/data_plane/README.md": "2bf6f8f3c6f3c427e6e11f599a98cac8b1056f48798d6d1d144b36dba386acf5",
+          "policy-engine/src/polisyos/fabric/data_plane/modes.py": "f78c919704c7997dc5df226d8ae7be9efd9771e9fe6c8d476df6bf0e7f025b9a",
+          "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py": "1579001eb9c50cdcf6d51ad7657c14aa11a1d9520557cb3cee0131cc2ce06b19",
+          "policy-engine/src/polisyos/fabric/data_plane/quarantine.py": "730c5316e49951ef0f947b455e0b724cd28d039817e34ead8eeed79af664dda9",
+          "policy-engine/src/polisyos/fabric/data_plane/replay_store.py": "100516988965cc382bc2cbad19495942d2883a0cbbef6d13ee4931953b71a4f1",
+          "policy-engine/src/polisyos/fabric/data_plane/schema_rows.py": "a07cfa2bd4975e3814c740cf4dcaa280c854a7dd20337e2c0b0d28c7abaffa73",
+          "policy-engine/src/polisyos/fabric/data_plane/streaming.py": "395b75bee2d4cb6c04df3a842c64efd382733d2da28de0cabbff1ae7e85eef6d",
+          "policy-engine/src/polisyos/fabric/evidence/evidence.py": "902406fd11ca91ef2bd9bf9ab74bb45e8c1284583af6fdd353a9785de82f55f4",
+          "policy-engine/src/polisyos/fabric/ingestion/ingestion.py": "c286df6673caa7ee32305b3b51973061892564734945af83185b782dce8d5f49",
+          "policy-engine/src/polisyos/fabric/ingestion/source_progress.py": "f35ace5bc5e5ed2527c406151cb896b67895a6014497da17eb33602a3f4c87d5",
+          "policy-engine/src/polisyos/fabric/ingestion/source_collection.py": "0ac249cc04bb7a87e035dd71d47c009fbe36557cc92da17284779d83aecad4d3",
+          "policy-engine/src/polisyos/fabric/ingestion/_source_evidence_schema.py": "df5c3b816b3bfe9844b6776a8ab15954a9d3b3f97e2129a67bcc22288fd477f3",
+          "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py": "5de3302f88865dab67c71caed24b85b14725de7072ede01ddd7e55afad7c1db1",
+          "policy-engine/tests/_helpers/source_progress.py": "abea04142b36148ffdbe3ead308c701c1655a3a0243e5c68e83ff1a67550dd1f",
+          "policy-engine/tests/unit/core/artifacts/test_profiled_ref.py": "e4a32bb0ac372601e6252129252b3ccaddb9f3bde6dca4669ab006ab7a8753bb",
+          "policy-engine/tests/unit/core/contracts/test_ingestion_execution.py": "0b0caa1030000fbdccde3e5a324f066ebdf3c0b79a74cfb60d9674cd320239a9",
+          "policy-engine/tests/unit/fabric/connectors/test_cache_execution_context.py": "afb9c399f0a62f39ff55992f14d0f581913ad6a8bdabeb45a695e9c24f161dfb",
+          "policy-engine/tests/unit/fabric/data_plane/test_modes.py": "f536cecdc19dc634c74ec23c69a2b19a1825b6aa0263ae787b0049c48552734d",
+          "policy-engine/tests/unit/fabric/data_plane/test_record_replay.py": "76c4fb45e1e448727af60ade5303df90253b230fd535fd712272ca6eb1c953a1",
+          "policy-engine/tests/unit/fabric/data_plane/test_quarantine.py": "5cdc88d7a3a958bdea8b48784e700ff285121127ec8be70743fcd3602cdbf4b9",
+          "policy-engine/tests/unit/fabric/data_plane/test_schema_rows.py": "fd205b80c4af410619ad137016befa206792a13c4c0ea056a5457a2e9093d288",
+          "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py": "ca45ab35d5fa43018dcae778980efded2af4798bbbe3bf2b8b5edd6038319e1d",
+          "policy-engine/tests/unit/fabric/data_plane/test_streaming_accounting.py": "46da275c74b89857815dd7a841c4494753db9e19e1b7449288de4540e4293c86",
+          "policy-engine/tests/unit/fabric/data_plane/test_streaming_reads.py": "13addee4363a8d11978dfd339661078f2d6e0d7f672fefaaee5b4a0111b3ec72",
+          "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py": "b125f74e607f68a5ca4ff83b903bd7f8391eb26fcbb9f1f58ceab9300655b866",
+          "policy-engine/tests/unit/fabric/data_plane/test_source_progress_native.py": "a23b26b5ce08814627808d28790265a7e52756acfbc5f2de31dcac8fa30b3c44",
+          "policy-engine/tests/unit/fabric/data_plane/test_incremental.py": "da00af80b9d679f8b00a058f23f7f40aa0a90a476a5b3be2a308d39ce08a7472",
+          "policy-engine/tests/unit/fabric/data_plane/test_r13_ingestion_store_custody.py": "bc90be27ba49dcf90a4d240e88a868b1b79029ffb4333decd7209947f14b625d",
+          "policy-engine/tests/unit/fabric/test_facade_runtime_reflection.py": "c8c2522a76f4afb4e47a5751a1dfedd223a42097465b47a0be4ab24f6cd602e4",
+          "policy-engine/tests/unit/runtime/http/test_b88_served_replay.py": "18f552290003e2b3573de9e371c41d4e8c343c1fa96d505efee4a2414365b595",
+          "policy-engine/tests/unit/fabric/data_plane/test_streaming_crash_resume_native.py": "7517869b640196cf09eda41102a08e67b039b571551e8213dd52238a957d7d30",
+          "policy-engine/tests/unit/data_forge/legal_batch/test_embedding_incremental_boundaries.py": "406ca49ff3bf4f4e4613f6a07ac437221671b960c9d689fbd0282745f1045403",
+          "policy-engine/tests/unit/remediation/test_dfi_02_mixed_ingest_native.py": "b773dcac74815f7b44ac32545cb73c2ac050aa939b777c3be14726a0b9d8cc42",
+          "policy-engine/schemas/runtime_api_v1.openapi.json": "1911813383946784a584837c049ab4b650baa739d28c591d048339e5c0fc409f",
+          "policy-engine/packages/runtime-api-client/types.ts": "82ba1e5a43bedf540fd3c796dadde44010f4fc860a52f617bb6f7c96c97d522d",
+          "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts": "3398a501e82ab7dc33e4c3f0e241ad24aaa35d4ef3f14b5445f625eab099a396",
+          "policy-engine/apps/runtime-dashboard/src/api/types.ts": "73827846676634aa716adc8d67c0b391ab441829cf68cda0cb9b2b5a061ab9ff",
+          "policy-engine/apps/runtime-dashboard/src/api/hooks/useLaunchNlRun.ts": "7b55bbd2816d433f32d68fe639dab4535698752fd8367d460d19baf0631b13c6",
+          "policy-engine/packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs": "c31fa346744c0285ddcb0f9a96b6f8fc9518a1cac4fc1abec89130a4ae20b16f",
+          "policy-engine/packages/runtime-api-client/scripts/canonicalize-runtime-client.test.mjs": "e556c76f9c0c12ff1614c74782999981348cfeb0e22ffac8bfb3d629a057dc16",
+          "policy-engine/packages/runtime-api-client/runtimeApiClient.type-test.ts": "89aebdfb5ae123f74751d01076e5790936b075c91bd1d627329de7f08cecb203",
+          "policy-engine/architecture/public_surface/inventory.json": "b5f770e7ee2b660d0c7b56fd1d9866d9814098ed2c0d327e749da1e742d772d6",
+          "policy-engine/docs/reference/public-surface.md": "a51e2082a6b014098d5547d231fe45981b37351ea803cbf5ae335d89233e2ec6",
+          "policy-engine/release-fragments/unreleased/2026-11-02-e02-selected-ingestion.toml": "c519f31e6c200b995cc175cfd78b1360647012032686b8555f5948e0a594a59f"
         },
-        "remaining": "Transport selected-context/cache/replay and streaming crash/recovery composition remains active. Same-ID policy byte native qualification and mixed success/empty/error lease/budget counters are separate Catalog checks. No later lane/G acceptance starts.",
+        "remaining": "No identified unimplemented LANE08 local criterion remains in the declared profiles. All48 local requirements and11 lane bindings are qualified; two cross-story bindings remain conditional for their later selected consumers. Global architecture/required CI, final installed-artifact checks, stronger retrieval utility/external authority and independent G/final E02 acceptance are not inferred. Stop after LANE08; do not start LANE07 automatically.",
         "delivered_first_commit": "d0ff6efdfd4756bcbcb7012abe74ed30155cfb0a",
         "delivered_first_tree": "17c6b74e187bf86cbad3ebfbed71b36083ada54c",
         "delivered_followup_commit": "3a3556ef5b35bfdc7af04c172a105fcc53cbc4ef",
-        "delivered_followup_tree": "a86705f057ac15f53c92a78ef1b8d3fe04861e7a"
+        "delivered_followup_tree": "a86705f057ac15f53c92a78ef1b8d3fe04861e7a",
+        "previous_published_commit": "eaf1fc1f84dfbdc9aa914fc5a43f3cfddde0673d",
+        "previous_published_tree": "d5d79b3efe3fecad4608f22ae691b06b91ee7e9c",
+        "post_verification_docs_delta": {
+          "path": "policy-engine/src/polisyos/fabric/data_plane/README.md",
+          "tested_sha256": "696f04e23d4c3ac1caec8743b09649223ef2a2edf82c4512ec9609a8fa1b49db",
+          "delivered_sha256": "2bf6f8f3c6f3c427e6e11f599a98cac8b1056f48798d6d1d144b36dba386acf5",
+          "scope": "Root-only migration prose after final65-pin review; no executable source, test, input or backend change. No byte-identical README rerun claim."
+        },
+        "delivery_hook_format_delta": {
+          "path": "policy-engine/apps/runtime-dashboard/src/api/hooks/useLaunchNlRun.ts",
+          "reviewed_sha256": "df03c9e82695bf0ba6c9fd9226f3acb48838dc6a87031bb654dbb38efc51f2f5",
+          "delivered_sha256": "7b55bbd2816d433f32d68fe639dab4535698752fd8367d460d19baf0631b13c6",
+          "scope": "Normal pre-commit Prettier wrapped only the selected DataSnapshotRef-Input type intersection. No token, behavior or generated schema change; inspect staged diff and run the normal hooks again."
+        }
       },
       "resource_admission": {
         "free_disk_gib_approx": 14.3,
@@ -1421,7 +1848,10 @@
         "later_lanes_started": false,
         "g_acceptance": false,
         "formal_closure": false,
-        "writer_policy": "Root index/refs/generated families; one writer per file. Child alone owns whole streaming.py. Catalog pipeline handoff completed EMB02 -> DFI03."
+        "writer_policy": "Root index/refs/generated families; one writer per file. Child alone owns whole streaming.py. Catalog pipeline handoff completed EMB02 -> DFI03.",
+        "stop_after_lane": "LANE-08",
+        "next_lane": "LANE-07",
+        "next_lane_started": false
       }
     },
     {
@@ -4715,13 +5145,14 @@
       "track_id": "08-A",
       "track_position": 2,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane08_catalog",
       "base_commit": "cae9f09c27c45b65575f302b4e0e7b9b2dbb944c",
       "integrated_commit": null,
       "actual_write_set": [
-        "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_writers.py"
+        "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_writers.py",
+        "policy-engine/tests/unit/remediation/test_dfi_02_mixed_ingest_native.py"
       ],
       "shared_writer": "/root/lane08_catalog",
       "decision_records": [],
@@ -4754,9 +5185,13 @@
           ],
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "catalog113"
+            "catalog113",
+            "catalog_native_chain",
+            "catalog_mixed_isolated",
+            "catalog_lease_native",
+            "catalog_bindings_size_callers"
           ],
-          "basis": "Named local scope only, not shared/G acceptance.",
+          "basis": "Existing qualified thirteen-field/chunk/context/scoped-binding traces join facade-free native calls in all six owners, real mixed counters/budgets/receipt and killed persisted lease without resubmission. One LA038 local phase/caller disposition; preserve intentional CLI facade and qualified aliases. Canonical facade no-growth passes168/184; separate global architecture/CI is not green or waived. No institutional/publication authority is inferred from complete_empty.",
           "capability_gaps": []
         },
         {
@@ -4770,9 +5205,13 @@
           ],
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "catalog113"
+            "catalog113",
+            "catalog_native_chain",
+            "catalog_mixed_isolated",
+            "catalog_lease_native",
+            "catalog_bindings_size_callers"
           ],
-          "basis": "Named local scope only, not shared/G acceptance.",
+          "basis": "Existing qualified thirteen-field/chunk/context/scoped-binding traces join facade-free native calls in all six owners, real mixed counters/budgets/receipt and killed persisted lease without resubmission. One LA038 local phase/caller disposition; preserve intentional CLI facade and qualified aliases. Canonical facade no-growth passes168/184; separate global architecture/CI is not green or waived. No institutional/publication authority is inferred from complete_empty.",
           "capability_gaps": []
         },
         {
@@ -4784,14 +5223,16 @@
           "binding_ids": [
             "E02-I08-A-B02"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "catalog113"
+            "catalog113",
+            "catalog_native_chain",
+            "catalog_mixed_isolated",
+            "catalog_lease_native",
+            "catalog_bindings_size_callers"
           ],
-          "basis": "Real leaf and context path qualified; full controlled connector -> canonical pipeline -> fresh consumer and LA038 shared closure remain.",
-          "capability_gaps": [
-            "verification_missing"
-          ]
+          "basis": "Existing qualified thirteen-field/chunk/context/scoped-binding traces join facade-free native calls in all six owners, real mixed counters/budgets/receipt and killed persisted lease without resubmission. One LA038 local phase/caller disposition; preserve intentional CLI facade and qualified aliases. Canonical facade no-growth passes168/184; separate global architecture/CI is not green or waived. No institutional/publication authority is inferred from complete_empty.",
+          "capability_gaps": []
         },
         {
           "requirement_id": "REQ-DFI-01-04",
@@ -4800,14 +5241,16 @@
             "TEST-DFI-01-04"
           ],
           "binding_ids": [],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "catalog113"
+            "catalog113",
+            "catalog_native_chain",
+            "catalog_mixed_isolated",
+            "catalog_lease_native",
+            "catalog_bindings_size_callers"
           ],
-          "basis": "Real leaf and context path qualified; full controlled connector -> canonical pipeline -> fresh consumer and LA038 shared closure remain.",
-          "capability_gaps": [
-            "verification_missing"
-          ]
+          "basis": "Existing qualified thirteen-field/chunk/context/scoped-binding traces join facade-free native calls in all six owners, real mixed counters/budgets/receipt and killed persisted lease without resubmission. One LA038 local phase/caller disposition; preserve intentional CLI facade and qualified aliases. Canonical facade no-growth passes168/184; separate global architecture/CI is not green or waived. No institutional/publication authority is inferred from complete_empty.",
+          "capability_gaps": []
         }
       ]
     },
@@ -4818,7 +5261,7 @@
       "track_id": "08-A",
       "track_position": 3,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane08_catalog",
       "base_commit": "cae9f09c27c45b65575f302b4e0e7b9b2dbb944c",
@@ -4827,7 +5270,8 @@
         "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py",
         "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
         "policy-engine/tests/unit/remediation/test_dfi_02.py",
-        "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_api.py"
+        "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_api.py",
+        "policy-engine/tests/unit/remediation/test_dfi_02_mixed_ingest_native.py"
       ],
       "shared_writer": "/root/lane08_catalog",
       "decision_records": [],
@@ -4860,9 +5304,13 @@
           ],
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "catalog113"
+            "catalog113",
+            "catalog_native_chain",
+            "catalog_mixed_isolated",
+            "catalog_lease_native",
+            "catalog_bindings_size_callers"
           ],
-          "basis": "Named local scope only, not shared/G acceptance.",
+          "basis": "Existing qualified thirteen-field/chunk/context/scoped-binding traces join facade-free native calls in all six owners, real mixed counters/budgets/receipt and killed persisted lease without resubmission. One LA038 local phase/caller disposition; preserve intentional CLI facade and qualified aliases. Canonical facade no-growth passes168/184; separate global architecture/CI is not green or waived. No institutional/publication authority is inferred from complete_empty.",
           "capability_gaps": []
         },
         {
@@ -4876,9 +5324,13 @@
           ],
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "catalog113"
+            "catalog113",
+            "catalog_native_chain",
+            "catalog_mixed_isolated",
+            "catalog_lease_native",
+            "catalog_bindings_size_callers"
           ],
-          "basis": "Named local scope only, not shared/G acceptance.",
+          "basis": "Existing qualified thirteen-field/chunk/context/scoped-binding traces join facade-free native calls in all six owners, real mixed counters/budgets/receipt and killed persisted lease without resubmission. One LA038 local phase/caller disposition; preserve intentional CLI facade and qualified aliases. Canonical facade no-growth passes168/184; separate global architecture/CI is not green or waived. No institutional/publication authority is inferred from complete_empty.",
           "capability_gaps": []
         },
         {
@@ -4890,14 +5342,16 @@
           "binding_ids": [
             "E02-I08-A-B02"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "catalog113"
+            "catalog113",
+            "catalog_native_chain",
+            "catalog_mixed_isolated",
+            "catalog_lease_native",
+            "catalog_bindings_size_callers"
           ],
-          "basis": "Full canonical config/profile/lease/budget/current receipt -> fresh consumer and LA038 shared closure remain.",
-          "capability_gaps": [
-            "verification_missing"
-          ]
+          "basis": "Existing qualified thirteen-field/chunk/context/scoped-binding traces join facade-free native calls in all six owners, real mixed counters/budgets/receipt and killed persisted lease without resubmission. One LA038 local phase/caller disposition; preserve intentional CLI facade and qualified aliases. Canonical facade no-growth passes168/184; separate global architecture/CI is not green or waived. No institutional/publication authority is inferred from complete_empty.",
+          "capability_gaps": []
         },
         {
           "requirement_id": "REQ-DFI-02-04",
@@ -4908,9 +5362,13 @@
           "binding_ids": [],
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "catalog113"
+            "catalog113",
+            "catalog_native_chain",
+            "catalog_mixed_isolated",
+            "catalog_lease_native",
+            "catalog_bindings_size_callers"
           ],
-          "basis": "Named local scope only, not shared/G acceptance.",
+          "basis": "Existing qualified thirteen-field/chunk/context/scoped-binding traces join facade-free native calls in all six owners, real mixed counters/budgets/receipt and killed persisted lease without resubmission. One LA038 local phase/caller disposition; preserve intentional CLI facade and qualified aliases. Canonical facade no-growth passes168/184; separate global architecture/CI is not green or waived. No institutional/publication authority is inferred from complete_empty.",
           "capability_gaps": []
         }
       ]
@@ -4922,7 +5380,7 @@
       "track_id": "08-A",
       "track_position": 4,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane08_catalog",
       "base_commit": "cae9f09c27c45b65575f302b4e0e7b9b2dbb944c",
@@ -5028,7 +5486,7 @@
       "track_id": "08-D",
       "track_position": 1,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane08_embedding",
       "base_commit": "cae9f09c27c45b65575f302b4e0e7b9b2dbb944c",
@@ -5120,15 +5578,15 @@
             "TEST-EMB-01-04"
           ],
           "binding_ids": [],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "embedding44",
-            "embedding_companions59"
+            "embedding_companions59",
+            "catalog_native_chain",
+            "catalog_importers23"
           ],
-          "basis": "Native compute qualified; LA039 readiness/resume consumer shared I08A/B remains.",
-          "capability_gaps": [
-            "verification_missing"
-          ]
+          "basis": "Existing shared Academic/Catalog native compute and Academic publication/row-permutation controls join the source-frozen Catalog readiness/benchmark/QC/publish, DFI03 smart resume and fresh Graph/Fabric route. One shared LA039 evidence bundle, not two separately counted capabilities; controlled encoder qualification is mechanical, not semantic retrieval utility.",
+          "capability_gaps": []
         }
       ]
     },
@@ -5139,7 +5597,7 @@
       "track_id": "08-D",
       "track_position": 2,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane08_embedding",
       "base_commit": "cae9f09c27c45b65575f302b4e0e7b9b2dbb944c",
@@ -5237,16 +5695,15 @@
           "binding_ids": [
             "E02-I08-B-B02"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "embedding44",
-            "embedding_before",
-            "embedding_companions59"
+            "embedding_companions59",
+            "catalog_native_chain",
+            "catalog_importers23"
           ],
-          "basis": "Explicit sibling warm/fresh beyond-truncation controls and bound readiness/publish/DFI03 resume shared checks remain.",
-          "capability_gaps": [
-            "verification_missing"
-          ]
+          "basis": "Existing shared Academic/Catalog native compute and Academic publication/row-permutation controls join the source-frozen Catalog readiness/benchmark/QC/publish, DFI03 smart resume and fresh Graph/Fabric route. One shared LA039 evidence bundle, not two separately counted capabilities; controlled encoder qualification is mechanical, not semantic retrieval utility.",
+          "capability_gaps": []
         }
       ]
     },
@@ -5257,7 +5714,7 @@
       "track_id": "08-D",
       "track_position": 3,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane08_embedding",
       "base_commit": "cae9f09c27c45b65575f302b4e0e7b9b2dbb944c",
@@ -5267,7 +5724,8 @@
         "policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_store.py",
         "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_store.py",
         "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local.py",
-        "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local_runtime_material.py"
+        "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local_runtime_material.py",
+        "policy-engine/tests/unit/data_forge/legal_batch/test_embedding_incremental_boundaries.py"
       ],
       "shared_writer": "/root/lane08_embedding",
       "decision_records": [],
@@ -5299,15 +5757,14 @@
           "binding_ids": [
             "E02-I08-B-B03"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "legal_owned1",
-            "embedding_companions59"
+            "embedding_companions59",
+            "legal_incremental_boundaries5",
+            "legal_owned_current"
           ],
-          "basis": "Incremental/projection/rule/same-dimension-revision/withdrawal controls59 passed with real SQL/HNSW. Final selected profile/runtime coverage and shared I08B remain to reconcile; no blanket all-asset qualification.",
-          "capability_gaps": [
-            "verification_missing"
-          ]
+          "basis": "Incremental append/text/withdrawal/assets/rules/historical-flat controls are joined with tokenizer-only drift, coherent-hash malformed basis per projection and forced nonincremental recompute after valid zero-call reuse. Actual selected native generation/readers retained; deterministic compute proves reuse while separately qualified owned model proves serving.",
+          "capability_gaps": []
         },
         {
           "requirement_id": "REQ-EMB-03-02",
@@ -5369,7 +5826,7 @@
       "track_id": "08-B",
       "track_position": 1,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane08_transport",
       "base_commit": "cae9f09c27c45b65575f302b4e0e7b9b2dbb944c",
@@ -5478,13 +5935,53 @@
       "lane_sequence": 2,
       "track_id": "08-B",
       "track_position": 2,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "QUALIFIED_NAMED_LOCAL_PROFILES",
       "assigned_executor": "/root/lane08_transport",
       "base_commit": "cae9f09c27c45b65575f302b4e0e7b9b2dbb944c",
       "integrated_commit": null,
-      "actual_write_set": [],
+      "actual_write_set": [
+        "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "policy-engine/src/polisyos/core/artifacts/_profiled_ref.py",
+        "policy-engine/src/polisyos/core/contracts/control.py",
+        "policy-engine/src/polisyos/core/contracts/fabric.py",
+        "policy-engine/src/polisyos/core/contracts/provenance.py",
+        "policy-engine/src/polisyos/fabric/connectors/base.py",
+        "policy-engine/src/polisyos/fabric/connectors/cache/_store_core.py",
+        "policy-engine/src/polisyos/fabric/connectors/cache/_store_models.py",
+        "policy-engine/src/polisyos/fabric/connectors/testing/simulator.py",
+        "policy-engine/src/polisyos/fabric/data_plane/README.md",
+        "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+        "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+        "policy-engine/src/polisyos/fabric/data_plane/quarantine.py",
+        "policy-engine/src/polisyos/fabric/data_plane/replay_store.py",
+        "policy-engine/src/polisyos/fabric/data_plane/schema_rows.py",
+        "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "policy-engine/src/polisyos/fabric/evidence/evidence.py",
+        "policy-engine/src/polisyos/fabric/ingestion/ingestion.py",
+        "policy-engine/src/polisyos/fabric/ingestion/source_progress.py",
+        "policy-engine/src/polisyos/fabric/ingestion/source_collection.py",
+        "policy-engine/src/polisyos/fabric/ingestion/_source_evidence_schema.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/tests/_helpers/source_progress.py",
+        "policy-engine/tests/unit/core/artifacts/test_profiled_ref.py",
+        "policy-engine/tests/unit/core/contracts/test_ingestion_execution.py",
+        "policy-engine/tests/unit/fabric/connectors/test_cache_execution_context.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_modes.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_record_replay.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_quarantine.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_schema_rows.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_streaming_accounting.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_streaming_reads.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_source_progress_native.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_incremental.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_r13_ingestion_store_custody.py",
+        "policy-engine/tests/unit/fabric/test_facade_runtime_reflection.py",
+        "policy-engine/tests/unit/runtime/http/test_b88_served_replay.py"
+      ],
       "shared_writer": "/root/lane08_transport",
       "decision_records": [],
       "requirement_ids": [
@@ -5499,9 +5996,92 @@
         "TEST-ING-01-03",
         "TEST-ING-01-04"
       ],
-      "evidence": [],
+      "evidence": [
+        "transport_final429",
+        "source_evidence_before8",
+        "streaming_e02c86",
+        "transport_consumer_repair_history"
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-ING-01-01",
+          "criterion_pointer": "04_Трассировка/ING-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-ING-01-01"
+          ],
+          "binding_ids": [
+            "E02-I08-C-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "transport_final429",
+            "source_evidence_before8",
+            "streaming_e02c86",
+            "transport_consumer_repair_history"
+          ],
+          "basis": "Actual namespace/canonical request and purpose-isolated cache/provenance chain, B79/B80 promotion and fresh Foundry consumer, selected evidence/graph owner/schema/bytes, each proof-member/binding removal, delayed source timestamp, real cursor CAS failure and actual nested producer predecessor race. Full owned B88 and six served projections separately bound. Finite replay scope; no new live-source authority inferred.",
+          "capability_gaps": []
+        },
+        {
+          "requirement_id": "REQ-ING-01-02",
+          "criterion_pointer": "04_Трассировка/ING-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-ING-01-02"
+          ],
+          "binding_ids": [
+            "E02-I08-C-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "transport_final429",
+            "source_evidence_before8",
+            "streaming_e02c86",
+            "transport_consumer_repair_history"
+          ],
+          "basis": "Actual namespace/canonical request and purpose-isolated cache/provenance chain, B79/B80 promotion and fresh Foundry consumer, selected evidence/graph owner/schema/bytes, each proof-member/binding removal, delayed source timestamp, real cursor CAS failure and actual nested producer predecessor race. Full owned B88 and six served projections separately bound. Finite replay scope; no new live-source authority inferred.",
+          "capability_gaps": []
+        },
+        {
+          "requirement_id": "REQ-ING-01-03",
+          "criterion_pointer": "04_Трассировка/ING-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-ING-01-03"
+          ],
+          "binding_ids": [
+            "E02-I08-C-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "transport_final429",
+            "source_evidence_before8",
+            "streaming_e02c86",
+            "transport_consumer_repair_history"
+          ],
+          "basis": "Actual namespace/canonical request and purpose-isolated cache/provenance chain, B79/B80 promotion and fresh Foundry consumer, selected evidence/graph owner/schema/bytes, each proof-member/binding removal, delayed source timestamp, real cursor CAS failure and actual nested producer predecessor race. Full owned B88 and six served projections separately bound. Finite replay scope; no new live-source authority inferred.",
+          "capability_gaps": []
+        },
+        {
+          "requirement_id": "REQ-ING-01-04",
+          "criterion_pointer": "04_Трассировка/ING-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-ING-01-04"
+          ],
+          "binding_ids": [
+            "E02-I08-C-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "transport_final429",
+            "source_evidence_before8",
+            "streaming_e02c86",
+            "transport_consumer_repair_history"
+          ],
+          "basis": "Actual namespace/canonical request and purpose-isolated cache/provenance chain, B79/B80 promotion and fresh Foundry consumer, selected evidence/graph owner/schema/bytes, each proof-member/binding removal, delayed source timestamp, real cursor CAS failure and actual nested producer predecessor race. Full owned B88 and six served projections separately bound. Finite replay scope; no new live-source authority inferred.",
+          "capability_gaps": []
+        }
+      ]
     },
     {
       "packet_id": "ING-02",
@@ -5509,13 +6089,53 @@
       "lane_sequence": 2,
       "track_id": "08-B",
       "track_position": 3,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "QUALIFIED_NAMED_LOCAL_PROFILES",
       "assigned_executor": "/root/lane08_transport",
       "base_commit": "cae9f09c27c45b65575f302b4e0e7b9b2dbb944c",
       "integrated_commit": null,
-      "actual_write_set": [],
+      "actual_write_set": [
+        "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "policy-engine/src/polisyos/core/artifacts/_profiled_ref.py",
+        "policy-engine/src/polisyos/core/contracts/control.py",
+        "policy-engine/src/polisyos/core/contracts/fabric.py",
+        "policy-engine/src/polisyos/core/contracts/provenance.py",
+        "policy-engine/src/polisyos/fabric/connectors/base.py",
+        "policy-engine/src/polisyos/fabric/connectors/cache/_store_core.py",
+        "policy-engine/src/polisyos/fabric/connectors/cache/_store_models.py",
+        "policy-engine/src/polisyos/fabric/connectors/testing/simulator.py",
+        "policy-engine/src/polisyos/fabric/data_plane/README.md",
+        "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+        "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+        "policy-engine/src/polisyos/fabric/data_plane/quarantine.py",
+        "policy-engine/src/polisyos/fabric/data_plane/replay_store.py",
+        "policy-engine/src/polisyos/fabric/data_plane/schema_rows.py",
+        "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "policy-engine/src/polisyos/fabric/evidence/evidence.py",
+        "policy-engine/src/polisyos/fabric/ingestion/ingestion.py",
+        "policy-engine/src/polisyos/fabric/ingestion/source_progress.py",
+        "policy-engine/src/polisyos/fabric/ingestion/source_collection.py",
+        "policy-engine/src/polisyos/fabric/ingestion/_source_evidence_schema.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/tests/_helpers/source_progress.py",
+        "policy-engine/tests/unit/core/artifacts/test_profiled_ref.py",
+        "policy-engine/tests/unit/core/contracts/test_ingestion_execution.py",
+        "policy-engine/tests/unit/fabric/connectors/test_cache_execution_context.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_modes.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_record_replay.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_quarantine.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_schema_rows.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_streaming_accounting.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_streaming_reads.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_source_progress_native.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_incremental.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_r13_ingestion_store_custody.py",
+        "policy-engine/tests/unit/fabric/test_facade_runtime_reflection.py",
+        "policy-engine/tests/unit/runtime/http/test_b88_served_replay.py"
+      ],
       "shared_writer": "/root/lane08_transport",
       "decision_records": [],
       "requirement_ids": [
@@ -5530,9 +6150,94 @@
         "TEST-ING-02-03",
         "TEST-ING-02-04"
       ],
-      "evidence": [],
+      "evidence": [
+        "transport_final429",
+        "streaming_e02c86",
+        "streaming_runtime122",
+        "streaming_sigkill41"
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-ING-02-01",
+          "criterion_pointer": "04_Трассировка/ING-02.json#/requirements/0",
+          "test_ids": [
+            "TEST-ING-02-01"
+          ],
+          "binding_ids": [
+            "E02-I08-C-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "transport_final429",
+            "streaming_e02c86",
+            "streaming_runtime122",
+            "streaming_sigkill41"
+          ],
+          "basis": "Real first-frontier error recovery, pending state for all four strategies,41-row/row19 true OS death and fresh resume, version/policy/conditional compensation/fault-stage controls, selected all-contributor fresh read/withdrawal/re-admission, actual modes/evidence consumer. Local/replay semantics only; no global exactly-once claim.",
+          "capability_gaps": []
+        },
+        {
+          "requirement_id": "REQ-ING-02-02",
+          "criterion_pointer": "04_Трассировка/ING-02.json#/requirements/1",
+          "test_ids": [
+            "TEST-ING-02-02"
+          ],
+          "binding_ids": [
+            "E02-I08-C-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "transport_final429",
+            "streaming_e02c86",
+            "streaming_runtime122",
+            "streaming_sigkill41"
+          ],
+          "basis": "Real first-frontier error recovery, pending state for all four strategies,41-row/row19 true OS death and fresh resume, version/policy/conditional compensation/fault-stage controls, selected all-contributor fresh read/withdrawal/re-admission, actual modes/evidence consumer. Local/replay semantics only; no global exactly-once claim.",
+          "capability_gaps": []
+        },
+        {
+          "requirement_id": "REQ-ING-02-03",
+          "criterion_pointer": "04_Трассировка/ING-02.json#/requirements/2",
+          "test_ids": [
+            "TEST-ING-02-03"
+          ],
+          "binding_ids": [
+            "E02-I08-C-B02",
+            "E02-X02-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "transport_final429",
+            "streaming_e02c86",
+            "streaming_runtime122",
+            "streaming_sigkill41"
+          ],
+          "basis": "Real first-frontier error recovery, pending state for all four strategies,41-row/row19 true OS death and fresh resume, version/policy/conditional compensation/fault-stage controls, selected all-contributor fresh read/withdrawal/re-admission, actual modes/evidence consumer. Local/replay semantics only; no global exactly-once claim.",
+          "capability_gaps": []
+        },
+        {
+          "requirement_id": "REQ-ING-02-04",
+          "criterion_pointer": "04_Трассировка/ING-02.json#/requirements/3",
+          "test_ids": [
+            "TEST-ING-02-04"
+          ],
+          "binding_ids": [
+            "E02-I08-C-B02",
+            "E02-X02-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "transport_final429",
+            "streaming_e02c86",
+            "streaming_runtime122",
+            "streaming_sigkill41"
+          ],
+          "basis": "Real first-frontier error recovery, pending state for all four strategies,41-row/row19 true OS death and fresh resume, version/policy/conditional compensation/fault-stage controls, selected all-contributor fresh read/withdrawal/re-admission, actual modes/evidence consumer. Local/replay semantics only; no global exactly-once claim.",
+          "capability_gaps": []
+        }
+      ]
     },
     {
       "packet_id": "ING-03",
@@ -5540,13 +6245,53 @@
       "lane_sequence": 2,
       "track_id": "08-B",
       "track_position": 4,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "QUALIFIED_NAMED_LOCAL_PROFILES",
       "assigned_executor": "/root/lane08_transport",
       "base_commit": "cae9f09c27c45b65575f302b4e0e7b9b2dbb944c",
       "integrated_commit": null,
-      "actual_write_set": [],
+      "actual_write_set": [
+        "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "policy-engine/src/polisyos/core/artifacts/_profiled_ref.py",
+        "policy-engine/src/polisyos/core/contracts/control.py",
+        "policy-engine/src/polisyos/core/contracts/fabric.py",
+        "policy-engine/src/polisyos/core/contracts/provenance.py",
+        "policy-engine/src/polisyos/fabric/connectors/base.py",
+        "policy-engine/src/polisyos/fabric/connectors/cache/_store_core.py",
+        "policy-engine/src/polisyos/fabric/connectors/cache/_store_models.py",
+        "policy-engine/src/polisyos/fabric/connectors/testing/simulator.py",
+        "policy-engine/src/polisyos/fabric/data_plane/README.md",
+        "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+        "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+        "policy-engine/src/polisyos/fabric/data_plane/quarantine.py",
+        "policy-engine/src/polisyos/fabric/data_plane/replay_store.py",
+        "policy-engine/src/polisyos/fabric/data_plane/schema_rows.py",
+        "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "policy-engine/src/polisyos/fabric/evidence/evidence.py",
+        "policy-engine/src/polisyos/fabric/ingestion/ingestion.py",
+        "policy-engine/src/polisyos/fabric/ingestion/source_progress.py",
+        "policy-engine/src/polisyos/fabric/ingestion/source_collection.py",
+        "policy-engine/src/polisyos/fabric/ingestion/_source_evidence_schema.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/tests/_helpers/source_progress.py",
+        "policy-engine/tests/unit/core/artifacts/test_profiled_ref.py",
+        "policy-engine/tests/unit/core/contracts/test_ingestion_execution.py",
+        "policy-engine/tests/unit/fabric/connectors/test_cache_execution_context.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_modes.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_record_replay.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_quarantine.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_schema_rows.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_streaming_accounting.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_streaming_reads.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_source_progress_native.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_incremental.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_r13_ingestion_store_custody.py",
+        "policy-engine/tests/unit/fabric/test_facade_runtime_reflection.py",
+        "policy-engine/tests/unit/runtime/http/test_b88_served_replay.py"
+      ],
       "shared_writer": "/root/lane08_transport",
       "decision_records": [],
       "requirement_ids": [
@@ -5561,9 +6306,87 @@
         "TEST-ING-03-03",
         "TEST-ING-03-04"
       ],
-      "evidence": [],
+      "evidence": [
+        "streaming_e02c86",
+        "streaming_runtime122",
+        "transport_final429"
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-ING-03-01",
+          "criterion_pointer": "04_Трассировка/ING-03.json#/requirements/0",
+          "test_ids": [
+            "TEST-ING-03-01"
+          ],
+          "binding_ids": [
+            "E02-I08-C-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "streaming_e02c86",
+            "streaming_runtime122",
+            "transport_final429"
+          ],
+          "basis": "Incremental exact row-occurrence byte accounting with restore/preview/flush isolation, actual CATEGORY/quarantine across batch sizes, UTC source/event/version dedupe with separate-process boundary and no live-key eviction, actual input/operator/output cap refusal preserving frontier. Unsupported spill remains typed refusal; no unimplemented disk-spill claim.",
+          "capability_gaps": []
+        },
+        {
+          "requirement_id": "REQ-ING-03-02",
+          "criterion_pointer": "04_Трассировка/ING-03.json#/requirements/1",
+          "test_ids": [
+            "TEST-ING-03-02"
+          ],
+          "binding_ids": [
+            "E02-I08-C-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "streaming_e02c86",
+            "streaming_runtime122",
+            "transport_final429"
+          ],
+          "basis": "Incremental exact row-occurrence byte accounting with restore/preview/flush isolation, actual CATEGORY/quarantine across batch sizes, UTC source/event/version dedupe with separate-process boundary and no live-key eviction, actual input/operator/output cap refusal preserving frontier. Unsupported spill remains typed refusal; no unimplemented disk-spill claim.",
+          "capability_gaps": []
+        },
+        {
+          "requirement_id": "REQ-ING-03-03",
+          "criterion_pointer": "04_Трассировка/ING-03.json#/requirements/2",
+          "test_ids": [
+            "TEST-ING-03-03"
+          ],
+          "binding_ids": [
+            "E02-I08-C-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "streaming_e02c86",
+            "streaming_runtime122",
+            "transport_final429"
+          ],
+          "basis": "Incremental exact row-occurrence byte accounting with restore/preview/flush isolation, actual CATEGORY/quarantine across batch sizes, UTC source/event/version dedupe with separate-process boundary and no live-key eviction, actual input/operator/output cap refusal preserving frontier. Unsupported spill remains typed refusal; no unimplemented disk-spill claim.",
+          "capability_gaps": []
+        },
+        {
+          "requirement_id": "REQ-ING-03-04",
+          "criterion_pointer": "04_Трассировка/ING-03.json#/requirements/3",
+          "test_ids": [
+            "TEST-ING-03-04"
+          ],
+          "binding_ids": [
+            "E02-I08-C-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "streaming_e02c86",
+            "streaming_runtime122",
+            "transport_final429"
+          ],
+          "basis": "Incremental exact row-occurrence byte accounting with restore/preview/flush isolation, actual CATEGORY/quarantine across batch sizes, UTC source/event/version dedupe with separate-process boundary and no live-key eviction, actual input/operator/output cap refusal preserving frontier. Unsupported spill remains typed refusal; no unimplemented disk-spill claim.",
+          "capability_gaps": []
+        }
+      ]
     },
     {
       "packet_id": "NET-02",
@@ -9635,40 +10458,248 @@
     },
     {
       "scenario_id": "E02-I08-A",
-      "status": "NOT_RUN",
+      "status": "QUALIFIED_NAMED_LOCAL_PROFILES",
       "commit": null,
-      "profile": null,
-      "evidence": [],
+      "profile": "P-CORE/P-DATA/P-INDEX controlled finite native profiles.",
+      "evidence": [
+        "catalog113",
+        "catalog_same_stat_policy2",
+        "catalog_native_chain",
+        "catalog_importers23",
+        "dfi03_local",
+        "catalog_mixed_isolated",
+        "catalog_lease_native",
+        "catalog_bindings_size_callers"
+      ],
       "binding_ids": [
         "E02-I08-A-B01",
         "E02-I08-A-B02",
         "E02-I08-A-B03"
-      ]
+      ],
+      "source_binding": "Containing commit supplies the exact released source/test blobs; deciding runs retain their material input hashes. This is local author qualification, not G or final-artifact acceptance.",
+      "binding_results": [
+        {
+          "binding_id": "E02-I08-A-B01",
+          "status": "QUALIFIED_NAMED_LOCAL_PROFILES",
+          "evidence_refs": [
+            "catalog113",
+            "catalog_same_stat_policy2",
+            "catalog_native_chain",
+            "catalog_importers23",
+            "dfi03_local",
+            "catalog_mixed_isolated",
+            "catalog_lease_native",
+            "catalog_bindings_size_callers"
+          ],
+          "g_acceptance": false
+        },
+        {
+          "binding_id": "E02-I08-A-B02",
+          "status": "QUALIFIED_NAMED_LOCAL_PROFILES",
+          "evidence_refs": [
+            "catalog113",
+            "catalog_same_stat_policy2",
+            "catalog_native_chain",
+            "catalog_importers23",
+            "dfi03_local",
+            "catalog_mixed_isolated",
+            "catalog_lease_native",
+            "catalog_bindings_size_callers"
+          ],
+          "g_acceptance": false
+        },
+        {
+          "binding_id": "E02-I08-A-B03",
+          "status": "QUALIFIED_NAMED_LOCAL_PROFILES",
+          "evidence_refs": [
+            "catalog113",
+            "catalog_same_stat_policy2",
+            "catalog_native_chain",
+            "catalog_importers23",
+            "dfi03_local",
+            "catalog_mixed_isolated",
+            "catalog_lease_native",
+            "catalog_bindings_size_callers"
+          ],
+          "g_acceptance": false
+        }
+      ],
+      "limitations": "Finite declared inputs and supported native backends. No empirical source/model utility, external permission/currentness, global architecture/CI PASS, installed artifact or G acceptance is claimed."
     },
     {
       "scenario_id": "E02-I08-B",
-      "status": "NOT_RUN",
+      "status": "QUALIFIED_NAMED_LOCAL_PROFILES",
       "commit": null,
-      "profile": null,
-      "evidence": [],
+      "profile": "P-CORE/P-DATA/P-INDEX controlled finite native profiles; B also separately qualified P-LEGAL-OWNED current-lock-compatible mixed-origin runtime.",
+      "evidence": [
+        "embedding44",
+        "embedding_companions59",
+        "catalog_native_chain",
+        "legal_incremental_boundaries5",
+        "legal_owned_current",
+        "legal_certifi_only_upgrade"
+      ],
       "binding_ids": [
         "E02-I08-B-B01",
         "E02-I08-B-B02",
         "E02-I08-B-B03"
-      ]
+      ],
+      "source_binding": "Containing commit supplies the exact released source/test blobs; deciding runs retain their material input hashes. This is local author qualification, not G or final-artifact acceptance.",
+      "binding_results": [
+        {
+          "binding_id": "E02-I08-B-B01",
+          "status": "QUALIFIED_NAMED_LOCAL_PROFILES",
+          "evidence_refs": [
+            "embedding44",
+            "embedding_companions59",
+            "catalog_native_chain",
+            "legal_incremental_boundaries5",
+            "legal_owned_current",
+            "legal_certifi_only_upgrade"
+          ],
+          "g_acceptance": false
+        },
+        {
+          "binding_id": "E02-I08-B-B02",
+          "status": "QUALIFIED_NAMED_LOCAL_PROFILES",
+          "evidence_refs": [
+            "embedding44",
+            "embedding_companions59",
+            "catalog_native_chain",
+            "legal_incremental_boundaries5",
+            "legal_owned_current",
+            "legal_certifi_only_upgrade"
+          ],
+          "g_acceptance": false
+        },
+        {
+          "binding_id": "E02-I08-B-B03",
+          "status": "QUALIFIED_NAMED_LOCAL_PROFILES",
+          "evidence_refs": [
+            "embedding44",
+            "embedding_companions59",
+            "catalog_native_chain",
+            "legal_incremental_boundaries5",
+            "legal_owned_current",
+            "legal_certifi_only_upgrade"
+          ],
+          "g_acceptance": false
+        }
+      ],
+      "limitations": "Finite declared inputs and supported native backends. No empirical source/model utility, external permission/currentness, global architecture/CI PASS, installed artifact or G acceptance is claimed."
     },
     {
       "scenario_id": "E02-I08-C",
-      "status": "NOT_RUN",
+      "status": "QUALIFIED_NAMED_LOCAL_PROFILES",
       "commit": null,
-      "profile": null,
-      "evidence": [],
+      "profile": "P-CORE/P-DATA finite source/replay, native CAS/POSIX FD and separate OS-process profiles; enabled/no-op observability profiles separately bound.",
+      "evidence": [
+        "transport_final429",
+        "source_evidence_before8",
+        "streaming_e02c86",
+        "streaming_runtime122",
+        "streaming_sigkill41",
+        "net01_native46",
+        "net01_parallel_io11",
+        "net02_root82",
+        "net02_rest_enabled",
+        "net02_rest_disabled"
+      ],
       "binding_ids": [
         "E02-I08-C-B01",
         "E02-I08-C-B02",
         "E02-I08-C-B03",
         "E02-I08-C-B04",
         "E02-I08-C-B05"
+      ],
+      "source_binding": "Containing commit and deciding-log pins bind released source. Impact reconciliation reuses unchanged finite/window and record/replay paths; final429 covers the altered source-proof class.",
+      "limitations": "Controlled finite providers and local consistency/resource semantics. No production permission/currentness, global exactly-once, unsupported spill, global CI/installed artifact or G acceptance.",
+      "binding_results": [
+        {
+          "binding_id": "E02-I08-C-B01",
+          "status": "QUALIFIED_NAMED_LOCAL_PROFILES",
+          "evidence_refs": [
+            "transport_final429",
+            "source_evidence_before8",
+            "streaming_e02c86",
+            "streaming_runtime122",
+            "streaming_sigkill41",
+            "net01_native46",
+            "net01_parallel_io11",
+            "net02_root82",
+            "net02_rest_enabled",
+            "net02_rest_disabled"
+          ],
+          "g_acceptance": false
+        },
+        {
+          "binding_id": "E02-I08-C-B02",
+          "status": "QUALIFIED_NAMED_LOCAL_PROFILES",
+          "evidence_refs": [
+            "transport_final429",
+            "source_evidence_before8",
+            "streaming_e02c86",
+            "streaming_runtime122",
+            "streaming_sigkill41",
+            "net01_native46",
+            "net01_parallel_io11",
+            "net02_root82",
+            "net02_rest_enabled",
+            "net02_rest_disabled"
+          ],
+          "g_acceptance": false
+        },
+        {
+          "binding_id": "E02-I08-C-B03",
+          "status": "QUALIFIED_NAMED_LOCAL_PROFILES",
+          "evidence_refs": [
+            "transport_final429",
+            "source_evidence_before8",
+            "streaming_e02c86",
+            "streaming_runtime122",
+            "streaming_sigkill41",
+            "net01_native46",
+            "net01_parallel_io11",
+            "net02_root82",
+            "net02_rest_enabled",
+            "net02_rest_disabled"
+          ],
+          "g_acceptance": false
+        },
+        {
+          "binding_id": "E02-I08-C-B04",
+          "status": "QUALIFIED_NAMED_LOCAL_PROFILES",
+          "evidence_refs": [
+            "transport_final429",
+            "source_evidence_before8",
+            "streaming_e02c86",
+            "streaming_runtime122",
+            "streaming_sigkill41",
+            "net01_native46",
+            "net01_parallel_io11",
+            "net02_root82",
+            "net02_rest_enabled",
+            "net02_rest_disabled"
+          ],
+          "g_acceptance": false
+        },
+        {
+          "binding_id": "E02-I08-C-B05",
+          "status": "QUALIFIED_NAMED_LOCAL_PROFILES",
+          "evidence_refs": [
+            "transport_final429",
+            "source_evidence_before8",
+            "streaming_e02c86",
+            "streaming_runtime122",
+            "streaming_sigkill41",
+            "net01_native46",
+            "net01_parallel_io11",
+            "net02_root82",
+            "net02_rest_enabled",
+            "net02_rest_disabled"
+          ],
+          "g_acceptance": false
+        }
       ]
     },
     {

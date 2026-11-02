@@ -31,7 +31,7 @@ from ._integrity_ops import (
     VerificationReport,
 )
 from ._manifest_lifecycle import ManifestLifecycle as ManifestLifecycle
-from ._profiled_ref import profile_bound_ref
+from ._profiled_ref import legacy_default_artifact_id, profile_bound_ref
 from ._transfer_ops import (
     ExportDurabilityError,
     ExportReport,
@@ -439,6 +439,7 @@ __all__ = [
     "expected_artifact_manifest_for_write",
     "fsync_directory",
     "input_ref_from_artifact_ref",
+    "legacy_default_artifact_id",
     "load_core_json_artifact",
     "load_core_json_frame_records",
     "matches_artifact_store_protocol",

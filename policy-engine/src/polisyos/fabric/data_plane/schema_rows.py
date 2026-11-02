@@ -88,6 +88,12 @@ def field_value_violation(value: object, field: FieldSpec) -> str | None:
     """
     if not _type_member(value, field.data_type):
         return "schema_type_mismatch"
+    if (
+        field.data_type == SchemaType.CATEGORY
+        and field.allowed_values is not None
+        and value not in field.allowed_values
+    ):
+        return "schema_allowed_values_violation"
     if field.data_type.is_numeric() or field.data_type == SchemaType.DECIMAL:
         if isinstance(value, Decimal):
             numeric_value: Decimal | Real = value

@@ -20,6 +20,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.canon import CanonSpec
 
@@ -69,9 +70,29 @@ class ReplayStore:
     def __init__(self, store: ArtifactStore) -> None:
         self._store = store
 
-    def save_record_session(self, session: RecordSession) -> ArtifactRef:
+    def save_record_session(
+        self, session: RecordSession, *, evidence_ref: ArtifactRef | None = None
+    ) -> ArtifactRef:
         """Persist a RecordSession to CAS as a JSON artifact."""
+        from polisyos.core.artifacts import input_ref_from_artifact_ref, load_core_json_artifact
         from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+        from polisyos.core.contracts.fabric import EvidenceBundle
+
+        if evidence_ref is not None:
+            if (
+                evidence_ref.kind != "fabric.evidence_bundle"
+                or evidence_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("record_session_requires_selected_evidence")
+            evidence = EvidenceBundle.model_validate(
+                load_core_json_artifact(self._store, evidence_ref)
+            )
+            if (
+                evidence.execution_context is None
+                or evidence.execution_context.mode != "record"
+                or evidence.execution_context.capture_session_id != session.session_id
+            ):
+                raise ValueError("record_session_capture_evidence_mismatch")
 
         return self._store.put_json(
             session.to_dict(),
@@ -80,17 +101,44 @@ class ReplayStore:
                 media_type="application/json",
                 schema=SchemaInfo(
                     name="polisyos.fabric.RecordSession",
-                    version="1.0",
+                    version="2.0",
+                ),
+                inputs=(
+                    [input_ref_from_artifact_ref(evidence_ref, role="fabric.ingestion.evidence")]
+                    if evidence_ref is not None
+                    else None
                 ),
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
         )
 
-    def load_record_session(self, artifact_id: str | ArtifactRef) -> RecordSession:
-        """Load a RecordSession from CAS by artifact ID."""
+    def resolve_record_session_ref(self, selector: ArtifactID | str | ArtifactRef) -> ArtifactRef:
+        """Resolve an explicit selected view or a legacy default-only identifier."""
+        from polisyos.core.artifacts import artifact_ref_for_manifest
+
+        selector = (
+            selector if isinstance(selector, ArtifactRef) else ArtifactID.model_validate(selector)
+        )
+        manifest = self._store.get_manifest(selector)
+        if (
+            manifest.kind != "fabric.record_session"
+            or manifest.media_type != "application/json"
+            or manifest.artifact_schema is None
+            or manifest.artifact_schema.name != "polisyos.fabric.RecordSession"
+            or manifest.artifact_schema.version not in {"1.0", "2.0"}
+        ):
+            raise ValueError("record_session_schema_unsupported")
+        return artifact_ref_for_manifest(manifest)
+
+    def load_record_session(self, artifact_id: ArtifactID | str | ArtifactRef) -> RecordSession:
+        """Load the declared v1 legacy or v2 request-bound session without rewriting it."""
         from polisyos.core.artifacts import load_core_json_artifact
 
-        data = load_core_json_artifact(self._store, artifact_id)
+        selected = self.resolve_record_session_ref(artifact_id)
+        data = load_core_json_artifact(self._store, selected)
+        if not isinstance(data, dict):
+            raise ValueError("record_session_payload_invalid")
         return RecordSession.from_dict(data)
 
     def build_replay_fixture_dir(
@@ -102,15 +150,21 @@ class ReplayStore:
 
         Layout: target/<connector_id>/<dataset_id>/<request_hash>.json
         """
-        from polisyos.fabric.connectors.testing.simulator import SimulatorFixture
+        from polisyos.fabric.connectors.testing.simulator import (
+            SimulatorFixture,
+            _fixture_path_for_namespace,
+        )
 
+        planned: list[tuple[SimulatorFixture, Path]] = []
         for fixture_dict in session.fixtures:
             fixture = SimulatorFixture.from_dict(fixture_dict)
             connector_id = fixture.connector_id or "unknown"
             dataset_id = fixture.dataset_id or "unknown"
             req_hash = fixture.request_hash
 
-            fixture_path = target / connector_id / dataset_id / f"{req_hash}.json"
+            fixture_path = _fixture_path_for_namespace(target, connector_id, dataset_id, req_hash)
+            planned.append((fixture, fixture_path))
+        for fixture, fixture_path in planned:
             fixture.write(fixture_path)
 
         return target

@@ -15,6 +15,72 @@ from polisyos.fabric.data_plane.quarantine import (
 )
 
 
+def test_replay_rejected_rows_retain_context_and_exact_session_edges(tmp_path):
+    from datetime import UTC, datetime
+
+    from polisyos.core.artifacts import ArtifactRef, PutOptions, SchemaInfo
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.contracts.fabric import IngestionExecutionContext
+    from polisyos.fabric.data_plane.replay_store import RecordSession, ReplayStore
+    from polisyos.fabric.ingestion.ingestion import _sanitize_fetch_result
+    from polisyos.ir.connectors import DataVersion, FetchResult, VersionStrategy
+
+    store = FileSystemCAS(tmp_path / "cas")
+    selected_session = ReplayStore(store).save_record_session(RecordSession(session_id="rejected"))
+    context = IngestionExecutionContext(
+        mode="replay",
+        capture_session_id="rejected",
+        selected_record_session_ref=selected_session,
+    )
+    old_raw = store.put_json(
+        "poison",
+        PutOptions(
+            kind="fabric.quarantine_payload",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.fabric.QuarantinePayload", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        return_selected_profile=True,
+    )
+    sanitized, _warnings, rejected_count = _sanitize_fetch_result(
+        FetchResult(
+            data=[{"value": 1}, "poison"],
+            row_count=2,
+            schema_id="test.rejected_replay",
+            schema_version="1.0",
+            version=DataVersion(
+                strategy=VersionStrategy.CONTENT_HASH,
+                value="owned-fixture",
+                timestamp=datetime.now(UTC),
+            ),
+            fetched_at=datetime.now(UTC),
+            completeness=1.0,
+        ),
+        connector_id="source",
+        dataset_id="rows",
+        cas_store=store,
+        execution_context=context,
+    )
+    assert sanitized.data == [{"value": 1}] and rejected_count == 1
+    fresh = FileSystemCAS(store.root)
+    [(record_ref, record)] = list_quarantine_records(fresh)
+    assert record.context["execution_context"] == context.model_dump(mode="json")
+    record_inputs = fresh.get_manifest(record_ref).inputs
+    [raw_edge] = [edge for edge in record_inputs if edge.role == "raw_payload"]
+    assert raw_edge.artifact_id == old_raw.artifact_id
+    assert raw_edge.manifest_profile_sha256 != old_raw.manifest_profile_sha256
+    selected_raw = ArtifactRef(
+        artifact_id=raw_edge.artifact_id,
+        kind="fabric.quarantine_payload",
+        media_type="application/json",
+        manifest_profile_sha256=raw_edge.manifest_profile_sha256,
+    )
+    for inputs in (record_inputs, fresh.get_manifest(selected_raw).inputs):
+        [session_edge] = [edge for edge in inputs if edge.role == "fabric.ingestion.record_session"]
+        assert session_edge.artifact_id == selected_session.artifact_id
+        assert session_edge.manifest_profile_sha256 == selected_session.manifest_profile_sha256
+
+
 def test_quarantine_roundtrip_report_and_reprocess(tmp_path):
     store = FileSystemCAS(tmp_path / "cas")
     first = persist_quarantine_record(

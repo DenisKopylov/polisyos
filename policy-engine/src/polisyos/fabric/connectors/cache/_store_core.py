@@ -23,7 +23,10 @@ from polisyos.core.artifacts import (
     RootedArtifactStore,
     SchemaInfo,
     input_ref_from_artifact_ref,
+    load_core_json_artifact,
 )
+from polisyos.core.canon import fingerprint
+from polisyos.core.contracts.fabric import IngestionExecutionContext
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.security import (
@@ -34,6 +37,8 @@ from polisyos.fabric.security import (
 
 from ._store_index import CacheIndex
 from ._store_models import (
+    _SOURCE_INTENT_CONTEXT_CONTRACT,
+    _SOURCE_INTENT_CONTEXT_VERSION,
     _SOURCE_INTENT_CONTRACT,
     _SOURCE_INTENT_KIND,
     _SOURCE_INTENT_ROLE,
@@ -61,6 +66,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
     from types import TracebackType
 
+    from polisyos.core.artifacts.manifest import InputRef
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors.base import (
         ConnectionConfig,
@@ -80,32 +86,71 @@ logger = get_logger(__name__)
 _SELECTED_CACHE_KEY_PREFIX = "fabric.connector_cache.selected-source.v1:"
 
 
-def verify_selected_cache_payload_ref[ResultDataT](
+_EXECUTION_SESSION_ROLE = "fabric.ingestion.record_session"
+
+
+def _copy_execution_context(
+    context: IngestionExecutionContext | None,
+) -> IngestionExecutionContext | None:
+    if context is None:
+        return None
+    if not isinstance(context, IngestionExecutionContext):
+        raise TypeError("connector_cache_requires_typed_execution_context")
+    return IngestionExecutionContext.model_validate(context.model_dump(mode="python"))
+
+
+def _execution_context_inputs(context: IngestionExecutionContext | None) -> list[InputRef]:
+    if context is None or context.selected_record_session_ref is None:
+        return []
+    return [
+        input_ref_from_artifact_ref(
+            context.selected_record_session_ref, role=_EXECUTION_SESSION_ROLE
+        )
+    ]
+
+
+def _execution_context_edges_verify(
+    cas_store: RootedArtifactStore,
+    inputs: list[InputRef],
+    context: IngestionExecutionContext | None,
+) -> bool:
+    expected = _execution_context_inputs(context)
+    if [edge for edge in inputs if edge.role == _EXECUTION_SESSION_ROLE] != expected:
+        return False
+    if context is None or context.selected_record_session_ref is None:
+        return True
+    selected = context.selected_record_session_ref
+    if not cas_store.verify(selected).ok:
+        return False
+    manifest = cas_store.get_manifest(selected)
+    schema = manifest.artifact_schema
+    if (
+        manifest.kind != selected.kind
+        or manifest.media_type != selected.media_type
+        or schema is None
+        or schema.name != "polisyos.fabric.RecordSession"
+        or schema.version not in {"1.0", "2.0"}
+    ):
+        return False
+    payload = load_core_json_artifact(cas_store, selected)
+    return isinstance(payload, dict) and payload.get("session_id") == context.capture_session_id
+
+
+def _selected_cache_source_intent(
     cas_store: RootedArtifactStore,
     payload_ref: ArtifactRef,
     *,
-    connector_id: str,
-    request: FetchRequest,
-    source_config: ConnectionConfig,
-    result: FetchResult[ResultDataT] | None = None,
-) -> bool:
-    """Verify that an exact CAS payload ref carries the selected source intent.
-
-    The cache index is an accelerator and may be stale or corrupted. A selected
-    cache hit is admitted only when the payload manifest carries one exact
-    source-intent edge whose immutable CAS content matches the current request
-    and effective connection configuration. When ``result`` is supplied, its
-    serialized bytes must also equal the bytes addressed by ``payload_ref``.
-    """
+    execution_context: IngestionExecutionContext | None,
+) -> CacheSourceIntent | None:
+    """Resolve the selected source/context binding shared by lookup and derivation."""
     try:
+        context = _copy_execution_context(execution_context)
         if (
-            not connector_id
-            or payload_ref.kind != CACHE_PAYLOAD_KIND
+            payload_ref.kind != CACHE_PAYLOAD_KIND
             or payload_ref.manifest_profile_sha256 is None
             or not cas_store.verify(payload_ref).ok
         ):
-            return False
-
+            return None
         payload_manifest = cas_store.get_manifest(payload_ref)
         payload_schema = payload_manifest.artifact_schema
         if (
@@ -115,27 +160,30 @@ def verify_selected_cache_payload_ref[ResultDataT](
             or payload_schema is None
             or payload_schema.name != CACHE_SCHEMA_NAME
             or payload_schema.version != CACHE_SCHEMA_VERSION
+            or not _execution_context_edges_verify(cas_store, payload_manifest.inputs, context)
         ):
-            return False
-
+            return None
         intent_edges = [
             edge for edge in payload_manifest.inputs if edge.role == _SOURCE_INTENT_ROLE
         ]
-        if len(intent_edges) != 1:
-            return False
-        intent_edge = intent_edges[0]
-        if intent_edge.manifest_profile_sha256 is None:
-            return False
-
+        if len(intent_edges) != 1 or intent_edges[0].manifest_profile_sha256 is None:
+            return None
         intent_ref = ArtifactRef(
-            artifact_id=intent_edge.artifact_id,
+            artifact_id=intent_edges[0].artifact_id,
             kind=_SOURCE_INTENT_KIND,
             media_type="application/json",
-            manifest_profile_sha256=intent_edge.manifest_profile_sha256,
+            manifest_profile_sha256=intent_edges[0].manifest_profile_sha256,
         )
         if not cas_store.verify(intent_ref).ok:
-            return False
+            return None
         intent_manifest = cas_store.get_manifest(intent_ref)
+        intent = CacheSourceIntent.model_validate_json(cas_store.get_bytes(intent_ref))
+        expected_contract = (
+            _SOURCE_INTENT_CONTEXT_CONTRACT if context is not None else _SOURCE_INTENT_CONTRACT
+        )
+        expected_version = (
+            _SOURCE_INTENT_CONTEXT_VERSION if context is not None else _SOURCE_INTENT_VERSION
+        )
         intent_schema = intent_manifest.artifact_schema
         if (
             intent_manifest.artifact_id != intent_ref.artifact_id
@@ -143,19 +191,46 @@ def verify_selected_cache_payload_ref[ResultDataT](
             or intent_manifest.media_type != intent_ref.media_type
             or intent_schema is None
             or intent_schema.name != _SOURCE_INTENT_SCHEMA
-            or intent_schema.version != _SOURCE_INTENT_VERSION
+            or intent_schema.version != expected_version
+            or intent.contract != expected_contract
+            or intent.execution_context != context
+            or not _execution_context_edges_verify(cas_store, intent_manifest.inputs, context)
         ):
-            return False
-        intent = CacheSourceIntent.model_validate_json(cas_store.get_bytes(intent_ref))
+            return None
+        return intent
+    except Exception:
+        return None
+
+
+def verify_selected_cache_payload_ref[ResultDataT](
+    cas_store: RootedArtifactStore,
+    payload_ref: ArtifactRef,
+    *,
+    connector_id: str,
+    request: FetchRequest,
+    source_config: ConnectionConfig,
+    result: FetchResult[ResultDataT] | None = None,
+    execution_context: IngestionExecutionContext | None = None,
+) -> bool:
+    """Verify the exact selected payload's source, request, and execution context.
+
+    The index is an accelerator. Context-bearing writes require a v2 source
+    intent and the exact selected replay-session edge on both immutable artifacts;
+    ordinary v1 payloads cannot satisfy a record/replay lookup or vice versa.
+    """
+    try:
+        intent = _selected_cache_source_intent(
+            cas_store, payload_ref, execution_context=execution_context
+        )
         if (
-            intent.contract != _SOURCE_INTENT_CONTRACT
+            intent is None
+            or not connector_id
             or intent.connector_id != connector_id
             or intent.dataset_id != request.dataset_id
             or intent.request_key != request.request_key
             or intent.source_scope_fingerprint != source_config.cache_scope_fingerprint
         ):
             return False
-
         if result is not None:
             result_bytes, media_type = ResultSerializer.serialize(result)
             if (
@@ -221,18 +296,26 @@ class ConnectorCacheStore:
         tenant_id: str | None = None,
         metrics: MetricsRegistry | None = None,
         tracer: PolicyOSTracer | None = None,
+        execution_context: IngestionExecutionContext | None = None,
     ) -> None:
         self._cas = cas
         self._policy_registry = (
             policy if isinstance(policy, PolicyRegistry) else PolicyRegistry(default_policy=policy)
         )
-        self._namespace = namespace
+        self._execution_context = _copy_execution_context(execution_context)
+        self._namespace = (
+            namespace
+            if self._execution_context is None
+            else f"{namespace}.execution.{self._execution_context.mode}."
+            f"{fingerprint(self._execution_context.model_dump(mode='json'))}"
+        )
+        self._execution_input_refs()
         if tenant_id is None:
             from polisyos.core.security import get_current_tenant_id_or_none
 
             tenant_id = get_current_tenant_id_or_none()
         self._tenant_id = tenant_id
-        self._cache_root = cas.root / namespace
+        self._cache_root = cas.root / self._namespace
         self._cache_root.mkdir(parents=True, exist_ok=True)
         self._index = CacheIndex(self._cache_root / "cache_index.sqlite3")
 
@@ -266,6 +349,8 @@ class ConnectorCacheStore:
         status = "miss"
 
         try:
+            if self._execution_context is not None and source_config is None:
+                return None
             with self._tracer.start_as_current_span(
                 FABRIC_TRACE_NAMES["cache_get"],
                 attributes={
@@ -336,6 +421,7 @@ class ConnectorCacheStore:
                         request=request,
                         source_config=source_config,
                         result=result,
+                        execution_context=self._execution_context,
                     ):
                         self._index.delete_entry(cache_key)
                         status = "miss"
@@ -377,6 +463,8 @@ class ConnectorCacheStore:
         status = "miss"
 
         try:
+            if self._execution_context is not None and source_config is None:
+                return None
             with self._tracer.start_as_current_span(
                 FABRIC_TRACE_NAMES["cache_get"],
                 attributes={
@@ -440,6 +528,7 @@ class ConnectorCacheStore:
                         request=request,
                         source_config=source_config,
                         result=result,
+                        execution_context=self._execution_context,
                     ):
                         self._index.delete_entry(cache_key)
                         status = "miss"
@@ -476,6 +565,9 @@ class ConnectorCacheStore:
         encryption_key_reference: str | None = None,
     ) -> CacheMetadata:
         self._ensure_open()
+        if self._execution_context is not None and source_config is None:
+            raise ValueError("execution_context_cache_requires_source_config")
+        execution_inputs = self._execution_input_refs()
         start = time.perf_counter()
         cache_key = _cache_key_for_request(request, connector_id, source_config)
         with self._tracer.start_as_current_span(
@@ -500,11 +592,16 @@ class ConnectorCacheStore:
                     if not connector_id:
                         raise ValueError("selected_source_cache_requires_connector_id")
                     source_intent = CacheSourceIntent(
-                        contract=_SOURCE_INTENT_CONTRACT,
+                        contract=(
+                            _SOURCE_INTENT_CONTEXT_CONTRACT
+                            if self._execution_context is not None
+                            else _SOURCE_INTENT_CONTRACT
+                        ),
                         connector_id=connector_id,
                         dataset_id=request.dataset_id,
                         request_key=request.request_key,
                         source_scope_fingerprint=source_config.cache_scope_fingerprint,
+                        execution_context=self._execution_context,
                     )
                     source_intent_ref = self._cas.put_json(
                         source_intent.model_dump(mode="json"),
@@ -513,8 +610,13 @@ class ConnectorCacheStore:
                             media_type="application/json",
                             schema=SchemaInfo(
                                 name=_SOURCE_INTENT_SCHEMA,
-                                version=_SOURCE_INTENT_VERSION,
+                                version=(
+                                    _SOURCE_INTENT_CONTEXT_VERSION
+                                    if self._execution_context is not None
+                                    else _SOURCE_INTENT_VERSION
+                                ),
                             ),
+                            inputs=execution_inputs or None,
                             governance=governance,
                         ),
                         return_selected_profile=True,
@@ -525,15 +627,19 @@ class ConnectorCacheStore:
                         kind=CACHE_PAYLOAD_KIND,
                         media_type=media_type,
                         schema=SchemaInfo(name=CACHE_SCHEMA_NAME, version=CACHE_SCHEMA_VERSION),
-                        inputs=(
-                            [
-                                input_ref_from_artifact_ref(
-                                    source_intent_ref, role=_SOURCE_INTENT_ROLE
-                                )
-                            ]
-                            if source_intent_ref is not None
-                            else None
-                        ),
+                        inputs=[
+                            *(
+                                [
+                                    input_ref_from_artifact_ref(
+                                        source_intent_ref, role=_SOURCE_INTENT_ROLE
+                                    )
+                                ]
+                                if source_intent_ref is not None
+                                else []
+                            ),
+                            *execution_inputs,
+                        ]
+                        or None,
                         governance=governance,
                     ),
                     return_selected_profile=True,
@@ -578,9 +684,22 @@ class ConnectorCacheStore:
                     kind=CACHE_METADATA_KIND,
                     media_type="application/json",
                     schema=SchemaInfo(name=CACHE_SCHEMA_NAME, version=CACHE_SCHEMA_VERSION),
+                    inputs=(
+                        [
+                            input_ref_from_artifact_ref(
+                                payload_ref, role="connector_cache.payload"
+                            ),
+                            *execution_inputs,
+                        ]
+                        if self._execution_context is not None
+                        else None
+                    ),
                     governance=governance,
                 ),
                 canon_spec=canon_spec_allow_floats(),
+                **(
+                    {"return_selected_profile": True} if self._execution_context is not None else {}
+                ),
             )
         except Exception as exc:
             logger.warning("Cache metadata CAS write failed", error=str(exc))
@@ -654,6 +773,13 @@ class ConnectorCacheStore:
         if not verification.ok:
             raise ValueError("derived_cache_payload_input_verification_failed")
 
+        execution_inputs = self._execution_input_refs()
+        input_manifest = self._cas.get_manifest(input_payload_ref)
+        intent_edges = [edge for edge in input_manifest.inputs if edge.role == _SOURCE_INTENT_ROLE]
+        if (self._execution_context is not None or intent_edges) and _selected_cache_source_intent(
+            self._cas, input_payload_ref, execution_context=self._execution_context
+        ) is None:
+            raise ValueError("derived_cache_payload_execution_context_mismatch")
         payload_bytes, media_type = ResultSerializer.serialize(result)
         governance = resolve_artifact_governance(
             scope=RetentionScope.CACHE,
@@ -670,7 +796,9 @@ class ConnectorCacheStore:
                     input_ref_from_artifact_ref(
                         input_payload_ref,
                         role="connector_cache.raw_payload",
-                    )
+                    ),
+                    *(intent_edges if self._execution_context is not None else []),
+                    *execution_inputs,
                 ],
                 governance=governance,
             ),
@@ -859,6 +987,16 @@ class ConnectorCacheStore:
     # ---------------------------------------------------------------------
     # Internal helpers
     # ---------------------------------------------------------------------
+
+    def _execution_input_refs(self) -> list[InputRef]:
+        inputs = _execution_context_inputs(self._execution_context)
+        try:
+            verified = _execution_context_edges_verify(self._cas, inputs, self._execution_context)
+        except Exception as exc:
+            raise ValueError("connector_cache_execution_session_unavailable") from exc
+        if not verified:
+            raise ValueError("connector_cache_execution_session_unavailable")
+        return inputs
 
     def _record_metric(self, operation: str, status: str, connector_id: str | None) -> None:
         metric = getattr(self._metrics, "connector_cache_operations_total", None)

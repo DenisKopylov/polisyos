@@ -17,11 +17,12 @@ type SelectedArtifactRef = components["schemas"]["ArtifactRef-Input"] & {
   media_type: "application/json";
   manifest_profile_sha256: string;
 };
-type SelectedDataSnapshotRef = components["schemas"]["DataSnapshotRef"] & {
-  kind: "fabric.data_snapshot";
-  media_type: "application/json";
-  manifest_profile_sha256: string;
-};
+type SelectedDataSnapshotRef =
+  components["schemas"]["DataSnapshotRef-Input"] & {
+    kind: "fabric.data_snapshot";
+    media_type: "application/json";
+    manifest_profile_sha256: string;
+  };
 
 /** Exact local wire type until the canonical OpenAPI types are regenerated. */
 export type NaturalLanguageRunRequest = Omit<

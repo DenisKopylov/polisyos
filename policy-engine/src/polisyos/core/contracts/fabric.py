@@ -6,7 +6,15 @@ from collections import Counter
 from decimal import Decimal
 from typing import Annotated, Any, ClassVar, Literal, get_args
 
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StrictInt,
+    StrictStr,
+    field_validator,
+    model_validator,
+)
 
 from ..artifacts.manifest import ArtifactRef, InputRef, WarningRecord
 from .uncertainty import UncertaintyEnvelopeRef
@@ -98,6 +106,35 @@ class EvidenceStep(BaseModel):
     details: dict[str, str | int | bool] = Field(default_factory=dict)
 
 
+class IngestionExecutionContext(BaseModel):
+    """Bind captured ingestion to its mode and exact replay-session view.
+
+    This records execution provenance. It does not establish source currency,
+    institutional authority, or entitlement to use the captured data.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    mode: Literal["record", "replay"]
+    capture_session_id: str = Field(min_length=1)
+    selected_record_session_ref: ArtifactRef | None = None
+
+    @model_validator(mode="after")
+    def _require_selected_session(self) -> IngestionExecutionContext:
+        selected = self.selected_record_session_ref
+        if self.mode == "record":
+            if selected is not None:
+                raise ValueError("record_execution_context_cannot_claim_completed_session")
+        elif (
+            selected is None
+            or selected.kind != "fabric.record_session"
+            or selected.media_type != "application/json"
+            or selected.manifest_profile_sha256 is None
+        ):
+            raise ValueError("replay_execution_context_requires_selected_record_session")
+        return self
+
+
 class ProvenanceCoreRefModel(BaseModel):
     """Pydantic model for ProvenanceCoreRef."""
 
@@ -106,6 +143,9 @@ class ProvenanceCoreRefModel(BaseModel):
     graph_id: str
     stable_id: str
     artifact_id: str
+    manifest_profile_sha256: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$", exclude_if=lambda value: value is None
+    )
 
 
 class EvidenceBundle(BaseModel):
@@ -119,6 +159,9 @@ class EvidenceBundle(BaseModel):
     notes: list[str] = Field(default_factory=list)
     provenance_ref: ProvenanceCoreRefModel | None = None
     quality_indicators: dict[str, dict[str, Any]] | None = None
+    execution_context: IngestionExecutionContext | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
 
 class UncertaintyBounds(BaseModel):

@@ -4,15 +4,15 @@ import base64
 import hashlib
 import json
 from datetime import UTC, datetime
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Literal
 
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactID, ArtifactRef
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.contracts.fabric import EvidenceBundle
+from polisyos.core.contracts.fabric import EvidenceBundle, EvidenceBundleRef
 from polisyos.core.security.identity import PolicyOSRole
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.fabric.connectors.base import (
@@ -50,6 +50,22 @@ from tests.unit.runtime.http.test_control_api import (
 _CONNECTOR_ID = "test.b88_served_replay@1.0.0"
 _DATASET_ID = "rows"
 _URL = "https://b88-replay.invalid/rows"
+
+
+@pytest.fixture
+def ingestion_runtime_env(tmp_path):
+    """Use the real direct-dataset API without the unrelated catalog benchmark.
+
+    The full catalog-to-served-replay oracle retains ``runtime_api_env``. This
+    fixture qualifies selected ingestion references, tenant custody and HTTP.
+    """
+    from tests._helpers.runtime_http import build_runtime_api_env, close_runtime_api_env
+
+    env = build_runtime_api_env(tmp_path / "direct-ingestion", include_test_client=True)
+    try:
+        yield env
+    finally:
+        close_runtime_api_env(env)
 
 
 class _HTTPReplayConnector(BaseConnector[list[dict[str, Any]]]):
@@ -177,7 +193,14 @@ def _capture_replay(monkeypatch: pytest.MonkeyPatch):
     return simulators, native_requests
 
 
-def _post_ingest(client, headers, *, replay_ref: str | None, record_mode: bool = False):
+def _post_ingest(
+    client,
+    headers,
+    *,
+    replay_ref: str | None,
+    record_mode: bool = False,
+    replay_selected_ref: dict[str, Any] | None = None,
+):
     return client.post(
         "/api/v1/control/data/ingest",
         headers=_with_fresh_step_up(client, headers),
@@ -189,6 +212,11 @@ def _post_ingest(client, headers, *, replay_ref: str | None, record_mode: bool =
             "produce_data_snapshot": False,
             "replay_ref": replay_ref,
             "record_mode": record_mode,
+            **(
+                {"replay_selected_ref": replay_selected_ref}
+                if replay_selected_ref is not None
+                else {}
+            ),
         },
     )
 
@@ -350,12 +378,16 @@ class _FakeResponse:
         return False
 
 
+@pytest.mark.parametrize("collision_scope", ["none", "same_tenant", "foreign_tenant"])
 def test_served_record_ref_replays_its_exact_response_and_evidence(
-    runtime_api_env,
+    ingestion_runtime_env,
     monkeypatch: pytest.MonkeyPatch,
+    collision_scope: Literal["none", "same_tenant", "foreign_tenant"],
 ) -> None:
     """The served record issuer and reader use the same tenant-bound store."""
 
+    runtime_api_env = ingestion_runtime_env
+    legacy_collision = collision_scope != "none"
     _register_connector()
     client, cell_id, headers = _secure_control_client(
         runtime_api_env,
@@ -381,7 +413,7 @@ def test_served_record_ref_replays_its_exact_response_and_evidence(
         simulators.append(simulator)
         return simulator
 
-    def exact_record_request(self, method: str, url: str, **kwargs: Any):
+    async def exact_record_request(self, method: str, url: str, **kwargs: Any):
         del self, kwargs
         normalized = _canonicalize_url(str(url), None)
         native_requests.append((method, normalized))
@@ -395,6 +427,52 @@ def test_served_record_ref_replays_its_exact_response_and_evidence(
 
     monkeypatch.setattr(simulator_module, "APISimulator", capture_simulator)
     monkeypatch.setattr(aiohttp.ClientSession, "_request", exact_record_request)
+    if legacy_collision:
+        from polisyos.fabric.ingestion import ingestion as ingestion_module
+
+        original_save = ReplayStore.save_record_session
+        original_evidence_write = ingestion_module.persist_evidence_bundle
+
+        def default_writer(store):
+            return (
+                store.for_tenant(runtime_api_env["tenant_b"], cell_id=cell_id)
+                if collision_scope == "foreign_tenant"
+                else store
+            )
+
+        def save_after_legacy(self, session, **kwargs):
+            from polisyos.core.artifacts import PutOptions, SchemaInfo
+            from polisyos.core.canon import CanonSpec
+
+            default_writer(self._store).put_json(
+                session.to_dict(),
+                PutOptions(
+                    kind="fabric.record_session",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="polisyos.fabric.RecordSession", version="1.0"),
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            return original_save(self, session, **kwargs)
+
+        monkeypatch.setattr(ReplayStore, "save_record_session", save_after_legacy)
+
+        def persist_after_unbound_evidence(store, bundle, **kwargs):
+            from polisyos.core.artifacts import PutOptions, SchemaInfo
+
+            default_writer(store).put_json(
+                bundle.model_dump(),
+                PutOptions(
+                    kind="fabric.evidence_bundle",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="fabric.evidence_bundle", version="2.0"),
+                ),
+            )
+            return original_evidence_write(store, bundle, **kwargs)
+
+        monkeypatch.setattr(
+            ingestion_module, "persist_evidence_bundle", persist_after_unbound_evidence
+        )
 
     with client:
         container = client.app.state.runtime_container
@@ -408,15 +486,22 @@ def test_served_record_ref_replays_its_exact_response_and_evidence(
         assert recorded["mode_effective"] == "record"
         assert recorded["datasets_fetched"] == 1
         record_ref = recorded["record_ref"]
-        assert record_ref is not None
-        assert record_ref.startswith("sha256:")
-        assert recorded["evidence_bundle_ref"] is not None
+        selected_wire = recorded["record_session_selected_ref"]
+        selected_ref = ArtifactRef.model_validate(selected_wire)
+        assert selected_ref.manifest_profile_sha256 is not None
+        if legacy_collision:
+            assert record_ref is None
+        else:
+            assert record_ref == str(selected_ref.artifact_id)
+        recorded_evidence = EvidenceBundleRef.model_validate(
+            recorded["evidence_bundle_selected_ref"]
+        )
+        assert recorded_evidence.manifest_profile_sha256 is not None
+        assert (recorded["evidence_bundle_ref"] is None) is legacy_collision
         assert native_requests == [("GET", canonical_url)]
 
         with tenant_scope(None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell_id):
-            issued_session = ReplayStore(store).load_record_session(
-                ArtifactID.model_validate(record_ref)
-            )
+            issued_session = ReplayStore(store).load_record_session(selected_ref)
             assert len(issued_session.fixtures) == 1
             fixture = issued_session.fixtures[0]
             assert fixture["request_method"] == "GET"
@@ -425,31 +510,63 @@ def test_served_record_ref_replays_its_exact_response_and_evidence(
             assert base64.b64decode(fixture["body"]) == raw_body
 
         monkeypatch.setattr(aiohttp.ClientSession, "_request", forbid_replay_network)
-        replay_response = _post_ingest(client, headers, replay_ref=record_ref)
+        conflict_response = _post_ingest(
+            client,
+            headers,
+            replay_ref="sha256:" + "f" * 64,
+            replay_selected_ref=selected_wire,
+        )
+        assert conflict_response.status_code == 422
+        assert native_requests == [("GET", canonical_url)]
+        replay_response = _post_ingest(
+            client, headers, replay_ref=record_ref, replay_selected_ref=selected_wire
+        )
         assert replay_response.status_code == 200
         replayed = replay_response.json()
         assert replayed["status"] == "completed"
         assert replayed["mode_effective"] == "replay"
         assert replayed["datasets_fetched"] == 1
-        assert replayed["evidence_bundle_ref"] is not None
+        replayed_evidence = EvidenceBundleRef.model_validate(
+            replayed["evidence_bundle_selected_ref"]
+        )
+        assert replayed_evidence.manifest_profile_sha256 is not None
+        assert (replayed["evidence_bundle_ref"] is None) is legacy_collision
+        assert replayed["record_session_selected_ref"] == selected_wire
         assert native_requests == [("GET", canonical_url)]
         assert len(simulators) == 2
         assert simulators[1].call_count == 1
         assert simulators[1].call_log[0]["hash"] == request_hash
 
         with tenant_scope(None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell_id):
-            for bundle_ref in (
-                recorded["evidence_bundle_ref"],
-                replayed["evidence_bundle_ref"],
+            from polisyos.core.artifacts import load_core_json_artifact
+
+            for mode, selected_bundle in (
+                ("record", recorded_evidence),
+                ("replay", replayed_evidence),
             ):
-                bundle_id = ArtifactID.model_validate(
-                    bundle_ref if bundle_ref.startswith("sha256:") else f"sha256:{bundle_ref}"
-                )
                 bundle = EvidenceBundle.model_validate(
-                    from_canonical_bytes(store.get_bytes(bundle_id))
+                    load_core_json_artifact(store, selected_bundle)
                 )
+                manifest = store.get_manifest(selected_bundle)
+                assert manifest.inputs
+                if collision_scope == "foreign_tenant":
+                    with pytest.raises(ArtifactOwnershipError):
+                        store.get_manifest(selected_bundle.artifact_id)
+                elif legacy_collision:
+                    assert store.get_manifest(selected_bundle.artifact_id).inputs == []
                 assert len(bundle.sources) == 1
                 assert bundle.provenance_ref is not None
+                assert bundle.execution_context is not None
+                assert bundle.execution_context.mode == mode
+                assert bundle.execution_context.capture_session_id == issued_session.session_id
+                if mode == "replay":
+                    assert bundle.execution_context.selected_record_session_ref == selected_ref
+                    assert any(
+                        edge.role == "fabric.ingestion.record_session"
+                        and edge.artifact_id == selected_ref.artifact_id
+                        and edge.manifest_profile_sha256 == selected_ref.manifest_profile_sha256
+                        for edge in manifest.inputs
+                    )
                 source_id = ArtifactID.model_validate(bundle.sources[0].artifact_id)
                 result = ResultSerializer.deserialize(store.get_bytes(source_id))
                 assert result.data == expected_rows
@@ -460,7 +577,7 @@ def test_served_record_ref_replays_its_exact_response_and_evidence(
             tenant_scope(None, tenant_id=runtime_api_env["tenant_b"], cell_id=cell_id),
             pytest.raises(ArtifactOwnershipError),
         ):
-            ReplayStore(store).load_record_session(ArtifactID.model_validate(record_ref))
+            ReplayStore(store).load_record_session(selected_ref)
 
 
 def test_served_ordinary_ingestion_remains_available_without_replay_reference(
@@ -515,6 +632,7 @@ def test_served_ordinary_ingestion_remains_available_without_replay_reference(
         body = response.json()
         assert body["status"] == "completed"
         assert body["mode_effective"] == "batch_full"
+
         assert body["datasets_fetched"] == 1
         assert body["evidence_bundle_ref"] is not None
         assert ordinary_calls == [True]
@@ -527,3 +645,82 @@ def test_served_ordinary_ingestion_remains_available_without_replay_reference(
                 body["evidence_bundle_ref"],
                 b"b88-ordinary-control",
             )
+
+
+@pytest.mark.parametrize("case", ["completed", "partial", "foreign_selected"])
+def test_served_snapshot_projection_preserves_selected_view_and_partial_withholding(
+    ingestion_runtime_env,
+    monkeypatch: pytest.MonkeyPatch,
+    case: Literal["completed", "partial", "foreign_selected"],
+) -> None:
+    """Exercise HTTP projection with a doubled producer and actual colliding CAS views."""
+    from polisyos.core.artifacts import PutOptions, SchemaInfo, input_ref_from_artifact_ref
+    from polisyos.core.contracts.fabric import DataSnapshotRef
+    from polisyos.fabric.data_plane.orchestrator import IngestionResult
+
+    env = ingestion_runtime_env
+    status = "completed" if case == "foreign_selected" else case
+    client, cell_id, headers = _secure_control_client(
+        env, role=PolicyOSRole.ANALYST, case_id=f"selected-snapshot-{status}"
+    )
+    with client:
+        store = client.app.state.runtime_container.runtime_api_context.store
+        with tenant_scope(None, tenant_id=env["tenant_a"], cell_id=cell_id):
+            basis = store.put_json(
+                {"owned": "basis"},
+                PutOptions(kind="test.snapshot_basis", media_type="application/json"),
+                return_selected_profile=True,
+            )
+            payload = {"owned": "snapshot-projection"}
+            old = store.put_json(
+                payload,
+                PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+                return_selected_profile=True,
+            )
+            selected_writer = (
+                store.for_tenant(env["tenant_b"], cell_id=cell_id)
+                if case == "foreign_selected"
+                else store
+            )
+            if case == "foreign_selected":
+                basis = selected_writer.put_json(
+                    {"owned": "foreign-basis"},
+                    PutOptions(kind="test.snapshot_basis", media_type="application/json"),
+                    return_selected_profile=True,
+                )
+            selected = DataSnapshotRef.model_validate(
+                selected_writer.put_json(
+                    payload,
+                    PutOptions(
+                        kind="fabric.data_snapshot",
+                        media_type="application/json",
+                        schema=SchemaInfo(name="test.snapshot_projection", version="1.0"),
+                        inputs=[input_ref_from_artifact_ref(basis, role="test.basis")],
+                    ),
+                    return_selected_profile=True,
+                ).model_dump()
+            )
+            assert selected.artifact_id == old.artifact_id
+            assert selected.manifest_profile_sha256 != old.manifest_profile_sha256
+        result = IngestionResult(datasets_fetched=1, data_snapshot_ref=selected, status=status)
+        monkeypatch.setattr(
+            "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+            lambda **kwargs: result,
+        )
+        response = _post_ingest(client, headers, replay_ref=None)
+        if case == "foreign_selected":
+            assert response.status_code == 403
+            return
+        assert response.status_code == 200
+        body = response.json()
+        assert body["status"] == status
+        assert body["data_snapshot_ref"] is None
+        if status == "completed":
+            returned = DataSnapshotRef.model_validate(body["data_snapshot_selected_ref"])
+            assert returned == selected
+            with tenant_scope(None, tenant_id=env["tenant_a"], cell_id=cell_id):
+                assert store.get_manifest(returned).inputs == [
+                    input_ref_from_artifact_ref(basis, role="test.basis")
+                ]
+        else:
+            assert "data_snapshot_selected_ref" not in body

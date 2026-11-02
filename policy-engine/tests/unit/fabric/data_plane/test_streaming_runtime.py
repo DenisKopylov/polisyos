@@ -11,6 +11,7 @@ import pandas as pd
 import pytest
 
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.cursor import StreamCheckpoint, StreamLifecycleState, WindowStrategy
@@ -213,12 +214,17 @@ def _register_optional_stream_contract(
     return contracts, contract
 
 
-def _collect_state_refs(value: Any) -> set[str]:
-    refs: set[str] = set()
+def _collect_state_refs(value: Any) -> set[tuple[str, str | None]]:
+    refs: set[tuple[str, str | None]] = set()
     if isinstance(value, dict):
         raw_refs = value.get("refs", ())
         if isinstance(raw_refs, list | tuple):
-            refs.update(str(ref) for ref in raw_refs if ref)
+            for ref in raw_refs:
+                if isinstance(ref, str):
+                    refs.add((ref, None))
+                elif ref:
+                    selected = ArtifactRef.model_validate(ref)
+                    refs.add((str(selected.artifact_id), selected.manifest_profile_sha256))
         for child in value.values():
             refs.update(_collect_state_refs(child))
     elif isinstance(value, list | tuple):
@@ -1151,6 +1157,7 @@ async def test_stream_interrupted_pending_window_resumes_with_lineage(
     assert paused is not None
     paused_refs = _collect_state_refs(paused.metadata["operator_state"])
     assert len(paused_refs) == 1
+    assert all(profile is not None for _artifact_id, profile in paused_refs)
 
     monkeypatch.setattr(StreamingSourceSession, "poll", original_poll)
     recovered = await process_stream_dataset(
@@ -1169,12 +1176,19 @@ async def test_stream_interrupted_pending_window_resumes_with_lineage(
 
     assert recovered.rows_emitted == 2
     assert len(recovered.window_refs) == 1
-    manifest = store.get_manifest(recovered.window_refs[0].artifact_id)
-    manifest_refs = {str(item.artifact_id) for item in manifest.inputs}
-    witness_id = recovered.source_progress_scope["source_witness_ref"]["artifact_id"]
-    assert manifest_refs == paused_refs | {str(ref.artifact_id) for ref in recovered.chunk_refs} | {
-        witness_id
+    manifest = store.get_manifest(recovered.window_refs[0])
+    manifest_refs = {
+        (str(item.artifact_id), item.manifest_profile_sha256) for item in manifest.inputs
     }
+    witness = ArtifactRef.model_validate(recovered.source_progress_scope["source_witness_ref"])
+    assert witness.manifest_profile_sha256 is not None
+    expected_refs = (
+        paused_refs
+        | {(str(ref.artifact_id), ref.manifest_profile_sha256) for ref in recovered.chunk_refs}
+        | {(str(witness.artifact_id), witness.manifest_profile_sha256)}
+    )
+    assert all(profile is not None for _artifact_id, profile in expected_refs)
+    assert manifest_refs == expected_refs
     latest = cursor_store.find_latest_stream_checkpoint(
         "stream.jsonl",
         f"resume-{policy.strategy.value}",
@@ -2364,10 +2378,14 @@ def test_stream_window_refs_bind_distinct_row_objects() -> None:
     accumulator.add_rows_with_refs([first], ("chunk-first",))
     accumulator.add_rows_with_refs([second], ("chunk-second",))
 
-    first_entry = accumulator._row_refs[id(first)]
-    second_entry = accumulator._row_refs[id(second)]
-    assert first_entry.row is first
-    assert second_entry.row is second
+    first_owned, second_owned = accumulator._count_buffer
+    assert first_owned == first and first_owned is not first
+    assert second_owned == second and second_owned is not second
+    assert first_owned is not second_owned
+    first_entry = accumulator._row_refs[id(first_owned)]
+    second_entry = accumulator._row_refs[id(second_owned)]
+    assert first_entry.row is first_owned
+    assert second_entry.row is second_owned
     assert first_entry.refs == ("chunk-first",)
     assert second_entry.refs == ("chunk-second",)
 
@@ -3361,9 +3379,18 @@ async def test_process_stream_dataset_persists_cdc_events_via_async_store_adapte
     seen_kinds: list[str] = []
     original_put_json = AsyncArtifactStoreAdapter.put_json
 
-    async def _tracked_put_json(self, obj: object, opts: Any, canon_spec: Any = None):
+    async def _tracked_put_json(
+        self,
+        obj: object,
+        opts: Any,
+        canon_spec: Any = None,
+        *,
+        return_selected_profile: bool = False,
+    ):
         seen_kinds.append(str(opts.kind))
-        return await original_put_json(self, obj, opts, canon_spec=canon_spec)
+        return await original_put_json(
+            self, obj, opts, canon_spec=canon_spec, return_selected_profile=return_selected_profile
+        )
 
     monkeypatch.setattr(AsyncArtifactStoreAdapter, "put_json", _tracked_put_json)
     monkeypatch.setattr(

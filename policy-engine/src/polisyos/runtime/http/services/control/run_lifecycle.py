@@ -12684,7 +12684,7 @@ class ControlPlaneService(
         request_id: str | None = None,
     ) -> IngestResponse:
         """Execute connector ingestion and return refs/status for produced artifacts."""
-        from polisyos.core.artifacts import ArtifactOwnershipError
+        from polisyos.core.artifacts import ArtifactOwnershipError, legacy_default_artifact_id
         from polisyos.fabric.ingestion import (
             ConnectorManifestSpec,
             DatasetFetchSpec,
@@ -12758,6 +12758,15 @@ class ControlPlaneService(
                 raise IngestionStoreBindingError("served_ingestion_store_root_mismatch")
             return cast("RootedArtifactStore", self._artifact_store)
 
+        def _legacy_default_ref(ref: ArtifactRef | None, legacy_value: str | None) -> str | None:
+            if ref is None:
+                return legacy_value
+            return (
+                legacy_value
+                if legacy_default_artifact_id(self._artifact_store, ref) is not None
+                else None
+            )
+
         sidecar_scope = TenantSidecarScope.from_current_context(self._cas_root)
         ingestion_dependencies = IngestionDependencies(
             registry=cast("Any", self._registry_providers.connectors),
@@ -12768,12 +12777,19 @@ class ControlPlaneService(
         )
 
         mode = request.execution_mode
-        if request.replay_ref is not None:
+        replay_selector = (
+            request.replay_selected_ref
+            if request.replay_selected_ref is not None
+            else request.replay_ref
+        )
+        if replay_selector is not None:
             mode = "replay"
+        elif request.record_mode:
+            mode = "record"
         record_ref: str | None = None
         try:
             # Record/replay takes priority over execution mode dispatch
-            if request.replay_ref is not None:
+            if replay_selector is not None:
                 from polisyos.fabric.data_plane.modes import run_replay_mode
 
                 result = run_replay_mode(
@@ -12781,7 +12797,7 @@ class ControlPlaneService(
                     source=request.source,
                     license_name=request.license_name,
                     cas_root=self._cas_root,
-                    replay_ref=request.replay_ref,
+                    replay_ref=replay_selector,
                     connection_config=connection_config,
                     produce_snapshot=request.produce_data_snapshot,
                     ingestion_dependencies=ingestion_dependencies,
@@ -12864,13 +12880,32 @@ class ControlPlaneService(
                 meta=_build_api_meta(request_id),
                 status=result.status,
                 evidence_bundle_ref=(
-                    str(result.evidence_bundle_ref.artifact_id.hex)
+                    _legacy_default_ref(
+                        result.evidence_bundle_ref,
+                        str(result.evidence_bundle_ref.artifact_id.hex),
+                    )
                     if result.evidence_bundle_ref
                     else None
                 ),
                 data_snapshot_ref=(
-                    str(result.data_snapshot_ref.artifact_id.hex)
+                    _legacy_default_ref(
+                        result.data_snapshot_ref,
+                        str(result.data_snapshot_ref.artifact_id.hex),
+                    )
                     if ingestion_is_complete(result) and result.data_snapshot_ref
+                    else None
+                ),
+                evidence_bundle_selected_ref=(
+                    result.evidence_bundle_ref
+                    if result.evidence_bundle_ref is not None
+                    and result.evidence_bundle_ref.manifest_profile_sha256 is not None
+                    else None
+                ),
+                data_snapshot_selected_ref=(
+                    result.data_snapshot_ref
+                    if ingestion_is_complete(result)
+                    and result.data_snapshot_ref is not None
+                    and result.data_snapshot_ref.manifest_profile_sha256 is not None
                     else None
                 ),
                 datasets_fetched=result.datasets_fetched,
@@ -12882,7 +12917,8 @@ class ControlPlaneService(
                 warnings=result.warnings,
                 cursor_ref=result.cursor_ref,
                 mode_effective=result.mode_effective or mode,
-                record_ref=record_ref,
+                record_ref=_legacy_default_ref(result.record_session_selected_ref, record_ref),
+                record_session_selected_ref=result.record_session_selected_ref,
                 input_bindings_ref=input_bindings_ref,
             )
         except ArtifactOwnershipError as exc:

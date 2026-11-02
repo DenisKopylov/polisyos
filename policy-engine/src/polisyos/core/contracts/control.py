@@ -31,7 +31,7 @@ from .decision_validity import (
     DecisionValidityTransition,
     EpochValidityBatchReceipt,
 )
-from .fabric import DataSnapshotRef, DataViewRequestRef
+from .fabric import DataSnapshotRef, DataViewRequestRef, EvidenceBundleRef
 from .foundry import FoundryInputBindingsRef
 from .policy_design_case_projection import PolicyDesignCaseProjection
 from .runtime import ApiMeta, TemporalScope
@@ -1123,6 +1123,9 @@ class IngestRequest(BaseModel):
     produce_data_snapshot: bool = True
     record_mode: bool = False
     replay_ref: str | None = None
+    replay_selected_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     binding_profile_id: str | None = None
     produce_input_bindings: bool = False
 
@@ -1130,6 +1133,21 @@ class IngestRequest(BaseModel):
     def _validate_fetch_inputs(self) -> IngestRequest:
         if not self.datasets and not self.fetch_plans:
             raise ValueError("Either datasets or fetch_plans must be provided")
+        selected = self.replay_selected_ref
+        if selected is not None:
+            from ..artifacts.ids import ArtifactID
+
+            if (
+                selected.kind != "fabric.record_session"
+                or selected.media_type != "application/json"
+                or selected.manifest_profile_sha256 is None
+            ):
+                raise ValueError("replay_selected_ref_requires_record_session_profile")
+            if (
+                self.replay_ref is not None
+                and ArtifactID.model_validate(self.replay_ref) != selected.artifact_id
+            ):
+                raise ValueError("replay_ref_selected_ref_conflict")
         return self
 
 
@@ -1142,12 +1160,21 @@ class IngestResponse(BaseModel):
     status: IngestStatus
     evidence_bundle_ref: str | None = None
     data_snapshot_ref: str | None = None
+    evidence_bundle_selected_ref: EvidenceBundleRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    data_snapshot_selected_ref: DataSnapshotRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     datasets_fetched: int = 0
     message: str
     warnings: list[str] = Field(default_factory=list)
     cursor_ref: str | None = None
     mode_effective: str | None = None
     record_ref: str | None = None
+    record_session_selected_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     input_bindings_ref: str | None = None
 
 

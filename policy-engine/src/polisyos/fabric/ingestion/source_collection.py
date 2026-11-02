@@ -21,8 +21,12 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.core.contracts.fabric import EvidenceBundle, EvidenceBundleRef
-from polisyos.core.contracts.provenance import ProvenanceCoreGraph, RelationType
-from polisyos.fabric.ingestion._source_evidence_schema import require_source_evidence_schema
+from polisyos.core.contracts.provenance import ProvenanceCoreRef, RelationType
+from polisyos.fabric.evidence import load_provenance_graph
+from polisyos.fabric.ingestion._source_evidence_schema import (
+    load_source_evidence_bundle,
+    require_source_evidence_schema,
+)
 from polisyos.ir.connectors import DataVersion
 
 if TYPE_CHECKING:
@@ -90,12 +94,12 @@ def materialize_source_collection(
     requested source set. Missing/extra/duplicate sources, source-view mismatch,
     profile mismatch or unresolved transport fails before snapshot publication.
     """
-    from polisyos.core.artifacts.ids import ArtifactID
     from polisyos.fabric.connectors.cache._store_serialization import ResultSerializer
     from polisyos.fabric.ingestion.ingestion import _cache_payload_ref_matches_result
 
-    evidence = EvidenceBundle.model_validate(load_core_json_artifact(store, evidence_ref))
-    source_manifest = store.get_manifest(evidence_ref)
+    evidence, source_manifest = load_source_evidence_bundle(
+        store, evidence_ref, require_selected_profile=True
+    )
     source_schema = require_source_evidence_schema(source_manifest)
     if not datasets or len(datasets) != len(set(datasets)):
         raise ValueError("source collection requires unique actual source identities")
@@ -108,10 +112,10 @@ def materialize_source_collection(
         raise ValueError("source collection denominator differs from complete evidence sources")
     if evidence.provenance_ref is None:
         raise ValueError("source collection provenance is unavailable")
-    graph = ProvenanceCoreGraph.from_dict(
-        load_core_json_artifact(
-            store, ArtifactID.model_validate(evidence.provenance_ref.artifact_id)
-        )
+    graph = load_provenance_graph(
+        store,
+        ProvenanceCoreRef.from_dict(evidence.provenance_ref.model_dump()),
+        require_selected_profile=True,
     )
     if (
         graph.graph_id != evidence.provenance_ref.graph_id
@@ -236,7 +240,6 @@ def load_source_collection(store: ArtifactStore, ref: ArtifactRef) -> SourceColl
     A/B evidence and completeness declarations is a hard refusal. Namespace
     order, producer flags and constructor validity are never the oracle.
     """
-    from polisyos.core.artifacts.ids import ArtifactID
     from polisyos.fabric.connectors.cache._store_serialization import ResultSerializer
     from polisyos.fabric.ingestion.ingestion import _cache_payload_ref_matches_result
     from polisyos.fabric.ingestion.source_progress import load_source_progress_witness
@@ -248,8 +251,8 @@ def load_source_collection(store: ArtifactStore, ref: ArtifactRef) -> SourceColl
     ):
         raise ValueError("source collection requires its exact JSON view")
     collection = SourceCollection.model_validate(load_core_json_artifact(store, ref))
-    evidence = EvidenceBundle.model_validate(
-        load_core_json_artifact(store, collection.source_evidence_ref)
+    evidence, _manifest = load_source_evidence_bundle(
+        store, collection.source_evidence_ref, require_selected_profile=True
     )
     actual = [artifact_ref_identity_key(source) for source in evidence.sources]
     members = list(collection.sources.values())
@@ -263,10 +266,10 @@ def load_source_collection(store: ArtifactStore, ref: ArtifactRef) -> SourceColl
         raise ValueError("source collection omits or duplicates an actual evidence source")
     if evidence.provenance_ref is None:
         raise ValueError("source collection provenance is unavailable")
-    graph = ProvenanceCoreGraph.from_dict(
-        load_core_json_artifact(
-            store, ArtifactID.model_validate(evidence.provenance_ref.artifact_id)
-        )
+    graph = load_provenance_graph(
+        store,
+        ProvenanceCoreRef.from_dict(evidence.provenance_ref.model_dump()),
+        require_selected_profile=True,
     )
     if (
         graph.graph_id != evidence.provenance_ref.graph_id

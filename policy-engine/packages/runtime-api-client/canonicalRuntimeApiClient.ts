@@ -559,8 +559,11 @@ export type DataResolveRequest =
 export type DataResolveResponse =
   RuntimeApiComponents["schemas"]["DataResolveResponse"];
 
-export type DataSnapshotRef =
-  RuntimeApiComponents["schemas"]["DataSnapshotRef"];
+export type DataSnapshotRefInput =
+  RuntimeApiComponents["schemas"]["DataSnapshotRef-Input"];
+
+export type DataSnapshotRefOutput =
+  RuntimeApiComponents["schemas"]["DataSnapshotRef-Output"];
 
 export type DataSourceBinding =
   RuntimeApiComponents["schemas"]["DataSourceBinding"];
@@ -822,6 +825,9 @@ export type EvidenceAcquisitionNeeds =
   RuntimeApiComponents["schemas"]["EvidenceAcquisitionNeeds"];
 
 export type EvidenceBasis = RuntimeApiComponents["schemas"]["EvidenceBasis"];
+
+export type EvidenceBundleRef =
+  RuntimeApiComponents["schemas"]["EvidenceBundleRef"];
 
 export type EvidenceNeed = RuntimeApiComponents["schemas"]["EvidenceNeed"];
 
@@ -3979,3 +3985,7 @@ export class RuntimeApiClient {
 /** Compatibility export retained for established package-root imports. */
 export type polisyos__core__artifacts__ids__ArtifactID =
   RuntimeApiComponents["schemas"]["polisyos__core__artifacts__ids__ArtifactID-Output"];
+
+/** Compatibility export retained for established package-root imports. */
+export type DataSnapshotRef =
+  RuntimeApiComponents["schemas"]["DataSnapshotRef-Input"];

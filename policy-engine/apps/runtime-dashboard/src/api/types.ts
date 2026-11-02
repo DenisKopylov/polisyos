@@ -7507,7 +7507,7 @@ export interface components {
      * DataSnapshotRef
      * @description Artifact reference for a materialized snapshot of retrieved data and its metadata.
      */
-    DataSnapshotRef: {
+    "DataSnapshotRef-Input": {
       artifact_id: components["schemas"]["ArtifactID-Input"];
       /**
        * Kind
@@ -7523,13 +7523,32 @@ export interface components {
       media_type?: string;
     };
     /**
+     * DataSnapshotRef
+     * @description Artifact reference for a materialized snapshot of retrieved data and its metadata.
+     */
+    "DataSnapshotRef-Output": {
+      artifact_id: string;
+      /**
+       * Kind
+       * @default fabric.data_snapshot
+       */
+      kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
+      /**
+       * Media Type
+       * @default application/json
+       */
+      media_type: string;
+    };
+    /**
      * DataSourceBinding
      * @description Select an existing source, retaining exact typed profiles when provided.
      */
     DataSourceBinding: {
       /** Data Snapshot Ref */
       data_snapshot_ref?:
-        | components["schemas"]["DataSnapshotRef"]
+        | components["schemas"]["DataSnapshotRef-Input"]
         | string
         | null;
       /** Data View Request Ref */
@@ -10552,6 +10571,25 @@ export interface components {
       producer_roots?: unknown[];
     };
     /**
+     * EvidenceBundleRef
+     * @description Artifact reference for the evidence bundle backing a Fabric result.
+     */
+    EvidenceBundleRef: {
+      artifact_id: string;
+      /**
+       * Kind
+       * @default fabric.evidence_bundle
+       */
+      kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
+      /**
+       * Media Type
+       * @default application/json
+       */
+      media_type: string;
+    };
+    /**
      * EvidenceNeed
      * @description Represent one grounding or acquisition demand.
      */
@@ -12825,6 +12863,7 @@ export interface components {
       record_mode?: boolean;
       /** Replay Ref */
       replay_ref?: string | null;
+      replay_selected_ref?: components["schemas"]["ArtifactRef-Input"] | null;
       /**
        * Source
        * @default dashboard
@@ -12840,6 +12879,9 @@ export interface components {
       cursor_ref?: string | null;
       /** Data Snapshot Ref */
       data_snapshot_ref?: string | null;
+      data_snapshot_selected_ref?:
+        | components["schemas"]["DataSnapshotRef-Output"]
+        | null;
       /**
        * Datasets Fetched
        * @default 0
@@ -12847,6 +12889,9 @@ export interface components {
       datasets_fetched: number;
       /** Evidence Bundle Ref */
       evidence_bundle_ref?: string | null;
+      evidence_bundle_selected_ref?:
+        | components["schemas"]["EvidenceBundleRef"]
+        | null;
       /** Input Bindings Ref */
       input_bindings_ref?: string | null;
       /** Message */
@@ -12856,6 +12901,9 @@ export interface components {
       mode_effective?: string | null;
       /** Record Ref */
       record_ref?: string | null;
+      record_session_selected_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
       /**
        * Status
        * @enum {string}
@@ -16490,7 +16538,7 @@ export interface components {
       intent_id: string;
       method_params: components["schemas"]["ForecastMethodParams"];
       model_spec_ref: components["schemas"]["ArtifactRef-Input"];
-      observed_source_ref: components["schemas"]["DataSnapshotRef"];
+      observed_source_ref: components["schemas"]["DataSnapshotRef-Input"];
       policy_spec_ref: components["schemas"]["ArtifactRef-Input"];
       /** Seed */
       seed: number;
@@ -22780,7 +22828,7 @@ export interface components {
     WorkflowDataSourceBinding: {
       /** Data Snapshot Ref */
       data_snapshot_ref?:
-        | components["schemas"]["DataSnapshotRef"]
+        | components["schemas"]["DataSnapshotRef-Input"]
         | string
         | null;
       /** Data View Request Ref */

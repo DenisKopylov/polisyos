@@ -5,6 +5,7 @@ import type {
   ChannelRegistryEntry,
   ChannelRegistryResponse,
   CycleBoardProjectionPacket,
+  DataSnapshotRef,
   DecisionGrade,
   InvalidGovernedProjectionPacket,
   ProjectionSourceValidation,
@@ -91,6 +92,12 @@ type CanonicalLiteralWitnesses = [
   Assert<Equal<RunPaperDesignRecordBinding, RunBoundDesignRecordBinding>>,
   Assert<Equal<ArtifactID, RawRuntimeApiComponents["schemas"]["ArtifactID"]>>,
   Assert<
+    Equal<
+      DataSnapshotRef,
+      RawRuntimeApiComponents["schemas"]["DataSnapshotRef-Input"]
+    >
+  >,
+  Assert<
     Equal<DecisionGrade, RawRuntimeApiComponents["schemas"]["DecisionGrade"]>
   >,
   Assert<
@@ -115,6 +122,18 @@ export function narrowGovernedProjectionPacket(
 }
 
 export type { CanonicalLiteralWitnesses };
+
+const legacyDataSnapshotRequest: DataSnapshotRef = {
+  artifact_id: "sha256:" + "a".repeat(64),
+};
+const selectedDataSnapshotRequest: RawRuntimeApiComponents["schemas"]["DataSnapshotRef-Input"] =
+  legacyDataSnapshotRequest;
+const invalidDataSnapshotRequest: DataSnapshotRef = {
+  // @ts-expect-error the established package-root alias retains the string ID contract
+  artifact_id: 42,
+};
+void selectedDataSnapshotRequest;
+void invalidDataSnapshotRequest;
 
 type SourceWriteTransportWitnesses = [
   Assert<

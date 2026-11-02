@@ -12798,12 +12798,48 @@
         "title": "DataResolveResponse",
         "type": "object"
       },
-      "DataSnapshotRef": {
+      "DataSnapshotRef-Input": {
         "additionalProperties": false,
         "description": "Artifact reference for a materialized snapshot of retrieved data and its metadata.",
         "properties": {
           "artifact_id": {
             "$ref": "#/components/schemas/ArtifactID-Input"
+          },
+          "kind": {
+            "default": "fabric.data_snapshot",
+            "title": "Kind",
+            "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
+          "media_type": {
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "DataSnapshotRef",
+        "type": "object"
+      },
+      "DataSnapshotRef-Output": {
+        "additionalProperties": false,
+        "description": "Artifact reference for a materialized snapshot of retrieved data and its metadata.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
           },
           "kind": {
             "default": "fabric.data_snapshot",
@@ -12841,7 +12877,7 @@
           "data_snapshot_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/DataSnapshotRef"
+                "$ref": "#/components/schemas/DataSnapshotRef-Input"
               },
               {
                 "type": "string"
@@ -20252,6 +20288,42 @@
         "title": "EvidenceBasis",
         "type": "object"
       },
+      "EvidenceBundleRef": {
+        "additionalProperties": false,
+        "description": "Artifact reference for the evidence bundle backing a Fabric result.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "kind": {
+            "default": "fabric.evidence_bundle",
+            "title": "Kind",
+            "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
+          "media_type": {
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "EvidenceBundleRef",
+        "type": "object"
+      },
       "EvidenceNeed": {
         "additionalProperties": false,
         "description": "Represent one grounding or acquisition demand.",
@@ -25398,6 +25470,16 @@
             ],
             "title": "Replay Ref"
           },
+          "replay_selected_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "source": {
             "default": "dashboard",
             "title": "Source",
@@ -25433,6 +25515,16 @@
             ],
             "title": "Data Snapshot Ref"
           },
+          "data_snapshot_selected_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DataSnapshotRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "datasets_fetched": {
             "default": 0,
             "title": "Datasets Fetched",
@@ -25448,6 +25540,16 @@
               }
             ],
             "title": "Evidence Bundle Ref"
+          },
+          "evidence_bundle_selected_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EvidenceBundleRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "input_bindings_ref": {
             "anyOf": [
@@ -25488,6 +25590,16 @@
               }
             ],
             "title": "Record Ref"
+          },
+          "record_session_selected_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "status": {
             "enum": [
@@ -33355,7 +33467,7 @@
             "$ref": "#/components/schemas/ArtifactRef-Input"
           },
           "observed_source_ref": {
-            "$ref": "#/components/schemas/DataSnapshotRef"
+            "$ref": "#/components/schemas/DataSnapshotRef-Input"
           },
           "policy_spec_ref": {
             "$ref": "#/components/schemas/ArtifactRef-Input"
@@ -48217,7 +48329,7 @@
           "data_snapshot_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/DataSnapshotRef"
+                "$ref": "#/components/schemas/DataSnapshotRef-Input"
               },
               {
                 "type": "string"

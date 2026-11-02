@@ -329,7 +329,7 @@ timestamps
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 134 |
-| `polisyos.core.artifacts` | `src/polisyos/core/artifacts/__init__.py` | `lazy_facade` | 139 |
+| `polisyos.core.artifacts` | `src/polisyos/core/artifacts/__init__.py` | `lazy_facade` | 140 |
 | `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 12 |
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 64 |
 | `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 782 |
@@ -495,7 +495,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Publish the stable CAS artifact ABI used by manifests, lineage, and signing.
 
-<details><summary>Entrypoint exports (139)</summary>
+<details><summary>Entrypoint exports (140)</summary>
 
 ```text
 AUTHORITY_ENVELOPE_ARTIFACT_KIND
@@ -611,6 +611,7 @@ ensure_private_key_permissions
 expected_artifact_manifest_for_write
 fsync_directory
 input_ref_from_artifact_ref
+legacy_default_artifact_id
 load_core_json_artifact
 load_core_json_frame_records
 matches_artifact_store_protocol

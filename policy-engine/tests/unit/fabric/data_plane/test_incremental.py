@@ -25,20 +25,13 @@ from polisyos.ir.connectors import (
 
 
 def _make_evidence_bundle(store: FileSystemCAS):
-    from polisyos.core.artifacts.manifest import SchemaInfo
-    from polisyos.core.artifacts.store import PutOptions
+    from polisyos.core.contracts.fabric import EvidenceBundle
+    from polisyos.fabric.evidence import persist_evidence_bundle
 
-    return store.put_json(
-        {
-            "schema_version": "1.0",
-            "sources": [],
-            "notes": ["test"],
-        },
-        PutOptions(
-            kind="fabric.evidence_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="EvidenceBundle", version="1.0"),
-        ),
+    return persist_evidence_bundle(
+        store,
+        EvidenceBundle(notes=["test"]),
+        return_selected_profile=True,
     )
 
 
@@ -1053,7 +1046,11 @@ class TestBatchIncremental:
                 ingestion_dependencies=dependencies,
             )
 
+        if evidence_case in {"malformed", "nonexistent"}:
+            assert result.evidence_bundle_ref is None
+            assert "source_evidence_reference_invalid" in result.warnings
         assert result.cursor_ref is None
+        assert result.data_snapshot_ref is None
         assert CursorStore(store).find_latest_cursor("rest.json", "dataset") is None
 
 

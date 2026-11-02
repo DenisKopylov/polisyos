@@ -1,0 +1,45 @@
+id = "2026-11-02-e02-selected-ingestion"
+title = "Preserve selected record/replay and streaming artifact views"
+type = "fixed"
+component = "fabric"
+owner = "team-polisyos"
+summary = "Captured ingestion binds canonical request identity and source namespace across connection health and fetch. Record/replay cache entries and persisted execution provenance retain their capture purpose and selected session. Streaming windows preserve selected contributors, revalidate their CAS basis on reads, and account for every retained row occurrence. The ingestion API returns the exact session, evidence and snapshot references without exposing another tenant's default manifest."
+compatibility = "Ordinary ingestion omits the new absent selected-reference fields. Legacy ID fields remain available only when an accessible default manifest names the produced view. Readers accept record-session formats 1.0 and 2.0; format 2.0 records source-bound requests and execution provenance. The SDK retains its DataSnapshotRef type export as the exact input view alongside explicit Input/Output exports; dashboard requests use that input view."
+api = "IngestRequest adds replay_selected_ref. IngestResponse adds record_session_selected_ref, evidence_bundle_selected_ref and data_snapshot_selected_ref. Core exposes legacy_default_artifact_id for the optional legacy alias of an already authorized selected view."
+migration = "Retain the full selected reference returned by the producer and submit replay_selected_ref for exact replay. Re-record historical multi-source fixtures whose namespace or request body identity cannot be established. Legacy ID-only contributor records cannot establish the selected-window basis and require a source-bound reissue. New ordinary ingestion also emits EvidenceBundle format 2.0 with its selected provenance graph. Historical unprofiled provenance remains inspectable, but cannot authorize complete-source binding or retained incremental reuse; obtain a new source-bound capture rather than guessing its historical manifest view."
+limitations = "A selected view proves the admitted CAS identity and current read-boundary integrity, not external source currency, institutional permission or semantic validity. A denied or absent default does not invalidate an independently authorized selected view. Single-response fixtures do not establish arbitrary changing-response sequence replay. Partial ingestion still withholds its snapshot."
+surface_classification = "public_experimental: Runtime ingestion DTOs and generated TypeScript clients; public_stable: Core artifacts facade; internal: Fabric capture/cache/window implementation"
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+evidence = ["tests/unit/core/artifacts/test_profiled_ref.py", "tests/unit/core/contracts/test_ingestion_execution.py", "tests/unit/fabric/connectors/test_cache_execution_context.py", "tests/unit/fabric/data_plane/test_record_replay.py", "tests/unit/fabric/data_plane/test_streaming_accounting.py", "tests/unit/fabric/data_plane/test_streaming_reads.py", "tests/unit/runtime/http/test_b88_served_replay.py"]
+migration_docs = ["src/polisyos/fabric/data_plane/README.md"]
+
+[[compatibility_change]]
+id = "selected-ingestion-api"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "Runtime ingestion request/response and generated clients"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "Legacy default-view ID aliases remain supported; retain selected refs when aliases are unavailable."
+release_note = "Use replay_selected_ref and the selected output refs to preserve the producer's exact manifest view."
+
+[[compatibility_change]]
+id = "source-bound-record-session"
+change_class = "persisted-artifact-format"
+impact = "changed"
+surface = "fabric.record_session and ingestion execution provenance"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "Read formats 1.0 and 2.0; do not infer identity absent from historical bytes."
+release_note = "New sessions use format 2.0. Unbound historical requests or contributors require a new source-bound recording."
+
+[[compatibility_change]]
+id = "selected-view-legacy-alias"
+change_class = "python-public-api"
+impact = "additive"
+surface = "polisyos.core.artifacts.legacy_default_artifact_id"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "Existing selected and default view readers remain supported."
+release_note = "Return a legacy ID alias only after authorizing the selected view and reconciling its accessible default."

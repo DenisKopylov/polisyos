@@ -12,14 +12,14 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1674`.
-- Public/root-or-package facade types: `680`.
+- Total IR types: `1675`.
+- Public/root-or-package facade types: `681`.
 - ABI snapshot-backed types: `103`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 533 |
+| `polisyos.ir` | 535 |
 | `polisyos.ir.analytics` | 320 |
 | `polisyos.ir.kernel` | 81 |
 | `polisyos.ir.loading` | 12 |
@@ -31,7 +31,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 1027 | 342 | 45 |
+| `analytics` | 1028 | 343 | 45 |
 | `artifacts` | 30 | 3 | 0 |
 | `governance` | 99 | 27 | 8 |
 | `kernel` | 60 | 54 | 0 |
@@ -2456,7 +2456,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.causal_capabilities.CausalBackendCapability`, `polisyos.ir.analytics.causal_capabilities.CausalBackendId`, `polisyos.ir.analytics.causal_capabilities.CausalIdentificationFamily`
-- Summary: Causal capability contract data model.
+- Summary: Record reported causal backend availability and supported identification families.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -3401,7 +3401,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: PAG identification policy data model.
+- Summary: Select a supported identification mode for a partial ancestral graph.
 
 | Enum values |
 | ----------- |
@@ -4229,7 +4229,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.context.ContextProfile`, `polisyos.ir.analytics.cross_graph.CanonicalConcept`, `polisyos.ir.analytics.cross_graph.ConceptBridge`, `polisyos.ir.analytics.cross_graph.CrossGraphDiagnostic`, `polisyos.ir.analytics.cross_graph.CrossGraphEvidenceSummary`, `polisyos.ir.analytics.cross_graph.CrossGraphSourceRefs`, `polisyos.ir.analytics.cross_graph.EvidenceNeedAssessment`, `polisyos.ir.analytics.cross_graph.EvidenceSourceStatus`
-- Summary: Cross graph evidence profile data model.
+- Summary: Collect cross-graph evidence needs, assessments, and source-state summaries.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -14741,6 +14741,17 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `shared_with` | `list[str]` | `no` | `—` | — |
 | `variable` | `str` | `yes` | `—` | — |
 
+### `polisyos.ir.analytics.ncm.NCMSourceProfileMismatchError` { #polisyos-ir-analytics-ncm-ncmsourceprofilemismatcherror }
+
+- Kind: `class`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir:NCMSourceProfileMismatchError`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: An exact NCM manifest does not use the requested owner source codec.
+
 ### `polisyos.ir.analytics.ncm.NCMSpec` { #polisyos-ir-analytics-ncm-ncmspec }
 
 - Kind: `pydantic_model`
@@ -15172,7 +15183,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.normative_arbitration.NormativeAuditStatus`
-- Summary: Hard constraint audit entry data model.
+- Summary: Record the reported evaluation status and values for one hard constraint.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -15193,7 +15204,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.normative_arbitration.ArbitrationOption`, `polisyos.ir.analytics.normative_arbitration.HardConstraintAuditEntry`, `polisyos.ir.analytics.normative_arbitration.NormativeModelCompleteness`, `polisyos.ir.analytics.normative_arbitration.NormativeProvenance`, `polisyos.ir.analytics.normative_arbitration.OptionOutcomeMatrix`, `polisyos.ir.analytics.normative_arbitration.PolicyOutcome`, `polisyos.ir.analytics.normative_arbitration.ResidualDissent`, `polisyos.ir.analytics.normative_arbitration.RightsAuditEntry`, `polisyos.ir.analytics.normative_arbitration.StakeholderUtilitySummary`, `polisyos.ir.analytics.normative_arbitration.TradeoffCertificate`, `polisyos.ir.governance.problem_frame.NormativeArbitrationPolicy`
-- Summary: Normative arbitration result data model.
+- Summary: Represent a proposal-versus-baseline normative arbitration result.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -15331,7 +15342,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.normative_arbitration.NormativeAuditStatus`
-- Summary: Rights audit entry data model.
+- Summary: Record a right's reported comparison status for one stakeholder.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -15354,7 +15365,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Stakeholder utility summary data model.
+- Summary: Record one stakeholder's supplied baseline and proposal utility values.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -20689,7 +20700,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.transportability.SNodeOrigin`, `polisyos.ir.analytics.transportability.SNodeRole`
-- Summary: S node implementation.
+- Summary: Describe a variable's source-to-target context difference in a selection diagram.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -31129,7 +31140,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.model_layer.queries.DataFilter`, `polisyos.ir.model_layer.queries.Pagination`, `polisyos.ir.model_layer.queries.QueryScope`
-- Summary: Data view request data model.
+- Summary: Describe a requested data view and its query constraints.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |

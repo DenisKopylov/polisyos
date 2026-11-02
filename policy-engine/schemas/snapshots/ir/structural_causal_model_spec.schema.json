@@ -456,7 +456,7 @@
       "type": "object"
     },
     "PAGIdentificationPolicy": {
-      "description": "PAG identification policy data model.",
+      "description": "Select a supported identification mode for a partial ancestral graph.\n\nThe modes distinguish conservative, optimistic, and probabilistic handling\nof unresolved graph orientations. Probabilistic mode can carry an explicit\nidentification-confidence value in the graph contract.",
       "enum": [
         "conservative",
         "optimistic",

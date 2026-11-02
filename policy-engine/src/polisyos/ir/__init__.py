@@ -277,6 +277,7 @@ __all__ = [
     "ModelQueryDataViewRequest",
     "ModelSpec",
     "MultiplexGraphLayerId",
+    "NCMSourceProfileMismatchError",
     "NCMSpec",
     "NCMSpecRef",
     "NativeValueEstimandBinding",
@@ -491,6 +492,7 @@ __all__ = [
     "load_mean_field_macro_simulation_config",
     "load_mean_field_perturbation_spec",
     "load_ncm_spec",
+    "load_ncm_spec_default_view",
     "load_ncm_spec_selected_view",
     "load_normative_arbitration_result",
     "load_ordinal_poverty_report",
@@ -1546,6 +1548,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "ModelQueryDataViewRequest": ("polisyos.ir.model_layer.queries", "DataViewRequest"),
     "NCMSpec": ("polisyos.ir.analytics.ncm", "NCMSpec"),
     "NCMSpecRef": ("polisyos.ir.registry.refs", "NCMSpecRef"),
+    "NCMSourceProfileMismatchError": (
+        "polisyos.ir.analytics.ncm",
+        "NCMSourceProfileMismatchError",
+    ),
     "NativeValueEstimandBinding": (
         "polisyos.ir.analytics.uncertainty",
         "NativeValueEstimandBinding",
@@ -1814,6 +1820,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "load_mean_field_perturbation_spec",
     ),
     "load_ncm_spec": ("polisyos.ir.analytics.ncm", "load_ncm_spec"),
+    "load_ncm_spec_default_view": (
+        "polisyos.ir.analytics.ncm",
+        "load_ncm_spec_default_view",
+    ),
     "load_ncm_spec_selected_view": (
         "polisyos.ir.analytics.ncm",
         "load_ncm_spec_selected_view",

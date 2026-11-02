@@ -87,6 +87,15 @@ available without dropping a caller-supplied selected view.
 
 `persist_causal_effect_report` preserves historical default-reference behavior when `return_selected_profile` is omitted or `False`; the default view is profileless, while a write differing from that view may return its selected profile. Pass `True` when a downstream join must bind the exact profile selected by the report write; the typed helper returns that same-write CAS result and does not infer a profile from a later read. A non-boolean value is rejected, and stores without selected-profile write support fail closed. This option changes the reference returned to the caller, not the causal-report payload or schema.
 
+## NCM source views
+
+`persist_ncm_spec` returns its exact selected manifest even when it writes the
+default NCM codec. `load_ncm_spec_default_view` admits that full reference by
+checking the actual owner codec inside the frozen manifest/byte read. A selector
+is an address, not evidence of a different source. Declaration-sidecar codecs
+still require `load_ncm_spec_selected_view` with its exact tenant, cell and
+declaration context. Dropping a selector does not establish either source.
+
 ## Structural model schema compatibility
 
 `StructuralCausalModelSpec` defaults to schema 1.2, matching the current

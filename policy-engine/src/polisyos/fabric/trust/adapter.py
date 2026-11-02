@@ -22,7 +22,25 @@ def envelope_from_trust_bounds(
     trust_policy_id: str | None = None,
     assume_triangular: bool = False,
 ) -> UncertaintyEnvelope:
-    """Envelope from trust bounds helper."""
+    """Represent explicit trust bounds as a deterministic uncertainty envelope.
+
+    The bounds remain deterministic and do not receive a confidence level.
+    Their decimal values are also retained in envelope metadata. Unless
+    ``assume_triangular`` is true, the distribution family stays unknown; when
+    true, the envelope records that optional assumption as triangular. This
+    adapter maps the supplied bounds and does not independently establish the
+    provenance or validity of their source.
+
+    Args:
+        bounds: Point value and lower/upper bounds to carry into the envelope.
+        trust_policy_id: Optional policy identifier copied to envelope metadata.
+        assume_triangular: Whether to label the optional triangular distribution
+            assumption in the envelope.
+
+    Returns:
+        An envelope marked with trust source, deterministic-bound semantics,
+        no propagation method, and the supplied numeric interval.
+    """
     distribution = (
         DistributionFamily.TRIANGULAR if assume_triangular else DistributionFamily.UNKNOWN
     )

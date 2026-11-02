@@ -110,6 +110,12 @@ codec does not by itself establish persisted-profile or E02 acceptance.
   authority.
 - `migrations/` owns package-local migration manifest helpers.
 
+`exception_metadata.py` provides one private storage primitive for producer-owned
+failure progress. It accesses the real `BaseException` instance dictionary without
+running subclass attribute hooks, preserving the original error, args and cause.
+Stored data still needs its caller's issuer, scope, reference and current-attempt
+verification; this helper grants no publication or execution authority.
+
 ## Extension Points
 
 `polisyos.common` is not an extension host. Extension hosts should depend on

@@ -62,7 +62,12 @@ class GraphType(str, Enum):
 
 
 class PAGIdentificationPolicy(str, Enum):
-    """PAG identification policy data model."""
+    """Select a supported identification mode for a partial ancestral graph.
+
+    The modes distinguish conservative, optimistic, and probabilistic handling
+    of unresolved graph orientations. Probabilistic mode can carry an explicit
+    identification-confidence value in the graph contract.
+    """
 
     CONSERVATIVE = "conservative"
     OPTIMISTIC = "optimistic"

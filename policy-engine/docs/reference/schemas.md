@@ -12,7 +12,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Snapshot Summary
 
-- IR snapshot: `107` schemas, generated `2026-10-24T16:23:17+00:00`.
+- IR snapshot: `107` schemas, generated `2026-11-02T01:54:29+00:00`.
 - Fabric ABI snapshot: `3` schemas, generated `2026-10-28T12:37:42+00:00`.
 - Direct-read compatibility is declared in `polisyos.ir.migrations.schema_registry` and surfaced below.
 

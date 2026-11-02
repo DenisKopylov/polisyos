@@ -300,6 +300,12 @@
                 "result": true
               },
               {
+                "path": "src/polisyos/common/exception_metadata.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
                 "path": "src/polisyos/common/hashing.py",
                 "operation": "is_file",
                 "status": "present",
@@ -4265,8 +4271,8 @@
         "polisyos.ir.world"
       ],
       "major_subsystem": true,
-      "export_count": 530,
-      "known_export_count": 530,
+      "export_count": 532,
+      "known_export_count": 532,
       "exports": [
         "GATE_REQUEST_SCHEMA_VERSION",
         "SLOT_ID_PATTERN",
@@ -4522,6 +4528,7 @@
         "ModelQueryDataViewRequest",
         "ModelSpec",
         "MultiplexGraphLayerId",
+        "NCMSourceProfileMismatchError",
         "NCMSpec",
         "NCMSpecRef",
         "NativeValueEstimandBinding",
@@ -4736,6 +4743,7 @@
         "load_mean_field_macro_simulation_config",
         "load_mean_field_perturbation_spec",
         "load_ncm_spec",
+        "load_ncm_spec_default_view",
         "load_ncm_spec_selected_view",
         "load_normative_arbitration_result",
         "load_ordinal_poverty_report",
@@ -4808,8 +4816,8 @@
         {
           "module": "polisyos.ir",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 530,
-          "known_export_count": 530,
+          "export_count": 532,
+          "known_export_count": 532,
           "exports": [
             "GATE_REQUEST_SCHEMA_VERSION",
             "SLOT_ID_PATTERN",
@@ -5065,6 +5073,7 @@
             "ModelQueryDataViewRequest",
             "ModelSpec",
             "MultiplexGraphLayerId",
+            "NCMSourceProfileMismatchError",
             "NCMSpec",
             "NCMSpecRef",
             "NativeValueEstimandBinding",
@@ -5279,6 +5288,7 @@
             "load_mean_field_macro_simulation_config",
             "load_mean_field_perturbation_spec",
             "load_ncm_spec",
+            "load_ncm_spec_default_view",
             "load_ncm_spec_selected_view",
             "load_normative_arbitration_result",
             "load_ordinal_poverty_report",
@@ -5366,8 +5376,8 @@
                 "path": "src/polisyos/ir/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 74378,
-                "sha256": "add21b0f04f5ea8bb0abe594f52c6ff902ec7cfeccf4b5fe3c6322ca5a0cf6b7"
+                "bytes": 74691,
+                "sha256": "98ffec4cf55cc3519352be8b524d8a8700d22c39724ba2f2bbb59aeefe19c86a"
               },
               {
                 "path": "src/polisyos/ir",

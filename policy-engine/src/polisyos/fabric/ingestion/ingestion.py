@@ -192,7 +192,13 @@ def _is_dataframe_like(value: object) -> bool:
 
 @dataclass(frozen=True, slots=True)
 class DatasetFetchSpec:
-    """Dataset fetch spec data model."""
+    """Describe one dataset request for a connector ingestion run.
+
+    The specification carries connector and dataset identifiers, optional
+    filters and date bounds, and optional retry and page-size hints. It can be
+    parsed from and serialized to the connector manifest mapping; it does not
+    perform the fetch itself.
+    """
 
     connector_id: str
     dataset_id: str
@@ -234,7 +240,17 @@ class DatasetFetchSpec:
 
 @dataclass(frozen=True, slots=True)
 class ConnectorManifestSpec:
-    """Connector manifest spec data model."""
+    """Hold the dataset requests and run-level options in a connector manifest.
+
+    Dataset entries are represented as :class:`DatasetFetchSpec` instances.
+    The remaining fields describe an optional transform DAG, whether local
+    transform resolution is allowed, a cache policy, and retry policy data.
+    Parsing validates the dataset-list and retry-policy container shapes and
+    defaults the dataset list and local-transform permission when omitted; the
+    manifest itself does not execute ingestion. Its local-transform flag is a
+    caller-supplied opt-in, not an attestation that a local Python transform is
+    safe.
+    """
 
     datasets: list[DatasetFetchSpec] = field(default_factory=list)
     transform_dag: str | None = None

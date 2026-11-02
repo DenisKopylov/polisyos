@@ -6,8 +6,8 @@
     "release_fragment_change_class": "persisted-artifact-format",
     "version_owner": "team-ir"
   },
-  "content_hash": "8392fdd8e6cbc765e7fc894c4eeae15cd8214f9cdf63c3f307baec5ca174c873",
-  "generated_at": "2026-10-24T16:23:17+00:00",
+  "content_hash": "f4cecadc0180f37241ec2c40da89de6a7fa62a615aaf4c62e9c0ceef944360af",
+  "generated_at": "2026-11-02T01:54:29+00:00",
   "generator_version": "1.1.0",
   "models": {
     "abm_alignment_report": {
@@ -126,7 +126,7 @@
       "priority": "p1",
       "schema_file": "causal_discovery_report.schema.json",
       "schema_version": "1.1",
-      "sha256_full": "0c539549692951f5e544a182f2536db7343df84ea28f84c5df36f26192b2c426",
+      "sha256_full": "1e288b87d204dc310ba1009bc9ac7a789e515766937c146ac628eae2bd67551a",
       "sha256_semantic": "afe93dc4478c2eeabf847bbef445bfa8a773caa0365f9591f9306ccc433c1335",
       "version_field": "schema_version"
     },
@@ -138,7 +138,7 @@
       "priority": "p1",
       "schema_file": "causal_effect_report.schema.json",
       "schema_version": "1.1",
-      "sha256_full": "79ca778718a6f13d9971c0000d3aec596f8f53d9c6ad0bb46fa433eaafb98277",
+      "sha256_full": "9ba3026d8af8ac3642084071a17a22826f5a1641152f6a54901fd6ba3e67ed8e",
       "sha256_semantic": "c6b0351595f2ce848a0fa656bb8645a1ad86c54b328a106d9a630cbc34308a62",
       "version_field": "schema_version"
     },
@@ -162,7 +162,7 @@
       "priority": "p1",
       "schema_file": "causal_graph_model.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "900aec695c5a13bccb07e3f9df562699608e4197cf48acffb772d4f3b6037b9e",
+      "sha256_full": "0c3a96c9e0a2091a63340eae1c0381333daca9247eb18f042636d8d8fb0c1763",
       "sha256_semantic": "21f8446863f6e3310457d66dc39ad488bbce39ae956c1d7b2698652626bf5e73",
       "version_field": "schema_version"
     },
@@ -1182,7 +1182,7 @@
       "priority": "p1",
       "schema_file": "structural_causal_model_spec.schema.json",
       "schema_version": "1.2",
-      "sha256_full": "956754dd5decfd14a030b17561c3fe155a2d5729da363e7028f4086ff85ee478",
+      "sha256_full": "481511aa7c44a98996ef05f1eab0d677d4137fba77b8a3503fdc1845d1996718",
       "sha256_semantic": "a02a920713e50bad699fe64d086da0507e88cc48480cab5d62ea8b6dd1d085f0",
       "version_field": "schema_version"
     },
@@ -1242,7 +1242,7 @@
       "priority": "p1",
       "schema_file": "transportability_result.schema.json",
       "schema_version": "2.2",
-      "sha256_full": "d0c6a1a246392251e2b39d02c246b83702e8d8526db645badf474e9988b0c2e9",
+      "sha256_full": "661d4af267633a0b405123ed636bfdfa47ef2c4e1530068a6298dfa71fd4b8f2",
       "sha256_semantic": "40d20e7be131e9c1edfd2c3c438d36f668b3a181bcadbc7f186e70a3d4a6a768",
       "version_field": "schema_version"
     },

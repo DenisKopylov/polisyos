@@ -862,11 +862,16 @@ def _checked_owner_profile[OwnerSourceT, OwnerConsumerT](
     return accepted
 
 
+class _OwnedArtifactProfileMismatchError(CanonViolation):
+    """The frozen owner read has a different codec than the requested source."""
+
+
 def _get_owned_json_artifact_with_bytes[OwnerSourceT, OwnerConsumerT](
     store: _ProfiledJSONReader,
     artifact_id: ArtifactSelector,
     *,
     owner: ArtifactOwnerDeclaration[OwnerSourceT, OwnerConsumerT],
+    expected_profile: CanonInfo | None = None,
 ) -> OwnedArtifactRead[OwnerConsumerT]:
     """Read, hash, validate, and project JSON through one frozen owner admission."""
     declaration = _require_owner_declaration(owner)
@@ -922,6 +927,8 @@ def _get_owned_json_artifact_with_bytes[OwnerSourceT, OwnerConsumerT](
         )
         if not accepted:
             raise CanonViolation("ir_owned_artifact_profile_refused")
+        if expected_profile is not None and profile != expected_profile:
+            raise _OwnedArtifactProfileMismatchError("ir_owned_artifact_source_profile_mismatch")
         try:
             profile_sha256 = _manifest_profile_sha256(dict(raw_manifest))
         except (CanonicalProfileRefusalError, TypeError, ValueError) as exc:

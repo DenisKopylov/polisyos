@@ -88,7 +88,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 9 | `team-polisyos` | `src/polisyos/common/README.md` |
 | `polisyos.core` | `public_stable` | `lazy_facade` | 134 | `team-polisyos` | `src/polisyos/core/README.md` |
-| `polisyos.ir` | `public_stable` | `lazy_facade` | 530 | `team-polisyos` | `src/polisyos/ir/README.md` |
+| `polisyos.ir` | `public_stable` | `lazy_facade` | 532 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
@@ -1997,7 +1997,7 @@ security
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 530 |
+| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 532 |
 | `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `lazy_facade` | 320 |
 | `polisyos.ir.analytics.calibration_diagnostics` | `src/polisyos/ir/analytics/calibration_diagnostics.py` | `eager_exports` | 6 |
 | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `eager_exports` | 14 |
@@ -2017,7 +2017,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Expose the stable IR contract surface through a lazy package facade.
 
-<details><summary>Entrypoint exports (530)</summary>
+<details><summary>Entrypoint exports (532)</summary>
 
 ```text
 GATE_REQUEST_SCHEMA_VERSION
@@ -2274,6 +2274,7 @@ MobilityReportRef
 ModelQueryDataViewRequest
 ModelSpec
 MultiplexGraphLayerId
+NCMSourceProfileMismatchError
 NCMSpec
 NCMSpecRef
 NativeValueEstimandBinding
@@ -2488,6 +2489,7 @@ load_mean_field_equilibrium_certificate
 load_mean_field_macro_simulation_config
 load_mean_field_perturbation_spec
 load_ncm_spec
+load_ncm_spec_default_view
 load_ncm_spec_selected_view
 load_normative_arbitration_result
 load_ordinal_poverty_report
@@ -3665,7 +3667,7 @@ world_event_id_from_payload
 
 </details>
 
-<details><summary>Supported exports (530)</summary>
+<details><summary>Supported exports (532)</summary>
 
 ```text
 GATE_REQUEST_SCHEMA_VERSION
@@ -3922,6 +3924,7 @@ MobilityReportRef
 ModelQueryDataViewRequest
 ModelSpec
 MultiplexGraphLayerId
+NCMSourceProfileMismatchError
 NCMSpec
 NCMSpecRef
 NativeValueEstimandBinding
@@ -4136,6 +4139,7 @@ load_mean_field_equilibrium_certificate
 load_mean_field_macro_simulation_config
 load_mean_field_perturbation_spec
 load_ncm_spec
+load_ncm_spec_default_view
 load_ncm_spec_selected_view
 load_normative_arbitration_result
 load_ordinal_poverty_report

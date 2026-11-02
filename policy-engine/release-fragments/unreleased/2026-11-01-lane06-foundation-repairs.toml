@@ -3,12 +3,35 @@ title = "Compose guarded execution, durable restart and current parameter reuse"
 type = "fixed"
 component = "scientist"
 owner = "e02-coordinator"
-summary = "Check protected evidence membership after staged state replay; clean up only unstarted coroutines on pre-submit executor refusal; materialize reused parameter bundles for the current request; propagate unsupported migration captures instead of treating them as empty closure cells. Qualify existing canonical and CAS boundaries with real selected readers. Bind actual Core attempts, scoped child execution, exact durable costs, typed failures and checkpoint continuation through their canonical consumers."
+summary = "Check protected evidence membership after staged state replay; clean up only unstarted coroutines on pre-submit executor refusal; materialize reused parameter bundles for the current request; propagate unsupported migration captures instead of treating them as empty closure cells. Qualify existing canonical and CAS boundaries with real selected readers. Bind actual Core attempts, scoped child execution, exact durable costs, typed failures and checkpoint continuation through their canonical consumers. Preserve exact owner-default NCM views across generic N5 admission and resolution."
 evidence = ["tests/unit/scientist/orchestration/engine/test_state_merge.py", "tests/unit/common/test_async_tools.py", "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py", "tests/unit/remediation/test_mig_05.py", "tests/unit/remediation/test_can_01.py", "tests/unit/remediation/test_cas_01.py", "tests/integration/scientist/test_lane06_composition.py", "tests/integration/scientist/test_lane06_registered_failure_parity.py", "tests/unit/scientist/orchestration/engine/test_managed_child_workflow.py", "tests/unit/runtime/http/test_control_checkpoint_handover.py", "tests/unit/ir/analytics/test_ncm.py", "tests/unit/runtime/quality/test_generic_n5_v3_binding.py"]
 compatibility = "Preserve ordinary NodeSpec/cache defaults and legacy NodeError category omission. Add typed input rules and optional failure category, versioned checkpoint/run fields and Core-owned lifecycle/read interfaces; missing original authority or unknown external effect still refuses."
 change_class = "python-public-api"
 surface_classification = "public_stable: additive Engine input rules/category and Core run lifecycle/read interfaces; existing defaults remain compatible"
-api = "Add InputAwareNodeSpec and NodeInputRule; optional typed NodeError.category; versioned checkpoint admission/budget/deadline and Core child/attempt/finalization interfaces. No new external institutional authority."
+api = "Add InputAwareNodeSpec and NodeInputRule; optional typed NodeError.category; versioned checkpoint admission/budget/deadline and Core child/attempt/finalization interfaces. No new external institutional authority. Add load_ncm_spec_default_view and NCMSourceProfileMismatchError in polisyos.ir; frozen owner codec verification retains declaration-context boundaries."
 limitations = "Final composed/installed/CI profiles and separately named Linux topology remain pending. Corrupt-ledger restore requires independently established latest generation/full receipts. No G acceptance or authority promotion."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
+
+[[compatibility_change]]
+id = "lane06-ncm-owner-default-reader"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.ir.load_ncm_spec_default_view and NCMSourceProfileMismatchError"
+owner = "team-ir"
+version_owner = "team-ir"
+deprecation_window = "not_applicable"
+release_note = "Expose an owner-default NCM reader that verifies the exact selected manifest codec; declaration-context readers retain their existing strict boundary."
+public_surface_inventory_reviewed = true
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "lane06-schema-description-repair"
+change_class = "persisted-artifact-format"
+impact = "metadata_only"
+surface = "public_stable: IR ABI schema descriptions and generated reference catalog"
+owner = "team-ir"
+version_owner = "team-ir"
+deprecation_window = "not_applicable"
+release_note = "Replace placeholder descriptions with behavior-specific documentation. Regenerate five IR schema snapshots and their manifest; semantic schema hashes, fields, defaults and validation remain unchanged."
+generated_client_compatibility = "not_applicable"

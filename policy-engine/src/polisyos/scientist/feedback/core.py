@@ -163,7 +163,15 @@ def build_parameter_override_bundle(
 
 
 class DecisionFeedbackService:
-    """Decision feedback service implementation."""
+    """Evaluate post-deployment evidence and persist decision feedback artifacts.
+
+    The service uses an artifact store and ``DecisionValidityService`` to resolve
+    packet feedback, evaluate observed metrics against a monitoring contract, compare
+    decision packets, and build reissue plans. When monitoring refutes metrics, it
+    records a human-review trigger and linked comparison and reissue artifacts. These
+    records provide feedback for later review; they do not approve a policy or apply
+    calibration parameters to one.
+    """
 
     def __init__(self, store: ArtifactStore) -> None:
         self._store = store

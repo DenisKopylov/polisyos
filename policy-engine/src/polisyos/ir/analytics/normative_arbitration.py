@@ -70,7 +70,12 @@ class OptionOutcomeMatrix(BaseModel):
 
 
 class StakeholderUtilitySummary(BaseModel):
-    """Stakeholder utility summary data model."""
+    """Record one stakeholder's supplied baseline and proposal utility values.
+
+    The summary carries the reported utility delta, welfare weight, and notes;
+    it validates that numeric values are finite but does not derive or authorize
+    the values.
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -95,7 +100,12 @@ class StakeholderUtilitySummary(BaseModel):
 
 
 class RightsAuditEntry(BaseModel):
-    """Rights audit entry data model."""
+    """Record a right's reported comparison status for one stakeholder.
+
+    The entry carries the comparison rule, optional binding reference, threshold,
+    observed value, and notes; it records an audit result rather than establishing
+    the authority of the right or its evidence.
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -111,7 +121,11 @@ class RightsAuditEntry(BaseModel):
 
 
 class HardConstraintAuditEntry(BaseModel):
-    """Hard constraint audit entry data model."""
+    """Record the reported evaluation status and values for one hard constraint.
+
+    Operator, threshold, proposal value, baseline value, and notes are supplied
+    by the evaluating workflow; this data model does not evaluate the constraint.
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -176,7 +190,14 @@ class TradeoffCertificate(BaseModel):
 
 
 class NormativeArbitrationResult(BaseModel):
-    """Normative arbitration result data model."""
+    """Represent a proposal-versus-baseline normative arbitration result.
+
+    The result groups option outcomes, stakeholder utilities, rights and hard-
+    constraint audit rows, policy outcomes, the selected policy and option,
+    dissent, trade-off summary, provenance, and warnings. Validation checks that
+    the selected policy and baseline/proposal options are represented; the record
+    does not itself grant legal or institutional authority.
+    """
 
     model_config = ConfigDict(
         extra="forbid",

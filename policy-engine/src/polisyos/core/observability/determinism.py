@@ -45,7 +45,18 @@ class DeterminismTier(str, Enum):
 
 
 def parse_determinism_tier(value: str | None) -> DeterminismTier | None:
-    """Parse determinism tier helper."""
+    """Parse a configured determinism tier token.
+
+    The value is stripped and compared case-insensitively with the
+    :class:`DeterminismTier` values.
+
+    Args:
+        value: Optional tier token, such as ``"strict_cpu"``.
+
+    Returns:
+        The matching tier, or ``None`` when the value is missing, blank, or
+        unrecognized.
+    """
     if not value:
         return None
     normalized = value.strip().lower()

@@ -129,7 +129,13 @@ class SNodeRole(str, Enum):
 
 
 class SNode(BaseModel):
-    """S node implementation."""
+    """Describe a variable's source-to-target context difference in a selection diagram.
+
+    The node records the context dimension, values and change magnitude, with
+    origin, severity, optional causal-role or legal annotations, and optional
+    paired source/target references. Its presence does not establish whether
+    adjustment is valid or transport succeeds.
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 

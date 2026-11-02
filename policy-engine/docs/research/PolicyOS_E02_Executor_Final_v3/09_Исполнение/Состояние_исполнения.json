@@ -586,7 +586,7 @@
           },
           "inputs_unchanged_during_run": true,
           "named_inputs": 22,
-          "scope": "Actual macOS framed owner/Core handoff, EOF, deadline marker, cleanup and native IPC controls on d574/Common95/ControlWorker8a. Actual seven Linux Core/ControlWorker positive and race cases remain UNRUN; no atomic SQL-to-Core or external-effect fence claim."
+          "scope": "Actual macOS framed owner/Core handoff, EOF, deadline marker, cleanup and native IPC controls on d574/Common95/ControlWorker8a. Actual Linux14 sync/async Core/ControlWorker cases are separately qualified by owner_handoff_linux538. No atomic SQL-to-Core or external-effect fence claim."
         },
         "owner_handoff_linux531": {
           "output": "policy-engine/_cache/e02/ci-0974c4599e637da041717a42a5a56ae0c3c3bf6c/phase0/",
@@ -637,6 +637,23 @@
           "scope": "Normal job completed; late job preserves exact original value error. Both real selected results have2 trajectories/2 observed work units with content-bound receipts; fresh private CAS verification precedes test failure at public app startup ownership admission. This is not a passing test or public partial-reader proof.",
           "failed_result_sha256": "57c77eb8b1a63af8528111583770fd7ece6198ea9b6b8a8309cb3af804f368f7",
           "selected_execution_content_hash": "6a1aa89448672c9658bbf196c0c99007bce297dd19a08c34da6375bc2b613bb7"
+        },
+        "owner_handoff_linux538": {
+          "output": "policy-engine/_cache/e02/ci-1758be1ffc91dc2847fa6425587d3e675b672514/phase0/",
+          "source_commit": "1758be1ffc91dc2847fa6425587d3e675b672514",
+          "executed_commit": "e00e8233ca52d98f5730ee6ff65bb0ab73ab898f",
+          "tree": "5965e0109584506d5a2b9daf2c7ecf25b4f661b7",
+          "observed": {
+            "PASS": 538,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "profile": "Ubuntu26.04.1/CPython3.14.9 x64; actual owned Linux fork supervisor. All14 real sync/async healthy/cancel/Core-negative cases pass. Linux warm-parent JAX/BLAS numerical fork remains NOT_QUALIFIED.",
+          "complete_command_output": "scientist-phase0-pytest-step.log.gz",
+          "complete_output_sha256": "053dfb1a1ca6b464e83d7249b9a800d58bb5146372c3dae95aedbefcb210ea9a",
+          "junit_sha256": "cadf19976650ef5115a98707c6c42743f371ccefd34d3d911c08c957ec910a45",
+          "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/41369971064/job/125038131138"
         }
       },
       "local_only_requirement_ids": [
@@ -672,15 +689,7 @@
           "requirements": [
             "REQ-DUR-01-02"
           ],
-          "basis": "Missing independently latest owner/generation and all confirmed receipts; signed stale backup cannot restore authority."
-        },
-        {
-          "kind": "owner_handoff_async_native_matrix",
-          "requirements": [
-            "REQ-RUN-02-02"
-          ],
-          "owner": "/root/lane06_ci_triage",
-          "basis": "Product d574 is unchanged and Linux7 sync cases pass; source-reviewed test-only c9c8 extends to14 actual sync/async cases. Publish this checkpoint and read actual Linux CI, not Mac skips."
+          "basis": "User confirms approved trusted latest source/owner does not yet exist. Only damaged-ledger restore claim remains blocked; current acknowledged durability and healthy-ledger operations are qualified. Require actual current authoritative generation and complete confirmed receipts, never reset budget from an older copy."
         }
       ],
       "execution_control": {
@@ -689,7 +698,7 @@
         "formal_closure": false,
         "B198": "Historical closure preserved",
         "next_lanes_started": false,
-        "source_state": "In-flight owner-handoff/RES03 source; delivered commits are code checkpoints, not all75 requirement closures.",
+        "source_state": "Owner-handoff transport is qualified on named Mac/Linux profiles; RES03 and final installed/generation checks remain active. Delivered checkpoints are not all75 requirement closures.",
         "repository_ci": "Fast/Standard remain red. All three named forbidden package edges predate20d9009; aggregate import/cycle and UI reds are not called inherited without exact complete replay. Main remains unmerged."
       },
       "reconciliation_binding": {
@@ -699,7 +708,7 @@
         "basis": "22 packet annotations and75 exact canonical criterion pointers independently reconciled;57 shared evidence locators plus local41 update; version-specific results retained."
       },
       "current_source_checkpoint": {
-        "binding": "Released product blobs match published0974; the test-only14-case sync/async matrix belongs to the commit containing this record and awaits actual Linux CI. Other active RES03/IR work is outside this checkpoint.",
+        "binding": "Released product blobs match published0974; test-only c9c8 matrix at1758 and matching synthetic-merge tree passes538 Linux checks, including all14 sync/async owner cases. Active RES03/IR work is outside that transport checkpoint.",
         "released_file_sha256": {
           "src/polisyos/scientist/orchestration/engine/retry.py": "d574c94757faead8c69a11b10df6f2d6246009b8f8d7f1ed94be852a4ac03e1c",
           "src/polisyos/common/job_execution_interrupt.py": "95c5e532eae90d85b3de642451c522845c8afe33554e84b46cf08e9a0b75b633",
@@ -707,7 +716,8 @@
           "tests/unit/scientist/orchestration/engine/test_retry.py": "c9c8d9e13105d0d86d489d6e7cb772172521093ee4ab5362476fbf704928a54c",
           "tests/unit/common/test_job_execution_interrupt.py": "dc2292cb8635d71f0eed1f09e598b939fb7bdd140ed8b772799ab35a64e6ad9b"
         },
-        "product_source_commit": "0974c4599e637da041717a42a5a56ae0c3c3bf6c"
+        "product_source_commit": "0974c4599e637da041717a42a5a56ae0c3c3bf6c",
+        "test_source_commit": "1758be1ffc91dc2847fa6425587d3e675b672514"
       }
     },
     {
@@ -2122,7 +2132,7 @@
       "track_id": "06-B",
       "track_position": 3,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_async",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
@@ -2155,9 +2165,7 @@
           "observed_result": "Six actual IPC no-replay property failures before canonical typed category/code repair"
         }
       ],
-      "blockers": [
-        "owner_handoff_async_native_matrix"
-      ],
+      "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "Released; three owned paths frozen for root commit",
@@ -2184,15 +2192,16 @@
             "retry_deadline",
             "owner_handoff_local48",
             "owner_handoff_linux531",
-            "ordinary_consumers131"
+            "ordinary_consumers131",
+            "owner_handoff_linux538"
           ],
           "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-RUN-02-02",
           "test_id": "TEST-RUN-02-02",
-          "status": "PARTIAL",
-          "basis": "Actual Core-bound sync/async64B and1MiB transport retains its earlier source-qualified profile. Current d574 has48 local controls and531 Linux checks including7 native sync owner-bound cases; the test-only14-case matrix adds the distinct async-owner sibling and awaits actual CI.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Exact Core-bound sync/async64B and1MiB transport retains its source-qualified profile. Current d574 has48 local controls,131 ordinary consumers and538 Linux checks, including all14 native sync/async healthy/cancel/Core-negative owner cases; full output bytes are locally available.",
           "criterion_pointer": "04_Трассировка/RUN-02.json#/requirements/1",
           "test_ids": [
             "TEST-RUN-02-02"
@@ -2200,16 +2209,15 @@
           "binding_ids": [
             "E02-I06-C-B02"
           ],
-          "assessment": "qualified_native_core_delivery_async_owner_matrix_pending",
+          "assessment": "qualified_native_core_delivery_sync_async_owner_matrix",
           "evidence_refs": [
             "ipc10",
             "owner_handoff_local48",
             "owner_handoff_linux531",
-            "ordinary_consumers131"
+            "ordinary_consumers131",
+            "owner_handoff_linux538"
           ],
-          "remaining_kinds": [
-            "owner_handoff_async_native_matrix"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-RUN-02-03",
@@ -2227,7 +2235,8 @@
             "warm_remaining",
             "owner_handoff_local48",
             "owner_handoff_linux531",
-            "ordinary_consumers131"
+            "ordinary_consumers131",
+            "owner_handoff_linux538"
           ],
           "remaining_kinds": []
         }
@@ -2239,10 +2248,8 @@
         "warm_remaining",
         "retry_deadline"
       ],
-      "remaining_kinds": [
-        "owner_handoff_async_native_matrix"
-      ],
-      "reconciliation_note": "Actual d574/Common95/Worker8a has48 local controls,131 ordinary consumers and531 Linux Phase0 checks including7 native sync owner/cancel/Core cases. New test-only matrix extends these to14 sync/async cases, awaiting CI. SQL-to-Core/external-effect atomicity and warm Linux JAX/BLAS remain outside qualified claims.",
+      "remaining_kinds": [],
+      "reconciliation_note": "Current d574/Common95/Worker8a has48 local controls,131 ordinary consumers and538 Linux Phase0 checks including all14 native sync/async healthy, cancellation and Core-negative cases. SQL-to-Core/external-effect atomicity and warm Linux JAX/BLAS remain outside qualified claims.",
       "qualification_limits": [
         "Linux warm-parent JAX/BLAS numerical topology NOT_QUALIFIED; native Darwin closed-spawn warm4 is qualified separately."
       ]
@@ -2537,7 +2544,15 @@
         "policy-engine/tests/_helpers/budget_ledger_process.py"
       ],
       "shared_writer": "/root/lane06_budget",
-      "decision_records": [],
+      "decision_records": [
+        {
+          "id": "DEC-DUR-01-01",
+          "status": "PARTIAL_BLOCKED_EXTERNAL_RESTORE_INPUT",
+          "local_profile": "Measured APFS single-host cooperating locks and directory fsync/software interruption witnesses; no power-loss/NFS/multi-host guarantee.",
+          "trusted_recovery_source": "Not provided; user confirms no approved source/owner exists.",
+          "disposition": "Preserve current healthy ledger and confirmed spend/receipts. Damaged restore refuses until independently established latest generation and complete confirmed receipt history are supplied. This does not stop other LANE06 work or grant G acceptance."
+        }
+      ],
       "requirement_ids": [
         "REQ-DUR-01-01",
         "REQ-DUR-01-02",
@@ -2611,8 +2626,9 @@
           "remaining_kinds": [
             "trusted_latest_restore_input_or_explicit_supported_boundary"
           ],
-          "basis": "Unknown or authentic-but-stale backup refuses. Need actual latest authoritative owner/generation and complete confirmed receipt reconciliation, not simply a signed snapshot.",
-          "status": "BLOCKED_EXTERNAL_INPUT"
+          "basis": "User explicitly confirms on2026-11-02 that no approved trusted latest recovery source/owner exists. Native local lock/crash/directory-durability/current-receipt behavior is qualified; only damaged-ledger restore remains blocked. Neither a signed stale copy nor local availability proves current authoritative generation/full confirmed receipts.",
+          "status": "BLOCKED_EXTERNAL_INPUT",
+          "external_input_state": "approved_trusted_latest_source_absent_user_confirmed"
         },
         {
           "requirement_id": "REQ-DUR-01-03",
@@ -7908,18 +7924,17 @@
           "edge_occurrences": 2,
           "req_test_pairs": 2,
           "assessment": "current_named_transport_and_ordinary_consumers_qualified",
-          "remaining_kinds": [
-            "owner_handoff_async_native_matrix"
-          ],
+          "remaining_kinds": [],
           "evidence": [
             "ipc10",
             "warm_sync",
             "warm_remaining",
             "owner_handoff_local48",
             "owner_handoff_linux531",
-            "ordinary_consumers131"
+            "ordinary_consumers131",
+            "owner_handoff_linux538"
           ],
-          "basis": "48 local protocol/cleanup,131 ordinary consumers and531 actual Linux Phase0 checks qualify their exact source/input/backend profiles; no atomic SQL-to-Core/external-effect claim."
+          "basis": "48 local protocol/cleanup,131 ordinary consumers and538 actual Linux Phase0 checks, including14 real sync/async owner cases, qualify their exact source/input/backend profiles. No atomic SQL-to-Core/external-effect or warm Linux numerical claim."
         },
         {
           "binding_id": "E02-I06-C-B03",

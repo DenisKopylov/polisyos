@@ -6,7 +6,13 @@ from polisyos.fabric.data_plane.temporal import utc_now
 
 
 class CoverageMetrics(BaseModel):
-    """Coverage metrics data model."""
+    """Record the dataset's declared temporal and geographic coverage.
+
+    The model carries optional start and end timestamp strings and an optional
+    region-coverage description. Timestamp field descriptions specify
+    UTC-aware ISO-8601 values; this DTO records those declarations rather than
+    computing coverage from dataset rows.
+    """
 
     time_start: str | None = Field(
         default=None,
@@ -22,7 +28,12 @@ class CoverageMetrics(BaseModel):
 
 
 class QualityMetrics(BaseModel):
-    """Quality metrics data model."""
+    """Record missing, duplicate, and outlier rates with coverage metadata.
+
+    Each rate is constrained to the inclusive range from zero to one, and
+    ``coverage`` carries the associated :class:`CoverageMetrics`. The model
+    stores supplied metrics; it does not derive them from a dataset.
+    """
 
     missing_rate: float = Field(..., ge=0.0, le=1.0)
     duplicate_rate: float = Field(..., ge=0.0, le=1.0)
@@ -33,7 +44,12 @@ class QualityMetrics(BaseModel):
 
 
 class ReconciliationReport(BaseModel):
-    """Reconciliation report data model."""
+    """Carry reported inflow/outflow totals and their reconciliation details.
+
+    The report records a status, tolerance, aggregate totals, their reported
+    difference, and optional per-type totals. It is a result-shaped DTO: it
+    does not calculate the totals or decide whether the status is acceptable.
+    """
 
     status: str
     tolerance: float
@@ -46,9 +62,14 @@ class ReconciliationReport(BaseModel):
 
 
 class DatasetManifest(BaseModel):
-    """Dataset manifest data model.
+    """Describe dataset identity, handling metadata, and reported quality.
 
-    Fabric timestamp fields are UTC-aware ISO-8601 strings.
+    The manifest records the dataset name, source and license labels, raw
+    content hash, schema version, row count, PII flags, quality metrics, and an
+    optional reconciliation report. ``created_at`` defaults to the current
+    UTC-aware ISO-8601 timestamp. The manifest carries these declarations; it
+    does not verify source authority, license validity, content identity, or
+    the supplied quality assessment.
     """
 
     dataset_name: str

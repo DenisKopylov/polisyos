@@ -1,4 +1,9 @@
-"""Public analytics abstraction module API."""
+"""Define and verify finite-state and continuous causal model abstractions.
+
+The module provides micro-to-macro maps, query-preservation checks, and typed
+certificates that record the declared preservation scope and applicable error
+bounds. A certificate only describes the checked queries and assumptions.
+"""
 
 from __future__ import annotations
 

@@ -80,7 +80,28 @@ class DeadLetterCorruptedError(DeadLetterError):
 
 @dataclass
 class ReplayBackendResult:
-    """Replay backend result data model."""
+    """Capture the outcome fields returned by a replay backend call.
+
+    ``success`` is true when no replay errors were recorded, including plan, execution,
+    or verification errors. Verification may be absent when disabled or when an earlier
+    replay error prevents it from running; a skipped verification does not add an error.
+    Therefore, ``success`` alone does not mean that verification ran or passed.
+
+    Attributes:
+        success: Whether the replay call recorded no errors.
+        run_id: Identifier assigned to this replay attempt.
+        strategy: Strategy selected for the replay attempt.
+        original_packet_ref: String form of the source decision-packet reference.
+        replay_decision_packet_ref: Optional produced decision-packet reference.
+        replay_simulation_result_ref: Optional produced simulation-result reference.
+        completeness: Completeness assessment for the source replay plan.
+        verification: Optional verification result for the replayed output.
+        environment_diffs: Differences found against the current environment.
+        errors: Replay-planning, execution, or verification errors recorded by the
+            backend.
+        warnings: Non-fatal replay limitations and environment warnings.
+        replay_artifact_refs: Produced artifact references keyed by output role.
+    """
 
     success: bool
     run_id: str
@@ -135,7 +156,29 @@ def replay_packet(
     verification_config: VerificationConfig | None = None,
     force_strategy: ReplayStrategy | None = None,
 ) -> ReplayBackendResult:
-    """Replay packet helper."""
+    """Replay a decision packet using its planned or explicitly selected strategy.
+
+    Builds a replay plan from the packet and its referenced artifacts, sets the
+    process-wide random seeds from that plan, and executes the Foundry or Scientist
+    path. When verification is enabled and execution records no errors, the replayed
+    output is checked against the original payload and selected reference bindings.
+    An incomplete plan returns a failed result without dispatching a replay. Execution
+    and verification failures captured by the backend are returned in the result.
+
+    Args:
+        store: Artifact store containing the packet and its referenced inputs.
+        packet_ref: Artifact identifier of the decision packet to replay.
+        verify: Whether to verify a replayed output after execution.
+        verification_config: Optional settings for replay verification; defaults to
+            ``VerificationConfig()`` when omitted.
+        force_strategy: Optional strategy that overrides the strategy in the replay
+            plan.
+
+    Returns:
+        The replay outcome, including completeness, optional verification, artifact
+        references, warnings, and recorded errors. A successful result does not imply
+        that verification ran when it was disabled or skipped.
+    """
     config = verification_config or VerificationConfig()
     plan = build_replay_plan(store, packet_ref)
     strategy = force_strategy or plan.strategy

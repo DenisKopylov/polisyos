@@ -222,6 +222,7 @@ class ControlWorker:
             attempt=job.attempt,
             lost=lost,
             current_owner_check=require_current_owner,
+            run_id=job.run_id,
         )
 
         def _lease_pulse() -> None:

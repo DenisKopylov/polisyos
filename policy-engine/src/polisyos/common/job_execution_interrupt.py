@@ -29,12 +29,15 @@ class JobExecutionInterrupt:
     attempt: int
     lost: Event
     current_owner_check: Callable[[], None] | None = field(default=None, kw_only=True)
+    run_id: str | None = field(default=None, kw_only=True)
 
     def __post_init__(self) -> None:
         if not self.job_id or not self.worker_id or self.attempt < 1:
             raise ValueError("job_execution_interrupt_identity_invalid")
         if self.current_owner_check is not None and not callable(self.current_owner_check):
             raise ValueError("job_execution_current_owner_check_invalid")
+        if self.run_id is not None and (not isinstance(self.run_id, str) or not self.run_id):
+            raise ValueError("job_execution_run_id_invalid")
 
 
 _CURRENT: ContextVar[JobExecutionInterrupt | None] = ContextVar(
@@ -122,3 +125,11 @@ def has_job_execution_scope() -> bool:
     lookup and grants no execution permission.
     """
     return _CURRENT.get() is not None
+
+
+def _current_job_execution_identity() -> tuple[str, str, int, str] | None:
+    """Return an exact bound identity only when an owner checker is installed."""
+    current = _CURRENT.get()
+    if current is None or current.current_owner_check is None or current.run_id is None:
+        return None
+    return (current.job_id, current.worker_id, current.attempt, current.run_id)

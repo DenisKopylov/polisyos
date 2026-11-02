@@ -25,10 +25,663 @@
       "lane_id": "LANE-06",
       "sequence": 1,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
       "capability_acceptance": "NOT_RUN",
       "transition_evidence": [],
-      "corrective_windows": []
+      "corrective_windows": [],
+      "denominator": {
+        "packets": 22,
+        "unique_requirements": 75,
+        "local_tests": 75,
+        "shared_bindings": 23,
+        "shared_requirement_rows": 67,
+        "shared_req_test_pairs": 70,
+        "local_only_requirements": 8,
+        "preserve_global_E02": [
+          26,
+          127,
+          282,
+          291,
+          319
+        ]
+      },
+      "evidence_catalog": {
+        "cache_composed": {
+          "output": "policy-engine/_cache/e02/lane06-composed-cache-skg-r3",
+          "observed": {
+            "PASS": 147,
+            "FAIL": 1
+          },
+          "return_code": 1,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 90,
+          "note": "147 PASS +1 callback-fixture FAIL; the precise reviewed test-only fix is separately 1 PASS in cache_callback_fix. Do not label this one 148-PASS run."
+        },
+        "cache_callback_fix": {
+          "output": "policy-engine/_cache/e02/sta-hierarchical-prepared-callback-r4",
+          "observed": {
+            "PASS": 1
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 90
+        },
+        "prepared_source_controls": {
+          "output": "policy-engine/_cache/e02/sta-async-prepared-source-controls-r2",
+          "observed": {
+            "PASS": 2
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 38
+        },
+        "shared6": {
+          "output": "policy-engine/_cache/e02/lane06-shared6-r2",
+          "observed": {
+            "PASS": 6
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 39
+        },
+        "snapshot45": {
+          "output": "policy-engine/_cache/e02/state-isolation-qualified-r2",
+          "observed": {
+            "PASS": 45
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 11
+        },
+        "snapshot_removal5": {
+          "output": "policy-engine/_cache/e02/state-snapshot-removal-r1",
+          "observed": {
+            "PASS": 5
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 11
+        },
+        "sta_prior_native": {
+          "output": "policy-engine/_cache/e02/sta02-native-manual-r2",
+          "observed": {
+            "PASS": 1
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 6
+        },
+        "sta_workload_measurements": {
+          "output": "policy-engine/_cache/e02/lane06-sta-current-freeze-r2",
+          "observed": {
+            "PASS": 107,
+            "FAIL": 12
+          },
+          "return_code": 1,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 37,
+          "note": "Only the two subtree and prepared-source measurement testcase properties are reused; entire historical command had 12 FAIL. No whole-run green claim."
+        },
+        "sta_runtime_reuse": {
+          "output": "policy-engine/_cache/e02/sta02-runtime-reuse-final",
+          "observed": {
+            "PASS": 32
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 3
+        },
+        "res_four_process": {
+          "output": "policy-engine/_cache/e02/state-res01-four-restart-r2",
+          "observed": {
+            "PASS": 1
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 11
+        },
+        "res_frontier": {
+          "output": "policy-engine/_cache/e02/state-replay-frontier-r4",
+          "observed": {
+            "PASS": 1
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 11
+        },
+        "res_normal": {
+          "output": "policy-engine/_cache/e02/res02-b73-normal-r1",
+          "observed": {
+            "PASS": 1
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 42
+        },
+        "res_removal": {
+          "output": "policy-engine/_cache/e02/res02-b73-removal-r1",
+          "observed": {
+            "FAIL": 1
+          },
+          "return_code": 1,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 42,
+          "note": "Intended semantic red/removal, not a normal PASS. Pair with corresponding positive/restored result."
+        },
+        "res_helpers": {
+          "output": "policy-engine/_cache/e02/res02-abi",
+          "observed": {
+            "PASS": 8
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 4
+        },
+        "res_read_contracts": {
+          "output": "policy-engine/_cache/e02/res01-review-fix-smoke-r3",
+          "observed": {
+            "PASS": 6
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 11
+        },
+        "res_metrics_initial": {
+          "output": "policy-engine/_cache/e02/res01-full-scan-measurement-r1",
+          "observed": {
+            "FAIL": 2
+          },
+          "return_code": 1,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 93,
+          "note": "Both cases FAIL: selected-vs-unselected ref comparison and admission read-count boundary; sole author supplied reviewed fixture corrections765da, rerun pending."
+        },
+        "rep_default_resume": {
+          "output": "policy-engine/_cache/e02/rep-real-default-resume-r2",
+          "observed": {
+            "PASS": 1
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 25
+        },
+        "rep_native": {
+          "output": "policy-engine/_cache/e02/rep01-original-source-and-budget-r7",
+          "observed": {
+            "PASS": 6
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 27
+        },
+        "native_async3": {
+          "output": "policy-engine/_cache/e02/lane06-native-async-r1",
+          "observed": {
+            "PASS": 3
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 33
+        },
+        "common_routes": {
+          "output": "policy-engine/_cache/e02/lane06-exe01-cancel-composed-final",
+          "observed": {
+            "PASS": 184,
+            "SKIP": 87
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 7
+        },
+        "run_pre_admission": {
+          "output": "policy-engine/_cache/e02/lane06-run01-pre-admission-final",
+          "observed": {
+            "PASS": 48
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 2
+        },
+        "retry_deadline": {
+          "output": "policy-engine/_cache/e02/deadline-preparation-current-r1",
+          "observed": {
+            "PASS": 6
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 20
+        },
+        "invocation_wire": {
+          "output": "policy-engine/_cache/e02/invocation-view-full-async-r2",
+          "observed": {
+            "PASS": 383
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 28
+        },
+        "runtime23": {
+          "output": "policy-engine/_cache/e02/dur02-composed-controls-current-r7",
+          "observed": {
+            "PASS": 23
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 63
+        },
+        "runtime_preservation": {
+          "output": "policy-engine/_cache/e02/dur02-preservation-r5",
+          "observed": {
+            "PASS": 40
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 71
+        },
+        "runtime_post_ack": {
+          "output": "policy-engine/_cache/e02/dur02-post-ack-owner-loss-r6",
+          "observed": {
+            "PASS": 1
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 71
+        },
+        "ipc10": {
+          "output": "policy-engine/_cache/e02/ipc-unknown-full-r2",
+          "observed": {
+            "PASS": 10
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 19
+        },
+        "warm_sync": {
+          "output": "policy-engine/_cache/e02/run02-warm-darwin-sync-pilot-r2",
+          "observed": {
+            "PASS": 1
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 48
+        },
+        "warm_remaining": {
+          "output": "policy-engine/_cache/e02/run02-warm-darwin-remaining-r1",
+          "observed": {
+            "PASS": 3
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 48
+        },
+        "retry_categories": {
+          "output": "policy-engine/_cache/e02/retry-run03-affected-r1",
+          "observed": {
+            "PASS": 75
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 21
+        },
+        "physical_pin": {
+          "output": "policy-engine/_cache/e02/retry-physical-resource-queued-child-r1",
+          "observed": {
+            "PASS": 2
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 21
+        },
+        "durability219": {
+          "output": "policy-engine/_cache/e02/dur01-final-impact-r1",
+          "observed": {
+            "PASS": 219
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 14
+        },
+        "cas_publication": {
+          "output": "policy-engine/_cache/e02/cas01-publication-matrix-r1",
+          "observed": {
+            "PASS": 12
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 18
+        },
+        "cas_owner_removal": {
+          "output": "policy-engine/_cache/e02/cas01-inner-owner-removal-r1",
+          "observed": {
+            "FAIL": 1
+          },
+          "return_code": 1,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 18,
+          "note": "Intended semantic red/removal, not a normal PASS. Pair with corresponding positive/restored result."
+        },
+        "cas_owner_restored": {
+          "output": "policy-engine/_cache/e02/cas01-withdrawal-restored-r1",
+          "observed": {
+            "PASS": 2
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 18
+        },
+        "cas_transfer": {
+          "output": "policy-engine/_cache/e02/lane06-cas02-policy-export-final-r1",
+          "observed": {
+            "PASS": 43
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 21
+        },
+        "cas_signature_removal": {
+          "output": "policy-engine/_cache/e02/lane06-cas02-signature-removal-r1",
+          "observed": {
+            "FAIL": 1
+          },
+          "return_code": 1,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 21,
+          "note": "Intended semantic red/removal, not a normal PASS. Pair with corresponding positive/restored result."
+        },
+        "cas_signature_restored": {
+          "output": "policy-engine/_cache/e02/lane06-cas02-signature-restored-r1",
+          "observed": {
+            "PASS": 3
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 21
+        },
+        "cas_resource_removal": {
+          "output": "policy-engine/_cache/e02/lane06-cas02-resource-removal-r1",
+          "observed": {
+            "FAIL": 1
+          },
+          "return_code": 1,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 21,
+          "note": "Intended semantic red/removal, not a normal PASS. Pair with corresponding positive/restored result."
+        },
+        "cas_resource_restored": {
+          "output": "policy-engine/_cache/e02/lane06-cas02-resource-restored-r1",
+          "observed": {
+            "PASS": 1
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 21
+        },
+        "canon216": {
+          "output": "policy-engine/_cache/e02/lane06-can01-qualified",
+          "observed": {
+            "PASS": 216
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 11
+        },
+        "canon_native3": {
+          "output": "policy-engine/_cache/e02/lane06-can3-native-dispatch-r3",
+          "observed": {
+            "PASS": 3
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 17
+        },
+        "tensor33": {
+          "output": "policy-engine/_cache/e02/lane06-tensor-selected-r3",
+          "observed": {
+            "PASS": 33
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 12
+        },
+        "tensor_capture3": {
+          "output": "policy-engine/_cache/e02/lane06-tensor-capture-order-r1",
+          "observed": {
+            "PASS": 3
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 13
+        },
+        "migration69": {
+          "output": "policy-engine/_cache/e02/lane06-migration-current-consumers",
+          "observed": {
+            "PASS": 69
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 16
+        },
+        "migration_atomic74": {
+          "output": "policy-engine/_cache/e02/lane06-mig01-ownership-final",
+          "observed": {
+            "PASS": 74
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 6
+        },
+        "migration_callbacks55": {
+          "output": "policy-engine/_cache/e02/lane06-mig05-final",
+          "observed": {
+            "PASS": 55
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 5
+        },
+        "installed_instrument16": {
+          "output": "policy-engine/_cache/e02/lane06-installed-observer-r5",
+          "observed": {
+            "PASS": 16
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 10,
+          "note": "Instrument fake-wheel/prefix tests only; actual product installed29 remains UNRUN."
+        },
+        "partial_latest": {
+          "output": "policy-engine/_cache/e02/res03-native-bounded-generic-late-value-r9",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 1
+          },
+          "return_code": 1,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 61,
+          "note": "N4 canonical control PASS; same-leaf FAIL with control_nl_budget_producer_event_not_settled and n5_observations=[]; not an N5→partial qualification."
+        },
+        "partial_n5_binding14": {
+          "output": "policy-engine/_cache/e02/res03-n5-canonical-controls-r1",
+          "observed": {
+            "PASS": 14
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 39
+        },
+        "partial_ncm_affected2": {
+          "output": "policy-engine/_cache/e02/res03-ncm-affected-r2",
+          "observed": {
+            "PASS": 2
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 37
+        },
+        "resume_metrics_waiting4": {
+          "output": "policy-engine/_cache/e02/res01-metrics-exe01-waiting-controls-r2",
+          "observed": {
+            "PASS": 4
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 93,
+          "note": "Actual16 unique refs:16 vs1600 occurrences, equal16 payload admission reads/31,142 bytes; first verified cache result40.011/52.965ms. Exact selected manifests+failed-load admission and both existing waiting-slot controls PASS; not full-resume speedup/SLA."
+        },
+        "partial_chain_controls": {
+          "output": "policy-engine/_cache/e02/lane06-run03-final",
+          "observed": {
+            "PASS": 31
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 14,
+          "note": "Six original test_res_03 async-chain cases PASS inside31PASS command. Later same-leaf numerical test is separate and remains pending."
+        },
+        "cas_audit_fix": {
+          "output": "policy-engine/_cache/e02/auth-audit3-r1/pytest.xml",
+          "observed": {
+            "PASS": 3
+          },
+          "note": "Retained JUnit3PASS plus Root-reported qualification; this directory has no before/after/result/full command output. Reuse Root source binding; do not fabricate a missing locator."
+        },
+        "cas_configured68": {
+          "output": "policy-engine/_cache/e02/lane06-cas03-configured-native-r3",
+          "observed": {
+            "PASS": 67,
+            "FAIL": 1
+          },
+          "return_code": 1,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 9,
+          "note": "67PASS/1 authorization-audit sibling FAIL, corrected independently in cas_audit_fix3; do not call this a single68PASS run."
+        },
+        "cas_native_completion3": {
+          "output": "policy-engine/_cache/e02/lane06-cas03-native-completion-r4",
+          "observed": {
+            "PASS": 3
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 6
+        },
+        "cas_authorizer_removal": {
+          "output": "policy-engine/_cache/e02/lane06-cas03-authorizer-removal-r1",
+          "observed": {
+            "FAIL": 1
+          },
+          "return_code": 1,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 5,
+          "note": "Intended semantic removal FAIL; pair with configured/completion positives, not normal PASS."
+        },
+        "owner_handoff_local48": {
+          "output": "policy-engine/_cache/e02/run02-owned-cleanup-composed-r4/",
+          "observed": {
+            "PASS": 48
+          },
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 22,
+          "scope": "Actual macOS framed owner/Core handoff, EOF, deadline marker, cleanup and native IPC controls on d574/Common95/ControlWorker8a. Actual seven Linux Core/ControlWorker positive and race cases remain UNRUN; no atomic SQL-to-Core or external-effect fence claim."
+        }
+      },
+      "local_only_requirement_ids": [
+        "REQ-EXE-01-04",
+        "REQ-REP-01-01",
+        "REQ-REP-01-03",
+        "REQ-RES-01-04",
+        "REQ-RES-02-04",
+        "REQ-RUN-01-03",
+        "REQ-RUN-02-03",
+        "REQ-STA-02-04"
+      ],
+      "current_remaining": [
+        {
+          "kind": "internal_source_and_affected_checks",
+          "requirements": [
+            "REQ-RUN-02-02",
+            "REQ-RUN-02-03",
+            "REQ-RUN-03-02",
+            "REQ-RUN-03-03",
+            "REQ-DUR-02-01",
+            "REQ-DUR-02-02",
+            "REQ-DUR-02-03"
+          ],
+          "owner": "/root/lane06_async",
+          "basis": "Authenticated real Linux ControlWorker cannot transport live owner check before spawn; bounded private typed parent/child handoff authorized. Owner reports subsequent local8GREEN/released via queue; final actual affected consumers must be bound, no blanket acceptance.",
+          "source_output": "policy-engine/_cache/e02/ci-95328c5396592504051d134031c62c300269ab3d/phase0/scientist-phase0.xml"
+        },
+        {
+          "kind": "active_same_leaf_implementation_or_fixture_and_semantic_result",
+          "requirements": [
+            "REQ-RES-03-02",
+            "REQ-RES-03-03"
+          ],
+          "basis": "r9 same-leaf control still before N5; separate passing N4/N5-binding/NCM controls are not numerical partial proof."
+        },
+        {
+          "kind": "product_installed_profile",
+          "requirements": [
+            "REQ-REP-01-01",
+            "REQ-RUN-01-03"
+          ],
+          "also_affects_shared": "E02-I06-E B01..B05",
+          "basis": "Instrument16PASS is not actual installed29. Run actual product wheel/noneditable imports/CLI/native readers with external env reuse."
+        },
+        {
+          "kind": "trusted_restore_input_or_explicit_supported_boundary",
+          "requirements": [
+            "REQ-DUR-01-02"
+          ],
+          "basis": "Missing independently latest owner/generation and all confirmed receipts; signed stale backup cannot restore authority."
+        },
+        {
+          "kind": "finite_support_record_and_binding_adjudication",
+          "requirements": [
+            "REQ-REP-01-03",
+            "REQ-MIG-01-03",
+            "REQ-MIG-04-03",
+            "REQ-MIG-05-04"
+          ],
+          "basis": "Use existing complete named census/support window and mark external unknowns; do not invent infinite plugin/history coverage or retire shims."
+        },
+        {
+          "kind": "deciding_audit_output_access",
+          "requirements": [
+            "REQ-CAS-03-01",
+            "REQ-CAS-03-02",
+            "REQ-CAS-03-03",
+            "REQ-CAS-03-04"
+          ],
+          "owner": "/root/lane06_execution_queue",
+          "basis": "Prior actual audit3 JUnit exists and fix is committed at a33ce94; complete stdout/source-pin output is unavailable there. Repeat exactly the three known selectors in the final frozen Runtime wave, not all CAS work."
+        }
+      ],
+      "execution_control": {
+        "stop_after": "LANE-06",
+        "g_acceptance": false,
+        "formal_closure": false,
+        "B198": "Historical closure preserved",
+        "next_lanes_started": false,
+        "source_state": "In-flight owner-handoff/RES03 source; delivered commits are code checkpoints, not all75 requirement closures.",
+        "repository_ci": "Fast/Standard remain red. All three named forbidden package edges predate20d9009; aggregate import/cycle and UI reds are not called inherited without exact complete replay. Main remains unmerged."
+      },
+      "reconciliation_binding": {
+        "source_head": "27958f89d976466fcc321fec28e06469de435a6b",
+        "source_tree": "6b38f1f8ab02d1bdcf9ed6545f8a317c5657c4ad",
+        "canonical_bindings_sha256": "044cac2779096f2505139d15a03b56f07fc88acc06575806d922508892db578a",
+        "basis": "22 packet annotations and75 exact canonical criterion pointers independently reconciled;57 shared evidence locators plus local41 update; version-specific results retained."
+      },
+      "current_source_checkpoint": {
+        "binding": "Use the commit containing this record and these released blobs; actual Linux qualification remains pending.",
+        "released_file_sha256": {
+          "src/polisyos/scientist/orchestration/engine/retry.py": "d574c94757faead8c69a11b10df6f2d6246009b8f8d7f1ed94be852a4ac03e1c",
+          "src/polisyos/common/job_execution_interrupt.py": "95c5e532eae90d85b3de642451c522845c8afe33554e84b46cf08e9a0b75b633",
+          "src/polisyos/runtime/http/services/control_worker.py": "8a594209bc74d3fda31214bfb3a483c6b45a785db290fd448dbb6dee9d0a0aea",
+          "tests/unit/scientist/orchestration/engine/test_retry.py": "eb654a2661933b522a825c1008480ed66341b0b658ea12c88e791555eafba813",
+          "tests/unit/common/test_job_execution_interrupt.py": "dc2292cb8635d71f0eed1f09e598b939fb7bdd140ed8b772799ab35a64e6ad9b"
+        }
+      }
     },
     {
       "lane_id": "LANE-08",
@@ -137,9 +790,9 @@
       "lane_sequence": 1,
       "track_id": "06-A",
       "track_position": 1,
-      "implementation_status": "REVIEWED_LOCAL_SLICE",
-      "local_qualification": "PARTIAL",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_source_metrics",
       "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
       "integrated_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
@@ -179,9 +832,7 @@
           "scope": "Composed local family regressions for six packets; not full E02-I06 scenarios or all75 local TEST contracts."
         }
       ],
-      "blockers": [
-        "Fresh cold/warm CAS/cache, epoch/proof and actual worker/cross-owner effects remain shared qualification."
-      ],
+      "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "released; relevant sources frozen through composition",
@@ -194,37 +845,135 @@
           "requirement_id": "REQ-STA-01-01",
           "test_id": "TEST-STA-01-01",
           "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Staged resultant membership on all three protected roots; preserve valid ref updates/additions and caller state; exact old-source negatives."
+          "basis": "Remove stale blanket cold/warm/epoch/proof/worker gap. Existing actual journals, snapshot isolation, CAS cache replay and declared workload measurements have deciding controls; operation fencing keeps its real owner and does not imply external exactly-once.",
+          "criterion_pointer": "04_Трассировка/STA-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-STA-01-01"
+          ],
+          "binding_ids": [
+            "E02-I06-A-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "snapshot45",
+            "snapshot_removal5",
+            "cache_composed",
+            "cache_callback_fix",
+            "shared6",
+            "sta_workload_measurements"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-STA-01-02",
           "test_id": "TEST-STA-01-02",
-          "status": "PARTIAL",
-          "basis": "Current-base journal regression coverage passed; full cold/warm cache consumer still open."
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Remove stale blanket cold/warm/epoch/proof/worker gap. Existing actual journals, snapshot isolation, CAS cache replay and declared workload measurements have deciding controls; operation fencing keeps its real owner and does not imply external exactly-once.",
+          "criterion_pointer": "04_Трассировка/STA-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-STA-01-02",
+            "TEST-STA-01-04"
+          ],
+          "binding_ids": [
+            "E02-I06-A-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "snapshot45",
+            "snapshot_removal5",
+            "cache_composed",
+            "cache_callback_fix",
+            "shared6",
+            "sta_workload_measurements"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-STA-01-03",
           "test_id": "TEST-STA-01-03",
-          "status": "PARTIAL",
-          "basis": "Existing isolated local branch cases passed; actual failed/cancelled worker evidence open."
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Remove stale blanket cold/warm/epoch/proof/worker gap. Existing actual journals, snapshot isolation, CAS cache replay and declared workload measurements have deciding controls; operation fencing keeps its real owner and does not imply external exactly-once.",
+          "criterion_pointer": "04_Трассировка/STA-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-STA-01-03",
+            "TEST-STA-01-04"
+          ],
+          "binding_ids": [
+            "E02-I06-A-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "snapshot45",
+            "snapshot_removal5",
+            "cache_composed",
+            "cache_callback_fix",
+            "shared6",
+            "sta_workload_measurements"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-STA-01-04",
           "test_id": "TEST-STA-01-04",
-          "status": "NOT_RUN",
-          "basis": "No new exact selected CAS/epoch/proof/fresh-process acceptance."
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Remove stale blanket cold/warm/epoch/proof/worker gap. Existing actual journals, snapshot isolation, CAS cache replay and declared workload measurements have deciding controls; operation fencing keeps its real owner and does not imply external exactly-once.",
+          "criterion_pointer": "04_Трассировка/STA-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-STA-01-04"
+          ],
+          "binding_ids": [
+            "E02-I06-A-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "snapshot45",
+            "snapshot_removal5",
+            "cache_composed",
+            "cache_callback_fix",
+            "shared6",
+            "sta_workload_measurements"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-STA-01-05",
           "test_id": "TEST-STA-01-05",
-          "status": "NOT_RUN",
-          "basis": "Cross-owner spend/event/external-operation identity/fence proof and declared performance workload remain open."
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Remove stale blanket cold/warm/epoch/proof/worker gap. Existing actual journals, snapshot isolation, CAS cache replay and declared workload measurements have deciding controls; operation fencing keeps its real owner and does not imply external exactly-once.",
+          "criterion_pointer": "04_Трассировка/STA-01.json#/requirements/4",
+          "test_ids": [
+            "TEST-STA-01-05"
+          ],
+          "binding_ids": [
+            "E02-I06-B-B05"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "snapshot45",
+            "snapshot_removal5",
+            "cache_composed",
+            "cache_callback_fix",
+            "shared6",
+            "sta_workload_measurements"
+          ],
+          "remaining_kinds": []
         }
       ],
       "qualification_write_set": [
         "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
         "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py"
-      ]
+      ],
+      "current_assessment": "selected_profile_qualified",
+      "evidence_refs": [
+        "snapshot45",
+        "snapshot_removal5",
+        "cache_composed",
+        "cache_callback_fix",
+        "shared6",
+        "sta_workload_measurements"
+      ],
+      "remaining_kinds": [],
+      "reconciliation_note": "Remove stale blanket cold/warm/epoch/proof/worker gap. Existing actual journals, snapshot isolation, CAS cache replay and declared workload measurements have deciding controls; operation fencing keeps its real owner and does not imply external exactly-once."
     },
     {
       "packet_id": "STA-02",
@@ -232,12 +981,12 @@
       "lane_sequence": 1,
       "track_id": "06-A",
       "track_position": 2,
-      "implementation_status": "REVIEWED_LOCAL_SLICE",
-      "local_qualification": "PARTIAL",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_source_metrics",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
-      "integrated_commit": "388064755fa8833107f35ae097633b1b3445b59f",
+      "integrated_commit": "d05262d57a38d2393f95ff31fee664061184508d",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
         "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
@@ -291,9 +1040,7 @@
           "scope": "One composed affected-family wave including real native CLI and the manual SCM consumer; not all I06 scenario bindings or all75 local TEST contracts."
         }
       ],
-      "blockers": [
-        "Prepared-source cold/warm metrics and complete I06-A remain unqualified. Automatic workflow assembly and empirical applicability are outside the named manual witness."
-      ],
+      "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "Awaiting exclusive native admission; independent editing allowed",
@@ -305,30 +1052,104 @@
           "requirement_id": "REQ-STA-02-01",
           "test_id": "TEST-STA-02-01",
           "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Actual selected CAS bundle → current NumPy materialization for two draw/seed requests; unsupported/empty and failure-no-publication controls."
+          "basis": "Remove stale missing prepared-source metrics/bridge mechanism. Actual selected prior and source-key/read/lifetime routes are demonstrated, including current async changes. Manual native_hybrid prior consumer is not automatic workflow assembly or empirical scientific applicability.",
+          "criterion_pointer": "04_Трассировка/STA-02.json#/requirements/0",
+          "test_ids": [
+            "TEST-STA-02-01"
+          ],
+          "binding_ids": [
+            "E02-I06-A-B02"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "cache_composed",
+            "cache_callback_fix",
+            "prepared_source_controls",
+            "sta_prior_native",
+            "sta_workload_measurements",
+            "sta_runtime_reuse"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-STA-02-02",
           "test_id": "TEST-STA-02-02",
-          "status": "PARTIAL",
-          "basis": "Existing matcher/load checks preserved and selector does not rerun; full changed-binding/native qualification still open."
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Remove stale missing prepared-source metrics/bridge mechanism. Actual selected prior and source-key/read/lifetime routes are demonstrated, including current async changes. Manual native_hybrid prior consumer is not automatic workflow assembly or empirical scientific applicability.",
+          "criterion_pointer": "04_Трассировка/STA-02.json#/requirements/1",
+          "test_ids": [
+            "TEST-STA-02-01",
+            "TEST-STA-02-02"
+          ],
+          "binding_ids": [
+            "E02-I06-A-B02"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "cache_composed",
+            "cache_callback_fix",
+            "prepared_source_controls",
+            "sta_prior_native",
+            "sta_workload_measurements",
+            "sta_runtime_reuse"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-STA-02-03",
           "test_id": "TEST-STA-02-03",
-          "status": "NOT_RUN",
-          "basis": "Prepared actual SKG connection/key/source and native cold/warm proof still required."
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Remove stale missing prepared-source metrics/bridge mechanism. Actual selected prior and source-key/read/lifetime routes are demonstrated, including current async changes. Manual native_hybrid prior consumer is not automatic workflow assembly or empirical scientific applicability.",
+          "criterion_pointer": "04_Трассировка/STA-02.json#/requirements/2",
+          "test_ids": [
+            "TEST-STA-02-03"
+          ],
+          "binding_ids": [
+            "E02-I06-A-B02"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "cache_composed",
+            "cache_callback_fix",
+            "prepared_source_controls",
+            "sta_prior_native",
+            "sta_workload_measurements",
+            "sta_runtime_reuse"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-STA-02-04",
           "test_id": "TEST-STA-02-04",
-          "status": "PARTIAL",
-          "basis": "Named manual native_hybrid path is now freshly demonstrated with actual selected source, fit, persistence and consumer; automatic orchestration is not claimed. Measured digest/materialization calls/bytes/time and representative scientific applicability remain open."
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual native_hybrid prior consumer checks emitted means1.25/9.75+CI and independent posterior; separate2/.6 no-CI oracle checks arithmetic only. Source calls/bytes/time are selected operation measurements, not scientific relevance.",
+          "criterion_pointer": "04_Трассировка/STA-02.json#/requirements/3",
+          "test_ids": [
+            "TEST-STA-02-04"
+          ],
+          "binding_ids": [],
+          "assessment": "named_science_and_cost_profile_demonstrated",
+          "evidence_refs": [
+            "sta_prior_native",
+            "sta_workload_measurements"
+          ],
+          "remaining_kinds": []
         }
       ],
       "qualification_write_set": [
         "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py"
-      ]
+      ],
+      "current_assessment": "selected_profile_qualified",
+      "evidence_refs": [
+        "cache_composed",
+        "cache_callback_fix",
+        "prepared_source_controls",
+        "sta_prior_native",
+        "sta_workload_measurements",
+        "sta_runtime_reuse"
+      ],
+      "remaining_kinds": [],
+      "reconciliation_note": "Remove stale missing prepared-source metrics/bridge mechanism. Actual selected prior and source-key/read/lifetime routes are demonstrated, including current async changes. Manual native_hybrid prior consumer is not automatic workflow assembly or empirical scientific applicability."
     },
     {
       "packet_id": "RES-02",
@@ -336,9 +1157,9 @@
       "lane_sequence": 1,
       "track_id": "06-A",
       "track_position": 3,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_state",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "integrated_commit": null,
@@ -373,7 +1194,98 @@
         "test_slot": "Awaiting root admission; read-only research and disjoint editing concurrent",
         "source_scope": "Explicit paths only, root sole index/refs; additional owner changes need overlap reconciliation",
         "delegate_limit": "One read-only leaf with allowed explicit model; no further delegation"
-      }
+      },
+      "current_assessment": "selected_profile_qualified",
+      "evidence_refs": [
+        "res_normal",
+        "res_removal",
+        "res_frontier",
+        "res_helpers",
+        "native_async3"
+      ],
+      "remaining_kinds": [],
+      "reconciliation_note": "Atomic committed frontier and current selected-profile helpers are demonstrated. Frontier producer AST is unchanged from the exact B73 removal qualification despite unrelated whole-file drift; do not rerun mutation merely for a new HEAD.",
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-RES-02-01",
+          "criterion_pointer": "04_Трассировка/RES-02.json#/requirements/0",
+          "test_ids": [
+            "TEST-RES-02-01"
+          ],
+          "binding_ids": [
+            "E02-I06-B-B02"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "res_normal",
+            "res_removal",
+            "res_frontier",
+            "res_helpers",
+            "native_async3"
+          ],
+          "remaining_kinds": [],
+          "basis": "Atomic committed frontier and current selected-profile helpers are demonstrated. Frontier producer AST is unchanged from the exact B73 removal qualification despite unrelated whole-file drift; do not rerun mutation merely for a new HEAD.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
+        },
+        {
+          "requirement_id": "REQ-RES-02-02",
+          "criterion_pointer": "04_Трассировка/RES-02.json#/requirements/1",
+          "test_ids": [
+            "TEST-RES-02-02"
+          ],
+          "binding_ids": [
+            "E02-I06-B-B02"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "res_normal",
+            "res_removal",
+            "res_frontier",
+            "res_helpers",
+            "native_async3"
+          ],
+          "remaining_kinds": [],
+          "basis": "Atomic committed frontier and current selected-profile helpers are demonstrated. Frontier producer AST is unchanged from the exact B73 removal qualification despite unrelated whole-file drift; do not rerun mutation merely for a new HEAD.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
+        },
+        {
+          "requirement_id": "REQ-RES-02-03",
+          "criterion_pointer": "04_Трассировка/RES-02.json#/requirements/2",
+          "test_ids": [
+            "TEST-RES-02-03"
+          ],
+          "binding_ids": [
+            "E02-I06-B-B02"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "res_normal",
+            "res_removal",
+            "res_frontier",
+            "res_helpers",
+            "native_async3"
+          ],
+          "remaining_kinds": [],
+          "basis": "Atomic committed frontier and current selected-profile helpers are demonstrated. Frontier producer AST is unchanged from the exact B73 removal qualification despite unrelated whole-file drift; do not rerun mutation merely for a new HEAD.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
+        },
+        {
+          "requirement_id": "REQ-RES-02-04",
+          "criterion_pointer": "04_Трассировка/RES-02.json#/requirements/3",
+          "test_ids": [
+            "TEST-RES-02-04"
+          ],
+          "binding_ids": [],
+          "assessment": "local_companion_qualified",
+          "evidence_refs": [
+            "res_helpers",
+            "native_async3"
+          ],
+          "remaining_kinds": [],
+          "basis": "Current return_selected_profile shape/checks and native bodies execute; do not synthesize ok from skip.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
+        }
+      ]
     },
     {
       "packet_id": "RES-01",
@@ -381,12 +1293,12 @@
       "lane_sequence": 1,
       "track_id": "06-A",
       "track_position": 4,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_state",
       "base_commit": "e7a49fdf939b492fc7742906658159cd2fc89ff6",
-      "integrated_commit": null,
+      "integrated_commit": "27958f89d976466fcc321fec28e06469de435a6b",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
         "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_runner.py",
@@ -431,7 +1343,86 @@
         "test_slot": "Root admission; preserve frozen RES02 source until atomic-frontier removal control done",
         "source_scope": "Sole checkpoint/deadline/source-backed workflow reader writer; coordinate typed seams with DUR02 and REP01; engineREADME root companion, idempotency only after actual defect",
         "mandatory_companions": "Authorized mirrored tests/helper/README companions may be added within the assigned mechanism after checking no competing writer; notify Root footprint, no separate approval per routine companion. Shared generated families/index/refs remain Root-owned."
-      }
+      },
+      "current_assessment": "selected_profile_qualified",
+      "evidence_refs": [
+        "res_four_process",
+        "res_frontier",
+        "res_read_contracts",
+        "resume_metrics_waiting4"
+      ],
+      "remaining_kinds": [],
+      "reconciliation_note": "Actual once-only four-process continuation/nonempty selected refs, read sufficiency and exact dedupe are qualified. REQ04 now has actual16-ref distinct16 vs duplicate-heavy1600 full-scan calls/bytes/time table; measured first verified cache result, no SLA/tail optimization/full-resume speedup.",
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-RES-01-01",
+          "criterion_pointer": "04_Трассировка/RES-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-RES-01-01"
+          ],
+          "binding_ids": [
+            "E02-I06-B-B01"
+          ],
+          "assessment": "named_native_transition_demonstrated",
+          "evidence_refs": [
+            "res_four_process",
+            "res_frontier"
+          ],
+          "remaining_kinds": [],
+          "basis": "Actual A/B/C four-process durable calls, origin/residual identity and nonempty selected refs agree with uninterrupted bytes.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
+        },
+        {
+          "requirement_id": "REQ-RES-01-02",
+          "criterion_pointer": "04_Трассировка/RES-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-RES-01-02"
+          ],
+          "binding_ids": [
+            "E02-I06-B-B01"
+          ],
+          "assessment": "qualified_named_local_profile",
+          "evidence_refs": [
+            "resume_metrics_waiting4"
+          ],
+          "remaining_kinds": [],
+          "basis": "Actual selected-manifest ref admission dedupe, failed-load retry and changed-profile/distinct-ref controls now PASS on current embedded-outcome cache format.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
+        },
+        {
+          "requirement_id": "REQ-RES-01-03",
+          "criterion_pointer": "04_Трассировка/RES-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-RES-01-03"
+          ],
+          "binding_ids": [
+            "E02-I06-B-B01"
+          ],
+          "assessment": "named_native_transition_demonstrated",
+          "evidence_refs": [
+            "res_four_process",
+            "res_read_contracts"
+          ],
+          "remaining_kinds": [],
+          "basis": "Real residual read sufficiency and typed external ref guards exist; preserve finite grammar/declaration scope.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
+        },
+        {
+          "requirement_id": "REQ-RES-01-04",
+          "criterion_pointer": "04_Трассировка/RES-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-RES-01-04"
+          ],
+          "binding_ids": [],
+          "assessment": "qualified_named_local_profile",
+          "evidence_refs": [
+            "resume_metrics_waiting4"
+          ],
+          "remaining_kinds": [],
+          "basis": "Actual16 unique refs,16 vs1600 occurrences;16 admitted payload reads/31,142 bytes both; first verified cache result40.011/52.965ms. Full scan retained; no tail/SLA/full-resume speedup claimed.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
+        }
+      ]
     },
     {
       "packet_id": "EXE-02",
@@ -439,9 +1430,9 @@
       "lane_sequence": 1,
       "track_id": "06-A",
       "track_position": 5,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_readiness",
       "base_commit": "e7a49fdf939b492fc7742906658159cd2fc89ff6",
       "integrated_commit": null,
@@ -477,7 +1468,78 @@
         "test_slot": "Explicit root token only; source/test authorship independent",
         "source_scope": "Test-only lease, canonical source change separately reconciled with current owner; no competing writer",
         "delegate_limit": "One read-only leaf explicit allowed model; grandchild no delegation"
-      }
+      },
+      "current_assessment": "selected_profile_qualified",
+      "evidence_refs": [
+        "shared6",
+        "native_async3",
+        "snapshot45",
+        "snapshot_removal5"
+      ],
+      "remaining_kinds": [],
+      "reconciliation_note": "Actual A→C-before-B, explicit join, list-alias conflict, fresh finalization, fail-fast rollback and cancellation are demonstrated. Native controlled workload is not a general speedup claim.",
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-EXE-02-01",
+          "criterion_pointer": "04_Трассировка/EXE-02.json#/requirements/0",
+          "test_ids": [
+            "TEST-EXE-02-01"
+          ],
+          "binding_ids": [
+            "E02-I06-A-B04"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "shared6",
+            "native_async3",
+            "snapshot45",
+            "snapshot_removal5"
+          ],
+          "remaining_kinds": [],
+          "basis": "Actual A→C-before-B, explicit join, list-alias conflict, fresh finalization, fail-fast rollback and cancellation are demonstrated. Native controlled workload is not a general speedup claim.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
+        },
+        {
+          "requirement_id": "REQ-EXE-02-02",
+          "criterion_pointer": "04_Трассировка/EXE-02.json#/requirements/1",
+          "test_ids": [
+            "TEST-EXE-02-02"
+          ],
+          "binding_ids": [
+            "E02-I06-A-B04"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "shared6",
+            "native_async3",
+            "snapshot45",
+            "snapshot_removal5"
+          ],
+          "remaining_kinds": [],
+          "basis": "Actual A→C-before-B, explicit join, list-alias conflict, fresh finalization, fail-fast rollback and cancellation are demonstrated. Native controlled workload is not a general speedup claim.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
+        },
+        {
+          "requirement_id": "REQ-EXE-02-03",
+          "criterion_pointer": "04_Трассировка/EXE-02.json#/requirements/2",
+          "test_ids": [
+            "TEST-EXE-02-03"
+          ],
+          "binding_ids": [
+            "E02-I06-A-B04"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "shared6",
+            "native_async3",
+            "snapshot45",
+            "snapshot_removal5"
+          ],
+          "remaining_kinds": [],
+          "basis": "Actual A→C-before-B, explicit join, list-alias conflict, fresh finalization, fail-fast rollback and cancellation are demonstrated. Native controlled workload is not a general speedup claim.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
+        }
+      ]
     },
     {
       "packet_id": "RES-03",
@@ -486,8 +1548,8 @@
       "track_id": "06-A",
       "track_position": 6,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_partial",
       "base_commit": "e7a49fdf939b492fc7742906658159cd2fc89ff6",
       "integrated_commit": null,
@@ -508,7 +1570,9 @@
         "TEST-RES-03-03"
       ],
       "evidence": [],
-      "blockers": [],
+      "blockers": [
+        "source_or_fixture_fix_and_semantic_check"
+      ],
       "deferred_ids": [
         "DA-01"
       ],
@@ -517,7 +1581,81 @@
         "source_scope": "Test-only lease, canonical source change separately reconciled with current owner; no competing writer",
         "delegate_limit": "One read-only leaf explicit allowed model; grandchild no delegation",
         "mandatory_companions": "Authorized mirrored tests/helper/README companions may be added within the assigned mechanism after checking no competing writer; notify Root footprint, no separate approval per routine companion. Shared generated families/index/refs remain Root-owned."
-      }
+      },
+      "current_assessment": "actual_n5_partial_pending",
+      "evidence_refs": [
+        "partial_latest",
+        "partial_n5_binding14",
+        "partial_ncm_affected2",
+        "partial_chain_controls"
+      ],
+      "remaining_kinds": [
+        "source_or_fixture_fix_and_semantic_check"
+      ],
+      "reconciliation_note": "Current same-leaf route has not reached N5 in the deciding late-value test. Preserve independent async-chain contract; qualify actual N5 numbers→late failure→fresh scoped public GET. DA01 defers only later CYC projection, not this local requirement.",
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-RES-03-01",
+          "criterion_pointer": "04_Трассировка/RES-03.json#/requirements/0",
+          "test_ids": [
+            "TEST-RES-03-01"
+          ],
+          "binding_ids": [
+            "E02-I06-B-B03"
+          ],
+          "assessment": "qualified_named_async_chain_profile",
+          "evidence_refs": [
+            "partial_chain_controls"
+          ],
+          "remaining_kinds": [],
+          "basis": "Original six actual AsyncChainExecutionError completed-level/cause/dependent/all-success/removal controls PASS. This does not qualify same-leaf N5 public partial projection.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
+        },
+        {
+          "requirement_id": "REQ-RES-03-02",
+          "criterion_pointer": "04_Трассировка/RES-03.json#/requirements/1",
+          "test_ids": [
+            "TEST-RES-03-02"
+          ],
+          "binding_ids": [
+            "E02-I06-B-B03",
+            "E02-X02-B05"
+          ],
+          "assessment": "same_leaf_actual_n5_unqualified",
+          "evidence_refs": [
+            "partial_latest",
+            "partial_n5_binding14",
+            "partial_ncm_affected2"
+          ],
+          "remaining_kinds": [
+            "active_source_or_fixture_fix",
+            "actual_n5_late_fault_fresh_get"
+          ],
+          "basis": "r9 did not reach N5. Need actual numerical bytes/scope/completed-pending-error through fresh public GET without terminal/normative success. DA01 only later CYC projection.",
+          "status": "UNVERIFIED"
+        },
+        {
+          "requirement_id": "REQ-RES-03-03",
+          "criterion_pointer": "04_Трассировка/RES-03.json#/requirements/2",
+          "test_ids": [
+            "TEST-RES-03-03"
+          ],
+          "binding_ids": [
+            "E02-I06-B-B03",
+            "E02-X02-B05"
+          ],
+          "assessment": "same_leaf_actual_n5_unqualified",
+          "evidence_refs": [
+            "partial_latest"
+          ],
+          "remaining_kinds": [
+            "active_source_or_fixture_fix",
+            "actual_n5_late_value_fresh_get"
+          ],
+          "basis": "Need actual owner-bound same-leaf N5 retained after late independent value/revision fault, including dependency refs/exact cause. No synthetic N5 substitute.",
+          "status": "UNVERIFIED"
+        }
+      ]
     },
     {
       "packet_id": "REP-01",
@@ -525,9 +1663,9 @@
       "lane_sequence": 1,
       "track_id": "06-A",
       "track_position": 7,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "REVIEWED_LOCAL_SLICE",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "PARTIAL",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_replay",
       "base_commit": "e7a49fdf939b492fc7742906658159cd2fc89ff6",
       "integrated_commit": "77c4d8963da81608bc6542e6daf11785e97c4b78",
@@ -564,13 +1702,82 @@
           "result": "3 PASS source-mode installed-helper companions;14 inputs unchanged;actual installed profile remains UNRUN."
         }
       ],
-      "blockers": [],
+      "blockers": [
+        "installed_product_profile",
+        "finite_support_record"
+      ],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "Queued; independent replay authorship, final checkpoint consumer checks after canonical state seam",
         "source_scope": "Seven explicit paths; no checkpoint source writes, shared inventory/root companions serialized",
         "mandatory_companions": "Authorized mirrored tests/helper/README companions may be added within the assigned mechanism after checking no competing writer; notify Root footprint, no separate approval per routine companion. Shared generated families/index/refs remain Root-owned."
-      }
+      },
+      "current_assessment": "source_qualified_installed_pending",
+      "evidence_refs": [
+        "rep_native",
+        "rep_default_resume",
+        "res_four_process",
+        "installed_instrument16"
+      ],
+      "remaining_kinds": [
+        "installed_product_profile",
+        "finite_support_record"
+      ],
+      "reconciliation_note": "Actual default CLI replay/resume now passes; remove old default-workflow failure. Product installed29 and finite root10/shim20/FQN/string/monkeypatch/docs/package/historical support statement remain. Do not retire compatibility bindings.",
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-REP-01-01",
+          "criterion_pointer": "04_Трассировка/REP-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-REP-01-01"
+          ],
+          "binding_ids": [],
+          "assessment": "source_profile_demonstrated",
+          "evidence_refs": [
+            "installed_instrument16"
+          ],
+          "remaining_kinds": [
+            "installed_product_profile"
+          ],
+          "basis": "Root10/shim20 lazy identity/signature matrix source controls exist; instrument16 is not product installed proof.",
+          "status": "PARTIAL"
+        },
+        {
+          "requirement_id": "REQ-REP-01-02",
+          "criterion_pointer": "04_Трассировка/REP-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-REP-01-02"
+          ],
+          "binding_ids": [
+            "E02-I06-B-B04"
+          ],
+          "assessment": "named_native_transition_demonstrated",
+          "evidence_refs": [
+            "rep_native",
+            "rep_default_resume"
+          ],
+          "remaining_kinds": [],
+          "basis": "Actual producer/CAS/check-only/backend replay and remaining-node default CLI resume now have positives/negatives. Reference identity is not scientific validation.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
+        },
+        {
+          "requirement_id": "REQ-REP-01-03",
+          "criterion_pointer": "04_Трассировка/REP-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-REP-01-03"
+          ],
+          "binding_ids": [],
+          "assessment": "finite_support_record_pending",
+          "evidence_refs": [
+            "migration69"
+          ],
+          "remaining_kinds": [
+            "finite_support_record"
+          ],
+          "basis": "Retain root10/shim20. Source-qualified historical RunManifest/schema discrepancy resolved; enumerate supported FQN/string/monkeypatch/docs/package callers and external unknowns, no invented retirement.",
+          "status": "PARTIAL"
+        }
+      ]
     },
     {
       "packet_id": "RUN-01",
@@ -578,9 +1785,9 @@
       "lane_sequence": 1,
       "track_id": "06-B",
       "track_position": 1,
-      "implementation_status": "REVIEWED_LOCAL_SLICE",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
       "local_qualification": "PARTIAL",
-      "integration_qualification": "NOT_RUN",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_async",
       "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
       "integrated_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
@@ -621,7 +1828,7 @@
         }
       ],
       "blockers": [
-        "Actual deadline/backoff/CAS/claim fencing and installed typing remain unqualified; queued-timeout fresh-coroutine ownership requires an exact investigation."
+        "installed_product_profile"
       ],
       "deferred_ids": [],
       "execution_profile": {
@@ -635,21 +1842,73 @@
           "requirement_id": "REQ-RUN-01-01",
           "test_id": "TEST-RUN-01-01",
           "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Real executor saturation/reentrancy closes only CORO_CREATED; accepted work/foreign owners preserved."
+          "basis": "Fresh pre-admission coroutine cleanup preserves admitted/running/foreign work; queued investigation obsolete.",
+          "criterion_pointer": "04_Трассировка/RUN-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-RUN-01-01"
+          ],
+          "binding_ids": [
+            "E02-I06-C-B01"
+          ],
+          "assessment": "qualified_local_profile",
+          "evidence_refs": [
+            "run_pre_admission",
+            "common_routes"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-RUN-01-02",
           "test_id": "TEST-RUN-01-02",
-          "status": "NOT_RUN",
-          "basis": "Native invocation deadline/backoff/publication plus actual CAS and claim owner proof not supplied by Common unit module."
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The actual 48-case source-qualified run exercises absolute-deadline worker admission and diagnostic marker validation, including malformed marker/code/category refusals. not_started grants no zero-cost/effect or redispatch authority. New Linux transport is a separately affected profile.",
+          "criterion_pointer": "04_Трассировка/RUN-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-RUN-01-02"
+          ],
+          "binding_ids": [
+            "E02-I06-C-B01"
+          ],
+          "assessment": "deadline_and_diagnostic_marker_qualified_named_profile",
+          "evidence_refs": [
+            "retry_deadline",
+            "runtime23",
+            "physical_pin",
+            "owner_handoff_local48"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-RUN-01-03",
           "test_id": "TEST-RUN-01-03",
           "status": "PARTIAL",
-          "basis": "Local generic reflection regression passed; private import alias preserves incidental star names. Installed qualification remains open."
+          "basis": "Four function-local generics and reflection controls source-qualified; actual installed Common result still required.",
+          "criterion_pointer": "04_Трассировка/RUN-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-RUN-01-03"
+          ],
+          "binding_ids": [],
+          "assessment": "source_generics_qualified_installed_pending",
+          "evidence_refs": [
+            "installed_instrument16"
+          ],
+          "remaining_kinds": [
+            "installed_product_profile"
+          ]
         }
-      ]
+      ],
+      "current_assessment": "selected_profile_qualified_installed_pending",
+      "evidence_refs": [
+        "run_pre_admission",
+        "common_routes",
+        "retry_deadline",
+        "invocation_wire",
+        "physical_pin"
+      ],
+      "remaining_kinds": [
+        "installed_product_profile"
+      ],
+      "reconciliation_note": "Native pre-admission, owned cancellation/deadline, physical ownership and the diagnostic not_started marker are qualified on their named source profiles, including the 48-case actual handoff/EOF/deadline/IPC result. Installed Common generic reflection remains pending; Linux owner-handoff consumers remain under RUN02/DUR02."
     },
     {
       "packet_id": "EXE-01",
@@ -657,9 +1916,9 @@
       "lane_sequence": 1,
       "track_id": "06-B",
       "track_position": 2,
-      "implementation_status": "REVIEWED_LOCAL_SLICE",
-      "local_qualification": "PARTIAL",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_async",
       "base_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
       "integrated_commit": "388064755fa8833107f35ae097633b1b3445b59f",
@@ -735,27 +1994,90 @@
           "requirement_id": "REQ-EXE-01-01",
           "test_id": "TEST-EXE-01-01",
           "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Three owned async result routes and every owned async cancellation path keep event loop responsive; pre-attached callbacks remain bounded, requests/start/completion linearize, shutdown/closed-loop/capacity controls pass."
+          "basis": "Actual owned async delivery/physical reservation and late cache publication/recovery controls are demonstrated; both waiting-slot companions are now separately PASS.",
+          "criterion_pointer": "04_Трассировка/EXE-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-EXE-01-01"
+          ],
+          "binding_ids": [
+            "E02-I06-A-B03"
+          ],
+          "assessment": "selected_profile_with_two_existing_controls_pending",
+          "evidence_refs": [
+            "common_routes",
+            "cache_composed",
+            "shared6",
+            "resume_metrics_waiting4"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-EXE-01-02",
           "test_id": "TEST-EXE-01-02",
-          "status": "NOT_RUN",
-          "basis": "Real zero-run-budget admitted cache hit/read admission/compute charge scenario remains a distinct integration obligation."
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual RunContext/FileSystemCAS exhausted-compute warm hit preserves producer count/charge; read denied prevents cache I/O; miss refuses producer.",
+          "criterion_pointer": "04_Трассировка/EXE-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-EXE-01-02"
+          ],
+          "binding_ids": [
+            "E02-I06-A-B03"
+          ],
+          "assessment": "named_native_transition_demonstrated",
+          "evidence_refs": [
+            "shared6"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-EXE-01-03",
           "test_id": "TEST-EXE-01-03",
-          "status": "PARTIAL",
-          "basis": "Thread retry/physical completion and owner deadline controls pass; real cache publication/recovery and fresh CAS consumer still required."
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual owned async delivery/physical reservation and late cache publication/recovery controls are demonstrated; both waiting-slot companions are now separately PASS.",
+          "criterion_pointer": "04_Трассировка/EXE-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-EXE-01-03"
+          ],
+          "binding_ids": [
+            "E02-I06-A-B03"
+          ],
+          "assessment": "selected_profile_with_two_existing_controls_pending",
+          "evidence_refs": [
+            "common_routes",
+            "cache_composed",
+            "shared6",
+            "resume_metrics_waiting4"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-EXE-01-04",
           "test_id": "TEST-EXE-01-04",
-          "status": "PARTIAL",
-          "basis": "Underlying physical ownership and cancellation are exercised; full waiting-node fail-fast/continue and optional metric scenario remains open."
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Both existing TestAsyncFailFastAdmission waiting fail-fast and optional metric/continue slot controls now PASS; real native rollback/cancel and Common physical reservation results remain complementary.",
+          "criterion_pointer": "04_Трассировка/EXE-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-EXE-01-04"
+          ],
+          "binding_ids": [],
+          "assessment": "qualified_named_local_profile",
+          "evidence_refs": [
+            "resume_metrics_waiting4"
+          ],
+          "remaining_kinds": []
         }
-      ]
+      ],
+      "current_assessment": "selected_profile_qualified",
+      "evidence_refs": [
+        "common_routes",
+        "shared6",
+        "cache_composed",
+        "cache_callback_fix",
+        "native_async3",
+        "resume_metrics_waiting4"
+      ],
+      "remaining_kinds": [],
+      "reconciliation_note": "Actual exhausted-compute admitted warm hit/read-denial/miss, late publication, nonblocking delivery and physical reservation controls are qualified. Both existing fail-fast semaphore recheck and optional telemetry/continue slot-release controls now PASS in the same bounded4-case wave; native rollback/cancel evidence is complementary."
     },
     {
       "packet_id": "RUN-02",
@@ -763,9 +2085,9 @@
       "lane_sequence": 1,
       "track_id": "06-B",
       "track_position": 3,
-      "implementation_status": "REVIEWED_LOCAL_SLICE",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "PARTIAL",
-      "integration_qualification": "NOT_RUN",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_async",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "integrated_commit": "1d3a377c677126d1bc51365336e282470a25c3a0",
@@ -798,8 +2120,9 @@
         }
       ],
       "blockers": [
-        "Native Linux profile unavailable locally (limactl installed but no instances); no platform substitution or new VM provisioned.",
-        "Complete existing corrupt receipt/nonce/control and shared I06-C consumer qualification remain."
+        "internal_owner_check_handoff",
+        "affected_real_core_consumer_checks",
+        "named_linux_profile"
       ],
       "deferred_ids": [],
       "execution_profile": {
@@ -813,21 +2136,78 @@
           "requirement_id": "REQ-RUN-02-01",
           "test_id": "TEST-RUN-02-01",
           "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Fresh mark→delivery, confirmed exit→crash even elapsed, alive elapsed→compute, early EOF→transport; exact sync/async and actual live child pipe."
+          "basis": "Preserve completion/delivery/confirmed-exit/alive-deadline/EOF precedence; new owner-check handoff must not alter it.",
+          "criterion_pointer": "04_Трассировка/RUN-02.json#/requirements/0",
+          "test_ids": [
+            "TEST-RUN-02-01"
+          ],
+          "binding_ids": [
+            "E02-I06-C-B02"
+          ],
+          "assessment": "qualified_named_transport_profile",
+          "evidence_refs": [
+            "ipc10",
+            "retry_deadline"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-RUN-02-02",
           "test_id": "TEST-RUN-02-02",
           "status": "PARTIAL",
-          "basis": "Actual Core/CAS-bound native Darwin sync/async 64B/1MiB and IPC terminal classification qualified; broader malformed frame/nonce/corrupt-receipt consumer cohort remains to reconcile."
+          "basis": "Exact Linux CI rejected live-owner callable before spawn. New typed parent↔child handoff must exercise actual Core small/1MiB/digest/owner/completion route; earlier IPC result remains scoped evidence.",
+          "criterion_pointer": "04_Трассировка/RUN-02.json#/requirements/1",
+          "test_ids": [
+            "TEST-RUN-02-02"
+          ],
+          "binding_ids": [
+            "E02-I06-C-B02"
+          ],
+          "assessment": "actual_core_control_handoff_affected",
+          "evidence_refs": [
+            "ipc10"
+          ],
+          "remaining_kinds": [
+            "internal_owner_check_handoff",
+            "actual_core_sync_async_positive_and_adversarial",
+            "owner_handoff_affected_consumer"
+          ]
         },
         {
           "requirement_id": "REQ-RUN-02-03",
           "test_id": "TEST-RUN-02-03",
           "status": "PARTIAL",
-          "basis": "Actual Darwin allowed-node/current-attempt path qualified. No available Linux instance: native Linux descendant supervisor and warm JAX numerical topology remain NOT_RUN."
+          "basis": "Darwin warm JAX4 are real. Linux actual authenticated cancel requires internal transport fix and owned-descendant/fresh-job fence; no OOM diagnosis or platform substitution.",
+          "criterion_pointer": "04_Трассировка/RUN-02.json#/requirements/2",
+          "test_ids": [
+            "TEST-RUN-02-03"
+          ],
+          "binding_ids": [],
+          "assessment": "darwin_warm_qualified_linux_internal_gap",
+          "evidence_refs": [
+            "warm_sync",
+            "warm_remaining"
+          ],
+          "remaining_kinds": [
+            "owner_handoff_affected_linux_cancel",
+            "named_linux_profile",
+            "owner_handoff_affected_consumer"
+          ]
         }
-      ]
+      ],
+      "current_assessment": "real_control_transport_affected_pending",
+      "evidence_refs": [
+        "ipc10",
+        "warm_sync",
+        "warm_remaining",
+        "retry_deadline"
+      ],
+      "remaining_kinds": [
+        "internal_owner_check_handoff",
+        "affected_real_core_consumer_checks",
+        "named_linux_profile"
+      ],
+      "reconciliation_note": "Native Darwin warm4 and IPC10 are qualified. Authenticated actual Linux ControlWorker rejects live_owner_check_not_transportable before spawn: a real internal missing parent↔child owner-check transport, not OOM or merely unavailable platform. Async is authoring bounded typed handoff; qualify actual supported cancellation/receipt/takeover and keep unsupported guards."
     },
     {
       "packet_id": "WIRE-01",
@@ -835,9 +2215,9 @@
       "lane_sequence": 1,
       "track_id": "06-B",
       "track_position": 4,
-      "implementation_status": "REVIEWED_LOCAL_SLICE",
-      "local_qualification": "CONFIRMED_LOCAL_PROFILE",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_wire",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "integrated_commit": null,
@@ -871,9 +2251,7 @@
           "scope": "The six new WIRE cases and current serializer/test pins only; the later compute helper repair is separately qualified."
         }
       ],
-      "blockers": [
-        "Shared lane I06/affected composed checks pending. External Temporal/Ray services and native Linux not qualified by these local Darwin codec controls."
-      ],
+      "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "Released; four owned files frozen for Root composition",
@@ -886,21 +2264,67 @@
           "requirement_id": "REQ-WIRE-01-01",
           "test_id": "TEST-WIRE-01-01",
           "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Semantic depth matches writer/reader; actual backend may refuse raw wrapper limits before output; rooted canonical journal admission uses exact guarded projection."
+          "basis": "Actual stdlib/orjson depth, typed Decimal/refs/journal, legacy/current envelopes and deterministic refusal are qualified. New owner-check transport needs only affected envelope controls; this does not invalidate unrelated codec corpus or qualify external Temporal/Ray services.",
+          "criterion_pointer": "04_Трассировка/WIRE-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-WIRE-01-01"
+          ],
+          "binding_ids": [
+            "E02-I06-C-B06"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "invocation_wire",
+            "ipc10"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-WIRE-01-02",
           "test_id": "TEST-WIRE-01-02",
           "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Actual stdlib/orjson retain Decimal including signed zero budgets, bytes, exact selectors, registered subtype/journal; malicious/corrupt/unknown forms refused."
+          "basis": "Actual stdlib/orjson depth, typed Decimal/refs/journal, legacy/current envelopes and deterministic refusal are qualified. New owner-check transport needs only affected envelope controls; this does not invalidate unrelated codec corpus or qualify external Temporal/Ray services.",
+          "criterion_pointer": "04_Трассировка/WIRE-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-WIRE-01-02"
+          ],
+          "binding_ids": [
+            "E02-I06-C-B06"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "invocation_wire",
+            "ipc10"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-WIRE-01-03",
           "test_id": "TEST-WIRE-01-03",
           "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Current v2 envelope and literal legacy readers remain distinct; real completed producer unsupported outcome refuses after one physical attempt under permissive retry."
+          "basis": "Actual stdlib/orjson depth, typed Decimal/refs/journal, legacy/current envelopes and deterministic refusal are qualified. New owner-check transport needs only affected envelope controls; this does not invalidate unrelated codec corpus or qualify external Temporal/Ray services.",
+          "criterion_pointer": "04_Трассировка/WIRE-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-WIRE-01-03"
+          ],
+          "binding_ids": [
+            "E02-I06-C-B06"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "invocation_wire",
+            "ipc10"
+          ],
+          "remaining_kinds": []
         }
-      ]
+      ],
+      "current_assessment": "selected_profile_qualified",
+      "evidence_refs": [
+        "invocation_wire",
+        "ipc10"
+      ],
+      "remaining_kinds": [],
+      "reconciliation_note": "Actual stdlib/orjson depth, typed Decimal/refs/journal, legacy/current envelopes and deterministic refusal are qualified. New owner-check transport needs only affected envelope controls; this does not invalidate unrelated codec corpus or qualify external Temporal/Ray services."
     },
     {
       "packet_id": "RUN-03",
@@ -909,8 +2333,8 @@
       "track_id": "06-B",
       "track_position": 5,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "REVIEWED_LOCAL_SLICE",
-      "integration_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_async",
       "base_commit": "1d3a377c677126d1bc51365336e282470a25c3a0",
       "integrated_commit": "721f19a6a130ff84407bfac218020483e45bd31b",
@@ -945,13 +2369,114 @@
           "result": "16 PASS actual registered return/raise + typed failure receipt/cause controls;34 inputs unchanged at retry3d2f. Later IPC source changes require their own qualifier."
         }
       ],
-      "blockers": [],
+      "blockers": [
+        "owner_handoff_affected_checks"
+      ],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "Root batches narrow red with other measured light checks; no competing native job",
         "source_scope": "RUN02 bytes secured in parent commit; one canonical retry writer after WIRE source freeze",
         "delegate_limit": "One read-only leaf explicit permitted model"
-      }
+      },
+      "current_assessment": "selected_profile_with_owner_handoff_consumer_pending",
+      "evidence_refs": [
+        "retry_categories",
+        "invocation_wire",
+        "runtime23",
+        "physical_pin"
+      ],
+      "remaining_kinds": [
+        "owner_handoff_affected_checks"
+      ],
+      "reconciliation_note": "Retry baseline/cost/category/attempt persistence is demonstrated. New authenticated process owner-check handoff affects current-owner cancellation/category and unknown nonredispatch branches; qualify exact RUN03-02/-03 consumers after final owner source, without redoing unaffected baseline corpus.",
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-RUN-03-01",
+          "criterion_pointer": "04_Трассировка/RUN-03.json#/requirements/0",
+          "test_ids": [
+            "TEST-RUN-03-01"
+          ],
+          "binding_ids": [
+            "E02-I06-C-B03"
+          ],
+          "assessment": "selected_profile_with_owner_handoff_consumer_pending",
+          "evidence_refs": [
+            "retry_categories",
+            "invocation_wire",
+            "runtime23",
+            "physical_pin"
+          ],
+          "remaining_kinds": [
+            "owner_handoff_affected_consumer"
+          ],
+          "basis": "Retry baseline/cost/category/attempt persistence is demonstrated. New authenticated process owner-check handoff affects current-owner cancellation/category and unknown nonredispatch branches; qualify exact RUN03-02/-03 consumers after final owner source, without redoing unaffected baseline corpus.",
+          "status": "PARTIAL"
+        },
+        {
+          "requirement_id": "REQ-RUN-03-02",
+          "criterion_pointer": "04_Трассировка/RUN-03.json#/requirements/1",
+          "test_ids": [
+            "TEST-RUN-03-02"
+          ],
+          "binding_ids": [
+            "E02-I06-C-B03"
+          ],
+          "assessment": "qualified_cost_baseline_owner_handoff_affected",
+          "evidence_refs": [
+            "retry_categories",
+            "invocation_wire"
+          ],
+          "remaining_kinds": [
+            "owner_handoff_cancel_consumer",
+            "owner_handoff_affected_consumer"
+          ],
+          "basis": "Known failed cost once, unknown current cost not invented; new actual owner handoff must preserve cancellation/fencing.",
+          "status": "PARTIAL"
+        },
+        {
+          "requirement_id": "REQ-RUN-03-03",
+          "criterion_pointer": "04_Трассировка/RUN-03.json#/requirements/2",
+          "test_ids": [
+            "TEST-RUN-03-03"
+          ],
+          "binding_ids": [
+            "E02-I06-C-B03"
+          ],
+          "assessment": "qualified_classification_owner_handoff_affected",
+          "evidence_refs": [
+            "retry_categories",
+            "invocation_wire"
+          ],
+          "remaining_kinds": [
+            "owner_handoff_unknown_category_consumer",
+            "owner_handoff_affected_consumer"
+          ],
+          "basis": "Retain typed classification and unknown no-redispatch; qualify new owner transport malformed/EOF/unavailable and control-loss paths.",
+          "status": "PARTIAL"
+        },
+        {
+          "requirement_id": "REQ-RUN-03-04",
+          "criterion_pointer": "04_Трассировка/RUN-03.json#/requirements/3",
+          "test_ids": [
+            "TEST-RUN-03-04"
+          ],
+          "binding_ids": [
+            "E02-I06-C-B03"
+          ],
+          "assessment": "selected_profile_with_owner_handoff_consumer_pending",
+          "evidence_refs": [
+            "retry_categories",
+            "invocation_wire",
+            "runtime23",
+            "physical_pin"
+          ],
+          "remaining_kinds": [
+            "owner_handoff_affected_consumer"
+          ],
+          "basis": "Retry baseline/cost/category/attempt persistence is demonstrated. New authenticated process owner-check handoff affects current-owner cancellation/category and unknown nonredispatch branches; qualify exact RUN03-02/-03 consumers after final owner source, without redoing unaffected baseline corpus.",
+          "status": "PARTIAL"
+        }
+      ]
     },
     {
       "packet_id": "DUR-01",
@@ -959,9 +2484,9 @@
       "lane_sequence": 1,
       "track_id": "06-B",
       "track_position": 6,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "REVIEWED_LOCAL_SLICE",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "PARTIAL",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_budget",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "integrated_commit": "721f19a6a130ff84407bfac218020483e45bd31b",
@@ -996,14 +2521,83 @@
         }
       ],
       "blockers": [
-        "Only restore claim: DEC-DUR-01-01 needs an independently established latest owner/generation and complete receipts; none found in canonical code/retained handover. Unknown/authentic-but-stale backup refuses. Existing current-ledger/ack/continuation work proceeds."
+        "trusted_latest_restore_input_or_explicit_supported_boundary"
       ],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "Awaiting exclusive native admission; independent editing allowed",
         "source_scope": "Explicit lease only; root sole index/refs/generated; no competing writer",
         "delegate_limit": "One read-only leaf allowed, explicit permitted model; leaf no delegation"
-      }
+      },
+      "current_assessment": "selected_profile_with_trusted_restore_pending",
+      "evidence_refs": [
+        "durability219",
+        "runtime23",
+        "runtime_post_ack"
+      ],
+      "remaining_kinds": [
+        "trusted_latest_restore_input_or_explicit_supported_boundary"
+      ],
+      "reconciliation_note": "Only REQ02 restore remains: require independently established latest owner/generation and complete confirmed receipts. Authentic-but-stale/unknown backup must refuse. Current ack/revision/spend/continuation mechanism is implemented and proven; do not reopen it as missing source.",
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-DUR-01-01",
+          "criterion_pointer": "04_Трассировка/DUR-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-DUR-01-01"
+          ],
+          "binding_ids": [
+            "E02-I06-C-B04"
+          ],
+          "assessment": "selected_profile_with_trusted_restore_pending",
+          "evidence_refs": [
+            "durability219",
+            "runtime23",
+            "runtime_post_ack"
+          ],
+          "remaining_kinds": [],
+          "basis": "Only REQ02 restore remains: require independently established latest owner/generation and complete confirmed receipts. Authentic-but-stale/unknown backup must refuse. Current ack/revision/spend/continuation mechanism is implemented and proven; do not reopen it as missing source.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
+        },
+        {
+          "requirement_id": "REQ-DUR-01-02",
+          "criterion_pointer": "04_Трассировка/DUR-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-DUR-01-02"
+          ],
+          "binding_ids": [
+            "E02-I06-C-B04"
+          ],
+          "assessment": "restore_authority_unestablished",
+          "evidence_refs": [
+            "durability219"
+          ],
+          "remaining_kinds": [
+            "trusted_latest_restore_input_or_explicit_supported_boundary"
+          ],
+          "basis": "Unknown or authentic-but-stale backup refuses. Need actual latest authoritative owner/generation and complete confirmed receipt reconciliation, not simply a signed snapshot.",
+          "status": "BLOCKED_EXTERNAL_INPUT"
+        },
+        {
+          "requirement_id": "REQ-DUR-01-03",
+          "criterion_pointer": "04_Трассировка/DUR-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-DUR-01-03"
+          ],
+          "binding_ids": [
+            "E02-I06-C-B04"
+          ],
+          "assessment": "selected_profile_with_trusted_restore_pending",
+          "evidence_refs": [
+            "durability219",
+            "runtime23",
+            "runtime_post_ack"
+          ],
+          "remaining_kinds": [],
+          "basis": "Only REQ02 restore remains: require independently established latest owner/generation and complete confirmed receipts. Authentic-but-stale/unknown backup must refuse. Current ack/revision/spend/continuation mechanism is implemented and proven; do not reopen it as missing source.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
+        }
+      ]
     },
     {
       "packet_id": "DUR-02",
@@ -1012,8 +2606,8 @@
       "track_id": "06-B",
       "track_position": 7,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "REVIEWED_LOCAL_SLICE",
-      "integration_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_durable_worker",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "integrated_commit": "4781b9a3a39803fca0f4241e8b12eb4ec7701396",
@@ -1056,13 +2650,91 @@
           "result": "1 PASS actual receipt+2 then SQL takeover;fresh owner refuses unknown/no replay,ledger7 retained;71 inputs unchanged."
         }
       ],
-      "blockers": [],
+      "blockers": [
+        "owner_handoff_affected_real_core_checks"
+      ],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "Queued; source-only heartbeat repair independent; final continuation awaits exact RES-01/02/fallback contract",
         "source_scope": "Three explicitpaths; fallback_runner expansion requires reviewed actual inputcontract; no checkpoint writes",
         "mandatory_companions": "Authorized mirrored tests/helper/README companions may be added within the assigned mechanism after checking no competing writer; notify Root footprint, no separate approval per routine companion. Shared generated families/index/refs remain Root-owned."
-      }
+      },
+      "current_assessment": "selected_profile_with_owner_handoff_consumer_pending",
+      "evidence_refs": [
+        "runtime23",
+        "runtime_preservation",
+        "runtime_post_ack",
+        "invocation_wire"
+      ],
+      "remaining_kinds": [
+        "owner_handoff_affected_real_core_checks"
+      ],
+      "reconciliation_note": "Real persistent owner, operation/checkpoint reconciliation, budget/deadline, owner takeover and fail-closed ambiguity are demonstrated. New authenticated process control transport must preserve heartbeat/SQL fence/admission and actual continuation under current owner; no external effect atomicity claim.",
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-DUR-02-01",
+          "criterion_pointer": "04_Трассировка/DUR-02.json#/requirements/0",
+          "test_ids": [
+            "TEST-DUR-02-01"
+          ],
+          "binding_ids": [
+            "E02-I06-C-B05"
+          ],
+          "assessment": "persistent_owner_qualified_handoff_affected",
+          "evidence_refs": [
+            "runtime23",
+            "runtime_preservation"
+          ],
+          "remaining_kinds": [
+            "owner_handoff_heartbeat_guard",
+            "owner_handoff_affected_consumer"
+          ],
+          "basis": "Typed heartbeat lost guard plus SQL fencing already demonstrated; new private parent↔child owner check needs actual cooperative consumer.",
+          "status": "PARTIAL"
+        },
+        {
+          "requirement_id": "REQ-DUR-02-02",
+          "criterion_pointer": "04_Трассировка/DUR-02.json#/requirements/1",
+          "test_ids": [
+            "TEST-DUR-02-02"
+          ],
+          "binding_ids": [
+            "E02-I06-C-B05"
+          ],
+          "assessment": "persistent_owner_qualified_handoff_affected",
+          "evidence_refs": [
+            "runtime_preservation",
+            "runtime_post_ack"
+          ],
+          "remaining_kinds": [
+            "owner_handoff_takeover_receipt_race",
+            "owner_handoff_affected_consumer"
+          ],
+          "basis": "Actual stale-owner mutation/commit atomicity controls exist; new child transport must not admit stale owner after queued or receipt-race takeover.",
+          "status": "PARTIAL"
+        },
+        {
+          "requirement_id": "REQ-DUR-02-03",
+          "criterion_pointer": "04_Трассировка/DUR-02.json#/requirements/2",
+          "test_ids": [
+            "TEST-DUR-02-03"
+          ],
+          "binding_ids": [
+            "E02-I06-C-B05"
+          ],
+          "assessment": "persistent_continuation_qualified_handoff_affected",
+          "evidence_refs": [
+            "runtime23",
+            "runtime_post_ack"
+          ],
+          "remaining_kinds": [
+            "owner_handoff_actual_remaining_continuation",
+            "owner_handoff_affected_consumer"
+          ],
+          "basis": "No blind fallback after possible effect; retain actual operation/checkpoint/shared budget/deadline frontier and current owner, unknown remains unknown.",
+          "status": "PARTIAL"
+        }
+      ]
     },
     {
       "packet_id": "CAS-01",
@@ -1070,9 +2742,9 @@
       "lane_sequence": 1,
       "track_id": "06-C",
       "track_position": 1,
-      "implementation_status": "REVIEWED_LOCAL_SLICE",
-      "local_qualification": "PARTIAL",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_cas",
       "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
       "integrated_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
@@ -1124,9 +2796,7 @@
           "scope": "Real persisted owner withdrawal, not a callback assertion."
         }
       ],
-      "blockers": [
-        "Actual process restart, owner-generation-file fsync and input-owner revocation remain unqualified; composed I06-D remains NOT_RUN."
-      ],
+      "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "released; relevant sources frozen through composition",
@@ -1139,21 +2809,72 @@
           "requirement_id": "REQ-CAS-01-01",
           "test_id": "TEST-CAS-01-01",
           "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Real signed native CAS A/B exact views preserve original default A across B and A retry; fresh reads and corrupt payload/size/profile controls."
+          "basis": "Remove obsolete process restart/owner-generation fsync/input-owner revocation unqualified blocker. Native chosen local filesystem12 + intended red/restored2 demonstrate these transitions. Retain named filesystem/ownership scope.",
+          "criterion_pointer": "04_Трассировка/CAS-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-CAS-01-01"
+          ],
+          "binding_ids": [
+            "E02-I06-D-B01",
+            "E02-X01-B04"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "cas_publication",
+            "cas_owner_removal",
+            "cas_owner_restored"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-CAS-01-02",
           "test_id": "TEST-CAS-01-02",
           "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Observer forwards create_lock_files; readonly false, bounded stripe and nesting controls passed."
+          "basis": "Remove obsolete process restart/owner-generation fsync/input-owner revocation unqualified blocker. Native chosen local filesystem12 + intended red/restored2 demonstrate these transitions. Retain named filesystem/ownership scope.",
+          "criterion_pointer": "04_Трассировка/CAS-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-CAS-01-02"
+          ],
+          "binding_ids": [
+            "E02-I06-D-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "cas_publication",
+            "cas_owner_removal",
+            "cas_owner_restored"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-CAS-01-03",
           "test_id": "TEST-CAS-01-03",
-          "status": "PARTIAL",
-          "basis": "Eight actual publication/owner-pointer parent-fsync boundaries and fresh object exact retry passed; process restart, ownership-generation-file fsync and input-owner revocation remain unqualified."
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Remove obsolete process restart/owner-generation fsync/input-owner revocation unqualified blocker. Native chosen local filesystem12 + intended red/restored2 demonstrate these transitions. Retain named filesystem/ownership scope.",
+          "criterion_pointer": "04_Трассировка/CAS-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-CAS-01-03"
+          ],
+          "binding_ids": [
+            "E02-I06-D-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "cas_publication",
+            "cas_owner_removal",
+            "cas_owner_restored"
+          ],
+          "remaining_kinds": []
         }
-      ]
+      ],
+      "current_assessment": "selected_profile_qualified",
+      "evidence_refs": [
+        "cas_publication",
+        "cas_owner_removal",
+        "cas_owner_restored"
+      ],
+      "remaining_kinds": [],
+      "reconciliation_note": "Remove obsolete process restart/owner-generation fsync/input-owner revocation unqualified blocker. Native chosen local filesystem12 + intended red/restored2 demonstrate these transitions. Retain named filesystem/ownership scope."
     },
     {
       "packet_id": "CAS-02",
@@ -1161,9 +2882,9 @@
       "lane_sequence": 1,
       "track_id": "06-C",
       "track_position": 2,
-      "implementation_status": "REVIEWED_LOCAL_SLICE",
-      "local_qualification": "CONFIRMED_NATIVE_PROFILE",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_cas",
       "base_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
       "integrated_commit": "388064755fa8833107f35ae097633b1b3445b59f",
@@ -1253,9 +2974,7 @@
           "scope": "No claim of one201-green run. Original archive/foreign sentinel/symlink preservation assertions retained."
         }
       ],
-      "blockers": [
-        "Shared I06-D complete binding adjudication remains. Native macOS/APFS only; no Linux/power-loss/distributed-filesystem guarantee or production trust authority. No automatic reclamation of unknown foreign entries."
-      ],
+      "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "released; source and tests frozen",
@@ -1267,21 +2986,79 @@
           "requirement_id": "REQ-CAS-02-01",
           "test_id": "TEST-CAS-02-01",
           "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Native no-replace/exchange retains actual displaced directory and late foreign data; returned locator and conditional CLI consumer, complete B and real directory-gap removal control."
+          "basis": "Actual native A/B transfer, retained displaced generation, private archive, required Ed25519/revocation and no-op exact-profile imports have controls. No unknown foreign reclamation, Linux/power-loss/distributed filesystem or institutional trust claim.",
+          "criterion_pointer": "04_Трассировка/CAS-02.json#/requirements/0",
+          "test_ids": [
+            "TEST-CAS-02-01"
+          ],
+          "binding_ids": [
+            "E02-I06-D-B02"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "cas_transfer",
+            "cas_signature_removal",
+            "cas_signature_restored",
+            "cas_resource_removal",
+            "cas_resource_restored"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-CAS-02-02",
           "test_id": "TEST-CAS-02-02",
           "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Owned fd tar, complete footer/sync, exact inventory and old A preserved on prepublication errors. Typed true/false/unknown visibility and actual archive-private removal failure are verified."
+          "basis": "Actual native A/B transfer, retained displaced generation, private archive, required Ed25519/revocation and no-op exact-profile imports have controls. No unknown foreign reclamation, Linux/power-loss/distributed filesystem or institutional trust claim.",
+          "criterion_pointer": "04_Трассировка/CAS-02.json#/requirements/1",
+          "test_ids": [
+            "TEST-CAS-02-02"
+          ],
+          "binding_ids": [
+            "E02-I06-D-B02"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "cas_transfer",
+            "cas_signature_removal",
+            "cas_signature_restored",
+            "cas_resource_removal",
+            "cas_resource_restored"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-CAS-02-03",
           "test_id": "TEST-CAS-02-03",
-          "status": "CONFIRMED_NATIVE_PROFILE",
-          "basis": "Actual configured Ed25519 trust/revocation and unsigned compatibility, initialized durable owners, both transfer formats, selected/default/no-op view conflicts and recovery; real signature removal control. Shared integration and institutional authority remain separate."
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual native A/B transfer, retained displaced generation, private archive, required Ed25519/revocation and no-op exact-profile imports have controls. No unknown foreign reclamation, Linux/power-loss/distributed filesystem or institutional trust claim.",
+          "criterion_pointer": "04_Трассировка/CAS-02.json#/requirements/2",
+          "test_ids": [
+            "TEST-CAS-02-03"
+          ],
+          "binding_ids": [
+            "E02-I06-D-B02"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "cas_transfer",
+            "cas_signature_removal",
+            "cas_signature_restored",
+            "cas_resource_removal",
+            "cas_resource_restored"
+          ],
+          "remaining_kinds": []
         }
-      ]
+      ],
+      "current_assessment": "selected_profile_qualified",
+      "evidence_refs": [
+        "cas_transfer",
+        "cas_signature_removal",
+        "cas_signature_restored",
+        "cas_resource_removal",
+        "cas_resource_restored"
+      ],
+      "remaining_kinds": [],
+      "reconciliation_note": "Actual native A/B transfer, retained displaced generation, private archive, required Ed25519/revocation and no-op exact-profile imports have controls. No unknown foreign reclamation, Linux/power-loss/distributed filesystem or institutional trust claim."
     },
     {
       "packet_id": "CAS-03",
@@ -1289,9 +3066,9 @@
       "lane_sequence": 1,
       "track_id": "06-C",
       "track_position": 3,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "REVIEWED_LOCAL_SLICE",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "PARTIAL",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_cas",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "integrated_commit": "d41804e343691f0c3dabadef6232f7a11aabd810",
@@ -1341,13 +3118,116 @@
           "scope": "Distinct exactly-one cross-tenant authorization and data-access events; failed authorization audit refuses503, failed data-access append preserves403 and one authorization event, no foreign tenant projection. Original failure reproduced at isolated388 baseline; bounded forward fix."
         }
       ],
-      "blockers": [],
+      "blockers": [
+        "deciding_audit_output_access"
+      ],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "Awaiting root admission; read-only research and disjoint editing concurrent",
         "source_scope": "Explicit paths only, root sole index/refs; additional owner changes need overlap reconciliation",
         "delegate_limit": "One read-only leaf with allowed explicit model; no further delegation"
-      }
+      },
+      "current_assessment": "selected_profile_qualified",
+      "evidence_refs": [
+        "cas_configured68",
+        "cas_native_completion3",
+        "cas_authorizer_removal",
+        "cas_audit_fix"
+      ],
+      "remaining_kinds": [
+        "deciding_audit_output_access"
+      ],
+      "reconciliation_note": "Immutable snapshot/signature and finite census/stop/auth/CLI owners are implemented and independently reviewed; audit sibling forward fix has3PASS. Reuse established CAS03 native completion and owner-qualified controls, not the old audit failure as current blocker.",
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-CAS-03-01",
+          "criterion_pointer": "04_Трассировка/CAS-03.json#/requirements/0",
+          "test_ids": [
+            "TEST-CAS-03-01"
+          ],
+          "binding_ids": [
+            "E02-I06-D-B03"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "cas_configured68",
+            "cas_native_completion3",
+            "cas_authorizer_removal",
+            "cas_audit_fix"
+          ],
+          "remaining_kinds": [
+            "deciding_audit_output_access"
+          ],
+          "basis": "Immutable snapshot/signature and finite census/stop/auth/CLI owners are implemented and independently reviewed; audit sibling forward fix has3PASS. Reuse established CAS03 native completion and owner-qualified controls, not the old audit failure as current blocker.",
+          "status": "PARTIAL"
+        },
+        {
+          "requirement_id": "REQ-CAS-03-02",
+          "criterion_pointer": "04_Трассировка/CAS-03.json#/requirements/1",
+          "test_ids": [
+            "TEST-CAS-03-02"
+          ],
+          "binding_ids": [
+            "E02-I06-D-B03"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "cas_configured68",
+            "cas_native_completion3",
+            "cas_authorizer_removal",
+            "cas_audit_fix"
+          ],
+          "remaining_kinds": [
+            "deciding_audit_output_access"
+          ],
+          "basis": "Immutable snapshot/signature and finite census/stop/auth/CLI owners are implemented and independently reviewed; audit sibling forward fix has3PASS. Reuse established CAS03 native completion and owner-qualified controls, not the old audit failure as current blocker.",
+          "status": "PARTIAL"
+        },
+        {
+          "requirement_id": "REQ-CAS-03-03",
+          "criterion_pointer": "04_Трассировка/CAS-03.json#/requirements/2",
+          "test_ids": [
+            "TEST-CAS-03-03"
+          ],
+          "binding_ids": [
+            "E02-I06-D-B03"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "cas_configured68",
+            "cas_native_completion3",
+            "cas_authorizer_removal",
+            "cas_audit_fix"
+          ],
+          "remaining_kinds": [
+            "deciding_audit_output_access"
+          ],
+          "basis": "Immutable snapshot/signature and finite census/stop/auth/CLI owners are implemented and independently reviewed; audit sibling forward fix has3PASS. Reuse established CAS03 native completion and owner-qualified controls, not the old audit failure as current blocker.",
+          "status": "PARTIAL"
+        },
+        {
+          "requirement_id": "REQ-CAS-03-04",
+          "criterion_pointer": "04_Трассировка/CAS-03.json#/requirements/3",
+          "test_ids": [
+            "TEST-CAS-03-04"
+          ],
+          "binding_ids": [
+            "E02-I06-D-B03"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "cas_configured68",
+            "cas_native_completion3",
+            "cas_authorizer_removal",
+            "cas_audit_fix"
+          ],
+          "remaining_kinds": [
+            "deciding_audit_output_access"
+          ],
+          "basis": "Immutable snapshot/signature and finite census/stop/auth/CLI owners are implemented and independently reviewed; audit sibling forward fix has3PASS. Reuse established CAS03 native completion and owner-qualified controls, not the old audit failure as current blocker.",
+          "status": "PARTIAL"
+        }
+      ]
     },
     {
       "packet_id": "CAN-01",
@@ -1355,9 +3235,9 @@
       "lane_sequence": 1,
       "track_id": "06-D",
       "track_position": 1,
-      "implementation_status": "REVIEWED_LOCAL_SLICE",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
       "local_qualification": "PARTIAL",
-      "integration_qualification": "NOT_RUN",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_canonical",
       "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
       "integrated_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
@@ -1402,7 +3282,7 @@
         }
       ],
       "blockers": [
-        "Shared noneditable installed I06-E remains; finite Git-owned corpus does not establish a production historical/plugin corpus. No new source mechanism or CAN.3 negative check remains unrun."
+        "installed_product_profile"
       ],
       "deferred_ids": [],
       "execution_profile": {
@@ -1415,22 +3295,76 @@
         {
           "requirement_id": "REQ-CAN-01-01",
           "test_id": "TEST-CAN-01-01",
-          "status": "CONFIRMED_FINITE_CORPUS",
-          "basis": "Five declared literal vectors plus existing bounded conformance suites, separate policies and fresh IR import."
+          "status": "PARTIAL",
+          "basis": "Separate Core/IR policies/errors and byte/hash corpus; no production historical corpus inferred.",
+          "criterion_pointer": "04_Трассировка/CAN-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-CAN-01-01"
+          ],
+          "binding_ids": [
+            "E02-I06-E-B01"
+          ],
+          "assessment": "finite_source_corpus_demonstrated",
+          "evidence_refs": [
+            "canon216"
+          ],
+          "remaining_kinds": [
+            "installed_product_profile"
+          ]
         },
         {
           "requirement_id": "REQ-CAN-01-02",
           "test_id": "TEST-CAN-01-02",
-          "status": "CONFIRMED_FINITE_CORPUS",
-          "basis": "Explicit raw alias read/current producer+selected-reader refusal; array_digest positive. No supported production alias caller invented."
+          "status": "PARTIAL",
+          "basis": "Low-level aliases read but current producer/admission refusal remains distinct; no IDs rewritten.",
+          "criterion_pointer": "04_Трассировка/CAN-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-CAN-01-02"
+          ],
+          "binding_ids": [
+            "E02-I06-E-B01"
+          ],
+          "assessment": "finite_source_corpus_demonstrated",
+          "evidence_refs": [
+            "canon216"
+          ],
+          "remaining_kinds": [
+            "installed_product_profile"
+          ]
         },
         {
           "requirement_id": "REQ-CAN-01-03",
           "test_id": "TEST-CAN-01-03",
           "status": "PARTIAL",
-          "basis": "Actual enrolled .3 native method dispatch, producer/bundle/fresh selected reader and exact budget/callback refusals pass. The candidate fixture profile is unsigned/ownership-disabled; shared installed compatibility remains separate."
+          "basis": "Actual enrolled bounded.3 producer→selected manifest→fresh reader and budget/callback negatives. Unsigned/ownership-disabled scope retained.",
+          "criterion_pointer": "04_Трассировка/CAN-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-CAN-01-03"
+          ],
+          "binding_ids": [
+            "E02-I06-E-B01"
+          ],
+          "assessment": "bounded_native_profile_demonstrated",
+          "evidence_refs": [
+            "canon_native3"
+          ],
+          "remaining_kinds": [
+            "installed_product_profile"
+          ]
         }
-      ]
+      ],
+      "current_assessment": "finite_source_corpus_installed_pending",
+      "evidence_refs": [
+        "canon216",
+        "canon_native3",
+        "tensor33",
+        "tensor_capture3",
+        "installed_instrument16"
+      ],
+      "remaining_kinds": [
+        "installed_product_profile"
+      ],
+      "reconciliation_note": "Codec profile/aliases/current writer admission and bounded enrolled .3 native path are qualified. Unsigned ownership-disabled .3 fixture does not imply generic .3 authority; actual installedE still pending, finite Git corpus is not production/plugin corpus."
     },
     {
       "packet_id": "MIG-05",
@@ -1438,9 +3372,9 @@
       "lane_sequence": 1,
       "track_id": "06-D",
       "track_position": 2,
-      "implementation_status": "REVIEWED_LOCAL_SLICE",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
       "local_qualification": "PARTIAL",
-      "integration_qualification": "NOT_RUN",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_canonical",
       "base_commit": "7bbc075e3a19056b762db7a5abc1df6a886742b4",
       "integrated_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
@@ -1476,7 +3410,8 @@
         }
       ],
       "blockers": [
-        "Finite supported external callback/import and historical-input inventory plus installed composition remain open; current ops converter uses per-call selected_edges, not global registration."
+        "installed_product_profile",
+        "finite_support_record"
       ],
       "deferred_ids": [],
       "execution_profile": {
@@ -1488,28 +3423,102 @@
         {
           "requirement_id": "REQ-MIG-05-01",
           "test_id": "TEST-MIG-05-01",
-          "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Exact empty-cell/unsupported capture split, no registry mutation on refusal, supported repeat/conflict and real callback controls."
+          "status": "PARTIAL",
+          "basis": "Current registration/copy/stamp/route/DTO semantics and mutable capture limitation are qualified. Record finite supported external/callback/historical window; installedE remains. Preserve per-call selected_edges, no new global registration.",
+          "criterion_pointer": "04_Трассировка/MIG-05.json#/requirements/0",
+          "test_ids": [
+            "TEST-MIG-05-01"
+          ],
+          "binding_ids": [
+            "E02-I06-E-B05"
+          ],
+          "assessment": "finite_source_corpus_installed_support_pending",
+          "evidence_refs": [
+            "migration_callbacks55",
+            "migration69",
+            "installed_instrument16"
+          ],
+          "remaining_kinds": [
+            "installed_product_profile"
+          ]
         },
         {
           "requirement_id": "REQ-MIG-05-02",
           "test_id": "TEST-MIG-05-02",
-          "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Existing Common/IR linear profile tests passed, preserving copy/stamp/error/no-op behavior."
+          "status": "PARTIAL",
+          "basis": "Current registration/copy/stamp/route/DTO semantics and mutable capture limitation are qualified. Record finite supported external/callback/historical window; installedE remains. Preserve per-call selected_edges, no new global registration.",
+          "criterion_pointer": "04_Трассировка/MIG-05.json#/requirements/1",
+          "test_ids": [
+            "TEST-MIG-05-02"
+          ],
+          "binding_ids": [
+            "E02-I06-E-B05"
+          ],
+          "assessment": "finite_source_corpus_installed_support_pending",
+          "evidence_refs": [
+            "migration_callbacks55",
+            "migration69",
+            "installed_instrument16"
+          ],
+          "remaining_kinds": [
+            "installed_product_profile"
+          ]
         },
         {
           "requirement_id": "REQ-MIG-05-03",
           "test_id": "TEST-MIG-05-03",
-          "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Actual DataForge shortest path/tie/instance controls plus Trinity conversion distinct from DTO admission."
+          "status": "PARTIAL",
+          "basis": "Current registration/copy/stamp/route/DTO semantics and mutable capture limitation are qualified. Record finite supported external/callback/historical window; installedE remains. Preserve per-call selected_edges, no new global registration.",
+          "criterion_pointer": "04_Трассировка/MIG-05.json#/requirements/2",
+          "test_ids": [
+            "TEST-MIG-05-03"
+          ],
+          "binding_ids": [
+            "E02-I06-E-B05"
+          ],
+          "assessment": "finite_source_corpus_installed_support_pending",
+          "evidence_refs": [
+            "migration_callbacks55",
+            "migration69",
+            "installed_instrument16"
+          ],
+          "remaining_kinds": [
+            "installed_product_profile"
+          ]
         },
         {
           "requirement_id": "REQ-MIG-05-04",
           "test_id": "TEST-MIG-05-04",
           "status": "PARTIAL",
-          "basis": "Finite current-source registration observations recorded; installed/external callbacks and historical-input inventory remain unqualified."
+          "basis": "Capture identity is registration snapshot, not live purity; preserve harmless observers, finite external/plugin/historical unknowns and explicit stable reproducible converter config.",
+          "criterion_pointer": "04_Трассировка/MIG-05.json#/requirements/3",
+          "test_ids": [
+            "TEST-MIG-05-04"
+          ],
+          "binding_ids": [
+            "E02-I06-E-B05"
+          ],
+          "assessment": "finite_registration_contract_demonstrated",
+          "evidence_refs": [
+            "migration_callbacks55"
+          ],
+          "remaining_kinds": [
+            "finite_support_record",
+            "installed_product_profile"
+          ]
         }
-      ]
+      ],
+      "current_assessment": "finite_source_corpus_installed_support_pending",
+      "evidence_refs": [
+        "migration_callbacks55",
+        "migration69",
+        "installed_instrument16"
+      ],
+      "remaining_kinds": [
+        "installed_product_profile",
+        "finite_support_record"
+      ],
+      "reconciliation_note": "Current registration/copy/stamp/route/DTO semantics and mutable capture limitation are qualified. Record finite supported external/callback/historical window; installedE remains. Preserve per-call selected_edges, no new global registration."
     },
     {
       "packet_id": "MIG-01",
@@ -1517,9 +3526,9 @@
       "lane_sequence": 1,
       "track_id": "06-D",
       "track_position": 3,
-      "implementation_status": "REVIEWED_LOCAL_SLICE",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
       "local_qualification": "PARTIAL",
-      "integration_qualification": "NOT_RUN",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_canonical",
       "base_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
       "integrated_commit": "388064755fa8833107f35ae097633b1b3445b59f",
@@ -1557,7 +3566,10 @@
           "scope": "One composed affected-family wave including real native CLI and the manual SCM consumer; not all I06 scenario bindings or all75 local TEST contracts."
         }
       ],
-      "blockers": [],
+      "blockers": [
+        "installed_product_profile",
+        "finite_support_record"
+      ],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "released; three leased paths frozen",
@@ -1568,22 +3580,80 @@
         {
           "requirement_id": "REQ-MIG-01-01",
           "test_id": "TEST-MIG-01-01",
-          "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Both writer siblings record temporary path and fstat identity before IO; preserve old output/input/original errors, retain foreign name replacements and native output owner."
+          "status": "PARTIAL",
+          "basis": "Actual common writer ownership, JSON/YAML registered CLI and nested DTO validation have positive/negative controls. Remaining package/profile/caller-window qualification is not a new migration mechanism.",
+          "criterion_pointer": "04_Трассировка/MIG-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-MIG-01-01"
+          ],
+          "binding_ids": [
+            "E02-I06-E-B02"
+          ],
+          "assessment": "source_qualified_installed_support_pending",
+          "evidence_refs": [
+            "migration_atomic74",
+            "migration69",
+            "installed_instrument16"
+          ],
+          "remaining_kinds": [
+            "installed_product_profile"
+          ]
         },
         {
           "requirement_id": "REQ-MIG-01-02",
           "test_id": "TEST-MIG-01-02",
-          "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Actual registered JSON/YAML CLI and nested Trinity validators preserve same-version mapping identity, refuse invalid/unsupported/missing-contract inputs before output, and publish valid payloads."
+          "status": "PARTIAL",
+          "basis": "Actual common writer ownership, JSON/YAML registered CLI and nested DTO validation have positive/negative controls. Remaining package/profile/caller-window qualification is not a new migration mechanism.",
+          "criterion_pointer": "04_Трассировка/MIG-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-MIG-01-02"
+          ],
+          "binding_ids": [
+            "E02-I06-E-B02"
+          ],
+          "assessment": "source_qualified_installed_support_pending",
+          "evidence_refs": [
+            "migration_atomic74",
+            "migration69",
+            "installed_instrument16"
+          ],
+          "remaining_kinds": [
+            "installed_product_profile"
+          ]
         },
         {
           "requirement_id": "REQ-MIG-01-03",
           "test_id": "TEST-MIG-01-03",
           "status": "PARTIAL",
-          "basis": "Finite existing helper/parse/tuple/error/lifecycle matrix passes; external historical command callers and installed support window remain unqualified."
+          "basis": "Existing helper identity/parse/error distinctions preserved; supported external command window explicit.",
+          "criterion_pointer": "04_Трассировка/MIG-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-MIG-01-03"
+          ],
+          "binding_ids": [
+            "E02-I06-E-B02"
+          ],
+          "assessment": "finite_source_contract_demonstrated",
+          "evidence_refs": [
+            "migration_atomic74"
+          ],
+          "remaining_kinds": [
+            "finite_support_record",
+            "installed_product_profile"
+          ]
         }
-      ]
+      ],
+      "current_assessment": "source_qualified_installed_support_pending",
+      "evidence_refs": [
+        "migration_atomic74",
+        "migration69",
+        "installed_instrument16"
+      ],
+      "remaining_kinds": [
+        "installed_product_profile",
+        "finite_support_record"
+      ],
+      "reconciliation_note": "Actual common writer ownership, JSON/YAML registered CLI and nested DTO validation have positive/negative controls. Remaining package/profile/caller-window qualification is not a new migration mechanism."
     },
     {
       "packet_id": "MIG-02",
@@ -1591,9 +3661,9 @@
       "lane_sequence": 1,
       "track_id": "06-D",
       "track_position": 4,
-      "implementation_status": "REVIEWED_LOCAL_SLICE",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
       "local_qualification": "PARTIAL",
-      "integration_qualification": "NOT_RUN",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_canonical",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "integrated_commit": "e7a49fdf939b492fc7742906658159cd2fc89ff6",
@@ -1621,8 +3691,7 @@
         }
       ],
       "blockers": [
-        "Shared noneditable installed I06-E qualification still required.",
-        "Existing historical Runtime schema-hash failure retained separately; attribution not established, exact isolated discriminator prepared."
+        "installed_product_profile"
       ],
       "deferred_ids": [],
       "execution_profile": {
@@ -1635,22 +3704,75 @@
         {
           "requirement_id": "REQ-MIG-02-01",
           "test_id": "TEST-MIG-02-01",
-          "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Actual Runtime lifecycle, every reference SHA/path/schema/status, JSON/YAML, mixed second-entry refusals and idempotence."
+          "status": "PARTIAL",
+          "basis": "Actual Runtime writer→registered CLI→fresh native reader and complete-list refusals are qualified. Remove stale unattributed historical schema failure: exact historic de473 replay plus intentional ArtifactID nested-schema delta is now explicitly tested by fd6ade7b9. Actual installedE remains.",
+          "criterion_pointer": "04_Трассировка/MIG-02.json#/requirements/0",
+          "test_ids": [
+            "TEST-MIG-02-01"
+          ],
+          "binding_ids": [
+            "E02-I06-E-B03"
+          ],
+          "assessment": "source_qualified_installed_pending",
+          "evidence_refs": [
+            "migration69",
+            "installed_instrument16"
+          ],
+          "remaining_kinds": [
+            "installed_product_profile"
+          ]
         },
         {
           "requirement_id": "REQ-MIG-02-02",
           "test_id": "TEST-MIG-02-02",
-          "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Relative CWD/internal links/default root/unsupported containers and full source preservation."
+          "status": "PARTIAL",
+          "basis": "Actual Runtime writer→registered CLI→fresh native reader and complete-list refusals are qualified. Remove stale unattributed historical schema failure: exact historic de473 replay plus intentional ArtifactID nested-schema delta is now explicitly tested by fd6ade7b9. Actual installedE remains.",
+          "criterion_pointer": "04_Трассировка/MIG-02.json#/requirements/1",
+          "test_ids": [
+            "TEST-MIG-02-02"
+          ],
+          "binding_ids": [
+            "E02-I06-E-B03"
+          ],
+          "assessment": "source_qualified_installed_pending",
+          "evidence_refs": [
+            "migration69",
+            "installed_instrument16"
+          ],
+          "remaining_kinds": [
+            "installed_product_profile"
+          ]
         },
         {
           "requirement_id": "REQ-MIG-02-03",
           "test_id": "TEST-MIG-02-03",
-          "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Real source-qualified protocol4 legacy model/layout, finite supported forms; unknown production bytes not synthesized."
+          "status": "PARTIAL",
+          "basis": "Exact historical schema difference now attributed and compatibility fixed forward fd6ade7b9; no journal/pickle recovery or unknown production archive claim.",
+          "criterion_pointer": "04_Трассировка/MIG-02.json#/requirements/2",
+          "test_ids": [
+            "TEST-MIG-02-03"
+          ],
+          "binding_ids": [
+            "E02-I06-E-B03"
+          ],
+          "assessment": "historical_native_reader_demonstrated",
+          "evidence_refs": [
+            "migration69"
+          ],
+          "remaining_kinds": [
+            "installed_product_profile"
+          ]
         }
-      ]
+      ],
+      "current_assessment": "source_qualified_installed_pending",
+      "evidence_refs": [
+        "migration69",
+        "installed_instrument16"
+      ],
+      "remaining_kinds": [
+        "installed_product_profile"
+      ],
+      "reconciliation_note": "Actual Runtime writer→registered CLI→fresh native reader and complete-list refusals are qualified. Remove stale unattributed historical schema failure: exact historic de473 replay plus intentional ArtifactID nested-schema delta is now explicitly tested by fd6ade7b9. Actual installedE remains."
     },
     {
       "packet_id": "MIG-04",
@@ -1658,9 +3780,9 @@
       "lane_sequence": 1,
       "track_id": "06-D",
       "track_position": 5,
-      "implementation_status": "REVIEWED_LOCAL_SLICE",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
       "local_qualification": "PARTIAL",
-      "integration_qualification": "NOT_RUN",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_canonical",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "integrated_commit": "e7a49fdf939b492fc7742906658159cd2fc89ff6",
@@ -1688,8 +3810,8 @@
         }
       ],
       "blockers": [
-        "Shared noneditable installed I06-E qualification still required.",
-        "Existing historical Runtime schema-hash failure retained separately; attribution not established, exact isolated discriminator prepared."
+        "installed_product_profile",
+        "finite_support_record"
       ],
       "deferred_ids": [],
       "execution_profile": {
@@ -1701,22 +3823,81 @@
         {
           "requirement_id": "REQ-MIG-04-01",
           "test_id": "TEST-MIG-04-01",
-          "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Registered JSON/YAML converter default/explicit/unsupported routes and copied nested raw/public/noop contracts."
+          "status": "PARTIAL",
+          "basis": "Actual Fabric registration, neutral engine, persisted conversion→DatasetManifest/Registry admission and old/new import order are qualified. Remove stale unattributed schema failure; keep explicit per-call selected_edges and finite supported caller window. InstalledE remains.",
+          "criterion_pointer": "04_Трассировка/MIG-04.json#/requirements/0",
+          "test_ids": [
+            "TEST-MIG-04-01"
+          ],
+          "binding_ids": [
+            "E02-I06-E-B04"
+          ],
+          "assessment": "source_qualified_installed_support_pending",
+          "evidence_refs": [
+            "migration69",
+            "migration_callbacks55",
+            "installed_instrument16"
+          ],
+          "remaining_kinds": [
+            "installed_product_profile"
+          ]
         },
         {
           "requirement_id": "REQ-MIG-04-02",
           "test_id": "TEST-MIG-04-02",
-          "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Eight actual persisted registry admission/reconciliation profiles, valid/default timestamp distinction."
+          "status": "PARTIAL",
+          "basis": "Actual Fabric registration, neutral engine, persisted conversion→DatasetManifest/Registry admission and old/new import order are qualified. Remove stale unattributed schema failure; keep explicit per-call selected_edges and finite supported caller window. InstalledE remains.",
+          "criterion_pointer": "04_Трассировка/MIG-04.json#/requirements/1",
+          "test_ids": [
+            "TEST-MIG-04-02"
+          ],
+          "binding_ids": [
+            "E02-I06-E-B04"
+          ],
+          "assessment": "source_qualified_installed_support_pending",
+          "evidence_refs": [
+            "migration69",
+            "migration_callbacks55",
+            "installed_instrument16"
+          ],
+          "remaining_kinds": [
+            "installed_product_profile"
+          ]
         },
         {
           "requirement_id": "REQ-MIG-04-03",
           "test_id": "TEST-MIG-04-03",
-          "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Fresh old/new import order and six callback vectors, generic/legacy imports; explicit per-call selected_edges retained."
+          "status": "PARTIAL",
+          "basis": "Generic import remains domain-free; explicit legacy adapter/per-call selected_edges retained; external retirement needs finite supported window.",
+          "criterion_pointer": "04_Трассировка/MIG-04.json#/requirements/2",
+          "test_ids": [
+            "TEST-MIG-04-03"
+          ],
+          "binding_ids": [
+            "E02-I06-E-B04"
+          ],
+          "assessment": "finite_import_contract_demonstrated",
+          "evidence_refs": [
+            "migration69",
+            "migration_callbacks55"
+          ],
+          "remaining_kinds": [
+            "finite_support_record",
+            "installed_product_profile"
+          ]
         }
-      ]
+      ],
+      "current_assessment": "source_qualified_installed_support_pending",
+      "evidence_refs": [
+        "migration69",
+        "migration_callbacks55",
+        "installed_instrument16"
+      ],
+      "remaining_kinds": [
+        "installed_product_profile",
+        "finite_support_record"
+      ],
+      "reconciliation_note": "Actual Fabric registration, neutral engine, persisted conversion→DatasetManifest/Registry admission and old/new import order are qualified. Remove stale unattributed schema failure; keep explicit per-call selected_edges and finite supported caller window. InstalledE remains."
     },
     {
       "packet_id": "DFK-02",
@@ -5468,22 +7649,103 @@
     },
     {
       "scenario_id": "E02-I06-A",
-      "status": "NOT_RUN",
+      "status": "PARTIAL",
       "commit": null,
-      "profile": null,
+      "profile": "Evidence-specific local source/input/backend bindings; actual composed/installed/Linux boundaries remain separate.",
       "evidence": [],
       "binding_ids": [
         "E02-I06-A-B01",
         "E02-I06-A-B02",
         "E02-I06-A-B03",
         "E02-I06-A-B04"
+      ],
+      "binding_results": [
+        {
+          "binding_id": "E02-I06-A-B01",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/17/bindings/0",
+          "requirement_ids": [
+            "REQ-STA-01-01",
+            "REQ-STA-01-02",
+            "REQ-STA-01-03",
+            "REQ-STA-01-04"
+          ],
+          "edge_occurrences": 4,
+          "req_test_pairs": 6,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "snapshot45",
+            "snapshot_removal5",
+            "cache_composed",
+            "cache_callback_fix",
+            "shared6"
+          ],
+          "basis": "Real journal/current base→CAS replay→commit→fresh finalization; native no-preparer profile and current prepared-source profile are separate named variants."
+        },
+        {
+          "binding_id": "E02-I06-A-B02",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/17/bindings/1",
+          "requirement_ids": [
+            "REQ-STA-02-01",
+            "REQ-STA-02-02",
+            "REQ-STA-02-03"
+          ],
+          "edge_occurrences": 3,
+          "req_test_pairs": 4,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "cache_composed",
+            "cache_callback_fix",
+            "prepared_source_controls",
+            "sta_runtime_reuse"
+          ],
+          "basis": "Actual matcher/prepared source→ResolveParameters→next-node handoff, same-path source changes and unchanged reuse controls. Local scientific consumer/cost remain separately bound, not exact2/.6 fitting."
+        },
+        {
+          "binding_id": "E02-I06-A-B03",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/17/bindings/2",
+          "requirement_ids": [
+            "REQ-EXE-01-01",
+            "REQ-EXE-01-02",
+            "REQ-EXE-01-03"
+          ],
+          "edge_occurrences": 3,
+          "req_test_pairs": 3,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "shared6",
+            "common_routes",
+            "cache_composed"
+          ],
+          "basis": "Actual exhausted-compute permitted warm hit, read refusal before I/O, denied miss, off-loop physical ownership and late publication fences; local waiting-slot matrix remains separate."
+        },
+        {
+          "binding_id": "E02-I06-A-B04",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/17/bindings/3",
+          "requirement_ids": [
+            "REQ-EXE-02-01",
+            "REQ-EXE-02-02",
+            "REQ-EXE-02-03"
+          ],
+          "edge_occurrences": 3,
+          "req_test_pairs": 3,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "shared6",
+            "native_async3"
+          ],
+          "basis": "Actual A→C before B, explicit join and alias conflict plus selected fresh finalization/rollback/cancel; no synthetic schedule speedup claim."
+        }
       ]
     },
     {
       "scenario_id": "E02-I06-B",
-      "status": "NOT_RUN",
+      "status": "PARTIAL",
       "commit": null,
-      "profile": null,
+      "profile": "Evidence-specific local source/input/backend bindings; actual composed/installed/Linux boundaries remain separate.",
       "evidence": [],
       "binding_ids": [
         "E02-I06-B-B01",
@@ -5491,13 +7753,108 @@
         "E02-I06-B-B03",
         "E02-I06-B-B04",
         "E02-I06-B-B05"
+      ],
+      "binding_results": [
+        {
+          "binding_id": "E02-I06-B-B01",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/18/bindings/0",
+          "requirement_ids": [
+            "REQ-RES-01-01",
+            "REQ-RES-01-02",
+            "REQ-RES-01-03"
+          ],
+          "edge_occurrences": 3,
+          "req_test_pairs": 3,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "res_four_process",
+            "res_read_contracts"
+          ],
+          "basis": "Actual four fresh processes, same functional workflow, once-only durable invocation and nonempty selected refs/fresh bytes."
+        },
+        {
+          "binding_id": "E02-I06-B-B02",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/18/bindings/1",
+          "requirement_ids": [
+            "REQ-RES-02-01",
+            "REQ-RES-02-02",
+            "REQ-RES-02-03"
+          ],
+          "edge_occurrences": 3,
+          "req_test_pairs": 3,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "res_normal",
+            "res_removal",
+            "res_frontier",
+            "native_async3"
+          ],
+          "basis": "Accepted A/B state+completed frontier+cache refs publish together, rollback diagnostic bytes remain unselected. Exact frontier producer AST unchanged from semantic red."
+        },
+        {
+          "binding_id": "E02-I06-B-B03",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/18/bindings/2",
+          "requirement_ids": [
+            "REQ-RES-03-01",
+            "REQ-RES-03-02",
+            "REQ-RES-03-03"
+          ],
+          "edge_occurrences": 3,
+          "req_test_pairs": 3,
+          "assessment": "local_partial_source_active_late_cyc_deferred",
+          "remaining_kinds": [
+            "actual_n5_late_value_fresh_get",
+            "DA-01_late_CYC_projection"
+          ],
+          "evidence": [
+            "partial_latest",
+            "partial_n5_binding14",
+            "partial_ncm_affected2"
+          ],
+          "basis": "No actual same-leaf N5 yet in deciding late-value r9. Local requirement cannot be deferred wholesale; only late CYC public projection uses DA01."
+        },
+        {
+          "binding_id": "E02-I06-B-B04",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/18/bindings/3",
+          "requirement_ids": [
+            "REQ-REP-01-02"
+          ],
+          "edge_occurrences": 1,
+          "req_test_pairs": 1,
+          "assessment": "named_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "rep_native",
+            "rep_default_resume"
+          ],
+          "basis": "Actual selected packet/check-only/backend replay and default CLI fresh-head remaining workflow; no exact-ref scientific promotion."
+        },
+        {
+          "binding_id": "E02-I06-B-B05",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/18/bindings/4",
+          "requirement_ids": [
+            "REQ-STA-01-05"
+          ],
+          "edge_occurrences": 1,
+          "req_test_pairs": 1,
+          "assessment": "named_operation_and_measurement_profile_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "sta_workload_measurements",
+            "runtime23",
+            "res_four_process"
+          ],
+          "basis": "Explicit STA01 supporting nonmember: no spend/event replay, actual owner/fence evidence and declared subtree bytes/time/memory; external transactional effect exactly-once is not claimed."
+        }
       ]
     },
     {
       "scenario_id": "E02-I06-C",
-      "status": "NOT_RUN",
+      "status": "PARTIAL",
       "commit": null,
-      "profile": null,
+      "profile": "Evidence-specific local source/input/backend bindings; actual composed/installed/Linux boundaries remain separate.",
       "evidence": [],
       "binding_ids": [
         "E02-I06-C-B01",
@@ -5506,25 +7863,212 @@
         "E02-I06-C-B04",
         "E02-I06-C-B05",
         "E02-I06-C-B06"
+      ],
+      "binding_results": [
+        {
+          "binding_id": "E02-I06-C-B01",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/19/bindings/0",
+          "requirement_ids": [
+            "REQ-RUN-01-01",
+            "REQ-RUN-01-02"
+          ],
+          "edge_occurrences": 2,
+          "req_test_pairs": 2,
+          "assessment": "qualified_named_common_deadline_and_marker_profile",
+          "remaining_kinds": [],
+          "evidence": [
+            "run_pre_admission",
+            "common_routes",
+            "retry_deadline",
+            "owner_handoff_local48"
+          ],
+          "basis": "Actual pre-admission cleanup, single invocation deadlines and marker positive/adversarial controls pass in the named source profiles, including the actual48 result; no Linux transport or G acceptance is inferred."
+        },
+        {
+          "binding_id": "E02-I06-C-B02",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/19/bindings/1",
+          "requirement_ids": [
+            "REQ-RUN-02-01",
+            "REQ-RUN-02-02"
+          ],
+          "edge_occurrences": 2,
+          "req_test_pairs": 2,
+          "assessment": "owner_handoff_affected",
+          "remaining_kinds": [
+            "internal_owner_check_handoff",
+            "actual_core_sync_async_transport_checks"
+          ],
+          "evidence": [
+            "ipc10",
+            "warm_sync",
+            "warm_remaining"
+          ],
+          "basis": "Earlier actual transport qualified; Linux authenticated ControlWorker guard exposed missing supported owner-check handoff before spawn, now bounded source WIP."
+        },
+        {
+          "binding_id": "E02-I06-C-B03",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/19/bindings/2",
+          "requirement_ids": [
+            "REQ-RUN-03-01",
+            "REQ-RUN-03-02",
+            "REQ-RUN-03-03",
+            "REQ-RUN-03-04"
+          ],
+          "edge_occurrences": 4,
+          "req_test_pairs": 4,
+          "assessment": "qualified_retry_owner_handoff_affected",
+          "remaining_kinds": [
+            "owner_handoff_cancel_unknown_checks"
+          ],
+          "evidence": [
+            "retry_categories",
+            "invocation_wire",
+            "runtime23"
+          ],
+          "basis": "Baseline/cost/classification/persistence exists; exact new current-owner cancel and malformed/EOF/unknown transport controls pending."
+        },
+        {
+          "binding_id": "E02-I06-C-B04",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/19/bindings/3",
+          "requirement_ids": [
+            "REQ-DUR-01-01",
+            "REQ-DUR-01-02",
+            "REQ-DUR-01-03"
+          ],
+          "edge_occurrences": 3,
+          "req_test_pairs": 3,
+          "assessment": "current_ledger_qualified_restore_unestablished",
+          "remaining_kinds": [
+            "trusted_latest_restore_input_or_explicit_supported_boundary"
+          ],
+          "evidence": [
+            "durability219",
+            "runtime23",
+            "runtime_post_ack"
+          ],
+          "basis": "Current event settlement/unknown/ack→fresh budget consumer demonstrated. No latest authoritative restore generation/complete receipts found."
+        },
+        {
+          "binding_id": "E02-I06-C-B05",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/19/bindings/4",
+          "requirement_ids": [
+            "REQ-DUR-02-01",
+            "REQ-DUR-02-02",
+            "REQ-DUR-02-03"
+          ],
+          "edge_occurrences": 3,
+          "req_test_pairs": 3,
+          "assessment": "qualified_persistent_continuation_owner_handoff_affected",
+          "remaining_kinds": [
+            "owner_handoff_actual_core_takeover_continuation"
+          ],
+          "evidence": [
+            "runtime23",
+            "runtime_preservation",
+            "runtime_post_ack"
+          ],
+          "basis": "Actual persistent owner→remaining continuation under common operation/budget/deadline exists. New typed control handoff needs corresponding real owner-loss/fence checks."
+        },
+        {
+          "binding_id": "E02-I06-C-B06",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/19/bindings/5",
+          "requirement_ids": [
+            "REQ-WIRE-01-01",
+            "REQ-WIRE-01-02",
+            "REQ-WIRE-01-03"
+          ],
+          "edge_occurrences": 3,
+          "req_test_pairs": 3,
+          "assessment": "named_codec_and_process_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "invocation_wire",
+            "ipc10"
+          ],
+          "basis": "Actual process typed Decimal state/outcome and legacy/current envelope controls; only new private owner-check frames need affected envelope negatives, not full codec rerun."
+        }
       ]
     },
     {
       "scenario_id": "E02-I06-D",
-      "status": "NOT_RUN",
+      "status": "PARTIAL",
       "commit": null,
-      "profile": null,
+      "profile": "Evidence-specific local source/input/backend bindings; actual composed/installed/Linux boundaries remain separate.",
       "evidence": [],
       "binding_ids": [
         "E02-I06-D-B01",
         "E02-I06-D-B02",
         "E02-I06-D-B03"
+      ],
+      "binding_results": [
+        {
+          "binding_id": "E02-I06-D-B01",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/20/bindings/0",
+          "requirement_ids": [
+            "REQ-CAS-01-01",
+            "REQ-CAS-01-02",
+            "REQ-CAS-01-03"
+          ],
+          "edge_occurrences": 3,
+          "req_test_pairs": 3,
+          "assessment": "named_native_publication_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "cas_publication",
+            "cas_owner_removal",
+            "cas_owner_restored"
+          ],
+          "basis": "Actual A/B exact selected/default fresh views, lease/no-lock read, restart/owner-generation fsync/revocation controls qualified."
+        },
+        {
+          "binding_id": "E02-I06-D-B02",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/20/bindings/1",
+          "requirement_ids": [
+            "REQ-CAS-02-01",
+            "REQ-CAS-02-02",
+            "REQ-CAS-02-03"
+          ],
+          "edge_occurrences": 3,
+          "req_test_pairs": 3,
+          "assessment": "named_native_transfer_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "cas_transfer",
+            "cas_signature_removal",
+            "cas_signature_restored",
+            "cas_resource_removal",
+            "cas_resource_restored"
+          ],
+          "basis": "Actual selected A/B transfer, retained old generation, private archive, closed groups, configured signature/revocation→fresh reads, bounded native filesystem."
+        },
+        {
+          "binding_id": "E02-I06-D-B03",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/20/bindings/2",
+          "requirement_ids": [
+            "REQ-CAS-03-01",
+            "REQ-CAS-03-02",
+            "REQ-CAS-03-03",
+            "REQ-CAS-03-04"
+          ],
+          "edge_occurrences": 4,
+          "req_test_pairs": 4,
+          "assessment": "named_native_snapshot_batch_transition_demonstrated",
+          "remaining_kinds": [],
+          "evidence": [
+            "cas_configured68",
+            "cas_native_completion3",
+            "cas_authorizer_removal",
+            "cas_audit_fix"
+          ],
+          "basis": "Existing CAS03 configured native completion/snapshot+census+iterator stop/auth/CLI controls and audit sibling forward fix; no institutional authority or running callback preemption."
+        }
       ]
     },
     {
       "scenario_id": "E02-I06-E",
-      "status": "NOT_RUN",
+      "status": "PARTIAL",
       "commit": null,
-      "profile": null,
+      "profile": "Evidence-specific local source/input/backend bindings; actual composed/installed/Linux boundaries remain separate.",
       "evidence": [],
       "binding_ids": [
         "E02-I06-E-B01",
@@ -5532,6 +8076,112 @@
         "E02-I06-E-B03",
         "E02-I06-E-B04",
         "E02-I06-E-B05"
+      ],
+      "binding_results": [
+        {
+          "binding_id": "E02-I06-E-B01",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/21/bindings/0",
+          "requirement_ids": [
+            "REQ-CAN-01-01",
+            "REQ-CAN-01-02",
+            "REQ-CAN-01-03"
+          ],
+          "edge_occurrences": 3,
+          "req_test_pairs": 3,
+          "assessment": "native_demonstrated_installed_pending",
+          "remaining_kinds": [
+            "installed_product_profile"
+          ],
+          "evidence": [
+            "canon216",
+            "canon_native3",
+            "tensor33",
+            "tensor_capture3"
+          ],
+          "basis": "Exact writer/profile→selected manifest→fresh reader and bounded native.3 controls exist; actual noneditable installed profile not run."
+        },
+        {
+          "binding_id": "E02-I06-E-B02",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/21/bindings/1",
+          "requirement_ids": [
+            "REQ-MIG-01-01",
+            "REQ-MIG-01-02",
+            "REQ-MIG-01-03"
+          ],
+          "edge_occurrences": 3,
+          "req_test_pairs": 3,
+          "assessment": "native_demonstrated_installed_support_pending",
+          "remaining_kinds": [
+            "installed_product_profile",
+            "finite_support_record"
+          ],
+          "evidence": [
+            "migration_atomic74",
+            "migration69"
+          ],
+          "basis": "Registered CLI→real Trinity validator→common atomic writer→native loader; validated unchanged is not semantic authority."
+        },
+        {
+          "binding_id": "E02-I06-E-B03",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/21/bindings/2",
+          "requirement_ids": [
+            "REQ-MIG-02-01",
+            "REQ-MIG-02-02",
+            "REQ-MIG-02-03"
+          ],
+          "edge_occurrences": 3,
+          "req_test_pairs": 3,
+          "assessment": "native_demonstrated_installed_pending",
+          "remaining_kinds": [
+            "installed_product_profile"
+          ],
+          "evidence": [
+            "migration69"
+          ],
+          "basis": "Actual Runtime writer→registered converter→fresh real resolver; roots/list preflight/historical schema attribution resolved, installed remains."
+        },
+        {
+          "binding_id": "E02-I06-E-B04",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/21/bindings/3",
+          "requirement_ids": [
+            "REQ-MIG-04-01",
+            "REQ-MIG-04-02",
+            "REQ-MIG-04-03"
+          ],
+          "edge_occurrences": 3,
+          "req_test_pairs": 3,
+          "assessment": "native_demonstrated_installed_support_pending",
+          "remaining_kinds": [
+            "installed_product_profile",
+            "finite_support_record"
+          ],
+          "evidence": [
+            "migration69"
+          ],
+          "basis": "Actual per-call Fabric converter→neutral Common→persisted DatasetManifest→real Registry; format conversion/admission remain distinct."
+        },
+        {
+          "binding_id": "E02-I06-E-B05",
+          "canonical_pointer": "04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/21/bindings/4",
+          "requirement_ids": [
+            "REQ-MIG-05-01",
+            "REQ-MIG-05-02",
+            "REQ-MIG-05-03",
+            "REQ-MIG-05-04"
+          ],
+          "edge_occurrences": 4,
+          "req_test_pairs": 4,
+          "assessment": "native_demonstrated_installed_support_pending",
+          "remaining_kinds": [
+            "installed_product_profile",
+            "finite_support_record"
+          ],
+          "evidence": [
+            "migration_callbacks55",
+            "migration69"
+          ],
+          "basis": "Actual callback registration→shared runner→typed consumers/import order exists; finite support declaration and product installed composition remain."
+        }
       ]
     },
     {

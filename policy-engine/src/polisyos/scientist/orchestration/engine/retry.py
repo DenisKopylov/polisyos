@@ -27,6 +27,7 @@ import queue
 import random
 import secrets
 import signal
+import struct
 import sys
 import threading
 import time
@@ -50,10 +51,13 @@ from polisyos.common.async_tools import (
 )
 from polisyos.common.canonical import _admit_canon_spec
 from polisyos.common.job_execution_interrupt import (
+    JobExecutionInterrupt,
     JobExecutionInterrupted,
     JobExecutionOwnerNotEstablishedError,
+    _current_job_execution_identity,
     has_job_execution_owner_check,
     has_job_execution_scope,
+    job_execution_interrupt_scope,
     raise_if_job_execution_interrupted,
 )
 from polisyos.core.artifacts.manifest import (
@@ -335,6 +339,181 @@ def _reap_owned_children() -> bool:
         time.sleep(0.001)
 
 
+@dataclasses.dataclass
+class _ForkOwnerHandoff:
+    """Private parent-owned control channel for one exact forked attempt."""
+
+    parent: Any
+    child: Any
+    lost: Any
+    identity: tuple[str, str, int, str]
+    nonce: str
+    binding: tuple[str, str, str, str, str]
+    deadline: float
+    sequence: int = 0
+    buffer: bytearray = dataclasses.field(default_factory=bytearray)
+    eof: bool = False
+
+    def _request_ready(self, completion_time: Any) -> bool:
+        if self.eof:
+            return False
+        while True:
+            try:
+                chunk = os.read(self.parent.fileno(), 2053)
+            except BlockingIOError:
+                break
+            except OSError as exc:
+                self.lost.set()
+                raise _WorkerTransportError("fork_owner_request_unavailable") from exc
+            if not chunk:
+                if not self.buffer and _completion_before_deadline(completion_time, self.deadline):
+                    self.eof = True
+                    return False
+                self.lost.set()
+                raise _WorkerTransportError("fork_owner_request_eof_before_completion")
+            self.buffer.extend(chunk)
+            if len(self.buffer) > 2052:
+                self.lost.set()
+                raise _WorkerTransportError("fork_owner_request_too_large")
+        if len(self.buffer) < 4:
+            return False
+        size = struct.unpack("!i", self.buffer[:4])[0]
+        if size < 0 or size > 2048:
+            self.lost.set()
+            raise _WorkerTransportError("fork_owner_request_size_invalid")
+        if len(self.buffer) < 4 + size:
+            return False
+        raw = bytes(self.buffer[4 : 4 + size])
+        del self.buffer[: 4 + size]
+        try:
+            request = json.loads(raw)
+        except (ValueError, UnicodeError) as exc:
+            self.lost.set()
+            raise _WorkerTransportError("fork_owner_request_invalid") from exc
+        expected = [self.nonce, *self.identity, self.sequence, *self.binding]
+        if (
+            not isinstance(request, list)
+            or len(request) != 11
+            or any(type(request[index]) is not str for index in (0, 1, 2, 4, 6, 7, 8, 9, 10))
+            or type(request[3]) is not int
+            or type(request[5]) is not int
+            or request != expected
+            or _current_job_execution_identity() != self.identity
+        ):
+            self.lost.set()
+            raise _WorkerTransportError("fork_owner_request_binding_mismatch")
+        return True
+
+    def _reply(self) -> None:
+        if time.monotonic() >= self.deadline:
+            self.lost.set()
+            raise _WorkerTransportError("fork_owner_grant_after_deadline")
+        try:
+            self.parent.send_bytes(json.dumps([self.nonce, self.sequence, True]).encode())
+        except (OSError, ValueError) as exc:
+            self.lost.set()
+            raise _WorkerTransportError("fork_owner_response_unavailable") from exc
+        self.sequence += 1
+
+    @staticmethod
+    def _check_current(attempt_check: Callable[[], None] | None) -> None:
+        raise_if_job_execution_interrupted(check_current_owner=True)
+        if attempt_check is not None:
+            try:
+                attempt_check()
+            except Exception as exc:
+                raise _WorkerTransportError("fork_owner_engine_attempt_not_current") from exc
+        raise_if_job_execution_interrupted(check_current_owner=True)
+
+    def service(
+        self, completion_time: Any = None, attempt_check: Callable[[], None] | None = None
+    ) -> None:
+        """Refresh job and Core attempt before granting this one request."""
+        if not self._request_ready(completion_time):
+            return
+        try:
+            self._check_current(attempt_check)
+            self._reply()
+        except BaseException:
+            self.lost.set()
+            raise
+
+    async def service_async(
+        self, completion_time: Any = None, attempt_check: Callable[[], None] | None = None
+    ) -> None:
+        """Keep a slow owner store off the caller's event loop and deadline."""
+        if not self._request_ready(completion_time):
+            return
+        try:
+            remaining = self.deadline - time.monotonic()
+            if remaining <= 0:
+                raise TimeoutError("fork_owner_deadline_expired")
+            await run_blocking_async(self._check_current, attempt_check, timeout_seconds=remaining)
+            self._reply()
+        except BaseException:
+            self.lost.set()
+            raise
+
+    def close(self) -> None:
+        self.lost.set()
+        self.parent.close()
+        self.child.close()
+
+
+def _fork_child_interrupt_scope(
+    connection: Any,
+    lost: Any,
+    identity: tuple[str, str, int, str],
+    nonce: str,
+    binding: tuple[str, str, str, str, str],
+    deadline: float,
+) -> Any:
+    """Replace the copied parent closure with a bounded private owner check."""
+    sequence = 0
+    channel_lock = threading.Lock()
+
+    def check_owner() -> None:
+        nonlocal sequence
+        remaining = deadline - time.monotonic()
+        if remaining <= 0 or not channel_lock.acquire(timeout=remaining):
+            lost.set()
+            raise JobExecutionInterrupted("fork_owner_channel_deadline_expired")
+        try:
+            if lost.is_set():
+                raise JobExecutionInterrupted("fork_owner_lost")
+            connection.send_bytes(json.dumps([nonce, *identity, sequence, *binding]).encode())
+            remaining = deadline - time.monotonic()
+            if remaining <= 0 or not connection.poll(remaining):
+                raise TimeoutError("fork_owner_response_timeout")
+            response = json.loads(connection.recv_bytes(2048))
+            if (
+                not isinstance(response, list)
+                or len(response) != 3
+                or type(response[0]) is not str
+                or type(response[1]) is not int
+                or response[2] is not True
+                or response != [nonce, sequence, True]
+            ):
+                raise ValueError("fork_owner_response_binding_mismatch")
+            sequence += 1
+        except (EOFError, OSError, ValueError, UnicodeError, TimeoutError) as exc:
+            lost.set()
+            raise JobExecutionInterrupted("fork_owner_check_not_established") from exc
+        finally:
+            channel_lock.release()
+
+    return job_execution_interrupt_scope(
+        JobExecutionInterrupt(
+            identity[0],
+            identity[1],
+            identity[2],
+            lost=lost,
+            run_id=identity[3],
+            current_owner_check=check_owner,
+        )
+    )
+
+
 def _node_execute_supervisor(
     node: Any,
     ctx: Any,
@@ -345,9 +524,12 @@ def _node_execute_supervisor(
     compute_deadline: float,
     cleanup_complete: Any,
     worker_binding: _ForkWorkerReceiptBinding | None = None,
+    owner_handoff: _ForkOwnerHandoff | None = None,
 ) -> None:
     """Own one real node process and reap it before exposing its result."""
     result_channel.close_reader()
+    if owner_handoff is not None:
+        owner_handoff.parent.close()
     if sys.platform != "linux":
         # The established group boundary remains available; native non-Linux
         # descendant reaping is not established by this Linux supervisor.
@@ -385,16 +567,36 @@ def _node_execute_supervisor(
             try:
                 try:
                     _remaining_deadline(compute_deadline, execution_state="not_started")
-                    _node_execute_worker(
-                        node,
-                        ctx,
-                        state,
-                        child_channel,
-                        None,
-                        completion_time,
-                        worker_binding=worker_binding,
-                        compute_deadline=compute_deadline,
-                    )
+                    if owner_handoff is None:
+                        _node_execute_worker(
+                            node,
+                            ctx,
+                            state,
+                            child_channel,
+                            None,
+                            completion_time,
+                            worker_binding=worker_binding,
+                            compute_deadline=compute_deadline,
+                        )
+                    else:
+                        with _fork_child_interrupt_scope(
+                            owner_handoff.child,
+                            owner_handoff.lost,
+                            owner_handoff.identity,
+                            owner_handoff.nonce,
+                            owner_handoff.binding,
+                            compute_deadline,
+                        ):
+                            _node_execute_worker(
+                                node,
+                                ctx,
+                                state,
+                                child_channel,
+                                None,
+                                completion_time,
+                                worker_binding=worker_binding,
+                                compute_deadline=compute_deadline,
+                            )
                 except (SystemExit, KeyboardInterrupt) as exc:
                     completion_time.value = time.monotonic()
                     code = exc.code if isinstance(exc, SystemExit) else None
@@ -425,6 +627,8 @@ def _node_execute_supervisor(
             finally:
                 os._exit(0)
         child_channel.close_writer()
+        if owner_handoff is not None:
+            owner_handoff.child.close()
         while not stopped:
             deadline = (
                 float(completion_time.value) + _PROCESS_DELIVERY_GRACE_S
@@ -3294,6 +3498,16 @@ def _terminate_owned_process(
     return not process.is_alive() and group_clean
 
 
+def _report_owned_cleanup_incomplete(primary: BaseException | None) -> None:
+    """Keep a failed physical stop visible without replacing cancellation."""
+    _logger.error("Owned timeout worker cleanup did not establish physical stop")
+    if primary is None:
+        raise _WorkerDeliveryError("timeout_worker_owned_cleanup_incomplete")
+    primary.add_note("timeout_worker_owned_cleanup_incomplete")
+    if isinstance(primary, Exception) and not isinstance(primary, _WorkerOutcomeUnknown):
+        raise _WorkerDeliveryError("timeout_worker_owned_cleanup_incomplete") from primary
+
+
 def _close_worker_process(process: mp.Process) -> None:
     """Release process resources after the owned process has stopped."""
     if process.is_alive():
@@ -3344,14 +3558,15 @@ def _drain_result_sync(
     *,
     compute_deadline: float,
     completion_time: Any = None,
+    owner_handoff: _ForkOwnerHandoff | None = None,
+    owner_attempt_check: Callable[[], None] | None = None,
 ) -> tuple[str, object]:
-    """Receive a result while its producer runs, without partial-frame blocking."""
+    """Receive a result and service bounded child-owner checks."""
     raise_if_job_execution_interrupted()
-    while process.is_alive() and not _completion_before_deadline(
-        completion_time,
-        compute_deadline,
-    ):
+    while process.is_alive() and not _completion_before_deadline(completion_time, compute_deadline):
         raise_if_job_execution_interrupted()
+        if owner_handoff is not None:
+            owner_handoff.service(completion_time, owner_attempt_check)
         remaining = compute_deadline - time.monotonic()
         if remaining <= 0:
             raise _WorkerComputeTimeout
@@ -3367,18 +3582,17 @@ def _drain_result_sync(
             raise _WorkerComputeTimeout
         raise_if_job_execution_interrupted()
         return _require_worker_result_frame(raw_frame)
-
     if not process.is_alive() and not _completion_before_deadline(
-        completion_time,
-        compute_deadline,
+        completion_time, compute_deadline
     ):
         raise _WorkerProcessExited(process.exitcode)
     if not _completion_before_deadline(completion_time, compute_deadline):
         raise _WorkerComputeTimeout
-
     delivery_deadline = _delivery_deadline(completion_time)
     while time.monotonic() < delivery_deadline:
         raise_if_job_execution_interrupted()
+        if owner_handoff is not None:
+            owner_handoff.service(completion_time, owner_attempt_check)
         remaining = delivery_deadline - time.monotonic()
         try:
             delivered_frame: object = result_queue.get(
@@ -3399,14 +3613,15 @@ async def _drain_result_async(
     *,
     compute_deadline: float,
     completion_time: Any = None,
+    owner_handoff: _ForkOwnerHandoff | None = None,
+    owner_attempt_check: Callable[[], None] | None = None,
 ) -> tuple[str, object]:
     """Async counterpart of :func:`_drain_result_sync`."""
     raise_if_job_execution_interrupted()
-    while process.is_alive() and not _completion_before_deadline(
-        completion_time,
-        compute_deadline,
-    ):
+    while process.is_alive() and not _completion_before_deadline(completion_time, compute_deadline):
         raise_if_job_execution_interrupted()
+        if owner_handoff is not None:
+            await owner_handoff.service_async(completion_time, owner_attempt_check)
         try:
             raw_frame: object = result_queue.get_nowait()
         except EOFError:
@@ -3423,18 +3638,17 @@ async def _drain_result_async(
                 raise _WorkerComputeTimeout
             raise_if_job_execution_interrupted()
             return _require_worker_result_frame(raw_frame)
-
     if not process.is_alive() and not _completion_before_deadline(
-        completion_time,
-        compute_deadline,
+        completion_time, compute_deadline
     ):
         raise _WorkerProcessExited(process.exitcode)
     if not _completion_before_deadline(completion_time, compute_deadline):
         raise _WorkerComputeTimeout
-
     delivery_deadline = _delivery_deadline(completion_time)
     while time.monotonic() < delivery_deadline:
         raise_if_job_execution_interrupted()
+        if owner_handoff is not None:
+            await owner_handoff.service_async(completion_time, owner_attempt_check)
         try:
             delivered_frame: object = result_queue.get_nowait()
             raise_if_job_execution_interrupted()
@@ -3443,7 +3657,7 @@ async def _drain_result_async(
             raise _WorkerDeliveryTimeout from None
         except queue.Empty:
             remaining = delivery_deadline - time.monotonic()
-            await asyncio.sleep(min(_PROCESS_RESULT_POLL_S, remaining))
+            await asyncio.sleep(min(_PROCESS_RESULT_POLL_S, max(0.0, remaining)))
     raise _WorkerDeliveryTimeout
 
 
@@ -3783,10 +3997,25 @@ def _admit_spawn_timeout_worker_result(
     )
 
 
+def _require_current_fork_engine_attempt(ctx: Any, selected: Any) -> None:
+    """Recheck the same live Core attempt without resetting the delivery budget."""
+    attempts = ctx.run.read_runtime_invocation_attempts()
+    matches = [item for item in attempts if item.basis.attempt_id == selected.attempt_id]
+    if (
+        len(matches) != 1
+        or matches[0].basis_ref != selected.basis_ref
+        or matches[0].outcome is not None
+        or matches[0].basis.run_id != selected.run_id
+    ):
+        raise RuntimeError("fork_owner_engine_attempt_changed")
+
+
 def _admit_fork_timeout_worker_result(
     ctx: Any,
     binding: _ForkWorkerReceiptBinding,
     payload: Any,
+    *,
+    owner_checked: bool = False,
 ) -> NodeOutcome:
     """Admit one Linux fork worker result into the exact live parent RunContext."""
     return _admit_worker_execution_receipt(
@@ -3795,18 +4024,14 @@ def _admit_fork_timeout_worker_result(
         capability=binding.capability,
         binding=binding.binding,
         expected_run_id=binding.run_id,
+        owner_checked=owner_checked,
     )
 
 
-def _admit_worker_execution_receipt(
-    ctx: Any,
-    payload: Any,
-    *,
-    capability: WorkerLifecycleCapability,
-    binding: WorkerDispatchBinding,
-    expected_run_id: str,
-) -> NodeOutcome:
-    """Validate one result envelope and merge its trace only through its parent."""
+def _decode_worker_execution_receipt(
+    payload: Any, *, binding: WorkerDispatchBinding, expected_run_id: str
+) -> tuple[Any, NodeOutcome | None, Any]:
+    """Decode and bind a worker receipt before any parent-owned mutation."""
     from polisyos.scientist.orchestration.engine.runner.serialization import (
         DeserializationError,
         deserialize_outcome,
@@ -3852,7 +4077,22 @@ def _admit_worker_execution_receipt(
     except (AttributeError, TypeError, ValueError) as exc:
         raise RuntimeError("timeout_worker_result_invalid") from exc
 
+    return worker_error, outcome, records
+
+
+def _commit_worker_execution_receipt(
+    ctx: Any,
+    *,
+    capability: WorkerLifecycleCapability,
+    binding: WorkerDispatchBinding,
+    decoded: tuple[Any, NodeOutcome | None, Any],
+    owner_checked: bool = False,
+) -> NodeOutcome:
+    """Admit a validated receipt under the currently checked parent owner."""
+    worker_error, outcome, records = decoded
     try:
+        if not owner_checked:
+            raise_if_job_execution_interrupted(check_current_owner=True)
         authority = getattr(ctx.run, "_authority", None)
         if isinstance(authority, _AttemptAuthority):
             authority.invoke_persistent_write(
@@ -3869,6 +4109,27 @@ def _admit_worker_execution_receipt(
     if outcome is None:
         raise RuntimeError("timeout_worker_outcome_missing_after_admission")
     return outcome
+
+
+def _admit_worker_execution_receipt(
+    ctx: Any,
+    payload: Any,
+    *,
+    capability: WorkerLifecycleCapability,
+    binding: WorkerDispatchBinding,
+    expected_run_id: str,
+    owner_checked: bool = False,
+) -> NodeOutcome:
+    decoded = _decode_worker_execution_receipt(
+        payload, binding=binding, expected_run_id=expected_run_id
+    )
+    return _commit_worker_execution_receipt(
+        ctx,
+        capability=capability,
+        binding=binding,
+        decoded=decoded,
+        owner_checked=owner_checked,
+    )
 
 
 def _typed_node_timeout_worker(
@@ -3951,9 +4212,9 @@ def _decode_worker_node_outcome(payload: object) -> NodeOutcome:
     return decode_node_outcome(payload)
 
 
-def _refuse_untransportable_process_context(ctx: Any) -> None:
+def _refuse_untransportable_process_context(ctx: Any, *, allow_fork_owner: bool = False) -> None:
     """Do not drop local invocation or live-owner authority at a process boundary."""
-    if has_job_execution_owner_check():
+    if has_job_execution_owner_check() and not allow_fork_owner:
         raise _timeout_worker_unsupported("live_owner_check_not_transportable")
     from polisyos.scientist.orchestration.engine.context import (
         ExecutionContext,
@@ -3980,7 +4241,9 @@ def _execute_with_timeout_process(
     process_context: BaseContext | None = None,
     dispatch_params: Mapping[str, Any] | None = None,
 ) -> NodeOutcome:
-    _refuse_untransportable_process_context(ctx)
+    identity = _current_job_execution_identity()
+    allow_fork_owner = identity is not None and _timeout_worker_start_method() == "fork"
+    _refuse_untransportable_process_context(ctx, allow_fork_owner=allow_fork_owner)
     deadline = _invocation_deadline(timeout_s, deadline_monotonic)
     compute_deadline = deadline if deadline is not None else time.monotonic() + timeout_s
     start_method = _timeout_worker_start_method()
@@ -4033,8 +4296,56 @@ def _execute_with_timeout_process(
                 raise
             reason = str(exc) or type(exc).__name__
             raise _timeout_worker_unsupported(reason) from exc
+    owner_handoff = None
+    owner_engine = None
+    if allow_fork_owner:
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.runner.serialization import (
+            capture_timeout_worker_engine_invocation,
+        )
+
+        if (
+            not isinstance(ctx, ExecutionContext)
+            or fork_binding is None
+            or identity is None
+            or getattr(ctx.run.run_manifest, "control_job_id", None) != identity[0]
+            or fork_binding.run_id != state.run_id
+            or identity[3] != state.run_id
+        ):
+            raise _timeout_worker_unsupported("live_owner_fork_binding_not_established")
+        try:
+            owner_engine = capture_timeout_worker_engine_invocation(
+                ctx,
+                expected_run_id=state.run_id,
+                node_alias=alias or "",
+                component_id=str(node.spec.metadata.component_id),
+                dispatch_params=dispatch_params,
+                timeout_s=timeout_s,
+                supervisor_deadline_monotonic=compute_deadline,
+                state=state,
+            )
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise _timeout_worker_unsupported("live_owner_engine_attempt_not_established") from exc
+        parent_channel, child_channel = mp_ctx.Pipe(duplex=True)
+        os.set_blocking(parent_channel.fileno(), False)
+        owner_handoff = _ForkOwnerHandoff(
+            parent_channel,
+            child_channel,
+            mp_ctx.Event(),
+            identity,
+            secrets.token_hex(32),
+            (
+                fork_binding.run_id,
+                fork_binding.invocation_id,
+                fork_binding.dispatch_sha256,
+                owner_engine.attempt_id,
+                owner_engine.basis_ref.model_dump_json(),
+            ),
+            compute_deadline,
+        )
     result_queue: _WorkerResultChannel | None = None
     process: Any = None
+    cleanup_incomplete = False
     lifecycle = _WorkerLifecycle(compute_deadline=compute_deadline, completion_time=None)
     try:
         result_queue = _WorkerResultChannel(mp_ctx)
@@ -4073,6 +4384,7 @@ def _execute_with_timeout_process(
                     lifecycle.compute_deadline,
                     lifecycle.cleanup_complete,
                     fork_binding,
+                    owner_handoff,
                 ),
                 daemon=True,
             )
@@ -4080,6 +4392,8 @@ def _execute_with_timeout_process(
         _remaining_deadline(lifecycle.compute_deadline, execution_state="not_started")
         raise_if_job_execution_interrupted(check_current_owner=True)
         process.start()
+        if owner_handoff is not None:
+            owner_handoff.child.close()
         result_queue.close_writer()
         lifecycle.process_group_id = _owned_process_group_id(
             process,
@@ -4092,6 +4406,12 @@ def _execute_with_timeout_process(
             result_queue,
             compute_deadline=lifecycle.compute_deadline,
             completion_time=lifecycle.completion_time,
+            owner_handoff=owner_handoff,
+            owner_attempt_check=(
+                (lambda: _require_current_fork_engine_attempt(ctx, owner_engine))
+                if owner_engine is not None
+                else None
+            ),
         )
         if start_method == "spawn":
             cleanup_complete = _terminate_owned_process(
@@ -4103,14 +4423,16 @@ def _execute_with_timeout_process(
                 raise _worker_timeout_error(timeout_s, cleanup_complete=False)
         else:
             _join_worker_until(process, deadline=_delivery_deadline(lifecycle.completion_time))
-        raise_if_job_execution_interrupted()
-    except JobExecutionInterrupted:
+        raise_if_job_execution_interrupted(check_current_owner=owner_handoff is not None)
+    except JobExecutionInterrupted as interrupted:
         authority.revoke()
         if process is not None and process.pid is not None:
             # The validated owner group can outlive the immediate child.
-            _terminate_owned_process(
+            cleaned = _terminate_owned_process(
                 process, lifecycle.process_group_id, lifecycle.cleanup_complete
             )
+            if not cleaned:
+                cleanup_incomplete = True
         raise
     except _WorkerComputeTimeout:
         cleanup_complete = _terminate_owned_process(
@@ -4126,7 +4448,7 @@ def _execute_with_timeout_process(
     except _WorkerProcessExited:
         authority.revoke()
         if process is not None:
-            _terminate_owned_process(
+            cleanup_incomplete = not _terminate_owned_process(
                 process, lifecycle.process_group_id, lifecycle.cleanup_complete
             )
         raise
@@ -4145,15 +4467,21 @@ def _execute_with_timeout_process(
             f"(exitcode={process.exitcode}{cleanup_suffix})"
         ) from exc
     finally:
+        primary = sys.exception()
         authority.revoke()
         if process is not None:
             if process.is_alive():
-                _terminate_owned_process(
+                cleaned = _terminate_owned_process(
                     process, lifecycle.process_group_id, lifecycle.cleanup_complete
                 )
+                cleanup_incomplete = cleanup_incomplete or not cleaned
             _close_worker_process(process)
         if result_queue is not None:
             _close_result_queue(result_queue)
+        if owner_handoff is not None:
+            owner_handoff.close()
+        if cleanup_incomplete:
+            _report_owned_cleanup_incomplete(primary)
 
     if status == "ok":
         if start_method == "spawn":
@@ -4169,6 +4497,10 @@ def _execute_with_timeout_process(
     if status == "worker_receipt":
         if fork_binding is None:
             raise RuntimeError("fork_worker_receipt_without_parent_dispatch")
+        if owner_handoff is not None:
+            if owner_engine is None:
+                raise RuntimeError("fork_owner_engine_attempt_not_established")
+            _require_current_fork_engine_attempt(ctx, owner_engine)
         return _admit_fork_timeout_worker_result(ctx, fork_binding, payload)
     if status == "error":
         raise _worker_node_error(payload, expected_run_id=state.run_id)
@@ -4191,7 +4523,9 @@ async def _execute_with_timeout_process_async(
     process_context: BaseContext | None = None,
     dispatch_params: Mapping[str, Any] | None = None,
 ) -> NodeOutcome:
-    _refuse_untransportable_process_context(ctx)
+    identity = _current_job_execution_identity()
+    allow_fork_owner = identity is not None and _timeout_worker_start_method() == "fork"
+    _refuse_untransportable_process_context(ctx, allow_fork_owner=allow_fork_owner)
     deadline = _invocation_deadline(timeout_s, deadline_monotonic)
     compute_deadline = deadline if deadline is not None else time.monotonic() + timeout_s
     start_method = _timeout_worker_start_method()
@@ -4246,8 +4580,56 @@ async def _execute_with_timeout_process_async(
                 raise
             reason = str(exc) or type(exc).__name__
             raise _timeout_worker_unsupported(reason) from exc
+    owner_handoff = None
+    owner_engine = None
+    if allow_fork_owner:
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.runner.serialization import (
+            capture_timeout_worker_engine_invocation,
+        )
+
+        if (
+            not isinstance(ctx, ExecutionContext)
+            or fork_binding is None
+            or identity is None
+            or getattr(ctx.run.run_manifest, "control_job_id", None) != identity[0]
+            or fork_binding.run_id != state.run_id
+            or identity[3] != state.run_id
+        ):
+            raise _timeout_worker_unsupported("live_owner_fork_binding_not_established")
+        try:
+            owner_engine = capture_timeout_worker_engine_invocation(
+                ctx,
+                expected_run_id=state.run_id,
+                node_alias=alias or "",
+                component_id=str(node.spec.metadata.component_id),
+                dispatch_params=dispatch_params,
+                timeout_s=timeout_s,
+                supervisor_deadline_monotonic=compute_deadline,
+                state=state,
+            )
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise _timeout_worker_unsupported("live_owner_engine_attempt_not_established") from exc
+        parent_channel, child_channel = mp_ctx.Pipe(duplex=True)
+        os.set_blocking(parent_channel.fileno(), False)
+        owner_handoff = _ForkOwnerHandoff(
+            parent_channel,
+            child_channel,
+            mp_ctx.Event(),
+            identity,
+            secrets.token_hex(32),
+            (
+                fork_binding.run_id,
+                fork_binding.invocation_id,
+                fork_binding.dispatch_sha256,
+                owner_engine.attempt_id,
+                owner_engine.basis_ref.model_dump_json(),
+            ),
+            compute_deadline,
+        )
     result_queue: _WorkerResultChannel | None = None
     process: Any = None
+    cleanup_incomplete = False
     lifecycle = _WorkerLifecycle(compute_deadline=compute_deadline, completion_time=None)
     try:
         result_queue = _WorkerResultChannel(mp_ctx)
@@ -4286,13 +4668,23 @@ async def _execute_with_timeout_process_async(
                     lifecycle.compute_deadline,
                     lifecycle.cleanup_complete,
                     fork_binding,
+                    owner_handoff,
                 ),
                 daemon=True,
             )
         raise_if_job_execution_interrupted()
         _remaining_deadline(lifecycle.compute_deadline, execution_state="not_started")
-        raise_if_job_execution_interrupted(check_current_owner=True)
+        if owner_handoff is not None:
+            await run_blocking_async(
+                raise_if_job_execution_interrupted,
+                check_current_owner=True,
+                timeout_seconds=_remaining_deadline(lifecycle.compute_deadline),
+            )
+        else:
+            raise_if_job_execution_interrupted(check_current_owner=True)
         process.start()
+        if owner_handoff is not None:
+            owner_handoff.child.close()
         result_queue.close_writer()
         lifecycle.process_group_id = _owned_process_group_id(
             process,
@@ -4305,6 +4697,12 @@ async def _execute_with_timeout_process_async(
             result_queue,
             compute_deadline=lifecycle.compute_deadline,
             completion_time=lifecycle.completion_time,
+            owner_handoff=owner_handoff,
+            owner_attempt_check=(
+                (lambda: _require_current_fork_engine_attempt(ctx, owner_engine))
+                if owner_engine is not None
+                else None
+            ),
         )
         if start_method == "spawn":
             cleanup_complete = _terminate_owned_process(
@@ -4318,14 +4716,23 @@ async def _execute_with_timeout_process_async(
             await _join_worker_until_async(
                 process, deadline=_delivery_deadline(lifecycle.completion_time)
             )
-        raise_if_job_execution_interrupted()
-    except JobExecutionInterrupted:
+        if owner_handoff is not None:
+            await run_blocking_async(
+                raise_if_job_execution_interrupted,
+                check_current_owner=True,
+                timeout_seconds=_remaining_deadline(_delivery_deadline(lifecycle.completion_time)),
+            )
+        else:
+            raise_if_job_execution_interrupted()
+    except JobExecutionInterrupted as interrupted:
         authority.revoke()
         if process is not None and process.pid is not None:
             # The validated owner group can outlive the immediate child.
-            _terminate_owned_process(
+            cleaned = _terminate_owned_process(
                 process, lifecycle.process_group_id, lifecycle.cleanup_complete
             )
+            if not cleaned:
+                cleanup_incomplete = True
         raise
     except _WorkerComputeTimeout:
         cleanup_complete = _terminate_owned_process(
@@ -4341,7 +4748,7 @@ async def _execute_with_timeout_process_async(
     except _WorkerProcessExited:
         authority.revoke()
         if process is not None:
-            _terminate_owned_process(
+            cleanup_incomplete = not _terminate_owned_process(
                 process, lifecycle.process_group_id, lifecycle.cleanup_complete
             )
         raise
@@ -4360,15 +4767,21 @@ async def _execute_with_timeout_process_async(
             f"(exitcode={process.exitcode}{cleanup_suffix})"
         ) from exc
     finally:
+        primary = sys.exception()
         authority.revoke()
         if process is not None:
             if process.is_alive():
-                _terminate_owned_process(
+                cleaned = _terminate_owned_process(
                     process, lifecycle.process_group_id, lifecycle.cleanup_complete
                 )
+                cleanup_incomplete = cleanup_incomplete or not cleaned
             _close_worker_process(process)
         if result_queue is not None:
             _close_result_queue(result_queue)
+        if owner_handoff is not None:
+            owner_handoff.close()
+        if cleanup_incomplete:
+            _report_owned_cleanup_incomplete(primary)
 
     if status == "ok":
         if start_method == "spawn":
@@ -4384,6 +4797,26 @@ async def _execute_with_timeout_process_async(
     if status == "worker_receipt":
         if fork_binding is None:
             raise RuntimeError("fork_worker_receipt_without_parent_dispatch")
+        if owner_handoff is not None:
+            if owner_engine is None:
+                raise RuntimeError("fork_owner_engine_attempt_not_established")
+            _require_current_fork_engine_attempt(ctx, owner_engine)
+            decoded = _decode_worker_execution_receipt(
+                payload, binding=fork_binding.binding, expected_run_id=fork_binding.run_id
+            )
+            await run_blocking_async(
+                raise_if_job_execution_interrupted,
+                check_current_owner=True,
+                timeout_seconds=_remaining_deadline(_delivery_deadline(lifecycle.completion_time)),
+            )
+            raise_if_job_execution_interrupted()
+            return _commit_worker_execution_receipt(
+                ctx,
+                capability=fork_binding.capability,
+                binding=fork_binding.binding,
+                decoded=decoded,
+                owner_checked=True,
+            )
         return _admit_fork_timeout_worker_result(ctx, fork_binding, payload)
     if status == "error":
         raise _worker_node_error(payload, expected_run_id=state.run_id)
@@ -4558,6 +4991,7 @@ def _node_execute_worker(
 
         node_ctx = _node_facing_context(worker_ctx)
         execute = node.execute
+        raise_if_job_execution_interrupted(check_current_owner=True)
         try:
             _remaining_deadline(compute_deadline, execution_state="not_started")
         except NodeTimeoutError as exc:

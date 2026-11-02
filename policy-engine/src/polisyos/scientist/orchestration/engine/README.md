@@ -494,6 +494,19 @@ methods refuse bounded execution rather than claiming a thread is a killable
 worker. These profiles do not establish a generic timeout capability for all
 nodes or stores.
 
+For the owner-bound Linux fork profile, a real ControlWorker job/run/worker/attempt
+and the selected unfinished Core invocation basis must match. A private framed
+channel asks the parent to refresh its actual job and Core checks before physical
+node entry and before receipt admission; the SQL callback is not serialized into
+the child. Requests are nonce/sequence-bound, child exchanges are serialized, and
+async checks run outside the event loop with bounded acceptance. EOF, malformed
+frames, unavailable checks and stale bindings refuse; incomplete cleanup remains
+visible with unknown physical outcome and no blind replay. Unsupported contexts,
+including an active monetary view, retain their early refusal. These checks observe
+currentness: SQL control fencing, Core admission and an external effect are separate
+operations. An external effect still needs its owner's transactional fence or
+idempotent reconciliation; the transport does not make them atomic.
+
 ## Canonical node-cache mutation comparison
 
 The synchronous and asynchronous executors share one cache reader. Before a

@@ -162,3 +162,19 @@ def test_scope_presence_includes_legacy_and_lost_attempt_without_owner_lookup(
         assert has_job_execution_owner_check() is live_check
         assert checks == [] and lost.is_set() is already_lost
     assert has_job_execution_scope() is False
+
+
+def test_private_identity_requires_bound_owner_capability() -> None:
+    from polisyos.common.job_execution_interrupt import _current_job_execution_identity
+
+    assert _current_job_execution_identity() is None
+    with job_execution_interrupt_scope(JobExecutionInterrupt("j", "w", 2, Event())):
+        assert _current_job_execution_identity() is None
+    signal = JobExecutionInterrupt("j", "w", 2, Event(), current_owner_check=lambda: None)
+    with job_execution_interrupt_scope(signal):
+        assert _current_job_execution_identity() is None
+    signal = JobExecutionInterrupt(
+        "j", "w", 2, Event(), run_id="r", current_owner_check=lambda: None
+    )
+    with job_execution_interrupt_scope(signal):
+        assert _current_job_execution_identity() == ("j", "w", 2, "r")

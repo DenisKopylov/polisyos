@@ -859,7 +859,7 @@
       "lane_id": "LANE-08",
       "sequence": 2,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
       "capability_acceptance": "NOT_RUN",
       "transition_evidence": [
         {
@@ -1195,6 +1195,176 @@
           "wall_seconds": 18.98,
           "max_sampled_rss_bytes": 1486897152,
           "scope": "Real stores/readers/nativeHNSW/SQL/CLI/manifest; deterministic encoder tests wiring. Effective prefix vs truncated tails, three incremental projections/current membership/reuse/typed empty, canonical wrapper defaults/exact exception/non-None backend refusal. Independent final four-file delta GO; four input pins match final bytes. Original0.8GiBcap abort is HARNESS_ERROR, not product failure or discarded."
+        },
+        "catalog_native_chain": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane08-shared-native-red.log": {
+              "bytes": 3854,
+              "sha256": "e969ca328598cc9c8365b9a5bc03bdb6be07c97e47faec3bf738576d2681ebc6"
+            },
+            "policy-engine/_cache/e02/lane08-shared-native-red.basis.json": {
+              "bytes": 1142914,
+              "sha256": "fbaeb9f4c77a0bbedb196cdb371ac8053b68b9d80f5b073303314fa57de4993f"
+            },
+            "policy-engine/_cache/e02/lane08-shared-native-green1.log": {
+              "bytes": 12503,
+              "sha256": "dbdee52128bbadc2c1f07cebd05fce19a53f87c7f61801b416e4909d0032f4b6"
+            },
+            "policy-engine/_cache/e02/lane08-shared-native-green1.basis.json": {
+              "bytes": 1143430,
+              "sha256": "a8ea16035d5b902561054b226326d56fc6e9241aa440e335ea85e92656dfcacb"
+            }
+          },
+          "result": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "seconds": 116.622,
+            "max_rss_bytes": 531578880
+          },
+          "scope": "Controlled actual HTTP harvest, normalize and thirteen-field observation DB:26 datasets/43 observations, NPZ/native HNSW, configured-model benchmark18 cases/10 metrics, QC/publish and fresh Graph/Fabric. Actual raw same-stat drift/reissue, wrong encoder/inventory, denied seed and connector controls. Six-stage warm resume adds zero controlled-provider HTTP or encode calls, not zero file I/O. Independent source/oracle review GO. Controlled encoder proves wiring, not semantic relevance or institutional authority. Source/material input reconciliation is recorded; the later unused Core alias helper is not a reason to repeat this run.",
+          "availability": "Actual local bytes read and hashed; no remote evidence-delivery claim."
+        },
+        "catalog_importers23": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane08-catalog-importers.log": {
+              "bytes": 4905,
+              "sha256": "e42f383d0c1ba38b2f8a22de1abf78415d5681f49b4c19b540ff55ecdff13479"
+            },
+            "policy-engine/_cache/e02/lane08-catalog-importers.basis.json": {
+              "bytes": 1138972,
+              "sha256": "e352db93bf74626dacefc18cdadb12833f7bd54d23a3649ea04d274f524d61e6"
+            }
+          },
+          "result": {
+            "PASS": 23,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "seconds": 30.831,
+            "max_rss_bytes": 440762368
+          },
+          "scope": "Actual benchmark/publish importer regressions;436 loaded sources and other material pins unchanged, independent review GO.",
+          "availability": "Actual local bytes read and hashed; no remote evidence-delivery claim."
+        },
+        "legal_owned_current": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane08-legal-owned-current/source-profile-freeze.json": {
+              "bytes": 9003,
+              "sha256": "114f70de4a5cf2f09fcb8e6406b2856107532441a9b0fefb41937c51ec5d2eb3"
+            },
+            "policy-engine/_cache/e02/lane08-legal-owned-current/native.stdout.txt": {
+              "bytes": 15991,
+              "sha256": "1ff16520a4afbc220b3f8cd03941f1005574556d9b34f63b2e8869a348f6aa71"
+            },
+            "policy-engine/_cache/e02/lane08-legal-owned-current/native.stderr.txt": {
+              "bytes": 859,
+              "sha256": "bab8654e2bb0124e78171967a0531ec39b2135377b95d36664ea975af2f4e9ea"
+            },
+            "policy-engine/_cache/e02/lane08-legal-owned-current/native.junit.xml": {
+              "bytes": 417,
+              "sha256": "86506d04f0dc586c4a70ae545de044add7cbbedf721f286ef5960d062dec9346"
+            },
+            "policy-engine/_cache/e02/lane08-legal-owned-current/result.json": {
+              "bytes": 6019,
+              "sha256": "f7592e32ead1e6b414e5fa0683cb1e2b6464feb9b7f666a11829228085ed53ea"
+            }
+          },
+          "result": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "seconds": 223.87,
+            "max_rss_bytes": 5132992512,
+            "max_physical_footprint_bytes": 3069859096
+          },
+          "scope": "Same existing owned E5/ST2.7 CPU1024 producer and fresh HTTP intent/search consumer at certifi2026.10.23. Runtime/weight/callable/member drift and actual owner asset verification retained. Twelve source pins unchanged. All144 installed distribution versions occur in current lock; mixed site origins remain disclosed. Current-lock-compatible local profile, not pure single-venv/installed-artifact, relevance or Legal authority. Independent profile audit GO; historical proof retained unchanged.",
+          "availability": "Actual local bytes read and hashed; no remote evidence-delivery claim."
+        },
+        "legal_certifi_only_upgrade": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane08-current-profile-upgrade/before.json": {
+              "bytes": 10287,
+              "sha256": "58c2a2afaf7faebee8a30daa8c182d6dcd36eb199af6f4927cd18c4a67e9553e"
+            },
+            "policy-engine/_cache/e02/lane08-current-profile-upgrade/install.log": {
+              "bytes": 351,
+              "sha256": "7a76c6259297666c5c6f84d34804ef0324a133175b96efa40f5ce41e07ad11ab"
+            },
+            "policy-engine/_cache/e02/lane08-current-profile-upgrade/after.json": {
+              "bytes": 11045,
+              "sha256": "8f9dde60a58d102afb1bb25983b74beb6e154db31069e647bd40fdc1d8eaedae"
+            },
+            "policy-engine/_cache/e02/lane08-current-profile-upgrade/post-native-summary.json": {
+              "bytes": 548,
+              "sha256": "bb7839e603a481bad9536e8fbcdbc7e94db48efd0461807255627212c0c39eaa"
+            }
+          },
+          "result": "Exactly one changed package version:certifi2025.11.12→2026.10.23;144 distributions before/after, no additions/removals.",
+          "scope": "Reused existing C12 model/dependencies/assets; no environment or model copy. Critical13+pytest match current lock and were asserted before model execution.",
+          "availability": "Actual local bytes read and hashed; no remote evidence-delivery claim."
+        },
+        "net01_parallel_io11": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane08-pool-concurrency-final/result.json": {
+              "bytes": 1102,
+              "sha256": "5d05df5bf34ad42fc39949af77bbf3a15a33e7e192d2770afc08b8d6b393e45e"
+            },
+            "policy-engine/_cache/e02/lane08-pool-concurrency-final/command.stdout.txt": {
+              "bytes": 80,
+              "sha256": "08faea39fd19189f6544839f505d91d76ecb1367e219f5db362cdf22916ef869"
+            },
+            "policy-engine/_cache/e02/lane08-pool-concurrency-final/command.stderr.txt": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "policy-engine/_cache/e02/lane08-pool-concurrency-final/pytest.xml": {
+              "bytes": 2168,
+              "sha256": "c789e11861bd2056f29deda490b054bc36a386aef8c909cdb3dc17b9433e56f9"
+            },
+            "policy-engine/_cache/e02/lane08-pool-concurrency-final/before.json": {
+              "bytes": 358,
+              "sha256": "bdfa891b8e85bece56291ac07944b7ae4a5583169a6869f1e54b262dbebde68c"
+            },
+            "policy-engine/_cache/e02/lane08-pool-concurrency-final/after.json": {
+              "bytes": 358,
+              "sha256": "bdfa891b8e85bece56291ac07944b7ae4a5583169a6869f1e54b262dbebde68c"
+            }
+          },
+          "result": {
+            "PASS": 11,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "seconds": 2.668,
+            "max_rss_bytes": 298106880
+          },
+          "scope": "Whole admission-race module includes two concurrent gated connect/health paths with max2 and independent release while either network phase is blocked; existing deadlines/cancellation remain. Three pins unchanged, independent source review GO. Earlier fixture cleanup timeout retained, not relabelled product success.",
+          "availability": "Actual local bytes read and hashed; no remote evidence-delivery claim."
+        },
+        "catalog_same_stat_policy2": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane08-dfk-policy.log": {
+              "bytes": 18470,
+              "sha256": "c3a6a673241a1c60f210f2fa8cabb7362eeded14898bf78106182d45d04ab7ea"
+            },
+            "policy-engine/_cache/e02/lane08-dfk-policy.basis.json": {
+              "bytes": 1143936,
+              "sha256": "15ecd6dddcbf366aaf25660e3b5ba70d6cc9686d69f7ab25162fa0a9fa8c1f53"
+            }
+          },
+          "availability": "Actual local bytes read and hashed.",
+          "result": {
+            "PASS": 2,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "seconds": 229.233,
+            "max_rss_bytes": 498810880
+          },
+          "scope": "Existing actual same-ID source-policy bytes change with preserved size/mtime; warm and fresh consumers refuse, normal reissue restores usefulness. Disabled seed refusal and seed-edge/producer-registry controls preserve index bytes.469 loaded sources and other selected material inputs unchanged.45-second faulthandler stack is diagnostic, not watchdog termination; final exit0."
         }
       },
       "current_source_checkpoint": {
@@ -1208,7 +1378,7 @@
           "policy-engine/src/polisyos/data_forge/domains/catalog/sources/specialized.py": "60c4122f5762b67cd308ed8163314db1c8acb4aeeae290bc0a506d80aebd1493",
           "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py": "4cafa93e8838617df73ca9eafaca856d03e8d091b8cab24737d3b56ca7db8f9c",
           "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py": "f24df80a2ea2673147e676c8082c6a9d8cfa8331cff60dbd0837b06d722d02f0",
-          "policy-engine/tests/unit/remediation/test_dfk_02.py": "c8da2bc1fef6dac78f5abb734c6e3e932adfbc926b156d81ba44a326ef260849",
+          "policy-engine/tests/unit/remediation/test_dfk_02.py": "db693f5987957d2246b1d523a2f6772fbaef649cd19de50abe51aabaae5c97ee",
           "policy-engine/tests/unit/remediation/test_dfi_02.py": "5d442c410af1950a4d087dee13bc3b22f3c72341849fb81f134638ce8a3c1a0b",
           "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_api.py": "c94f3177f2d133ce9282b5dea9ede34c7a5f6c8f0df65614e47b09bd51c92af6",
           "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_writers.py": "bdb419f6bfc8876abc1105c0079d471b8fd15cc1c9204a84692af5bf80403aa9",
@@ -1219,7 +1389,7 @@
           "policy-engine/src/polisyos/fabric/connectors/pool.py": "a0c8ddfca925fd8971f2a215786b385174309174daa2fd0cff9733fa78de902d",
           "policy-engine/tests/_helpers/pool_cleanup_worker.py": "08156b52085789cc184dd3017654b2b75bc2f7470890a377101142989bd4588f",
           "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py": "d97990cd8b95eb3d82f95a5f9719b2c15c83ee97b38de2efe78c7554cbf33811",
-          "policy-engine/tests/unit/fabric/connectors/test_pool_admission_races.py": "ab03fe37a541530e8ba4fc5c898b0a8b692d8520d0b97366b88c6acb590888b1",
+          "policy-engine/tests/unit/fabric/connectors/test_pool_admission_races.py": "cf35b0ad3b45594d3e11d8a59e1698300c2e15e6b5d5b11fd47aff5ff8d9b322",
           "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_physical_cleanup_oracle.py": "7ac26f6bbd38086d4dc690765b0cfec486951a513f679faf1fd23d5a4d7d2d80",
           "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py": "14beb3fd72fa183e6ecace6a35387ae5a55fdfc63d4e3071dfd9b25bdfa7ac9d",
           "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py": "06e4076f888086609ddd935166f2545a31be25715d5838d3025e3372003aaa46",
@@ -1231,11 +1401,14 @@
           "policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_store.py": "21154e35c2006670e41c8d38a3ea66c283ae1a3f1c46aa6942794a0d00af6a38",
           "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_store.py": "cbd8ac2ce8715c7ccf65419c071bb3c30407567e05300b99c9318db3fde3de25",
           "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local.py": "b1394400954ee096c2079884d66036432d29edacccfcd14d84876d9eeb4293d6",
-          "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local_runtime_material.py": "565aaa1ef5a23f438d21cc9026917a7947ed81326edc6c5019c946a246330158"
+          "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local_runtime_material.py": "565aaa1ef5a23f438d21cc9026917a7947ed81326edc6c5019c946a246330158",
+          "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py": "89471d6af4b5a0aff9d35bc1e210366fcea281244ad2cfdd3444fc184d4c90ad"
         },
-        "remaining": "ING01 request/source identity/cache paths, ING02 selected-basis withdrawal consumer and ING03 full scope; shared I08A/B/C source-frozen verification. DFI03 local repair and additional reader/CLI companions are reviewed.",
+        "remaining": "Transport selected-context/cache/replay and streaming crash/recovery composition remains active. Same-ID policy byte native qualification and mixed success/empty/error lease/budget counters are separate Catalog checks. No later lane/G acceptance starts.",
         "delivered_first_commit": "d0ff6efdfd4756bcbcb7012abe74ed30155cfb0a",
-        "delivered_first_tree": "17c6b74e187bf86cbad3ebfbed71b36083ada54c"
+        "delivered_first_tree": "17c6b74e187bf86cbad3ebfbed71b36083ada54c",
+        "delivered_followup_commit": "3a3556ef5b35bfdc7af04c172a105fcc53cbc4ef",
+        "delivered_followup_tree": "a86705f057ac15f53c92a78ef1b8d3fe04861e7a"
       },
       "resource_admission": {
         "free_disk_gib_approx": 14.3,
@@ -4427,7 +4600,7 @@
       "track_id": "08-A",
       "track_position": 1,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane08_catalog",
       "base_commit": "cae9f09c27c45b65575f302b4e0e7b9b2dbb944c",
@@ -4439,7 +4612,8 @@
         "policy-engine/src/polisyos/data_forge/domains/catalog/sources/open_data.py",
         "policy-engine/src/polisyos/data_forge/domains/catalog/sources/sdmx.py",
         "policy-engine/src/polisyos/data_forge/domains/catalog/sources/specialized.py",
-        "policy-engine/tests/unit/remediation/test_dfk_02.py"
+        "policy-engine/tests/unit/remediation/test_dfk_02.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py"
       ],
       "shared_writer": "/root/lane08_catalog",
       "decision_records": [],
@@ -4523,15 +4697,14 @@
             "E02-I08-A-B01",
             "E02-X03-B02"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "catalog113",
-            "catalog_development120"
+            "catalog_same_stat_policy2",
+            "catalog_native_chain"
           ],
-          "basis": "Warm/fresh native path ran during development but indirect source freeze is not established; exact shared I08A recheck pending.",
-          "capability_gaps": [
-            "verification_missing"
-          ]
+          "basis": "Source-frozen actual same-ID policy-byte warm/fresh drift and normal reissue controls pass; native pipeline and fresh Fabric chain are separately qualified. No whole-I08/G acceptance claim.",
+          "capability_gaps": []
         }
       ]
     },
@@ -4821,14 +4994,14 @@
             "E02-I08-A-B03",
             "E02-X03-B02"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "dfi03_local"
+            "dfi03_local",
+            "catalog_native_chain",
+            "catalog_importers23"
           ],
-          "basis": "Actual selected DB/NPZ/HNSW, bound readiness and fresh serving shared I08A/B remain; measurement of selected hash cost is scoped separately.",
-          "capability_gaps": [
-            "verification_missing"
-          ]
+          "basis": "Actual selected native finite chain binds config/profile, controlled harvest payloads, thirteen-field DB, NPZ/HNSW selected generation, readiness/publish, smart resume and fresh Fabric consumer; existing local controls cover invalid receipt/output cases. Controlled encoder identity is bound. Shared whole-I08/G acceptance remains separate.",
+          "capability_gaps": []
         },
         {
           "requirement_id": "REQ-DFI-03-04",
@@ -5145,15 +5318,15 @@
           "binding_ids": [
             "E02-I08-B-B03"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "legal_owned1",
-            "embedding_companions59"
+            "embedding_companions59",
+            "legal_owned_current",
+            "legal_certifi_only_upgrade"
           ],
-          "basis": "Actual owned E5/ST2.7 native serving passed with complete declared runtime12pins; C12certifi is historical25.11.12, so pure current-lock profile is not claimed. Source relation/semantic retrieval utility are separate, not new serving prerequisites.",
-          "capability_gaps": [
-            "verification_missing"
-          ]
+          "basis": "Actual supported owned model producer and fresh public served query pass at the patched certifi floor/current-lock-compatible local runtime with material drift refusal. Mixed site origins explicitly retained; semantic retrieval utility remains NOT_QUALIFIED and is not a new gate for this mechanical serving property.",
+          "capability_gaps": []
         },
         {
           "requirement_id": "REQ-EMB-03-03",
@@ -5272,15 +5445,13 @@
           "binding_ids": [
             "E02-I08-C-B04"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "net01_native46",
-            "net01_before"
+            "net01_parallel_io11"
           ],
-          "basis": "Deadline/provider timeout controls pass; explicit two-connect and independent release during blocked network I/O await I08C.",
-          "capability_gaps": [
-            "verification_missing"
-          ]
+          "basis": "Two actual gated connects start concurrently with max2 and independent release completes while connect or health I/O is blocked. Existing deadlines/provider TimeoutError/late-handle controls remain qualified. No physical cleanup latency or throughput promise.",
+          "capability_gaps": []
         },
         {
           "requirement_id": "REQ-NET-01-04",

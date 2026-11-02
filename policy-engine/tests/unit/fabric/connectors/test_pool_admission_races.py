@@ -39,6 +39,9 @@ class _GatedFDConnector:
     def __init__(self) -> None:
         self.connect_started = asyncio.Event()
         self.allow_connect = asyncio.Event()
+        self.health_check_started = asyncio.Event()
+        self.allow_health_check = asyncio.Event()
+        self.allow_health_check.set()
         self.disconnect_started = asyncio.Event()
         self.allow_disconnect = asyncio.Event()
         self.fd_closed = asyncio.Event()
@@ -54,6 +57,8 @@ class _GatedFDConnector:
         return self.handle
 
     async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
+        self.health_check_started.set()
+        await _wait_for_event(self.allow_health_check)
         return HealthStatus(healthy=True)
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
@@ -650,3 +655,116 @@ async def test_cancel_after_permit_before_registration_restores_slot_once(tmp_pa
                     raise
             else:
                 os.close(sibling_fd)
+
+
+@pytest.mark.asyncio
+async def test_maxsize_two_starts_two_connects_before_either_unblocks(tmp_path: Path) -> None:
+    """Both connections enter connector I/O before either gated connect is released."""
+    resource = tmp_path / "parallel-connect-resource"
+    resource.write_bytes(b"parallel-connect")
+    connectors = [_GatedFDConnector(), _GatedFDConnector()]
+    connector_index = iter(connectors)
+    pool = ConnectionPool(
+        lambda: next(connector_index),
+        ConnectionConfig(url=str(resource)),
+        PoolConfig(
+            max_size=2,
+            validate_on_acquire=False,
+            acquire_timeout_seconds=10.0,
+            connection_timeout_seconds=10.0,
+        ),
+    )
+    acquires: list[asyncio.Task[ConnectionHandle]] = []
+
+    try:
+        acquires = [asyncio.create_task(pool.acquire()) for _ in connectors]
+        await asyncio.wait_for(
+            asyncio.gather(*(_wait_for_event(item.connect_started) for item in connectors)),
+            _WAIT_SECONDS,
+        )
+
+        assert all(item.connect_started.is_set() for item in connectors)
+        assert all(not task.done() for task in acquires)
+
+        for item in connectors:
+            item.allow_connect.set()
+        handles = await asyncio.wait_for(asyncio.gather(*acquires), _WAIT_SECONDS)
+        assert len({handle.session_id for handle in handles}) == 2
+        await asyncio.wait_for(
+            asyncio.gather(*(pool.release(handle) for handle in handles)),
+            _WAIT_SECONDS,
+        )
+        for item in connectors:
+            item.allow_disconnect.set()
+        await asyncio.wait_for(pool.close_all(), _WAIT_SECONDS)
+        assert all(item.fd_closed.is_set() for item in connectors)
+    finally:
+        for item in connectors:
+            item.allow_connect.set()
+            item.allow_health_check.set()
+            item.allow_disconnect.set()
+        if acquires:
+            await asyncio.wait_for(asyncio.gather(*acquires, return_exceptions=True), _WAIT_SECONDS)
+        await asyncio.wait_for(pool.close_all(), _WAIT_SECONDS)
+
+
+@pytest.mark.asyncio
+async def test_independent_release_completes_while_connect_and_health_io_are_gated(
+    tmp_path: Path,
+) -> None:
+    """Release progresses during separate gated connect and health-check operations."""
+    resource = tmp_path / "gated-network-resource"
+    resource.write_bytes(b"gated-network")
+    idle_connector = _GatedFDConnector()
+    connecting_connector = _GatedFDConnector()
+    idle_connector.allow_connect.set()
+    connector_queue = iter((idle_connector, connecting_connector))
+    pool = ConnectionPool(
+        lambda: next(connector_queue),
+        ConnectionConfig(url=str(resource)),
+        PoolConfig(
+            max_size=2,
+            acquire_timeout_seconds=10.0,
+            connection_timeout_seconds=10.0,
+            health_check_interval_seconds=0.0,
+        ),
+    )
+    connecting_acquire: asyncio.Task[ConnectionHandle] | None = None
+    health_acquire: asyncio.Task[ConnectionHandle] | None = None
+    releases: list[asyncio.Task[None]] = []
+
+    try:
+        first_handle = await asyncio.wait_for(pool.acquire(), _WAIT_SECONDS)
+
+        connecting_acquire = asyncio.create_task(pool.acquire())
+        await _wait_for_event(connecting_connector.connect_started)
+        first_release = asyncio.create_task(pool.release(first_handle))
+        releases.append(first_release)
+        await asyncio.wait_for(first_release, _WAIT_SECONDS)
+        assert not connecting_acquire.done()
+
+        connecting_connector.allow_connect.set()
+        second_handle = await asyncio.wait_for(connecting_acquire, _WAIT_SECONDS)
+
+        idle_connector.health_check_started.clear()
+        idle_connector.allow_health_check.clear()
+        health_acquire = asyncio.create_task(pool.acquire())
+        await _wait_for_event(idle_connector.health_check_started)
+        second_release = asyncio.create_task(pool.release(second_handle))
+        releases.append(second_release)
+        await asyncio.wait_for(second_release, _WAIT_SECONDS)
+        assert not health_acquire.done()
+
+        idle_connector.allow_health_check.set()
+        reused_handle = await asyncio.wait_for(health_acquire, _WAIT_SECONDS)
+        assert reused_handle is first_handle
+    finally:
+        for item in (idle_connector, connecting_connector):
+            item.allow_connect.set()
+            item.allow_health_check.set()
+            item.allow_disconnect.set()
+        tasks = [task for task in (connecting_acquire, health_acquire) if task is not None]
+        tasks.extend(releases)
+        if tasks:
+            await asyncio.wait_for(asyncio.gather(*tasks, return_exceptions=True), _WAIT_SECONDS)
+        await asyncio.wait_for(pool.close_all(), _WAIT_SECONDS)

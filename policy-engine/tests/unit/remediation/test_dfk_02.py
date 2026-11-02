@@ -719,8 +719,8 @@ def test_public_read_and_fabric_consumers_use_the_canonical_registry_projection(
     assert policy.keyword_allowlist[:3] == ("demograph", "population", "birth")
 
 
-def _build_dfk_02_published_catalog_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    """Use the public full-pipeline fixture for DFK-02 consumer proofs."""
+def _published_catalog_fixture_module():
+    """Load the existing local HTTP fixture owner without building a catalog."""
     import importlib.util
     import sys
 
@@ -732,7 +732,647 @@ def _build_dfk_02_published_catalog_fixture(tmp_path: Path, monkeypatch: pytest.
     module = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = module
     spec.loader.exec_module(module)
-    return module.build_published_catalog_fixture(tmp_path, monkeypatch)
+    return module
+
+
+def _build_dfk_02_published_catalog_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    """Use the public full-pipeline fixture for DFK-02 consumer proofs."""
+    return _published_catalog_fixture_module().build_published_catalog_fixture(
+        tmp_path, monkeypatch
+    )
+
+
+def test_native_catalog_source_to_selected_generation_and_fabric_consumer(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Qualify one real raw-to-serving chain under an explicit controlled profile."""
+    import copy
+    import hashlib
+    import json
+    import os
+    import re
+    import threading
+    import time
+    import types
+    import urllib.request
+    from dataclasses import replace
+    from typing import ClassVar
+    from urllib.parse import parse_qs, urlparse
+
+    import duckdb
+    import hnswlib
+    import numpy as np
+    import yaml
+
+    from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+    from polisyos.data_forge.domains.catalog._resources import catalog_default_resource_path
+    from polisyos.data_forge.domains.catalog.batch.benchmark import DEFAULT_BENCHMARK_SUITE
+    from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+    from polisyos.data_forge.domains.catalog.batch.pipeline import (
+        _harvest_stage_receipt,
+        _should_skip_stage,
+        current_catalog_publish_receipt,
+        current_catalog_report_basis,
+        run_dataset_pipeline_sync,
+    )
+    from polisyos.data_forge.domains.catalog.embedding_projection import (
+        CATALOG_DATASET_EMBEDDING_BASIS_KIND,
+        CATALOG_DATASET_EMBEDDING_PROJECTION_RULE_VERSION,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.search import DatasetCatalogGraph
+    from polisyos.data_forge.kernel.embeddings import (
+        derive_encoder_identity,
+        embedding_generation_matches_encoder,
+        resolve_embedding_generation,
+    )
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+
+    topics = (
+        ("gdp_per_capita", "GDP per capita purchasing power parity ВВП на душу населення"),
+        ("unemployment_rate", "Unemployment rate рівень безробіття"),
+        ("inflation", "Inflation consumer prices інфляція споживчі ціни"),
+        ("migration", "Migration flows міграційні потоки"),
+        ("health_outcomes", "Health outcomes life expectancy очікувана тривалість життя здоров'я"),
+        ("education_outcomes", "Education outcomes school enrollment освітні результати"),
+        ("social_trust", "Social trust values survey соціальна довіра опитування"),
+        ("poverty_rate", "Poverty rate income deprivation рівень бідності та доходи"),
+        ("labor_force_participation", "Labor force participation участь у робочій силі"),
+        ("institutional_quality", "Institutional quality rule of law державна спроможність"),
+    )
+    source_records = {f"FIXTURE.{metric.upper()}": (metric, title) for metric, title in topics}
+    metrics_map = yaml.safe_load(
+        catalog_default_resource_path("metrics_map.yaml").read_text(encoding="utf-8")
+    )
+    topic_titles = dict(topics)
+    for metric, specification in metrics_map.items():
+        for identifier in specification.get("worldbank_indicators", []):
+            source_records.setdefault(
+                identifier,
+                (
+                    metric,
+                    f"{topic_titles.get(metric, ' '.join(specification['keywords']))} {identifier}",
+                ),
+            )
+    expected_metrics = {metric for metric, _title in topics}
+    assert expected_metrics == set(DEFAULT_BENCHMARK_SUITE.retrieval_metrics)
+    assert expected_metrics == set(DEFAULT_BENCHMARK_SUITE.transport_variables)
+    assert set(DEFAULT_BENCHMARK_SUITE.foundry_metrics) <= expected_metrics
+    state = {"revision": 1}
+    requests: list[str] = []
+    request_lock = threading.Lock()
+    fixture_owner = _published_catalog_fixture_module()
+
+    class NativeProvider(fixture_owner._FixtureHandler):
+        def end_headers(self) -> None:
+            self.send_header("ETag", f'"e02-fixture-r{state["revision"]}"')
+            super().end_headers()
+
+        def do_HEAD(self) -> None:  # noqa: N802 - HTTP server protocol hook
+            path = urlparse(self.path).path
+            with request_lock:
+                requests.append(f"HEAD {path}")
+            identifier = path.removeprefix("/reach/")
+            self._send(200 if identifier in source_records else 404, b"", "application/json")
+
+        def do_GET(self) -> None:  # noqa: N802 - HTTP server protocol hook
+            parsed = urlparse(self.path)
+            path = parsed.path
+            with request_lock:
+                requests.append(f"GET {path}")
+            if path == "/harvest/worldbank":
+                rows = [
+                    {
+                        "id": identifier,
+                        "name": title,
+                        "sourceNote": (
+                            f"{title}; controlled annual country statistics; "
+                            f"fixture revision {state['revision']}."
+                        ),
+                        "metadata_modified": "2026-11-01T00:00:00Z",
+                    }
+                    for identifier, (_metric, title) in source_records.items()
+                ]
+                payload = [{"total": len(rows), "pages": 1}, rows]
+            elif path == "/harvest/ukons":
+                payload = {"items": []}
+            elif path.startswith("/v2/country/") and "/indicator/" in path:
+                identifiers = path.rsplit("/", 1)[-1].split(";")
+                if any(
+                    identifier not in source_records and identifier != "NY.GDP.MKTP.CD"
+                    for identifier in identifiers
+                ):
+                    self._send(404, b"unknown fixture indicator", "text/plain")
+                    return
+                if any(identifier in source_records for identifier in identifiers):
+                    assert path.startswith("/v2/country/UA/indicator/")
+                    assert parse_qs(parsed.query).get("date") == ["2020:2020"]
+                rows = [
+                    {
+                        "countryiso3code": "UKR",
+                        "country": {"id": "UA", "value": "Ukraine"},
+                        "indicator": {"id": identifier, "value": source_records[identifier][1]},
+                        "date": "2020",
+                        "value": float(10 + list(source_records).index(identifier)),
+                        "unit": "fixture-unit",
+                        "decimal": 1,
+                    }
+                    for identifier in identifiers
+                    if identifier in source_records
+                ]
+                payload = [{"total": len(rows), "pages": 1}, rows]
+            elif path.startswith("/reach/") and path.removeprefix("/reach/") in source_records:
+                payload = {"fixture_provider": True, "revision": state["revision"]}
+            else:
+                self._send(404, b"not found", "text/plain")
+                return
+            self._send(200, json.dumps(payload, ensure_ascii=False).encode(), "application/json")
+
+    model_root = tmp_path / "controlled-encoder"
+    model_root.mkdir()
+    model_path = model_root / "profile.json"
+
+    def tokens(text: str) -> list[str]:
+        return re.findall(r"[\w']+", text.lower())
+
+    vocabulary = {
+        token: index
+        for index, token in enumerate(
+            sorted({token for _metric, title in source_records.values() for token in tokens(title)})
+        )
+    }
+    weights = [
+        [
+            float(token in tokens(title))
+            + int(hashlib.sha256(f"{token}|{metric}".encode()).hexdigest()[:4], 16) / 65535 * 0.02
+            for metric, title in topics
+        ]
+        for token in vocabulary
+    ]
+    model_path.write_text(
+        json.dumps({"vocabulary": vocabulary, "weights": weights}), encoding="utf-8"
+    )
+
+    class NativeTokenizer:
+        def __init__(self, vocabulary: dict[str, int]) -> None:
+            self.vocabulary = vocabulary
+
+        def get_vocab(self) -> dict[str, int]:
+            return dict(self.vocabulary)
+
+    class BoundEncoder:
+        encode_calls: ClassVar[int] = 0
+
+        def __init__(self, model_name: str, *, device: str = "cpu") -> None:
+            material = json.loads((Path(model_name) / "profile.json").read_text())
+            self.weight = np.asarray(material["weights"], dtype=np.float32)
+            self.device = device
+            self.tokenizer = NativeTokenizer(material["vocabulary"])
+
+        def state_dict(self) -> dict[str, np.ndarray]:
+            return {"controlled.weight": self.weight}
+
+        def modules(self) -> tuple[BoundEncoder, ...]:
+            return (self,)
+
+        def get_config_dict(self) -> dict[str, object]:
+            return {"hidden_size": len(topics), "profile": "controlled_catalog_wiring_v1"}
+
+        def get_sentence_embedding_dimension(self) -> int:
+            return len(topics)
+
+        def encode(self, texts: list[str], **_kwargs: object) -> np.ndarray:
+            type(self).encode_calls += 1
+            vectors = []
+            vocabulary = self.tokenizer.get_vocab()
+            for text in texts:
+                vector = np.full(len(topics), 0.1, dtype=np.float32)
+                for token in tokens(text):
+                    if token in vocabulary:
+                        vector += self.weight[vocabulary[token]]
+                vector /= np.linalg.norm(vector)
+                vectors.append(vector)
+            return np.asarray(vectors, dtype=np.float32)
+
+    monkeypatch.setitem(
+        sys.modules,
+        "sentence_transformers",
+        types.SimpleNamespace(SentenceTransformer=BoundEncoder),
+    )
+    server = fixture_owner._FixtureServer(("127.0.0.1", 0), NativeProvider)
+    server_thread = threading.Thread(target=server.serve_forever, daemon=True)
+    server_thread.start()
+    host, port = server.server_address[:2]
+    base_url = f"http://{host}:{port}"
+    original_urlopen = urllib.request.urlopen
+
+    def provider_urlopen(request, *args, **kwargs):
+        raw_url = request.full_url if isinstance(request, urllib.request.Request) else str(request)
+        parsed = urlparse(raw_url)
+        if parsed.netloc == "api.worldbank.org":
+            identifier = parsed.path.rsplit("/", 1)[-1]
+            assert identifier in source_records
+            method = request.get_method() if isinstance(request, urllib.request.Request) else "GET"
+            request = urllib.request.Request(  # noqa: S310 - finite loopback provider
+                f"{base_url}/reach/{identifier}", method=method
+            )
+        return original_urlopen(request, *args, **kwargs)
+
+    # Translate the declared finite provider's public URI only at the HTTP edge;
+    # the normalizer, QC evaluator and their required denominators remain real.
+    monkeypatch.setattr(urllib.request, "urlopen", provider_urlopen)
+    profiles = SourceProfileRegistry()
+    profiles.register(
+        SourceProfile(
+            profile_id="worldbank_wdi",
+            display_name="Controlled finite WDI-format provider",
+            connector_family="worldbank",
+            base_url=f"{base_url}/v2",
+            preferred_core_transport="api_sync",
+            preferred_backfill_transport="api_sync",
+        )
+    )
+    monkeypatch.setattr(SourceProfileRegistry, "_instance", profiles)
+    policy = yaml.safe_load(default_catalog_source_registry_path().read_text(encoding="utf-8"))
+    selected_rows = [
+        copy.deepcopy(row) for row in policy["sources"] if row["name"] in {"worldbank", "ukons"}
+    ]
+    assert [row["name"] for row in selected_rows] == ["worldbank", "ukons"]
+    for row in selected_rows:
+        row["endpoint"] = f"{base_url}/harvest/{row['name']}"
+    registry_path = tmp_path / "registry.yaml"
+    registry_path.write_text(
+        yaml.safe_dump({"version": policy["version"], "sources": selected_rows}, sort_keys=False),
+        encoding="utf-8",
+    )
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snapshot",
+        registry_path=registry_path,
+        stages=frozenset(
+            {
+                "harvest",
+                "normalize",
+                "merge_dedup",
+                "graph_load",
+                "graph_index",
+                "core_sources_ingest",
+                "embed",
+                "benchmark",
+                "qc",
+                "publish",
+            }
+        ),
+        embedding_model=str(model_root),
+        embedding_device="cpu",
+        embedding_dimension=len(topics),
+        embedding_batch_size=4,
+        run_profile="prod_full",
+        observation_mode="core",
+        preflight_sources=("worldbank",),
+        active_countries=("UA",),
+        active_year_window=(2020, 2020),
+        max_datasets_per_source=100_000,
+        resume=True,
+        fail_fast_qc=False,
+        harvest_timeout=5,
+    )
+    graphs: list[DatasetCatalogGraph] = []
+    measurements: dict[str, float] = {}
+
+    def close_graphs() -> None:
+        while graphs:
+            graphs.pop().close()
+
+    def fresh_consumer(label: str):
+        graph = DatasetCatalogGraph(
+            config.db_path,
+            config.index_dir,
+            overlay_path=tmp_path / f"absent-{label}.duckdb",
+            embedding_model=str(model_root),
+        )
+        graphs.append(graph)
+        return graph, RetrievalService(
+            curated_dir=tmp_path / f"curated-{label}", dataset_catalog=graph, profiles=profiles
+        )
+
+    def index_identity() -> tuple[tuple[str, str], ...]:
+        return tuple(
+            (str(path.relative_to(config.index_dir)), hashlib.sha256(path.read_bytes()).hexdigest())
+            for path in sorted(config.index_dir.rglob("*"))
+            if path.is_file()
+        )
+
+    monkeypatch.setenv("POLISYOS_RETRIEVAL_FASTLANE_ENABLED", "0")
+    monkeypatch.setattr(
+        catalog_read_api,
+        "load_catalog_source_registry",
+        lambda: load_catalog_source_registry(registry_path),
+    )
+    request = DataResolveRequest(
+        data_needs=[
+            DataNeed(metric="gdp_per_capita", geography="UKR", time_start="2020", time_end="2020")
+        ],
+        mode="fastlane",
+        allow_explore_fallback=False,
+    )
+    try:
+        started = time.perf_counter()
+        stats = run_dataset_pipeline_sync(replace(config, stages=config.stages - {"publish"}))
+        measurements["cold_pipeline_seconds"] = time.perf_counter() - started
+        benchmark = json.loads(config.benchmark_report_path.read_text())
+        qc = json.loads(config.qc_report_path.read_text())
+        print(
+            json.dumps(
+                {
+                    "phase": "native_producer_reports",
+                    "benchmark_metrics": benchmark["metrics"],
+                    "query_refusals": sorted(
+                        {str(case["vector_refusal_code"]) for case in benchmark["search"]["cases"]}
+                    ),
+                    "failed_QC": [check for check in qc["checks"] if not check["passed"]],
+                },
+                sort_keys=True,
+            )
+        )
+        assert stats.metrics["harvest_records"] == len(source_records)
+        harvest = _harvest_stage_receipt(config)
+        assert harvest is not None and harvest[0] == ["worldbank", "ukons"]
+        assert harvest[1]["ukons"]["records_fetched"] == 0
+        normalized = [
+            json.loads(line)
+            for line in (config.normalized_dir / "worldbank.jsonl").read_text().splitlines()
+        ]
+        assert {row["dataset_id"] for row in normalized} == set(source_records)
+        assert expected_metrics <= {
+            metric for row in normalized for metric in row["polisyos_metrics"]
+        }
+        normalized_by_id = {row["id"]: row for row in normalized}
+        with duckdb.connect(str(config.db_path), read_only=True) as connection:
+            dataset_ids = {
+                row[0] for row in connection.execute("SELECT id FROM ds_datasets").fetchall()
+            }
+            assert dataset_ids == {row["id"] for row in normalized}
+            observations = connection.execute(
+                "SELECT observation_id,dataset_id,raw_variable,canonical_var,country_code,year,"
+                "survey_year,wave,value,condition_json,acquisition_method,source_watermark,"
+                "dataset_version FROM ds_observations"
+            ).fetchall()
+            assert observations and all(len(row) == 13 for row in observations)
+            assert all(
+                row[1] in dataset_ids and row[2] in normalized_by_id[row[1]]["variables"]
+                for row in observations
+            )
+            assert all(row[4] == "UA" and row[5] == 2020 and row[10] for row in observations)
+            assert all(
+                row[8]
+                == float(10 + list(source_records).index(normalized_by_id[row[1]]["dataset_id"]))
+                and json.loads(row[9])["indicator_id"] == normalized_by_id[row[1]]["dataset_id"]
+                for row in observations
+            )
+            assert expected_metrics <= {row[3] for row in observations}
+            for row in observations:
+                provider_id = normalized_by_id[row[1]]["dataset_id"]
+                condition = json.dumps(
+                    {
+                        "country_name": "Ukraine",
+                        "indicator_id": provider_id,
+                        "indicator_name": source_records[provider_id][1],
+                        "unit": "fixture-unit",
+                        "decimal": 1,
+                    },
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+                condition_digest = hashlib.sha256(condition.encode()).hexdigest()[:12]
+                identity = f"{row[1]}|{row[2]}|{row[3]}|UA|2020|None|None|{condition_digest}"
+                assert row == (
+                    hashlib.sha256(identity.encode()).hexdigest()[:24],
+                    row[1],
+                    row[2],
+                    row[3],
+                    "UA",
+                    2020,
+                    None,
+                    None,
+                    float(10 + list(source_records).index(provider_id)),
+                    condition,
+                    "api_sync",
+                    "2026-11-01T00:00:00Z",
+                    provider_id,
+                )
+        started = time.perf_counter()
+        generation = resolve_embedding_generation(config.index_dir)
+        measurements["selected_generation_resolve_seconds"] = time.perf_counter() - started
+        assert generation is not None and generation.status == "complete"
+        assert set(generation.ids) == dataset_ids
+        assert generation.inventory["embedding_dimension"] == len(topics)
+        profile = {
+            "basis_kind": CATALOG_DATASET_EMBEDDING_BASIS_KIND,
+            "projection_rule_version": CATALOG_DATASET_EMBEDDING_PROJECTION_RULE_VERSION,
+            "embedding_model": str(model_root),
+            "embedding_device": "cpu",
+            "embedding_dimension": len(topics),
+        }
+        live_encoder = BoundEncoder(str(model_root))
+        assert embedding_generation_matches_encoder(generation, encoder=live_encoder, **profile)
+        live_encoder.weight[0] += 0.25
+        assert not embedding_generation_matches_encoder(generation, encoder=live_encoder, **profile)
+        started = time.perf_counter()
+        with np.load(generation.embeddings_path, allow_pickle=False) as archive:
+            vectors = np.asarray(archive["vectors"], dtype=np.float32)
+        measurements["NPZ_load_seconds"] = time.perf_counter() - started
+        native_index = hnswlib.Index(space="cosine", dim=len(topics))
+        started = time.perf_counter()
+        native_index.load_index(str(generation.index_path))
+        native_index.set_ef(64)
+        measurements["native_HNSW_load_seconds"] = time.perf_counter() - started
+        assert len(vectors) >= 3
+        started = time.perf_counter()
+        for anchor in (-1, len(vectors) // 2):
+            query = vectors[anchor] + np.linspace(0.001, 0.009, len(topics), dtype=np.float32)
+            query /= np.linalg.norm(query)
+            cosine = vectors @ query / np.linalg.norm(vectors, axis=1)
+            expected = np.argsort(-cosine)
+            assert np.min(np.abs(np.diff(cosine[expected[:3]]))) > 1e-7
+            labels, distances = native_index.knn_query(query.reshape(1, -1), k=2)
+            np.testing.assert_array_equal(labels[0], expected[:2])
+            np.testing.assert_allclose(distances[0], 1.0 - cosine[expected[:2]], atol=1e-5)
+            if anchor == -1:
+                assert list(expected[:2]) != [0, 1]
+        measurements["native_knn_oracle_seconds"] = time.perf_counter() - started
+        assert current_catalog_report_basis(config)["state"] == "current"
+        assert all(case["vector_refusal_code"] is None for case in benchmark["search"]["cases"])
+        run_dataset_pipeline_sync(replace(config, stages=frozenset({"publish"})))
+        assert (
+            current_catalog_publish_receipt(config.db_path, run_profile="prod_full")["state"]
+            == "current"
+        )
+        graph, service = fresh_consumer("revision-one")
+        started = time.perf_counter()
+        response = graph.search_datasets_with_status(topics[0][1], top_k=3)
+        measurements["cold_guarded_query_seconds"] = time.perf_counter() - started
+        assert response.vector_refusal_code is None
+        assert response.query_generation_context.selected_generation_id == generation.generation_id
+        assert response.query_generation_context.reader_profile.encoder_asset_identity == (
+            derive_encoder_identity(BoundEncoder(str(model_root))).content_identity
+        )
+        started = time.perf_counter()
+        repeated_query = graph.search_datasets_with_status(topics[0][1], top_k=3)
+        measurements["warm_guarded_query_seconds"] = time.perf_counter() - started
+        assert repeated_query.vector_refusal_code is None
+        assert repeated_query.query_generation_context == response.query_generation_context
+        assert service.resolve(request, run_profile="prod_full").fetch_plans
+        loaded_weight = graph._embedder.weight.copy()
+        graph._embedder.weight[0, 0] += 0.25
+        changed_query = graph.search_datasets_with_status(topics[0][1], top_k=3)
+        assert changed_query.vector_refusal_code
+        assert changed_query.query_generation_context.state == "refused"
+        graph._embedder.weight[:] = loaded_weight
+        assert graph.search_datasets_with_status(topics[0][1], top_k=3).vector_refusal_code is None
+        bound_index = index_identity()
+
+        class UnboundEncoder(BoundEncoder):
+            state_dict = None
+
+        with monkeypatch.context() as unbound:
+            unbound.setitem(
+                sys.modules,
+                "sentence_transformers",
+                types.SimpleNamespace(SentenceTransformer=UnboundEncoder),
+            )
+            assert not _should_skip_stage(config, "embed")
+            refused_graph, _refused_service = fresh_consumer("unbound-encoder")
+            refused = refused_graph.search_datasets_with_status(topics[0][1], top_k=3)
+            assert refused.vector_refusal_code
+            assert refused.query_generation_context.state == "refused"
+        assert index_identity() == bound_index
+        preserved_inventory = generation.inventory_path.read_bytes()
+        generation.inventory_path.unlink()
+        assert not _should_skip_stage(config, "embed")
+        assert graph.search_datasets_with_status(topics[0][1], top_k=3).vector_refusal_code
+        fresh_invalid, _invalid_service = fresh_consumer("missing-inventory")
+        assert fresh_invalid.search_datasets_with_status(topics[0][1], top_k=3).vector_refusal_code
+        generation.inventory_path.write_bytes(preserved_inventory)
+        close_graphs()
+        warm_config = replace(
+            config,
+            stages=frozenset(
+                {"harvest", "normalize", "merge_dedup", "graph_load", "graph_index", "embed"}
+            ),
+        )
+        before_requests = list(requests)
+        before_encode = BoundEncoder.encode_calls
+        started = time.perf_counter()
+        warm = run_dataset_pipeline_sync(warm_config)
+        measurements["warm_resume_seconds"] = time.perf_counter() - started
+        assert set(warm.skipped_stages) == set(warm_config.stages)
+        assert requests == before_requests and BoundEncoder.encode_calls == before_encode
+        _warm_graph, warm_service = fresh_consumer("warm-before-raw-drift")
+        assert warm_service.resolve(request, run_profile="prod_full").fetch_plans
+        payload = Path(harvest[1]["worldbank"]["payload_path"])
+        old_stat = payload.stat()
+        old_payload = payload.read_bytes()
+        changed_payload = old_payload.replace(b"fixture revision 1", b"fixture revision 2")
+        assert changed_payload != old_payload and len(changed_payload) == len(old_payload)
+        payload.write_bytes(changed_payload)
+        os.utime(payload, ns=(old_stat.st_atime_ns, old_stat.st_mtime_ns))
+        assert not _should_skip_stage(config, "harvest")
+        assert not _should_skip_stage(config, "normalize")
+        assert (
+            current_catalog_publish_receipt(config.db_path, run_profile="prod_full")["state"]
+            != "current"
+        )
+        original_index = index_identity()
+        _stale_graph, stale_service = fresh_consumer("fresh-after-raw-drift")
+        assert not warm_service.resolve(request, run_profile="prod_full").fetch_plans
+        assert not stale_service.resolve(request, run_profile="prod_full").fetch_plans
+        assert index_identity() == original_index
+        close_graphs()
+        state["revision"] = 2
+        started = time.perf_counter()
+        run_dataset_pipeline_sync(config)
+        measurements["reissue_pipeline_seconds"] = time.perf_counter() - started
+        current = resolve_embedding_generation(config.index_dir)
+        assert current is not None and current.generation_id != generation.generation_id
+        assert generation.embeddings_path.is_file() and generation.index_path.is_file()
+        assert (
+            current_catalog_publish_receipt(config.db_path, run_profile="prod_full")["state"]
+            == "current"
+        )
+        graph, service = fresh_consumer("revision-two")
+        assert graph.search_datasets_with_status(topics[0][1], top_k=3).vector_refusal_code is None
+        assert service.resolve(request, run_profile="prod_full").fetch_plans
+        close_graphs()
+        assert index_identity() != original_index
+        published_index = index_identity()
+        denied_policy = yaml.safe_load(registry_path.read_text())
+        denied_policy["sources"][0]["seed_from"] = "fixture_disabled_seed"
+        denied_policy["sources"].append(
+            {
+                "name": "fixture_disabled_seed",
+                "family": "fixture",
+                "wave": "A",
+                "endpoint": "https://example.invalid/seed",
+                "connector_id": "fixture.disabled_seed",
+                "enabled": False,
+            }
+        )
+        denied_path = tmp_path / "disabled-seed.yaml"
+        denied_path.write_text(yaml.safe_dump(denied_policy), encoding="utf-8")
+        monkeypatch.setattr(
+            catalog_read_api,
+            "load_catalog_source_registry",
+            lambda: load_catalog_source_registry(denied_path),
+        )
+        _graph, denied_service = fresh_consumer("denied")
+        with pytest.raises(CatalogSelectionError) as denied:
+            denied_service.resolve(request, run_profile="prod_full")
+        assert denied.value.code == "dependency_disabled"
+        assert index_identity() == published_index
+        wrong_connector_policy = yaml.safe_load(registry_path.read_text())
+        wrong_connector_policy["sources"][0]["connector_id"] = "rest.json"
+        wrong_path = tmp_path / "wrong-connector.yaml"
+        wrong_path.write_text(yaml.safe_dump(wrong_connector_policy), encoding="utf-8")
+        monkeypatch.setattr(
+            catalog_read_api,
+            "load_catalog_source_registry",
+            lambda: load_catalog_source_registry(wrong_path),
+        )
+        _wrong_graph, wrong_service = fresh_consumer("wrong-connector")
+        with pytest.raises(CatalogSelectionError) as wrong_connector:
+            wrong_service.resolve(request, run_profile="prod_full")
+        assert wrong_connector.value.code == "catalog_source_connector_mismatch"
+        assert index_identity() == published_index
+        print(
+            json.dumps(
+                {
+                    "profile": "controlled_catalog_wiring_v1",
+                    "timings": measurements,
+                    "datasets": len(dataset_ids),
+                    "observations": len(observations),
+                    "selected_generation": current.generation_id,
+                    "selected_artifact_bytes": sum(
+                        path.stat().st_size
+                        for path in (
+                            current.embeddings_path,
+                            current.index_path,
+                            current.ids_path,
+                            current.basis_path,
+                            current.inventory_path,
+                            current.selector_path,
+                        )
+                    ),
+                    "HTTP_requests_total": len(requests),
+                },
+                sort_keys=True,
+            )
+        )
+    finally:
+        close_graphs()
+        server.shutdown()
+        server.server_close()
+        server_thread.join(timeout=2)
 
 
 def test_warm_and_fresh_catalog_consumers_reconcile_same_id_source_policy(

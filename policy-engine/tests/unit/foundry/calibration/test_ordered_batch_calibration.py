@@ -501,3 +501,193 @@ def test_default_profile_zero_individual_weight_remains_a_real_positive() -> Non
         assert float(result.objective) == pytest.approx(
             (residual / (1.0 + inputs.config.targets[0].loss.epsilon)) ** 2
         )
+
+
+def test_selected_conditional_tax_rows_reach_loss_and_fresh_report_basis(tmp_path) -> None:
+    """Actual schedule/selector rows retain their exact selected replay identity."""
+    from decimal import Decimal
+
+    from polisyos.core.artifacts import (
+        FileSystemCAS,
+        PutOptions,
+        SchemaInfo,
+        ensure_ir_artifact_store,
+    )
+    from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
+    from polisyos.foundry.calibration.execution_basis import (
+        canonical_input_sha256,
+        load_calibration_execution_input_basis,
+        read_calibration_report_source,
+        reconcile_ordered_batch_report_identity,
+        replay_ordered_batch_report_projection,
+    )
+    from polisyos.foundry.execute.executor import put_state_snapshot
+    from polisyos.ir import get_json_artifact
+
+    root = tmp_path / "selected_conditional_tax"
+    store = FileSystemCAS(root)
+    registry = build_default_registry_bundle(store, return_selected_profile=True)
+    content = load_registry_bundle_content(store, registry.bundle_ref)
+    payload = {
+        "params": {"rate": Decimal("0.1")},
+        "schedule": {"start_step": 1, "duration_steps": 1},
+        "target": {"kind": "predicate", "field": "age", "operator": ">=", "value": 30},
+    }
+    selected_parameters = store.put_json(
+        payload,
+        PutOptions(
+            kind="tests.conditional_parameters",
+            media_type="application/json",
+            schema=SchemaInfo(name="tests.ConditionalParameters", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    aid = ArtifactID.from_sha256_hex("0" * 64)
+    graph = ProgramGraph(
+        ir_ref=ArtifactRef(
+            artifact_id=aid, kind="ir.trinity_bundle", media_type="application/json"
+        ),
+        nodes=[
+            ProgramNode(
+                node_id="tax",
+                mechanism_type="income_tax",
+                params_ref=selected_parameters,
+                outputs=["agents.income", "government.balance"],
+            )
+        ],
+        edges=[],
+        entrypoints=[],
+    )
+
+    def put_model(model, inputs=()):
+        return store.put_json(
+            model,
+            PutOptions(
+                kind=model.ARTIFACT_KIND,
+                media_type=model.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=model.ARTIFACT_SCHEMA_NAME, version=model.ARTIFACT_SCHEMA_VERSION
+                ),
+                inputs=list(inputs),
+            ),
+            return_selected_profile=True,
+        )
+
+    selected_graph = put_model(graph)
+    plan = ExecPlan(
+        program_ref=ProgramGraphRef.model_validate(selected_graph.model_dump(mode="python")),
+        order=["tax"],
+        max_steps=3,
+    )
+    selected_plan = put_model(
+        plan, [input_ref_from_artifact_ref(selected_graph, role="program_graph")]
+    )
+    base = GlobalState.empty(n_agents=2, n_firms=1)
+    base = base.replace(
+        agents=base.agents.replace(
+            income=jnp.array([100.0, 200.0], dtype=jnp.float32),
+            reported_income=jnp.array([100.0, 200.0], dtype=jnp.float32),
+            age=jnp.array([20, 40], dtype=jnp.int32),
+        )
+    )
+    selected_state = put_state_snapshot(store, state=base, step=0, return_selected_profile=True)
+    states = jax.tree.map(lambda value: jnp.stack([value] * 3), base)
+    keys = jax.random.split(jax.random.PRNGKey(11), 3)
+    profile = OrderedBatchCalibrationProfile(
+        row_ids=("before", "active", "after"),
+        states=states,
+        row_times=jnp.array([0, 1, 2], dtype=jnp.int32),
+        row_keys=keys,
+        target_path="government_balance",
+        targets=jnp.array([0.0, 20.0, 0.0], dtype=jnp.float32),
+        weights=jnp.ones(3, dtype=jnp.float32),
+    )
+    config = CalibrationConfig(
+        targets=[
+            CalibrationTarget(
+                target_id="balance",
+                model_metric_path="government_balance",
+                loss={"relative": False, "scale": "none"},
+            )
+        ],
+        max_steps=1,
+        hessian={"enabled": False},
+    )
+
+    def load_parameters(ref):
+        return get_json_artifact(ensure_ir_artifact_store(FileSystemCAS(root)), ref)
+
+    inputs = CalibratorInputs(
+        config=config,
+        program_graph=graph,
+        exec_plan=plan,
+        base_state=base,
+        mechanism_registry=content.mechanism_registry,
+        slot_registry=content.slot_registry,
+        merge_registry=content.merge_registry,
+        selector_field_registry=content.selector_field_registry,
+        parameter_loader=load_parameters,
+        ordered_batch_profile=profile,
+        exec_plan_ref=selected_plan,
+        registry_bundle_ref=registry.bundle_ref,
+        base_state_snapshot_ref=selected_state,
+        constraint_registry=content.constraint_registry,
+        units_registry=content.units_registry,
+    )
+    bundle = Calibrator(inputs)._build_bundle()
+    actual = jax.jit(lambda value: evaluate_ordered_batch_objective(value, bundle=bundle))(profile)
+    np.testing.assert_allclose(
+        actual.final_states.agents.income, [[100, 200], [100, 180], [100, 200]], rtol=0, atol=1e-5
+    )
+    np.testing.assert_allclose(actual.predictions, [0, 20, 0], rtol=0, atol=1e-5)
+    np.testing.assert_array_equal(
+        actual.final_row_keys, jnp.stack([keys[0], jax.random.split(keys[1])[1], keys[2]])
+    )
+    assert bool(actual.valid) and float(actual.objective) == pytest.approx(0.0, abs=1e-6)
+    changed_target = replace(profile, targets=jnp.array([0, 30, 0], dtype=jnp.float32))
+    changed = evaluate_ordered_batch_objective(changed_target, bundle=bundle)
+    assert float(changed.objective) == pytest.approx(100.0 / 3.0, rel=1e-6)
+    changed_payload = {**payload, "schedule": {"start_step": 0, "duration_steps": 1}}
+    changed_inputs = replace(inputs, parameter_loader=lambda _: changed_payload)
+    shifted = evaluate_ordered_batch_objective(
+        profile, bundle=Calibrator(changed_inputs)._build_bundle()
+    )
+    np.testing.assert_allclose(shifted.predictions, [20, 0, 0], rtol=0, atol=1e-5)
+    assert float(shifted.objective) == pytest.approx(800.0 / 3.0, rel=1e-6)
+
+    report, selected_report = Calibrator(inputs).run_and_persist(store)
+    fresh = FileSystemCAS(root)
+    restored = read_calibration_report_source(fresh, ref=selected_report).require_value()
+    assert restored.model_dump(mode="json") == report.model_dump(mode="json")
+    assert restored.series_comparison["balance"].model == pytest.approx([0, 20, 0], abs=1e-4)
+    edge = next(
+        x
+        for x in fresh.get_manifest(selected_report).inputs
+        if x.role == "calibration_execution_input_basis"
+    )
+    basis_ref = ArtifactRef(
+        artifact_id=edge.artifact_id,
+        kind="foundry.calibration_execution_input_basis",
+        media_type="application/json",
+        manifest_profile_sha256=edge.manifest_profile_sha256,
+    )
+    basis = load_calibration_execution_input_basis(fresh, basis_ref)
+    reconcile_ordered_batch_report_identity(basis, restored)
+    assert basis.schema_version == "1.2"
+    assert basis.parameter_inputs[0].source_ref == selected_parameters
+    assert basis.parameter_inputs[0].source_status == "selected_source_matched"
+    assert basis.parameter_inputs[0].payload_sha256 == canonical_input_sha256(payload)
+    assert basis.ordered_batch_profile.row_times == (0, 1, 2)
+    assert tuple(row.row_id for row in basis.ordered_batch_profile.rows) == profile.row_ids
+    assert basis.ordered_batch_profile.targets == (0.0, 20.0, 0.0)
+    assert basis.authority_purpose == "execution_input_identity_only"
+    assert basis.source_attestation_status == basis.unit_status == "not_established"
+    status, _ = replay_ordered_batch_report_projection(fresh, basis_ref, selected_report)
+    assert status == "matched"
+    changed_series = restored.series_comparison["balance"].model_copy(update={"real": [0, 30, 0]})
+    forged_report = restored.model_copy(update={"series_comparison": {"balance": changed_series}})
+    with pytest.raises(ValueError, match="observations_or_rows_mismatch"):
+        reconcile_ordered_batch_report_identity(basis, forged_report)

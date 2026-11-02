@@ -36,12 +36,36 @@ time value is one row's current step, not a scan start; repeated steps require
 explicit repeated calls. Static selector structure is admitted during
 `compile_program`, while inactive rows do not numerically read selector fields.
 
-This executor API does **not** yet select a Calibrator batch objective profile.
-`CalibratorInputs` and execution-basis schema 1.1 cannot bind row states, times,
-keys, order, and reduction semantics, so scalar calibration remains unchanged.
-Persisting a batch fit requires a reader-first versioned basis extension and a
-real welfare-consumer reconciliation; a digest or reuse of `controls_seq` is
-not a substitute.
+`CalibratorInputs.ordered_batch_profile` selects the existing explicit one-step
+row objective. Execution-basis schema 1.2 binds selected row-state snapshots,
+times, complete keys, target values, weights and reduction settings; a fresh
+consumer can reopen those sources and replay the final forward/loss projection.
+The optional profile leaves ordinary scalar calibration unchanged. It supports
+the declared finite absolute-MSE contract, rather than silently treating
+`controls_seq` as row states or claiming a measurement/robust objective. Numerical
+row time is a schedule step, not a physical calendar unit. Final cross-lane
+objective/uncertainty and welfare qualification remain separate.
+
+Conditional execution derives traced patch structure through abstract evaluation
+of the real pure producer. Empty output maps, multiple records and integer patch
+values therefore have matching active/inactive branch structures without
+numerically running an inactive emitter. Concrete inactive calls do not invoke
+an emitter even for abstract evaluation. Traced execution requires fixed receiving
+state shapes/dtypes; an active producer that would promote a receiver is refused
+with a precise diagnostic, without downcasting its values. Callers can declare a
+matching receiver profile, such as x64 labor employer IDs or an x64 adaptive
+reported-income field. Use explicitly typed receiving arrays: JAX may strengthen
+weak Python-scalar state leaves, and preservation of their `weak_type` flag is
+outside the state-identity claim. Selected snapshots reopen explicit array dtypes.
+Schedule mapping remains distinct from state mapping:
+mapped predicates refuse, shared scalar predicates and scalar `lax.map` rows work.
+
+The current default registry contains five runtime descriptors. Tax, subsidy,
+labor and adaptive-agent producers are exercised with actual `GlobalState`
+receivers, including lawful empty adaptive populations; queue remains a separate
+`QueueState` contract and has no default GlobalState slot mapping. This is a finite
+producer-profile qualification, not a promise that every custom producer, state
+layout or dtype transition is admitted.
 
 - [calibrator.py](calibrator.py) for the optional JAX-backed fit loop.
 - [report.py](report.py) for persisted reports and fit diagnostics.

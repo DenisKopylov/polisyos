@@ -62,6 +62,13 @@ def test_historical_population_includes_supplied_inactive_entries():
     assert float(jax.jit(normalized_income_budget_loss)(state)) == pytest.approx(1 / 3)
 
 
+@pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+def test_empty_historical_population_is_unavailable_not_measured_zero(compiled):
+    state = GlobalState.empty(n_agents=0, n_firms=1)
+    evaluate = jax.jit(normalized_income_budget_loss) if compiled else normalized_income_budget_loss
+    assert np.isposinf(evaluate(state))
+
+
 def test_aliases_and_real_public_numeric_guard_keep_their_identity():
     from polisyos.foundry.execute._internal.numeric import finite_loss_or_inf as actual_guard
 

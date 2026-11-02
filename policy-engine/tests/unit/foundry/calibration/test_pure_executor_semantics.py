@@ -992,9 +992,11 @@ def test_static_selector_admission_covers_complete_supported_boundary(case):
     elif case == "unknown_field":
         target["field"] = "not_registered"
     elif case == "missing_state_path":
-        registry.fields["age"].state_path = None
+        registry.fields["age"] = registry.fields["age"].model_copy(update={"state_path": None})
     elif case == "unavailable_state_path":
-        registry.fields["age"].state_path = "agents.unavailable_age"
+        registry.fields["age"] = registry.fields["age"].model_copy(
+            update={"state_path": "agents.unavailable_age"}
+        )
     elif case == "mixed_scope":
         target = {
             "kind": "all_of",
@@ -1015,7 +1017,9 @@ def test_static_selector_admission_covers_complete_supported_boundary(case):
     elif case == "malformed_leaf_shape":
         base = base.replace(agents=base.agents.replace(age=jnp.zeros((2, 1), dtype=jnp.int32)))
     elif case == "unsupported_scope":
-        registry.fields["age"].scope = SlotScope.GLOBAL
+        registry.fields["age"] = registry.fields["age"].model_copy(
+            update={"scope": SlotScope.GLOBAL}
+        )
     elif case == "missing_base":
         base = None
     with pytest.raises(ValueError):
@@ -1072,3 +1076,297 @@ def test_builtin_and_absent_selectors_keep_real_scalar_execution(field):
     assert jnp.allclose(out.agents.income, jnp.asarray([90.0, 180.0]))
     assert float(out.government_balance) == pytest.approx(30.0)
     assert jnp.array_equal(returned, jax.random.split(key)[1])
+
+
+@pytest.mark.parametrize(
+    ("mechanism_type", "n_agents"),
+    [
+        ("income_tax", 2),
+        ("tax_subsidy", 2),
+        ("labor_market", 2),
+        ("adaptive_agent", 2),
+        ("adaptive_agent", 0),
+    ],
+)
+def test_default_global_state_producer_contracts_have_native_conditional_branches(
+    mechanism_type, n_agents, record_property
+):
+    """Census every default GlobalState producer; QueueState is a separate profile."""
+    from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
+        MECHANISM_REGISTRY,
+    )
+
+    assert (
+        set(DEFAULT_MECHANISM_REGISTRY.mechanisms)
+        == set(MECHANISM_REGISTRY)
+        == {"income_tax", "tax_subsidy", "labor_market", "adaptive_agent", "queue"}
+    )
+    record_property("backend", jax.default_backend())
+    record_property("jax_version", jax.__version__)
+    record_property("jax_enable_x64", bool(jax.config.x64_enabled))
+    record_property("producer", mechanism_type)
+    record_property("population", n_agents)
+    spec = DEFAULT_MECHANISM_REGISTRY.mechanisms[mechanism_type]
+    outputs = list(spec.writes_slots)
+    params = {"rate": 0.1}
+    if mechanism_type == "labor_market":
+        params = {"employment_threshold": 1.0}
+    elif mechanism_type == "adaptive_agent":
+        outputs = ["agents.reported_income"]
+        params = {
+            "observation_space": ["agents.income"],
+            "action_space": {"type": "continuous", "affects": outputs},
+            "utility": "income",
+            "seed": 17,
+            "stochastic": False,
+        }
+    graph, plan = _build_graph_and_plan(
+        [
+            ProgramNode(
+                node_id="candidate",
+                node_kind="mechanism",
+                mechanism_type=mechanism_type,
+                outputs=outputs,
+            )
+        ],
+        max_steps=3,
+    )
+    base = GlobalState.empty(n_agents=n_agents, n_firms=1)
+    income = jnp.full((n_agents,), 100.0, dtype=jnp.float32)
+    base = base.replace(
+        agents=base.agents.replace(income=income, reported_income=income),
+        firms=base.firms.replace(wage_offer=jnp.array([50.0], dtype=jnp.float32)),
+    )
+    bundle = compile_program(
+        graph,
+        plan,
+        mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+        slot_registry=DEFAULT_SLOT_REGISTRY,
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        base_state=base,
+        parameter_loader=lambda _: {
+            "params": params,
+            "schedule": {"start_step": 1, "duration_steps": 1},
+        },
+    )
+    key = jax.random.PRNGKey(23)
+    compiled = jax.jit(lambda state, t: apply_nodes(state, key, bundle=bundle, t=t))
+    if jax.config.x64_enabled and (
+        mechanism_type == "labor_market" or (mechanism_type == "adaptive_agent" and n_agents)
+    ):
+        # Native x64 randint/policy output may promote an f32/i32 receiver.
+        # Refuse the changing-state contract rather than silently downcast it;
+        # the same real producer remains usable with explicit matching receivers.
+        with pytest.raises(ValueError, match="changes receiving-state shape or dtype"):
+            compiled(base, jnp.asarray(0))
+        if mechanism_type == "labor_market":
+            base = base.replace(
+                agents=base.agents.replace(employer_id=base.agents.employer_id.astype(jnp.int64))
+            )
+        else:
+            base = base.replace(
+                agents=base.agents.replace(
+                    reported_income=base.agents.reported_income.astype(jnp.float64)
+                )
+            )
+    record_property("employer_id_dtype", str(base.agents.employer_id.dtype))
+    record_property("reported_income_dtype", str(base.agents.reported_income.dtype))
+    for time in (0, 1, 2):
+        expected, expected_key = apply_nodes(base, key, bundle=bundle, t=jnp.asarray(time))
+        actual, actual_key = compiled(base, jnp.asarray(time))
+        jax.block_until_ready(actual)
+        for left, right in zip(jax.tree.leaves(actual), jax.tree.leaves(expected), strict=True):
+            assert left.shape == right.shape and left.dtype == right.dtype
+            assert jnp.allclose(left, right, equal_nan=True)
+        assert jnp.array_equal(actual_key, expected_key)
+        if time != 1:
+            assert jnp.array_equal(actual.agents.income, base.agents.income)
+            assert jnp.array_equal(actual_key, key)
+    if mechanism_type == "labor_market":
+        active, _ = compiled(base, jnp.asarray(1))
+        assert active.agents.is_employed.tolist() == [True, True]
+        assert active.agents.income.tolist() == [50.0, 50.0]
+        assert active.firms.labor_count.tolist() == [2.0]
+
+
+def test_conditional_branch_template_supports_multiple_records_without_numerical_inactivity():
+    """A pure producer can emit two records for one declared output slot."""
+    observed = []
+
+    class _TwoRecords:
+        def emit_patches(self, state, key, *, target_mask=None):
+            del target_mask
+            jax.debug.callback(lambda x: observed.append(x.tolist()), state.agents.income)
+            return {
+                "agents.income": [
+                    {"delta": state.agents.income * 0.25},
+                    {"delta": state.agents.income * 0.5},
+                ]
+            }, key
+
+    bundle = StaticBundle(
+        nodes=[PreparedNode("pair", "pair", 0, 1, 1, _TwoRecords(), ["agents.income"])],
+        incoming_dependencies={},
+        slot_registry=DEFAULT_SLOT_REGISTRY,
+        mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        selector_field_registry=None,
+        trainables=[],
+    )
+    base = GlobalState.empty(n_agents=2, n_firms=1)
+    key = jax.random.PRNGKey(31)
+
+    def run(income, t):
+        state = base.replace(agents=base.agents.replace(income=income))
+        return apply_nodes(state, key, bundle=bundle, t=t)[0].agents.income
+
+    income = jnp.array([4.0, 8.0], dtype=jnp.float32)
+    for time in (0, 2):
+        inactive = jax.jit(run)(income, jnp.asarray(time))
+        inactive.block_until_ready()
+        jax.effects_barrier()
+        assert jnp.array_equal(inactive, income)
+        assert observed == []
+    active = jax.jit(run)(income, jnp.asarray(1))
+    active.block_until_ready()
+    jax.effects_barrier()
+    assert jnp.allclose(active, income * 1.75)
+    assert observed == [[4.0, 8.0]]
+    gradient = jax.grad(lambda x: jnp.sum(run(x, jnp.asarray(1))))(income)
+    assert jnp.allclose(gradient, jnp.full_like(income, 1.75))
+
+
+@pytest.mark.parametrize("kind", ["sum", "override", "priority", "error"])
+def test_inactive_records_are_not_writers_for_any_merge_kind(kind):
+    from polisyos.ir.kernel.merge_rules import MergeRuleRegistry, MergeRuleSpec
+    from polisyos.ir.kernel.slots import SlotRegistry
+
+    observed = []
+
+    class _Write:
+        def __init__(self, label, value):
+            self.label, self.value = label, value
+
+        def emit_patches(self, state, key, *, target_mask=None):
+            del target_mask
+            jax.debug.callback(lambda: observed.append(self.label))
+            record = {
+                "delta" if kind == "sum" else "value": jnp.asarray(
+                    self.value, dtype=state.government_balance.dtype
+                )
+            }
+            return {"government.balance": [record]}, key
+
+    rule = MergeRuleSpec(rule_id="conditional_merge", kind=kind, default_priority=3)
+    default_slot = DEFAULT_SLOT_REGISTRY.slots["government.balance"]
+    slot = default_slot.model_copy(
+        update={"merge_rule": type(default_slot.merge_rule)(rule_id=rule.rule_id)}
+    )
+    bundle = StaticBundle(
+        nodes=[
+            PreparedNode(
+                "zz-inactive",
+                "write",
+                1,
+                1,
+                1,
+                _Write("inactive", 55.0),
+                ["government.balance"],
+                priority=9,
+            ),
+            PreparedNode(
+                "active",
+                "write",
+                0,
+                0,
+                0,
+                _Write("active", 5.0),
+                ["government.balance"],
+                priority=3,
+            ),
+        ],
+        incoming_dependencies={},
+        slot_registry=SlotRegistry(slots={slot.slot_id: slot}),
+        mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+        merge_registry=MergeRuleRegistry(rules={rule.rule_id: rule}),
+        selector_field_registry=None,
+        trainables=[],
+    )
+    base = GlobalState.empty(n_agents=1, n_firms=1).replace(
+        government_balance=jnp.asarray(7.0, dtype=jnp.float32)
+    )
+    key = jax.random.PRNGKey(41)
+    result, returned = jax.jit(lambda t: apply_nodes(base, key, bundle=bundle, t=t))(jnp.asarray(0))
+    result.government_balance.block_until_ready()
+    jax.effects_barrier()
+    assert float(result.government_balance) == pytest.approx(12.0 if kind == "sum" else 5.0)
+    assert result.government_balance.dtype == base.government_balance.dtype
+    assert observed == ["active"]
+    assert jnp.array_equal(returned, jax.random.split(key)[1])
+
+
+@pytest.mark.parametrize("receiver_dtype", [jnp.float32, jnp.float64])
+def test_conditional_join_admits_actual_receiver_dtype_without_weak_scalar_promotion(
+    receiver_dtype,
+    record_property,
+):
+    """A weak branch leaf is not assumed to stay weak after conditional joining."""
+    observed = []
+
+    class _WeakScalar:
+        def emit_patches(self, state, key, *, target_mask=None):
+            del state, target_mask
+            jax.debug.callback(lambda: observed.append("active"))
+            return {"government.balance": [{"delta": jnp.asarray(5.0)}]}, key
+
+    bundle = StaticBundle(
+        nodes=[PreparedNode("weak", "weak", 0, 1, 1, _WeakScalar(), ["government.balance"])],
+        incoming_dependencies={},
+        slot_registry=DEFAULT_SLOT_REGISTRY,
+        mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        selector_field_registry=None,
+        trainables=[],
+    )
+    base = GlobalState.empty(n_agents=1, n_firms=1).replace(
+        government_balance=jnp.asarray(7.0, dtype=receiver_dtype)
+    )
+    key = jax.random.PRNGKey(43)
+    compiled = jax.jit(lambda t: apply_nodes(base, key, bundle=bundle, t=t))
+    if jax.config.x64_enabled and receiver_dtype == jnp.float32:
+        with pytest.raises(ValueError, match="changes receiving-state shape or dtype"):
+            compiled(jnp.asarray(0))
+        jax.effects_barrier()
+        assert observed == []
+    else:
+        before, before_key = compiled(jnp.asarray(0))
+        before.government_balance.block_until_ready()
+        jax.effects_barrier()
+        assert float(before.government_balance) == 7.0
+        assert before.government_balance.dtype == base.government_balance.dtype
+        assert observed == [] and jnp.array_equal(before_key, key)
+        after, _ = compiled(jnp.asarray(1))
+        after.government_balance.block_until_ready()
+        jax.effects_barrier()
+        assert float(after.government_balance) == 12.0
+        assert after.government_balance.dtype == base.government_balance.dtype
+        assert observed == ["active"]
+        if jax.config.x64_enabled and receiver_dtype == jnp.float64:
+            # Record the explicitly excluded weak receiving-leaf flag boundary.
+            # Values/dtypes remain checked; this does not require JAX to keep
+            # strengthening that flag if a future backend improves the join.
+            weak = base.replace(government_balance=jnp.asarray(7.0))
+            assert weak.government_balance.weak_type
+            weak_result, weak_key = jax.jit(
+                lambda state, time: apply_nodes(state, key, bundle=bundle, t=time)
+            )(weak, jnp.asarray(0))
+            weak_result.government_balance.block_until_ready()
+            jax.effects_barrier()
+            record_property("weak_receiver_input_flag", bool(weak.government_balance.weak_type))
+            record_property(
+                "weak_receiver_output_flag", bool(weak_result.government_balance.weak_type)
+            )
+            assert float(weak_result.government_balance) == 7.0
+            assert weak_result.government_balance.dtype == weak.government_balance.dtype
+            assert jnp.array_equal(weak_key, key)
+            assert observed == ["active"]

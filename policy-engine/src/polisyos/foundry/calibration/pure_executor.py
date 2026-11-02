@@ -555,16 +555,21 @@ def _neutral_patch_map(
     node: PreparedNode,
     *,
     bundle: StaticBundle,
+    template: dict[str, list[dict[str, Any]]] | None = None,
 ) -> dict[str, list[dict[str, Any]]]:
     """Build a shape-preserving, semantically inactive patch map.
 
     The runtime emitter is intentionally not called on the inactive branch.
-    ``PreparedNode.outputs`` is the compile-time output contract, and the
-    corresponding slot state supplies the shape and dtype for a neutral
-    record.  Merge masks added by ``_patch_map_to_pending_records`` make these
-    records inert for every supported merge rule while keeping both branches
-    of ``lax.cond`` structurally identical.
+    During conditional tracing, abstract evaluation supplies the actual patch
+    tree, including empty maps, multiple records and record dtypes. It performs
+    no numerical emission. Concrete inactive calls retain the declared-slot
+    fallback and never invoke an emitter, even for abstract evaluation. Merge
+    masks make either form inert for every supported merge rule.
     """
+    if template is not None:
+        # Array zeros retain declared shapes/dtypes. The actual conditional
+        # join is checked below because weak scalar leaves can become strong.
+        return jax.tree.map(lambda leaf: jnp.zeros(leaf.shape, dtype=leaf.dtype), template)
     patch_map: dict[str, list[dict[str, Any]]] = {}
     for slot_id in node.outputs:
         slot_spec = bundle.slot_registry.slots.get(slot_id)
@@ -645,8 +650,14 @@ def apply_nodes(
     Callers needing per-row schedules must retain scalar branches with
     ``jax.lax.map`` rather than ``jax.vmap``.
 
+    Traced branches require a fixed receiving-state shape and dtype. Abstract
+    producer/merge evaluation admits that contract without numerically running
+    an inactive mechanism; callers must explicitly supply a compatible state
+    profile when an active producer would otherwise promote its dtype.
+
     Raises:
-        ValueError: If a schedule predicate is mapped by ``jax.vmap``.
+        ValueError: If a schedule predicate is mapped by ``jax.vmap`` or an
+            active branch would change a receiving-state shape or dtype.
     """
     visible_state = state
     cur_key = key
@@ -719,14 +730,46 @@ def apply_nodes(
 
             def _inactive_branch(operands: tuple[Any, jax.Array]):
                 branch_state, branch_key = operands
-                return _neutral_patch_map(branch_state, node, bundle=bundle), branch_key
+                return _neutral_patch_map(
+                    branch_state, node, bundle=bundle, template=patch_template
+                ), branch_key
 
-            patch_map, next_key = jax.lax.cond(
-                active,
-                _active_branch,
-                _inactive_branch,
-                (visible_state, cur_key),
-            )
+            # Shape evaluation traces the real pure producer using the actual
+            # operand structure. It does not execute callbacks, sample random
+            # values, or substitute a fabricated future state. Receiver dtype
+            # alone cannot describe e.g. integer count patches or empty output.
+            patch_template, _ = jax.eval_shape(_active_branch, (visible_state, cur_key))
+
+            def _conditional(operands, condition):
+                return jax.lax.cond(condition, _active_branch, _inactive_branch, operands)
+
+            # cond can join weak scalar branch leaves into a strong result.
+            # Check the merged contract of that actual conditional output,
+            # rather than assuming active-branch metadata survives the join.
+            conditional_template, _ = jax.eval_shape(_conditional, (visible_state, cur_key), active)
+
+            def _merged_contract(branch_state, patches):
+                records = _patch_map_to_pending_records(
+                    patches, node=node, active=jnp.asarray(True)
+                )
+                return _merge_patch_records_into_state(
+                    branch_state, _group_pending_patch_records(records), bundle=bundle
+                )
+
+            receiver_template = jax.eval_shape(lambda value: value, visible_state)
+            merged_template = jax.eval_shape(_merged_contract, visible_state, conditional_template)
+            before_leaves = jax.tree.leaves(receiver_template)
+            after_leaves = jax.tree.leaves(merged_template)
+            if jax.tree.structure(receiver_template) != jax.tree.structure(merged_template) or any(
+                before.shape != after.shape or before.dtype != after.dtype
+                for before, after in zip(before_leaves, after_leaves, strict=True)
+            ):
+                raise ValueError(
+                    f"Conditional mechanism '{node.mechanism_type}' changes receiving-state "
+                    "shape or dtype; supply a compatible state profile"
+                )
+
+            patch_map, next_key = _conditional((visible_state, cur_key), active)
         cur_key = next_key
         pending_records = pending_records + _patch_map_to_pending_records(
             patch_map,

@@ -3,12 +3,17 @@
 from __future__ import annotations
 
 import concurrent.futures
+import json
 import threading
 import time
+import tracemalloc
 from collections.abc import Mapping
+from dataclasses import replace
 from typing import Any, NamedTuple
 
+import jax
 import jax.numpy as jnp
+import numpy as np
 import pytest
 
 import polisyos.foundry.methods.compiler as compiler_module
@@ -24,7 +29,7 @@ from polisyos.foundry.methods.base import (
 )
 from polisyos.foundry.methods.compiler import CompilationCache, MethodCompiler, reset_global_cache
 from polisyos.foundry.methods.components.composer import MethodComposer
-from polisyos.foundry.methods.exceptions import CompilationError
+from polisyos.foundry.methods.exceptions import CompilationError, ParameterValidationError
 from polisyos.foundry.methods.registry import MethodRegistry
 
 
@@ -170,6 +175,366 @@ def test_native_jax_dynamic_defaults_rebind_without_recompile(scalar_slots):
 
     assert float(cold.step_fn(state, {}).result) == 20.0
     assert float(warm.step_fn(state, {}).result) == 30.0
+    fresh = MethodCompiler(registry=registry, cache=CompilationCache()).compile(
+        method_name=method.signature.fqn,
+        params={"coefficient": 3.0},
+        sample_inputs={"value": state.value},
+        jit=True,
+    )
+    assert float(fresh(state, {}).result.block_until_ready()) == 30.0
+    assert cold._kernel is warm._kernel
+    assert fresh._kernel is not warm._kernel
+    assert float(warm(state, {"coefficient": 4.0}).result.block_until_ready()) == 40.0
+    assert float(cold(state, {}).result.block_until_ready()) == 20.0
+    with pytest.raises(ParameterValidationError, match="Unknown dynamic"):
+        warm(state, {"undeclared": 4.0})
+
+
+def test_native_array_defaults_and_static_override_admission(scalar_slots):
+    value, result = scalar_slots
+
+    def pure_step(state, params):
+        return state._replace(result=state.value * params["coefficient"] + params["offset"])
+
+    method = _method(
+        name="vector_defaults",
+        namespace="jit01",
+        input_slots=frozenset({value}),
+        output_slots=frozenset({result}),
+        parameters=(
+            ParameterSpec("coefficient", default=2.0, is_static=False),
+            ParameterSpec("offset", default=0.0, is_static=True),
+        ),
+        pure_step=pure_step,
+    )
+    registry = MethodRegistry.get_instance()
+    registry.register(method)
+    compiler = MethodCompiler(registry=registry, cache=CompilationCache())
+    state = ScalarState(jnp.asarray(10.0), jnp.zeros((2,)))
+    first = compiler.compile(
+        method.signature.fqn, {"coefficient": jnp.asarray([2.0, 3.0])}, {"value": state.value}
+    )
+    second = compiler.compile(
+        method.signature.fqn, {"coefficient": jnp.asarray([4.0, 5.0])}, {"value": state.value}
+    )
+    assert first._kernel is second._kernel
+    np.testing.assert_array_equal(first(state, {}).result.block_until_ready(), [20.0, 30.0])
+    np.testing.assert_array_equal(second(state, {}).result.block_until_ready(), [40.0, 50.0])
+    np.testing.assert_array_equal(first(state, {}).result.block_until_ready(), [20.0, 30.0])
+    with pytest.raises(ParameterValidationError, match="Static parameters"):
+        first(state, {"offset": 1.0})
+
+
+def test_native_dispatcher_keeps_current_defaults_seed_and_selected_implementation(scalar_slots):
+    from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+    from polisyos.foundry.methods.backends.jax_runner import JaxRunner
+    from polisyos.foundry.methods.base import ComputeBackend
+    from polisyos.foundry.methods.selection.history import SelectionHistoryStore
+
+    value, result = scalar_slots
+
+    def first_step(state, params):
+        draw = jax.random.uniform(params["__rng__"], shape=state.shape, dtype=state.dtype)
+        return state * params["coefficient"] + params["__seed__"] + draw
+
+    def second_step(state, params):
+        return first_step(state, params) + 100.0
+
+    methods = [
+        _method(
+            name="selected_dispatch",
+            namespace="jit01",
+            input_slots=frozenset({value}),
+            output_slots=frozenset({result}),
+            parameters=(ParameterSpec("coefficient", default=2.0, is_static=False),),
+            pure_step=step,
+        )
+        for step in (first_step, second_step)
+    ]
+    registry = MethodRegistry.get_instance()
+    registry.register(methods[0])
+    builds = []
+    selected = []
+    actual_calls = []
+    kernels = []
+
+    class ObservedCompiler(MethodCompiler):
+        def _compile_method(self, *args, **kwargs):
+            builds.append(kwargs["method_class"])
+            return super()._compile_method(*args, **kwargs)
+
+        def _compile_resolved(self, *, method_class, params, **kwargs):
+            selected.append((method_class, dict(params)))
+            compiled = super()._compile_resolved(method_class=method_class, params=params, **kwargs)
+            kernels.append(compiled._kernel)
+
+            def observed(state, runtime_params):
+                actual_calls.append(
+                    (runtime_params["__seed__"], np.asarray(runtime_params["__rng__"]))
+                )
+                return compiled(state, runtime_params)
+
+            return replace(compiled, step_fn=observed)
+
+    compiler = ObservedCompiler(registry=registry, cache=CompilationCache())
+    dispatcher = MethodDispatcher(
+        runtime_history=SelectionHistoryStore(), enable_runtime_selection=False
+    )
+    dispatcher.register_runner(JaxRunner(compiler))
+    state = jnp.asarray(10.0, dtype=jnp.float32)
+    requests = [
+        (methods[0], 2.0, 7),
+        (methods[0], 3.0, 7),
+        (methods[1], 3.0, 7),
+        (methods[0], 3.0, 8),
+    ]
+    for method, coefficient, seed in requests:
+        response = dispatcher.dispatch(
+            method_class=method,
+            signature=method.signature,
+            state=state,
+            params={"coefficient": coefficient},
+            seed=seed,
+        )
+        expected = (
+            10.0 * coefficient
+            + seed
+            + float(jax.random.uniform(jax.random.PRNGKey(seed), shape=(), dtype=jnp.float32))
+        )
+        if method is methods[1]:
+            expected += 100.0
+        assert float(response.output.block_until_ready()) == pytest.approx(expected, abs=1e-5)
+        assert response.reproducibility.backend is ComputeBackend.JAX
+        assert response.reproducibility.seed == seed
+    assert builds == methods
+    assert kernels[0] is kernels[1] is kernels[3]
+    assert kernels[2] is not kernels[0]
+    assert selected == [
+        (method, {"coefficient": coefficient}) for method, coefficient, _ in requests
+    ]
+    for (actual_seed, key), (_, _, expected_seed) in zip(actual_calls, requests, strict=True):
+        assert actual_seed == expected_seed
+        np.testing.assert_array_equal(key, np.asarray(jax.random.PRNGKey(expected_seed)))
+
+
+@pytest.mark.parametrize("fault_at", ["recheck", "build", "publication"])
+@pytest.mark.parametrize("base_exception", [False, True])
+def test_all_leader_terminal_failures_release_actual_joined_follower(
+    scalar_slots,
+    fault_at,
+    base_exception,
+):
+    value, result = scalar_slots
+    role = threading.local()
+    claimed = threading.Event()
+    joined = threading.Event()
+
+    class ControlledStop(BaseException):
+        pass
+
+    def fail():
+        error = ControlledStop if base_exception else RuntimeError
+        raise error(f"controlled-{fault_at}")
+
+    class TerminalCache(CompilationCache):
+        def _recheck_after_claim(self, *args, **kwargs):
+            if role.name == "leader" and fault_at == "recheck":
+                fail()
+            return super()._recheck_after_claim(*args, **kwargs)
+
+        def claim_flight(self, key):
+            flight, leader = super().claim_flight(key)
+            if leader:
+                claimed.set()
+                assert joined.wait(timeout=5)
+            else:
+                joined.set()
+            return flight, leader
+
+        def _put_unlocked(self, *args, **kwargs):
+            if fault_at == "publication":
+                fail()
+            return super()._put_unlocked(*args, **kwargs)
+
+    class TerminalCompiler(MethodCompiler):
+        def _compile_method(self, *args, **kwargs):
+            if fault_at == "build":
+                fail()
+            return super()._compile_method(*args, **kwargs)
+
+    def step(state, params):
+        return state._replace(result=state.value * 2)
+
+    method = _method(
+        name="terminal_paths",
+        namespace="jit01",
+        input_slots=frozenset({value}),
+        output_slots=frozenset({result}),
+        pure_step=step,
+    )
+    registry = MethodRegistry.get_instance()
+    registry.register(method)
+    cache = TerminalCache()
+    compiler = TerminalCompiler(registry=registry, cache=cache)
+
+    def compile_one(name):
+        role.name = name
+        return compiler.compile(method.signature.fqn, sample_inputs={"value": jnp.asarray(10.0)})
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+        leader = pool.submit(compile_one, "leader")
+        assert claimed.wait(timeout=5)
+        follower = pool.submit(compile_one, "follower")
+        errors = [future.exception(timeout=5) for future in (leader, follower)]
+    expected = ControlledStop if base_exception else CompilationError
+    assert all(isinstance(error, expected) for error in errors)
+    assert all(f"controlled-{fault_at}" in str(error) for error in errors)
+    assert cache._flights == {} and cache.stats["size"] == 0
+
+
+@pytest.mark.parametrize("timeout", [0.0, -1.0, float("nan"), float("inf")])
+def test_invalid_flight_timeout_refuses_before_registry_or_build(timeout):
+    cache = CompilationCache()
+    compiler = MethodCompiler(registry=object(), cache=cache)
+    with pytest.raises(ValueError, match="finite and greater than zero"):
+        compiler.compile("not.looked.up@1.0.0", flight_timeout=timeout)
+    assert cache._flights == {} and cache.stats["size"] == 0
+
+
+def test_explicit_native_warmup_counts_three_actual_invocations(scalar_slots):
+    value, result = scalar_slots
+    calls = []
+    traces = []
+
+    def step(state, params):
+        traces.append("trace")
+        return state._replace(result=state.value * 2)
+
+    method = _method(
+        name="explicit_warmup",
+        namespace="jit01",
+        input_slots=frozenset({value}),
+        output_slots=frozenset({result}),
+        pure_step=step,
+    )
+    registry = MethodRegistry.get_instance()
+    registry.register(method)
+
+    class ObservedCompiler(MethodCompiler):
+        def compile(self, *args, **kwargs):
+            compiled = super().compile(*args, **kwargs)
+
+            def observed(state, params):
+                calls.append("invocation")
+                output = compiled(state, params)
+                assert float(output.result.block_until_ready()) == 20.0
+                return output
+
+            return replace(compiled, step_fn=observed)
+
+    compiler = ObservedCompiler(registry=registry, cache=CompilationCache())
+    state = ScalarState(jnp.asarray(10.0), jnp.asarray(0.0))
+    compiler.warmup(method.signature.fqn, {}, {"value": state.value}, state, n_warmup=3)
+    assert calls == ["invocation"] * 3
+    assert traces == ["trace"]
+
+
+def test_cache_miss_before_new_claim_reuses_published_kernel_and_wakes_joined_follower(
+    scalar_slots,
+):
+    """A genuine earlier miss must not duplicate a just-published native wrapper."""
+    value_slot, result_slot = scalar_slots
+
+    def pure_step(state: ScalarState, params: Mapping[str, Any]) -> ScalarState:
+        return state._replace(result=state.value * params["coefficient"])
+
+    method = _method(
+        name="miss_claim_scale",
+        namespace="jit01",
+        input_slots=frozenset({value_slot}),
+        output_slots=frozenset({result_slot}),
+        parameters=(ParameterSpec("coefficient", default=2.0, is_static=False),),
+        pure_step=pure_step,
+    )
+    registry = MethodRegistry.get_instance()
+    registry.register(method)
+    role = threading.local()
+    build_started = threading.Event()
+    finish_build = threading.Event()
+    delayed_missed = threading.Event()
+    follower_missed = threading.Event()
+    allow_new_claim = threading.Event()
+    new_claimed = threading.Event()
+    follower_joined = threading.Event()
+    builds = 0
+
+    class CoordinatedCache(CompilationCache):
+        def claim_flight(self, key):
+            current = role.name
+            if current == "delayed":
+                delayed_missed.set()
+                assert allow_new_claim.wait(timeout=5)
+            elif current == "follower":
+                follower_missed.set()
+                assert new_claimed.wait(timeout=5)
+            flight, leader = super().claim_flight(key)
+            if current == "delayed":
+                assert leader
+                new_claimed.set()
+                assert follower_joined.wait(timeout=5)
+            elif current == "follower":
+                assert not leader
+                follower_joined.set()
+            return flight, leader
+
+    class CountingCompiler(MethodCompiler):
+        def _compile_method(self, *args, **kwargs):
+            nonlocal builds
+            builds += 1
+            if builds == 1:
+                build_started.set()
+                assert finish_build.wait(timeout=5)
+            return super()._compile_method(*args, **kwargs)
+
+    cache = CoordinatedCache()
+    first = CountingCompiler(registry=registry, cache=cache)
+    second = CountingCompiler(registry=registry, cache=cache)
+    state = ScalarState(value=jnp.asarray(10.0), result=jnp.asarray(0.0))
+
+    def compile_one(name, compiler, coefficient):
+        role.name = name
+        return compiler.compile(
+            method_name=method.signature.fqn,
+            params={"coefficient": coefficient},
+            sample_inputs={"value": state.value},
+            jit=True,
+        )
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
+        leader = pool.submit(compile_one, "leader", first, 2.0)
+        assert build_started.wait(timeout=5)
+        delayed = pool.submit(compile_one, "delayed", second, 3.0)
+        follower = pool.submit(compile_one, "follower", first, 4.0)
+        assert delayed_missed.wait(timeout=5)
+        assert follower_missed.wait(timeout=5)
+        finish_build.set()
+        old = leader.result(timeout=5)
+        assert not cache._flights
+        allow_new_claim.set()
+        current = delayed.result(timeout=5)
+        joined = follower.result(timeout=5)
+
+    assert builds == 1
+    assert old._kernel is current._kernel is joined._kernel
+    assert [
+        float(handle(state, {}).result.block_until_ready()) for handle in (old, current, joined)
+    ] == [
+        20.0,
+        30.0,
+        40.0,
+    ]
+    assert float(old(state, {}).result.block_until_ready()) == 20.0
+    assert not cache._flights
 
 
 def test_single_flight_publishes_before_followers_are_notified(scalar_slots):
@@ -654,3 +1019,171 @@ def test_chain_shape_inference_refuses_unknown_data_dependent_shape(scalar_slots
     with pytest.raises(CompilationError, match="data-dependent"):
         compiler.compile_chain(chain, sample_state, jit=False, infer_shapes=True)
     assert calls == {"producer": 0, "consumer": 0}
+
+
+def test_declared_shape_metadata_does_not_invent_downstream_dtype(record_property, tmp_path):
+    """Native lazy tracing consumes the producer's actual integer output."""
+    unit = Unit("value", "unit")
+    values = SlotSpec("values", SlotType.VECTOR, unit, shape=("n",))
+    total = SlotSpec("total", SlotType.SCALAR, unit, shape=())
+    result = SlotSpec("result", SlotType.SCALAR, unit, shape=())
+    traces = {"producer": [], "consumer": []}
+
+    def produce(state, params):
+        traces["producer"].append(str(state.values.dtype))
+        return state._replace(total=jnp.asarray(jnp.sum(state.values), dtype=jnp.int32))
+
+    def consume(state, params):
+        traces["consumer"].append(str(state.total.dtype))
+        return state._replace(result=state.total * 2)
+
+    registry = MethodRegistry.get_instance()
+    for name, inputs, outputs, fn in (
+        ("dtype_producer", {values}, {total}, produce),
+        ("dtype_consumer", {total}, {result}, consume),
+    ):
+        registry.register(
+            _method(
+                name=name,
+                namespace="jit01",
+                input_slots=frozenset(inputs),
+                output_slots=frozenset(outputs),
+                pure_step=fn,
+            )
+        )
+    composer = MethodComposer(registry=registry)
+    a = composer.add("jit01.dtype_producer@1.0.0")
+    b = composer.add("jit01.dtype_consumer@1.0.0")
+    composer.connect(a, b)
+    chain = composer.build()
+    state = ChainState(
+        jnp.asarray([1.25, 1.75], dtype=jnp.float32),
+        jnp.zeros((7,), dtype=jnp.float32),
+        jnp.asarray(0.0, dtype=jnp.float32),
+    )
+    compiler = MethodCompiler(registry=registry, cache=CompilationCache())
+    started = time.perf_counter()
+    executor = compiler.compile_chain(chain, state)
+    wrapper_seconds = time.perf_counter() - started
+    assert traces == {"producer": [], "consumer": []}
+    started = time.perf_counter()
+    warm = compiler.compile_chain(chain, state)
+    warm_wrapper_seconds = time.perf_counter() - started
+    assert traces == {"producer": [], "consumer": []}
+    assert all(
+        x[1]._kernel is y[1]._kernel
+        for x, y in zip(executor.compiled_methods, warm.compiled_methods, strict=True)
+    )
+    downstream = executor.compiled_methods[1][1]
+    declared = dict(downstream.specialization.input_shapes)["total"]
+    started = time.perf_counter()
+    first = executor(state)
+    first.result.block_until_ready()
+    first_seconds = time.perf_counter() - started
+    assert int(first.result) == 6
+    assert str(first.total.dtype) == str(first.result.dtype) == "int32"
+    started = time.perf_counter()
+    second = warm(state)
+    second.result.block_until_ready()
+    warm_seconds = time.perf_counter() - started
+    assert int(second.result) == 6
+    assert traces == {"producer": ["float32"], "consumer": ["int32"]}
+    # Explicit diagnostic stages are outside prepare and do no numerical step.
+    current = state._replace(total=jnp.asarray(3, dtype=jnp.int32))
+    started = time.perf_counter()
+    traced = downstream._kernel.step_core.trace(current, (), {})
+    trace_seconds = time.perf_counter() - started
+    started = time.perf_counter()
+    lowered = traced.lower()
+    lower_seconds = time.perf_counter() - started
+    started = time.perf_counter()
+    machine = lowered.compile()
+    machine_seconds = time.perf_counter() - started
+    assert int(machine(current, (), {}).result.block_until_ready()) == 6
+    # A different actual runtime dtype causes a native trace, not a guessed cast.
+    float_current = current._replace(total=jnp.asarray(3.0, dtype=jnp.float32))
+    floating = downstream(float_current, {})
+    assert float(floating.result.block_until_ready()) == 6.0
+    assert "float32" in traces["consumer"]
+    profile = {
+        "jax": jax.__version__,
+        "jax_enable_x64": jax.config.jax_enable_x64,
+        "backend": jax.default_backend(),
+        "planning_dtype": declared.dtype,
+        "actual_dtype": str(first.total.dtype),
+        "explicit_stage_cache_state": "after first and warm execution; may reuse native caches",
+        "timing_claim": "separate observed calls, not cold phase costs or speedup",
+        "traces": traces,
+        "wrapper_seconds": wrapper_seconds,
+        "warm_wrapper_seconds": warm_wrapper_seconds,
+        "trace_seconds": trace_seconds,
+        "lower_seconds": lower_seconds,
+        "machine_compile_seconds": machine_seconds,
+        "first_execution_seconds": first_seconds,
+        "warm_execution_seconds": warm_seconds,
+    }
+    record_property("native_dtype_profile", json.dumps(profile, sort_keys=True))
+    assert declared.shape == ()
+    assert declared.dtype == "unknown"
+    assert state.total.shape == (7,) and str(state.total.dtype) == "float32"
+    from polisyos.foundry.methods.artifacts import MethodArtifact
+
+    artifact = MethodArtifact.from_method(
+        registry.get("jit01.dtype_consumer@1.0.0"), downstream.specialization
+    )
+    path = tmp_path / "prepared-method.json"
+    path.write_bytes(artifact.to_canonical_bytes())
+    reopened = MethodArtifact.from_canonical_bytes(path.read_bytes())
+    assert reopened.specialization == downstream.specialization
+    assert dict(reopened.specialization.input_shapes)["total"].dtype == "unknown"
+
+
+def test_declared_shape_preparation_keeps_metadata_without_output_allocation(
+    monkeypatch,
+    record_property,
+):
+    """Large declared shapes stay abstract rather than reserving output storage."""
+    unit = Unit("value", "unit")
+    values = SlotSpec("values", SlotType.VECTOR, unit, shape=("n",))
+    total = SlotSpec("total", SlotType.VECTOR, unit, shape=("n",))
+    calls = []
+
+    def step(state, params):
+        calls.append("executed")
+        return state._replace(total=state.values)
+
+    registry = MethodRegistry.get_instance()
+    method = _method(
+        name="abstract_output",
+        namespace="jit01",
+        input_slots=frozenset({values}),
+        output_slots=frozenset({total}),
+        pure_step=step,
+    )
+    registry.register(method)
+    composer = MethodComposer(registry=registry)
+    composer.add(method.signature.fqn)
+    chain = composer.build()
+    original_empty = np.empty
+
+    def bounded_empty(shape, *args, **kwargs):
+        assert np.prod(shape) < 100_000, "declared shape unexpectedly allocates output storage"
+        return original_empty(shape, *args, **kwargs)
+
+    monkeypatch.setattr(compiler_module.np, "empty", bounded_empty)
+    compiler = MethodCompiler(registry=registry, cache=CompilationCache())
+    observations = []
+    for size in (16, 1_000_000_000):
+        sample = ChainState(
+            jax.ShapeDtypeStruct((size,), np.float32),
+            jax.ShapeDtypeStruct((size,), np.float32),
+            jax.ShapeDtypeStruct((), np.float32),
+        )
+        tracemalloc.start()
+        executor = compiler.compile_chain(chain, sample)
+        _, peak = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+        assert len(executor) == 1 and calls == []
+        observations.append({"elements": size, "traced_python_peak_bytes": peak})
+    record_property("abstract_shape_allocation", json.dumps(observations))
+    assert observations[1]["traced_python_peak_bytes"] < 1_000_000

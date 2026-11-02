@@ -207,13 +207,23 @@ class TaxSubsidyMechanismMethod:
     )
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
-        description="Emit fiscal subsidy patches through the unified MethodRegistry.",
+        description="Emit a conditional linear income-subsidy baseline through MethodRegistry.",
         tags=frozenset({"mechanism", "runtime", "fiscal", "subsidy", "structural"}),
-        when_to_use="Apply targeted subsidy or tax relief to agents/firms in simulation; analyze fiscal transfer incidence",
+        equations={
+            "agent_income_delta": "rate * income * sector_weights on active & target",
+            "government_balance_delta": "-sum(agent_income_delta)",
+        },
+        assumptions={
+            "empirical_status": "not_established",
+            "units_and_clock": "Supplied income units per kernel call; no calendar conversion.",
+            "population": "Active agents intersected with the optional target mask.",
+        },
+        when_to_use="Calculate conditional linear transfers on the supplied simulation state.",
+        when_not_to_use="Execution alone does not establish empirical incidence or welfare effects.",
         citations=(
             "Mirrlees, J. (1971). An Exploration in the Theory of Optimum Income Taxation. Review of Economic Studies, 38(2), 175-208.",
         ),
-        output_interpretation="Patches applied to agent income/wealth. Incidence = share of subsidy captured by each group. Check fiscal cost vs welfare gain.",
+        output_interpretation="Agent income deltas and the opposite government counteraccount; fiscal key unchanged. Signed income retains the supplied mathematical transfer law. No wealth update or automatic welfare evidence.",
     )
 
     @staticmethod
@@ -270,13 +280,24 @@ class IncomeTaxMechanismMethod:
     )
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
-        description="Emit income tax patches through the unified MethodRegistry.",
+        description="Emit a conditional linear reported-income tax baseline through MethodRegistry.",
         tags=frozenset({"mechanism", "runtime", "fiscal", "tax", "structural"}),
-        when_to_use="Apply income tax schedule to agents; analyze tax incidence, progressivity, and behavioral responses in simulation",
+        equations={
+            "agent_income_delta": "-rate * reported_income on active & target",
+            "government_balance_delta": "-sum(agent_income_delta)",
+        },
+        assumptions={
+            "empirical_status": "not_established",
+            "units_and_clock": "Supplied income units per kernel call; no calendar conversion.",
+            "tax_base": "Reported income, including signed reverse transfers; no clamp to zero.",
+            "population": "Active agents intersected with the optional target mask.",
+        },
+        when_to_use="Calculate conditional linear taxes on the supplied reported-income state.",
+        when_not_to_use="Execution alone does not establish causal behavioral responses, calibration or policy authority.",
         citations=(
             "Mirrlees, J. (1971). An Exploration in the Theory of Optimum Income Taxation. Review of Economic Studies, 38(2), 175-208.",
         ),
-        output_interpretation="Tax liability patches per agent. Effective rate = tax paid / gross income. Progressivity index from Gini pre/post tax.",
+        output_interpretation="Income deltas and the opposite government counteraccount; fiscal key unchanged. Negative reported income reverses the transfer under this baseline. Distributional, causal and welfare claims require separate evidence.",
     )
 
     @staticmethod
@@ -336,13 +357,25 @@ class LaborMarketMechanismMethod:
     )
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
-        description="Emit labor market employment and wage patches through the unified MethodRegistry.",
+        description="Emit a conditional threshold-employment baseline through MethodRegistry.",
         tags=frozenset({"mechanism", "runtime", "labor", "structural"}),
-        when_to_use="Simulate labor market matching, wage determination, and employment transitions; evaluate minimum wage or hiring subsidy policies",
+        equations={
+            "employment": "uniform_draw < employment_threshold",
+            "employer": "uniform firm assignment for newly employed agents",
+            "income": "firm wage_offer * agent skill_level, or zero when not employed",
+        },
+        assumptions={
+            "empirical_status": "not_established",
+            "units_and_clock": "Supplied wage and income units per kernel call; no calendar conversion.",
+            "population": "Only active & target agents change; active firm labor counts recompute.",
+            "firm_supply": "At least one firm; no search-equilibrium or calibrated matching law.",
+        },
+        when_to_use="Calculate conditional employment resampling with the declared threshold and supplied firm wages.",
+        when_not_to_use="This baseline alone does not establish labor-market calibration, causal policy response or welfare effects.",
         citations=(
             "Diamond, P. (1982). Aggregate Demand Management in Search Equilibrium. Journal of Political Economy, 90(5), 881-894.",
         ),
-        output_interpretation="Employment and wage patches per agent. Unemployment rate = share with no employment match. Wage distribution shift from policy.",
+        output_interpretation="Employment, employer ID, income and active firm-count patches. Employment is resampled, employers are uniform draws and income is wage_offer times skill. Returns the third split key; this is not a universal market or empirical policy effect.",
     )
 
     @staticmethod

@@ -1,0 +1,36 @@
+id = "e02-compiled-execution-repairs"
+title = "Preserve current compiled requests and durable execution history"
+type = "fixed"
+component = "foundry"
+owner = "e02-coordinator"
+summary = "Close the JIT miss/claim publication race, propagate declared shapes without allocating guessed-dtype arrays, preserve checkpoint history and reachable sidecars across failures, and describe economic baseline laws accurately in runtime metadata."
+evidence = ["tests/unit/remediation/test_jit_01.py", "tests/unit/remediation/test_res_04.py", "tests/unit/foundry/methods/backends/test_checkpointing.py", "tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py", "tests/unit/foundry/plugins/test_economic_profiles.py"]
+change_class = "persisted-artifact-format"
+surface_classification = "public_stable: method specialization metadata and execution checkpoints; internal: runtime baseline descriptions"
+compatibility = "Keep caller-specific parameters, request statistics, existing numerical kernels and ordinary economic profiles. Planning dtype is explicitly unknown until native execution. Legacy missing restricted history remains inspectable but cannot become complete by resaving or flipping a declaration."
+limitations = "Named local native profiles only. No empirical economic calibration, institutional authority, portable executable, G acceptance or final composed-lane claim."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+
+[[compatibility_change]]
+id = "jit-declared-output-planning-metadata"
+change_class = "python-public-api"
+impact = "behavioral"
+surface = "public_stable: MethodCompiler downstream specialization metadata"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable"
+release_note = "Replace output-sized guessed-dtype NumPy placeholders with ShapeSpec metadata carrying declared shape and dtype unknown. Actual JAX runner continues to specialize runtime arrays. Cache-flight rechecks share the existing terminal envelope without double-counting public request misses."
+public_surface_inventory_reviewed = true
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "checkpoint-original-invocation-history"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "public_stable: ChainCheckpoint node-result schema1 and encoded history"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable"
+release_note = "Persist exact original restricted-invocation evidence. Missing legacy fields remain explicitly incomplete through inspection, forward save and resume admission. Use one encoded state/history envelope for full and partial histories, retaining simple legacy refs. Preserve reachable sidecars after publication uncertainty or durability failure while returning the actual save error."
+generated_client_compatibility = "not_applicable"

@@ -24,8 +24,8 @@
     {
       "lane_id": "LANE-06",
       "sequence": 1,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "PARTIAL",
+      "implementation_status": "LOCAL_IMPLEMENTATION_COMPLETE",
+      "local_qualification": "QUALIFIED_AVAILABLE_PROFILES_WITH_DECLARED_REMAINDERS",
       "capability_acceptance": "NOT_RUN",
       "transition_evidence": [],
       "corrective_windows": [],
@@ -768,6 +768,30 @@
           "inputs_unchanged_during_run": true,
           "junit_sha256": "719579c9d008706082afaf311185c72ebee4a178de1b5af975a34263d6bf076e",
           "scope": "Final affected scoped-source/codec/history/recursive/publication consumers on a5f3 product; no N5 or production Catalog. Actual main MEM max1241M/CMPRS0B."
+        },
+        "installed_final73": {
+          "output": "policy-engine/_cache/e02/lane06-installed-final-r1/verification/",
+          "observed": {
+            "PASS": 73,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "selector_count": 32,
+          "source_commit": "7670d1e6640724ef9121c7e888ba2399cf86553b",
+          "source_tree": "80faa2818fc524303bc98b77a945622b7425cd70",
+          "wheel_source_commit": "a5f3b9ba71321b6d9bbbf5e7dc61e722ea37efea",
+          "wheel_sha256": "e80cc3f608e2ac2dfc33db08fd931f5c8915b190b38daa6e94d5240f1401a880",
+          "junit_sha256": "ec5c432973a29ce74bc42664bf3681c4d825d33b0f00ef48566f7aa938008f85",
+          "qualification_result_sha256": "6e06b632529dc21368cb9b3efaf473663521d03dca5235fb15c4da3229bc5662",
+          "named_inputs": 24,
+          "inputs_unchanged_during_run": true,
+          "completed_process_records": 36,
+          "unfinished_process_records": 0,
+          "distinct_product_modules": 1899,
+          "packaged_resource_targets": 12,
+          "canonical_resource_readers": 7,
+          "scope": "One real external-prefix noneditable wheel. All observed module bytes match selected wheel; complete resource set/bytes/hashes match source and installed readers. No source shadow imports, G acceptance or whole E02 closure. Current later test/docs retirement changes no packaged source/build input."
         }
       },
       "local_only_requirement_ids": [
@@ -782,20 +806,19 @@
       ],
       "current_remaining": [
         {
-          "kind": "product_installed_profile",
-          "requirements": [
-            "REQ-REP-01-01",
-            "REQ-RUN-01-03"
-          ],
-          "also_affects_shared": "E02-I06-E B01..B05",
-          "basis": "Instrument16PASS is not product installed proof. One final wheel/noneditable profile has32 selectors (30 functions/2 bounded modules), preserving original29 plus two IR exact-reader functions and the Core purpose-body module; actual case count must come from execution."
-        },
-        {
           "kind": "trusted_restore_input_or_explicit_supported_boundary",
           "requirements": [
             "REQ-DUR-01-02"
           ],
           "basis": "User confirms approved trusted latest source/owner does not yet exist. Only damaged-ledger restore claim remains blocked; current acknowledged durability and healthy-ledger operations are qualified. Require actual current authoritative generation and complete confirmed receipts, never reset budget from an older copy."
+        },
+        {
+          "kind": "late_CYC_dependent_authority_projection",
+          "requirements": [
+            "REQ-RES-03-02",
+            "REQ-RES-03-03"
+          ],
+          "basis": "DA01 exact CMP/CYC published-authority/custody consumer after owning lanes; local numerical retention is qualified. No candidate data promoted to a fake authority merely to test invalidation."
         }
       ],
       "execution_control": {
@@ -804,8 +827,8 @@
         "formal_closure": false,
         "B198": "Historical closure preserved",
         "next_lanes_started": false,
-        "source_state": "Product source frozen and publisheda5f3; mandatory RES03 local route qualified by explicit versioned split evidence. Final installed profile pending; late DA01 and trusted corrupt-ledger restore remain separate.",
-        "repository_ci": "Fast/Standard remain red. All three named forbidden package edges predate20d9009; aggregate import/cycle and UI reds are not called inherited without exact complete replay. Main remains unmerged."
+        "source_state": "Available local LANE06 implementation and installed qualification complete; stop after06. Trusted restore input and exact late DA01 remain explicit; no whole-lane PASS/G acceptance/formal E02 closure.",
+        "repository_ci": "Fast/Standard remain red. All three named forbidden package edges predate20d9009; aggregate import/cycle and UI reds are not called inherited without exact complete replay. Main remains unmerged. Release-Literal full module remains104PASS/2FAIL at live repository fragment assertions (24 structural/client-enum errors,46 review markers and a stale C12 expected row); no inherited attribution, waiver or all-green release claim."
       },
       "reconciliation_binding": {
         "source_head": "27958f89d976466fcc321fec28e06469de435a6b",
@@ -1833,7 +1856,7 @@
       "track_id": "06-A",
       "track_position": 7,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_replay",
       "base_commit": "e7a49fdf939b492fc7742906658159cd2fc89ff6",
@@ -1871,26 +1894,23 @@
           "result": "3 PASS source-mode installed-helper companions;14 inputs unchanged;actual installed profile remains UNRUN."
         }
       ],
-      "blockers": [
-        "installed_product_profile"
-      ],
+      "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "Queued; independent replay authorship, final checkpoint consumer checks after canonical state seam",
         "source_scope": "Seven explicit paths; no checkpoint source writes, shared inventory/root companions serialized",
         "mandatory_companions": "Authorized mirrored tests/helper/README companions may be added within the assigned mechanism after checking no competing writer; notify Root footprint, no separate approval per routine companion. Shared generated families/index/refs remain Root-owned."
       },
-      "current_assessment": "source_qualified_installed_pending",
+      "current_assessment": "native_and_installed_named_profile_qualified",
       "evidence_refs": [
         "rep_native",
         "rep_default_resume",
         "res_four_process",
-        "installed_instrument16"
+        "installed_instrument16",
+        "installed_final73"
       ],
-      "remaining_kinds": [
-        "installed_product_profile"
-      ],
-      "reconciliation_note": "Native original-source and real default checkpoint CLI controls are qualified; complete declared first-party caller/support records retain root10/shim20 and external unknowns. Actual noneditable installed profile remains pending.",
+      "remaining_kinds": [],
+      "reconciliation_note": "Existing native/compatibility support plus actual73-case noneditable profile qualifies the named local release window. External/computed/plugin usages beyond the pinned support census are not claimed absent; no shim retirement/G acceptance.",
       "requirement_results": [
         {
           "requirement_id": "REQ-REP-01-01",
@@ -1899,15 +1919,14 @@
             "TEST-REP-01-01"
           ],
           "binding_ids": [],
-          "assessment": "source_profile_demonstrated",
+          "assessment": "native_and_installed_named_profile_qualified",
           "evidence_refs": [
-            "installed_instrument16"
+            "installed_instrument16",
+            "installed_final73"
           ],
-          "remaining_kinds": [
-            "installed_product_profile"
-          ],
-          "basis": "Root10/shim20 lazy identity/signature matrix source controls exist; instrument16 is not product installed proof.",
-          "status": "PARTIAL"
+          "remaining_kinds": [],
+          "basis": "Root10/shim20 lazy identity/signature matrix source controls exist; instrument16 is not product installed proof. Actual noneditable wheel profile passes73 cases from32 selectors,36 completed origin records and12 real resource targets; no source injection or G closure.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
         },
         {
           "requirement_id": "REQ-REP-01-02",
@@ -1952,7 +1971,7 @@
       "track_id": "06-B",
       "track_position": 1,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_async",
       "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
@@ -1993,9 +2012,7 @@
           "scope": "Composed local family regressions for six packets; not full E02-I06 scenarios or all75 local TEST contracts."
         }
       ],
-      "blockers": [
-        "installed_product_profile"
-      ],
+      "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "released; relevant sources frozen through composition",
@@ -2047,34 +2064,32 @@
         {
           "requirement_id": "REQ-RUN-01-03",
           "test_id": "TEST-RUN-01-03",
-          "status": "PARTIAL",
-          "basis": "Four function-local generics and reflection controls source-qualified; actual installed Common result still required.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Four function-local generics and reflection controls source-qualified. Actual noneditable wheel profile passes73 cases from32 selectors,36 completed origin records and12 real resource targets; no source injection or G closure.",
           "criterion_pointer": "04_Трассировка/RUN-01.json#/requirements/2",
           "test_ids": [
             "TEST-RUN-01-03"
           ],
           "binding_ids": [],
-          "assessment": "source_generics_qualified_installed_pending",
+          "assessment": "native_and_installed_named_profile_qualified",
           "evidence_refs": [
-            "installed_instrument16"
+            "installed_instrument16",
+            "installed_final73"
           ],
-          "remaining_kinds": [
-            "installed_product_profile"
-          ]
+          "remaining_kinds": []
         }
       ],
-      "current_assessment": "selected_profile_qualified_installed_pending",
+      "current_assessment": "native_and_installed_named_profile_qualified",
       "evidence_refs": [
         "run_pre_admission",
         "common_routes",
         "retry_deadline",
         "invocation_wire",
-        "physical_pin"
+        "physical_pin",
+        "installed_final73"
       ],
-      "remaining_kinds": [
-        "installed_product_profile"
-      ],
-      "reconciliation_note": "Native pre-admission, owned cancellation/deadline, physical ownership and the diagnostic not_started marker are qualified on their named source profiles, including the 48-case actual handoff/EOF/deadline/IPC result. Installed Common generic reflection remains pending; Linux owner-handoff consumers remain under RUN02/DUR02."
+      "remaining_kinds": [],
+      "reconciliation_note": "Existing native/compatibility support plus actual73-case noneditable profile qualifies the named local release window. External/computed/plugin usages beyond the pinned support census are not claimed absent; no shim retirement/G acceptance."
     },
     {
       "packet_id": "EXE-01",
@@ -3392,7 +3407,7 @@
       "track_id": "06-D",
       "track_position": 1,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_canonical",
       "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
@@ -3437,9 +3452,7 @@
           "scope": "Actual registered MethodDispatcher→NumPyRunner→pure_step→enrolled .3 bundle→fresh selected reader; strengthened budget and callback refusal reasons both executed. Candidate-only unsigned ownership-disabled fixture profile."
         }
       ],
-      "blockers": [
-        "installed_product_profile"
-      ],
+      "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "released; relevant sources frozen through composition",
@@ -3451,8 +3464,8 @@
         {
           "requirement_id": "REQ-CAN-01-01",
           "test_id": "TEST-CAN-01-01",
-          "status": "PARTIAL",
-          "basis": "Separate Core/IR policies/errors and byte/hash corpus; no production historical corpus inferred.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Separate Core/IR policies/errors and byte/hash corpus; no production historical corpus inferred. Actual noneditable wheel profile passes73 cases from32 selectors,36 completed origin records and12 real resource targets; no source injection or G closure.",
           "criterion_pointer": "04_Трассировка/CAN-01.json#/requirements/0",
           "test_ids": [
             "TEST-CAN-01-01"
@@ -3460,19 +3473,18 @@
           "binding_ids": [
             "E02-I06-E-B01"
           ],
-          "assessment": "finite_source_corpus_demonstrated",
+          "assessment": "native_and_installed_named_profile_qualified",
           "evidence_refs": [
-            "canon216"
+            "canon216",
+            "installed_final73"
           ],
-          "remaining_kinds": [
-            "installed_product_profile"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-CAN-01-02",
           "test_id": "TEST-CAN-01-02",
-          "status": "PARTIAL",
-          "basis": "Low-level aliases read but current producer/admission refusal remains distinct; no IDs rewritten.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Low-level aliases read but current producer/admission refusal remains distinct; no IDs rewritten. Actual noneditable wheel profile passes73 cases from32 selectors,36 completed origin records and12 real resource targets; no source injection or G closure.",
           "criterion_pointer": "04_Трассировка/CAN-01.json#/requirements/1",
           "test_ids": [
             "TEST-CAN-01-02"
@@ -3480,19 +3492,18 @@
           "binding_ids": [
             "E02-I06-E-B01"
           ],
-          "assessment": "finite_source_corpus_demonstrated",
+          "assessment": "native_and_installed_named_profile_qualified",
           "evidence_refs": [
-            "canon216"
+            "canon216",
+            "installed_final73"
           ],
-          "remaining_kinds": [
-            "installed_product_profile"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-CAN-01-03",
           "test_id": "TEST-CAN-01-03",
-          "status": "PARTIAL",
-          "basis": "Actual enrolled bounded.3 producer→selected manifest→fresh reader and budget/callback negatives. Unsigned/ownership-disabled scope retained.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual enrolled bounded.3 producer→selected manifest→fresh reader and budget/callback negatives. Unsigned/ownership-disabled scope retained. Actual noneditable wheel profile passes73 cases from32 selectors,36 completed origin records and12 real resource targets; no source injection or G closure.",
           "criterion_pointer": "04_Трассировка/CAN-01.json#/requirements/2",
           "test_ids": [
             "TEST-CAN-01-03"
@@ -3500,27 +3511,25 @@
           "binding_ids": [
             "E02-I06-E-B01"
           ],
-          "assessment": "bounded_native_profile_demonstrated",
+          "assessment": "native_and_installed_named_profile_qualified",
           "evidence_refs": [
-            "canon_native3"
+            "canon_native3",
+            "installed_final73"
           ],
-          "remaining_kinds": [
-            "installed_product_profile"
-          ]
+          "remaining_kinds": []
         }
       ],
-      "current_assessment": "finite_source_corpus_installed_pending",
+      "current_assessment": "native_and_installed_named_profile_qualified",
       "evidence_refs": [
         "canon216",
         "canon_native3",
         "tensor33",
         "tensor_capture3",
-        "installed_instrument16"
+        "installed_instrument16",
+        "installed_final73"
       ],
-      "remaining_kinds": [
-        "installed_product_profile"
-      ],
-      "reconciliation_note": "Codec profile/aliases/current writer admission and bounded enrolled .3 native path are qualified. Unsigned ownership-disabled .3 fixture does not imply generic .3 authority; actual installedE still pending, finite Git corpus is not production/plugin corpus."
+      "remaining_kinds": [],
+      "reconciliation_note": "Existing native/compatibility support plus actual73-case noneditable profile qualifies the named local release window. External/computed/plugin usages beyond the pinned support census are not claimed absent; no shim retirement/G acceptance."
     },
     {
       "packet_id": "MIG-05",
@@ -3529,7 +3538,7 @@
       "track_id": "06-D",
       "track_position": 2,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_canonical",
       "base_commit": "7bbc075e3a19056b762db7a5abc1df6a886742b4",
@@ -3565,9 +3574,7 @@
           "scope": "Composed local family regressions for six packets; not full E02-I06 scenarios or all75 local TEST contracts."
         }
       ],
-      "blockers": [
-        "installed_product_profile"
-      ],
+      "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "released; relevant sources frozen through composition",
@@ -3578,8 +3585,8 @@
         {
           "requirement_id": "REQ-MIG-05-01",
           "test_id": "TEST-MIG-05-01",
-          "status": "PARTIAL",
-          "basis": "Current registration/copy/stamp/route/DTO semantics and mutable capture limitation are qualified. Record finite supported external/callback/historical window; installedE remains. Preserve per-call selected_edges, no new global registration.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Current registration/copy/stamp/route/DTO semantics and mutable capture limitation are qualified. Record finite supported external/callback/historical window; installedE remains. Preserve per-call selected_edges, no new global registration. Actual noneditable wheel profile passes73 cases from32 selectors,36 completed origin records and12 real resource targets; no source injection or G closure.",
           "criterion_pointer": "04_Трассировка/MIG-05.json#/requirements/0",
           "test_ids": [
             "TEST-MIG-05-01"
@@ -3587,21 +3594,20 @@
           "binding_ids": [
             "E02-I06-E-B05"
           ],
-          "assessment": "finite_source_corpus_installed_support_pending",
+          "assessment": "native_and_installed_named_profile_qualified",
           "evidence_refs": [
             "migration_callbacks55",
             "migration69",
-            "installed_instrument16"
+            "installed_instrument16",
+            "installed_final73"
           ],
-          "remaining_kinds": [
-            "installed_product_profile"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-MIG-05-02",
           "test_id": "TEST-MIG-05-02",
-          "status": "PARTIAL",
-          "basis": "Current registration/copy/stamp/route/DTO semantics and mutable capture limitation are qualified. Record finite supported external/callback/historical window; installedE remains. Preserve per-call selected_edges, no new global registration.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Current registration/copy/stamp/route/DTO semantics and mutable capture limitation are qualified. Record finite supported external/callback/historical window; installedE remains. Preserve per-call selected_edges, no new global registration. Actual noneditable wheel profile passes73 cases from32 selectors,36 completed origin records and12 real resource targets; no source injection or G closure.",
           "criterion_pointer": "04_Трассировка/MIG-05.json#/requirements/1",
           "test_ids": [
             "TEST-MIG-05-02"
@@ -3609,21 +3615,20 @@
           "binding_ids": [
             "E02-I06-E-B05"
           ],
-          "assessment": "finite_source_corpus_installed_support_pending",
+          "assessment": "native_and_installed_named_profile_qualified",
           "evidence_refs": [
             "migration_callbacks55",
             "migration69",
-            "installed_instrument16"
+            "installed_instrument16",
+            "installed_final73"
           ],
-          "remaining_kinds": [
-            "installed_product_profile"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-MIG-05-03",
           "test_id": "TEST-MIG-05-03",
-          "status": "PARTIAL",
-          "basis": "Current registration/copy/stamp/route/DTO semantics and mutable capture limitation are qualified. Record finite supported external/callback/historical window; installedE remains. Preserve per-call selected_edges, no new global registration.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Current registration/copy/stamp/route/DTO semantics and mutable capture limitation are qualified. Record finite supported external/callback/historical window; installedE remains. Preserve per-call selected_edges, no new global registration. Actual noneditable wheel profile passes73 cases from32 selectors,36 completed origin records and12 real resource targets; no source injection or G closure.",
           "criterion_pointer": "04_Трассировка/MIG-05.json#/requirements/2",
           "test_ids": [
             "TEST-MIG-05-03"
@@ -3631,21 +3636,20 @@
           "binding_ids": [
             "E02-I06-E-B05"
           ],
-          "assessment": "finite_source_corpus_installed_support_pending",
+          "assessment": "native_and_installed_named_profile_qualified",
           "evidence_refs": [
             "migration_callbacks55",
             "migration69",
-            "installed_instrument16"
+            "installed_instrument16",
+            "installed_final73"
           ],
-          "remaining_kinds": [
-            "installed_product_profile"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-MIG-05-04",
           "test_id": "TEST-MIG-05-04",
-          "status": "PARTIAL",
-          "basis": "Native helper/callback/import/registration controls plus the current four-binding/helper and explicit adapter/configuration/support records cover the supplied release composition. Historical/foreign inputs are named rather than assumed absent. Actual shared noneditable installed consumer qualification remains pending.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Native helper/callback/import/registration controls plus the current four-binding/helper and explicit adapter/configuration/support records cover the supplied release composition. Historical/foreign inputs are named rather than assumed absent. Actual noneditable wheel profile passes73 cases from32 selectors,36 completed origin records and12 real resource targets; no source injection or G closure.",
           "criterion_pointer": "04_Трассировка/MIG-05.json#/requirements/3",
           "test_ids": [
             "TEST-MIG-05-04"
@@ -3653,26 +3657,24 @@
           "binding_ids": [
             "E02-I06-E-B05"
           ],
-          "assessment": "finite_source_support_recorded_installed_pending",
+          "assessment": "native_and_installed_named_profile_qualified",
           "evidence_refs": [
             "migration_callbacks55",
-            "finite_release_support_record"
+            "finite_release_support_record",
+            "installed_final73"
           ],
-          "remaining_kinds": [
-            "installed_product_profile"
-          ]
+          "remaining_kinds": []
         }
       ],
-      "current_assessment": "finite_source_support_recorded_installed_pending",
+      "current_assessment": "native_and_installed_named_profile_qualified",
       "evidence_refs": [
         "migration_callbacks55",
         "migration69",
-        "installed_instrument16"
+        "installed_instrument16",
+        "installed_final73"
       ],
-      "remaining_kinds": [
-        "installed_product_profile"
-      ],
-      "reconciliation_note": "Current registration/copy/stamp/route/DTO semantics and mutable capture limitation are qualified. Record finite supported external/callback/historical window; installedE remains. Preserve per-call selected_edges, no new global registration."
+      "remaining_kinds": [],
+      "reconciliation_note": "Existing native/compatibility support plus actual73-case noneditable profile qualifies the named local release window. External/computed/plugin usages beyond the pinned support census are not claimed absent; no shim retirement/G acceptance."
     },
     {
       "packet_id": "MIG-01",
@@ -3681,7 +3683,7 @@
       "track_id": "06-D",
       "track_position": 3,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_canonical",
       "base_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
@@ -3720,9 +3722,7 @@
           "scope": "One composed affected-family wave including real native CLI and the manual SCM consumer; not all I06 scenario bindings or all75 local TEST contracts."
         }
       ],
-      "blockers": [
-        "installed_product_profile"
-      ],
+      "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "released; three leased paths frozen",
@@ -3733,8 +3733,8 @@
         {
           "requirement_id": "REQ-MIG-01-01",
           "test_id": "TEST-MIG-01-01",
-          "status": "PARTIAL",
-          "basis": "Actual common writer ownership, JSON/YAML registered CLI and nested DTO validation have positive/negative controls. Remaining package/profile/caller-window qualification is not a new migration mechanism.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual common writer ownership, JSON/YAML registered CLI and nested DTO validation have positive/negative controls. Remaining package/profile/caller-window qualification is not a new migration mechanism. Actual noneditable wheel profile passes73 cases from32 selectors,36 completed origin records and12 real resource targets; no source injection or G closure.",
           "criterion_pointer": "04_Трассировка/MIG-01.json#/requirements/0",
           "test_ids": [
             "TEST-MIG-01-01"
@@ -3742,21 +3742,20 @@
           "binding_ids": [
             "E02-I06-E-B02"
           ],
-          "assessment": "source_qualified_installed_support_pending",
+          "assessment": "native_and_installed_named_profile_qualified",
           "evidence_refs": [
             "migration_atomic74",
             "migration69",
-            "installed_instrument16"
+            "installed_instrument16",
+            "installed_final73"
           ],
-          "remaining_kinds": [
-            "installed_product_profile"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-MIG-01-02",
           "test_id": "TEST-MIG-01-02",
-          "status": "PARTIAL",
-          "basis": "Actual common writer ownership, JSON/YAML registered CLI and nested DTO validation have positive/negative controls. Remaining package/profile/caller-window qualification is not a new migration mechanism.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual common writer ownership, JSON/YAML registered CLI and nested DTO validation have positive/negative controls. Remaining package/profile/caller-window qualification is not a new migration mechanism. Actual noneditable wheel profile passes73 cases from32 selectors,36 completed origin records and12 real resource targets; no source injection or G closure.",
           "criterion_pointer": "04_Трассировка/MIG-01.json#/requirements/1",
           "test_ids": [
             "TEST-MIG-01-02"
@@ -3764,21 +3763,20 @@
           "binding_ids": [
             "E02-I06-E-B02"
           ],
-          "assessment": "source_qualified_installed_support_pending",
+          "assessment": "native_and_installed_named_profile_qualified",
           "evidence_refs": [
             "migration_atomic74",
             "migration69",
-            "installed_instrument16"
+            "installed_instrument16",
+            "installed_final73"
           ],
-          "remaining_kinds": [
-            "installed_product_profile"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-MIG-01-03",
           "test_id": "TEST-MIG-01-03",
-          "status": "PARTIAL",
-          "basis": "Native helper/callback/import/registration controls plus the current four-binding/helper and explicit adapter/configuration/support records cover the supplied release composition. Historical/foreign inputs are named rather than assumed absent. Actual shared noneditable installed consumer qualification remains pending.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Native helper/callback/import/registration controls plus the current four-binding/helper and explicit adapter/configuration/support records cover the supplied release composition. Historical/foreign inputs are named rather than assumed absent. Actual noneditable wheel profile passes73 cases from32 selectors,36 completed origin records and12 real resource targets; no source injection or G closure.",
           "criterion_pointer": "04_Трассировка/MIG-01.json#/requirements/2",
           "test_ids": [
             "TEST-MIG-01-03"
@@ -3786,26 +3784,24 @@
           "binding_ids": [
             "E02-I06-E-B02"
           ],
-          "assessment": "finite_source_support_recorded_installed_pending",
+          "assessment": "native_and_installed_named_profile_qualified",
           "evidence_refs": [
             "migration_atomic74",
-            "finite_release_support_record"
+            "finite_release_support_record",
+            "installed_final73"
           ],
-          "remaining_kinds": [
-            "installed_product_profile"
-          ]
+          "remaining_kinds": []
         }
       ],
-      "current_assessment": "finite_source_support_recorded_installed_pending",
+      "current_assessment": "native_and_installed_named_profile_qualified",
       "evidence_refs": [
         "migration_atomic74",
         "migration69",
-        "installed_instrument16"
+        "installed_instrument16",
+        "installed_final73"
       ],
-      "remaining_kinds": [
-        "installed_product_profile"
-      ],
-      "reconciliation_note": "Actual common writer ownership, JSON/YAML registered CLI and nested DTO validation have positive/negative controls. Remaining package/profile/caller-window qualification is not a new migration mechanism."
+      "remaining_kinds": [],
+      "reconciliation_note": "Existing native/compatibility support plus actual73-case noneditable profile qualifies the named local release window. External/computed/plugin usages beyond the pinned support census are not claimed absent; no shim retirement/G acceptance."
     },
     {
       "packet_id": "MIG-02",
@@ -3814,7 +3810,7 @@
       "track_id": "06-D",
       "track_position": 4,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_canonical",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
@@ -3842,9 +3838,7 @@
           "scope": "Real Runtime lifecycle→registered CLI→fresh reader; persisted ManifestRegistry, selected edges and historical protocol4 bounded native layout. Shared installed profile not run."
         }
       ],
-      "blockers": [
-        "installed_product_profile"
-      ],
+      "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "Released; frozen four-path author delta",
@@ -3856,8 +3850,8 @@
         {
           "requirement_id": "REQ-MIG-02-01",
           "test_id": "TEST-MIG-02-01",
-          "status": "PARTIAL",
-          "basis": "Actual Runtime writer→registered CLI→fresh native reader and complete-list refusals are qualified. Remove stale unattributed historical schema failure: exact historic de473 replay plus intentional ArtifactID nested-schema delta is now explicitly tested by fd6ade7b9. Actual installedE remains.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual Runtime writer→registered CLI→fresh native reader and complete-list refusals are qualified. Remove stale unattributed historical schema failure: exact historic de473 replay plus intentional ArtifactID nested-schema delta is now explicitly tested by fd6ade7b9. Actual installedE remains. Actual noneditable wheel profile passes73 cases from32 selectors,36 completed origin records and12 real resource targets; no source injection or G closure.",
           "criterion_pointer": "04_Трассировка/MIG-02.json#/requirements/0",
           "test_ids": [
             "TEST-MIG-02-01"
@@ -3865,20 +3859,19 @@
           "binding_ids": [
             "E02-I06-E-B03"
           ],
-          "assessment": "source_qualified_installed_pending",
+          "assessment": "native_and_installed_named_profile_qualified",
           "evidence_refs": [
             "migration69",
-            "installed_instrument16"
+            "installed_instrument16",
+            "installed_final73"
           ],
-          "remaining_kinds": [
-            "installed_product_profile"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-MIG-02-02",
           "test_id": "TEST-MIG-02-02",
-          "status": "PARTIAL",
-          "basis": "Actual Runtime writer→registered CLI→fresh native reader and complete-list refusals are qualified. Remove stale unattributed historical schema failure: exact historic de473 replay plus intentional ArtifactID nested-schema delta is now explicitly tested by fd6ade7b9. Actual installedE remains.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual Runtime writer→registered CLI→fresh native reader and complete-list refusals are qualified. Remove stale unattributed historical schema failure: exact historic de473 replay plus intentional ArtifactID nested-schema delta is now explicitly tested by fd6ade7b9. Actual installedE remains. Actual noneditable wheel profile passes73 cases from32 selectors,36 completed origin records and12 real resource targets; no source injection or G closure.",
           "criterion_pointer": "04_Трассировка/MIG-02.json#/requirements/1",
           "test_ids": [
             "TEST-MIG-02-02"
@@ -3886,20 +3879,19 @@
           "binding_ids": [
             "E02-I06-E-B03"
           ],
-          "assessment": "source_qualified_installed_pending",
+          "assessment": "native_and_installed_named_profile_qualified",
           "evidence_refs": [
             "migration69",
-            "installed_instrument16"
+            "installed_instrument16",
+            "installed_final73"
           ],
-          "remaining_kinds": [
-            "installed_product_profile"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-MIG-02-03",
           "test_id": "TEST-MIG-02-03",
-          "status": "PARTIAL",
-          "basis": "Exact historical schema difference now attributed and compatibility fixed forward fd6ade7b9; no journal/pickle recovery or unknown production archive claim.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Exact historical schema difference now attributed and compatibility fixed forward fd6ade7b9; no journal/pickle recovery or unknown production archive claim. Actual noneditable wheel profile passes73 cases from32 selectors,36 completed origin records and12 real resource targets; no source injection or G closure.",
           "criterion_pointer": "04_Трассировка/MIG-02.json#/requirements/2",
           "test_ids": [
             "TEST-MIG-02-03"
@@ -3907,24 +3899,22 @@
           "binding_ids": [
             "E02-I06-E-B03"
           ],
-          "assessment": "historical_native_reader_demonstrated",
+          "assessment": "native_and_installed_named_profile_qualified",
           "evidence_refs": [
-            "migration69"
+            "migration69",
+            "installed_final73"
           ],
-          "remaining_kinds": [
-            "installed_product_profile"
-          ]
+          "remaining_kinds": []
         }
       ],
-      "current_assessment": "source_qualified_installed_pending",
+      "current_assessment": "native_and_installed_named_profile_qualified",
       "evidence_refs": [
         "migration69",
-        "installed_instrument16"
+        "installed_instrument16",
+        "installed_final73"
       ],
-      "remaining_kinds": [
-        "installed_product_profile"
-      ],
-      "reconciliation_note": "Actual Runtime writer→registered CLI→fresh native reader and complete-list refusals are qualified. Remove stale unattributed historical schema failure: exact historic de473 replay plus intentional ArtifactID nested-schema delta is now explicitly tested by fd6ade7b9. Actual installedE remains."
+      "remaining_kinds": [],
+      "reconciliation_note": "Existing native/compatibility support plus actual73-case noneditable profile qualifies the named local release window. External/computed/plugin usages beyond the pinned support census are not claimed absent; no shim retirement/G acceptance."
     },
     {
       "packet_id": "MIG-04",
@@ -3933,7 +3923,7 @@
       "track_id": "06-D",
       "track_position": 5,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_canonical",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
@@ -3961,9 +3951,7 @@
           "scope": "Real Runtime lifecycle→registered CLI→fresh reader; persisted ManifestRegistry, selected edges and historical protocol4 bounded native layout. Shared installed profile not run."
         }
       ],
-      "blockers": [
-        "installed_product_profile"
-      ],
+      "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "Released; frozen four-path author delta",
@@ -3974,8 +3962,8 @@
         {
           "requirement_id": "REQ-MIG-04-01",
           "test_id": "TEST-MIG-04-01",
-          "status": "PARTIAL",
-          "basis": "Actual Fabric registration, neutral engine, persisted conversion→DatasetManifest/Registry admission and old/new import order are qualified. Remove stale unattributed schema failure; keep explicit per-call selected_edges and finite supported caller window. InstalledE remains.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual Fabric registration, neutral engine, persisted conversion→DatasetManifest/Registry admission and old/new import order are qualified. Remove stale unattributed schema failure; keep explicit per-call selected_edges and finite supported caller window. InstalledE remains. Actual noneditable wheel profile passes73 cases from32 selectors,36 completed origin records and12 real resource targets; no source injection or G closure.",
           "criterion_pointer": "04_Трассировка/MIG-04.json#/requirements/0",
           "test_ids": [
             "TEST-MIG-04-01"
@@ -3983,21 +3971,20 @@
           "binding_ids": [
             "E02-I06-E-B04"
           ],
-          "assessment": "source_qualified_installed_support_pending",
+          "assessment": "native_and_installed_named_profile_qualified",
           "evidence_refs": [
             "migration69",
             "migration_callbacks55",
-            "installed_instrument16"
+            "installed_instrument16",
+            "installed_final73"
           ],
-          "remaining_kinds": [
-            "installed_product_profile"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-MIG-04-02",
           "test_id": "TEST-MIG-04-02",
-          "status": "PARTIAL",
-          "basis": "Actual Fabric registration, neutral engine, persisted conversion→DatasetManifest/Registry admission and old/new import order are qualified. Remove stale unattributed schema failure; keep explicit per-call selected_edges and finite supported caller window. InstalledE remains.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual Fabric registration, neutral engine, persisted conversion→DatasetManifest/Registry admission and old/new import order are qualified. Remove stale unattributed schema failure; keep explicit per-call selected_edges and finite supported caller window. InstalledE remains. Actual noneditable wheel profile passes73 cases from32 selectors,36 completed origin records and12 real resource targets; no source injection or G closure.",
           "criterion_pointer": "04_Трассировка/MIG-04.json#/requirements/1",
           "test_ids": [
             "TEST-MIG-04-02"
@@ -4005,21 +3992,20 @@
           "binding_ids": [
             "E02-I06-E-B04"
           ],
-          "assessment": "source_qualified_installed_support_pending",
+          "assessment": "native_and_installed_named_profile_qualified",
           "evidence_refs": [
             "migration69",
             "migration_callbacks55",
-            "installed_instrument16"
+            "installed_instrument16",
+            "installed_final73"
           ],
-          "remaining_kinds": [
-            "installed_product_profile"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-MIG-04-03",
           "test_id": "TEST-MIG-04-03",
-          "status": "PARTIAL",
-          "basis": "Native helper/callback/import/registration controls plus the current four-binding/helper and explicit adapter/configuration/support records cover the supplied release composition. Historical/foreign inputs are named rather than assumed absent. Actual shared noneditable installed consumer qualification remains pending.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Native helper/callback/import/registration controls plus the current four-binding/helper and explicit adapter/configuration/support records cover the supplied release composition. Historical/foreign inputs are named rather than assumed absent. Actual noneditable wheel profile passes73 cases from32 selectors,36 completed origin records and12 real resource targets; no source injection or G closure.",
           "criterion_pointer": "04_Трассировка/MIG-04.json#/requirements/2",
           "test_ids": [
             "TEST-MIG-04-03"
@@ -4027,27 +4013,25 @@
           "binding_ids": [
             "E02-I06-E-B04"
           ],
-          "assessment": "finite_source_support_recorded_installed_pending",
+          "assessment": "native_and_installed_named_profile_qualified",
           "evidence_refs": [
             "migration69",
             "migration_callbacks55",
-            "finite_release_support_record"
+            "finite_release_support_record",
+            "installed_final73"
           ],
-          "remaining_kinds": [
-            "installed_product_profile"
-          ]
+          "remaining_kinds": []
         }
       ],
-      "current_assessment": "finite_source_support_recorded_installed_pending",
+      "current_assessment": "native_and_installed_named_profile_qualified",
       "evidence_refs": [
         "migration69",
         "migration_callbacks55",
-        "installed_instrument16"
+        "installed_instrument16",
+        "installed_final73"
       ],
-      "remaining_kinds": [
-        "installed_product_profile"
-      ],
-      "reconciliation_note": "Actual Fabric registration, neutral engine, persisted conversion→DatasetManifest/Registry admission and old/new import order are qualified. Remove stale unattributed schema failure; keep explicit per-call selected_edges and finite supported caller window. InstalledE remains."
+      "remaining_kinds": [],
+      "reconciliation_note": "Existing native/compatibility support plus actual73-case noneditable profile qualifies the named local release window. External/computed/plugin usages beyond the pinned support census are not claimed absent; no shim retirement/G acceptance."
     },
     {
       "packet_id": "DFK-02",
@@ -7799,7 +7783,7 @@
     },
     {
       "scenario_id": "E02-I06-A",
-      "status": "PARTIAL",
+      "status": "QUALIFIED_NAMED_PROFILE",
       "commit": null,
       "profile": "Evidence-specific local source/input/backend bindings; actual composed/installed/Linux boundaries remain separate.",
       "evidence": [],
@@ -8151,7 +8135,7 @@
     },
     {
       "scenario_id": "E02-I06-D",
-      "status": "PARTIAL",
+      "status": "QUALIFIED_NAMED_PROFILE",
       "commit": null,
       "profile": "Evidence-specific local source/input/backend bindings; actual composed/installed/Linux boundaries remain separate.",
       "evidence": [],
@@ -8226,7 +8210,7 @@
     },
     {
       "scenario_id": "E02-I06-E",
-      "status": "PARTIAL",
+      "status": "QUALIFIED_NAMED_PROFILE",
       "commit": null,
       "profile": "Evidence-specific local source/input/backend bindings; actual composed/installed/Linux boundaries remain separate.",
       "evidence": [],
@@ -8248,17 +8232,16 @@
           ],
           "edge_occurrences": 3,
           "req_test_pairs": 3,
-          "assessment": "native_demonstrated_installed_pending",
-          "remaining_kinds": [
-            "installed_product_profile"
-          ],
+          "assessment": "actual_native_and_installed_origins_qualified",
+          "remaining_kinds": [],
           "evidence": [
             "canon216",
             "canon_native3",
             "tensor33",
-            "tensor_capture3"
+            "tensor_capture3",
+            "installed_final73"
           ],
-          "basis": "Exact writer/profile→selected manifest→fresh reader and bounded native.3 controls exist; actual noneditable installed profile not run."
+          "basis": "Native semantic/compatibility controls plus one actual73-case installed artifact/origin wave,36 completed process records and exact12-resource/7-reader set. No double-counted independent evidence or G acceptance."
         },
         {
           "binding_id": "E02-I06-E-B02",
@@ -8270,16 +8253,15 @@
           ],
           "edge_occurrences": 3,
           "req_test_pairs": 3,
-          "assessment": "native_demonstrated_installed_support_pending",
-          "remaining_kinds": [
-            "installed_product_profile"
-          ],
+          "assessment": "actual_native_and_installed_origins_qualified",
+          "remaining_kinds": [],
           "evidence": [
             "migration_atomic74",
             "migration69",
-            "finite_release_support_record"
+            "finite_release_support_record",
+            "installed_final73"
           ],
-          "basis": "Registered CLI→real Trinity validator→common atomic writer→native loader; validated unchanged is not semantic authority."
+          "basis": "Native semantic/compatibility controls plus one actual73-case installed artifact/origin wave,36 completed process records and exact12-resource/7-reader set. No double-counted independent evidence or G acceptance."
         },
         {
           "binding_id": "E02-I06-E-B03",
@@ -8291,14 +8273,13 @@
           ],
           "edge_occurrences": 3,
           "req_test_pairs": 3,
-          "assessment": "native_demonstrated_installed_pending",
-          "remaining_kinds": [
-            "installed_product_profile"
-          ],
+          "assessment": "actual_native_and_installed_origins_qualified",
+          "remaining_kinds": [],
           "evidence": [
-            "migration69"
+            "migration69",
+            "installed_final73"
           ],
-          "basis": "Actual Runtime writer→registered converter→fresh real resolver; roots/list preflight/historical schema attribution resolved, installed remains."
+          "basis": "Native semantic/compatibility controls plus one actual73-case installed artifact/origin wave,36 completed process records and exact12-resource/7-reader set. No double-counted independent evidence or G acceptance."
         },
         {
           "binding_id": "E02-I06-E-B04",
@@ -8310,15 +8291,14 @@
           ],
           "edge_occurrences": 3,
           "req_test_pairs": 3,
-          "assessment": "native_demonstrated_installed_support_pending",
-          "remaining_kinds": [
-            "installed_product_profile"
-          ],
+          "assessment": "actual_native_and_installed_origins_qualified",
+          "remaining_kinds": [],
           "evidence": [
             "migration69",
-            "finite_release_support_record"
+            "finite_release_support_record",
+            "installed_final73"
           ],
-          "basis": "Actual per-call Fabric converter→neutral Common→persisted DatasetManifest→real Registry; format conversion/admission remain distinct."
+          "basis": "Native semantic/compatibility controls plus one actual73-case installed artifact/origin wave,36 completed process records and exact12-resource/7-reader set. No double-counted independent evidence or G acceptance."
         },
         {
           "binding_id": "E02-I06-E-B05",
@@ -8331,16 +8311,15 @@
           ],
           "edge_occurrences": 4,
           "req_test_pairs": 4,
-          "assessment": "native_demonstrated_installed_support_pending",
-          "remaining_kinds": [
-            "installed_product_profile"
-          ],
+          "assessment": "actual_native_and_installed_origins_qualified",
+          "remaining_kinds": [],
           "evidence": [
             "migration_callbacks55",
             "migration69",
-            "finite_release_support_record"
+            "finite_release_support_record",
+            "installed_final73"
           ],
-          "basis": "Actual callback registration→shared runner→typed consumers/import order exists; finite support declaration and product installed composition remain."
+          "basis": "Native semantic/compatibility controls plus one actual73-case installed artifact/origin wave,36 completed process records and exact12-resource/7-reader set. No double-counted independent evidence or G acceptance."
         }
       ]
     },

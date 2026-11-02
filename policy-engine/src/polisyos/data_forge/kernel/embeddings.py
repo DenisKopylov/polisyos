@@ -1148,7 +1148,14 @@ def hnsw_index_matches_vectors(index: object, matrix: np.ndarray) -> bool:
 
 def _load_selected_embedding_index(generation: EmbeddingGenerationRef) -> tuple[Any, list[str]]:
     """Load a selected cosine index only if every native vector binds its matrix."""
-    if not generation.selected or generation.status != "complete" or generation.index_path is None:
+    if not generation.selected:
+        raise _EmbeddingIndexAdmissionError("selected_generation_unavailable")
+    return _load_generation_embedding_index(generation)
+
+
+def _load_generation_embedding_index(generation: EmbeddingGenerationRef) -> tuple[Any, list[str]]:
+    """Admit the matrix/index pair of a validated staged or selected reference."""
+    if generation.status != "complete" or generation.index_path is None:
         raise _EmbeddingIndexAdmissionError("selected_generation_unavailable")
     try:
         with np.load(str(generation.embeddings_path), allow_pickle=True) as data:
@@ -1363,21 +1370,29 @@ def _build_selected_reference(
         ids=ids,
         dimension=dimension,
         inventory=dict(inventory),
-        selected=True,
+        selected=not allow_staging,
     )
 
 
 def _validate_generation_directory(
     *, generation_dir: Path, inventory: Mapping[str, object], expected_generation_id: str
 ) -> None:
-    _build_selected_reference(
+    inventory_path = generation_dir / "inventory.json"
+    persisted_inventory = _read_json_object(inventory_path)
+    if _canonical_json(persisted_inventory) != _canonical_json(inventory):
+        raise ValueError("persisted embedding inventory differs from staged build")
+    generation = _build_selected_reference(
         selector_path=generation_dir.parent.parent / GENERATION_SELECTOR_FILENAME,
-        inventory_path=generation_dir / "inventory.json",
-        inventory=inventory,
+        inventory_path=inventory_path,
+        inventory=persisted_inventory,
         generation_id=expected_generation_id,
-        status=cast("Literal['complete', 'empty_generation']", inventory["status"]),
+        status=cast("Literal['complete', 'empty_generation']", persisted_inventory["status"]),
         allow_staging=True,
     )
+    if generation.status == "complete":
+        # Reuse the read-side property before either the immutable directory or
+        # selector is committed. Staging never impersonates selected authority.
+        _load_generation_embedding_index(generation)
 
 
 def _validate_basis(basis: Mapping[str, object], ids: tuple[str, ...]) -> None:

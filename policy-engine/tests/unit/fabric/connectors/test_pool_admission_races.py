@@ -66,6 +66,311 @@ class _GatedFDConnector:
 
 
 @pytest.mark.asyncio
+async def test_caller_cancellation_keeps_active_physical_cleanup_shielded(tmp_path: Path) -> None:
+    """Caller cancellation settles only after the owned descriptor is physically closed."""
+    resource = tmp_path / "cancelled-release-resource"
+    contents = b"active-cleanup-owned-resource"
+    resource.write_bytes(contents)
+    connector = _GatedFDConnector()
+    connector.allow_connect.set()
+    pool = ConnectionPool(
+        lambda: connector,
+        ConnectionConfig(url=str(resource)),
+        PoolConfig(max_size=1, max_connection_uses=1),
+    )
+    pool._semaphore = asyncio.BoundedSemaphore(1)
+    handle = await pool.acquire()
+    release = asyncio.create_task(pool.release(handle))
+    try:
+        await _wait_for_event(connector.disconnect_started)
+        owner = next(iter(pool._pending_cleanup.values()))
+        cleanup = owner.cleanup_task
+        assert cleanup is not None and not cleanup.done()
+        for _ in range(2):
+            release.cancel()
+            await asyncio.sleep(0)
+            assert not release.done() and not cleanup.done()
+            assert not cleanup.cancelling()
+            assert connector.fd is not None
+            assert os.pread(connector.fd, len(contents), 0) == contents
+            assert pool._semaphore._value == 0 and owner.pending_permit
+        connector.allow_disconnect.set()
+        with pytest.raises(asyncio.CancelledError):
+            await asyncio.wait_for(release, _WAIT_SECONDS)
+        assert connector.disconnects == 1 and connector.fd_closed.is_set()
+        assert connector.fd is not None
+        with pytest.raises(OSError) as caught:
+            os.fstat(connector.fd)
+        assert caught.value.errno == errno.EBADF
+        assert not pool._pending_cleanup and pool._semaphore._value == 1
+    finally:
+        connector.allow_disconnect.set()
+        await asyncio.wait_for(asyncio.gather(release, return_exceptions=True), _WAIT_SECONDS)
+        await asyncio.wait_for(pool.close_all(), _WAIT_SECONDS)
+
+
+@pytest.mark.asyncio
+async def test_cancelled_mismatched_acquire_settles_closed_owner_before_replacement(
+    tmp_path: Path,
+) -> None:
+    """Acquire failure cannot retain a closed owner or lose its physical reservation."""
+
+    class MismatchedConnector(_GatedFDConnector):
+        mismatch = True
+
+        async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+            handle = await super().connect(config)
+            if self.mismatch:
+                object.__setattr__(handle, "connector_id", "foreign-owner")
+            return handle
+
+    resource = tmp_path / "mismatched-acquire-resource"
+    resource.write_bytes(b"mismatched-owner")
+    connector = MismatchedConnector()
+    connector.allow_connect.set()
+    pool = ConnectionPool(
+        lambda: connector, ConnectionConfig(url=str(resource)), PoolConfig(max_size=1)
+    )
+    pool._semaphore = asyncio.BoundedSemaphore(1)
+    acquire = asyncio.create_task(pool.acquire())
+    try:
+        await _wait_for_event(connector.disconnect_started)
+        assert connector.fd is not None
+        old_fd = connector.fd
+        acquire.cancel()
+        await asyncio.sleep(0)
+        assert os.pread(old_fd, 16, 0) == b"mismatched-owner"
+        assert pool._semaphore._value == 0
+        connector.allow_disconnect.set()
+        with pytest.raises(asyncio.CancelledError):
+            await asyncio.wait_for(acquire, _WAIT_SECONDS)
+        with pytest.raises(OSError) as caught:
+            os.fstat(old_fd)
+        assert caught.value.errno == errno.EBADF
+        assert pool._pending_cleanup == {} and pool._handle_owners == {}
+        assert pool._semaphore._value == 1 and pool._active_acquires == 0
+        connector.mismatch = False
+        replacement = await pool.acquire()
+        assert replacement.connector_id == connector.connector_id
+        await pool.release(replacement)
+        await pool.close_all()
+        assert pool._semaphore._value == 1 and connector.disconnects == 2
+    finally:
+        connector.allow_disconnect.set()
+        await asyncio.wait_for(asyncio.gather(acquire, return_exceptions=True), _WAIT_SECONDS)
+        await asyncio.wait_for(pool.close_all(), _WAIT_SECONDS)
+
+
+@pytest.mark.asyncio
+async def test_release_preserves_claimed_permit_when_post_close_logging_fails(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A post-claim diagnostic failure preserves the original error and returns capacity."""
+    from polisyos.fabric.connectors import pool as pool_module
+
+    resource = tmp_path / "post-claim-log-resource"
+    resource.write_bytes(b"post-claim-log")
+    connector = _GatedFDConnector()
+    connector.allow_connect.set()
+    connector.allow_disconnect.set()
+    pool = ConnectionPool(
+        lambda: connector,
+        ConnectionConfig(url=str(resource)),
+        PoolConfig(max_size=1),
+    )
+    pool._semaphore = asyncio.BoundedSemaphore(1)
+    handle = await pool.acquire()
+    assert connector.fd is not None
+    fd = connector.fd
+    object.__setattr__(handle, "connector_id", "changed-owner")
+    primary = RuntimeError("controlled post-claim logger failure")
+
+    def fail_warning(*args: object, **kwargs: object) -> None:
+        del args, kwargs
+        raise primary
+
+    monkeypatch.setattr(pool_module.logger, "warning", fail_warning)
+    try:
+        with pytest.raises(RuntimeError, match="controlled post-claim logger failure") as caught:
+            await pool.release(handle)
+        assert caught.value is primary
+        with pytest.raises(OSError) as closed:
+            os.fstat(fd)
+        assert closed.value.errno == errno.EBADF
+        assert pool._semaphore._value == 1 and pool._pending_cleanup == {}
+        assert connector.disconnects == 1
+    finally:
+        await pool.close_all()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("gate_after_cleanup", [False, True], ids=["settlement", "permit-claim"])
+async def test_cancelled_close_retains_atomic_physical_owner_and_permit_settlement(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    gate_after_cleanup: bool,
+) -> None:
+    """Cancellation at either retirement boundary leaves a settled or retryable owner."""
+    resource = tmp_path / "close-settlement-resource"
+    resource.write_bytes(b"close-settlement")
+    connector = _GatedFDConnector()
+    connector.allow_connect.set()
+    connector.allow_disconnect.set()
+    pool = ConnectionPool(
+        lambda: connector, ConnectionConfig(url=str(resource)), PoolConfig(max_size=1)
+    )
+    pool._semaphore = asyncio.BoundedSemaphore(1)
+    await pool.acquire()
+    assert connector.fd is not None
+    fd = connector.fd
+    gated = asyncio.Event()
+    original_cleanup = pool._cleanup_pooled
+    original_close = pool._close_connection
+
+    async def cleanup_then_hold(pooled):
+        cleaned = await original_cleanup(pooled)
+        await pool._lock.acquire()
+        gated.set()
+        return cleaned
+
+    async def close_then_hold(pooled):
+        cleaned = await original_close(pooled)
+        await pool._lock.acquire()
+        gated.set()
+        return cleaned
+
+    monkeypatch.setattr(
+        pool,
+        "_cleanup_pooled" if gate_after_cleanup else "_close_connection",
+        cleanup_then_hold if gate_after_cleanup else close_then_hold,
+    )
+    close = asyncio.create_task(pool.close_all())
+    try:
+        await _wait_for_event(gated)
+        await _wait_for_condition(lambda: bool(pool._lock._waiters))
+        close.cancel()
+        await asyncio.sleep(0)
+        pool._lock.release()
+        with pytest.raises(asyncio.CancelledError):
+            await asyncio.wait_for(close, _WAIT_SECONDS)
+        with pytest.raises(OSError) as caught:
+            os.fstat(fd)
+        assert caught.value.errno == errno.EBADF
+        if pool._semaphore._value == 0:
+            assert len(pool._pending_cleanup) == 1
+            owner = next(iter(pool._pending_cleanup.values()))
+            assert owner.closed and owner.pending_permit and owner.handle is connector.handle
+        monkeypatch.setattr(pool, "_cleanup_pooled", original_cleanup)
+        monkeypatch.setattr(pool, "_close_connection", original_close)
+        await asyncio.wait_for(pool.close_all(), _WAIT_SECONDS)
+        assert pool._pending_cleanup == {} and pool._handle_owners == {}
+        assert pool._semaphore._value == 1 and connector.disconnects == 1
+        await pool.close_all()
+        assert pool._semaphore._value == 1 and connector.disconnects == 1
+    finally:
+        monkeypatch.setattr(pool, "_cleanup_pooled", original_cleanup)
+        monkeypatch.setattr(pool, "_close_connection", original_close)
+        if pool._lock.locked():
+            pool._lock.release()
+        await asyncio.wait_for(asyncio.gather(close, return_exceptions=True), _WAIT_SECONDS)
+        await asyncio.wait_for(pool.close_all(), _WAIT_SECONDS)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("retire", [False, True], ids=["idle-publication", "physical-retirement"])
+async def test_cancelled_release_finalizer_returns_published_permit_exactly_once(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    retire: bool,
+) -> None:
+    """A claimed or published permit cannot disappear while the finalizer waits for metadata."""
+    resource = tmp_path / "release-finalizer-resource"
+    resource.write_bytes(b"release-finalizer")
+    connector = _GatedFDConnector()
+    connector.allow_connect.set()
+    connector.allow_disconnect.set()
+    pool = ConnectionPool(
+        lambda: connector,
+        ConnectionConfig(url=str(resource)),
+        PoolConfig(
+            max_size=1, max_connection_uses=1 if retire else 1000, validate_on_release=not retire
+        ),
+    )
+    pool._semaphore = asyncio.BoundedSemaphore(1)
+    handle = await pool.acquire()
+    assert connector.fd is not None
+    fd = connector.fd
+    holder_release = asyncio.Event()
+    holder_started = asyncio.Event()
+    validation_started = asyncio.Event()
+    validation_release = asyncio.Event()
+    original_claim = pool._claim_permit
+
+    async def claim_then_hold(pooled, owned):
+        claimed = await original_claim(pooled, owned)
+        await pool._lock.acquire()
+        holder_started.set()
+        return claimed
+
+    async def gated_validation(_handle: ConnectionHandle) -> HealthStatus:
+        validation_started.set()
+        await validation_release.wait()
+        return HealthStatus(healthy=True)
+
+    async def hold_after_publication() -> None:
+        async with pool._lock:
+            holder_started.set()
+            await holder_release.wait()
+
+    holder: asyncio.Task[None] | None = None
+    if retire:
+        monkeypatch.setattr(pool, "_claim_permit", claim_then_hold)
+    else:
+        connector.health_check = gated_validation
+        owner = next(iter(pool._in_use.values()))
+        owner.last_health_check = None
+    release = asyncio.create_task(pool.release(handle))
+    try:
+        if not retire:
+            await _wait_for_event(validation_started)
+            await pool._lock.acquire()
+            validation_release.set()
+            await _wait_for_condition(lambda: bool(pool._lock._waiters))
+            holder = asyncio.create_task(hold_after_publication())
+            await _wait_for_condition(lambda: len(pool._lock._waiters or ()) == 2)
+            pool._lock.release()
+        await _wait_for_event(holder_started)
+        await _wait_for_condition(lambda: bool(pool._lock._waiters))
+        release.cancel()
+        await asyncio.sleep(0)
+        if retire:
+            pool._lock.release()
+        else:
+            holder_release.set()
+            assert holder is not None
+            await holder
+        with pytest.raises(asyncio.CancelledError):
+            await asyncio.wait_for(release, _WAIT_SECONDS)
+        assert pool._semaphore._value == 1 and pool._pending_cleanup == {}
+        await pool.close_all()
+        with pytest.raises(OSError) as caught:
+            os.fstat(fd)
+        assert caught.value.errno == errno.EBADF
+        assert connector.disconnects == 1 and pool._semaphore._value == 1
+    finally:
+        monkeypatch.setattr(pool, "_claim_permit", original_claim)
+        validation_release.set()
+        holder_release.set()
+        if retire and pool._lock.locked():
+            pool._lock.release()
+        if holder is not None:
+            await asyncio.wait_for(holder, _WAIT_SECONDS)
+        await asyncio.wait_for(asyncio.gather(release, return_exceptions=True), _WAIT_SECONDS)
+        await asyncio.wait_for(pool.close_all(), _WAIT_SECONDS)
+
+
+@pytest.mark.asyncio
 async def test_close_all_during_connect_waits_for_physical_fd_retirement(tmp_path: Path) -> None:
     """Close racing with connect rejects publication and retains capacity through FD close."""
     resource = tmp_path / "owned-pool-resource"

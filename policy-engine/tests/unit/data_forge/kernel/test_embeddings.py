@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sys
 import types
 from pathlib import Path
@@ -189,6 +190,9 @@ def test_domain_profiles_use_shared_real_hnsw_path(
         def save_index(self, path: str) -> None:
             self._index.save_index(path)
 
+        def __getattr__(self, name: str) -> object:
+            return getattr(self._index, name)
+
     monkeypatch.setattr(hnswlib, "Index", _RecordingIndex)
 
     from polisyos.data_forge.kernel import embeddings as kernel_embeddings
@@ -268,13 +272,14 @@ def test_domain_profiles_use_shared_real_hnsw_path(
 
     assert (academic_dir / "ac_work_index.hnsw").exists()
     assert (catalog_dir / "ds_dataset_index.hnsw").exists()
-    assert len(index_records) == 2
-    assert all(record["space"] == "cosine" for record in index_records)
+    build_records = [record for record in index_records if record["init"] is not None]
+    assert len(build_records) == 2
+    assert all(record["space"] == "cosine" for record in build_records)
     assert all(
         record["init"] == {"max_elements": 2, "ef_construction": 200, "M": 16}
-        for record in index_records
+        for record in build_records
     )
-    assert all(np.array_equal(record["labels"], np.arange(2)) for record in index_records)
+    assert all(np.array_equal(record["labels"], np.arange(2)) for record in build_records)
 
 
 def test_equal_prepared_texts_produce_equal_vectors_and_preserve_ids(
@@ -542,3 +547,306 @@ def test_selector_failure_leaves_old_generation_and_flat_pair_selected(
 
     assert owner.resolve_embedding_generation(index_dir) == before
     assert [path.read_bytes() for path in flat_paths] == flat_bytes
+
+
+@pytest.mark.parametrize("domain", ["academic", "catalog"])
+def test_native_domain_index_preserves_query_dependent_cosine_ranks(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, domain: str
+) -> None:
+    """Three non-tied vectors distinguish labels and query-independent output."""
+    import hnswlib
+
+    from polisyos.data_forge.kernel import embeddings as owner
+
+    # The encoder is a wiring double. DuckDB, float32 storage and HNSW are real;
+    # these finite topology expectations make no model-quality/ANN-recall claim.
+    vectors_by_title = {
+        "x": [1.0, 0.0, 0.0, 0.0],
+        "y": [0.0, 1.0, 0.0, 0.0],
+        "z": [0.6, 0.8, 0.0, 0.0],
+    }
+
+    class _TopologyEncoder(_FakeSentenceTransformer):
+        def encode(self, texts: list[str], **kwargs: object) -> np.ndarray:
+            assert kwargs["normalize_embeddings"] is True
+            return np.asarray([vectors_by_title[text[0]] for text in texts], dtype=np.float64)
+
+    monkeypatch.setitem(
+        sys.modules,
+        "sentence_transformers",
+        types.SimpleNamespace(SentenceTransformer=_TopologyEncoder),
+    )
+    db_path = tmp_path / "topology.duckdb"
+    _prepare_empty_embedding_db(db_path)
+    with duckdb.connect(str(db_path)) as con:
+        # SQL insertion order deliberately differs from canonical label order.
+        for identifier in ("z", "x", "y"):
+            con.execute("INSERT INTO ac_works VALUES (?, ?, ?)", (identifier, identifier, "a"))
+            con.execute(
+                "INSERT INTO ds_datasets VALUES (?, ?, ?, ?, ?)",
+                (identifier, identifier, "a", [], []),
+            )
+        con.execute("CHECKPOINT")
+    index_dir = tmp_path / domain
+    build = build_academic_hnsw_index if domain == "academic" else build_catalog_hnsw_index
+    result = build(
+        db_path=db_path,
+        index_dir=index_dir,
+        embedding_dimension=99,
+        embedding_batch_size=2,
+        embedding_device="cpu",
+    )
+    assert result == ((3, 4) if domain == "academic" else 3)
+    generation = owner.resolve_embedding_generation(index_dir)
+    assert generation is not None and generation.selected and generation.index_path is not None
+    assert generation.ids == ("x", "y", "z")
+    assert generation.dimension == 4
+    with np.load(generation.embeddings_path, allow_pickle=True) as payload:
+        assert payload["ids"].tolist() == ["x", "y", "z"]
+        assert payload["vectors"].dtype == np.float32
+        np.testing.assert_allclose(payload["vectors"], list(vectors_by_title.values()))
+    fresh = hnswlib.Index(space="cosine", dim=4)
+    fresh.load_index(str(generation.index_path))
+    fresh.set_num_threads(1)
+    fresh.set_ef(100)
+    assert fresh.M == 16
+    assert fresh.ef_construction == 200
+    assert set(fresh.get_ids_list()) == {0, 1, 2}
+    queries = np.asarray([vectors_by_title["x"], vectors_by_title["y"]], dtype=np.float32)
+    labels, distances = fresh.knn_query(queries, k=2)
+    # Independent exact cosine values: x·(x,z,y)=(1,.6,0),
+    # y·(y,z,x)=(1,.8,0); k=2 < N=3 and neither query has a tie.
+    assert labels.tolist() == [[0, 2], [1, 2]]
+    np.testing.assert_allclose(distances, [[0.0, 0.4], [0.0, 0.2]], atol=1e-6)
+
+
+@pytest.mark.parametrize("domain", ["academic", "catalog"])
+@pytest.mark.parametrize(
+    "fault",
+    [
+        "vector",
+        "labels",
+        "float64",
+        "nonfinite",
+        "unreadable",
+        "inventory_fields",
+        "inventory_json",
+    ],
+)
+def test_semantic_staging_fault_preserves_useful_selected_generation(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, domain: str, fault: str
+) -> None:
+    """Coherent inventory hashes cannot select an unreadable native generation."""
+    import hnswlib
+
+    from polisyos.data_forge.kernel import embeddings as owner
+
+    _install_fake_sentence_transformer(monkeypatch)
+    db_path = tmp_path / "db.duckdb"
+    _prepare_embedding_db(db_path)
+    index_dir = tmp_path / domain
+    build = build_academic_hnsw_index if domain == "academic" else build_catalog_hnsw_index
+    kwargs = {
+        "db_path": db_path,
+        "index_dir": index_dir,
+        "embedding_model": "fixture-model",
+        "embedding_dimension": 4,
+        "embedding_device": "cpu",
+    }
+    build(**kwargs)
+    before = owner.resolve_embedding_generation(index_dir)
+    assert before is not None and before.selected
+    selector_bytes = (index_dir / owner.GENERATION_SELECTOR_FILENAME).read_bytes()
+    with np.load(before.embeddings_path, allow_pickle=True) as payload:
+        query = payload["vectors"][0].copy()
+    original_stage = owner._build_embedding_index_with_encoder
+
+    def corrupt_stage(**stage_kwargs: object) -> tuple[int, int]:
+        result = original_stage(**stage_kwargs)
+        matrix_path = Path(stage_kwargs["embeddings_path"])
+        index_path = Path(stage_kwargs["index_path"])
+        with np.load(matrix_path, allow_pickle=True) as payload:
+            ids = payload["ids"].copy()
+            vectors = payload["vectors"].copy()
+        if fault in {"float64", "nonfinite"}:
+            if fault == "float64":
+                vectors = vectors.astype(np.float64)
+            else:
+                vectors[0, 0] = np.nan
+            np.savez(matrix_path, ids=ids, vectors=vectors)
+        elif fault == "unreadable":
+            index_path.write_bytes(b"not an HNSW index")
+        else:
+            if fault == "vector":
+                vectors[0] = np.asarray([1.0, 0.0, 0.0, 0.0], dtype=np.float32)
+            labels = np.arange(len(ids)) + (1 if fault == "labels" else 0)
+            corrupted = hnswlib.Index(space="cosine", dim=4)
+            corrupted.init_index(max_elements=len(ids), M=16, ef_construction=200)
+            corrupted.add_items(vectors, labels)
+            corrupted.save_index(str(index_path))
+        # The publisher hashes these controlled output bytes after return.
+        return result
+
+    if fault.startswith("inventory"):
+        original_write = owner.atomic_write_json
+
+        def corrupt_inventory(path: Path, payload: object) -> Path:
+            if path.name != "inventory.json":
+                return original_write(path, payload)
+            if fault == "inventory_json":
+                path.write_text("{not valid JSON", encoding="utf-8")
+                return path
+            assert isinstance(payload, dict)
+            return original_write(path, {**payload, "schema_version": "unsupported-inventory"})
+
+        monkeypatch.setattr(owner, "atomic_write_json", corrupt_inventory)
+        expected_error = ValueError
+    else:
+        monkeypatch.setattr(owner, "_build_embedding_index_with_encoder", corrupt_stage)
+        expected_error = owner._EmbeddingIndexAdmissionError
+    with pytest.raises(expected_error):
+        build(**kwargs)
+    assert (index_dir / owner.GENERATION_SELECTOR_FILENAME).read_bytes() == selector_bytes
+    assert owner.resolve_embedding_generation(index_dir) == before
+    index, ids = owner._load_selected_embedding_index(before)
+    labels, distances = index.knn_query(query.reshape(1, -1), k=1)
+    assert ids[int(labels[0, 0])] == before.ids[0]
+    assert distances[0, 0] == pytest.approx(0.0, abs=1e-6)
+
+    if domain == "academic":
+        from polisyos.data_forge.domains.academic.knowledge.store import ScholarKnowledgeStore
+
+        reader = ScholarKnowledgeStore(db_path, index_dir)
+        try:
+            reader._load_work_index()
+            assert reader._work_ids == list(before.ids)
+            assert reader._work_index is not None
+        finally:
+            reader.close()
+    else:
+        from polisyos.data_forge.domains.catalog.knowledge.store import DatasetCatalogStore
+
+        reader = DatasetCatalogStore(db_path, index_dir)
+        try:
+            assert reader.has_vector_index()
+            assert reader._dataset_ids == list(before.ids)
+        finally:
+            reader.close()
+
+
+def test_generation_sorting_preserves_legacy_order_and_id_vector_binding(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Only versioned generations canonicalize membership order."""
+    from polisyos.data_forge.kernel import embeddings as owner
+
+    _install_fake_sentence_transformer(monkeypatch)
+    rows = (("z", "first text"), ("a", "different text"))
+    build_embedding_index(
+        rows=rows,
+        embeddings_path=tmp_path / "legacy.npz",
+        index_path=tmp_path / "legacy.hnsw",
+        embedding_model="fixture",
+        embedding_device="cpu",
+    )
+    for name, permutation in (("forward", rows), ("reverse", rows[::-1])):
+        owner.build_embedding_generation(
+            rows=permutation,
+            index_dir=tmp_path / name,
+            embedding_model="fixture",
+            embedding_device="cpu",
+        )
+    with np.load(tmp_path / "legacy.npz", allow_pickle=True) as legacy:
+        assert legacy["ids"].tolist() == ["z", "a"]
+        legacy_vectors = dict(zip(legacy["ids"].tolist(), legacy["vectors"], strict=True))
+    for name in ("forward", "reverse"):
+        generation = owner.resolve_embedding_generation(tmp_path / name)
+        assert generation is not None and generation.ids == ("a", "z")
+        with np.load(generation.embeddings_path, allow_pickle=True) as payload:
+            for identifier, vector in zip(payload["ids"].tolist(), payload["vectors"], strict=True):
+                np.testing.assert_array_equal(vector, legacy_vectors[identifier])
+
+
+@pytest.mark.parametrize("invalid_ids", [("",), ("a", "a"), (1, "1")])
+def test_invalid_canonical_membership_cannot_replace_selector(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, invalid_ids: tuple[object, ...]
+) -> None:
+    from polisyos.data_forge.kernel import embeddings as owner
+
+    _install_fake_sentence_transformer(monkeypatch)
+    options = {"index_dir": tmp_path, "embedding_model": "fixture", "embedding_device": "cpu"}
+    owner.build_embedding_generation(rows=(("old", "old text"),), **options)
+    before = (tmp_path / owner.GENERATION_SELECTOR_FILENAME).read_bytes()
+    with pytest.raises(ValueError, match="embedding identifiers must be"):
+        owner.build_embedding_generation(
+            rows=tuple((identifier, "text") for identifier in invalid_ids), **options
+        )
+    assert (tmp_path / owner.GENERATION_SELECTOR_FILENAME).read_bytes() == before
+
+
+@pytest.mark.parametrize("domain", ["academic", "catalog"])
+def test_run_embed_manifest_preserves_actual_dimension_device_and_batches(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, domain: str
+) -> None:
+    from polisyos.data_forge.domains.academic.batch import embedder as academic_embedder
+    from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
+    from polisyos.data_forge.domains.catalog.batch import embedder as catalog_embedder
+    from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+    from polisyos.data_forge.kernel import embeddings as owner
+
+    class _BoundEncoder(_FakeSentenceTransformer):
+        tokenizer = types.SimpleNamespace(get_vocab=lambda: {"policy": 0})
+
+        def state_dict(self) -> dict[str, np.ndarray]:
+            return {"encoder.weight": np.asarray([1.0], dtype=np.float32)}
+
+    _BoundEncoder.instances.clear()
+    monkeypatch.setitem(
+        sys.modules,
+        "sentence_transformers",
+        types.SimpleNamespace(SentenceTransformer=_BoundEncoder),
+    )
+    if domain == "academic":
+        config = AcademicBatchConfig(
+            snapshot_root=tmp_path,
+            embedding_model="fixture-academic",
+            embedding_dimension=99,
+            embedding_batch_size=2,
+            embedding_device="supplied-device",
+        )
+        run = academic_embedder.run_embed
+        expected_device = "supplied-device"
+    else:
+        config = DatasetBatchConfig(
+            snapshot_root=tmp_path,
+            embedding_model="fixture-catalog",
+            embedding_dimension=99,
+            embedding_batch_size=2,
+            embedding_device="auto",
+        )
+        run = catalog_embedder.run_embed
+        expected_device = config.resolved_embedding_device
+    config.db_path.parent.mkdir(parents=True, exist_ok=True)
+    _prepare_embedding_db(config.db_path)
+    with duckdb.connect(str(config.db_path)) as con:
+        con.execute("INSERT INTO ac_works VALUES ('a-3', 'Third', 'material')")
+        con.execute("INSERT INTO ds_datasets VALUES ('d-3', 'Third', 'material', [], [])")
+        con.execute("CHECKPOINT")
+    pauses: list[float] = []
+    monkeypatch.setattr(owner, "pause_between_batches", pauses.append)
+    assert run(config, thermal=True) == 3
+    assert pauses == [0.5, 0.5]
+    instance = _BoundEncoder.instances[-1]
+    assert instance.device == expected_device
+    assert [call["batch_size"] for call in instance.calls] == [2, 1]
+    manifest = json.loads((config.manifests_dir / "embed.json").read_text(encoding="utf-8"))
+    assert manifest["status"] == "ok"
+    assert manifest["metrics"]["thermal"] is True
+    assert manifest["metrics"]["embedded"] == 3
+    metadata = manifest["metrics"]["embedding_generation"]
+    assert metadata["embedding_dimension"] == 4
+    assert metadata["embedding_model"] == config.embedding_model
+    inventory = json.loads(Path(metadata["inventory"]).read_text(encoding="utf-8"))
+    assert inventory["embedding_device"] == expected_device
+    assert inventory["embedding_dimension"] == 4
+    assert any(artifact["path"] == metadata["inventory"] for artifact in manifest["artifacts"])

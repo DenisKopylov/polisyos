@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import importlib
+import subprocess
+import sys
 from collections.abc import Callable
 from pathlib import Path
 from typing import Literal
@@ -193,7 +196,10 @@ def test_registry_selection_fails_closed_for_cyclic_seeds() -> None:
     )
 
 
-def test_source_registry_and_module_selection_share_profile_and_wave_policy() -> None:
+@pytest.mark.parametrize("wave", [None, "A", "B", "C", "D"])
+def test_source_registry_and_module_selection_share_profile_and_wave_policy(
+    wave: str | None,
+) -> None:
     registry = load_catalog_source_registry()
     modules = catalog_source_modules_from_registry(registry)
     batch_registry = load_source_registry(default_catalog_source_registry_path())
@@ -207,7 +213,7 @@ def test_source_registry_and_module_selection_share_profile_and_wave_policy() ->
         "observations_backfill",
     ):
         expected = tuple(
-            source.source_id for source in registry.enabled_sources(wave="C", run_profile=profile)
+            source.source_id for source in registry.enabled_sources(wave=wave, run_profile=profile)
         )
 
         assert (
@@ -215,7 +221,7 @@ def test_source_registry_and_module_selection_share_profile_and_wave_policy() ->
                 source.source_id
                 for source in select_catalog_source_modules(
                     modules,
-                    wave="C",
+                    wave=wave,
                     run_profile=profile,
                 )
             )
@@ -224,7 +230,7 @@ def test_source_registry_and_module_selection_share_profile_and_wave_policy() ->
         assert (
             tuple(
                 source.name
-                for source in batch_registry.enabled_sources(wave="C", run_profile=profile)
+                for source in batch_registry.enabled_sources(wave=wave, run_profile=profile)
             )
             == expected
         )
@@ -553,6 +559,100 @@ def test_registry_parser_preserves_omitted_connector_default(tmp_path) -> None:
     assert "source=catalog_only" in caught.value.detail
     assert "CatalogSourceRegistryEntry.connector_id" in caught.value.detail
     assert load_source_registry(registry_path).sources[0].connector_id == ""
+
+
+def test_catalog_only_entry_profile_uses_metadata_policy_without_connector(tmp_path) -> None:
+    registry_path = tmp_path / "catalog-only.yaml"
+    registry_path.write_text(
+        "version: 1\nsources:\n"
+        "  - name: catalog_only\n"
+        "    family: fixture\n"
+        "    wave: A\n"
+        "    endpoint: https://example.invalid/catalog\n",
+        encoding="utf-8",
+    )
+    registry = load_catalog_source_registry(registry_path)
+    batch = load_source_registry(registry_path)
+    entry = registry.sources[0]
+
+    for profile in ("prod_full", "catalog_refresh"):
+        assert entry.included_in_run_profile(profile) is True
+        assert batch.sources[0].included_in_run_profile(profile) is True
+        assert registry.enabled_sources(run_profile=profile) == (entry,)
+    assert entry.model_copy(update={"enabled": False}).included_in_run_profile("prod_full") is False
+    with pytest.raises(CatalogSelectionError) as unknown:
+        entry.included_in_run_profile("unknown")
+    assert unknown.value.code == "unsupported_run_profile"
+    with pytest.raises(CatalogSelectionError) as execution:
+        entry.to_module_spec()
+    assert execution.value.code == "connector_identity_missing"
+
+
+def test_source_families_use_canonical_id_views_without_discarded_constructors(
+    monkeypatch,
+) -> None:
+    from polisyos.data_forge.domains.catalog.sources import _factory
+
+    def reject_redundant_constructor(*_args, **_kwargs):
+        raise AssertionError("source family still constructs discarded policy")
+
+    monkeypatch.setattr(_factory, "source", reject_redundant_constructor)
+    expected = {
+        entry.source_id: entry.to_module_spec() for entry in load_catalog_source_registry().sources
+    }
+    actual: dict[str, CatalogSourceModuleSpec] = {}
+    for family in (
+        source_views.core,
+        source_views.open_data,
+        source_views.sdmx,
+        source_views.specialized,
+    ):
+        importlib.reload(family)
+        for name in family.__all__:
+            value = getattr(family, name)
+            if isinstance(value, CatalogSourceModuleSpec):
+                actual[value.source_id] = value
+                canonical = expected[value.source_id]
+                assert value.model_dump() == canonical.model_dump()
+                assert value.asset_keys() == canonical.asset_keys()
+                assert value.stage_contracts() == canonical.stage_contracts()
+    assert actual == expected
+    assert len(actual) == 35
+
+
+def test_contract_import_keeps_registry_lazy_until_view_access() -> None:
+    script = """
+from pathlib import Path
+from unittest.mock import patch
+
+original = Path.read_text
+reads = []
+def guarded_read(path, *args, **kwargs):
+    if path.name == "source_registry.yaml":
+        reads.append(path)
+        raise RuntimeError("explicit canonical view access")
+    return original(path, *args, **kwargs)
+
+with patch.object(Path, "read_text", guarded_read):
+    from polisyos.data_forge.domains.catalog import registry, source_modules
+    assert registry.CatalogSourceRegistryEntry
+    assert source_modules.CatalogSourceModuleSpec
+    assert reads == []
+    try:
+        source_modules.CORE_CATALOG_SOURCE_MODULES
+    except RuntimeError as error:
+        assert str(error) == "explicit canonical view access"
+    else:
+        raise AssertionError("canonical view did not read its source")
+    assert len(reads) == 1
+"""
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 @pytest.mark.parametrize(

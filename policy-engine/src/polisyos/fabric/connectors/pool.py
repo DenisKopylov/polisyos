@@ -527,6 +527,9 @@ class ConnectionPool[ConnectorT: SourceConnectorValue[Any]]:
                         raise RuntimeError(
                             "Connection cleanup is pending before a replacement can be acquired"
                         )
+                    # Keep this acquisition's reservation while retiring the
+                    # exact physical owner before creating its replacement.
+                    await self._claim_permit(pooled, True)
                     pooled = None
                     cleanup_attempted = False
                     if admission_mismatch and created_by_factory:
@@ -541,6 +544,7 @@ class ConnectionPool[ConnectorT: SourceConnectorValue[Any]]:
                             raise RuntimeError(
                                 "Connection cleanup is pending before a replacement can be acquired"
                             )
+                        await self._claim_permit(pooled, True)
                         pooled = None
                         cleanup_attempted = False
                         continue
@@ -584,6 +588,7 @@ class ConnectionPool[ConnectorT: SourceConnectorValue[Any]]:
                     cleanup_attempted = True
                     if not await self._cleanup_pooled(pooled):
                         raise RuntimeError("Connection cleanup is pending after admission changed")
+                    await self._claim_permit(pooled, True)
                     pooled = None
                     cleanup_attempted = False
                     if created_by_factory:
@@ -595,6 +600,7 @@ class ConnectionPool[ConnectorT: SourceConnectorValue[Any]]:
                 cleanup_attempted = True
                 if not await self._cleanup_pooled(pooled):
                     raise RuntimeError("Connection cleanup is pending for the closed pool")
+                await self._claim_permit(pooled, True)
                 pooled = None
                 permit_release = True
                 raise PoolClosedError(self._pool_id)
@@ -807,32 +813,50 @@ class ConnectionPool[ConnectorT: SourceConnectorValue[Any]]:
                 async with self._lock:
                     self._register_pending_cleanup(pooled, pending_permit=True)
                 if pooled.closed:
-                    permit_release = await self._claim_permit(pooled, True)
+                    permit_release = permit_release or await self._claim_permit(pooled, True)
                 elif not cleanup_attempted:
                     try:
                         cleaned = await self._cleanup_pooled(pooled)
                     except BaseException as cleanup_exc:
                         if pooled.closed:
-                            permit_release = await self._claim_permit(pooled, True)
+                            permit_release = permit_release or await self._claim_permit(
+                                pooled, True
+                            )
                         else:
                             exc.add_note(f"cleanup during release failed: {cleanup_exc!r}")
                     else:
                         if cleaned:
-                            permit_release = await self._claim_permit(pooled, True)
+                            permit_release = permit_release or await self._claim_permit(
+                                pooled, True
+                            )
             raise
         finally:
-            if release_owner is not None:
-                async with self._lock:
-                    release_owner.release_in_progress = False
-            if permit_release:
+            if release_owner is not None or permit_release:
+                retirement = asyncio.create_task(
+                    self._retire_release(release_owner, release_permit=permit_release)
+                )
+                try:
+                    await asyncio.shield(retirement)
+                except asyncio.CancelledError:
+                    await self._wait_owned_settlement(retirement)
+                    raise
+
+    async def _retire_release(
+        self, pooled: PooledConnection[ConnectorT] | None, *, release_permit: bool
+    ) -> None:
+        """Finish release bookkeeping and return its reservation without an await gap."""
+        async with self._lock:
+            if pooled is not None:
+                pooled.release_in_progress = False
+            if release_permit:
                 self._semaphore.release()
 
     async def _claim_permit(self, pooled: PooledConnection[ConnectorT], owned: bool) -> bool:
-        """Return a semaphore permit exactly once for one physical owner."""
-        if not owned:
-            return False
+        """Atomically retire a closed owner and claim its reservation exactly once."""
         async with self._lock:
-            if not pooled.pending_permit:
+            if pooled.closed:
+                self._clear_pending_cleanup(pooled)
+            if not owned or not pooled.pending_permit:
                 return False
             pooled.pending_permit = False
             return True
@@ -841,6 +865,11 @@ class ConnectionPool[ConnectorT: SourceConnectorValue[Any]]:
         self, pooled: PooledConnection[ConnectorT], *, pending_permit: bool
     ) -> None:
         """Publish a physical owner before connector cleanup or close can await."""
+        if pooled.closed and not pooled.pending_permit:
+            # A competing settlement may already have returned this owner's
+            # reservation. Never manufacture another one from a stale caller.
+            self._clear_pending_cleanup(pooled)
+            return
         if pooled.owner_key == pooled.admitted_session_id:
             collision = (
                 self._in_use.get(pooled.owner_key) not in (None, pooled)
@@ -869,7 +898,8 @@ class ConnectionPool[ConnectorT: SourceConnectorValue[Any]]:
         async with self._lock:
             self._register_pending_cleanup(pooled, pending_permit=pooled.pending_permit)
             if pooled.closed:
-                self._clear_pending_cleanup(pooled)
+                if not pooled.pending_permit:
+                    self._clear_pending_cleanup(pooled)
                 return True
             cleanup_task = pooled.cleanup_task
             if cleanup_task is None or cleanup_task.done():
@@ -883,6 +913,11 @@ class ConnectionPool[ConnectorT: SourceConnectorValue[Any]]:
                 break
             except asyncio.CancelledError:
                 cancelled = True
+                # A cancelled owned task cannot make further progress. Settle
+                # its retained owner below; only caller cancellation while the
+                # physical cleanup is still active requires another shielded wait.
+                if cleanup_task.done():
+                    break
 
         try:
             cleaned = bool(cleanup_task.result())
@@ -890,9 +925,9 @@ class ConnectionPool[ConnectorT: SourceConnectorValue[Any]]:
             cleaned = False
 
         async with self._lock:
-            if cleaned:
+            if cleaned and not pooled.pending_permit:
                 self._clear_pending_cleanup(pooled)
-            elif pooled.cleanup_task is cleanup_task:
+            elif not cleaned and pooled.cleanup_task is cleanup_task:
                 pooled.cleanup_task = None
 
         if cancelled:

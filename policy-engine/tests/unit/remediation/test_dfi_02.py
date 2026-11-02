@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
 import json
 
 from polisyos.data_forge.domains.catalog.batch import pipeline
@@ -104,6 +105,62 @@ def test_facade_override_is_scoped_to_supported_loader_binding(monkeypatch) -> N
     assert facade._bulk_country_values("ilo", ("UA",)) == ["BOUND"]
 
     assert transformers._to_iso3 is original
+
+
+def test_saved_facade_delegate_uses_current_owner_after_later_lookup(monkeypatch) -> None:
+    from polisyos.data_forge.domains.catalog.batch import core_sources_ingest as facade
+    from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+        current_core_sources_compatibility_context,
+    )
+
+    original = loaders._bulk_country_values
+    saved = facade._bulk_country_values
+    later = facade._bulk_country_values
+    assert saved is not later
+    assert saved.__wrapped__ is original
+    assert inspect.signature(saved) == inspect.signature(original)
+    monkeypatch.setattr(facade, "_bulk_country_values", saved)
+    monkeypatch.setattr(loaders, "_bulk_country_values", lambda *_args: ["CURRENT"])
+
+    assert facade._bulk_country_values("ilo", ("UA",)) == ["CURRENT"]
+    assert current_core_sources_compatibility_context() is None
+
+
+def test_saved_facade_delegate_async_restore_keeps_current_owner_and_custom_scope(
+    monkeypatch, tmp_path
+) -> None:
+    from polisyos.data_forge.domains.catalog.batch import core_sources_ingest as facade
+    from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+        current_core_sources_compatibility_context,
+    )
+
+    original = api._run_core_sources_ingest_async
+    saved = facade._run_core_sources_ingest_async
+    later = facade._run_core_sources_ingest_async
+    assert saved is not later
+    assert inspect.iscoroutinefunction(saved)
+    assert saved.__wrapped__ is original
+    config = DatasetBatchConfig(snapshot_root=tmp_path)
+
+    async def current_owner(_config):
+        return CoreSourcesIngestStats(observations=17)
+
+    monkeypatch.setattr(api, "_run_core_sources_ingest_async", current_owner)
+    with monkeypatch.context() as restored:
+        restored.setattr(facade, "_run_core_sources_ingest_async", saved)
+        assert asyncio.run(saved(config)).observations == 17
+    assert current_core_sources_compatibility_context() is None
+
+    async def custom(_config):
+        return CoreSourcesIngestStats(observations=23)
+
+    # A copied name/metadata is still a developer override, not an own delegate.
+    custom.__name__ = saved.__name__
+    with monkeypatch.context() as scoped:
+        scoped.setattr(facade, "_run_core_sources_ingest_async", custom)
+        assert asyncio.run(saved(config)).observations == 23
+    assert asyncio.run(saved(config)).observations == 17
+    assert current_core_sources_compatibility_context() is None
 
 
 def test_concurrent_facade_ingests_keep_their_captured_overrides(monkeypatch, tmp_path) -> None:

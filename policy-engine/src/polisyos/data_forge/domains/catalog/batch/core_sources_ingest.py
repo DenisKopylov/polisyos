@@ -11,6 +11,7 @@ import inspect
 from contextlib import contextmanager
 from functools import wraps
 from typing import TYPE_CHECKING, Any
+from weakref import WeakKeyDictionary
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -109,7 +110,7 @@ _LOCAL_NAMES = frozenset(
 )
 
 _MISSING = object()
-_COMPATIBILITY_DELEGATE_DEFAULTS: dict[tuple[str, str], Any] = {}
+_COMPATIBILITY_DELEGATES: WeakKeyDictionary[Any, tuple[str, str]] = WeakKeyDictionary()
 
 
 @contextmanager
@@ -123,7 +124,9 @@ def _temporary_compatibility_overrides() -> Iterator[None]:
         replacement = globals()[name]
         current = getattr(module, owner_name, _MISSING)
         binding = (module.__name__, owner_name)
-        if replacement is current or replacement is _COMPATIBILITY_DELEGATE_DEFAULTS.get(binding):
+        if replacement is current or (
+            inspect.isfunction(replacement) and _COMPATIBILITY_DELEGATES.get(replacement) == binding
+        ):
             continue
         bindings[binding] = replacement
     context = CoreSourcesCompatibilityContext(bindings)
@@ -138,7 +141,7 @@ def _compatibility_target(name: str, target: Any) -> Any:
         return target
     module, owner_name = binding
     found, scoped_target = resolve_core_sources_compatibility_binding(module.__name__, owner_name)
-    return scoped_target if found else target
+    return scoped_target if found else getattr(module, owner_name)
 
 
 def _compatibility_delegate(name: str, target: Any) -> Any:
@@ -172,7 +175,7 @@ def __getattr__(name: str) -> Any:
     target = getattr(module, owner_name)
     if name in _COMPATIBILITY_CALLS:
         delegate = _compatibility_delegate(name, target)
-        _COMPATIBILITY_DELEGATE_DEFAULTS[(module.__name__, owner_name)] = delegate
+        _COMPATIBILITY_DELEGATES[delegate] = (module.__name__, owner_name)
         return delegate
     return target
 

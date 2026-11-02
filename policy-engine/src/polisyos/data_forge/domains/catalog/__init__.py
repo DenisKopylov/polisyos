@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from .assets import (
     CATALOG_ASSET_GROUP,
     CATALOG_INDEX_KEY,
@@ -27,13 +29,6 @@ from .registry import (
     default_catalog_source_registry_path,
     load_catalog_source_registry,
 )
-from .schemas import (
-    CATALOG_BASE_SCHEMA_CONTRACTS,
-    CATALOG_BASE_SCHEMA_IDS,
-    CATALOG_SCHEMA_CONTRACTS,
-    CATALOG_SOURCE_SCHEMA_CONTRACTS,
-    build_catalog_schema_registry,
-)
 from .shadow import (
     CatalogReadinessSummary,
     CatalogShadowArtifact,
@@ -45,7 +40,6 @@ from .shadow import (
     load_catalog_shadow_bundle,
 )
 from .source_modules import (
-    CORE_CATALOG_SOURCE_MODULES,
     CatalogExecutionTier,
     CatalogHistoryPolicy,
     CatalogRunLane,
@@ -60,6 +54,41 @@ from .source_modules import (
     plan_catalog_source_stage_contracts,
     select_catalog_source_modules,
 )
+
+if TYPE_CHECKING:
+    from .schemas import (
+        CATALOG_BASE_SCHEMA_CONTRACTS as CATALOG_BASE_SCHEMA_CONTRACTS,
+    )
+    from .schemas import CATALOG_BASE_SCHEMA_IDS as CATALOG_BASE_SCHEMA_IDS
+    from .schemas import CATALOG_SCHEMA_CONTRACTS as CATALOG_SCHEMA_CONTRACTS
+    from .schemas import CATALOG_SOURCE_SCHEMA_CONTRACTS as CATALOG_SOURCE_SCHEMA_CONTRACTS
+    from .schemas import build_catalog_schema_registry as build_catalog_schema_registry
+    from .source_modules import CORE_CATALOG_SOURCE_MODULES as CORE_CATALOG_SOURCE_MODULES
+
+
+def __getattr__(name: str) -> object:
+    """Resolve YAML-derived compatibility views only when explicitly requested."""
+    if name == "CORE_CATALOG_SOURCE_MODULES":
+        from . import source_modules
+
+        return source_modules.CORE_CATALOG_SOURCE_MODULES
+    if name in {
+        "CATALOG_BASE_SCHEMA_CONTRACTS",
+        "CATALOG_BASE_SCHEMA_IDS",
+        "CATALOG_SCHEMA_CONTRACTS",
+        "CATALOG_SOURCE_SCHEMA_CONTRACTS",
+        "build_catalog_schema_registry",
+    }:
+        from . import schemas
+
+        return getattr(schemas, name)
+    raise AttributeError(name)
+
+
+def __dir__() -> list[str]:
+    """Retain the complete public catalog export inventory for introspection."""
+    return sorted(set(globals()) | set(__all__))
+
 
 __all__ = [
     "CATALOG_ASSET_GROUP",

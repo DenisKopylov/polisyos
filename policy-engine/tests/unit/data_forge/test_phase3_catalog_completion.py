@@ -253,9 +253,19 @@ def test_catalog_shadow_diff_reports_source_readiness_and_metric_changes() -> No
     assert diff.added_sources == ()
     assert diff.removed_sources == ()
     assert diff.changed_sources == ("eurostat",)
-    assert diff.readiness_changes["consumer_ready"] == (True, False)
-    assert diff.readiness_changes["full_publish_ready"] == (True, False)
-    assert diff.readiness_changes["publish_mode"] == ("full-ready", "shadow-warning")
+    # These historical bundles contain placeholder databases and declared reports,
+    # so their declarations remain inspectable without becoming current authority.
+    assert baseline.readiness_summary.declared_readiness["consumer_ready"] is True
+    assert baseline.readiness_summary.declared_readiness["full_publish_ready"] is True
+    assert candidate.readiness_summary.declared_readiness["consumer_ready"] is False
+    assert candidate.readiness_summary.declared_readiness["full_publish_ready"] is False
+    assert baseline.report_basis_state == candidate.report_basis_state == "not_established"
+    assert baseline.consumer_ready is candidate.consumer_ready is False
+    assert baseline.full_publish_ready is candidate.full_publish_ready is False
+    assert baseline.publish_mode is candidate.publish_mode is None
+    assert "consumer_ready" not in diff.readiness_changes
+    assert "full_publish_ready" not in diff.readiness_changes
+    assert "publish_mode" not in diff.readiness_changes
     assert diff.readiness_changes["source_preflight_ready"] == (True, False)
     assert diff.readiness_changes["failed_readiness_checks"] == (
         (),

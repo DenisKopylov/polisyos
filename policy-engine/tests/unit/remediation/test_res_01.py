@@ -1,7 +1,12 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
+import time
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -10,6 +15,7 @@ from polisyos.core.artifacts import (
     ArtifactRef,
     ProducerInfo,
     PutOptions,
+    artifact_ref_for_manifest,
 )
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -63,24 +69,229 @@ def test_cache_seed_deduplicates_exact_refs_and_does_not_mark_failed_load(
     )
 
     reads = 0
+    failed_manifest_attempts = 0
     original_get_bytes = store.get_bytes
+    original_get_raw_manifest_bytes = store.get_raw_manifest_bytes
 
     def counted_get_bytes(artifact_ref: ArtifactRef):
         nonlocal reads
         reads += 1
         return original_get_bytes(artifact_ref)
 
+    def counted_get_raw_manifest_bytes(artifact_ref: Any, **kwargs: Any) -> bytes:
+        nonlocal failed_manifest_attempts
+        if artifact_ref == missing_ref:
+            failed_manifest_attempts += 1
+        return original_get_raw_manifest_bytes(artifact_ref, **kwargs)
+
     monkeypatch.setattr(store, "get_bytes", counted_get_bytes)
-    restored = NodeResultCache(store, run_id=run_id).seed_from_entry_refs(
+    monkeypatch.setattr(store, "get_raw_manifest_bytes", counted_get_raw_manifest_bytes)
+    cache = NodeResultCache(store, run_id=run_id)
+    restored = cache.seed_from_entry_refs(
         [entry_ref] * 100 + [missing_ref] * 2,
     )
 
     assert restored == 1
-    assert reads == 3
+    # Current canonical admission rejects a missing manifest before payload I/O.
+    assert reads == 1
+    assert failed_manifest_attempts == 2
+    assert cache.seed_from_entry_refs([missing_ref]) == 0
+    assert failed_manifest_attempts == 3
+    assert reads == 1
 
     replay = NodeResultCache(store, run_id=run_id)
     assert replay.seed_from_entry_refs([missing_ref]) == 0
+    assert failed_manifest_attempts == 4
     assert not replay.has("a" * 64)
+
+
+def test_full_scan_recovery_reports_duplicate_and_distinct_workloads(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    record_property: Callable[[str, object], None],
+) -> None:
+    """Measure full scans through the first verified cache result, without an SLA."""
+    store = FileSystemCAS(tmp_path / "cas")
+    run_id = "R_res_01_full_scan_measurement"
+    ctx, _bundle_ref = _context(store, run_id)
+    writer = NodeResultCache(store, run_id=run_id)
+    refs: list[ArtifactRef] = []
+    keys = [f"{index + 1:064x}" for index in range(16)]
+    values = [index * index + 2 for index in range(16)]
+    try:
+        for key, value in zip(keys, values, strict=True):
+            branch = branch_state(
+                ExperimentState(run_id=run_id), write_paths=("params.measurement_value",)
+            )
+            branch.state.params["measurement_value"] = value
+            written_ref = writer.put(
+                key,
+                node_id="scientist.node_res_measurement@1.0.0",
+                outcome=NodeOutcome(status="ok", state=branch.state),
+            )
+            # Bind the actual immutable manifest selected by the owner, rather
+            # than assuming an ID-only producer handle is the eventual read ref.
+            ref = artifact_ref_for_manifest(store.get_manifest(written_ref))
+            assert ref.manifest_profile_sha256 is not None
+            refs.append(ref)
+            ctx.run.emit("res01.measurement", "NODE_CACHE_STORE", outputs=[ref])
+        source_lines = [
+            line
+            for line in ctx.run.trace_path.read_bytes().splitlines(keepends=True)
+            if json.loads(line).get("event") == "NODE_CACHE_STORE"
+        ]
+        assert len(source_lines) == len(refs) == len(set(keys)) == 16
+    finally:
+        ctx.run.suspend_for_resume()
+
+    # Setup reads are outside the timed interval. These real bytes supply the
+    # independent expected I/O denominator, not a second cache decoder.
+    payloads = {str(ref.artifact_id): store.get_bytes(ref) for ref in refs}
+    input_members = [
+        {
+            "ref": ref.model_dump(mode="json"),
+            "bytes": len(payloads[str(ref.artifact_id)]),
+            "sha256": hashlib.sha256(payloads[str(ref.artifact_id)]).hexdigest(),
+        }
+        for ref in refs
+    ]
+    original_open = Path.open
+    original_get_bytes = store.get_bytes
+    original_get_manifest = store.get_manifest
+    original_verify = store.verify
+
+    def measure_workload(name: str, copies: int) -> dict[str, Any]:
+        trace_path = tmp_path / f"{name}.jsonl"
+        trace_bytes = b"".join(source_lines) * copies
+        trace_path.write_bytes(trace_bytes)
+        checkpoint_refs = refs * copies
+        observed = {
+            "trace_open_calls": 0,
+            "trace_lines": 0,
+            "trace_bytes": 0,
+            "get_bytes_calls": 0,
+            "get_bytes_returned_bytes": 0,
+            "get_manifest_calls": 0,
+            "verify_calls": 0,
+        }
+        payload_reads: list[dict[str, Any]] = []
+
+        class MeasuredTrace:
+            def __init__(self, handle: Any) -> None:
+                self.handle = handle
+
+            def __enter__(self) -> Any:
+                self.handle.__enter__()
+                return self
+
+            def __exit__(self, *args: Any) -> Any:
+                return self.handle.__exit__(*args)
+
+            def __iter__(self) -> Any:
+                for line in self.handle:
+                    observed["trace_lines"] += 1
+                    observed["trace_bytes"] += len(line.encode("utf-8"))
+                    yield line
+
+        def measured_open(path: Path, *args: Any, **kwargs: Any) -> Any:
+            handle = original_open(path, *args, **kwargs)
+            if path == trace_path:
+                observed["trace_open_calls"] += 1
+                return MeasuredTrace(handle)
+            return handle
+
+        def measured_get_bytes(ref: ArtifactRef) -> bytes:
+            observed["get_bytes_calls"] += 1
+            payload = original_get_bytes(ref)
+            observed["get_bytes_returned_bytes"] += len(payload)
+            payload_reads.append(
+                {
+                    "ref": ref.model_dump(mode="json"),
+                    "bytes": len(payload),
+                    "sha256": hashlib.sha256(payload).hexdigest(),
+                }
+            )
+            return payload
+
+        def measured_get_manifest(ref: Any) -> Any:
+            observed["get_manifest_calls"] += 1
+            return original_get_manifest(ref)
+
+        def measured_verify(ref: Any) -> Any:
+            observed["verify_calls"] += 1
+            return original_verify(ref)
+
+        with monkeypatch.context() as measurement:
+            measurement.setattr(Path, "open", measured_open)
+            measurement.setattr(store, "get_bytes", measured_get_bytes)
+            measurement.setattr(store, "get_manifest", measured_get_manifest)
+            measurement.setattr(store, "verify", measured_verify)
+            restored = NodeResultCache(store, run_id=run_id)
+            started_ns = time.perf_counter_ns()
+            from_trace = restored.seed_from_trace(trace_path)
+            from_checkpoint = restored.seed_from_entry_refs(checkpoint_refs)
+            admission_ns = time.perf_counter_ns() - started_ns
+            admission_observed = dict(observed)
+            useful = restored.get(keys[0])
+            first_useful_ns = time.perf_counter_ns() - started_ns
+
+        assert from_trace == 16 and from_checkpoint == 0 and restored.size == 16
+        assert useful is not None and useful.state.params["measurement_value"] == values[0]
+        assert admission_observed["get_bytes_calls"] == 16
+        assert admission_observed["get_bytes_returned_bytes"] == sum(map(len, payloads.values()))
+        assert observed["get_bytes_calls"] == 17
+        assert observed["get_bytes_returned_bytes"] == (
+            sum(map(len, payloads.values())) + len(payloads[str(refs[0].artifact_id)])
+        )
+        assert payload_reads == [*input_members, input_members[0]]
+        assert observed["trace_open_calls"] == 1
+        assert observed["trace_lines"] == len(refs) * copies
+        assert observed["trace_bytes"] == len(trace_bytes)
+        assert observed["get_manifest_calls"] > 0 and observed["verify_calls"] > 0
+        assert 0 <= admission_ns <= first_useful_ns
+        # Validate the entire recovered index outside the first-result interval.
+        actual_values = []
+        for key in keys:
+            outcome = restored.get(key)
+            assert outcome is not None
+            actual_values.append(outcome.state.params["measurement_value"])
+        assert actual_values == values
+        return {
+            "workload": name,
+            "trace_path": str(trace_path),
+            "trace_sha256": hashlib.sha256(trace_bytes).hexdigest(),
+            "trace_records": len(refs) * copies,
+            "checkpoint_ref_occurrences": len(checkpoint_refs),
+            "unique_exact_refs": len(refs),
+            "admission": admission_observed,
+            "through_first_useful": observed,
+            "actual_payload_reads": payload_reads,
+            "full_scan_admission_ns": admission_ns,
+            "time_to_first_verified_cache_result_ns": first_useful_ns,
+            "accepted_values": actual_values,
+        }
+
+    rows = [measure_workload("distinct_refs", 1), measure_workload("duplicate_heavy", 100)]
+    record_property(
+        "res01_full_scan_measurement",
+        json.dumps(
+            {
+                "backend": "FileSystemCAS; current embedded-outcome cache entries",
+                "first_useful": "first verified numerical NodeResultCache.get after both full scans",
+                "inputs": input_members,
+                "workloads": rows,
+                "unresolved_by_construction": [
+                    "No fresh-process, residual-node or end-to-end resume latency claim",
+                    "Setup and final full-index validation excluded from timing",
+                    "Elapsed time includes measurement overhead; no uninstrumented comparison",
+                    "Manifest/verify counts include nested API calls, not unique physical reads",
+                    "Returned payload/trace bytes exclude manifest bytes, verify internal I/O and OS cache",
+                    "Synthetic 16-entry profile; no SLA, tail optimization or speedup claim",
+                ],
+            },
+            sort_keys=True,
+        ),
+    )
 
 
 def test_cache_seed_does_not_mix_different_content_under_same_key(

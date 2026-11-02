@@ -200,6 +200,24 @@ cancellation cannot authorize a later successful workflow publication.
 When no owner deadline is configured, shared-executor operations explicitly
 select an unbounded wait and do not inherit the helper's default timeout.
 
+Recovery retains the full trace/checkpoint scan and exact successful-reference
+memo; no tail optimization is selected. A measured 16-entry FileSystemCAS profile
+restores the same 16 numerical cache outcomes from both workloads:
+
+| Trace/checkpoint occurrences | Admission payload calls / bytes | Trace bytes | First verified cache result |
+| ---: | ---: | ---: | ---: |
+| 16 / 16 distinct refs | 16 / 31,142 | 7,312 | 40.011 ms |
+| 1,600 / 1,600 repeated refs | 16 / 31,142 | 731,200 | 52.965 ms |
+
+The first useful result is a verified `NodeResultCache.get` after both full scans;
+through that result each workload reads 17 payloads / 33,086 bytes. Each admission
+observes 80 nested `get_manifest` calls and 16 `verify` calls. Timing includes the
+instrumentation. Payload/trace byte totals exclude manifest bytes and
+verification-internal physical reads. OS-cache state was not controlled or
+separately measured; elapsed time includes the instrumented path.
+Fresh-process/residual-node latency and an SLA or speedup are not established. Reproduce with
+`tests/unit/remediation/test_res_01.py::test_full_scan_recovery_reports_duplicate_and_distinct_workloads`.
+
 `NodeResultCache` registers each provider-backed read, write, and recovery before
 it queues behind the serialized provider lane. Its live-operation registry holds
 only queued or active tokens and is cleaned in `finally`; `discard`, `clear`, and
@@ -391,8 +409,8 @@ uv run pytest tests/unit/scientist/orchestration/engine/test_resume_artifact_req
 
 ## Retained SKG Operational Source Replay
 
-The existing untimed sequential `CacheInputPreparer` owner prepares and closes
-one real DuckDB read transaction. A successful bound SELECT/WITH can retain its
+Synchronous and asynchronous executors reuse the same untimed
+`CacheInputPreparer` owner for one real DuckDB read transaction. A successful bound SELECT/WITH can retain its
 exact stable database bytes as verified FileSystemCAS chunks and a
 `scientist.skg_source_snapshot` descriptor before cache publication. The cache
 origin records the full selected descriptor ref, its schema and the original
@@ -414,18 +432,28 @@ then binds the effective database under
 materialization of the selected CAS source, not authority supplied by a caller's
 previous path. Missing run path, non-FileSystemCAS store, missing or corrupt
 descriptor/chunks and corrupt materialization refuse this explicit request;
-they never delegate to a current live database. Untimed sequential prepared
-nodes use the canonical reader over this verified source and retain the same
+they never delegate to a current live database. Supported untimed prepared
+nodes in both executors use the canonical reader over this verified source and retain the same
 selected full ref rather than reconciling its old logical URI against the new
 physical path.
 
-The existing timed custom-invocation prepared/cache bypass remains. Timed and
-asynchronous explicit replay can read the verified materialized database path;
-this does not introduce an asynchronous prepared-reader ABI or retained
-cache-proof profile. Asynchronous materialization uses the original invocation
-deadline and cancellation owner: queued work is not admitted after loss of that
-owner, while already-entered filesystem work may finish with an unknown result.
-No physical rollback or uncooperative I/O preemption is promised.
+For an untimed synchronous node run by `AsyncWorkflowExecutor`, the same
+prepared object binds the actual source into the key, producer, fresh receipt
+and cache-origin validation. A live database change changes that key even when
+declared state is unchanged; explicit selected replay keeps its selected source.
+The reader stays pinned until physical producer/validator use ends. Cancellation
+before preparation acceptance closes a late result; cancellation during physical
+use defers closure until that use ends, once. Genuine async nodes and timed
+invocations keep their explicit prepared/cache bypass, while explicit replay may
+still read the verified materialized database path. No asynchronous prepared-reader
+ABI is introduced. A live generation change after lookup can safely refuse rather
+than rebind, and an incompatible cache merge can leave an unattached candidate
+receipt in CAS.
+
+Asynchronous materialization uses the original invocation deadline and
+cancellation owner: queued work is not admitted after loss of that owner, while
+already-entered filesystem work may finish with an unknown result. No physical
+rollback or uncooperative I/O preemption is promised.
 
 This is a bounded DuckDB operational replay contract. Source issuer
 authenticity, K_ref authority, external search-index reproduction, arbitrary
@@ -441,8 +469,9 @@ uv run pytest tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay
 ## Bounded Node Timeout Workers
 
 On macOS, a timed synchronous node uses a spawned process only when its node is
-the canonical `ResolveParametersNode` and its execution context can be encoded
-by the strict filesystem-CAS, run-owner-snapshot, AccessScope, and tenant wire
+a canonical `ResolveParametersNode` or the explicitly engine-bound
+`scientist.node_run_transportability@1.0.0`, and its execution context can be
+encoded by the strict filesystem-CAS, run-owner-snapshot, AccessScope, and tenant wire
 (profile v2). The producer and child both verify the selected owner snapshot in
 CAS and recompute its persisted scope digest; the child installs the admitted
 scope for node execution. Scope absence is encoded explicitly. The worker also

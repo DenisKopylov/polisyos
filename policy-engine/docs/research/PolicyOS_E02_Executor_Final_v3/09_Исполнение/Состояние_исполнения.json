@@ -539,11 +539,15 @@
           "note": "Six original test_res_03 async-chain cases PASS inside31PASS command. Later same-leaf numerical test is separate and remains pending."
         },
         "cas_audit_fix": {
-          "output": "policy-engine/_cache/e02/auth-audit3-r1/pytest.xml",
+          "output": "policy-engine/_cache/e02/auth-audit3-accessible-r2/",
           "observed": {
             "PASS": 3
           },
-          "note": "Retained JUnit3PASS plus Root-reported qualification; this directory has no before/after/result/full command output. Reuse Root source binding; do not fabricate a missing locator."
+          "named_inputs": 38,
+          "inputs_unchanged_during_run": true,
+          "complete_command_output_available": true,
+          "junit_sha256": "2ad1e55b911a80566ffad8d7b7e7317298b95fbd2ea34a347f49dc3bc0506994",
+          "scope": "Exact three native denial/audit-failure consumers on stable true property dependencies; prior auth-audit3-r1 JUnit remains historical. No whole CAS cohort replay."
         },
         "cas_configured68": {
           "output": "policy-engine/_cache/e02/lane06-cas03-configured-native-r3",
@@ -583,6 +587,56 @@
           "inputs_unchanged_during_run": true,
           "named_inputs": 22,
           "scope": "Actual macOS framed owner/Core handoff, EOF, deadline marker, cleanup and native IPC controls on d574/Common95/ControlWorker8a. Actual seven Linux Core/ControlWorker positive and race cases remain UNRUN; no atomic SQL-to-Core or external-effect fence claim."
+        },
+        "owner_handoff_linux531": {
+          "output": "policy-engine/_cache/e02/ci-0974c4599e637da041717a42a5a56ae0c3c3bf6c/phase0/",
+          "source_commit": "0974c4599e637da041717a42a5a56ae0c3c3bf6c",
+          "executed_commit": "42f6197407cdee00ead8b9f62e72d606a9f2a453",
+          "tree": "98a6bdd7008d85a222bd409568c1188d49f058a9",
+          "observed": {
+            "PASS": 531,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "profile": "Ubuntu26.04.1/CPython3.14.9 x64; actual owned Linux fork supervisor. Seven real healthy/cancel/Core-negative sync cases pass; this is not warm Linux JAX/BLAS qualification.",
+          "complete_command_output": "scientist-phase0-pytest-step.log.gz",
+          "complete_output_sha256": "c06fb968acacb9481d58a47b897914bcf793ad586ce86aeb4890d856f5192e7e",
+          "junit_sha256": "9bafa4d69928f13c1402108acf796244d45d9b55df36aa6b9c307bfc938fa36a",
+          "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/41366917546/job/125028909289"
+        },
+        "ordinary_consumers131": {
+          "output": "policy-engine/_cache/e02/lane06-final-ordinary-consumers-r1/",
+          "observed": {
+            "PASS": 131
+          },
+          "named_inputs": 46,
+          "inputs_unchanged_during_run": true,
+          "scope": "Current d574/Common95/Worker8a; full RUN03/ControlWorker/DUR02 and three exact real-ledger settlement controls. Source hashes and complete outputs remain in this one locator."
+        },
+        "finite_release_support_record": {
+          "source_commit": "27958f89d976466fcc321fec28e06469de435a6b",
+          "source_tree": "6b38f1f8ab02d1bdcf9ed6545f8a317c5657c4ad",
+          "output": "policy-engine/src/polisyos/scientist/replay/README.md#first-party-release-census",
+          "scope": "11483 selected regular Git files/225143667 actual-read bytes;7121 Python/pyi blobs parse;44 candidate paths reconciled by role. Exact selector, exclusions, positive paths, Git/read manifest digests and recipe are in the existing owner README. Static corpus/caller qualification; external computed/plugin/history use is not_established.",
+          "git_manifest_sha256": "2524c7685d5e68c1f94949dc66a42676c2def7d8279dc5a8a9d6413caada521a",
+          "read_manifest_sha256": "b7368a757c10cc95cbe1cead2e0d2b15f7f39b98e42015da05b5683e41e27ffb",
+          "companions": [
+            "policy-engine/tools/ops_runners/migrations/README.md",
+            "policy-engine/src/polisyos/common/migrations/README.md",
+            "policy-engine/src/polisyos/ir/migrations/README.md"
+          ]
+        },
+        "partial_configured_n5_boundary": {
+          "output": "policy-engine/_cache/e02/res03-native-configured-same-leaf-r2/",
+          "observed": {
+            "FAIL": 1
+          },
+          "named_inputs": 65,
+          "inputs_unchanged_during_run": true,
+          "scope": "Normal job completed; late job preserves exact original value error. Both real selected results have2 trajectories/2 observed work units with content-bound receipts; fresh private CAS verification precedes test failure at public app startup ownership admission. This is not a passing test or public partial-reader proof.",
+          "failed_result_sha256": "57c77eb8b1a63af8528111583770fd7ece6198ea9b6b8a8309cb3af804f368f7",
+          "selected_execution_content_hash": "6a1aa89448672c9658bbf196c0c99007bce297dd19a08c34da6375bc2b613bb7"
         }
       },
       "local_only_requirement_ids": [
@@ -597,27 +651,12 @@
       ],
       "current_remaining": [
         {
-          "kind": "internal_source_and_affected_checks",
-          "requirements": [
-            "REQ-RUN-02-02",
-            "REQ-RUN-02-03",
-            "REQ-RUN-03-02",
-            "REQ-RUN-03-03",
-            "REQ-DUR-02-01",
-            "REQ-DUR-02-02",
-            "REQ-DUR-02-03"
-          ],
-          "owner": "/root/lane06_async",
-          "basis": "Authenticated real Linux ControlWorker cannot transport live owner check before spawn; bounded private typed parent/child handoff authorized. Owner reports subsequent local8GREEN/released via queue; final actual affected consumers must be bound, no blanket acceptance.",
-          "source_output": "policy-engine/_cache/e02/ci-95328c5396592504051d134031c62c300269ab3d/phase0/scientist-phase0.xml"
-        },
-        {
           "kind": "active_same_leaf_implementation_or_fixture_and_semantic_result",
           "requirements": [
             "REQ-RES-03-02",
             "REQ-RES-03-03"
           ],
-          "basis": "r9 same-leaf control still before N5; separate passing N4/N5-binding/NCM controls are not numerical partial proof."
+          "basis": "Configured r2 establishes actual2 trajectories/2 observed work, selected execution/result content-bound refs, normal completion and exact late value error with fresh private CAS readback. The test fails at public app startup ownership admission; typed failed-run/Core-output bridge and fresh scoped public surface are active. No all-green test or full CYC projection claim."
         },
         {
           "kind": "product_installed_profile",
@@ -636,25 +675,12 @@
           "basis": "Missing independently latest owner/generation and all confirmed receipts; signed stale backup cannot restore authority."
         },
         {
-          "kind": "finite_support_record_and_binding_adjudication",
+          "kind": "owner_handoff_async_native_matrix",
           "requirements": [
-            "REQ-REP-01-03",
-            "REQ-MIG-01-03",
-            "REQ-MIG-04-03",
-            "REQ-MIG-05-04"
+            "REQ-RUN-02-02"
           ],
-          "basis": "Use existing complete named census/support window and mark external unknowns; do not invent infinite plugin/history coverage or retire shims."
-        },
-        {
-          "kind": "deciding_audit_output_access",
-          "requirements": [
-            "REQ-CAS-03-01",
-            "REQ-CAS-03-02",
-            "REQ-CAS-03-03",
-            "REQ-CAS-03-04"
-          ],
-          "owner": "/root/lane06_execution_queue",
-          "basis": "Prior actual audit3 JUnit exists and fix is committed at a33ce94; complete stdout/source-pin output is unavailable there. Repeat exactly the three known selectors in the final frozen Runtime wave, not all CAS work."
+          "owner": "/root/lane06_ci_triage",
+          "basis": "Product d574 is unchanged and Linux7 sync cases pass; source-reviewed test-only c9c8 extends to14 actual sync/async cases. Publish this checkpoint and read actual Linux CI, not Mac skips."
         }
       ],
       "execution_control": {
@@ -673,14 +699,15 @@
         "basis": "22 packet annotations and75 exact canonical criterion pointers independently reconciled;57 shared evidence locators plus local41 update; version-specific results retained."
       },
       "current_source_checkpoint": {
-        "binding": "Use the commit containing this record and these released blobs; actual Linux qualification remains pending.",
+        "binding": "Released product blobs match published0974; the test-only14-case sync/async matrix belongs to the commit containing this record and awaits actual Linux CI. Other active RES03/IR work is outside this checkpoint.",
         "released_file_sha256": {
           "src/polisyos/scientist/orchestration/engine/retry.py": "d574c94757faead8c69a11b10df6f2d6246009b8f8d7f1ed94be852a4ac03e1c",
           "src/polisyos/common/job_execution_interrupt.py": "95c5e532eae90d85b3de642451c522845c8afe33554e84b46cf08e9a0b75b633",
           "src/polisyos/runtime/http/services/control_worker.py": "8a594209bc74d3fda31214bfb3a483c6b45a785db290fd448dbb6dee9d0a0aea",
-          "tests/unit/scientist/orchestration/engine/test_retry.py": "eb654a2661933b522a825c1008480ed66341b0b658ea12c88e791555eafba813",
+          "tests/unit/scientist/orchestration/engine/test_retry.py": "c9c8d9e13105d0d86d489d6e7cb772172521093ee4ab5362476fbf704928a54c",
           "tests/unit/common/test_job_execution_interrupt.py": "dc2292cb8635d71f0eed1f09e598b939fb7bdd140ed8b772799ab35a64e6ad9b"
-        }
+        },
+        "product_source_commit": "0974c4599e637da041717a42a5a56ae0c3c3bf6c"
       }
     },
     {
@@ -1625,14 +1652,20 @@
           "evidence_refs": [
             "partial_latest",
             "partial_n5_binding14",
-            "partial_ncm_affected2"
+            "partial_ncm_affected2",
+            "partial_configured_n5_boundary"
           ],
           "remaining_kinds": [
             "active_source_or_fixture_fix",
             "actual_n5_late_fault_fresh_get"
           ],
-          "basis": "r9 did not reach N5. Need actual numerical bytes/scope/completed-pending-error through fresh public GET without terminal/normative success. DA01 only later CYC projection.",
-          "status": "UNVERIFIED"
+          "basis": "Actual configured N5 and selected private CAS completion survived the exact late error. Typed failed-run/Core-output bridge and fresh scoped public surface remain active; Generic no_run controls do not substitute this numerical witness.",
+          "status": "PARTIAL",
+          "capability_gaps": [
+            "bridge_missing",
+            "surface_missing",
+            "verification_missing"
+          ]
         },
         {
           "requirement_id": "REQ-RES-03-03",
@@ -1646,14 +1679,20 @@
           ],
           "assessment": "same_leaf_actual_n5_unqualified",
           "evidence_refs": [
-            "partial_latest"
+            "partial_latest",
+            "partial_configured_n5_boundary"
           ],
           "remaining_kinds": [
             "active_source_or_fixture_fix",
             "actual_n5_late_value_fresh_get"
           ],
-          "basis": "Need actual owner-bound same-leaf N5 retained after late independent value/revision fault, including dependency refs/exact cause. No synthetic N5 substitute.",
-          "status": "UNVERIFIED"
+          "basis": "Actual configured N5 and selected private CAS completion survived the exact late error. Typed failed-run/Core-output bridge and fresh scoped public surface remain active; Generic no_run controls do not substitute this numerical witness.",
+          "status": "PARTIAL",
+          "capability_gaps": [
+            "bridge_missing",
+            "surface_missing",
+            "verification_missing"
+          ]
         }
       ]
     },
@@ -1703,8 +1742,7 @@
         }
       ],
       "blockers": [
-        "installed_product_profile",
-        "finite_support_record"
+        "installed_product_profile"
       ],
       "deferred_ids": [],
       "execution_profile": {
@@ -1720,10 +1758,9 @@
         "installed_instrument16"
       ],
       "remaining_kinds": [
-        "installed_product_profile",
-        "finite_support_record"
+        "installed_product_profile"
       ],
-      "reconciliation_note": "Actual default CLI replay/resume now passes; remove old default-workflow failure. Product installed29 and finite root10/shim20/FQN/string/monkeypatch/docs/package/historical support statement remain. Do not retire compatibility bindings.",
+      "reconciliation_note": "Native original-source and real default checkpoint CLI controls are qualified; complete declared first-party caller/support records retain root10/shim20 and external unknowns. Actual noneditable installed profile remains pending.",
       "requirement_results": [
         {
           "requirement_id": "REQ-REP-01-01",
@@ -1767,15 +1804,14 @@
             "TEST-REP-01-03"
           ],
           "binding_ids": [],
-          "assessment": "finite_support_record_pending",
+          "assessment": "finite_source_and_historical_reader_qualified",
           "evidence_refs": [
-            "migration69"
+            "migration69",
+            "finite_release_support_record"
           ],
-          "remaining_kinds": [
-            "finite_support_record"
-          ],
-          "basis": "Retain root10/shim20. Source-qualified historical RunManifest/schema discrepancy resolved; enumerate supported FQN/string/monkeypatch/docs/package callers and external unknowns, no invented retirement.",
-          "status": "PARTIAL"
+          "remaining_kinds": [],
+          "basis": "The declared complete first-party static selection at27958 covers11483 actual-read blobs and44 role-reconciled candidates. Root10/shim20 identity, retained protocol4 historical Runtime reader and current/native controls remain source-qualified; exports are retained and external computed/plugin/history uses remain explicitly unqualified, without an invented retirement.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
         }
       ]
     },
@@ -2085,7 +2121,7 @@
       "lane_sequence": 1,
       "track_id": "06-B",
       "track_position": 3,
-      "implementation_status": "IN_PROGRESS",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
       "local_qualification": "PARTIAL",
       "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_async",
@@ -2120,9 +2156,7 @@
         }
       ],
       "blockers": [
-        "internal_owner_check_handoff",
-        "affected_real_core_consumer_checks",
-        "named_linux_profile"
+        "owner_handoff_async_native_matrix"
       ],
       "deferred_ids": [],
       "execution_profile": {
@@ -2147,7 +2181,10 @@
           "assessment": "qualified_named_transport_profile",
           "evidence_refs": [
             "ipc10",
-            "retry_deadline"
+            "retry_deadline",
+            "owner_handoff_local48",
+            "owner_handoff_linux531",
+            "ordinary_consumers131"
           ],
           "remaining_kinds": []
         },
@@ -2155,7 +2192,7 @@
           "requirement_id": "REQ-RUN-02-02",
           "test_id": "TEST-RUN-02-02",
           "status": "PARTIAL",
-          "basis": "Exact Linux CI rejected live-owner callable before spawn. New typed parent↔child handoff must exercise actual Core small/1MiB/digest/owner/completion route; earlier IPC result remains scoped evidence.",
+          "basis": "Actual Core-bound sync/async64B and1MiB transport retains its earlier source-qualified profile. Current d574 has48 local controls and531 Linux checks including7 native sync owner-bound cases; the test-only14-case matrix adds the distinct async-owner sibling and awaits actual CI.",
           "criterion_pointer": "04_Трассировка/RUN-02.json#/requirements/1",
           "test_ids": [
             "TEST-RUN-02-02"
@@ -2163,39 +2200,39 @@
           "binding_ids": [
             "E02-I06-C-B02"
           ],
-          "assessment": "actual_core_control_handoff_affected",
+          "assessment": "qualified_native_core_delivery_async_owner_matrix_pending",
           "evidence_refs": [
-            "ipc10"
+            "ipc10",
+            "owner_handoff_local48",
+            "owner_handoff_linux531",
+            "ordinary_consumers131"
           ],
           "remaining_kinds": [
-            "internal_owner_check_handoff",
-            "actual_core_sync_async_positive_and_adversarial",
-            "owner_handoff_affected_consumer"
+            "owner_handoff_async_native_matrix"
           ]
         },
         {
           "requirement_id": "REQ-RUN-02-03",
           "test_id": "TEST-RUN-02-03",
-          "status": "PARTIAL",
-          "basis": "Darwin warm JAX4 are real. Linux actual authenticated cancel requires internal transport fix and owned-descendant/fresh-job fence; no OOM diagnosis or platform substitution.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Native Darwin closed-spawn warm4 and actual Linux531 including owned-descendant/foreign-group/Core owner cuts qualify their named routes. Linux JAX/BLAS-warm numerical fork remains explicitly NOT_QUALIFIED, as allowed by this criterion; neither cold success nor sync cleanup is promoted into that numerical claim.",
           "criterion_pointer": "04_Трассировка/RUN-02.json#/requirements/2",
           "test_ids": [
             "TEST-RUN-02-03"
           ],
           "binding_ids": [],
-          "assessment": "darwin_warm_qualified_linux_internal_gap",
+          "assessment": "qualified_darwin_warm_and_linux_owned_cleanup",
           "evidence_refs": [
             "warm_sync",
-            "warm_remaining"
+            "warm_remaining",
+            "owner_handoff_local48",
+            "owner_handoff_linux531",
+            "ordinary_consumers131"
           ],
-          "remaining_kinds": [
-            "owner_handoff_affected_linux_cancel",
-            "named_linux_profile",
-            "owner_handoff_affected_consumer"
-          ]
+          "remaining_kinds": []
         }
       ],
-      "current_assessment": "real_control_transport_affected_pending",
+      "current_assessment": "current_protocol_and_ordinary_consumers_qualified_named_profiles",
       "evidence_refs": [
         "ipc10",
         "warm_sync",
@@ -2203,11 +2240,12 @@
         "retry_deadline"
       ],
       "remaining_kinds": [
-        "internal_owner_check_handoff",
-        "affected_real_core_consumer_checks",
-        "named_linux_profile"
+        "owner_handoff_async_native_matrix"
       ],
-      "reconciliation_note": "Native Darwin warm4 and IPC10 are qualified. Authenticated actual Linux ControlWorker rejects live_owner_check_not_transportable before spawn: a real internal missing parent↔child owner-check transport, not OOM or merely unavailable platform. Async is authoring bounded typed handoff; qualify actual supported cancellation/receipt/takeover and keep unsupported guards."
+      "reconciliation_note": "Actual d574/Common95/Worker8a has48 local controls,131 ordinary consumers and531 Linux Phase0 checks including7 native sync owner/cancel/Core cases. New test-only matrix extends these to14 sync/async cases, awaiting CI. SQL-to-Core/external-effect atomicity and warm Linux JAX/BLAS remain outside qualified claims.",
+      "qualification_limits": [
+        "Linux warm-parent JAX/BLAS numerical topology NOT_QUALIFIED; native Darwin closed-spawn warm4 is qualified separately."
+      ]
     },
     {
       "packet_id": "WIRE-01",
@@ -2332,8 +2370,8 @@
       "lane_sequence": 1,
       "track_id": "06-B",
       "track_position": 5,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "PARTIAL",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_async",
       "base_commit": "1d3a377c677126d1bc51365336e282470a25c3a0",
@@ -2369,26 +2407,22 @@
           "result": "16 PASS actual registered return/raise + typed failure receipt/cause controls;34 inputs unchanged at retry3d2f. Later IPC source changes require their own qualifier."
         }
       ],
-      "blockers": [
-        "owner_handoff_affected_checks"
-      ],
+      "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "Root batches narrow red with other measured light checks; no competing native job",
         "source_scope": "RUN02 bytes secured in parent commit; one canonical retry writer after WIRE source freeze",
         "delegate_limit": "One read-only leaf explicit permitted model"
       },
-      "current_assessment": "selected_profile_with_owner_handoff_consumer_pending",
+      "current_assessment": "current_protocol_and_ordinary_consumers_qualified_named_profiles",
       "evidence_refs": [
         "retry_categories",
         "invocation_wire",
         "runtime23",
         "physical_pin"
       ],
-      "remaining_kinds": [
-        "owner_handoff_affected_checks"
-      ],
-      "reconciliation_note": "Retry baseline/cost/category/attempt persistence is demonstrated. New authenticated process owner-check handoff affects current-owner cancellation/category and unknown nonredispatch branches; qualify exact RUN03-02/-03 consumers after final owner source, without redoing unaffected baseline corpus.",
+      "remaining_kinds": [],
+      "reconciliation_note": "Actual d574/Common95/Worker8a has48 local controls,131 ordinary consumers and531 Linux Phase0 checks including7 native sync owner/cancel/Core cases. New test-only matrix extends these to14 sync/async cases, awaiting CI. SQL-to-Core/external-effect atomicity and warm Linux JAX/BLAS remain outside qualified claims.",
       "requirement_results": [
         {
           "requirement_id": "REQ-RUN-03-01",
@@ -2399,18 +2433,19 @@
           "binding_ids": [
             "E02-I06-C-B03"
           ],
-          "assessment": "selected_profile_with_owner_handoff_consumer_pending",
+          "assessment": "current_known_unknown_cost_and_primary_failure_consumers_qualified",
           "evidence_refs": [
             "retry_categories",
             "invocation_wire",
             "runtime23",
-            "physical_pin"
+            "physical_pin",
+            "owner_handoff_local48",
+            "owner_handoff_linux531",
+            "ordinary_consumers131"
           ],
-          "remaining_kinds": [
-            "owner_handoff_affected_consumer"
-          ],
-          "basis": "Retry baseline/cost/category/attempt persistence is demonstrated. New authenticated process owner-check handoff affects current-owner cancellation/category and unknown nonredispatch branches; qualify exact RUN03-02/-03 consumers after final owner source, without redoing unaffected baseline corpus.",
-          "status": "PARTIAL"
+          "remaining_kinds": [],
+          "basis": "Current d574 cleanup/no-replay changes are exercised by the full77 RUN03 module, actual ControlWorker/DUR02 consumers and three real-ledger settlement controls in the131-pass/46-stable-input wave, with separate local48 and Linux531 transport evidence. Known charges survive unknown completion; no external billing/atomic-effect authority is inferred.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
         },
         {
           "requirement_id": "REQ-RUN-03-02",
@@ -2421,17 +2456,17 @@
           "binding_ids": [
             "E02-I06-C-B03"
           ],
-          "assessment": "qualified_cost_baseline_owner_handoff_affected",
+          "assessment": "current_known_unknown_cost_and_primary_failure_consumers_qualified",
           "evidence_refs": [
             "retry_categories",
-            "invocation_wire"
+            "invocation_wire",
+            "owner_handoff_local48",
+            "owner_handoff_linux531",
+            "ordinary_consumers131"
           ],
-          "remaining_kinds": [
-            "owner_handoff_cancel_consumer",
-            "owner_handoff_affected_consumer"
-          ],
-          "basis": "Known failed cost once, unknown current cost not invented; new actual owner handoff must preserve cancellation/fencing.",
-          "status": "PARTIAL"
+          "remaining_kinds": [],
+          "basis": "Current d574 cleanup/no-replay changes are exercised by the full77 RUN03 module, actual ControlWorker/DUR02 consumers and three real-ledger settlement controls in the131-pass/46-stable-input wave, with separate local48 and Linux531 transport evidence. Known charges survive unknown completion; no external billing/atomic-effect authority is inferred.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
         },
         {
           "requirement_id": "REQ-RUN-03-03",
@@ -2442,17 +2477,17 @@
           "binding_ids": [
             "E02-I06-C-B03"
           ],
-          "assessment": "qualified_classification_owner_handoff_affected",
+          "assessment": "current_known_unknown_cost_and_primary_failure_consumers_qualified",
           "evidence_refs": [
             "retry_categories",
-            "invocation_wire"
+            "invocation_wire",
+            "owner_handoff_local48",
+            "owner_handoff_linux531",
+            "ordinary_consumers131"
           ],
-          "remaining_kinds": [
-            "owner_handoff_unknown_category_consumer",
-            "owner_handoff_affected_consumer"
-          ],
-          "basis": "Retain typed classification and unknown no-redispatch; qualify new owner transport malformed/EOF/unavailable and control-loss paths.",
-          "status": "PARTIAL"
+          "remaining_kinds": [],
+          "basis": "Current d574 cleanup/no-replay changes are exercised by the full77 RUN03 module, actual ControlWorker/DUR02 consumers and three real-ledger settlement controls in the131-pass/46-stable-input wave, with separate local48 and Linux531 transport evidence. Known charges survive unknown completion; no external billing/atomic-effect authority is inferred.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
         },
         {
           "requirement_id": "REQ-RUN-03-04",
@@ -2463,18 +2498,19 @@
           "binding_ids": [
             "E02-I06-C-B03"
           ],
-          "assessment": "selected_profile_with_owner_handoff_consumer_pending",
+          "assessment": "current_known_unknown_cost_and_primary_failure_consumers_qualified",
           "evidence_refs": [
             "retry_categories",
             "invocation_wire",
             "runtime23",
-            "physical_pin"
+            "physical_pin",
+            "owner_handoff_local48",
+            "owner_handoff_linux531",
+            "ordinary_consumers131"
           ],
-          "remaining_kinds": [
-            "owner_handoff_affected_consumer"
-          ],
-          "basis": "Retry baseline/cost/category/attempt persistence is demonstrated. New authenticated process owner-check handoff affects current-owner cancellation/category and unknown nonredispatch branches; qualify exact RUN03-02/-03 consumers after final owner source, without redoing unaffected baseline corpus.",
-          "status": "PARTIAL"
+          "remaining_kinds": [],
+          "basis": "Current d574 cleanup/no-replay changes are exercised by the full77 RUN03 module, actual ControlWorker/DUR02 consumers and three real-ledger settlement controls in the131-pass/46-stable-input wave, with separate local48 and Linux531 transport evidence. Known charges survive unknown completion; no external billing/atomic-effect authority is inferred.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
         }
       ]
     },
@@ -2605,8 +2641,8 @@
       "lane_sequence": 1,
       "track_id": "06-B",
       "track_position": 7,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "PARTIAL",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_durable_worker",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
@@ -2650,26 +2686,22 @@
           "result": "1 PASS actual receipt+2 then SQL takeover;fresh owner refuses unknown/no replay,ledger7 retained;71 inputs unchanged."
         }
       ],
-      "blockers": [
-        "owner_handoff_affected_real_core_checks"
-      ],
+      "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "Queued; source-only heartbeat repair independent; final continuation awaits exact RES-01/02/fallback contract",
         "source_scope": "Three explicitpaths; fallback_runner expansion requires reviewed actual inputcontract; no checkpoint writes",
         "mandatory_companions": "Authorized mirrored tests/helper/README companions may be added within the assigned mechanism after checking no competing writer; notify Root footprint, no separate approval per routine companion. Shared generated families/index/refs remain Root-owned."
       },
-      "current_assessment": "selected_profile_with_owner_handoff_consumer_pending",
+      "current_assessment": "current_protocol_and_ordinary_consumers_qualified_named_profiles",
       "evidence_refs": [
         "runtime23",
         "runtime_preservation",
         "runtime_post_ack",
         "invocation_wire"
       ],
-      "remaining_kinds": [
-        "owner_handoff_affected_real_core_checks"
-      ],
-      "reconciliation_note": "Real persistent owner, operation/checkpoint reconciliation, budget/deadline, owner takeover and fail-closed ambiguity are demonstrated. New authenticated process control transport must preserve heartbeat/SQL fence/admission and actual continuation under current owner; no external effect atomicity claim.",
+      "remaining_kinds": [],
+      "reconciliation_note": "Actual d574/Common95/Worker8a has48 local controls,131 ordinary consumers and531 Linux Phase0 checks including7 native sync owner/cancel/Core cases. New test-only matrix extends these to14 sync/async cases, awaiting CI. SQL-to-Core/external-effect atomicity and warm Linux JAX/BLAS remain outside qualified claims.",
       "requirement_results": [
         {
           "requirement_id": "REQ-DUR-02-01",
@@ -2680,17 +2712,17 @@
           "binding_ids": [
             "E02-I06-C-B05"
           ],
-          "assessment": "persistent_owner_qualified_handoff_affected",
+          "assessment": "current_owned_continuation_and_sql_fencing_consumers_qualified",
           "evidence_refs": [
             "runtime23",
-            "runtime_preservation"
+            "runtime_preservation",
+            "owner_handoff_local48",
+            "owner_handoff_linux531",
+            "ordinary_consumers131"
           ],
-          "remaining_kinds": [
-            "owner_handoff_heartbeat_guard",
-            "owner_handoff_affected_consumer"
-          ],
-          "basis": "Typed heartbeat lost guard plus SQL fencing already demonstrated; new private parent↔child owner check needs actual cooperative consumer.",
-          "status": "PARTIAL"
+          "remaining_kinds": [],
+          "basis": "Real Runtime23/40 and post-ACK takeover retain their qualified source boundaries. Current one-field worker identity handoff and cleanup changes pass131 ordinary consumers,48 protocol controls and actual Linux531; source-specific results are reused by actual impact. SQL-to-Core/external effects are non-atomic and unknown outcomes still forbid blind replay.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
         },
         {
           "requirement_id": "REQ-DUR-02-02",
@@ -2701,17 +2733,17 @@
           "binding_ids": [
             "E02-I06-C-B05"
           ],
-          "assessment": "persistent_owner_qualified_handoff_affected",
+          "assessment": "current_owned_continuation_and_sql_fencing_consumers_qualified",
           "evidence_refs": [
             "runtime_preservation",
-            "runtime_post_ack"
+            "runtime_post_ack",
+            "owner_handoff_local48",
+            "owner_handoff_linux531",
+            "ordinary_consumers131"
           ],
-          "remaining_kinds": [
-            "owner_handoff_takeover_receipt_race",
-            "owner_handoff_affected_consumer"
-          ],
-          "basis": "Actual stale-owner mutation/commit atomicity controls exist; new child transport must not admit stale owner after queued or receipt-race takeover.",
-          "status": "PARTIAL"
+          "remaining_kinds": [],
+          "basis": "Real Runtime23/40 and post-ACK takeover retain their qualified source boundaries. Current one-field worker identity handoff and cleanup changes pass131 ordinary consumers,48 protocol controls and actual Linux531; source-specific results are reused by actual impact. SQL-to-Core/external effects are non-atomic and unknown outcomes still forbid blind replay.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
         },
         {
           "requirement_id": "REQ-DUR-02-03",
@@ -2722,17 +2754,17 @@
           "binding_ids": [
             "E02-I06-C-B05"
           ],
-          "assessment": "persistent_continuation_qualified_handoff_affected",
+          "assessment": "current_owned_continuation_and_sql_fencing_consumers_qualified",
           "evidence_refs": [
             "runtime23",
-            "runtime_post_ack"
+            "runtime_post_ack",
+            "owner_handoff_local48",
+            "owner_handoff_linux531",
+            "ordinary_consumers131"
           ],
-          "remaining_kinds": [
-            "owner_handoff_actual_remaining_continuation",
-            "owner_handoff_affected_consumer"
-          ],
-          "basis": "No blind fallback after possible effect; retain actual operation/checkpoint/shared budget/deadline frontier and current owner, unknown remains unknown.",
-          "status": "PARTIAL"
+          "remaining_kinds": [],
+          "basis": "Real Runtime23/40 and post-ACK takeover retain their qualified source boundaries. Current one-field worker identity handoff and cleanup changes pass131 ordinary consumers,48 protocol controls and actual Linux531; source-specific results are reused by actual impact. SQL-to-Core/external effects are non-atomic and unknown outcomes still forbid blind replay.",
+          "status": "CONFIRMED_LOCAL_PROFILE"
         }
       ]
     },
@@ -3067,7 +3099,7 @@
       "track_id": "06-C",
       "track_position": 3,
       "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane06_cas",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
@@ -3118,9 +3150,7 @@
           "scope": "Distinct exactly-one cross-tenant authorization and data-access events; failed authorization audit refuses503, failed data-access append preserves403 and one authorization event, no foreign tenant projection. Original failure reproduced at isolated388 baseline; bounded forward fix."
         }
       ],
-      "blockers": [
-        "deciding_audit_output_access"
-      ],
+      "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "Awaiting root admission; read-only research and disjoint editing concurrent",
@@ -3134,10 +3164,8 @@
         "cas_authorizer_removal",
         "cas_audit_fix"
       ],
-      "remaining_kinds": [
-        "deciding_audit_output_access"
-      ],
-      "reconciliation_note": "Immutable snapshot/signature and finite census/stop/auth/CLI owners are implemented and independently reviewed; audit sibling forward fix has3PASS. Reuse established CAS03 native completion and owner-qualified controls, not the old audit failure as current blocker.",
+      "remaining_kinds": [],
+      "reconciliation_note": "Configured CAS/signature/census/stop native controls and current denial/audit3 are qualified; complete deciding audit output is accessible at auth-audit3-accessible-r2.",
       "requirement_results": [
         {
           "requirement_id": "REQ-CAS-03-01",
@@ -3155,11 +3183,9 @@
             "cas_authorizer_removal",
             "cas_audit_fix"
           ],
-          "remaining_kinds": [
-            "deciding_audit_output_access"
-          ],
+          "remaining_kinds": [],
           "basis": "Immutable snapshot/signature and finite census/stop/auth/CLI owners are implemented and independently reviewed; audit sibling forward fix has3PASS. Reuse established CAS03 native completion and owner-qualified controls, not the old audit failure as current blocker.",
-          "status": "PARTIAL"
+          "status": "CONFIRMED_LOCAL_PROFILE"
         },
         {
           "requirement_id": "REQ-CAS-03-02",
@@ -3177,11 +3203,9 @@
             "cas_authorizer_removal",
             "cas_audit_fix"
           ],
-          "remaining_kinds": [
-            "deciding_audit_output_access"
-          ],
+          "remaining_kinds": [],
           "basis": "Immutable snapshot/signature and finite census/stop/auth/CLI owners are implemented and independently reviewed; audit sibling forward fix has3PASS. Reuse established CAS03 native completion and owner-qualified controls, not the old audit failure as current blocker.",
-          "status": "PARTIAL"
+          "status": "CONFIRMED_LOCAL_PROFILE"
         },
         {
           "requirement_id": "REQ-CAS-03-03",
@@ -3199,11 +3223,9 @@
             "cas_authorizer_removal",
             "cas_audit_fix"
           ],
-          "remaining_kinds": [
-            "deciding_audit_output_access"
-          ],
+          "remaining_kinds": [],
           "basis": "Immutable snapshot/signature and finite census/stop/auth/CLI owners are implemented and independently reviewed; audit sibling forward fix has3PASS. Reuse established CAS03 native completion and owner-qualified controls, not the old audit failure as current blocker.",
-          "status": "PARTIAL"
+          "status": "CONFIRMED_LOCAL_PROFILE"
         },
         {
           "requirement_id": "REQ-CAS-03-04",
@@ -3221,11 +3243,9 @@
             "cas_authorizer_removal",
             "cas_audit_fix"
           ],
-          "remaining_kinds": [
-            "deciding_audit_output_access"
-          ],
+          "remaining_kinds": [],
           "basis": "Immutable snapshot/signature and finite census/stop/auth/CLI owners are implemented and independently reviewed; audit sibling forward fix has3PASS. Reuse established CAS03 native completion and owner-qualified controls, not the old audit failure as current blocker.",
-          "status": "PARTIAL"
+          "status": "CONFIRMED_LOCAL_PROFILE"
         }
       ]
     },
@@ -3410,8 +3430,7 @@
         }
       ],
       "blockers": [
-        "installed_product_profile",
-        "finite_support_record"
+        "installed_product_profile"
       ],
       "deferred_ids": [],
       "execution_profile": {
@@ -3490,7 +3509,7 @@
           "requirement_id": "REQ-MIG-05-04",
           "test_id": "TEST-MIG-05-04",
           "status": "PARTIAL",
-          "basis": "Capture identity is registration snapshot, not live purity; preserve harmless observers, finite external/plugin/historical unknowns and explicit stable reproducible converter config.",
+          "basis": "Native helper/callback/import/registration controls plus the current four-binding/helper and explicit adapter/configuration/support records cover the supplied release composition. Historical/foreign inputs are named rather than assumed absent. Actual shared noneditable installed consumer qualification remains pending.",
           "criterion_pointer": "04_Трассировка/MIG-05.json#/requirements/3",
           "test_ids": [
             "TEST-MIG-05-04"
@@ -3498,25 +3517,24 @@
           "binding_ids": [
             "E02-I06-E-B05"
           ],
-          "assessment": "finite_registration_contract_demonstrated",
+          "assessment": "finite_source_support_recorded_installed_pending",
           "evidence_refs": [
-            "migration_callbacks55"
+            "migration_callbacks55",
+            "finite_release_support_record"
           ],
           "remaining_kinds": [
-            "finite_support_record",
             "installed_product_profile"
           ]
         }
       ],
-      "current_assessment": "finite_source_corpus_installed_support_pending",
+      "current_assessment": "finite_source_support_recorded_installed_pending",
       "evidence_refs": [
         "migration_callbacks55",
         "migration69",
         "installed_instrument16"
       ],
       "remaining_kinds": [
-        "installed_product_profile",
-        "finite_support_record"
+        "installed_product_profile"
       ],
       "reconciliation_note": "Current registration/copy/stamp/route/DTO semantics and mutable capture limitation are qualified. Record finite supported external/callback/historical window; installedE remains. Preserve per-call selected_edges, no new global registration."
     },
@@ -3567,8 +3585,7 @@
         }
       ],
       "blockers": [
-        "installed_product_profile",
-        "finite_support_record"
+        "installed_product_profile"
       ],
       "deferred_ids": [],
       "execution_profile": {
@@ -3625,7 +3642,7 @@
           "requirement_id": "REQ-MIG-01-03",
           "test_id": "TEST-MIG-01-03",
           "status": "PARTIAL",
-          "basis": "Existing helper identity/parse/error distinctions preserved; supported external command window explicit.",
+          "basis": "Native helper/callback/import/registration controls plus the current four-binding/helper and explicit adapter/configuration/support records cover the supplied release composition. Historical/foreign inputs are named rather than assumed absent. Actual shared noneditable installed consumer qualification remains pending.",
           "criterion_pointer": "04_Трассировка/MIG-01.json#/requirements/2",
           "test_ids": [
             "TEST-MIG-01-03"
@@ -3633,25 +3650,24 @@
           "binding_ids": [
             "E02-I06-E-B02"
           ],
-          "assessment": "finite_source_contract_demonstrated",
+          "assessment": "finite_source_support_recorded_installed_pending",
           "evidence_refs": [
-            "migration_atomic74"
+            "migration_atomic74",
+            "finite_release_support_record"
           ],
           "remaining_kinds": [
-            "finite_support_record",
             "installed_product_profile"
           ]
         }
       ],
-      "current_assessment": "source_qualified_installed_support_pending",
+      "current_assessment": "finite_source_support_recorded_installed_pending",
       "evidence_refs": [
         "migration_atomic74",
         "migration69",
         "installed_instrument16"
       ],
       "remaining_kinds": [
-        "installed_product_profile",
-        "finite_support_record"
+        "installed_product_profile"
       ],
       "reconciliation_note": "Actual common writer ownership, JSON/YAML registered CLI and nested DTO validation have positive/negative controls. Remaining package/profile/caller-window qualification is not a new migration mechanism."
     },
@@ -3810,8 +3826,7 @@
         }
       ],
       "blockers": [
-        "installed_product_profile",
-        "finite_support_record"
+        "installed_product_profile"
       ],
       "deferred_ids": [],
       "execution_profile": {
@@ -3868,7 +3883,7 @@
           "requirement_id": "REQ-MIG-04-03",
           "test_id": "TEST-MIG-04-03",
           "status": "PARTIAL",
-          "basis": "Generic import remains domain-free; explicit legacy adapter/per-call selected_edges retained; external retirement needs finite supported window.",
+          "basis": "Native helper/callback/import/registration controls plus the current four-binding/helper and explicit adapter/configuration/support records cover the supplied release composition. Historical/foreign inputs are named rather than assumed absent. Actual shared noneditable installed consumer qualification remains pending.",
           "criterion_pointer": "04_Трассировка/MIG-04.json#/requirements/2",
           "test_ids": [
             "TEST-MIG-04-03"
@@ -3876,26 +3891,25 @@
           "binding_ids": [
             "E02-I06-E-B04"
           ],
-          "assessment": "finite_import_contract_demonstrated",
+          "assessment": "finite_source_support_recorded_installed_pending",
           "evidence_refs": [
             "migration69",
-            "migration_callbacks55"
+            "migration_callbacks55",
+            "finite_release_support_record"
           ],
           "remaining_kinds": [
-            "finite_support_record",
             "installed_product_profile"
           ]
         }
       ],
-      "current_assessment": "source_qualified_installed_support_pending",
+      "current_assessment": "finite_source_support_recorded_installed_pending",
       "evidence_refs": [
         "migration69",
         "migration_callbacks55",
         "installed_instrument16"
       ],
       "remaining_kinds": [
-        "installed_product_profile",
-        "finite_support_record"
+        "installed_product_profile"
       ],
       "reconciliation_note": "Actual Fabric registration, neutral engine, persisted conversion→DatasetManifest/Registry admission and old/new import order are qualified. Remove stale unattributed schema failure; keep explicit per-call selected_edges and finite supported caller window. InstalledE remains."
     },
@@ -7803,7 +7817,7 @@
           ],
           "edge_occurrences": 3,
           "req_test_pairs": 3,
-          "assessment": "local_partial_source_active_late_cyc_deferred",
+          "assessment": "actual_n5_private_result_demonstrated_public_bridge_pending",
           "remaining_kinds": [
             "actual_n5_late_value_fresh_get",
             "DA-01_late_CYC_projection"
@@ -7813,7 +7827,7 @@
             "partial_n5_binding14",
             "partial_ncm_affected2"
           ],
-          "basis": "No actual same-leaf N5 yet in deciding late-value r9. Local requirement cannot be deferred wholesale; only late CYC public projection uses DA01."
+          "basis": "Actual configured r2 numericalN5 and selected private CAS bytes survive exact same-leaf late error. Source-only/private success does not establish the fresh public failed-run reader; its typed bridge/public startup and verification remain active. Only the later CYC projection may use DA01."
         },
         {
           "binding_id": "E02-I06-B-B04",
@@ -7893,17 +7907,19 @@
           ],
           "edge_occurrences": 2,
           "req_test_pairs": 2,
-          "assessment": "owner_handoff_affected",
+          "assessment": "current_named_transport_and_ordinary_consumers_qualified",
           "remaining_kinds": [
-            "internal_owner_check_handoff",
-            "actual_core_sync_async_transport_checks"
+            "owner_handoff_async_native_matrix"
           ],
           "evidence": [
             "ipc10",
             "warm_sync",
-            "warm_remaining"
+            "warm_remaining",
+            "owner_handoff_local48",
+            "owner_handoff_linux531",
+            "ordinary_consumers131"
           ],
-          "basis": "Earlier actual transport qualified; Linux authenticated ControlWorker guard exposed missing supported owner-check handoff before spawn, now bounded source WIP."
+          "basis": "48 local protocol/cleanup,131 ordinary consumers and531 actual Linux Phase0 checks qualify their exact source/input/backend profiles; no atomic SQL-to-Core/external-effect claim."
         },
         {
           "binding_id": "E02-I06-C-B03",
@@ -7916,16 +7932,17 @@
           ],
           "edge_occurrences": 4,
           "req_test_pairs": 4,
-          "assessment": "qualified_retry_owner_handoff_affected",
-          "remaining_kinds": [
-            "owner_handoff_cancel_unknown_checks"
-          ],
+          "assessment": "current_named_transport_and_ordinary_consumers_qualified",
+          "remaining_kinds": [],
           "evidence": [
             "retry_categories",
             "invocation_wire",
-            "runtime23"
+            "runtime23",
+            "owner_handoff_local48",
+            "owner_handoff_linux531",
+            "ordinary_consumers131"
           ],
-          "basis": "Baseline/cost/classification/persistence exists; exact new current-owner cancel and malformed/EOF/unknown transport controls pending."
+          "basis": "48 local protocol/cleanup,131 ordinary consumers and531 actual Linux Phase0 checks qualify their exact source/input/backend profiles; no atomic SQL-to-Core/external-effect claim."
         },
         {
           "binding_id": "E02-I06-C-B04",
@@ -7958,16 +7975,17 @@
           ],
           "edge_occurrences": 3,
           "req_test_pairs": 3,
-          "assessment": "qualified_persistent_continuation_owner_handoff_affected",
-          "remaining_kinds": [
-            "owner_handoff_actual_core_takeover_continuation"
-          ],
+          "assessment": "current_named_transport_and_ordinary_consumers_qualified",
+          "remaining_kinds": [],
           "evidence": [
             "runtime23",
             "runtime_preservation",
-            "runtime_post_ack"
+            "runtime_post_ack",
+            "owner_handoff_local48",
+            "owner_handoff_linux531",
+            "ordinary_consumers131"
           ],
-          "basis": "Actual persistent owner→remaining continuation under common operation/budget/deadline exists. New typed control handoff needs corresponding real owner-loss/fence checks."
+          "basis": "48 local protocol/cleanup,131 ordinary consumers and531 actual Linux Phase0 checks qualify their exact source/input/backend profiles; no atomic SQL-to-Core/external-effect claim."
         },
         {
           "binding_id": "E02-I06-C-B06",
@@ -8112,12 +8130,12 @@
           "req_test_pairs": 3,
           "assessment": "native_demonstrated_installed_support_pending",
           "remaining_kinds": [
-            "installed_product_profile",
-            "finite_support_record"
+            "installed_product_profile"
           ],
           "evidence": [
             "migration_atomic74",
-            "migration69"
+            "migration69",
+            "finite_release_support_record"
           ],
           "basis": "Registered CLI→real Trinity validator→common atomic writer→native loader; validated unchanged is not semantic authority."
         },
@@ -8152,11 +8170,11 @@
           "req_test_pairs": 3,
           "assessment": "native_demonstrated_installed_support_pending",
           "remaining_kinds": [
-            "installed_product_profile",
-            "finite_support_record"
+            "installed_product_profile"
           ],
           "evidence": [
-            "migration69"
+            "migration69",
+            "finite_release_support_record"
           ],
           "basis": "Actual per-call Fabric converter→neutral Common→persisted DatasetManifest→real Registry; format conversion/admission remain distinct."
         },
@@ -8173,12 +8191,12 @@
           "req_test_pairs": 4,
           "assessment": "native_demonstrated_installed_support_pending",
           "remaining_kinds": [
-            "installed_product_profile",
-            "finite_support_record"
+            "installed_product_profile"
           ],
           "evidence": [
             "migration_callbacks55",
-            "migration69"
+            "migration69",
+            "finite_release_support_record"
           ],
           "basis": "Actual callback registration→shared runner→typed consumers/import order exists; finite support declaration and product installed composition remain."
         }

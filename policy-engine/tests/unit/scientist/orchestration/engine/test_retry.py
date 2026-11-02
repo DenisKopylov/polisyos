@@ -2881,8 +2881,9 @@ def test_owned_supervisor_reaps_tree_on_async_caller_cancellation(owned_tree_dir
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux owned-process-tree supervisor")
 @pytest.mark.parametrize("cut", ["before_body", "after_body", "before_receipt", "healthy"])
+@pytest.mark.parametrize("mode", ["sync", "async"])
 def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
-    owned_tree_dir, ctx, state, runtime_api_env, monkeypatch, cut
+    owned_tree_dir, ctx, state, runtime_api_env, monkeypatch, cut, mode
 ):
     """Real route permission and worker lease loss stop the owned process tree."""
     from uuid import uuid4
@@ -3120,15 +3121,21 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
                     run_id=active_job.run_id, attempt_id=attempt_id, basis_ref=basis_ref
                 ),
             )
-            result = execute_with_retry_sync(
-                BoundTreeNode(owned_tree_dir, finish=cut in {"before_receipt", "healthy"}),
-                execution_context,
-                execution_state,
-                retry_policy=RetryPolicy(),
-                timeout_s=30,
-                alias="authenticated_cancellation",
-                dispatch_params={"fixture": "owned-tree"},
-            )
+            node = BoundTreeNode(owned_tree_dir, finish=cut in {"before_receipt", "healthy"})
+            options = {
+                "retry_policy": RetryPolicy(),
+                "timeout_s": 30,
+                "alias": "authenticated_cancellation",
+                "dispatch_params": {"fixture": "owned-tree"},
+            }
+            if mode == "sync":
+                result = execute_with_retry_sync(
+                    node, execution_context, execution_state, **options
+                )
+            else:
+                result = asyncio.run(
+                    execute_with_retry_async(node, execution_context, execution_state, **options)
+                )
             if cut == "healthy":
                 assert result.status == "ok"
                 store.complete_job(
@@ -3146,6 +3153,7 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
         permit_owner_check = threading.Event()
         owned_groups = []
         original_service = retry_module._ForkOwnerHandoff.service
+        original_service_async = retry_module._ForkOwnerHandoff.service_async
         original_group_id = retry_module._owned_process_group_id
         original_revalidate = retry_module._require_current_fork_engine_attempt
         revalidation_count = []
@@ -3156,6 +3164,16 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
                 if not permit_owner_check.wait(20):
                     raise RuntimeError("test_owner_check_gate_timeout")
             return original_service(handoff, completion_time, attempt_check)
+
+        async def controlled_service_async(handoff, completion_time=None, attempt_check=None):
+            if cut == "before_body" and not request_waiting.is_set() and handoff.parent.poll(0):
+                request_waiting.set()
+                deadline = _time.monotonic() + 20
+                while not permit_owner_check.is_set():
+                    if _time.monotonic() >= deadline:
+                        raise RuntimeError("test_owner_check_gate_timeout")
+                    await asyncio.sleep(0.01)
+            return await original_service_async(handoff, completion_time, attempt_check)
 
         def controlled_revalidate(*args, **kwargs):
             revalidation_count.append(1)
@@ -3172,6 +3190,9 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
             return group_id
 
         monkeypatch.setattr(retry_module._ForkOwnerHandoff, "service", controlled_service)
+        monkeypatch.setattr(
+            retry_module._ForkOwnerHandoff, "service_async", controlled_service_async
+        )
         monkeypatch.setattr(
             retry_module, "_require_current_fork_engine_attempt", controlled_revalidate
         )
@@ -4939,7 +4960,10 @@ def test_worker_deadline_marker_rejects_wrong_type_or_error_binding(field, value
 
 @pytest.mark.skipif(sys.platform != "linux", reason="actual Linux owner-bound fork only")
 @pytest.mark.parametrize("binding_case", ["missing", "wrong", "finished"])
-def test_linux_owner_bound_fork_refuses_noncurrent_core_attempt_before_body(tmp_path, binding_case):
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_linux_owner_bound_fork_refuses_noncurrent_core_attempt_before_body(
+    tmp_path, binding_case, mode
+):
     """A live job signal cannot replace an actual unfinished selected Core attempt."""
     from uuid import uuid4
 
@@ -5049,16 +5073,19 @@ def test_linux_owner_bound_fork_refuses_noncurrent_core_attempt_before_body(tmp_
         run_id=state.run_id,
         current_owner_check=lambda: None,
     )
+
+    def invoke():
+        options = {"timeout_s": 10, "alias": "owner_bound", "dispatch_params": params}
+        if mode == "sync":
+            retry_module._execute_with_timeout_process(Node(), context, state, **options)
+        else:
+            asyncio.run(
+                retry_module._execute_with_timeout_process_async(Node(), context, state, **options)
+            )
+
     try:
         with job_execution_interrupt_scope(signal), pytest.raises(NodeTimeoutError) as refused:
-            retry_module._execute_with_timeout_process(
-                Node(),
-                context,
-                state,
-                timeout_s=10,
-                alias="owner_bound",
-                dispatch_params=params,
-            )
+            invoke()
         assert refused.value.details["reason"] == "live_owner_engine_attempt_not_established"
         assert not body_path.exists()
     finally:

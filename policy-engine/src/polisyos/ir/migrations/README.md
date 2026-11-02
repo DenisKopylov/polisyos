@@ -38,6 +38,48 @@ error and no-op profiles. Data Forge's instance-owned branching graph registry
 retains its separate shortest-path contract. Conversion, direct-read
 compatibility and actual DTO admission remain separate outcomes.
 
+## Provided release composition (REQ-MIG-05-04)
+
+This record declares the finite exercised Python registration/import set below.
+It preserves the public registration APIs; it does not declare unlisted external
+callbacks unsupported or claim they do not exist.
+
+| Owner/entry | Version, registration and consumer boundary |
+| --- | --- |
+| `ir.migrations` and `policy_ir` | Policy IR baseline `1.0`; import installs schema compatibility declarations from `policy_ir.py` and `schema_registry.py`. A schema rule is not a conversion callback. `migrate_policy_ir` and the loader/Trinity helpers retain the [helper matrix](../../../../tools/ops_runners/migrations/README.md). |
+| `ir.migrations.register_migration` / `base.register_migration` | Explicit caller-supplied edges in the IR registry; supported descriptor equality, conflict, cycle, empty-cell and unsupported-capture outcomes are exercised. Importing the facade is not permission to reinterpret legacy non-Trinity payloads. |
+| `common.migrations.register_migration` | Neutral Common profile with its own replacement, copy, stamping and error ABI; shared traversal does not erase those differences. |
+| Common legacy adapter / Fabric explicit registration / CLI per-call edge | The dataset `0.9 -> 1.0` composition and two import orders are enumerated in [Common adapter support](../../common/migrations/README.md). |
+| `data_forge.kernel.schemas.migrations.SchemaMigrationRegistry` | Explicit instance-owned `SchemaMigrationPlan` registrations use three-component versions and deterministic shortest-path traversal. This graph is not silently replaced by the Common/IR linear profile. |
+
+The finite callback/configuration corpus is
+[test_mig_05.py](../../../../tests/unit/remediation/test_mig_05.py): actual manifest
+and Trinity helpers, supported scalar/mapping captures, genuine empty cells,
+unsupported opaque captures, a changed semantic dictionary, an immutable tuple
+configuration plus mutable observer, Common/IR no-op/copy/stamp/error profiles,
+and instance-owned Data Forge branching/direct-read controls. It checks actual
+conversion separately from read compatibility and strict DTO admission. The
+registration fingerprint does not bind arbitrary library/global/file state: the
+changed dictionary intentionally changes the result without re-registration.
+Its profile is non-reproducible across that change. Reproducible callers must
+supply immutable/versioned semantic configuration and identify implementation and
+environment; an observer list alone does not require blanket freezing or rehashing.
+
+The source-qualified historical sample referenced by this record is the Runtime
+protocol-4 fixture in [Replay support](../../scientist/replay/README.md), not an
+exhaustive repository or historical-corpus inventory. Current writer and synthetic
+dataset/Trinity vectors remain separately identified. No
+external migration callbacks, original historical dataset/Policy IR payloads or
+their semantic configuration/implementation/environment bindings were supplied for
+this record. Their compatibility is `not_established`, not zero or universally
+refused. A concrete external compatibility claim needs that callback/import path,
+versioned configuration, input bytes/hash and expected consumer result; this does
+not block the independently qualified unsupported-versus-empty fix or normal use
+of the registration APIs. Source/native qualification does not establish the shared
+noneditable installed I06-E composition. Operator windows remain those in the
+[migration contract](../../../../ops/migrations/migration-contracts.toml); no adapter
+retirement is approved by this record.
+
 ## Public entrypoints
 
 | Entrypoint                                                               | Use when                                                          | Defined in                                                |

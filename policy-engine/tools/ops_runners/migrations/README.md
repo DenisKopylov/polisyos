@@ -18,6 +18,50 @@ Conversion, path normalization, strict target DTO validation, and provenance or
 admission are separate operations; a successful conversion is not evidence that
 an artifact is admissible for another use.
 
+## Helper and support window (REQ-MIG-01-03)
+
+The complete binding denominator for this record is the four `[[helper_binding]]`
+rows of [migration-contracts.toml](../../../ops/migrations/migration-contracts.toml),
+not an external-command usage census:
+
+| Binding | Selected implementation and release boundary |
+| --- | --- |
+| `policy_ir` | `polisyos.ir.migrations.migrate_policy_ir`; canonical Trinity baseline `1.0`, current-version validation and unchanged mapping identity. Legacy non-Trinity inputs remain refused. |
+| `dataset_manifest` | `polisyos.fabric.identity.migrations.migrate_manifest_0_9_to_1_0`; format-only `0.9 -> 1.0`, passed as a per-call `selected_edges` entry. Fabric DTO/registry admission is separate. |
+| `run_manifest` | `polisyos.runtime.manifest_migrations.migrate_run_manifest_paths`; path-only Runtime 1.0 normalization, no schema-version conversion or `--to`, separate output and unchanged source bytes. |
+| `duckdb_to_postgresql` | `tools.ops_runners.migrations.migrate_duckdb_to_pg`; the separate manual/operator DB runner. The artifact-helper native corpus does not qualify a production DB rollout. |
+
+`tools.cli` registers the artifact command; `tools.ops_runners.migrations.migrate`
+and `contracts.py` own dispatch and binding admission. No duplicate root `migrate.py`
+is restored. Public helper lifecycle remains distinct:
+
+| Helper/input | Observable contract |
+| --- | --- |
+| `split_to_bundle(model)`, `load_policy(model)` | Preserve the ready model's identity. |
+| `migrate_policy_ir(mapping)` at `1.0` | Validate the complete Trinity bundle and return that same mapping. |
+| `migrate_policy_ir_identity(mapping)` | Validate, then return a normalized Python-mode model dump including defaults. |
+| `load_trinity_bundle(...)` | Return `(model, None)`; shape loading alone is not migration admission. |
+| Invalid mapping with `auto_migrate=True` / `False` | `PolicyLoadError` retains respectively `Payload is not a valid TrinityBundle.` / `Unsupported policy payload for TrinityBundle loader`. |
+| Malformed JSON/YAML and invalid UTF-8 samples | Explicit parser modes retain `JSONDecodeError` / YAML `ParserError`. The loader wraps undecodable bytes in `PolicyLoadError` with a `UnicodeDecodeError` cause; native CLI file decoding raises `UnicodeDecodeError`. |
+
+[MIG-01 tests](../../../tests/unit/remediation/test_mig_01.py),
+[dispatch tests](../../../tests/unit/remediation/test_migration_dispatch_contract.py),
+[RunManifest consumers](../../../tests/unit/remediation/test_migration_run_manifest_consumers.py)
+and [Trinity contract tests](../../../tests/contract/test_trinity_migration.py)
+are the named Python caller/helper corpus for this record; the table also names the TOML
+and Markdown operational bindings. External command wrappers, FQN consumers and
+original historical command inputs are not supplied and are not counted as absent.
+A successful current helper never retroactively validates a historical output.
+
+The contract already assigns a one-major-release runtime-state reader window and a
+two-minor-release IR/API-schema window; these class policies are not an approved
+retirement date for the retained Python adapters. Keep their existing interfaces
+until a separate owner-approved change supplies the affected caller/input set and
+migration path. See [Common adapter support](../../../src/polisyos/common/migrations/README.md)
+and [IR callback support](../../../src/polisyos/ir/migrations/README.md).
+The shared noneditable installed I06-E run remains a separate qualification; the
+source/native corpus and installed-shaped resolver test do not establish it.
+
 ## Scripts
 
 | Script                    | What It Does                                                                                         | Status                       |

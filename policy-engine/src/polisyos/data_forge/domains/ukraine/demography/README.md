@@ -102,6 +102,26 @@ selected complete layout without donor; absence intent remains not_established.
 The reader
 call signatures and supported historical filesystem inputs remain available.
 
+Aggregate assembly preserves computational ownership: targets own the ordered
+state axis and target/entrant totals; priors own transition arrays; donors own
+donor weights and discrete IDs. An equal foreign repetition is accepted without
+replacing its owner. A different repetition, or an attempt to supply a missing
+owner's field from another role, raises `demography_role_conflict`. Unknown fields
+retain the DTO's existing extra-field refusal. Flat metadata stays available;
+`metadata.demography_role_metadata` additionally retains every selected role's
+metadata, including collisions. Resolved source status, identity and evidence
+are assigned after assembly; member metadata cannot replace them or establish
+external source authority.
+
+Donor state and record IDs are admitted as original scalars before NumPy can
+infer a common floating dtype. Finite integer-valued floats remain supported,
+but fractional/nonfinite/out-of-int64 values refuse before conversion. Signed
+record IDs are preserved. In particular, `[2**53 + 1, 1.0]` retains the first
+Python integer exactly; an already-rounded float array exposes only its actual
+floating value, with no attempt to reconstruct lost history. Projection payload
+and evidence exports are detached, and aging-state arrays are owned copies, so
+editing an exported value does not alter the captured source or another consumer.
+
 For candidate inventory calls, scalar readers validate all present members
 against the aggregate shape contract before projecting one role. A missing
 optional donor with ``not_established`` disposition remains absent for target

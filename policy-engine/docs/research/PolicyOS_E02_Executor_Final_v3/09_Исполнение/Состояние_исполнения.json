@@ -5,7 +5,7 @@
   "specification_version": "v3",
   "reference_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
   "actual_start_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
-  "active_lane": "LANE-08",
+  "active_lane": "LANE-07",
   "lane_order": [
     "LANE-06",
     "LANE-08",
@@ -1817,7 +1817,7 @@
           "policy-engine/docs/reference/public-surface.md": "a51e2082a6b014098d5547d231fe45981b37351ea803cbf5ae335d89233e2ec6",
           "policy-engine/release-fragments/unreleased/2026-11-02-e02-selected-ingestion.toml": "c519f31e6c200b995cc175cfd78b1360647012032686b8555f5948e0a594a59f"
         },
-        "remaining": "No identified unimplemented LANE08 local criterion remains in the declared profiles. All48 local requirements and11 lane bindings are qualified; two cross-story bindings remain conditional for their later selected consumers. Global architecture/required CI, final installed-artifact checks, stronger retrieval utility/external authority and independent G/final E02 acceptance are not inferred. Stop after LANE08; do not start LANE07 automatically.",
+        "remaining": "No identified unimplemented LANE08 local criterion remains in the declared profiles. All48 local requirements and11 lane bindings are qualified; two cross-story bindings remain conditional for their later selected consumers. Global architecture/required CI, final installed-artifact checks, stronger retrieval utility/external authority and independent G/final E02 acceptance are not inferred. User subsequently authorized LANE07 on2026-11-02; LANE08 evidence and G boundary are unchanged.",
         "delivered_first_commit": "d0ff6efdfd4756bcbcb7012abe74ed30155cfb0a",
         "delivered_first_tree": "17c6b74e187bf86cbad3ebfbed71b36083ada54c",
         "delivered_followup_commit": "3a3556ef5b35bfdc7af04c172a105fcc53cbc4ef",
@@ -1851,17 +1851,177 @@
         "writer_policy": "Root index/refs/generated families; one writer per file. Child alone owns whole streaming.py. Catalog pipeline handoff completed EMB02 -> DFI03.",
         "stop_after_lane": "LANE-08",
         "next_lane": "LANE-07",
-        "next_lane_started": false
+        "next_lane_started": true,
+        "successor_authorization": "User explicitly authorized LANE07 on2026-11-02; LANE08 local qualification remains unchanged."
       }
     },
     {
       "lane_id": "LANE-07",
       "sequence": 3,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "IN_PROGRESS",
+      "local_qualification": "PARTIAL",
       "capability_acceptance": "NOT_RUN",
-      "transition_evidence": [],
-      "corrective_windows": []
+      "transition_evidence": [
+        {
+          "source_commit": "23f8a05325b63cd8ee91d35a549c63a6947a644e",
+          "source_tree": "8e9a5b24fdc308b5247b245f6875979c338e9c02",
+          "basis": "User authorized the next scheduled implementation lane on2026-11-02 after LANE08 local implementation/named-profile qualification. Existing42 LANE07 requirements govern work; G and final E02 acceptance remain separate.",
+          "g_acceptance": false,
+          "formal_closure": false
+        }
+      ],
+      "corrective_windows": [],
+      "denominator": {
+        "packets": 9,
+        "unique_requirements": 42,
+        "local_tests": 42,
+        "shared_bindings": 9,
+        "shared_requirement_occurrences": 31,
+        "shared_unique_requirements": 31,
+        "shared_test_references": 32,
+        "shared_requirement_test_edges": 31,
+        "local_only_requirements": 11,
+        "source_id_occurrences": 19,
+        "distinct_source_ids": 17,
+        "preserve_global_E02": [
+          26,
+          127,
+          282,
+          291,
+          319
+        ]
+      },
+      "source_admission": {
+        "commit": "23f8a05325b63cd8ee91d35a549c63a6947a644e",
+        "tree": "8e9a5b24fdc308b5247b245f6875979c338e9c02",
+        "attached_branch": "main",
+        "delivery_ref": "codex/e02-main-composition-20261031",
+        "tracked_state_before_start": "clean",
+        "lock_sha256": "05a827aadea78c109b7f136d7987f561e7952dbf77dfc2249272fa1774e5cd88",
+        "environment": "Existing Python3.14.3/certifi2026.10.23 environment, corepack/Node22 and local native dependencies reused. Product .venv symlink was executed successfully; an initial assistant inference of unavailability from symlink metadata was false and corrected. No existing Lima instance was found; none is provisioned."
+      },
+      "write_owners": {
+        "ukraine": "/root/lane07_ukraine: UDF01→OBS01→UDF02→OBS02, builders/calendar/I/O/read_api/blueprint; whole orchestrator lease explicitly transferred to Ops for guard repair then returned.",
+        "demography": "/root/lane07_demography: demography package/inventory builder/static aging, shared read_api remains with Ukraine owner.",
+        "federation": "/root/lane07_federation: FED01→FED02 composer/resolver/artifact/profile and shared common finite-binary64 helper; UDF05 interface stable, native joint proof follows both.",
+        "calibration": "/root/lane07_calibration: preflight/measurement/calibrator; MeasurementAwareTarget optional declarations/schema1.1, root owns generated companions.",
+        "operations": "/root/lane07_ops: public console/gate/receipt Ops; orchestrator only during explicit whole-file transfer; no server/provisioning execution.",
+        "coordination": "root: sole canonical index/commits/refs, existing WorkPlan/state, shared public/generated families and resource admission."
+      },
+      "resource_admission": {
+        "free_disk_gib_approx": 13,
+        "physical_ram_gib": 16,
+        "memory_pressure_free_percent": 65,
+        "policy": "Initial unknown import/native profiles run alone. Measured bounded light jobs may overlap up to about3GiB observed aggregate, each with its own cap/deadline and isolated CAS/DB/output. Actual footprint/RSS/disk remain separate. No environment/source/data copies or cleanup.",
+        "first_measured_profiles": "UDF01~1.013GB/9.843s; demographic basics~.131GB/2.820s, native~.627GB/8.133s; CALpreflight~.663GB/6.003s; FEDnative~.326GB/3.794s. These are measured inputs, not permanent quotas."
+      },
+      "branch_reuse": {
+        "refs_inspected": 142,
+        "local_refs": 45,
+        "origin_refs": 97,
+        "finding": "Targeted CAL01/federation progress tips are ancestors of the admitted source and are already reused. Bounded100-commit owner-path search found only an unrelated CAL06 orphan delta outside this lane; no cherry-pick/reset/branch deletion performed.",
+        "limit": "Relevant branch/owner-path inspection, not a claim that every historical proposal or unattached Git object was exhaustively reviewed."
+      },
+      "decisions": [
+        {
+          "id": "DEC-FED-01-01",
+          "disposition": "Reuse CPython3.14 statistics.mean through one thin common finite_binary64_mean/midpoint owner; independent rational oracles. UQS01 is a future consumer, not a predecessor. Optimization requires measured benefit, not a new arithmetic engine."
+        }
+      ],
+      "late_windows": [
+        {
+          "id": "DA-02",
+          "scope": "Only the selected snapshot→actual Foundry consumer part of UDF02/I07A if that execution profile genuinely depends on changed/unavailable LANE04 primitives. Existing unchanged qualified consumers can satisfy it early.",
+          "trigger": "Actual selected intake/execution profile frozen and native composed consumer verified."
+        },
+        {
+          "id": "DA-03",
+          "scope": "Only final observation→objective/uncertainty→fresh-report consumer shared with CAL02/06 in LANE10; CAL01 local source/axis/unit checks and available native optimizer remain early.",
+          "trigger": "Actual final LANE10 objective/report profile composed."
+        },
+        {
+          "id": "DA-08",
+          "scope": "Final impact-based build/profile replay after participating lanes; no independent-authoring delay.",
+          "trigger": "Final composed source/artifact/profile freeze."
+        }
+      ],
+      "execution_control": {
+        "only_active_implementation_lane": "LANE-07",
+        "next_lane": "LANE-04",
+        "next_lane_started": false,
+        "g_acceptance": false,
+        "final_acceptance": "NOT_RUN"
+      },
+      "evidence_catalog": {
+        "demography_native94": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane07-demography/release.json": {
+              "bytes": 3386,
+              "sha256": "d137e7659da9b64359a9baac497d770780f744db6faadbfada382d798d533a0e"
+            },
+            "policy-engine/_cache/e02/lane07-demography/profile.json": {
+              "bytes": 480,
+              "sha256": "8b2ae6bcdc39110e0641d63fcdfcfe9e1912d3bf6fa0d0696b7f033866b01ccd"
+            },
+            "policy-engine/_cache/e02/lane07-demography/final94/result.json": {
+              "bytes": 1361,
+              "sha256": "74355417986dc3dd92d6765fa99df215a5c0fc4572ddb8ebc0fa8b28f8bdda8c"
+            },
+            "policy-engine/_cache/e02/lane07-demography/final94/command.stdout.txt": {
+              "bytes": 160,
+              "sha256": "1482c412af7ca7ec55670b6807842ce239a7580855527c91d32357b21d8fae19"
+            },
+            "policy-engine/_cache/e02/lane07-demography/final94/command.stderr.txt": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "policy-engine/_cache/e02/lane07-demography/final94/pytest.xml": {
+              "bytes": 18425,
+              "sha256": "d3be33a5ea3b0129f2d9d6cc7887d601f64a73f06cf261990d59a1bf17a94f63"
+            },
+            "policy-engine/_cache/e02/lane07-demography/final94/before.json": {
+              "bytes": 2074,
+              "sha256": "d1a2f1167897f861231eff10ca2a0155106f281d15e4a9d73cac41f51b8b9cd5"
+            },
+            "policy-engine/_cache/e02/lane07-demography/final94/after.json": {
+              "bytes": 2074,
+              "sha256": "d1a2f1167897f861231eff10ca2a0155106f281d15e4a9d73cac41f51b8b9cd5"
+            },
+            "policy-engine/_cache/e02/lane07-demography/red/result.json": {
+              "bytes": 1077,
+              "sha256": "55cbfc41582cf1ed555451b368ecf9ee10b8dbefebfb5a43d890e452936e6ad5"
+            },
+            "policy-engine/_cache/e02/lane07-demography/red/command.stdout.txt": {
+              "bytes": 15582,
+              "sha256": "f66b4baca8d235b8d305b31a529be80dfe7a36acecf7e42b805460f91ed881e3"
+            }
+          },
+          "result": {
+            "PASS": 94,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0,
+            "seconds": 8.133835,
+            "max_rss_bytes": 622444544,
+            "named_inputs_unchanged": 16
+          },
+          "scope": "Actual role/exact-int64 DTO and historical JSON paths, real inventory builder/selected captured CAS/fresh readers and compatible three-state Foundry, member missing/corrupt refusal and immutable exports. Supported local server config; independent Part-A prerequisite bypass and synthetic calibration are disclosed. No scientific/source-owner/currentness authority, actual server/C7 or G acceptance. Independent seven-path source/runtime review GO.",
+          "availability": "Actual local bytes read/hashed, no remote evidence delivery claim."
+        }
+      },
+      "current_source_checkpoint": {
+        "binding": "Containing commit binds the explicit released component blobs; deciding outputs retain their actual complete named input set, including other coordinated changes. No whole-lane/source/artifact PASS is inferred.",
+        "released_sha256": {
+          "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py": "03bc98fe6700f4a6796874e575303c64146c219a07025713847180adc13f7089",
+          "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py": "26c409cdd59f2209e6ab87cc6f8594532e40858ddd6d3035daeac847841c214c",
+          "policy-engine/src/polisyos/data_forge/domains/ukraine/static_aging.py": "655176c9a9272fa6f966deeade5ce8c4d80d02ea68200accf8ea58170b84f8d1",
+          "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/README.md": "660792f0d6966b08829173309a985b485c94ad4ca24bbe3d08a95f4c83f811de",
+          "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_integrity.py": "6f3cd31afd77db6f515563936841e733ad1567a5eb5944f464c309b434fb5716",
+          "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_native_integrity.py": "7a8ef53df78b50796fe9f84c7f768242ec1ce9bd530241922edbb08b81ba43fd",
+          "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py": "c1940bf7386144d4a97841129de9593d04c11854dcd43fb830b5190ba7358543"
+        },
+        "remaining": "Ukraine native/public rerun/installed gate, federation cold/runtime/performance final binding, calibration review+ABI and shared I07 scenarios remain active."
+      }
     },
     {
       "lane_id": "LANE-04",
@@ -6508,11 +6668,11 @@
       "lane_sequence": 3,
       "track_id": "07-A",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane07_ukraine",
+      "base_commit": "23f8a05325b63cd8ee91d35a549c63a6947a644e",
       "integrated_commit": null,
       "actual_write_set": [],
       "shared_writer": null,
@@ -6539,11 +6699,11 @@
       "lane_sequence": 3,
       "track_id": "07-A",
       "track_position": 2,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane07_ukraine",
+      "base_commit": "23f8a05325b63cd8ee91d35a549c63a6947a644e",
       "integrated_commit": null,
       "actual_write_set": [],
       "shared_writer": null,
@@ -6570,11 +6730,11 @@
       "lane_sequence": 3,
       "track_id": "07-A",
       "track_position": 3,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane07_ukraine",
+      "base_commit": "23f8a05325b63cd8ee91d35a549c63a6947a644e",
       "integrated_commit": null,
       "actual_write_set": [],
       "shared_writer": null,
@@ -6603,11 +6763,11 @@
       "lane_sequence": 3,
       "track_id": "07-A",
       "track_position": 4,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane07_ukraine",
+      "base_commit": "23f8a05325b63cd8ee91d35a549c63a6947a644e",
       "integrated_commit": null,
       "actual_write_set": [],
       "shared_writer": null,
@@ -6634,13 +6794,21 @@
       "lane_sequence": 3,
       "track_id": "07-B",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "PARTIAL",
+      "assigned_executor": "/root/lane07_demography",
+      "base_commit": "23f8a05325b63cd8ee91d35a549c63a6947a644e",
       "integrated_commit": null,
-      "actual_write_set": [],
+      "actual_write_set": [
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py",
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/static_aging.py",
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/README.md",
+        "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_integrity.py",
+        "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_native_integrity.py",
+        "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -6659,9 +6827,115 @@
         "TEST-UDF-05-05",
         "TEST-UDF-05-06"
       ],
-      "evidence": [],
+      "evidence": [
+        "demography_native94"
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-UDF-05-01",
+          "criterion_pointer": "04_Трассировка/UDF-05.json#/requirements/0",
+          "test_ids": [
+            "TEST-UDF-05-01",
+            "TEST-UDF-05-05"
+          ],
+          "binding_ids": [
+            "E02-I07-B-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "demography_native94"
+          ],
+          "basis": "Bounded candidate/legacy software route qualified by the actual94-case cohort and independent review; empirical/currentness authority remains explicitly not_established. Shared federation family remains pending.",
+          "capability_gaps": []
+        },
+        {
+          "requirement_id": "REQ-UDF-05-02",
+          "criterion_pointer": "04_Трассировка/UDF-05.json#/requirements/1",
+          "test_ids": [
+            "TEST-UDF-05-02",
+            "TEST-UDF-05-05"
+          ],
+          "binding_ids": [
+            "E02-I07-B-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "demography_native94"
+          ],
+          "basis": "Bounded candidate/legacy software route qualified by the actual94-case cohort and independent review; empirical/currentness authority remains explicitly not_established. Shared federation family remains pending.",
+          "capability_gaps": []
+        },
+        {
+          "requirement_id": "REQ-UDF-05-03",
+          "criterion_pointer": "04_Трассировка/UDF-05.json#/requirements/2",
+          "test_ids": [
+            "TEST-UDF-05-03",
+            "TEST-UDF-05-05"
+          ],
+          "binding_ids": [],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "demography_native94"
+          ],
+          "basis": "Bounded candidate/legacy software route qualified by the actual94-case cohort and independent review; empirical/currentness authority remains explicitly not_established. Shared federation family remains pending.",
+          "capability_gaps": []
+        },
+        {
+          "requirement_id": "REQ-UDF-05-04",
+          "criterion_pointer": "04_Трассировка/UDF-05.json#/requirements/3",
+          "test_ids": [
+            "TEST-UDF-05-04",
+            "TEST-UDF-05-05"
+          ],
+          "binding_ids": [
+            "E02-I07-B-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "demography_native94"
+          ],
+          "basis": "Bounded candidate/legacy software route qualified by the actual94-case cohort and independent review; empirical/currentness authority remains explicitly not_established. Shared federation family remains pending.",
+          "capability_gaps": []
+        },
+        {
+          "requirement_id": "REQ-UDF-05-05",
+          "criterion_pointer": "04_Трассировка/UDF-05.json#/requirements/4",
+          "test_ids": [
+            "TEST-UDF-05-03",
+            "TEST-UDF-05-05",
+            "TEST-UDF-05-06"
+          ],
+          "binding_ids": [
+            "E02-I07-B-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "demography_native94"
+          ],
+          "basis": "Bounded candidate/legacy software route qualified by the actual94-case cohort and independent review; empirical/currentness authority remains explicitly not_established. Shared federation family remains pending.",
+          "capability_gaps": []
+        },
+        {
+          "requirement_id": "REQ-UDF-05-06",
+          "criterion_pointer": "04_Трассировка/UDF-05.json#/requirements/5",
+          "test_ids": [
+            "TEST-UDF-05-01",
+            "TEST-UDF-05-04",
+            "TEST-UDF-05-05"
+          ],
+          "binding_ids": [
+            "E02-I07-B-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "demography_native94"
+          ],
+          "basis": "Bounded candidate/legacy software route qualified by the actual94-case cohort and independent review; empirical/currentness authority remains explicitly not_established. Shared federation family remains pending.",
+          "capability_gaps": []
+        }
+      ]
     },
     {
       "packet_id": "FED-01",
@@ -6669,11 +6943,11 @@
       "lane_sequence": 3,
       "track_id": "07-B",
       "track_position": 2,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane07_federation",
+      "base_commit": "23f8a05325b63cd8ee91d35a549c63a6947a644e",
       "integrated_commit": null,
       "actual_write_set": [],
       "shared_writer": null,
@@ -6702,11 +6976,11 @@
       "lane_sequence": 3,
       "track_id": "07-B",
       "track_position": 3,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane07_federation",
+      "base_commit": "23f8a05325b63cd8ee91d35a549c63a6947a644e",
       "integrated_commit": null,
       "actual_write_set": [],
       "shared_writer": null,
@@ -6735,11 +7009,11 @@
       "lane_sequence": 3,
       "track_id": "07-C",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane07_calibration",
+      "base_commit": "23f8a05325b63cd8ee91d35a549c63a6947a644e",
       "integrated_commit": null,
       "actual_write_set": [],
       "shared_writer": null,
@@ -6770,11 +7044,11 @@
       "lane_sequence": 3,
       "track_id": "07-D",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane07_ops",
+      "base_commit": "23f8a05325b63cd8ee91d35a549c63a6947a644e",
       "integrated_commit": null,
       "actual_write_set": [],
       "shared_writer": null,

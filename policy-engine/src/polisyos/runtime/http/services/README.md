@@ -40,6 +40,17 @@ The existing pre-admission actor/run/profile/ledger and origin checks remain in 
 The actual research POST pre-admission replay, distinct same-binding reuse event, altered
 or missing origin controls and late physical settlement are mandatory verification inputs.
 
+## Candidate simulation failure outputs
+
+`control/job_nl_execution.py` replays selected, same-job N5 artifacts before
+linking them to either a compiled result or a failed Core attempt. The original
+late-stage exception is re-raised; the existing Core error record and Debug view
+retain its code, type, message and explicit cause. Error attributes alone grant
+no output membership. Publication remains behind the canonical current-attempt
+fence. Read-side numerical projection instead uses the immutable creation scope
+and exact terminal attempt, so a later attempt does not erase historical N5
+facts. See [the numerical owner and candidate projection boundary](../../quality/README.md#retained-candidate-n5-results).
+
 ## Role in System
 
 - **Depends on:** `core.artifacts`, `core.contracts`, `core.trace`, `core.security`, and the domain packages used by control-plane calls.

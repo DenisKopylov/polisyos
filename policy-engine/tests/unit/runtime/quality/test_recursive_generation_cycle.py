@@ -29,6 +29,105 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 
 
 @pytest.mark.asyncio
+async def test_recursive_single_leaf_failure_preserves_original_error_and_cause(tmp_path) -> None:
+    """The real recursive catch boundary rethrows the leaf error with its existing cause."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from tests._helpers.candidate_cycle_source_profile import _problem
+    from tests.unit.runtime.quality.test_generation_cycle import _budget
+
+    base = _problem(runtime_hints=None)
+    hints = dict(base.runtime_hints)
+    hints.pop("cycle_substrate_source_profile")
+    problem = base.model_copy(update={"runtime_hints": hints})
+    cause = LookupError("preexisting leaf cause")
+    error = GenerationCycleError("controlled_original_leaf_failure", "original leaf failure")
+    error.__cause__ = cause
+    original = (type(error), error.code, str(error), error.__cause__)
+    calls: list[int] = []
+
+    class FailingN4Port(N4GenerationPort):
+        async def __call__(self, _problem: Any, *, cycle_index: int) -> Any:
+            calls.append(cycle_index)
+            raise error
+
+    store = FileSystemCAS(tmp_path / "original-leaf-cause-cas")
+    controller = build_default_recursive_generation_cycle_controller(
+        promotion_runtime=PromotionRuntime(store=store), repo_root=tmp_path
+    )
+    graph = derive_recursive_design_graph(
+        design_ref="design://original-leaf-cause",
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="test://original-leaf-cause",
+    )
+    with pytest.raises(GenerationCycleError) as raised:
+        await controller.run(
+            graph,
+            problems_by_node={graph.root_design_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=1, max_nodes=1, min_cycles_per_leaf=1, max_cycles_per_leaf=1
+            ),
+            n4_generation_ports_by_node={
+                graph.root_design_ref: FailingN4Port(
+                    model_id="controlled-original-leaf-cause", repo_root=tmp_path
+                )
+            },
+            execution_intents_by_node={graph.root_design_ref: "simulate_only"},
+        )
+    assert calls == [0]
+    assert raised.value is error
+    assert (type(error), error.code, str(error), error.__cause__) == original
+    assert raised.value.__cause__ is cause
+
+
+@pytest.mark.asyncio
+async def test_cycle_failure_without_current_n5_clears_stale_error_packet_and_local_slot(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An engine fault before completion cannot recycle diagnostic data from another call."""
+    from polisyos.runtime.quality import generation_cycle as generation_cycle_module
+    from tests._helpers.controlled_candidate_profile import _budget, _problem
+
+    cause = LookupError("preexisting cycle cause")
+    error = GenerationCycleError("controlled_before_n5_failure", "same reused cycle error")
+    original_text = str(error)
+    error.__cause__ = cause
+    slots: list[Any] = []
+
+    class FailingEngine:
+        async def run_async(self, state: dict[str, Any]) -> Any:
+            slot = state["_generation_cycle_n5_partial_slot"]
+            assert slot.completion is None and slot.failed_stage is None
+            slots.append(slot)
+            # A stage marker alone carries no completed N5 or publication authority.
+            slot.failed_stage = "revision"
+            raise error
+
+    controller = generation_cycle_module.GenerationCycleController()
+    monkeypatch.setattr(controller, "_engine", FailingEngine())
+    problem = _problem("reused_error_no_current_n5")
+    for cycle_index in range(2):
+        # Deliberately unissued stale data: this test creates no scope or execution ref.
+        setattr(error, generation_cycle_module._N5_PARTIAL_FAILURE_ATTRIBUTE, object())
+        with pytest.raises(GenerationCycleError) as raised:
+            await controller._run_cycle(
+                problem,
+                cycle_index=cycle_index,
+                budget_state=_budget(),
+                previous_cycle=None,
+            )
+        assert raised.value is error
+        assert raised.value.__cause__ is cause
+        assert raised.value.code == "controlled_before_n5_failure"
+        assert str(raised.value) == original_text
+        assert not hasattr(error, generation_cycle_module._N5_PARTIAL_FAILURE_ATTRIBUTE)
+        assert generation_cycle_module._completed_n5_failure_from_exception(error) is None
+        assert slots[-1].completion is None and slots[-1].failed_stage is None
+    assert len(slots) == 2 and slots[0] is not slots[1]
+
+
+@pytest.mark.asyncio
 async def test_real_leaf_result_survives_later_independent_sibling_failure(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,

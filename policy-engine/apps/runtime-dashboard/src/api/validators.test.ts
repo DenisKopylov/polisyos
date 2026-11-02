@@ -45,6 +45,20 @@ function mutableRecord(value: unknown): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
+function compiledCandidateProjection(
+  value: ReturnType<
+    typeof runDetailsSchema.parse
+  >["run"]["candidate_simulation"],
+) {
+  if (
+    value?.schema_version !==
+    "policyos.runtime.run_candidate_simulation_projection.v1"
+  ) {
+    throw new TypeError("expected compiled candidate projection");
+  }
+  return value;
+}
+
 function firstMutableRecord(
   value: unknown,
   fixtureMember: string,
@@ -924,7 +938,9 @@ describe("runtime API validators", () => {
       acquisition_history_limitation_code: null,
     };
     run.candidate_simulation = candidate;
-    const parsed = runDetailsSchema.parse(payload).run.candidate_simulation!;
+    const parsed = compiledCandidateProjection(
+      runDetailsSchema.parse(payload).run.candidate_simulation,
+    );
     expect(parsed.acquisition_history[0]).toMatchObject({
       terminal_outcome: "source_admitted_evaluation_retained",
       retained_evaluation: {
@@ -1104,19 +1120,20 @@ describe("runtime API validators", () => {
 
     const parsed = runDetailsSchema.parse(payload);
 
-    expect(parsed.run.candidate_simulation?.acquisition_history).toHaveLength(
-      1,
-    );
     expect(
-      parsed.run.candidate_simulation?.acquisition_history?.[0]
-        ?.expected_origin_source_ref,
+      compiledCandidateProjection(parsed.run.candidate_simulation)
+        .acquisition_history,
+    ).toHaveLength(1);
+    expect(
+      compiledCandidateProjection(parsed.run.candidate_simulation)
+        .acquisition_history?.[0]?.expected_origin_source_ref,
     ).toMatchObject({
       artifact_id: "sha256:" + "f".repeat(64),
       manifest_profile_sha256: "sha256:" + "b".repeat(64),
     });
     expect(
-      parsed.run.candidate_simulation?.acquisition_history?.[0]
-        ?.currentness_status,
+      compiledCandidateProjection(parsed.run.candidate_simulation)
+        .acquisition_history?.[0]?.currentness_status,
     ).toBe("not_established");
 
     const malformedJoin = structuredClone(payload);
@@ -1165,8 +1182,8 @@ describe("runtime API validators", () => {
     delete legacyEntry.origin_source_binding_status;
     const parsedLegacy = runDetailsSchema.parse(legacyMissingMetadata);
     expect(
-      parsedLegacy.run.candidate_simulation?.acquisition_history?.[0]
-        ?.schema_version,
+      compiledCandidateProjection(parsedLegacy.run.candidate_simulation)
+        .acquisition_history?.[0]?.schema_version,
     ).toBeUndefined();
 
     const missingExpectedOrigin = structuredClone(payload);

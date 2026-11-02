@@ -842,6 +842,11 @@
         "intent": "Intent: {intent}"
       },
       "candidateSimulation": {
+        "retainedAfterFailure": "The simulation completed before a later stage failed.",
+        "cycleIncomplete": "The policy cycle is incomplete; these results do not establish success.",
+        "failedStage": "Later failure: {stage}",
+        "valueProjectionStage": "Value assessment",
+        "revisionStage": "Policy revision",
         "title": "Conditional simulation",
         "authority": "Candidate scenario evidence. Publication authority is not established.",
         "refused": "Simulation observation is unavailable for this run.",

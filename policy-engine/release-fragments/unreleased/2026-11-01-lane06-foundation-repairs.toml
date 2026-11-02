@@ -14,6 +14,28 @@ generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
 
 [[compatibility_change]]
+id = "lane06-retained-candidate-numerical-projection"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: Runtime RunDetails candidate observation and failed-cycle projections"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Expose verified selected N5 numbers after sibling or same-leaf late failure through distinct candidate-only schemas. Preserve the existing completed projection and generic numerical purpose; retain raw artifact authority refusals."
+generated_client_compatibility = "requires_regeneration"
+
+[[compatibility_change]]
+id = "lane06-retained-candidate-generated-consumers"
+change_class = "js-package-api"
+impact = "additive"
+surface = "public_stable: generated Runtime SDK and dashboard response types"
+owner = "team-frontend"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "Regenerate first-party types and narrow dashboard consumers by the failed/completed schema discriminator; show retained candidate numbers without promotion or cycle completion. Strict consumers need the regenerated failed-projection union."
+generated_client_compatibility = "declared_compatible"
+
+[[compatibility_change]]
 id = "lane06-ncm-owner-default-reader"
 change_class = "python-public-api"
 impact = "additive"

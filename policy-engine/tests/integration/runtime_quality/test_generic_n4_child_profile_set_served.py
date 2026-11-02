@@ -3581,3 +3581,605 @@ async def test_original_second_capture_tcp_reopens_partial_n5_after_sibling_fail
     assert len(matching_budget_summaries) == 1
     assert matching_budget_summaries[0]["status"] == budget_first_run["status"]
     assert matching_budget_summaries[0]["run_terminality"] == "terminal"
+
+
+async def _prepare_res03_bounded_generic_replay(
+    *,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+    served_worker_phase_probe: Any,
+    synthetic_provider: bool = False,
+) -> tuple[Any, list[dict[str, Any]]]:
+    """Prepare real source owners and the unchanged three-proposal N4 recording."""
+    from polisyos.runtime.http.security import build_fixture_identity_claims
+    from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
+    from tests.unit.runtime.http.test_nl_pipeline_materialization import (
+        _DeterministicSpanSupportClient,
+    )
+
+    claims = build_fixture_identity_claims()
+    assert claims.cell_id is not None
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+    )
+
+    # Use the existing source owners over a declared finite fixture, rather
+    # than loading production-sized reference graphs for a retention property.
+    source_inputs = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "res03-bounded-source-root",
+        include_owner_slot_manifest=True,
+        # These are deterministic candidate inputs over the tracked owner
+        # mechanisms and parameter domains, without a law/permission mapping.
+        owner_knob_dictionary={
+            "tax_relief_rate": {
+                "default": 0.1,
+                "type": "float",
+                "min": 0.0,
+                "max": 0.5,
+                "mechanism_id": "tax_relief_rate",
+                "param_path": "params.rate",
+            },
+            "procurement_shock_intensity": {
+                "default": 0.1,
+                "type": "float",
+                "min": -1.0,
+                "max": 1.0,
+                "mechanism_id": "procurement_shock_intensity",
+                "param_path": "params.intensity",
+            },
+        },
+    )
+    # Keep all three original proposals for the unchanged min-three diversity
+    # gate. The two declared owner knobs must bind exactly two child designs;
+    # the unsupported guarantee remains a real blocked disposition.
+    prepared = await prepare_generic_n4_served_replay(
+        tmp_path=tmp_path,
+        controlled_candidate_gateway=controlled_candidate_gateway,
+        monkeypatch=monkeypatch,
+        tenant_id=claims.tenant_id,
+        cell_id=claims.cell_id,
+        recording_mode="original_second_capture",
+        child_count=2,
+        phase_callback=served_worker_phase_probe,
+        source_root=source_inputs.root,
+    )
+    lever_slice = prepared.organ_run.result.lever_space_prompt_slice
+    assert lever_slice.status == "derived"
+    assert {entry.operator_kind for entry in lever_slice.entries} == {
+        "tax_relief_rate",
+        "procurement_shock_intensity",
+    }
+    assert all(entry.binding_status == "world_bound" for entry in lever_slice.entries)
+    assert prepared.source_root == source_inputs.root
+    assert prepared.app_kwargs["repo_root"] == source_inputs.root
+    source_witness = prepared.source_root_witness
+    assert source_witness["actual_kref_build_repo_roots"]
+    assert set(source_witness["actual_kref_build_repo_roots"]) == {str(source_inputs.root)}
+    assert max(source_witness["selected_l3_row_counts"].values(), default=0) < 1000
+    original_compiler = generation_cycle_service.build_design_problem_from_nl_request
+
+    async def run_real_compiler(**kwargs: Any) -> Any:
+        kwargs["span_support_client"] = _DeterministicSpanSupportClient()
+        return await original_compiler(**kwargs)
+
+    monkeypatch.setattr(
+        generation_cycle_service, "build_design_problem_from_nl_request", run_real_compiler
+    )
+    provider_observations: list[dict[str, Any]] = []
+    if synthetic_provider:
+        from decimal import Decimal
+
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.quality.generation_cycle import N4GenerationPort
+        from tests._helpers.controlled_candidate_profile import (
+            synthetic_controlled_candidate_provider_profile,
+        )
+
+        # Retain the historical recording unchanged. This is a separately
+        # identified provider over source-bound successful candidate bodies,
+        # with NEW synthetic usage and current configured cost estimates.
+        # It does not replay the historical errors or establish their costs.
+        controlled = copy.deepcopy(prepared.recording)
+        controlled["recording_id"] = prepared.source_recording_id + ":res03-synthetic-stage"
+        controlled["fixture_id"] = controlled["recording_id"]
+        controlled["recording_source"] = "res03_synthetic_stage_inputs_not_historical_billing"
+        controlled["derived_from_recording_id"] = prepared.source_recording_id
+        controlled["derived_from_content_hash"] = prepared.source_recording_content_hash
+        controlled["recording_content_hash"] = gy_content_hash(
+            {key: value for key, value in controlled.items() if key != "recording_content_hash"}
+        )
+        assert controlled["recording_content_hash"] != prepared.source_recording_content_hash
+        assert [row["raw_response_hash"] for row in controlled["responses"]] == [
+            row["raw_response_hash"] for row in prepared.recording["responses"]
+        ]
+
+        def lever_semantics(problem: Any) -> frozenset[tuple[str, tuple[str, ...]]]:
+            return frozenset(
+                (lever.operator_kind, (lever.target_slot,))
+                for lever in problem.candidate_lever_space.candidate_levers
+            )
+
+        # An allowed search lever is not a promise that N4 emits that lever.
+        # The root's independent producer selected these two grounded source
+        # candidates; each derived child then explores its own singleton lever.
+        root_source_semantics = frozenset(
+            (candidate.atom.operator_kind.trinity_kind, tuple(candidate.atom.target_world_slots))
+            for candidate in prepared.organ_run.result.candidates
+        )
+        expected_semantics_by_input = {
+            lever_semantics(prepared.recorded_problem): root_source_semantics,
+            **{
+                lever_semantics(child.problem): lever_semantics(child.problem)
+                for child in prepared.children
+            },
+        }
+        assert len(prepared.children) == 2 and len(expected_semantics_by_input) == 3
+        assert len(root_source_semantics) == 2
+        original_n4 = N4GenerationPort.__call__
+
+        def controlled_for_problem(problem: Any) -> dict[str, Any]:
+            selected = copy.deepcopy(controlled)
+            semantics = lever_semantics(problem)
+            if len(semantics) == 1:
+                # A leaf explores one real owner lever. Preserve min-three
+                # diversity with three distinct declared parameterizations of
+                # that lever, instead of replaying unrelated parent levers.
+                (operator, _targets) = next(iter(semantics))
+                parameter = {
+                    "tax_relief_rate": "rate",
+                    "procurement_shock_intensity": "intensity",
+                }[operator]
+                for index in (4, 8):
+                    response = selected["responses"][index]
+                    bundle = json.loads(response["raw_response"])
+                    parent_candidates = [
+                        item
+                        for item in bundle["policy_spec"]["interventions"]
+                        if item["kind"] == operator
+                    ]
+                    assert len(parent_candidates) == 1
+                    parent = parent_candidates[0]
+                    parameter_specs = [
+                        item
+                        for item in bundle["policy_spec"]["parameters"]
+                        if item["intervention_id"] == parent["intervention_id"]
+                        and item["param_path"] == parameter
+                    ]
+                    assert len(parameter_specs) == 1
+                    parameter_spec = parameter_specs[0]
+                    magnitude = Decimal(parent["params"][parameter])
+                    variants = []
+                    variant_parameters = []
+                    for variant_index, factor in enumerate(
+                        (Decimal("0.5"), Decimal(1), Decimal("1.1"))
+                    ):
+                        variant = copy.deepcopy(parent)
+                        suffix = f"_res03_parameterization_{variant_index}"
+                        variant["intervention_id"] += suffix
+                        value = magnitude * factor
+                        assert (
+                            Decimal(parameter_spec["min_value"])
+                            <= value
+                            <= Decimal(parameter_spec["max_value"])
+                        )
+                        variant["params"][parameter] = str(value)
+                        variants.append(variant)
+                        declared_parameter = copy.deepcopy(parameter_spec)
+                        declared_parameter["param_id"] += suffix
+                        declared_parameter["intervention_id"] = variant["intervention_id"]
+                        declared_parameter["default_value"] = str(value)
+                        variant_parameters.append(declared_parameter)
+                    assert len({item["params"][parameter] for item in variants}) == 3
+                    bundle["policy_spec"]["interventions"] = variants
+                    bundle["policy_spec"]["parameters"] = variant_parameters
+                    response["raw_response"] = json.dumps(
+                        bundle, sort_keys=True, separators=(",", ":")
+                    )
+                    response["raw_response_hash"] = gy_content_hash(response["raw_response"])
+            selected["recording_id"] += (
+                ":" + gy_content_hash(sorted(semantics)).removeprefix("sha256:")[:16]
+            )
+            selected["fixture_id"] = selected["recording_id"]
+            selected["recording_content_hash"] = gy_content_hash(
+                {key: value for key, value in selected.items() if key != "recording_content_hash"}
+            )
+            return selected
+
+        async def generate_from_declared_provider(
+            port: Any, problem: Any, *, cycle_index: int
+        ) -> Any:
+            input_semantics = lever_semantics(problem)
+            assert input_semantics in expected_semantics_by_input
+            expected_semantics = expected_semantics_by_input[input_semantics]
+            assert problem.outcome_of_interest == prepared.recorded_problem.outcome_of_interest
+            selected = controlled_for_problem(problem)
+            profile = synthetic_controlled_candidate_provider_profile(
+                prepared.recording,
+                selected,
+                problem=problem,
+                evidence_root=tmp_path / "res03-synthetic-provider-exchanges",
+            )
+            controlled_candidate_gateway.set_fixture(
+                selected, problem=problem, provider_profile=profile
+            )
+            controlled_candidate_gateway.admit_compiled_problem(problem)
+            # Only the candidate provider is a fixture. The stock N4 producer,
+            # semantic gates, request issuer, traced client and ledger all run.
+            organ = await original_n4(port, problem, cycle_index=cycle_index)
+            actual_semantics = frozenset(
+                (
+                    candidate.atom.operator_kind.trinity_kind,
+                    tuple(candidate.atom.target_world_slots),
+                )
+                for candidate in organ.result.candidates
+            )
+            assert actual_semantics == expected_semantics, {
+                "input_lever_space": sorted(input_semantics),
+                "expected_source_candidates": sorted(expected_semantics),
+                "actual_source_candidates": sorted(actual_semantics),
+                "actual_status": organ.result.status,
+                "diversity": organ.result.diversity_report.model_dump(mode="json"),
+            }
+            assert organ.result.status == "generated"
+            assert organ.result.diversity_report.min_required == 3
+            assert organ.result.diversity_report.diverse_enough
+            provider_observations.append(
+                {
+                    **profile.descriptor(),
+                    "actual_candidate_semantics": sorted(actual_semantics),
+                    "actual_candidate_status": organ.result.status,
+                }
+            )
+            return organ
+
+        monkeypatch.setattr(N4GenerationPort, "__call__", generate_from_declared_provider)
+    return prepared, provider_observations
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_native_n4_child_profile_set_canonical_roundtrip_controls(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+    served_worker_phase_probe: Any,
+    record_property: Any,
+) -> None:
+    """The real set writer/readback keeps its exact codec and refuses substitutions."""
+    from dataclasses import replace
+
+    from fastapi.testclient import TestClient
+
+    from polisyos.core.artifacts import ArtifactID, CanonInfo
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.quality import generation_source, recursive_generation_cycle
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        RecursiveGenerationCycleError,
+        RecursiveLeafContextOwner,
+    )
+    from tests._helpers.control_worker import dispatch_one_control_job
+
+    prepared, _provider_observations = await _prepare_res03_bounded_generic_replay(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        controlled_candidate_gateway=controlled_candidate_gateway,
+        served_worker_phase_probe=served_worker_phase_probe,
+    )
+    load = RecursiveLeafContextOwner.load_n4_child_profile_set
+    options_for = RecursiveLeafContextOwner._n4_child_profile_set_write_options
+    observed: dict[str, Any] = {}
+
+    class _SetControlsCompleteError(RuntimeError):
+        """Stop before N5 after the actual producer/readback property is checked."""
+
+    def check_actual_set(self: Any, ref: Any, **kwargs: Any) -> Any:
+        family = load(self, ref, **kwargs)
+        original_wire = self._store.get_bytes(ref)
+        options = options_for(family)
+        assert options.canon is not None
+        manifest = self._store.get_manifest(ref)
+        assert manifest.canon == options.canon
+        assert generation_source._has_owner_profile(manifest, options)
+
+        # A real second CAS profile of the same bytes has a valid codec, but
+        # not this owner's exact codec. The full ref must not downgrade to A.
+        wrong_canon = replace(recursive_generation_cycle._N4_CHILD_PROFILE_SET_CANON, max_depth=129)
+        sibling_ref = self._store.put_json(
+            family.model_dump(mode="json"),
+            replace(options, canon=CanonInfo.from_spec(wrong_canon)),
+            canon_spec=wrong_canon,
+            return_selected_profile=True,
+        )
+        assert sibling_ref.artifact_id == ref.artifact_id
+        assert sibling_ref.manifest_profile_sha256 is not None
+        assert self._store.get_bytes(sibling_ref) == original_wire
+
+        def sibling_is_refused() -> bool:
+            try:
+                load(self, sibling_ref, **kwargs)
+            except RecursiveGenerationCycleError as exc:
+                if exc.code != "recursive_n4_child_profile_set_manifest_mismatch":
+                    raise
+                return True
+            return False
+
+        assert sibling_is_refused()
+        with monkeypatch.context() as removed:
+            removed.setattr(generation_source, "_has_owner_profile", lambda *_args: True)
+            assert not sibling_is_refused(), (
+                "removing the actual profile gate must defeat the oracle"
+            )
+        assert sibling_is_refused()
+
+        # Actual missing/corrupt bytes must fail at the real reader, while
+        # restoring this exact temporary fixture blob restores the same family.
+        blob_path, _manifest_path = self._store._paths(ArtifactID.model_validate(ref.artifact_id))
+        assert blob_path.resolve(strict=True).is_relative_to(tmp_path.resolve(strict=True))
+        try:
+            for control in ("corrupt", "missing"):
+                if control == "corrupt":
+                    blob_path.write_bytes(b"res03-corrupt-child-profile-set")
+                else:
+                    blob_path.unlink()
+                with pytest.raises(RecursiveGenerationCycleError):
+                    load(self, ref, **kwargs)
+                blob_path.write_bytes(original_wire)
+                assert load(self, ref, **kwargs) == family
+        finally:
+            blob_path.write_bytes(original_wire)
+        assert self._store.get_bytes(ref) == original_wire
+        observed.update(
+            set_ref=ref.model_dump(mode="json"),
+            same_payload_wrong_codec_ref=sibling_ref.model_dump(mode="json"),
+            payload_sha256=hashlib.sha256(original_wire).hexdigest(),
+            payload_bytes=len(original_wire),
+            child_count=len(family.children),
+            controls=("wrong_codec", "profile_gate_removal", "corrupt", "missing", "restored"),
+        )
+        raise _SetControlsCompleteError(
+            "res03_actual_child_profile_set_controls_complete_before_n5"
+        )
+
+    monkeypatch.setattr(RecursiveLeafContextOwner, "load_n4_child_profile_set", check_actual_set)
+    with TestClient(create_runtime_api_app(**prepared.app_kwargs)) as client:
+        response = client.post(
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": uuid.uuid4().hex},
+            json={**prepared.request_json, "max_iterations": 1},
+        )
+        assert response.status_code == 200, response.text
+        accepted = response.json()
+        assert accepted["status"] == "accepted"
+        service = client.app.state._control_service
+        assert (
+            dispatch_one_control_job(
+                store=service._control_store,
+                handler=service._process_control_job,
+                expected_job_id=accepted["job_id"],
+            )
+            == accepted["job_id"]
+        )
+        job = service._control_store.get_job(accepted["job_id"])
+        assert job is not None
+        assert observed, job.error_message
+        assert "res03_actual_child_profile_set_controls_complete_before_n5" in str(
+            job.error_message
+        )
+    record_property("res03_child_profile_set_owner_controls", json.dumps(observed, sort_keys=True))
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_native_same_leaf_n5_bytes_survive_late_value_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+    served_worker_phase_probe: Any,
+    record_property: Any,
+) -> None:
+    """Characterize retained N5 bytes without claiming the missing public link."""
+    from fastapi.testclient import TestClient
+
+    from polisyos.core.artifacts import artifact_ref_identity_key, load_core_json_artifact
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from polisyos.runtime.http.dependencies import build_runtime_api_context
+    from polisyos.runtime.quality import generation_cycle
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        parse_generic_cycle_simulation_n5_execution,
+    )
+    from tests._helpers.control_worker import dispatch_one_control_job
+
+    prepared, provider_observations = await _prepare_res03_bounded_generic_replay(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        controlled_candidate_gateway=controlled_candidate_gateway,
+        served_worker_phase_probe=served_worker_phase_probe,
+        synthetic_provider=True,
+    )
+    source_witness = prepared.source_root_witness
+    default_value_type = generation_cycle._DefaultSimulationBoundFoundryValuePort
+    original_value_call = default_value_type.__call__
+    seen_executions: set[tuple[object, ...]] = set()
+    retained: dict[str, Any] = {}
+    failure = generation_cycle.GenerationCycleError(
+        "res03_same_leaf_value_failed", "actual N5 completed before its leaf value failed"
+    )
+
+    def fail_second_native_value(self: Any, **kwargs: Any) -> Any:
+        simulation = kwargs["simulation"]
+        if simulation.generic_n5_execution_ref is not None:
+            key = artifact_ref_identity_key(simulation.generic_n5_execution_ref)
+            seen_executions.add(key)
+            if len(seen_executions) == 2:
+                assert simulation.status == "joint_simulated"
+                assert simulation.generic_n5_input_ref is not None
+                assert simulation.simulation_result_ref is not None
+                execution = parse_generic_cycle_simulation_n5_execution(
+                    load_core_json_artifact(
+                        self.artifact_store, simulation.generic_n5_execution_ref
+                    )
+                )
+                assert execution.status == "joint_simulated"
+                assert artifact_ref_identity_key(execution.input_ref) == artifact_ref_identity_key(
+                    simulation.generic_n5_input_ref
+                )
+                assert execution.result_ref is not None
+                assert artifact_ref_identity_key(execution.result_ref) == artifact_ref_identity_key(
+                    simulation.simulation_result_ref
+                )
+                assert (execution.tenant_id, execution.cell_id) == (
+                    prepared.tenant_id,
+                    prepared.cell_id,
+                )
+                retained.update(
+                    result_ref=simulation.simulation_result_ref,
+                    execution_ref=simulation.generic_n5_execution_ref,
+                    execution=execution,
+                    wire=self.artifact_store.get_bytes(simulation.simulation_result_ref),
+                )
+                served_worker_phase_probe("res03.actual_n5_before_late_value_failure")
+                raise failure
+        return original_value_call(self, **kwargs)
+
+    monkeypatch.setattr(default_value_type, "__call__", fail_second_native_value)
+    with TestClient(create_runtime_api_app(**prepared.app_kwargs)) as client:
+        accepted_response = client.post(
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": uuid.uuid4().hex},
+            json={**prepared.request_json, "max_iterations": 1},
+        )
+        assert accepted_response.status_code == 200, accepted_response.text
+        accepted = accepted_response.json()
+        assert accepted["status"] == "accepted"
+        service = client.app.state._control_service
+        assert (
+            dispatch_one_control_job(
+                store=service._control_store,
+                handler=service._process_control_job,
+                expected_job_id=accepted["job_id"],
+            )
+            == accepted["job_id"]
+        )
+        job = service._control_store.get_job(accepted["job_id"])
+        assert job is not None
+        if not retained:
+            boundary: dict[str, Any] = {
+                "job_state": job.state,
+                "error_message": job.error_message,
+                "failure": job.progress.get("failure"),
+            }
+            diagnostic_run_id = job.progress.get("core_run_id")
+            if isinstance(diagnostic_run_id, str):
+                diagnostic_response = client.get(f"/api/v1/runs/{diagnostic_run_id}")
+                boundary["run_http_status"] = diagnostic_response.status_code
+                if diagnostic_response.status_code == 200:
+                    diagnostic_run = diagnostic_response.json()["run"]
+                    diagnostic_projection = diagnostic_run.get("generic_cycle_simulation") or {}
+                    boundary["projection_limitation"] = diagnostic_projection.get("limitation_code")
+                    boundary["n5_observations"] = [
+                        {
+                            key: row.get(key)
+                            for key in ("status", "authority_blockers", "n8_authority_blockers")
+                        }
+                        for row in diagnostic_projection.get("n5_observations", [])
+                    ]
+            raise AssertionError(
+                "actual_generic_n5_value_boundary_not_reached:" + json.dumps(boundary)
+            )
+        execution = retained["execution"]
+        assert (execution.job_id, execution.run_id) == (job.job_id, job.run_id)
+        assert job.state in {"completed", "failed"}
+        core_run_id = job.progress.get("core_run_id")
+
+    fresh_context = build_runtime_api_context(
+        cas_root=prepared.cas_root, core_runs_root=prepared.cas_root / "runs"
+    )
+    with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
+        reread = fresh_context.store.get_bytes(retained["result_ref"])
+        assert reread == retained["wire"]
+
+        def read_actual_n4_source(expected_job_id: str) -> Any:
+            return GenerationSourceRepository(fresh_context.store).load(
+                execution.n4_source_ref,
+                run_id=execution.source_run_id,
+                expected_run_id=execution.run_id,
+                expected_job_id=expected_job_id,
+                expected_tenant_id=execution.tenant_id,
+                expected_cell_id=execution.cell_id,
+                context_job_ref=execution.context_job_ref,
+                profile_ref=execution.profile_ref,
+                n4_child_profile_family_ref=execution.n4_child_profile_family_ref,
+            )
+
+        n4_source = read_actual_n4_source(execution.job_id)
+        assert n4_source.cycle_index == execution.cycle_index
+        assert any(
+            candidate.candidate_id == execution.candidate_id
+            and candidate.atom.content_hash == execution.candidate_atom_hash
+            for candidate in n4_source.generation_result.candidates
+        )
+        with pytest.raises(ValueError, match="generation_source_owner_profile_mismatch"):
+            read_actual_n4_source(execution.job_id + "-wrong-owner")
+        result = generation_cycle.load_joint_simulation_result(
+            retained["result_ref"],
+            store=fresh_context.store,
+            expected_world_model_record_content_hash=execution.world_model_record_content_hash,
+            expected_atom_ids=None,
+            expected_selected_outcomes=(execution.outcome_variable,),
+        )
+    fresh_kwargs = {
+        **prepared.app_kwargs,
+        "container_overrides": RuntimeContainerOverrides(runtime_api_context=fresh_context),
+    }
+    with TestClient(create_runtime_api_app(**fresh_kwargs)) as fresh_client:
+        status_response = fresh_client.get(f"/api/v1/control/jobs/{job.job_id}")
+        assert status_response.status_code == 200, status_response.text
+        status = status_response.json()
+        assert status["state"] in {"completed", "failed"}
+        run_payload: dict[str, Any] = {}
+        if isinstance(core_run_id, str):
+            run_response = fresh_client.get(f"/api/v1/runs/{core_run_id}")
+            if run_response.status_code == 200:
+                run_payload = run_response.json()["run"]
+                assert run_payload["status"] == "fail"
+        projection = run_payload.get("generic_cycle_simulation") or {}
+        failures = (projection.get("recursive_cycle_checkpoint") or {}).get("failed_branches", [])
+        assert failure.code in str(status.get("error_message")) or any(
+            item.get("error_code") == failure.code for item in failures
+        )
+        record_property(
+            "res03_same_leaf_characterization",
+            json.dumps(
+                {
+                    "job_id": job.job_id,
+                    "run_id": job.run_id,
+                    "execution_ref": retained["execution_ref"].model_dump(mode="json"),
+                    "result_ref": retained["result_ref"].model_dump(mode="json"),
+                    "result_sha256": hashlib.sha256(reread).hexdigest(),
+                    "result_bytes": len(reread),
+                    "first_point": result.trajectories[0]
+                    .points[0]
+                    .model_dump(mode="json", include={"step", "outcomes", "effect"}),
+                    "failure_code": failure.code,
+                    "job_state": status["state"],
+                    "public_n5_refs": [
+                        item["simulation_result_ref"]
+                        for item in projection.get("n5_observations", [])
+                        if item.get("simulation_result_ref") is not None
+                    ],
+                    "scope": "native generic owner fixture; no public same-leaf link claimed",
+                    "n4_recording_mode": "synthetic_stage_provider_with_declared_child_parameterizations",
+                    "candidate_provider_inputs": provider_observations,
+                    "source_recording_id": prepared.source_recording_id,
+                    "source_recording_content_hash": prepared.source_recording_content_hash,
+                    "source_root": str(prepared.source_root),
+                    "source_catalog_sha256": source_witness["selected_l1_dcat_sha256"],
+                    "source_skg_sha256": source_witness["selected_l2_source_sha256"],
+                },
+                sort_keys=True,
+            ),
+        )

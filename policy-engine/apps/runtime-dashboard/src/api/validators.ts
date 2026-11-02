@@ -832,6 +832,24 @@ const runCandidateSimulationN5ObservationSchema = z
     ]),
     simulation_ref: z.string().nullable().optional(),
     simulation_result_ref: coreArtifactRefSchema.nullable().optional(),
+    n5_execution_ref: coreArtifactRefSchema.nullable().optional(),
+    result_body_status: z
+      .enum(["not_applicable", "resolved", "not_established"])
+      .nullable()
+      .optional(),
+    result_body_limitation_code: z
+      .enum([
+        "candidate_n5_result_body_request_binding_not_established",
+        "candidate_n5_result_body_selected_manifest_view_not_established",
+        "candidate_n5_result_body_execution_not_successful",
+        "candidate_n5_result_body_content_refused",
+      ])
+      .nullable()
+      .optional(),
+    result_body: z
+      .lazy(() => runCandidateSimulationN5ResultBodySchema)
+      .nullable()
+      .optional(),
     n4_source_ref: coreArtifactRefSchema.nullable().optional(),
     context_job_ref: coreArtifactRefSchema.nullable().optional(),
     n5_input_ref: coreArtifactRefSchema.nullable().optional(),
@@ -974,6 +992,92 @@ const runCandidateSimulationN5ObservationSchema = z
   })
   .strict()
   .superRefine((observation, context) => {
+    const execution = observation.n5_execution_ref;
+    if (
+      execution != null &&
+      (execution.kind !== "runtime.quality.candidate_simulation_execution" ||
+        execution.media_type !== "application/json" ||
+        execution.manifest_profile_sha256 == null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "run_n5_candidate_execution_ref_invalid",
+      });
+    }
+    const body = observation.result_body;
+    const bodyStatus = observation.result_body_status;
+    const limitation = observation.result_body_limitation_code;
+    if (observation.simulation_result_ref == null) {
+      if (
+        body != null ||
+        (bodyStatus != null && bodyStatus !== "not_applicable") ||
+        limitation != null
+      ) {
+        context.addIssue({
+          code: "custom",
+          message: "run_n5_candidate_result_body_without_result_ref",
+        });
+      }
+    } else if (body == null) {
+      if (
+        bodyStatus === "resolved" ||
+        bodyStatus === "not_applicable" ||
+        (bodyStatus === "not_established" && limitation == null) ||
+        (bodyStatus == null && limitation != null)
+      ) {
+        context.addIssue({
+          code: "custom",
+          message: "run_n5_candidate_result_body_status_invalid",
+        });
+      }
+    } else if (
+      observation.status !== "joint_simulated" ||
+      bodyStatus !== "resolved" ||
+      limitation != null ||
+      execution == null ||
+      !sameCoreArtifactRefView(
+        body.artifact_ref,
+        observation.simulation_result_ref,
+      ) ||
+      body.world_model_record_content_hash !==
+        observation.world_model_record_content_hash ||
+      JSON.stringify(body.atom_ids) !== JSON.stringify(observation.atom_ids) ||
+      JSON.stringify(body.selected_outcomes) !==
+        JSON.stringify(observation.selected_outcomes)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "run_n5_candidate_result_body_parent_binding_invalid",
+      });
+    }
+    if (
+      body != null &&
+      (![
+        "runtime.generation_source_handoff",
+        "runtime.quality.n4_candidate_scenario_source",
+      ].includes(observation.n4_source_ref?.kind ?? "") ||
+        observation.n4_source_ref?.media_type !== "application/json" ||
+        observation.n4_source_ref.manifest_profile_sha256 == null ||
+        observation.context_job_ref?.kind !==
+          "runtime.quality.cycle_substrate_context_job" ||
+        observation.context_job_ref.media_type !== "application/json" ||
+        observation.n5_input_ref?.kind !==
+          "runtime.quality.candidate_simulation_n5_input" ||
+        observation.n5_input_ref.media_type !== "application/json" ||
+        observation.n5_input_ref.manifest_profile_sha256 == null ||
+        observation.profile_config_ref == null ||
+        observation.profile_selection_ref == null ||
+        observation.lineage_status == null ||
+        (observation.lineage_status === "resolved" &&
+          observation.lineage_limitation_code != null) ||
+        (observation.lineage_status === "not_established" &&
+          observation.lineage_limitation_code == null))
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "run_n5_candidate_result_body_lineage_invalid",
+      });
+    }
     validateRunN5InteractionScope(
       observation.n5_interaction_evidence,
       observation,
@@ -2023,15 +2127,32 @@ const runCandidateSimulationProjectionSchema = z
       .nullable()
       .optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((projection, context) => {
+    // Preserve the legacy default discriminator only for the real compiled source.
+    if (
+      projection.artifact_status === "resolved" &&
+      (projection.source_ref?.kind !==
+        "runtime.compiled_recursive_generation_cycle" ||
+        projection.source_content_hash == null ||
+        [
+          "compiled_cycle_artifact_ambiguous",
+          "compiled_cycle_artifact_ref_invalid",
+          "compiled_cycle_artifact_integrity_not_established",
+          "compiled_cycle_artifact_content_invalid",
+        ].includes(projection.limitation_code ?? ""))
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "candidate_projection_resolved_source_missing",
+      });
+    }
+  });
 
 const runGenericCycleSimulationArtifactRefSchema = coreArtifactRefSchema;
 
-const runGenericCycleSimulationN5ResultBodySchema = z
+const runN5NumericalResultBodyBaseSchema = z
   .object({
-    schema_version: z.literal(
-      "policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1",
-    ),
     artifact_ref: runGenericCycleSimulationArtifactRefSchema,
     artifact_schema_name: z.literal(
       "policyos.runtime.n5.joint_simulation_result",
@@ -2080,96 +2201,229 @@ const runGenericCycleSimulationN5ResultBodySchema = z
       )
       .min(1),
     uncertainty_kind: z.literal("K_sim"),
-    authority_purpose: z.literal("cycle_input_candidate_only"),
     candidate_status: z.literal("candidate_unverified"),
     currentness_status: z.literal("not_established"),
     publication_authority: z.literal(false),
   })
-  .strict()
-  .superRefine((body, context) => {
-    const resultSchemaByArtifactVersion = {
-      "1.0.0": "policyos.runtime.joint_simulation_horizon.v1",
-      "2.0.0": "policyos.runtime.joint_simulation_horizon.v2",
-      "3.0.0": "policyos.runtime.joint_simulation_horizon.v3",
-      "4.0.0": "policyos.runtime.joint_simulation_horizon.v4",
-    } as const;
+  .strict();
+
+function validateN5NumericalResultBody(
+  body: z.output<typeof runN5NumericalResultBodyBaseSchema>,
+  context: z.RefinementCtx,
+) {
+  const resultSchemaByArtifactVersion = {
+    "1.0.0": "policyos.runtime.joint_simulation_horizon.v1",
+    "2.0.0": "policyos.runtime.joint_simulation_horizon.v2",
+    "3.0.0": "policyos.runtime.joint_simulation_horizon.v3",
+    "4.0.0": "policyos.runtime.joint_simulation_horizon.v4",
+  } as const;
+  if (
+    body.artifact_ref.kind !== "polisyos.runtime.joint_simulation_result" ||
+    body.artifact_ref.media_type !== "application/json" ||
+    body.artifact_ref.manifest_profile_sha256 !==
+      body.selected_manifest_profile_sha256 ||
+    resultSchemaByArtifactVersion[body.artifact_schema_version] !==
+      body.result_schema_version ||
+    new Set(body.atom_ids).size !== body.atom_ids.length ||
+    new Set(body.selected_outcomes).size !== body.selected_outcomes.length
+  ) {
+    context.addIssue({
+      code: "custom",
+      message: "generic_n5_result_body_manifest_binding_invalid",
+    });
+  }
+  if (
+    body.horizon.end < body.horizon.start ||
+    (body.horizon.end - body.horizon.start) % body.horizon.step !== 0
+  ) {
+    context.addIssue({
+      code: "custom",
+      path: ["horizon"],
+      message: "generic_n5_result_body_horizon_grid_invalid",
+    });
+  }
+  const seenScopes = new Set<string>();
+  for (const trajectory of body.trajectories) {
+    const atomScope = new Set(trajectory.atom_ids);
+    const scopeKey =
+      trajectory.run_level + ":" + [...atomScope].sort().join("|");
     if (
-      body.artifact_ref.kind !== "polisyos.runtime.joint_simulation_result" ||
-      body.artifact_ref.media_type !== "application/json" ||
-      body.artifact_ref.manifest_profile_sha256 !==
-        body.selected_manifest_profile_sha256 ||
-      resultSchemaByArtifactVersion[body.artifact_schema_version] !==
-        body.result_schema_version ||
-      new Set(body.atom_ids).size !== body.atom_ids.length ||
-      new Set(body.selected_outcomes).size !== body.selected_outcomes.length
+      atomScope.size !== trajectory.atom_ids.length ||
+      [...atomScope].some((atomId) => !body.atom_ids.includes(atomId)) ||
+      seenScopes.has(scopeKey) ||
+      (trajectory.run_level === "individual" && atomScope.size !== 1) ||
+      (trajectory.run_level === "pairwise" && atomScope.size !== 2) ||
+      (trajectory.run_level === "joint" &&
+        JSON.stringify(trajectory.atom_ids) !== JSON.stringify(body.atom_ids))
     ) {
       context.addIssue({
         code: "custom",
-        message: "generic_n5_result_body_manifest_binding_invalid",
+        path: ["trajectories"],
+        message: "generic_n5_result_body_scope_invalid",
       });
     }
+    seenScopes.add(scopeKey);
+    const pointSteps = trajectory.points.map((point) => point.step);
     if (
-      body.horizon.end < body.horizon.start ||
-      (body.horizon.end - body.horizon.start) % body.horizon.step !== 0
+      new Set(pointSteps).size !== pointSteps.length ||
+      pointSteps.some(
+        (step, index) => index > 0 && pointSteps[index - 1]! >= step,
+      )
     ) {
       context.addIssue({
         code: "custom",
-        path: ["horizon"],
-        message: "generic_n5_result_body_horizon_grid_invalid",
+        path: ["trajectories"],
+        message: "generic_n5_result_body_step_order_invalid",
       });
     }
-    const seenScopes = new Set<string>();
-    for (const trajectory of body.trajectories) {
-      const atomScope = new Set(trajectory.atom_ids);
-      const scopeKey =
-        trajectory.run_level + ":" + [...atomScope].sort().join("|");
+    for (const point of trajectory.points) {
       if (
-        atomScope.size !== trajectory.atom_ids.length ||
-        [...atomScope].some((atomId) => !body.atom_ids.includes(atomId)) ||
-        seenScopes.has(scopeKey) ||
-        (trajectory.run_level === "individual" && atomScope.size !== 1) ||
-        (trajectory.run_level === "pairwise" && atomScope.size !== 2) ||
-        (trajectory.run_level === "joint" &&
-          JSON.stringify(trajectory.atom_ids) !== JSON.stringify(body.atom_ids))
-      ) {
-        context.addIssue({
-          code: "custom",
-          path: ["trajectories"],
-          message: "generic_n5_result_body_scope_invalid",
-        });
-      }
-      seenScopes.add(scopeKey);
-      const pointSteps = trajectory.points.map((point) => point.step);
-      if (
-        new Set(pointSteps).size !== pointSteps.length ||
-        pointSteps.some(
-          (step, index) => index > 0 && pointSteps[index - 1]! >= step,
+        point.step < body.horizon.start ||
+        point.step > body.horizon.end ||
+        (point.step - body.horizon.start) % body.horizon.step !== 0 ||
+        body.selected_outcomes.some(
+          (outcome) =>
+            !Object.hasOwn(point.outcomes, outcome) ||
+            !Object.hasOwn(point.effects, outcome),
         )
       ) {
         context.addIssue({
           code: "custom",
           path: ["trajectories"],
-          message: "generic_n5_result_body_step_order_invalid",
+          message: "generic_n5_result_body_selected_basis_incomplete",
         });
       }
-      for (const point of trajectory.points) {
-        if (
-          point.step < body.horizon.start ||
-          point.step > body.horizon.end ||
-          (point.step - body.horizon.start) % body.horizon.step !== 0 ||
-          body.selected_outcomes.some(
-            (outcome) =>
-              !Object.hasOwn(point.outcomes, outcome) ||
-              !Object.hasOwn(point.effects, outcome),
-          )
-        ) {
-          context.addIssue({
-            code: "custom",
-            path: ["trajectories"],
-            message: "generic_n5_result_body_selected_basis_incomplete",
-          });
-        }
+    }
+  }
+}
+
+const runGenericCycleSimulationN5ResultBodySchema =
+  runN5NumericalResultBodyBaseSchema
+    .extend({
+      schema_version: z.literal(
+        "policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1",
+      ),
+      authority_purpose: z.literal("cycle_input_candidate_only"),
+    })
+    .superRefine(validateN5NumericalResultBody);
+
+const runCandidateSimulationN5ResultBodySchema =
+  runN5NumericalResultBodyBaseSchema
+    .extend({
+      schema_version: z.literal(
+        "policyos.runtime.run_candidate_simulation_n5_result_body.v1",
+      ),
+      authority_purpose: z.literal("candidate_scenario_n5_only"),
+    })
+    .superRefine(validateN5NumericalResultBody);
+
+const runFailedCandidateSimulationProjectionSchema = z
+  .object({
+    schema_version: z.literal(
+      "policyos.runtime.run_failed_candidate_simulation_projection.v1",
+    ),
+    run_id: z.string().min(1),
+    artifact_status: z.enum(["resolved", "not_established"]),
+    authority_purpose: z
+      .literal("candidate_observation_only")
+      .default("candidate_observation_only"),
+    publication_authority: z.literal(false).default(false),
+    source_ref: coreArtifactRefSchema.nullable().optional(),
+    source_content_hash: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/)
+      .nullable()
+      .optional(),
+    limitation_code: z
+      .enum([
+        "candidate_n5_output_not_established",
+        "candidate_n5_output_ambiguous",
+      ])
+      .nullable()
+      .optional(),
+    n5_observations: z
+      .array(runCandidateSimulationN5ObservationSchema)
+      .default([]),
+    cycle_index: z.number().int().nonnegative().nullable().optional(),
+    cycle_completed: z.literal(false).default(false),
+    failed_stage: z
+      .enum(["value_projection", "revision"])
+      .nullable()
+      .optional(),
+    failure_source: z.literal("same_control_job").default("same_control_job"),
+  })
+  .strict()
+  .superRefine((projection, context) => {
+    const source = projection.source_ref;
+    const sourceHash = projection.source_content_hash;
+    if ((source == null) !== (sourceHash == null)) {
+      context.addIssue({
+        code: "custom",
+        message: "failed_candidate_projection_source_pair_incomplete",
+      });
+    }
+    if (
+      source != null &&
+      (source.kind !== "runtime.quality.candidate_simulation_execution" ||
+        source.media_type !== "application/json" ||
+        source.manifest_profile_sha256 == null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "failed_candidate_projection_source_ref_invalid",
+      });
+    }
+    if (projection.artifact_status === "not_established") {
+      if (
+        projection.limitation_code == null ||
+        projection.n5_observations.some((row) => row.result_body != null)
+      ) {
+        context.addIssue({
+          code: "custom",
+          message: "failed_candidate_projection_refusal_not_fail_closed",
+        });
       }
+      return;
+    }
+    if (
+      source == null ||
+      sourceHash == null ||
+      projection.limitation_code != null ||
+      projection.n5_observations.length === 0
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "failed_candidate_projection_resolved_source_missing",
+      });
+      return;
+    }
+    const linked = projection.n5_observations.filter((row) =>
+      sameCoreArtifactRefView(row.n5_execution_ref, source),
+    );
+    const row = linked[0];
+    if (
+      linked.length !== 1 ||
+      row == null ||
+      row.status !== "joint_simulated" ||
+      row.result_body_status !== "resolved" ||
+      row.result_body == null ||
+      row.lineage_status !== "resolved" ||
+      row.lineage_limitation_code != null ||
+      row.n4_source_ref == null ||
+      row.context_job_ref == null ||
+      row.n5_input_ref == null ||
+      projection.n5_observations.some(
+        (value) =>
+          value.result_body != null &&
+          !sameCoreArtifactRefView(value.n5_execution_ref, source),
+      ) ||
+      (projection.cycle_index != null &&
+        row.cycle_index !== projection.cycle_index)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "failed_candidate_projection_n5_observation_binding_invalid",
+      });
     }
   });
 
@@ -3373,7 +3627,11 @@ const runDetailsSchemaInner = z
     policy_design_case_projection: policyDesignCaseProjectionSchema
       .nullable()
       .optional(),
-    candidate_simulation: runCandidateSimulationProjectionSchema
+    candidate_simulation: z
+      .union([
+        runCandidateSimulationProjectionSchema,
+        runFailedCandidateSimulationProjectionSchema,
+      ])
       .nullable()
       .optional(),
     generic_cycle_simulation: runGenericCycleSimulationProjectionSchema

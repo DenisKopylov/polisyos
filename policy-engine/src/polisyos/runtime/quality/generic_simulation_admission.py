@@ -161,10 +161,9 @@ class GenericCycleSimulationProfileV1(_StrictModel):
             for ref, kind in typed_refs
         ):
             raise ValueError("generic_cycle_simulation_profile_ref_kind_invalid")
-        # This initial controlled profile supports the one WMR-default NCM view.
-        # A selected-view NCM requires its own declaration owner and is refused.
-        if self.selected_ncm_ref.manifest_profile_sha256 is not None:
-            raise ValueError("generic_cycle_simulation_ncm_view_source_not_established")
+        # An exact manifest selector is an address, not a source-codec claim.
+        # The admission owner verifies the actual default NCM codec on read;
+        # declaration-sidecar codecs still require their separate owner context.
         if len(self.limitations) != len(set(self.limitations)) or not _PROFILE_LIMITATIONS.issubset(
             self.limitations
         ):
@@ -3071,10 +3070,10 @@ class GenericCycleSimulationAdmissionOwner:
     def _verify_default_ncm(self, ref: ArtifactRef) -> None:
         """Load only the WMR-default NCM view through the public Core→IR adapter."""
         from polisyos.core.artifacts import ensure_ir_artifact_store
-        from polisyos.ir import NCMSpecRef, load_ncm_spec
+        from polisyos.ir import NCMSpecRef, load_ncm_spec_default_view
 
         typed = NCMSpecRef.model_validate(ref.model_dump(mode="python"))
-        load_ncm_spec(ensure_ir_artifact_store(self._store), typed)
+        load_ncm_spec_default_view(ensure_ir_artifact_store(self._store), typed)
 
     def _profile_write_options(
         self,

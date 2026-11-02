@@ -2370,6 +2370,18 @@ class RunCandidateSimulationN5Observation(BaseModel):
     status: Literal["joint_simulated", "simulation_pending_n5", "simulation_blocked"]
     simulation_ref: str | None = None
     simulation_result_ref: ArtifactRef | None = None
+    n5_execution_ref: ArtifactRef | None = None
+    result_body_status: Literal["not_applicable", "resolved", "not_established"] | None = None
+    result_body_limitation_code: (
+        Literal[
+            "candidate_n5_result_body_request_binding_not_established",
+            "candidate_n5_result_body_selected_manifest_view_not_established",
+            "candidate_n5_result_body_execution_not_successful",
+            "candidate_n5_result_body_content_refused",
+        ]
+        | None
+    ) = None
+    result_body: RunCandidateSimulationN5ResultBody | None = None
     n4_source_ref: ArtifactRef | None = None
     context_job_ref: ArtifactRef | None = None
     n5_input_ref: ArtifactRef | None = None
@@ -2478,6 +2490,59 @@ class RunCandidateSimulationN5Observation(BaseModel):
             executed_steps=self.executed_steps,
             replication_seeds=self.replication_seeds,
         )
+        if self.n5_execution_ref is not None and (
+            self.n5_execution_ref.kind != "runtime.quality.candidate_simulation_execution"
+            or self.n5_execution_ref.media_type != "application/json"
+            or self.n5_execution_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("run_n5_candidate_execution_ref_invalid")
+        if self.simulation_result_ref is None:
+            if (
+                self.result_body is not None
+                or self.result_body_status not in (None, "not_applicable")
+                or self.result_body_limitation_code is not None
+            ):
+                raise ValueError("run_n5_candidate_result_body_without_result_ref")
+        elif self.result_body is None:
+            if (
+                self.result_body_status == "resolved"
+                or self.result_body_status == "not_applicable"
+                or (
+                    self.result_body_status == "not_established"
+                    and self.result_body_limitation_code is None
+                )
+                or (
+                    self.result_body_status is None and self.result_body_limitation_code is not None
+                )
+            ):
+                raise ValueError("run_n5_candidate_result_body_status_invalid")
+        else:
+            if (
+                self.n4_source_ref is None
+                or self.context_job_ref is None
+                or self.n5_input_ref is None
+                or self.profile_config_ref is None
+                or self.profile_selection_ref is None
+                or self.lineage_status is None
+            ):
+                raise ValueError("run_n5_candidate_result_body_lineage_binding_missing")
+            if (
+                self.n4_source_ref.manifest_profile_sha256 is None
+                or self.n5_input_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("run_n5_candidate_result_body_selected_view_missing")
+            if (
+                self.status != "joint_simulated"
+                or self.result_body_status != "resolved"
+                or self.result_body_limitation_code is not None
+                or self.n5_execution_ref is None
+                or self.result_body.artifact_ref != self.simulation_result_ref
+                or self.result_body.world_model_record_content_hash
+                != self.world_model_record_content_hash
+                or self.result_body.atom_ids != self.atom_ids
+                or self.result_body.selected_outcomes != self.selected_outcomes
+            ):
+                raise ValueError("run_n5_candidate_result_body_parent_binding_invalid")
         refs = (self.n4_source_ref, self.context_job_ref, self.n5_input_ref)
         if any(ref is not None for ref in refs):
             source, context, n5_input = refs
@@ -3520,13 +3585,11 @@ class RunGenericCycleSimulationN5Trajectory(BaseModel):
         return self
 
 
-class RunGenericCycleSimulationN5ResultBody(BaseModel):
-    """Typed candidate-only body read from the selected, verified N5 CAS view."""
+class _RunN5FiniteResultBody(BaseModel):
+    """Shared finite payload contract for concrete candidate-only N5 result bodies."""
 
     model_config = ConfigDict(extra="forbid")
-    schema_version: Literal["policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1"] = (
-        "policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1"
-    )
+    schema_version: str = Field(min_length=1, strict=True)
     artifact_ref: ArtifactRef
     artifact_schema_name: Literal["policyos.runtime.n5.joint_simulation_result"]
     artifact_schema_version: Literal["1.0.0", "2.0.0", "3.0.0", "4.0.0"]
@@ -3544,7 +3607,7 @@ class RunGenericCycleSimulationN5ResultBody(BaseModel):
     horizon: RunGenericCycleSimulationN5Horizon
     trajectories: tuple[RunGenericCycleSimulationN5Trajectory, ...] = Field(min_length=1)
     uncertainty_kind: Literal["K_sim"] = "K_sim"
-    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+    authority_purpose: str = Field(min_length=1, strict=True)
     candidate_status: Literal["candidate_unverified"] = "candidate_unverified"
     currentness_status: Literal["not_established"] = "not_established"
     publication_authority: Literal[False] = False
@@ -3559,7 +3622,7 @@ class RunGenericCycleSimulationN5ResultBody(BaseModel):
         return value
 
     @model_validator(mode="after")
-    def _verify_result_body_binding(self) -> RunGenericCycleSimulationN5ResultBody:
+    def _verify_result_body_binding(self) -> _RunN5FiniteResultBody:
         result_schema_by_artifact_version = {
             "1.0.0": "policyos.runtime.joint_simulation_horizon.v1",
             "2.0.0": "policyos.runtime.joint_simulation_horizon.v2",
@@ -3598,6 +3661,100 @@ class RunGenericCycleSimulationN5ResultBody(BaseModel):
                 ):
                     raise ValueError("run_generic_n5_result_body_selected_basis_incomplete")
         return self
+
+
+class RunGenericCycleSimulationN5ResultBody(_RunN5FiniteResultBody):
+    """Typed candidate-only body read from the selected, verified N5 CAS view."""
+
+    schema_version: Literal["policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1"] = (
+        "policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1"
+    )
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+
+
+class RunCandidateSimulationN5ResultBody(_RunN5FiniteResultBody):
+    """Typed N5 result body for one configured candidate observation."""
+
+    schema_version: Literal["policyos.runtime.run_candidate_simulation_n5_result_body.v1"] = (
+        "policyos.runtime.run_candidate_simulation_n5_result_body.v1"
+    )
+    authority_purpose: Literal["candidate_scenario_n5_only"] = "candidate_scenario_n5_only"
+
+
+class RunFailedCandidateSimulationProjection(BaseModel):
+    """Candidate-only N5 evidence retained when a later cycle stage fails."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal["policyos.runtime.run_failed_candidate_simulation_projection.v1"] = (
+        "policyos.runtime.run_failed_candidate_simulation_projection.v1"
+    )
+    run_id: str = Field(min_length=1)
+    artifact_status: Literal["resolved", "not_established"]
+    authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
+    publication_authority: Literal[False] = False
+    source_ref: ArtifactRef | None = None
+    source_content_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    limitation_code: (
+        Literal["candidate_n5_output_not_established", "candidate_n5_output_ambiguous"] | None
+    ) = None
+    n5_observations: tuple[RunCandidateSimulationN5Observation, ...] = ()
+    cycle_index: int | None = Field(default=None, ge=0, strict=True)
+    cycle_completed: Literal[False] = False
+    failed_stage: Literal["value_projection", "revision"] | None = None
+    failure_source: Literal["same_control_job"] = "same_control_job"
+
+    @model_validator(mode="after")
+    def _verify_failed_candidate_projection(self) -> RunFailedCandidateSimulationProjection:
+        source_pair_present = self.source_ref is not None and self.source_content_hash is not None
+        if (self.source_ref is None) != (self.source_content_hash is None):
+            raise ValueError("failed_candidate_projection_source_pair_incomplete")
+        if self.source_ref is not None and (
+            self.source_ref.kind != "runtime.quality.candidate_simulation_execution"
+            or self.source_ref.media_type != "application/json"
+            or self.source_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("failed_candidate_projection_source_ref_invalid")
+        if self.artifact_status == "not_established":
+            if self.limitation_code not in {
+                "candidate_n5_output_not_established",
+                "candidate_n5_output_ambiguous",
+            } or any(row.result_body is not None for row in self.n5_observations):
+                raise ValueError("failed_candidate_projection_refusal_not_fail_closed")
+            return self
+        if not source_pair_present or self.limitation_code is not None or not self.n5_observations:
+            raise ValueError("failed_candidate_projection_resolved_source_missing")
+        linked_rows = tuple(
+            row for row in self.n5_observations if row.n5_execution_ref == self.source_ref
+        )
+        if (
+            len(linked_rows) != 1
+            or linked_rows[0].status != "joint_simulated"
+            or linked_rows[0].result_body_status != "resolved"
+            or linked_rows[0].result_body is None
+            or linked_rows[0].lineage_status != "resolved"
+            or linked_rows[0].lineage_limitation_code is not None
+            or linked_rows[0].n4_source_ref is None
+            or linked_rows[0].context_job_ref is None
+            or linked_rows[0].n5_input_ref is None
+            or any(
+                row.result_body is not None and row.n5_execution_ref != self.source_ref
+                for row in self.n5_observations
+            )
+            or (self.cycle_index is not None and linked_rows[0].cycle_index != self.cycle_index)
+        ):
+            raise ValueError("failed_candidate_projection_n5_observation_binding_invalid")
+        return self
+
+
+# These models refer to the candidate-specific result body declared after the
+# shared generic N5 body. Rebuild now that the forward reference is available.
+RunCandidateSimulationN5Observation.model_rebuild()
+RunCandidateSimulationProjection.model_rebuild()
+RunFailedCandidateSimulationProjection.model_rebuild()
 
 
 class RunGenericCycleSimulationN5Observation(BaseModel):
@@ -6980,7 +7137,9 @@ class RunDetails(RunRecordV1):
     decision_superseded_by_ref: ArtifactRef | None = None
     operator_diagnostic: RunOperatorDiagnostic | None = None
     policy_design_case_projection: PolicyDesignCaseProjection | None = None
-    candidate_simulation: RunCandidateSimulationProjection | None = None
+    candidate_simulation: (
+        RunCandidateSimulationProjection | RunFailedCandidateSimulationProjection | None
+    ) = None
     generic_cycle_simulation: RunGenericCycleSimulationProjection | None = None
     method_execution_producer_diagnostic: MethodExecutionProducerDiagnostic | None = None
     method_execution_selection: DirectMethodExecutionRunProjection | None = None
@@ -9018,6 +9177,7 @@ __all__ = [
     "RunCandidateSimulationAcquisitionHistoryEntry",
     "RunCandidateSimulationChildProfileBinding",
     "RunCandidateSimulationN5Observation",
+    "RunCandidateSimulationN5ResultBody",
     "RunCandidateSimulationProjection",
     "RunCompareResponse",
     "RunCompareView",
@@ -9032,6 +9192,7 @@ __all__ = [
     "RunEvidenceNeedView",
     "RunEvidencePlanView",
     "RunEvidencePromotionView",
+    "RunFailedCandidateSimulationProjection",
     "RunFeedbackResponse",
     "RunFeedbackView",
     "RunGenericCycleSimulationChildProfileBinding",

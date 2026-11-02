@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, get_args
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.common.exception_metadata import _exception_instance_dict
 from polisyos.core import artifacts, registry, run
 from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.canon import content_hash as canonical_content_hash
@@ -37,6 +38,90 @@ from ..control_plane_store import (
     ControlJobLeaseLostError,
     ControlJobRecord,
 )
+
+_NON_AUTHORITY_FAILURE_PROGRESS_ATTRIBUTE = "_polisyos_original_error_candidate_progress"
+_ORIGINAL_ERROR_ATTRIBUTE = "_original_error"
+_ORIGINAL_ERROR_PROGRESS_ISSUER = object()
+_ORIGINAL_ERROR_PROGRESS_ISSUER_ATTRIBUTE = "_progress_issuer"
+_ORIGINAL_ERROR_PROGRESS_BINDING_ATTRIBUTE = "_progress_owner_binding"
+
+
+def _candidate_progress_owner_binding(
+    job: ControlJobRecord, scope: ControlJobExecutionScope
+) -> tuple[object, ...]:
+    return (
+        job.job_id,
+        job.run_id,
+        job.attempt,
+        job.lease_owner,
+        job.effective_execution_profile,
+        job.requested_execution_profile,
+        scope.tenant_id,
+        scope.cell_id,
+    )
+
+
+def _clear_original_error_candidate_progress(error: Exception) -> None:
+    metadata = _exception_instance_dict(error)
+    if metadata is not None:
+        metadata.pop(_NON_AUTHORITY_FAILURE_PROGRESS_ATTRIBUTE, None)
+
+
+def _attach_original_error_candidate_progress(
+    error: Exception,
+    *,
+    progress: dict[str, Any],
+    job: ControlJobRecord,
+    execution_scope: ControlJobExecutionScope,
+) -> bool:
+    """Reuse issued progress as data, bound to this original error and attempt."""
+    if (
+        progress.get("job_id") != job.job_id
+        or progress.get("run_id") != job.run_id
+        or progress.get("attempt") != job.attempt
+        or execution_scope.status != "established"
+    ):
+        raise ValueError("original_error_candidate_progress_scope_mismatch")
+    metadata = _exception_instance_dict(error)
+    if metadata is None:
+        return False
+    try:
+        packet = _WorkflowExecutionNonAuthorityError(str(error), progress=progress)
+        setattr(packet, _ORIGINAL_ERROR_ATTRIBUTE, error)
+        setattr(packet, _ORIGINAL_ERROR_PROGRESS_ISSUER_ATTRIBUTE, _ORIGINAL_ERROR_PROGRESS_ISSUER)
+        setattr(
+            packet,
+            _ORIGINAL_ERROR_PROGRESS_BINDING_ATTRIBUTE,
+            _candidate_progress_owner_binding(job, execution_scope),
+        )
+        metadata[_NON_AUTHORITY_FAILURE_PROGRESS_ATTRIBUTE] = packet
+    except Exception:
+        return False
+    return True
+
+
+def _original_error_candidate_progress(
+    error: Exception,
+    *,
+    job: ControlJobRecord,
+    execution_scope: ControlJobExecutionScope,
+) -> dict[str, Any] | None:
+    if isinstance(error, _WorkflowExecutionNonAuthorityError):
+        return dict(error.progress)
+    metadata = _exception_instance_dict(error)
+    packet = (
+        metadata.get(_NON_AUTHORITY_FAILURE_PROGRESS_ATTRIBUTE) if metadata is not None else None
+    )
+    if (
+        type(packet) is _WorkflowExecutionNonAuthorityError
+        and getattr(packet, _ORIGINAL_ERROR_ATTRIBUTE, None) is error
+        and getattr(packet, _ORIGINAL_ERROR_PROGRESS_ISSUER_ATTRIBUTE, None)
+        is _ORIGINAL_ERROR_PROGRESS_ISSUER
+        and getattr(packet, _ORIGINAL_ERROR_PROGRESS_BINDING_ATTRIBUTE, None)
+        == _candidate_progress_owner_binding(job, execution_scope)
+    ):
+        return dict(packet.progress)
+    return None
 
 
 class _DebugLogger(Protocol):
@@ -920,6 +1005,7 @@ class ControlJobAttemptPublicationMixin:
         compiled_run_ref: ArtifactRef | None = None,
         normative_disposition_ref: ArtifactRef | None = None,
         proposal_ref: ArtifactRef | None = None,
+        candidate_output_refs: tuple[ArtifactRef, ...] = (),
     ) -> ArtifactRef:
         """Finalize a pre-started Core attempt or read back its owned terminal."""
         del payload  # Identity and ownership come from the admitted job record.
@@ -938,7 +1024,15 @@ class ControlJobAttemptPublicationMixin:
         )
         if not outputs or any(not isinstance(ref, ArtifactRef) for ref in outputs):
             raise ValueError("control_job_core_run_exact_outputs_not_established")
-        exact_outputs = outputs
+        if candidate_output_refs and (
+            compiled_run_ref is None
+            or normative_disposition_ref is not None
+            or proposal_ref is not None
+        ):
+            raise ValueError("control_job_candidate_outputs_require_simulation_compiled_run")
+        exact_outputs = [*outputs, *candidate_output_refs]
+        if any(not isinstance(ref, ArtifactRef) for ref in exact_outputs):
+            raise ValueError("control_job_core_run_exact_outputs_not_established")
         if run_context is not None:
             return self._finish_generation_run_context(
                 job=job,
@@ -1181,8 +1275,11 @@ class ControlJobAttemptPublicationMixin:
                     core_run_id,
                     finalize_exc,
                 )
-        if isinstance(exc, _WorkflowExecutionNonAuthorityError):
-            progress = dict(exc.progress)
+        retained_candidate_progress = _original_error_candidate_progress(
+            exc, job=job, execution_scope=execution_scope
+        )
+        if retained_candidate_progress is not None:
+            progress = retained_candidate_progress
         elif isinstance(exc, ControlProducerExecutionError):
             failure_phase = "direct_method_execution"
             diagnostic = exc.diagnostic()

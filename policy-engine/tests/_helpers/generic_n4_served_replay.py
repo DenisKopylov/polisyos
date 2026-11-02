@@ -303,6 +303,16 @@ def _original_second_capture_candidate_semantics(
     return observed
 
 
+def _grounding_disposition_diagnostic(
+    result: Any,
+) -> tuple[tuple[str, str, str | None, str | None], ...]:
+    """Keep exact fixture refusals visible without dumping generated payloads."""
+    return tuple(
+        (row.proposal_id, str(row.disposition), row.cg2_reason, row.cg3_reason)
+        for row in result.grounding_dispositions
+    )
+
+
 def _assert_original_second_capture_generation_result(
     result: Any,
     *,
@@ -326,8 +336,13 @@ def _assert_original_second_capture_generation_result(
             raise AssertionError("original_second_capture_diversity_contract_mismatch")
     summary = result.grounding_disposition_summary
     for field, value in expected["grounding_disposition_summary"].items():
-        if not _contract_value_matches(getattr(summary, field), value):
-            raise AssertionError("original_second_capture_summary_contract_mismatch")
+        observed = getattr(summary, field)
+        if not _contract_value_matches(observed, value):
+            raise AssertionError(
+                "original_second_capture_summary_contract_mismatch:"
+                f"field={field};expected={value!r};observed={observed!r};"
+                f"dispositions={_grounding_disposition_diagnostic(result)!r}"
+            )
 
     observed_dispositions: dict[str, str] = {}
     disposition_candidate_ids_by_proposal: dict[str, str] = {}
@@ -1403,7 +1418,12 @@ async def prepare_generic_n4_served_replay(
         len(children) != child_count
         or len({child.semantic_ref for child in children}) != child_count
     ):
-        raise AssertionError("controlled_n4_child_family_not_complete_and_distinct")
+        raise AssertionError(
+            "controlled_n4_child_family_not_complete_and_distinct:"
+            f"expected={child_count};observed={len(children)};"
+            f"summary={generation_result.grounding_disposition_summary.model_dump(mode='json')!r};"
+            f"dispositions={_grounding_disposition_diagnostic(generation_result)!r}"
+        )
     if recording_mode == "original_second_capture":
         if original_candidate_semantics is None:
             raise AssertionError("original_second_capture_candidate_contract_not_loaded")

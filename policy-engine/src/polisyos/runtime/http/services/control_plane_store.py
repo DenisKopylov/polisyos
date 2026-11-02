@@ -5387,6 +5387,53 @@ class ControlPlaneStore:
         except (TypeError, ValueError, json.JSONDecodeError) as exc:
             raise ControlJobLeaseLostError("control job terminal event is malformed") from exc
 
+    def _get_job_terminal_source_event_for_core_run(
+        self,
+        *,
+        job_id: str,
+        control_run_id: str,
+        core_run_id: str,
+        expected_state: Literal["completed", "failed"],
+    ) -> _ControlJobLifecycleSourceEventRecord:
+        """Select an immutable terminal attempt without consulting the current head."""
+        from polisyos.runtime.http.services.adapters.core_run import derive_control_job_core_run_id
+
+        rows = self._fetchall(
+            """
+            SELECT event_id, job_id, event_type, payload_json, created_at
+            FROM control_job_events
+            WHERE job_id = ? AND event_type IN (?, ?)
+            ORDER BY event_id ASC
+            """,
+            (job_id, "job_completed", "job_failed"),
+        )
+        matches: list[_ControlJobLifecycleSourceEventRecord] = []
+        for row in rows:
+            event_type = row.get("event_type") if isinstance(row, Mapping) else row[2]
+            if event_type not in {"job_completed", "job_failed"}:
+                raise ControlJobLeaseLostError("control job terminal history type is invalid")
+            try:
+                event = self._control_job_lifecycle_event_record_from_row(
+                    row, expected_job_id=job_id, expected_event_type=event_type
+                )
+                attempt = event.payload.get("attempt")
+                if type(attempt) is not int or attempt < 1:
+                    raise ValueError("terminal attempt is not established")
+                if event.payload.get("state") != event_type.removeprefix("job_"):
+                    raise ValueError("terminal state disagrees with event type")
+                derived = derive_control_job_core_run_id(
+                    job_id=job_id, control_run_id=control_run_id, attempt=attempt
+                )
+            except (TypeError, ValueError, json.JSONDecodeError) as exc:
+                raise ControlJobLeaseLostError("control job terminal history is malformed") from exc
+            if derived == core_run_id:
+                matches.append(event)
+        if len(matches) != 1 or matches[0].event_type != "job_" + expected_state:
+            raise ControlJobLeaseLostError(
+                "control job exact Core terminal history not established"
+            )
+        return matches[0]
+
     def get_cancelled_job_verified_record(self, job_id: str) -> ControlJobRecord:
         """Reconcile a cancelled row, its creation scope, event, and outbox."""
         with self._job_transaction():

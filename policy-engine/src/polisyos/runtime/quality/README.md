@@ -52,6 +52,33 @@ occurrence, persisted evaluation identity, eligibility/frontier fence and fresh
 history projection remain distinct. No new currentness or authority is inferred
 by preparing or admitting a limited candidate context.
 
+## Retained candidate N5 results
+
+A completed configured V5 simulation has one numerical read boundary:
+`GenerationSourceRepository._read_candidate_simulation_v5_numerical_output`.
+It reopens the selected execution, input, N4 source, historical context and result,
+then checks world, atom, outcome, receipt and numerical-completion bindings. Both
+normal compiled publication and late-failure preservation consume this reader.
+Core outputs retain all four selected execution/input/source/result references.
+
+The cycle controller keeps a private per-invocation completion slot before the
+value/revision stage. Its advisory error attachment preserves the original
+exception and cause; Control still replays the artifacts and the current worker
+fence before publishing failed-attempt outputs. This does not fabricate a
+completed cycle. Cancellation and ownership loss keep their interruption path.
+
+Fresh RunDetails returns numerical trajectories through the candidate observation
+body. A distinct failed-candidate projection marks `cycle_completed=False` and
+carries only verified N5 facts. The public Core identity is reconciled to its exact
+immutable terminal event, including earlier attempts after a later terminal;
+historical reading requires no current worker lease. Configured and generic
+numerical bodies are sibling contracts with their own fixed purposes. Their
+finite horizon/trajectory validation is shared, while currentness remains
+`not_established` and publication authority stays false. Unknown source-derived
+child-family lineage does not erase an independently verified configured N5
+result, and it is not upgraded by that result. Generic raw artifact downloads
+retain their separate authority admission rules.
+
 ## Selected HTE source content join
 
 `hte_source_projection.py` joins one frozen HTE input to its exact selected

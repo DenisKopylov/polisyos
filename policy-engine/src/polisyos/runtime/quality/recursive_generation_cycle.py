@@ -21,6 +21,7 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.core import canon
 from polisyos.core.artifacts import ArtifactRef as CASArtifactRef
 from polisyos.pdc import (
     CompositionCertificate,
@@ -106,6 +107,7 @@ RECURSIVE_GENERATION_CYCLE_PARTIAL_V2_SCHEMA_VERSION = (
 RECURSIVE_GENERATION_CYCLE_PARTIAL_V3_SCHEMA_VERSION = (
     "policyos.runtime.recursive_generation_cycle.partial.v3"
 )
+_N4_CHILD_PROFILE_SET_CANON = canon.CanonSpec(forbid_floats=False)
 ExecutionIntent = Literal[
     "candidate_only",
     "simulate_only",
@@ -922,6 +924,7 @@ class RecursiveLeafContextOwner:
                 version="1.0",
             ),
             producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+            canon=artifacts.CanonInfo.from_spec(_N4_CHILD_PROFILE_SET_CANON),
             inputs=inputs,
             tenant_context=ArtifactTenantContextInfo(
                 tenant_id=family.tenant_id,
@@ -1076,13 +1079,11 @@ class RecursiveLeafContextOwner:
         family = RecursiveN4ChildProfileSetV1.model_validate(
             {**payload, "content_hash": gy_content_hash(payload)}
         )
-        from polisyos.core import canon
-
         options = self._n4_child_profile_set_write_options(family)
         ref = self._store.put_json(
             family.model_dump(mode="json"),
             options,
-            canon_spec=canon.CanonSpec(forbid_floats=False),
+            canon_spec=_N4_CHILD_PROFILE_SET_CANON,
         )
         self.load_n4_child_profile_set(
             ref,
@@ -3897,6 +3898,7 @@ class RecursiveGenerationCycleController:
             node_results[node_ref] = result
             return result
 
+        original_leaf_error: Exception | None = None
         try:
             root = await route(recursive_graph.root_design_ref)
         except _RecursiveBudgetStopError as stop:
@@ -3928,7 +3930,9 @@ class RecursiveGenerationCycleController:
                 authority_scope=self._authority_scope,
             )
         except _RecursiveLeafExecutionError as failure:
-            raise failure.error from None
+            original_leaf_error = failure.error
+        if original_leaf_error is not None:
+            raise original_leaf_error
         ordered_nodes = tuple(node_results[node_ref] for node_ref in node_refs)
         node_payloads = tuple(node.model_dump(mode="json") for node in ordered_nodes)
         payload = {

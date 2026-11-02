@@ -543,6 +543,9 @@ class ControlNLJobAdmissionMixin:
                 or not verified_nl_job_scope._was_issued_by_verified_nl_execution_owner
             ):
                 raise RuntimeError("cycle_substrate_context_verified_worker_scope_not_established")
+            # Retain the very same admitted owner for compilation and any
+            # same-attempt partial-result preservation after a later failure.
+            context.verified_nl_job_scope = verified_nl_job_scope
             context_artifact_owner = CycleSubstrateContextArtifactOwner(
                 store=self._artifact_store,
                 control_store=self._control_store,

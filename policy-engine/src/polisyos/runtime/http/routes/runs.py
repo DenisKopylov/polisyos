@@ -48,12 +48,14 @@ from polisyos.core.contracts.runtime import (
     RunCandidateSimulationAcquisitionHistoryEntryV3,
     RunCandidateSimulationChildProfileBinding,
     RunCandidateSimulationN5Observation,
+    RunCandidateSimulationN5ResultBody,
     RunCandidateSimulationN8ChildSourceBinding,
     RunCandidateSimulationProjection,
     RunConditionalTransportCandidateProjection,
     RunDetailsResponse,
     RunEvidenceContextResponse,
     RunEvidenceContextView,
+    RunFailedCandidateSimulationProjection,
     RunGenericCycleSimulationChildProfileBinding,
     RunGenericCycleSimulationN5Observation,
     RunGenericCycleSimulationN5ResultBody,
@@ -1323,6 +1325,193 @@ def _n8_interaction_qualification_fields(
     return projected
 
 
+def _n5_numerical_body_payload(
+    *, ref: ArtifactRef, manifest: Any, result: Any, authority_purpose: str
+) -> dict[str, Any]:
+    """Project finite numerical fields without changing their producer or purpose."""
+    if ref.manifest_profile_sha256 is None or manifest.artifact_schema is None:
+        raise ValueError("candidate_n5_result_body_selected_manifest_view_not_established")
+    return {
+        "artifact_ref": ref,
+        "artifact_schema_name": manifest.artifact_schema.name,
+        "artifact_schema_version": manifest.artifact_schema.version,
+        "result_schema_version": result.schema_version,
+        "selected_manifest_profile_sha256": ref.manifest_profile_sha256,
+        "world_model_record_ref": result.world_model_record_ref,
+        "world_model_record_content_hash": result.world_model_record_content_hash,
+        "atom_ids": result.atom_ids,
+        "selected_outcomes": result.selected_outcomes,
+        "horizon": result.horizon.model_dump(mode="python"),
+        "trajectories": tuple(
+            {
+                "run_level": trajectory.run_level,
+                "atom_ids": trajectory.atom_ids,
+                "points": tuple(
+                    {"step": point.step, "outcomes": point.outcomes, "effects": point.effect}
+                    for point in trajectory.points
+                ),
+            }
+            for trajectory in result.trajectories
+        ),
+        "uncertainty_kind": result.uncertainty_kind,
+        "authority_purpose": authority_purpose,
+        "candidate_status": "candidate_unverified",
+        "currentness_status": "not_established",
+        "publication_authority": False,
+    }
+
+
+def _configured_n5_public_numerical_read(
+    *,
+    execution_ref: ArtifactRef,
+    core_run_id: str,
+    core_status: str | None,
+    control_job_id: str | None,
+    tenant_id: str | None,
+    cell_id: str | None,
+    root_artifacts: tuple[Any, ...],
+    store: Any,
+    control_service: Any | None,
+) -> tuple[Any, RunCandidateSimulationN5ResultBody]:
+    """Reopen exact selected outputs and the immutable job creation scope."""
+    from polisyos.runtime.http.services.control_plane_store import (
+        _control_job_execution_scope_from_event,
+    )
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    if not control_job_id or not tenant_id or not cell_id or control_service is None:
+        raise ValueError("candidate_n5_public_owner_not_established")
+    event = control_service._control_store.get_job_created_event_payload(control_job_id)
+    event_scope = _control_job_execution_scope_from_event(event)
+    control_run_id = event.get("run_id")
+    if (
+        event.get("job_id") != control_job_id
+        or not isinstance(control_run_id, str)
+        or not control_run_id
+        or event_scope.status != "established"
+        or (event_scope.tenant_id, event_scope.cell_id) != (tenant_id, cell_id)
+    ):
+        raise ValueError("candidate_n5_public_job_scope_mismatch")
+    terminal_state = {"ok": "completed", "error": "failed"}.get(core_status)
+    if terminal_state is None:
+        raise ValueError("candidate_n5_public_core_terminal_state_missing")
+    # Select this immutable attempt, even after a later attempt or basis change.
+    control_service._control_store._get_job_terminal_source_event_for_core_run(
+        job_id=control_job_id,
+        control_run_id=control_run_id,
+        core_run_id=core_run_id,
+        expected_state=terminal_state,
+    )
+    resolved = GenerationSourceRepository(store)._read_candidate_simulation_v5_numerical_output(
+        ref=execution_ref,
+        expected_run_id=control_run_id,
+        expected_job_id=control_job_id,
+        expected_tenant_id=tenant_id,
+        expected_cell_id=cell_id,
+    )
+    execution = resolved.execution
+    required_roots = (
+        execution_ref,
+        execution.n5_input_ref,
+        execution.n4_source_ref,
+        execution.n5_result_ref,
+    )
+    if not all(ref in root_artifacts for ref in required_roots):
+        raise ValueError("candidate_n5_public_selected_outputs_not_established")
+    manifest = _generic_selected_result_manifest(
+        store, execution.n5_result_ref, tenant_id=tenant_id, cell_id=cell_id
+    )
+    body = RunCandidateSimulationN5ResultBody.model_validate(
+        _n5_numerical_body_payload(
+            ref=execution.n5_result_ref,
+            manifest=manifest,
+            result=resolved.result,
+            authority_purpose="candidate_scenario_n5_only",
+        )
+    )
+    return resolved, body
+
+
+def _failed_candidate_n5_projection(
+    *,
+    run_id: str,
+    control_job_id: str | None,
+    tenant_id: str | None,
+    cell_id: str | None,
+    root_artifacts: tuple[Any, ...],
+    store: Any,
+    control_service: Any | None,
+) -> RunFailedCandidateSimulationProjection | None:
+    """Expose N5 numbers without synthesizing an unfinished compiled cycle."""
+    execution_refs = tuple(
+        ref
+        for ref in root_artifacts
+        if ref.kind == "runtime.quality.candidate_simulation_execution"
+    )
+    if not execution_refs:
+        return None
+    if len(execution_refs) != 1:
+        return RunFailedCandidateSimulationProjection(
+            run_id=run_id,
+            artifact_status="not_established",
+            limitation_code="candidate_n5_output_ambiguous",
+        )
+    execution_ref = execution_refs[0]
+    try:
+        resolved, body = _configured_n5_public_numerical_read(
+            execution_ref=execution_ref,
+            core_run_id=run_id,
+            core_status="error",
+            control_job_id=control_job_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            root_artifacts=root_artifacts,
+            store=store,
+            control_service=control_service,
+        )
+        execution, input_record, result = resolved.execution, resolved.input_record, resolved.result
+        observation = RunCandidateSimulationN5Observation(
+            node_ref="control-job://" + execution.job_id,
+            design_problem_ref=execution.problem_ref,
+            candidate_id=execution.original_candidate_id,
+            atom_ids=result.atom_ids,
+            selected_outcomes=result.selected_outcomes,
+            status="joint_simulated",
+            simulation_ref=result.receipt.payload_hash,
+            authority_blockers=resolved.authority_blockers,
+            simulation_result_ref=execution.n5_result_ref,
+            n5_execution_ref=execution_ref,
+            result_body_status="resolved",
+            result_body=body,
+            n4_source_ref=execution.n4_source_ref,
+            context_job_ref=execution.context_job_ref,
+            n5_input_ref=execution.n5_input_ref,
+            profile_config_ref=execution.profile_config_ref,
+            profile_selection_ref=input_record.profile.profile_selection_ref,
+            lineage_status="resolved",
+            world_model_record_content_hash=execution.world_model_record_hash,
+            k_world_ref_before=execution.k_world_ref_before,
+            k_world_ref_after=execution.k_world_ref_after,
+            n5_interaction_evidence=_n5_interaction_evidence_projection(result),
+            **_n5_interaction_scope_fields(result),
+        )
+        return RunFailedCandidateSimulationProjection(
+            run_id=run_id,
+            artifact_status="resolved",
+            source_ref=execution_ref,
+            source_content_hash=execution.content_hash,
+            n5_observations=(observation,),
+        )
+    except CanonicalProfileRefusalError:
+        raise
+    except Exception:
+        return RunFailedCandidateSimulationProjection(
+            run_id=run_id,
+            artifact_status="not_established",
+            limitation_code="candidate_n5_output_not_established",
+        )
+
+
 def _candidate_simulation_projection(
     *,
     run_id: str,
@@ -1332,7 +1521,8 @@ def _candidate_simulation_projection(
     root_artifacts: tuple[Any, ...],
     store: Any,
     control_service: Any | None = None,
-) -> RunCandidateSimulationProjection | None:
+    run_status: str | None = None,
+) -> RunCandidateSimulationProjection | RunFailedCandidateSimulationProjection | None:
     """Resolve the exact Core-run output and source-bound N5 child artifacts."""
     from polisyos.runtime.http.services.control.generation_cycle import (
         COMPILED_RECURSIVE_GENERATION_CYCLE_COST_SCHEMA_VERSION,
@@ -1358,7 +1548,19 @@ def _candidate_simulation_projection(
         if getattr(ref, "kind", None) == "runtime.compiled_recursive_generation_cycle"
     )
     if not compiled_refs:
-        return None
+        return (
+            _failed_candidate_n5_projection(
+                run_id=run_id,
+                control_job_id=control_job_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                root_artifacts=root_artifacts,
+                store=store,
+                control_service=control_service,
+            )
+            if run_status == "error"
+            else None
+        )
     if len(compiled_refs) != 1:
         return _candidate_simulation_refusal(
             run_id=run_id,
@@ -1996,6 +2198,74 @@ def _candidate_simulation_projection(
                             )
                             if n8_fields["n8_status"] == "value_ready":
                                 n8_fields["n8_status"] = "value_pending_n8"
+                    body_fields: dict[str, Any] = {}
+                    if (
+                        simulation.candidate_simulation_n5_input_ref is not None
+                        and result is not None
+                    ):
+                        body_fields = {
+                            "result_body_status": "not_established",
+                            "result_body_limitation_code": (
+                                "candidate_n5_result_body_content_refused"
+                            ),
+                        }
+                        try:
+                            execution_ref = ArtifactRef.model_validate(
+                                simulation.diagnostics.get(
+                                    "candidate_simulation_execution_selected_ref"
+                                )
+                            )
+                            resolved, body = _configured_n5_public_numerical_read(
+                                execution_ref=execution_ref,
+                                core_run_id=run_id,
+                                core_status=run_status,
+                                control_job_id=control_job_id,
+                                tenant_id=tenant_id,
+                                cell_id=cell_id,
+                                root_artifacts=root_artifacts,
+                                store=store,
+                                control_service=control_service,
+                            )
+                            execution = resolved.execution
+                            if (
+                                execution.n5_input_ref
+                                != simulation.candidate_simulation_n5_input_ref
+                                or execution.n4_source_ref
+                                != simulation.candidate_simulation_n4_source_ref
+                                or execution.context_job_ref
+                                != simulation.candidate_simulation_context_job_ref
+                                or execution.n5_result_ref != simulation.simulation_result_ref
+                                or execution.problem_ref
+                                != (cycle.design_problem_basis_ref or cycle.design_problem_ref)
+                                or execution.original_candidate_id != simulation.candidate_id
+                                or execution.original_candidate_hash
+                                != cycle.selected_candidate_content_hash
+                                or execution.world_model_record_hash
+                                != simulation.k_world_ref_before
+                                or execution.k_world_ref_after != simulation.k_world_ref_after
+                                or execution.n5_result_content_hash != simulation.simulation_ref
+                                or execution.profile_config_ref
+                                != simulation.candidate_simulation_profile_config_ref
+                                or resolved.source.profile.profile_selection_ref
+                                != simulation.candidate_simulation_profile_selection_ref
+                            ):
+                                raise ValueError("candidate_n5_public_compiled_cycle_mismatch")
+                            body_fields = {
+                                "n5_execution_ref": execution_ref,
+                                "result_body_status": "resolved",
+                                "result_body": body,
+                            }
+                        except CanonicalProfileRefusalError:
+                            raise
+                        except Exception:
+                            # Keep the completed checkpoint readable while
+                            # withholding unverified candidate numerical data.
+                            body_fields = {
+                                "result_body_status": "not_established",
+                                "result_body_limitation_code": (
+                                    "candidate_n5_result_body_content_refused"
+                                ),
+                            }
                     observations.append(
                         RunCandidateSimulationN5Observation(
                             node_ref=node.node_ref,
@@ -2026,6 +2296,7 @@ def _candidate_simulation_projection(
                             **_n5_interaction_scope_fields(result),
                             **n8_fields,
                             **lineage_fields,
+                            **body_fields,
                         )
                     )
             if node.joint_simulation is not None:
@@ -2771,7 +3042,7 @@ def _candidate_simulation_for_indexed_run(
     *,
     store: ArtifactStore,
     control_service: Any | None = None,
-) -> RunCandidateSimulationProjection | None:
+) -> RunCandidateSimulationProjection | RunFailedCandidateSimulationProjection | None:
     """Resolve the current root-bound N5 projection used by run consumers."""
     details = run.details
     return _candidate_simulation_projection(
@@ -2779,6 +3050,7 @@ def _candidate_simulation_for_indexed_run(
         tenant_id=details.tenant_id,
         cell_id=details.cell_id,
         control_job_id=details.control_job_id,
+        run_status=details.status,
         root_artifacts=tuple(details.root_artifacts),
         store=store,
         control_service=control_service,
@@ -3924,46 +4196,12 @@ def _generic_cycle_simulation_projection(
                     else:
                         try:
                             result_body = RunGenericCycleSimulationN5ResultBody.model_validate(
-                                {
-                                    "artifact_ref": execution.result_ref,
-                                    "artifact_schema_name": result_manifest.artifact_schema.name,
-                                    "artifact_schema_version": (
-                                        result_manifest.artifact_schema.version
-                                    ),
-                                    "result_schema_version": resolved_result.schema_version,
-                                    "selected_manifest_profile_sha256": (
-                                        execution.result_ref.manifest_profile_sha256
-                                    ),
-                                    "world_model_record_ref": (
-                                        resolved_result.world_model_record_ref
-                                    ),
-                                    "world_model_record_content_hash": (
-                                        resolved_result.world_model_record_content_hash
-                                    ),
-                                    "atom_ids": resolved_result.atom_ids,
-                                    "selected_outcomes": resolved_result.selected_outcomes,
-                                    "horizon": resolved_result.horizon.model_dump(mode="python"),
-                                    "trajectories": tuple(
-                                        {
-                                            "run_level": trajectory.run_level,
-                                            "atom_ids": trajectory.atom_ids,
-                                            "points": tuple(
-                                                {
-                                                    "step": point.step,
-                                                    "outcomes": point.outcomes,
-                                                    "effects": point.effect,
-                                                }
-                                                for point in trajectory.points
-                                            ),
-                                        }
-                                        for trajectory in resolved_result.trajectories
-                                    ),
-                                    "uncertainty_kind": resolved_result.uncertainty_kind,
-                                    "authority_purpose": "cycle_input_candidate_only",
-                                    "candidate_status": "candidate_unverified",
-                                    "currentness_status": "not_established",
-                                    "publication_authority": False,
-                                }
+                                _n5_numerical_body_payload(
+                                    ref=execution.result_ref,
+                                    manifest=result_manifest,
+                                    result=resolved_result,
+                                    authority_purpose="cycle_input_candidate_only",
+                                )
                             )
                         except ValidationError:
                             # A malformed supplied projection is refused explicitly.

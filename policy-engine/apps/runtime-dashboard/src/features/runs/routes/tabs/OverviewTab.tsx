@@ -448,13 +448,108 @@ function hasContinuationCandidate(
   );
 }
 
+type N5NumericalBody = Pick<
+  NonNullable<
+    NonNullable<
+      RunDetailsView["candidate_simulation"]
+    >["n5_observations"][number]["result_body"]
+  >,
+  "horizon" | "trajectories"
+>;
+
+function N5NumericalResultBody({
+  body,
+  testIdPrefix,
+}: {
+  body: N5NumericalBody;
+  testIdPrefix: string;
+}) {
+  const { t } = useI18n();
+  return (
+    <div
+      className="mt-2 space-y-2 border-t pt-2"
+      data-testid={testIdPrefix + "-result-body"}
+    >
+      <h6>{t("pages.runs.genericCycleSimulation.resultBodyTitle")}</h6>
+      <p>{t("pages.runs.genericCycleSimulation.resultCandidate")}</p>
+      <p>
+        {t("pages.runs.genericCycleSimulation.horizon", {
+          start: body.horizon.start,
+          end: body.horizon.end,
+          step: body.horizon.step,
+        })}
+      </p>
+      {body.trajectories.map((trajectory, index) => (
+        <section
+          key={
+            trajectory.run_level +
+            ":" +
+            trajectory.atom_ids.join(":") +
+            ":" +
+            index.toString()
+          }
+          data-testid={testIdPrefix + "-trajectory"}
+        >
+          <p>
+            {t("pages.runs.genericCycleSimulation.trajectory", {
+              scope: trajectory.run_level,
+            })}
+          </p>
+          <p>
+            {t("pages.runs.genericCycleSimulation.trajectoryAtoms", {
+              atomIds: trajectory.atom_ids.join(", "),
+            })}
+          </p>
+          {trajectory.points.map((point) => (
+            <div key={point.step}>
+              <p>
+                {t("pages.runs.genericCycleSimulation.step", {
+                  step: point.step,
+                })}
+              </p>
+              {Object.entries(point.outcomes).map(([name, value]) => (
+                <p key={"outcome:" + name}>
+                  {t("pages.runs.genericCycleSimulation.outcome", {
+                    name,
+                    value: formatNumber(value),
+                  })}
+                </p>
+              ))}
+              {Object.entries(point.effects).map(([name, value]) => (
+                <p key={"effect:" + name}>
+                  {t("pages.runs.genericCycleSimulation.effect", {
+                    name,
+                    value: formatNumber(value),
+                  })}
+                </p>
+              ))}
+            </div>
+          ))}
+        </section>
+      ))}
+    </div>
+  );
+}
+
 function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
   const { t } = useI18n();
   const projection = run.candidate_simulation;
   const values = projection?.n5_observations ?? [];
-  const checkpoint = projection?.recursive_cycle_checkpoint ?? null;
+  const compiledProjection =
+    projection?.schema_version ===
+    "policyos.runtime.run_candidate_simulation_projection.v1"
+      ? projection
+      : null;
+  const failedProjection =
+    projection?.schema_version ===
+    "policyos.runtime.run_failed_candidate_simulation_projection.v1"
+      ? projection
+      : null;
+  const checkpoint = compiledProjection?.recursive_cycle_checkpoint ?? null;
   const failedBranches = checkpoint?.failed_branches ?? [];
-  const acquisitionHistory = projection?.acquisition_history ?? [];
+  const acquisitionHistory = compiledProjection?.acquisition_history ?? [];
+  const acquisitionHistoryLimitation =
+    compiledProjection?.acquisition_history_limitation_code;
   const checkpointKnown = checkpoint !== null;
   if (projection == null) {
     return null;
@@ -466,6 +561,34 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
       <p className="text-muted text-sm">
         {t("pages.runs.candidateSimulation.authority")}
       </p>
+      {projectionKnown && failedProjection ? (
+        <div
+          className="space-y-1"
+          data-testid="overview-candidate-cycle-incomplete"
+        >
+          {failedProjection.artifact_status === "resolved" ? (
+            <p>{t("pages.runs.candidateSimulation.retainedAfterFailure")}</p>
+          ) : null}
+          <p>{t("pages.runs.candidateSimulation.cycleIncomplete")}</p>
+          {failedProjection.failed_stage != null ? (
+            <p>
+              {t("pages.runs.candidateSimulation.failedStage", {
+                stage: t(
+                  failedProjection.failed_stage === "value_projection"
+                    ? "pages.runs.candidateSimulation.valueProjectionStage"
+                    : "pages.runs.candidateSimulation.revisionStage",
+                ),
+              })}
+            </p>
+          ) : null}
+          <Link
+            className="text-accent text-sm underline"
+            to={`/runs/${encodeURIComponent(run.run_id)}/debug`}
+          >
+            {t("panels.nodeDebug.errorDetails")}
+          </Link>
+        </div>
+      ) : null}
       {!projectionKnown || projection.artifact_status !== "resolved" ? (
         <p data-testid="overview-simulation-refused">
           {typeof projection.limitation_code === "string"
@@ -479,7 +602,7 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
         </p>
       ) : null}
       {acquisitionHistory.length > 0 ||
-      typeof projection.acquisition_history_limitation_code === "string" ? (
+      typeof acquisitionHistoryLimitation === "string" ? (
         <div
           className="space-y-2 border-t pt-3"
           data-testid="overview-acquisition-history"
@@ -488,10 +611,9 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
           <p className="text-muted text-sm">
             {t("pages.runs.candidateSimulation.acquisitionHistoryAuthority")}
           </p>
-          {typeof projection.acquisition_history_limitation_code ===
-          "string" ? (
+          {typeof acquisitionHistoryLimitation === "string" ? (
             <p data-testid="overview-acquisition-history-limitation">
-              {projection.acquisition_history_limitation_code}
+              {acquisitionHistoryLimitation}
             </p>
           ) : null}
           {acquisitionHistory.map((value, index) => {
@@ -915,6 +1037,16 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
             {textList(observation.selected_outcomes).length > 0 ? (
               <p>{textList(observation.selected_outcomes).join(", ")}</p>
             ) : null}
+            {value.result_body ? (
+              <N5NumericalResultBody
+                body={value.result_body}
+                testIdPrefix="overview-candidate-n5"
+              />
+            ) : value.result_body_status === "not_established" ? (
+              <p data-testid="overview-candidate-n5-result-body-limited">
+                {t("pages.runs.genericCycleSimulation.bodyUnavailable")}
+              </p>
+            ) : null}
           </div>
         );
       })}
@@ -1306,87 +1438,10 @@ function GenericCycleSimulationPanel({
                   </p>
                 ) : null}
                 {observation.simulation_result_body ? (
-                  <div
-                    className="mt-2 space-y-2 border-t pt-2"
-                    data-testid="overview-generic-cycle-n5-result-body"
-                  >
-                    <h6>
-                      {t("pages.runs.genericCycleSimulation.resultBodyTitle")}
-                    </h6>
-                    <p>
-                      {t("pages.runs.genericCycleSimulation.resultCandidate")}
-                    </p>
-                    <p>
-                      {t("pages.runs.genericCycleSimulation.horizon", {
-                        start: observation.simulation_result_body.horizon.start,
-                        end: observation.simulation_result_body.horizon.end,
-                        step: observation.simulation_result_body.horizon.step,
-                      })}
-                    </p>
-                    {observation.simulation_result_body.trajectories.map(
-                      (trajectory, trajectoryIndex) => (
-                        <section
-                          key={
-                            trajectory.run_level +
-                            ":" +
-                            trajectory.atom_ids.join(":") +
-                            ":" +
-                            trajectoryIndex.toString()
-                          }
-                          data-testid="overview-generic-cycle-n5-trajectory"
-                        >
-                          <p>
-                            {t("pages.runs.genericCycleSimulation.trajectory", {
-                              scope: trajectory.run_level,
-                            })}
-                          </p>
-                          <p>
-                            {t(
-                              "pages.runs.genericCycleSimulation.trajectoryAtoms",
-                              {
-                                atomIds: trajectory.atom_ids.join(", "),
-                              },
-                            )}
-                          </p>
-                          {trajectory.points.map((point) => (
-                            <div key={point.step}>
-                              <p>
-                                {t("pages.runs.genericCycleSimulation.step", {
-                                  step: point.step,
-                                })}
-                              </p>
-                              {Object.entries(point.outcomes).map(
-                                ([name, value]) => (
-                                  <p key={"outcome:" + name}>
-                                    {t(
-                                      "pages.runs.genericCycleSimulation.outcome",
-                                      {
-                                        name,
-                                        value: formatNumber(value),
-                                      },
-                                    )}
-                                  </p>
-                                ),
-                              )}
-                              {Object.entries(point.effects).map(
-                                ([name, value]) => (
-                                  <p key={"effect:" + name}>
-                                    {t(
-                                      "pages.runs.genericCycleSimulation.effect",
-                                      {
-                                        name,
-                                        value: formatNumber(value),
-                                      },
-                                    )}
-                                  </p>
-                                ),
-                              )}
-                            </div>
-                          ))}
-                        </section>
-                      ),
-                    )}
-                  </div>
+                  <N5NumericalResultBody
+                    body={observation.simulation_result_body}
+                    testIdPrefix="overview-generic-cycle-n5"
+                  />
                 ) : observation.simulation_result_body_status ===
                   "not_established" ? (
                   <p data-testid="overview-generic-cycle-n5-result-body-limited">
@@ -1541,8 +1596,12 @@ function PredictiveCalibrationPanel({
     useState<PredictiveCalibrationRequest | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
+  const candidateProjection = run.candidate_simulation;
   const candidateSourceRefs = (
-    run.candidate_simulation?.n5_observations ?? []
+    candidateProjection?.artifact_status === "resolved" &&
+    candidateProjection.run_id === run.run_id
+      ? candidateProjection.n5_observations
+      : []
   ).flatMap((observation): RunArtifactRef[] => {
     const ref = observation.n4_source_ref;
     return observation.status === "joint_simulated" &&

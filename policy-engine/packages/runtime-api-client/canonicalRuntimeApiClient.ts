@@ -1539,6 +1539,9 @@ export type RunCandidateSimulationCurrentOccurrence =
 export type RunCandidateSimulationN5Observation =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationN5Observation"];
 
+export type RunCandidateSimulationN5ResultBody =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationN5ResultBody"];
+
 export type RunCandidateSimulationN8ChildSourceBinding =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationN8ChildSourceBinding"];
 
@@ -1586,6 +1589,9 @@ export type RunEvidencePlanView =
 
 export type RunEvidencePromotionView =
   RuntimeApiComponents["schemas"]["RunEvidencePromotionView"];
+
+export type RunFailedCandidateSimulationProjection =
+  RuntimeApiComponents["schemas"]["RunFailedCandidateSimulationProjection"];
 
 export type RunFeedbackResponse =
   RuntimeApiComponents["schemas"]["RunFeedbackResponse"];

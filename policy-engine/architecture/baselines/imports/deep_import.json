@@ -9330,6 +9330,13 @@
       "source_module": "polisyos.runtime.http.services.control.job_attempt_publication",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/services/control/job_attempt_publication.py",
+      "target_module": "polisyos.common.exception_metadata",
+      "target_root": "common"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.job_attempt_publication",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/services/control/job_attempt_publication.py",
       "target_module": "polisyos.core.contracts.owned_attempt_anchor",
       "target_root": "core"
     },
@@ -11131,6 +11138,13 @@
       "source_file": "src/polisyos/runtime/quality/external_audit.py",
       "target_module": "polisyos.core.audit",
       "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
+      "target_module": "polisyos.common.exception_metadata",
+      "target_root": "common"
     },
     {
       "source_module": "polisyos.runtime.quality.generation_cycle",

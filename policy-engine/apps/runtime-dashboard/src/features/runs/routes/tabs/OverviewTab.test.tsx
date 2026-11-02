@@ -1,4 +1,5 @@
 import { retainedAcquisitionHistoryFixture } from "@/test/fixtures/retainedAcquisitionHistory";
+import { failedCandidateSimulationFixture } from "@/test/fixtures/failedCandidateSimulation";
 import { fireEvent, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 
@@ -1109,6 +1110,104 @@ describe("OverviewTab", () => {
       screen.queryByTestId("overview-generic-cycle-history"),
     ).not.toBeInTheDocument();
   });
+
+  it("shows retained candidate numbers without claiming the failed cycle completed", () => {
+    overviewState.run = parsedRun(failedCandidateSimulationFixture());
+    renderWithProviders(<OverviewTab />);
+    const panel = screen.getByTestId("overview-candidate-simulation");
+    expect(panel).toHaveTextContent("retained-tax-candidate");
+    expect(panel).toHaveTextContent(
+      "Publication authority is not established.",
+    );
+    expect(panel).toHaveTextContent(
+      "The simulation completed before a later stage failed.",
+    );
+    expect(panel).toHaveTextContent(
+      "The policy cycle is incomplete; these results do not establish success.",
+    );
+    expect(panel).toHaveTextContent("Later failure: Value assessment");
+    expect(panel).toHaveTextContent("simulation_only_k_sim_not_world_evidence");
+    expect(panel).toHaveTextContent("simulation_effect_basis_not_established");
+    const body = screen.getByTestId("overview-candidate-n5-result-body");
+    expect(body).toHaveTextContent("Persisted N5 result");
+    expect(body).toHaveTextContent("Intervention atoms: tax-atom");
+    expect(body).toHaveTextContent("government.balance");
+    expect(body).toHaveTextContent("3.25");
+    expect(body).toHaveTextContent("0.75");
+    expect(screen.getByRole("link", { name: "Error details" })).toHaveAttribute(
+      "href",
+      "/runs/run-1/debug",
+    );
+    expect(
+      screen.queryByTestId("overview-recursive-checkpoint"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Completed child computations:/),
+    ).not.toBeInTheDocument();
+    expect(panel).not.toHaveTextContent("publication_ready");
+  });
+
+  it("withholds unresolved retained numbers and does not invent an absent failure stage", () => {
+    overviewState.run = parsedRun({
+      schema_version:
+        "policyos.runtime.run_failed_candidate_simulation_projection.v1",
+      run_id: "run-1",
+      artifact_status: "not_established",
+      limitation_code: "candidate_n5_output_not_established",
+    });
+    renderWithProviders(<OverviewTab />);
+    const panel = screen.getByTestId("overview-candidate-simulation");
+    expect(panel).toHaveTextContent("candidate_n5_output_not_established");
+    expect(panel).toHaveTextContent("The policy cycle is incomplete");
+    expect(panel).not.toHaveTextContent("Later failure:");
+    expect(panel).not.toHaveTextContent(
+      "The simulation completed before a later stage failed.",
+    );
+    expect(
+      screen.queryByTestId("overview-candidate-n5-result-body"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("overview-recursive-checkpoint"),
+    ).not.toBeInTheDocument();
+  });
+
+  it.each([true, false])(
+    "offers a retained N4 calibration source only when its outer failed projection is resolved (%s)",
+    (resolved) => {
+      const fixture = failedCandidateSimulationFixture();
+      if (!resolved) {
+        fixture.artifact_status = "not_established";
+        Reflect.set(
+          fixture,
+          "limitation_code",
+          "candidate_n5_output_not_established",
+        );
+        const row = fixture.n5_observations[0]!;
+        Reflect.deleteProperty(row, "result_body");
+        row.result_body_status = "not_established";
+        Reflect.set(
+          row,
+          "result_body_limitation_code",
+          "candidate_n5_result_body_content_refused",
+        );
+      }
+      overviewState.run = parsedRun(fixture);
+      overviewState.canCreatePredictiveCalibration = true;
+      overviewState.predictiveCalibrationQuery = {
+        isPending: false,
+        error: { status: 404, code: "run_predictive_calibration_not_found" },
+        data: undefined,
+      };
+      renderWithProviders(<OverviewTab />);
+      const choices = screen.getByTestId("predictive-candidate-source");
+      const name =
+        "runtime.quality.n4_candidate_scenario_source · " +
+        fixture.n5_observations[0]!.n4_source_ref.artifact_id;
+      expect(within(choices).queryAllByRole("option", { name })).toHaveLength(
+        resolved ? 1 : 0,
+      );
+    },
+  );
 
   it("renders parsed generic cycle children and the retained failed sibling as candidate-only history", () => {
     overviewState.run = parsedRunWithGenericCycleSimulation();

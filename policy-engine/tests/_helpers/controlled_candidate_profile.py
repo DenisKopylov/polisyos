@@ -527,7 +527,13 @@ def _resolve_controlled_parent_slot(slot_id: str) -> str:
     return canonical_id
 
 
-def _current_compiler_problem(recording: dict[str, object]):
+def _current_compiler_problem(
+    recording: dict[str, object],
+    *,
+    raw_request: str | None = None,
+    outcome_variable: str | None = None,
+    problem_statement: str | None = None,
+):
     """Build a controlled current-schema parent without rewriting replay bytes.
 
     The selected recording supplies response bytes only; its historical problem
@@ -550,12 +556,23 @@ def _current_compiler_problem(recording: dict[str, object]):
         else constraint
         for constraint in reconstructed.constraints
     ]
-    problem = reconstructed.model_copy(
-        update={
-            "schema_version": DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION,
-            "constraints": constraints,
-        }
-    )
+    problem_updates: dict[str, object] = {
+        "schema_version": DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION,
+        "constraints": constraints,
+    }
+    if raw_request is not None:
+        if source_text not in raw_request:
+            raise ValueError("controlled_n4_parent_candidate_only_source_missing")
+        problem_updates["nl_provenance"] = reconstructed.nl_provenance.model_copy(
+            update={"raw_request": raw_request}
+        )
+    if outcome_variable is not None:
+        problem_updates["outcome_of_interest"] = reconstructed.outcome_of_interest.model_copy(
+            update={"target_variable": outcome_variable}
+        )
+    if problem_statement is not None:
+        problem_updates["problem_statement"] = problem_statement
+    problem = reconstructed.model_copy(update=problem_updates)
     # Controlled current-schema parents pass the complete owner validator;
     # fixture adapters must not rely on model_copy to establish validity.
     problem = DesignProblem.model_validate(problem.model_dump(mode="python"))
@@ -1295,8 +1312,14 @@ def _materialize_controlled_world_model_build(
         if source_root is not None
         else tmp_path / "controlled-candidate-source"
     )
+    selected_skg_path = selected_skg_source.db_path.resolve()
     expected_skg_path = admitted_source_root / "academic-skg.duckdb"
-    if selected_skg_source.db_path.resolve() != expected_skg_path.resolve():
+    # Explicit source owners can retain their actual directory layout. The
+    # immutable source capture and reader checks below still bind the exact DB;
+    # an implicit fixture keeps its original, single admitted source path.
+    if (source_root is None and selected_skg_path != expected_skg_path.resolve()) or (
+        source_root is not None and not selected_skg_path.is_relative_to(admitted_source_root)
+    ):
         raise ValueError("controlled_selected_skg_source_path_mismatch")
     _validate_controlled_skg_source(selected_skg_source)
 
@@ -1736,6 +1759,7 @@ def _build_configured_procurement_profile(
     source_root: Path | None = None,
     selected_skg_source: ControlledSKGSourceSelection | None = None,
     repo_root: Path | None = None,
+    basis_repo_root: Path | None = None,
     l6_source_owner_root: Path | None = None,
     rule_operator_kind: str = "procurement_shock_intensity",
     rule_parameter_id: str = "intensity",
@@ -1775,7 +1799,7 @@ def _build_configured_procurement_profile(
     product_root = repo_root or REPO_ROOT
     _, base_context = _controlled_profile_cycle_basis(
         recorded_problem,
-        repo_root=product_root,
+        repo_root=basis_repo_root or product_root,
     )
     outcome_variable = recorded_problem.outcome_of_interest.target_variable
     rule = CandidateScenarioSetToRule(
@@ -1954,6 +1978,7 @@ def _configured_procurement_profile(
     source_root: Path | None = None,
     selected_skg_source: ControlledSKGSourceSelection | None = None,
     repo_root: Path | None = None,
+    basis_repo_root: Path | None = None,
     l6_source_owner_root: Path | None = None,
     rule_operator_kind: str = "procurement_shock_intensity",
     rule_parameter_id: str = "intensity",
@@ -1975,6 +2000,7 @@ def _configured_procurement_profile(
         source_root=source_root,
         selected_skg_source=selected_skg_source,
         repo_root=repo_root,
+        basis_repo_root=basis_repo_root,
         l6_source_owner_root=l6_source_owner_root,
         rule_operator_kind=rule_operator_kind,
         rule_parameter_id=rule_parameter_id,

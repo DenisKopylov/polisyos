@@ -18326,6 +18326,7 @@ export interface components {
       /** Lineage Status */
       lineage_status?: ("resolved" | "not_established") | null;
       n4_source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      n5_execution_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       n5_input_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       n5_interaction_evidence?:
         | components["schemas"]["RunN5InteractionEvidence"]
@@ -18465,6 +18466,22 @@ export interface components {
        * @default []
        */
       replication_seeds: number[];
+      result_body?:
+        | components["schemas"]["RunCandidateSimulationN5ResultBody"]
+        | null;
+      /** Result Body Limitation Code */
+      result_body_limitation_code?:
+        | (
+            | "candidate_n5_result_body_request_binding_not_established"
+            | "candidate_n5_result_body_selected_manifest_view_not_established"
+            | "candidate_n5_result_body_execution_not_successful"
+            | "candidate_n5_result_body_content_refused"
+          )
+        | null;
+      /** Result Body Status */
+      result_body_status?:
+        | ("not_applicable" | "resolved" | "not_established")
+        | null;
       /**
        * Selected Outcomes
        * @default []
@@ -18485,6 +18502,81 @@ export interface components {
         | "simulation_blocked";
       /** World Model Record Content Hash */
       world_model_record_content_hash?: string | null;
+    };
+    /**
+     * RunCandidateSimulationN5ResultBody
+     * @description Typed N5 result body for one configured candidate observation.
+     */
+    RunCandidateSimulationN5ResultBody: {
+      artifact_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Artifact Schema Name
+       * @constant
+       */
+      artifact_schema_name: "policyos.runtime.n5.joint_simulation_result";
+      /**
+       * Artifact Schema Version
+       * @enum {string}
+       */
+      artifact_schema_version: "1.0.0" | "2.0.0" | "3.0.0" | "4.0.0";
+      /** Atom Ids */
+      atom_ids: string[];
+      /**
+       * Authority Purpose
+       * @default candidate_scenario_n5_only
+       * @constant
+       */
+      authority_purpose: "candidate_scenario_n5_only";
+      /**
+       * Candidate Status
+       * @default candidate_unverified
+       * @constant
+       */
+      candidate_status: "candidate_unverified";
+      /**
+       * Currentness Status
+       * @default not_established
+       * @constant
+       */
+      currentness_status: "not_established";
+      horizon: components["schemas"]["RunGenericCycleSimulationN5Horizon"];
+      /**
+       * Publication Authority
+       * @default false
+       * @constant
+       */
+      publication_authority: false;
+      /**
+       * Result Schema Version
+       * @enum {string}
+       */
+      result_schema_version:
+        | "policyos.runtime.joint_simulation_horizon.v1"
+        | "policyos.runtime.joint_simulation_horizon.v2"
+        | "policyos.runtime.joint_simulation_horizon.v3"
+        | "policyos.runtime.joint_simulation_horizon.v4";
+      /**
+       * Schema Version
+       * @default policyos.runtime.run_candidate_simulation_n5_result_body.v1
+       * @constant
+       */
+      schema_version: "policyos.runtime.run_candidate_simulation_n5_result_body.v1";
+      /** Selected Manifest Profile Sha256 */
+      selected_manifest_profile_sha256: string;
+      /** Selected Outcomes */
+      selected_outcomes: string[];
+      /** Trajectories */
+      trajectories: components["schemas"]["RunGenericCycleSimulationN5Trajectory"][];
+      /**
+       * Uncertainty Kind
+       * @default K_sim
+       * @constant
+       */
+      uncertainty_kind: "K_sim";
+      /** World Model Record Content Hash */
+      world_model_record_content_hash: string;
+      /** World Model Record Ref */
+      world_model_record_ref: string;
     };
     /**
      * RunCandidateSimulationN8ChildSourceBinding
@@ -18732,8 +18824,10 @@ export interface components {
      * @description Run details public type.
      */
     RunDetails: {
+      /** Candidate Simulation */
       candidate_simulation?:
         | components["schemas"]["RunCandidateSimulationProjection"]
+        | components["schemas"]["RunFailedCandidateSimulationProjection"]
         | null;
       capability_manifest_ref?:
         | components["schemas"]["ArtifactRef-Output"]
@@ -19062,6 +19156,68 @@ export interface components {
        * @default pending
        */
       status: string;
+    };
+    /**
+     * RunFailedCandidateSimulationProjection
+     * @description Candidate-only N5 evidence retained when a later cycle stage fails.
+     */
+    RunFailedCandidateSimulationProjection: {
+      /**
+       * Artifact Status
+       * @enum {string}
+       */
+      artifact_status: "resolved" | "not_established";
+      /**
+       * Authority Purpose
+       * @default candidate_observation_only
+       * @constant
+       */
+      authority_purpose: "candidate_observation_only";
+      /**
+       * Cycle Completed
+       * @default false
+       * @constant
+       */
+      cycle_completed: false;
+      /** Cycle Index */
+      cycle_index?: number | null;
+      /** Failed Stage */
+      failed_stage?: ("value_projection" | "revision") | null;
+      /**
+       * Failure Source
+       * @default same_control_job
+       * @constant
+       */
+      failure_source: "same_control_job";
+      /** Limitation Code */
+      limitation_code?:
+        | (
+            | "candidate_n5_output_not_established"
+            | "candidate_n5_output_ambiguous"
+          )
+        | null;
+      /**
+       * N5 Observations
+       * @default []
+       */
+      n5_observations: components["schemas"]["RunCandidateSimulationN5Observation"][];
+      /**
+       * Publication Authority
+       * @default false
+       * @constant
+       */
+      publication_authority: false;
+      /** Run Id */
+      run_id: string;
+      /**
+       * Schema Version
+       * @default policyos.runtime.run_failed_candidate_simulation_projection.v1
+       * @constant
+       */
+      schema_version: "policyos.runtime.run_failed_candidate_simulation_projection.v1";
+      /** Source Content Hash */
+      source_content_hash?: string | null;
+      source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
     };
     /**
      * RunFeedbackResponse

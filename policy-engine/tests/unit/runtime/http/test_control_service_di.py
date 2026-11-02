@@ -10,7 +10,7 @@ from pathlib import Path
 from shutil import copyfile
 from threading import Condition, Event
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, Literal
 from uuid import uuid4
 
 import pytest
@@ -2066,6 +2066,11 @@ async def _run_controlled_simulate_only_job_fixture(
     root_input_factory: Callable[[Any], None] | None = None,
     registered_ncm_outcome: bool = True,
     source_repo_root: Path | None = None,
+    source_root: Path | None = None,
+    basis_repo_root: Path | None = None,
+    l6_source_owner_root: Path | None = None,
+    same_leaf_failure_stage: Literal["value_projection", "revision"] | None = None,
+    remove_same_leaf_preservation_bridge: bool = False,
     tenant_id: str = "tenant-fixture",
     cell_id: str = "cell-fixture",
 ) -> SimpleNamespace:
@@ -2074,7 +2079,10 @@ async def _run_controlled_simulate_only_job_fixture(
     The local sibling mode duplicates the root problem under test-only node refs
     to exercise persisted partial-checkpoint and fresh-GET behavior. Those refs
     are not source-derived child designs and establish no V6 source-positive.
+    Optional data roots retain the checkout's real code and L6 manifest authority.
     """
+    if remove_same_leaf_preservation_bridge and same_leaf_failure_stage is None:
+        raise ValueError("controlled_preservation_removal_requires_same_leaf_failure")
     from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
     from polisyos.core.security import (
         get_current_access_scope_or_none,
@@ -2192,6 +2200,9 @@ async def _run_controlled_simulate_only_job_fixture(
         "tenant_id": tenant_id,
         "cell_id": cell_id,
         "repo_root": REPO_ROOT,
+        "source_root": source_root,
+        "basis_repo_root": basis_repo_root,
+        "l6_source_owner_root": l6_source_owner_root,
     }
     if registered_ncm_outcome:
         profile, model_declaration, _ = _build_configured_procurement_profile(
@@ -2594,6 +2605,75 @@ async def _run_controlled_simulate_only_job_fixture(
         record_resolve,
     )
 
+    same_leaf_simulations: list[Any] = []
+    same_leaf_recursive_errors: list[Exception] = []
+    preservation_contexts: list[tuple[Any, Exception]] = []
+    preservation_errors: list[Exception] = []
+    finish_calls: list[dict[str, Any]] = []
+    same_leaf_error = None
+    same_leaf_cause = None
+    original_preserver = service._preserve_failed_nl_candidate_n5
+    if same_leaf_failure_stage is not None:
+        from polisyos.runtime.quality import generation_cycle as generation_cycle_module
+
+        same_leaf_error = GenerationCycleError(
+            "controlled_same_leaf_" + same_leaf_failure_stage + "_failure",
+            "real N5 persisted before the controlled later stage failed",
+        )
+        same_leaf_cause = LookupError("original same-leaf " + same_leaf_failure_stage + " cause")
+        original_value_observer = generation_cycle_module._configured_candidate_value_observation
+
+        def observe_or_fail_same_leaf_value(candidate_id: str, simulation: Any) -> Any:
+            if simulation.status == "joint_simulated":
+                assert simulation.simulation_result_ref is not None
+                assert simulation.diagnostics.get("candidate_simulation_execution_selected_ref")
+                same_leaf_simulations.append(simulation)
+                if same_leaf_failure_stage == "value_projection":
+                    raise same_leaf_error from same_leaf_cause
+            return original_value_observer(candidate_id, simulation)
+
+        monkeypatch.setattr(
+            generation_cycle_module,
+            "_configured_candidate_value_observation",
+            observe_or_fail_same_leaf_value,
+        )
+        if same_leaf_failure_stage == "revision":
+            revision_policy = generation_cycle_module.CounterexampleDrivenRevisionPolicy
+            original_revision = revision_policy.__call__
+
+            def fail_after_real_revision(policy: Any, **kwargs: Any) -> Any:
+                revision = original_revision(policy, **kwargs)
+                prior = kwargs["prior_cycle"]
+                assert len(same_leaf_simulations) == 1
+                assert prior.simulation == same_leaf_simulations[0]
+                assert prior.simulation.status == "joint_simulated"
+                assert prior.value_port.status == "value_pending_n8"
+                assert revision == kwargs["default_revision"]
+                raise same_leaf_error from same_leaf_cause
+
+            monkeypatch.setattr(revision_policy, "__call__", fail_after_real_revision)
+
+        def record_or_remove_preservation(context: Any, *, error: Exception) -> None:
+            preservation_contexts.append((context, error))
+            if remove_same_leaf_preservation_bridge:
+                return
+            try:
+                original_preserver(context, error=error)
+            except Exception as preservation_error:
+                preservation_errors.append(preservation_error)
+                raise
+
+        original_finish = service._finish_generation_run_context
+
+        def record_finish(**kwargs: Any) -> Any:
+            finish_calls.append(dict(kwargs))
+            return original_finish(**kwargs)
+
+        monkeypatch.setattr(
+            service, "_preserve_failed_nl_candidate_n5", record_or_remove_preservation
+        )
+        monkeypatch.setattr(service, "_finish_generation_run_context", record_finish)
+
     original_controller_builder = (
         generation_cycle_service.build_default_recursive_generation_cycle_controller
     )
@@ -2697,7 +2777,12 @@ async def _run_controlled_simulate_only_job_fixture(
                 }
             else:
                 run_kwargs["n4_generation_ports_by_node"] = {node_ref: generator}
-            compiled = await original_run(*run_args, **run_kwargs)
+            try:
+                compiled = await original_run(*run_args, **run_kwargs)
+            except Exception as error:
+                if same_leaf_failure_stage is not None:
+                    same_leaf_recursive_errors.append(error)
+                raise
             compiled_runs.append(compiled)
             return compiled
 
@@ -2795,6 +2880,47 @@ async def _run_controlled_simulate_only_job_fixture(
         assert leased.lease_owner is not None
 
         completed = service._control_store.get_job(launch.job_id)
+        if same_leaf_failure_stage is not None:
+            assert completed is not None and completed.state == "failed", {
+                "boundary": "controlled_same_leaf_failure_after_real_n5",
+                "state": None if completed is None else completed.state,
+                "error": None if completed is None else completed.error_message,
+                "n5_statuses": [row.observation.status for row in n5_port_observations],
+            }
+            assert same_leaf_error is not None and same_leaf_cause is not None
+            assert completed.error_message == str(same_leaf_error)
+            assert same_leaf_recursive_errors == [same_leaf_error]
+            assert same_leaf_recursive_errors[0] is same_leaf_error
+            assert same_leaf_error.__cause__ is same_leaf_cause
+            assert len(same_leaf_simulations) == len(n5_port_observations) == 1
+            assert n5_engine_requests
+            assert len(preservation_contexts) == 1
+            assert preservation_contexts[0][1] is same_leaf_error
+            assert not preservation_errors, [str(error) for error in preservation_errors]
+            packet = generation_cycle_module._completed_n5_failure_from_exception(same_leaf_error)
+            assert packet is not None and packet.error is same_leaf_error
+            assert packet.failed_stage == same_leaf_failure_stage
+            assert packet.completion.verified_scope == verified_scope_observations[0]
+            assert packet.completion.verified_scope._was_issued_by_verified_nl_execution_owner
+            assert len(started_core_contexts) == 1
+            service_transferred = True
+            return SimpleNamespace(
+                service=service,
+                job=completed,
+                problem=problem,
+                profile=profile,
+                model_declaration=model_declaration,
+                source_owner=source_owner,
+                n5_port_observations=tuple(n5_port_observations),
+                simulation=same_leaf_simulations[0],
+                verified_scope=verified_scope_observations[0],
+                original_error=same_leaf_error,
+                original_cause=same_leaf_cause,
+                preservation_contexts=tuple(preservation_contexts),
+                original_preserver=original_preserver,
+                finish_calls=finish_calls,
+                core_context=started_core_contexts[0],
+            )
         assert completed is not None and completed.state == "completed"
         progress = completed.progress
         if proposal_source_persistence_failure:
@@ -3281,6 +3407,13 @@ async def _run_controlled_simulate_only_job_fixture(
             compiled_ref=str(compiled_ref),
             cycle_substrate_context_job_ref=progress["cycle_substrate_context_job_ref"],
             n5_port_observations=tuple(n5_port_observations),
+            context_owner=owner_replay_calls[-1][0],
+            context_job_selected_ref=owner_refs[0],
+            context_artifact=context_artifact,
+            verified_scope=verified_scope_observations[0],
+            resolve_current_context=original_resolve,
+            owner_replay_currentness_refusals=tuple(owner_replay_currentness_refusals),
+            n5_result=n5_result,
         )
         service_transferred = True
         return fixture
@@ -3960,6 +4093,50 @@ async def test_fresh_run_details_get_projects_the_persisted_candidate_simulation
         fixture.service.close()
 
 
+def _assert_candidate_n5_body_matches_result(
+    observation: dict[str, Any], *, result: Any, selected_ref: Any
+) -> None:
+    """Compare every public numerical point with its actual canonical N5 result."""
+    from polisyos.runtime.quality.generation_cycle import _joint_simulation_port_outcome
+
+    assert observation.get("result_body_status") == "resolved", {
+        "boundary": "candidate_n5_numeric_run_body",
+        "selected_ref": selected_ref.model_dump(mode="json"),
+        "status": observation.get("result_body_status"),
+        "limitation": observation.get("result_body_limitation_code"),
+    }
+    assert observation.get("result_body_limitation_code") is None
+    body = observation["result_body"]
+    assert body["artifact_ref"] == selected_ref.model_dump(mode="json")
+    assert body["selected_manifest_profile_sha256"] == selected_ref.manifest_profile_sha256
+    assert body["result_schema_version"] == result.schema_version
+    assert body["world_model_record_ref"] == result.world_model_record_ref
+    assert body["world_model_record_content_hash"] == result.world_model_record_content_hash
+    assert body["atom_ids"] == list(result.atom_ids)
+    assert body["selected_outcomes"] == list(result.selected_outcomes)
+    assert body["horizon"] == result.horizon.model_dump(mode="json")
+    assert body["trajectories"] == [
+        {
+            "run_level": trajectory.run_level,
+            "atom_ids": list(trajectory.atom_ids),
+            "points": [
+                {"step": point.step, "outcomes": point.outcomes, "effects": point.effect}
+                for point in trajectory.points
+            ],
+        }
+        for trajectory in result.trajectories
+    ]
+    assert body["uncertainty_kind"] == "K_sim"
+    assert body["authority_purpose"] == "candidate_scenario_n5_only"
+    assert body["candidate_status"] == "candidate_unverified"
+    assert body["currentness_status"] == "not_established"
+    assert body["publication_authority"] is False
+    assert observation["currentness_status"] == "not_established"
+    assert set(_joint_simulation_port_outcome(result)[1]).issubset(
+        observation["authority_blockers"]
+    )
+
+
 @pytest.mark.skipif(TestClient is None, reason="fastapi is not installed")
 @pytest.mark.asyncio
 async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoint(
@@ -3971,18 +4148,53 @@ async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoi
     This is bounded checkpoint-mechanism evidence, not an N4-derived-child
     source-positive or V6 completion.
     """
+    import hashlib
+
+    from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.runtime.http import dev_identity_middleware
-    from polisyos.runtime.quality.generation_cycle import GENERATION_CYCLE_SCHEMA_VERSION
+    from polisyos.runtime.http.services.control_plane_store import ControlJobLeaseLostError
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContextArtifactOwner,
+        CycleSubstrateContextOwnerError,
+    )
+    from polisyos.runtime.quality.design_axes.value_choice_provenance import (
+        P20NormativeChoiceError,
+    )
+    from polisyos.runtime.quality.generation_cycle import (
+        GENERATION_CYCLE_SCHEMA_VERSION,
+        load_joint_simulation_result,
+    )
     from polisyos.runtime.quality.recursive_generation_cycle import (
         RECURSIVE_GENERATION_CYCLE_PARTIAL_V3_SCHEMA_VERSION,
     )
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+    )
     from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT
 
+    bounded_source = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "bounded-local-sibling-source",
+        outcome_variable="government.balance",
+        include_owner_slot_manifest=True,
+        owner_knob_dictionary={
+            "tax_relief_rate": {
+                "default": 0.1,
+                "type": "float",
+                "min": 0.0,
+                "max": 0.5,
+                "mechanism_id": "tax_relief_rate",
+                "param_path": "params.rate",
+            }
+        },
+    )
     fixture = await _run_controlled_simulate_only_job_fixture(
         monkeypatch,
         tmp_path,
         local_sibling_mechanism_witness=True,
         source_repo_root=REPO_ROOT,
+        source_root=bounded_source.root,
+        basis_repo_root=bounded_source.root,
+        l6_source_owner_root=bounded_source.root,
     )
     assert fixture.service._repo_root == REPO_ROOT.resolve()
     core_run_id = str(fixture.job.progress["core_run_id"])
@@ -4004,6 +4216,7 @@ async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoi
         recursive_payload["schema_version"] == RECURSIVE_GENERATION_CYCLE_PARTIAL_V3_SCHEMA_VERSION
     )
     assert recursive_payload["terminal"] is None
+    assert recursive_payload["traversal_status"] == "failed"
     successful_cycle = successful_node["cycle_run"]
     assert successful_cycle["schema_version"] == GENERATION_CYCLE_SCHEMA_VERSION
     successful_simulation = successful_cycle["cycles"][0]["simulation"]
@@ -4041,6 +4254,9 @@ async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoi
     )
     from polisyos.core.security.tenant_context import tenant_scope
 
+    monkeypatch.setenv(
+        "POLISYOS_CONTROL_SQLITE_PATH", str(fixture.service._control_store._sqlite_path)
+    )
     # Container-owned immutable artifacts share the fixture CAS; initialize the
     # fresh reader under the same declared tenant/cell owner as those writes.
     with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
@@ -4097,6 +4313,9 @@ async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoi
 
             checkpoint = projection["recursive_cycle_checkpoint"]
             assert checkpoint["schema_version"] == "policyos.runtime.recursive_cycle_checkpoint.v2"
+            assert checkpoint["status"] == "partial"
+            assert checkpoint["publication_authority"] is False
+            assert checkpoint["root_n9_status"] == "not_run"
             assert checkpoint["completed_design_refs"] == [successful_node["node_ref"]]
             assert len(checkpoint["failed_branches"]) == 1
             failure = checkpoint["failed_branches"][0]
@@ -4111,6 +4330,149 @@ async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoi
                     "later child failed after its earlier sibling completed"
                 ),
             }
+
+            n5_ref = ArtifactRef.model_validate(source_n5_ref)
+            compiled_ref = ArtifactRef.model_validate(
+                fixture.job.progress["compiled_recursive_generation_cycle_artifact_ref"]
+            )
+            assert n5_ref.manifest_profile_sha256 is not None
+            fresh_store = app.state.runtime_api_ctx.store
+            historical_scope = {
+                "expected_job_id": fixture.job.job_id,
+                "expected_run_id": str(fixture.job.run_id),
+                "expected_tenant_id": "tenant-fixture",
+                "expected_cell_id": "cell-fixture",
+            }
+            with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+                result_bytes = fresh_store.get_bytes(n5_ref)
+                assert result_bytes == fixture.service._artifact_store.get_bytes(n5_ref)
+                assert (
+                    str(n5_ref.artifact_id) == "sha256:" + hashlib.sha256(result_bytes).hexdigest()
+                )
+                n5_input = fixture.n5_port_observations[0].input_record
+                result = load_joint_simulation_result(
+                    n5_ref,
+                    store=fresh_store,
+                    expected_world_model_record_content_hash=(
+                        n5_input.materialization.world_model_record_hash
+                    ),
+                    expected_atom_ids=(n5_input.materialization.derived_n5_atom.intervention_id,),
+                    expected_selected_outcomes=(
+                        fixture.problem.outcome_of_interest.target_variable,
+                    ),
+                )
+                assert result == fixture.n5_result
+                assert result.diagnostics["engine_run_claimed"] is True
+                assert any(row.decision == "selected" for row in result.engine_decisions)
+                assert result.trajectories and all(row.points for row in result.trajectories)
+                assert any(
+                    point.outcomes and point.effect
+                    for trajectory in result.trajectories
+                    for point in trajectory.points
+                )
+                assert result.diagnostics["physical_work_capture_status"] == "observed"
+                assert result.physical_work_observations
+                assert all(row.status == "completed" for row in result.physical_work_observations)
+                assert sum(row.work_units for row in result.physical_work_observations) > 0
+                assert result.diagnostics["physical_work_units"] == len(
+                    result.physical_work_observations
+                )
+
+                selected_bytes = (
+                    (n5_ref, result_bytes),
+                    (compiled_ref, fixture.compiled_payload),
+                    (
+                        fixture.context_job_selected_ref,
+                        fresh_store.get_bytes(fixture.context_job_selected_ref),
+                    ),
+                )
+                for persist in (False, True):
+                    with pytest.raises(
+                        P20NormativeChoiceError, match="p20_normative_partial_compiled_run"
+                    ):
+                        generation_cycle_service._normative_generation_sources(
+                            fresh_store,
+                            fixture.compiled_ref,
+                            persist=persist,
+                            compiled_artifact_ref=compiled_ref,
+                        )
+
+                # Historical replay and current execution are different owner operations.
+                historical_owner = CycleSubstrateContextArtifactOwner(store=fresh_store)
+                historical = historical_owner.resolve_historical_job_artifact(
+                    fixture.context_job_selected_ref,
+                    problem=fixture.problem,
+                    **historical_scope,
+                )
+                assert historical == fixture.context_artifact
+                changed_problem = fixture.problem.model_copy(
+                    update={
+                        "problem_statement": fixture.problem.problem_statement + " changed basis"
+                    }
+                )
+                with pytest.raises(
+                    CycleSubstrateContextOwnerError,
+                    match="cycle_substrate_context_job_historical_binding_mismatch",
+                ):
+                    historical_owner.resolve_historical_job_artifact(
+                        fixture.context_job_selected_ref,
+                        problem=changed_problem,
+                        **historical_scope,
+                    )
+                with pytest.raises(
+                    ControlJobLeaseLostError,
+                    match="control job execution identity is not bound",
+                ):
+                    fixture.resolve_current_context(
+                        fixture.context_owner,
+                        fixture.context_job_selected_ref,
+                        problem=fixture.problem,
+                        repo_root=REPO_ROOT,
+                        verified_nl_job_scope=fixture.verified_scope,
+                    )
+                assert "changed_problem_basis_refused" in fixture.owner_replay_currentness_refusals
+                assert all(fresh_store.get_bytes(ref) == body for ref, body in selected_bytes)
+
+            _assert_candidate_n5_body_matches_result(
+                observation, result=result, selected_ref=n5_ref
+            )
+            assert observation["lineage_status"] == "not_established"
+            assert projection.get("n4_child_profile_bindings", []) == []
+            assert source_n5_ref in run["root_artifacts"]
+            artifact_response = client.get(
+                f"/api/v1/artifacts/{n5_ref.artifact_id}/content",
+                params={"manifest_profile_sha256": n5_ref.manifest_profile_sha256},
+                headers={"Accept": "application/octet-stream"},
+            )
+            assert artifact_response.status_code == 409, artifact_response.text
+            raw_problem = artifact_response.json()
+            assert raw_problem["code"] == "authority_surface_admission_blocked"
+            assert raw_problem["extensions"]["authority_surface_decision"]["purpose"] == (
+                "runtime_closeout_authority"
+            )
+
+            assert compiled_ref.manifest_profile_sha256 is not None
+            assert compiled_ref.manifest_profile_sha256 != n5_ref.manifest_profile_sha256
+            wrong_profile_response = client.get(
+                f"/api/v1/artifacts/{n5_ref.artifact_id}/content",
+                params={"manifest_profile_sha256": compiled_ref.manifest_profile_sha256},
+                headers={"Accept": "application/octet-stream"},
+            )
+            assert wrong_profile_response.status_code == 404, wrong_profile_response.text
+            assert wrong_profile_response.json()["code"] == "artifact_manifest_profile_not_found"
+            with monkeypatch.context() as wrong_tenant:
+                wrong_tenant.setattr(
+                    dev_identity_middleware,
+                    "build_fixture_identity_claims",
+                    lambda: _fixture_claims(tenant_id="tenant-foreign", cell_id="cell-foreign"),
+                )
+                wrong_tenant_response = client.get(
+                    f"/api/v1/artifacts/{n5_ref.artifact_id}/content",
+                    params={"manifest_profile_sha256": n5_ref.manifest_profile_sha256},
+                    headers={"Accept": "application/octet-stream"},
+                )
+            assert wrong_tenant_response.status_code == 403, wrong_tenant_response.text
+            assert wrong_tenant_response.json()["code"] == "artifact_tenant_mismatch"
 
             from copy import deepcopy
             from dataclasses import replace
@@ -4224,6 +4586,255 @@ async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoi
         assert corrupt_projection["recursive_cycle_checkpoint"]["failed_branches"] == [failure]
     finally:
         fixture.service.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.skipif(TestClient is None, reason="fastapi is not installed")
+async def test_same_leaf_n5_preservation_removal_then_restored_revision_body(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Two isolated real N5 jobs distinguish the bridge from later-stage failure."""
+    import hashlib
+
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http import dev_identity_middleware
+    from polisyos.runtime.http.dependencies import build_runtime_api_context
+    from polisyos.runtime.http.services.adapters.core_run import load_terminal_core_run_source
+    from polisyos.runtime.http.services.control_plane_store import ControlJobLeaseLostError
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationExecutionV5,
+        CandidateSimulationN5InputV5,
+    )
+    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT
+
+    identities: list[tuple[str, str, Path]] = []
+    original_errors: list[Exception] = []
+    for case_name, stage, remove_bridge in (
+        ("removed-value", "value_projection", True),
+        ("restored-revision", "revision", False),
+    ):
+        case_root = tmp_path / case_name
+        with monkeypatch.context() as case_patch:
+            case_patch.setenv("POLISYOS_CACHE_HOME", str(case_root / "cache"))
+            bounded_source = build_candidate_cycle_substrate_route_inputs(
+                case_root / "bounded-source",
+                outcome_variable="government.balance",
+                include_owner_slot_manifest=True,
+                owner_knob_dictionary={
+                    "tax_relief_rate": {
+                        "default": 0.1,
+                        "type": "float",
+                        "min": 0.0,
+                        "max": 0.5,
+                        "mechanism_id": "tax_relief_rate",
+                        "param_path": "params.rate",
+                    }
+                },
+            )
+            fixture = await _run_controlled_simulate_only_job_fixture(
+                case_patch,
+                case_root,
+                source_repo_root=REPO_ROOT,
+                source_root=bounded_source.root,
+                basis_repo_root=bounded_source.root,
+                l6_source_owner_root=bounded_source.root,
+                same_leaf_failure_stage=stage,
+                remove_same_leaf_preservation_bridge=remove_bridge,
+            )
+            try:
+                job = fixture.job
+                simulation = fixture.simulation
+                assert job.state == "failed" and job.run_id is not None
+                assert job.error_message == str(fixture.original_error)
+                assert fixture.original_error.__cause__ is fixture.original_cause
+                original_errors.append(fixture.original_error)
+                cas_root = case_root / ".polisyos"
+                identities.append((job.job_id, job.run_id, cas_root.resolve()))
+                assert fixture.service._artifact_store.root == cas_root.resolve()
+                assert (cas_root / "producer-ledger.json").is_file()
+                input_ref = ArtifactRef.model_validate(
+                    simulation.diagnostics["candidate_simulation_n5_input_selected_ref"]
+                )
+                execution_ref = ArtifactRef.model_validate(
+                    simulation.diagnostics["candidate_simulation_execution_selected_ref"]
+                )
+                result_ref = simulation.simulation_result_ref
+                assert result_ref is not None
+                scope = {
+                    "expected_run_id": job.run_id,
+                    "expected_job_id": job.job_id,
+                    "expected_tenant_id": "tenant-fixture",
+                    "expected_cell_id": "cell-fixture",
+                }
+                core_run_id = fixture.core_context.run_manifest.run_id
+                with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+                    store = fixture.service._artifact_store
+                    repository = GenerationSourceRepository(store)
+                    execution = repository.resolve_candidate_simulation_v5(
+                        ref=execution_ref, **scope
+                    )
+                    n5_input = repository.resolve_candidate_simulation_v5(ref=input_ref, **scope)
+                    assert type(execution) is CandidateSimulationExecutionV5
+                    assert type(n5_input) is CandidateSimulationN5InputV5
+                    assert n5_input == fixture.n5_port_observations[0].input_record
+                    assert execution.n5_input_ref == input_ref
+                    assert execution.n5_result_ref == result_ref
+                    assert execution.n4_source_ref == n5_input.n4_source_ref
+                    result = load_joint_simulation_result(
+                        result_ref,
+                        store=store,
+                        expected_world_model_record_content_hash=execution.world_model_record_hash,
+                        expected_atom_ids=(
+                            n5_input.materialization.derived_n5_atom.intervention_id,
+                        ),
+                        expected_selected_outcomes=(n5_input.outcome_variable,),
+                        expected_receipt_payload_hash=execution.n5_result_content_hash,
+                    )
+                    result_bytes = store.get_bytes(result_ref)
+                    assert str(result_ref.artifact_id) == (
+                        "sha256:" + hashlib.sha256(result_bytes).hexdigest()
+                    )
+                    assert result.diagnostics["engine_run_claimed"] is True
+                    assert result.diagnostics["physical_work_capture_status"] == "observed"
+                    assert result.physical_work_observations
+                    assert all(
+                        row.status == "completed" for row in result.physical_work_observations
+                    )
+                    assert sum(row.work_units for row in result.physical_work_observations) > 0
+                    terminal = load_terminal_core_run_source(
+                        store=store,
+                        core_runs_root=fixture.service._core_runs_root,
+                        run_id=core_run_id,
+                    )
+                    assert terminal.manifest.status == "error"
+                    selected_refs = (execution_ref, input_ref, n5_input.n4_source_ref, result_ref)
+                    assert all(ref.manifest_profile_sha256 is not None for ref in selected_refs)
+                    if remove_bridge:
+                        assert all(ref not in terminal.manifest.outputs for ref in selected_refs)
+                        assert "partial_candidate_simulation" not in job.progress
+                    else:
+                        assert all(ref in terminal.manifest.outputs for ref in selected_refs)
+                        partial = job.progress["partial_candidate_simulation"]
+                        assert partial["artifact_status"] == "resolved"
+                        assert partial["completed_stage"] == "n5_simulation"
+                        assert partial["failed_stage"] == "revision"
+                        assert partial["cycle_completed"] is False
+                        assert partial["publication_authority"] is False
+                        assert job.progress["failure"]["phase"] == "revision"
+                        assert job.progress["failure"]["code"] == fixture.original_error.code
+                    assert not any(
+                        ref.kind == "runtime.compiled_recursive_generation_cycle"
+                        for ref in terminal.manifest.outputs
+                    )
+
+                    # Reusing the genuine completion after termination cannot authorize another write.
+                    manifest_bytes = store.get_bytes(terminal.manifest_ref)
+                    finish_count = len(fixture.finish_calls)
+                    preserved_context, preserved_error = fixture.preservation_contexts[0]
+                    assert preserved_error is fixture.original_error
+                    with pytest.raises(
+                        ControlJobLeaseLostError,
+                        match="control_job_terminal_admission_not_current",
+                    ):
+                        fixture.original_preserver(preserved_context, error=preserved_error)
+                    assert len(fixture.finish_calls) == finish_count
+                    assert store.get_bytes(terminal.manifest_ref) == manifest_bytes
+                    assert store.get_bytes(result_ref) == result_bytes
+
+                case_patch.setenv(
+                    "POLISYOS_CONTROL_SQLITE_PATH",
+                    str(fixture.service._control_store._sqlite_path),
+                )
+                fresh_context = build_runtime_api_context(
+                    cas_root=cas_root, core_runs_root=cas_root / "runs"
+                )
+                case_patch.setattr(
+                    dev_identity_middleware, "build_fixture_identity_claims", _fixture_claims
+                )
+                with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+                    app = create_runtime_api_app(
+                        cas_root=cas_root,
+                        core_runs_root=cas_root / "runs",
+                        repo_root=REPO_ROOT,
+                        container_overrides=RuntimeContainerOverrides(
+                            runtime_api_context=fresh_context
+                        ),
+                        candidate_simulation_profiles=(fixture.profile,),
+                        candidate_simulation_model_declarations=(fixture.model_declaration,),
+                        allow_fixture_identity=True,
+                    )
+                _install_fixture_tenant_lifespan(app)
+                with TestClient(app) as client:
+                    job_response = client.get(f"/api/v1/control/jobs/{job.job_id}")
+                    assert job_response.status_code == 200, job_response.text
+                    job_view = job_response.json()
+                    assert job_view["state"] == "failed"
+                    assert job_view["error_message"] == str(fixture.original_error)
+                    response = client.get(f"/api/v1/runs/{core_run_id}")
+                    assert response.status_code == 200, response.text
+                    run = response.json()["run"]
+                    assert run["status"] == "error"
+                    assert run["control_job_id"] == job.job_id
+                    roots = run["root_artifacts"]
+                    projection = run.get("candidate_simulation")
+                    if remove_bridge:
+                        assert all(
+                            ref.model_dump(mode="json") not in roots for ref in selected_refs
+                        )
+                        rows = (
+                            projection.get("n5_observations", []) if projection is not None else []
+                        )
+                        assert not any(
+                            row.get("simulation_result_ref") == result_ref.model_dump(mode="json")
+                            for row in rows
+                        )
+                    else:
+                        assert all(ref.model_dump(mode="json") in roots for ref in selected_refs)
+                        assert projection is not None, (
+                            "restored failed N5 lost its candidate surface"
+                        )
+                        assert len(projection["n5_observations"]) == 1
+                        _assert_candidate_n5_body_matches_result(
+                            projection["n5_observations"][0], result=result, selected_ref=result_ref
+                        )
+                        debug_response = client.get(f"/api/v1/debug/runs/{core_run_id}/errors")
+                        assert debug_response.status_code == 200, debug_response.text
+                        original_errors_in_manifest = [
+                            row
+                            for row in debug_response.json()["errors"]
+                            if row["source"] == "manifest"
+                            and row["code"] == fixture.original_error.code
+                        ]
+                        assert len(original_errors_in_manifest) == 1, debug_response.text
+                        original_error_view = original_errors_in_manifest[0]
+                        assert original_error_view["message"] == str(fixture.original_error)
+                        assert original_error_view["details"]["exception_type"] == (
+                            type(fixture.original_error).__name__
+                        )
+                        assert original_error_view["details"]["stage"] == "revision"
+                        assert original_error_view["details"]["cause"] == {
+                            "exception_type": type(fixture.original_cause).__name__,
+                            "message": str(fixture.original_cause),
+                        }
+                        raw_response = client.get(
+                            f"/api/v1/artifacts/{result_ref.artifact_id}/content",
+                            params={"manifest_profile_sha256": result_ref.manifest_profile_sha256},
+                            headers={"Accept": "application/octet-stream"},
+                        )
+                        assert raw_response.status_code == 409, raw_response.text
+                        assert raw_response.json()["code"] == "authority_surface_admission_blocked"
+            finally:
+                fixture.service.close()
+    assert len({job_id for job_id, _run_id, _root in identities}) == 2
+    assert len({run_id for _job_id, run_id, _root in identities}) == 2
+    assert len({root for _job_id, _run_id, root in identities}) == 2
+    assert original_errors[0] is not original_errors[1]
 
 
 @pytest.mark.asyncio

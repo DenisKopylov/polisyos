@@ -4,12 +4,14 @@ import json
 import os
 import subprocess
 import tomllib
+from dataclasses import asdict
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, get_type_hints
 
 import pytest
 from packaging.requirements import Requirement
 
+from tools.devx.architecture.conditional_exports import SourceExportProfile
 from tools.devx.workspace._common import UV_SYNC_PROFILES
 from tools.ops_runners.release import check_compatibility_release_gates as gates
 from tools.ops_runners.release.build_release_notes import load_fragments, render_release_notes
@@ -781,6 +783,43 @@ def test_phase5_10_public_surface_unavailable_canonical_renderer_fails_closed(
     assert len(unavailable_errors) == 1
     assert evidence["complete_verdict"] is False
     assert evidence["predicate_status"] == "not_established"
+
+
+def test_phase5_10_public_surface_canonical_literal_profiles_render_and_validate_strictly() -> None:
+    _, _, rendered = gates._canonical_public_surface_context()
+    profiles = rendered["packages"][0]["entrypoints"][0]["source_export_profiles"]
+    assert len(profiles) == 1
+    assert profiles[0]["schema_version"] == "policyos.source-export-profile.v1"
+    assert profiles[0]["runtime_condition_evaluation"] == "UNRUN"
+
+    valid_profile = SourceExportProfile(conditions=(), exports=("known_export",))
+    valid_payload = json.loads(json.dumps(asdict(valid_profile)))
+    assert gates._matches_declared_value(valid_payload, SourceExportProfile)
+    valid_payload["schema_version"] = "policyos.source-export-profile.v2"
+    assert not gates._matches_declared_value(valid_payload, SourceExportProfile)
+    valid_payload = json.loads(json.dumps(asdict(valid_profile)))
+    valid_payload["runtime_condition_evaluation"] = "PASS"
+    assert not gates._matches_declared_value(valid_payload, SourceExportProfile)
+    valid_payload = json.loads(json.dumps(asdict(valid_profile)))
+    valid_payload.pop("runtime_condition_evaluation")
+    assert not gates._matches_declared_value(valid_payload, SourceExportProfile)
+
+    schema_version_type = get_type_hints(SourceExportProfile)["schema_version"]
+    runtime_state_type = get_type_hints(SourceExportProfile)["runtime_condition_evaluation"]
+    assert gates._placeholder_for_schema(schema_version_type) == (
+        "policyos.source-export-profile.v1"
+    )
+    assert gates._placeholder_for_schema(runtime_state_type) == "UNRUN"
+    assert gates._matches_declared_value("UNRUN", runtime_state_type)
+    assert not gates._matches_declared_value("PASS", runtime_state_type)
+    assert not gates._matches_declared_value(True, Literal[1])
+    assert not gates._matches_declared_value(1, Literal[True])
+
+
+def test_phase5_10_public_surface_unsupported_literal_annotation_remains_unestablished() -> None:
+    with pytest.raises(TypeError, match="unsupported canonical schema annotation"):
+        gates._placeholder_for_schema(set[str])
+    assert not gates._matches_declared_value([], set[str])
 
 
 def test_phase5_10_public_surface_route_removal_fails_with_inventory_markers_retained(

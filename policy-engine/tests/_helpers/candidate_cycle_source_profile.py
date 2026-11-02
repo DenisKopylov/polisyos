@@ -369,7 +369,10 @@ def _build_l3_fixture(path: Path) -> None:
 
 
 def _build_source_files(
-    root: Path, *, include_owner_slot_manifest: bool = False
+    root: Path,
+    *,
+    include_owner_slot_manifest: bool = False,
+    owner_knob_dictionary: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> tuple[Path, str]:
     from polisyos.runtime.quality.credal_reference import (
         DEFAULT_DATA_FORGE_CATALOG_PATH,
@@ -402,7 +405,8 @@ def _build_source_files(
     ):
         path = l6_paths[name]
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text("{}\n", encoding="utf-8")
+        payload = owner_knob_dictionary if name == "intervention_knob_dictionary" else None
+        path.write_text(json.dumps(payload or {}, sort_keys=True) + "\n", encoding="utf-8")
     if include_owner_slot_manifest:
         # Declare only slots already used by the tracked mechanism owner.
         # This is structural candidate input, not a lever, law or permission.
@@ -475,6 +479,7 @@ def build_candidate_cycle_substrate_route_inputs(
     runtime_hints: Mapping[str, Any] | None = None,
     outcome_variable: str = "education.learning_outcomes",
     include_owner_slot_manifest: bool = False,
+    owner_knob_dictionary: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> CandidateCycleSubstrateRouteInputs:
     """Build only selected-profile source inputs beneath a caller-owned temp root.
 
@@ -488,6 +493,8 @@ def build_candidate_cycle_substrate_route_inputs(
         include_owner_slot_manifest: Declare the tracked mechanism owner's complete
             read/write slot set for a candidate-action fixture. The default keeps
             the empty source-only L6 input and its real linker refusal.
+        owner_knob_dictionary: Explicit candidate-only knob inputs for the real
+            L6 owner to resolve. They confer no law or publication authority.
 
     Returns:
         Owner-built source data and an unprofiled seed context for the actual
@@ -498,7 +505,9 @@ def build_candidate_cycle_substrate_route_inputs(
     root.mkdir(parents=True, exist_ok=False)
     problem = _problem(runtime_hints=runtime_hints, outcome_variable=outcome_variable)
     skg_path, version_id = _build_source_files(
-        root, include_owner_slot_manifest=include_owner_slot_manifest
+        root,
+        include_owner_slot_manifest=include_owner_slot_manifest,
+        owner_knob_dictionary=owner_knob_dictionary,
     )
     registry = _build_registry(skg_path, root=root, version_id=version_id)
     selected_entry_hashes = tuple(sorted(entry.entry_content_hash for entry in registry.entries))

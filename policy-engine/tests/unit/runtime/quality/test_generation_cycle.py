@@ -5632,7 +5632,8 @@ def test_joint_port_blocks_context_selected_ncm_owned_by_another_tenant(tmp_path
         diagnostic = observation.diagnostics["request_builder_error"]
         assert "read_manifest" in diagnostic
         assert "tenant-n5-foreign/cell-n5-owner" in diagnostic
-        assert "tenant-n5-owner/cell-n5-owner" in diagnostic
+        # A refusal can name the requesting scope without disclosing ownership.
+        assert "tenant-n5-owner/cell-n5-owner" not in diagnostic
         assert observation.world_model_record is context.world_model_record
     finally:
         store.close()
@@ -5682,13 +5683,38 @@ def test_joint_port_blocks_selected_ncm_with_mismatched_manifest_schema(
 ) -> None:
     """Matching bytes with an unsupported NCM manifest schema cannot enter N5."""
 
+    from polisyos.core.artifacts import ProducerInfo, SchemaInfo
     from polisyos.core.security.tenant_context import tenant_scope
 
-    store, _expected, ncm_ref = _runtime_ncm_fixture_store(tmp_path, schema_version="2.0")
+    store, _expected, stored_ref = _runtime_ncm_fixture_store(tmp_path)
     try:
         problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
-            ncm_ref, artifact_store=store, tmp_path=tmp_path
+            stored_ref, artifact_store=store, tmp_path=tmp_path
         )
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            manifest = store.get_manifest(stored_ref)
+            original_wire = store.get_bytes(stored_ref)
+            # The IR owner correctly refuses an unregistered schema at write
+            # time. A real opaque Core view supplies this adversarial input;
+            # it is not represented as an owner-produced WMR or NCM view.
+            wrong_ref = store.put_bytes(
+                original_wire,
+                ArtifactWriteOptions(
+                    kind=stored_ref.kind,
+                    media_type=stored_ref.media_type,
+                    schema=SchemaInfo(name="ir.ncm_spec", version="2.0"),
+                    producer=ProducerInfo(component=__name__, version="fixture"),
+                    canon=manifest.canon,
+                    tenant_context=manifest.tenant_context,
+                ),
+                return_selected_profile=True,
+            )
+            assert wrong_ref.artifact_id == stored_ref.artifact_id
+            assert wrong_ref.manifest_profile_sha256 is not None
+            assert store.get_bytes(wrong_ref) == original_wire
+            assert store.get_manifest(wrong_ref).artifact_schema.version == "2.0"
+        wrong_world = _record_with_selected_ncm_view(context.world_model_record, wrong_ref)
+        context, candidate = _rebind_owner_cycle_record(context, candidate, wrong_world)
         port = JointSimulationPort(
             repo_root=tmp_path / "empty-repo",
             cycle_substrate_context=context,

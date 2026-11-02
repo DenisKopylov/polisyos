@@ -37831,6 +37831,16 @@
               }
             ]
           },
+          "n5_execution_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "n5_input_ref": {
             "anyOf": [
               {
@@ -38245,6 +38255,49 @@
             "title": "Replication Seeds",
             "type": "array"
           },
+          "result_body": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationN5ResultBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result_body_limitation_code": {
+            "anyOf": [
+              {
+                "enum": [
+                  "candidate_n5_result_body_request_binding_not_established",
+                  "candidate_n5_result_body_selected_manifest_view_not_established",
+                  "candidate_n5_result_body_execution_not_successful",
+                  "candidate_n5_result_body_content_refused"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Body Limitation Code"
+          },
+          "result_body_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "not_applicable",
+                  "resolved",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Body Status"
+          },
           "selected_outcomes": {
             "default": [],
             "items": {
@@ -38302,6 +38355,133 @@
           "status"
         ],
         "title": "RunCandidateSimulationN5Observation",
+        "type": "object"
+      },
+      "RunCandidateSimulationN5ResultBody": {
+        "additionalProperties": false,
+        "description": "Typed N5 result body for one configured candidate observation.",
+        "properties": {
+          "artifact_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "artifact_schema_name": {
+            "const": "policyos.runtime.n5.joint_simulation_result",
+            "title": "Artifact Schema Name",
+            "type": "string"
+          },
+          "artifact_schema_version": {
+            "enum": [
+              "1.0.0",
+              "2.0.0",
+              "3.0.0",
+              "4.0.0"
+            ],
+            "title": "Artifact Schema Version",
+            "type": "string"
+          },
+          "atom_ids": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Atom Ids",
+            "type": "array"
+          },
+          "authority_purpose": {
+            "const": "candidate_scenario_n5_only",
+            "default": "candidate_scenario_n5_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "candidate_status": {
+            "const": "candidate_unverified",
+            "default": "candidate_unverified",
+            "title": "Candidate Status",
+            "type": "string"
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "horizon": {
+            "$ref": "#/components/schemas/RunGenericCycleSimulationN5Horizon"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "result_schema_version": {
+            "enum": [
+              "policyos.runtime.joint_simulation_horizon.v1",
+              "policyos.runtime.joint_simulation_horizon.v2",
+              "policyos.runtime.joint_simulation_horizon.v3",
+              "policyos.runtime.joint_simulation_horizon.v4"
+            ],
+            "title": "Result Schema Version",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.run_candidate_simulation_n5_result_body.v1",
+            "default": "policyos.runtime.run_candidate_simulation_n5_result_body.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "selected_manifest_profile_sha256": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Selected Manifest Profile Sha256",
+            "type": "string"
+          },
+          "selected_outcomes": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Selected Outcomes",
+            "type": "array"
+          },
+          "trajectories": {
+            "items": {
+              "$ref": "#/components/schemas/RunGenericCycleSimulationN5Trajectory"
+            },
+            "minItems": 1,
+            "title": "Trajectories",
+            "type": "array"
+          },
+          "uncertainty_kind": {
+            "const": "K_sim",
+            "default": "K_sim",
+            "title": "Uncertainty Kind",
+            "type": "string"
+          },
+          "world_model_record_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "World Model Record Content Hash",
+            "type": "string"
+          },
+          "world_model_record_ref": {
+            "minLength": 1,
+            "title": "World Model Record Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_ref",
+          "artifact_schema_name",
+          "artifact_schema_version",
+          "result_schema_version",
+          "selected_manifest_profile_sha256",
+          "world_model_record_ref",
+          "world_model_record_content_hash",
+          "atom_ids",
+          "selected_outcomes",
+          "horizon",
+          "trajectories"
+        ],
+        "title": "RunCandidateSimulationN5ResultBody",
         "type": "object"
       },
       "RunCandidateSimulationN8ChildSourceBinding": {
@@ -38911,9 +39091,13 @@
                 "$ref": "#/components/schemas/RunCandidateSimulationProjection"
               },
               {
+                "$ref": "#/components/schemas/RunFailedCandidateSimulationProjection"
+              },
+              {
                 "type": "null"
               }
-            ]
+            ],
+            "title": "Candidate Simulation"
           },
           "capability_manifest_ref": {
             "anyOf": [
@@ -39820,6 +40004,133 @@
           "dataset_id"
         ],
         "title": "RunEvidencePromotionView",
+        "type": "object"
+      },
+      "RunFailedCandidateSimulationProjection": {
+        "additionalProperties": false,
+        "description": "Candidate-only N5 evidence retained when a later cycle stage fails.",
+        "properties": {
+          "artifact_status": {
+            "enum": [
+              "resolved",
+              "not_established"
+            ],
+            "title": "Artifact Status",
+            "type": "string"
+          },
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "cycle_completed": {
+            "const": false,
+            "default": false,
+            "title": "Cycle Completed",
+            "type": "boolean"
+          },
+          "cycle_index": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cycle Index"
+          },
+          "failed_stage": {
+            "anyOf": [
+              {
+                "enum": [
+                  "value_projection",
+                  "revision"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failed Stage"
+          },
+          "failure_source": {
+            "const": "same_control_job",
+            "default": "same_control_job",
+            "title": "Failure Source",
+            "type": "string"
+          },
+          "limitation_code": {
+            "anyOf": [
+              {
+                "enum": [
+                  "candidate_n5_output_not_established",
+                  "candidate_n5_output_ambiguous"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limitation Code"
+          },
+          "n5_observations": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunCandidateSimulationN5Observation"
+            },
+            "title": "N5 Observations",
+            "type": "array"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "run_id": {
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.run_failed_candidate_simulation_projection.v1",
+            "default": "policyos.runtime.run_failed_candidate_simulation_projection.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Content Hash"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "run_id",
+          "artifact_status"
+        ],
+        "title": "RunFailedCandidateSimulationProjection",
         "type": "object"
       },
       "RunFeedbackResponse": {

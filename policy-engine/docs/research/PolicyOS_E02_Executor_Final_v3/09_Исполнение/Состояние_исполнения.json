@@ -5,7 +5,7 @@
   "specification_version": "v3",
   "reference_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
   "actual_start_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
-  "active_lane": "LANE-04",
+  "active_lane": "LANE-10",
   "lane_order": [
     "LANE-06",
     "LANE-08",
@@ -2951,7 +2951,7 @@
       "execution_control": {
         "only_active_implementation_lane": null,
         "next_lane": "LANE-10",
-        "next_lane_started": false,
+        "next_lane_started": true,
         "g_acceptance": false,
         "final_acceptance": "NOT_RUN",
         "completed_lane": "LANE-04"
@@ -3634,11 +3634,139 @@
     {
       "lane_id": "LANE-10",
       "sequence": 5,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "IN_PROGRESS",
+      "local_qualification": "PARTIAL",
       "capability_acceptance": "NOT_RUN",
-      "transition_evidence": [],
-      "corrective_windows": []
+      "transition_evidence": [
+        {
+          "source_commit": "50389f682411555e03911152f792519116e63cb1",
+          "source_tree": "cb137a505413621f4b81389d5e54a00ed8c51d3d",
+          "basis": "User authorizes next sequential lane on2026-11-02 after LANE04; existing local results and exact cross-lane remainders preserved.",
+          "g_acceptance": false,
+          "formal_closure": false
+        }
+      ],
+      "corrective_windows": [],
+      "denominator": {
+        "packets": 12,
+        "unique_requirements": 58,
+        "local_tests": 52,
+        "shared_bindings": 13,
+        "shared_requirement_occurrences": 58,
+        "shared_unique_requirements": 57,
+        "shared_test_references": 52,
+        "shared_unique_tests": 51,
+        "shared_requirement_test_edges": 85,
+        "shared_unique_requirement_test_pairs": 84,
+        "local_only_requirements": [
+          "REQ-CAL-03-03"
+        ],
+        "local_test_without_binding": [
+          "TEST-CAL-03-03"
+        ],
+        "repeated_occurrences": "REQ-CAL-04-04 and its TEST-CAL-04-03 edge occur in bothI10-A-B03 andI10-B-B05; TEST-CAL-03-04 supports local-only03-03 and other sharedcriteria.",
+        "preserve_global_E02": [
+          26,
+          127,
+          282,
+          291,
+          319
+        ]
+      },
+      "source_admission": {
+        "commit": "50389f682411555e03911152f792519116e63cb1",
+        "tree": "cb137a505413621f4b81389d5e54a00ed8c51d3d",
+        "attached_branch": "main",
+        "delivery_ref": "codex/e02-main-composition-20261031",
+        "tracked_state_before_start": "clean",
+        "lock_sha256": "05a827aadea78c109b7f136d7987f561e7952dbf77dfc2249272fa1774e5cd88",
+        "environment": "Existing Python3.14.3/JAX0.8.2/Optax0.2.6 CPU, certifi2026.10.23 and applicable SciPy/SALib/sklearn dependencies; no reinstall/cloud/source/environment copies. Actual selected backend version/profile recorded per numerical run."
+      },
+      "write_owners": {
+        "calibration": "/root/lane10_calibration: CAL02\u219203\u219204\u219206; calibration source, report.py,uncertainty_adapter.py and mirrored companions. No simultaneous UQS adapter writer.",
+        "uncertainty": "/root/lane10_uncertainty: UQP01\u219202\u219203/UQS01; covariance.py/protocol.py/dispatcher/MC/aggregator and actual Scientist propagation consumers. CAL06 uses released joint-law interface, requests shared edits from this owner.",
+        "doe": "/root/lane10_doe: scientist/methods/doe excluding stress_report.py; DOE01\u219202\u219203 and mirrored tests.",
+        "stress": "/root/lane10_stress: scientist/methods/search and scientist/methods/doe/stress_report.py plus actual selected-intent consumer companions.",
+        "coordination": "root: canonical index/commits/refs/generated/public/schema/lock/release/state/WorkPlan; one writer for mandatory shared companions.",
+        "autotune_companion": "/root/lane10_autotune: only scientist/methods/autotune/calibration.py and mirrored tests/README, mandatory CAL03 promotion consumer; not another packet or numerical source owner."
+      },
+      "resource_admission": {
+        "free_disk_gib_approx": 10,
+        "physical_ram_gib": 16,
+        "memory_pressure_free_percent_at_start_approx": 71,
+        "policy": "One unknown expensive numerical profile alone; measured light groups may overlap within actual available memory/CPU/scratch. Existing one-thread supervisor retains compact deciding output once; no data/source/env duplicates, cleanup or installation. Intellectual helper count is not numerical capacity.",
+        "first_measured": "CAL02 scale red2FAIL 6.673s660MB; same owned group afterfix8PASS8.293s745MB,3unchangedpins.",
+        "measured_light_policy": "Measured CPU1 families may run under separate caps CAL2GiB/UQ1.25GiB/DOE1.5GiB/STR1.5GiB; additional bounded autotune1.25GiB only within actual available RAM. At72%free16GiB host, caps total7.5GiB; measured processes remain substantially lower. Unknown expensive profile starts alone. Source dependencies and scratch remain exclusive.",
+        "observed_profiles": "CAL actual heldout/Optax1.073GB and objective derivative oracle1.212GB; UQ235current owner tests677MB; DOE600x100full10cases307.5MB20.788s32.7MBscratch growth; STRfinal49cases872.9MB10.95s. Complete outputs retained once in their existing lane10 owner directories."
+      },
+      "execution_control": {
+        "only_active_implementation_lane": "LANE-10",
+        "next_lane": "LANE-05",
+        "next_lane_started": false,
+        "g_acceptance": false,
+        "final_acceptance": "NOT_RUN"
+      },
+      "real_dependencies": [
+        "UQP02 joint law/interface before CAL06 adapter integration; study/oracle work does not wait.",
+        "UQP03 settled failure/stop semantics and CAL06 scope before final UQS summary; adapter has calibration writer, covariance has UQ writer.",
+        "DOE01 finite design/source contract before final stress selected consumer; count/direction research and code independent.",
+        "Final changed calibration consumers revisit only DA03/DA04 impacted extents; complete input/profile freeze before one composed numerical wave."
+      ],
+      "branch_reuse": {
+        "basis": "Finite relevant retained-tip audit: all reviewed candidate tips already ancestors of50389f682. No blind cherry-pick or old owner replacement.",
+        "existing_source": [
+          "0265f33e7: source-bound DOE experiment\u2192CAS receipt\u2192fresh search consumer",
+          "f7c7844ba: lossless uncertainty admission/delta/MC with239-case numeric tests",
+          "211e8c333 and2891f2988: current calibration/adapter owners"
+        ],
+        "limits": "Ancestry is reuse availability, not semantic/runtime PASS. Seeded FAST currently explicitly pending and needs its own requirement disposition; PCA does not close it."
+      },
+      "pattern_pass": "P01/P02/P08/P13/P27/P31/P33/P37/P38/P40/P41: real numerical producer and source-bound persisted fresh consumer, fit support before nonlinear/AD, exact joint-law/scope/stream identity, independent mathematical/removal oracles, one writer per overlapping mechanism, no fixture authority or paperwork backlog.",
+      "decisions": {
+        "autotune_curvature_consumer": "Repair missing/nonfinite\u2192perfect-score class and independently unverified promotion: retain useful finite candidate diagnostics, withhold protected uncertainty guard; no caller flag/callback becomes evidence. Existing ordered replay explicitly leaves Hessian unreplayed. Precise verification_missing remains until canonical raw-Hessian replay exists. This is a bounded consumer correction, not G acceptance."
+      },
+      "evidence_catalog": {
+        "doe_release": {
+          "path": "policy-engine/_cache/e02/lane10-doe/release.json",
+          "sha256": "8baca991db89ecefcc52f45fe28b23bfa0cd5652695ef14c2e82e97f2520629e",
+          "bytes": 52028,
+          "scope": "Exact released code/test/README, commands/profile/input/oracle and accessible complete deciding outputs. Non-author final source/runtime review GO; root independently reconciled current footprint. Component is not wholeLANE10/G acceptance."
+        },
+        "stress_release": {
+          "path": "policy-engine/_cache/e02/lane10-stress/release.json",
+          "sha256": "5d300a52f2f9a495e4873a30a7da0119d5a7b2b7ae3791dcfea1be77b82cee51",
+          "bytes": 33117,
+          "scope": "Exact released code/test/README, commands/profile/input/oracle and accessible complete deciding outputs. Non-author final source/runtime review GO; root independently reconciled current footprint. Component is not wholeLANE10/G acceptance."
+        }
+      },
+      "current_source_checkpoint": {
+        "binding": "Containing source component commit releases15 DOE/stress source/test/README blobs plus WorkPlan/state/release fragment. Root reads all committed blobs back; actual deciding cohorts retain their exact coordinated inputs. Other visible WIP remains outside this component.",
+        "released_sha256": {
+          "policy-engine/src/polisyos/scientist/methods/doe/README.md": "fb5bf6a37b809104746cba74119a6073e2edb377746c33ff8263668be5fac52b",
+          "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py": "5f9f20a710a75cc0ef58601c88f1db58be27114b462843529ab77c66d0857441",
+          "policy-engine/src/polisyos/scientist/methods/doe/adaptive.py": "db1be4c4db38b5219d50c7b1733675d230827f24d657d9f7867b4f0bd914301e",
+          "policy-engine/src/polisyos/scientist/methods/doe/analysis.py": "042a747a1eab0221561f32ced7af04f083cba354454bc0c5fae425c770ed42d6",
+          "policy-engine/src/polisyos/scientist/methods/doe/designs.py": "87f2035468556c2dc082c5d58f308b9cc26dca7b6df6b0da527b25106b26b780",
+          "policy-engine/src/polisyos/scientist/methods/doe/multi_output.py": "d7e7127b90b4d8d9b0a961e2538824725094fff3ed52d140d93018eeed5f079e",
+          "policy-engine/src/polisyos/scientist/methods/doe/sampling.py": "8afc171230dedabbe4538043023b4dd71d7465f3f24188b34b9b7892d58ec80e",
+          "policy-engine/tests/unit/remediation/test_doe_01.py": "b63ae024d0d98b32a19f971a1a62502329b778c96e0abf1119ca98a6498f7b48",
+          "policy-engine/tests/unit/remediation/test_doe_02.py": "912f9bf7dd6cfbfe23b74d35d6765d614e5e97dd85d88022a9117392dc1af9b7",
+          "policy-engine/tests/unit/remediation/test_doe_03.py": "bd77e4c1b8e824757b409854b95298b32968ad5828596122be615e226392eff9",
+          "policy-engine/tests/unit/scientist/methods/doe/test_design_handoff.py": "5556c74ab4a4ae1fd8a093cfe6e2121511e9e6c38d23b34061965a794627d99c",
+          "policy-engine/tests/unit/scientist/methods/doe/test_pca_request_profile.py": "27245a13ec9b81732ff0b2925586663717e74db223a7b086ff4d62c0a4813d66",
+          "policy-engine/src/polisyos/scientist/methods/search/adversarial.py": "73cbccb8e3fb3a055c4ecf7455455a9c62ecb1ee2e938652bdcb019c32653b46",
+          "policy-engine/src/polisyos/scientist/methods/search/README.md": "9e09d0806bfbb31641e820a3044dd1993f91faca95db1a2a59fb998d38fc8e7d",
+          "policy-engine/tests/unit/scientist/search/test_adversarial.py": "c55d2ead085e9e797638ae7c4268f695c1e2844f91e4a3a828f5269b632dfaa8"
+        },
+        "qualified_extent": "13 DOE local requirement profiles (including declared API orchestration/unsupported backend limits), STR01-01/02 and native diagnostics/absence controls of04. STR01-03 positive remains unresolved. No wholelane/commit/G PASS inferred.",
+        "remaining": "CAL02/03/04/06, remaining UQ Scientist/scoped/summary composition, canonical autotune class boundary, final affected/generated/installed wave and DA03/DA04; LANE05 not started."
+      },
+      "source_review": "DOE12paths finalindependentGO (13REQ/72outputidentities); STR3paths finalindependentGO49tests/9pins with explicit intent remainder. UQ core has separate GO but later Gaussian materialdelta remains uncommitted; CAL/autotune independent reviews still active.",
+      "component_generated_boundary": {
+        "complete_inventory_read_path_count": 94,
+        "component_read_intersection": [],
+        "scope": "All current15componentpaths are internal Scientist existing source/README or mirrored tests; no source topology/publicentrypoint/registeredABI model changed. UQ/CAL global public regeneration waits for their final source freeze, not silently bound to this partial component."
+      }
     },
     {
       "lane_id": "LANE-05",
@@ -10848,11 +10976,11 @@
       "lane_sequence": 5,
       "track_id": "10-A",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane10_calibration",
+      "base_commit": "50389f682411555e03911152f792519116e63cb1",
       "integrated_commit": null,
       "actual_write_set": [],
       "shared_writer": null,
@@ -10887,11 +11015,11 @@
       "lane_sequence": 5,
       "track_id": "10-A",
       "track_position": 2,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane10_calibration",
+      "base_commit": "50389f682411555e03911152f792519116e63cb1",
       "integrated_commit": null,
       "actual_write_set": [],
       "shared_writer": null,
@@ -10918,11 +11046,11 @@
       "lane_sequence": 5,
       "track_id": "10-A",
       "track_position": 3,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane10_calibration",
+      "base_commit": "50389f682411555e03911152f792519116e63cb1",
       "integrated_commit": null,
       "actual_write_set": [],
       "shared_writer": null,
@@ -10952,11 +11080,11 @@
       "lane_sequence": 5,
       "track_id": "10-A",
       "track_position": 4,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane10_calibration",
+      "base_commit": "50389f682411555e03911152f792519116e63cb1",
       "integrated_commit": null,
       "actual_write_set": [],
       "shared_writer": null,
@@ -10986,11 +11114,11 @@
       "lane_sequence": 5,
       "track_id": "10-A",
       "track_position": 5,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane10_uncertainty",
+      "base_commit": "50389f682411555e03911152f792519116e63cb1",
       "integrated_commit": null,
       "actual_write_set": [],
       "shared_writer": null,
@@ -11019,11 +11147,11 @@
       "lane_sequence": 5,
       "track_id": "10-B",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane10_uncertainty",
+      "base_commit": "50389f682411555e03911152f792519116e63cb1",
       "integrated_commit": null,
       "actual_write_set": [],
       "shared_writer": null,
@@ -11052,11 +11180,11 @@
       "lane_sequence": 5,
       "track_id": "10-B",
       "track_position": 2,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane10_uncertainty",
+      "base_commit": "50389f682411555e03911152f792519116e63cb1",
       "integrated_commit": null,
       "actual_write_set": [],
       "shared_writer": null,
@@ -11084,11 +11212,11 @@
       "lane_sequence": 5,
       "track_id": "10-B",
       "track_position": 3,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane10_uncertainty",
+      "base_commit": "50389f682411555e03911152f792519116e63cb1",
       "integrated_commit": null,
       "actual_write_set": [],
       "shared_writer": null,
@@ -11117,13 +11245,26 @@
       "lane_sequence": 5,
       "track_id": "10-C",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "PARTIAL",
+      "assigned_executor": "/root/lane10_doe",
+      "base_commit": "50389f682411555e03911152f792519116e63cb1",
+      "integrated_commit": "containing_lane10_source_component_commit",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+        "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/adaptive.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/multi_output.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+        "policy-engine/tests/unit/remediation/test_doe_01.py",
+        "policy-engine/tests/unit/remediation/test_doe_02.py",
+        "policy-engine/tests/unit/remediation/test_doe_03.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_design_handoff.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_pca_request_profile.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -11137,9 +11278,85 @@
         "TEST-DOE-01-02",
         "TEST-DOE-01-03"
       ],
-      "evidence": [],
+      "evidence": [
+        "doe_release"
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-DOE-01-01",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/DOE-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-DOE-01-01"
+          ],
+          "binding_ids": [
+            "E02-I10-C-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "doe_release"
+          ],
+          "basis": "Actual lazy GRID12 cap3 enumerates3corners,ownfloat64 shape3x12,nbytes288 and10constantaxes; prefix is explicitly limited, not4096cornercoverage.",
+          "capability_gaps": [],
+          "composition_scope": "Component releases these15 current author blobs and ordinary companions only. Exact deciding source/input/backend hashes are retained; neighboring CAL/UQ/autotune work is not silently included. Final generated/shared/installed composition remains pending."
+        },
+        {
+          "requirement_id": "REQ-DOE-01-02",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/DOE-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-DOE-01-02"
+          ],
+          "binding_ids": [
+            "E02-I10-C-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "doe_release"
+          ],
+          "basis": "Actual SALib adaptivephase/permission/malformedshape cases plus actual3phasehandoff preserve lastcompleted result with nohiddenrerun. Cap remainsperdesign andallow_large_run unchanged.",
+          "capability_gaps": [],
+          "composition_scope": "Component releases these15 current author blobs and ordinary companions only. Exact deciding source/input/backend hashes are retained; neighboring CAL/UQ/autotune work is not silently included. Final generated/shared/installed composition remains pending."
+        },
+        {
+          "requirement_id": "REQ-DOE-01-03",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/DOE-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-DOE-01-03"
+          ],
+          "binding_ids": [
+            "E02-I10-C-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "doe_release"
+          ],
+          "basis": "Actual AdaptiveResult retainscompletedplan/rows/outputs/roundcoordinates; persist_final reusesselectedscalarreceipt thenactualfreshSensitivityAwareCandidateGenerator consumes numerical20/3 ranking. Seed/axes/round/rawrows mutationsrefuse. Nointernalproduction AdaptiveSampler caller found; bounded API handoff, implemented_but_not_orchestrated boundary declared.",
+          "capability_gaps": [
+            "implemented_but_not_orchestrated"
+          ],
+          "composition_scope": "Component releases these15 current author blobs and ordinary companions only. Exact deciding source/input/backend hashes are retained; neighboring CAL/UQ/autotune work is not silently included. Final generated/shared/installed composition remains pending.",
+          "scope": "Qualified API result\u2192existingCASreceipt\u2192fresh actual search consumer; finite production caller census found no maintained AdaptiveSampler invocation. Bounded DEC allows this exact API handoff without invented orchestration."
+        },
+        {
+          "requirement_id": "REQ-DOE-01-04",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/DOE-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-DOE-01-02",
+            "TEST-DOE-01-03"
+          ],
+          "binding_ids": [
+            "E02-I10-C-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "doe_release"
+          ],
+          "basis": "Generation/evaluation/analysis/completed attempts retainplannedvsobservedrows andmeasuredseparatephase walltime; failed evaluator completedrows remainNone, successful secondanalysisfailure retains18observedrows butlast6row result. NoUSD/globalgrant invented.",
+          "capability_gaps": [],
+          "composition_scope": "Component releases these15 current author blobs and ordinary companions only. Exact deciding source/input/backend hashes are retained; neighboring CAL/UQ/autotune work is not silently included. Final generated/shared/installed composition remains pending."
+        }
+      ]
     },
     {
       "packet_id": "DOE-02",
@@ -11147,13 +11364,26 @@
       "lane_sequence": 5,
       "track_id": "10-C",
       "track_position": 2,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "PARTIAL",
+      "assigned_executor": "/root/lane10_doe",
+      "base_commit": "50389f682411555e03911152f792519116e63cb1",
+      "integrated_commit": "containing_lane10_source_component_commit",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+        "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/adaptive.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/multi_output.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+        "policy-engine/tests/unit/remediation/test_doe_01.py",
+        "policy-engine/tests/unit/remediation/test_doe_02.py",
+        "policy-engine/tests/unit/remediation/test_doe_03.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_design_handoff.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_pca_request_profile.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -11167,9 +11397,83 @@
         "TEST-DOE-02-02",
         "TEST-DOE-02-03"
       ],
-      "evidence": [],
+      "evidence": [
+        "doe_release"
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-DOE-02-01",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/DOE-02.json#/requirements/0",
+          "test_ids": [
+            "TEST-DOE-02-01"
+          ],
+          "binding_ids": [
+            "E02-I10-C-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "doe_release"
+          ],
+          "basis": "Native SALib1.5.2 samecanonicaltypedmapping; actual inverseCDF grids .1/.5/.9 match independentSciPy truncatedNormal/triangular oracle1e-10/1e-12; physicalsupports, typedroundtrip, ambiguityandLOGNORMALrefusal preserved. Existing mapping tests in native-small100PASS.",
+          "capability_gaps": [],
+          "composition_scope": "Component releases these15 current author blobs and ordinary companions only. Exact deciding source/input/backend hashes are retained; neighboring CAL/UQ/autotune work is not silently included. Final generated/shared/installed composition remains pending."
+        },
+        {
+          "requirement_id": "REQ-DOE-02-02",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/DOE-02.json#/requirements/1",
+          "test_ids": [
+            "TEST-DOE-02-02"
+          ],
+          "binding_ids": [
+            "E02-I10-C-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "doe_release"
+          ],
+          "basis": "Actual full600x100 Morris deterministicparameter-onlymodel\u2192sklearn1.8randomizedPCA\u2192SALibpoint/UQ ABBA replay/defaultauto/actualreplica1 pass; externalNumPy state byte-identical. Localrequest/stage/replica seeds and actualscorecontentidentities verified; seed-removal changesglobalstate despitepreservedmarker. Arbitrary external model randomness remainsnot_established.",
+          "capability_gaps": [],
+          "composition_scope": "Component releases these15 current author blobs and ordinary companions only. Exact deciding source/input/backend hashes are retained; neighboring CAL/UQ/autotune work is not silently included. Final generated/shared/installed composition remains pending."
+        },
+        {
+          "requirement_id": "REQ-DOE-02-03",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/DOE-02.json#/requirements/2",
+          "test_ids": [
+            "TEST-DOE-02-03"
+          ],
+          "binding_ids": [
+            "E02-I10-C-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "doe_release"
+          ],
+          "basis": "Selected completeoriginalmatrices/plan/law/axes/backend/seed/replica andactualPCAprofile arecontent-bound. Actualfreshreaderusesrecordedkwargs afterconstructor defaultschange; coherentlyrehashed changedsolver/seed/profile/missingprofile refusesatnativeconsumer. Existing scalarreceipt exactseededdesign/searchconsumer reused.",
+          "capability_gaps": [],
+          "composition_scope": "Component releases these15 current author blobs and ordinary companions only. Exact deciding source/input/backend hashes are retained; neighboring CAL/UQ/autotune work is not silently included. Final generated/shared/installed composition remains pending."
+        },
+        {
+          "requirement_id": "REQ-DOE-02-04",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/DOE-02.json#/requirements/3",
+          "test_ids": [
+            "TEST-DOE-02-01",
+            "TEST-DOE-02-02"
+          ],
+          "binding_ids": [
+            "E02-I10-C-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "doe_release"
+          ],
+          "basis": "PinnednativeSALib1.5.2/sklearn1.8profileonly; seededFAST andboundedLOGNORMAL remainexplicitcompatibility_pending/refuse, notclosedbyPCAqualification. No versionupgrade or globalreset.",
+          "capability_gaps": [],
+          "composition_scope": "Component releases these15 current author blobs and ordinary companions only. Exact deciding source/input/backend hashes are retained; neighboring CAL/UQ/autotune work is not silently included. Final generated/shared/installed composition remains pending.",
+          "scope": "PinnedSALib1.5.2/sklearn1.8 numerical profile; seededFAST and boundedLOGNORMAL explicitlycompatibility_pending/refused, no native capability claim."
+        }
+      ]
     },
     {
       "packet_id": "DOE-03",
@@ -11177,13 +11481,26 @@
       "lane_sequence": 5,
       "track_id": "10-C",
       "track_position": 3,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "PARTIAL",
+      "assigned_executor": "/root/lane10_doe",
+      "base_commit": "50389f682411555e03911152f792519116e63cb1",
+      "integrated_commit": "containing_lane10_source_component_commit",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+        "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/adaptive.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/multi_output.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+        "policy-engine/tests/unit/remediation/test_doe_01.py",
+        "policy-engine/tests/unit/remediation/test_doe_02.py",
+        "policy-engine/tests/unit/remediation/test_doe_03.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_design_handoff.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_pca_request_profile.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -11200,9 +11517,99 @@
         "TEST-DOE-03-04",
         "TEST-DOE-03-05"
       ],
-      "evidence": [],
+      "evidence": [
+        "doe_release"
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-DOE-03-01",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/DOE-03.json#/requirements/0",
+          "test_ids": [
+            "TEST-DOE-03-01"
+          ],
+          "binding_ids": [
+            "E02-I10-C-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "doe_release"
+          ],
+          "basis": "Genuine2FAIL ordinaryCIok onactualscalar+multi imputed48rows\u2192restored2PASS aftersharedprep+Morrisguard. CompletecontrolCIremainsuseful; imputation point/counts preservedwithnot_established missingnessmodel, ordinaryMorris/SobolCIwithheld; selectedfreshsourceoutputsverifiedbytargeted5PASS/strict2PASS.",
+          "capability_gaps": [],
+          "composition_scope": "Component releases these15 current author blobs and ordinary companions only. Exact deciding source/input/backend hashes are retained; neighboring CAL/UQ/autotune work is not silently included. Final generated/shared/installed composition remains pending."
+        },
+        {
+          "requirement_id": "REQ-DOE-03-02",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/DOE-03.json#/requirements/1",
+          "test_ids": [
+            "TEST-DOE-03-02"
+          ],
+          "binding_ids": [
+            "E02-I10-C-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "doe_release"
+          ],
+          "basis": "Scalar/multi failurepolicies beforePCA retainoriginal12rows andwhole3-rowtrajectories [1,2,3] or[2,3], failureIDs/reasons/selectionlimit; no survivorsplice. FAIL_FAST/minrate/nonfiniteinputcontrols remain.",
+          "capability_gaps": [],
+          "composition_scope": "Component releases these15 current author blobs and ordinary companions only. Exact deciding source/input/backend hashes are retained; neighboring CAL/UQ/autotune work is not silently included. Final generated/shared/installed composition remains pending."
+        },
+        {
+          "requirement_id": "REQ-DOE-03-03",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/DOE-03.json#/requirements/2",
+          "test_ids": [
+            "TEST-DOE-03-03"
+          ],
+          "binding_ids": [
+            "E02-I10-C-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "doe_release"
+          ],
+          "basis": "NativeDCT600x100 knownspectrum ratios/subspace/residual pass; allfixedseeds13/17/19/23 Morris600x100 rank63 andgap>1e-3 preflightfreeze, first13/17selectedbeforePCA. Smallsklearn+NumPyfullrank2 ratios90/91,1/91 andfullprojector pass; tiedcap1ratio.24 unmet_limited, no tiedvectorcomparison. Nogeneral adequacyclaim.",
+          "capability_gaps": [],
+          "composition_scope": "Component releases these15 current author blobs and ordinary companions only. Exact deciding source/input/backend hashes are retained; neighboring CAL/UQ/autotune work is not silently included. Final generated/shared/installed composition remains pending."
+        },
+        {
+          "requirement_id": "REQ-DOE-03-04",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/DOE-03.json#/requirements/3",
+          "test_ids": [
+            "TEST-DOE-03-04"
+          ],
+          "binding_ids": [
+            "E02-I10-C-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "doe_release"
+          ],
+          "basis": "ActualSALib normalizedMorris20 point/retainedEE/bootstrap same units forx\u2192100x/output\u00d71000; transformed/nonuniformunsupportedUQ remainsunavailable; currentfinitegeometryowner preserved.",
+          "capability_gaps": [],
+          "composition_scope": "Component releases these15 current author blobs and ordinary companions only. Exact deciding source/input/backend hashes are retained; neighboring CAL/UQ/autotune work is not silently included. Final generated/shared/installed composition remains pending."
+        },
+        {
+          "requirement_id": "REQ-DOE-03-05",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/DOE-03.json#/requirements/4",
+          "test_ids": [
+            "TEST-DOE-03-01",
+            "TEST-DOE-03-05"
+          ],
+          "binding_ids": [
+            "E02-I10-C-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "doe_release"
+          ],
+          "basis": "Selectedoriginal/retainedrows,units,rawfailedoutputs/imputation/selectionscope andactualPCAseed/solver/backendprofile survivefreshreplay. Coherentmetadataforgeryrefuses; originalpartialsource inspectable, futuredefaultsnotoldfacts. Strictdataclassresultforbids extra fields withrealpositive\u2192refusal; noempiricalCIcoverageclaim.",
+          "capability_gaps": [],
+          "composition_scope": "Component releases these15 current author blobs and ordinary companions only. Exact deciding source/input/backend hashes are retained; neighboring CAL/UQ/autotune work is not silently included. Final generated/shared/installed composition remains pending."
+        }
+      ]
     },
     {
       "packet_id": "STR-01",
@@ -11210,13 +11617,17 @@
       "lane_sequence": 5,
       "track_id": "10-D",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "PARTIAL_SELECTED_INTENT_PRODUCER",
+      "integration_qualification": "PARTIAL",
+      "assigned_executor": "/root/lane10_stress",
+      "base_commit": "50389f682411555e03911152f792519116e63cb1",
+      "integrated_commit": "containing_lane10_source_component_commit",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+        "policy-engine/src/polisyos/scientist/methods/search/README.md",
+        "policy-engine/tests/unit/scientist/search/test_adversarial.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -11231,9 +11642,91 @@
         "TEST-STR-01-03",
         "TEST-STR-01-04"
       ],
-      "evidence": [],
-      "blockers": [],
-      "deferred_ids": []
+      "evidence": [
+        "stress_release"
+      ],
+      "blockers": [
+        "REQ-STR-01-03 positive protected score: no independent selected current-run objective-intent producer/artifact/bridge; bounded DEC in canonical search README, protected score withheld."
+      ],
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-STR-01-01",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/STR-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-STR-01-01"
+          ],
+          "binding_ids": [
+            "E02-I10-C-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "stress_release"
+          ],
+          "basis": "Actual single unavailable, not-established, invalid, valid and mixed3 outcomes partition attempted counts before top-k1/10. Status and reason ledgers remain distinct. Actual provider OSError/RuntimeError/ValueError is UNKNOWN in initial/adaptive paths; returned NaN remains INVALID and valid siblings preserve actual worst-case2/fresh report. Original exception cause and exact input objects preserved.",
+          "capability_gaps": [],
+          "composition_scope": "Component releases these15 current author blobs and ordinary companions only. Exact deciding source/input/backend hashes are retained; neighboring CAL/UQ/autotune work is not silently included. Final generated/shared/installed composition remains pending."
+        },
+        {
+          "requirement_id": "REQ-STR-01-02",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/STR-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-STR-01-02",
+            "TEST-STR-01-03"
+          ],
+          "binding_ids": [
+            "E02-I10-C-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "stress_release"
+          ],
+          "basis": "Current full module retains typed pre-sampling direction refusal, raw10/\u22125 utility and \u22125/10 cost direct/adaptive tables, actual stopping and raw8 history. Actual CompositeObjective cost+real StrategyAdapter:32 warm valid observations followed by10 same-candidate violations;42attempted/high10/unique1/examples1 at top-k1/10, raw adaptive objective/cost updates remain10. Native budget-deficit owner uses absolute deficit with declared fixture unit; no signed-cost rewrite.",
+          "capability_gaps": [],
+          "composition_scope": "Component releases these15 current author blobs and ordinary companions only. Exact deciding source/input/backend hashes are retained; neighboring CAL/UQ/autotune work is not silently included. Final generated/shared/installed composition remains pending."
+        },
+        {
+          "requirement_id": "REQ-STR-01-03",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/STR-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-STR-01-04"
+          ],
+          "binding_ids": [
+            "E02-I10-C-B04"
+          ],
+          "status": "UNRESOLVED_SELECTED_INTENT_PRODUCER",
+          "evidence_refs": [
+            "stress_release"
+          ],
+          "basis": "Existing complete source/row replay and selected-profile guards are preserved, but no independently selected current-run objective-intent artifact reaches stress producer/basis/fresh consumer. The protected positive TEST04 is UNRUN/unavailable mechanism, not PASS. DEC-STR-01-01 bounded census below gives exact missing contract; root selected preserve guard, no invented IR target\u2192stress-threshold mapping.",
+          "capability_gaps": [
+            "producer_missing",
+            "artifact_missing",
+            "bridge_missing"
+          ],
+          "composition_scope": "Component releases these15 current author blobs and ordinary companions only. Exact deciding source/input/backend hashes are retained; neighboring CAL/UQ/autotune work is not silently included. Final generated/shared/installed composition remains pending.",
+          "remaining": "Independently selected current-run subject/rule/direction/threshold/plan intent must reach actual stress producer and fresh resolver. Same-carried objective rule is not authority; current protected score remains unavailable."
+        },
+        {
+          "requirement_id": "REQ-STR-01-04",
+          "criterion_pointer": "04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430/STR-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-STR-01-03",
+            "TEST-STR-01-04"
+          ],
+          "binding_ids": [
+            "E02-I10-C-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "stress_release"
+          ],
+          "basis": "Native CompositeObjective/StrategyAdapter and persisted fresh report retain useful42/high10/raw worst10 despite adaptive_continuation_not_finite. Counts explicitly producer_outcome_records and predicate not_established; no fresh adaptive row-replay claim. Existing configured GDP/budget source and actual fresh Level5 stay unbound absent independently selected intent. Exact same-content wrong schemas/profiles/candidate/source rows refuse. No finite inspected fraction is promoted to population probability.",
+          "capability_gaps": [],
+          "composition_scope": "Component releases these15 current author blobs and ordinary companions only. Exact deciding source/input/backend hashes are retained; neighboring CAL/UQ/autotune work is not silently included. Final generated/shared/installed composition remains pending.",
+          "scope": "ActualCompositeObjective/StrategyAdapter and persistedfreshdiagnostics/absentintentrefusal qualified. Adaptive diagnostics remain producer-reported/not_established, not protected robustness probability or the missing03 positive path."
+        }
+      ]
     },
     {
       "packet_id": "GRF-01",

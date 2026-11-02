@@ -1,0 +1,35 @@
+id = "e02-numerical-consumer-fidelity"
+title = "Bind DOE replay and preserve stress outcome diagnostics"
+type = "fixed"
+component = "scientist"
+owner = "e02-coordinator"
+summary = "Preserve exact completed adaptive and multi-output DOE inputs, explicit local replica/PCA profiles and honest imputation uncertainty; retain full stress occurrence diagnostics without manufacturing protected objective intent."
+evidence = ["tests/unit/remediation/test_doe_03.py", "tests/unit/scientist/methods/doe/test_pca_request_profile.py", "tests/unit/scientist/methods/doe/test_design_handoff.py", "tests/unit/scientist/search/test_adversarial.py"]
+change_class = "persisted-artifact-format"
+surface_classification = "internal: Scientist DOE and stress search"
+compatibility = "Replica zero preserves existing stage seeds. Keep legacy source-bound analysis inspection and declared unsupported backend refusals. Selected replay consumes recorded preprocessing facts rather than current defaults."
+limitations = "Named local CPU/SALib/sklearn profiles only. Adaptive is an API handoff without maintained internal orchestration. Seeded FAST/bounded LOGNORMAL remain compatibility_pending; stress lacks an independent selected current-run objective-intent input and cannot publish a protected robustness score. No empirical, G or final E02 acceptance."
+public_surface_inventory_reviewed = true
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "doe-preprocessing-and-adaptive-result-binding"
+change_class = "persisted-artifact-format"
+impact = "behavioral"
+surface = "internal: Scientist sensitivity plan, preprocessing and selected analysis receipts"
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "not_applicable"
+release_note = "Extend the existing selected analysis receipt for actual completed adaptive and multi-output results. Replica zero preserves existing request seeds; new replicas and PCA use explicit local domain-separated streams. Persist the actual backend/version, resolved solver, component cap, centering and seed instead of recovering replay meaning from current defaults. Median-imputed outputs retain useful points and original failure counts without ordinary Morris or Sobol uncertainty promotion."
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "stress-outcome-ledger-and-diagnostic-provenance"
+change_class = "python-public-api"
+impact = "behavioral"
+surface = "internal: Scientist adversarial stress evaluation and fresh report diagnostics"
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "not_applicable"
+release_note = "Count valid, invalid, skipped and unknown occurrences conservatively, with separate unavailable/not-established reasons. Classify invocation exceptions as unknown and malformed/nonfinite returned objectives as invalid through one shared owner. Preserve full occurrence diagnostics independently of top-k and deduplication. Adaptive diagnostics remain explicitly producer-reported when no replay profile is qualified; absent independently selected objective intent continues to withhold a protected robustness score."
+generated_client_compatibility = "not_applicable"

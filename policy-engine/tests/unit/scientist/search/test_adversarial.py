@@ -624,6 +624,277 @@ def test_adversarial_objective_unit_and_malformed_inputs_do_not_score(
     assert resolution.robustness_score is None
 
 
+@pytest.mark.parametrize("collect_top_k", [1, 10])
+@pytest.mark.parametrize(
+    ("states", "expected_counts"),
+    [
+        pytest.param(("unavailable",), (0, 0, 1, 0), id="unavailable"),
+        pytest.param(("not_established",), (0, 0, 0, 1), id="not-established"),
+        pytest.param(("invalid",), (0, 1, 0, 0), id="invalid"),
+        pytest.param(("valid",), (1, 0, 0, 0), id="valid"),
+        pytest.param(("unavailable", "invalid", "valid"), (1, 1, 1, 0), id="mixed"),
+    ],
+)
+def test_stress_outcome_partition_excludes_unavailable_from_valid(
+    states: tuple[str, ...], expected_counts: tuple[int, int, int, int], collect_top_k: int
+) -> None:
+    """Actual configured-objective outcomes partition attempted occurrences before projection."""
+    plan = AdversarialPlan(
+        parameter_specs=[
+            ParameterSpec(name=f"p{index}", lower_bound=-1.0, upper_bound=1.0) for index in range(2)
+        ],
+        strategy=AdversarialStrategy.GRID_EXTREME,
+        max_iterations=len(states),
+        stop_on_first_vulnerability=False,
+        collect_top_k=collect_top_k,
+    )
+    selected_states = iter(states)
+
+    def evaluate(candidate: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+        del candidate, context
+        state = next(selected_states)
+        if state == "unavailable":
+            return {
+                "simulation_results": {
+                    "metric_units": {"budget_deficit": _FIXTURE_BUDGET_DEFICIT_UNIT}
+                }
+            }
+        if state == "not_established":
+            return {"simulation_results": {"budget_deficit": 2.0}}
+        return _budget_deficit_simulation_result("bad" if state == "invalid" else 2.0)
+
+    report = run_stress_test(
+        adversarial_plan=plan,
+        base_objective=CompositeObjective(
+            [BudgetDeficitObjective(expected_unit=_FIXTURE_BUDGET_DEFICIT_UNIT)]
+        ),
+        stage_b_evaluator=evaluate,
+    )
+    valid, invalid, unavailable, not_established = expected_counts
+    assert report.total_scenarios_evaluated == len(states)
+    assert report.metadata["valid_evaluation_count"] == valid
+    assert report.metadata["invalid_evaluation_count"] == invalid
+    assert report.metadata["objective_unavailable_evaluation_count"] == unavailable
+    assert report.metadata["objective_not_established_evaluation_count"] == not_established
+    assert report.metadata["skipped_evaluation_count"] == unavailable + not_established
+    assert report.metadata["unknown_evaluation_count"] == 0
+    assert valid + invalid + unavailable + not_established == report.total_scenarios_evaluated
+    assert report.metadata["evaluation_status_counts"] == {
+        "passed": valid,
+        "failed": 0,
+        "invalid": invalid,
+        "skipped": unavailable + not_established,
+        "unknown": 0,
+    }
+    reasons = report.metadata["evaluation_reason_counts"]
+    assert reasons == {
+        **({"objective_score_unavailable": unavailable} if unavailable else {}),
+        **({"objective_score_not_established": not_established} if not_established else {}),
+        **({"evaluator_exception_or_nonfinite_objective": invalid} if invalid else {}),
+    }
+    assert report.robustness_score is None
+    assert not report.is_robust
+    if invalid or unavailable or not_established:
+        assert report.set_adequacy_status == "unverified"
+
+
+@pytest.mark.parametrize("collect_top_k", [1, 10])
+def test_native_adaptive_occurrences_survive_unscored_fresh_report(
+    tmp_path, collect_top_k: int
+) -> None:
+    """A real strategy/composite sweep keeps ten repeated failures as ten occurrences."""
+
+    class RepeatedStrategy(RecordingStrategy):
+        def suggest(self, evaluations, pending=None):
+            del pending
+            self.seen_suggestions.append(list(evaluations))
+            return PolicyCandidate(params={"p0": 0.25}, source_strategy="fixed-repeat-fixture")
+
+    store_path = tmp_path / "cas"
+    store = FileSystemCAS(store_path)
+    candidate_ref = _persist_policy_candidate(store, "native-adaptive-stress")
+    plan = AdversarialPlan(
+        parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
+        strategy=AdversarialStrategy.SEARCH_LOOP,
+        max_iterations=42,
+        vulnerability_threshold=5.0,
+        stop_on_first_vulnerability=False,
+        collect_top_k=collect_top_k,
+        seed=31,
+    )
+    space = SearchSpace([ParameterBounds(name="p0", lower=-1.0, upper=1.0)])
+    strategy = RepeatedStrategy(space)
+    adapter = RecordingStrategyAdapter(strategy, space)
+    calls = 0
+
+    def evaluate(candidate: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+        nonlocal calls
+        del candidate, context
+        calls += 1
+        return _budget_deficit_simulation_result(1.0 if calls <= 32 else 10.0)
+
+    report = run_stress_test(
+        adversarial_plan=plan,
+        base_objective=CompositeObjective(
+            [BudgetDeficitObjective(expected_unit=_FIXTURE_BUDGET_DEFICIT_UNIT)]
+        ),
+        stage_b_evaluator=evaluate,
+        candidate_generator=adapter,
+        context={"policy_candidate_ref": candidate_ref},
+        cas=store,
+    )
+    assert calls == report.total_scenarios_evaluated == 42
+    assert report.worst_case_objective == 10.0
+    assert report.high_count == report.metadata["observed_vulnerability_count"] == 10
+    assert report.metadata["unique_vulnerability_count"] == 1
+    assert report.metadata["presented_vulnerability_count"] == len(report.vulnerabilities) == 1
+    assert report.metadata["valid_evaluation_count"] == 42
+    assert report.metadata["invalid_evaluation_count"] == 0
+    assert report.metadata["objective_unavailable_evaluation_count"] == 0
+    assert report.metadata["evaluation_status_counts"] == {
+        "passed": 32,
+        "failed": 10,
+        "invalid": 0,
+        "skipped": 0,
+        "unknown": 0,
+    }
+    assert report.metadata["evaluation_reason_counts"] == {}
+    assert report.metadata["evaluation_counts_basis"] == "producer_outcome_records"
+    assert report.metadata["evaluation_counts_predicate_status"] == "not_established"
+    assert [item.scalar_score for item in strategy.seen_updates] == [10.0] * 9
+    assert [item.objective_value for item in adapter.seen_histories[-1]] == [10.0] * 9
+    assert report.score_status == "profile_mismatch"
+    assert report.score_reason == "adaptive_continuation_not_finite"
+    assert report.robustness_score is None
+    assert not report.is_robust
+    assert report.cas_artifact_ref is not None
+
+    fresh, resolution = resolve_stress_report_artifact(
+        FileSystemCAS(store_path), report.cas_artifact_ref, expected_candidate_ref=candidate_ref
+    )
+    assert fresh.total_scenarios_evaluated == 42
+    assert fresh.high_count == 10
+    assert fresh.worst_case_objective == 10.0
+    assert fresh.metadata == report.metadata
+    assert resolution.status == "profile_mismatch"
+    assert resolution.reason_code == "adaptive_continuation_not_finite"
+    assert resolution.robustness_score is None
+
+
+@pytest.mark.parametrize("error_type", [OSError, RuntimeError, ValueError])
+@pytest.mark.parametrize("adaptive", [False, True], ids=["initial", "adaptive"])
+def test_unknown_stage_b_failure_is_not_numerical_invalidity(
+    tmp_path, error_type: type[Exception], adaptive: bool
+) -> None:
+    """Provider failure is unknown; a separately returned NaN is numerical invalidity."""
+    store_path = tmp_path / "cas"
+    store = FileSystemCAS(store_path)
+    candidate_ref = _persist_policy_candidate(store, "unknown-stage-b-stress")
+    plan = AdversarialPlan(
+        parameter_specs=[
+            ParameterSpec(name=f"p{index}", lower_bound=-1.0, upper_bound=1.0) for index in range(2)
+        ],
+        strategy=AdversarialStrategy.SEARCH_LOOP if adaptive else AdversarialStrategy.GRID_EXTREME,
+        max_iterations=34 if adaptive else 3,
+        vulnerability_threshold=None,
+        stop_on_first_vulnerability=False,
+        seed=11,
+    )
+    error = error_type("external stage outcome not confirmed")
+    calls = 0
+
+    def evaluate(candidate: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+        nonlocal calls
+        del candidate, context
+        calls += 1
+        if calls == (33 if adaptive else 1):
+            raise error
+        return _budget_deficit_simulation_result(math.nan if not adaptive and calls == 2 else 2.0)
+
+    space = SearchSpace([ParameterBounds(name="p0", lower=-1.0, upper=1.0)])
+    report = run_stress_test(
+        adversarial_plan=plan,
+        base_objective=CompositeObjective(
+            [BudgetDeficitObjective(expected_unit=_FIXTURE_BUDGET_DEFICIT_UNIT)]
+        ),
+        stage_b_evaluator=evaluate,
+        candidate_generator=RecordingStrategyAdapter(RecordingStrategy(space), space),
+        context={"policy_candidate_ref": candidate_ref},
+        cas=store,
+    )
+    valid, invalid, attempted = (32, 0, 33) if adaptive else (1, 1, 3)
+    assert calls == report.total_scenarios_evaluated == attempted
+    assert report.metadata["valid_evaluation_count"] == valid
+    assert report.metadata["invalid_evaluation_count"] == invalid
+    assert report.metadata["unknown_evaluation_count"] == 1
+    assert report.metadata["skipped_evaluation_count"] == 0
+    assert report.metadata["objective_unavailable_evaluation_count"] == 0
+    assert report.metadata["objective_not_established_evaluation_count"] == 0
+    assert report.metadata["evaluation_status_counts"] == {
+        "passed": valid,
+        "failed": 0,
+        "invalid": invalid,
+        "skipped": 0,
+        "unknown": 1,
+    }
+    unknown_reason = (
+        f"stage_b_evaluator_exception:{error_type.__module__}.{error_type.__qualname__}"
+    )
+    assert report.metadata["evaluation_reason_counts"] == {
+        unknown_reason: 1,
+        **({"evaluator_exception_or_nonfinite_objective": invalid} if invalid else {}),
+    }
+    assert report.critical_count == invalid
+    assert len(report.vulnerabilities) == invalid
+    if invalid:
+        assert (
+            "objective_value_missing_non_numeric_or_non_finite"
+            in report.vulnerabilities[0].description
+        )
+    assert report.worst_case_objective == 2.0
+    assert report.set_adequacy_status == "unverified"
+    assert report.robustness_score is None
+    assert report.cas_artifact_ref is not None
+    fresh, resolution = resolve_stress_report_artifact(
+        FileSystemCAS(store_path), report.cas_artifact_ref, expected_candidate_ref=candidate_ref
+    )
+    assert fresh.total_scenarios_evaluated == attempted
+    assert fresh.metadata == report.metadata
+    assert fresh.worst_case_objective == 2.0
+    assert report.score_status == resolution.status == ("unbound" if adaptive else "invalid")
+    assert (
+        report.score_reason
+        == resolution.reason_code
+        == (unknown_reason if adaptive else "objective_evaluation_invalid_or_failed")
+    )
+    assert resolution.robustness_score is None
+
+
+def test_unknown_stage_b_wrapper_preserves_original_exception_cause() -> None:
+    """Unknown invocation transport retains the actual cause and original input objects."""
+    from polisyos.scientist.methods.search.adversarial import (
+        _invoke_stress_stage_b,
+        _StageBEvaluationUnknown,
+    )
+
+    failure = OSError("stage result unavailable")
+    candidate = {"p0": 0.25}
+    context = {"run": "cause-control"}
+    seen = []
+
+    def unavailable(subject, runtime_context):
+        seen.append((subject, runtime_context))
+        raise failure
+
+    with pytest.raises(_StageBEvaluationUnknown) as error:
+        _invoke_stress_stage_b(unavailable, candidate, context)
+    assert error.value.__cause__ is failure
+    assert error.value.reason_code == "stage_b_evaluator_exception:builtins.OSError"
+    assert len(seen) == 1
+    assert seen[0][0] is candidate
+    assert seen[0][1] is context
+
+
 def test_platform_meta_evaluator_passes_healthy_sentinel_injection() -> None:
     tracker = CorrelationTracker(drift_window_size=5, sentinel_pass_floor=0.95)
     for idx in range(5):

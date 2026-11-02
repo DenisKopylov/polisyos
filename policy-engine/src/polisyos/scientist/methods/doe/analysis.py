@@ -19,7 +19,9 @@ from .designs import (
     SensitivityResult,
     _admit_sensitivity_analysis_plan,
     _build_salib_problem,
-    _derive_backend_seed,
+    _derive_plan_seed,
+    _request_rng_streams,
+    _uncertainty_seed,
 )
 from .morris_geometry import _validate_morris_plan_samples
 from .uncertainty import (
@@ -37,7 +39,7 @@ def _analysis_kwargs(plan: SensitivityPlan) -> dict[str, object]:
         "num_resamples": 100,
         "conf_level": plan.confidence_level,
         "print_to_console": False,
-        "seed": _derive_backend_seed(plan.seed, f"analysis:{plan.method.value}"),
+        "seed": _derive_plan_seed(plan, f"analysis:{plan.method.value}"),
     }
     if plan.method == SensitivityMethod.MORRIS:
         kwargs.update(scaled=False, num_levels=plan.parameter_specs[0].num_levels)
@@ -290,7 +292,9 @@ def _analysis_identity(
         "ordered_parameter_names": [spec.name for spec in plan.parameter_specs],
         "parameter_units": {spec.name: spec.unit for spec in plan.parameter_specs},
         "backend_identity": backend,
-        "analyzer_seed": _derive_backend_seed(plan.seed, f"analysis:{plan.method.value}"),
+        "analyzer_seed": _derive_plan_seed(plan, f"analysis:{plan.method.value}"),
+        "rng_streams": _request_rng_streams(plan),
+        "evaluator_randomness_status": "not_established",
         "input_law": plan.input_law,
         "input_law_basis": "consumer_asserted",
         "authority_purpose": "exploratory_parameter_experiment",
@@ -477,6 +481,18 @@ def _prepare_analysis_inputs(
             imputed[~valid_mask, :] = baselines
     if trajectory_count is not None:
         metadata["effective_trajectory_ids"] = list(range(trajectory_count))
+    metadata.update(
+        {
+            "imputation_applied": True,
+            "imputed_row_indices": failed_row_indices,
+            "imputation_method": "observed_median"
+            if success_count
+            else "zero_without_observations",
+            "imputation_model_status": "not_established",
+            "analysis_posture": "limited",
+            "warnings": ["imputation_model_not_established"],
+        }
+    )
     return _PreparedAnalysisInputs(
         samples=samples,
         outputs=imputed,
@@ -498,6 +514,11 @@ def _attach_sobol_uncertainty(
 ) -> None:
     if not plan.uncertainty.enabled:
         return
+    if result.metadata.get("imputation_model_status") == "not_established":
+        _append_uncertainty_warning(
+            result, "sobol_uncertainty_unavailable:imputation_model_not_established"
+        )
+        return
     try:
         blocks = sobol_blocks_from_salib_outputs(
             outputs,
@@ -505,9 +526,13 @@ def _attach_sobol_uncertainty(
             calc_second_order=True,
         )
         if plan.uncertainty.method.lower() in {"asymptotic", "asymptotic_delta"}:
-            result.uncertainty = analyze_sobol_asymptotic_delta(blocks, plan.uncertainty)
+            result.uncertainty = analyze_sobol_asymptotic_delta(
+                blocks, plan.uncertainty.model_copy(update={"random_seed": _uncertainty_seed(plan)})
+            )
         else:
-            result.uncertainty = analyze_sobol_paired_bootstrap(blocks, plan.uncertainty)
+            result.uncertainty = analyze_sobol_paired_bootstrap(
+                blocks, plan.uncertainty.model_copy(update={"random_seed": _uncertainty_seed(plan)})
+            )
         result.metadata["uncertainty_status"] = "ok"
     except Exception as exc:
         _append_uncertainty_warning(result, f"sobol_uncertainty_unavailable:{exc}")
@@ -520,6 +545,11 @@ def _attach_morris_uncertainty(
     outputs: np.ndarray,
 ) -> None:
     if not plan.uncertainty.enabled:
+        return
+    if result.metadata.get("imputation_model_status") == "not_established":
+        _append_uncertainty_warning(
+            result, "morris_uncertainty_unavailable:imputation_model_not_established"
+        )
         return
     if result.metadata.get("selection_bias_status") == "not_established":
         _append_uncertainty_warning(
@@ -547,7 +577,7 @@ def _attach_morris_uncertainty(
         result.uncertainty = analyze_morris_trajectory_bootstrap(
             elementary_effects,
             result.parameter_names,
-            plan.uncertainty,
+            plan.uncertainty.model_copy(update={"random_seed": _uncertainty_seed(plan)}),
         )
         result.metadata["uncertainty_status"] = "ok"
     except Exception as exc:

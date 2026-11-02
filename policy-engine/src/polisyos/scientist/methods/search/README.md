@@ -532,6 +532,54 @@ and bounded examples remain distinct. The current selected-objective-intent
 limitation stays explicit until an independent selected input owner is joined;
 changing a presentation cap or adding a direction label cannot establish it.
 
+Stress counts come from the complete emitted occurrence ledger: `passed`/`failed`
+are valid, malformed/nonfinite returned objectives are `invalid`, and an evaluator
+invocation exception remains `unknown`, with its original cause and exception type.
+Unavailable and not-established objective inputs retain separate reason counts;
+neither becomes numerical invalidity. Status and reason counts precede
+deduplication and the example cap. A
+score resolver that refuses before replaying rows cannot replace those observed
+counts with its default zero summary. Persisted adaptive diagnostics therefore
+remain explicitly producer-reported (`evaluation_counts_basis`), with their
+fresh predicate `not_established`; they do not qualify a finite robustness score.
+
+### Independent selected stress intent
+
+The maintained stress producer takes an in-memory objective, then persists its
+rule and source assessment per occurrence. Its only non-test wrapper,
+`ScenarioAdversaryWorker.execute`, supplies that same objective. The selected
+candidate and plan do not themselves establish which objective/threshold the
+current request selected. Fresh Level5 and promotion readers preserve
+`selected_objective_intent_not_independently_established` after source replay.
+
+The bounded source census found adjacent reusable vocabulary, not an unchanged
+intent producer: IR `ProblemFrame.ObjectiveSpec` has metric/direction/target/weight;
+`OptimizerObjectiveSpec` is an in-memory search projection; Runtime method-metric
+observations describe output values; MethodJob run profiles bind benchmark
+metrics; Bayesian state has no selected-profile request reference. None binds the
+current stress rule, vulnerability threshold and adversarial plan independently
+of the stress result. Mapping an IR target or KPI success threshold to a stress
+threshold would require a separate semantic decision, so this owner does not
+invent it. The protected positive path remains `producer_missing` and
+`bridge_missing`; source-bound candidate diagnostics remain useful.
+
+The smallest future extension is an explicit selected current-request/run-state
+input, using existing selected CAS profiles and intake rather than a new search
+engine. It must bind the selected candidate/subject and finite plan, exact
+configured rule/name/unit/raw direction and explicitly supplied stress threshold.
+The request owner must select it before outcomes exist; the stress producer must
+consume that selection, never mint it from its own result or declaration. Fresh
+readers must independently resolve the selected bytes/schema/profile and lineage,
+reconcile those fields with candidate/plan/occurrence evidence, and keep missing,
+conflicting or unavailable selection unbound. The minimal falsifier holds outcome
+bytes fixed while changing the selected rule/threshold/plan or selected manifest
+profile: the score must refuse. Conversely, changing a self-carried rule while
+the independent input stays fixed must also refuse. A versioned optional input
+on a future outcome basis can preserve old immutable records as unbound; the
+current wrapper and fresh Level5/promotion consumers need the same explicit
+selection port. Such a software binding would prove only the declared finite-set
+score, not population probability, empirical adequacy or institutional authority.
+
 ## Lesson evidence age on transfer (B137)
 
 Local lesson reads and transfer materialization apply the same evidence-age confidence cap before effective-quality filtering. The source CAS record remains unchanged; a stale lesson within the transfer TTL window may remain available at reduced weight. Read or transfer activity does not establish a new evidence verification. An authorized scientific revalidation producer and production authority remain unestablished.

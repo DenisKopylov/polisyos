@@ -62,6 +62,19 @@ durable provenance, independent replicas, or evidence that the design is
 scientifically sufficient. Monetary settlement requires an admitted typed
 bridge to the orchestration budget owner; none is inferred from row counts.
 
+Completed attempts also expose measured generation, evaluation and analysis
+wall time separately. A per-design row cap is not a cumulative charge grant;
+elapsed evaluation time does not resolve an unknown partially completed row count.
+
+`AdaptiveResult` retains the exact last completed plan, ordered samples, outputs
+and round coordinates. `persist_final(store)` reuses the selected scalar analysis
+receipt below and returns its full reference to the existing fresh search reader.
+Later failed rounds cannot replace that basis. A legacy result without the source
+experiment remains inspectable but cannot manufacture this persisted handoff.
+The bounded maintained-Python caller census finds no internal orchestration caller
+of `AdaptiveSampler`; this is an API handoff, not a claim that a production lifecycle
+now invokes adaptive sampling (`implemented_but_not_orchestrated`).
+
 Focused coordinator-fault tests may explicitly inject synthetic collaborators.
 Real-backend verification must separately run the locked SALib sampler and
 analyzer; an unavailable backend is a missing verification profile, not a pass.
@@ -86,6 +99,44 @@ uncertainty remains unavailable until its coordinate contract is admitted.
 Geometry does not authenticate original trajectory provenance or establish
 statistical sufficiency or absence of failure-selection bias.
 
+Explicit median imputation preserves an exploratory point and the original failed
+rows/counts. Its method and row IDs carry `imputation_model_status=not_established`;
+ordinary Morris and paired Sobol intervals remain unavailable in that profile.
+Whole-block filtering similarly retains its selection-bias limitation. Neither
+operation creates a measured baseline or an imputation correction model.
+
+## Whole-request PCA and recorded replay
+
+`SensitivityPlan.replica_id=0` preserves existing request-local stage seeds.
+A nonzero replica derives a distinct request base before sampling, analysis,
+preprocessing, model and uncertainty stages. Explicit uncertainty seeds remain
+separate; external evaluator randomness is not authenticated by these stream IDs.
+Unseeded legacy array analysis stays exploratory and cannot obtain a seeded
+selected replay receipt.
+
+`MultiOutputAnalyzer` passes a local derived PCA seed, including when `auto` resolves
+to the randomized solver. Its result records the actual backend/version/resolved
+solver, requested solver, centering, component cap, solver options, active columns
+and local seed. The declared randomized profile uses ten oversamples, seven power
+iterations and QR normalization. Full-SVD small cases and an explicit NumPy fallback
+retain distinct profiles; centered rank bounds both backends before component choice.
+An unmet variance threshold remains `unmet_limited`, not scientific sufficiency.
+
+The existing `_receipt` owner also persists `doe_multi_output_analysis` schema1.0.
+It retains complete original matrices, row/failure/retained-trajectory identities,
+units and preprocessing profile. Fresh readers reconcile the complete seeded
+experiment and rerun the recorded profile before returning a ranking; current
+constructor defaults do not supply missing historical PCA facts. Missing/changed
+solver, local seed, backend or profile refuses the affected replay claim. Actual
+source values remain available for inspection and a new explicit analysis.
+
+| PCA decision plane | Current declared contract |
+| --- | --- |
+| Output metric | Covariance of raw supplied output units; no automatic cross-metric normalization |
+| Aggregate ranking | Ordinal parameter ranks weighted by explained variance |
+| Failure scope | Shared complete-row failure policy before PCA; original raw rows and limitations persist |
+| Adequacy | Algebraic rank and numerical replay only; cross-metric comparability, empirical sensitivity accuracy and CI coverage are not established |
+
 ## Public API
 
 - `SensitivityPlan`, `ScenarioSweep`, `AblationPlan`
@@ -108,7 +159,7 @@ Details: [Reference →](../../../../../docs/reference/scientist/index.md)
 
 ## Current state
 
-- Last updated: 2026-10-31
+- Last updated: 2026-11-02
 - Python modules: 12
 - Exports: 82
 - README reflects that `doe` remains upstream for search/stress flows.

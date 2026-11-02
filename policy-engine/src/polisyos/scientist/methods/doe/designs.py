@@ -165,6 +165,8 @@ class SensitivityPlan(BaseModel):
     n_trajectories: int = Field(default=10, ge=1)
     confidence_level: float = Field(default=0.95, gt=0.0, lt=1.0)
     seed: int | None = None
+    replica_id: int = Field(default=0, ge=0, strict=True)
+    """Independent request replica; zero preserves the original seed streams."""
     input_law: Literal["unknown", "independent", "dependent"] = "unknown"
     """Declared experimental law, never evidence of a population law."""
 
@@ -279,6 +281,40 @@ def _derive_backend_seed(seed: int | None, stream: str) -> int | None:
     payload = f"polisyos-doe-seed-v1:{seed}:{stream}".encode()
     digest = hashlib.blake2b(payload, digest_size=8).digest()
     return int.from_bytes(digest, byteorder="little") % (2**32)
+
+
+def _derive_plan_seed(plan: SensitivityPlan, stream: str) -> int | None:
+    """Derive a local stage seed after binding the explicit request replica."""
+    seed = plan.seed
+    if plan.replica_id:
+        seed = _derive_backend_seed(seed, f"replica:{plan.replica_id}")
+    return _derive_backend_seed(seed, stream)
+
+
+def _uncertainty_seed(plan: SensitivityPlan) -> int | None:
+    """Preserve an explicit uncertainty seed while separating new replicas."""
+    seed = plan.uncertainty.random_seed
+    if seed is None:
+        return _derive_plan_seed(plan, "uncertainty")
+    if plan.replica_id:
+        return _derive_backend_seed(seed, f"replica:{plan.replica_id}:uncertainty")
+    return seed
+
+
+def _request_rng_streams(plan: SensitivityPlan) -> dict[str, int | None]:
+    """Describe local stream inputs, without attesting an external evaluator."""
+    request_seed = plan.seed
+    if plan.replica_id:
+        request_seed = _derive_backend_seed(request_seed, f"replica:{plan.replica_id}")
+    return {
+        "request_seed": request_seed,
+        "replica_id": plan.replica_id,
+        "sampling": _derive_plan_seed(plan, f"sampling:{plan.method.value}"),
+        "analysis": _derive_plan_seed(plan, f"analysis:{plan.method.value}"),
+        "preprocess:pca:doe-pca-v1": _derive_plan_seed(plan, "preprocess:pca:doe-pca-v1"),
+        "model": _derive_plan_seed(plan, "model"),
+        "uncertainty": _uncertainty_seed(plan),
+    }
 
 
 _DOE_DISTRIBUTION_SCHEMA_VERSION = "doe-distribution-v1"

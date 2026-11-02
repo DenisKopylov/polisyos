@@ -13,14 +13,14 @@ from .designs import (
     SensitivityPlan,
     _admit_sensitivity_plan,
     _build_salib_problem,
-    _derive_backend_seed,
+    _derive_plan_seed,
 )
 from .morris_geometry import _declared_morris_num_levels
 
 
 def _sampling_kwargs(plan: SensitivityPlan) -> dict[str, object]:
     """Select every supported sampler option instead of mutable backend defaults."""
-    seed = _derive_backend_seed(plan.seed, f"sampling:{plan.method.value}")
+    seed = _derive_plan_seed(plan, f"sampling:{plan.method.value}")
     if plan.method == SensitivityMethod.MORRIS:
         return {
             "N": plan.n_trajectories,

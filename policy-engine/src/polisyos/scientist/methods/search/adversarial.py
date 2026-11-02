@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from collections import Counter
 from collections.abc import Callable
 from typing import Any, Protocol, TypeGuard, cast, runtime_checkable
 
@@ -571,6 +572,28 @@ class _ObjectiveScoreUnavailable(ValueError):
         self.reason = reason
 
 
+class _StageBEvaluationUnknown(RuntimeError):
+    """Keep an evaluator invocation failure distinct from a returned numeric result."""
+
+    def __init__(self, cause: Exception) -> None:
+        super().__init__("stage_b_evaluation_outcome_unknown")
+        self.reason_code = (
+            f"stage_b_evaluator_exception:{type(cause).__module__}.{type(cause).__qualname__}"
+        )
+
+
+def _invoke_stress_stage_b(
+    evaluator: Callable[[dict[str, Any], dict[str, Any]], dict[str, Any]],
+    candidate: dict[str, Any],
+    context: dict[str, Any],
+) -> dict[str, Any]:
+    """Preserve the actual exception cause without asserting numerical invalidity."""
+    try:
+        return evaluator(candidate, context)
+    except Exception as exc:
+        raise _StageBEvaluationUnknown(exc) from exc
+
+
 def _persist_stress_objective_evidence(
     *,
     cas: FileSystemCAS,
@@ -664,6 +687,63 @@ def _numerical_vulnerability(
     )
 
 
+def _classify_stress_failure(
+    error: Exception,
+    *,
+    occurrence_index: int,
+    scenario_id: str,
+    parameters: dict[str, float],
+    vulnerability_id: str,
+) -> tuple[StressOutcomeRecord, ObjectiveScoreStatus, str]:
+    """Classify both initial and adaptive failures from the actual failing operation."""
+    if isinstance(error, _ObjectiveScoreUnavailable):
+        return (
+            StressOutcomeRecord(
+                occurrence_index=occurrence_index,
+                scenario_id=scenario_id,
+                status="skipped",
+                parameter_values=parameters,
+                reason_code=f"objective_score_{error.status.value}",
+            ),
+            error.status,
+            error.reason,
+        )
+    if isinstance(error, _StageBEvaluationUnknown) or not isinstance(
+        error, (ArithmeticError, TypeError, ValueError)
+    ):
+        reason = (
+            error.reason_code
+            if isinstance(error, _StageBEvaluationUnknown)
+            else f"objective_evaluator_exception:{type(error).__module__}.{type(error).__qualname__}"
+        )
+        return (
+            StressOutcomeRecord(
+                occurrence_index=occurrence_index,
+                scenario_id=scenario_id,
+                status="unknown",
+                parameter_values=parameters,
+                reason_code=reason,
+            ),
+            ObjectiveScoreStatus.NOT_ESTABLISHED,
+            reason,
+        )
+    vulnerability = _numerical_vulnerability(
+        vulnerability_id=vulnerability_id, parameters=parameters, error=error
+    )
+    return (
+        StressOutcomeRecord(
+            occurrence_index=occurrence_index,
+            scenario_id=scenario_id,
+            status="invalid",
+            parameter_values=parameters,
+            vulnerabilities=[vulnerability],
+            reason_code="evaluator_exception_or_nonfinite_objective",
+        ),
+        ObjectiveScoreStatus.INVALID,
+        "objective_evaluation_invalid_or_failed",
+    )
+
+
 def run_stress_test(
     *,
     adversarial_plan: AdversarialPlan,
@@ -710,12 +790,10 @@ def run_stress_test(
         else "persisted_objective_source_capture_required"
     )
     objective_evidence_complete = capture_objective_sources and selected_rule_spec is not None
-    unavailable_evaluation_count = 0
     adaptive_continuation = False
     worst_case_objective = float("nan")
     worst_case_parameters: dict[str, float] = {}
     total_evaluated = 0
-    invalid_evaluation_count = 0
     evaluation_unverified = False
 
     for idx, sample in enumerate(initial_samples):
@@ -725,7 +803,7 @@ def run_stress_test(
         try:
             result, objective, _, objective_value = _evaluate_stress_result(
                 base_objective=base_objective,
-                result=stage_b_evaluator(candidate, runtime_context),
+                result=_invoke_stress_stage_b(stage_b_evaluator, candidate, runtime_context),
             )
             objective_evidence = None
             if capture_objective_sources and cas is not None:
@@ -744,48 +822,21 @@ def run_stress_test(
                     objective_evidence_complete = False
                     objective_score_reason = reason or observed_status.value
         except Exception as exc:
-            if isinstance(exc, _ObjectiveScoreUnavailable):
-                unavailable_evaluation_count += 1
-                objective_score_status = _merge_objective_score_status(
-                    objective_score_status, exc.status
-                )
-                objective_score_reason = exc.reason
-                objective_evidence_complete = False
-                evaluation_unverified = True
-                outcome_records.append(
-                    StressOutcomeRecord(
-                        occurrence_index=len(outcome_records),
-                        scenario_id=f"initial:{idx}",
-                        status="skipped",
-                        parameter_values=parameters,
-                        reason_code=f"objective_score_{exc.status.value}",
-                    )
-                )
-                continue
-            invalid_evaluation_count += 1
-            objective_score_status = _merge_objective_score_status(
-                objective_score_status, ObjectiveScoreStatus.INVALID
+            failure, observed_status, objective_score_reason = _classify_stress_failure(
+                exc,
+                occurrence_index=len(outcome_records),
+                scenario_id=f"initial:{idx}",
+                parameters=parameters,
+                vulnerability_id=f"vuln_numerical_{idx}",
             )
-            objective_score_reason = "objective_evaluation_invalid_or_failed"
+            objective_score_status = _merge_objective_score_status(
+                objective_score_status, observed_status
+            )
             objective_evidence_complete = False
             evaluation_unverified = True
-            vulnerability = _numerical_vulnerability(
-                vulnerability_id=f"vuln_numerical_{idx}",
-                parameters=parameters,
-                error=exc,
-            )
-            vulnerabilities.append(vulnerability)
-            outcome_records.append(
-                StressOutcomeRecord(
-                    occurrence_index=len(outcome_records),
-                    scenario_id=f"initial:{idx}",
-                    status="invalid",
-                    parameter_values=parameters,
-                    vulnerabilities=[vulnerability],
-                    reason_code="evaluator_exception_or_nonfinite_objective",
-                )
-            )
-            if adversarial_plan.stop_on_first_vulnerability:
+            vulnerabilities.extend(failure.vulnerabilities)
+            outcome_records.append(failure)
+            if failure.vulnerabilities and adversarial_plan.stop_on_first_vulnerability:
                 break
             continue
 
@@ -858,7 +909,7 @@ def run_stress_test(
             try:
                 result, objective, objective_details, objective_value = _evaluate_stress_result(
                     base_objective=base_objective,
-                    result=stage_b_evaluator(candidate, runtime_context),
+                    result=_invoke_stress_stage_b(stage_b_evaluator, candidate, runtime_context),
                 )
                 objective_evidence = None
                 if capture_objective_sources and cas is not None:
@@ -879,47 +930,20 @@ def run_stress_test(
                         objective_evidence_complete = False
                         objective_score_reason = reason or observed_status.value
             except Exception as exc:
-                if isinstance(exc, _ObjectiveScoreUnavailable):
-                    unavailable_evaluation_count += 1
-                    objective_score_status = _merge_objective_score_status(
-                        objective_score_status, exc.status
-                    )
-                    objective_score_reason = exc.reason
-                    objective_evidence_complete = False
-                    evaluation_unverified = True
-                    outcome_records.append(
-                        StressOutcomeRecord(
-                            occurrence_index=len(outcome_records),
-                            scenario_id=f"adaptive:{idx}",
-                            status="skipped",
-                            parameter_values=candidate_parameters,
-                            reason_code=f"objective_score_{exc.status.value}",
-                        )
-                    )
-                    break
-                invalid_evaluation_count += 1
-                objective_score_status = _merge_objective_score_status(
-                    objective_score_status, ObjectiveScoreStatus.INVALID
+                failure, observed_status, objective_score_reason = _classify_stress_failure(
+                    exc,
+                    occurrence_index=len(outcome_records),
+                    scenario_id=f"adaptive:{idx}",
+                    parameters=candidate_parameters,
+                    vulnerability_id=f"vuln_numerical_search_{idx}",
                 )
-                objective_score_reason = "objective_evaluation_invalid_or_failed"
+                objective_score_status = _merge_objective_score_status(
+                    objective_score_status, observed_status
+                )
                 objective_evidence_complete = False
                 evaluation_unverified = True
-                vulnerability = _numerical_vulnerability(
-                    vulnerability_id=f"vuln_numerical_search_{idx}",
-                    parameters=candidate_parameters,
-                    error=exc,
-                )
-                vulnerabilities.append(vulnerability)
-                outcome_records.append(
-                    StressOutcomeRecord(
-                        occurrence_index=len(outcome_records),
-                        scenario_id=f"adaptive:{idx}",
-                        status="invalid",
-                        parameter_values=candidate_parameters,
-                        vulnerabilities=[vulnerability],
-                        reason_code="evaluator_exception_or_nonfinite_objective",
-                    )
-                )
+                vulnerabilities.extend(failure.vulnerabilities)
+                outcome_records.append(failure)
                 break
             history.append(
                 SearchIteration(
@@ -981,6 +1005,26 @@ def run_stress_test(
             if stop_check.should_stop:
                 break
 
+    outcome_counts = Counter(outcome.status for outcome in outcome_records)
+    valid_evaluation_count = outcome_counts["passed"] + outcome_counts["failed"]
+    invalid_evaluation_count = outcome_counts["invalid"]
+    skipped_evaluation_count = outcome_counts["skipped"]
+    unknown_evaluation_count = outcome_counts["unknown"]
+    if (
+        len(outcome_records) != total_evaluated
+        or valid_evaluation_count
+        + invalid_evaluation_count
+        + skipped_evaluation_count
+        + unknown_evaluation_count
+        != total_evaluated
+    ):
+        raise RuntimeError("stress_outcome_partition_does_not_match_attempted_occurrences")
+    outcome_reason_counts = Counter(
+        outcome.reason_code for outcome in outcome_records if outcome.reason_code is not None
+    )
+    unavailable_evaluation_count = outcome_reason_counts["objective_score_unavailable"]
+    not_established_evaluation_count = outcome_reason_counts["objective_score_not_established"]
+
     observed_vulnerabilities = list(vulnerabilities)
     unique_vulnerabilities = _deduplicate_vulnerabilities(observed_vulnerabilities)
     vulnerabilities = unique_vulnerabilities[: adversarial_plan.collect_top_k]
@@ -1032,8 +1076,18 @@ def run_stress_test(
             "objective_score_admission_status": objective_score_status.value,
             "objective_score_admission_reason": objective_score_reason,
             "objective_unavailable_evaluation_count": unavailable_evaluation_count,
+            "objective_not_established_evaluation_count": not_established_evaluation_count,
+            "skipped_evaluation_count": skipped_evaluation_count,
+            "unknown_evaluation_count": unknown_evaluation_count,
             "invalid_evaluation_count": invalid_evaluation_count,
-            "valid_evaluation_count": total_evaluated - invalid_evaluation_count,
+            "valid_evaluation_count": valid_evaluation_count,
+            "evaluation_status_counts": {
+                status: outcome_counts[status]
+                for status in ("passed", "failed", "invalid", "skipped", "unknown")
+            },
+            "evaluation_reason_counts": dict(outcome_reason_counts),
+            "evaluation_counts_basis": "producer_outcome_records",
+            "evaluation_counts_predicate_status": "not_established",
             "observed_vulnerability_count": len(observed_vulnerabilities),
             "unique_vulnerability_count": len(unique_vulnerabilities),
             "presented_vulnerability_count": len(vulnerabilities),
@@ -1117,6 +1171,21 @@ def run_stress_test(
             resolution = resolve_stress_score_components(
                 cas, [component], expected_candidate_ref=candidate_ref
             )
+            # An unavailable score may return before replaying any occurrence. Its default
+            # zero summary is not a replacement for observed producer diagnostics. Retain
+            # those explicitly unqualified counts unless the reader reconciled the rows.
+            reconciled_counts = (
+                {
+                    "total_scenarios_evaluated": resolution.total_scenarios_evaluated,
+                    "critical_count": resolution.critical_count,
+                    "high_count": resolution.high_count,
+                    "medium_count": resolution.medium_count,
+                }
+                if resolution.status == "available"
+                or resolution.reason_code
+                == "selected_objective_intent_not_independently_established"
+                else {}
+            )
             report = report.model_copy(
                 update={
                     "score_components": [component],
@@ -1125,10 +1194,7 @@ def run_stress_test(
                     "score_predicate_status": resolution.predicate_status,
                     "score_profile": resolution.score_profile or "finite_binary_scenario_v1",
                     "robustness_score": resolution.robustness_score,
-                    "total_scenarios_evaluated": resolution.total_scenarios_evaluated,
-                    "critical_count": resolution.critical_count,
-                    "high_count": resolution.high_count,
-                    "medium_count": resolution.medium_count,
+                    **reconciled_counts,
                 }
             )
         elif objective_score_status is not ObjectiveScoreStatus.INVALID:

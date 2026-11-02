@@ -169,6 +169,183 @@ def _install_non_private_profile_registry(monkeypatch: pytest.MonkeyPatch) -> No
     monkeypatch.setattr(SourceProfileRegistry, "_instance", profiles)
 
 
+def _finite_harvest_fixture(
+    monkeypatch: pytest.MonkeyPatch,
+    root: Path,
+    *,
+    payload_rows: int = 1,
+) -> tuple[DatasetBatchConfig, list[tuple[str, int]]]:
+    """Use the real finite harvest producer with a counted provider boundary."""
+    _install_non_private_profile_registry(monkeypatch)
+    registry_path = root / "registry.yaml"
+    registry_path.write_text(
+        "version: 1\nsources:\n"
+        "  - name: worldbank\n"
+        "    family: worldbank\n"
+        "    wave: A\n"
+        "    endpoint: https://example.test/first\n"
+        "    connector_id: worldbank.wdi\n"
+        "    profile_id: worldbank_wdi\n"
+        "    execution_tier: transport_ready\n"
+        "    run_lane: empirical\n"
+        "    publish_blocking: true\n",
+        encoding="utf-8",
+    )
+    config = DatasetBatchConfig(
+        snapshot_root=root / "snapshot",
+        registry_path=registry_path,
+        stages=frozenset({"harvest"}),
+        run_profile="prod_core_blocking",
+        max_datasets_per_source=10,
+        resume=True,
+        resume_mode="smart",
+    )
+    calls: list[tuple[str, int]] = []
+
+    async def controlled_harvest(endpoint: str, limit: int, _timeout: int) -> list[dict]:
+        calls.append((endpoint, limit))
+        return [
+            {"id": f"item-{index}", "name": "fixture", "revision": len(calls)}
+            for index in range(payload_rows)
+        ]
+
+    monkeypatch.setattr(catalog_harvester, "_harvest_worldbank", controlled_harvest)
+    monkeypatch.setattr(catalog_harvester, "load_metrics_map", lambda _path: {})
+    return config, calls
+
+
+@pytest.mark.parametrize("count_owner", ["raw_manifest", "checkpoint", "outcome"])
+@pytest.mark.parametrize(
+    ("payload_rows", "invalid_count"),
+    [(1, "garbage"), (1, -1), (0, False), (1, True), (1, 1.5), (1, "1"), (1, 1.0)],
+)
+def test_malformed_harvest_receipt_count_is_miss_and_reacquires(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    count_owner: str,
+    payload_rows: int,
+    invalid_count: object,
+) -> None:
+    config, calls = _finite_harvest_fixture(monkeypatch, tmp_path, payload_rows=payload_rows)
+    run_dataset_pipeline_sync(config)
+    assert len(calls) == 1
+    assert catalog_pipeline._harvest_stage_receipt(config) is not None
+    assert current_content_stage_receipt(config, "harvest") is not None
+    assert _should_skip_stage(config, "harvest")
+    stage_path = config.manifests_dir / "harvest.json"
+    stage = json.loads(stage_path.read_text(encoding="utf-8"))
+    outcome = stage["metrics"]["source_outcomes"]["worldbank"]
+    if count_owner == "raw_manifest":
+        changed_path = Path(outcome["manifest_path"])
+        changed = json.loads(changed_path.read_text(encoding="utf-8"))
+        changed["count"] = invalid_count
+    elif count_owner == "checkpoint":
+        changed_path = config.harvest_checkpoint_path
+        changed = json.loads(changed_path.read_text(encoding="utf-8"))
+        changed["worldbank"]["records_fetched"] = invalid_count
+    else:
+        changed_path = stage_path
+        changed = stage
+        outcome["records_fetched"] = invalid_count
+    changed_path.write_text(json.dumps(changed), encoding="utf-8")
+
+    assert catalog_pipeline._harvest_stage_receipt(config) is None
+    assert not _should_skip_stage(config, "harvest")
+    run_dataset_pipeline_sync(config)
+
+    assert len(calls) == 2
+    receipt = catalog_pipeline._harvest_stage_receipt(config)
+    assert receipt is not None
+    assert receipt[1]["worldbank"]["records_fetched"] == payload_rows
+    assert current_content_stage_receipt(config, "harvest") is not None
+
+
+@pytest.mark.parametrize("route", ["pipeline", "cli"])
+@pytest.mark.parametrize(
+    ("resume_mode", "change", "expected_calls"),
+    [
+        ("smart", "unchanged", 1),
+        ("off", "unchanged", 2),
+        ("smart", "endpoint", 2),
+        ("smart", "limit", 2),
+        ("smart", "missing_receipt", 2),
+        ("smart", "malformed_receipt", 2),
+    ],
+)
+def test_direct_harvest_cli_and_pipeline_share_current_resume_admission(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    route: str,
+    resume_mode: str,
+    change: str,
+    expected_calls: int,
+) -> None:
+    from polisyos.data_forge.domains.catalog.batch import cli as catalog_cli
+
+    config, calls = _finite_harvest_fixture(monkeypatch, tmp_path)
+    run_dataset_pipeline_sync(config)
+    assert len(calls) == 1
+    assert current_content_stage_receipt(config, "harvest") is not None
+    stage_path = config.manifests_dir / "harvest.json"
+    stage = json.loads(stage_path.read_text(encoding="utf-8"))
+    outcome = stage["metrics"]["source_outcomes"]["worldbank"]
+    payload_path = Path(outcome["payload_path"])
+    original_payload = payload_path.read_bytes()
+    if change == "endpoint":
+        assert config.registry_path is not None
+        original_stat = config.registry_path.stat()
+        config.registry_path.write_bytes(
+            config.registry_path.read_bytes().replace(b"/first", b"/other")
+        )
+        _restore_stat(config.registry_path, original_stat)
+    elif change == "limit":
+        config.max_datasets_per_source = 11
+    elif change == "missing_receipt":
+        stage_path.unlink()
+    elif change == "malformed_receipt":
+        outcome["records_fetched"] = "garbage"
+        stage_path.write_text(json.dumps(stage), encoding="utf-8")
+    assert payload_path.read_bytes() == original_payload
+    config.resume_mode = resume_mode
+
+    if route == "pipeline":
+        run_dataset_pipeline_sync(config)
+    else:
+        args = catalog_cli._build_parser().parse_args(
+            [
+                "harvest",
+                "--snapshot-root",
+                str(config.snapshot_root),
+                "--registry-path",
+                str(config.registry_path),
+                "--run-profile",
+                config.run_profile,
+                "--country-scope",
+                config.country_scope,
+                "--max-datasets-per-source",
+                str(config.max_datasets_per_source),
+                "--resume",
+                "--resume-mode",
+                resume_mode,
+            ]
+        )
+        asyncio.run(catalog_cli._run_single_stage(args, "harvest"))
+
+    assert len(calls) == expected_calls
+    assert current_content_stage_receipt(config, "harvest") is not None
+    completed = json.loads(config.stage_state_path.read_text(encoding="utf-8"))
+    assert set(completed) == {"harvest"}
+    fresh_stage = json.loads(stage_path.read_text(encoding="utf-8"))
+    fresh_outcome = fresh_stage["metrics"]["source_outcomes"]["worldbank"]
+    fresh_payload = Path(fresh_outcome["payload_path"])
+    payload_rows = [json.loads(line) for line in fresh_payload.read_text().splitlines()]
+    assert payload_rows[0]["revision"] == expected_calls
+    if change == "endpoint":
+        assert calls[-1][0] == "https://example.test/other"
+    if change == "limit":
+        assert calls[-1][1] > calls[0][1]
+
+
 def _create_empty_embedding_database(config: DatasetBatchConfig) -> None:
     with duckdb.connect(str(config.db_path)) as con:
         con.execute(

@@ -86,7 +86,6 @@ async def _run_single_stage(args: argparse.Namespace, stage: str) -> None:
         run_graph_index,
         run_graph_load,
     )
-    from polisyos.data_forge.domains.catalog.batch.harvester import harvest_sources
     from polisyos.data_forge.domains.catalog.batch.normalizer import normalize_raw_sources
     from polisyos.data_forge.domains.catalog.batch.pipeline import (
         run_content_stage_with_receipt,
@@ -103,7 +102,7 @@ async def _run_single_stage(args: argparse.Namespace, stage: str) -> None:
 
     cfg = _build_config(args, stages=frozenset({stage_name}))
     if stage_name == "harvest":
-        await harvest_sources(cfg)
+        await run_dataset_pipeline(cfg)
     elif stage_name == "normalize":
         normalize_raw_sources(cfg)
     elif stage_name == "merge_dedup":

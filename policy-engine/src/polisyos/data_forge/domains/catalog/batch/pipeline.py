@@ -555,11 +555,17 @@ def _harvest_stage_receipt(
             return None
         with payload_path.open(encoding="utf-8") as payload_file:
             payload_rows = sum(1 for line in payload_file if line.strip())
-        if (
-            int(raw_manifest.get("count", -1)) != payload_rows
-            or int(entry.get("records_fetched", -1)) != payload_rows
-            or int(outcome.get("records_fetched", -1)) != payload_rows
+        receipt_counts = (
+            raw_manifest.get("count"),
+            entry.get("records_fetched"),
+            outcome.get("records_fetched"),
+        )
+        if not all(
+            type(count) is int and count >= 0 and count == payload_rows for count in receipt_counts
         ):
+            import logging
+
+            logging.getLogger(__name__).debug("harvest_receipt_count_invalid source=%s", spec.name)
             return None
         outcomes[spec.name] = dict(outcome)
         artifacts.extend((payload_path, manifest_path))

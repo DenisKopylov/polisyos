@@ -1139,6 +1139,62 @@
           "availability": "Actual local bytes read and hashed; no remote evidence-delivery claim.",
           "result": "PASS; no generated delta",
           "scope": "Normal sync only; not aggregate architecture/CI green."
+        },
+        "dfi03_local": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane08-dfi03-red.log": {
+              "bytes": 65231,
+              "sha256": "197785645ac868a4330409ebbac5f1a77122052b607efae594b0a26eebe7ddaf"
+            },
+            "policy-engine/_cache/e02/lane08-dfi03-green.log": {
+              "bytes": 50141,
+              "sha256": "dbb53b3218ad21d3a6b18c4cce351d18fad7e3aa940246a797d76f29676d5277"
+            },
+            "policy-engine/_cache/e02/lane08-dfi03-retained.log": {
+              "bytes": 3680,
+              "sha256": "7a5a89929bd6e598acc23de418e2dc24b5eb4013954a269bab2efb465cad78b0"
+            }
+          },
+          "availability": "Actual local bytes read/hashed; no automatic remote evidence delivery.",
+          "result": {
+            "corrected_new_PASS": 33,
+            "retained_PASS": 9
+          },
+          "scope": "Strict three count fields, true zero/one, actual CLI/parser/single-stage pipeline acquisition/receipt/revision behavior, smart/off/coherent endpoint/scope/currentness, legacy[]/None and mtime. Initial7/26 red and27/6 fixture-input mismatch retained. Independent final source/test GO. Shared selected DB/NPZ/HNSW fresh-consumer route remains."
+        },
+        "embedding_companions59": {
+          "outputs": {
+            "policy-engine/_cache/e02/lane08-embedding-companions-r2/command.json": {
+              "bytes": 4483,
+              "sha256": "37dd71ed605e72c0b8efe5f45dcd91a76ff17a7bf80113d0c6324b32d6fc24ea"
+            },
+            "policy-engine/_cache/e02/lane08-embedding-companions-r2/result.json": {
+              "bytes": 4341,
+              "sha256": "166a733e80eee70ca0fa37f0251686c6ea596ab458da0ffc53a1f5335b80fc46"
+            },
+            "policy-engine/_cache/e02/lane08-embedding-companions-r2/tests.stdout.txt": {
+              "bytes": 643,
+              "sha256": "4f3713d985cf3671caf3182c7903de29bd15dfc09414b7677ee460880641e3d7"
+            },
+            "policy-engine/_cache/e02/lane08-embedding-companions-r2/tests.stderr.txt": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "policy-engine/_cache/e02/lane08-embedding-companions-r2/tests.junit.xml": {
+              "bytes": 10971,
+              "sha256": "4f2339fbde312e076cc03abf3514557ef5e90747e12b9c13c2beba494a046f16"
+            }
+          },
+          "availability": "Actual local bytes read/hashed; no automatic remote evidence delivery.",
+          "result": {
+            "PASS": 59,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 18.98,
+          "max_sampled_rss_bytes": 1486897152,
+          "scope": "Real stores/readers/nativeHNSW/SQL/CLI/manifest; deterministic encoder tests wiring. Effective prefix vs truncated tails, three incremental projections/current membership/reuse/typed empty, canonical wrapper defaults/exact exception/non-None backend refusal. Independent final four-file delta GO; four input pins match final bytes. Original0.8GiBcap abort is HARNESS_ERROR, not product failure or discarded."
         }
       },
       "current_source_checkpoint": {
@@ -1168,9 +1224,18 @@
           "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py": "14beb3fd72fa183e6ecace6a35387ae5a55fdfc63d4e3071dfd9b25bdfa7ac9d",
           "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py": "06e4076f888086609ddd935166f2545a31be25715d5838d3025e3372003aaa46",
           "policy-engine/tests/unit/fabric/connectors/test_regulator_lifetime_e02.py": "4b9c2419d1dfa890e754d372bfe85bcee06e1c0ca282c3cb54867562efde8c5b",
-          "policy-engine/tests/unit/fabric/connectors/reference/test_rest_json.py": "32b103903873a8f9f144eadd5aa0cc7bb7638dfbfb830fa439cca706e5876ca2"
+          "policy-engine/tests/unit/fabric/connectors/reference/test_rest_json.py": "32b103903873a8f9f144eadd5aa0cc7bb7638dfbfb830fa439cca706e5876ca2",
+          "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py": "835d4ee02985c933d3f4e993f27e7bad3d02fbccb1baf3c054a8c5ce8efbfca2",
+          "policy-engine/src/polisyos/data_forge/domains/catalog/batch/cli.py": "d2e17802f2f2fa7f4b18d30721463be9610bb7305dd4ade75ffcfb3b5f997328",
+          "policy-engine/tests/unit/remediation/test_dfi_03.py": "9f67372cede9f20b1ba8e90938d62caa70eac8d45ddb6b585372b384abd3694c",
+          "policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_store.py": "21154e35c2006670e41c8d38a3ea66c283ae1a3f1c46aa6942794a0d00af6a38",
+          "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_store.py": "cbd8ac2ce8715c7ccf65419c071bb3c30407567e05300b99c9318db3fde3de25",
+          "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local.py": "b1394400954ee096c2079884d66036432d29edacccfcd14d84876d9eeb4293d6",
+          "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local_runtime_material.py": "565aaa1ef5a23f438d21cc9026917a7947ed81326edc6c5019c946a246330158"
         },
-        "remaining": "ING01 actual request/source identity repair and cached consumer, ING02 selected contributor/current reader bridge, ING03 schema/accounting, DFI03 receipt/CLI; independent shared checks after freeze."
+        "remaining": "ING01 request/source identity/cache paths, ING02 selected-basis withdrawal consumer and ING03 full scope; shared I08A/B/C source-frozen verification. DFI03 local repair and additional reader/CLI companions are reviewed.",
+        "delivered_first_commit": "d0ff6efdfd4756bcbcb7012abe74ed30155cfb0a",
+        "delivered_first_tree": "17c6b74e187bf86cbad3ebfbed71b36083ada54c"
       },
       "resource_admission": {
         "free_disk_gib_approx": 14.3,
@@ -4683,13 +4748,17 @@
       "lane_sequence": 2,
       "track_id": "08-A",
       "track_position": 4,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_IMPLEMENTATION",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane08_catalog",
       "base_commit": "cae9f09c27c45b65575f302b4e0e7b9b2dbb944c",
       "integrated_commit": null,
-      "actual_write_set": [],
+      "actual_write_set": [
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/cli.py",
+        "policy-engine/tests/unit/remediation/test_dfi_03.py"
+      ],
       "shared_writer": "/root/lane08_catalog",
       "decision_records": [],
       "requirement_ids": [
@@ -4704,9 +4773,80 @@
         "TEST-DFI-03-03",
         "TEST-DFI-03-04"
       ],
-      "evidence": [],
+      "evidence": [
+        "dfi03_local"
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-DFI-03-01",
+          "criterion_pointer": "04_Трассировка/DFI-03.json#/requirements/0",
+          "test_ids": [
+            "TEST-DFI-03-01"
+          ],
+          "binding_ids": [
+            "E02-I08-A-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "dfi03_local"
+          ],
+          "basis": "Named finite local source/receipt/CLI contract; no G/shared acceptance.",
+          "capability_gaps": []
+        },
+        {
+          "requirement_id": "REQ-DFI-03-02",
+          "criterion_pointer": "04_Трассировка/DFI-03.json#/requirements/1",
+          "test_ids": [
+            "TEST-DFI-03-02"
+          ],
+          "binding_ids": [
+            "E02-I08-A-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "dfi03_local"
+          ],
+          "basis": "Named finite local source/receipt/CLI contract; no G/shared acceptance.",
+          "capability_gaps": []
+        },
+        {
+          "requirement_id": "REQ-DFI-03-03",
+          "criterion_pointer": "04_Трассировка/DFI-03.json#/requirements/2",
+          "test_ids": [
+            "TEST-DFI-03-03"
+          ],
+          "binding_ids": [
+            "E02-I08-A-B03",
+            "E02-X03-B02"
+          ],
+          "status": "PARTIAL",
+          "evidence_refs": [
+            "dfi03_local"
+          ],
+          "basis": "Actual selected DB/NPZ/HNSW, bound readiness and fresh serving shared I08A/B remain; measurement of selected hash cost is scoped separately.",
+          "capability_gaps": [
+            "verification_missing"
+          ]
+        },
+        {
+          "requirement_id": "REQ-DFI-03-04",
+          "criterion_pointer": "04_Трассировка/DFI-03.json#/requirements/3",
+          "test_ids": [
+            "TEST-DFI-03-04"
+          ],
+          "binding_ids": [
+            "E02-I08-A-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "dfi03_local"
+          ],
+          "basis": "Named finite local source/receipt/CLI contract; no G/shared acceptance.",
+          "capability_gaps": []
+        }
+      ]
     },
     {
       "packet_id": "EMB-01",
@@ -4722,7 +4862,11 @@
       "integrated_commit": null,
       "actual_write_set": [
         "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
-        "policy-engine/tests/unit/data_forge/kernel/test_embeddings.py"
+        "policy-engine/tests/unit/data_forge/kernel/test_embeddings.py",
+        "policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_store.py",
+        "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_store.py",
+        "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local.py",
+        "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local_runtime_material.py"
       ],
       "shared_writer": "/root/lane08_embedding",
       "decision_records": [],
@@ -4739,7 +4883,8 @@
         "TEST-EMB-01-04"
       ],
       "evidence": [
-        "embedding44"
+        "embedding44",
+        "embedding_companions59"
       ],
       "blockers": [],
       "deferred_ids": [],
@@ -4755,7 +4900,8 @@
           ],
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "embedding44"
+            "embedding44",
+            "embedding_companions59"
           ],
           "basis": "Named local scope only, not shared/G acceptance.",
           "capability_gaps": []
@@ -4771,7 +4917,8 @@
           ],
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "embedding44"
+            "embedding44",
+            "embedding_companions59"
           ],
           "basis": "Named local scope only, not shared/G acceptance.",
           "capability_gaps": []
@@ -4787,7 +4934,8 @@
           ],
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "embedding44"
+            "embedding44",
+            "embedding_companions59"
           ],
           "basis": "Named local scope only, not shared/G acceptance.",
           "capability_gaps": []
@@ -4801,7 +4949,8 @@
           "binding_ids": [],
           "status": "PARTIAL",
           "evidence_refs": [
-            "embedding44"
+            "embedding44",
+            "embedding_companions59"
           ],
           "basis": "Native compute qualified; LA039 readiness/resume consumer shared I08A/B remains.",
           "capability_gaps": [
@@ -4824,7 +4973,11 @@
       "integrated_commit": null,
       "actual_write_set": [
         "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
-        "policy-engine/tests/unit/data_forge/kernel/test_embeddings.py"
+        "policy-engine/tests/unit/data_forge/kernel/test_embeddings.py",
+        "policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_store.py",
+        "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_store.py",
+        "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local.py",
+        "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local_runtime_material.py"
       ],
       "shared_writer": "/root/lane08_embedding",
       "decision_records": [],
@@ -4842,7 +4995,8 @@
       ],
       "evidence": [
         "embedding44",
-        "embedding_before"
+        "embedding_before",
+        "embedding_companions59"
       ],
       "blockers": [],
       "deferred_ids": [],
@@ -4859,7 +5013,8 @@
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "embedding44",
-            "embedding_before"
+            "embedding_before",
+            "embedding_companions59"
           ],
           "basis": "Named local scope only, not shared/G acceptance.",
           "capability_gaps": []
@@ -4876,7 +5031,8 @@
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "embedding44",
-            "embedding_before"
+            "embedding_before",
+            "embedding_companions59"
           ],
           "basis": "Named local scope only, not shared/G acceptance.",
           "capability_gaps": []
@@ -4890,15 +5046,14 @@
           "binding_ids": [
             "E02-I08-B-B02"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "embedding44",
-            "embedding_before"
+            "embedding_before",
+            "embedding_companions59"
           ],
-          "basis": "Explicit sibling warm/fresh beyond-truncation controls and bound readiness/publish/DFI03 resume shared checks remain.",
-          "capability_gaps": [
-            "verification_missing"
-          ]
+          "basis": "Actual named currentness/CLI/projection/wrapper local controls59 plus retained native evidence; no shared/G, utility or authority claim.",
+          "capability_gaps": []
         },
         {
           "requirement_id": "REQ-EMB-02-04",
@@ -4912,7 +5067,8 @@
           "status": "PARTIAL",
           "evidence_refs": [
             "embedding44",
-            "embedding_before"
+            "embedding_before",
+            "embedding_companions59"
           ],
           "basis": "Explicit sibling warm/fresh beyond-truncation controls and bound readiness/publish/DFI03 resume shared checks remain.",
           "capability_gaps": [
@@ -4934,7 +5090,11 @@
       "base_commit": "cae9f09c27c45b65575f302b4e0e7b9b2dbb944c",
       "integrated_commit": null,
       "actual_write_set": [
-        "policy-engine/tests/unit/remediation/test_emb_03.py"
+        "policy-engine/tests/unit/remediation/test_emb_03.py",
+        "policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_store.py",
+        "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_store.py",
+        "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local.py",
+        "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local_runtime_material.py"
       ],
       "shared_writer": "/root/lane08_embedding",
       "decision_records": [],
@@ -4951,7 +5111,8 @@
         "TEST-EMB-03-04"
       ],
       "evidence": [
-        "legal_owned1"
+        "legal_owned1",
+        "embedding_companions59"
       ],
       "blockers": [],
       "deferred_ids": [],
@@ -4967,9 +5128,10 @@
           ],
           "status": "PARTIAL",
           "evidence_refs": [
-            "legal_owned1"
+            "legal_owned1",
+            "embedding_companions59"
           ],
-          "basis": "Real owned offline1024 serving proved; complete incremental/chunk/wrapper/CLI companions, source-relation distinctions and shared I08B still need mapping. No pure current-lock/utility claim.",
+          "basis": "Incremental/projection/rule/same-dimension-revision/withdrawal controls59 passed with real SQL/HNSW. Final selected profile/runtime coverage and shared I08B remain to reconcile; no blanket all-asset qualification.",
           "capability_gaps": [
             "verification_missing"
           ]
@@ -4985,9 +5147,10 @@
           ],
           "status": "PARTIAL",
           "evidence_refs": [
-            "legal_owned1"
+            "legal_owned1",
+            "embedding_companions59"
           ],
-          "basis": "Real owned offline1024 serving proved; complete incremental/chunk/wrapper/CLI companions, source-relation distinctions and shared I08B still need mapping. No pure current-lock/utility claim.",
+          "basis": "Actual owned E5/ST2.7 native serving passed with complete declared runtime12pins; C12certifi is historical25.11.12, so pure current-lock profile is not claimed. Source relation/semantic retrieval utility are separate, not new serving prerequisites.",
           "capability_gaps": [
             "verification_missing"
           ]
@@ -4999,14 +5162,13 @@
             "TEST-EMB-03-03"
           ],
           "binding_ids": [],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "legal_owned1"
+            "legal_owned1",
+            "embedding_companions59"
           ],
-          "basis": "Real owned offline1024 serving proved; complete incremental/chunk/wrapper/CLI companions, source-relation distinctions and shared I08B still need mapping. No pure current-lock/utility claim.",
-          "capability_gaps": [
-            "verification_missing"
-          ]
+          "basis": "Actual named currentness/CLI/projection/wrapper local controls59 plus retained native evidence; no shared/G, utility or authority claim.",
+          "capability_gaps": []
         },
         {
           "requirement_id": "REQ-EMB-03-04",
@@ -5017,14 +5179,13 @@
           "binding_ids": [
             "E02-I08-B-B03"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "legal_owned1"
+            "legal_owned1",
+            "embedding_companions59"
           ],
-          "basis": "Real owned offline1024 serving proved; complete incremental/chunk/wrapper/CLI companions, source-relation distinctions and shared I08B still need mapping. No pure current-lock/utility claim.",
-          "capability_gaps": [
-            "verification_missing"
-          ]
+          "basis": "Actual named currentness/CLI/projection/wrapper local controls59 plus retained native evidence; no shared/G, utility or authority claim.",
+          "capability_gaps": []
         }
       ]
     },

@@ -352,6 +352,54 @@ def test_vector_index_rejects_same_id_with_changed_projected_content(
         graph.close()
 
 
+@pytest.mark.parametrize("field", ["description", "keywords", "variables"])
+def test_catalog_currentness_uses_effective_text_on_fresh_and_warm_reads(
+    tmp_path: Path, field: str
+) -> None:
+    """Only effective description/list prefixes invalidate a selected index."""
+    db_path, index_dir = tmp_path / "catalog.duckdb", tmp_path / "index"
+    initial = "d" * 500 + "old" if field == "description" else [str(i) for i in range(20)] + ["old"]
+    build_graph(
+        records=iter([DatasetRecord(id="ds", title="Example", **{field: initial})]),
+        db_path=db_path,
+    )
+    assert (
+        build_hnsw_index(
+            db_path=db_path, index_dir=index_dir, embedding_dimension=2, encoder=_CatalogEncoder()
+        )
+        == 1
+    )
+    selector = (index_dir / "embedding_generation.json").read_bytes()
+    query = np.asarray([1.0, 0.0], dtype=np.float32)
+    if field == "description":
+        revisions = (("d" * 500 + "new", True), ("e" + "d" * 499 + "new", False))
+    else:
+        prefix = [str(i) for i in range(20)]
+        revisions = (([*prefix, "new"], True), (["changed", *prefix[1:], "new"], False))
+    update = {
+        "description": "UPDATE ds_datasets SET description = ? WHERE id = 'ds'",
+        "keywords": "UPDATE ds_datasets SET keywords = ? WHERE id = 'ds'",
+        "variables": "UPDATE ds_datasets SET variables = ? WHERE id = 'ds'",
+    }[field]
+    for value, admitted in revisions:
+        # Do not bypass the DB custody guard to manufacture a warm reader.
+        with duckdb.connect(str(db_path)) as con:
+            con.execute(update, [value])
+            con.execute("CHECKPOINT")
+        for _fresh_session in range(2):
+            reader = DatasetCatalogStore(db_path, index_dir)
+            try:
+                for _fresh_or_warm in range(2):
+                    results = reader.search_by_vector(query)
+                    assert [row.id for row in results] == (["ds"] if admitted else [])
+                    assert reader.vector_index_refusal_reason == (
+                        None if admitted else "catalog_material_basis_mismatch"
+                    )
+            finally:
+                reader.close()
+    assert (index_dir / "embedding_generation.json").read_bytes() == selector
+
+
 def test_graph_rejects_query_encoder_assets_mismatched_with_selected_generation(
     monkeypatch, tmp_path: Path
 ) -> None:

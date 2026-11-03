@@ -295,6 +295,130 @@
         }
       ],
       "trust_tier": "administrative_noisy"
+    },
+    {
+      "authority_envelope": {
+        "authoritative_for": [],
+        "governed_pilot": "blocked_candidate_only",
+        "may_not_use_for": ["claim_evidence_closeout", "production_claim_evidence"],
+        "production": "blocked_candidate_only",
+        "research": "blocked_candidate_only"
+      },
+      "capability_id": "capability:worldbank_wdi_nominal_gdp_source_candidate",
+      "capability_lifecycle": {"state": "draft"},
+      "concept_spine_refs": ["concept:economic.gdp"],
+      "construct": "economic.gdp",
+      "evidence_mode": "observed",
+      "freshness_envelope": {"freshness_class": "not_established"},
+      "identification_mode": "candidate_unverified",
+      "limitations": [
+        "Indicator metadata is a source candidate, not an admitted observation or a verified country-year release.",
+        "Annual source time and the selected model period require an explicit compatible scope."
+      ],
+      "modality": ["fabric_data"],
+      "quality_score": {"breakdown": {"construct_validity": 0.0}, "composite": 0.0},
+      "rights_envelope": {
+        "access_class": "not_established",
+        "claim_evidence_use_allowed": false,
+        "public_export_allowed": "none",
+        "restrictions": ["source_permission_not_established", "claim_evidence_forbidden"]
+      },
+      "scope": {
+        "entity_scope": "country",
+        "geography": "multi_context",
+        "population": "national_economy",
+        "spatial_granularity": "country",
+        "temporal_granularity": "annual"
+      },
+      "source_assets": [
+        {
+          "asset_type": "indicator_metadata",
+          "fields": ["country", "year", "value"],
+          "metadata": {
+            "canonical_unit": "usd",
+            "catalog_fetch_binding": {
+              "connector_id": "worldbank.wdi",
+              "dataset_id": "NY.GDP.MKTP.CD",
+              "metric_id": "economic.gdp",
+              "profile_id": "worldbank_wdi"
+            },
+            "indicator_id": "NY.GDP.MKTP.CD",
+            "population_scope": "national_economy",
+            "raw_unit": "usd",
+            "source_release": "not_established",
+            "target_world_slot": "global.gdp",
+            "temporal_granularity": "annual"
+          },
+          "ref": "https://data.worldbank.org/indicator/NY.GDP.MKTP.CD",
+          "role": "source_candidate",
+          "source_layer": "catalog"
+        }
+      ],
+      "trust_tier": "candidate_unverified"
+    },
+    {
+      "authority_envelope": {
+        "authoritative_for": [],
+        "governed_pilot": "blocked_candidate_only",
+        "may_not_use_for": ["claim_evidence_closeout", "production_claim_evidence"],
+        "production": "blocked_candidate_only",
+        "research": "blocked_candidate_only"
+      },
+      "capability_id": "capability:worldbank_wdi_unemployment_source_candidate",
+      "capability_lifecycle": {"state": "draft"},
+      "concept_spine_refs": ["concept:labor.unemployment_rate"],
+      "construct": "labor.unemployment_rate",
+      "evidence_mode": "derived",
+      "freshness_envelope": {"freshness_class": "not_established"},
+      "identification_mode": "candidate_unverified",
+      "limitations": [
+        "The source is a modeled ILO estimate, not a direct count of unemployed persons.",
+        "Indicator metadata is a source candidate, not an admitted observation or a verified country-year release.",
+        "Labor-force denominator, annual period, and source-to-model mapping require explicit compatibility."
+      ],
+      "modality": ["fabric_data"],
+      "quality_score": {"breakdown": {"construct_validity": 0.0}, "composite": 0.0},
+      "rights_envelope": {
+        "access_class": "not_established",
+        "claim_evidence_use_allowed": false,
+        "public_export_allowed": "none",
+        "restrictions": ["source_permission_not_established", "claim_evidence_forbidden"]
+      },
+      "scope": {
+        "entity_scope": "country",
+        "geography": "multi_context",
+        "population": "total_labor_force",
+        "spatial_granularity": "country",
+        "temporal_granularity": "annual"
+      },
+      "source_assets": [
+        {
+          "asset_type": "indicator_metadata",
+          "fields": ["country", "year", "value"],
+          "metadata": {
+            "canonical_unit": "ratio",
+            "catalog_fetch_binding": {
+              "connector_id": "worldbank.wdi",
+              "dataset_id": "SL.UEM.TOTL.ZS",
+              "metric_id": "labor.unemployment_rate",
+              "profile_id": "worldbank_wdi"
+            },
+            "indicator_id": "SL.UEM.TOTL.ZS",
+            "denominator": "total_labor_force",
+            "observation_provenance": "model_output",
+            "population_scope": "total_labor_force",
+            "quantity_kind": "share_of_denominator",
+            "raw_unit": "percent_of_total_labor_force",
+            "source_release": "not_established",
+            "target_world_slot": "global.unemployment_rate",
+            "temporal_granularity": "annual"
+          },
+          "ref": "https://data.worldbank.org/indicator/SL.UEM.TOTL.ZS",
+          "role": "source_candidate",
+          "source_layer": "catalog"
+        }
+      ],
+      "trust_tier": "candidate_unverified"
     }
   ],
   "capability_index_ref": "capability-index:policy-evidence-phase4-governed-rows",
@@ -345,6 +469,16 @@
       "construct": "credit_program_enrollment",
       "producer_ref": "repo://architecture/policy_design_case/layer2_s3_governed_capability_rows.json#scenario-family/credit_program_registry",
       "scenario_family": "credit_program_registry"
+    },
+    {
+      "construct": "economic.gdp",
+      "producer_ref": "repo://architecture/policy_design_case/layer2_s3_governed_capability_rows.json#scenario-family/wdi_nominal_gdp_annual",
+      "scenario_family": "wdi_nominal_gdp_annual"
+    },
+    {
+      "construct": "labor.unemployment_rate",
+      "producer_ref": "repo://architecture/policy_design_case/layer2_s3_governed_capability_rows.json#scenario-family/wdi_unemployment_laborforce_annual",
+      "scenario_family": "wdi_unemployment_laborforce_annual"
     }
   ],
   "schema_version": "policyos.policy_design_case.layer2_s3_governed_capability_rows.v1"

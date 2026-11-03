@@ -12,6 +12,10 @@ from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any, get_args
 
 from polisyos.core import contracts
+from polisyos.core.contracts.capability_resolution import (
+    CapabilitySourceDiscoveryResult,
+    CapabilitySourceDiscoveryUnavailableError,
+)
 from polisyos.ir import governance
 from polisyos.obligation_graph import (
     ComplexityBudget,
@@ -129,6 +133,8 @@ class _ScenarioScopeProfile:
     time_end: str | None = None
     time_role: DataRequirementTimeRole | None = None
     granularity: str | None = None
+    population: str | None = None
+    entity_scope: str | None = None
     unrepresented_fields: tuple[str, ...] = ()
     required_constructs: tuple[str, ...] = ()
     candidate_construct_proposals: tuple[str, ...] = ()
@@ -154,6 +160,59 @@ class ScenarioFamilyDeclarationInputError(ValueError):
         self.reason_code = reason_code
         self.field_path = field_path
         super().__init__(f"{self.code}:{reason_code}:{field_path}")
+
+
+class ScenarioDomainInputError(ValueError):
+    """Refuse malformed or conflicting declared scenario domain inputs."""
+
+    code = "scenario_domain_input_invalid"
+
+    def __init__(self, reason_code: str, field_path: str) -> None:
+        self.reason_code = reason_code
+        self.field_path = field_path
+        super().__init__(f"{self.code}:{reason_code}:{field_path}")
+
+
+class ClaimConstructDeclarationInputError(ValueError):
+    """Refuse a construct declaration outside the supported per-claim shape."""
+
+    code = "claim_construct_declaration_invalid"
+
+    def __init__(self, reason_code: str, field_path: str) -> None:
+        self.reason_code = reason_code
+        self.field_path = field_path
+        super().__init__(f"{self.code}:{reason_code}:{field_path}")
+
+
+_SCENARIO_DOMAIN_RULE_REF = "policyos.data_requirement.scenario_domain.v1"
+_CLAIM_CONSTRUCT_KEYS = (
+    "required_evidence_constructs",
+    "required_constructs",
+    "explicit_constructs",
+    "construct_refs",
+    "construct_ref",
+)
+
+
+@dataclass(frozen=True)
+class _ScenarioDomainResolution:
+    """Declared routing vocabulary and its original, unpromoted input."""
+
+    domain: governance.ProblemDomain
+    raw_inputs: tuple[tuple[str, str], ...]
+    status: str
+    reason_code: str
+
+    def metadata(self) -> dict[str, Any]:
+        return {
+            "rule_version_ref": _SCENARIO_DOMAIN_RULE_REF,
+            "canonical_domain": self.domain.value,
+            "raw_inputs": dict(self.raw_inputs),
+            "status": self.status,
+            "reason_code": self.reason_code,
+            "purpose": "routing_vocabulary_only",
+            "may_not_use_for": ["domain_semantic_support", "source_authority"],
+        }
 
 
 _SCENARIO_PROFILE_TOP_LEVEL_ALIASES = (
@@ -185,6 +244,7 @@ class _ScenarioAdapterInput:
     text: str
     domain: governance.ProblemDomain
     authority_type: governance.PolicyLayerLevel
+    domain_resolution: _ScenarioDomainResolution
     scope_profile: _ScenarioScopeProfile | None = None
 
 
@@ -515,7 +575,9 @@ class DataRequirementCompiler:
                 scenario_id=scenario_id,
                 scope_profile=adapter_input.scope_profile,
             )
-            return _bind_scenario_compilation_inputs(report, scenario=scenario)
+            return _bind_scenario_compilation_inputs(
+                report, scenario=scenario, domain_resolution=adapter_input.domain_resolution
+            )
         facets = facet_snapshots_for_obligation_graph(case)
         graph = compile_obligation_graph(
             run_id=f"scenario-{scenario_id}",
@@ -569,7 +631,9 @@ class DataRequirementCompiler:
             authority_profile_refs=(case.authority_profile.profile_id,),
             scope_profile=adapter_input.scope_profile,
         )
-        return _bind_scenario_compilation_inputs(report, scenario=scenario)
+        return _bind_scenario_compilation_inputs(
+            report, scenario=scenario, domain_resolution=adapter_input.domain_resolution
+        )
 
     def _compile_from_legacy_scenario_fallback(
         self,
@@ -590,45 +654,66 @@ class DataRequirementCompiler:
             )
             for family in families
         )
-        fallback_scope = _scope_from_facets({}, scope_profile=scope_profile)
-        resolution_inputs = _construct_resolution_inputs(
-            facets=(),
-            claims=(),
-            obligation_graph=None,
-            scenario_id=scenario_id,
-            scenario_family_construct_rows=self._scenario_family_construct_rows,
-            declared_constructs=(scope_profile.required_constructs if scope_profile else ()),
-            candidate_construct_proposals=(
-                scope_profile.candidate_construct_proposals if scope_profile else ()
-            ),
-        )
-        _, capability_resolutions = _resolve_capability_requirements(
-            facets=(),
-            claims=(),
-            obligation_graph=None,
-            scenario_id=scenario_id,
-            scope=fallback_scope,
-            resolver=self._resolver_for_compilation(),
-            scenario_family_construct_rows=self._scenario_family_construct_rows,
-            scope_profile=scope_profile,
-            resolution_inputs=resolution_inputs,
-        )
-        return DataRequirementCompilationReport(
+        # A missing grammar facet does not erase an explicitly declared need.
+        # Reuse the canonical producer; its requirement basis is separate from
+        # source/claim admission and the full authority binding stays intact.
+        compiled = self.compile_for_claim_ledger(
             run_id=f"scenario-{scenario_id}",
+            claim_ledger={"claims": ()},
+            facet_snapshots=(),
             scenario_id=scenario_id,
-            specs=specs,
-            capability_resolution_schema_version=(CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION),
-            capability_requirement_resolutions=capability_resolutions,
-            metadata={
-                "producer": "data_requirement_compiler",
-                "fallback": "legacy_scenario_contract_when_universal_grammar_blocked",
-                "family_declaration": family_declaration,
-                "missing_capability_label": "bridge_missing",
-                "candidate_construct_proposals": (
-                    scope_profile.candidate_construct_proposals if scope_profile else ()
-                ),
-            },
+            scope_profile=scope_profile,
         )
+        canonical_families = {
+            family for spec in compiled.specs for family in spec.required_data_families
+        }
+        legacy_only_specs = tuple(
+            spec
+            for spec in specs
+            if not canonical_families.intersection(spec.required_data_families)
+        )
+        basis = compiled.requirement_basis
+        if legacy_only_specs:
+            # A verified canonical subset cannot upgrade a caller-only tail.
+            basis = DataRequirementBasisResolution(
+                state="established",
+                source="explicit_scenario_family_declaration",
+                basis_grade="consumer_asserted",
+                reason_codes=("explicit_scenario_family_declaration_candidate_only",),
+                source_refs=tuple(
+                    dict.fromkeys(
+                        (
+                            *basis.source_refs,
+                            f"scenario:{scenario_id}/expected_evidence_contract/admissible_data_source_families",
+                        )
+                    )
+                ),
+            )
+        payload = compiled.model_dump(mode="json")
+        payload.update(
+            {
+                "specs": [
+                    spec.model_dump(mode="json") for spec in (*compiled.specs, *legacy_only_specs)
+                ],
+                "legacy_admissible_data_source_families": [],
+                "requirement_basis": basis.model_dump(mode="json"),
+                "metadata": {
+                    **compiled.metadata,
+                    "fallback": "declared_candidate_requirements_when_grammar_facets_unavailable",
+                    "grammar_facets_status": "not_established",
+                    "grammar_may_not_use_for": [
+                        "grounded_policy_design",
+                        "claim_evidence",
+                        "policy_execution",
+                    ],
+                    "family_declaration": family_declaration,
+                    "candidate_construct_proposals": (
+                        scope_profile.candidate_construct_proposals if scope_profile else ()
+                    ),
+                },
+            }
+        )
+        return DataRequirementCompilationReport.model_validate(payload)
 
     def _resolver_for_compilation(self) -> CapabilityResolverPort | None:
         if self._capability_resolver is not None:
@@ -695,7 +780,10 @@ def parse_data_requirement_compilation_report(
             object.__setattr__(legacy, "_source_bytes", original_bytes)
         return legacy
     if schema_version == DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION:
-        return DataRequirementCompilationReport.model_validate(dict(payload))
+        current = DataRequirementCompilationReport.model_validate(dict(payload))
+        if original_bytes is not None:
+            object.__setattr__(current, "_source_bytes", original_bytes)
+        return current
     raise ValueError(f"unsupported_data_requirement_compilation_schema_version:{schema_version}")
 
 
@@ -740,7 +828,7 @@ def write_data_requirement_compilation_report(
     ),
     output_dir: str | Path,
 ) -> Path:
-    """Persist immutable versioned report bytes without changing historical v1 bytes.
+    """Persist immutable report bytes without rewriting an unchanged reader input.
 
     V2 report files are addressed by the digest of their exact serialized bytes.
     Historical V1 files retain their legacy run-based filename, but publication
@@ -750,8 +838,12 @@ def write_data_requirement_compilation_report(
     model = parse_data_requirement_compilation_report(report)
     directory = Path(output_dir)
     directory.mkdir(parents=True, exist_ok=True)
-    if isinstance(model, DataRequirementCompilationReportV1) and model.original_bytes is not None:
-        report_bytes = model.original_bytes
+    source_bytes = model.original_bytes
+    unchanged_source = source_bytes is not None and model.model_dump(
+        mode="json"
+    ) == parse_data_requirement_compilation_report(source_bytes).model_dump(mode="json")
+    if unchanged_source:
+        report_bytes = source_bytes
     else:
         payload = model.model_dump(
             mode="json",
@@ -791,12 +883,20 @@ def _ledger_claims(claim_ledger: object | Mapping[str, Any]) -> tuple[Any, ...]:
         if isinstance(claim_ledger, Mapping)
         else getattr(claim_ledger, "claims", ())
     )
-    return tuple(_claim_record_like(item) for item in raw_claims or ())
+    return tuple(
+        _claim_record_like(item, field_path=f"claims[{index}]")
+        for index, item in enumerate(raw_claims or ())
+    )
 
 
-def _claim_record_like(claim: object) -> Any:
+def _claim_record_like(claim: object, *, field_path: str = "claim") -> Any:
     if not isinstance(claim, Mapping):
         return claim
+    for key in _CLAIM_CONSTRUCT_KEYS:
+        if key in claim:
+            raise ClaimConstructDeclarationInputError(
+                "unsupported_top_level_construct_declaration", f"{field_path}.{key}"
+            )
     return SimpleNamespace(
         claim_id=_text(claim.get("claim_id")) or "claim:unknown",
         claim_family=claim.get("claim_family"),
@@ -913,6 +1013,10 @@ def _scenario_scope_profile_metadata(
         metadata["time_role"] = scope_profile.time_role
     if scope_profile.granularity is not None:
         metadata["granularity"] = scope_profile.granularity
+    if scope_profile.population is not None:
+        metadata["population"] = scope_profile.population
+    if scope_profile.entity_scope is not None:
+        metadata["entity_scope"] = scope_profile.entity_scope
     if scope_profile.unrepresented_fields:
         metadata["unrepresented_fields"] = list(scope_profile.unrepresented_fields)
     return metadata
@@ -938,7 +1042,11 @@ def _minimal_spec(
         claim_use="decision_support",
         required_data_families=(family,),
         scope=DataRequirementScope(
-            population="scenario_population",
+            population=(
+                scope_profile.population
+                if scope_profile and scope_profile.population
+                else "scenario_population"
+            ),
             geography="scenario_geography",
             time="scenario_time",
             time_role=(
@@ -994,8 +1102,16 @@ def _capability_queries_for_requirements(
         RequirementToCapabilityQuery(
             requirement_id=f"data-requirement:{_slug(scenario_id or 'run')}:{construct}",
             construct=construct,
-            entity_scope=_entity_scope_for_construct(construct),
-            population_filter=_population_filter_for_construct(construct, scope),
+            entity_scope=(
+                scope_profile.entity_scope
+                if scope_profile and scope_profile.entity_scope
+                else _entity_scope_for_construct(construct)
+            ),
+            population_filter=(
+                {"type": scope.population}
+                if scope_profile and scope_profile.population
+                else _population_filter_for_construct(construct, scope)
+            ),
             geography=scope.jurisdiction or scope.geography,
             time_window={
                 "start": _time_start_for_scope(scope, scope_profile=scope_profile),
@@ -1074,14 +1190,47 @@ def _resolve_capability_requirements(
     for query in queries:
         binding = resolver.resolve(query) if resolver is not None else None
         snapshot = _capability_binding_snapshot(binding) if binding is not None else None
+        discover_sources = getattr(resolver, "discover_sources", None)
+        discovery = None
+        discovery_reasons: tuple[str, ...] = ()
+        if callable(discover_sources):
+            try:
+                raw_discovery = discover_sources(query)
+            except CapabilitySourceDiscoveryUnavailableError as exc:
+                raw_discovery = None
+                discovery_reasons = ("candidate_source_discovery_unavailable", exc.reason_code)
+            if raw_discovery is None and not discovery_reasons:
+                raise ValueError("candidate_source_discovery_result_missing")
+            raw_payload = (
+                raw_discovery.model_dump(mode="json")
+                if isinstance(raw_discovery, CapabilitySourceDiscoveryResult)
+                else raw_discovery
+            )
+            # Reparse wire fields: frozen/model_copy DTOs alone are not validation.
+            discovery = (
+                CapabilitySourceDiscoveryResult.model_validate(raw_payload)
+                if raw_payload is not None
+                else None
+            )
+            if discovery is not None and discovery.query != query:
+                raise ValueError("candidate_source_discovery_original_query_mismatch")
+            if (
+                discovery is not None
+                and snapshot is not None
+                and snapshot.capability_index_ref is not None
+                and discovery.capability_index_ref != snapshot.capability_index_ref
+            ):
+                raise ValueError("candidate_source_discovery_index_mismatch")
         resolutions.append(
             CapabilityRequirementResolution(
                 scope_profile_id=scope_profile.profile_id if scope_profile else None,
                 query=query,
                 state="binding_returned" if snapshot is not None else "not_established",
                 binding=snapshot,
+                candidate_discovery=discovery,
                 reason_codes=(
-                    () if snapshot is not None else ("capability_resolver_not_established",)
+                    (() if snapshot is not None else ("capability_resolver_not_established",))
+                    + discovery_reasons
                 ),
             )
         )
@@ -1436,6 +1585,7 @@ def _bind_scenario_compilation_inputs(
     report: DataRequirementCompilationReport,
     *,
     scenario: Mapping[str, Any],
+    domain_resolution: _ScenarioDomainResolution,
 ) -> DataRequirementCompilationReport:
     """Bind the scenario's declared candidate basis to its actual report."""
 
@@ -1461,11 +1611,17 @@ def _bind_scenario_compilation_inputs(
             (
                 *report.rule_version_refs,
                 "policyos.data_requirement.compiler.v2",
+                _SCENARIO_DOMAIN_RULE_REF,
                 *(spec.rule_version_ref for spec in report.specs),
                 *(
                     item.binding.rule_version_ref
                     for item in report.capability_requirement_resolutions or ()
                     if item.binding is not None
+                ),
+                *(
+                    item.candidate_discovery.rule_version_ref
+                    for item in report.capability_requirement_resolutions or ()
+                    if item.candidate_discovery is not None
                 ),
             )
         )
@@ -1474,6 +1630,7 @@ def _bind_scenario_compilation_inputs(
         {
             "compiler_input_content_hash": report.input_content_hash,
             "scenario_input": scenario,
+            "scenario_domain_resolution": domain_resolution.metadata(),
         }
     )
     source_refs = list(report.requirement_basis.source_refs)
@@ -1537,6 +1694,10 @@ def _bind_scenario_compilation_inputs(
             "subject_refs": subject_refs,
             "rule_version_refs": rule_version_refs,
             "input_content_hash": input_content_hash,
+            "metadata": {
+                **report.metadata,
+                "scenario_domain_resolution": domain_resolution.metadata(),
+            },
         }
     )
     return DataRequirementCompilationReport.model_validate(payload)
@@ -1572,9 +1733,20 @@ def _data_requirement_rule_refs(
     scenario_family_construct_rows: contracts.ScenarioFamilyConstructRows,
 ) -> tuple[str, ...]:
     refs = ["policyos.data_requirement.compiler.v2"]
+    if any(
+        isinstance(spec.metadata.get("scope_profile"), Mapping)
+        and any(key in spec.metadata["scope_profile"] for key in ("population", "entity_scope"))
+        for spec in specs
+    ):
+        refs.append("policyos.data_requirement.declared_scope.v1")
     refs.extend(spec.rule_version_ref for spec in specs)
     refs.extend(
         item.binding.rule_version_ref for item in capability_resolutions if item.binding is not None
+    )
+    refs.extend(
+        item.candidate_discovery.rule_version_ref
+        for item in capability_resolutions
+        if item.candidate_discovery is not None
     )
     used_constructs = {item.query.construct for item in capability_resolutions}
     refs.extend(
@@ -1655,6 +1827,8 @@ def _data_requirement_input_content_hash(
             "time_end": scope_profile.time_end,
             "time_role": scope_profile.time_role,
             "granularity": scope_profile.granularity,
+            "population": scope_profile.population,
+            "entity_scope": scope_profile.entity_scope,
             "unrepresented_fields": scope_profile.unrepresented_fields,
             "required_constructs": scope_profile.required_constructs,
             "candidate_construct_proposals": scope_profile.candidate_construct_proposals,
@@ -1755,7 +1929,11 @@ def _scope_from_facets(
     scope_profile: _ScenarioScopeProfile | None = None,
 ) -> DataRequirementScope:
     by_type = {str(facet.get("facet_type")): facet for facet in facets.values()}
-    population = _enum_text(by_type.get("population_predicate", {}).get("value")) or "population"
+    population = (
+        scope_profile.population
+        if scope_profile and scope_profile.population
+        else _enum_text(by_type.get("population_predicate", {}).get("value")) or "population"
+    )
     geography = _enum_text(by_type.get("geography_predicate", {}).get("value")) or "geography"
     time = _enum_text(by_type.get("time_predicate", {}).get("value")) or "time"
     return DataRequirementScope(
@@ -1840,11 +2018,13 @@ def _requirement_id(
 def _scenario_adapter_input(scenario: Mapping[str, Any]) -> _ScenarioAdapterInput:
     """Normalize one scenario mapping without promoting identity to content."""
 
+    resolution = _problem_domain_for_scenario(scenario)
     return _ScenarioAdapterInput(
         scenario_id=_text(scenario.get("scenario_id")) or "scenario",
         text=_scenario_text(scenario),
-        domain=_problem_domain_for_scenario(scenario),
+        domain=resolution.domain,
         authority_type=_authority_type_for_scenario(scenario),
+        domain_resolution=resolution,
         scope_profile=_scenario_scope_profile(scenario),
     )
 
@@ -1956,6 +2136,8 @@ def _scenario_scope_profile(
         primary.time_end,
         primary.time_role,
         primary.granularity,
+        primary.population,
+        primary.entity_scope,
     )
     if any(
         (
@@ -1965,6 +2147,8 @@ def _scenario_scope_profile(
             profile.time_end,
             profile.time_role,
             profile.granularity,
+            profile.population,
+            profile.entity_scope,
         )
         != primary_scope
         for profile in parsed[1:]
@@ -1980,6 +2164,8 @@ def _scenario_scope_profile(
         time_end=primary.time_end,
         time_role=primary.time_role,
         granularity=primary.granularity,
+        population=primary.population,
+        entity_scope=primary.entity_scope,
         unrepresented_fields=tuple(
             sorted({field for profile in parsed for field in profile.unrepresented_fields})
         ),
@@ -2104,6 +2290,22 @@ def _parse_scenario_scope_profile(
         ),
         conflict_code="profile_granularity_alias_conflict",
     )
+    population = _scenario_profile_text_alias(
+        tuple(
+            (f"{path}.population", mapping["population"])
+            for path, mapping in ((source, raw_profile), (f"{source}.scope", scope))
+            if "population" in mapping
+        ),
+        conflict_code="profile_population_alias_conflict",
+    )
+    entity_scope = _scenario_profile_text_alias(
+        tuple(
+            (f"{path}.entity_scope", mapping["entity_scope"])
+            for path, mapping in ((source, raw_profile), (f"{source}.scope", scope))
+            if "entity_scope" in mapping
+        ),
+        conflict_code="profile_entity_scope_alias_conflict",
+    )
 
     required_constructs = _scenario_profile_construct_aliases(
         raw_profile,
@@ -2133,6 +2335,8 @@ def _parse_scenario_scope_profile(
         "end",
         "time_role",
         "granularity",
+        "population",
+        "entity_scope",
         *_SCENARIO_PROFILE_REQUIRED_CONSTRUCT_ALIASES,
         *_SCENARIO_PROFILE_CANDIDATE_CONSTRUCT_ALIASES,
     }
@@ -2149,6 +2353,8 @@ def _parse_scenario_scope_profile(
         "end",
         "time_role",
         "granularity",
+        "population",
+        "entity_scope",
     }
     unrepresented_fields.extend(
         f"{source}.scope.{key}" for key in scope if key not in known_scope_fields
@@ -2166,6 +2372,8 @@ def _parse_scenario_scope_profile(
         time_end=time_end,
         time_role=time_role,
         granularity=granularity,
+        population=population,
+        entity_scope=entity_scope,
         unrepresented_fields=tuple(sorted(set(unrepresented_fields))),
         required_constructs=required_constructs,
         candidate_construct_proposals=candidate_construct_proposals,
@@ -2276,28 +2484,58 @@ def _token_text(value: object) -> str:
     return str(value).replace("_", " ").replace("-", " ")
 
 
-def _problem_domain_for_scenario(scenario: Mapping[str, Any]) -> governance.ProblemDomain:
-    supplied = _enum_text(scenario.get("domain")) or _enum_text(scenario.get("domain_hint"))
-    if supplied:
-        normalized = supplied.casefold().replace("-", " ").replace("_", " ")
-        for domain in governance.ProblemDomain:
-            if normalized.strip() in {domain.value, domain.name.casefold()}:
-                return domain
-        supplied_words = set(normalized.split())
-        if supplied_words.intersection({"health", "healthcare"}):
-            return governance.ProblemDomain.HEALTHCARE
-        if "social" in supplied_words:
-            return governance.ProblemDomain.SOCIAL
-        if "fiscal" in supplied_words:
-            return governance.ProblemDomain.FISCAL
+def _problem_domain_for_scenario(scenario: Mapping[str, Any]) -> _ScenarioDomainResolution:
+    """Resolve exact declared vocabulary, never content or an opaque identifier."""
 
-    haystack = _scenario_text(scenario).casefold().replace("-", " ").replace("_", " ")
-    words = set(haystack.split())
-    if words.intersection({"health", "healthcare", "clinic", "vaccination", "medicine"}):
-        return governance.ProblemDomain.HEALTHCARE
-    if words.intersection({"housing", "rent", "benefit", "social"}):
-        return governance.ProblemDomain.SOCIAL
-    return governance.ProblemDomain.FISCAL
+    def spelling(value: str) -> tuple[str, ...]:
+        return tuple(value.casefold().replace("-", " ").replace("_", " ").split())
+
+    aliases = {
+        spelling(token): domain
+        for domain in governance.ProblemDomain
+        for token in (domain.name, domain.value)
+    }
+    # Explicit vocabulary aliases, not a token-presence or topic classifier.
+    aliases.update(
+        {
+            ("health",): governance.ProblemDomain.HEALTHCARE,
+            ("health", "care"): governance.ProblemDomain.HEALTHCARE,
+            ("образование",): governance.ProblemDomain.EDUCATION,
+        }
+    )
+    raw_inputs: list[tuple[str, str]] = []
+    resolutions: list[tuple[tuple[str, ...], governance.ProblemDomain | None]] = []
+    for key in ("domain", "domain_hint"):
+        if key not in scenario:
+            continue
+        raw = scenario[key]
+        if not isinstance(raw, str):
+            raise ScenarioDomainInputError("domain_wrong_type", key)
+        text = raw.value if isinstance(raw, governance.ProblemDomain) else str(raw)
+        token = spelling(text)
+        if not token:
+            raise ScenarioDomainInputError("domain_empty", key)
+        raw_inputs.append((key, text))
+        base_token = token[:-1] if token[-1] == "policy" else token
+        resolutions.append((token, aliases.get(base_token)))
+    if not resolutions:
+        return _ScenarioDomainResolution(
+            governance.ProblemDomain.CUSTOM, (), "not_supplied", "domain_not_supplied"
+        )
+    first_token, first_domain = resolutions[0]
+    if len(resolutions) == 2:
+        second_token, second_domain = resolutions[1]
+        compatible = (first_domain is not None and first_domain == second_domain) or (
+            first_domain is None and second_domain is None and first_token == second_token
+        )
+        if not compatible:
+            raise ScenarioDomainInputError("domain_alias_conflict", "domain_hint")
+    return _ScenarioDomainResolution(
+        first_domain or governance.ProblemDomain.CUSTOM,
+        tuple(raw_inputs),
+        "resolved" if first_domain is not None else "unresolved",
+        "domain_vocabulary_resolved" if first_domain is not None else "domain_vocabulary_unknown",
+    )
 
 
 def _authority_type_for_scenario(
@@ -2376,7 +2614,9 @@ def _slug(value: str) -> str:
 
 
 __all__ = [
+    "ClaimConstructDeclarationInputError",
     "DataRequirementCompiler",
+    "ScenarioDomainInputError",
     "compile_data_requirements_for_scenario",
     "data_requirement_compilation_audit_surface",
     "parse_data_requirement_compilation_report",

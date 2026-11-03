@@ -681,3 +681,142 @@ def _capability(
         rights_envelope=RightsEnvelope(access_class="government_administrative"),
         metadata=metadata or {},
     )
+
+
+@pytest.mark.parametrize(
+    ("construct", "population", "capability_ref", "indicator"),
+    [
+        (
+            "economic.gdp",
+            "national_economy",
+            "capability:worldbank_wdi_nominal_gdp_source_candidate",
+            "NY.GDP.MKTP.CD",
+        ),
+        (
+            "labor.unemployment_rate",
+            "total_labor_force",
+            "capability:worldbank_wdi_unemployment_source_candidate",
+            "SL.UEM.TOTL.ZS",
+        ),
+    ],
+)
+def test_governed_source_discovery_is_separate_from_claim_authority(
+    construct: str,
+    population: str,
+    capability_ref: str,
+    indicator: str,
+) -> None:
+    resolver = RequirementToCapabilityResolver.governed_fixture()
+    query = _query(
+        construct=construct,
+        entity_scope="country",
+        population_filter={"type": population},
+        geography="USA",
+        time_window={"start": "2024-01-01", "end": "2024-12-31"},
+    )
+    before = resolver.resolve(query).model_dump(mode="json")
+    assert before["status"].startswith("blocked_")
+    assert before["satisfies_claim_evidence"] is False
+    discovery = resolver.discover_sources(query)
+    assert discovery.query == query
+    assert discovery.purpose == "candidate_source_discovery"
+    assert discovery.state == "candidates_returned"
+    assert discovery.satisfies_claim_evidence is False
+    assert discovery.requires_native_source_admission is True
+    assert len(discovery.candidates) == 1
+    candidate = discovery.candidates[0]
+    assert candidate.capability_ref == capability_ref
+    assert candidate.construct_ref == f"construct:{construct}"
+    assert candidate.scope["population"] == population
+    assert candidate.source_assets[0]["metadata"]["indicator_id"] == indicator
+    assert candidate.descriptor["rights_envelope"]["claim_evidence_use_allowed"] is False
+    assert candidate.descriptor["capability_lifecycle"]["state"] == "draft"
+    assert candidate.source_assets[0]["metadata"]["source_release"] == "not_established"
+    assert resolver.resolve(query).model_dump(mode="json") == before
+
+
+@pytest.mark.parametrize("mismatch", ["population", "geography", "entity", "time"])
+def test_source_discovery_rejects_known_scope_mismatch(mismatch: str) -> None:
+    governed = RequirementToCapabilityResolver.governed_fixture()
+    source = next(row for row in governed.capabilities if row.construct_id == "economic.gdp")
+    scope = source.scope.model_dump(mode="python")
+    scope.update({"geography": "USA", "time_start": "2024-01-01", "time_end": "2024-12-31"})
+    if mismatch == "geography":
+        scope["geography"] = "DE"
+    elif mismatch == "time":
+        scope.update({"time_start": "2022-01-01", "time_end": "2022-12-31"})
+    source = source.model_copy(update={"scope": CapabilityScope.model_validate(scope)})
+    resolver = RequirementToCapabilityResolver(capabilities=(source,))
+    query = _query(
+        construct="economic.gdp",
+        entity_scope="firm" if mismatch == "entity" else "country",
+        population_filter={
+            "type": "households" if mismatch == "population" else "national_economy"
+        },
+        geography="USA",
+        time_window={"start": "2024-01-01", "end": "2024-12-31"},
+    )
+    result = resolver.discover_sources(query)
+    assert result.state == "no_match"
+    assert result.candidates == ()
+    assert len(result.rejected_candidates) == 1
+    assert (
+        result.rejected_candidates[0]["rejection_reason"]
+        == {
+            "population": "population_filter_mismatch",
+            "geography": "geography_mismatch",
+            "entity": "entity_scope_mismatch",
+            "time": "time_window_outside_claim",
+        }[mismatch]
+    )
+    assert result.satisfies_claim_evidence is False
+
+
+def test_source_discovery_unknown_scope_stays_explicit_candidate_limitation() -> None:
+    resolver = RequirementToCapabilityResolver.governed_fixture()
+    result = resolver.discover_sources(
+        _query(
+            construct="economic.gdp",
+            entity_scope="entity",
+            population_filter={"type": "scenario_population"},
+            geography="scenario_geography",
+            time_window={},
+        )
+    )
+    assert len(result.candidates) == 1
+    assert set(result.candidates[0].limitations) >= {
+        "requirement_entity_scope_not_established",
+        "requirement_population_not_established",
+        "requirement_geography_not_established",
+        "requirement_time_coverage_not_established",
+        "source_time_coverage_not_established",
+    }
+    assert result.query.entity_scope == "entity"
+    assert result.query.population_filter == {"type": "scenario_population"}
+    assert result.requires_native_source_admission is True
+
+
+@pytest.mark.parametrize("mutation", ["descriptor", "claim", "admission"])
+def test_source_discovery_wire_tampering_refuses(mutation: str) -> None:
+    from polisyos.core.contracts.capability_resolution import CapabilitySourceDiscoveryResult
+
+    result = RequirementToCapabilityResolver.governed_fixture().discover_sources(
+        _query(
+            construct="economic.gdp",
+            entity_scope="country",
+            population_filter={"type": "national_economy"},
+            geography="USA",
+            time_window={"start": "2024-01-01", "end": "2024-12-31"},
+        )
+    )
+    wire = result.model_dump(mode="json")
+    if mutation == "descriptor":
+        wire["candidates"][0]["descriptor"]["source_assets"][0]["metadata"]["indicator_id"] = (
+            "wrong-indicator"
+        )
+    elif mutation == "claim":
+        wire["satisfies_claim_evidence"] = True
+    else:
+        wire["requires_native_source_admission"] = False
+    with pytest.raises(ValueError):
+        CapabilitySourceDiscoveryResult.model_validate(wire)

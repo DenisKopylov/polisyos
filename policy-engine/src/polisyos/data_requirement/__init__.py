@@ -33,7 +33,11 @@ if TYPE_CHECKING:
         UniversalAuthorityProfile as UniversalAuthorityProfile,
     )
 
-    from .compiler import DataRequirementCompiler
+    from .compiler import (
+        ClaimConstructDeclarationInputError,
+        DataRequirementCompiler,
+        ScenarioDomainInputError,
+    )
 
 
 def __getattr__(name: str) -> object:
@@ -59,13 +63,17 @@ def __getattr__(name: str) -> object:
 
     if name in {
         "DataRequirementCompiler",
+        "ScenarioDomainInputError",
+        "ClaimConstructDeclarationInputError",
         "compile_data_requirements_for_scenario",
         "parse_data_requirement_compilation_report",
         "data_requirement_compilation_audit_surface",
         "write_data_requirement_compilation_report",
     }:
         from .compiler import (
+            ClaimConstructDeclarationInputError,
             DataRequirementCompiler,
+            ScenarioDomainInputError,
             compile_data_requirements_for_scenario,
             data_requirement_compilation_audit_surface,
             parse_data_requirement_compilation_report,
@@ -74,6 +82,8 @@ def __getattr__(name: str) -> object:
 
         exports = {
             "DataRequirementCompiler": DataRequirementCompiler,
+            "ScenarioDomainInputError": ScenarioDomainInputError,
+            "ClaimConstructDeclarationInputError": ClaimConstructDeclarationInputError,
             "compile_data_requirements_for_scenario": compile_data_requirements_for_scenario,
             "parse_data_requirement_compilation_report": parse_data_requirement_compilation_report,
             "data_requirement_compilation_audit_surface": (
@@ -95,6 +105,7 @@ __all__ = [
     "DATA_REQUIREMENT_SPEC_SCHEMA_VERSION",
     "CapabilityBindingSnapshot",
     "CapabilityRequirementResolution",
+    "ClaimConstructDeclarationInputError",
     "DataQualityMinimums",
     "DataRequirementBasisResolution",
     "DataRequirementCompilationReport",
@@ -102,6 +113,7 @@ __all__ = [
     "DataRequirementCompiler",
     "DataRequirementScope",
     "DataRequirementSpec",
+    "ScenarioDomainInputError",
     "compile_data_requirements_for_scenario",
     "data_requirement_authority_boundary",
     "data_requirement_compilation_audit_surface",

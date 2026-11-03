@@ -9,3 +9,14 @@ generated_client_compatibility = "not_applicable"
 migration = "Consumers of the NCM untyped JSON summary must inspect schema_version and interval_status. Existing mean-only readers remain qualified. Live receipt verification replays selection; historical admitted reads explicitly preserve their limited score-replay boundary."
 limitations = "This component release does not establish Runtime N5/N8 composition, empirical model validity, institutional authority, G acceptance or E02 closure. Shared public/generated qualification follows the lane source freeze."
 evidence = ["tests/unit/foundry/coupling/test_estimation.py", "tests/unit/foundry/methods/catalog/simulation/test_coupled_policy.py", "tests/unit/foundry/methods/catalog/causal/test_ncm_engine.py", "tests/unit/foundry/methods/test_selection_advisor.py"]
+
+[[compatibility_change]]
+id = "lane01-declared-needs-candidate-discovery"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: canonical domain input errors and CapabilitySourceCandidate/DiscoveryResult/DiscoveryPort/UnavailableError through existing facades"
+owner = "team-runtime"
+version_owner = "team-core"
+deprecation_window = "not_applicable"
+release_note = "Keep the original full claim-evidence query/result and add separate content-bound candidate source discovery. Missing ordinary discovery has an explicit limitation; malformed outputs still refuse. Persist declared raw domain, population and entity scope without silently supplying fiscal or institutional authority. Historical absent fields remain omitted."
+generated_client_compatibility = "not_applicable"

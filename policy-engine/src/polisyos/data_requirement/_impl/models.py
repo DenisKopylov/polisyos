@@ -17,6 +17,7 @@ from pydantic import (
 )
 
 from polisyos.core.contracts import RequirementToCapabilityQuery
+from polisyos.core.contracts.capability_resolution import CapabilitySourceDiscoveryResult
 
 DATA_REQUIREMENT_SPEC_SCHEMA_VERSION = "policyos.data_requirement_spec.v1"
 DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION = "policyos.data_requirement_compilation.v2"
@@ -242,6 +243,7 @@ class CapabilityRequirementResolution(BaseModel):
     state: Literal["binding_returned", "not_established"]
     binding: CapabilityBindingSnapshot | None = None
     reason_codes: tuple[str, ...] = ()
+    candidate_discovery: CapabilitySourceDiscoveryResult | None = None
 
     @field_validator("scope_profile_id", mode="before")
     @classmethod
@@ -263,10 +265,22 @@ class CapabilityRequirementResolution(BaseModel):
     ) -> dict[str, Any]:
         payload = handler(self)
         payload["query"] = self.query.model_dump(mode="json", by_alias=True)
+        if self.candidate_discovery is None:
+            payload.pop("candidate_discovery", None)
         return payload
 
     @model_validator(mode="after")
     def _validate_query_binding(self) -> CapabilityRequirementResolution:
+        if self.candidate_discovery is not None:
+            if self.candidate_discovery.query != self.query:
+                raise ValueError("candidate_source_discovery_original_query_mismatch")
+            if (
+                self.binding is not None
+                and self.binding.capability_index_ref is not None
+                and self.candidate_discovery.capability_index_ref
+                != self.binding.capability_index_ref
+            ):
+                raise ValueError("candidate_source_discovery_index_mismatch")
         if self.binding is None:
             if self.state != "not_established" or not self.reason_codes:
                 raise ValueError("capability_resolution_missing_binding_reason")
@@ -387,6 +401,12 @@ class DataRequirementCompilationReport(BaseModel):
     runtime_event_ref: str | None = Field(default=None, min_length=1)
     authority_boundary: dict[str, Any] = Field(default_factory=data_requirement_authority_boundary)
     metadata: dict[str, Any] = Field(default_factory=dict)
+    _source_bytes: bytes | None = PrivateAttr(default=None)
+
+    @property
+    def original_bytes(self) -> bytes | None:
+        """Return strict-reader source bytes without reinterpreting their provenance."""
+        return self._source_bytes
 
     @field_validator("legacy_admissible_data_source_families", mode="before")
     @classmethod

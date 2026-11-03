@@ -30,6 +30,7 @@ from polisyos.core.contracts import NaturalLanguageRunRequest
 from .job_attempt_publication import (
     _NL_AUTHORIZATION_RECEIPT_KEY,
     _NL_REQUEST_SNAPSHOT_KEY,
+    _build_control_execution_intent_binding,
     _nl_request_snapshot_content_hash,
     _validate_nl_authorization_receipt,
     _validate_nl_request_snapshot,
@@ -94,7 +95,9 @@ def read_nl_job_payload(
     """Resolve selected queue bytes, retaining the old reader for legacy jobs."""
     if "nl_request_payload_artifact_ref" not in created:
         payload = legacy_reader(job.payload_ref, kind=_NL_PAYLOAD_KIND)
-        if "temporal_scope" in payload:
+        if "temporal_scope" in payload or payload.get("joint_interaction_candidate_intent") == (
+            "authored_joint_components.v1"
+        ):
             raise ValueError("nl_temporal_scope_selected_queue_not_established")
         return payload
     return _read_selected_nl_job_payload(store=store, job=job, created=created)
@@ -107,6 +110,18 @@ def _read_selected_nl_job_payload(
     ref = _selected_ref(created.get("nl_request_payload_artifact_ref"), kind=_NL_PAYLOAD_KIND)
     if str(ref.artifact_id) != job.payload_ref or created.get("payload_ref") != job.payload_ref:
         raise ValueError("nl_temporal_scope_selected_queue_binding_mismatch")
+    value = _read_selected_nl_payload_value(store=store, ref=ref)
+    if "temporal_scope" not in value and value.get("joint_interaction_candidate_intent") != (
+        "authored_joint_components.v1"
+    ):
+        raise ValueError("nl_temporal_scope_selected_queue_invalid")
+    receipt = _validate_nl_authorization_receipt(value.get(_NL_AUTHORIZATION_RECEIPT_KEY))
+    _validate_nl_request_snapshot(value, receipt)
+    return value
+
+
+def _read_selected_nl_payload_value(*, store: ArtifactStore, ref: ArtifactRef) -> dict[str, Any]:
+    """Read the existing selected queue codec without a temporal-only shape rule."""
     if not store.verify(ref).ok:
         raise ValueError("nl_temporal_scope_selected_queue_integrity_failed")
     manifest = store.get_manifest(ref)
@@ -118,11 +133,63 @@ def _read_selected_nl_job_payload(
     ):
         raise ValueError("nl_temporal_scope_selected_queue_schema_mismatch")
     value = read_core_json_artifact(store, ref).value
-    if not isinstance(value, dict) or "temporal_scope" not in value:
+    if not isinstance(value, dict):
         raise ValueError("nl_temporal_scope_selected_queue_invalid")
-    receipt = _validate_nl_authorization_receipt(value.get(_NL_AUTHORIZATION_RECEIPT_KEY))
-    _validate_nl_request_snapshot(value, receipt)
     return value
+
+
+def read_authored_joint_request_payload(
+    *,
+    store: ArtifactStore,
+    request_payload_ref: ArtifactRef,
+    expected_job_id: str,
+    expected_run_id: str,
+    expected_tenant_id: str,
+    expected_cell_id: str,
+    expected_intent_digest: str,
+) -> dict[str, Any]:
+    """Reconcile candidate composition to its original selected authorized request.
+
+    The worker supplies the ref from its immutable creation event. A fresh HTTP
+    reader supplies the ref bound in the selected authored relation and compares
+    the recomputed intent with that relation's verified job-scope digest. This
+    attests an explicit candidate composition request, never policy authority.
+    """
+    if type(request_payload_ref) is not ArtifactRef:
+        raise ValueError("authored_joint_request_payload_ref_untyped")
+    ref = _selected_ref(request_payload_ref.model_dump(mode="python"), kind=_NL_PAYLOAD_KIND)
+    payload = _read_selected_nl_payload_value(store=store, ref=ref)
+    receipt = _validate_nl_authorization_receipt(payload.get(_NL_AUTHORIZATION_RECEIPT_KEY))
+    _validate_nl_request_snapshot(payload, receipt)
+    raw_binding = payload.get("execution_intent_binding")
+    if not isinstance(raw_binding, Mapping):
+        raise ValueError("authored_joint_request_intent_binding_missing")
+    actor = {
+        "subject": raw_binding.get("actor_subject"),
+        "authenticated": raw_binding.get("actor_authenticated"),
+        "roles": raw_binding.get("actor_roles"),
+        "tenant_id": raw_binding.get("tenant_id"),
+        "cell_id": raw_binding.get("cell_id"),
+    }
+    recomputed = _build_control_execution_intent_binding(
+        payload, job_id=expected_job_id, run_id=expected_run_id, actor=actor
+    )
+    if (
+        dict(raw_binding) != recomputed
+        or recomputed["intent_digest"] != expected_intent_digest
+        or recomputed["intent_band"] != "simulate_only_attempt"
+        or recomputed["admission_status"] != "established"
+        or recomputed["canonical_mode"] != "simulate_only"
+        or recomputed["actor_authenticated"] is not True
+        or recomputed["tenant_id"] != expected_tenant_id
+        or recomputed["cell_id"] != expected_cell_id
+        or payload.get("run_id") != expected_run_id
+        or payload.get("tenant_id") != expected_tenant_id
+        or payload.get("cell_id") != expected_cell_id
+        or payload.get("joint_interaction_candidate_intent") != "authored_joint_components.v1"
+    ):
+        raise ValueError("authored_joint_request_intent_binding_mismatch")
+    return payload
 
 
 def _request_scope(payload: Mapping[str, Any]) -> tuple[dict[str, Any], str]:

@@ -49,6 +49,9 @@ if TYPE_CHECKING:
         AcquisitionActionHeadRecord,
         ControlPlaneStore,
     )
+    from polisyos.runtime.quality.acquisition_retained_continuation import (
+        AcquisitionRetainedContinuation,
+    )
     from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthReceipt
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 
@@ -60,6 +63,7 @@ class AcquisitionRetentionHistoryVerification(BaseModel):
 
     history_entry: Mapping[str, object] | None = None
     legacy_receipt: AcquisitionRouteLoopReceipt | None = None
+    terminal: AcquisitionRouteLoopReceiptV2 | None = None
     source_generation_run: GenerationCycleRun | None = None
     source_cycle: GenerationCycleRecord | None = None
     source_evaluation_job_id: str | None = None
@@ -74,8 +78,19 @@ class AcquisitionRetentionHistoryVerification(BaseModel):
             self.source_generation_run is not None
             or self.source_cycle is not None
             or self.source_evaluation_job_id is not None
+            or self.terminal is not None
         ):
             raise ValueError("acquisition_history_retained_context_not_legacy")
+        if self.terminal is not None and (
+            self.legacy_receipt is None
+            or self.terminal.terminal_outcome != "reentry_completed"
+            or self.terminal.model_dump(
+                mode="python",
+                include=set(AcquisitionRouteLoopReceipt.model_fields) - {"schema_version"},
+            )
+            != self.legacy_receipt.model_dump(mode="python", exclude={"schema_version"})
+        ):
+            raise ValueError("acquisition_history_terminal_projection_mismatch")
         return self
 
 
@@ -86,6 +101,7 @@ class _VerifiedRetainedRoute:
     current_basis: AcquisitionEvaluationBasis
     evaluation: ResolvedAcquisitionEvaluation
     growth: AcquisitionWorldGrowthReceipt
+    continuation: AcquisitionRetainedContinuation
 
 
 def _same_ref(left: ArtifactRef, right: ArtifactRef) -> bool:
@@ -606,7 +622,7 @@ def verify_retained_route_accumulator(
         or frontier.basis_content_hash != prior_basis.content_hash
     ):
         raise ValueError("acquisition_retained_frontier_evaluation_mismatch")
-    read_acquisition_retained_continuation(
+    continuation = read_acquisition_retained_continuation(
         store=artifact_store,
         event_log=event_log,
         ref=terminal.current_continuation_ref,
@@ -619,6 +635,7 @@ def verify_retained_route_accumulator(
         current_basis=current_basis,
         evaluation=actual,
         growth=growth,
+        continuation=continuation,
     )
 
 
@@ -757,6 +774,7 @@ def verify_acquisition_retention_history(
             raise ValueError("acquisition_history_head_changed_during_read")
         return AcquisitionRetentionHistoryVerification(
             legacy_receipt=legacy,
+            terminal=terminal if terminal.terminal_outcome == "reentry_completed" else None,
             source_generation_run=closure.generation_run,
             source_cycle=closure.source_cycle,
             source_evaluation_job_id=prior_job_id,
@@ -772,6 +790,7 @@ def verify_acquisition_retention_history(
         source_cycle=closure.source_cycle,
         design_problem_ref=closure.design_problem_ref,
     )
+    current = verified.continuation.current_projection
     entry = RunCandidateSimulationAcquisitionHistoryEntryV3.model_validate(
         {
             "schema_version": "policyos.runtime.run_candidate_simulation_acquisition_history.v3",
@@ -784,6 +803,23 @@ def verify_acquisition_retention_history(
             "evaluation_decision_ref": terminal.evaluation_decision_ref,
             "current_continuation_ref": terminal.current_continuation_ref,
             "retained_evaluation": terminal.selected_evaluation.model_dump(mode="python"),
+            "current_cheap_consequences": {
+                "source_cycle_index": current.source_cycle_index,
+                "candidate_id": current.selected_candidate_id,
+                "candidate_content_hash": current.selected_candidate_content_hash,
+                "grounding_status": current.grounding.status,
+                "grounding_current_valid": current.grounding.current_valid,
+                "value_status": current.value_port.status,
+                "value_decision_grade": current.value_port.decision_grade,
+                "value_authority_blockers": current.value_port.authority_blockers,
+                "value_ref": current.value_port.value_ref,
+                "voi_next_action": current.voi_decision.next_action,
+                "voi_reason": current.voi_decision.reason,
+                "terminal_kind": current.terminal_kind,
+                "refinement_decision": current.refinement_decision.decision,
+                "search_iteration_status": current.search_iteration.status,
+                "current_planner_report_ref": current.current_planner_report_ref,
+            },
         }
     )
     # Freeze/read the same action head again after all selected artifact reads.

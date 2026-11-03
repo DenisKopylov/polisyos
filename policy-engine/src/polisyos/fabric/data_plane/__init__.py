@@ -61,6 +61,7 @@ __all__ = [
     "resolve_raw_response_body",
     "run_orchestrated_ingestion",
     "verify_journal_event_ref",
+    "verify_live_ingestion_snapshot_profile",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
@@ -254,6 +255,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "run_orchestrated_ingestion": (
         "polisyos.fabric.data_plane.orchestrator",
         "run_orchestrated_ingestion",
+    ),
+    "verify_live_ingestion_snapshot_profile": (
+        "polisyos.fabric.data_plane.orchestrator",
+        "verify_live_ingestion_snapshot_profile",
     ),
 }
 

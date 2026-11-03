@@ -596,9 +596,14 @@ class ControlNLJobAdmissionMixin:
                     admitted_context,
                     problem=problem,
                     verified_nl_job_scope=verified_nl_job_scope,
+                    return_selected_profile=True,
                 )
                 from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextOwnerError
 
+                if context_ref.manifest_profile_sha256 is None:
+                    raise CycleSubstrateContextOwnerError(
+                        "cycle_substrate_context_selected_profile_not_returned"
+                    )
                 try:
                     replayed = context_owner.resolve_for_current_job(
                         context_ref,

@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 import duckdb
 import pandas as pd
@@ -11,7 +13,7 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.common.async_tools import run_coro_sync
-from polisyos.core.artifacts import ensure_async_artifact_store
+from polisyos.core.artifacts import ensure_async_artifact_store, input_ref_from_artifact_ref
 from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
@@ -53,7 +55,12 @@ from polisyos.fabric.data_plane.evidence_journal import (
     resolve_raw_response_body,
 )
 from polisyos.fabric.data_plane.orchestrator import _build_snapshot_from_evidence_async
-from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
+from polisyos.fabric.evidence import (
+    build_evidence_bundle,
+    persist_evidence_bundle,
+    persist_provenance_graph,
+)
+from polisyos.fabric.provenance.core import ProvenanceCoreGraph
 from polisyos.ir.connectors import (
     DataVersion,
     FetchRequest,
@@ -63,7 +70,9 @@ from polisyos.ir.connectors import (
 )
 from polisyos.runtime.quality import chronology_qualification, semantic_epoch, substrate_registry
 from polisyos.runtime.quality.acquisition_executor import (
+    AdmissionPassport,
     AdmissionStatus,
+    SemanticEpochAdmissionResolutionError,
     admit_acquisition_with_production_semantic_epoch,
     build_admission_passport,
     revalidate_admission_passport,
@@ -206,7 +215,7 @@ def test_acquisition_authority_supplies_epoch_service_and_query(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The production composition invokes the epoch service and fails on policy authority."""
+    """Production composition invokes the epoch service and refuses unresolved L5 provenance."""
 
     authority, _, store, live_source_execution, _, _ = _live_execution_fixture(
         tmp_path / "acquisition"
@@ -314,7 +323,6 @@ def test_acquisition_authority_supplies_epoch_service_and_query(
         assert candidate.source_record_ref.artifact_id == (
             live_source_execution.normalized_data_artifact_id
         )
-        assert semantic_epoch._resolve_selected_reference_graph(store, admitted) is not None
         passport_mapping = epoch_contract.load_verified_epoch_statement(
             store=store,
             ref=admitted.passport_ref,
@@ -323,81 +331,29 @@ def test_acquisition_authority_supplies_epoch_service_and_query(
         assert semantic_epoch._live_source_candidate_graph_matches(
             store, candidate, passport_mapping
         )
-        raw_manifest = store.get_manifest(live_source_execution.raw_artifact_id)
-        raw_source_ref = ArtifactRef.model_validate(
-            {
-                "artifact_id": str(live_source_execution.raw_artifact_id),
-                "kind": raw_manifest.kind,
-                "media_type": raw_manifest.media_type,
-                "manifest_profile_sha256": (
-                    semantic_epoch.artifacts.artifact_manifest_profile_sha256(raw_manifest)
-                ),
-            }
-        )
+        raw_source_ref = live_source_execution.raw_artifact_ref
+        assert raw_source_ref is not None
         assert not semantic_epoch._live_source_candidate_graph_matches(
             store,
             candidate.model_copy(update={"source_record_ref": raw_source_ref}),
             passport_mapping,
         )
+        legacy_live = _rebuild_live_evidence(live_source_execution, raw_artifact_ref=None)
+        assert legacy_live.schema_version == "polisyos.data_forge.live_source_execution_evidence.v1"
+        legacy_passport = AdmissionPassport.model_validate(passport_mapping).model_copy(
+            update={"live_source_execution": legacy_live}
+        )
+        legacy_passport = legacy_passport.model_copy(
+            update={"passport_id": legacy_passport.recomputed_passport_id()}
+        )
+        legacy_mapping = legacy_passport.model_dump(mode="json")
+        AdmissionPassport.model_validate(legacy_mapping)
+        legacy_refused = not semantic_epoch._live_source_candidate_graph_matches(
+            store, candidate, legacy_mapping
+        )
 
-        raw_edge_candidate = (
-            epoch_contract.AcquisitionSemanticBoundaryCandidateStatement.model_validate(
-                candidate.model_dump(mode="python")
-                | {
-                    "source_record_ref": raw_source_ref,
-                    "source_record_content_hash": str(raw_source_ref.artifact_id),
-                }
-            )
-        )
-        raw_edge_candidate_ref, _ = semantic_epoch._persist_model(
-            store=store,
-            value=raw_edge_candidate,
-            kind="epoch.acquisition_semantic_boundary_candidate",
-            return_selected_profile=True,
-        )
-        raw_edge_candidate_hash = epoch_contract.acquisition_semantic_candidate_content_hash(
-            raw_edge_candidate
-        )
-        raw_edge_admitted = epoch_contract.AdmittedAcquisitionBoundaryEvidence.model_validate(
-            admitted.model_dump(mode="python")
-            | {
-                "semantic_candidate_ref": raw_edge_candidate_ref,
-                "semantic_candidate_content_hash": raw_edge_candidate_hash,
-            }
-        )
-        raw_edge_admitted_ref, _ = semantic_epoch._persist_model(
-            store=store,
-            value=raw_edge_admitted,
-            kind="epoch.admitted_acquisition_boundary_evidence",
-            return_selected_profile=True,
-        )
-        raw_edge_decisions: list[bool] = []
-        original_live_source_graph_matches = semantic_epoch._live_source_candidate_graph_matches
-
-        def observe_raw_edge_decision(
-            actual_store: FileSystemCAS,
-            selected_candidate: epoch_contract.AcquisitionSemanticBoundaryCandidateStatement,
-            selected_passport: dict[str, object],
-        ) -> bool:
-            decision = original_live_source_graph_matches(
-                actual_store, selected_candidate, selected_passport
-            )
-            if selected_candidate.source_record_ref.artifact_id == raw_source_ref.artifact_id:
-                raw_edge_decisions.append(decision)
-            return decision
-
-        monkeypatch.setattr(
-            semantic_epoch, "_live_source_candidate_graph_matches", observe_raw_edge_decision
-        )
-        raw_edge_receipt = original_finalize(
-            self,
-            prepared_epoch_ref=prepared_epoch_ref,
-            admitted_boundary_evidence_ref=raw_edge_admitted_ref,
-        )
-        assert raw_edge_decisions == [False]
-        assert raw_edge_receipt.status == "not_established"
-        assert raw_edge_receipt.failure_codes == ("epoch_scope_unresolved",)
-        admitted_graphs.append(admitted)
+        # These live leaves can be resolved independently of the still-unresolved
+        # L5 relation. Removing each leaf's codec must affect its actual reader.
         snapshot_ref, snapshot_mapping = semantic_epoch._load_owner_projection_mapping(
             store, live_source_execution.data_snapshot_ref
         )
@@ -407,60 +363,82 @@ def test_acquisition_authority_supplies_epoch_service_and_query(
         )
         bundle = semantic_epoch.contracts.EvidenceBundle.model_validate(bundle_mapping)
         assert snapshot.evidence_ref is not None and snapshot.quality_report_ref is not None
-        live_refs = (
-            live_source_execution.data_snapshot_ref,
-            live_source_execution.evidence_bundle_ref,
-            snapshot.evidence_ref,
-            snapshot.quality_report_ref,
-            snapshot.data_ref,
-            *bundle.sources,
-        )
-        live_profiles = tuple(sorted({(ref.kind, ref.media_type) for ref in live_refs}))
-        assert {kind for kind, _ in live_profiles} == {
-            "connector_cache.payload",
-            "fabric.data_snapshot",
-            "fabric.evidence_bundle",
-            "fabric.quality_report",
-        }
+        assert bundle.provenance_ref is not None
+        provenance_id = bundle.provenance_ref.artifact_id
+        original_get_bytes = store.get_bytes
+
+        def without_provenance(selector: object) -> bytes:
+            if str(getattr(selector, "artifact_id", selector)) == provenance_id:
+                raise FileNotFoundError("controlled provenance removal")
+            return original_get_bytes(selector)
+
+        with monkeypatch.context() as local:
+            local.setattr(store, "get_bytes", without_provenance)
+            missing_provenance_refused = not semantic_epoch._live_source_candidate_graph_matches(
+                store, candidate, passport_mapping
+            )
+        assert (legacy_refused, missing_provenance_refused) == (True, True)
         assert semantic_epoch._selected_cas_ref_matches_owner_projection(
             snapshot_ref, live_source_execution.data_snapshot_ref
         )
         assert semantic_epoch._selected_cas_ref_matches_owner_projection(
             bundle_ref, live_source_execution.evidence_bundle_ref
         )
+        live_refs = (
+            live_source_execution.data_snapshot_ref,
+            live_source_execution.evidence_bundle_ref,
+            snapshot.quality_report_ref,
+            snapshot.data_ref,
+            *bundle.sources,
+        )
         original_codec = epoch_contract.acquisition_artifact_codec
-        for kind, media_type in live_profiles:
-            monkeypatch.setattr(
-                epoch_contract,
-                "acquisition_artifact_codec",
-                lambda actual_kind,
-                *,
-                media_type=None,
-                expected_kind=kind,
-                expected_media=media_type: (
-                    None
-                    if actual_kind == expected_kind and media_type == expected_media
-                    else original_codec(actual_kind, media_type=media_type)
-                ),
+        for ref in live_refs:
+            assert ref.manifest_profile_sha256 is not None
+            assert (
+                semantic_epoch._load_selected_acquisition_mapping(
+                    store, ref, expected_kind=ref.kind
+                )
+                is not None
             )
+            with monkeypatch.context() as local:
+                local.setattr(
+                    epoch_contract,
+                    "acquisition_artifact_codec",
+                    lambda actual_kind, *, media_type=None, expected=ref: (
+                        None
+                        if actual_kind == expected.kind and media_type == expected.media_type
+                        else original_codec(actual_kind, media_type=media_type)
+                    ),
+                )
+                with pytest.raises(ValueError, match="selector is not established"):
+                    semantic_epoch._load_selected_acquisition_mapping(
+                        store, ref, expected_kind=ref.kind
+                    )
+
+        # The declared b35 provenance target has no established owner resolver.
+        # Record the exact ref visited by the real graph; do not alias it to a row.
+        seen_refs: list[ArtifactRef] = []
+        original_ref_graph = semantic_epoch._artifact_ref_graph
+
+        def observe_ref_graph(value: object) -> tuple[ArtifactRef, ...]:
+            refs = original_ref_graph(value)
+            seen_refs.extend(refs)
+            return refs
+
+        with monkeypatch.context() as local:
+            local.setattr(semantic_epoch, "_artifact_ref_graph", observe_ref_graph)
             assert semantic_epoch._resolve_selected_reference_graph(store, admitted) is None
-            monkeypatch.setattr(epoch_contract, "acquisition_artifact_codec", original_codec)
-        for coordinate_ref in (
-            calls[0].valid_effect_coordinate_evidence_ref,
-            calls[0].visibility_knowledge_cutoff_evidence_ref,
-            calls[0].purpose_admission_cutoff_evidence_ref,
-        ):
-            monkeypatch.setattr(
-                epoch_contract,
-                "acquisition_artifact_codec",
-                lambda actual_kind, *, media_type=None, expected_kind=coordinate_ref.kind: (
-                    None
-                    if actual_kind == expected_kind
-                    else original_codec(actual_kind, media_type=media_type)
-                ),
-            )
-            assert semantic_epoch._resolve_selected_reference_graph(store, admitted) is None
-            monkeypatch.setattr(epoch_contract, "acquisition_artifact_codec", original_codec)
+        assert any(
+            ref.kind == "l5.schema_regime_scope_relation"
+            and str(ref.artifact_id)
+            == "sha256:b35defc2e3214b6baf41ed33e2fff808639059cb0f0ba31d56125765e74548ca"
+            for ref in seen_refs
+        )
+        codec = epoch_contract.acquisition_artifact_codec(
+            "l5.schema_regime_scope_relation", media_type="application/json"
+        )
+        assert codec is not None and codec.payload_format == "unresolved_reference"
+        admitted_graphs.append(admitted)
         return original_finalize(
             self,
             prepared_epoch_ref=prepared_epoch_ref,
@@ -502,38 +480,43 @@ def test_acquisition_authority_supplies_epoch_service_and_query(
         observed_qualify,
     )
 
-    receipt = admit_acquisition_with_production_semantic_epoch(
-        repo_root=repo_root,
-        epoch_id=1,
-        raw_evidence_ref=raw_ref,
-        artifact_store=store,
-        authority=authority,
-        overlay_path=tmp_path / "acquisition-overlay.duckdb",
-        epoch_history_root=tmp_path / "epoch-history",
-        epoch_scope_identity=scope,
-        authority_purpose="publication",
-        valid_effect_coordinate_evidence_ref=coordinate_refs["valid_effect"],
-        visibility_knowledge_cutoff_evidence_ref=(coordinate_refs["visibility_knowledge_cutoff"]),
-        purpose_admission_cutoff_evidence_ref=(coordinate_refs["purpose_admission_cutoff"]),
-        facet_source_refs=facet_source_refs,
-        live_source_execution=live_source_execution,
-    )
+    admission_args: dict[str, Any] = {
+        "repo_root": repo_root,
+        "source_owner_root": (repo_root / "production_data").resolve().parent,
+        "epoch_id": 1,
+        "raw_evidence_ref": raw_ref,
+        "artifact_store": store,
+        "authority": authority,
+        "overlay_path": tmp_path / "acquisition-overlay.duckdb",
+        "epoch_history_root": tmp_path / "epoch-history",
+        "epoch_scope_identity": scope,
+        "authority_purpose": "publication",
+        "valid_effect_coordinate_evidence_ref": coordinate_refs["valid_effect"],
+        "visibility_knowledge_cutoff_evidence_ref": coordinate_refs["visibility_knowledge_cutoff"],
+        "purpose_admission_cutoff_evidence_ref": coordinate_refs["purpose_admission_cutoff"],
+        "facet_source_refs": facet_source_refs,
+        "live_source_execution": live_source_execution,
+    }
+    wrong_owner = tmp_path / "unavailable-data-owner"
+    wrong_owner.mkdir()
+    with pytest.raises(SemanticEpochAdmissionResolutionError, match="resolver_unavailable"):
+        admit_acquisition_with_production_semantic_epoch(
+            **(admission_args | {"source_owner_root": wrong_owner})
+        )
+    assert calls == []
+    receipt = admit_acquisition_with_production_semantic_epoch(**admission_args)
 
     assert len(calls) == 1
     assert len(admitted_graphs) == 1
     assert calls[0].scope_identity == scope
     assert calls[0].authority_purpose == "publication"
-    assert len(qualification_calls) == 1
-    qualification_adapter, qualification_request = qualification_calls[0]
-    assert isinstance(
-        qualification_adapter,
-        semantic_epoch.SemanticEpochQualificationAdapter,
-    )
-    assert qualification_request.domain.family == "epoch"
-    assert qualification_request.domain.proof_domain == "semantic_epoch"
+    # Full graph refusal precedes chronology qualification and policy admission.
+    assert qualification_calls == []
     assert isinstance(receipt, semantic_epoch.PersistedSemanticEpochProductionReceipt)
     assert receipt.status == "not_established"
-    assert receipt.failure_codes == ("policy_admission_missing",)
+    assert receipt.failure_codes == ("epoch_scope_unresolved",)
+    assert receipt.epoch_ref is None
+    assert receipt.semantic_manifest_ref is None
 
 
 def _live_execution_fixture(
@@ -606,6 +589,7 @@ def _live_execution_fixture(
             kind="fabric.acquisition.raw_evidence",
             media_type="application/json",
         ),
+        return_selected_profile=True,
     )
     request = {
         "authority_entry_id": entry.entry_id,
@@ -723,22 +707,43 @@ def _live_execution_fixture(
         next_page_token=None,
     )
     request = FetchRequest(
-        dataset_id=entry.landing_dataset_id,
+        dataset_id=resolved.registration.request_dataset_id,
         date_start=datetime(2023, 1, 1, tzinfo=UTC),
         date_end=datetime(2024, 12, 31, tzinfo=UTC),
         filters=(("country", ("UKR",)),),
         page_size=1000,
+        retryable=False,
+    )
+    connection_config = replace(
+        resolve_connection_config(profile),
+        timeout_seconds=max(1, int(authorization.budget.timeout_seconds)),
+        max_retries=1,
+        max_connections=1,
     )
     with ConnectorCacheStore(store, TTLPolicy(ttl=timedelta(hours=1))) as cache:
-        metadata = cache.put(request, result, connector_id="worldbank.wdi")
-    data_ref = ArtifactRef(
-        artifact_id=metadata.payload_artifact_id,
-        kind="connector_cache.payload",
-        media_type=metadata.payload_media_type,
+        metadata = cache.put(
+            request,
+            result,
+            connector_id="worldbank.wdi",
+            source_config=connection_config,
+            classification="public",
+        )
+    data_ref = metadata.payload_ref
+    assert data_ref is not None
+    provenance_ref = persist_provenance_graph(
+        store,
+        ProvenanceCoreGraph(graph_id="fixture-live-acquisition"),
+        inputs=[input_ref_from_artifact_ref(data_ref, role="fabric.ingestion.payload")],
+        return_selected_profile=True,
     )
     evidence_bundle_ref = persist_evidence_bundle(
         store,
-        build_evidence_bundle(sources=[data_ref], notes=["network-free WDI fixture"]),
+        build_evidence_bundle(
+            sources=[data_ref],
+            notes=["network-free WDI fixture"],
+            provenance_ref=provenance_ref,
+        ),
+        return_selected_profile=True,
     )
     snapshot_ref = run_coro_sync(
         _build_snapshot_from_evidence_async(
@@ -756,6 +761,7 @@ def _live_execution_fixture(
         raw_evidence_ref=raw_ref,
         transport_trace=resolve_live_transport_trace(raw_ref),
         raw_artifact_id=str(raw_artifact.artifact_id),
+        raw_artifact_ref=raw_artifact,
         evidence_bundle_ref=evidence_bundle_ref,
         data_snapshot_ref=snapshot_ref,
         normalized_data_artifact_id=str(data_ref.artifact_id),
@@ -1266,6 +1272,7 @@ def _rebuild_live_evidence(
         "raw_evidence_ref": evidence.raw_evidence_ref,
         "transport_trace": evidence.transport_trace,
         "raw_artifact_id": evidence.raw_artifact_id,
+        "raw_artifact_ref": evidence.raw_artifact_ref,
         "evidence_bundle_ref": evidence.evidence_bundle_ref,
         "data_snapshot_ref": evidence.data_snapshot_ref,
         "normalized_data_artifact_id": evidence.normalized_data_artifact_id,
@@ -1577,10 +1584,12 @@ def test_live_execution_rejects_recomputed_wrong_raw_cas(tmp_path: Path) -> None
             kind="fabric.acquisition.raw_evidence",
             media_type="application/json",
         ),
+        return_selected_profile=True,
     )
     mutated = _rebuild_live_evidence(
         evidence,
         raw_artifact_id=fabricated.artifact_id,
+        raw_artifact_ref=fabricated,
     )
 
     with pytest.raises(

@@ -25,7 +25,10 @@ from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.runtime.quality import design_generation as dg
 from polisyos.runtime.quality.credal_reference import CredalReference
-from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
+from polisyos.runtime.quality.cycle_substrate import (
+    CycleSubstrateContext,
+    build_cycle_substrate_context,
+)
 from polisyos.runtime.quality.design_generation import (
     SUPPORTED_GENERATION_MODEL_IDS,
     DesignGenerationError,
@@ -3590,6 +3593,273 @@ async def test_lane0_candidate_scenario_does_not_claim_registered_l2_vintage() -
     assert result.proposal.n5_status == "not_run"
     assert result.proposal.n9_status == "not_run"
     assert result.proposal.s8_status == "not_run"
+
+
+_CANDIDATE_SCENARIO_RECORDING_ID = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
+
+
+def _candidate_scenario_recording() -> dict[str, Any]:
+    """Select the complete role-aligned recorded candidate-scenario trace."""
+    return next(
+        copy.deepcopy(item)
+        for item in _recordings()
+        if item.get("design_problem_id") == _CANDIDATE_SCENARIO_RECORDING_ID
+    )
+
+
+async def _record_candidate_scenario_proposal(
+    problem: DesignProblem,
+    context: CycleSubstrateContext,
+    recording: dict[str, Any],
+) -> dg.N4CandidateProposalSource:
+    """Produce one actual candidate-only N4 source from the checked recording."""
+    replay = contract.RecordedGenerationReplayClient(copy.deepcopy(recording))
+    with contract._recorded_runtime_environment(recording):
+        result = await dg.generate_design_candidate_scenario_proposal_under_a(
+            problem,
+            model_id=str(recording["model_id"]),
+            llm_client=replay,
+            repo_root=REPO_ROOT,
+            cycle_substrate_context=context,
+        )
+    assert type(result) is dg.N4CandidateScenarioProposalRun
+    responses = recording["responses"]
+    assert isinstance(responses, list)
+    assert all(isinstance(response, dict) for response in responses)
+    assert replay._cursor == len(result.proposal.llm_calls) == len(responses)
+    assert tuple(
+        (call.call_index, call.role_hint, call.status) for call in result.proposal.llm_calls
+    ) == tuple(
+        (response["call_index"], response["role_hint"], response["status"])
+        for response in responses
+    )
+    assert {call.role_hint for call in result.proposal.llm_calls} >= {
+        "draft",
+        "formalizer",
+        "critic",
+    }
+    return result.proposal
+
+
+@pytest.mark.asyncio
+async def test_existing_candidate_scenario_grounding_refuses_missing_credal_reference(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A missing owner K_ref stops before the actual CGF emits any disposition."""
+    recording = _candidate_scenario_recording()
+    problem = contract._design_problem(recording)
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _cyc01_owner_bound_n5_case,
+    )
+
+    problem, context, _candidate = _cyc01_owner_bound_n5_case(problem_seed=problem)
+    proposal = await _record_candidate_scenario_proposal(problem, context, recording)
+    source_llm_calls = proposal.llm_calls
+    assert proposal.authority_purpose == "candidate_proposal"
+    assert proposal.n5_status == "not_run"
+    assert proposal.n8_status == "not_run"
+    assert len(proposal.llm_calls) == 10
+
+    cgf_calls: list[dict[str, Any]] = []
+
+    def record_cgf_call(**kwargs: Any) -> Any:
+        cgf_calls.append(kwargs)
+        raise AssertionError("CGF must not run without an owner-resolved K_ref")
+
+    monkeypatch.setattr(dg, "_content_bound_candidates", record_cgf_call)
+    with pytest.raises(DesignGenerationError) as captured:
+        dg.ground_existing_candidate_scenario_proposal(
+            proposal,
+            problem=problem,
+            context=context,
+            repo_root=tmp_path,
+        )
+
+    assert captured.value.code == "candidate_scenario_credal_reference_unavailable"
+    assert cgf_calls == []
+    assert proposal.llm_calls == source_llm_calls
+
+
+@pytest.mark.asyncio
+async def test_existing_candidate_scenario_grounding_rejects_foreign_problem_source(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A rehashed proposal from another problem cannot enter the CGF lane."""
+    from polisyos.pdc import gy_content_hash
+
+    recording = _candidate_scenario_recording()
+    problem = contract._design_problem(recording)
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _cyc01_owner_bound_n5_case,
+    )
+
+    problem, context, _candidate = _cyc01_owner_bound_n5_case(problem_seed=problem)
+    proposal = await _record_candidate_scenario_proposal(problem, context, recording)
+    assert len(proposal.llm_calls) == 10
+    foreign_problem = problem.model_copy(
+        update={"design_problem_id": f"{problem.design_problem_id}_foreign"}
+    )
+    foreign_problem_ref = gy_content_hash(foreign_problem.model_dump(mode="json"))
+    foreign_source = dg.N4CandidateProposalSource.model_validate(
+        {
+            **proposal.model_dump(mode="python"),
+            "design_problem_ref": foreign_problem_ref,
+        }
+    )
+
+    def reject_reference_build(*args: Any, **kwargs: Any) -> Any:
+        del args, kwargs
+        raise AssertionError("problem/source binding must be checked before K_ref")
+
+    def reject_cgf(*args: Any, **kwargs: Any) -> Any:
+        del args, kwargs
+        raise AssertionError("problem/source binding must be checked before CGF")
+
+    monkeypatch.setattr(dg, "build_credal_reference", reject_reference_build)
+    monkeypatch.setattr(dg, "_content_bound_candidates", reject_cgf)
+    with pytest.raises(DesignGenerationError) as captured:
+        dg.ground_existing_candidate_scenario_proposal(
+            foreign_source,
+            problem=problem,
+            context=context,
+            repo_root=REPO_ROOT,
+        )
+
+    assert captured.value.code == "candidate_scenario_cgf_problem_binding_mismatch"
+
+
+@pytest.mark.asyncio
+async def test_existing_candidate_scenario_grounds_against_configured_owner_wmr(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Ground an existing N4 source against its configured WMR and owner K_ref."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.credal_reference import credal_reference_l2_source_profile
+    from tests._helpers.controlled_candidate_profile import (
+        _configured_procurement_profile,
+        _controlled_procurement_recording,
+        _current_compiler_problem,
+        _seed_controlled_selected_skg_source,
+    )
+
+    original_recording = _candidate_scenario_recording()
+    original_problem = _current_compiler_problem(original_recording)
+    recording = _controlled_procurement_recording(
+        original_recording,
+        outcome_variable=original_problem.outcome_of_interest.target_variable,
+    )
+    problem = _current_compiler_problem(recording)
+    tenant_id = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+    cell_id = "existing-candidate-scenario-cgf"
+    store = FileSystemCAS(
+        tmp_path / "cas",
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        ownership_enforced=True,
+    )
+    source_root = tmp_path / "selected-skg-owner"
+    selected_skg = _seed_controlled_selected_skg_source(
+        tmp_path,
+        source_root=source_root,
+        recorded_problem=problem,
+    )
+    profile, _declaration = _configured_procurement_profile(
+        recorded_problem=problem,
+        artifact_store=store,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        tmp_path=tmp_path / "configured-profile",
+        source_root=source_root,
+        selected_skg_source=selected_skg,
+        repo_root=REPO_ROOT,
+    )
+    inputs = profile.context_inputs
+    world_model_record = inputs.world_model_record
+    assert world_model_record.skg_causal_prior_ref.skg_snapshot_ref == selected_skg.snapshot_ref
+    assert world_model_record.skg_causal_prior_ref.skg_version_id == str(selected_skg.version_id)
+    context = build_cycle_substrate_context(
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        domain=problem.domain,
+        substrate_registry=inputs.substrate_registry,
+        selected_registry_entry_hashes=inputs.selected_registry_entry_hashes,
+        world_model_record=world_model_record,
+        intervention_substrate=inputs.intervention_substrate,
+        candidate_levers=inputs.candidate_levers,
+        transport_context=inputs.transport_context,
+        source_pack_content_hash=inputs.source_pack_content_hash,
+        substrate_input_content_hash=inputs.substrate_input_content_hash,
+    )
+    proposal = await _record_candidate_scenario_proposal(problem, context, recording)
+    actual_cgf = dg._content_bound_candidates
+    cgf_inputs: list[dict[str, Any]] = []
+
+    def run_actual_cgf(**kwargs: Any) -> Any:
+        cgf_inputs.append(kwargs)
+        return actual_cgf(**kwargs)
+
+    def reject_second_n4_generation(*args: Any, **kwargs: Any) -> Any:
+        del args, kwargs
+        raise AssertionError("existing-proposal grounding must not regenerate N4")
+
+    monkeypatch.setattr(dg, "_content_bound_candidates", run_actual_cgf)
+    monkeypatch.setattr(dg, "_run_design_generation_under_a", reject_second_n4_generation)
+    run = dg.ground_existing_candidate_scenario_proposal(
+        proposal,
+        problem=problem,
+        context=context,
+        repo_root=REPO_ROOT,
+    )
+
+    assert type(run) is dg.DesignGenerationOrganRun
+    reference = run.credal_reference
+    assert type(reference) is CredalReference
+    assert reference.reference_hash.startswith("sha256:")
+    assert reference.component_versions["WMR"] == world_model_record.content_hash
+    assert {"L3", "L6", "WMR"}.issubset(reference.component_versions)
+    selected_l2_profile = credal_reference_l2_source_profile(reference)
+    assert selected_l2_profile is not None
+    assert selected_l2_profile.skg_causal_prior_ref == world_model_record.skg_causal_prior_ref
+    assert selected_l2_profile.source_snapshot_ref == selected_skg.snapshot_ref
+    assert selected_l2_profile.source_snapshot_sha256 == selected_skg.sha256
+    assert run.cycle_substrate_context == context
+    assert run.trinity_bundle == proposal.trinity_bundle
+    assert run.draft == proposal.draft
+    assert run.critique == proposal.critique
+    assert run.result.design_problem_ref == proposal.design_problem_ref
+    assert run.result.llm_calls == proposal.llm_calls
+    assert len(run.result.llm_calls) == len(proposal.llm_calls) == len(recording["responses"])
+    assert len(cgf_inputs) == 1
+    assert cgf_inputs[0]["bundle"] == proposal.trinity_bundle
+    assert cgf_inputs[0]["calls"] == proposal.llm_calls
+    assert cgf_inputs[0]["cycle_substrate_context"] == context
+    assert cgf_inputs[0]["reference"] is reference
+    assert cgf_inputs[0]["reference"].reference_hash == reference.reference_hash
+    assert run.result.grounding_disposition_summary.total_candidates == len(
+        proposal.trinity_bundle.policy_spec.interventions
+    )
+    assert run.result.grounding_dispositions
+    assert run.candidate_sources
+    proposal_intervention_ids = {
+        intervention.intervention_id
+        for intervention in proposal.trinity_bundle.policy_spec.interventions
+    }
+    source_intervention_ids = {source.intervention_id for source in run.candidate_sources}
+    assert {source.candidate_id for source in run.candidate_sources} == {
+        candidate.candidate_id for candidate in run.result.candidates
+    }
+    assert source_intervention_ids <= proposal_intervention_ids
+    assert all(
+        source.grounding_relation_certificate.reference_versions == reference.component_versions
+        for source in run.candidate_sources
+    )
+    assert all(
+        source.grounding_relation_certificate.selected_relation
+        in {"exact", "certified-specialization"}
+        for source in run.candidate_sources
+    )
 
 
 @pytest.mark.asyncio

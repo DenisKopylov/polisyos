@@ -1124,10 +1124,16 @@ describe("runtime API validators", () => {
       compiledCandidateProjection(parsed.run.candidate_simulation)
         .acquisition_history,
     ).toHaveLength(1);
-    expect(
-      compiledCandidateProjection(parsed.run.candidate_simulation)
-        .acquisition_history?.[0]?.expected_origin_source_ref,
-    ).toMatchObject({
+    const historyEntry = compiledCandidateProjection(
+      parsed.run.candidate_simulation,
+    ).acquisition_history?.[0];
+    if (
+      historyEntry?.schema_version !==
+      "policyos.runtime.run_candidate_simulation_acquisition_history.v2"
+    ) {
+      throw new Error("Expected the legacy v2 acquisition history fixture");
+    }
+    expect(historyEntry.expected_origin_source_ref).toMatchObject({
       artifact_id: "sha256:" + "f".repeat(64),
       manifest_profile_sha256: "sha256:" + "b".repeat(64),
     });
@@ -4919,5 +4925,35 @@ describe("artifact preview canonical read status custody", () => {
       };
       expect(runAgentsSchema.safeParse(malformed).success).toBe(false);
     }
+  });
+});
+
+describe("verified capacity checkpoint wire", () => {
+  it("keeps the pending child and refuses removed source binding", () => {
+    const payload = c41V5Payload();
+    const projection = mutableRecord(
+      mutableRecord(payload.run).generic_cycle_simulation,
+    );
+    const checkpoint = {
+      schema_version: "policyos.runtime.recursive_cycle_checkpoint.v3",
+      pending_frontier: ["child-pending"],
+      completed_design_refs: ["child-complete"],
+      capacity_stop_parent_node_ref: "root",
+      capacity_pending_child_node_ref: "child-pending",
+      capacity_pending_child_index: 1,
+      capacity_source_content_hash: "sha256:" + "a".repeat(64),
+      capacity_limitation_code: "physical_need_not_established",
+    };
+    projection.recursive_cycle_checkpoint = checkpoint;
+    const parsed = runDetailsSchema.parse(payload).run.generic_cycle_simulation;
+    expect(parsed?.recursive_cycle_checkpoint?.root_n9_status).toBe("not_run");
+    expect(
+      parsed?.recursive_cycle_checkpoint?.capacity_pending_child_node_ref,
+    ).toBe("child-pending");
+    projection.recursive_cycle_checkpoint = {
+      ...checkpoint,
+      capacity_source_content_hash: null,
+    };
+    expect(runDetailsSchema.safeParse(payload).success).toBe(false);
   });
 });

@@ -863,7 +863,9 @@ class NaturalLanguageRunRequest(BaseModel):
 
     request: str = Field(..., min_length=1, max_length=10_000)
     temporal_scope: TemporalScope | None = None
-    joint_interaction_candidate_intent: Literal["n4_unique_parent_source_members.v1"] | None = None
+    joint_interaction_candidate_intent: (
+        Literal["n4_unique_parent_source_members.v1", "authored_joint_components.v1"] | None
+    ) = None
     context: dict[str, Any] = Field(default_factory=dict)
     domain_hint: str | None = None
     data_source: DataSourceBinding | None = None

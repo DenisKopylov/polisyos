@@ -293,3 +293,190 @@ def test_generic_n5_result_body_schema_and_purpose_remain_stable() -> None:
     assert tuple(RunGenericCycleSimulationN5ResultBody.model_json_schema()["properties"]) == (
         expected_wire_fields
     )
+
+
+def test_configured_units_require_the_exact_declared_outcome_denominator() -> None:
+    """The display contract neither invents units nor permits a partial unit map."""
+    legacy = RunCandidateSimulationN5ResultBody.model_validate(_result_body_payload(candidate=True))
+    assert legacy.unit_provenance == "not_established"
+    assert legacy.outcome_units == {}
+    payload = {
+        **_result_body_payload(candidate=True),
+        "outcome_units": {"government.balance": "declared_currency_unit"},
+        "unit_provenance": "declared_candidate_model",
+        "model_declaration_ref": _artifact_ref(
+            "runtime.quality.candidate_simulation_model_declaration", "e"
+        ),
+    }
+    body = RunCandidateSimulationN5ResultBody.model_validate(payload)
+    assert body.outcome_units == {"government.balance": "declared_currency_unit"}
+    assert body.publication_authority is False
+    for changes in (
+        {"outcome_units": {}},
+        {"outcome_units": {"foreign.outcome": "declared_currency_unit"}},
+        {"outcome_units": {"government.balance": " "}},
+        {"model_declaration_ref": None},
+        {"unit_provenance": "not_established"},
+    ):
+        with pytest.raises(ValidationError):
+            RunCandidateSimulationN5ResultBody.model_validate({**payload, **changes})
+
+
+@pytest.mark.parametrize("candidate", [False, True])
+def test_v5_body_keeps_its_exact_selected_artifact_epoch(candidate: bool) -> None:
+    payload = {
+        **_result_body_payload(candidate=candidate),
+        "artifact_schema_version": "5.0.0",
+        "result_schema_version": "policyos.runtime.joint_simulation_horizon.v5",
+    }
+    record_type = (
+        RunCandidateSimulationN5ResultBody if candidate else RunGenericCycleSimulationN5ResultBody
+    )
+    body = record_type.model_validate(payload)
+    assert body.result_schema_version == "policyos.runtime.joint_simulation_horizon.v5"
+    with pytest.raises(ValidationError, match="manifest_binding_invalid"):
+        record_type.model_validate({**payload, "artifact_schema_version": "4.0.0"})
+
+
+def _authored_joint_projection_payload() -> dict[str, object]:
+    """A display contract fixture; the served route verifies actual owner bytes."""
+    derived_ids = ("atom_8888888888888888", "atom_9999999999999999")
+    result_ref = _artifact_ref("polisyos.runtime.joint_simulation_result", "d")
+    return {
+        "node_ref": "joint-parent",
+        "design_problem_ref": _WORLD_HASH,
+        "atom_ids": derived_ids,
+        "selected_outcomes": _OUTCOMES,
+        "executed_steps": (0,),
+        "replication_seeds": (41, 42),
+        "status": "joint_simulated",
+        "simulation_result_ref": result_ref,
+        "n5_interaction_evidence": {
+            "schema_version": "policyos.runtime.joint_simulation_horizon.v5",
+            "numeric_interaction": "unsupported",
+            "numeric_interaction_basis": "finite_checked_model_point_estimate_only",
+            "interaction_sampling_status": "estimated",
+            "interaction_terms": (
+                {
+                    "atom_ids": derived_ids,
+                    "outcome": _OUTCOMES[0],
+                    "by_step": {0: 0.0},
+                    "replication_sampling_by_step": {
+                        0: {
+                            "status": "estimated",
+                            "replicate_count": 2,
+                            "seeds": (41, 42),
+                            "samples": ({"seed": 41, "value": 0.0}, {"seed": 42, "value": 0.0}),
+                            "mean": 0.0,
+                            "standard_error": 0.0,
+                        }
+                    },
+                },
+            ),
+            "checked_interaction_orders": (1, 2),
+        },
+        "n8_numeric_interaction": "unsupported",
+        "n8_numeric_interaction_basis": "finite_checked_model_point_estimate_only",
+        "n8_interaction_sampling_status": "estimated",
+        "n8_status": "value_conditional",
+        "n8_candidate_value_ref": str(result_ref.artifact_id),
+        "n8_candidate_decision_grade": "low",
+        "n8_authority_blockers": (
+            "n5_execution_request_provenance_not_established",
+            "authored_candidate_coupling_not_established",
+            "child_to_parent_refinement_rule_not_established",
+            "parent_joint_coupling_evidence_not_established",
+            "interaction_numeric_classification_unsupported",
+        ),
+        "n8_joint_scope_status": "not_established",
+        "n8_joint_scope_limitation_code": "parent_joint_coupling_evidence_not_established",
+        "n8_candidate_joint_selection_status": "resolved",
+        "n8_candidate_joint_selection_content_hash": _REQUEST_HASH,
+        "n8_candidate_parent_atom_ids": ("atom_1111111111111111", "atom_2222222222222222"),
+        "n8_candidate_parent_atom_content_hashes": ("sha256:" + "4" * 64, "sha256:" + "5" * 64),
+        "n8_candidate_derived_atom_ids": derived_ids,
+        "n8_candidate_derived_atom_content_hashes": ("sha256:" + "8" * 64, "sha256:" + "9" * 64),
+        "n8_candidate_parent_intervention_ids": derived_ids,
+        "n8_candidate_parent_child_refs": ("child-a", "child-b"),
+        "n8_candidate_member_basis": "authored_materialized_n4_source_members",
+        "n8_source_candidate_relationship": "alternatives",
+        "n8_selected_member_relationship": "joint_components",
+        "n8_policy_composition_status": "authored_candidate",
+        "n8_policy_composition_limitation_code": "authored_candidate_coupling_not_established",
+        "n8_child_to_parent_refinement_status": "not_established",
+        "n8_child_to_parent_refinement_limitation_code": "child_to_parent_refinement_rule_not_established",
+        "n8_authored_joint_relation_ref": _artifact_ref(
+            "runtime.quality.recursive_authored_joint_relation", "6"
+        ),
+        "n8_authored_joint_request_payload_ref": _artifact_ref(
+            "runtime.control_job_payload.natural_language_run", "7"
+        ),
+        "n8_authored_joint_intent_digest": _REQUEST_HASH,
+    }
+
+
+def test_authored_joint_projection_distinguishes_source_and_materialized_members() -> None:
+    payload = _authored_joint_projection_payload()
+    observation = RunCandidateSimulationN5Observation.model_validate(payload)
+    assert observation.n8_source_candidate_relationship == "alternatives"
+    assert observation.n8_selected_member_relationship == "joint_components"
+    assert observation.n8_candidate_parent_atom_ids != observation.n8_candidate_derived_atom_ids
+    assert observation.n8_candidate_derived_atom_ids == observation.atom_ids
+    assert observation.n8_status == "value_conditional"
+    assert observation.n8_joint_scope_status == "not_established"
+    assert observation.currentness_status == "not_established"
+    assert (
+        RunCandidateSimulationN5Observation.model_validate_json(observation.model_dump_json())
+        == observation
+    )
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"n8_authored_joint_relation_ref": None},
+        {"n8_authored_joint_request_payload_ref": None},
+        {"n8_authored_joint_intent_digest": None},
+        {"n8_candidate_derived_atom_ids": ("atom_aaaaaaaaaaaaaaaa", "atom_9999999999999999")},
+        {"n8_policy_composition_status": "not_established"},
+        {"n8_joint_scope_status": "resolved"},
+    ],
+)
+def test_authored_joint_projection_refuses_lost_binding_or_claimed_coupling(
+    change: dict[str, object],
+) -> None:
+    with pytest.raises(ValidationError):
+        RunCandidateSimulationN5Observation.model_validate(
+            {**_authored_joint_projection_payload(), **change}
+        )
+
+
+def test_recursive_capacity_checkpoint_requires_typed_frontier_and_hides_legacy_extension() -> None:
+    from pydantic import ValidationError
+
+    from polisyos.core.contracts.runtime import RunRecursiveCycleCheckpoint
+
+    row = {
+        "schema_version": "policyos.runtime.recursive_cycle_checkpoint.v3",
+        "pending_frontier": ["pending-child"],
+        "completed_design_refs": ["completed-child"],
+        "capacity_stop_parent_node_ref": "root",
+        "capacity_pending_child_node_ref": "pending-child",
+        "capacity_pending_child_index": 1,
+        "capacity_source_content_hash": "sha256:" + "a" * 64,
+        "capacity_limitation_code": "physical_need_not_established",
+    }
+    checkpoint = RunRecursiveCycleCheckpoint.model_validate(row)
+    assert checkpoint.root_n9_status == "not_run"
+    assert checkpoint.publication_authority is False
+    for change in (
+        {"capacity_pending_child_node_ref": "foreign-child"},
+        {"capacity_source_content_hash": None},
+        {"capacity_limitation_code": None},
+        {"publication_authority": True},
+        {"budget_stop_node_ref": "old-budget-stop"},
+    ):
+        with pytest.raises(ValidationError):
+            RunRecursiveCycleCheckpoint.model_validate({**row, **change})
+    legacy = RunRecursiveCycleCheckpoint(budget_stop_node_ref="old-budget-stop")
+    assert "capacity_source_content_hash" not in legacy.model_dump(mode="json")

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from polisyos.core.artifacts import ArtifactTenantContextInfo
+from polisyos.core.artifacts import ArtifactRef, ArtifactTenantContextInfo
 from polisyos.runtime.http.services.control.generation_cycle import (
     N4CandidateProposalExecution,
     N4CandidateScenarioProposalOnlyExecution,
@@ -16,7 +16,6 @@ from .job_nl_publication import _n4_proposal_progress_with_budget
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from polisyos.core.artifacts import ArtifactRef
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
     )
@@ -584,6 +583,15 @@ class ControlNLJobExecutionMixin:
                 lambda: self._llm_producer_settlement_store.resolve_producer_event_safe(event_id)
             )
 
+        joint_request_payload_ref = None
+        if payload.get("joint_interaction_candidate_intent") == "authored_joint_components.v1":
+            created = self._control_store.get_job_created_event_payload(job.job_id)
+            raw_ref = created.get("nl_request_payload_artifact_ref")
+            if not isinstance(raw_ref, dict):
+                raise ValueError("authored_joint_request_selected_queue_missing")
+            joint_request_payload_ref = ArtifactRef.model_validate(raw_ref)
+            if str(joint_request_payload_ref.artifact_id) != job.payload_ref:
+                raise ValueError("authored_joint_request_selected_queue_mismatch")
         producer_basis_scope = control_job_producer_basis_scope(
             context=context.core_run_context,
             run_binding=context.producer_run_binding,
@@ -616,6 +624,7 @@ class ControlNLJobExecutionMixin:
                     joint_interaction_candidate_intent=payload.get(
                         "joint_interaction_candidate_intent"
                     ),
+                    joint_interaction_request_payload_ref=joint_request_payload_ref,
                     # A configured generic handoff owner selects the N4/N5 route;
                     # without one, simulate_only stays on the N4 proposal-only lane.
                     n4_proposal_only=(

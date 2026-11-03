@@ -192,6 +192,8 @@ def _real_n5_observation(
     without_runtime_store: bool = False,
     single_step_horizon: bool = False,
     multi_step_horizon: bool = False,
+    ncm_spec: Any | None = None,
+    replications: int | None = None,
 ):
     """Run the canonical N5 producer through the WMR-selected NCM request builder."""
 
@@ -206,10 +208,16 @@ def _real_n5_observation(
         runtime_hints = {"joint_simulation_horizon": {"start": 0, "end": 0, "step": 1}}
     elif multi_step_horizon:
         runtime_hints = {"joint_simulation_horizon": {"start": 0, "end": 3, "step": 1}}
+    if replications is not None:
+        runtime_hints = {
+            **(runtime_hints or {}),
+            "joint_simulation_replications": replications,
+        }
     problem, context, candidate = _owner_selected_n5_case(
         tmp_path,
         fixture_store,
         runtime_hints=runtime_hints,
+        ncm_spec=ncm_spec,
     )
     producer = JointSimulationHorizonController()
     produced_results: list[object] = []
@@ -260,6 +268,7 @@ def _owner_selected_n5_case(
     artifact_store: Any,
     *,
     runtime_hints: dict[str, Any] | None = None,
+    ncm_spec: Any | None = None,
 ) -> tuple[Any, Any, Any]:
     """Build N5 inputs from a persisted NCM selected by the owner WMR."""
 
@@ -270,7 +279,7 @@ def _owner_selected_n5_case(
     with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
         selected_ref = persist_ncm_spec(
             ensure_ir_artifact_store(artifact_store),
-            _ncm_with_cross_term(),
+            ncm_spec or _ncm_with_cross_term(),
         )
     ncm_ref = CASArtifactRef.model_validate(selected_ref.model_dump(mode="python"))
     problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
@@ -281,6 +290,42 @@ def _owner_selected_n5_case(
     )
     assert world_model_artifact_views(context.world_model_record).ncm_refs == (ncm_ref,)
     return problem, context, candidate
+
+
+def _deterministic_ncm_with_cross_term() -> Any:
+    """Select the real cross-term NCM with an explicit zero-noise equation."""
+
+    from tests.unit.runtime.quality.test_joint_simulation_horizon import _ncm_with_cross_term
+
+    source = _ncm_with_cross_term()
+    equations = []
+    for equation in source.structural_equations:
+        if equation.variable == "firm_survival":
+            expression = equation.equation_params["noise_expression"]
+            if not expression.endswith(" + u"):
+                raise AssertionError("cross-term NCM fixture no longer ends in its noise term")
+            equations.append(
+                equation.model_copy(
+                    update={
+                        "equation_params": {
+                            **equation.equation_params,
+                            "noise_expression": expression.removesuffix(" + u"),
+                        }
+                    }
+                )
+            )
+        elif equation.variable in {"income_delta", "balance_delta", "labor_count_delta"}:
+            equations.append(
+                equation.model_copy(
+                    update={
+                        "equation_type": "nonlinear",
+                        "equation_params": {"noise_expression": "0.0"},
+                    }
+                )
+            )
+        else:
+            raise AssertionError("cross-term NCM fixture has an unexpected endogenous equation")
+    return source.model_copy(update={"structural_equations": equations})
 
 
 class _RecursiveGenerationPort:
@@ -688,6 +733,629 @@ def test_conditional_n8_status_is_not_authority_ready(tmp_path: Path) -> None:
         and outcome in candidate_trajectory.points[0].effect
     )
     assert effect == produced_trajectory.points[0].effect[outcome]
+
+
+def _historical_v4_numeric_interaction(payload: dict[str, Any]) -> str:
+    """Reconstruct v4's paired-sample classifier without v5 tolerance gating."""
+
+    feedback = payload["feedback_classification"]
+    diagnostics = payload["diagnostics"]
+    sampling_issues = tuple(diagnostics.get("interaction_sampling_issues", ()))
+    evidence_issues = tuple(diagnostics.get("interaction_evidence_issues", ()))
+    if (
+        len(payload["atom_ids"]) < 2
+        and feedback["interaction_sampling_status"] == "estimated"
+        and not sampling_issues
+        and not evidence_issues
+    ):
+        return "none"
+
+    summaries = [
+        summary
+        for term in payload["interaction_terms"]
+        for summary in term["replication_sampling_by_step"].values()
+    ] + [
+        summary
+        for by_step in payload["higher_order_residual_sampling"].values()
+        for summary in by_step.values()
+    ]
+    sampling_variation_observed = any(
+        value is not None and float(value) > 0.0
+        for summary in summaries
+        for value in summary["effects_standard_error"].values()
+    )
+    if (
+        feedback["interaction_sampling_status"] != "estimated"
+        or sampling_issues
+        or evidence_issues
+        or sampling_variation_observed
+    ):
+        return "unsupported"
+
+    numeric_values = [
+        float(value) for term in payload["interaction_terms"] for value in term["by_step"].values()
+    ] + [
+        float(value)
+        for by_step in payload["higher_order_residuals"].values()
+        for value in by_step.values()
+    ]
+    if any(abs(value) > 1e-12 for value in numeric_values):
+        return "non_additive"
+    if evidence_issues or len(payload["atom_ids"]) >= 4:
+        return "unsupported"
+    return "additive"
+
+
+def _persist_legacy_n5_result(
+    result: JointSimulationResult,
+    *,
+    store: Any,
+    source_ref: CASArtifactRef,
+    schema_version: int,
+) -> tuple[CASArtifactRef, JointSimulationResult]:
+    """Persist a legacy wire from a paired-sampling result without modern qualifications."""
+
+    import copy
+
+    paired_schema_versions = {
+        "policyos.runtime.joint_simulation_horizon.v4",
+        JOINT_SIMULATION_HORIZON_SCHEMA_VERSION,
+    }
+    if result.schema_version not in paired_schema_versions:
+        raise AssertionError("legacy fixture requires a v4 or current paired-sampling result")
+
+    artifact_versions = {1: "1.0.0", 2: "2.0.0", 3: "3.0.0", 4: "4.0.0"}
+    if schema_version not in artifact_versions:
+        raise ValueError("unsupported legacy fixture schema")
+
+    payload = copy.deepcopy(result.content_bound_payload())
+    payload["schema_version"] = f"policyos.runtime.joint_simulation_horizon.v{schema_version}"
+
+    def remove_current_classification(value: Any) -> Any:
+        if isinstance(value, dict):
+            return {key: remove_current_classification(child) for key, child in value.items()}
+        if isinstance(value, list):
+            return [
+                remove_current_classification(child)
+                for child in value
+                if child != "interaction_numeric_classification_unsupported"
+            ]
+        return value
+
+    payload = remove_current_classification(payload)
+    if schema_version == 4:
+        # Reconstruct the original v4 verdict from retained paired samples.
+        # v4 had no v5 numerical-tolerance qualification.
+        payload["diagnostics"].pop("interaction_numerical_tolerance", None)
+        historical_numeric_interaction = _historical_v4_numeric_interaction(payload)
+        feedback = payload["feedback_classification"]
+        feedback["numeric_interaction"] = historical_numeric_interaction
+        feedback["numeric_interaction_basis"] = (
+            "finite_checked_model_point_estimate_only"
+            if feedback["interaction_sampling_status"] == "estimated"
+            and not payload["diagnostics"].get("interaction_sampling_issues")
+            and not payload["diagnostics"].get("interaction_evidence_issues")
+            else "not_established"
+        )
+        packet = payload["promotion_ready_value_packet"]
+        packet_blockers = [
+            blocker
+            for blocker in packet.get("authority_blockers", ())
+            if blocker != "interaction_numeric_classification_unsupported"
+        ]
+        if historical_numeric_interaction == "unsupported":
+            packet_blockers.append("interaction_numeric_classification_unsupported")
+        packet["authority_blockers"] = list(dict.fromkeys(packet_blockers))
+    else:
+        # v1-v3 classified finite interaction point means. v3 carries
+        # replication uncertainty for trajectories, but paired interaction
+        # sampling and its classification fields arrived later. Reconstruct
+        # their actual historical verdict instead of reusing v5's result.
+        interaction_values = [
+            value for term in payload["interaction_terms"] for value in term["by_step"].values()
+        ]
+        if len(payload["atom_ids"]) < 2:
+            historical_numeric_interaction = "none"
+        elif not interaction_values or any(
+            not math.isfinite(value) for value in interaction_values
+        ):
+            historical_numeric_interaction = "unsupported"
+        elif any(abs(value) > 1e-12 for value in interaction_values):
+            historical_numeric_interaction = "non_additive"
+        elif len(payload["atom_ids"]) >= 4:
+            historical_numeric_interaction = "unsupported"
+        else:
+            historical_numeric_interaction = "additive"
+        payload["feedback_classification"]["numeric_interaction"] = historical_numeric_interaction
+        # Paired residual/sampling qualifications were absent from v1-v3.
+        payload["diagnostics"].pop("interaction_numerical_tolerance", None)
+        for key in (
+            "checked_interaction_orders",
+            "interaction_evidence_issues",
+            "interaction_sampling_issues",
+        ):
+            payload["diagnostics"].pop(key, None)
+        payload.pop("higher_order_residuals", None)
+        for key in (
+            "checked_interaction_orders",
+            "higher_order_residuals",
+            "interaction_sampling_status",
+            "numeric_interaction_basis",
+        ):
+            payload["feedback_classification"].pop(key, None)
+    if schema_version in {1, 2}:
+        for trajectory in payload["trajectories"]:
+            for point in trajectory["points"]:
+                point.pop("replication_sampling", None)
+    if schema_version == 1:
+        payload.pop("state_consumption", None)
+    elif schema_version == 2:
+        if payload.get("state_consumption") is None:
+            raise AssertionError("historical v2 fixture requires real state consumption")
+    if schema_version < 4:
+        payload.pop("higher_order_residual_sampling", None)
+        for term in payload["interaction_terms"]:
+            term.pop("replication_sampling_by_step", None)
+
+    receipt = build_content_bound_simulation_receipt(
+        engine_kind=result.receipt.engine_kind,
+        payload=payload,
+        diagnostics=payload["diagnostics"],
+    )
+    payload["receipt"] = receipt.model_dump(mode="json")
+    with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+        source_manifest = store.get_manifest(source_ref)
+        selected_ref = store.put_json(
+            payload,
+            PutOptions(
+                kind="polisyos.runtime.joint_simulation_result",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="policyos.runtime.n5.joint_simulation_result",
+                    version=artifact_versions[schema_version],
+                ),
+                inputs=source_manifest.inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
+            return_selected_profile=True,
+        )
+        assert selected_ref.manifest_profile_sha256 is not None
+        loaded = load_joint_simulation_result(
+            selected_ref,
+            store=store,
+            expected_world_model_record_content_hash=result.world_model_record_content_hash,
+            expected_atom_ids=result.atom_ids,
+            expected_selected_outcomes=result.selected_outcomes,
+            expected_receipt_payload_hash=receipt.payload_hash,
+        )
+    assert loaded.schema_version == payload["schema_version"]
+    assert loaded.content_bound_payload() == {
+        key: value for key, value in payload.items() if key != "receipt"
+    }
+    if schema_version < 4:
+        assert "interaction_numeric_classification_unsupported" not in json.dumps(payload)
+    elif historical_numeric_interaction == "unsupported":
+        assert (
+            "interaction_numeric_classification_unsupported"
+            in payload["promotion_ready_value_packet"]["authority_blockers"]
+        )
+    else:
+        assert (
+            "interaction_numeric_classification_unsupported"
+            not in payload["promotion_ready_value_packet"]["authority_blockers"]
+        )
+    return selected_ref, loaded
+
+
+def _consume_legacy_n5_through_n8_and_run_projection(
+    *,
+    tmp_path: Path,
+    problem: Any,
+    context: Any,
+    candidate: Any,
+    simulation: SimulationPortObservation,
+    legacy_ref: CASArtifactRef,
+    legacy_result: JointSimulationResult,
+    store: Any,
+) -> tuple[Any, Any]:
+    """Run the real N8 consumer and its typed run API projection on a legacy ref."""
+
+    from polisyos.core.contracts.runtime import RunCandidateSimulationN5Observation
+    from polisyos.runtime.http.routes.runs import (
+        _n5_interaction_evidence_projection,
+        _n8_interaction_qualification_fields,
+    )
+
+    current_classification_marker = "interaction_numeric_classification_unsupported"
+    legacy_simulation = simulation.model_copy(
+        update={
+            "simulation_result_ref": legacy_ref,
+            "simulation_ref": legacy_result.receipt.payload_hash,
+            "authority_blockers": tuple(
+                blocker
+                for blocker in simulation.authority_blockers
+                if blocker != current_classification_marker
+            ),
+        }
+    )
+    assert current_classification_marker not in legacy_simulation.authority_blockers
+    assert simulation_evaluation_input_ref(legacy_simulation, artifact_store=store) is None
+
+    with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+        value = _DefaultSimulationBoundFoundryValuePort(
+            repo_root=tmp_path,
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )(
+            candidate=candidate,
+            simulation=legacy_simulation,
+            problem=problem,
+            cycle_index=0,
+        )
+
+    assert value.status == "value_conditional", value.model_dump(mode="json")
+    assert value.evaluation_mode == "simulate_only"
+    assert value.decision_grade == "low"
+    assert value.value_ref == str(legacy_ref.artifact_id)
+    assert value.value_receipt is None
+    assert value.method_selection_receipt is None
+    assert current_classification_marker in value.authority_blockers
+    assert "legacy_sampling_not_established" in value.authority_blockers
+    assert "legacy_interaction_not_established" in value.authority_blockers
+    assert value.numeric_interaction == "unsupported"
+    assert value.numeric_interaction_basis == "not_established"
+    assert value.interaction_sampling_status == "not_established"
+
+    api_observation = RunCandidateSimulationN5Observation(
+        node_ref="node://cyc-02/legacy-n5",
+        design_problem_ref=context.design_problem_ref,
+        candidate_id=legacy_simulation.candidate_id,
+        atom_ids=legacy_result.atom_ids,
+        selected_outcomes=legacy_result.selected_outcomes,
+        status=legacy_simulation.status,
+        simulation_ref=legacy_result.receipt.payload_hash,
+        simulation_result_ref=legacy_ref,
+        world_model_record_content_hash=legacy_result.world_model_record_content_hash,
+        authority_blockers=legacy_simulation.authority_blockers,
+        n5_interaction_evidence=_n5_interaction_evidence_projection(legacy_result),
+        **_n8_interaction_qualification_fields(value),
+    )
+    assert api_observation.n8_status == "value_conditional"
+    assert api_observation.n8_numeric_interaction == "unsupported"
+    assert api_observation.n8_numeric_interaction_basis == "not_established"
+    assert api_observation.n8_interaction_sampling_status == "not_established"
+    assert current_classification_marker in api_observation.n8_authority_blockers
+    assert api_observation.n5_interaction_evidence is not None
+    assert api_observation.n5_interaction_evidence.schema_version == legacy_result.schema_version
+    assert api_observation.n5_interaction_evidence.numeric_interaction == "unsupported"
+    return value, api_observation
+
+
+def _consume_v4_n5_through_n8_and_run_projection(
+    *,
+    tmp_path: Path,
+    problem: Any,
+    context: Any,
+    candidate: Any,
+    simulation: SimulationPortObservation,
+    v4_ref: CASArtifactRef,
+    v4_result: JointSimulationResult,
+    store: Any,
+) -> tuple[Any, Any, bytes]:
+    """Consume a freshly reopened signed v4 artifact without rewriting history."""
+
+    from polisyos.core.contracts.runtime import RunCandidateSimulationN5Observation
+    from polisyos.runtime.http.routes.runs import (
+        _n5_interaction_evidence_projection,
+        _n8_interaction_qualification_fields,
+    )
+
+    original_class = v4_result.feedback_classification.numeric_interaction
+    original_basis = v4_result.feedback_classification.numeric_interaction_basis
+    original_sampling_status = v4_result.feedback_classification.interaction_sampling_status
+    assert v4_result.schema_version == "policyos.runtime.joint_simulation_horizon.v4"
+    assert original_sampling_status == "estimated"
+    assert original_basis == "finite_checked_model_point_estimate_only"
+
+    simulation = simulation.model_copy(
+        update={
+            "simulation_result_ref": v4_ref,
+            "simulation_ref": v4_result.receipt.payload_hash,
+            "authority_blockers": tuple(
+                blocker
+                for blocker in simulation.authority_blockers
+                if blocker != "interaction_numeric_classification_unsupported"
+            ),
+        }
+    )
+    selected_bytes = store.get_bytes(v4_ref)
+    freshly_loaded = load_joint_simulation_result(
+        v4_ref,
+        store=store,
+        expected_world_model_record_content_hash=v4_result.world_model_record_content_hash,
+        expected_atom_ids=v4_result.atom_ids,
+        expected_selected_outcomes=v4_result.selected_outcomes,
+        expected_receipt_payload_hash=v4_result.receipt.payload_hash,
+    )
+    assert freshly_loaded is not v4_result
+    assert freshly_loaded.content_bound_payload() == v4_result.content_bound_payload()
+    assert freshly_loaded.feedback_classification.numeric_interaction == original_class
+    assert freshly_loaded.feedback_classification.numeric_interaction_basis == original_basis
+    assert (
+        freshly_loaded.feedback_classification.interaction_sampling_status
+        == original_sampling_status
+    )
+
+    with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+        value = _DefaultSimulationBoundFoundryValuePort(
+            repo_root=tmp_path,
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )(
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+            cycle_index=0,
+        )
+
+    assert value.status == "value_conditional", value.model_dump(mode="json")
+    assert value.value_ref == str(v4_ref.artifact_id)
+    assert value.numeric_interaction == "unsupported"
+    assert "interaction_numeric_classification_unsupported" in value.authority_blockers
+    assert value.numeric_interaction_basis == original_basis
+    assert value.interaction_sampling_status == original_sampling_status
+    assert store.get_bytes(v4_ref) == selected_bytes
+
+    api_observation = RunCandidateSimulationN5Observation(
+        node_ref="node://cyc-02/v4-n5",
+        design_problem_ref=context.design_problem_ref,
+        candidate_id=simulation.candidate_id,
+        atom_ids=v4_result.atom_ids,
+        selected_outcomes=v4_result.selected_outcomes,
+        status=simulation.status,
+        simulation_ref=v4_result.receipt.payload_hash,
+        simulation_result_ref=v4_ref,
+        world_model_record_content_hash=v4_result.world_model_record_content_hash,
+        authority_blockers=simulation.authority_blockers,
+        n5_interaction_evidence=_n5_interaction_evidence_projection(freshly_loaded),
+        **_n8_interaction_qualification_fields(value),
+    )
+    assert api_observation.n8_status == "value_conditional"
+    assert api_observation.n8_numeric_interaction == "unsupported"
+    assert "interaction_numeric_classification_unsupported" in (
+        api_observation.n8_authority_blockers
+    )
+    assert api_observation.n8_numeric_interaction_basis == original_basis
+    assert api_observation.n8_interaction_sampling_status == original_sampling_status
+    assert api_observation.n5_interaction_evidence is not None
+    assert api_observation.n5_interaction_evidence.schema_version == v4_result.schema_version
+    assert api_observation.n5_interaction_evidence.numeric_interaction == "unsupported"
+    assert api_observation.n5_interaction_evidence.numeric_interaction_basis == original_basis
+    assert api_observation.n5_interaction_evidence.interaction_sampling_status == (
+        original_sampling_status
+    )
+
+    projected_terms = {
+        (term.atom_ids, term.outcome): term
+        for term in api_observation.n5_interaction_evidence.interaction_terms
+    }
+    for source_term in freshly_loaded.interaction_terms:
+        projected = projected_terms[(source_term.atom_ids, source_term.outcome)]
+        assert projected.by_step == source_term.by_step
+        assert set(projected.replication_sampling_by_step) == set(
+            source_term.replication_sampling_by_step
+        )
+        for step, source_summary in source_term.replication_sampling_by_step.items():
+            projected_summary = projected.replication_sampling_by_step[step]
+            assert projected_summary.status == source_summary.status
+            assert projected_summary.replicate_count == source_summary.replicate_count
+            assert projected_summary.seeds == source_summary.seeds
+            assert projected_summary.mean == source_term.by_step[step]
+            assert tuple(
+                (sample.seed, sample.value) for sample in projected_summary.samples
+            ) == tuple(
+                (sample.seed, sample.effects["derived_effect"]) for sample in source_summary.samples
+            )
+    assert store.get_bytes(v4_ref) == selected_bytes
+    return value, api_observation, selected_bytes
+
+
+def test_legacy_n8_v1_v2_v3_v4_reopens_and_rederives_missing_classification_limit(
+    tmp_path: Path,
+) -> None:
+    """Historical N5 schemas stay conditional when the new blocker was not persisted."""
+
+    ncm_problem, ncm_context, ncm_candidate, ncm_simulation, ncm_result, ncm_store = (
+        _real_n5_observation(
+            tmp_path / "ncm",
+            single_step_horizon=True,
+            ncm_spec=_deterministic_ncm_with_cross_term(),
+            replications=2,
+        )
+    )
+    assert ncm_result is not None
+    assert ncm_simulation.simulation_result_ref is not None
+    assert any(
+        decision.engine_kind == "ncm_parallel_worlds" and decision.decision == "selected"
+        for decision in ncm_result.engine_decisions
+    )
+    assert ncm_result.schema_version == JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
+    assert "interaction_numerical_tolerance" in ncm_result.diagnostics
+    assert ncm_result.feedback_classification.numeric_interaction == "unsupported"
+    assert (
+        "interaction_numeric_classification_unsupported"
+        in (ncm_result.promotion_ready_value_packet["authority_blockers"])
+    )
+    ncm_interaction = next(
+        term
+        for term in ncm_result.interaction_terms
+        if term.outcome == ncm_problem.outcome_of_interest.target_variable
+    )
+    assert math.isfinite(ncm_interaction.by_step[0])
+    assert abs(ncm_interaction.by_step[0]) > 1e-4
+    ncm_pair_sampling = ncm_interaction.replication_sampling_by_step[0]
+    assert ncm_pair_sampling.status == "estimated"
+    assert ncm_pair_sampling.effects_standard_error["derived_effect"] == 0.0
+    assert len(ncm_pair_sampling.samples) >= 2
+    assert len({sample.effects["derived_effect"] for sample in ncm_pair_sampling.samples}) == 1
+
+    v4_ref, v4_result = _persist_legacy_n5_result(
+        ncm_result,
+        store=ncm_store,
+        source_ref=ncm_simulation.simulation_result_ref,
+        schema_version=4,
+    )
+    assert v4_result.schema_version == "policyos.runtime.joint_simulation_horizon.v4"
+    assert v4_ref.manifest_profile_sha256 is not None
+    with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+        v4_manifest = ncm_store.get_manifest(v4_ref)
+    assert v4_manifest.artifact_schema is not None
+    assert v4_manifest.artifact_schema.version == "4.0.0"
+    assert v4_result.feedback_classification.numeric_interaction == "non_additive"
+    assert v4_result.feedback_classification.numeric_interaction_basis == (
+        "finite_checked_model_point_estimate_only"
+    )
+    assert v4_result.feedback_classification.interaction_sampling_status == "estimated"
+    assert "interaction_numerical_tolerance" not in v4_result.diagnostics
+    assert ncm_interaction.replication_sampling_by_step[0].samples
+    assert v4_result.feedback_classification.numeric_interaction != (
+        ncm_result.feedback_classification.numeric_interaction
+    )
+    assert (
+        "interaction_numeric_classification_unsupported"
+        not in (v4_result.promotion_ready_value_packet["authority_blockers"])
+    )
+    v4_value, v4_api_observation, v4_bytes = _consume_v4_n5_through_n8_and_run_projection(
+        tmp_path=tmp_path,
+        problem=ncm_problem,
+        context=ncm_context,
+        candidate=ncm_candidate,
+        simulation=ncm_simulation,
+        v4_ref=v4_ref,
+        v4_result=v4_result,
+        store=ncm_store,
+    )
+    assert v4_value.numeric_interaction == "unsupported"
+    assert v4_api_observation.n8_numeric_interaction == "unsupported"
+    assert ncm_store.get_bytes(v4_ref) == v4_bytes
+
+    # The fresh v5 result remains governed by its own tolerance qualification.
+    with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+        v5_value = _DefaultSimulationBoundFoundryValuePort(
+            repo_root=tmp_path,
+            cycle_substrate_context=ncm_context,
+            artifact_store=ncm_store,
+        )(
+            candidate=ncm_candidate,
+            simulation=ncm_simulation,
+            problem=ncm_problem,
+            cycle_index=0,
+        )
+    assert v5_value.status == "value_conditional", v5_value.model_dump(mode="json")
+    assert v5_value.value_ref == str(ncm_simulation.simulation_result_ref.artifact_id)
+    assert v5_value.numeric_interaction == ncm_result.feedback_classification.numeric_interaction
+    assert "interaction_numeric_classification_unsupported" in v5_value.authority_blockers
+    assert v5_value.interaction_sampling_status == (
+        ncm_result.feedback_classification.interaction_sampling_status
+    )
+
+    witness = None
+    try:
+        historical_cases: list[tuple[int, Any, Any, Any, Any, Any, Any, CASArtifactRef]] = []
+        for schema_version in (1, 3):
+            legacy_ref, legacy_result = _persist_legacy_n5_result(
+                ncm_result,
+                store=ncm_store,
+                source_ref=ncm_simulation.simulation_result_ref,
+                schema_version=schema_version,
+            )
+            assert legacy_result.feedback_classification.numeric_interaction == ("non_additive")
+            legacy_payload = legacy_result.content_bound_payload()
+            assert "higher_order_residuals" not in legacy_payload
+            assert "interaction_numerical_tolerance" not in legacy_payload["diagnostics"]
+            assert "numeric_interaction_basis" not in legacy_payload["feedback_classification"]
+            historical_cases.append(
+                (
+                    schema_version,
+                    ncm_problem,
+                    ncm_context,
+                    ncm_candidate,
+                    ncm_simulation,
+                    legacy_result,
+                    ncm_store,
+                    legacy_ref,
+                )
+            )
+
+        witness = _owner_program_graph_n5_witness(
+            tmp_path / "program-graph",
+            income_values=(1000.0, 2000.0),
+        )
+        assert witness.result.state_consumption is not None
+        assert witness.simulation.simulation_result_ref is not None
+        legacy_ref, legacy_result = _persist_legacy_n5_result(
+            witness.result,
+            store=witness.store,
+            source_ref=witness.simulation.simulation_result_ref,
+            schema_version=2,
+        )
+        historical_cases.append(
+            (
+                2,
+                witness.problem,
+                witness.context,
+                witness.candidate,
+                witness.simulation,
+                legacy_result,
+                witness.store,
+                legacy_ref,
+            )
+        )
+
+        for (
+            schema_version,
+            problem,
+            context,
+            candidate,
+            simulation,
+            legacy_result,
+            store,
+            legacy_ref,
+        ) in historical_cases:
+            assert legacy_ref.manifest_profile_sha256 is not None
+            value, api_observation = _consume_legacy_n5_through_n8_and_run_projection(
+                tmp_path=tmp_path,
+                problem=problem,
+                context=context,
+                candidate=candidate,
+                simulation=simulation,
+                legacy_ref=legacy_ref,
+                legacy_result=legacy_result,
+                store=store,
+            )
+            assert legacy_result.schema_version.endswith(f".v{schema_version}")
+            assert value.value_ref == str(legacy_ref.artifact_id)
+            assert api_observation.simulation_result_ref == legacy_ref
+            assert api_observation.n5_interaction_evidence is not None
+            assert api_observation.n5_interaction_evidence.schema_version.endswith(
+                f".v{schema_version}"
+            )
+            if schema_version in {1, 3}:
+                projected_ncm_interaction = next(
+                    term
+                    for term in api_observation.n5_interaction_evidence.interaction_terms
+                    if term.outcome == ncm_problem.outcome_of_interest.target_variable
+                )
+                assert projected_ncm_interaction.by_step[0] == pytest.approx(
+                    ncm_interaction.by_step[0]
+                )
+                assert projected_ncm_interaction.replication_sampling_by_step == {}
+    finally:
+        if witness is not None:
+            witness.store.close()
+        close_ncm_store = getattr(ncm_store, "close", None)
+        if callable(close_ncm_store):
+            close_ncm_store()
 
 
 def _n5_readback_witness(result: Any, outcome: str) -> dict[str, Any]:

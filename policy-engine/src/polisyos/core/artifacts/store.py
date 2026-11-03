@@ -6593,3 +6593,13 @@ class ReadOnlyFileSystemCAS(ArtifactReader):
     ) -> VerificationReport:
         """Verify the selected artifact view without exposing write operations."""
         return self.__store.verify(artifact_id)
+
+    def verify_signature(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        verifier: Ed25519Verifier,
+        *,
+        strict_identity: bool | None = None,
+    ) -> SignatureVerificationResult:
+        """Verify an exact signed view through the existing read-only guarded owner."""
+        return self.__store.verify_signature(artifact_id, verifier, strict_identity=strict_identity)

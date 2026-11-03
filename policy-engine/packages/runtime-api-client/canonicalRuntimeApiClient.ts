@@ -1524,6 +1524,12 @@ export type RunAuthorityProjection =
 export type RunBoundDesignRecordBinding =
   RuntimeApiComponents["schemas"]["RunBoundDesignRecordBinding"];
 
+export type RunCandidateEvaluationAttemptProjection =
+  RuntimeApiComponents["schemas"]["RunCandidateEvaluationAttemptProjection"];
+
+export type RunCandidateSimulationAcquiredOutcomeRevision =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationAcquiredOutcomeRevision"];
+
 export type RunCandidateSimulationAcquisitionContinuationProjection =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationAcquisitionContinuationProjection"];
 
@@ -1533,6 +1539,12 @@ export type RunCandidateSimulationAcquisitionHistoryEntry =
 export type RunCandidateSimulationAcquisitionHistoryEntryV3 =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"];
 
+export type RunCandidateSimulationAcquisitionHistoryEntryV4 =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"];
+
+export type RunCandidateSimulationCheapConsequences =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationCheapConsequences"];
+
 export type RunCandidateSimulationChildProfileBinding =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationChildProfileBinding"];
 
@@ -1541,6 +1553,9 @@ export type RunCandidateSimulationContinuationFronts =
 
 export type RunCandidateSimulationCurrentOccurrence =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationCurrentOccurrence"];
+
+export type RunCandidateSimulationModelRevision =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationModelRevision"];
 
 export type RunCandidateSimulationN5Observation =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationN5Observation"];
@@ -1556,6 +1571,9 @@ export type RunCandidateSimulationProjection =
 
 export type RunCandidateSimulationRetainedEvaluation =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationRetainedEvaluation"];
+
+export type RunCandidateSourceCurrentProjection =
+  RuntimeApiComponents["schemas"]["RunCandidateSourceCurrentProjection"];
 
 export type RunCompareResponse =
   RuntimeApiComponents["schemas"]["RunCompareResponse"];
@@ -1942,6 +1960,9 @@ export type WorkflowDataSourceBinding =
 
 export type WorkflowRunRequest =
   RuntimeApiComponents["schemas"]["WorkflowRunRequest"];
+
+export type _BuildIdentityArtifactSelection =
+  RuntimeApiComponents["schemas"]["_BuildIdentityArtifactSelection"];
 
 export type _QualifiedOutcomeOfInterestV3 =
   RuntimeApiComponents["schemas"]["_QualifiedOutcomeOfInterestV3"];

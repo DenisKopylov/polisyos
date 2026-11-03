@@ -2063,8 +2063,8 @@
         {
           "module": "polisyos.core.contracts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 782,
-          "known_export_count": 782,
+          "export_count": 797,
+          "known_export_count": 797,
           "exports": [
             "AcceptanceNonReceipt",
             "AcceptanceOutcome",
@@ -2291,6 +2291,12 @@
             "CapabilityExecutionState",
             "CapabilityFreshness",
             "CapabilityResolverPort",
+            "CAPABILITY_SOURCE_DISCOVERY_SCHEMA_VERSION",
+            "candidate_source_time_coverage",
+            "CapabilitySourceCandidate",
+            "CapabilitySourceDiscoveryUnavailableError",
+            "CapabilitySourceDiscoveryResult",
+            "CapabilityCandidateDiscoveryPort",
             "CapabilityResourceKind",
             "CapabilityTimeSemantics",
             "CatalogRunProfile",
@@ -2338,6 +2344,7 @@
             "CursorPage",
             "DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION",
             "AcquiredObservationDataSnapshotLineage",
+            "CandidateAcquisitionSourceDataSnapshotLineage",
             "DataSnapshot",
             "DataSnapshotOwnerBound",
             "DataSnapshotOwnerLineage",
@@ -2686,6 +2693,12 @@
             "RuleType",
             "RunCandidateSimulationAcquisitionHistoryEntry",
             "RunCandidateSimulationAcquisitionHistoryEntryV3",
+            "RunCandidateSimulationAcquisitionHistoryEntryV4",
+            "RunCandidateSimulationModelRevision",
+            "RunCandidateSourceCurrentProjection",
+            "RunCandidateSimulationCheapConsequences",
+            "RunCandidateEvaluationAttemptProjection",
+            "RunCandidateSimulationAcquiredOutcomeRevision",
             "RunCandidateSimulationRetainedEvaluation",
             "RunCandidateSimulationN5Observation",
             "RunCandidateSimulationProjection",
@@ -2711,6 +2724,8 @@
             "RunTimelineResponse",
             "RunTimelineSummary",
             "RunTimelineView",
+            "N6_TERMINAL_STOP_PROJECTIONS",
+            "n6_stop_projection_decision",
             "RunsListResponse",
             "RuntimeApiError",
             "RuntimeApiProblem",
@@ -2873,8 +2888,8 @@
                 "path": "src/polisyos/core/contracts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 80379,
-                "sha256": "d2edd6c633f7e09560cf0c56d73db5e6c22f5069fd2428cc5cdd87412cf3cee1"
+                "bytes": 82261,
+                "sha256": "bcc53afd0ad9da492c4a608ab827ac3186a101d74ccdc3da4f5cd2f3f45356b2"
               },
               {
                 "path": "src/polisyos/core/contracts",
@@ -9287,8 +9302,8 @@
         "polisyos.fabric.product_integration"
       ],
       "major_subsystem": true,
-      "export_count": 54,
-      "known_export_count": 54,
+      "export_count": 55,
+      "known_export_count": 55,
       "exports": [
         "AccessRef",
         "AuthoredText",
@@ -9342,6 +9357,7 @@
         "resolve_world_snapshot",
         "run_connectors_ingestion",
         "stream_processing_contract",
+        "validate_catalog_candidate_fetch_plans",
         "verify_federation_core_payload",
         "world"
       ],
@@ -9354,8 +9370,8 @@
         {
           "module": "polisyos.fabric",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 54,
-          "known_export_count": 54,
+          "export_count": 55,
+          "known_export_count": 55,
           "exports": [
             "AccessRef",
             "AuthoredText",
@@ -9409,6 +9425,7 @@
             "resolve_world_snapshot",
             "run_connectors_ingestion",
             "stream_processing_contract",
+            "validate_catalog_candidate_fetch_plans",
             "verify_federation_core_payload",
             "world"
           ],
@@ -9436,8 +9453,8 @@
                 "path": "src/polisyos/fabric/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 14180,
-                "sha256": "564760afdbb1b823f373d975b33666c715a22da22bd337de40c4ff6447487624"
+                "bytes": 14391,
+                "sha256": "a9f80e8796c3fcd2d561d382b0984ddc601003581e9dbf77776442a74d633f96"
               },
               {
                 "path": "src/polisyos/fabric",
@@ -9625,8 +9642,8 @@
         {
           "module": "polisyos.fabric.api",
           "facade_mode_observed": "eager_exports",
-          "export_count": 54,
-          "known_export_count": 54,
+          "export_count": 55,
+          "known_export_count": 55,
           "exports": [
             "AccessRef",
             "AuthoredText",
@@ -9680,6 +9697,7 @@
             "resolve_world_snapshot",
             "run_connectors_ingestion",
             "stream_processing_contract",
+            "validate_catalog_candidate_fetch_plans",
             "verify_federation_core_payload",
             "world"
           ],
@@ -9726,8 +9744,8 @@
                 "path": "src/polisyos/fabric/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 14180,
-                "sha256": "564760afdbb1b823f373d975b33666c715a22da22bd337de40c4ff6447487624"
+                "bytes": 14391,
+                "sha256": "a9f80e8796c3fcd2d561d382b0984ddc601003581e9dbf77776442a74d633f96"
               },
               {
                 "path": "src/polisyos/fabric.py",
@@ -9757,8 +9775,8 @@
                 "path": "src/polisyos/fabric/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 14180,
-                "sha256": "564760afdbb1b823f373d975b33666c715a22da22bd337de40c4ff6447487624"
+                "bytes": 14391,
+                "sha256": "a9f80e8796c3fcd2d561d382b0984ddc601003581e9dbf77776442a74d633f96"
               },
               {
                 "path": "src/polisyos/fabric/api",
@@ -10171,8 +10189,8 @@
         {
           "module": "polisyos.fabric.data_plane",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 56,
-          "known_export_count": 56,
+          "export_count": 57,
+          "known_export_count": 57,
           "exports": [
             "AppendOnlyEvidenceJournal",
             "EvidenceJournalError",
@@ -10229,7 +10247,8 @@
             "resolve_live_transport_trace",
             "resolve_raw_response_body",
             "run_orchestrated_ingestion",
-            "verify_journal_event_ref"
+            "verify_journal_event_ref",
+            "verify_live_ingestion_snapshot_profile"
           ],
           "has___getattr__": true,
           "has___dir__": true,
@@ -10255,8 +10274,8 @@
                 "path": "src/polisyos/fabric/data_plane/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 9472,
-                "sha256": "7ba04cebb1d77cdfdc8cd2df8c3c455b701e77910f3e535e251a92ca675d37e2"
+                "bytes": 9674,
+                "sha256": "93acc138f57809ed67e194ec01e33c2f0514e9b3605cc81a425c2d3b6838606b"
               },
               {
                 "path": "src/polisyos/fabric/data_plane",
@@ -12094,8 +12113,8 @@
         {
           "module": "polisyos.foundry.methods",
           "facade_mode_observed": "eager_exports",
-          "export_count": 225,
-          "known_export_count": 225,
+          "export_count": 231,
+          "known_export_count": 231,
           "exports": [
             "ADVISOR_EXECUTION_CONTEXT_PARAM",
             "ActiveSetSummary",
@@ -12162,6 +12181,7 @@
             "FieldRequirement",
             "FieldToleranceSpec",
             "FileSystemSource",
+            "FoundryExtensionRegistryReport",
             "FoundryMethod",
             "FoundryMethodBase",
             "FoundryMethodError",
@@ -12197,6 +12217,7 @@
             "MethodRunner",
             "MethodScoreTraceEntry",
             "MethodSelectionCriteria",
+            "MethodSelectionDisposition",
             "MethodSelectionReceipt",
             "MethodSignature",
             "MethodTiming",
@@ -12237,6 +12258,7 @@
             "Specialization",
             "TypeAdapter",
             "TypeAdapterKind",
+            "UnboundFoundryDiscoveryInputError",
             "Unit",
             "UnitAdapter",
             "UnitAdapterKind",
@@ -12250,6 +12272,7 @@
             "attach_advisor_execution_context",
             "attach_equivalence_ref",
             "authoring_catalog_payload",
+            "bootstrap_foundry_method_registry",
             "bootstrap_method_registry_from_components",
             "build_advisor_execution_context",
             "build_method_capability_matrix",
@@ -12272,6 +12295,7 @@
             "compute_source_fingerprint",
             "compute_source_hash",
             "compute_static_params_hash",
+            "controlled_builtin_foundry_method_registry_scope",
             "deprecate_method",
             "derive_field_tolerance_spec",
             "derive_pairwise_budget",
@@ -12321,7 +12345,8 @@
             "validate_source_bound_causal_worker_response",
             "validate_source_bound_gcm_spec",
             "verify_backend_equivalence",
-            "verify_persisted_equivalence_certificate"
+            "verify_persisted_equivalence_certificate",
+            "verify_value_method_selection_receipt"
           ],
           "has___getattr__": false,
           "has___dir__": false,
@@ -12366,8 +12391,8 @@
                 "path": "src/polisyos/foundry/methods/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 25670,
-                "sha256": "0ab8dbb580036e1612a2539c5fda7a117ffbb7eab88dd26e4c78bf7dffb535d1"
+                "bytes": 26558,
+                "sha256": "a093e8eaf715ac4e51f705fef83d54b165c4a4e0e4043c490d2888e0ed115e91"
               },
               {
                 "path": "src/polisyos/foundry/methods/api.py",
@@ -12397,8 +12422,8 @@
                 "path": "src/polisyos/foundry/methods/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 25670,
-                "sha256": "0ab8dbb580036e1612a2539c5fda7a117ffbb7eab88dd26e4c78bf7dffb535d1"
+                "bytes": 26558,
+                "sha256": "a093e8eaf715ac4e51f705fef83d54b165c4a4e0e4043c490d2888e0ed115e91"
               },
               {
                 "path": "src/polisyos/foundry/methods",
@@ -14826,9 +14851,12 @@
         {
           "module": "polisyos.scientist.orchestration.engine",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 117,
-          "known_export_count": 117,
+          "export_count": 124,
+          "known_export_count": 124,
           "exports": [
+            "BudgetInvocationCapacityObservation",
+            "BudgetInvocationExhaustionWitness",
+            "ProducerBudgetObserver",
             "ATTR_CACHE_HIT",
             "ATTR_CELL_ID",
             "ATTR_DURATION_MS",
@@ -14847,6 +14875,10 @@
             "IDEMPOTENCY_CONTRACT_VERSION",
             "AsyncWorkflowExecutor",
             "BudgetExhaustedError",
+            "BudgetInvocationQuotaPolicy",
+            "BudgetLedgerInvocationProfile",
+            "BudgetLedgerReentryBudgetScope",
+            "BudgetLedgerReentryBudgetWindow",
             "BudgetLedger",
             "BudgetLedgerMutation",
             "BudgetLedgerCacheReuseAdmission",
@@ -14971,8 +15003,8 @@
                 "path": "src/polisyos/scientist/orchestration/engine/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 18130,
-                "sha256": "cd84ca856e846813217c98163e5fd0805b008dd90838abdfb54c55ff7ccaf023"
+                "bytes": 19471,
+                "sha256": "2727211fbb55eb49fb0d8d5a5d30593eec1e08301bcc101d68d7cd94a5de1ed1"
               },
               {
                 "path": "src/polisyos/scientist/orchestration/engine",
@@ -16622,8 +16654,8 @@
         "polisyos.runtime.quality"
       ],
       "major_subsystem": false,
-      "export_count": 973,
-      "known_export_count": 973,
+      "export_count": 976,
+      "known_export_count": 976,
       "exports": [
         "ACQUISITION_PLANNER_GATE_LAYER",
         "ACQUISITION_PLANNER_GATE_PHASE",
@@ -16903,6 +16935,8 @@
         "CandidateFirewallError",
         "CandidateLever",
         "CandidateLeverSpace",
+        "CandidateSourceCurrentOccurrence",
+        "CandidateSourceCurrentProjection",
         "CanonicalDesignRecord",
         "CapabilityAuthorityError",
         "CapabilityAuthorityFactor",
@@ -17506,6 +17540,7 @@
         "policy_design_pass1b_hardening_scorecard_gates",
         "producer_spine_read_context_for",
         "project_cae_defeaters_to_s14_skeptic_records",
+        "project_candidate_source_current_occurrences",
         "project_value_tradeoff_disclosure",
         "public_rule_evolution_annotation",
         "ratchet_templates",
@@ -17608,8 +17643,8 @@
         {
           "module": "polisyos.runtime.quality",
           "facade_mode_observed": "eager_exports",
-          "export_count": 973,
-          "known_export_count": 973,
+          "export_count": 976,
+          "known_export_count": 976,
           "exports": [
             "ACQUISITION_PLANNER_GATE_LAYER",
             "ACQUISITION_PLANNER_GATE_PHASE",
@@ -17889,6 +17924,8 @@
             "CandidateFirewallError",
             "CandidateLever",
             "CandidateLeverSpace",
+            "CandidateSourceCurrentOccurrence",
+            "CandidateSourceCurrentProjection",
             "CanonicalDesignRecord",
             "CapabilityAuthorityError",
             "CapabilityAuthorityFactor",
@@ -18492,6 +18529,7 @@
             "policy_design_pass1b_hardening_scorecard_gates",
             "producer_spine_read_context_for",
             "project_cae_defeaters_to_s14_skeptic_records",
+            "project_candidate_source_current_occurrences",
             "project_value_tradeoff_disclosure",
             "public_rule_evolution_annotation",
             "ratchet_templates",
@@ -18609,8 +18647,8 @@
                 "path": "src/polisyos/runtime/quality/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 73897,
-                "sha256": "e7101cc61e8f07c65bd48e2b174b47eccf49f7402167eb4c8baca31f3675f8c9"
+                "bytes": 74155,
+                "sha256": "fb6359ac515cb7b0db4d4525a72469d6a286ac59669ae27cab77d9b8f1020318"
               },
               {
                 "path": "src/polisyos/runtime/quality",
@@ -18667,7 +18705,19 @@
                 "result": true
               },
               {
+                "path": "src/polisyos/runtime/quality/acquisition_evidence_transition.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
                 "path": "src/polisyos/runtime/quality/acquisition_executor.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/runtime/quality/acquisition_model_transition.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true
@@ -18763,6 +18813,18 @@
                 "result": true
               },
               {
+                "path": "src/polisyos/runtime/quality/candidate_acquisition_action.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/runtime/quality/candidate_acquisition_source.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
                 "path": "src/polisyos/runtime/quality/candidate_firewall.py",
                 "operation": "is_file",
                 "status": "present",
@@ -18770,6 +18832,18 @@
               },
               {
                 "path": "src/polisyos/runtime/quality/candidate_simulation.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/runtime/quality/candidate_source_basis.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/runtime/quality/candidate_source_reentry_history.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true
@@ -19358,6 +19432,12 @@
               },
               {
                 "path": "src/polisyos/runtime/quality/n5_execution_basis.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/runtime/quality/ncm_numeric_profile.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true
@@ -20946,14 +21026,15 @@
         {
           "module": "polisyos.data_forge.read_api.catalog",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 156,
-          "known_export_count": 156,
+          "export_count": 160,
+          "known_export_count": 160,
           "exports": [
             "AcquisitionAuthorityEntry",
             "AcquisitionAuthorityError",
             "AcquisitionAuthorityProvision",
             "AcquisitionAuthorityRegistry",
             "AcquisitionDatasetRegistration",
+            "AcquisitionSourceMeasureScope",
             "ActivatedAcquisitionObservationProjection",
             "AuthoritySchemaColumn",
             "BaselineIdentity",
@@ -21042,6 +21123,7 @@
             "ResolvedFetchTarget",
             "ResolvedL5Trust",
             "ResolvedLiveHarnessReceipt",
+            "SELECTED_LIVE_SOURCE_EXECUTION_EVIDENCE_SCHEMA_VERSION",
             "SearchFilters",
             "VariableAlignment",
             "WVSIndicatorRegistryError",
@@ -21094,11 +21176,13 @@
             "plan_catalog_source_stage_contracts",
             "profile_input_coverage_currentness",
             "project_catalog_acquisition_state",
+            "read_selected_live_raw_source",
             "read_wvs_indicator_registry",
             "resolve_catalog_selection_policy",
             "resolve_embedding_generation",
             "resolve_live_temporal_bounds",
             "resolve_proxy",
+            "resolve_source_observation_class",
             "score_variable_pair",
             "select_catalog_source_modules",
             "validate_catalog_run_profile",
@@ -21130,8 +21214,8 @@
                 "path": "src/polisyos/data_forge/read_api/catalog.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 63302,
-                "sha256": "314af73a6db4ca0674f23f523f9d71a03a75cf3b3a892516c58d7331ce217925"
+                "bytes": 64552,
+                "sha256": "d90ed73f59e18f440971a9c43eb724f06e0016359c9e45d53b91987533c2b49e"
               },
               {
                 "path": "src/polisyos/data_forge/read_api/catalog",

@@ -2709,6 +2709,7 @@ class CycleSubstrateContextArtifactOwner:
         problem: DesignProblem,
         repo_root: Path | None = None,
         verified_nl_job_scope: VerifiedNLJobScope | None = None,
+        return_selected_profile: bool = False,
     ) -> artifacts.ArtifactRef:
         """Persist through the runtime store under the current persisted job lease.
 
@@ -2745,12 +2746,24 @@ class CycleSubstrateContextArtifactOwner:
         )
         payload = _serialize_cycle_substrate_context_job_artifact(artifact)
         options = _context_job_write_options(artifact)
-        if self._context_admission_verifier is not None:
+        if type(return_selected_profile) is not bool:
+            raise TypeError("cycle_substrate_selected_profile_request_untyped")
+        if self._context_admission_verifier is not None or return_selected_profile:
             # Carry the profile selected inside this write to every consumer;
             # reading the default later cannot establish the writer's identity.
-            return writer.put_json(
+            written = writer.put_json(
                 payload, options, canon_spec=_CONTEXT_JOB_CANON, return_selected_profile=True
             )
+            if (
+                not isinstance(written, artifacts.ArtifactRef)
+                or written.manifest_profile_sha256 is None
+                or written.kind != options.kind
+                or written.media_type != options.media_type
+            ):
+                raise CycleSubstrateContextOwnerError(
+                    "cycle_substrate_context_writer_profile_not_established"
+                )
+            return written
         return writer.put_json(payload, options, canon_spec=_CONTEXT_JOB_CANON)
 
     def resolve_for_current_job(
@@ -3486,6 +3499,7 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
         run_id: str,
         tenant_id: str,
         cell_id: str,
+        additional_authority_denials: Sequence[str] = (),
     ) -> object:
         """Rebind an exact configured candidate profile to an owner-built world.
 
@@ -3565,6 +3579,7 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             transport_context=None,
             source_pack_content_hash=inputs.source_pack_content_hash,
             substrate_input_content_hash=inputs.substrate_input_content_hash,
+            additional_authority_denials=additional_authority_denials,
         )
         _validate_problem_world_match(problem, context)
         context = revalidate_cycle_substrate_context(context)
@@ -4363,9 +4378,15 @@ def build_cycle_substrate_context(
     source_pack_content_hash: str | None,
     substrate_input_content_hash: str | None,
     source_profile: CandidateCycleSubstrateSourceProfile | None = None,
+    additional_authority_denials: Sequence[str] = (),
 ) -> CycleSubstrateContext:
     """Build and fully revalidate one candidate-only cycle substrate envelope."""
 
+    if isinstance(additional_authority_denials, (str, bytes)) or any(
+        not isinstance(item, str) or not item.strip() for item in additional_authority_denials
+    ):
+        raise ValueError("cycle_substrate_additional_authority_denials_invalid")
+    denials = _REQUIRED_AUTHORITY_DENIALS | {item.strip() for item in additional_authority_denials}
     selected = tuple(str(item) for item in selected_registry_entry_hashes)
     context_binding_hash = cycle_substrate_context_binding_hash(
         design_problem_ref=design_problem_ref,
@@ -4400,7 +4421,7 @@ def build_cycle_substrate_context(
         "candidate_levers": tuple(candidate_levers),
         "transport_context": transport_context,
         "authority_purpose": "cycle_input_candidate_only",
-        "may_not_use_for": tuple(sorted(_REQUIRED_AUTHORITY_DENIALS)),
+        "may_not_use_for": tuple(sorted(denials)),
         "context_binding_hash": context_binding_hash,
     }
     payload["content_hash"] = cycle_substrate_context_content_hash(payload)

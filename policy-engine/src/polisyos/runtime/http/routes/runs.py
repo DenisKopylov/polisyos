@@ -44,13 +44,19 @@ from polisyos.core.contracts.runtime import (
     MethodExecutionProducerDiagnostic,
     MethodMetricCandidateScore,
     MethodMetricProjectionResponse,
+    RunCandidateEvaluationAttemptProjection,
+    RunCandidateSimulationAcquiredOutcomeRevision,
     RunCandidateSimulationAcquisitionHistoryEntry,
     RunCandidateSimulationAcquisitionHistoryEntryV3,
+    RunCandidateSimulationAcquisitionHistoryEntryV4,
     RunCandidateSimulationChildProfileBinding,
+    RunCandidateSimulationModelRevision,
     RunCandidateSimulationN5Observation,
     RunCandidateSimulationN5ResultBody,
     RunCandidateSimulationN8ChildSourceBinding,
     RunCandidateSimulationProjection,
+    RunCandidateSimulationRetainedEvaluation,
+    RunCandidateSourceCurrentProjection,
     RunConditionalTransportCandidateProjection,
     RunDetailsResponse,
     RunEvidenceContextResponse,
@@ -193,8 +199,13 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts.manifest import InputRef as CoreInputRef
     from polisyos.ir import InputRef as IRInputRef
     from polisyos.runtime.http.services.run_index import IndexedRunRecord
+    from polisyos.runtime.quality.acquisition_evaluation import AcquisitionSelectedEvaluation
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationN5InputV5,
+    )
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleContextHistoryProjection,
+        GenerationCycleRun,
     )
     from polisyos.runtime.quality.recursive_generation_cycle import (
         RecursiveGenerationCyclePartialRunV2,
@@ -448,7 +459,233 @@ def _selected_target_baseline_hashes(
         )
 
     hashes = digest(before_value), digest(after_value)
-    return None if hashes[0] == hashes[1] else hashes
+    return hashes
+
+
+def _acquisition_selected_n5_observation(
+    *,
+    selected: AcquisitionSelectedEvaluation | RunCandidateSimulationRetainedEvaluation,
+    store: Any,
+    tenant_id: str,
+    cell_id: str,
+) -> RunCandidateSimulationN5Observation:
+    """Read numerical bytes for the exact owner-verified history selection.
+
+    The caller has already joined the selected action terminal and immutable
+    evaluation occurrence. Reopen its N5 owner rather than copying the initial
+    compiled run's numbers into the new or retained acquisition occurrence.
+    """
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    resolved = GenerationSourceRepository(store)._read_candidate_simulation_v5_numerical_output(
+        ref=selected.n5_execution_ref,
+        expected_run_id=selected.evaluation_run_id,
+        expected_job_id=selected.evaluation_job_id,
+        expected_tenant_id=tenant_id,
+        expected_cell_id=cell_id,
+    )
+    execution, input_record, result = resolved.execution, resolved.input_record, resolved.result
+    if (
+        execution.original_candidate_id != selected.candidate_id
+        or execution.original_candidate_hash != selected.candidate_content_hash
+        or execution.problem_ref != selected.design_problem_ref
+        or execution.world_model_record_hash != selected.world_model_record_hash
+        or any(
+            artifact_ref_identity_key(getattr(execution, name))
+            != artifact_ref_identity_key(getattr(selected, name))
+            for name in ("n4_source_ref", "context_job_ref", "n5_input_ref", "n5_result_ref")
+        )
+    ):
+        raise ValueError("acquisition_selected_n5_occurrence_binding_mismatch")
+    manifest = _generic_selected_result_manifest(
+        store, selected.n5_result_ref, tenant_id=tenant_id, cell_id=cell_id
+    )
+    body = RunCandidateSimulationN5ResultBody.model_validate(
+        {
+            **_n5_numerical_body_payload(
+                ref=selected.n5_result_ref,
+                manifest=manifest,
+                result=result,
+                authority_purpose="candidate_scenario_n5_only",
+            ),
+            **_n5_declared_candidate_units(resolved.source, result),
+        }
+    )
+    return RunCandidateSimulationN5Observation(
+        node_ref="acquisition-evaluation://" + selected.generation_run_id,
+        cycle_index=selected.cycle_index,
+        design_problem_ref=selected.design_problem_ref,
+        candidate_id=selected.candidate_id,
+        atom_ids=result.atom_ids,
+        selected_outcomes=result.selected_outcomes,
+        status="joint_simulated",
+        simulation_ref=result.receipt.payload_hash,
+        authority_blockers=_n5_interaction_projection_blockers(result, resolved.authority_blockers),
+        simulation_result_ref=selected.n5_result_ref,
+        n5_execution_ref=selected.n5_execution_ref,
+        result_body_status="resolved",
+        result_body=body,
+        n4_source_ref=selected.n4_source_ref,
+        context_job_ref=selected.context_job_ref,
+        n5_input_ref=selected.n5_input_ref,
+        profile_config_ref=execution.profile_config_ref,
+        profile_selection_ref=input_record.profile.profile_selection_ref,
+        lineage_status="resolved",
+        world_model_record_content_hash=execution.world_model_record_hash,
+        k_world_ref_before=execution.k_world_ref_before,
+        k_world_ref_after=execution.k_world_ref_after,
+        n5_interaction_evidence=_n5_interaction_evidence_projection(result),
+        **_n5_interaction_scope_fields(result),
+    )
+
+
+def _candidate_source_current_projection(
+    *,
+    control_service: Any,
+    control_store: Any,
+    store: Any,
+    event_log: Any,
+    source_run_id: str,
+    source_job_id: str,
+    compiled_ref: ArtifactRef,
+    compiled_content_hash: str,
+    tenant_id: str,
+    cell_id: str,
+) -> RunCandidateSourceCurrentProjection | None:
+    """Join the actual selected route fold to its independently reopened view."""
+    from polisyos.core.contracts.runtime import (
+        RunCandidateSimulationContinuationFronts,
+        RunCandidateSimulationCurrentOccurrence,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionRouteLoop,
+        VerifiedAcquisitionRouteClosure,
+    )
+    from polisyos.runtime.quality.generation_cycle import (
+        generation_cycle_run_content_hash,
+        project_candidate_source_current_occurrences,
+    )
+
+    def unavailable(code: str) -> RunCandidateSourceCurrentProjection:
+        return RunCandidateSourceCurrentProjection(status="not_established", issues=(code,))
+
+    try:
+        owner = AcquisitionRouteLoop(
+            control_store=control_store,
+            artifact_store=store,
+            event_log=event_log,
+            core_source_resolver=control_service.resolve_completed_control_job_core_run_source,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            action_outcome_reader=control_service.acquisition_route_sink,
+        )
+        closure = owner.resolve_current_route(run_id=source_run_id)
+        if type(closure) is not VerifiedAcquisitionRouteClosure or (
+            closure.tenant_id != tenant_id
+            or closure.cell_id != cell_id
+            or closure.run_id != source_run_id
+            or closure.source_job_id != source_job_id
+            or closure.compiled_ref != str(compiled_ref.artifact_id)
+            or closure.compiled_content_hash != compiled_content_hash
+        ):
+            return unavailable("candidate_source_current_compiled_source_mismatch")
+        transitions = closure.candidate_basis_transitions
+        run = closure.generation_run
+        if not transitions and not run.basis_transitions:
+            # An owner-verified legacy fold has no candidate basis to project.
+            return None
+        if (
+            not transitions
+            or tuple(receipt.basis_transition for receipt in transitions) != run.basis_transitions
+            or transitions[-1].continued_generation_run != run
+        ):
+            return unavailable("candidate_source_current_selected_continuation_mismatch")
+        selected_hash = generation_cycle_run_content_hash(run)
+        selected_transition = transitions[-1].basis_transition
+        view = project_candidate_source_current_occurrences(route_owner=owner, run_id=source_run_id)
+        if view.status != "resolved":
+            return RunCandidateSourceCurrentProjection(
+                status="not_established",
+                issues=tuple(str(issue["code"]) for issue in view.issues if issue.get("code"))
+                or ("candidate_source_current_owner_refused",),
+            )
+        if (
+            view.generation_run_content_hash != selected_hash
+            or view.basis_cycle_index != selected_transition.to_cycle_index
+            or view.basis_transition_content_hash != selected_transition.content_hash
+            or view.fronts is None
+        ):
+            return unavailable("candidate_source_current_between_read_snapshot_mismatch")
+        return RunCandidateSourceCurrentProjection(
+            status="resolved",
+            generation_run_content_hash=selected_hash,
+            basis_cycle_index=view.basis_cycle_index,
+            basis_transition_content_hash=view.basis_transition_content_hash,
+            occurrences=tuple(
+                RunCandidateSimulationCurrentOccurrence(
+                    candidate_id=row.recorded.candidate_id,
+                    cycle_index=row.recorded.cycle_index,
+                    content_hash=row.recorded.content_hash,
+                    source_content_hash=row.recorded.source_content_hash,
+                    front=row.effective_front,
+                    certified_by_n9=row.effective_certified_by_n9,
+                    candidate_basis_cycle_index=view.basis_cycle_index,
+                    candidate_basis_content_hash=view.basis_transition_content_hash,
+                    candidate_basis_status=row.basis_status,
+                    candidate_basis_limitation_code=row.limitation_code,
+                    historical_front=row.recorded.front,
+                    historical_certified_by_n9=row.recorded.certified_by_n9,
+                    historical_value_status=row.recorded.value_status,
+                    historical_value_decision_grade=row.recorded.value_decision_grade,
+                    historical_value_ref=row.recorded.value_ref,
+                    historical_value_blockers=row.recorded.value_blockers,
+                    value_status=row.effective_value_status,
+                    value_decision_grade=row.effective_value_decision_grade,
+                    value_ref=row.effective_value_ref,
+                    value_blockers=row.effective_value_blockers,
+                )
+                for row in view.occurrences
+            ),
+            fronts=RunCandidateSimulationContinuationFronts(
+                decision_candidate_ids=view.fronts.decision.candidate_ids,
+                research_candidate_ids=view.fronts.research.candidate_ids,
+                quarantine_candidate_ids=view.fronts.quarantine.candidate_ids,
+                portfolio_candidate_ids=view.fronts.portfolio.candidate_ids,
+            ),
+            certified_candidate_ids=view.certified_candidate_ids,
+        )
+    except CanonicalProfileRefusalError:
+        raise
+    except (OSError, RuntimeError, TypeError, ValueError, AttributeError) as exc:
+        _raise_generic_read_access_refusal(exc, code_prefix="candidate_source_current")
+        code = getattr(exc, "code", None)
+        return unavailable(
+            code if isinstance(code, str) and code else "candidate_source_current_owner_refused"
+        )
+
+
+def _candidate_history_reconcile_current_basis(
+    current: RunCandidateSourceCurrentProjection | None,
+    *,
+    generation_run_content_hash: str,
+    basis_transition_content_hash: str,
+    basis_cycle_index: int,
+) -> RunCandidateSourceCurrentProjection | None:
+    """Refuse a previously resolved view if the history fold advanced meanwhile."""
+    if (
+        current is not None
+        and current.status == "resolved"
+        and (
+            current.generation_run_content_hash != generation_run_content_hash
+            or current.basis_transition_content_hash != basis_transition_content_hash
+            or current.basis_cycle_index != basis_cycle_index
+        )
+    ):
+        return RunCandidateSourceCurrentProjection(
+            status="not_established",
+            issues=("candidate_source_current_between_read_snapshot_mismatch",),
+        )
+    return current
 
 
 def _candidate_acquisition_history_projection(
@@ -466,16 +703,19 @@ def _candidate_acquisition_history_projection(
 ) -> tuple[
     tuple[
         RunCandidateSimulationAcquisitionHistoryEntry
-        | RunCandidateSimulationAcquisitionHistoryEntryV3,
+        | RunCandidateSimulationAcquisitionHistoryEntryV3
+        | RunCandidateSimulationAcquisitionHistoryEntryV4,
         ...,
     ],
     str | None,
+    RunCandidateSourceCurrentProjection | None,
 ]:
     """Resolve persisted acquisition receipts without asserting route currentness."""
+    current_projection: RunCandidateSourceCurrentProjection | None = None
     if not tenant_id or not cell_id or not control_job_id:
-        return (), "acquisition_n4_source_not_established"
+        return (), "acquisition_n4_source_not_established", current_projection
     if control_service is None or getattr(control_service, "_artifact_store", None) is not store:
-        return (), "acquisition_action_history_not_observed"
+        return (), "acquisition_action_history_not_observed", current_projection
 
     control_store = getattr(control_service, "_control_store", None)
     event_log = getattr(control_service, "_diagnostic_event_log", None)
@@ -486,7 +726,7 @@ def _candidate_acquisition_history_projection(
         None,
     )
     if not callable(list_heads) or not callable(source_resolver) or event_log is None:
-        return (), "acquisition_action_history_not_observed"
+        return (), "acquisition_action_history_not_observed", current_projection
 
     from polisyos.core.artifacts import artifact_ref_identity_key
 
@@ -525,7 +765,7 @@ def _candidate_acquisition_history_projection(
             or compiled.n4_recursive_source_tenant_id != tenant_id
             or compiled.n4_recursive_source_cell_id != cell_id
         ):
-            return (), "acquisition_n4_source_not_established"
+            return (), "acquisition_n4_source_not_established", current_projection
         heads = list_heads(
             tenant_id=tenant_id,
             cell_id=cell_id,
@@ -535,9 +775,21 @@ def _candidate_acquisition_history_projection(
     except CanonicalProfileRefusalError:
         raise
     except Exception:
-        return (), "acquisition_action_history_integrity_not_established"
+        return (), "acquisition_action_history_integrity_not_established", current_projection
     if not heads:
-        return (), "acquisition_action_history_not_observed"
+        return (), "acquisition_action_history_not_observed", current_projection
+    current_projection = _candidate_source_current_projection(
+        control_service=control_service,
+        control_store=control_store,
+        store=store,
+        event_log=event_log,
+        source_run_id=source_run_id,
+        source_job_id=source_job_id,
+        compiled_ref=compiled_ref,
+        compiled_content_hash=compiled.content_hash,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
 
     from polisyos.core.artifacts import (
         ArtifactID,
@@ -691,6 +943,7 @@ def _candidate_acquisition_history_projection(
         history_entries: list[
             RunCandidateSimulationAcquisitionHistoryEntry
             | RunCandidateSimulationAcquisitionHistoryEntryV3
+            | RunCandidateSimulationAcquisitionHistoryEntryV4
         ] = []
         matching_receipts: list[
             tuple[
@@ -722,7 +975,7 @@ def _candidate_acquisition_history_projection(
                         route_receipt_ref,
                         expected_kind="runtime_quality.acquisition_route_loop_receipt",
                         expected_schema="polisyos.runtime.AcquisitionRouteLoopReceipt",
-                        expected_version=("1.0", "2.0"),
+                        expected_version=("1.0", "1.1", "2.0"),
                         expected_job_id=head.job_id,
                     )
                 )
@@ -759,12 +1012,26 @@ def _candidate_acquisition_history_projection(
                     if verified.history_entry is not None:
                         if verified.legacy_receipt is not None:
                             raise ValueError("acquisition_history_v3_projection_ambiguous")
+                        retained_entry = (
+                            RunCandidateSimulationAcquisitionHistoryEntryV3.model_validate(
+                                verified.history_entry
+                            )
+                        )
+                        retained_observation = _acquisition_selected_n5_observation(
+                            selected=retained_entry.retained_evaluation,
+                            store=store,
+                            tenant_id=tenant_id,
+                            cell_id=cell_id,
+                        )
                         matching_receipts.append(
                             (
                                 head,
                                 route_receipt_ref,
                                 RunCandidateSimulationAcquisitionHistoryEntryV3.model_validate(
-                                    verified.history_entry
+                                    {
+                                        **retained_entry.model_dump(mode="python"),
+                                        "selected_n5_observation": retained_observation,
+                                    }
                                 ),
                                 verified_source,
                             )
@@ -834,12 +1101,116 @@ def _candidate_acquisition_history_projection(
 
         if not matching_receipts and not history_entries:
             if matching_incomplete:
-                return (), "acquisition_action_history_incomplete"
-            return (), "acquisition_action_history_not_observed"
+                return (), "acquisition_action_history_incomplete", current_projection
+            return (), "acquisition_action_history_not_observed", current_projection
 
         for _head, route_receipt_ref, route_receipt, verified_source in matching_receipts:
             if isinstance(route_receipt, RunCandidateSimulationAcquisitionHistoryEntryV3):
                 history_entries.append(route_receipt)
+                continue
+            if route_receipt.terminal_outcome == "candidate_reentry_completed":
+                from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
+                from polisyos.runtime.quality.generation_cycle import (
+                    generation_cycle_run_content_hash,
+                )
+
+                owner = AcquisitionRouteLoop(
+                    control_store=control_store,
+                    artifact_store=store,
+                    event_log=event_log,
+                    core_source_resolver=source_resolver,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    action_outcome_reader=control_service.acquisition_route_sink,
+                )
+                closure = owner.resolve_current_route(run_id=source_run_id)
+                if (
+                    closure.source_job_id != source_job_id
+                    or closure.compiled_ref != str(compiled_ref.artifact_id)
+                    or closure.compiled_content_hash != compiled.content_hash
+                ):
+                    raise ValueError("candidate_history_compiled_source_mismatch")
+                matches = [
+                    item
+                    for item in closure.candidate_basis_transitions
+                    if item.route_id == route_receipt.route_id
+                    and item.action_generation == route_receipt.action_generation
+                    and item.action_job_id == route_receipt.job_id
+                ]
+                if len(matches) != 1 or route_receipt.candidate_reentry_ref is None:
+                    raise ValueError("candidate_history_transition_not_selected")
+                selected = matches[0]
+                if route_receipt.candidate_action_ref is None or artifact_ref_identity_key(
+                    selected.candidate_action_ref
+                ) != artifact_ref_identity_key(route_receipt.candidate_action_ref):
+                    raise ValueError("candidate_history_action_mismatch")
+                from polisyos.runtime.quality.candidate_source_reentry_history import (
+                    verify_candidate_source_reentry_history,
+                )
+
+                verified_selected = verify_candidate_source_reentry_history(
+                    artifact_store=store,
+                    event_log=event_log,
+                    control_store=control_store,
+                    receipt_ref=route_receipt.candidate_reentry_ref,
+                    expected_tenant_id=tenant_id,
+                    expected_cell_id=cell_id,
+                    expected_run_id=source_run_id,
+                    expected_source_job_id=source_job_id,
+                    expected_action_job_id=route_receipt.job_id,
+                    expected_route_id=route_receipt.route_id,
+                    expected_action_generation=route_receipt.action_generation,
+                    expected_selected_action_ref=route_receipt.candidate_action_ref,
+                )
+                if verified_selected != selected:
+                    raise ValueError("candidate_history_receipt_mismatch")
+                if current_projection is not None and current_projection.status == "resolved":
+                    latest = closure.candidate_basis_transitions[-1]
+                    current_projection = _candidate_history_reconcile_current_basis(
+                        current_projection,
+                        generation_run_content_hash=generation_cycle_run_content_hash(
+                            closure.generation_run
+                        ),
+                        basis_transition_content_hash=latest.basis_transition.content_hash,
+                        basis_cycle_index=latest.basis_transition.to_cycle_index,
+                    )
+                    if current_projection is not None and current_projection.status != "resolved":
+                        return (
+                            (),
+                            "acquisition_action_history_integrity_not_established",
+                            current_projection,
+                        )
+
+                def core_ref(ref: Any) -> ArtifactRef | None:
+                    return ArtifactRef.model_validate(ref.model_dump(mode="json")) if ref else None
+
+                history_entries.append(
+                    RunCandidateSimulationAcquisitionHistoryEntryV4(
+                        route_receipt_ref=route_receipt_ref,
+                        reentry_receipt_ref=route_receipt.candidate_reentry_ref,
+                        route_id=selected.route_id,
+                        action_generation=selected.action_generation,
+                        candidate_action_ref=core_ref(selected.candidate_action_ref),
+                        candidate_source_ref=core_ref(selected.candidate_source_ref),
+                        data_snapshot_ref=core_ref(selected.data_snapshot_ref),
+                        world_model_ref=core_ref(selected.world_model_ref),
+                        context_job_ref=core_ref(selected.context_job_ref),
+                        model_declaration_ref=core_ref(selected.model_declaration_ref),
+                        ncm_ref=core_ref(selected.ncm_ref),
+                        n4_source_ref=core_ref(selected.n4_source_ref),
+                        n5_input_ref=core_ref(selected.n5_input_ref),
+                        n5_execution_ref=core_ref(selected.n5_execution_ref),
+                        n5_result_ref=core_ref(selected.n5_result_ref),
+                        simulation_status=selected.new_cycle.simulation.status,
+                        simulation_authority_blockers=selected.new_cycle.simulation.authority_blockers,
+                        source_cycle_index=selected.source_cycle_index,
+                        continued_cycle_index=selected.new_cycle.cycle_index,
+                        source_generation_run_content_hash=selected.source_generation_run_content_hash,
+                        continued_generation_run_content_hash=selected.continued_generation_run_content_hash,
+                        basis_transition_content_hash=selected.basis_transition.content_hash,
+                        limitations=selected.limitations,
+                    )
+                )
                 continue
             if route_receipt.terminal_outcome == "quarantined_no_growth":
                 observed_origin_source_ref = None
@@ -933,6 +1304,7 @@ def _candidate_acquisition_history_projection(
             old_source_ref = source_cycle.simulation.candidate_simulation_n4_source_ref
             old_input_ref = source_cycle.simulation.candidate_simulation_n5_input_ref
             old_source = None
+            old_input = None
             if (old_source_ref is None) != (old_input_ref is None):
                 raise ValueError("acquisition_reentry_old_candidate_source_incomplete")
             if old_source_ref is not None and old_input_ref is not None:
@@ -964,7 +1336,7 @@ def _candidate_acquisition_history_projection(
                 new_simulation.candidate_simulation_n4_source_ref is None
                 or new_simulation.candidate_simulation_n5_input_ref is None
             ):
-                return (), "acquisition_reentry_source_not_established"
+                return (), "acquisition_reentry_source_not_established", current_projection
             new_input_ref = ArtifactRef.model_validate(
                 new_simulation.candidate_simulation_n5_input_ref.model_dump(mode="json")
             )
@@ -995,6 +1367,8 @@ def _candidate_acquisition_history_projection(
                 == reentry_receipt.new_cycle.selected_candidate_ref
             )
             expected_origin_source_ref = None
+            model_revision_projection = None
+            acquired_outcome_revision_projection = None
             if same_candidate:
                 if old_source is None or old_source_ref is None:
                     raise ValueError("acquisition_reentry_same_candidate_source_missing")
@@ -1043,9 +1417,84 @@ def _candidate_acquisition_history_projection(
                     selected_target_hashes is None
                     or selected_target_hashes[0] == selected_target_hashes[1]
                 ):
-                    raise ValueError("acquisition_reentry_selected_target_input_not_changed")
+                    terminal = verified_source.terminal if verified_source is not None else None
+                    continued = reentry_receipt.continued_generation_run
+                    if (
+                        selected_target_hashes is None
+                        or terminal is None
+                        or continued is None
+                        or not reentry_receipt.schema_version.endswith(".v3")
+                    ):
+                        raise ValueError("acquisition_reentry_selected_target_input_not_changed")
+                    from polisyos.runtime.quality.acquisition_model_transition import (
+                        resolve_acquired_outcome_revision,
+                        resolve_candidate_model_revision,
+                    )
+
+                    revision_inputs = {
+                        "artifact_store": store,
+                        "event_log": event_log,
+                        "control_store": control_store,
+                        "tenant_id": tenant_id,
+                        "cell_id": cell_id,
+                        "run_id": source_run_id,
+                        "design_problem_ref": reentry_receipt.design_problem_ref,
+                        "action_job_id": terminal.job_id,
+                        "action_generation": terminal.action_generation,
+                        "route_id": terminal.route_id,
+                        "decision_ref": terminal.evaluation_decision_ref,
+                        "selected_basis_ref": terminal.selected_basis_ref,
+                        "previous_run": source_run,
+                        "previous_cycle": source_cycle,
+                        "selected_run": continued,
+                        "selected_cycle": reentry_receipt.new_cycle,
+                    }
+                    try:
+                        revision = resolve_candidate_model_revision(**revision_inputs)
+                    except ValueError as model_error:
+                        try:
+                            outcome_revision = resolve_acquired_outcome_revision(**revision_inputs)
+                        except ValueError as outcome_error:
+                            raise ValueError(
+                                "acquisition_reentry_selected_basis_revision_not_established"
+                            ) from ExceptionGroup(
+                                "selected_basis_revision_refusals", [model_error, outcome_error]
+                            )
+                        acquired_outcome_revision_projection = (
+                            RunCandidateSimulationAcquiredOutcomeRevision(
+                                evaluation_decision_ref=terminal.evaluation_decision_ref,
+                                **{
+                                    name: getattr(outcome_revision, name)
+                                    for name in (
+                                        "previous_input_ref",
+                                        "selected_input_ref",
+                                        "previous_declaration_ref",
+                                        "selected_declaration_ref",
+                                        "previous_ncm_ref",
+                                        "selected_ncm_ref",
+                                        "previous_basis_ref",
+                                        "selected_basis_ref",
+                                        "admitted_source_ref",
+                                        "outcome_world_slot",
+                                    )
+                                },
+                            )
+                        )
+                    else:
+                        model_revision_projection = RunCandidateSimulationModelRevision(
+                            evaluation_decision_ref=terminal.evaluation_decision_ref,
+                            previous_input_ref=revision.previous_input_ref,
+                            selected_input_ref=revision.selected_input_ref,
+                            previous_declaration_ref=revision.previous_declaration_ref,
+                            selected_declaration_ref=revision.selected_declaration_ref,
+                            previous_ncm_ref=revision.previous_ncm_ref,
+                            selected_ncm_ref=revision.selected_ncm_ref,
+                            previous_basis_ref=revision.previous_basis_ref,
+                            selected_basis_ref=revision.selected_basis_ref,
+                        )
 
             continuation_projection = None
+            selected_n5_observation = None
             if reentry_receipt.schema_version.endswith(".v3"):
                 continued = reentry_receipt.continued_generation_run
                 if continued is None:
@@ -1069,7 +1518,12 @@ def _candidate_acquisition_history_projection(
                     previous_profile_selection_ref = old_input.profile.profile_selection_ref
                     previous_profile_content_hash = old_input.profile.content_hash
                 if same_candidate and (
-                    target_hashes is None or target_hashes[0] == target_hashes[1]
+                    target_hashes is None
+                    or (
+                        target_hashes[0] == target_hashes[1]
+                        and model_revision_projection is None
+                        and acquired_outcome_revision_projection is None
+                    )
                 ):
                     raise ValueError("acquisition_reentry_selected_target_input_not_changed")
                 from polisyos.core.contracts.runtime import (
@@ -1105,6 +1559,10 @@ def _candidate_acquisition_history_projection(
                     selected_target_baseline_hash=(
                         target_hashes[1] if target_hashes is not None else None
                     ),
+                    model_revision=model_revision_projection,
+                    acquired_outcome_revision=acquired_outcome_revision_projection,
+                    selected_simulation_status=new_simulation.status,
+                    selected_simulation_authority_blockers=new_simulation.authority_blockers,
                     source_currentness_status=(
                         source_currentness.status
                         if source_currentness is not None
@@ -1146,6 +1604,27 @@ def _candidate_acquisition_history_projection(
                         portfolio_candidate_ids=continued.fronts.portfolio.candidate_ids,
                     ),
                 )
+                from polisyos.runtime.quality.acquisition_evaluation import (
+                    resolve_selected_acquisition_evaluation_parts,
+                )
+
+                if new_simulation.status == "joint_simulated":
+                    selected_parts = resolve_selected_acquisition_evaluation_parts(
+                        artifact_store=store,
+                        control_store=control_store,
+                        tenant_id=tenant_id,
+                        cell_id=cell_id,
+                        run_id=source_run_id,
+                        design_problem_ref=reentry_receipt.design_problem_ref,
+                        generation_run=continued,
+                        source_cycle=reentry_receipt.new_cycle,
+                    )
+                    selected_n5_observation = _acquisition_selected_n5_observation(
+                        selected=selected_parts.selected,
+                        store=store,
+                        tenant_id=tenant_id,
+                        cell_id=cell_id,
+                    )
             history_entries.append(
                 RunCandidateSimulationAcquisitionHistoryEntry(
                     route_receipt_ref=route_receipt_ref,
@@ -1178,13 +1657,22 @@ def _candidate_acquisition_history_projection(
                         )
                     ),
                     continuation=continuation_projection,
+                    selected_n5_observation=selected_n5_observation,
+                    evaluation_provenance=(
+                        "new_execution" if selected_n5_observation is not None else None
+                    ),
                 )
             )
-        return tuple(history_entries), None
+        return tuple(history_entries), None, current_projection
     except CanonicalProfileRefusalError:
         raise
     except Exception:
-        return (), "acquisition_action_history_integrity_not_established"
+        if current_projection is not None and current_projection.status == "resolved":
+            current_projection = RunCandidateSourceCurrentProjection(
+                status="not_established",
+                issues=("candidate_source_current_history_reconciliation_failed",),
+            )
+        return (), "acquisition_action_history_integrity_not_established", current_projection
 
 
 def _n5_interaction_evidence_projection(result: object | None) -> dict[str, Any] | None:
@@ -1196,13 +1684,15 @@ def _n5_interaction_evidence_projection(result: object | None) -> dict[str, Any]
         RunN5InteractionEvidence,
     )
     from polisyos.runtime.quality.joint_simulation_horizon import (
+        JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION,
         JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION,
     )
 
     schema_version = str(result.schema_version)
-    current = (
-        schema_version == JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
-    )
+    current = schema_version in {
+        JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION,
+        JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION,
+    }
     terms: list[dict[str, Any]] = []
     for term in result.interaction_terms:
         summaries: dict[int, dict[str, Any]] = {}
@@ -1253,7 +1743,12 @@ def _n5_interaction_evidence_projection(result: object | None) -> dict[str, Any]
             residual_sampling[outcome] = projected_steps
     if current:
         feedback = result.feedback_classification
-        numeric = feedback.numeric_interaction
+        numeric = (
+            "unsupported"
+            if schema_version
+            == JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
+            else feedback.numeric_interaction
+        )
         basis = feedback.numeric_interaction_basis
         sampling_status = feedback.interaction_sampling_status
     else:
@@ -1281,13 +1776,14 @@ def _n5_interaction_scope_fields(result: object | None) -> dict[str, tuple[int, 
     if result is None:
         return {}
     from polisyos.runtime.quality.joint_simulation_horizon import (
+        JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION,
         JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION,
     )
 
-    if (
-        str(result.schema_version)
-        != JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
-    ):
+    if str(result.schema_version) not in {
+        JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION,
+        JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION,
+    }:
         return {}
     return {
         "executed_steps": tuple(result.horizon.steps()),
@@ -1305,6 +1801,7 @@ def _n8_interaction_qualification_fields(
     value_port: object | None,
     *,
     include_status: bool = True,
+    n5_result: object | None = None,
 ) -> dict[str, Any]:
     """Expose the interaction qualifier N8 actually consumed."""
 
@@ -1315,14 +1812,36 @@ def _n8_interaction_qualification_fields(
         "n8_numeric_interaction_basis": getattr(value_port, "numeric_interaction_basis", None),
         "n8_interaction_sampling_status": getattr(value_port, "interaction_sampling_status", None),
     }
+    if (
+        n5_result is not None
+        and str(n5_result.schema_version) == "policyos.runtime.joint_simulation_horizon.v4"
+        and projected["n8_numeric_interaction"] is not None
+    ):
+        # Preserve the signed historical N8 record, but never project its old
+        # universal-cutoff classification as newly qualified arithmetic.
+        projected["n8_numeric_interaction"] = "unsupported"
     if include_status:
         projected.update(
             {
                 "n8_status": getattr(value_port, "status", None),
-                "n8_authority_blockers": tuple(getattr(value_port, "authority_blockers", ())),
+                "n8_authority_blockers": _n5_interaction_projection_blockers(
+                    n5_result, tuple(getattr(value_port, "authority_blockers", ()))
+                ),
             }
         )
     return projected
+
+
+def _n5_interaction_projection_blockers(
+    result: object | None, blockers: tuple[str, ...]
+) -> tuple[str, ...]:
+    """Keep historical means/samples while withholding the retired v4 numeric label."""
+    if (
+        result is not None
+        and str(result.schema_version) == "policyos.runtime.joint_simulation_horizon.v4"
+    ):
+        return tuple(dict.fromkeys((*blockers, "interaction_numeric_classification_unsupported")))
+    return blockers
 
 
 def _n5_numerical_body_payload(
@@ -1358,6 +1877,18 @@ def _n5_numerical_body_payload(
         "candidate_status": "candidate_unverified",
         "currentness_status": "not_established",
         "publication_authority": False,
+    }
+
+
+def _n5_declared_candidate_units(source: Any, result: Any) -> dict[str, Any]:
+    """Project units from the actual selected declaration already reopened by N5."""
+    declaration = source.model_declaration
+    if set(result.selected_outcomes) != {declaration.outcome_variable}:
+        raise ValueError("candidate_n5_public_outcome_unit_binding_mismatch")
+    return {
+        "outcome_units": {declaration.outcome_variable: declaration.outcome_unit_id},
+        "unit_provenance": "declared_candidate_model",
+        "model_declaration_ref": source.model_declaration_ref,
     }
 
 
@@ -1422,12 +1953,15 @@ def _configured_n5_public_numerical_read(
         store, execution.n5_result_ref, tenant_id=tenant_id, cell_id=cell_id
     )
     body = RunCandidateSimulationN5ResultBody.model_validate(
-        _n5_numerical_body_payload(
-            ref=execution.n5_result_ref,
-            manifest=manifest,
-            result=resolved.result,
-            authority_purpose="candidate_scenario_n5_only",
-        )
+        {
+            **_n5_numerical_body_payload(
+                ref=execution.n5_result_ref,
+                manifest=manifest,
+                result=resolved.result,
+                authority_purpose="candidate_scenario_n5_only",
+            ),
+            **_n5_declared_candidate_units(resolved.source, resolved.result),
+        }
     )
     return resolved, body
 
@@ -1478,7 +2012,9 @@ def _failed_candidate_n5_projection(
             selected_outcomes=result.selected_outcomes,
             status="joint_simulated",
             simulation_ref=result.receipt.payload_hash,
-            authority_blockers=resolved.authority_blockers,
+            authority_blockers=_n5_interaction_projection_blockers(
+                result, resolved.authority_blockers
+            ),
             simulation_result_ref=execution.n5_result_ref,
             n5_execution_ref=execution_ref,
             result_body_status="resolved",
@@ -1900,6 +2436,18 @@ def _candidate_simulation_projection(
                 expected_tenant_id=tenant_id,
                 expected_cell_id=cell_id,
             )
+    attempt_rows: list[RunCandidateEvaluationAttemptProjection] = []
+    attempt_limitation: str | None = None
+    for node in recursive_run.nodes:
+        if not isinstance(node, RecursiveCycleNode) or node.cycle_run is None:
+            continue
+        rows, limitation = _candidate_evaluation_attempt_projection(
+            node_ref=node.node_ref,
+            cycle_run=node.cycle_run,
+            context_history=context_history_by_node.get(node.node_ref),
+        )
+        attempt_rows.extend(rows)
+        attempt_limitation = attempt_limitation or limitation
     n4_projection_fields = {
         "n4_recursive_source_ref": compiled.n4_recursive_source_ref,
         "n4_recursive_source_content_hash": n4_source_content_hash,
@@ -1915,7 +2463,7 @@ def _candidate_simulation_projection(
         "n4_child_profile_limitation_code": child_profile_limitation_code,
         "n4_child_profile_bindings": tuple(child_profile_bindings),
     }
-    acquisition_history, acquisition_history_limitation_code = (
+    acquisition_history, acquisition_history_limitation_code, candidate_current_projection = (
         _candidate_acquisition_history_projection(
             compiled=compiled,
             compiled_ref=ref,
@@ -1930,6 +2478,9 @@ def _candidate_simulation_projection(
         )
     )
     acquisition_history_fields = {
+        "candidate_source_current_projection": candidate_current_projection,
+        "candidate_evaluation_attempts": tuple(attempt_rows),
+        "candidate_evaluation_attempts_limitation_code": attempt_limitation,
         "acquisition_history": acquisition_history,
         "acquisition_history_limitation_code": acquisition_history_limitation_code,
     }
@@ -2172,6 +2723,7 @@ def _candidate_simulation_projection(
                             expected_status=simulation.status,
                             expected_simulation_ref=simulation.simulation_ref,
                         )
+                        blockers = _n5_interaction_projection_blockers(result, blockers)
                         if not set(actual_blockers).issubset(blockers):
                             raise ValueError("n5_result_blockers_binding_mismatch")
                     elif simulation.status == "joint_simulated":
@@ -2183,7 +2735,7 @@ def _candidate_simulation_projection(
                         cycle_index=cycle.cycle_index,
                     )
                     n8_fields = _n8_interaction_qualification_fields(
-                        getattr(cycle, "value_port", None)
+                        getattr(cycle, "value_port", None), n5_result=result
                     )
                     if compiled_view_limitation is not None:
                         blockers = tuple(dict.fromkeys((*blockers, compiled_view_limitation)))
@@ -2291,7 +2843,9 @@ def _candidate_simulation_projection(
                             ),
                             k_world_ref_before=simulation.k_world_ref_before,
                             k_world_ref_after=simulation.k_world_ref_after,
-                            authority_blockers=blockers,
+                            authority_blockers=_n5_interaction_projection_blockers(
+                                result, blockers
+                            ),
                             n5_interaction_evidence=(_n5_interaction_evidence_projection(result)),
                             **_n5_interaction_scope_fields(result),
                             **n8_fields,
@@ -2329,7 +2883,7 @@ def _candidate_simulation_projection(
                         world_model_record_content_hash=result.world_model_record_content_hash,
                         k_world_ref_before=result.world_model_record_content_hash,
                         k_world_ref_after=result.world_model_record_content_hash,
-                        authority_blockers=blockers,
+                        authority_blockers=_n5_interaction_projection_blockers(result, blockers),
                         n5_interaction_evidence=(_n5_interaction_evidence_projection(result)),
                         **_n5_interaction_scope_fields(result),
                         n8_status="value_pending_n8",
@@ -2375,6 +2929,7 @@ def _candidate_simulation_projection(
             if candidate_selection is not None:
                 try:
                     candidate_selection_fields = _parent_joint_candidate_selection_projection(
+                        store=store,
                         compiled=compiled,
                         node=node,
                         request=request,
@@ -2427,7 +2982,10 @@ def _candidate_simulation_projection(
             elif (
                 parent_observation.n5_interaction_evidence is None
                 or parent_observation.n5_interaction_evidence.schema_version
-                != "policyos.runtime.joint_simulation_horizon.v4"
+                not in {
+                    "policyos.runtime.joint_simulation_horizon.v4",
+                    "policyos.runtime.joint_simulation_horizon.v5",
+                }
                 or parent_observation.n5_interaction_evidence.interaction_sampling_status
                 == "not_established"
                 or not parent_observation.executed_steps
@@ -3071,6 +3629,7 @@ def _parent_joint_atom_matches_child_source(parent_atom: Any, child_source_atom:
 
 def _parent_joint_candidate_selection_projection(
     *,
+    store: Any,
     compiled: Any,
     node: Any,
     request: Any,
@@ -3085,6 +3644,8 @@ def _parent_joint_candidate_selection_projection(
     )
     from polisyos.runtime.quality.recursive_generation_cycle import (
         ParentJointCandidateSelectionV2,
+        ParentJointCandidateSelectionV3,
+        load_authored_joint_components,
     )
 
     selection = getattr(node, "joint_candidate_selection", None)
@@ -3099,6 +3660,36 @@ def _parent_joint_candidate_selection_projection(
         raise ValueError("parent_joint_candidate_source_selection_not_established")
     source_result = root_n4_source.generation_result
     source_result_hash = gy_content_hash(source_result.model_dump(mode="json"))
+    authored_relation = None
+    if isinstance(selection, ParentJointCandidateSelectionV3):
+        from polisyos.runtime.http.services.control.temporal_scope import (
+            read_authored_joint_request_payload,
+        )
+        from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleSimulationAdmissionOwner,
+        )
+
+        authored_relation = load_authored_joint_components(
+            store=store,
+            relation_ref=selection.relation_ref,
+            source_repository=GenerationSourceRepository(store),
+            parent_handoff=handoff,
+            admission_owner=GenericCycleSimulationAdmissionOwner(profiles=(), store=store),
+            request=request,
+            selection=selection,
+        )
+        read_authored_joint_request_payload(
+            store=store,
+            request_payload_ref=ArtifactRef.model_validate(
+                authored_relation.request_payload_ref.model_dump(mode="json")
+            ),
+            expected_job_id=authored_relation.job_id,
+            expected_run_id=authored_relation.run_id,
+            expected_tenant_id=authored_relation.tenant_id,
+            expected_cell_id=authored_relation.cell_id,
+            expected_intent_digest=authored_relation.intent_digest,
+        )
     if isinstance(selection, ParentJointCandidateSelectionV2) and (
         selection.candidate_intent != "n4_unique_parent_source_members.v1"
         or selection.joint_simulation_request_content_hash
@@ -3197,11 +3788,13 @@ def _parent_joint_candidate_selection_projection(
             or member.parent_problem_frame_ref != node.design_problem_ref
             or source_atom.problem_frame_ref != node.design_problem_ref
             or source_atom.world_model_record_ref != request.world_model_record_ref
-            or parent_atom != source_atom
+            or (authored_relation is None and parent_atom != source_atom)
         ):
             raise ValueError("parent_joint_candidate_source_member_binding_mismatch")
         selected_atoms.append(parent_atom)
-    if {atom.content_hash for atom in selected_atoms} != set(candidates_by_atom_hash):
+    if authored_relation is None and {atom.content_hash for atom in selected_atoms} != set(
+        candidates_by_atom_hash
+    ):
         raise ValueError("parent_joint_candidate_source_member_denominator_mismatch")
     if tuple(atom.atom_id for atom in selected_atoms) != tuple(
         atom.atom_id for atom in request.intervention_atoms
@@ -3222,7 +3815,34 @@ def _parent_joint_candidate_selection_projection(
         ),
         "n8_candidate_parent_child_refs": tuple(selection.child_node_refs),
     }
-    if isinstance(selection, ParentJointCandidateSelectionV2):
+    if isinstance(selection, ParentJointCandidateSelectionV3):
+        if authored_relation is None or (
+            tuple(atom.atom_id for atom in selected_atoms) != selection.derived_atom_ids
+            or tuple(atom.content_hash for atom in selected_atoms)
+            != selection.derived_atom_content_hashes
+        ):
+            raise ValueError("parent_joint_authored_materialization_binding_mismatch")
+        candidate_selection_fields.update(
+            {
+                "n8_candidate_member_basis": "authored_materialized_n4_source_members",
+                "n8_source_candidate_relationship": "alternatives",
+                "n8_selected_member_relationship": "joint_components",
+                "n8_policy_composition_status": "authored_candidate",
+                "n8_policy_composition_limitation_code": (
+                    "authored_candidate_coupling_not_established"
+                ),
+                "n8_child_to_parent_refinement_status": "not_established",
+                "n8_child_to_parent_refinement_limitation_code": (
+                    "child_to_parent_refinement_rule_not_established"
+                ),
+                "n8_candidate_derived_atom_ids": selection.derived_atom_ids,
+                "n8_candidate_derived_atom_content_hashes": selection.derived_atom_content_hashes,
+                "n8_authored_joint_relation_ref": selection.relation_ref,
+                "n8_authored_joint_request_payload_ref": selection.request_payload_ref,
+                "n8_authored_joint_intent_digest": authored_relation.intent_digest,
+            }
+        )
+    elif isinstance(selection, ParentJointCandidateSelectionV2):
         candidate_selection_fields.update(
             {
                 "n8_candidate_member_basis": "hypothetical_all_unique_n4_source_members",
@@ -3359,20 +3979,83 @@ def _generic_selected_result_manifest(
     return manifest
 
 
-def _raise_generic_read_access_refusal(exc: BaseException) -> None:
+def _raise_generic_read_access_refusal(
+    exc: BaseException, *, code_prefix: str = "generic_cycle_artifact"
+) -> None:
     """Do not return sibling data after an owner or filesystem permission refusal."""
     try:
         raise_artifact_read_access_error(exc)
     except ArtifactOwnershipError as denied:
         raise forbidden(
             "The selected artifact is not accessible to this run scope.",
-            code="generic_cycle_artifact_scope_refused",
+            code=f"{code_prefix}_scope_refused",
         ) from denied
     except PermissionError as unavailable:
         raise service_unavailable(
             "The selected artifact reader could not access its backing storage.",
-            code="generic_cycle_artifact_reader_permission_unavailable",
+            code=f"{code_prefix}_reader_permission_unavailable",
         ) from unavailable
+
+
+def _candidate_evaluation_attempt_projection(
+    *,
+    node_ref: str,
+    cycle_run: GenerationCycleRun,
+    context_history: GenerationCycleContextHistoryProjection | None,
+) -> tuple[tuple[RunCandidateEvaluationAttemptProjection, ...], str | None]:
+    """Display recorded local refusals only after the canonical history join."""
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+    from polisyos.runtime.quality.generation_cycle import CandidateEvaluationAttempt
+
+    attempts = tuple(
+        summary.evaluation_attempt
+        for summary in cycle_run.candidate_summaries
+        if summary.evaluation_attempt is not None
+    )
+    if not attempts:
+        return (), None
+    limitation = "candidate_attempt_context_history_not_established"
+    if context_history is None or context_history.status != "resolved":
+        return (), limitation
+    contexts = {row.cycle_index: row for row in context_history.bindings}
+    rows: list[RunCandidateEvaluationAttemptProjection] = []
+    for recorded in attempts:
+        # Reuse the intrinsic owner, including its recomputed observation hash.
+        attempt = CandidateEvaluationAttempt.model_validate(recorded.model_dump(mode="json"))
+        context = contexts.get(attempt.cycle_index)
+        if context is None or cycle_job_design_problem_ref(context.problem) != attempt.problem_ref:
+            return (), limitation
+        simulation, value = attempt.simulation, attempt.value
+        rows.append(
+            RunCandidateEvaluationAttemptProjection(
+                node_ref=node_ref,
+                candidate_id=attempt.candidate_id,
+                candidate_content_hash=attempt.candidate_content_hash,
+                cycle_index=attempt.cycle_index,
+                problem_ref=attempt.problem_ref,
+                attempt_ref=attempt.attempt_ref,
+                failure_stage=attempt.failure_stage,
+                simulation_status=simulation.status,
+                simulation_authority_blockers=simulation.authority_blockers,
+                simulation_ref=simulation.simulation_ref,
+                n4_source_ref=simulation.candidate_simulation_n4_source_ref
+                or simulation.generic_n4_source_ref,
+                context_job_ref=simulation.candidate_simulation_context_job_ref
+                or simulation.generic_context_job_ref,
+                n5_input_ref=simulation.candidate_simulation_n5_input_ref
+                or simulation.generic_n5_input_ref,
+                n5_execution_ref=simulation.generic_n5_execution_ref,
+                simulation_result_ref=simulation.simulation_result_ref,
+                profile_selection_ref=simulation.candidate_simulation_profile_selection_ref
+                or simulation.generic_profile_selection_ref,
+                value_status=value.status,
+                value_decision_grade=value.decision_grade,
+                value_ref=value.value_ref,
+                value_authority_blockers=value.authority_blockers,
+                selected_method_fqn=value.selected_method_fqn,
+            )
+        )
+    return tuple(rows), None
 
 
 def _generic_cycle_simulation_projection(
@@ -3382,6 +4065,7 @@ def _generic_cycle_simulation_projection(
     cell_id: str | None,
     root_artifacts: tuple[Any, ...],
     store: Any,
+    control_service: Any | None = None,
 ) -> RunGenericCycleSimulationProjection | None:
     """Replay persisted generic N4-family, N5, and conditional N8 lineage."""
     from polisyos.runtime.http.services.control.generation_cycle import (
@@ -3410,7 +4094,9 @@ def _generic_cycle_simulation_projection(
         GenericN5ExecutionJoinExpectation,
     )
     from polisyos.runtime.quality.recursive_generation_cycle import (
+        ParentJointCandidateSelectionV3,
         RecursiveCycleNode,
+        RecursiveGenerationCyclePartialRunV4,
         RecursiveLeafContextOwner,
     )
 
@@ -3485,6 +4171,94 @@ def _generic_cycle_simulation_projection(
     if not has_generic_projection:
         return None
     checkpoint = _candidate_simulation_checkpoint(compiled.recursive_run)
+    if isinstance(compiled.recursive_run, RecursiveGenerationCyclePartialRunV4):
+        try:
+            source_job_id = compiled.n4_recursive_source_job_id
+            control_run_id = compiled.n4_recursive_source_run_id
+            if (
+                control_service is None
+                or ref.manifest_profile_sha256 is None
+                or not source_job_id
+                or not control_run_id
+                or compiled.n4_recursive_source_tenant_id != tenant_id
+                or compiled.n4_recursive_source_cell_id != cell_id
+            ):
+                raise ValueError("recursive_capacity_historical_owner_unavailable")
+            control_store = getattr(control_service, "_control_store", None)
+            verifier = getattr(control_service, "verify_completed_recursive_capacity_partial", None)
+            if control_store is None or not callable(verifier):
+                raise ValueError("recursive_capacity_historical_owner_unavailable")
+            job = control_store.get_job(source_job_id)
+            if job is None:
+                raise ValueError("recursive_capacity_historical_job_unavailable")
+            source_resolver = getattr(
+                control_service, "resolve_completed_control_job_core_run_source", None
+            )
+            if not callable(source_resolver):
+                raise ValueError("recursive_capacity_historical_source_unavailable")
+            completed_source = source_resolver(
+                job,
+                expected_control_run_id=control_run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            if (
+                completed_source.run_id != run_id
+                or completed_source.manifest.control_job_id != source_job_id
+            ):
+                raise ValueError("recursive_capacity_historical_core_run_mismatch")
+            selected_job_ref = ArtifactRef.model_validate(
+                job.progress.get("compiled_recursive_generation_cycle_artifact_ref")
+            )
+            if artifact_ref_identity_key(selected_job_ref) != artifact_ref_identity_key(
+                selected_ref
+            ):
+                raise ValueError("recursive_capacity_historical_selected_view_mismatch")
+            if (
+                verifier(
+                    source_job_id=source_job_id,
+                    run_id=control_run_id,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    partial=compiled.recursive_run,
+                )
+                is not True
+            ):
+                raise ValueError("recursive_capacity_historical_verification_unavailable")
+            partial = compiled.recursive_run
+            checkpoint = RunRecursiveCycleCheckpoint(
+                schema_version="policyos.runtime.recursive_cycle_checkpoint.v3",
+                pending_frontier=partial.frontier_node_refs,
+                completed_design_refs=tuple(
+                    node.node_ref for node in partial.nodes if isinstance(node, RecursiveCycleNode)
+                ),
+                leaf_terminal_kinds={
+                    node.node_ref: node.terminal.kind.value
+                    for node in partial.nodes
+                    if isinstance(node, RecursiveCycleNode) and not node.child_refs
+                },
+                capacity_stop_parent_node_ref=partial.stop_parent_node_ref,
+                capacity_pending_child_node_ref=partial.pending_child_node_ref,
+                capacity_pending_child_index=partial.pending_child_index,
+                capacity_source_content_hash=partial.content_hash,
+                capacity_limitation_code=partial.limitation_code,
+            )
+        except CanonicalProfileRefusalError:
+            raise
+        except (
+            AttributeError,
+            OSError,
+            RuntimeDependencyError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+        ) as exc:
+            _raise_generic_read_access_refusal(exc)
+            return _generic_cycle_simulation_refusal(
+                run_id=run_id,
+                source_ref=ref,
+                limitation_code="recursive_capacity_historical_verification_not_established",
+            )
     n6_history_fields = _generic_n6_cycle_history_fields(compiled.recursive_run)
     if compiled.generic_n4_child_profile_status != "resolved":
         if compiled.n4_credal_source_attempt_ref is not None:
@@ -3842,6 +4616,45 @@ def _generic_cycle_simulation_projection(
     observations: list[RunGenericCycleSimulationN5Observation] = []
     n5_limitation: str | None = None
     nodes_by_ref = {node.node_ref: node for node in nodes}
+    attempt_rows: list[RunCandidateEvaluationAttemptProjection] = []
+    attempt_limitation: str | None = None
+    context_history_by_node: dict[str, Any] = {}
+    for node in nodes:
+        if (
+            not isinstance(node, RecursiveCycleNode)
+            or node.cycle_run is None
+            or not any(
+                summary.evaluation_attempt is not None
+                for summary in node.cycle_run.candidate_summaries
+            )
+        ):
+            continue
+        initial_problem = (
+            compiled.design_problem
+            if node.node_ref == root_node_ref
+            else child_rows[node.node_ref].problem
+            if node.node_ref in child_rows
+            else None
+        )
+        history = None
+        if initial_problem is not None:
+            history = resolve_generation_cycle_run_context_history(
+                node.cycle_run,
+                context_owner=context_owner,
+                initial_problem=initial_problem,
+                expected_job_id=family.job_id,
+                expected_run_id=family.run_id,
+                expected_tenant_id=family.tenant_id,
+                expected_cell_id=family.cell_id,
+            )
+            context_history_by_node[node.node_ref] = history
+        rows, limitation = _candidate_evaluation_attempt_projection(
+            node_ref=node.node_ref,
+            cycle_run=node.cycle_run,
+            context_history=history,
+        )
+        attempt_rows.extend(rows)
+        attempt_limitation = attempt_limitation or limitation
     for node_ref in sorted(expected_child_nodes):
         try:
             node = nodes_by_ref.get(node_ref)
@@ -3854,15 +4667,17 @@ def _generic_cycle_simulation_projection(
             child_source_run_id = _generation_source_run_id(binding.problem)
             if node.cycle_run.run_id != child_source_run_id:
                 raise ValueError("generic_n5_child_source_run_identity_mismatch")
-            history_projection = resolve_generation_cycle_run_context_history(
-                node.cycle_run,
-                context_owner=context_owner,
-                initial_problem=binding.problem,
-                expected_job_id=family.job_id,
-                expected_run_id=family.run_id,
-                expected_tenant_id=family.tenant_id,
-                expected_cell_id=family.cell_id,
-            )
+            history_projection = context_history_by_node.get(node_ref)
+            if history_projection is None:
+                history_projection = resolve_generation_cycle_run_context_history(
+                    node.cycle_run,
+                    context_owner=context_owner,
+                    initial_problem=binding.problem,
+                    expected_job_id=family.job_id,
+                    expected_run_id=family.run_id,
+                    expected_tenant_id=family.tenant_id,
+                    expected_cell_id=family.cell_id,
+                )
             if history_projection.status != "resolved":
                 n5_limitation = "generation_cycle_context_history_not_established"
                 continue
@@ -4049,7 +4864,9 @@ def _generic_cycle_simulation_projection(
                         else "value_pending_n8"
                     )
                     n8_fields = (
-                        _n8_interaction_qualification_fields(value_port, include_status=False)
+                        _n8_interaction_qualification_fields(
+                            value_port, include_status=False, n5_result=candidate_result
+                        )
                         if n8_status == "value_conditional"
                         else {}
                     )
@@ -4090,25 +4907,31 @@ def _generic_cycle_simulation_projection(
                             world_model_record_content_hash=(
                                 history_binding.context.world_model_record.content_hash
                             ),
-                            authority_blockers=tuple(
-                                dict.fromkeys(
-                                    (
-                                        *simulation.authority_blockers,
-                                        *candidate_blockers,
-                                        limitation,
+                            authority_blockers=_n5_interaction_projection_blockers(
+                                candidate_result,
+                                tuple(
+                                    dict.fromkeys(
+                                        (
+                                            *simulation.authority_blockers,
+                                            *candidate_blockers,
+                                            limitation,
+                                        )
                                     )
-                                )
+                                ),
                             ),
                             n8_status=n8_status,
                             n8_lineage_status="not_established",
-                            n8_authority_blockers=tuple(
-                                dict.fromkeys(
-                                    (
-                                        *value_port.authority_blockers,
-                                        *candidate_blockers,
-                                        limitation,
+                            n8_authority_blockers=_n5_interaction_projection_blockers(
+                                candidate_result,
+                                tuple(
+                                    dict.fromkeys(
+                                        (
+                                            *value_port.authority_blockers,
+                                            *candidate_blockers,
+                                            limitation,
+                                        )
                                     )
-                                )
+                                ),
                             ),
                             n8_limitation_code=limitation,
                             n5_interaction_evidence=(
@@ -4211,6 +5034,7 @@ def _generic_cycle_simulation_projection(
                     result_status, result_blockers = _joint_simulation_port_outcome(
                         resolved_result, request=execution.request_binding.request
                     )
+                    blockers = _n5_interaction_projection_blockers(resolved_result, blockers)
                     if (
                         execution.status == "joint_simulated" and result_status != "joint_simulated"
                     ) or not set(result_blockers).issubset(blockers):
@@ -4274,11 +5098,15 @@ def _generic_cycle_simulation_projection(
                             else ()
                         ),
                         world_model_record_content_hash=(execution.world_model_record_content_hash),
-                        authority_blockers=blockers,
+                        authority_blockers=_n5_interaction_projection_blockers(
+                            resolved_result, blockers
+                        ),
                         n8_status=value_port.status,
                         n8_lineage_status="resolved" if n8_resolved else "not_established",
                         n8_value_ref=n8_value_ref,
-                        n8_authority_blockers=tuple(value_port.authority_blockers),
+                        n8_authority_blockers=_n5_interaction_projection_blockers(
+                            resolved_result, tuple(value_port.authority_blockers)
+                        ),
                         n8_limitation_code=n8_limitation,
                         n5_interaction_evidence=(
                             _n5_interaction_evidence_projection(resolved_result)
@@ -4287,6 +5115,7 @@ def _generic_cycle_simulation_projection(
                         **_n8_interaction_qualification_fields(
                             value_port,
                             include_status=False,
+                            n5_result=resolved_result,
                         ),
                     )
                 )
@@ -4349,6 +5178,7 @@ def _generic_cycle_simulation_projection(
                 raise ValueError("generic_joint_parent_compiled_result_mismatch")
             parent_status, parent_blockers = _joint_simulation_port_outcome(parent_result)
             selection_fields = _parent_joint_candidate_selection_projection(
+                store=store,
                 compiled=compiled,
                 node=parent_node,
                 request=parent_node.joint_simulation_request,
@@ -4372,6 +5202,17 @@ def _generic_cycle_simulation_projection(
                 result=parent_result,
                 problem=compiled.design_problem,
                 artifact_store=store,
+                **(
+                    {
+                        "authored_selection": parent_node.joint_candidate_selection,
+                        "authored_parent_handoff": parent_handoff,
+                        "authored_admission_owner": generic_owner,
+                    }
+                    if isinstance(
+                        parent_node.joint_candidate_selection, ParentJointCandidateSelectionV3
+                    )
+                    else {}
+                ),
             )
             if candidate_value.status != "value_conditional":
                 raise _GenericParentNotEstablishedError(
@@ -4465,6 +5306,8 @@ def _generic_cycle_simulation_projection(
         child_profile_status="resolved",
         child_profile_bindings=resolved_child_bindings,
         n5_observations=tuple(observations),
+        candidate_evaluation_attempts=tuple(attempt_rows),
+        candidate_evaluation_attempts_limitation_code=attempt_limitation,
         **parent_fields,
         n5_limitation_code=(
             n5_limitation or (None if observations else "generic_n5_observation_not_emitted")
@@ -5731,6 +6574,7 @@ if router is not None:
                 cell_id=run.details.cell_id,
                 root_artifacts=tuple(run.details.root_artifacts),
                 store=ctx.store,
+                control_service=control_service,
             )
             if generic_cycle_simulation is not None:
                 updates["generic_cycle_simulation"] = generic_cycle_simulation

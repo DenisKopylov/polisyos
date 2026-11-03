@@ -569,7 +569,12 @@ def _resolve_fixed_unit_transform(binding: MetricFieldBinding) -> FixedUnitTrans
         )
     except UnitParseError as exc:
         raise OverlayAdmissionError("unit_transform_definition_unregistered", str(exc)) from exc
-    if source.is_dimensionless or target.is_dimensionless:
+    # The registered percent-to-ratio scale does not establish what a value
+    # measures: its population, time and denominator still need binding.
+    if (source.is_dimensionless or target.is_dimensionless) and (source.symbol, target.symbol) != (
+        "percent",
+        "ratio",
+    ):
         raise OverlayAdmissionError("unit_transform_dimensionless_not_admissible")
     if not source.is_compatible_with(target):
         raise OverlayAdmissionError("unit_transform_incompatible_dimensions")
@@ -4086,6 +4091,14 @@ def _validate_passport_owner_evidence(
     )
     if authority_projection != embedded_projection:
         raise OverlayAdmissionError("acquisition_authority_drift")
+    from .acquisition_authority import resolve_source_observation_class
+
+    try:
+        actual_source_class = resolve_source_observation_class(resolved)
+    except (TypeError, ValueError) as exc:
+        raise OverlayAdmissionError("source_provenance_not_established", str(exc)) from exc
+    if actual_source_class != ObservationProvenanceClass(_enum_value(passport.observation_class)):
+        raise OverlayAdmissionError("source_provenance_drift")
     resolved_entry = getattr(resolved, "entry", None)
     resolved_source_lane = str(getattr(resolved_entry, "source_lane", ""))
     passport_source_lane = str(passport.source_lane)

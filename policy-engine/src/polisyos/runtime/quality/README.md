@@ -1,6 +1,6 @@
 # Runtime Quality
 
-- Last updated: 2026-10-17
+- Last updated: 2026-11-03
 
 `polisyos.runtime.quality` owns Policy Design Case runtime-quality artifacts:
 the canonical quality-report role/file/ref map lives in `report_registry.py` so refs, scorecards, and canary assembly share one intake set.
@@ -11,6 +11,37 @@ This package may orchestrate producer-backed signals, but it does not make LLM
 output, corpus stubs, simulations, or historical priors into current evidence
 authority by itself. Those paths remain candidates, caps, context, or replay
 inputs until a producer-owned capability admits them.
+
+## Conditional design-cycle owners
+
+The LANE-01 implementation extends the existing cycle, acquisition and N5
+owners. Current qualification and unfinished integration are recorded in the
+repository's [E02 work plan](../../../../../E02-WORK-PLAN.md).
+
+- `generation_cycle.py` owns candidate evaluation attempts, source-basis
+  transitions and current-occurrence projections. A retained historical result
+  and a current decision-front occurrence are separate facts.
+- `candidate_acquisition_action.py` and `candidate_acquisition_source.py` bind
+  candidate-only fetch work to the selected compiler, scope and exact source
+  bytes. They do not issue observed-data passports or source-currentness claims.
+- `candidate_source_basis.py` reopens selected inputs for the existing
+  acquisition-basis comparator. Repeated owner-generated ancestry can be folded
+  only after producer replay; scientific changes and source limitations remain
+  part of the comparison.
+- `candidate_source_reentry_history.py` verifies persisted candidate history
+  without acquiring a current lease or rerunning N5. Current-route admission
+  remains with the acquisition route owner.
+- `acquisition_model_transition.py` replays bounded candidate model/outcome
+  changes through the existing evaluation and N5 owners.
+  `acquisition_evidence_transition.py` distinguishes that supported route from
+  method, constraint and independent-replica work whose verification is absent.
+- `ncm_numeric_profile.py` builds checked-model numerical error contracts. Such
+  bounds do not establish empirical calibration, source units or causal validity.
+
+New selected references come from the actual writer and are reopened with their
+manifest profile. Historical missing selectors are not repaired from a current
+default view. Generic/configured producers, retained readers and HTTP projections
+must preserve their separate schemas and candidate authority boundaries.
 
 Phase-barrier records remain candidate diagnostics until each required record is
 produced and bound to the current run. The live NL control-job path persists an

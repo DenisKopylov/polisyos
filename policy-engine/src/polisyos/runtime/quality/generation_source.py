@@ -4355,7 +4355,13 @@ class GenerationSourceRepository:
                 source_ref=artifact.content_hash,
                 input_refs=generic_source_inputs,
             )
-        ref = self._writer().put_bytes(body, options)
+        ref = self._writer().put_bytes(
+            body,
+            options,
+            return_selected_profile=bool(generic_source_inputs),
+        )
+        if generic_source_inputs and ref.manifest_profile_sha256 is None:
+            raise ValueError("generation_source_generic_selected_profile_not_returned")
         return ref
 
     def load(

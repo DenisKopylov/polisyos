@@ -142,8 +142,26 @@ def _controlled_wdi_trinity_response(raw: str, *, outcome_variable: str) -> str:
     if len(selected) != 1:
         raise ValueError("controlled_candidate_recording_intervention_contract_mismatch")
     intervention = selected[0]
+    parameter_specs = [
+        item
+        for item in trinity["policy_spec"]["parameters"]
+        if item.get("intervention_id") == intervention["intervention_id"]
+    ]
+    if len(parameter_specs) != 1:
+        raise ValueError("controlled_candidate_recording_parameter_contract_mismatch")
     intervention["kind"] = "budget_allocation_multiplier"
     intervention["params"] = {"multiplier": 2}
+    # This is the same declared synthetic transformation as the intervention,
+    # including its exact parameter occurrence and bounded numerical domain.
+    # The unchanged source capture's intensity specification is not a multiplier.
+    parameter_specs[0].update(
+        {
+            "param_path": "multiplier",
+            "default_value": "2",
+            "min_value": "1",
+            "max_value": "2",
+        }
+    )
     intervention["notes"] = [
         "do.target=government.balance sign=increase "
         f"outcome={outcome_variable} "

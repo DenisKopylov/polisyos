@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common.canonical_profile import require_declared_profile
+from polisyos.core import artifacts
 from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.pdc import OperationClass, OperationContract, OperationInvocationRecord
 from polisyos.runtime.quality.acquisition_route_loop import (
@@ -17,6 +18,7 @@ from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRouteLoop,
     AcquisitionRouteLoopReceipt,
     AcquisitionRoutePhaseReceipt,
+    AcquisitionRouteRecoveryRequired,
     VerifiedAcquisitionRouteClosure,
     persist_world_commit_and_reenter,
     resume_world_committed_reentry,
@@ -207,10 +209,10 @@ class AcquisitionOwnerExecutionResult(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["AcquisitionOwnerExecutionResult@1.0"] = (
-        "AcquisitionOwnerExecutionResult@1.0"
-    )
-    disposition: Literal["quarantined_no_growth", "world_committed"]
+    schema_version: Literal[
+        "AcquisitionOwnerExecutionResult@1.0", "AcquisitionOwnerExecutionResult@1.1"
+    ] = "AcquisitionOwnerExecutionResult@1.0"
+    disposition: Literal["quarantined_no_growth", "world_committed", "candidate_input_prepared"]
     owner_receipt_refs: tuple[str, ...] = Field(min_length=1)
     admitted_observation_delta: int = Field(ge=0)
     overlay_admission_receipt_ref: str | None = Field(
@@ -218,16 +220,39 @@ class AcquisitionOwnerExecutionResult(BaseModel):
         pattern=_SHA256_PATTERN,
     )
     post_epoch_event_ref: str | None = Field(default=None, pattern=_SHA256_PATTERN)
-    authority_badge: Literal["behavioral_fixture_not_production", "native_owner_verified"] = (
-        "behavioral_fixture_not_production"
-    )
+    authority_badge: Literal[
+        "behavioral_fixture_not_production", "native_owner_verified", "candidate_input_only"
+    ] = "behavioral_fixture_not_production"
     action_phase_ref: str | None = Field(default=None, pattern=_SHA256_PATTERN)
+    candidate_action_ref: artifacts.ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _world_commit_requires_active_owner_evidence(
         self,
     ) -> AcquisitionOwnerExecutionResult:
-        if self.disposition == "world_committed":
+        if self.disposition == "candidate_input_prepared":
+            if (
+                self.schema_version != "AcquisitionOwnerExecutionResult@1.1"
+                or self.authority_badge != "candidate_input_only"
+                or self.candidate_action_ref is None
+                or self.candidate_action_ref.kind
+                != "runtime_quality.acquisition_candidate_action_receipt"
+                or self.candidate_action_ref.media_type != "application/json"
+                or self.candidate_action_ref.manifest_profile_sha256 is None
+                or str(self.candidate_action_ref.artifact_id) not in self.owner_receipt_refs
+                or self.action_phase_ref is None
+                or self.admitted_observation_delta != 0
+                or self.overlay_admission_receipt_ref is not None
+                or self.post_epoch_event_ref is not None
+            ):
+                raise ValueError("candidate_input_owner_evidence_incomplete")
+        elif self.schema_version != "AcquisitionOwnerExecutionResult@1.0" or (
+            self.candidate_action_ref is not None or self.authority_badge == "candidate_input_only"
+        ):
+            raise ValueError("candidate_input_owner_schema_mismatch")
+        elif self.disposition == "world_committed":
             if (
                 self.admitted_observation_delta <= 0
                 or self.overlay_admission_receipt_ref is None
@@ -605,6 +630,12 @@ class AcquisitionActionService:
                 "receipt_phase": "terminal",
                 "terminal_receipt_ref": head.receipt_ref,
             }
+        if head.receipt_phase == "candidate_input_reentry_pending":
+            completed = self._complete_production_candidate_input(closure)
+            if completed is None:
+                raise AcquisitionRouteRecoveryRequired("candidate_reentry_recovery_required")
+            self._consume_movement(completed.receipt_ref)
+            return self._terminal_progress(completed)
         if head.receipt_phase == "world_committed_reentry_pending":
             if self._production_execution_bridge_installed():
                 completed = self._complete_production_positive_admission(closure)
@@ -679,13 +710,29 @@ class AcquisitionActionService:
             if still_current is None or still_current.head != current.head:
                 raise AcquisitionActionServiceError("acquisition_executing_head_changed")
             selected_head = sink.persist_action_outcome_selection(
-                action_phase_ref, result.owner_receipt_refs
+                action_phase_ref,
+                result.owner_receipt_refs,
+                **(
+                    {"candidate_receipt_ref": result.candidate_action_ref}
+                    if result.candidate_action_ref
+                    else {}
+                ),
             )
             if (
                 selected_head.receipt_phase != "outcome_selected"
                 or selected_head.predecessor_receipt_ref != action_phase_ref
             ):
                 raise AcquisitionActionServiceError("acquisition_action_selection_missing")
+            if result.disposition == "candidate_input_prepared":
+                return self._persist_candidate_pending_and_reenter(
+                    closure=closure,
+                    job_id=job.job_id,
+                    decision_ref=decision_ref,
+                    action_generation=action_generation,
+                    predecessor_receipt_ref=selected_head.receipt_ref,
+                    owner_receipt_refs=result.owner_receipt_refs,
+                    candidate_receipt_ref=result.candidate_action_ref,
+                )
             if result.disposition == "quarantined_no_growth":
                 terminal = self._terminal_receipt(
                     action_generation=action_generation,
@@ -775,7 +822,13 @@ class AcquisitionActionService:
             ):
                 raise AcquisitionActionServiceError("acquisition_owner_execution_scope_mismatch")
             selected_head = sink.persist_action_outcome_selection(
-                executing_head.receipt_ref, result.owner_receipt_refs
+                executing_head.receipt_ref,
+                result.owner_receipt_refs,
+                **(
+                    {"candidate_receipt_ref": result.candidate_action_ref}
+                    if result.candidate_action_ref
+                    else {}
+                ),
             )
             if (
                 selected_head.receipt_phase != "outcome_selected"
@@ -783,6 +836,16 @@ class AcquisitionActionService:
             ):
                 raise AcquisitionActionServiceError("acquisition_action_selection_missing")
             outcome_predecessor_ref = selected_head.receipt_ref
+        if result.disposition == "candidate_input_prepared":
+            return self._persist_candidate_pending_and_reenter(
+                closure=closure,
+                job_id=job.job_id,
+                decision_ref=decision_ref,
+                action_generation=action_generation,
+                predecessor_receipt_ref=outcome_predecessor_ref,
+                owner_receipt_refs=result.owner_receipt_refs,
+                candidate_receipt_ref=result.candidate_action_ref,
+            )
         if result.disposition == "quarantined_no_growth":
             terminal = self._terminal_receipt(
                 action_generation=action_generation,
@@ -816,6 +879,54 @@ class AcquisitionActionService:
         )
         self._consume_movement(terminal.receipt_ref)
         return self._terminal_progress(terminal)
+
+    def _persist_candidate_pending_and_reenter(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        job_id: str,
+        decision_ref: str,
+        action_generation: int,
+        predecessor_receipt_ref: str,
+        owner_receipt_refs: tuple[str, ...],
+        candidate_receipt_ref: artifacts.ArtifactRef | None,
+    ) -> dict[str, Any]:
+        """Record candidate input before re-entry, without asserting observation admission."""
+        if not self._production_execution_bridge_installed():
+            raise AcquisitionActionServiceError("candidate_input_owner_not_installed")
+        pending = self._phase_receipt(
+            action_generation=action_generation,
+            closure=closure,
+            job_id=job_id,
+            decision_ref=decision_ref,
+            receipt_phase="candidate_input_reentry_pending",
+            predecessor_receipt_ref=predecessor_receipt_ref,
+            owner_receipt_refs=owner_receipt_refs,
+            candidate_receipt_ref=candidate_receipt_ref,
+        )
+        head = self.control_service.acquisition_route_sink.persist_phase(pending)
+        if head.receipt_phase != "candidate_input_reentry_pending":
+            raise AcquisitionActionServiceError("candidate_input_pending_head_missing")
+        completed = self._complete_production_candidate_input(closure)
+        if completed is None:
+            raise AcquisitionRouteRecoveryRequired("candidate_reentry_recovery_required")
+        self._consume_movement(completed.receipt_ref)
+        return self._terminal_progress(completed)
+
+    def _complete_production_candidate_input(
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+    ) -> AcquisitionActionHeadRecord | None:
+        """Re-enter only through the installed candidate-aware production owner."""
+        from .acquisition_surface_execution import WorldBankWDIAcquisitionExecutionPort
+
+        port = self._production_execution_port
+        if (
+            type(port) is not WorldBankWDIAcquisitionExecutionPort
+            or self._execution_port is not port
+        ):
+            return None
+        return port.complete_candidate_reentry(closure)
 
     def _complete_production_positive_admission(
         self,
@@ -1095,10 +1206,16 @@ class AcquisitionActionService:
         closure: VerifiedAcquisitionRouteClosure,
         job_id: str,
         decision_ref: str,
-        receipt_phase: Literal["requested", "executing", "world_committed_reentry_pending"],
+        receipt_phase: Literal[
+            "requested",
+            "executing",
+            "world_committed_reentry_pending",
+            "candidate_input_reentry_pending",
+        ],
         predecessor_receipt_ref: str | None,
         owner_receipt_refs: tuple[str, ...],
         action_generation: int = 1,
+        candidate_receipt_ref: artifacts.ArtifactRef | None = None,
     ) -> AcquisitionRoutePhaseReceipt:
         coarse, recovery = {
             "requested": ("requested", "none"),
@@ -1107,8 +1224,17 @@ class AcquisitionActionService:
                 "world_committed",
                 "reentry_recovery_required",
             ),
+            "candidate_input_reentry_pending": (
+                "candidate_input_prepared",
+                "reentry_recovery_required",
+            ),
         }[receipt_phase]
         return AcquisitionRoutePhaseReceipt(
+            schema_version=(
+                "AcquisitionRoutePhaseReceipt@1.2"
+                if receipt_phase == "candidate_input_reentry_pending"
+                else "AcquisitionRoutePhaseReceipt@1.0"
+            ),
             receipt_id=f"{job_id}.{receipt_phase}",
             tenant_id=closure.tenant_id,
             cell_id=closure.cell_id,
@@ -1126,6 +1252,7 @@ class AcquisitionActionService:
             recovery_state=recovery,
             predecessor_receipt_ref=predecessor_receipt_ref,
             owner_receipt_refs=owner_receipt_refs,
+            candidate_receipt_ref=candidate_receipt_ref,
             generated_at=datetime.now(UTC),
         )
 

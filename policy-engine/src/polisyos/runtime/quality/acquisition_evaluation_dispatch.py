@@ -53,6 +53,9 @@ if TYPE_CHECKING:
         AcquisitionEvaluationFrontierCAS,
         AcquisitionEvaluationFrontierRecord,
     )
+    from polisyos.runtime.quality.acquisition_evidence_transition import (
+        AcquisitionEvidenceTransitionDispatch,
+    )
     from polisyos.runtime.quality.acquisition_planner import AcquisitionWorldSnapshot
     from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
     from polisyos.runtime.quality.joint_simulation_horizon import (
@@ -590,6 +593,56 @@ def _terminal_record(
     )
 
 
+def _prospective_model_transition(
+    bridge: AcquisitionWorldGrowthBridge,
+    *,
+    decision_ref: ArtifactRef,
+    decision: AcquisitionEvaluationDecision,
+) -> AcquisitionEvidenceTransitionDispatch | None:
+    """Route only an owner-recomputed coefficient change to the existing verifier."""
+    from polisyos.runtime.quality.acquisition_evidence_transition import (
+        AcquisitionEvidenceTransitionBasis,
+        AcquisitionModelTransitionIntent,
+        dispatch_acquisition_evidence_transition,
+    )
+    from polisyos.runtime.quality.acquisition_model_transition import (
+        is_prospective_candidate_model_revision,
+    )
+
+    if (
+        decision.comparison_result != "different"
+        or decision.predicate_provenance != "recomputed"
+        or decision.reason_codes
+        or decision.prior_basis_ref is None
+        or decision.prior_evaluation is None
+    ):
+        return None
+    previous = read_acquisition_evaluation_artifact(
+        store=bridge.artifact_store,
+        event_log=bridge.event_log,
+        ref=decision.prior_basis_ref,
+        record_type=AcquisitionEvaluationBasis,
+    )
+    prospective = read_acquisition_evaluation_artifact(
+        store=bridge.artifact_store,
+        event_log=bridge.event_log,
+        ref=decision.current_basis_ref,
+        record_type=AcquisitionEvaluationBasis,
+    )
+    if not is_prospective_candidate_model_revision(previous, prospective):
+        return None
+    return dispatch_acquisition_evidence_transition(
+        AcquisitionModelTransitionIntent(
+            purpose="Re-evaluate the selected candidate after an owned model coefficient change.",
+            dependency_basis=AcquisitionEvidenceTransitionBasis(
+                evaluation_decision_ref=decision_ref,
+                previous_basis_ref=decision.prior_basis_ref,
+                prospective_basis_ref=decision.current_basis_ref,
+            ),
+        )
+    )
+
+
 def _current_cheap_continuation(
     bridge: AcquisitionWorldGrowthBridge,
     selection: _CurrentSelection,
@@ -968,6 +1021,11 @@ def complete_positive_acquisition_admission(
     pending_head = sink.get_head(pending)
     if pending_head is None or pending_head.receipt_phase != "world_committed_reentry_pending":
         raise ValueError("acquisition_evaluation_pending_head_changed")
+    model_transition = _prospective_model_transition(
+        bridge, decision_ref=decision_ref, decision=decision
+    )
+    if model_transition is not None and model_transition.status != "verification_required":
+        raise ValueError("acquisition_model_transition_dispatch_unverified")
     prepared_configuration = _saved_execution_configuration(bridge, selection, decision)
     # Recovery revalidates the saved full basis/configuration BEFORE creating
     # any new WMR/context or running N5. The exact saved descriptor is forwarded
@@ -1018,6 +1076,32 @@ def complete_positive_acquisition_admission(
         event_log=bridge.event_log,
         record=actual_basis,
     )
+    if model_transition is not None and evaluated is not None:
+        from polisyos.runtime.quality.acquisition_model_transition import (
+            CandidateModelRevision,
+            resolve_candidate_model_revision,
+        )
+
+        revision = resolve_candidate_model_revision(
+            artifact_store=bridge.artifact_store,
+            event_log=bridge.event_log,
+            control_store=bridge.control_store,
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            run_id=closure.run_id,
+            design_problem_ref=closure.design_problem_ref,
+            action_job_id=selection.action_job_id,
+            action_generation=selection.action_generation,
+            route_id=closure.route_id,
+            decision_ref=decision_ref,
+            selected_basis_ref=actual_basis_ref,
+            previous_run=closure.generation_run,
+            previous_cycle=closure.source_cycle,
+            selected_run=reentry.continued_generation_run,
+            selected_cycle=reentry.new_cycle,
+        )
+        if type(revision) is not CandidateModelRevision:
+            raise ValueError("acquisition_model_transition_result_unverified")
     new_selected = (
         evaluated.selected.model_copy(update={"basis_ref": actual_basis_ref}) if evaluated else None
     )

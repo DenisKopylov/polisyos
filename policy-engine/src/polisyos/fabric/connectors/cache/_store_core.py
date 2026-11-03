@@ -19,13 +19,18 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactRef,
+    CanonInfo,
     PutOptions,
     RootedArtifactStore,
     SchemaInfo,
+    VerifiableArtifactReader,
+    artifact_manifest_profile_projection,
+    artifact_manifest_profile_sha256,
+    expected_artifact_manifest_for_write,
     input_ref_from_artifact_ref,
     load_core_json_artifact,
 )
-from polisyos.core.canon import fingerprint
+from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.core.contracts.fabric import IngestionExecutionContext
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
@@ -66,7 +71,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
     from types import TracebackType
 
-    from polisyos.core.artifacts.manifest import InputRef
+    from polisyos.core.artifacts.manifest import ArtifactGovernanceInfo, InputRef
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors.base import (
         ConnectionConfig,
@@ -109,8 +114,80 @@ def _execution_context_inputs(context: IngestionExecutionContext | None) -> list
     ]
 
 
+def _source_intent_write_options(
+    *,
+    context: IngestionExecutionContext | None,
+    execution_inputs: list[InputRef],
+    governance: ArtifactGovernanceInfo,
+) -> PutOptions:
+    """Use the same source-intent write profile for production and verification."""
+    return PutOptions(
+        kind=_SOURCE_INTENT_KIND,
+        media_type="application/json",
+        schema=SchemaInfo(
+            name=_SOURCE_INTENT_SCHEMA,
+            version=(
+                _SOURCE_INTENT_CONTEXT_VERSION if context is not None else _SOURCE_INTENT_VERSION
+            ),
+        ),
+        canon=CanonInfo.from_spec(CanonSpec()),
+        inputs=execution_inputs or None,
+        governance=governance,
+    )
+
+
+def _direct_cache_payload_write_options(
+    *,
+    media_type: str,
+    source_intent_ref: ArtifactRef | None,
+    execution_inputs: list[InputRef],
+    governance: ArtifactGovernanceInfo,
+) -> PutOptions:
+    """Describe a direct cache write without accepting caller-supplied metadata."""
+    return PutOptions(
+        kind=CACHE_PAYLOAD_KIND,
+        media_type=media_type,
+        schema=SchemaInfo(name=CACHE_SCHEMA_NAME, version=CACHE_SCHEMA_VERSION),
+        inputs=[
+            *(
+                [input_ref_from_artifact_ref(source_intent_ref, role=_SOURCE_INTENT_ROLE)]
+                if source_intent_ref is not None
+                else []
+            ),
+            *execution_inputs,
+        ]
+        or None,
+        governance=governance,
+    )
+
+
+def _matches_exact_write_profile(
+    cas_store: VerifiableArtifactReader, ref: ArtifactRef, options: PutOptions
+) -> bool:
+    """Reconstruct the writer's complete selected profile from its stored bytes."""
+    if ref.manifest_profile_sha256 is None or not cas_store.verify(ref).ok:
+        return False
+    manifest = cas_store.get_manifest(ref)
+    if (
+        manifest.artifact_id != ref.artifact_id
+        or manifest.kind != ref.kind
+        or manifest.media_type != ref.media_type
+        or artifact_manifest_profile_sha256(manifest) != ref.manifest_profile_sha256
+    ):
+        return False
+    expected = expected_artifact_manifest_for_write(
+        artifact_id=ref.artifact_id,
+        data=cas_store.get_bytes(ref),
+        opts=options,
+        created_at=manifest.created_at,
+    )
+    return artifact_manifest_profile_projection(manifest) == artifact_manifest_profile_projection(
+        expected
+    )
+
+
 def _execution_context_edges_verify(
-    cas_store: RootedArtifactStore,
+    cas_store: VerifiableArtifactReader,
     inputs: list[InputRef],
     context: IngestionExecutionContext | None,
 ) -> bool:
@@ -137,7 +214,7 @@ def _execution_context_edges_verify(
 
 
 def _selected_cache_source_intent(
-    cas_store: RootedArtifactStore,
+    cas_store: VerifiableArtifactReader,
     payload_ref: ArtifactRef,
     *,
     execution_context: IngestionExecutionContext | None,
@@ -203,7 +280,7 @@ def _selected_cache_source_intent(
 
 
 def verify_selected_cache_payload_ref[ResultDataT](
-    cas_store: RootedArtifactStore,
+    cas_store: VerifiableArtifactReader,
     payload_ref: ArtifactRef,
     *,
     connector_id: str,
@@ -211,12 +288,18 @@ def verify_selected_cache_payload_ref[ResultDataT](
     source_config: ConnectionConfig,
     result: FetchResult[ResultDataT] | None = None,
     execution_context: IngestionExecutionContext | None = None,
+    require_writer_profile: bool = False,
+    classification: DataClassification | str | None = None,
+    column_classification: Mapping[str, DataClassification | str] | None = None,
 ) -> bool:
     """Verify the exact selected payload's source, request, and execution context.
 
     The index is an accelerator. Context-bearing writes require a v2 source
     intent and the exact selected replay-session edge on both immutable artifacts;
     ordinary v1 payloads cannot satisfy a record/replay lookup or vice versa.
+    ``require_writer_profile`` additionally checks the complete direct-write
+    payload and source-intent manifests against the same options used by the
+    cache owner. It does not establish data quality or source authority.
     """
     try:
         intent = _selected_cache_source_intent(
@@ -236,6 +319,44 @@ def verify_selected_cache_payload_ref[ResultDataT](
             if (
                 payload_ref.media_type != media_type
                 or cas_store.get_bytes(payload_ref) != result_bytes
+            ):
+                return False
+        if require_writer_profile:
+            context = _copy_execution_context(execution_context)
+            execution_inputs = _execution_context_inputs(context)
+            manifest = cas_store.get_manifest(payload_ref)
+            intent_edges = [edge for edge in manifest.inputs if edge.role == _SOURCE_INTENT_ROLE]
+            if len(intent_edges) != 1 or intent_edges[0].manifest_profile_sha256 is None:
+                return False
+            edge = intent_edges[0]
+            intent_ref = ArtifactRef(
+                artifact_id=edge.artifact_id,
+                kind=_SOURCE_INTENT_KIND,
+                media_type="application/json",
+                manifest_profile_sha256=edge.manifest_profile_sha256,
+            )
+            if CacheSourceIntent.model_validate_json(cas_store.get_bytes(intent_ref)) != intent:
+                return False
+            governance = resolve_artifact_governance(
+                scope=RetentionScope.CACHE,
+                classification=classification,
+                column_classification=column_classification,
+            )
+            if not _matches_exact_write_profile(
+                cas_store,
+                intent_ref,
+                _source_intent_write_options(
+                    context=context, execution_inputs=execution_inputs, governance=governance
+                ),
+            ) or not _matches_exact_write_profile(
+                cas_store,
+                payload_ref,
+                _direct_cache_payload_write_options(
+                    media_type=payload_ref.media_type,
+                    source_intent_ref=intent_ref,
+                    execution_inputs=execution_inputs,
+                    governance=governance,
+                ),
             ):
                 return False
         return True
@@ -605,41 +726,19 @@ class ConnectorCacheStore:
                     )
                     source_intent_ref = self._cas.put_json(
                         source_intent.model_dump(mode="json"),
-                        opts=PutOptions(
-                            kind=_SOURCE_INTENT_KIND,
-                            media_type="application/json",
-                            schema=SchemaInfo(
-                                name=_SOURCE_INTENT_SCHEMA,
-                                version=(
-                                    _SOURCE_INTENT_CONTEXT_VERSION
-                                    if self._execution_context is not None
-                                    else _SOURCE_INTENT_VERSION
-                                ),
-                            ),
-                            inputs=execution_inputs or None,
+                        opts=_source_intent_write_options(
+                            context=self._execution_context,
+                            execution_inputs=execution_inputs,
                             governance=governance,
                         ),
                         return_selected_profile=True,
                     )
                 payload_ref = self._cas.put_bytes(
                     payload_bytes,
-                    opts=PutOptions(
-                        kind=CACHE_PAYLOAD_KIND,
+                    opts=_direct_cache_payload_write_options(
                         media_type=media_type,
-                        schema=SchemaInfo(name=CACHE_SCHEMA_NAME, version=CACHE_SCHEMA_VERSION),
-                        inputs=[
-                            *(
-                                [
-                                    input_ref_from_artifact_ref(
-                                        source_intent_ref, role=_SOURCE_INTENT_ROLE
-                                    )
-                                ]
-                                if source_intent_ref is not None
-                                else []
-                            ),
-                            *execution_inputs,
-                        ]
-                        or None,
+                        source_intent_ref=source_intent_ref,
+                        execution_inputs=execution_inputs,
                         governance=governance,
                     ),
                     return_selected_profile=True,

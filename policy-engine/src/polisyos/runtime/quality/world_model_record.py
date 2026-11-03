@@ -623,6 +623,7 @@ def build_world_model_record(
     limitations: WorldModelLimitations | None = None,
     candidate_only: bool = False,
     deployment_update_refs: DeploymentUpdateRefs | None = None,
+    return_selected_profile: bool = False,
 ) -> WorldModelBuildResult:
     """Build and persist one versioned world record from existing substrates.
 
@@ -671,6 +672,8 @@ def build_world_model_record(
             status is ``limited`` and requires at least one typed
             ``admissibility_blocker``; this does not confer authority.
         deployment_update_refs: Phase-6 forward hooks, not write-back logic.
+        return_selected_profile: Return the exact writer-selected WMR manifest
+            view. The default retains the historical profileless return.
 
     Raises:
         WorldModelRecordError: If any required substrate is missing or versions
@@ -681,6 +684,8 @@ def build_world_model_record(
         bound ``GlobalState`` emitted by Foundry input bindings.
     """
 
+    if type(return_selected_profile) is not bool:
+        raise TypeError("world_model_record_selected_profile_request_untyped")
     if not model_spec.registry_bundle_ref:
         raise WorldModelRecordError(
             "model_spec_registry_bundle_missing",
@@ -962,11 +967,12 @@ def build_world_model_record(
             input_ref_from_artifact_ref(ref, role=f"input.ncm_refs.{index}")
             for index, ref in enumerate(artifact_views.ncm_refs)
         )
-    record_ref = persist_world_model_record(
-        store,
-        record,
-        inputs=record_inputs,
-    )
+    if return_selected_profile:
+        record_ref = persist_world_model_record(
+            store, record, inputs=record_inputs, return_selected_profile=True
+        )
+    else:
+        record_ref = persist_world_model_record(store, record, inputs=record_inputs)
     bound_state = load_state_snapshot(store, snapshot_ref=input_bindings.bound_state_snapshot_ref)
     return WorldModelBuildResult(
         record=record,
@@ -1071,6 +1077,7 @@ def persist_world_model_record(
     record: WorldModelRecord,
     *,
     inputs: Sequence[InputRef] | None = None,
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
     """Persist a ``WorldModelRecord`` as a typed CAS artifact."""
 
@@ -1089,19 +1096,34 @@ def persist_world_model_record(
         if inputs is None
         else list(inputs)
     )
-    return store.put_json(
-        serialize_world_model_record_for_storage(validated),
-        PutOptions(
-            kind=WORLD_MODEL_RECORD_ARTIFACT_KIND,
-            media_type="application/json",
-            schema=SchemaInfo(
-                name=WORLD_MODEL_RECORD_SCHEMA_NAME,
-                version=validated.schema_version,
-            ),
-            inputs=manifest_inputs,
+    payload = serialize_world_model_record_for_storage(validated)
+    options = PutOptions(
+        kind=WORLD_MODEL_RECORD_ARTIFACT_KIND,
+        media_type="application/json",
+        schema=SchemaInfo(
+            name=WORLD_MODEL_RECORD_SCHEMA_NAME,
+            version=validated.schema_version,
         ),
-        canon_spec=CanonSpec(forbid_floats=False),
+        inputs=manifest_inputs,
     )
+    if type(return_selected_profile) is not bool:
+        raise TypeError("world_model_record_selected_profile_request_untyped")
+    if return_selected_profile:
+        written = store.put_json(
+            payload,
+            options,
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        if (
+            not isinstance(written, ArtifactRef)
+            or written.manifest_profile_sha256 is None
+            or written.kind != options.kind
+            or written.media_type != options.media_type
+        ):
+            raise WorldModelRecordError("world_model_record_writer_profile_not_established")
+        return written
+    return store.put_json(payload, options, canon_spec=CanonSpec(forbid_floats=False))
 
 
 def load_world_model_record(

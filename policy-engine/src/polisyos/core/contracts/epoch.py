@@ -188,6 +188,12 @@ class _DataSnapshotManifestInputClosure(NamedTuple):
     owner: Literal["core.contracts.fabric.DataSnapshot"] = "core.contracts.fabric.DataSnapshot"
 
 
+class _EvidenceBundleManifestInputClosure(NamedTuple):
+    """EvidenceBundle edges recomputed from the typed Fabric writer contract."""
+
+    owner: Literal["core.contracts.fabric.EvidenceBundle"] = "core.contracts.fabric.EvidenceBundle"
+
+
 _ManifestSchemaExpectation = (
     SchemaInfo | tuple[SchemaInfo | None, ...] | None | _UnownedManifestSchemaExpectation
 )
@@ -198,6 +204,7 @@ _ManifestInputExpectation = (
     | _RequiredManifestInputViewSubset
     | _UnownedManifestInputClosure
     | _DataSnapshotManifestInputClosure
+    | _EvidenceBundleManifestInputClosure
 )
 
 
@@ -297,7 +304,8 @@ def _preflight_core_manifest_profile(
         expected_inputs,
         _PayloadDerivedManifestInputClosure
         | _UnownedManifestInputClosure
-        | _DataSnapshotManifestInputClosure,
+        | _DataSnapshotManifestInputClosure
+        | _EvidenceBundleManifestInputClosure,
     ):
         input_contract_matches = True
     else:
@@ -595,6 +603,8 @@ def load_verified_epoch_statement(
         )
     elif isinstance(input_expectation, _DataSnapshotManifestInputClosure):
         _verify_decoded_data_snapshot_manifest_inputs(manifest=manifest, decoded=decoded)
+    elif isinstance(input_expectation, _EvidenceBundleManifestInputClosure):
+        _verify_decoded_evidence_bundle_manifest_inputs(manifest=manifest, decoded=decoded)
     return {str(key): value for key, value in decoded.items()}
 
 
@@ -1469,6 +1479,11 @@ def _known_epoch_statement_manifest_schema(
             SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.0"),
             SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.1"),
         )
+    if expected_kind == "fabric.evidence_bundle":
+        return (
+            SchemaInfo(name="fabric.evidence_bundle", version="1.0"),
+            SchemaInfo(name="fabric.evidence_bundle", version="2.0"),
+        )
     if codec.schema_name is not None:
         return SchemaInfo(name=codec.schema_name, version=codec.schema_version or "")
     if (
@@ -1501,8 +1516,9 @@ def _known_epoch_statement_manifest_inputs(expected_kind: str) -> _ManifestInput
         return _PayloadDerivedManifestInputClosure("epoch.production_receipt", "multiset")
     if expected_kind == "fabric.data_snapshot":
         return _DataSnapshotManifestInputClosure()
+    if expected_kind == "fabric.evidence_bundle":
+        return _EvidenceBundleManifestInputClosure()
     if expected_kind in {
-        "fabric.evidence_bundle",
         "fabric.quality_report",
         "fabric.retrieval_summary",
     }:
@@ -1606,6 +1622,33 @@ def _verify_decoded_data_snapshot_manifest_inputs(
         schema_version=schema.version,
     ):
         raise ValueError("DataSnapshot manifest input closure differs")
+
+
+def _verify_decoded_evidence_bundle_manifest_inputs(
+    *,
+    manifest: ArtifactManifest,
+    decoded: dict[str, Any],
+) -> None:
+    """Reconcile the selected EvidenceBundle schema with its typed direct inputs."""
+    from polisyos.core.contracts.fabric import EvidenceBundle, evidence_bundle_manifest_input_refs
+
+    schema = manifest.artifact_schema
+    if (
+        manifest.kind != "fabric.evidence_bundle"
+        or manifest.media_type != "application/json"
+        or schema is None
+        or schema.name != "fabric.evidence_bundle"
+    ):
+        raise ValueError("EvidenceBundle selected manifest schema differs")
+    input_refs = evidence_bundle_manifest_input_refs(EvidenceBundle.model_validate(decoded))
+    if schema.version == "1.0":
+        matches = input_refs is None and not manifest.inputs
+    elif schema.version == "2.0":
+        matches = input_refs is not None and manifest.inputs == list(input_refs)
+    else:
+        matches = False
+    if not matches:
+        raise ValueError("EvidenceBundle manifest input closure differs")
 
 
 def _verify_decoded_manifest_input_closure(

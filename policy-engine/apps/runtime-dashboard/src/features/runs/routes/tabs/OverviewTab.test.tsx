@@ -170,11 +170,57 @@ function sameCandidateAcquisitionHistoryProjection() {
         continuation_join_status: "v3_occurrence_joined",
         origin_source_binding_status: "verified_same_candidate_root",
         continuation: {
+          source_generation_run_content_hash: "sha256:" + "4".repeat(64),
+          continued_generation_run_content_hash: "sha256:" + "5".repeat(64),
+          source_cycle_index: 1,
+          previous_n4_source_ref: root,
+          previous_n5_input_ref: {
+            artifact_id: "sha256:" + "6".repeat(64),
+            kind: "runtime.quality.candidate_simulation_n5_input",
+            media_type: "application/json",
+            manifest_profile_sha256: "sha256:" + "7".repeat(64),
+          },
+          selected_n5_input_ref: {
+            artifact_id: "sha256:" + "8".repeat(64),
+            kind: "runtime.quality.candidate_simulation_n5_input",
+            media_type: "application/json",
+            manifest_profile_sha256: "sha256:" + "9".repeat(64),
+          },
           selected_n4_source_ref: { ...source },
+          previous_profile_selection_ref: "sha256:" + "a".repeat(64),
+          previous_profile_content_hash: "sha256:" + "b".repeat(64),
+          selected_profile_selection_ref: "sha256:" + "a".repeat(64),
+          selected_profile_content_hash: "sha256:" + "c".repeat(64),
+          selected_target_world_slot: "government.tax_rate",
+          previous_selected_target_baseline_hash: "sha256:" + "d".repeat(64),
+          selected_target_baseline_hash: "sha256:" + "e".repeat(64),
           continued_cycle_index: 2,
+          source_currentness_status: "not_established",
+          source_currentness_reason: "historical_observation",
+          continuation_currentness_status: "not_established",
+          continuation_currentness_reason: "historical_observation",
+          n9_status: "not_promoted",
+          n9_reason: "candidate_observation_only",
+          n9_certified_candidate_ids: [],
           current_candidate_occurrences: [
-            { candidate_id: candidateId, cycle_index: 2 },
+            {
+              candidate_id: candidateId,
+              cycle_index: 2,
+              content_hash: "sha256:" + "f".repeat(64),
+              source_content_hash: null,
+              front: "research",
+              certified_by_n9: false,
+            },
           ],
+          current_fronts: {
+            decision_candidate_ids: [],
+            research_candidate_ids: [candidateId],
+            quarantine_candidate_ids: [],
+            portfolio_candidate_ids: [],
+          },
+          currentness_status: "not_established",
+          authority_purpose: "candidate_observation_only",
+          publication_authority: false,
         },
         currentness_status: "not_established",
         authority_purpose: "candidate_observation_only",
@@ -449,6 +495,189 @@ function genericCycleSimulationProjection(
     source_ref: sourceRef,
   };
 }
+
+function selectedNumericalAcquisitionProjection() {
+  // Display-only composition; the served backend test qualifies owner replay.
+  const projection = sameCandidateAcquisitionHistoryProjection();
+  const entry = projection.acquisition_history[0]!;
+  const original = failedCandidateSimulationFixture().n5_observations[0]!;
+  const observation = {
+    ...original,
+    candidate_id: entry.new_candidate_id,
+    cycle_index: entry.continuation.continued_cycle_index,
+    n4_source_ref: entry.new_candidate_source_ref,
+    n5_input_ref: entry.continuation.selected_n5_input_ref,
+    profile_selection_ref: entry.continuation.selected_profile_selection_ref,
+    result_body: {
+      ...original.result_body,
+      outcome_units: { "government.balance": "declared_currency_unit" },
+      unit_provenance: "declared_candidate_model",
+      model_declaration_ref: {
+        artifact_id: "sha256:" + "e".repeat(64),
+        kind: "runtime.quality.candidate_simulation_model_declaration",
+        media_type: "application/json",
+        manifest_profile_sha256: "sha256:" + "f".repeat(64),
+      },
+    },
+  };
+  return {
+    ...projection,
+    acquisition_history: [
+      {
+        ...entry,
+        evaluation_provenance: "new_execution",
+        selected_n5_observation: observation,
+        continuation: {
+          ...entry.continuation,
+          current_candidate_occurrences:
+            entry.continuation.current_candidate_occurrences.map((row) => ({
+              ...row,
+              front: "quarantine",
+            })),
+          current_fronts: {
+            ...entry.continuation.current_fronts,
+            research_candidate_ids: [],
+            quarantine_candidate_ids: [entry.new_candidate_id],
+          },
+        },
+      },
+    ],
+  };
+}
+
+function modelRevisedAcquisitionProjection() {
+  const projection = selectedNumericalAcquisitionProjection();
+  const entry = projection.acquisition_history[0]!;
+  const ref = (kind: string, digit: string) => ({
+    artifact_id: "sha256:" + digit.repeat(64),
+    kind,
+    media_type: "application/json",
+    manifest_profile_sha256: "sha256:" + "f".repeat(64),
+  });
+  return {
+    ...projection,
+    acquisition_history: [
+      {
+        ...entry,
+        continuation: {
+          ...entry.continuation,
+          selected_target_baseline_hash:
+            entry.continuation.previous_selected_target_baseline_hash,
+          model_revision: {
+            evaluation_decision_ref: ref(
+              "runtime_quality.acquisition_evaluation_decision",
+              "1",
+            ),
+            previous_input_ref: entry.continuation.previous_n5_input_ref,
+            selected_input_ref: entry.continuation.selected_n5_input_ref,
+            previous_declaration_ref: ref(
+              "runtime.quality.candidate_simulation_model_declaration",
+              "4",
+            ),
+            selected_declaration_ref:
+              entry.selected_n5_observation.result_body.model_declaration_ref,
+            previous_ncm_ref: ref("ir.ncm_spec", "5"),
+            selected_ncm_ref: ref("ir.ncm_spec", "6"),
+            previous_basis_ref: ref(
+              "runtime_quality.acquisition_evaluation_basis",
+              "7",
+            ),
+            selected_basis_ref: ref(
+              "runtime_quality.acquisition_evaluation_basis",
+              "8",
+            ),
+            changed_field: "outcome_per_target_unit",
+            predicate_provenance: "recomputed",
+            authority_purpose: "candidate_observation_only",
+            publication_authority: false,
+          },
+        },
+      },
+    ],
+  };
+}
+
+function authoredJointParentObservation() {
+  // A display-contract fixture; the served test verifies the request and CAS relation.
+  const original = c41JointParentObservation();
+  const derivedIds = [
+    "atom_4444444444444444",
+    "atom_5555555555555555",
+    "atom_6666666666666666",
+  ];
+  const sourceIds = original.atom_ids ?? [];
+  const ref = (kind: string, digit: string) => ({
+    artifact_id: "sha256:" + digit.repeat(64),
+    kind,
+    media_type: "application/json",
+    manifest_profile_sha256: "sha256:" + "f".repeat(64),
+  });
+  const evidence = original.n5_interaction_evidence!;
+  return {
+    ...original,
+    atom_ids: [...derivedIds],
+    n5_interaction_evidence: {
+      ...evidence,
+      schema_version: "policyos.runtime.joint_simulation_horizon.v5",
+      interaction_terms: evidence.interaction_terms!.map((term) => ({
+        ...term,
+        atom_ids: term.atom_ids.map((id) => derivedIds[sourceIds.indexOf(id)]!),
+      })),
+    },
+    n8_candidate_member_basis: "authored_materialized_n4_source_members",
+    n8_selected_member_relationship: "joint_components",
+    n8_candidate_derived_atom_ids: [...derivedIds],
+    n8_candidate_derived_atom_content_hashes: ["a", "b", "c"].map(
+      (digit) => "sha256:" + digit.repeat(64),
+    ),
+    n8_candidate_parent_intervention_ids: [...derivedIds],
+    n8_policy_composition_status: "authored_candidate",
+    n8_policy_composition_limitation_code:
+      "authored_candidate_coupling_not_established",
+    n8_authored_joint_relation_ref: ref(
+      "runtime.quality.recursive_authored_joint_relation",
+      "7",
+    ),
+    n8_authored_joint_request_payload_ref: ref(
+      "runtime.control_job_payload.natural_language_run",
+      "8",
+    ),
+    n8_authored_joint_intent_digest: "sha256:" + "9".repeat(64),
+    n8_authority_blockers: original.n8_authority_blockers!.map((code) =>
+      code ===
+      "n4_source_candidates_are_alternatives_not_authored_compound_design"
+        ? "authored_candidate_coupling_not_established"
+        : code,
+    ),
+  };
+}
+function currentCheapConsequencesFixture(evaluation: {
+  candidate_id: string;
+  candidate_content_hash: string;
+  cycle_index: number;
+}) {
+  return {
+    source_cycle_index: evaluation.cycle_index,
+    candidate_id: evaluation.candidate_id,
+    candidate_content_hash: evaluation.candidate_content_hash,
+    grounding_status: "grounding_failed",
+    grounding_current_valid: false,
+    value_status: "value_blocked",
+    value_decision_grade: "blocked",
+    value_authority_blockers: ["current_source_invalidation"],
+    value_ref: null,
+    voi_next_action: "blocked",
+    voi_reason:
+      "The current source requires repair before another policy action.",
+    terminal_kind: "tool_failure",
+    refinement_decision: "block_candidate",
+    search_iteration_status: "blocked_no_retry",
+    current_planner_report_ref: null,
+    scope: "current_cheap_consequences_at_recorded_action",
+    numerical_provenance: "retained_prior",
+  };
+}
+
 function parsedRunWithGenericCycleSimulation(
   projectionRunId = "run-1",
   terminalKinds?: Record<string, string> | null,
@@ -521,6 +750,30 @@ function parsedRunWithGenericCycleSimulation(
     temporal_scope: null,
   });
   return { ...run };
+}
+
+function runWithJointParent(parent: unknown): Record<string, unknown> {
+  const run = parsedRunWithGenericCycleSimulation();
+  const projection = run.generic_cycle_simulation as Record<string, unknown>;
+  Object.assign(projection, {
+    schema_version:
+      "policyos.runtime.run_generic_cycle_simulation_projection.v5",
+    joint_parent_status: "resolved",
+    joint_parent_observations: [parent],
+    n5_observations: (
+      projection.n5_observations as Record<string, unknown>[]
+    ).map((row, index) =>
+      index === 0
+        ? { ...row, n5_owner_join_status: "resolved" }
+        : {
+            ...row,
+            n5_owner_join_status: "not_established",
+            n5_owner_join_limitation_code:
+              "generic_n5_owner_ref_not_established",
+          },
+    ),
+  });
+  return run;
 }
 
 describe("OverviewTab", () => {
@@ -1094,6 +1347,69 @@ describe("OverviewTab", () => {
     },
   );
 
+  it("keeps normal, resource and abstention stops distinct in the visible cycle history", () => {
+    const run = parsedRunWithGenericCycleSimulation("run-1", undefined, true);
+    const projection = run.generic_cycle_simulation as Record<string, unknown>;
+    const template = (
+      projection.n6_cycle_history as Record<string, unknown>[]
+    )[0]!;
+    const stops = [
+      ["frontier_stable", "stop", "stopped"],
+      ["grounded_partial_admissible", "stop", "stopped"],
+      ["budget_exhausted", "stop", "stopped"],
+      ["grounded_abstention", "abstain", "abstained"],
+    ];
+    projection.n6_cycle_history = stops.map(
+      ([terminal, decision, status], index) => ({
+        ...template,
+        cycle_index: index,
+        terminal_kind: terminal,
+        voi_next_action: "stop",
+        refinement_decision: decision,
+        search_iteration_status: status,
+      }),
+    );
+    overviewState.run = run;
+
+    renderWithProviders(<OverviewTab />);
+
+    const rows = screen.getAllByTestId("overview-generic-cycle-history-row");
+    expect(rows).toHaveLength(stops.length);
+    for (const [index, [terminal, decision, status]] of stops.entries()) {
+      expect(rows[index]).toHaveTextContent(terminal!);
+      expect(rows[index]).toHaveTextContent(decision!);
+      expect(rows[index]).toHaveTextContent(status!);
+    }
+    expect(rows[2]).not.toHaveTextContent("abstained");
+    expect(rows[3]).toHaveTextContent("abstained");
+  });
+
+  it.each([
+    ["refinement_decision", "abstain"],
+    ["search_iteration_status", "abstained"],
+  ])("withholds a stop with a corrupted sibling %s", (field, value) => {
+    const run = parsedRunWithGenericCycleSimulation("run-1", undefined, true);
+    const projection = run.generic_cycle_simulation as Record<string, unknown>;
+    const row = (projection.n6_cycle_history as Record<string, unknown>[])[0]!;
+    Object.assign(row, {
+      terminal_kind: "frontier_stable",
+      voi_next_action: "stop",
+      refinement_decision: "stop",
+      search_iteration_status: "stopped",
+      [field!]: value,
+    });
+    overviewState.run = run;
+
+    renderWithProviders(<OverviewTab />);
+
+    expect(
+      screen.getByTestId("overview-generic-cycle-simulation-refused"),
+    ).toHaveTextContent("projection_version_binding_invalid");
+    expect(
+      screen.queryByTestId("overview-generic-cycle-history"),
+    ).not.toBeInTheDocument();
+  });
+
   it("withholds the current cycle history when its parsed run binding differs", () => {
     overviewState.run = parsedRunWithGenericCycleSimulation(
       "run-other",
@@ -1263,59 +1579,153 @@ describe("OverviewTab", () => {
     expect(panel).not.toHaveTextContent("publication_ready");
   });
 
-  it("renders the v5 parent joint candidate separately from child rows", () => {
-    const projection = genericCycleSimulationProjection("run-1");
-    const v5 = {
-      ...projection,
-      schema_version:
-        "policyos.runtime.run_generic_cycle_simulation_projection.v5",
-      joint_parent_status: "resolved",
-      joint_parent_observations: [c41JointParentObservation()],
-      n5_observations: projection.n5_observations.map((row, index) =>
-        index === 0
-          ? { ...row, n5_owner_join_status: "resolved" }
-          : {
-              ...row,
-              n5_owner_join_status: "not_established",
-              n5_owner_join_limitation_code:
-                "generic_n5_owner_ref_not_established",
-            },
-      ),
-    };
-    overviewState.run = runDetailsSchema.parse({
-      meta: {
-        request_id: "req-v5",
-        generated_at: "2026-10-11T10:00:00Z",
-        source_kinds: ["core_run"],
-      },
-      run: {
-        run_id: "run-1",
-        source_kind: "core_run",
-        status: "completed",
-        generic_cycle_simulation: v5,
-      },
-      temporal_scope: null,
-    }).run;
+  it.each(["v4", "v5"] as const)(
+    "renders the parent joint candidate with %s numerical qualification",
+    (n5Version) => {
+      const projection = genericCycleSimulationProjection("run-1");
+      const parentObservation = c41JointParentObservation();
+      Reflect.set(
+        parentObservation.n5_interaction_evidence!,
+        "schema_version",
+        "policyos.runtime.joint_simulation_horizon." + n5Version,
+      );
+      const v5 = {
+        ...projection,
+        schema_version:
+          "policyos.runtime.run_generic_cycle_simulation_projection.v5",
+        joint_parent_status: "resolved",
+        joint_parent_observations: [parentObservation],
+        n5_observations: projection.n5_observations.map((row, index) =>
+          index === 0
+            ? { ...row, n5_owner_join_status: "resolved" }
+            : {
+                ...row,
+                n5_owner_join_status: "not_established",
+                n5_owner_join_limitation_code:
+                  "generic_n5_owner_ref_not_established",
+              },
+        ),
+      };
+      overviewState.run = runDetailsSchema.parse({
+        meta: {
+          request_id: "req-v5",
+          generated_at: "2026-10-11T10:00:00Z",
+          source_kinds: ["core_run"],
+        },
+        run: {
+          run_id: "run-1",
+          source_kind: "core_run",
+          status: "completed",
+          generic_cycle_simulation: v5,
+        },
+        temporal_scope: null,
+      }).run;
+      renderWithProviders(<OverviewTab />);
+      const parent = screen.getByTestId("overview-generic-cycle-joint-parent");
+      expect(parent).toHaveTextContent("Parent joint candidate assessment");
+      expect(parent).toHaveTextContent("value_conditional");
+      expect(parent).toHaveTextContent("low");
+      expect(parent).toHaveTextContent(
+        n5Version === "v4" ? "unsupported" : "non_additive",
+      );
+      expect(
+        parentObservation.n5_interaction_evidence?.numeric_interaction,
+      ).toBe("non_additive");
+      expect(
+        screen
+          .queryAllByTestId("overview-v4-interaction-classification-limitation")
+          .map((node) => node.textContent),
+      ).toEqual(
+        n5Version === "v4"
+          ? [
+              "The interaction classification in this historical result is unsupported.",
+            ]
+          : [],
+      );
+      expect(parent.textContent?.includes("non_additive")).toBe(
+        n5Version === "v5",
+      );
+      expect(parent).toHaveTextContent(
+        "Higher-order residual for outcome-a, step 0: 1",
+      );
+      expect(parent).toHaveTextContent("alternatives");
+      expect(parent).toHaveTextContent(
+        "n5_execution_request_provenance_not_established",
+      );
+      expect(
+        screen.getAllByTestId("overview-generic-cycle-n5-row"),
+      ).toHaveLength(2);
+      expect(
+        screen.getAllByTestId("overview-generic-cycle-n5-owner-join"),
+      ).toHaveLength(2);
+      expect(parent).not.toHaveTextContent("publication_ready");
+    },
+  );
+
+  it("distinguishes original alternatives from materialized authored joint components", () => {
+    overviewState.run = runWithJointParent(authoredJointParentObservation());
+
     renderWithProviders(<OverviewTab />);
-    const parent = screen.getByTestId("overview-generic-cycle-joint-parent");
-    expect(parent).toHaveTextContent("Parent joint candidate assessment");
-    expect(parent).toHaveTextContent("value_conditional");
-    expect(parent).toHaveTextContent("low");
-    expect(parent).toHaveTextContent("non_additive");
-    expect(parent).toHaveTextContent(
-      "Higher-order residual for outcome-a, step 0: 1",
+
+    const parent = screen.getByTestId(
+      "overview-generic-cycle-joint-parent-row",
     );
-    expect(parent).toHaveTextContent("alternatives");
-    expect(parent).toHaveTextContent(
-      "n5_execution_request_provenance_not_established",
+    const authored = screen.getByTestId("overview-authored-joint-components");
+    expect(parent).toHaveTextContent("source candidates: alternatives");
+    expect(authored).toHaveTextContent(
+      "Selected relationship: joint_components; composition: authored_candidate",
     );
-    expect(screen.getAllByTestId("overview-generic-cycle-n5-row")).toHaveLength(
-      2,
+    expect(authored).toHaveTextContent("child refinement: not_established");
+    expect(authored).toHaveTextContent("Original N4 source atoms:");
+    expect(authored).toHaveTextContent(
+      "Materialized N5 component atoms: atom_4444444444444444",
+    );
+    expect(authored).toHaveTextContent(
+      "authored_candidate_coupling_not_established",
     );
     expect(
-      screen.getAllByTestId("overview-generic-cycle-n5-owner-join"),
-    ).toHaveLength(2);
+      within(authored).getByRole("link", {
+        name: /Candidate composition relation:/,
+      }),
+    ).toHaveAttribute("href", expect.stringContaining("7".repeat(64)));
+    expect(
+      within(authored).getByRole("link", {
+        name: /Original authorized composition request:/,
+      }),
+    ).toHaveAttribute("href", expect.stringContaining("8".repeat(64)));
+    expect(parent).toHaveTextContent("value_conditional");
     expect(parent).not.toHaveTextContent("publication_ready");
+  });
+
+  it.each([
+    "missing_relation",
+    "wrong_derived_atom",
+    "unbound_request",
+    "claimed_coupling",
+  ])("withholds authored joint projection with %s", (mutation) => {
+    const parent = authoredJointParentObservation();
+    if (mutation === "missing_relation")
+      Reflect.set(parent, "n8_authored_joint_relation_ref", null);
+    if (mutation === "wrong_derived_atom")
+      parent.n8_candidate_derived_atom_ids[0] = "atom_aaaaaaaaaaaaaaaa";
+    if (mutation === "unbound_request")
+      Reflect.set(
+        parent.n8_authored_joint_request_payload_ref,
+        "manifest_profile_sha256",
+        null,
+      );
+    if (mutation === "claimed_coupling")
+      parent.n8_joint_scope_status = "resolved";
+    overviewState.run = runWithJointParent(parent);
+
+    renderWithProviders(<OverviewTab />);
+
+    expect(
+      screen.getByTestId("overview-generic-cycle-simulation-refused"),
+    ).toHaveTextContent("projection_version_binding_invalid");
+    expect(
+      screen.queryByTestId("overview-authored-joint-components"),
+    ).not.toBeInTheDocument();
   });
 
   it("shows a withheld parent assessment without hiding child observations", () => {
@@ -1483,6 +1893,29 @@ describe("OverviewTab", () => {
     ).toHaveTextContent("Publication authority is not established.");
   });
 
+  it("keeps a blocked reentry attempt visible without inventing numerical success", () => {
+    const projection = sameCandidateAcquisitionHistoryProjection();
+    Object.assign(projection.acquisition_history[0]!.continuation, {
+      selected_simulation_status: "simulation_blocked",
+      selected_simulation_authority_blockers: [
+        "current_compute_budget_unavailable",
+      ],
+    });
+    overviewState.run = parsedRun(projection);
+    renderWithProviders(<OverviewTab />);
+    const simulation = screen.getByTestId(
+      "overview-acquisition-selected-simulation",
+    );
+    expect(simulation).toHaveTextContent("simulation_blocked");
+    expect(simulation).toHaveTextContent("current_compute_budget_unavailable");
+    expect(
+      screen.queryByTestId("overview-acquisition-selected-n5-result-body"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("overview-acquisition-numerical-provenance"),
+    ).not.toBeInTheDocument();
+  });
+
   it("shows the admitted source and original retained evaluation separately", () => {
     const projection = sameCandidateAcquisitionHistoryProjection();
     overviewState.run.candidate_simulation = {
@@ -1509,6 +1942,174 @@ describe("OverviewTab", () => {
     expect(history).toHaveTextContent("Currentness: not_established");
     expect(history).not.toHaveTextContent("Re-entry candidate:");
   });
+
+  it("shows the latest worsening occurrence with its own selected numbers and declared units", () => {
+    overviewState.run = parsedRun(selectedNumericalAcquisitionProjection());
+
+    renderWithProviders(<OverviewTab />);
+
+    const occurrence = screen.getByTestId(
+      "overview-acquisition-current-occurrence",
+    );
+    expect(occurrence).toHaveTextContent("candidate-same; cycle 2");
+    expect(occurrence).toHaveTextContent("occurrence sha256:" + "f".repeat(64));
+    expect(occurrence).toHaveTextContent("front quarantine");
+    expect(
+      screen.getByTestId("overview-acquisition-numerical-provenance"),
+    ).toHaveTextContent("new_execution; original evaluation cycle 2");
+    const result = screen.getByTestId(
+      "overview-acquisition-selected-n5-result-body",
+    );
+    expect(result).toHaveTextContent("3.25");
+    expect(result).toHaveTextContent("0.75");
+    expect(result).toHaveTextContent(
+      "government.balance = declared_currency_unit (declared_candidate_model)",
+    );
+    expect(result).toHaveTextContent("Horizon: 0–1, step 1");
+    expect(result).not.toHaveTextContent("publication_ready");
+  });
+
+  it("shows retained original numbers without attributing them to the new admitted source", () => {
+    const projection = selectedNumericalAcquisitionProjection();
+    const numerical =
+      projection.acquisition_history[0]!.selected_n5_observation;
+    const retained = retainedAcquisitionHistoryFixture();
+    const selected = retained.retained_evaluation;
+    const history = {
+      ...retained,
+      retained_evaluation: {
+        ...selected,
+        candidate_id: numerical.candidate_id,
+        cycle_index: numerical.cycle_index,
+        n4_source_ref: numerical.n4_source_ref,
+        context_job_ref: numerical.context_job_ref,
+        n5_input_ref: numerical.n5_input_ref,
+        n5_execution_ref: numerical.n5_execution_ref,
+        n5_result_ref: numerical.simulation_result_ref,
+      },
+      selected_n5_observation: numerical,
+      current_cheap_consequences: currentCheapConsequencesFixture({
+        ...selected,
+        candidate_id: numerical.candidate_id,
+        cycle_index: numerical.cycle_index,
+      }),
+    };
+    overviewState.run = parsedRun({
+      ...projection,
+      acquisition_history: [history],
+    });
+
+    renderWithProviders(<OverviewTab />);
+
+    expect(
+      screen.getByTestId("overview-acquisition-numerical-provenance"),
+    ).toHaveTextContent("retained_prior; original evaluation cycle 2");
+    expect(
+      screen.getByTestId("overview-acquisition-retained-n5-result-body"),
+    ).toHaveTextContent("0.75");
+    expect(
+      screen.queryByTestId("overview-acquisition-selected-n5-result-body"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByTestId("overview-acquisition-history-retained"),
+    ).toHaveTextContent("The prior evaluation keeps its original inputs.");
+    const cheap = screen.getByTestId(
+      "overview-acquisition-current-cheap-consequences",
+    );
+    expect(cheap).toHaveTextContent("value_blocked");
+    expect(cheap).toHaveTextContent("current_source_invalidation");
+    expect(cheap).toHaveTextContent("Next action: blocked");
+    expect(cheap).toHaveTextContent("the numerical evaluation is retained");
+  });
+
+  it("withholds retained history when cheap consequences name another candidate", () => {
+    const retained = retainedAcquisitionHistoryFixture();
+    const cheap = currentCheapConsequencesFixture(retained.retained_evaluation);
+    cheap.candidate_id = "foreign-candidate";
+    overviewState.run.candidate_simulation = {
+      ...sameCandidateAcquisitionHistoryProjection(),
+      acquisition_history: [{ ...retained, current_cheap_consequences: cheap }],
+    };
+    renderWithProviders(<OverviewTab />);
+    expect(
+      screen.getByTestId("overview-acquisition-history-refused"),
+    ).toBeVisible();
+    expect(
+      screen.queryByTestId("overview-acquisition-current-cheap-consequences"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows a bound same-target candidate model change without claiming independent evidence", () => {
+    overviewState.run = parsedRun(modelRevisedAcquisitionProjection());
+
+    renderWithProviders(<OverviewTab />);
+
+    const revision = screen.getByTestId("overview-acquisition-model-revision");
+    expect(revision).toHaveTextContent("outcome_per_target_unit");
+    expect(revision).toHaveTextContent(
+      "not an independent empirical replication",
+    );
+    expect(revision).toHaveTextContent(
+      "Model-change decision: sha256:" + "1".repeat(64),
+    );
+    expect(
+      screen.getByTestId("overview-acquisition-selected-n5-result-body"),
+    ).toHaveTextContent("0.75");
+  });
+
+  it.each(["missing_revision", "wrong_input", "wrong_model", "self_asserted"])(
+    "withholds equal-target numeric history with %s evidence",
+    (mutation) => {
+      const projection = modelRevisedAcquisitionProjection();
+      const row = projection.acquisition_history[0]!;
+      const revision = row.continuation.model_revision;
+      if (mutation === "missing_revision")
+        Reflect.set(row.continuation, "model_revision", null);
+      if (mutation === "wrong_input")
+        revision.selected_input_ref = revision.previous_input_ref;
+      if (mutation === "wrong_model")
+        revision.selected_declaration_ref = revision.previous_declaration_ref;
+      if (mutation === "self_asserted")
+        revision.predicate_provenance = "consumer_asserted";
+      overviewState.run.candidate_simulation = projection;
+
+      renderWithProviders(<OverviewTab />);
+
+      expect(
+        screen.getByTestId("overview-acquisition-history-refused"),
+      ).toBeVisible();
+      expect(
+        screen.queryByTestId("overview-acquisition-selected-n5-result-body"),
+      ).not.toBeInTheDocument();
+    },
+  );
+
+  it.each(["candidate_id", "cycle_index", "n5_input_ref"])(
+    "withholds selected numerical history when its %s is substituted",
+    (field) => {
+      const projection = selectedNumericalAcquisitionProjection();
+      const row = projection.acquisition_history[0]!;
+      Reflect.set(
+        row.selected_n5_observation,
+        field,
+        field === "candidate_id"
+          ? "foreign-candidate"
+          : field === "cycle_index"
+            ? 99
+            : row.continuation.previous_n5_input_ref,
+      );
+      overviewState.run.candidate_simulation = projection;
+
+      renderWithProviders(<OverviewTab />);
+
+      expect(
+        screen.getByTestId("overview-acquisition-history-refused"),
+      ).toBeVisible();
+      expect(
+        screen.queryByTestId("overview-acquisition-selected-n5-result-body"),
+      ).not.toBeInTheDocument();
+    },
+  );
 
   it("withholds a v3 row whose retained evaluation tuple was removed", () => {
     const projection = sameCandidateAcquisitionHistoryProjection();
@@ -1794,5 +2395,297 @@ describe("OverviewTab", () => {
     overviewState.run = parsedRun();
     renderWithProviders(<OverviewTab />);
     expect(screen.queryByTestId("overview-candidate-simulation")).toBeNull();
+  });
+});
+
+describe("recorded candidate local refusal surface", () => {
+  it("shows the earlier candidate refusal and useful N5 ref without claiming verification", () => {
+    const projection = sameCandidateAcquisitionHistoryProjection();
+    Reflect.set(projection, "candidate_evaluation_attempts", [
+      {
+        node_ref: "design-problem://attempt",
+        candidate_id: "earlier-local-refusal",
+        candidate_content_hash: "sha256:" + "a".repeat(64),
+        cycle_index: 2,
+        problem_ref: "sha256:" + "b".repeat(64),
+        attempt_ref: "sha256:" + "c".repeat(64),
+        failure_stage: "n8",
+        simulation_status: "joint_simulated",
+        simulation_authority_blockers: [
+          "simulation_only_k_sim_not_world_evidence",
+        ],
+        value_status: "value_blocked",
+        value_decision_grade: "blocked",
+        value_authority_blockers: ["candidate_value_unavailable"],
+        simulation_result_ref: {
+          artifact_id: "sha256:" + "d".repeat(64),
+          kind: "polisyos.runtime.joint_simulation_result",
+          media_type: "application/json",
+        },
+      },
+    ]);
+    overviewState.run = parsedRun(projection);
+    renderWithProviders(<OverviewTab />);
+    const history = screen.getByTestId("overview-candidate-attempt-history");
+    expect(history).toHaveTextContent("earlier-local-refusal");
+    expect(history).toHaveTextContent("cycle 2: local n8 refusal");
+    expect(history).toHaveTextContent("joint_simulated");
+    expect(history).toHaveTextContent("value_blocked");
+    expect(history).toHaveTextContent("candidate_value_unavailable");
+    expect(history).toHaveTextContent("not execution reservations");
+    expect(history).toHaveTextContent("not independently verified");
+    expect(
+      screen.getByRole("link", {
+        name:
+          "polisyos.runtime.joint_simulation_result: sha256:" + "d".repeat(64),
+      }),
+    ).toHaveAttribute("href", expect.stringContaining("d".repeat(64)));
+    expect(
+      screen.queryByTestId("overview-candidate-attempt-history-limited"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows a missing canonical attempt-context history as a limitation", () => {
+    const projection = sameCandidateAcquisitionHistoryProjection();
+    Reflect.set(
+      projection,
+      "candidate_evaluation_attempts_limitation_code",
+      "candidate_attempt_context_history_not_established",
+    );
+    overviewState.run = parsedRun(projection);
+    renderWithProviders(<OverviewTab />);
+    expect(
+      screen.getByTestId("overview-candidate-attempt-history-limited"),
+    ).toHaveTextContent("candidate_attempt_context_history_not_established");
+    expect(
+      screen.queryByTestId("overview-candidate-attempt"),
+    ).not.toBeInTheDocument();
+  });
+});
+
+function candidateCurrentBasisUiFixture() {
+  const limitation = "candidate_source_basis_prior_occurrence_not_revalidated";
+  return {
+    status: "resolved",
+    generation_run_content_hash: "sha256:" + "c".repeat(64),
+    basis_cycle_index: 2,
+    basis_transition_content_hash: "sha256:" + "b".repeat(64),
+    occurrences: [
+      {
+        candidate_id: "old-accepted-candidate",
+        cycle_index: 1,
+        content_hash: "sha256:" + "a".repeat(64),
+        source_content_hash: null,
+        front: "research",
+        certified_by_n9: false,
+        candidate_basis_cycle_index: 2,
+        candidate_basis_content_hash: "sha256:" + "b".repeat(64),
+        candidate_basis_status: "prior_basis_not_revalidated",
+        candidate_basis_limitation_code: limitation,
+        historical_front: "decision",
+        historical_certified_by_n9: true,
+        historical_value_status: "value_ready",
+        historical_value_decision_grade: "high",
+        historical_value_ref: "value://old-accepted",
+        historical_value_blockers: [],
+        value_status: "value_pending_n8",
+        value_blockers: [limitation],
+      },
+    ],
+    fronts: {
+      decision_candidate_ids: [],
+      research_candidate_ids: ["old-accepted-candidate"],
+      quarantine_candidate_ids: [],
+      portfolio_candidate_ids: [],
+    },
+  };
+}
+
+describe("current candidate basis surface", () => {
+  it("keeps old N9/value acceptance historical and shows the pending value on the selected basis", () => {
+    const projection = sameCandidateAcquisitionHistoryProjection();
+    Reflect.set(
+      projection,
+      "candidate_source_current_projection",
+      candidateCurrentBasisUiFixture(),
+    );
+    overviewState.run = parsedRun(projection);
+    renderWithProviders(<OverviewTab />);
+    const view = screen.getByTestId("overview-candidate-source-current");
+    expect(view).toHaveTextContent("old-accepted-candidate");
+    expect(view).toHaveTextContent(
+      "Deployment currentness and publication authority are not established",
+    );
+    expect(
+      within(view).getByTestId("overview-candidate-basis-historical"),
+    ).toHaveTextContent("front decision; N9 true; value value_ready");
+    const effective = within(view).getByTestId(
+      "overview-candidate-basis-effective",
+    );
+    expect(effective).toHaveTextContent("value_pending_n8");
+    expect(effective).toHaveTextContent("N9 false");
+    expect(effective).not.toHaveTextContent("value://old-accepted");
+    expect(view).toHaveTextContent(
+      "candidate_source_basis_prior_occurrence_not_revalidated",
+    );
+    expect(view).toHaveTextContent("c".repeat(64));
+  });
+
+  it("withholds a raw current view after its required basis metadata is stripped", () => {
+    const projection = sameCandidateAcquisitionHistoryProjection();
+    Reflect.set(
+      projection,
+      "candidate_source_current_projection",
+      candidateCurrentBasisUiFixture(),
+    );
+    const run = parsedRun(projection);
+    const rawProjection = run.candidate_simulation as Record<string, unknown>;
+    const rawView = rawProjection.candidate_source_current_projection as Record<
+      string,
+      unknown
+    >;
+    rawView.occurrences = [
+      {
+        candidate_id: "borrowed",
+        cycle_index: 1,
+        content_hash: "sha256:" + "a".repeat(64),
+        source_content_hash: null,
+        front: "decision",
+        certified_by_n9: true,
+      },
+    ];
+    overviewState.run = run;
+    renderWithProviders(<OverviewTab />);
+    const view = screen.getByTestId("overview-candidate-source-current");
+    expect(view).toHaveTextContent(
+      "candidate_source_current_projection_contract_invalid",
+    );
+    expect(
+      within(view).queryByTestId("overview-acquisition-current-occurrence"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows an owner snapshot mismatch as unavailable without reusing old current rows", () => {
+    const projection = sameCandidateAcquisitionHistoryProjection();
+    Reflect.set(projection, "candidate_source_current_projection", {
+      status: "not_established",
+      issues: ["candidate_source_current_between_read_snapshot_mismatch"],
+    });
+    overviewState.run = parsedRun(projection);
+    renderWithProviders(<OverviewTab />);
+    const view = screen.getByTestId("overview-candidate-source-current");
+    expect(view).toHaveTextContent(
+      "candidate_source_current_between_read_snapshot_mismatch",
+    );
+    expect(
+      within(view).queryByTestId("overview-acquisition-current-occurrence"),
+    ).not.toBeInTheDocument();
+  });
+});
+
+describe("candidate acquisition history surface", () => {
+  it("renders candidate lineage with its blocked N5 and without observed admission", () => {
+    const ref = (kind: string, digit: string) => ({
+      artifact_id: "sha256:" + digit.repeat(64),
+      kind,
+      media_type: "application/json",
+      manifest_profile_sha256: "sha256:" + "f".repeat(64),
+    });
+    const projection = sameCandidateAcquisitionHistoryProjection();
+    Reflect.set(projection, "acquisition_history", [
+      {
+        schema_version:
+          "policyos.runtime.run_candidate_simulation_acquisition_history.v4",
+        route_receipt_ref: ref(
+          "runtime_quality.acquisition_route_loop_receipt",
+          "1",
+        ),
+        reentry_receipt_ref: ref(
+          "runtime_quality.candidate_source_reentry_receipt",
+          "2",
+        ),
+        route_id: "sha256:" + "3".repeat(64),
+        action_generation: 1,
+        terminal_outcome: "candidate_reentry_completed",
+        candidate_action_ref: ref(
+          "runtime_quality.acquisition_candidate_action_receipt",
+          "4",
+        ),
+        candidate_source_ref: ref(
+          "runtime.quality.candidate_acquisition_source",
+          "5",
+        ),
+        data_snapshot_ref: ref("fabric.data_snapshot", "6"),
+        world_model_ref: ref("runtime.quality.world_model_record", "7"),
+        context_job_ref: ref(
+          "runtime.quality.cycle_substrate_context_job",
+          "8",
+        ),
+        model_declaration_ref: ref(
+          "runtime.quality.candidate_simulation_model_declaration",
+          "9",
+        ),
+        ncm_ref: ref("ir.ncm_spec", "a"),
+        n4_source_ref: null,
+        n5_input_ref: null,
+        n5_execution_ref: null,
+        n5_result_ref: null,
+        simulation_status: "simulation_blocked",
+        simulation_authority_blockers: ["n5_blocked"],
+        source_cycle_index: 0,
+        continued_cycle_index: 1,
+        source_generation_run_content_hash: "sha256:" + "b".repeat(64),
+        continued_generation_run_content_hash: "sha256:" + "c".repeat(64),
+        basis_transition_content_hash: "sha256:" + "d".repeat(64),
+        limitations: ["candidate_only"],
+        observed_admission: false,
+        currentness_status: "not_established",
+        authority_purpose: "candidate_observation_only",
+        publication_authority: false,
+      },
+    ]);
+    overviewState.run = parsedRun(projection);
+    renderWithProviders(<OverviewTab />);
+    const row = screen.getByTestId("overview-acquisition-history-candidate");
+    expect(row).toHaveTextContent("simulation_blocked");
+    expect(row).toHaveTextContent(
+      "no observed admission or publication authority",
+    );
+    expect(row).toHaveTextContent(
+      "runtime.quality.candidate_acquisition_source",
+    );
+    expect(row).toHaveTextContent("n5_blocked");
+  });
+});
+
+describe("verified recursive capacity checkpoint", () => {
+  it("shows pending capacity stop without claiming physical need or root N9", () => {
+    const run = parsedRunWithGenericCycleSimulation();
+    const projection = run.generic_cycle_simulation as Record<string, unknown>;
+    projection.recursive_cycle_checkpoint = {
+      schema_version: "policyos.runtime.recursive_cycle_checkpoint.v3",
+      status: "partial",
+      publication_authority: false,
+      budget_stop_node_ref: null,
+      pending_frontier: ["pending-child"],
+      completed_design_refs: ["completed-child"],
+      root_n9_status: "not_run",
+      leaf_terminal_kinds: {},
+      failed_branches: [],
+      capacity_stop_parent_node_ref: "root",
+      capacity_pending_child_node_ref: "pending-child",
+      capacity_pending_child_index: 1,
+      capacity_source_content_hash: "sha256:" + "a".repeat(64),
+      capacity_limitation_code: "physical_need_not_established",
+    };
+    overviewState.run = run;
+    renderWithProviders(<OverviewTab />);
+    const view = screen.getByTestId("overview-generic-cycle-checkpoint");
+    expect(view).toHaveTextContent("pending-child");
+    expect(view).toHaveTextContent("physical_need_not_established");
+    expect(view).toHaveTextContent("not_run");
+    expect(view).toHaveTextContent(
+      "physical need for the pending child is not established",
+    );
   });
 });

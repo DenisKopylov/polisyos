@@ -7581,6 +7581,16 @@
         "additionalProperties": false,
         "description": "Data-only evidence-class route to code-owned owner verification.",
         "properties": {
+          "build_evidence_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/_BuildIdentityArtifactSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "certificate_class": {
             "minLength": 1,
             "title": "Certificate Class",
@@ -30045,7 +30055,10 @@
           "joint_interaction_candidate_intent": {
             "anyOf": [
               {
-                "const": "n4_unique_parent_source_members.v1",
+                "enum": [
+                  "n4_unique_parent_source_members.v1",
+                  "authored_joint_components.v1"
+                ],
                 "type": "string"
               },
               {
@@ -37045,10 +37058,328 @@
         "title": "RunBoundDesignRecordBinding",
         "type": "object"
       },
+      "RunCandidateEvaluationAttemptProjection": {
+        "additionalProperties": false,
+        "description": "One owner-history-replayed local refusal, not a numerical verification.",
+        "properties": {
+          "attempt_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Attempt Ref",
+            "type": "string"
+          },
+          "candidate_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Candidate Content Hash",
+            "type": "string"
+          },
+          "candidate_id": {
+            "minLength": 1,
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "context_job_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cycle_index": {
+            "minimum": 0.0,
+            "title": "Cycle Index",
+            "type": "integer"
+          },
+          "failure_scope": {
+            "const": "candidate_local",
+            "default": "candidate_local",
+            "title": "Failure Scope",
+            "type": "string"
+          },
+          "failure_stage": {
+            "enum": [
+              "n5",
+              "n8"
+            ],
+            "title": "Failure Stage",
+            "type": "string"
+          },
+          "n4_source_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n5_execution_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n5_input_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "node_ref": {
+            "minLength": 1,
+            "title": "Node Ref",
+            "type": "string"
+          },
+          "numerical_result_verification": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Numerical Result Verification",
+            "type": "string"
+          },
+          "problem_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Problem Ref",
+            "type": "string"
+          },
+          "profile_selection_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Selection Ref"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "scope": {
+            "const": "recorded_candidate_attempt",
+            "default": "recorded_candidate_attempt",
+            "title": "Scope",
+            "type": "string"
+          },
+          "selected_method_fqn": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Method Fqn"
+          },
+          "simulation_authority_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Simulation Authority Blockers",
+            "type": "array"
+          },
+          "simulation_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Simulation Ref"
+          },
+          "simulation_result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "simulation_status": {
+            "enum": [
+              "joint_simulated",
+              "simulation_pending_n5",
+              "simulation_blocked"
+            ],
+            "title": "Simulation Status",
+            "type": "string"
+          },
+          "value_authority_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Value Authority Blockers",
+            "type": "array"
+          },
+          "value_decision_grade": {
+            "anyOf": [
+              {
+                "enum": [
+                  "blocked",
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Decision Grade"
+          },
+          "value_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Ref"
+          },
+          "value_status": {
+            "enum": [
+              "value_pending_n8",
+              "value_ready",
+              "value_conditional",
+              "value_blocked"
+            ],
+            "title": "Value Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "node_ref",
+          "candidate_id",
+          "candidate_content_hash",
+          "cycle_index",
+          "problem_ref",
+          "attempt_ref",
+          "failure_stage",
+          "simulation_status",
+          "value_status"
+        ],
+        "title": "RunCandidateEvaluationAttemptProjection",
+        "type": "object"
+      },
+      "RunCandidateSimulationAcquiredOutcomeRevision": {
+        "additionalProperties": false,
+        "description": "Owner-replayed acquired outcome baseline, distinct from coefficient inference.",
+        "properties": {
+          "admitted_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "changed_field": {
+            "const": "outcome_baseline",
+            "default": "outcome_baseline",
+            "title": "Changed Field",
+            "type": "string"
+          },
+          "evaluation_decision_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "outcome_world_slot": {
+            "minLength": 1,
+            "title": "Outcome World Slot",
+            "type": "string"
+          },
+          "predicate_provenance": {
+            "const": "recomputed",
+            "default": "recomputed",
+            "title": "Predicate Provenance",
+            "type": "string"
+          },
+          "previous_basis_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "previous_declaration_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "previous_input_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "previous_ncm_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "selected_basis_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "selected_declaration_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "selected_input_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "selected_ncm_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "evaluation_decision_ref",
+          "previous_input_ref",
+          "selected_input_ref",
+          "previous_declaration_ref",
+          "selected_declaration_ref",
+          "previous_ncm_ref",
+          "selected_ncm_ref",
+          "previous_basis_ref",
+          "selected_basis_ref",
+          "admitted_source_ref",
+          "outcome_world_slot"
+        ],
+        "title": "RunCandidateSimulationAcquiredOutcomeRevision",
+        "type": "object"
+      },
       "RunCandidateSimulationAcquisitionContinuationProjection": {
         "additionalProperties": false,
         "description": "Typed candidate-only projection of the exact N9 continuation.",
         "properties": {
+          "acquired_outcome_revision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationAcquiredOutcomeRevision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "authority_purpose": {
             "const": "candidate_observation_only",
             "default": "candidate_observation_only",
@@ -37094,6 +37425,16 @@
             "default": "not_established",
             "title": "Currentness Status",
             "type": "string"
+          },
+          "model_revision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationModelRevision"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "n9_certified_candidate_ids": {
             "default": [],
@@ -37194,6 +37535,30 @@
             "pattern": "^sha256:[0-9a-f]{64}$",
             "title": "Selected Profile Selection Ref",
             "type": "string"
+          },
+          "selected_simulation_authority_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Selected Simulation Authority Blockers",
+            "type": "array"
+          },
+          "selected_simulation_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "joint_simulated",
+                  "simulation_pending_n5",
+                  "simulation_blocked"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Simulation Status"
           },
           "selected_target_baseline_hash": {
             "anyOf": [
@@ -37305,6 +37670,18 @@
             "default": "not_established",
             "title": "Currentness Status",
             "type": "string"
+          },
+          "evaluation_provenance": {
+            "anyOf": [
+              {
+                "const": "new_execution",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evaluation Provenance"
           },
           "expected_origin_source_ref": {
             "anyOf": [
@@ -37428,6 +37805,16 @@
             ],
             "title": "Schema Version"
           },
+          "selected_n5_observation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationN5Observation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "terminal_outcome": {
             "enum": [
               "reentry_completed",
@@ -37472,6 +37859,16 @@
             "title": "Continuation Join Status",
             "type": "null"
           },
+          "current_cheap_consequences": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationCheapConsequences"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "current_continuation_ref": {
             "$ref": "#/components/schemas/ArtifactRef-Output"
           },
@@ -37488,6 +37885,12 @@
             "const": "retained_prior",
             "default": "retained_prior",
             "title": "Evaluation Disposition",
+            "type": "string"
+          },
+          "evaluation_provenance": {
+            "const": "retained_prior",
+            "default": "retained_prior",
+            "title": "Evaluation Provenance",
             "type": "string"
           },
           "expected_origin_source_ref": {
@@ -37547,6 +37950,16 @@
             "title": "Schema Version",
             "type": "string"
           },
+          "selected_n5_observation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationN5Observation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "source_admission_status": {
             "const": "admitted",
             "default": "admitted",
@@ -37572,6 +37985,376 @@
           "retained_evaluation"
         ],
         "title": "RunCandidateSimulationAcquisitionHistoryEntryV3",
+        "type": "object"
+      },
+      "RunCandidateSimulationAcquisitionHistoryEntryV4": {
+        "additionalProperties": false,
+        "description": "Owner-replayed candidate-only source continuation, not observed admission.",
+        "properties": {
+          "action_generation": {
+            "minimum": 1.0,
+            "title": "Action Generation",
+            "type": "integer"
+          },
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "basis_transition_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Basis Transition Content Hash",
+            "type": "string"
+          },
+          "candidate_action_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "candidate_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "context_job_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "continued_cycle_index": {
+            "minimum": 0.0,
+            "title": "Continued Cycle Index",
+            "type": "integer"
+          },
+          "continued_generation_run_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Continued Generation Run Content Hash",
+            "type": "string"
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "data_snapshot_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Limitations",
+            "type": "array"
+          },
+          "model_declaration_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "n4_source_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n5_execution_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n5_input_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n5_result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ncm_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "observed_admission": {
+            "const": false,
+            "default": false,
+            "title": "Observed Admission",
+            "type": "boolean"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "reentry_receipt_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "route_id": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Route Id",
+            "type": "string"
+          },
+          "route_receipt_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.run_candidate_simulation_acquisition_history.v4",
+            "default": "policyos.runtime.run_candidate_simulation_acquisition_history.v4",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "simulation_authority_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Simulation Authority Blockers",
+            "type": "array"
+          },
+          "simulation_status": {
+            "enum": [
+              "joint_simulated",
+              "simulation_pending_n5",
+              "simulation_blocked"
+            ],
+            "title": "Simulation Status",
+            "type": "string"
+          },
+          "source_cycle_index": {
+            "minimum": 0.0,
+            "title": "Source Cycle Index",
+            "type": "integer"
+          },
+          "source_generation_run_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Source Generation Run Content Hash",
+            "type": "string"
+          },
+          "terminal_outcome": {
+            "const": "candidate_reentry_completed",
+            "default": "candidate_reentry_completed",
+            "title": "Terminal Outcome",
+            "type": "string"
+          },
+          "world_model_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "route_receipt_ref",
+          "reentry_receipt_ref",
+          "route_id",
+          "action_generation",
+          "candidate_action_ref",
+          "candidate_source_ref",
+          "data_snapshot_ref",
+          "world_model_ref",
+          "context_job_ref",
+          "model_declaration_ref",
+          "ncm_ref",
+          "simulation_status",
+          "source_cycle_index",
+          "continued_cycle_index",
+          "source_generation_run_content_hash",
+          "continued_generation_run_content_hash",
+          "basis_transition_content_hash",
+          "limitations"
+        ],
+        "title": "RunCandidateSimulationAcquisitionHistoryEntryV4",
+        "type": "object"
+      },
+      "RunCandidateSimulationCheapConsequences": {
+        "additionalProperties": false,
+        "description": "Verified cheap reactions at a recorded action, without a new N5 occurrence.",
+        "properties": {
+          "candidate_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Candidate Content Hash",
+            "type": "string"
+          },
+          "candidate_id": {
+            "minLength": 1,
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "current_planner_report_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "grounding_current_valid": {
+            "title": "Grounding Current Valid",
+            "type": "boolean"
+          },
+          "grounding_status": {
+            "enum": [
+              "current_valid",
+              "grounded_shadow",
+              "grounding_gap",
+              "grounding_failed",
+              "grounding_unavailable"
+            ],
+            "title": "Grounding Status",
+            "type": "string"
+          },
+          "numerical_provenance": {
+            "const": "retained_prior",
+            "default": "retained_prior",
+            "title": "Numerical Provenance",
+            "type": "string"
+          },
+          "refinement_decision": {
+            "enum": [
+              "refine",
+              "acquire",
+              "reframe",
+              "decompose",
+              "human_decision",
+              "abstain",
+              "block_candidate",
+              "stop"
+            ],
+            "title": "Refinement Decision",
+            "type": "string"
+          },
+          "scope": {
+            "const": "current_cheap_consequences_at_recorded_action",
+            "default": "current_cheap_consequences_at_recorded_action",
+            "title": "Scope",
+            "type": "string"
+          },
+          "search_iteration_status": {
+            "enum": [
+              "blocked",
+              "blocked_no_retry",
+              "governance_required",
+              "acquisition_required",
+              "abstained",
+              "stopped",
+              "refined_shadow"
+            ],
+            "title": "Search Iteration Status",
+            "type": "string"
+          },
+          "source_cycle_index": {
+            "minimum": 0.0,
+            "title": "Source Cycle Index",
+            "type": "integer"
+          },
+          "terminal_kind": {
+            "enum": [
+              "a_spec_gap",
+              "tool_failure",
+              "composition_invalid",
+              "recursive_blocked",
+              "search_ceiling_repair_required",
+              "human_decision_required",
+              "acquisition_required",
+              "budget_exhausted",
+              "frontier_stable",
+              "grounded_admissible",
+              "grounded_partial_admissible",
+              "grounded_abstention"
+            ],
+            "title": "Terminal Kind",
+            "type": "string"
+          },
+          "value_authority_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Value Authority Blockers",
+            "type": "array"
+          },
+          "value_decision_grade": {
+            "anyOf": [
+              {
+                "enum": [
+                  "blocked",
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Decision Grade"
+          },
+          "value_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Ref"
+          },
+          "value_status": {
+            "enum": [
+              "value_pending_n8",
+              "value_ready",
+              "value_conditional",
+              "value_blocked"
+            ],
+            "title": "Value Status",
+            "type": "string"
+          },
+          "voi_next_action": {
+            "enum": [
+              "advance",
+              "stop",
+              "escalate",
+              "blocked"
+            ],
+            "title": "Voi Next Action",
+            "type": "string"
+          },
+          "voi_reason": {
+            "minLength": 1,
+            "title": "Voi Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_cycle_index",
+          "candidate_id",
+          "candidate_content_hash",
+          "grounding_status",
+          "grounding_current_valid",
+          "value_status",
+          "voi_next_action",
+          "voi_reason",
+          "terminal_kind",
+          "refinement_decision",
+          "search_iteration_status"
+        ],
+        "title": "RunCandidateSimulationCheapConsequences",
         "type": "object"
       },
       "RunCandidateSimulationChildProfileBinding": {
@@ -37745,6 +38528,57 @@
         "additionalProperties": false,
         "description": "One current candidate occurrence after append-only N6 continuation.",
         "properties": {
+          "candidate_basis_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Basis Content Hash"
+          },
+          "candidate_basis_cycle_index": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Basis Cycle Index"
+          },
+          "candidate_basis_limitation_code": {
+            "anyOf": [
+              {
+                "const": "candidate_source_basis_prior_occurrence_not_revalidated",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Basis Limitation Code"
+          },
+          "candidate_basis_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "prior_basis_not_revalidated",
+                  "recorded_on_selected_basis"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Basis Status"
+          },
           "candidate_id": {
             "minLength": 1,
             "title": "Candidate Id",
@@ -37774,6 +38608,87 @@
             "title": "Front",
             "type": "string"
           },
+          "historical_certified_by_n9": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Historical Certified By N9"
+          },
+          "historical_front": {
+            "anyOf": [
+              {
+                "enum": [
+                  "decision",
+                  "research",
+                  "quarantine",
+                  "portfolio"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Historical Front"
+          },
+          "historical_value_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Historical Value Blockers",
+            "type": "array"
+          },
+          "historical_value_decision_grade": {
+            "anyOf": [
+              {
+                "enum": [
+                  "blocked",
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Historical Value Decision Grade"
+          },
+          "historical_value_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Historical Value Ref"
+          },
+          "historical_value_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "value_pending_n8",
+                  "value_ready",
+                  "value_conditional",
+                  "value_blocked"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Historical Value Status"
+          },
           "source_content_hash": {
             "anyOf": [
               {
@@ -37785,6 +38700,59 @@
               }
             ],
             "title": "Source Content Hash"
+          },
+          "value_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Value Blockers",
+            "type": "array"
+          },
+          "value_decision_grade": {
+            "anyOf": [
+              {
+                "enum": [
+                  "blocked",
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Decision Grade"
+          },
+          "value_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Ref"
+          },
+          "value_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "value_pending_n8",
+                  "value_ready",
+                  "value_conditional",
+                  "value_blocked"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Status"
           }
         },
         "required": [
@@ -37795,6 +38763,76 @@
           "certified_by_n9"
         ],
         "title": "RunCandidateSimulationCurrentOccurrence",
+        "type": "object"
+      },
+      "RunCandidateSimulationModelRevision": {
+        "additionalProperties": false,
+        "description": "A replayed coefficient-only candidate model change, not new empirical evidence.",
+        "properties": {
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "changed_field": {
+            "const": "outcome_per_target_unit",
+            "default": "outcome_per_target_unit",
+            "title": "Changed Field",
+            "type": "string"
+          },
+          "evaluation_decision_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "predicate_provenance": {
+            "const": "recomputed",
+            "default": "recomputed",
+            "title": "Predicate Provenance",
+            "type": "string"
+          },
+          "previous_basis_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "previous_declaration_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "previous_input_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "previous_ncm_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "selected_basis_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "selected_declaration_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "selected_input_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "selected_ncm_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "evaluation_decision_ref",
+          "previous_input_ref",
+          "selected_input_ref",
+          "previous_declaration_ref",
+          "selected_declaration_ref",
+          "previous_ncm_ref",
+          "selected_ncm_ref",
+          "previous_basis_ref",
+          "selected_basis_ref"
+        ],
+        "title": "RunCandidateSimulationModelRevision",
         "type": "object"
       },
       "RunCandidateSimulationN5Observation": {
@@ -37973,6 +39011,38 @@
               }
             ]
           },
+          "n8_authored_joint_intent_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Authored Joint Intent Digest"
+          },
+          "n8_authored_joint_relation_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n8_authored_joint_request_payload_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "n8_authority_blockers": {
             "default": [],
             "items": {
@@ -37992,6 +39062,24 @@
               }
             ],
             "title": "N8 Candidate Decision Grade"
+          },
+          "n8_candidate_derived_atom_content_hashes": {
+            "default": [],
+            "items": {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "title": "N8 Candidate Derived Atom Content Hashes",
+            "type": "array"
+          },
+          "n8_candidate_derived_atom_ids": {
+            "default": [],
+            "items": {
+              "pattern": "^atom_[a-f0-9]{16}$",
+              "type": "string"
+            },
+            "title": "N8 Candidate Derived Atom Ids",
+            "type": "array"
           },
           "n8_candidate_joint_selection_content_hash": {
             "anyOf": [
@@ -38037,6 +39125,7 @@
               {
                 "enum": [
                   "hypothetical_all_unique_n4_source_members",
+                  "authored_materialized_n4_source_members",
                   "not_established"
                 ],
                 "type": "string"
@@ -38276,7 +39365,8 @@
                 "enum": [
                   "n4_source_candidates_are_alternatives_not_authored_compound_design",
                   "legacy_selection_receipt_has_no_composition_basis",
-                  "parent_joint_candidate_source_selection_not_established"
+                  "parent_joint_candidate_source_selection_not_established",
+                  "authored_candidate_coupling_not_established"
                 ],
                 "type": "string"
               },
@@ -38289,7 +39379,10 @@
           "n8_policy_composition_status": {
             "anyOf": [
               {
-                "const": "not_established",
+                "enum": [
+                  "not_established",
+                  "authored_candidate"
+                ],
                 "type": "string"
               },
               {
@@ -38297,6 +39390,18 @@
               }
             ],
             "title": "N8 Policy Composition Status"
+          },
+          "n8_selected_member_relationship": {
+            "anyOf": [
+              {
+                "const": "joint_components",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Selected Member Relationship"
           },
           "n8_source_candidate_relationship": {
             "anyOf": [
@@ -38486,7 +39591,8 @@
               "1.0.0",
               "2.0.0",
               "3.0.0",
-              "4.0.0"
+              "4.0.0",
+              "5.0.0"
             ],
             "title": "Artifact Schema Version",
             "type": "string"
@@ -38520,6 +39626,23 @@
           "horizon": {
             "$ref": "#/components/schemas/RunGenericCycleSimulationN5Horizon"
           },
+          "model_declaration_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "outcome_units": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Outcome Units",
+            "type": "object"
+          },
           "publication_authority": {
             "const": false,
             "default": false,
@@ -38531,7 +39654,8 @@
               "policyos.runtime.joint_simulation_horizon.v1",
               "policyos.runtime.joint_simulation_horizon.v2",
               "policyos.runtime.joint_simulation_horizon.v3",
-              "policyos.runtime.joint_simulation_horizon.v4"
+              "policyos.runtime.joint_simulation_horizon.v4",
+              "policyos.runtime.joint_simulation_horizon.v5"
             ],
             "title": "Result Schema Version",
             "type": "string"
@@ -38567,6 +39691,15 @@
             "const": "K_sim",
             "default": "K_sim",
             "title": "Uncertainty Kind",
+            "type": "string"
+          },
+          "unit_provenance": {
+            "default": "not_established",
+            "enum": [
+              "declared_candidate_model",
+              "not_established"
+            ],
+            "title": "Unit Provenance",
             "type": "string"
           },
           "world_model_record_content_hash": {
@@ -38695,6 +39828,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/RunCandidateSimulationAcquisitionHistoryEntryV3"
+                },
+                {
+                  "$ref": "#/components/schemas/RunCandidateSimulationAcquisitionHistoryEntryV4"
                 }
               ]
             },
@@ -38732,6 +39868,36 @@
             "default": "candidate_observation_only",
             "title": "Authority Purpose",
             "type": "string"
+          },
+          "candidate_evaluation_attempts": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunCandidateEvaluationAttemptProjection"
+            },
+            "title": "Candidate Evaluation Attempts",
+            "type": "array"
+          },
+          "candidate_evaluation_attempts_limitation_code": {
+            "anyOf": [
+              {
+                "const": "candidate_attempt_context_history_not_established",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Evaluation Attempts Limitation Code"
+          },
+          "candidate_source_current_projection": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSourceCurrentProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "limitation_code": {
             "anyOf": [
@@ -39039,6 +40205,113 @@
           "basis_ref"
         ],
         "title": "RunCandidateSimulationRetainedEvaluation",
+        "type": "object"
+      },
+      "RunCandidateSourceCurrentProjection": {
+        "additionalProperties": false,
+        "description": "One reopened candidate-basis fold; no deployment or publication authority.",
+        "properties": {
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "basis_cycle_index": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Basis Cycle Index"
+          },
+          "basis_transition_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Basis Transition Content Hash"
+          },
+          "certified_candidate_ids": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Certified Candidate Ids",
+            "type": "array"
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "fronts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationContinuationFronts"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "generation_run_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generation Run Content Hash"
+          },
+          "issues": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Issues",
+            "type": "array"
+          },
+          "occurrences": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunCandidateSimulationCurrentOccurrence"
+            },
+            "title": "Occurrences",
+            "type": "array"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "status": {
+            "enum": [
+              "resolved",
+              "not_established"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "RunCandidateSourceCurrentProjection",
         "type": "object"
       },
       "RunCompareResponse": {
@@ -40894,7 +42167,8 @@
               "1.0.0",
               "2.0.0",
               "3.0.0",
-              "4.0.0"
+              "4.0.0",
+              "5.0.0"
             ],
             "title": "Artifact Schema Version",
             "type": "string"
@@ -40939,7 +42213,8 @@
               "policyos.runtime.joint_simulation_horizon.v1",
               "policyos.runtime.joint_simulation_horizon.v2",
               "policyos.runtime.joint_simulation_horizon.v3",
-              "policyos.runtime.joint_simulation_horizon.v4"
+              "policyos.runtime.joint_simulation_horizon.v4",
+              "policyos.runtime.joint_simulation_horizon.v5"
             ],
             "title": "Result Schema Version",
             "type": "string"
@@ -41275,6 +42550,26 @@
             "default": "cycle_input_candidate_only",
             "title": "Authority Purpose",
             "type": "string"
+          },
+          "candidate_evaluation_attempts": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunCandidateEvaluationAttemptProjection"
+            },
+            "title": "Candidate Evaluation Attempts",
+            "type": "array"
+          },
+          "candidate_evaluation_attempts_limitation_code": {
+            "anyOf": [
+              {
+                "const": "candidate_attempt_context_history_not_established",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Evaluation Attempts Limitation Code"
           },
           "child_profile_bindings": {
             "default": [],
@@ -41833,7 +43128,8 @@
               "policyos.runtime.joint_simulation_horizon.v1",
               "policyos.runtime.joint_simulation_horizon.v2",
               "policyos.runtime.joint_simulation_horizon.v3",
-              "policyos.runtime.joint_simulation_horizon.v4"
+              "policyos.runtime.joint_simulation_horizon.v4",
+              "policyos.runtime.joint_simulation_horizon.v5"
             ],
             "title": "Schema Version",
             "type": "string"
@@ -43242,6 +44538,66 @@
             ],
             "title": "Budget Stop Node Ref"
           },
+          "capacity_limitation_code": {
+            "anyOf": [
+              {
+                "const": "physical_need_not_established",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Limitation Code"
+          },
+          "capacity_pending_child_index": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Pending Child Index"
+          },
+          "capacity_pending_child_node_ref": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Pending Child Node Ref"
+          },
+          "capacity_source_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Source Content Hash"
+          },
+          "capacity_stop_parent_node_ref": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Stop Parent Node Ref"
+          },
           "completed_design_refs": {
             "default": [],
             "items": {
@@ -43289,7 +44645,8 @@
             "default": "policyos.runtime.recursive_cycle_checkpoint.v1",
             "enum": [
               "policyos.runtime.recursive_cycle_checkpoint.v1",
-              "policyos.runtime.recursive_cycle_checkpoint.v2"
+              "policyos.runtime.recursive_cycle_checkpoint.v2",
+              "policyos.runtime.recursive_cycle_checkpoint.v3"
             ],
             "title": "Schema Version",
             "type": "string"
@@ -48614,6 +49971,40 @@
           }
         },
         "title": "WorkflowRunRequest",
+        "type": "object"
+      },
+      "_BuildIdentityArtifactSelection": {
+        "additionalProperties": false,
+        "description": "Ledger-owned wire selector decoded by the canonical Core artifact owner.",
+        "properties": {
+          "artifact_id": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Artifact Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "runtime.quality.confidence_ledger.build_identity",
+            "title": "Kind",
+            "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Manifest Profile Sha256",
+            "type": "string"
+          },
+          "media_type": {
+            "const": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "kind",
+          "media_type",
+          "manifest_profile_sha256"
+        ],
+        "title": "_BuildIdentityArtifactSelection",
         "type": "object"
       },
       "_QualifiedOutcomeOfInterestV3": {

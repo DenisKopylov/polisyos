@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Literal
+from typing import TYPE_CHECKING, Literal, cast
 
 from polisyos.core import contracts
 from polisyos.core.artifacts import (
@@ -17,17 +17,21 @@ from polisyos.core.artifacts import (
     ArtifactRef,
     ArtifactStore,
     CanonInfo,
+    CoreJsonReadLimits,
     InputRef,
     ProducerInfo,
     SchemaInfo,
     artifact_manifest_profile_sha256,
+    artifact_ref_for_manifest,
     input_ref_from_artifact_ref,
     load_core_json_artifact,
+    read_core_json_artifact_bounded,
 )
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.fabric import (
     DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,
     AcquiredObservationDataSnapshotLineage,
+    CandidateAcquisitionSourceDataSnapshotLineage,
     DataSnapshot,
     DataSnapshotOwnerLineage,
     FabricBridgeDataSnapshotLineage,
@@ -38,12 +42,28 @@ from polisyos.core.contracts.fabric import (
     data_snapshot_reference_input_roles,
 )
 
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import CoreJSONArtifactBoundedMemberReader
+
 
 class DataSnapshotLineageError(ValueError):
     """Raised when a DataSnapshot fails its typed source or owner-derived closure."""
 
 
 ACQUIRED_SOURCE_ROW_REVALIDATION_LIMITATION = "acquired_source_row_revalidation_not_established"
+CANDIDATE_SOURCE_LIMITATIONS = (
+    "candidate_source_not_an_observation",
+    "source_time_not_established",
+    "measurement_authority_not_established",
+    "publication_authority_not_established",
+)
+
+DATA_SNAPSHOT_OWNER_BAND_READ_LIMITS = CoreJsonReadLimits(
+    max_bytes=64 * 1024 * 1024,
+    max_depth=128,
+    max_elements=1_000_000,
+    max_manifest_bytes=1024 * 1024,
+)
 
 
 class DataSnapshotSourceRowNotEstablishedError(DataSnapshotLineageError):
@@ -59,13 +79,21 @@ class DataSnapshotLineageResult:
     """Scope of the store-only verification, distinct from source-row authority."""
 
     acquisition_source_row_status: Literal["not_applicable", "not_established"] = "not_applicable"
+    candidate_source_limitations: tuple[str, ...] = ()
 
     @property
     def required_admissibility_blockers(self) -> tuple[str, ...]:
         """Return the limitation required by any candidate-band consumer."""
         if self.acquisition_source_row_status == "not_established":
-            return (ACQUIRED_SOURCE_ROW_REVALIDATION_LIMITATION,)
-        return ()
+            return tuple(
+                dict.fromkeys(
+                    (
+                        ACQUIRED_SOURCE_ROW_REVALIDATION_LIMITATION,
+                        *self.candidate_source_limitations,
+                    )
+                )
+            )
+        return tuple(dict.fromkeys(self.candidate_source_limitations))
 
 
 def validate_data_snapshot_owner_lineage(
@@ -114,7 +142,8 @@ def validate_data_snapshot_owner_lineage(
         raise DataSnapshotLineageError("data_snapshot_legacy_lineage_field_unbound")
 
     payload_manifest = _manifest_view(store, snapshot.data_ref)
-    family = _owner_family(snapshot, parent, payload_manifest)
+    raw_payload = _read_owner_band_payload(store, payload_manifest)
+    family = _owner_family(snapshot, parent, payload_manifest, raw_payload=raw_payload)
     lineage = snapshot.source_lineage
     legacy_acquisition_probe = family is None and _legacy_acquisition_probe_required(
         snapshot.data_ref, payload_manifest
@@ -140,11 +169,10 @@ def validate_data_snapshot_owner_lineage(
             ref = getattr(snapshot, field_name)
             if ref is not None:
                 _verified_manifest(store, ref)
-        if not legacy_acquisition_probe:
-            return DataSnapshotLineageResult()
-        raw_payload = load_core_json_artifact(store, snapshot.data_ref)
         if not isinstance(raw_payload, Mapping) or "_policyos_acquisition" not in raw_payload:
             return DataSnapshotLineageResult()
+        if not legacy_acquisition_probe:
+            raise DataSnapshotLineageError("acquired_observation_payload_manifest_mismatch")
         family = "acquired_observation_overlay"
 
     _require_selected_owner_closure(
@@ -197,10 +225,39 @@ def validate_data_snapshot_owner_lineage(
         if not isinstance(lineage, FabricBridgeDataSnapshotLineage):
             raise DataSnapshotLineageError("fabric_bridge_lineage_invalid")
         _verify_fabric_bridge_owner(store, snapshot, lineage)
+    elif family == "candidate_acquisition_source":
+        if not isinstance(lineage, CandidateAcquisitionSourceDataSnapshotLineage):
+            raise DataSnapshotLineageError("candidate_acquisition_source_lineage_invalid")
+        source_limitations = _verify_candidate_acquisition_source_owner(
+            store, snapshot_ref, snapshot, lineage, seen=seen
+        )
+        if binding_lineage_refs is not None:
+            expected_binding_refs = tuple(
+                _data_forge_cas_uri(ref)
+                for ref in (
+                    lineage.base_data_snapshot_ref,
+                    lineage.candidate_source_ref,
+                    snapshot.data_ref,
+                )
+            )
+            if binding_lineage_refs != expected_binding_refs:
+                raise DataSnapshotLineageError(
+                    "candidate_acquisition_source_binding_lineage_mismatch"
+                )
+        if not candidate_only:
+            raise DataSnapshotSourceRowNotEstablishedError()
+        return DataSnapshotLineageResult(
+            acquisition_source_row_status="not_established",
+            candidate_source_limitations=tuple(
+                dict.fromkeys((*CANDIDATE_SOURCE_LIMITATIONS, *source_limitations))
+            ),
+        )
     else:
         if not isinstance(lineage, AcquiredObservationDataSnapshotLineage):
             raise DataSnapshotLineageError("acquired_observation_lineage_invalid")
-        _verify_acquired_observation_owner(store, snapshot, lineage, seen=seen)
+        base_result = _verify_acquired_observation_owner(
+            store, snapshot_ref, snapshot, lineage, seen=seen
+        )
         if binding_lineage_refs is not None:
             expected_binding_refs = tuple(
                 _data_forge_cas_uri(ref)
@@ -215,7 +272,10 @@ def validate_data_snapshot_owner_lineage(
                 raise DataSnapshotLineageError("acquired_observation_binding_lineage_mismatch")
         if not candidate_only:
             raise DataSnapshotSourceRowNotEstablishedError()
-        return DataSnapshotLineageResult(acquisition_source_row_status="not_established")
+        return DataSnapshotLineageResult(
+            acquisition_source_row_status="not_established",
+            candidate_source_limitations=base_result.required_admissibility_blockers,
+        )
     return DataSnapshotLineageResult()
 
 
@@ -310,14 +370,75 @@ def _legacy_acquisition_probe_required(
     )
 
 
+def _read_owner_band_payload(store: ArtifactStore, manifest: ArtifactManifest) -> object:
+    """Inspect actual Core JSON within a fixed profile, never a MIME guess.
+
+    Binary owners retain their existing typed codec checks. A Core JSON view
+    which is unavailable or exceeds the declared resource profile cannot
+    establish an observed band. No unbounded payload scan or parser is added.
+    """
+    if manifest.canon is None:
+        return None
+    try:
+        selected = read_core_json_artifact_bounded(
+            cast("CoreJSONArtifactBoundedMemberReader", store),
+            artifact_ref_for_manifest(manifest),
+            limits=DATA_SNAPSHOT_OWNER_BAND_READ_LIMITS,
+        )
+        return selected.value
+    except (OSError, TypeError, ValueError, RuntimeError) as exc:
+        raise DataSnapshotLineageError("data_snapshot_owner_band_not_established") from exc
+
+
 def _owner_family(
     snapshot: DataSnapshot,
     parent: ArtifactManifest,
     manifest: ArtifactManifest,
+    *,
+    raw_payload: object,
 ) -> str | None:
+    kind = getattr(manifest, "kind", None)
+    if (
+        kind == "runtime.quality.candidate_acquisition_source"
+        or getattr(getattr(manifest, "artifact_schema", None), "name", None)
+        == "polisyos.runtime.candidate_acquisition_source.v1"
+        or (
+            isinstance(raw_payload, Mapping)
+            and raw_payload.get("schema_version")
+            == "polisyos.runtime.candidate_acquisition_source.v1"
+        )
+    ):
+        raise DataSnapshotLineageError("candidate_acquisition_source_lineage_missing")
+    if isinstance(raw_payload, Mapping):
+        # Classify actual owner content before a submitted family can mask it.
+        # Either genuine descendant can retain the other's historical marker.
+        # Only a matching typed owner and selected payload schema chooses its
+        # current family; full owner replay and base verification follow below.
+        if isinstance(
+            snapshot.source_lineage, CandidateAcquisitionSourceDataSnapshotLineage
+        ) and manifest.artifact_schema == SchemaInfo(
+            name="polisyos.runtime.quality.CandidateAcquisitionDataStatePayload",
+            version="policyos.runtime.candidate_acquisition_data_state.v1",
+        ):
+            return "candidate_acquisition_source"
+        if (
+            isinstance(snapshot.source_lineage, AcquiredObservationDataSnapshotLineage)
+            or (
+                snapshot.source_lineage is None
+                and parent.artifact_schema
+                == SchemaInfo(name=DataSnapshot.ARTIFACT_SCHEMA_NAME, version="0.2.0")
+            )
+        ) and manifest.artifact_schema == SchemaInfo(
+            name="polisyos.runtime.quality.AcquisitionDataStatePayload",
+            version="policyos.runtime.acquisition_data_state.v2",
+        ):
+            return "acquired_observation_overlay"
+        if "_policyos_candidate_acquisition" in raw_payload:
+            raise DataSnapshotLineageError("candidate_acquisition_source_lineage_missing")
+        if "_policyos_acquisition" in raw_payload:
+            return "acquired_observation_overlay"
     if snapshot.source_lineage is not None:
         return _lineage_family(snapshot.source_lineage)
-    kind = getattr(manifest, "kind", None)
     if kind == "fabric.fetch_payload":
         return "measurement_root"
     if kind == "fabric.tabular_payload":
@@ -327,6 +448,17 @@ def _owner_family(
     schema = getattr(manifest, "artifact_schema", None)
     if getattr(schema, "name", None) == "polisyos.runtime.quality.AcquisitionDataStatePayload":
         return "acquired_observation_overlay"
+    if (
+        getattr(schema, "name", None)
+        == "polisyos.runtime.quality.CandidateAcquisitionDataStatePayload"
+    ):
+        return "candidate_acquisition_source"
+    if any(
+        edge.role
+        in {"payload.candidate_acquisition_source", "evidence.candidate_acquisition_source"}
+        for edge in parent.inputs
+    ):
+        raise DataSnapshotLineageError("candidate_acquisition_source_payload_schema_invalid")
     owner_roles = {
         "payload.acquired_observation_candidate",
         "input.base_data_snapshot",
@@ -354,6 +486,8 @@ def _lineage_family(lineage: DataSnapshotOwnerLineage) -> str:
         return "fabric_bridge"
     if isinstance(lineage, AcquiredObservationDataSnapshotLineage):
         return "acquired_observation_overlay"
+    if isinstance(lineage, CandidateAcquisitionSourceDataSnapshotLineage):
+        return "candidate_acquisition_source"
     raise DataSnapshotLineageError("data_snapshot_owner_lineage_unsupported")
 
 
@@ -605,11 +739,12 @@ def _acquired_observation_payload_requirements(
 
 def _verify_acquired_observation_owner(
     store: ArtifactStore,
+    snapshot_ref: ArtifactRef,
     snapshot: DataSnapshot,
     lineage: AcquiredObservationDataSnapshotLineage,
     *,
     seen: frozenset[tuple[str, str | None]],
-) -> None:
+) -> DataSnapshotLineageResult:
     payload_ref = snapshot.data_ref
     _require_selected_refs(
         payload_ref,
@@ -689,7 +824,7 @@ def _verify_acquired_observation_owner(
             )
         except DataSnapshotLineageError as exc:
             raise DataSnapshotLineageError("acquired_observation_base_profile_unselected") from exc
-        validate_data_snapshot_owner_lineage(
+        base_result = validate_data_snapshot_owner_lineage(
             store,
             lineage.base_data_snapshot_ref,
             base_snapshot,
@@ -754,6 +889,96 @@ def _verify_acquired_observation_owner(
             "acquired_observation_receipt_owner_validation_failed"
         ) from exc
 
+    from polisyos.runtime.quality.data_state_substrate import (
+        verify_acquired_observation_snapshot_payload,
+    )
+
+    try:
+        verify_acquired_observation_snapshot_payload(
+            store=store,
+            snapshot_ref=snapshot_ref,
+            snapshot=snapshot,
+            base_data_snapshot_ref=lineage.base_data_snapshot_ref,
+            receipt_ref=lineage.overlay_admission_receipt_ref,
+            passport_ref=lineage.passport_ref,
+        )
+    except (OSError, TypeError, ValueError, RuntimeError) as exc:
+        raise DataSnapshotLineageError("acquired_observation_owner_replay_failed") from exc
+    return base_result
+
+
+def _verify_candidate_acquisition_source_owner(
+    store: ArtifactStore,
+    snapshot_ref: ArtifactRef,
+    snapshot: DataSnapshot,
+    lineage: CandidateAcquisitionSourceDataSnapshotLineage,
+    *,
+    seen: frozenset[tuple[str, str | None]],
+) -> tuple[str, ...]:
+    """Replay the candidate owner without borrowing observed-epoch authority."""
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+
+    _require_selected_refs(
+        snapshot.data_ref,
+        lineage.base_data_snapshot_ref,
+        lineage.candidate_source_ref,
+    )
+    payload_manifest = _manifest_view(store, snapshot.data_ref)
+    if (
+        snapshot.data_ref.kind != "fabric.production_data_state_payload"
+        or snapshot.data_ref.media_type != "application/json"
+        or payload_manifest.artifact_schema
+        != SchemaInfo(
+            name="polisyos.runtime.quality.CandidateAcquisitionDataStatePayload",
+            version="policyos.runtime.candidate_acquisition_data_state.v1",
+        )
+        or lineage.candidate_source_ref.kind != "runtime.quality.candidate_acquisition_source"
+        or lineage.candidate_source_ref.media_type != "application/json"
+    ):
+        raise DataSnapshotLineageError("candidate_acquisition_source_payload_manifest_mismatch")
+    _require_exact_owner_edges(
+        store,
+        manifest=payload_manifest,
+        expected=(
+            (lineage.base_data_snapshot_ref, "input.base_data_snapshot"),
+            (lineage.candidate_source_ref, "evidence.candidate_acquisition_source"),
+        ),
+    )
+    _verified_manifest(store, lineage.base_data_snapshot_ref, require_selected_profile=True)
+    _verified_manifest(store, lineage.candidate_source_ref, require_selected_profile=True)
+    try:
+        base_snapshot = validate_core_model_json_artifact(
+            DataSnapshot, store, lineage.base_data_snapshot_ref
+        )
+        base_result = validate_data_snapshot_owner_lineage(
+            store,
+            lineage.base_data_snapshot_ref,
+            base_snapshot,
+            candidate_only=True,
+            _seen=seen,
+        )
+        from polisyos.runtime.quality.data_state_substrate import (
+            verify_candidate_acquisition_snapshot_payload,
+        )
+
+        verify_candidate_acquisition_snapshot_payload(
+            store=store,
+            snapshot_ref=snapshot_ref,
+            snapshot=snapshot,
+            base_data_snapshot_ref=lineage.base_data_snapshot_ref,
+            candidate_source_ref=lineage.candidate_source_ref,
+        )
+        payload = load_core_json_artifact(store, snapshot.data_ref)
+        marker = payload.get("_policyos_candidate_acquisition")
+        limitations = marker.get("limitation_codes") if isinstance(marker, Mapping) else None
+        if not isinstance(limitations, list) or any(
+            type(value) is not str for value in limitations
+        ):
+            raise DataSnapshotLineageError("candidate_acquisition_source_limitations_invalid")
+        return tuple(dict.fromkeys((*limitations, *base_result.required_admissibility_blockers)))
+    except (OSError, TypeError, ValueError, RuntimeError) as exc:
+        raise DataSnapshotLineageError("candidate_acquisition_source_owner_replay_failed") from exc
+
 
 def _measurement_root_producer() -> ProducerInfo:
     return ProducerInfo(
@@ -779,6 +1004,7 @@ def _data_forge_cas_uri(ref: ArtifactRef) -> str:
 
 __all__ = [
     "ACQUIRED_SOURCE_ROW_REVALIDATION_LIMITATION",
+    "CANDIDATE_SOURCE_LIMITATIONS",
     "DataSnapshotLineageError",
     "DataSnapshotLineageResult",
     "DataSnapshotSourceRowNotEstablishedError",

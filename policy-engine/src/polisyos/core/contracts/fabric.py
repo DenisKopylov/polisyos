@@ -16,7 +16,8 @@ from pydantic import (
     model_validator,
 )
 
-from ..artifacts.manifest import ArtifactRef, InputRef, WarningRecord
+from ..artifacts.ids import ArtifactID
+from ..artifacts.manifest import ArtifactRef, InputRef, WarningRecord, input_ref_from_artifact_ref
 from .uncertainty import UncertaintyEnvelopeRef
 
 
@@ -164,6 +165,42 @@ class EvidenceBundle(BaseModel):
     )
 
 
+def evidence_bundle_manifest_input_refs(bundle: EvidenceBundle) -> tuple[InputRef, ...] | None:
+    """Return the writer's ordered input closure, or ``None`` for a legacy bundle.
+
+    The edges bind the exact selected views declared by the payload. They do not
+    establish the authority, freshness, or semantic validity of their sources.
+    """
+    provenance = bundle.provenance_ref
+    selected_provenance = provenance is not None and provenance.manifest_profile_sha256 is not None
+    if bundle.execution_context is None and not selected_provenance:
+        return None
+
+    inputs = [
+        input_ref_from_artifact_ref(ref, role="fabric.ingestion.payload") for ref in bundle.sources
+    ]
+    session = (
+        bundle.execution_context.selected_record_session_ref
+        if bundle.execution_context is not None
+        else None
+    )
+    if session is not None:
+        inputs.append(input_ref_from_artifact_ref(session, role="fabric.ingestion.record_session"))
+    if provenance is not None:
+        inputs.append(
+            input_ref_from_artifact_ref(
+                ArtifactRef(
+                    artifact_id=ArtifactID.model_validate(provenance.artifact_id),
+                    kind="fabric.provenance_graph",
+                    media_type="application/json",
+                    manifest_profile_sha256=provenance.manifest_profile_sha256,
+                ),
+                role="fabric.ingestion.provenance",
+            )
+        )
+    return tuple(inputs)
+
+
 class UncertaintyBounds(BaseModel):
     """Uncertainty bounds public type."""
 
@@ -237,10 +274,19 @@ class AcquiredObservationDataSnapshotLineage(_DataSnapshotOwnerLineage):
     passport_ref: ArtifactRef
 
 
+class CandidateAcquisitionSourceDataSnapshotLineage(_DataSnapshotOwnerLineage):
+    """Candidate source refs that never represent an observed-data admission."""
+
+    owner: Literal["candidate_acquisition_source"] = "candidate_acquisition_source"
+    base_data_snapshot_ref: ArtifactRef
+    candidate_source_ref: ArtifactRef
+
+
 DataSnapshotOwnerLineage = Annotated[
     MeasurementRootDataSnapshotLineage
     | FabricBridgeDataSnapshotLineage
-    | AcquiredObservationDataSnapshotLineage,
+    | AcquiredObservationDataSnapshotLineage
+    | CandidateAcquisitionSourceDataSnapshotLineage,
     Field(discriminator="owner"),
 ]
 
@@ -393,6 +439,12 @@ def data_snapshot_owner_input_requirements(
             (lineage.base_data_snapshot_ref, "input.base_data_snapshot"),
             (lineage.overlay_admission_receipt_ref, "evidence.overlay_admission_receipt"),
             (lineage.passport_ref, "evidence.acquisition_passport"),
+        )
+    elif isinstance(lineage, CandidateAcquisitionSourceDataSnapshotLineage):
+        field_roles = {"data_ref": "payload.candidate_acquisition_source"}
+        extra_refs = (
+            (lineage.base_data_snapshot_ref, "input.base_data_snapshot"),
+            (lineage.candidate_source_ref, "evidence.candidate_acquisition_source"),
         )
     else:  # pragma: no cover - Pydantic's discriminated union owns this boundary.
         raise ValueError("data_snapshot_owner_lineage_unsupported")

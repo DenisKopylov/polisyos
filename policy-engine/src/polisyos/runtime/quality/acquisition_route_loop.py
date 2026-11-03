@@ -14,18 +14,24 @@ from polisyos.core.artifacts import ArtifactID, ArtifactRef, load_core_json_arti
 from polisyos.data_requirement import DataRequirementCompilationReport
 from polisyos.runtime.quality.acquisition_evaluation import AcquisitionSelectedEvaluation
 from polisyos.runtime.quality.acquisition_planner import (
+    _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE,
+    _N7_SOURCE_DESCRIPTOR_JOIN_RULE,
     _N7_SOURCE_JOIN_RULE,
     AcquisitionActionRecord,
     AcquisitionCostBasisRecord,
     AcquisitionPlannerReport,
     AcquisitionRequirementGap,
+    _n7_candidate_n5_l1_planner_records_match,
     load_planner_acquisition_cost_schedule,
     produce_acquisition_cost_basis_record,
     validate_persisted_acquisition_planner_report,
+    validate_persisted_data_requirement_compilation_report,
 )
+from polisyos.runtime.quality.agent_action_authority import agent_action_content_hash
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import (
     AcquisitionOverlayReentryReceipt,
+    CandidateSourceReentryReceipt,
     GenerationCycleRecord,
     GenerationCycleRun,
     _cycle_acquisition_requirement,
@@ -35,6 +41,7 @@ from polisyos.runtime.quality.generation_cycle import (
     _problem_ref,
     generation_cycle_run_content_hash,
     validate_acquisition_overlay_continuation,
+    validate_candidate_source_continuation,
 )
 
 if TYPE_CHECKING:
@@ -113,6 +120,7 @@ def _resolve_source_cycle_problem_basis(
     design_problem: DesignProblem,
     design_problem_ref: str,
     acquisition_basis_transitions: tuple[AcquisitionOverlayReentryReceipt, ...] = (),
+    candidate_basis_transitions: tuple[CandidateSourceReentryReceipt, ...] = (),
 ) -> DesignProblem:
     """Compose verified source refreshes separately from actual design revisions.
 
@@ -148,7 +156,7 @@ def _resolve_source_cycle_problem_basis(
     if tuple(cycle.cycle_index for cycle in prefix) != tuple(range(source_cycle.cycle_index + 1)):
         raise AcquisitionRouteClosureError("source_cycle_basis_predecessor_missing")
 
-    transitions: dict[int, AcquisitionOverlayReentryReceipt] = {}
+    transitions: dict[int, AcquisitionOverlayReentryReceipt | CandidateSourceReentryReceipt] = {}
     for transition in acquisition_basis_transitions:
         index = transition.new_cycle.cycle_index
         continued = transition.continued_generation_run
@@ -163,6 +171,19 @@ def _resolve_source_cycle_problem_basis(
             or transition.new_cycle != continued.cycles[-1]
         ):
             raise AcquisitionRouteClosureError("source_acquisition_basis_transition_invalid")
+        transitions[index] = transition
+    for transition in candidate_basis_transitions:
+        index = transition.new_cycle.cycle_index
+        continued = transition.continued_generation_run
+        if (
+            index in transitions
+            or transition.source_cycle_index + 1 != index
+            or transition.design_problem_ref != design_problem_ref
+            or continued.run_id != generation_run.run_id
+            or continued.cycles != generation_run.cycles[: index + 1]
+            or transition.new_cycle != continued.cycles[-1]
+        ):
+            raise AcquisitionRouteClosureError("source_candidate_basis_transition_invalid")
         transitions[index] = transition
     expected_basis = design_problem
     for cycle in prefix:
@@ -188,7 +209,9 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: Literal[
-        "AcquisitionRoutePhaseReceipt@1.0", "AcquisitionRoutePhaseReceipt@1.1"
+        "AcquisitionRoutePhaseReceipt@1.0",
+        "AcquisitionRoutePhaseReceipt@1.1",
+        "AcquisitionRoutePhaseReceipt@1.2",
     ] = "AcquisitionRoutePhaseReceipt@1.0"
     receipt_id: str = Field(min_length=1)
     tenant_id: str = Field(min_length=1)
@@ -202,12 +225,13 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
     planner_report_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     cost_basis_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     decision_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
-    coarse_phase: Literal["requested", "executing", "world_committed"]
+    coarse_phase: Literal["requested", "executing", "world_committed", "candidate_input_prepared"]
     receipt_phase: Literal[
         "requested",
         "executing",
         "outcome_selected",
         "world_committed_reentry_pending",
+        "candidate_input_reentry_pending",
     ]
     recovery_state: Literal["none", "reentry_recovery_required"]
     predecessor_receipt_ref: str | None = Field(
@@ -215,6 +239,9 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
         pattern=r"^sha256:[0-9a-f]{64}$",
     )
     owner_receipt_refs: tuple[str, ...] = ()
+    candidate_receipt_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     generated_at: AwareDatetime
 
     @model_validator(mode="after")
@@ -227,6 +254,10 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
                 "world_committed",
                 "reentry_recovery_required",
             ),
+            "candidate_input_reentry_pending": (
+                "candidate_input_prepared",
+                "reentry_recovery_required",
+            ),
         }[self.receipt_phase]
         if (self.coarse_phase, self.recovery_state) != expected:
             raise ValueError("acquisition_route_phase_state_mismatch")
@@ -236,13 +267,35 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
             raise ValueError("acquisition_route_phase_predecessor_missing")
         if self.receipt_phase == "outcome_selected":
             if (
-                self.schema_version != "AcquisitionRoutePhaseReceipt@1.1"
+                self.schema_version
+                not in {
+                    "AcquisitionRoutePhaseReceipt@1.1",
+                    "AcquisitionRoutePhaseReceipt@1.2",
+                }
                 or len(self.owner_receipt_refs) != 1
             ):
                 raise ValueError("acquisition_action_selection_binding_invalid")
+        elif self.receipt_phase == "candidate_input_reentry_pending":
+            if self.schema_version != "AcquisitionRoutePhaseReceipt@1.2":
+                raise ValueError("acquisition_route_phase_schema_version_mismatch")
         elif self.schema_version != "AcquisitionRoutePhaseReceipt@1.0":
             raise ValueError("acquisition_route_phase_schema_version_mismatch")
-        if self.receipt_phase == "world_committed_reentry_pending" and not self.owner_receipt_refs:
+        if self.schema_version == "AcquisitionRoutePhaseReceipt@1.2":
+            if (
+                self.candidate_receipt_ref is None
+                or self.candidate_receipt_ref.kind
+                != "runtime_quality.acquisition_candidate_action_receipt"
+                or self.candidate_receipt_ref.manifest_profile_sha256 is None
+                or str(self.candidate_receipt_ref.artifact_id) not in self.owner_receipt_refs
+            ):
+                raise ValueError("candidate_phase_selected_profile_missing")
+        elif self.candidate_receipt_ref is not None:
+            raise ValueError("candidate_phase_selected_profile_unexpected")
+        if (
+            self.receipt_phase
+            in {"world_committed_reentry_pending", "candidate_input_reentry_pending"}
+            and not self.owner_receipt_refs
+        ):
             raise ValueError("world_commit_owner_receipt_missing")
         return self
 
@@ -252,7 +305,9 @@ class AcquisitionRouteLoopReceipt(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["AcquisitionRouteLoopReceipt@1.0"] = "AcquisitionRouteLoopReceipt@1.0"
+    schema_version: Literal[
+        "AcquisitionRouteLoopReceipt@1.0", "AcquisitionRouteLoopReceipt@1.1"
+    ] = "AcquisitionRouteLoopReceipt@1.0"
     receipt_id: str = Field(min_length=1)
     tenant_id: str = Field(min_length=1)
     cell_id: str = Field(min_length=1)
@@ -268,22 +323,51 @@ class AcquisitionRouteLoopReceipt(BaseModel):
     coarse_phase: Literal["terminal"] = "terminal"
     receipt_phase: Literal["terminal"] = "terminal"
     recovery_state: Literal["complete"] = "complete"
-    terminal_outcome: Literal["quarantined_no_growth", "reentry_completed"]
+    terminal_outcome: Literal[
+        "quarantined_no_growth", "reentry_completed", "candidate_reentry_completed"
+    ]
     predecessor_receipt_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     owner_receipt_refs: tuple[str, ...] = Field(min_length=1)
     reentry_receipt_ref: str | None = Field(
         default=None,
         pattern=r"^sha256:[0-9a-f]{64}$",
     )
+    candidate_action_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    candidate_reentry_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     generated_at: AwareDatetime
 
     @model_validator(mode="after")
     def _validate_terminal_truth(self) -> AcquisitionRouteLoopReceipt:
-        if self.terminal_outcome == "reentry_completed":
+        if self.terminal_outcome in {"reentry_completed", "candidate_reentry_completed"}:
             if self.reentry_receipt_ref is None:
                 raise ValueError("terminal_reentry_receipt_missing")
         elif self.reentry_receipt_ref is not None:
             raise ValueError("quarantined_terminal_cannot_claim_reentry")
+        if self.terminal_outcome == "candidate_reentry_completed":
+            if (
+                self.schema_version != "AcquisitionRouteLoopReceipt@1.1"
+                or self.candidate_action_ref is None
+                or self.candidate_action_ref.kind
+                != "runtime_quality.acquisition_candidate_action_receipt"
+                or self.candidate_action_ref.manifest_profile_sha256 is None
+                or str(self.candidate_action_ref.artifact_id) not in self.owner_receipt_refs
+                or self.candidate_reentry_ref is None
+                or self.candidate_reentry_ref.kind
+                != "runtime_quality.candidate_source_reentry_receipt"
+                or self.candidate_reentry_ref.manifest_profile_sha256 is None
+                or str(self.candidate_reentry_ref.artifact_id) != self.reentry_receipt_ref
+            ):
+                raise ValueError("terminal_candidate_input_binding_missing")
+        elif (
+            self.schema_version != "AcquisitionRouteLoopReceipt@1.0"
+            or self.candidate_action_ref is not None
+            or self.candidate_reentry_ref is not None
+        ):
+            raise ValueError("terminal_candidate_input_schema_mismatch")
         return self
 
 
@@ -354,20 +438,135 @@ class AcquisitionRouteLoopReceiptV2(BaseModel):
         return self
 
 
+class AcquisitionCandidateRouteLoopReceipt(BaseModel):
+    """Candidate-only terminal with a separately fenced evaluation frontier."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["AcquisitionRouteLoopReceipt@3.0"] = "AcquisitionRouteLoopReceipt@3.0"
+    receipt_id: str = Field(min_length=1)
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    source_job_id: str = Field(min_length=1)
+    route_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    action_generation: int = Field(ge=1)
+    job_id: str = Field(min_length=1)
+    compiled_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    planner_report_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    cost_basis_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    decision_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    coarse_phase: Literal["terminal"] = "terminal"
+    receipt_phase: Literal["terminal"] = "terminal"
+    recovery_state: Literal["complete"] = "complete"
+    terminal_outcome: Literal["candidate_reentry_completed", "candidate_evaluation_retained"]
+    predecessor_receipt_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    owner_receipt_refs: tuple[str, ...] = Field(min_length=1)
+    candidate_action_ref: ArtifactRef
+    candidate_reentry_ref: ArtifactRef | None = None
+    evaluation_decision_ref: ArtifactRef
+    selected_basis_ref: ArtifactRef
+    selected_evaluation_witness_ref: ArtifactRef
+    selected_evaluation: AcquisitionSelectedEvaluation | None = None
+    current_continuation_ref: ArtifactRef | None = None
+    generated_at: AwareDatetime
+
+    @property
+    def reentry_receipt_ref(self) -> str | None:
+        """Expose the immutable ID for existing terminal-reader projections."""
+        return str(self.candidate_reentry_ref.artifact_id) if self.candidate_reentry_ref else None
+
+    @model_validator(mode="after")
+    def _validate_candidate_terminal(self) -> AcquisitionCandidateRouteLoopReceipt:
+        required = (
+            (self.candidate_action_ref, {"runtime_quality.acquisition_candidate_action_receipt"}),
+            (self.evaluation_decision_ref, {"runtime_quality.acquisition_evaluation_decision"}),
+            (self.selected_basis_ref, {"runtime_quality.acquisition_evaluation_basis"}),
+            (
+                self.selected_evaluation_witness_ref,
+                {
+                    "runtime.quality.candidate_simulation_execution",
+                    "runtime_quality.candidate_source_reentry_receipt",
+                },
+            ),
+        )
+        if any(
+            ref.kind not in kinds
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            for ref, kinds in required
+        ):
+            raise ValueError("candidate_terminal_selected_profile_invalid")
+        if str(self.candidate_action_ref.artifact_id) not in self.owner_receipt_refs:
+            raise ValueError("candidate_terminal_action_owner_missing")
+        if str(self.evaluation_decision_ref.artifact_id) not in self.owner_receipt_refs:
+            raise ValueError("candidate_terminal_decision_owner_missing")
+        if self.selected_evaluation is not None and (
+            self.selected_evaluation.basis_ref != self.selected_basis_ref
+            or self.selected_evaluation.n5_execution_ref != self.selected_evaluation_witness_ref
+        ):
+            raise ValueError("candidate_terminal_evaluation_binding_invalid")
+        if (
+            self.selected_evaluation is None
+            and self.selected_evaluation_witness_ref != self.candidate_reentry_ref
+        ):
+            raise ValueError("candidate_terminal_blocked_witness_invalid")
+        if self.terminal_outcome == "candidate_reentry_completed":
+            if (
+                self.candidate_reentry_ref is None
+                or self.candidate_reentry_ref.kind
+                != "runtime_quality.candidate_source_reentry_receipt"
+                or self.candidate_reentry_ref.media_type != "application/json"
+                or self.candidate_reentry_ref.manifest_profile_sha256 is None
+                or self.current_continuation_ref is not None
+            ):
+                raise ValueError("candidate_terminal_reentry_invalid")
+        elif (
+            self.candidate_reentry_ref is not None
+            or self.selected_evaluation is None
+            or self.current_continuation_ref is None
+            or self.current_continuation_ref.kind
+            != "runtime_quality.candidate_acquisition_retained_continuation"
+            or self.current_continuation_ref.media_type != "application/json"
+            or self.current_continuation_ref.manifest_profile_sha256 is None
+            or self.selected_evaluation.basis_ref != self.selected_basis_ref
+            or self.selected_evaluation.n5_execution_ref != self.selected_evaluation_witness_ref
+        ):
+            raise ValueError("candidate_terminal_retention_invalid")
+        return self
+
+
 def parse_acquisition_route_loop_receipt(
     value: object,
-) -> AcquisitionRouteLoopReceipt | AcquisitionRouteLoopReceiptV2:
+) -> (
+    AcquisitionRouteLoopReceipt
+    | AcquisitionRouteLoopReceiptV2
+    | AcquisitionCandidateRouteLoopReceipt
+):
     """Select the exact versioned reader; legacy serialized meaning is unchanged."""
-    if isinstance(value, (AcquisitionRouteLoopReceipt, AcquisitionRouteLoopReceiptV2)):
+    if isinstance(
+        value,
+        (
+            AcquisitionRouteLoopReceipt,
+            AcquisitionRouteLoopReceiptV2,
+            AcquisitionCandidateRouteLoopReceipt,
+        ),
+    ):
         value = value.model_dump(mode="python")
     if not isinstance(value, dict):
         raise ValueError("acquisition_terminal_payload_not_mapping")
     if value.get("schema_version") == "AcquisitionRouteLoopReceipt@2.0":
         return AcquisitionRouteLoopReceiptV2.model_validate(value)
+    if value.get("schema_version") == "AcquisitionRouteLoopReceipt@3.0":
+        return AcquisitionCandidateRouteLoopReceipt.model_validate(value)
     return AcquisitionRouteLoopReceipt.model_validate(value)
 
 
-AcquisitionTerminalReceipt = AcquisitionRouteLoopReceipt | AcquisitionRouteLoopReceiptV2
+AcquisitionTerminalReceipt = (
+    AcquisitionRouteLoopReceipt
+    | AcquisitionRouteLoopReceiptV2
+    | AcquisitionCandidateRouteLoopReceipt
+)
 
 
 class AcquisitionRoutePhaseHead(Protocol):
@@ -439,6 +638,9 @@ class VerifiedAcquisitionRouteClosure(BaseModel):
     acquisition_basis_transitions: tuple[AcquisitionOverlayReentryReceipt, ...] = Field(
         default=(), exclude=True, repr=False
     )
+    candidate_basis_transitions: tuple[CandidateSourceReentryReceipt, ...] = Field(
+        default=(), exclude=True, repr=False
+    )
 
     @property
     def route_source_cycle(self) -> GenerationCycleRecord:
@@ -463,6 +665,7 @@ class VerifiedAcquisitionRouteClosure(BaseModel):
             design_problem=self.design_problem,
             design_problem_ref=self.design_problem_ref,
             acquisition_basis_transitions=self.acquisition_basis_transitions,
+            candidate_basis_transitions=self.candidate_basis_transitions,
         )
 
     @property
@@ -655,9 +858,23 @@ class AcquisitionRouteLoop:
         cost = source_cycle.acquisition_cost_basis_record
         if report is None or cost is None:
             raise AcquisitionRouteClosureError("costed_route_not_unique")
-        source_requirement = _cycle_acquisition_requirement(
-            source_cycle.grounding, source_cycle.value_port
-        )
+        request = source_cycle.revision_request.strategy_payload.get("acquisition_request")
+        source_rule = request.get("n7_source_join_rule") if isinstance(request, Mapping) else None
+        if (
+            source_cycle.value_port.candidate_n5_l1_routing is not None
+            and source_rule != _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE
+        ):
+            raise AcquisitionRouteClosureError("source_requirement_rule_missing_or_downgraded")
+        if source_rule == _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE:
+            source_requirement, refusal = _n7_cycle_source_gap(
+                source_problem, cycle=source_cycle, acquisition_request=request
+            )
+            if refusal is not None or source_requirement is None:
+                raise AcquisitionRouteClosureError("source_requirement_binding_mismatch")
+        else:
+            source_requirement = _cycle_acquisition_requirement(
+                source_cycle.grounding, source_cycle.value_port
+            )
         planner_record = _select_source_planner_record(report, source_requirement)
         planner_ref = source_cycle.acquisition_routing_report_ref
         if planner_ref is None:
@@ -681,9 +898,11 @@ class AcquisitionRouteLoop:
         }
         if source_semantic_schema and source_requirement is None:
             raise AcquisitionRouteClosureError("source_requirement_missing")
-        request = source_cycle.revision_request.strategy_payload.get("acquisition_request")
-        source_rule = request.get("n7_source_join_rule") if isinstance(request, Mapping) else None
-        if source_rule is not None and source_rule != _N7_SOURCE_JOIN_RULE:
+        if source_rule is not None and source_rule not in {
+            _N7_SOURCE_JOIN_RULE,
+            _N7_SOURCE_DESCRIPTOR_JOIN_RULE,
+            _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE,
+        }:
             raise AcquisitionRouteClosureError("source_requirement_rule_unsupported")
         row_has_joined_shape = (
             source_semantic_schema
@@ -693,7 +912,11 @@ class AcquisitionRouteLoop:
         )
         if row_has_joined_shape and source_rule is None:
             raise AcquisitionRouteClosureError("source_requirement_rule_missing")
-        if source_rule == _N7_SOURCE_JOIN_RULE:
+        if source_rule in {
+            _N7_SOURCE_JOIN_RULE,
+            _N7_SOURCE_DESCRIPTOR_JOIN_RULE,
+            _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE,
+        }:
             if not isinstance(request, Mapping):
                 raise AcquisitionRouteClosureError("source_requirement_request_missing")
             source_gap, refusal = _n7_cycle_source_gap(
@@ -704,6 +927,14 @@ class AcquisitionRouteLoop:
             binding = report.requirement_basis_binding
             if refusal is not None or source_gap is None or binding is None:
                 raise AcquisitionRouteClosureError("source_requirement_binding_mismatch")
+            if source_rule == _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE:
+                issues = validate_persisted_data_requirement_compilation_report(
+                    self._artifact_store, binding, require_selected_writer_profile=True
+                )
+                if issues:
+                    raise AcquisitionRouteClosureError(
+                        "source_requirement_compiler_profile_unverified"
+                    )
             try:
                 compiler_report = DataRequirementCompilationReport.model_validate(
                     load_core_json_artifact(self._artifact_store, binding.compiler_report_ref)
@@ -712,14 +943,26 @@ class AcquisitionRouteLoop:
                 raise AcquisitionRouteClosureError(
                     "source_requirement_compiler_unreadable"
                 ) from exc
-            if not _n7_joined_planner_records_match(
-                problem=source_problem,
-                acquisition_request=request,
-                source_gap=source_gap,
-                specs=compiler_report.specs,
-                capability_resolutions=compiler_report.capability_requirement_resolutions,
-                report=report,
-            ):
+            if source_rule == _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE:
+                grounding_gap = source_cycle.grounding.acquisition_requirement
+                matching = _n7_candidate_n5_l1_planner_records_match(
+                    source_gap=source_gap,
+                    accompanying_requirement_gaps=(grounding_gap,) if grounding_gap else (),
+                    specs=compiler_report.specs,
+                    capability_resolutions=compiler_report.capability_requirement_resolutions,
+                    report=report,
+                )
+            else:
+                matching = _n7_joined_planner_records_match(
+                    problem=source_problem,
+                    acquisition_request=request,
+                    source_gap=source_gap,
+                    specs=compiler_report.specs,
+                    capability_resolutions=compiler_report.capability_requirement_resolutions,
+                    report=report,
+                    require_descriptor_join=source_rule == _N7_SOURCE_DESCRIPTOR_JOIN_RULE,
+                )
+            if not matching:
                 raise AcquisitionRouteClosureError("source_requirement_projection_mismatch")
         schedule = load_planner_acquisition_cost_schedule()
         recomputed = produce_acquisition_cost_basis_record(
@@ -748,19 +991,21 @@ class AcquisitionRouteLoop:
                 "cost_basis_hash": cost.record_content_hash,
             }
         )
-        generation_run, source_cycle, basis_transitions = self._latest_verified_source(
-            run_id=run_id,
-            source_job_id=job.job_id,
-            route_id=route_id,
-            compiled_ref=compiled_ref,
-            planner_report_hash=_content_hash(report.model_dump(mode="json")),
-            cost_basis_hash=cost.record_content_hash,
-            design_problem=compiled.design_problem,
-            design_problem_ref=compiled.design_problem_ref,
-            generation_run=generation_run,
-            source_cycle=source_cycle,
-            before_action_generation=before_action_generation,
-            action_job_id=action_job_id,
+        generation_run, source_cycle, basis_transitions, candidate_transitions = (
+            self._latest_verified_source(
+                run_id=run_id,
+                source_job_id=job.job_id,
+                route_id=route_id,
+                compiled_ref=compiled_ref,
+                planner_report_hash=agent_action_content_hash(report),
+                cost_basis_hash=cost.record_content_hash,
+                design_problem=compiled.design_problem,
+                design_problem_ref=compiled.design_problem_ref,
+                generation_run=generation_run,
+                source_cycle=source_cycle,
+                before_action_generation=before_action_generation,
+                action_job_id=action_job_id,
+            )
         )
         _resolve_source_cycle_problem_basis(
             generation_run=generation_run,
@@ -768,6 +1013,7 @@ class AcquisitionRouteLoop:
             design_problem=compiled.design_problem,
             design_problem_ref=compiled.design_problem_ref,
             acquisition_basis_transitions=basis_transitions,
+            candidate_basis_transitions=candidate_transitions,
         )
         return VerifiedAcquisitionRouteClosure(
             tenant_id=self._tenant_id,
@@ -785,6 +1031,7 @@ class AcquisitionRouteLoop:
             source_cycle=source_cycle,
             route_source_cycle_index=route_source_cycle.cycle_index,
             acquisition_basis_transitions=basis_transitions,
+            candidate_basis_transitions=candidate_transitions,
             planner_report=report,
             planner_record=planner_record,
             cost_basis_record=cost,
@@ -808,7 +1055,10 @@ class AcquisitionRouteLoop:
         before_action_generation: int | None,
         action_job_id: str | None,
     ) -> tuple[
-        GenerationCycleRun, GenerationCycleRecord, tuple[AcquisitionOverlayReentryReceipt, ...]
+        GenerationCycleRun,
+        GenerationCycleRecord,
+        tuple[AcquisitionOverlayReentryReceipt, ...],
+        tuple[CandidateSourceReentryReceipt, ...],
     ]:
         """Fold only verified terminal re-entry receipts over the compiled source."""
 
@@ -857,11 +1107,18 @@ class AcquisitionRouteLoop:
                 elif outcomes:
                     latest = outcomes[-1].latest_receipt
                     if not isinstance(
-                        latest, (AcquisitionRouteLoopReceipt, AcquisitionRouteLoopReceiptV2)
+                        latest,
+                        (
+                            AcquisitionRouteLoopReceipt,
+                            AcquisitionRouteLoopReceiptV2,
+                            AcquisitionCandidateRouteLoopReceipt,
+                        ),
                     ) or latest.terminal_outcome not in {
                         "quarantined_no_growth",
                         "reentry_completed",
                         "source_admitted_evaluation_retained",
+                        "candidate_reentry_completed",
+                        "candidate_evaluation_retained",
                     }:
                         raise AcquisitionRouteClosureError(
                             "acquisition_action_generation_not_resolvable"
@@ -873,6 +1130,7 @@ class AcquisitionRouteLoop:
         selected_run = generation_run
         selected_cycle = source_cycle
         basis_transitions: list[AcquisitionOverlayReentryReceipt] = []
+        candidate_transitions: list[CandidateSourceReentryReceipt] = []
         for snapshot in outcomes:
             receipt = snapshot.latest_receipt
             if (
@@ -886,7 +1144,12 @@ class AcquisitionRouteLoop:
             ):
                 continue
             if not isinstance(
-                receipt, (AcquisitionRouteLoopReceipt, AcquisitionRouteLoopReceiptV2)
+                receipt,
+                (
+                    AcquisitionRouteLoopReceipt,
+                    AcquisitionRouteLoopReceiptV2,
+                    AcquisitionCandidateRouteLoopReceipt,
+                ),
             ):
                 raise AcquisitionRouteClosureError("acquisition_action_outcome_not_terminal")
             if (
@@ -902,6 +1165,44 @@ class AcquisitionRouteLoop:
                 raise AcquisitionRouteClosureError("acquisition_action_source_identity_mismatch")
             if receipt.terminal_outcome == "quarantined_no_growth":
                 continue
+            if receipt.terminal_outcome == "candidate_reentry_completed":
+                from polisyos.runtime.quality.candidate_source_reentry_history import (
+                    verify_candidate_source_reentry_history,
+                )
+
+                if (
+                    not isinstance(
+                        receipt, (AcquisitionRouteLoopReceipt, AcquisitionCandidateRouteLoopReceipt)
+                    )
+                    or receipt.candidate_action_ref is None
+                    or receipt.candidate_reentry_ref is None
+                ):
+                    raise AcquisitionRouteClosureError("candidate_reentry_profile_missing")
+                transition = verify_candidate_source_reentry_history(
+                    artifact_store=self._artifact_store,
+                    event_log=self._event_log,
+                    control_store=self._control_store,
+                    receipt_ref=receipt.candidate_reentry_ref,
+                    expected_tenant_id=self._tenant_id,
+                    expected_cell_id=self._cell_id,
+                    expected_run_id=run_id,
+                    expected_source_job_id=source_job_id,
+                    expected_action_job_id=receipt.job_id,
+                    expected_route_id=route_id,
+                    expected_action_generation=receipt.action_generation,
+                    expected_selected_action_ref=receipt.candidate_action_ref,
+                )
+                validate_candidate_source_continuation(selected_run, transition)
+                if transition.source_cycle_index != selected_cycle.cycle_index:
+                    raise AcquisitionRouteClosureError("candidate_reentry_source_cycle_mismatch")
+                selected_run = transition.continued_generation_run
+                selected_cycle = transition.new_cycle
+                candidate_transitions.append(transition)
+                continue
+            if receipt.terminal_outcome == "candidate_evaluation_retained":
+                raise AcquisitionRouteClosureError(
+                    "candidate_retained_history_owner_not_established"
+                )
             if receipt.terminal_outcome == "source_admitted_evaluation_retained":
                 from polisyos.runtime.quality.acquisition_evaluation_history import (
                     verify_retained_route_accumulator,
@@ -930,6 +1231,7 @@ class AcquisitionRouteLoop:
                 route_id=route_id,
                 source_job_id=source_job_id,
                 acquisition_basis_transitions=tuple(basis_transitions),
+                candidate_basis_transitions=tuple(candidate_transitions),
             )
             # The preceding call verified this exact immutable source/event/
             # predecessor relation. Reload its typed body for the basis fold;
@@ -943,7 +1245,7 @@ class AcquisitionRouteLoop:
                 )
             )
             basis_transitions.append(transition)
-        return selected_run, selected_cycle, tuple(basis_transitions)
+        return selected_run, selected_cycle, tuple(basis_transitions), tuple(candidate_transitions)
 
     def _verified_reentry_source(
         self,
@@ -957,6 +1259,7 @@ class AcquisitionRouteLoop:
         route_id: str,
         source_job_id: str,
         acquisition_basis_transitions: tuple[AcquisitionOverlayReentryReceipt, ...] = (),
+        candidate_basis_transitions: tuple[CandidateSourceReentryReceipt, ...] = (),
     ) -> tuple[GenerationCycleRun, GenerationCycleRecord]:
         """Verify owner persistence, event scope, growth binding, and append-only N4 history."""
 
@@ -1101,6 +1404,7 @@ class AcquisitionRouteLoop:
                         design_problem=design_problem,
                         design_problem_ref=design_problem_ref,
                         acquisition_basis_transitions=acquisition_basis_transitions,
+                        candidate_basis_transitions=candidate_basis_transitions,
                     )
                 )
                 or reentry.overlay_receipt_ref

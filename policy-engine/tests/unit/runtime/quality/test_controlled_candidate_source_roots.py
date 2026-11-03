@@ -27,6 +27,7 @@ from tests._helpers.controlled_candidate_profile import (
     _build_configured_procurement_profile,
     _capture_controlled_skg_source,
     _controlled_profile_cycle_basis,
+    _controlled_selected_slot_specs,
     _materialize_controlled_world_model_build,
     _problem,
     _seed_controlled_candidate_l6_source,
@@ -178,7 +179,7 @@ def test_configured_no_selection_seeds_the_independently_admitted_root(
     output_root = tmp_path / "profile-output"
     l6_source_root = _seed_controlled_candidate_l6_source(tmp_path / "admitted-l6-input")
     l6_before = _input_tree(l6_source_root)
-    profile, _declaration, built = _build_configured_procurement_profile(
+    profile, declaration, built = _build_configured_procurement_profile(
         recorded_problem=_problem("configured_source_roots"),
         artifact_store=store,
         tenant_id=_TENANT,
@@ -190,6 +191,10 @@ def test_configured_no_selection_seeds_the_independently_admitted_root(
     source = _capture_controlled_skg_source(source_root / "academic-skg.duckdb")
     observed = _reopen(store, built)
     assert observed == profile.context_inputs.world_model_record
+    units = {slot.slot_id: slot.unit for slot in observed.policy_slot_map}
+    assert units[declaration.target_world_slot] == declaration.target_unit_id
+    assert units[declaration.outcome_variable] == declaration.outcome_unit_id
+    assert declaration.assumption == "declared_candidate_scm_not_empirically_grounded"
     assert observed.skg_causal_prior_ref.skg_snapshot_ref == source.snapshot_ref
     assert observed.skg_causal_prior_ref.skg_version_id == str(source.version_id)
     bundle = profile.context_inputs.intervention_substrate
@@ -305,3 +310,68 @@ def test_materializer_rejects_changed_bytes_then_reopens_restored_source(
         selected=source,
     )
     assert _reopen(store, built).skg_causal_prior_ref.skg_snapshot_ref == source.snapshot_ref
+
+
+def test_selected_registry_retains_unknown_units_without_an_explicit_model_assumption() -> None:
+    """Historical canonical unknowns do not inherit a fabricated fixture default."""
+    from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+
+    selected = _controlled_selected_slot_specs(
+        policy_slot_ids=("cells.distress_score",),
+        declared_ncm_outcomes=frozenset(),
+        candidate_baseline_state=None,
+        candidate_outcome_state_paths=None,
+    )
+    assert selected["cells.distress_score"].unit is None
+    assert DEFAULT_SLOT_REGISTRY.slots["cells.distress_score"].unit is None
+
+
+def test_explicit_model_units_do_not_mutate_canonical_slots() -> None:
+    """Only the selected candidate view carries the declared synthetic-model unit."""
+    from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+
+    selected = _controlled_selected_slot_specs(
+        policy_slot_ids=("cells.distress_score", "employment_retention"),
+        declared_ncm_outcomes=frozenset({"employment_retention"}),
+        candidate_baseline_state={"employment_retention": 0.0},
+        candidate_outcome_state_paths=None,
+        candidate_model_unit_ids={
+            "cells.distress_score": "synthetic_score",
+            "employment_retention": "synthetic_score",
+        },
+    )
+    assert selected["cells.distress_score"].unit.unit_id == "synthetic_score"
+    assert selected["employment_retention"].unit.unit_id == "synthetic_score"
+    assert DEFAULT_SLOT_REGISTRY.slots["cells.distress_score"].unit is None
+    assert DEFAULT_SLOT_REGISTRY.slots["cells.employment"].unit is None
+
+
+def test_selected_registry_refuses_a_conflicting_known_canonical_unit() -> None:
+    """A synthetic declaration cannot overwrite a known canonical unit."""
+    with pytest.raises(ValueError, match="controlled_wmr_registered_model_unit_mismatch"):
+        _controlled_selected_slot_specs(
+            policy_slot_ids=("global.tax_rate",),
+            declared_ncm_outcomes=frozenset(),
+            candidate_baseline_state=None,
+            candidate_outcome_state_paths=None,
+            candidate_model_unit_ids={"global.tax_rate": "usd"},
+        )
+
+
+@pytest.mark.parametrize(
+    "model_units",
+    [
+        {"other.slot": "synthetic_score"},
+        {"cells.distress_score": ""},
+        {"cells.distress_score": None},
+    ],
+)
+def test_selected_registry_refuses_unselected_or_invalid_model_units(model_units: Any) -> None:
+    with pytest.raises(ValueError, match=r"controlled_wmr_.*model_unit"):
+        _controlled_selected_slot_specs(
+            policy_slot_ids=("cells.distress_score",),
+            declared_ncm_outcomes=frozenset(),
+            candidate_baseline_state=None,
+            candidate_outcome_state_paths=None,
+            candidate_model_unit_ids=model_units,
+        )

@@ -7,6 +7,7 @@ from typing import Any
 
 import pytest
 
+from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.interventions import (
     InterventionContext,
@@ -37,11 +38,14 @@ from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality import intervention_atom_binding as atom_binding_owner
 from polisyos.runtime.quality.intervention_atom_binding import (
     INTERVENTION_ATOM_BINDING_SCHEMA_VERSION,
+    CausalAssignmentProjection,
     InterventionAtomBinding,
     InterventionAtomBindingError,
     _content_payload_from_fields,
     build_intervention_atom_binding,
     consume_intervention_atom_for_cycle,
+    derive_candidate_scenario_atom,
+    derive_candidate_scenario_numeric_atom,
     intervention_atom_target_selector_ref,
     persist_intervention_atom_binding,
 )
@@ -209,6 +213,85 @@ def test_candidate_action_binds_to_content_addressed_atom_and_round_trips() -> N
     assert causal_round_trip.model_dump(mode="json") == causal.model_dump(mode="json")
 
 
+@pytest.mark.parametrize("value", [0.5, 2, "0.5", True])
+def test_node_assignment_preserves_scalar_type_through_atom_and_fresh_cas(
+    tmp_path: Path, value: str | int | float | bool
+) -> None:
+    """The runtime projection accepts the proof kernel's real finite scalar domain."""
+    causal = NodeIntervention(
+        assignments=(VariableAssignment(variable="agents.income", value=value),)
+    )
+    atom = _build_atom(causal=causal)
+    projected = atom.causal_do_expr.assignments[0].value
+    assert type(projected) is type(value)
+    assert projected == value
+    writer = FileSystemCAS(tmp_path / "atom-cas")
+    ref = persist_intervention_atom_binding(writer, atom)
+    reader = FileSystemCAS(tmp_path / "atom-cas")
+    restored = InterventionAtomBinding.model_validate(read_core_json_artifact(reader, ref).value)
+    assert restored.content_hash == atom.content_hash
+    assert type(restored.causal_do_expr.assignments[0].value) is type(value)
+    assert restored.to_node_intervention().model_dump(mode="json") == causal.model_dump(mode="json")
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+def test_nonfinite_float_assignment_refuses_before_content_binding(value: float) -> None:
+    """A nonfinite value never becomes a persistable causal projection."""
+    with pytest.raises(ValueError, match="causal_assignment_non_finite"):
+        CausalAssignmentProjection(variable="agents.income", value=value)
+
+
+def _single_target_numeric_atom() -> InterventionAtomBinding:
+    """Build a content-valid one-target fixture for the shared derivation owner."""
+    causal = NodeIntervention(assignments=(VariableAssignment(variable="agents.income", value=0),))
+    source = _build_atom(causal=causal)
+    fields = source.model_dump(mode="python", exclude={"atom_id", "content_hash"})
+    fields["target_world_slots"] = ("agents.income",)
+    content_hash = gy_content_hash(_content_payload_from_fields(fields))
+    return InterventionAtomBinding.model_validate(
+        {
+            **fields,
+            "atom_id": f"atom_{content_hash.removeprefix('sha256:')[:16]}",
+            "content_hash": content_hash,
+        }
+    )
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [(2, 2), (0.5, 0.5), (Decimal("0.10000000000000000001"), "0.10000000000000000001")],
+)
+def test_numeric_candidate_derivation_reuses_content_bound_owner(
+    value: int | float | Decimal, expected: int | float | str
+) -> None:
+    """Finite scalars preserve exact source representation without changing the source atom."""
+    source = _single_target_numeric_atom()
+    before = source.model_dump(mode="json")
+    result = derive_candidate_scenario_numeric_atom(
+        source, target_world_slot="agents.income", value=value
+    )
+    assignment = result.to_node_intervention().assignments[0]
+    assert type(assignment.value) is type(expected)
+    assert assignment.value == expected
+    assert result.causal_do_expr.assignments[0].value == expected
+    assert source.model_dump(mode="json") == before
+    if type(value) is int:
+        assert result == derive_candidate_scenario_atom(
+            source, target_world_slot="agents.income", value=value
+        )
+
+
+@pytest.mark.parametrize("value", [True, float("nan"), float("inf"), Decimal("NaN")])
+def test_numeric_candidate_derivation_rejects_boolean_or_nonfinite(value: object) -> None:
+    """Unusable values never produce a derived candidate."""
+    with pytest.raises(
+        InterventionAtomBindingError, match="candidate_scenario_value_not_finite_numeric"
+    ):
+        derive_candidate_scenario_numeric_atom(
+            _single_target_numeric_atom(), target_world_slot="agents.income", value=value
+        )
+
+
 def test_atom_persists_as_a_typed_artifact(tmp_path) -> None:
     atom = _build_atom()
     store = FileSystemCAS(tmp_path / "cas")
@@ -366,13 +449,13 @@ def test_frozen_n4_null_normalization_rows_keep_historical_hashes(
     atom_id: str,
     content_hash: str,
 ) -> None:
-    repo_root = Path(__file__).resolve().parents[4]
-    payload = json.loads(
-        (
-            repo_root / "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
-        ).read_text(encoding="utf-8")
+    tests_root = Path(__file__).resolve().parents[3]
+    historical_rows = json.loads(
+        (tests_root / "fixtures/runtime_quality/n4_historical_atoms.json").read_text(
+            encoding="utf-8"
+        )
     )
-    row = payload["generation_results"][1]["candidates"][candidate_index]["atom"]
+    row = historical_rows[candidate_index]
 
     assert row["normalized_from"] is None
     atom = InterventionAtomBinding.model_validate(row)

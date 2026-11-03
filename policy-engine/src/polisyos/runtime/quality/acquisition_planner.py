@@ -2696,6 +2696,12 @@ def run_acquisition_closed_loop(
     """
 
     request = dict(acquisition_request)
+    if request.get("n7_source_join_rule") == _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE:
+        # This legacy loop dispatches every report row against compiler specs.
+        # The accompanying COV row is an independent, still-unsatisfied
+        # obligation without such a spec; only the candidate route owner may
+        # select the validated L1 row for its own scoped dispatch.
+        raise AcquisitionPlannerBindingError("n7_mixed_obligation_dispatch_not_established")
     cycle_index = _cycle_index_from_request(request)
     world = (
         world_snapshot
@@ -3170,6 +3176,7 @@ def validate_acquisition_receipt(
         for row in normalized.planner_report.acquisition_records
     ):
         issues.append({"code": "n7_candidate_receipt_source_gap_missing"})
+    verified_mixed_obligation_count = 0
     if joined:
         raw_ref = normalized.acquisition_request.get("n7_candidate_source_ref")
         if raw_ref is None or artifact_store is None:
@@ -3200,6 +3207,12 @@ def validate_acquisition_receipt(
                     report=normalized.planner_report,
                     require_current=False,
                 )
+                if source_rule == _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE:
+                    # The checkpoint verifier has independently matched this
+                    # entire ordered list to the selected cycle's observations.
+                    verified_mixed_obligation_count = len(
+                        normalized.acquisition_request["accompanying_requirement_gaps"]
+                    )
             except Exception as exc:
                 issues.append(
                     {
@@ -3209,8 +3222,8 @@ def validate_acquisition_receipt(
                 )
     if normalized.compiled_spec_count != len(normalized.compiled_requirement_specs):
         issues.append({"code": "acquisition_compiled_first_gap_only"})
-    if len(normalized.planner_report.acquisition_records) != len(
-        normalized.compiled_requirement_specs
+    if len(normalized.planner_report.acquisition_records) != (
+        len(normalized.compiled_requirement_specs) + verified_mixed_obligation_count
     ):
         issues.append({"code": "acquisition_compiled_first_gap_only"})
     for artifact in normalized.owner_artifacts:
@@ -5103,9 +5116,104 @@ def _n7_planner_join_records_match(
     return expected.acquisition_records == report.acquisition_records
 
 
+def _n7_candidate_n5_l1_obligation_gaps(
+    *,
+    source_gap: AcquisitionRequirementGap,
+    accompanying_requirement_gaps: Sequence[AcquisitionRequirementGap],
+    specs: Sequence[object],
+    capability_resolutions: Sequence[CapabilityRequirementResolution] | None,
+) -> tuple[AcquisitionGap, ...]:
+    """Project the exact L1 descriptor join and preserve a separate COV demand.
+
+    This projection does not establish the source cycle or satisfy either
+    obligation. Its caller must reconcile the ordered accompanying list with
+    the selected cycle's actual grounding observation.
+    """
+    if not isinstance(source_gap, AcquisitionRequirementGap):
+        raise ValueError("n7_candidate_n5_l1_obligations_invalid")
+    source = AcquisitionRequirementGap.model_validate(source_gap.model_dump(mode="json"))
+    if (
+        source.requirement_schema_version != "policyos.runtime.l1_variable_availability_gap.v1"
+        or source.metadata.get("source") != "l1_dcat_variable_availability"
+        or isinstance(accompanying_requirement_gaps, str | bytes | bytearray)
+        or len(accompanying_requirement_gaps) > 1
+    ):
+        raise ValueError("n7_candidate_n5_l1_obligations_invalid")
+    companions: list[AcquisitionRequirementGap] = []
+    for item in accompanying_requirement_gaps:
+        if not isinstance(item, AcquisitionRequirementGap):
+            raise ValueError("n7_candidate_n5_l1_companion_invalid")
+        companion = AcquisitionRequirementGap.model_validate(item.model_dump(mode="json"))
+        if (
+            companion.requirement_schema_version != _GROUNDING_COVERAGE_SCHEMA_VERSION
+            or companion.metadata.get("source") != _GROUNDING_COVERAGE_SOURCE
+            or companion.metadata.get("candidate_binding")
+            != source.metadata.get("candidate_binding")
+            or companion.authority_level != source.authority_level
+        ):
+            raise ValueError("n7_candidate_n5_l1_companion_invalid")
+        companions.append(companion)
+    compiler_gaps, routing_error = _n7_route_compiler_gaps(
+        source_gap=source,
+        specs=specs,
+        capability_resolutions=capability_resolutions,
+        require_descriptor_join=True,
+    )
+    if routing_error is not None:
+        raise ValueError("n7_candidate_n5_l1_compiler_join_not_established")
+    if any(
+        companion.requirement_gap_id == gap.requirement_gap_id
+        or companion.compiled_requirement_ref == gap.compiled_requirement_ref
+        for companion in companions
+        for gap in compiler_gaps
+    ):
+        raise ValueError("n7_candidate_n5_l1_companion_duplicate")
+    planning = _n7_source_semantic_planning_gaps(
+        source_gap=source,
+        compiler_gaps=compiler_gaps,
+        specs=specs,
+    )
+    return (*planning, *(gap.to_acquisition_gap() for gap in companions))
+
+
+def _n7_candidate_n5_l1_planner_records_match(
+    *,
+    source_gap: AcquisitionRequirementGap,
+    accompanying_requirement_gaps: Sequence[AcquisitionRequirementGap],
+    specs: Sequence[object],
+    capability_resolutions: Sequence[CapabilityRequirementResolution] | None,
+    report: AcquisitionPlannerReport,
+) -> bool:
+    """Replay every mixed-obligation planner row from its typed inputs."""
+    try:
+        planning = _n7_candidate_n5_l1_obligation_gaps(
+            source_gap=source_gap,
+            accompanying_requirement_gaps=accompanying_requirement_gaps,
+            specs=specs,
+            capability_resolutions=capability_resolutions,
+        )
+        expected = plan_evidence_acquisition(
+            run_id=report.run_id,
+            gaps=planning,
+            generated_at=report.generated_at,
+            requirement_basis_binding=report.requirement_basis_binding,
+        )
+        excluded_bindings = {"planning_context_hash", "planning_binding_hash"}
+        return _n7_exact_wire(expected.model_dump(mode="json", exclude=excluded_bindings)) == (
+            _n7_exact_wire(report.model_dump(mode="json", exclude=excluded_bindings))
+        )
+    except (AttributeError, TypeError, ValueError):
+        return False
+
+
 _N7_SOURCE_JOIN_RULE = "policyos.runtime.n7_source_compiler_join.v1"
 _N7_SOURCE_DESCRIPTOR_JOIN_RULE = "policyos.runtime.n7_source_compiler_descriptor_join.v1"
-_N7_SOURCE_JOIN_RULES = (_N7_SOURCE_JOIN_RULE, _N7_SOURCE_DESCRIPTOR_JOIN_RULE)
+_N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE = "policyos.runtime.n7_candidate_n5_l1_obligations.v1"
+_N7_SOURCE_JOIN_RULES = (
+    _N7_SOURCE_JOIN_RULE,
+    _N7_SOURCE_DESCRIPTOR_JOIN_RULE,
+    _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE,
+)
 
 
 def _n7_legacy_planner_records_match(
@@ -5405,16 +5513,54 @@ def _n7_validate_candidate_checkpoint(
         raise ValueError("n7_candidate_source_cycle_mismatch")
     ground_gap = source_ground.get("acquisition_requirement")
     value_gap = source_value.get("acquisition_requirement")
-    observed_gap = ground_gap if ground_gap is not None else value_gap
-    source_issues = (
-        *source_ground.get("issue_codes", ()),
-        *source_value.get("authority_blockers", ()),
-    )
-    if (
-        _n7_exact_wire(observed_gap) != _n7_exact_wire(gap.model_dump(mode="json"))
-        or request_in_cycle.get("driver") not in source_issues
-        or run_id != f"n7-cycle:{problem.design_problem_id}:{checkpoint.cycle_index}"
-    ):
+    mixed_rule = source_join_rule == _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE
+    if source_value.get("candidate_n5_l1_routing") is not None and not mixed_rule:
+        raise ValueError("n7_candidate_source_rule_mismatch")
+    accompanying: tuple[AcquisitionRequirementGap, ...] = ()
+    if mixed_rule:
+        # The cycle owner validates the selected N4/context/N5 references and
+        # reconstructs COV from the actual grounding fields. The request's
+        # ordered list is not an independent source of these obligations.
+        from polisyos.runtime.quality.generation_cycle import (
+            GenerationCycleRecord,
+            _n7_cycle_source_gap,
+        )
+
+        try:
+            selected_cycle = GenerationCycleRecord.model_validate(cycle)
+            observed_gap, refusal = _n7_cycle_source_gap(
+                problem,
+                cycle=selected_cycle,
+                acquisition_request=request_in_cycle,
+            )
+            raw_companions = request_in_cycle.get("accompanying_requirement_gaps")
+            if not isinstance(raw_companions, list):
+                raise ValueError("n7_candidate_source_companions_untyped")
+            accompanying = tuple(
+                AcquisitionRequirementGap.model_validate(item) for item in raw_companions
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("n7_candidate_source_port_mismatch") from exc
+        if (
+            refusal is not None
+            or observed_gap is None
+            or _n7_exact_wire(observed_gap.model_dump(mode="json"))
+            != _n7_exact_wire(gap.model_dump(mode="json"))
+            or request_in_cycle.get("driver") != "acquire_data:value_panel_data_missing"
+        ):
+            raise ValueError("n7_candidate_source_port_mismatch")
+    else:
+        observed_gap = ground_gap if ground_gap is not None else value_gap
+        source_issues = (
+            *source_ground.get("issue_codes", ()),
+            *source_value.get("authority_blockers", ()),
+        )
+        if (
+            _n7_exact_wire(observed_gap) != _n7_exact_wire(gap.model_dump(mode="json"))
+            or request_in_cycle.get("driver") not in source_issues
+        ):
+            raise ValueError("n7_candidate_source_port_mismatch")
+    if run_id != f"n7-cycle:{problem.design_problem_id}:{checkpoint.cycle_index}":
         raise ValueError("n7_candidate_source_port_mismatch")
     from polisyos.core.artifacts import load_core_json_artifact
 
@@ -5422,25 +5568,37 @@ def _n7_validate_candidate_checkpoint(
     if basis is None or _validate_persisted_data_requirement_compilation_report(
         store=store,
         binding=basis,
-        require_selected_writer_profile=source_join_rule == _N7_SOURCE_DESCRIPTOR_JOIN_RULE,
+        require_selected_writer_profile=source_join_rule
+        in {_N7_SOURCE_DESCRIPTOR_JOIN_RULE, _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE},
     ):
         raise ValueError("n7_candidate_source_compiler_basis_missing")
     compiler_report = DataRequirementCompilationReport.model_validate(
         load_core_json_artifact(store, basis.compiler_report_ref)
     )
     typed_specs = tuple(DataRequirementSpec.model_validate(_spec_payload(spec)) for spec in specs)
-    if (
-        compiler_report.scenario_id != problem.design_problem_id
-        or _n7_exact_wire([spec.model_dump(mode="json") for spec in compiler_report.specs])
-        != _n7_exact_wire([spec.model_dump(mode="json") for spec in typed_specs])
-        or compiler_report.capability_requirement_resolutions != capability_resolutions
-        or not _n7_planner_join_records_match(
+    records_match = (
+        _n7_candidate_n5_l1_planner_records_match(
+            source_gap=gap,
+            accompanying_requirement_gaps=accompanying,
+            specs=compiler_report.specs,
+            capability_resolutions=compiler_report.capability_requirement_resolutions,
+            report=report,
+        )
+        if mixed_rule
+        else _n7_planner_join_records_match(
             source_gap=gap,
             specs=compiler_report.specs,
             capability_resolutions=compiler_report.capability_requirement_resolutions,
             report=report,
             require_descriptor_join=source_join_rule == _N7_SOURCE_DESCRIPTOR_JOIN_RULE,
         )
+    )
+    if (
+        compiler_report.scenario_id != problem.design_problem_id
+        or _n7_exact_wire([spec.model_dump(mode="json") for spec in compiler_report.specs])
+        != _n7_exact_wire([spec.model_dump(mode="json") for spec in typed_specs])
+        or compiler_report.capability_requirement_resolutions != capability_resolutions
+        or not records_match
     ):
         raise ValueError("n7_candidate_source_compiler_projection_mismatch")
     return gap

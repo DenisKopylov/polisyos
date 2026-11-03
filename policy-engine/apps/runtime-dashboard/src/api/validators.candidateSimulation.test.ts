@@ -1,5 +1,9 @@
 import { failedCandidateSimulationFixture } from "@/test/fixtures/failedCandidateSimulation";
-import { runDetailsSchema } from "./validators";
+import {
+  runDetailsSchema,
+  runCandidateSimulationCurrentOccurrenceSchema,
+  runCandidateSourceCurrentProjectionSchema,
+} from "./validators";
 
 function response(candidate: unknown) {
   return {
@@ -19,6 +23,56 @@ function response(candidate: unknown) {
 }
 
 describe("retained candidate simulation wire", () => {
+  it("keeps v5 numbers bound to artifact epoch 5 rather than accepting mixed epochs", () => {
+    const fixture = failedCandidateSimulationFixture();
+    const body = fixture.n5_observations[0]!.result_body;
+    body.artifact_schema_version = "5.0.0";
+    body.result_schema_version = "policyos.runtime.joint_simulation_horizon.v5";
+    const parsed = runDetailsSchema.parse(response(fixture)).run
+      .candidate_simulation;
+    expect(parsed?.n5_observations[0]?.result_body?.result_schema_version).toBe(
+      "policyos.runtime.joint_simulation_horizon.v5",
+    );
+    body.artifact_schema_version = "4.0.0";
+    expect(runDetailsSchema.safeParse(response(fixture)).success).toBe(false);
+  });
+
+  it("requires a complete declared unit map and its exact selected declaration view", () => {
+    const fixture = failedCandidateSimulationFixture();
+    const body = fixture.n5_observations[0]!.result_body;
+    const declaration = {
+      artifact_id: "sha256:" + "e".repeat(64),
+      kind: "runtime.quality.candidate_simulation_model_declaration",
+      media_type: "application/json",
+      manifest_profile_sha256: "sha256:" + "f".repeat(64),
+    };
+    Object.assign(body, {
+      outcome_units: { "government.balance": "declared_currency_unit" },
+      unit_provenance: "declared_candidate_model",
+      model_declaration_ref: declaration,
+    });
+    const parsed = runDetailsSchema.parse(response(fixture)).run
+      .candidate_simulation;
+    expect(parsed?.n5_observations[0]?.result_body?.outcome_units).toEqual({
+      "government.balance": "declared_currency_unit",
+    });
+    const positive = structuredClone(body);
+    for (const change of [
+      { outcome_units: {} },
+      { outcome_units: { "foreign.outcome": "declared_currency_unit" } },
+      {
+        model_declaration_ref: {
+          ...declaration,
+          manifest_profile_sha256: null,
+        },
+      },
+      { unit_provenance: "not_established" },
+    ]) {
+      fixture.n5_observations[0]!.result_body = { ...positive, ...change };
+      expect(runDetailsSchema.safeParse(response(fixture)).success).toBe(false);
+    }
+  });
+
   it("retains exact finite numbers and failed-cycle boundaries", () => {
     const fixture = failedCandidateSimulationFixture();
     const projection = runDetailsSchema.parse(response(fixture)).run
@@ -285,5 +339,296 @@ describe("retained candidate simulation wire", () => {
     const fixture = failedCandidateSimulationFixture();
     mutate(fixture);
     expect(runDetailsSchema.safeParse(response(fixture)).success).toBe(false);
+  });
+});
+
+function recordedLocalAttemptFixture() {
+  return {
+    node_ref: "design-problem://attempt",
+    candidate_id: "candidate-refused",
+    candidate_content_hash: "sha256:" + "a".repeat(64),
+    cycle_index: 2,
+    problem_ref: "sha256:" + "b".repeat(64),
+    attempt_ref: "sha256:" + "c".repeat(64),
+    failure_stage: "n8",
+    simulation_status: "joint_simulated",
+    simulation_authority_blockers: ["simulation_only_k_sim_not_world_evidence"],
+    value_status: "value_blocked",
+    value_decision_grade: "blocked",
+    value_authority_blockers: ["candidate_value_unavailable"],
+    simulation_result_ref: {
+      artifact_id: "sha256:" + "d".repeat(64),
+      kind: "polisyos.runtime.joint_simulation_result",
+      media_type: "application/json",
+    },
+  };
+}
+
+function compiledAttemptProjection(attempt: unknown) {
+  return {
+    schema_version: "policyos.runtime.run_candidate_simulation_projection.v1",
+    run_id: "run-1",
+    artifact_status: "resolved",
+    source_ref: {
+      artifact_id: "sha256:" + "e".repeat(64),
+      kind: "runtime.compiled_recursive_generation_cycle",
+      media_type: "application/json",
+    },
+    source_content_hash: "sha256:" + "e".repeat(64),
+    candidate_evaluation_attempts: [attempt],
+  };
+}
+
+describe("recorded local attempt wire", () => {
+  it("keeps a completed N5 observation distinct from its N8 refusal", () => {
+    const projection = runDetailsSchema.parse(
+      response(compiledAttemptProjection(recordedLocalAttemptFixture())),
+    ).run.candidate_simulation;
+    if (
+      projection?.schema_version !==
+      "policyos.runtime.run_candidate_simulation_projection.v1"
+    )
+      throw new Error("wrong projection");
+    const attempt = projection.candidate_evaluation_attempts![0]!;
+    expect(attempt.simulation_status).toBe("joint_simulated");
+    expect(attempt.value_status).toBe("value_blocked");
+    expect(attempt.simulation_result_ref?.artifact_id).toBe(
+      "sha256:" + "d".repeat(64),
+    );
+    expect(attempt.numerical_result_verification).toBe("not_established");
+    expect(attempt.publication_authority).toBe(false);
+  });
+
+  it.each([
+    { failure_stage: "n5" },
+    { simulation_status: "simulation_pending_n5" },
+    { value_status: "value_ready" },
+    { failure_scope: "shared" },
+    { scope: "execution_reservation" },
+    { numerical_result_verification: "recomputed" },
+    { publication_authority: true },
+    {
+      simulation_result_ref: {
+        artifact_id: "sha256:" + "d".repeat(64),
+        kind: "foreign.artifact",
+        media_type: "application/json",
+      },
+    },
+  ])("refuses corrupted failure or borrowed authority %j", (change) => {
+    const projection = compiledAttemptProjection({
+      ...recordedLocalAttemptFixture(),
+      ...change,
+    });
+    expect(runDetailsSchema.safeParse(response(projection)).success).toBe(
+      false,
+    );
+  });
+
+  it("withholds attempts when the compiled source is not resolved", () => {
+    const projection = {
+      ...compiledAttemptProjection(recordedLocalAttemptFixture()),
+      artifact_status: "not_established",
+    };
+    expect(runDetailsSchema.safeParse(response(projection)).success).toBe(
+      false,
+    );
+  });
+});
+
+function candidateBasisOccurrenceFixture() {
+  const limitation = "candidate_source_basis_prior_occurrence_not_revalidated";
+  return {
+    candidate_id: "historically-accepted",
+    cycle_index: 1,
+    content_hash: "sha256:" + "a".repeat(64),
+    source_content_hash: null,
+    front: "research",
+    certified_by_n9: false,
+    candidate_basis_cycle_index: 2,
+    candidate_basis_content_hash: "sha256:" + "b".repeat(64),
+    candidate_basis_status: "prior_basis_not_revalidated",
+    candidate_basis_limitation_code: limitation,
+    historical_front: "decision",
+    historical_certified_by_n9: true,
+    historical_value_status: "value_ready",
+    historical_value_decision_grade: "high",
+    historical_value_ref: "value://original",
+    historical_value_blockers: [],
+    value_status: "value_pending_n8",
+    value_blockers: [limitation],
+  };
+}
+
+function candidateCurrentViewFixture() {
+  return {
+    status: "resolved",
+    generation_run_content_hash: "sha256:" + "c".repeat(64),
+    basis_cycle_index: 2,
+    basis_transition_content_hash: "sha256:" + "b".repeat(64),
+    occurrences: [candidateBasisOccurrenceFixture()],
+    fronts: {
+      decision_candidate_ids: [],
+      research_candidate_ids: ["historically-accepted"],
+      quarantine_candidate_ids: [],
+      portfolio_candidate_ids: [],
+    },
+  };
+}
+
+describe("candidate-basis current view", () => {
+  it("preserves original acceptance while withholding its old current certification and value", () => {
+    const row = runCandidateSimulationCurrentOccurrenceSchema.parse(
+      candidateBasisOccurrenceFixture(),
+    );
+    expect(row.historical_certified_by_n9).toBe(true);
+    expect(row.historical_value_status).toBe("value_ready");
+    expect(row.certified_by_n9).toBe(false);
+    expect(row.value_status).toBe("value_pending_n8");
+    const legacy = {
+      candidate_id: "legacy",
+      cycle_index: 0,
+      content_hash: "sha256:" + "d".repeat(64),
+      source_content_hash: null,
+      front: "decision",
+      certified_by_n9: true,
+    };
+    expect(runCandidateSimulationCurrentOccurrenceSchema.parse(legacy)).toEqual(
+      legacy,
+    );
+  });
+
+  it.each([
+    { front: "decision" },
+    { certified_by_n9: true },
+    { value_status: "value_ready" },
+    { value_ref: "value://original" },
+    { value_decision_grade: "high" },
+    { candidate_basis_status: "recorded_on_selected_basis" },
+    { candidate_basis_content_hash: null },
+    { candidate_basis_limitation_code: null },
+    { historical_certified_by_n9: null },
+    { historical_front: "quarantine" },
+    { cycle_index: 2 },
+    { value_blockers: [] },
+  ])("refuses an unqualified old current claim %j", (change) => {
+    expect(
+      runCandidateSimulationCurrentOccurrenceSchema.safeParse({
+        ...candidateBasisOccurrenceFixture(),
+        ...change,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("requires one complete view basis and full front denominator", () => {
+    const view = runCandidateSourceCurrentProjectionSchema.parse(
+      candidateCurrentViewFixture(),
+    );
+    expect(view.publication_authority).toBe(false);
+    expect(view.currentness_status).toBe("not_established");
+    for (const change of [
+      { basis_transition_content_hash: "sha256:" + "e".repeat(64) },
+      { generation_run_content_hash: null },
+      { certified_candidate_ids: ["historically-accepted"] },
+      {
+        occurrences: [
+          {
+            candidate_id: "historically-accepted",
+            cycle_index: 1,
+            content_hash: "sha256:" + "a".repeat(64),
+            source_content_hash: null,
+            front: "research",
+            certified_by_n9: false,
+          },
+        ],
+      },
+      {
+        fronts: {
+          ...candidateCurrentViewFixture().fronts,
+          quarantine_candidate_ids: ["foreign"],
+        },
+      },
+      { status: "not_established" },
+    ]) {
+      expect(
+        runCandidateSourceCurrentProjectionSchema.safeParse({
+          ...candidateCurrentViewFixture(),
+          ...change,
+        }).success,
+      ).toBe(false);
+    }
+    const unavailable = runCandidateSourceCurrentProjectionSchema.parse({
+      status: "not_established",
+      issues: ["candidate_source_current_owner_refused"],
+    });
+    expect(unavailable.occurrences).toEqual([]);
+    expect(unavailable.fronts).toBeUndefined();
+  });
+});
+
+describe("candidate acquisition lineage", () => {
+  it("keeps candidate-only blocked N5 and rejects observed admission or wrong source kinds", async () => {
+    const { runCandidateSimulationAcquisitionHistoryEntryV4Schema } =
+      await import("./validators");
+    const ref = (kind: string) => ({
+      artifact_id: "sha256:" + "1".repeat(64),
+      kind,
+      media_type: "application/json",
+      manifest_profile_sha256: "sha256:" + "f".repeat(64),
+    });
+    const row = {
+      schema_version:
+        "policyos.runtime.run_candidate_simulation_acquisition_history.v4",
+      route_receipt_ref: ref("runtime_quality.acquisition_route_loop_receipt"),
+      reentry_receipt_ref: ref(
+        "runtime_quality.candidate_source_reentry_receipt",
+      ),
+      route_id: "sha256:" + "2".repeat(64),
+      action_generation: 1,
+      terminal_outcome: "candidate_reentry_completed",
+      candidate_action_ref: ref(
+        "runtime_quality.acquisition_candidate_action_receipt",
+      ),
+      candidate_source_ref: ref("runtime.quality.candidate_acquisition_source"),
+      data_snapshot_ref: ref("fabric.data_snapshot"),
+      world_model_ref: ref("runtime.quality.world_model_record"),
+      context_job_ref: ref("runtime.quality.cycle_substrate_context_job"),
+      model_declaration_ref: ref(
+        "runtime.quality.candidate_simulation_model_declaration",
+      ),
+      ncm_ref: ref("ir.ncm_spec"),
+      n4_source_ref: null,
+      n5_input_ref: null,
+      n5_execution_ref: null,
+      n5_result_ref: null,
+      simulation_status: "simulation_blocked",
+      simulation_authority_blockers: ["blocked"],
+      source_cycle_index: 0,
+      continued_cycle_index: 1,
+      source_generation_run_content_hash: "sha256:" + "3".repeat(64),
+      continued_generation_run_content_hash: "sha256:" + "4".repeat(64),
+      basis_transition_content_hash: "sha256:" + "5".repeat(64),
+      limitations: ["candidate_only"],
+      observed_admission: false,
+      currentness_status: "not_established",
+      authority_purpose: "candidate_observation_only",
+      publication_authority: false,
+    };
+    expect(
+      runCandidateSimulationAcquisitionHistoryEntryV4Schema.parse(row)
+        .simulation_status,
+    ).toBe("simulation_blocked");
+    for (const change of [
+      { observed_admission: true },
+      { publication_authority: true },
+      { candidate_source_ref: ref("fabric.data_snapshot") },
+      { continued_cycle_index: 0 },
+    ]) {
+      expect(
+        runCandidateSimulationAcquisitionHistoryEntryV4Schema.safeParse({
+          ...row,
+          ...change,
+        }).success,
+      ).toBe(false);
+    }
   });
 });

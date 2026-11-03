@@ -9275,6 +9275,128 @@
           "seconds": 37.79,
           "peak_gib": 1.655,
           "scope": "Declared synthetic fiscal singleton, real N4/N5/fresh same-process app; explicit sample+aggregate removal controls. Historical ancestor profile selection and configured candidate reentry are not established."
+        },
+        "mixed_owner_r1": {
+          "output": "policy-engine/_cache/e02/lane01-cycle/candidate-mixed-owner-r1",
+          "observed": {
+            "PASS": 22
+          },
+          "named_inputs": 141,
+          "scope": "Actual L1 owner plus controlled N5-shaped checkpoint/planner/CAS and legacy-wire controls; not actual served N5 reentry."
+        },
+        "mixed_affected_r2": {
+          "output": "policy-engine/_cache/e02/lane01-cycle/candidate-mixed-owner-r2",
+          "observed": {
+            "PASS": 38,
+            "FAIL": 4
+          },
+          "named_inputs": 246,
+          "scope": "Mixed/legacy and selected-writer checks on recorded inputs; retains all fixture-stage failures."
+        },
+        "mixed_focused_r3": {
+          "output": "policy-engine/_cache/e02/lane01-cycle/candidate-mixed-owner-r3",
+          "observed": {
+            "PASS": 2,
+            "FAIL": 2
+          },
+          "named_inputs": 246,
+          "scope": "Generic real-worker suppression and persisted-v5 route pass; source/currentness/complete frontier not established."
+        },
+        "mixed_focused_r4": {
+          "output": "policy-engine/_cache/e02/lane01-cycle/candidate-mixed-owner-r4",
+          "observed": {
+            "PASS": 3,
+            "FAIL": 2
+          },
+          "named_inputs": 246,
+          "scope": "Explicit/implicit context selection, real-worker three-write suppression and no-callback side-effect control pass; two route diagnostics fail. Not genuine candidate-pending or full @3 qualification."
+        },
+        "runtime_api_families": {
+          "output": "policy-engine/_cache/e02/lane01-shared-generated/runtime-api-contract-r1",
+          "observed": {
+            "PASS": 1
+          },
+          "named_inputs": 252,
+          "seconds": 18.76,
+          "scope": "Normal OpenAPI drift/hardening and dashboard/canonical Runtime client-family freshness; not full runtime semantic qualification."
+        },
+        "abi_generation": {
+          "output": "policy-engine/_cache/e02/lane01-shared-generated/schema-write-r1",
+          "observed": {
+            "PASS": 1
+          },
+          "models": 115,
+          "file_updates": 0,
+          "scope": "Full registered ABI schema generation; no independent empirical or authority claim."
+        },
+        "public_inventory_sync": {
+          "output": "policy-engine/_cache/e02/lane01-shared-generated/public-sync-r2",
+          "observed": {
+            "PASS": 1
+          },
+          "named_inputs": 7,
+          "scope": "Normal public inventory/reference synchronization, explicitly preserving existing deep-import baseline."
+        },
+        "generic_fiscal_selected_family": {
+          "output": "policy-engine/_cache/e02/lane01-served/fiscal-selected-family-native-r1",
+          "observed": {
+            "PASS": 3
+          },
+          "named_inputs": 164,
+          "seconds": 40.88,
+          "peak_gib": 1.604,
+          "scope": "Actual generic fiscal N4/N5, exact selected parent/child context/profile/family ancestry and fresh same-process empty-config reader. Real capsule manifest removal/restoration; quota policy is None. Not configured CandidateV5, protected @3, V4 finite-policy capacity or scientific authority."
+        },
+        "route_compatibility_r7": {
+          "output": "policy-engine/_cache/e02/lane01-cycle/candidate-route-fixture-r7",
+          "observed": {
+            "PASS": 2
+          },
+          "named_inputs": 246,
+          "seconds": 80.81,
+          "scope": "Original supported-v1/persisted-v5 compiled-source pre-dispatch route fixtures with actual admitted Catalog and exact execution-scope refusal. Both are @1 route controls, not @2 terminals; only temporary diagnostic print was removed afterward."
+        },
+        "public_facade_identity": {
+          "output": "policy-engine/_cache/e02/lane01-shared-generated/new-facade-identity-r2",
+          "observed": {
+            "PASS": 1
+          },
+          "identity_links": 15,
+          "named_inputs": 9,
+          "scope": "Canonical object identity and unique export of nine Core, three Engine and three quality facade names."
+        },
+        "dashboard_typecheck": {
+          "output": "policy-engine/_cache/e02/lane01-shared-generated/dashboard-typecheck-r2",
+          "observed": {
+            "PASS": 1
+          },
+          "scope": "All three normal dashboard TypeScript configs. Earlier r1 failed on a missing required V3 display-fixture evaluation_provenance field; source/validator/schema were not weakened."
+        },
+        "dashboard_affected": {
+          "output": "policy-engine/_cache/e02/lane01-shared-generated/dashboard-affected-r1",
+          "observed": {
+            "PASS": 311
+          },
+          "named_inputs": 6,
+          "scope": "Both validator modules plus Overview consumers on current generated API and repaired display fixture."
+        },
+        "runtime_client": {
+          "outputs": [
+            "policy-engine/_cache/e02/lane01-shared-generated/runtime-client-tests-r1",
+            "policy-engine/_cache/e02/lane01-shared-generated/runtime-client-typecheck-r1"
+          ],
+          "observed": {
+            "PASS": 52
+          },
+          "scope": "Actual package-owned Node tests and separate SDK TypeScript; not endpoint/auth/deployment verification."
+        },
+        "static_architecture": {
+          "output": "policy-engine/_cache/e02/lane01-shared-generated/static-architecture-r1",
+          "observed": {
+            "FAIL": 1
+          },
+          "named_inputs": 7,
+          "scope": "Normal guardrail check with generated checks explicitly omitted. Deep-import baseline and new edges unresolved; no baseline waiver, inherited attribution or full freshness/main promotion."
         }
       },
       "independent_component_reviews": {
@@ -24940,7 +25062,7 @@
       "track_id": "01-A",
       "track_position": 1,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "lane01_requirements",
       "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
@@ -24969,7 +25091,9 @@
         "TEST-REQ-01-07",
         "TEST-REQ-01-08"
       ],
-      "evidence": [],
+      "evidence": [
+        "LANE-01.evidence_catalog.compiler_slot_calendar_planner"
+      ],
       "blockers": [],
       "deferred_ids": []
     },
@@ -24980,8 +25104,8 @@
       "track_id": "01-A",
       "track_position": 2,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "lane01_cycle + lane01_served",
       "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
       "integrated_commit": null,
@@ -25005,7 +25129,11 @@
         "TEST-CYC-01-05",
         "TEST-CYC-01-06"
       ],
-      "evidence": [],
+      "evidence": [
+        "LANE-01.evidence_catalog.generic_fiscal_strict_oracle",
+        "LANE-01.evidence_catalog.mixed_owner_r1",
+        "LANE-01.evidence_catalog.generic_fiscal_selected_family"
+      ],
       "blockers": [],
       "deferred_ids": [
         "DA-07"
@@ -25018,7 +25146,7 @@
       "track_id": "01-A",
       "track_position": 3,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "lane01_acquisition + lane01_cycle",
       "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
@@ -25042,7 +25170,11 @@
         "TEST-ACQ-01-05",
         "TEST-ACQ-01-06"
       ],
-      "evidence": [],
+      "evidence": [
+        "LANE-01.evidence_catalog.mixed_owner_r1",
+        "LANE-01.evidence_catalog.mixed_affected_r2",
+        "LANE-01.evidence_catalog.mixed_focused_r4"
+      ],
       "blockers": [],
       "deferred_ids": []
     },
@@ -25053,7 +25185,7 @@
       "track_id": "01-A",
       "track_position": 4,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "lane01_cycle + lane01_acquisition",
       "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
@@ -25077,7 +25209,9 @@
         "TEST-CYC-03-05",
         "TEST-CYC-03-06"
       ],
-      "evidence": [],
+      "evidence": [
+        "LANE-01.evidence_catalog.mixed_owner_r1"
+      ],
       "blockers": [],
       "deferred_ids": []
     },
@@ -25088,7 +25222,7 @@
       "track_id": "01-A",
       "track_position": 5,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "lane01_cycle",
       "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
@@ -25112,7 +25246,9 @@
         "TEST-CYC-04-05",
         "TEST-CYC-04-06"
       ],
-      "evidence": [],
+      "evidence": [
+        "LANE-01.evidence_catalog.mixed_affected_r2"
+      ],
       "blockers": [],
       "deferred_ids": []
     },
@@ -25123,7 +25259,7 @@
       "track_id": "01-A",
       "track_position": 6,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "lane01_cycle + lane01_served + lane01_readiness",
       "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
@@ -25149,7 +25285,11 @@
         "TEST-CYC-05-06",
         "TEST-CYC-05-07"
       ],
-      "evidence": [],
+      "evidence": [
+        "LANE-01.evidence_catalog.quota_historical_owner",
+        "LANE-01.evidence_catalog.quota_historical_affected",
+        "LANE-01.evidence_catalog.mixed_focused_r4"
+      ],
       "blockers": [],
       "deferred_ids": [
         "DA-06"
@@ -25162,8 +25302,8 @@
       "track_id": "01-A",
       "track_position": 7,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": "lane01_cycle",
       "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
       "integrated_commit": null,
@@ -25184,7 +25324,11 @@
         "TEST-CYC-02-04",
         "TEST-CYC-02-05"
       ],
-      "evidence": [],
+      "evidence": [
+        "LANE-01.evidence_catalog.generic_fiscal_strict_oracle",
+        "LANE-01.evidence_catalog.mixed_owner_r1",
+        "LANE-01.evidence_catalog.generic_fiscal_selected_family"
+      ],
       "blockers": [],
       "deferred_ids": [
         "DA-01",
@@ -25198,7 +25342,7 @@
       "track_id": "01-B",
       "track_position": 1,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "lane01_horizon;coupledpreflight numericalowner",
       "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
@@ -25218,7 +25362,9 @@
         "TEST-SIM-01-03",
         "TEST-SIM-01-04"
       ],
-      "evidence": [],
+      "evidence": [
+        "LANE-01.evidence_catalog.numeric_native"
+      ],
       "blockers": [],
       "deferred_ids": []
     },
@@ -25229,7 +25375,7 @@
       "track_id": "01-B",
       "track_position": 2,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "lane01_horizon",
       "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
@@ -25251,7 +25397,9 @@
         "TEST-SIM-02-04",
         "TEST-SIM-02-05"
       ],
-      "evidence": [],
+      "evidence": [
+        "LANE-01.evidence_catalog.numeric_native"
+      ],
       "blockers": [],
       "deferred_ids": []
     },
@@ -25262,7 +25410,7 @@
       "track_id": "01-B",
       "track_position": 3,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "lane01_horizon + lane01_numerics",
       "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
@@ -25286,7 +25434,10 @@
         "TEST-SIM-03-05",
         "TEST-SIM-03-06"
       ],
-      "evidence": [],
+      "evidence": [
+        "LANE-01.evidence_catalog.numeric_native",
+        "LANE-01.evidence_catalog.numeric_quantile_removal"
+      ],
       "blockers": [],
       "deferred_ids": []
     },
@@ -25297,7 +25448,7 @@
       "track_id": "01-C",
       "track_position": 1,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "lane01_selection",
       "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
@@ -25319,7 +25470,10 @@
         "TEST-SEL-01-04",
         "TEST-SEL-01-05"
       ],
-      "evidence": [],
+      "evidence": [
+        "LANE-01.evidence_catalog.selection_final",
+        "LANE-01.evidence_catalog.selection_final_catalog_drift"
+      ],
       "blockers": [],
       "deferred_ids": []
     },
@@ -30238,9 +30392,27 @@
     },
     {
       "lane": "LANE-01",
-      "commit": "containing_lane01_requirements_component_commit",
+      "commit": "b30cc6a944372b1cc7ef59a564ab5e56e3c1a7ba",
       "base_commit": "7b84873a4dc95f95f9fa79f38f2067150bf871e4",
       "result": "Released compiler/resolver/contracts/facades and draft governed descriptor inventory; unchanged authority result, full228 and final-data9 actualPASS; shared I01 route and G pending."
+    },
+    {
+      "lane": "LANE-01",
+      "commit": "8e954b949a7fd1b7dd3f984281a4517c093ef005",
+      "base_commit": "b30cc6a944372b1cc7ef59a564ab5e56e3c1a7ba",
+      "result": "Durable quota/reentry component; owner15, affected393 and native quota13 have distinct recorded scopes."
+    },
+    {
+      "lane": "LANE-01",
+      "commit": "80c02dd673f3d2f0b39c6ffc6b28013dfceb46f7",
+      "base_commit": "8e954b949a7fd1b7dd3f984281a4517c093ef005",
+      "result": "Compiler slot/calendar/planner component;261 local PASS; full Runtime composition separate."
+    },
+    {
+      "lane": "LANE-01",
+      "commit": "47e76a61612b633c1b83c5eee2e0e61d05b751e6",
+      "base_commit": "80c02dd673f3d2f0b39c6ffc6b28013dfceb46f7",
+      "result": "Historical quota witness and scoped N9 verifier component; published author ref readback matches commit/tree, Main unchanged."
     }
   ],
   "open_remainders_index": "E02-WORK-PLAN.md#open-remainders-across-completed-lanes"

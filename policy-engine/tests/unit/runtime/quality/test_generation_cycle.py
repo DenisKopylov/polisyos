@@ -3338,8 +3338,14 @@ def _owner_program_graph_n5_witness(
                 _put_snapshot_with_selected_blob_view,
             )
         with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
-            graph_plan = _program_graph_plan(case_root, store=store).model_copy(
-                update={"variable_map": {"firm_survival": "agents.income"}}
+            graph_plan = _program_graph_plan(case_root, store=store)
+            graph_plan = graph_plan.model_copy(
+                update={
+                    "variable_map": {"firm_survival": "agents.income"},
+                    "outcome_aggregations": {
+                        "firm_survival": graph_plan.outcome_aggregations["mean_income"]
+                    },
+                }
             )
             if select_program_graph_view:
                 graph_manifest = store.get_manifest(graph_plan.program_graph_ref)
@@ -11515,18 +11521,77 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.data_requirement import DataRequirementCompilationReport
+    from polisyos.runtime.quality.acquisition_planner import (
+        load_acquisition_planner_report,
+        validate_persisted_data_requirement_compilation_report,
+    )
     from tests._helpers.semantic_epoch_native import _real_epoch_scenario
     from tests.unit.runtime.quality.test_acquisition_executor import (
         _activate_real_epoch_scenario,
     )
 
     problem = _problem("ds15_active_overlay_reentry")
+    source_cas_path = tmp_path / ".tmp/active-overlay-n7-cas"
+    source_store = FileSystemCAS(source_cas_path)
     controller = GenerationCycleController(
         generation_port=_CgfGenerationPort(target_world_slots=("cells.distress_score",)),
         value_port=_OverlayDataGapValuePort(),
+        authority_scope="contract_testing",
+        repo_root=REPO_ROOT,
+        artifact_store=source_store,
     )
     source_run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
     source_cycle = source_run.cycles[0]
+    assert source_cycle.acquisition_routing_report is not None, (
+        source_cycle.counterexample.diagnostic.model_dump(mode="json")
+    )
+    assert source_cycle.acquisition_routing_report_ref is not None
+    source_gap = source_cycle.value_port.acquisition_requirement
+    assert source_gap is not None
+    assert source_gap.metadata["availability"]["variable_id"] == "cells.distress_score"
+
+    fresh_source_store = FileSystemCAS.open_existing_read_only(source_cas_path)
+    persisted_report = load_acquisition_planner_report(
+        fresh_source_store,
+        source_cycle.acquisition_routing_report_ref,
+    )
+    assert persisted_report == source_cycle.acquisition_routing_report
+    basis_binding = persisted_report.requirement_basis_binding
+    assert basis_binding is not None
+    assert (
+        validate_persisted_data_requirement_compilation_report(
+            fresh_source_store,
+            basis_binding,
+            require_selected_writer_profile=True,
+        )
+        == ()
+    )
+    compiler_report = DataRequirementCompilationReport.model_validate(
+        load_core_json_artifact(fresh_source_store, basis_binding.compiler_report_ref)
+    )
+    assert compiler_report.scenario_id == problem.design_problem_id
+    matching_records = tuple(
+        row
+        for row in persisted_report.acquisition_records
+        if source_gap.requirement_gap_id in row.scenario_requirement_refs
+    )
+    assert len(matching_records) == 1
+    distress_record = matching_records[0]
+    assert distress_record.compiled_requirement_ref is not None
+    assert distress_record.missing_requirement_fields == (
+        "required_data_family:cells.distress_score",
+    )
+    matching_specs = tuple(
+        spec
+        for spec in compiler_report.specs
+        if spec.requirement_id == distress_record.compiled_requirement_ref
+    )
+    assert len(matching_specs) == 1
+    assert matching_specs[0].required_data_families == ("cells.distress_score",)
+    assert source_cycle.acquisition_receipt is None
+
     scenario = _real_epoch_scenario(tmp_path / "epoch")
     _production, activated = _activate_real_epoch_scenario(scenario)
     observation_projection = scenario.overlay.read_activated_semantic_epoch_observations(
@@ -13769,6 +13834,27 @@ def test_n7_malformed_construct_alias_is_typed_refused(
 
     assert raised.value.code == "n7_cycle_substrate_context_invalid"
     assert "profile_constructs_wrong_type" in str(raised.value)
+
+
+@pytest.mark.parametrize(
+    ("domain", "reason"),
+    [("", "domain_empty"), (None, "domain_wrong_type")],
+)
+def test_n7_reports_compiler_domain_refusal_without_changing_candidate_request(
+    domain: object,
+    reason: str,
+) -> None:
+    """Malformed internal domain input remains an addressable compiler refusal."""
+    problem = _problem("n7_invalid_domain").model_copy(update={"domain": domain})
+    request = {"required_data_families": ["production_msme_panel"]}
+    with pytest.raises(generation_cycle_module.GenerationCycleError) as raised:
+        GenerationCycleController(authority_scope="contract_testing")._n7_data_requirement_basis(
+            problem, acquisition_request=request
+        )
+    assert raised.value.code == "n7_scenario_domain_invalid"
+    assert raised.value.source_refusal_code == "scenario_domain_input_invalid"
+    assert f"scenario_domain_input_invalid:{reason}:domain" in str(raised.value)
+    assert request == {"required_data_families": ["production_msme_panel"]}
 
 
 def test_n7_candidate_only_proposal_does_not_suppress_scope_fallback() -> None:

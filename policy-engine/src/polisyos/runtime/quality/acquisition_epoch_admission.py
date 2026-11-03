@@ -37,6 +37,7 @@ class AcquisitionEpochAdmissionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
     repo_root: Path
+    source_owner_root: Path | None = None
     authority_repo_root: Path
     baseline_path: Path
     cas_root: Path
@@ -95,6 +96,7 @@ def run_admission(
     deployment = build_semantic_epoch_native_deployment(config)
     receipt = acquisition_executor.admit_acquisition_with_production_semantic_epoch(
         repo_root=request.repo_root,
+        source_owner_root=request.source_owner_root,
         epoch_id=request.epoch_id,
         raw_evidence_ref=request.raw_evidence_ref,
         artifact_store=store,

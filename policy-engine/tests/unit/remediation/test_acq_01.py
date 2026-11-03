@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import json
 import os
-from collections.abc import Mapping
-from contextlib import contextmanager
+from collections.abc import Iterator, Mapping
+from contextlib import contextmanager, nullcontext
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
@@ -793,6 +793,197 @@ def _fixture_owner_artifact(
 
 
 @contextmanager
+def _published_worldbank_owner(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    artifact_store: ArtifactStore,
+) -> Iterator[Any]:
+    """Resolve and fetch the publisher fixture's own synthetic WDI observations."""
+    from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+    from polisyos.data_forge.domains.catalog.batch import graph_builder
+    from polisyos.data_forge.domains.catalog.batch.normalizer import normalize_worldbank
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+    from polisyos.fabric.retrieval.service import RetrievalService
+    from tests.unit.fabric.test_retrieval_fetch_custody import (
+        _build_full_published_catalog_fixture,
+        build_worldbank_fetch_owner,
+    )
+
+    publisher_root = tmp_path / "published-catalog"
+    publisher_root.mkdir(parents=True, exist_ok=True)
+    actual_fetch = WorldBankConnector.fetch
+    # The existing connector cassette supplies a second, genuinely distinct
+    # WDI target for the same-problem requirement-ID collision control.
+    with build_worldbank_fetch_owner(
+        tmp_path / "alternate-recorded-source", artifact_store=artifact_store
+    ) as recorded:
+        alternate_record = recorded.catalog_record.model_copy(deep=True)
+        alternate_plan = recorded.plan.model_copy(deep=True)
+    with monkeypatch.context() as publisher_patch:
+        build_graph = graph_builder.build_graph
+
+        def build_graph_with_normalized_wdi(*, records: Any, **kwargs: Any) -> Any:
+            # The shared publisher fixture constructs graph rows directly. Preserve
+            # the license from its actual harvested WDI row through the canonical
+            # normalizer before the graph and currentness receipts are produced.
+            raw_path = publisher_root / "snapshot/datasets/raw/worldbank/snapshot/payload.jsonl"
+            raw_rows = [json.loads(line) for line in raw_path.read_text().splitlines()]
+            selected = [row for row in raw_rows if row.get("id") == "NY.GDP.PCAP.PP.CD"]
+            if len(selected) != 1:
+                raise AssertionError("published_wdi_harvest_not_unique")
+            normalized = normalize_worldbank(selected[0])
+            if not normalized.access.license:
+                raise AssertionError("normalized_wdi_license_missing")
+
+            def retain_normalized_source_facet() -> Iterator[Any]:
+                matched = 0
+                for record in records:
+                    if (
+                        record.source == normalized.source
+                        and record.source_dataset_id == normalized.source_dataset_id
+                    ):
+                        matched += 1
+                        record = record.model_copy(
+                            update={
+                                "license": normalized.license,
+                                "access": record.access.model_copy(
+                                    update={"license": normalized.access.license}
+                                ),
+                            }
+                        )
+                    yield record
+                if matched != 1:
+                    raise AssertionError("published_wdi_graph_record_not_unique")
+                yield alternate_record
+
+            return build_graph(records=retain_normalized_source_facet(), **kwargs)
+
+        publisher_patch.setattr(graph_builder, "build_graph", build_graph_with_normalized_wdi)
+        publisher = _build_full_published_catalog_fixture(publisher_root, publisher_patch)
+        try:
+            with monkeypatch.context() as fetch_patch:
+                # The publisher fixture controls its fetch edge while building.
+                # Reentry exercises the real connector with its own recorded edge.
+                fetch_patch.setattr(WorldBankConnector, "fetch", actual_fetch)
+                with build_worldbank_fetch_owner(
+                    tmp_path / "worldbank-transport", artifact_store=artifact_store
+                ) as transport:
+                    rows = publisher.producer_graph._store._con.execute(
+                        "SELECT DISTINCT country_code, year, value FROM ds_observations "
+                        "WHERE raw_variable = ? ORDER BY country_code, year",
+                        ["NY.GDP.PCAP.PP.CD"],
+                    ).fetchall()
+                    if not rows:
+                        raise AssertionError("published_wdi_observations_missing")
+                    old_request = WorldBankConnector._request_json
+
+                    async def request_json(
+                        session: Any, url: str, *, params: Any, connector_id: str
+                    ):
+                        if not url.endswith("/indicator/NY.GDP.PCAP.PP.CD"):
+                            return await old_request(
+                                session, url, params=params, connector_id=connector_id
+                            )
+                        country_path = url.split("/country/", 1)[1].split("/indicator/", 1)[0]
+                        countries = set(country_path.upper().split(";"))
+                        selected_rows = [
+                            (country, year, value)
+                            for country, year, value in rows
+                            if "ALL" in countries or country in countries
+                        ]
+                        date_range = params.get("date")
+                        if date_range:
+                            start, _, end = str(date_range).partition(":")
+                            first, last = int(start), int(end or start)
+                            selected_rows = [
+                                row for row in selected_rows if first <= row[1] <= last
+                            ]
+                        page = int(params.get("page", "1"))
+                        per_page = int(params.get("per_page", "1000"))
+                        pages = max(1, (len(selected_rows) + per_page - 1) // per_page)
+                        page_rows = selected_rows[(page - 1) * per_page : page * per_page]
+                        iso3 = {"UA": "UKR", "DE": "DEU", "PL": "POL", "RO": "ROU", "MD": "MDA"}
+                        result = [
+                            {
+                                "indicator": {
+                                    "id": "NY.GDP.PCAP.PP.CD",
+                                    "value": "GDP per capita, PPP (synthetic fixture)",
+                                },
+                                "country": {"id": country, "value": country},
+                                "countryiso3code": iso3[country],
+                                "date": str(year),
+                                "value": value,
+                                "unit": "",
+                                "decimal": 0,
+                            }
+                            for country, year, value in page_rows
+                        ]
+                        body = [{"page": page, "pages": pages, "total": len(selected_rows)}, result]
+                        return body, {"ETag": '"published-fixture-1"'}, json.dumps(body).encode()
+
+                    fetch_patch.setattr(
+                        WorldBankConnector, "_request_json", staticmethod(request_json)
+                    )
+                    service = RetrievalService(
+                        curated_dir=tmp_path,
+                        artifact_store=artifact_store,
+                        dataset_catalog=publisher.producer_graph,
+                        providers=transport.providers,
+                    )
+                    need = DataNeed(
+                        metric="gdp_per_capita",
+                        geography="DE",
+                        time_start="2020",
+                        time_end="2020",
+                        granularity="annual",
+                        quality_min=0.7,
+                    )
+                    resolved = service.resolve(
+                        DataResolveRequest(
+                            data_needs=[need], mode="fastlane", allow_explore_fallback=False
+                        ),
+                        run_profile="prod_full",
+                    )
+                    if len(resolved.fetch_plans) != 1:
+                        raise AssertionError(f"published_wdi_plan_not_unique:{resolved.warnings}")
+                    plan = resolved.fetch_plans[0]
+                    if (
+                        plan.metric_id != "gdp_per_capita"
+                        or plan.dataset_id != "NY.GDP.PCAP.PP.CD"
+                        or plan.connector_id != "worldbank.wdi"
+                        or plan.profile_id != "worldbank_wdi"
+                    ):
+                        raise AssertionError("published_wdi_plan_identity_mismatch")
+                    # The Catalog fallback returns an unfiltered plan. Submit the
+                    # need's explicit country to the actual connector and bind
+                    # that exact scoped tuple through the Catalog owner.
+                    if plan.filters:
+                        raise AssertionError("published_wdi_unexpected_default_filters")
+                    plan = plan.model_copy(update={"filters": {"country": [need.geography]}})
+                    publisher.producer_graph.bind_fetch_target(
+                        metric_id=plan.metric_id,
+                        connector_id=plan.connector_id,
+                        request_dataset_id=plan.dataset_id,
+                        profile_id=plan.profile_id,
+                        filters=plan.filters,
+                    )
+                    yield SimpleNamespace(
+                        service=service,
+                        graph=publisher.producer_graph,
+                        providers=transport.providers,
+                        store=artifact_store,
+                        plan=plan,
+                        alternate_plan=alternate_plan,
+                        data_need=need,
+                        observations=tuple(rows),
+                    )
+        finally:
+            publisher.producer_graph.close()
+            publisher.close()
+
+
+@contextmanager
 def _real_acq01_route(
     tmp_path: Path,
     problem: DesignProblem,
@@ -805,6 +996,7 @@ def _real_acq01_route(
     execution_scope_binding: Any | None = None,
     prior_context: Any | None = None,
     selected_metric: str | None = None,
+    selected_owner: Any | None = None,
 ) -> Any:
     """Build one recorded WorldBank route through the existing owners.
 
@@ -868,19 +1060,35 @@ def _real_acq01_route(
             or prior_context.domain != problem.domain
         ):
             raise ValueError("acq01_fixture_prior_context_problem_mismatch")
+    tmp_path.mkdir(parents=True, exist_ok=True)
     capture_root = tmp_path / "capture"
-    with build_worldbank_fetch_owner(capture_root, artifact_store=artifact_store) as owner:
+    source_owner = (
+        nullcontext(selected_owner)
+        if selected_owner is not None
+        else build_worldbank_fetch_owner(capture_root, artifact_store=artifact_store)
+    )
+    with source_owner as owner:
+        if artifact_store is not None and owner.store is not artifact_store:
+            raise ValueError("acq01_fixture_selected_store_mismatch")
         if selected_metric is not None and selected_metric != owner.plan.metric_id:
             raise ValueError("acq01_fixture_selected_metric_mismatch")
         resolved = owner.service.resolve(
             DataResolveRequest(
-                data_needs=[DataNeed(metric=owner.plan.metric_id)],
+                data_needs=[getattr(owner, "data_need", DataNeed(metric=owner.plan.metric_id))],
                 mode="fastlane",
                 catalog_run_profile="prod_full",
             )
         )
+        plans = list(resolved.fetch_plans)
+        if selected_owner is not None:
+            if len(plans) != 1 or any(
+                getattr(plans[0], name) != getattr(owner.plan, name)
+                for name in ("metric_id", "connector_id", "dataset_id", "profile_id")
+            ):
+                raise ValueError("acq01_fixture_selected_plan_mismatch")
+            plans = [owner.plan]
         execution = owner.service.execute_fetch_plans(
-            list(resolved.fetch_plans),
+            plans,
             persist_payload=True,
             allow_fallback=False,
         )
@@ -1178,6 +1386,330 @@ def _real_acq01_route(
             catalog=owner.graph,
             providers=owner.providers,
         )
+
+
+def test_wdi_requirement_scope_checks_rows_and_complete_annual_denominator() -> None:
+    """Requested filters cannot stand in for actual metric, geography, and years."""
+    from polisyos.runtime.quality.data_forge_binding import (
+        FabricMeasurementRootBindingError,
+        _validate_wdi_requirement_rows,
+    )
+
+    requirement = _fixture_data_requirement_spec()
+    rows = [
+        {"country_code": "DEU", "indicator_id": "NY.GDP.PCAP.PP.CD", "year": year, "value": 1.0}
+        for year in (2020, 2021)
+    ]
+    arguments = {
+        "requirement": requirement,
+        "geography": "DE",
+        "start": "2020",
+        "end": "2021",
+        "dataset_id": "NY.GDP.PCAP.PP.CD",
+    }
+    _validate_wdi_requirement_rows(rows, **arguments)
+    _validate_wdi_requirement_rows(
+        rows, **{**arguments, "start": "2020-01-01", "end": "2021-12-31"}
+    )
+    for start, end, reason in (
+        ("2020-12-31", "2020-01-01", "time_order_invalid"),
+        ("2020-06-01", "2021-12-31", "partial_year_not_established"),
+        ("2020-01-01", "2021-06-30", "partial_year_not_established"),
+        ("0000", "2021", "time_unresolved"),
+    ):
+        with pytest.raises(FabricMeasurementRootBindingError, match=reason):
+            _validate_wdi_requirement_rows(rows, **{**arguments, "start": start, "end": end})
+    mutations = (
+        ([{**rows[0], "indicator_id": "other"}, rows[1]], "scope_mismatch"),
+        ([{**rows[0], "country_code": "POL"}, rows[1]], "scope_mismatch"),
+        ([rows[0], {**rows[1], "year": 2022}], "scope_mismatch"),
+        ([rows[0], rows[0]], "scope_mismatch"),
+        ([rows[0]], "coverage_incomplete"),
+        ([rows[0], {**rows[1], "value": float("nan")}], "coverage_incomplete"),
+        ([rows[0], {**rows[1], "value": 10**1000}], "coverage_incomplete"),
+    )
+    for altered, reason in mutations:
+        with pytest.raises(FabricMeasurementRootBindingError, match=reason):
+            _validate_wdi_requirement_rows(altered, **arguments)
+
+    # The connector can fill a missing raw indicator from the request. This
+    # bounded row check cannot turn that fallback into independent source truth.
+    from polisyos.fabric.connectors.sources.world_bank import normalize_worldbank_records
+
+    raw_rows = [
+        {"countryiso3code": "DEU", "date": str(year), "value": 1.0} for year in (2020, 2021)
+    ]
+    normalized = normalize_worldbank_records(raw_rows, "NY.GDP.PCAP.PP.CD")
+    assert all("indicator" not in row for row in raw_rows)
+    _validate_wdi_requirement_rows(normalized, **arguments)
+
+
+def test_acq01_published_wdi_fetch_produces_same_job_measurement_root(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Resolve current fixture data through Fabric and the fenced measurement owner."""
+    import asyncio
+
+    from polisyos.core import artifacts
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.contracts import DataSnapshot
+    from polisyos.core.contracts.control import NaturalLanguageRunRequest
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.data_requirement.compiler import DataRequirementCompiler
+    from polisyos.runtime.http.execution_policy import RuntimePrincipal
+    from polisyos.runtime.quality.data_forge_binding import (
+        FabricMeasurementRootBindingError,
+        MeasurementRootProducer,
+        _validate_compiled_fabric_measurement_binding,
+        bind_measurement_root_execution_scope,
+        build_fabric_measurement_requirement,
+        persist_measurement_root_data_snapshot,
+        resolve_measurement_root_evidence,
+    )
+    from tests._helpers.runtime_http import _build_control_service, _valid_intake_for_mode
+    from tests.unit.runtime.http.control_service_test_support import bound_nl_authorization_proof
+    from tests.unit.runtime.http.test_control_service_di import _fixture_claims
+
+    problem = _problem(
+        problem_id="acq01_published_wdi",
+        statement="Examine synthetic GDP per capita observations.",
+        domain="fiscal_credit",
+    )
+    problem = problem.model_copy(
+        update={
+            "jurisdiction_time": problem.jurisdiction_time.model_copy(
+                update={"region": "DE", "data_time": "2020"}
+            )
+        }
+    )
+    tenant_id, cell_id = "tenant-fixture", "cell-fixture"
+    store = FileSystemCAS(tmp_path / "cas").for_tenant(tenant_id, cell_id)
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        service = _build_control_service(tmp_path / "control", artifact_store=store)
+    try:
+        request = NaturalLanguageRunRequest(
+            request=problem.nl_provenance.raw_request,
+            llm_model="simulated-qwen",
+            context={
+                "evaluation_safety_attempt": _valid_intake_for_mode("simulate_only").model_dump(
+                    mode="json"
+                )
+            },
+            max_iterations=1,
+        )
+        claims = _fixture_claims()
+        launch = asyncio.run(
+            service.launch_nl_run(
+                request,
+                principal=RuntimePrincipal.from_user_claims(claims),
+                authorization_proof=bound_nl_authorization_proof(claims, request),
+            )
+        )
+        lease = service._control_store.lease_next_job(
+            worker_id="acq01-measurement", lease_seconds=600
+        )
+        assert lease is not None and lease.job_id == launch.job_id
+        with service._control_store.job_execution_fence(
+            job_id=lease.job_id, worker_id=lease.lease_owner, attempt=lease.attempt
+        ):
+            admission = service._control_store.current_execution_job_admission()
+            with service._install_execution_scope(admission.scope):
+                binding = bind_measurement_root_execution_scope(
+                    admission=admission, job=admission.job, execution_scope=admission.scope
+                )
+                assert binding.authority_eligible
+                with _published_worldbank_owner(
+                    tmp_path / "selected-owner", monkeypatch, artifact_store=store
+                ) as owner:
+                    execution = owner.service.execute_fetch_plans(
+                        [owner.plan], persist_payload=True, allow_fallback=False
+                    )
+                    assert len(execution.previews) == 1
+                    preview = execution.previews[0]
+                    assert preview.fetch_receipt_ref is not None
+                    plan = owner.plan
+                    catalog_binding = owner.graph.bind_fetch_target(
+                        metric_id=plan.metric_id,
+                        connector_id=plan.connector_id,
+                        request_dataset_id=plan.dataset_id,
+                        profile_id=plan.profile_id,
+                        filters=plan.filters,
+                    )
+                    source_requirement = build_fabric_measurement_requirement(
+                        catalog=owner.graph,
+                        catalog_binding=catalog_binding,
+                        design_problem=problem,
+                    )
+                    producer = MeasurementRootProducer(
+                        artifact_store=store, execution_scope_binding=binding
+                    )
+                    measurement_root = producer.produce_from_fabric_fetch(
+                        fetch_receipt_ref=preview.fetch_receipt_ref,
+                        catalog=owner.graph,
+                        providers=owner.providers,
+                        design_problem=problem,
+                        source_requirement=source_requirement,
+                    )
+                    evidence = resolve_measurement_root_evidence(
+                        store=store,
+                        measurement_root=measurement_root,
+                        catalog=owner.graph,
+                        providers=owner.providers,
+                        execution_scope_binding=binding,
+                    )
+                    snapshot_ref = persist_measurement_root_data_snapshot(
+                        store=store, evidence=evidence, execution_scope_binding=binding
+                    )
+                    assert evidence.payload.design_problem == problem
+                    assert evidence.payload.observed_row_count == sum(
+                        country == "DE" and year == 2020
+                        for country, year, _value in owner.observations
+                    )
+                    snapshot = DataSnapshot.model_validate(
+                        load_core_json_artifact(store, snapshot_ref)
+                    )
+                    assert snapshot.data_ref == evidence.payload.payload_ref
+                    assert evidence.payload.source_requirement.required_data_families == (
+                        "worldbank",
+                    )
+                    root_manifest = store.get_manifest(evidence.measurement_root_ref)
+                    expected_input = artifacts.input_ref_from_artifact_ref(
+                        preview.fetch_receipt_ref, role="fabric_fetch"
+                    )
+                    assert expected_input.manifest_profile_sha256 is not None
+                    assert root_manifest.inputs == [expected_input]
+                    assert root_manifest.authority is not None
+                    authority_ref = artifacts.resolve_authority_envelope_ref(
+                        store, root_manifest.authority
+                    )
+                    assert store.get_manifest(authority_ref).inputs == [expected_input]
+
+                    def compile_requirement(
+                        *, family: str, geography: str, year: str, granularity: str = "annual"
+                    ) -> Any:
+                        report = DataRequirementCompiler().compile_for_scenario(
+                            {
+                                "scenario_id": problem.design_problem_id,
+                                "text": problem.problem_statement,
+                                "domain": problem.domain,
+                                "expected_evidence_contract": {
+                                    "admissible_data_source_families": [family]
+                                },
+                                "scenario_profile": {
+                                    "profile_id": "fixture-scope",
+                                    "jurisdiction": geography,
+                                    "time_window": {"start": year, "end": year},
+                                    "time_role": "observation_time",
+                                    "granularity": granularity,
+                                },
+                            }
+                        )
+                        assert len(report.specs) == 1
+                        return report.specs[0]
+
+                    requirement = compile_requirement(
+                        family="gdp_per_capita", geography="DE", year="2020"
+                    )
+                    assert (
+                        source_requirement.requirement_id not in requirement.source_requirement_refs
+                    )
+                    join_args = {
+                        "store": store,
+                        "evidence": evidence,
+                        "catalog": owner.graph,
+                        "providers": owner.providers,
+                        "execution_scope_binding": binding,
+                    }
+                    limitations = _validate_compiled_fabric_measurement_binding(
+                        requirement=requirement, **join_args
+                    )
+                    assert "catalog_resolution_is_candidate_only" in limitations
+                    assert "worldbank_indicator_id_may_be_request_fallback" in limitations
+                    year_frequency = compile_requirement(
+                        family="gdp_per_capita", geography="DE", year="2020", granularity="Y"
+                    )
+                    assert (
+                        _validate_compiled_fabric_measurement_binding(
+                            requirement=year_frequency, **join_args
+                        )
+                        == limitations
+                    )
+                    for family, geography, year, reason in (
+                        ("unemployment_rate", "DE", "2020", "metric_mismatch"),
+                        ("gdp_per_capita", "PL", "2020", "scope_mismatch"),
+                        ("gdp_per_capita", "DE", "2021", "scope_mismatch"),
+                    ):
+                        wrong = compile_requirement(family=family, geography=geography, year=year)
+                        with pytest.raises(FabricMeasurementRootBindingError, match=reason):
+                            _validate_compiled_fabric_measurement_binding(
+                                requirement=wrong, **join_args
+                            )
+
+                    alternate = owner.alternate_plan
+                    assert alternate.metric_id == "gdp"
+                    assert alternate.dataset_id != plan.dataset_id
+                    other_execution = owner.service.execute_fetch_plans(
+                        [alternate], persist_payload=True, allow_fallback=False
+                    )
+                    assert len(other_execution.previews) == 1
+                    other_receipt = other_execution.previews[0].fetch_receipt_ref
+                    assert other_receipt is not None
+                    other_binding = owner.graph.bind_fetch_target(
+                        metric_id=alternate.metric_id,
+                        connector_id=alternate.connector_id,
+                        request_dataset_id=alternate.dataset_id,
+                        profile_id=alternate.profile_id,
+                        filters=alternate.filters,
+                    )
+                    other_source_requirement = build_fabric_measurement_requirement(
+                        catalog=owner.graph,
+                        catalog_binding=other_binding,
+                        design_problem=problem,
+                    )
+                    assert (
+                        other_source_requirement.requirement_id == source_requirement.requirement_id
+                    )
+                    assert other_source_requirement != source_requirement
+                    other_root = producer.produce_from_fabric_fetch(
+                        fetch_receipt_ref=other_receipt,
+                        catalog=owner.graph,
+                        providers=owner.providers,
+                        design_problem=problem,
+                        source_requirement=other_source_requirement,
+                    )
+                    other_evidence = resolve_measurement_root_evidence(
+                        store=store,
+                        measurement_root=other_root,
+                        catalog=owner.graph,
+                        providers=owner.providers,
+                        execution_scope_binding=binding,
+                    )
+                    with pytest.raises(
+                        FabricMeasurementRootBindingError,
+                        match="measurement_requirement_metric_mismatch",
+                    ):
+                        _validate_compiled_fabric_measurement_binding(
+                            **{**join_args, "evidence": other_evidence},
+                            requirement=requirement,
+                        )
+
+                    altered = source_requirement.model_copy(
+                        update={"required_data_families": ("different-source",)}
+                    )
+                    with pytest.raises(
+                        FabricMeasurementRootBindingError,
+                        match="measurement_root_source_requirement_mismatch",
+                    ):
+                        producer.produce_from_fabric_fetch(
+                            fetch_receipt_ref=preview.fetch_receipt_ref,
+                            catalog=owner.graph,
+                            providers=owner.providers,
+                            design_problem=problem,
+                            source_requirement=altered,
+                        )
+    finally:
+        service.close()
 
 
 def _real_acq01_before_context(

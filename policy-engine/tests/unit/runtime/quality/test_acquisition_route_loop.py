@@ -45,13 +45,13 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveGenerationCycleController,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
-from tests._helpers.measurement_execution_binding import measurement_execution_binding
 from tests.unit.runtime.quality.test_generation_cycle import (
-    REPO_ROOT,
     _CgfGenerationPort,
     _CostedDataGapValuePort,
     _problem,
 )
+
+pytest_plugins = ("tests.unit.runtime.quality.test_generation_cycle",)
 
 NOW = datetime(2026, 8, 28, 12, tzinfo=UTC)
 
@@ -64,7 +64,9 @@ def _options(*, kind: str, schema_name: str) -> ArtifactWriteOptions:
     )
 
 
-async def _compiled(*, cas: FileSystemCAS, repo_root: Path) -> CompiledRecursiveGenerationCycleRun:
+async def _compiled(
+    *, cas: FileSystemCAS, source_root: Path, catalog_source: object
+) -> CompiledRecursiveGenerationCycleRun:
     problem = _problem("ds15_costed_closure")
     problem_ref = gy_content_hash(problem.model_dump(mode="json"))
     root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
@@ -75,14 +77,15 @@ async def _compiled(*, cas: FileSystemCAS, repo_root: Path) -> CompiledRecursive
         rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
     )
     recursive = RecursiveGenerationCycleController.for_contract_testing(
-        repo_root=REPO_ROOT,
+        repo_root=source_root,
+        artifact_store=cas,
         cycle_controller_factory=lambda _node_ref, _problem: GenerationCycleController(
             generation_port=_CgfGenerationPort(target_world_slots=("administrative_tax_receipts",)),
             value_port=_CostedDataGapValuePort(),
             authority_scope="contract_testing",
-            measurement_root_execution_binding=measurement_execution_binding(repo_root),
             artifact_store=cas,
-            repo_root=REPO_ROOT,
+            repo_root=source_root,
+            catalog_serving_source=catalog_source,
         ),
     )
     recursive_run = await recursive.run(
@@ -193,11 +196,25 @@ def _append_terminal(
 async def test_route_closure_rejects_complete_before_terminal_then_ignores_newer_job(
     tmp_path: Path,
     unsupported_schema: bool,
+    n7_complete_catalog_source: tuple[Path, object],
 ) -> None:
     store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
     cas = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", cell_id="cell-a")
     event_log = RuntimeDiagnosticEventLog(store=store, artifact_store=cas)
-    compiled = await _compiled(cas=cas, repo_root=tmp_path)
+    source_root, catalog_source = n7_complete_catalog_source
+    compiled = await _compiled(cas=cas, source_root=source_root, catalog_source=catalog_source)
+    produced_cycles = [
+        cycle
+        for leaf in compiled.recursive_run.leaf_nodes
+        if leaf.cycle_run is not None
+        for cycle in leaf.cycle_run.cycles
+    ]
+    if not unsupported_schema:
+        costed = [cycle for cycle in produced_cycles if cycle.acquisition_cost_basis_record]
+        assert len(costed) == 1
+        assert costed[0].counterexample.diagnostic.code == (
+            "n6.acquisition.n7_execution_scope_not_established"
+        )
     compiled_payload = compiled.model_dump(mode="json")
     if unsupported_schema:
         compiled_payload["schema_version"] = (

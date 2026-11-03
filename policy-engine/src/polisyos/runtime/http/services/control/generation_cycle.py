@@ -60,9 +60,11 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
     ExecutionIntent,
     RecursiveGenerationCyclePartialRunV2,
     RecursiveGenerationCyclePartialRunV3,
+    RecursiveGenerationCyclePartialRunV4,
     RecursiveGenerationCycleRun,
     RecursiveLeafContextOwner,
     build_default_recursive_generation_cycle_controller,
+    verify_recursive_standard_n5_capacity_partial_run,
 )
 
 if TYPE_CHECKING:
@@ -123,6 +125,9 @@ COMPILED_RECURSIVE_GENERATION_CYCLE_GENERIC_PROFILE_SCHEMA_VERSION = (
 )
 COMPILED_RECURSIVE_GENERATION_CYCLE_CREDAL_SOURCE_ATTEMPT_SCHEMA_VERSION = (
     "policyos.runtime.http.compiled_recursive_generation_cycle.v6"
+)
+COMPILED_RECURSIVE_GENERATION_CYCLE_CAPACITY_PARTIAL_SCHEMA_VERSION = (
+    "policyos.runtime.http.compiled_recursive_generation_cycle.v7"
 )
 NORMATIVE_RUN_DISPOSITION_KIND = "runtime.normative_generation_composition"
 NORMATIVE_RUN_DISPOSITION_V1_SCHEMA = "policyos.normative_generation_composition.v1"
@@ -605,7 +610,11 @@ def _normative_generation_sources(
     )
     if isinstance(
         compiled.recursive_run,
-        (RecursiveGenerationCyclePartialRunV2, RecursiveGenerationCyclePartialRunV3),
+        (
+            RecursiveGenerationCyclePartialRunV2,
+            RecursiveGenerationCyclePartialRunV3,
+            RecursiveGenerationCyclePartialRunV4,
+        ),
     ):
         raise P20NormativeChoiceError("p20_normative_partial_compiled_run")
     sources = {}
@@ -860,6 +869,7 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
         "policyos.runtime.http.compiled_recursive_generation_cycle.v4",
         "policyos.runtime.http.compiled_recursive_generation_cycle.v5",
         "policyos.runtime.http.compiled_recursive_generation_cycle.v6",
+        "policyos.runtime.http.compiled_recursive_generation_cycle.v7",
     ] = COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION
     design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     design_problem: DesignProblem
@@ -871,6 +881,7 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
         RecursiveGenerationCycleRun
         | RecursiveGenerationCyclePartialRunV2
         | RecursiveGenerationCyclePartialRunV3
+        | RecursiveGenerationCyclePartialRunV4
     )
     recursive_budget_resolution: RecursiveBudgetResolution | None = Field(
         default=None,
@@ -1150,6 +1161,10 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
             expected_schema_version = (
                 COMPILED_RECURSIVE_GENERATION_CYCLE_FAILED_PARTIAL_SCHEMA_VERSION
             )
+        elif isinstance(self.recursive_run, RecursiveGenerationCyclePartialRunV4):
+            expected_schema_version = (
+                COMPILED_RECURSIVE_GENERATION_CYCLE_CAPACITY_PARTIAL_SCHEMA_VERSION
+            )
         else:
             expected_schema_version = COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION
         if self.schema_version != expected_schema_version:
@@ -1175,6 +1190,7 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
                 (
                     RecursiveGenerationCyclePartialRunV2,
                     RecursiveGenerationCyclePartialRunV3,
+                    RecursiveGenerationCyclePartialRunV4,
                 ),
             )
             and self.open_world_risk_limitations
@@ -1347,7 +1363,8 @@ def _compile_parent_joint_n4_atom_members(
 
 def _build_parent_joint_candidate_request(
     *,
-    candidate_intent: Literal["n4_unique_parent_source_members.v1"] | None,
+    candidate_intent: Literal["n4_unique_parent_source_members.v1", "authored_joint_components.v1"]
+    | None,
     problem: DesignProblem,
     source_result: object,
     source_ref: ArtifactRef,
@@ -1356,6 +1373,9 @@ def _build_parent_joint_candidate_request(
     model_id: str,
     handoff: GenericCycleSimulationContextHandoffV1,
     admission_owner: GenericCycleSimulationAdmissionOwner,
+    source_repository: GenerationSourceRepository | None = None,
+    verified_nl_job_scope: VerifiedNLJobScope | None = None,
+    request_payload_ref: ArtifactRef | None = None,
 ) -> tuple[object, object]:
     """Build an explicitly requested all-member hypothetical N5 diagnostic.
 
@@ -1366,18 +1386,21 @@ def _build_parent_joint_candidate_request(
     and child-to-parent refinement stay not established.
     """
 
-    if candidate_intent != "n4_unique_parent_source_members.v1":
+    if candidate_intent not in (
+        "n4_unique_parent_source_members.v1",
+        "authored_joint_components.v1",
+    ):
         raise DesignProblemAuthorityError("recursive_parent_joint_candidate_intent_not_established")
 
     from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
     from polisyos.runtime.quality.design_generation import GenerationUnderAResult
     from polisyos.runtime.quality.generation_cycle import JointSimulationPort
     from polisyos.runtime.quality.joint_simulation_horizon import (
-        EnginePlan,
         JointSimulationRequest,
     )
     from polisyos.runtime.quality.recursive_generation_cycle import (
         ParentJointCandidateSelectionV2,
+        ParentJointCandidateSelectionV3,
         ParentJointCandidateSourceMember,
     )
 
@@ -1462,49 +1485,77 @@ def _build_parent_joint_candidate_request(
         raise DesignProblemAuthorityError(
             "recursive_parent_joint_candidate_profile_axes_not_established"
         )
-    port = JointSimulationPort(
-        cycle_substrate_context=handoff.context,
-        artifact_store=admission_owner.store,
+    authored = candidate_intent == "authored_joint_components.v1"
+    materializations = ()
+    if authored:
+        from polisyos.runtime.http.services.control.temporal_scope import (
+            read_authored_joint_request_payload,
+        )
+        from polisyos.runtime.quality.cycle_substrate import VerifiedNLJobScope
+
+        if (
+            type(verified_nl_job_scope) is not VerifiedNLJobScope
+            or not verified_nl_job_scope._was_issued_by_verified_nl_execution_owner
+            or type(request_payload_ref) is not ArtifactRef
+            or source_repository is None
+        ):
+            raise DesignProblemAuthorityError("recursive_authored_joint_request_owner_missing")
+        original = read_authored_joint_request_payload(
+            store=admission_owner.store,
+            request_payload_ref=request_payload_ref,
+            expected_job_id=handoff.job_id,
+            expected_run_id=handoff.run_id,
+            expected_tenant_id=handoff.tenant_id,
+            expected_cell_id=handoff.cell_id,
+            expected_intent_digest=verified_nl_job_scope.intent_digest,
+        )
+        if original["request"] != problem.nl_provenance.raw_request:
+            raise DesignProblemAuthorityError("recursive_authored_joint_question_mismatch")
+        materializations = admission_owner.materialize_source_atoms(
+            handoff=handoff,
+            source_ref=source_ref,
+            source_run_id=handoff.run_id,
+            candidate_ids=tuple(member.source_candidate_id for member in members),
+        )
+        if tuple(item.original_atom_hash for item in materializations) != tuple(
+            member.source_atom_content_hash for member in members
+        ):
+            raise DesignProblemAuthorityError("recursive_authored_joint_original_atom_mismatch")
+        atoms = tuple(item.derived_n5_atom for item in materializations)
+    variable_map = JointSimulationPort._joint_simulation_variable_map(
+        atoms=atoms, outcome=outcome, raw_hint=None
     )
-    request = JointSimulationRequest(
-        world_model_record_ref=world_record.world_model_record_id,
-        world_model_record=world_record,
-        intervention_atoms=atoms,
-        selected_outcomes=(outcome,),
-        horizon=profile.n5.horizon,
-        engine_plan=(
-            EnginePlan(
-                engine_kind=profile.n5.resource,
-                objective_ref=f"objective://{outcome}",
-                eligibility_conditions=("acyclic", "counterfactual_do_worlds"),
-                ncm_spec=port._resolve_joint_simulation_ncm(
-                    problem=problem,
-                    world_record=world_record,
-                ),
-                variable_map=JointSimulationPort._joint_simulation_variable_map(
-                    atoms=atoms,
-                    outcome=outcome,
-                    raw_hint=None,
-                ),
+    plans = admission_owner.build_engine_plans(
+        profile=profile, world_record=world_record, outcome=outcome, variable_map=variable_map
+    )
+    request_fields = {
+        "world_model_record_ref": world_record.world_model_record_id,
+        "world_model_record": world_record,
+        "intervention_atoms": atoms,
+        "selected_outcomes": (outcome,),
+        "horizon": profile.n5.horizon,
+        "engine_plan": plans,
+        "baseline_state": dict(profile.n5.baseline_state),
+        "comparator_refs": profile.n5.comparator_refs,
+        "budget_ref": profile.n5.budget_ref,
+        "seed": profile.n5.seed,
+        "replications": profile.n5.replications,
+    }
+    if not authored:
+        request_fields.update(
+            candidate_intent=candidate_intent,
+            member_basis="hypothetical_all_unique_n4_source_members",
+            source_candidate_relationship="alternatives",
+            composition_status="not_established",
+            composition_limitation_code=(
+                "n4_source_candidates_are_alternatives_not_authored_compound_design"
             ),
-        ),
-        baseline_state=dict(profile.n5.baseline_state),
-        comparator_refs=profile.n5.comparator_refs,
-        budget_ref=profile.n5.budget_ref,
-        seed=profile.n5.seed,
-        replications=profile.n5.replications,
-        candidate_intent=candidate_intent,
-        member_basis="hypothetical_all_unique_n4_source_members",
-        source_candidate_relationship="alternatives",
-        composition_status="not_established",
-        composition_limitation_code=(
-            "n4_source_candidates_are_alternatives_not_authored_compound_design"
-        ),
-        child_to_parent_refinement_status="not_established",
-        child_to_parent_refinement_limitation_code=(
-            "child_to_parent_refinement_rule_not_established"
-        ),
-    )
+            child_to_parent_refinement_status="not_established",
+            child_to_parent_refinement_limitation_code=(
+                "child_to_parent_refinement_rule_not_established"
+            ),
+        )
+    request = JointSimulationRequest(**request_fields)
     if request.coupling_graph is not None:
         raise DesignProblemAuthorityError(
             "recursive_parent_joint_candidate_cannot_supply_coupling_graph"
@@ -1536,22 +1587,67 @@ def _build_parent_joint_candidate_request(
         "child_node_refs": tuple(child_node_refs),
         "members": tuple(members),
     }
-    provisional = ParentJointCandidateSelectionV2.model_construct(
+    selection_type = ParentJointCandidateSelectionV2
+    if authored:
+        from polisyos.runtime.quality.recursive_generation_cycle import (
+            persist_authored_joint_components,
+        )
+
+        relation, relation_ref = persist_authored_joint_components(
+            source_ref=source_ref,
+            source_run_id=handoff.run_id,
+            source_repository=source_repository,
+            parent_handoff=handoff,
+            admission_owner=admission_owner,
+            verified_nl_job_scope=verified_nl_job_scope,
+            request_payload_ref=request_payload_ref,
+            members=tuple(members),
+            component_materializations=materializations,
+            request=request,
+            store=admission_owner.store,
+        )
+        for name in (
+            "member_basis",
+            "composition_limitation_code",
+            "source_candidate_relationship",
+        ):
+            selection_fields.pop(name, None)
+        selection_fields.update(
+            selection_rule="authored_joint_components.v1",
+            source_candidate_relationship="alternatives",
+            selected_member_relationship="joint_components",
+            composition_status="authored_candidate",
+            request_payload_ref=request_payload_ref,
+            relation_ref=relation_ref,
+            relation_content_hash=relation.content_hash,
+            derived_atom_ids=tuple(atom.atom_id for atom in atoms),
+            derived_atom_content_hashes=tuple(atom.content_hash for atom in atoms),
+        )
+        selection_type = ParentJointCandidateSelectionV3
+    provisional = selection_type.model_construct(
         **selection_fields,
         content_hash="sha256:" + "0" * 64,
     )
     selection_payload = provisional.model_dump(mode="json", exclude={"content_hash"})
-    selection = ParentJointCandidateSelectionV2.model_validate(
+    selection = selection_type.model_validate(
         {
             **selection_payload,
             "content_hash": gy_content_hash(selection_payload),
         }
     )
-    if tuple(member.source_atom_id for member in selection.members) != tuple(
-        atom.intervention_id for atom in request.intervention_atoms
-    ) or tuple(member.source_atom_content_hash for member in selection.members) != tuple(
-        atom.content_hash for atom in request.intervention_atoms
-    ):
+    expected_atom_ids = (
+        selection.derived_atom_ids
+        if authored
+        else tuple(member.source_atom_id for member in selection.members)
+    )
+    expected_atom_hashes = (
+        selection.derived_atom_content_hashes
+        if authored
+        else tuple(member.source_atom_content_hash for member in selection.members)
+    )
+    if expected_atom_ids != tuple(
+        atom.atom_id for atom in request.intervention_atoms
+    ) or expected_atom_hashes != tuple(atom.content_hash for atom in request.intervention_atoms):
         raise DesignProblemAuthorityError(
             "recursive_parent_joint_candidate_request_member_mismatch"
         )
@@ -1565,7 +1661,11 @@ async def compile_and_run_recursive_generation_cycle(
     model_name: str,
     trusted_source_context: Mapping[str, object | None] | None = None,
     execution_intent: ExecutionIntent | None = None,
-    joint_interaction_candidate_intent: Literal["n4_unique_parent_source_members.v1"] | None = None,
+    joint_interaction_candidate_intent: Literal[
+        "n4_unique_parent_source_members.v1", "authored_joint_components.v1"
+    ]
+    | None = None,
+    joint_interaction_request_payload_ref: ArtifactRef | None = None,
     n4_proposal_only: bool = False,
     n4_proposal_only_origin: Literal["explicit", "derived_legacy_default"] = "explicit",
     producer_run_id: str | None = None,
@@ -1692,7 +1792,8 @@ async def compile_and_run_recursive_generation_cycle(
         )
     intent_band = execution_intent_band_for_mode(execution_intent)
     if joint_interaction_candidate_intent is not None and (
-        joint_interaction_candidate_intent != "n4_unique_parent_source_members.v1"
+        joint_interaction_candidate_intent
+        not in ("n4_unique_parent_source_members.v1", "authored_joint_components.v1")
         or execution_intent != "simulate_only"
         or generic_cycle_simulation_handoff_resolver is None
         or n4_proposal_only
@@ -2694,12 +2795,48 @@ async def compile_and_run_recursive_generation_cycle(
             model_id=model_name,
             handoff=generic_cycle_simulation_handoff,
             admission_owner=generic_cycle_simulation_admission_owner,
+            source_repository=generation_source_repository,
+            verified_nl_job_scope=verified_nl_job_scope,
+            request_payload_ref=joint_interaction_request_payload_ref,
         )
         parent_joint_requests = {root_ref: request}
         parent_joint_candidate_selections = {root_ref: selection}
-        parent_joint_candidate_currentness = {
-            root_ref: generic_cycle_simulation_currentness_resolver
-        }
+        if joint_interaction_candidate_intent == "authored_joint_components.v1":
+            from polisyos.runtime.http.services.control.temporal_scope import (
+                read_authored_joint_request_payload,
+            )
+
+            if verified_nl_job_scope is None or joint_interaction_request_payload_ref is None:
+                raise DesignProblemAuthorityError("recursive_authored_joint_request_owner_missing")
+            selected_store = generic_cycle_simulation_admission_owner.store
+            selected_handoff = generic_cycle_simulation_handoff
+            selected_ref = joint_interaction_request_payload_ref
+            selected_digest = verified_nl_job_scope.intent_digest
+            source_question = problem.nl_provenance.raw_request
+            live_resolver = generic_cycle_simulation_currentness_resolver
+
+            def authored_request_is_current() -> bool:
+                if live_resolver() is not True:
+                    return False
+                try:
+                    payload = read_authored_joint_request_payload(
+                        store=selected_store,
+                        request_payload_ref=selected_ref,
+                        expected_job_id=selected_handoff.job_id,
+                        expected_run_id=selected_handoff.run_id,
+                        expected_tenant_id=selected_handoff.tenant_id,
+                        expected_cell_id=selected_handoff.cell_id,
+                        expected_intent_digest=selected_digest,
+                    )
+                except (OSError, TypeError, ValueError):
+                    return False
+                return payload["request"] == source_question
+
+            parent_joint_candidate_currentness = {root_ref: authored_request_is_current}
+        else:
+            parent_joint_candidate_currentness = {
+                root_ref: generic_cycle_simulation_currentness_resolver
+            }
     from polisyos.runtime.quality.generation_cycle import (
         _N4CandidateScenarioProposalOnlyError,
     )
@@ -2761,6 +2898,16 @@ async def compile_and_run_recursive_generation_cycle(
             design_problem=problem,
             source_ref=signal.source_ref,
             limitation_code=signal.limitation_code,
+        )
+    if isinstance(recursive_run, RecursiveGenerationCyclePartialRunV4):
+        from polisyos.scientist.orchestration.engine import ProducerBudgetObserver
+
+        if type(_producer_budget_reconciler) is not ProducerBudgetObserver:
+            raise DesignProblemAuthorityError("recursive_capacity_partial_owner_not_established")
+        verify_recursive_standard_n5_capacity_partial_run(
+            recursive_run,
+            observer=_producer_budget_reconciler,
+            store=promotion_runtime.store,
         )
     limitations: list[OpenWorldRiskPublicLimitation] = []
     if isinstance(recursive_run, RecursiveGenerationCycleRun):
@@ -2849,6 +2996,8 @@ async def compile_and_run_recursive_generation_cycle(
             )
             else COMPILED_RECURSIVE_GENERATION_CYCLE_FAILED_PARTIAL_SCHEMA_VERSION
             if isinstance(recursive_run, RecursiveGenerationCyclePartialRunV3)
+            else COMPILED_RECURSIVE_GENERATION_CYCLE_CAPACITY_PARTIAL_SCHEMA_VERSION
+            if isinstance(recursive_run, RecursiveGenerationCyclePartialRunV4)
             else COMPILED_RECURSIVE_GENERATION_CYCLE_PARTIAL_SCHEMA_VERSION
             if isinstance(recursive_run, RecursiveGenerationCyclePartialRunV2)
             else COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION
@@ -2991,6 +3140,7 @@ def _classify_target_world_scope_profile(
 
 
 __all__ = [
+    "COMPILED_RECURSIVE_GENERATION_CYCLE_CAPACITY_PARTIAL_SCHEMA_VERSION",
     "COMPILED_RECURSIVE_GENERATION_CYCLE_COST_SCHEMA_VERSION",
     "COMPILED_RECURSIVE_GENERATION_CYCLE_FAILED_PARTIAL_SCHEMA_VERSION",
     "COMPILED_RECURSIVE_GENERATION_CYCLE_PARTIAL_SCHEMA_VERSION",

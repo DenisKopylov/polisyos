@@ -751,7 +751,11 @@ class ControlJobDiagnosticsMixin:
             )
         try:
             selected_nl_payload_ref = None
-            if job_kind == "natural_language_run" and "temporal_scope" in payload:
+            if job_kind == "natural_language_run" and (
+                "temporal_scope" in payload
+                or payload.get("joint_interaction_candidate_intent")
+                == "authored_joint_components.v1"
+            ):
                 selected_nl_payload_ref = self._put_json_artifact_ref(
                     payload,
                     kind="runtime.control_job_payload.natural_language_run",

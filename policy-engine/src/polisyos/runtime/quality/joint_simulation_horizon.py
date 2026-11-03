@@ -8,12 +8,17 @@ implement a parallel simulator beside Foundry engines.
 
 from __future__ import annotations
 
+import hashlib
 import itertools
 import math
+import re
 from collections.abc import Callable, Mapping, Sequence
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from decimal import Decimal, InvalidOperation
+from fractions import Fraction
+from statistics import pstdev
 from time import perf_counter
 from typing import Any, Literal, Protocol
 from uuid import uuid4
@@ -28,6 +33,7 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.common.numeric_reductions import finite_binary64_mean
 from polisyos.core.artifacts import raise_artifact_read_access_error
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
@@ -43,9 +49,11 @@ from polisyos.foundry.methods.catalog.causal import ensure_causal_methods_regist
 from polisyos.foundry.methods.catalog.causal.protocols import NCMQueryData
 from polisyos.foundry.methods.catalog.simulation import (
     ensure_simulation_methods_registered,
+    validate_coupled_policy_inputs,
 )
 from polisyos.foundry.methods.exceptions import MethodExecutionAbortError
 from polisyos.foundry.methods.selection.registry import MethodRegistry
+from polisyos.ir.analytics.interventions import ProofKernelInterventionType
 from polisyos.ir.analytics.ncm import NCMSpec  # Pydantic validates at runtime.
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_axes.coupling_composition import (
@@ -79,15 +87,17 @@ JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION = (
 JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION = (
     "policyos.runtime.joint_simulation_horizon.v4"
 )
-JOINT_SIMULATION_HORIZON_SCHEMA_VERSION = (
-    JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
+JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION = (
+    "policyos.runtime.joint_simulation_horizon.v5"
 )
+JOINT_SIMULATION_HORIZON_SCHEMA_VERSION = JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION
 _JOINT_SIMULATION_HORIZON_SCHEMA_VERSIONS = frozenset(
     {
         JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION,
         JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION,
         JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION,
         JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION,
+        JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION,
     }
 )
 WORLD_STATE_CONSUMPTION_AUTHORITY_LIMITATIONS = (
@@ -161,8 +171,15 @@ _COUPLING_ENGINES_BY_KIND: dict[BoundaryCouplingKind, frozenset[EngineKind]] = {
 class JointSimulationControllerError(ValueError):
     """Fail-closed error raised before a simulation can claim K_sim output."""
 
-    def __init__(self, code: str, message: str | None = None) -> None:
+    def __init__(
+        self,
+        code: str,
+        message: str | None = None,
+        *,
+        context: Mapping[str, str] | None = None,
+    ) -> None:
         self.code = code
+        self.context = dict(context or {})
         super().__init__(f"{code}: {message or code}")
 
 
@@ -345,6 +362,26 @@ class HorizonSpec(_StrictModel):
         return tuple(range(self.start, self.end + 1, self.step))
 
 
+class OutcomeAggregation(_StrictModel):
+    """A declared scalar projection of one population vector, not authority."""
+
+    method: Literal["mean", "weighted_mean"]
+    unit: str = Field(min_length=1)
+    weights: tuple[float, ...] | None = None
+
+    @model_validator(mode="after")
+    def _weights_match_method(self) -> OutcomeAggregation:
+        if self.method == "mean" and self.weights is not None:
+            raise ValueError("outcome_aggregation_weights_not_applicable")
+        if self.method == "weighted_mean" and self.weights is None:
+            raise ValueError("outcome_aggregation_weights_missing")
+        if self.weights is not None and any(
+            not math.isfinite(weight) or weight < 0 for weight in self.weights
+        ):
+            raise ValueError("outcome_aggregation_weights_invalid")
+        return self
+
+
 class EnginePlan(_StrictModel):
     """Requested engine contour plus engine-specific eligibility inputs."""
 
@@ -354,6 +391,9 @@ class EnginePlan(_StrictModel):
     eligibility_conditions: tuple[str, ...] = ()
     ncm_spec: NCMSpec | None = None
     variable_map: dict[str, str] = Field(default_factory=dict)
+    outcome_aggregations: dict[str, OutcomeAggregation] = Field(
+        default_factory=dict, exclude_if=lambda value: not value
+    )
     coupled_state: dict[str, Any] = Field(default_factory=dict)
     coupled_params: dict[str, Any] = Field(default_factory=dict)
     system_dynamics_state: dict[str, Any] = Field(default_factory=dict)
@@ -376,6 +416,22 @@ class EnginePlan(_StrictModel):
     method_fqn: str | None = None
 
 
+class NCMConditionalComparatorProfile(_StrictModel):
+    """Select a bounded same-model conditional contrast with declared units."""
+
+    schema_version: Literal["policyos.runtime.ncm_conditional_comparator_profile.v1"] = (
+        "policyos.runtime.ncm_conditional_comparator_profile.v1"
+    )
+    outcome_units: dict[str, str] = Field(min_length=1)
+
+    @field_validator("outcome_units")
+    @classmethod
+    def _valid_units(cls, value: dict[str, str]) -> dict[str, str]:
+        if any(not key.strip() or not unit.strip() for key, unit in value.items()):
+            raise ValueError("ncm_comparator_outcome_units_invalid")
+        return value
+
+
 class JointSimulationRequest(_StrictModel):
     """Controller input matching the GY-N0 seam contract."""
 
@@ -388,6 +444,9 @@ class JointSimulationRequest(_StrictModel):
     baseline_state: dict[str, float] = Field(default_factory=dict)
     evidence_state: dict[str, float] | None = None
     comparator_refs: tuple[str, ...] = ()
+    comparator_profile: NCMConditionalComparatorProfile | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     coupling_graph: CouplingGraph | None = None
     budget_ref: str | None = None
     seed: int = 0
@@ -606,7 +665,29 @@ def _sample_standard_error(values: Sequence[float]) -> float | None:
 
     if len(values) < 2:
         return None
-    return float(np.std(np.asarray(values, dtype=float), ddof=1) / math.sqrt(len(values)))
+    with np.errstate(over="ignore", under="ignore", invalid="ignore"):
+        estimate = float(np.std(np.asarray(values, dtype=float), ddof=1) / math.sqrt(len(values)))
+    smallest_stable_scale = math.sqrt(np.finfo(np.float64).tiny)
+    spread = max(values) - min(values)
+    if (
+        math.isfinite(estimate)
+        and (estimate != 0.0 or len(set(values)) == 1)
+        and (spread == 0.0 or abs(spread) >= smallest_stable_scale)
+    ):
+        return estimate
+    estimate = float(pstdev(values) / math.sqrt(len(values) - 1))
+    if not math.isfinite(estimate):
+        raise JointSimulationControllerError("simulation_replication_standard_error_non_finite")
+    return estimate
+
+
+def _finite_mean(values: Sequence[float], *, exact: bool = False) -> float:
+    """Use the exact-sum owner for v5; retain ordinary historical rounding."""
+    if exact:
+        return finite_binary64_mean(values)
+    with np.errstate(over="ignore", invalid="ignore"):
+        estimate = float(np.mean(np.asarray(values, dtype=float)))
+    return estimate if math.isfinite(estimate) else finite_binary64_mean(values)
 
 
 def _validate_trajectory_sampling(trajectory: SimulationTrajectory) -> None:
@@ -672,11 +753,23 @@ def _validate_trajectory_sampling(trajectory: SimulationTrajectory) -> None:
         ):
             for key, reported in aggregated.items():
                 observed = [float(getattr(sample, metric)[key]) for sample in summary.samples]
-                mean = float(np.mean(np.asarray(observed, dtype=float)))
-                if not math.isfinite(float(reported)) or not math.isclose(
-                    float(reported), mean, rel_tol=1e-12, abs_tol=1e-12
-                ):
+                exact = diagnostics.get("numeric_reduction_policy") == "finite_binary64_mean.v1"
+                mean = _finite_mean(observed, exact=exact)
+                matches = (
+                    float(reported) == mean
+                    if exact
+                    else math.isclose(float(reported), mean, rel_tol=1e-12, abs_tol=1e-12)
+                )
+                if not math.isfinite(float(reported)) or not matches:
                     raise ValueError("replication_mean_recomputation_mismatch")
+                if exact:
+                    errors = (
+                        summary.outcomes_standard_error
+                        if metric == "outcomes"
+                        else summary.effects_standard_error
+                    )
+                    if errors[key] != _sample_standard_error(observed):
+                        raise ValueError("replication_standard_error_recomputation_mismatch")
 
 
 def _replication_summary_for_points(
@@ -851,7 +944,10 @@ def _interaction_coverage_for_fields(
         if len(point_steps) != len(set(point_steps)):
             issues.append("horizon_incomplete:" + key[0] + ":" + ",".join(key[1]))
             continue
-        horizon_complete = set(point_steps) == set(steps)
+        horizon_complete = (
+            set(point_steps) == set(steps)
+            and trajectory.diagnostics.get("row_contract") != "not_established"
+        )
         valid_points = True
         for point in trajectory.points:
             for outcome in selected_outcomes:
@@ -916,6 +1012,256 @@ def _effective_evidence_state(
     return request.evidence_state, "explicit_evidence_state"
 
 
+def _validate_ncm_comparator_request(request: JointSimulationRequest) -> None:
+    """Validate an opt-in profile even if model_copy bypassed model validation."""
+    profile = request.comparator_profile
+    if profile is None:
+        return
+    if type(profile) is not NCMConditionalComparatorProfile:
+        raise JointSimulationControllerError("ncm_comparator_profile_invalid")
+    try:
+        NCMConditionalComparatorProfile.model_validate(profile.model_dump(mode="python"))
+        valid_evidence = request.evidence_state is not None and all(
+            math.isfinite(float(value)) for value in request.evidence_state.values()
+        )
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise JointSimulationControllerError("ncm_comparator_profile_invalid") from exc
+    if (
+        not valid_evidence
+        or len(request.horizon.steps()) != 1
+        or len(set(request.selected_outcomes)) != len(request.selected_outcomes)
+        or set(profile.outcome_units) != set(request.selected_outcomes)
+    ):
+        raise JointSimulationControllerError("ncm_comparator_request_binding_invalid")
+
+
+def _ncm_comparator_input(request: JointSimulationRequest, plan: EnginePlan) -> NCMQueryData:
+    """Construct the typed no-op query actually consumed by the selected method."""
+    if request.evidence_state is None or plan.ncm_spec is None:
+        raise JointSimulationControllerError("ncm_comparator_request_binding_invalid")
+    return NCMQueryData(
+        ncm_spec=plan.ncm_spec,
+        evidence=_resolved_ncm_evidence(request.evidence_state, plan),
+        interventions=[{}],
+        query_vars=[_engine_variable(outcome, plan) for outcome in request.selected_outcomes],
+        n_samples=1,
+    )
+
+
+def _resolved_ncm_evidence(evidence: Mapping[str, float], plan: EnginePlan) -> dict[str, float]:
+    """Coalesce equal mapped evidence, never choose a conflicting alias by order."""
+    resolved: dict[str, float] = {}
+    for variable, raw in evidence.items():
+        target = _engine_variable(variable, plan)
+        try:
+            value = float(raw)
+        except (TypeError, ValueError, OverflowError) as exc:
+            raise JointSimulationControllerError("ncm_evidence_invalid") from exc
+        if not math.isfinite(value):
+            raise JointSimulationControllerError("ncm_evidence_invalid")
+        if target in resolved and resolved[target] != value:
+            raise JointSimulationControllerError("ncm_evidence_alias_conflict")
+        resolved[target] = value
+    return resolved
+
+
+def _ncm_comparator_request_projection(
+    request: JointSimulationRequest, plan: EnginePlan, decision: EngineDecision
+) -> dict[str, Any]:
+    """Bind the bounded estimand to the complete selected plan and request scope."""
+    profile = request.comparator_profile
+    if profile is None or decision.method_fqn is None:
+        raise JointSimulationControllerError("ncm_comparator_request_binding_invalid")
+    return {
+        "world_model_record_ref": request.world_model_record_ref,
+        "world_model_record_content_hash": request.world_model_record.content_hash,
+        "engine_plan": plan.model_dump(mode="json"),
+        "method_fqn": decision.method_fqn,
+        "horizon": request.horizon.model_dump(mode="json"),
+        "intervention_atoms": [atom.model_dump(mode="json") for atom in request.intervention_atoms],
+        "selected_outcomes": list(request.selected_outcomes),
+        "outcome_units": dict(profile.outcome_units),
+        "outcome_units_status": "declared_candidate_not_independently_grounded",
+        "evidence_state": dict(request.evidence_state or {}),
+        "replication_seeds": list(_replication_seeds(request)),
+    }
+
+
+def _ncm_numeric_contract_from_binding(binding: Mapping[str, Any]) -> dict[str, Any]:
+    """Derive the bounded arithmetic law from the selected symbolic model and atoms."""
+    from polisyos.runtime.quality.ncm_numeric_profile import (
+        NCMNumericProfileUnsupportedError,
+        build_ncm_interaction_numeric_contract,
+    )
+
+    def unsupported() -> None:
+        raise NCMNumericProfileUnsupportedError("ncm_numeric_model_profile_unsupported")
+
+    plan = EnginePlan.model_validate(binding["engine_plan"])
+    outcomes = binding["selected_outcomes"]
+    if (
+        plan.engine_kind != "ncm_parallel_worlds"
+        or plan.ncm_spec is None
+        or plan.ncm_spec.scm_spec is not None
+        or not plan.ncm_spec.is_acyclic
+        or not isinstance(outcomes, list)
+        or len(outcomes) != 1
+    ):
+        unsupported()
+    from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
+
+    if binding.get("method_fqn") != NCMEngineMethod.signature.fqn:
+        unsupported()
+    outcome = outcomes[0]
+    spec = plan.ncm_spec
+    if spec is None:
+        unsupported()
+    engine_outcome = _engine_variable(outcome, plan)
+    equations = {equation.variable: equation for equation in spec.structural_equations}
+    equation = equations.get(engine_outcome)
+    if equation is None or equation.equation_type != "nonlinear":
+        unsupported()
+    parents = tuple(equation.parents)
+    evidence = _resolved_ncm_evidence(binding["evidence_state"], plan)
+    if (
+        engine_outcome not in evidence
+        or not parents
+        or any(parent not in evidence or evidence[parent] != 0.0 for parent in parents)
+    ):
+        unsupported()
+    bounded_equations = [equation]
+    noise_variables = [equation.exogenous]
+    for parent in parents:
+        root = equations.get(parent)
+        if (
+            root is None
+            or root.parents
+            or root.equation_type != "linear"
+            or root.equation_params.get("intercept", 0.0) != 0.0
+            or root.equation_params.get("coefficients", {})
+        ):
+            unsupported()
+        bounded_equations.append(root)
+        noise_variables.append(root.exogenous)
+    if len(set(noise_variables)) != len(noise_variables):
+        unsupported()
+    for bounded in bounded_equations:
+        matches = [item for item in spec.exogenous_specs if item.variable == bounded.exogenous]
+        if (
+            len(matches) != 1
+            or matches[0].associated_endogenous != bounded.variable
+            or matches[0].is_shared
+            or matches[0].shared_with
+        ):
+            unsupported()
+    expression = equation.equation_params.get("noise_expression") or equation.equation_params.get(
+        "symbolic_expression"
+    )
+    if not isinstance(expression, str):
+        unsupported()
+    atoms = tuple(
+        InterventionAtomBinding.model_validate(item) for item in binding["intervention_atoms"]
+    )
+    scopes = [
+        (
+            role,
+            tuple(atom.intervention_id for atom in subset),
+            _ncm_intervention(subset, plan),
+        )
+        for role, subset in _atom_subsets(atoms)
+    ]
+    contract = build_ncm_interaction_numeric_contract(
+        expression=expression,
+        outcome_unit=binding["outcome_units"][outcome],
+        observed_noise=evidence[engine_outcome],
+        parent_names=parents,
+        scopes=scopes,
+    )
+    return {**contract, "outcome": outcome}
+
+
+def _within_numeric_envelope(value: object, descriptor: Mapping[str, Any]) -> bool:
+    """Compare a retained binary64 value to an exact rational and outward bound."""
+    if type(value) not in (int, float) or not math.isfinite(value):
+        return False
+    try:
+        ideal = descriptor["ideal"]
+        expected = Fraction(ideal["numerator"], ideal["denominator"])
+        bound = Fraction.from_float(float(descriptor["absolute_roundoff_bound"]))
+        return abs(Fraction.from_float(float(value)) - expected) <= bound
+    except (KeyError, TypeError, ValueError, OverflowError, ZeroDivisionError):
+        return False
+
+
+def _evaluate_ncm_numeric_contract(
+    contract: Mapping[str, Any],
+    trajectories: Sequence[SimulationTrajectory],
+    comparator_samples: Sequence[Mapping[str, Any]],
+    interaction_terms: Sequence[InteractionTerm],
+    higher_order_residuals: Mapping[str, Mapping[int, float]],
+) -> Literal["additive", "non_additive", "unsupported"] | None:
+    """Reconcile all actual paired samples and residuals against the pre-run law."""
+    outcome = contract["outcome"]
+    scopes = contract["scopes"]
+    baseline = scopes[0]
+    if not comparator_samples or any(
+        sample["outcomes"][outcome] != contract["observed_noise"]
+        or not _within_numeric_envelope(sample["outcomes"][outcome], baseline["endpoint"])
+        for sample in comparator_samples
+    ):
+        return None
+    by_scope = {(item.run_level, item.atom_ids): item for item in trajectories}
+    for scope in scopes[1:]:
+        trajectory = by_scope.get((scope["role"], tuple(scope["atom_ids"])))
+        if trajectory is None or len(trajectory.points) != 1:
+            return None
+        point = trajectory.points[0]
+        sampling = point.replication_sampling
+        if sampling is None or not sampling.samples:
+            return None
+        if any(
+            sample.engine_state.get("intervention") != scope["interventions"]
+            or not _within_numeric_envelope(sample.outcomes[outcome], scope["endpoint"])
+            or not _within_numeric_envelope(sample.effects[outcome], scope["effect"])
+            for sample in sampling.samples
+        ):
+            return None
+        # This bounded profile covers deterministic duplicate endpoints only.
+        if any(
+            sample.outcomes != sampling.samples[0].outcomes
+            or sample.effects != sampling.samples[0].effects
+            for sample in sampling.samples[1:]
+        ) or (
+            point.outcomes != sampling.samples[0].outcomes
+            or point.effect != sampling.samples[0].effects
+        ):
+            return None
+    terms = {(item.outcome, item.atom_ids): item for item in interaction_terms}
+    nonzero = False
+    for residual in contract["residuals"]:
+        if residual["kind"] == "pairwise":
+            term = terms.get((outcome, tuple(residual["atom_ids"])))
+            if term is None or len(term.by_step) != 1:
+                return None
+            observed = next(iter(term.by_step.values()))
+        else:
+            by_step = higher_order_residuals.get(outcome, {})
+            if len(by_step) != 1:
+                return None
+            observed = next(iter(by_step.values()))
+        if not _within_numeric_envelope(observed, residual):
+            return None
+        ideal = Fraction(residual["ideal"]["numerator"], residual["ideal"]["denominator"])
+        bound = float(residual["absolute_roundoff_bound"])
+        if ideal:
+            if abs(observed) <= bound or (observed > 0) != (ideal > 0):
+                return "unsupported"
+            nonzero = True
+    if nonzero:
+        return "non_additive"
+    return "unsupported" if len(contract["atom_ids"]) >= 4 else "additive"
+
+
 def _physical_run_ref(
     request: JointSimulationRequest,
     plan: EnginePlan,
@@ -943,11 +1289,146 @@ def _physical_run_ref(
         "replication_seeds": list(_replication_seeds(request)),
         "evidence_state": _json_ready(evidence_state),
         "evidence_source": evidence_source,
-        "plan": plan.model_dump(mode="json"),
+        "plan": _physical_plan_identity(plan),
         "runtime_refs": runtime_refs,
         "atoms": [atom.model_dump(mode="json") for atom in subset],
     }
     return gy_content_hash(payload)
+
+
+def _physical_plan_identity(plan: EnginePlan) -> dict[str, Any]:
+    """Preserve legacy JSON plans and bind NumPy dtype, shape, and full contents."""
+
+    def contains_numpy(value: object) -> bool:
+        if isinstance(value, np.ndarray | np.generic):
+            return True
+        if isinstance(value, BaseModel):
+            return any(
+                contains_numpy(getattr(value, name))
+                for name, field in type(value).model_fields.items()
+                if field.exclude is not True
+            )
+        if isinstance(value, Mapping):
+            return any(contains_numpy(item) for item in value.values())
+        if isinstance(value, tuple | list):
+            return any(contains_numpy(item) for item in value)
+        return False
+
+    seen: set[int] = set()
+    arrays: list[np.ndarray] = []
+
+    def reject_aliases(value: object) -> None:
+        if isinstance(value, BaseModel):
+            for name in type(value).model_fields:
+                if type(value).model_fields[name].exclude is not True:
+                    reject_aliases(getattr(value, name))
+        elif (
+            (isinstance(value, Mapping) and type(value) is not dict)
+            or (isinstance(value, list) and type(value) is not list)
+            or (isinstance(value, tuple) and type(value) is not tuple)
+            or (isinstance(value, np.ndarray) and type(value) is not np.ndarray)
+        ):
+            raise JointSimulationControllerError("n5_plan_container_type_unsupported")
+        elif isinstance(value, dict | list | np.ndarray):
+            if id(value) in seen:
+                raise JointSimulationControllerError("n5_plan_mutable_alias_unsupported")
+            seen.add(id(value))
+            if isinstance(value, np.ndarray):
+                if any(np.may_share_memory(value, prior) for prior in arrays):
+                    raise JointSimulationControllerError("n5_plan_mutable_alias_unsupported")
+                arrays.append(value)
+            else:
+                children = value.values() if isinstance(value, dict) else value
+                for item in children:
+                    reject_aliases(item)
+        elif isinstance(value, tuple):
+            for item in value:
+                reject_aliases(item)
+
+    # Only these live inputs are writable by the state adapters. Inspect them
+    # before Pydantic's dump can copy container topology; read-only model
+    # metadata may legitimately use other immutable container types.
+    for name in (
+        "coupled_state",
+        "coupled_params",
+        "system_dynamics_state",
+        "system_dynamics_params",
+        "system_dynamics_state_overrides_by_atom",
+        "program_parameter_overrides_by_atom",
+    ):
+        reject_aliases(getattr(plan, name))
+
+    def contains_state_tuple(value: object) -> bool:
+        if isinstance(value, tuple):
+            return True
+        if isinstance(value, Mapping):
+            return any(contains_state_tuple(item) for item in value.values())
+        if isinstance(value, list):
+            return any(contains_state_tuple(item) for item in value)
+        return False
+
+    typed_state = any(
+        contains_state_tuple(getattr(plan, name))
+        for name in (
+            "coupled_state",
+            "coupled_params",
+            "system_dynamics_state",
+            "system_dynamics_params",
+            "system_dynamics_state_overrides_by_atom",
+            "program_parameter_overrides_by_atom",
+        )
+    )
+    if not contains_numpy(plan) and not typed_state:
+        return plan.model_dump(mode="json")
+
+    def encode(value: object) -> object:
+        if isinstance(value, NCMSpec):
+            try:
+                return {"type": "ncm_model_json", "value": value.model_dump(mode="json")}
+            except (TypeError, ValueError) as exc:
+                raise JointSimulationControllerError("n5_plan_ncm_model_not_serializable") from exc
+        if isinstance(value, BaseModel):
+            return {
+                "type": "model",
+                "model": f"{type(value).__module__}.{type(value).__qualname__}",
+                "fields": [
+                    [name, encode(getattr(value, name))]
+                    for name, field in type(value).model_fields.items()
+                    if field.exclude is not True
+                ],
+            }
+        if isinstance(value, np.ndarray | np.generic):
+            array = np.asarray(value)
+            if array.dtype.hasobject or array.dtype.kind not in "biuf":
+                raise JointSimulationControllerError("n5_plan_array_dtype_unsupported")
+            digest = hashlib.sha256()
+            for chunk in np.nditer(
+                array,
+                flags=["external_loop", "buffered", "zerosize_ok"],
+                order="C",
+                buffersize=8192,
+            ):
+                digest.update(chunk.tobytes())
+            return {
+                "type": "numpy_scalar" if isinstance(value, np.generic) else "ndarray",
+                "dtype": array.dtype.str,
+                "shape": list(array.shape),
+                "sha256": digest.hexdigest(),
+            }
+        if isinstance(value, Mapping):
+            if any(type(key) is not str for key in value):
+                raise JointSimulationControllerError("n5_plan_mapping_key_unsupported")
+            return {
+                "type": "mapping",
+                "items": [[key, encode(item)] for key, item in sorted(value.items())],
+            }
+        if isinstance(value, tuple | list):
+            return {"type": type(value).__name__, "items": [encode(item) for item in value]}
+        if value is None or type(value) in {bool, int, float, str}:
+            return {"type": type(value).__name__, "value": value}
+        raise JointSimulationControllerError("n5_plan_value_not_serializable")
+
+    return {"encoding": "n5_numpy_plan.v1", "plan": encode(plan)}
 
 
 def _physical_spec_digest(physical_run_ref: object) -> str:
@@ -965,6 +1446,43 @@ def _physical_spec_digest(physical_run_ref: object) -> str:
     if str(parsed) != physical_run_ref:
         raise JointSimulationControllerError("n5_physical_run_ref_invalid")
     return parsed.hex
+
+
+def _physical_invocation_binding(
+    invocation_id: str, physical_spec_ref: str, seed: int
+) -> tuple[str, str]:
+    """Bind a unique call attempt to its exact physical specification and seed."""
+    request_digest = hashlib.sha256(
+        to_canonical_bytes(
+            {
+                "schema": "policyos.runtime.n5_physical_attempt.v1",
+                "invocation_id": invocation_id,
+                "physical_spec_ref": physical_spec_ref,
+                "effective_seed": seed,
+            }
+        )
+    ).hexdigest()
+    operation_id = hashlib.sha256(
+        to_canonical_bytes(
+            {"schema": "policyos.runtime.n5_invocation_operation.v1", "request": request_digest}
+        )
+    ).hexdigest()
+    return operation_id, request_digest
+
+
+def _contains_negative_zero(value: object) -> bool:
+    """Detect a value the selected Core .2 writer cannot preserve losslessly."""
+    if isinstance(value, BaseModel):
+        return _contains_negative_zero(value.model_dump(mode="json"))
+    if isinstance(value, float | np.floating):
+        return value == 0.0 and bool(np.signbit(value))
+    if isinstance(value, np.ndarray):
+        return value.dtype.kind == "f" and bool(np.any((value == 0) & np.signbit(value)))
+    if isinstance(value, Mapping):
+        return any(_contains_negative_zero(item) for item in value.values())
+    if isinstance(value, tuple | list):
+        return any(_contains_negative_zero(item) for item in value)
+    return False
 
 
 def _aggregate_replicated_trajectory(
@@ -1009,11 +1527,15 @@ def _aggregate_replicated_trajectory(
             ):
                 raise JointSimulationControllerError("simulation_replication_output_non_finite")
         outcomes = {
-            outcome: float(np.mean([point.outcomes[outcome] for point in replicated_points]))
+            outcome: _finite_mean(
+                [point.outcomes[outcome] for point in replicated_points], exact=True
+            )
             for outcome in first_point.outcomes
         }
         effects = {
-            outcome: float(np.mean([point.effect[outcome] for point in replicated_points]))
+            outcome: _finite_mean(
+                [point.effect[outcome] for point in replicated_points], exact=True
+            )
             for outcome in first_point.effect
         }
         sampling = _replication_summary_for_points(replicated_points, seeds)
@@ -1039,6 +1561,7 @@ def _aggregate_replicated_trajectory(
         "actual_replications": len(trajectories),
         "replication_seeds": list(seeds),
         "physical_run_ref": physical_run_ref,
+        "numeric_reduction_policy": "finite_binary64_mean.v1",
     }
     if any("method_execution_sources" in trajectory.diagnostics for trajectory in trajectories):
         diagnostics["replication_method_execution_sources"] = [
@@ -1071,6 +1594,25 @@ class PhysicalSimulationWorkObservation(_StrictModel):
     budget_status: Literal["current_owner_checked", "not_established"]
     budget_source_basis_digest: str | None = Field(default=None, pattern=r"^[a-f0-9]{64}$")
     error_type: str | None = None
+    error_code: str | None = Field(default=None, exclude_if=lambda value: value is None)
+    error_context: dict[str, str] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    invocation_quota_operation_id: str | None = Field(
+        default=None, pattern=r"^[a-f0-9]{64}$", exclude_if=lambda value: value is None
+    )
+    invocation_quota_request_digest: str | None = Field(
+        default=None, pattern=r"^[a-f0-9]{64}$", exclude_if=lambda value: value is None
+    )
+    invocation_quota_profile_digest: str | None = Field(
+        default=None, pattern=r"^[a-f0-9]{64}$", exclude_if=lambda value: value is None
+    )
+    invocation_quota_purpose: Literal["standard", "diagnostic", "counterevidence"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    invocation_quota_status: Literal["completed", "failed", "unknown"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _work_observation_binding(self) -> PhysicalSimulationWorkObservation:
@@ -1080,7 +1622,90 @@ class PhysicalSimulationWorkObservation(_StrictModel):
             raise ValueError("physical_work_budget_source_mismatch")
         if (self.status == "failed") != (self.error_type is not None):
             raise ValueError("physical_work_error_binding_mismatch")
+        if (self.error_code is not None and self.status != "failed") or (
+            self.error_context is not None and self.error_code is None
+        ):
+            raise ValueError("physical_work_error_cause_binding_mismatch")
+        quota = (
+            self.invocation_quota_operation_id,
+            self.invocation_quota_request_digest,
+            self.invocation_quota_profile_digest,
+            self.invocation_quota_purpose,
+            self.invocation_quota_status,
+        )
+        if any(item is not None for item in quota):
+            if any(item is None for item in quota):
+                raise ValueError("physical_work_invocation_quota_incomplete")
+            operation_id, request_digest = _physical_invocation_binding(
+                self.invocation_id, self.physical_spec_ref, self.effective_seed
+            )
+            if (self.invocation_quota_operation_id, self.invocation_quota_request_digest) != (
+                operation_id,
+                request_digest,
+            ):
+                raise ValueError("physical_work_invocation_quota_binding_mismatch")
+            if self.invocation_quota_status not in {self.status, "unknown"}:
+                raise ValueError("physical_work_invocation_quota_status_mismatch")
         return self
+
+
+def _safe_work_cause(error: Exception | None) -> tuple[str | None, dict[str, str] | None]:
+    """Retain only selected structured controller causes, never exception text."""
+    from polisyos.foundry.coupling import PairedMonteCarloNumericalError
+
+    if type(error) is PairedMonteCarloNumericalError:
+        metric = error.details.get("metric")
+        seed = error.details.get("seed")
+        stage = error.details.get("stage")
+        if (
+            isinstance(metric, str)
+            and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.:-]{0,127}", metric)
+            and (seed is None or type(seed) is int)
+            and stage in {"baseline", "policy", "difference", "mean", "standard_error"}
+        ):
+            return error.code, {
+                "metric": metric,
+                "seed": "not_applicable" if seed is None else str(seed),
+                "stage": stage,
+            }
+        return error.code, None
+    if not isinstance(error, JointSimulationControllerError):
+        return None, None
+    if error.code == "n5_signed_zero_output_not_persistable":
+        return error.code, {"stage": "persistence_projection", "producer_call": "completed"}
+    if error.code == "n5_signed_zero_aggregate_not_persistable":
+        return error.code, {"stage": "replication_aggregation", "producer_call": "completed"}
+    if error.code == "ncm_world_summaries_missing":
+        return error.code, {"slot": "counterfactual_result.world_summaries"}
+    allowed_prefixes = ("ncm", "coupled", "system_dynamics", "method_registry", "program_graph")
+    allowed_suffixes = (
+        "result_malformed",
+        "result_missing",
+        "outcome_missing",
+        "outcome_non_numeric",
+        "outcome_non_finite",
+        "effect_non_finite",
+        "outcome_aggregation_not_established",
+        "outcome_aggregation_invalid",
+        "outcome_aggregation_unit_mismatch",
+        "outcome_shape_unsupported",
+        "temporal_outcome_series_missing",
+        "temporal_output_missing",
+        "trajectory_missing",
+        "trajectory_malformed",
+        "trajectory_exceeds_horizon",
+        "trajectory_contract_invalid",
+    )
+    known_codes = {
+        f"{prefix}_{suffix}" for prefix in allowed_prefixes for suffix in allowed_suffixes
+    }
+    known_codes.add("trajectory_coverage_incomplete")
+    if error.code not in known_codes:
+        return None, None
+    outcome = error.context.get("outcome")
+    if outcome is not None and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.:-]{0,127}", outcome):
+        return error.code, {"outcome": outcome}
+    return error.code, None
 
 
 class _PhysicalRunOutput(list[SimulationTrajectory]):
@@ -1095,6 +1720,7 @@ class _PhysicalRunOutput(list[SimulationTrajectory]):
         super().__init__(trajectories)
         self.observations = tuple(observations)
         self.budget_observations = tuple(budget_observations)
+        self.comparator_record: dict[str, Any] | None = None
 
 
 class _PhysicalWorkInterruptedError(JointSimulationControllerError):
@@ -1114,6 +1740,11 @@ class _PhysicalWorkInterruptedError(JointSimulationControllerError):
         self.observations = tuple(observations)
         self.budget_observations = tuple(budget_observations)
         self.budget_refusal_basis = budget_refusal_basis
+        self.comparator_record: dict[str, Any] | None = None
+        self.projection_error_code: str | None = None
+        self.projection_error_context: dict[str, str] | None = None
+        self.completed_physical_value: Any = None
+        self.completed_physical_observation: PhysicalSimulationWorkObservation | None = None
 
 
 def _run_cached_replicates(
@@ -1123,6 +1754,8 @@ def _run_cached_replicates(
     run_once: Callable[[RunLevel, tuple[InterventionAtomBinding, ...], int], SimulationTrajectory],
     *,
     producer_budget_observer: ProducerBudgetObserver | None = None,
+    comparator_once: Callable[[int], Mapping[str, float]] | None = None,
+    comparator_samples: list[dict[str, Any]] | None = None,
 ) -> list[SimulationTrajectory]:
     """Admit each physical seed once; role projections do not create new work.
 
@@ -1134,6 +1767,8 @@ def _run_cached_replicates(
         type(producer_budget_observer) is not ProducerBudgetObserver
         or "admit" in vars(producer_budget_observer)
         or "observe" in vars(producer_budget_observer)
+        or "reserve_invocation" in vars(producer_budget_observer)
+        or "finish_invocation" in vars(producer_budget_observer)
     ):
         raise JointSimulationControllerError("n5_budget_observer_not_canonical")
     cache: dict[str, SimulationTrajectory] = {}
@@ -1142,90 +1777,254 @@ def _run_cached_replicates(
     budget_bases: dict[str, ProducerBudgetObservation] = {}
     invocation_id = uuid4().hex
     seeds = _replication_seeds(request)
+
+    def physical_call(
+        seed: int, physical_ref: str, operation: Callable[[], Any]
+    ) -> tuple[Any, PhysicalSimulationWorkObservation]:
+        budget_observation = None
+        if producer_budget_observer is not None:
+            try:
+                budget_observation = producer_budget_observer.admit()
+            except (BudgetExhaustedError, ProducerBudgetSourceError) as exc:
+                last_checked = producer_budget_observer.last_checked
+                if last_checked is not None:
+                    budget_bases[last_checked.source_basis_digest] = last_checked
+                exhausted = isinstance(exc, BudgetExhaustedError)
+                status = (
+                    "configured_limit_only"
+                    if producer_budget_observer.configured_limit_usd == 0
+                    else "current_owner_checked"
+                    if exhausted
+                    else "last_checked_not_current"
+                )
+                raise _PhysicalWorkInterruptedError(
+                    "n5_current_budget_exhausted"
+                    if exhausted
+                    else "n5_current_budget_source_not_established",
+                    output,
+                    observations,
+                    tuple(budget_bases.values()),
+                    budget_refusal_basis={
+                        "status": status,
+                        "configured_limit_usd": str(producer_budget_observer.configured_limit_usd),
+                        "last_checked_observation_ref": (
+                            last_checked.source_basis_digest if last_checked is not None else None
+                        ),
+                    },
+                ) from exc
+            budget_bases[budget_observation.source_basis_digest] = budget_observation
+        physical_spec_ref = _physical_spec_digest(physical_ref)
+        operation_id, request_digest = _physical_invocation_binding(
+            invocation_id, physical_spec_ref, seed
+        )
+        quota_reservation = None
+        if producer_budget_observer is not None:
+            try:
+                quota_reservation = producer_budget_observer.reserve_invocation(
+                    operation_id, request_digest
+                )
+                profile = producer_budget_observer.invocation_quota_profile
+                if (profile is None) != (quota_reservation is None):
+                    raise ProducerBudgetSourceError("n5_invocation_quota_reservation_missing")
+                if quota_reservation is not None and (
+                    quota_reservation.operation_id != operation_id
+                    or quota_reservation.request_digest != request_digest
+                    or quota_reservation.profile_digest != profile.profile_digest
+                    or quota_reservation.purpose != producer_budget_observer.invocation_purpose
+                    or quota_reservation.units != 1
+                    or quota_reservation.status != "reserved"
+                ):
+                    raise ProducerBudgetSourceError("n5_invocation_quota_reservation_mismatch")
+            except Exception as exc:
+                raise _PhysicalWorkInterruptedError(
+                    "n5_invocation_quota_exhausted"
+                    if isinstance(exc, BudgetExhaustedError)
+                    else "n5_invocation_quota_source_not_established",
+                    output,
+                    observations,
+                    tuple(budget_bases.values()),
+                    budget_refusal_basis={
+                        "work_unit": "physical_simulation_invocation",
+                        "purpose": producer_budget_observer.invocation_purpose,
+                        "price_origin": "unknown",
+                    },
+                ) from exc
+        started_monotonic = perf_counter()
+        started_at = datetime.now(UTC)
+        error: Exception | None = None
+        value: Any = None
+        try:
+            value = operation()
+            if _contains_negative_zero(value):
+                raise JointSimulationControllerError("n5_signed_zero_output_not_persistable")
+        except Exception as exc:
+            error = exc
+        quota_status: Literal["completed", "failed", "unknown"] | None = None
+        quota_finish_error: Exception | None = None
+        if quota_reservation is not None:
+            quota_status = "completed" if error is None else "failed"
+            try:
+                if producer_budget_observer is None:
+                    raise ProducerBudgetSourceError("n5_invocation_quota_observer_missing")
+                producer_budget_observer.finish_invocation(
+                    operation_id, request_digest, quota_status
+                )
+            except Exception as exc:
+                quota_finish_error = exc
+                quota_status = "unknown"
+        error_code, error_context = _safe_work_cause(error)
+        work = PhysicalSimulationWorkObservation(
+            invocation_id=invocation_id,
+            event_id=uuid4().hex,
+            physical_spec_ref=physical_spec_ref,
+            effective_seed=seed,
+            status="completed" if error is None else "failed",
+            started_at=started_at,
+            completed_at=datetime.now(UTC),
+            duration_seconds=max(0.0, perf_counter() - started_monotonic),
+            budget_status=("current_owner_checked" if budget_observation else "not_established"),
+            budget_source_basis_digest=(
+                budget_observation.source_basis_digest if budget_observation else None
+            ),
+            error_type=type(error).__name__ if error is not None else None,
+            error_code=error_code,
+            error_context=error_context,
+            invocation_quota_operation_id=operation_id if quota_reservation is not None else None,
+            invocation_quota_request_digest=request_digest
+            if quota_reservation is not None
+            else None,
+            invocation_quota_profile_digest=(
+                quota_reservation.profile_digest if quota_reservation is not None else None
+            ),
+            invocation_quota_purpose=(
+                quota_reservation.purpose if quota_reservation is not None else None
+            ),
+            invocation_quota_status=quota_status,
+        )
+        observations.append(work)
+        if quota_finish_error is not None:
+            if error is not None:
+                raise_artifact_read_access_error(error)
+            raise_artifact_read_access_error(quota_finish_error)
+            interrupted = _PhysicalWorkInterruptedError(
+                "n5_invocation_quota_outcome_unresolved",
+                output,
+                observations,
+                tuple(budget_bases.values()),
+                budget_refusal_basis={
+                    "work_unit": "physical_simulation_invocation",
+                    "status": "outcome_unknown",
+                    "price_origin": "unknown",
+                },
+            )
+            if error is None:
+                interrupted.completed_physical_value = value
+                interrupted.completed_physical_observation = work
+            raise interrupted from (error if error is not None else quota_finish_error)
+        if error is not None:
+            raise _PhysicalWorkInterruptedError(
+                "n5_physical_work_failed", output, observations, tuple(budget_bases.values())
+            ) from error
+        return value, work
+
+    if comparator_once is not None:
+        if comparator_samples is None:
+            raise JointSimulationControllerError("ncm_comparator_capture_missing")
+        comparator_ref = _physical_run_ref(request, plan, decision, ())
+        for seed in seeds:
+            try:
+                values, work = physical_call(
+                    seed, comparator_ref, lambda seed=seed: comparator_once(seed)
+                )
+            except _PhysicalWorkInterruptedError as exc:
+                if exc.completed_physical_observation is not None and isinstance(
+                    exc.completed_physical_value, Mapping
+                ):
+                    comparator_samples.append(
+                        {
+                            "seed": seed,
+                            "outcomes": dict(exc.completed_physical_value),
+                            "physical_work_event_id": exc.completed_physical_observation.event_id,
+                        }
+                    )
+                raise
+            comparator_samples.append(
+                {"seed": seed, "outcomes": dict(values), "physical_work_event_id": work.event_id}
+            )
     for run_level, raw_subset in _atom_subsets(request.intervention_atoms):
         subset = tuple(raw_subset)
         physical_ref = _physical_run_ref(request, plan, decision, subset)
-        physical_digest = _physical_spec_digest(physical_ref)
         reused = physical_ref in cache
         if not reused:
             replicated: list[SimulationTrajectory] = []
             physical_observations: list[PhysicalSimulationWorkObservation] = []
             for seed in seeds:
-                budget_observation = None
-                if producer_budget_observer is not None:
-                    try:
-                        budget_observation = producer_budget_observer.admit()
-                    except (BudgetExhaustedError, ProducerBudgetSourceError) as exc:
-                        last_checked = producer_budget_observer.last_checked
-                        if last_checked is not None:
-                            budget_bases[last_checked.source_basis_digest] = last_checked
-                        exhausted = isinstance(exc, BudgetExhaustedError)
-                        status = (
-                            "configured_limit_only"
-                            if producer_budget_observer.configured_limit_usd == 0
-                            else "current_owner_checked"
-                            if exhausted
-                            else "last_checked_not_current"
-                        )
-                        raise _PhysicalWorkInterruptedError(
-                            "n5_current_budget_exhausted"
-                            if exhausted
-                            else "n5_current_budget_source_not_established",
-                            output,
-                            observations,
-                            tuple(budget_bases.values()),
-                            budget_refusal_basis={
-                                "status": status,
-                                "configured_limit_usd": str(
-                                    producer_budget_observer.configured_limit_usd
-                                ),
-                                "last_checked_observation_ref": (
-                                    last_checked.source_basis_digest
-                                    if last_checked is not None
-                                    else None
-                                ),
-                            },
-                        ) from exc
-                    budget_bases[budget_observation.source_basis_digest] = budget_observation
-                started_monotonic = perf_counter()
-                started_at = datetime.now(UTC)
-                error: Exception | None = None
                 try:
-                    trajectory = run_once(run_level, subset, seed)
-                except Exception as exc:
-                    error = exc
-                work = PhysicalSimulationWorkObservation(
-                    invocation_id=invocation_id,
-                    event_id=uuid4().hex,
-                    physical_spec_ref=physical_digest,
-                    effective_seed=seed,
-                    status="completed" if error is None else "failed",
-                    started_at=started_at,
-                    completed_at=datetime.now(UTC),
-                    duration_seconds=max(0.0, perf_counter() - started_monotonic),
-                    budget_status=(
-                        "current_owner_checked"
-                        if budget_observation is not None
-                        else "not_established"
-                    ),
-                    budget_source_basis_digest=(
-                        budget_observation.source_basis_digest
-                        if budget_observation is not None
-                        else None
-                    ),
-                    error_type=type(error).__name__ if error is not None else None,
-                )
-                observations.append(work)
+                    trajectory, work = physical_call(
+                        seed,
+                        physical_ref,
+                        lambda run_level=run_level, subset=subset, seed=seed: run_once(
+                            run_level, subset, seed
+                        ),
+                    )
+                except _PhysicalWorkInterruptedError as exc:
+                    if exc.completed_physical_observation is not None and isinstance(
+                        exc.completed_physical_value, SimulationTrajectory
+                    ):
+                        replicated.append(exc.completed_physical_value)
+                        physical_observations.append(exc.completed_physical_observation)
+                        if len(replicated) == len(seeds):
+                            try:
+                                completed = _aggregate_replicated_trajectory(
+                                    replicated, seeds, physical_ref
+                                )
+                                if _contains_negative_zero(completed):
+                                    raise JointSimulationControllerError(
+                                        "n5_signed_zero_aggregate_not_persistable"
+                                    )
+                            except (ValueError, OverflowError) as projection_error:
+                                exc.projection_error_code, exc.projection_error_context = (
+                                    _safe_work_cause(projection_error)
+                                )
+                            else:
+                                output.append(
+                                    completed.model_copy(
+                                        update={
+                                            "run_level": run_level,
+                                            "atom_ids": tuple(
+                                                atom.intervention_id for atom in subset
+                                            ),
+                                            "diagnostics": {
+                                                **completed.diagnostics,
+                                                "physical_work_event_ids": [
+                                                    item.event_id for item in physical_observations
+                                                ],
+                                                "physical_run_ref": physical_ref,
+                                                "physical_run_reused": False,
+                                                "role": run_level,
+                                            },
+                                        }
+                                    )
+                                )
+                                exc.trajectories = tuple(output)
+                    raise
                 physical_observations.append(work)
-                if error is not None:
-                    raise _PhysicalWorkInterruptedError(
-                        "n5_physical_work_failed",
-                        output,
-                        observations,
-                        tuple(budget_bases.values()),
-                    ) from error
                 replicated.append(trajectory)
-            aggregate = _aggregate_replicated_trajectory(replicated, seeds, physical_ref)
+            try:
+                aggregate = _aggregate_replicated_trajectory(replicated, seeds, physical_ref)
+                if _contains_negative_zero(aggregate):
+                    raise JointSimulationControllerError("n5_signed_zero_aggregate_not_persistable")
+            except (ValueError, OverflowError) as exc:
+                interrupted = _PhysicalWorkInterruptedError(
+                    "n5_replication_projection_failed",
+                    output,
+                    observations,
+                    tuple(budget_bases.values()),
+                )
+                interrupted.projection_error_code, interrupted.projection_error_context = (
+                    _safe_work_cause(exc)
+                )
+                raise interrupted from exc
             cache[physical_ref] = aggregate.model_copy(
                 update={
                     "diagnostics": {
@@ -1275,7 +2074,7 @@ class InteractionTerm(_StrictModel):
             if set(summary.effects_standard_error) != {"derived_effect"}:
                 raise ValueError("interaction_sampling_effect_key_invalid")
             values = [sample.effects["derived_effect"] for sample in summary.samples]
-            mean = float(np.mean(np.asarray(values, dtype=float)))
+            mean = _finite_mean(values)
             if not math.isclose(mean, self.by_step[step], rel_tol=1e-12, abs_tol=1e-12):
                 raise ValueError("interaction_mean_recomputation_mismatch")
         return self
@@ -1314,6 +2113,7 @@ class SimulationProofReceipt(_StrictModel):
         "policyos.runtime.joint_simulation_horizon.v2",
         "policyos.runtime.joint_simulation_horizon.v3",
         "policyos.runtime.joint_simulation_horizon.v4",
+        "policyos.runtime.joint_simulation_horizon.v5",
     ] = JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
     receipt_id: str = Field(..., pattern=r"^joint_sim_receipt_[a-f0-9]{16}$")
     engine_kind: str = Field(..., min_length=1)
@@ -1364,6 +2164,7 @@ class JointSimulationResult(_StrictModel):
         "policyos.runtime.joint_simulation_horizon.v2",
         "policyos.runtime.joint_simulation_horizon.v3",
         "policyos.runtime.joint_simulation_horizon.v4",
+        "policyos.runtime.joint_simulation_horizon.v5",
     ] = JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
     world_model_record_ref: str
     world_model_record_content_hash: str
@@ -1393,6 +2194,15 @@ class JointSimulationResult(_StrictModel):
     receipt: SimulationProofReceipt
 
     _content_payload: dict[str, Any] = PrivateAttr(default_factory=dict)
+    _comparator_refs_verified: bool = PrivateAttr(default=False)
+
+    @property
+    def comparator_refs_verified(self) -> bool:
+        """Indicate that this object came through a matching selected-ref read.
+
+        This local observation is not an authorization or an attestation.
+        """
+        return self._comparator_refs_verified
 
     @property
     def physical_work_observations(self) -> tuple[PhysicalSimulationWorkObservation, ...]:
@@ -1498,6 +2308,7 @@ class JointSimulationResult(_StrictModel):
     @model_validator(mode="after")
     def _versioned_state_consumption(self) -> JointSimulationResult:
         _ = self.physical_work_observations
+        _validate_embedded_ncm_comparator(self)
         if self.receipt.schema_version != self.schema_version:
             raise ValueError("joint_simulation_receipt_schema_mismatch")
         if self.schema_version == JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION:
@@ -1509,6 +2320,7 @@ class JointSimulationResult(_StrictModel):
         elif self.schema_version in {
             JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION,
             JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION,
+            JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION,
         }:
             requested = self.diagnostics.get("requested_replications")
             seeds = self.diagnostics.get("replication_seeds")
@@ -1528,11 +2340,18 @@ class JointSimulationResult(_StrictModel):
                     trajectory.diagnostics.get("requested_replications") != requested
                     or trajectory.diagnostics.get("actual_replications") != requested
                     or trajectory.diagnostics.get("replication_seeds") != list(seeds)
+                    or (
+                        self.schema_version
+                        == JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION
+                        and trajectory.diagnostics.get("numeric_reduction_policy")
+                        != "finite_binary64_mean.v1"
+                    )
                 ):
                     raise ValueError("replication_trajectory_request_mismatch")
-            if self.schema_version == (
-                JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
-            ):
+            if self.schema_version in {
+                JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION,
+                JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION,
+            }:
                 (
                     expected_terms,
                     expected_residual_means,
@@ -1583,6 +2402,11 @@ class JointSimulationResult(_StrictModel):
                     interaction_evidence_issues=evidence_issues,
                     aggregate_order_three_plus=len(self.atom_ids) >= 4,
                     interaction_required=len(self.atom_ids) >= 2,
+                    require_qualified_tolerance=(
+                        self.schema_version
+                        == JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION
+                    ),
+                    qualified_decision=_qualified_numeric_decision(self),
                 )
                 if self.feedback_classification.numeric_interaction != expected_numeric:
                     raise ValueError("numeric_interaction_classification_recomputation_mismatch")
@@ -1608,6 +2432,170 @@ class JointSimulationResult(_StrictModel):
             if trajectory.run_level == run_level and trajectory.atom_ids == normalized:
                 return trajectory
         raise KeyError(f"trajectory_not_found:{run_level}:{','.join(normalized)}")
+
+
+def _validate_embedded_ncm_comparator(result: JointSimulationResult) -> None:
+    """Reconcile a signed paired result, without pretending to know the caller request."""
+    raw = result.diagnostics.get("ncm_conditional_comparator")
+    if raw is None:
+        if result.diagnostics.get("effect_basis_status") == "established":
+            raise ValueError("ncm_comparator_record_missing")
+        return
+    if not isinstance(raw, dict) or set(raw) != {
+        "schema_version",
+        "estimand",
+        "request",
+        "input",
+        "result",
+    }:
+        raise ValueError("ncm_comparator_record_invalid")
+    expected_status = (
+        "not_established" if "physical_work_interruption" in result.diagnostics else "established"
+    )
+    if (
+        raw["schema_version"] != "policyos.runtime.ncm_conditional_comparator.v1"
+        or raw["estimand"] != "conditional_model_outcome_difference.v1"
+        or result.diagnostics.get("effect_basis") != "paired_conditional_model_difference.v1"
+        or result.diagnostics.get("effect_basis_status") != expected_status
+        or result.diagnostics.get("comparator_refs_status") != "selected_manifest_required"
+        or result.promotion_ready_value_packet.get("effect_basis_status")
+        != (expected_status if result.trajectories else "not_applicable_no_trajectory")
+        or result.promotion_ready_value_packet.get("comparator_refs_status")
+        != "selected_manifest_required"
+    ):
+        raise ValueError("ncm_comparator_status_invalid")
+    binding, query, observed = raw["request"], raw["input"], raw["result"]
+    if (
+        not isinstance(binding, dict)
+        or not isinstance(query, dict)
+        or not isinstance(observed, dict)
+    ):
+        raise ValueError("ncm_comparator_record_invalid")
+    selected = [decision for decision in result.engine_decisions if decision.decision == "selected"]
+    seeds = result.diagnostics.get("replication_seeds")
+    if (
+        len(selected) != 1
+        or selected[0].engine_kind != "ncm_parallel_worlds"
+        or binding.get("world_model_record_ref") != result.world_model_record_ref
+        or binding.get("world_model_record_content_hash") != result.world_model_record_content_hash
+        or binding.get("method_fqn") != selected[0].method_fqn
+        or binding.get("horizon") != result.horizon.model_dump(mode="json")
+        or binding.get("selected_outcomes") != list(result.selected_outcomes)
+        or binding.get("replication_seeds") != seeds
+        or binding.get("outcome_units_status") != "declared_candidate_not_independently_grounded"
+        or not isinstance(binding.get("evidence_state"), dict)
+        or not isinstance(binding.get("outcome_units"), dict)
+        or set(binding["outcome_units"]) != set(result.selected_outcomes)
+        or any(
+            type(unit) is not str or not unit.strip() for unit in binding["outcome_units"].values()
+        )
+    ):
+        raise ValueError("ncm_comparator_scope_invalid")
+    try:
+        plan = EnginePlan.model_validate(binding["engine_plan"])
+        atoms = tuple(
+            InterventionAtomBinding.model_validate(item) for item in binding["intervention_atoms"]
+        )
+        if tuple(atom.intervention_id for atom in atoms) != result.atom_ids:
+            raise ValueError("ncm_comparator_atom_binding_invalid")
+        if (
+            plan.engine_kind != "ncm_parallel_worlds"
+            or plan.objective_ref != selected[0].objective_ref
+        ):
+            raise ValueError("ncm_comparator_plan_invalid")
+        expected_query = NCMQueryData(
+            ncm_spec=plan.ncm_spec,
+            evidence=_resolved_ncm_evidence(binding["evidence_state"], plan),
+            interventions=[{}],
+            query_vars=[_engine_variable(outcome, plan) for outcome in result.selected_outcomes],
+            n_samples=1,
+        ).model_dump(mode="json")
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError("ncm_comparator_input_invalid") from exc
+    if query != expected_query:
+        raise ValueError("ncm_comparator_input_mismatch")
+    samples = observed.get("samples")
+    if (
+        set(observed) != {"samples"}
+        or not isinstance(samples, list)
+        or not isinstance(seeds, list | tuple)
+        or len(samples) != len(seeds)
+    ):
+        raise ValueError("ncm_comparator_sample_denominator_invalid")
+    work = {item.event_id: item for item in result.physical_work_observations}
+    policy_events = {
+        event_id
+        for trajectory in result.trajectories
+        for event_id in trajectory.diagnostics.get("physical_work_event_ids", ())
+    }
+    baseline: dict[int, dict[str, float]] = {}
+    spec_refs: set[str] = set()
+    for seed, sample in zip(seeds, samples, strict=True):
+        if not isinstance(sample, dict) or set(sample) != {
+            "seed",
+            "outcomes",
+            "physical_work_event_id",
+        }:
+            raise ValueError("ncm_comparator_sample_invalid")
+        event = work.get(sample["physical_work_event_id"])
+        values = sample["outcomes"]
+        if (
+            type(seed) is not int
+            or sample["seed"] != seed
+            or not isinstance(values, dict)
+            or set(values) != set(result.selected_outcomes)
+            or event is None
+            or event.status != "completed"
+            or event.effective_seed != seed
+            or event.event_id in policy_events
+        ):
+            raise ValueError("ncm_comparator_work_binding_invalid")
+        try:
+            if any(
+                type(value) not in (int, float) or not math.isfinite(value)
+                for value in values.values()
+            ):
+                raise ValueError("ncm_comparator_sample_non_finite")
+            baseline[seed] = {name: float(value) for name, value in values.items()}
+        except (TypeError, ValueError, OverflowError) as exc:
+            raise ValueError("ncm_comparator_sample_non_finite") from exc
+        spec_refs.add(event.physical_spec_ref)
+    if len(spec_refs) != 1:
+        raise ValueError("ncm_comparator_physical_spec_mismatch")
+    for trajectory in result.trajectories:
+        for point in trajectory.points:
+            sampling = point.replication_sampling
+            if sampling is None or tuple(sample.seed for sample in sampling.samples) != tuple(
+                seeds
+            ):
+                raise ValueError("ncm_comparator_paired_samples_missing")
+            for sample in sampling.samples:
+                if any(
+                    sample.effects[outcome]
+                    != sample.outcomes[outcome] - baseline[sample.seed][outcome]
+                    for outcome in result.selected_outcomes
+                ):
+                    raise ValueError("ncm_comparator_paired_effect_mismatch")
+            for key in result.selected_outcomes:
+                exact = (
+                    trajectory.diagnostics.get("numeric_reduction_policy")
+                    == "finite_binary64_mean.v1"
+                )
+                if point.outcomes[key] != _finite_mean(
+                    [sample.outcomes[key] for sample in sampling.samples], exact=exact
+                ) or point.effect[key] != _finite_mean(
+                    [sample.effects[key] for sample in sampling.samples], exact=exact
+                ):
+                    raise ValueError("ncm_comparator_aggregate_mismatch")
+                for metric, reported in (
+                    ("outcomes", sampling.outcomes_standard_error[key]),
+                    ("effects", sampling.effects_standard_error[key]),
+                ):
+                    expected = _sample_standard_error(
+                        [getattr(sample, metric)[key] for sample in sampling.samples]
+                    )
+                    if reported != expected:
+                        raise ValueError("ncm_comparator_standard_error_mismatch")
 
 
 @dataclass(frozen=True, slots=True)
@@ -1650,6 +2638,10 @@ def build_content_bound_simulation_receipt(
     if schema_version not in _JOINT_SIMULATION_HORIZON_SCHEMA_VERSIONS:
         raise ProofReceiptError("receipt_schema_version_unsupported")
     diagnostics_dict = _json_ready(diagnostics)
+    if schema_version == JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION and (
+        _contains_negative_zero(payload_dict) or _contains_negative_zero(diagnostics_dict)
+    ):
+        raise ProofReceiptError("n5_signed_zero_payload_not_persistable")
     trajectory_hash = gy_content_hash(
         payload_dict.get("trajectory", payload_dict.get("trajectories", ()))
     )
@@ -1707,6 +2699,7 @@ def bind_world_state_consumption(
         JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION,
         JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION,
         JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION,
+        JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION,
     }:
         raise ProofReceiptError("state_consumption_requires_unbound_engine_result")
     verify_simulation_receipt(result.receipt, result.content_bound_payload())
@@ -1854,6 +2847,11 @@ class JointSimulationHorizonController:
         """Run individual, pairwise, and joint horizons or fail closed."""
 
         self._last_n5_implementation_capture = None
+        # model_copy(update=...) can bypass the request's public field validator.
+        # An empty set cannot become a synthetic joint/comparator execution.
+        if not request.intervention_atoms:
+            raise JointSimulationControllerError("intervention_atoms_missing")
+        _validate_ncm_comparator_request(request)
         self._validate_world_model_record(request)
         world_input = consume_world_model_record_for_simulation(request.world_model_record)
         for atom in request.intervention_atoms:
@@ -1863,6 +2861,28 @@ class JointSimulationHorizonController:
         decision = selected.decision
         selected_plan = selected.plan
         decisions = selected.decisions
+        if (
+            request.comparator_profile is not None
+            and decision.decision == "selected"
+            and decision.engine_kind != "ncm_parallel_worlds"
+        ):
+            raise JointSimulationControllerError("ncm_comparator_engine_mismatch")
+        numeric_contract: dict[str, Any] | None = None
+        if request.comparator_profile is not None and decision.decision == "selected":
+            from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
+            from polisyos.runtime.quality.ncm_numeric_profile import (
+                NCMNumericProfileUnsupportedError,
+            )
+
+            try:
+                if self._registry.get(decision.method_fqn) is not NCMEngineMethod:
+                    raise NCMNumericProfileUnsupportedError("numeric_profile_method_not_canonical")
+                numeric_contract = _ncm_numeric_contract_from_binding(
+                    _ncm_comparator_request_projection(request, selected_plan, decision)
+                )
+            except (NCMNumericProfileUnsupportedError, KeyError, TypeError, ValueError):
+                # Candidate simulation may run; this narrower classification remains unsupported.
+                numeric_contract = None
         coupling_support = _resolve_coupling_support(
             request=request,
             engine_kind=decision.engine_kind,
@@ -1925,7 +2945,25 @@ class JointSimulationHorizonController:
             "replication_seeds": list(_replication_seeds(request)),
             "checked_interaction_orders": [],
             "engine_run_claimed": False,
+            "interaction_numerical_tolerance": {"status": "not_established"},
+            "invocation_quota_capacity": (
+                "protected_profile_configured"
+                if self._producer_budget_observer is not None
+                and self._producer_budget_observer.invocation_guarantee == "protected_invocations"
+                else "no_guarantee"
+            ),
+            "invocation_quota_verification": "fresh_ledger_read_required",
         }
+        if decision.decision == "selected":
+            numeric_limitations = _assignment_numeric_limitations(
+                request.intervention_atoms, decision.engine_kind
+            )
+            if numeric_limitations:
+                diagnostics["intervention_numeric_limitations"] = numeric_limitations
+            if decision.engine_kind == "program_graph":
+                diagnostics["intervention_semantics_limitation"] = (
+                    "program_parameter_override_atom_semantics_not_established"
+                )
 
         if decision.decision == "selected":
             runner = self._engine_runners().get(decision.engine_kind)
@@ -1944,6 +2982,11 @@ class JointSimulationHorizonController:
                             item.source_basis_digest: item.model_dump(mode="json")
                             for item in produced.budget_observations
                         }
+                        if produced.comparator_record is not None:
+                            diagnostics["ncm_conditional_comparator"] = produced.comparator_record
+                            diagnostics["effect_basis"] = "paired_conditional_model_difference.v1"
+                            diagnostics["effect_basis_status"] = "established"
+                            diagnostics["comparator_refs_status"] = "selected_manifest_required"
                 except _PhysicalWorkInterruptedError as exc:
                     # A recorded work interruption must not turn an actual
                     # access denial into an ordinary partial numerical result.
@@ -1958,6 +3001,14 @@ class JointSimulationHorizonController:
                         item.source_basis_digest: item.model_dump(mode="json")
                         for item in exc.budget_observations
                     }
+                    if exc.comparator_record is not None:
+                        diagnostics["ncm_conditional_comparator"] = exc.comparator_record
+                        diagnostics["effect_basis"] = "paired_conditional_model_difference.v1"
+                        diagnostics["comparator_refs_status"] = "selected_manifest_required"
+                    if exc.projection_error_code is not None:
+                        diagnostics["projection_error_code"] = exc.projection_error_code
+                        if exc.projection_error_context is not None:
+                            diagnostics["projection_error_context"] = exc.projection_error_context
                     if exc.budget_refusal_basis is not None:
                         diagnostics["budget_interruption_basis"] = exc.budget_refusal_basis
                 diagnostics["engine_run_claimed"] = bool(trajectories)
@@ -2051,6 +3102,25 @@ class JointSimulationHorizonController:
             diagnostics["interaction_sampling_issues"] = list(interaction_sampling_issues)
             diagnostics["interaction_evidence_issues"] = list(interaction_evidence_issues)
 
+        qualified_numeric: Literal["additive", "non_additive", "unsupported"] | None = None
+        comparator = diagnostics.get("ncm_conditional_comparator")
+        if (
+            numeric_contract is not None
+            and isinstance(comparator, dict)
+            and "physical_work_interruption" not in diagnostics
+        ):
+            qualified_numeric = _evaluate_ncm_numeric_contract(
+                numeric_contract,
+                trajectories,
+                comparator["result"]["samples"],
+                interaction_terms,
+                higher_order_residuals,
+            )
+            if qualified_numeric is not None:
+                diagnostics["interaction_numerical_tolerance"] = {
+                    "status": "qualified",
+                    "contract": numeric_contract,
+                }
         feedback = _feedback_classification(
             request=request,
             interaction_terms=interaction_terms,
@@ -2069,14 +3139,18 @@ class JointSimulationHorizonController:
                 no_interactions_applicable=len(request.intervention_atoms) < 2,
             ),
             interaction_sampling_issues=interaction_sampling_issues,
+            qualified_numeric_decision=qualified_numeric,
         )
         authority_blockers = ["simulation_only_k_sim_not_world_evidence"]
+        authority_blockers.extend(diagnostics.get("intervention_numeric_limitations", ()))
+        if "intervention_semantics_limitation" in diagnostics:
+            authority_blockers.append(str(diagnostics["intervention_semantics_limitation"]))
         if "physical_work_interruption" in diagnostics:
             authority_blockers.append(str(diagnostics["physical_work_interruption"]))
-        if trajectories:
+        if trajectories and diagnostics["effect_basis_status"] != "established":
             authority_blockers.append("simulation_effect_basis_not_established")
-            if decision.temporal_capability == "multi_period":
-                authority_blockers.append("horizon_time_alignment_not_established")
+        if trajectories and decision.temporal_capability == "multi_period":
+            authority_blockers.append("horizon_time_alignment_not_established")
         if interaction_evidence_issues:
             authority_blockers.append("interaction_evidence_incomplete")
         point_sampling_statuses = {
@@ -2104,10 +3178,12 @@ class JointSimulationHorizonController:
             "grounding_method_refs": [
                 item.method_fqn for item in decisions if item.method_fqn is not None
             ],
-            "comparator_refs_status": "not_established",
-            "effect_basis": "outcome_minus_request_baseline_state",
+            "comparator_refs_status": diagnostics["comparator_refs_status"],
+            "effect_basis": diagnostics["effect_basis"],
             "effect_basis_status": (
-                "not_established" if trajectories else "not_applicable_no_trajectory"
+                diagnostics["effect_basis_status"]
+                if trajectories
+                else "not_applicable_no_trajectory"
             ),
             "physical_time_basis_status": (
                 "not_established"
@@ -2145,6 +3221,8 @@ class JointSimulationHorizonController:
             "promotion_ready_value_packet": _json_ready(value_packet),
             "diagnostics": _json_ready(diagnostics),
         }
+        if _contains_negative_zero(result_without_receipt):
+            raise JointSimulationControllerError("n5_signed_zero_payload_not_persistable")
         receipt = build_content_bound_simulation_receipt(
             engine_kind=decision.engine_kind,
             payload=result_without_receipt,
@@ -2219,7 +3297,11 @@ class JointSimulationHorizonController:
                 decision = _unsupported(plan, reason, (blocker,))
             if decision.decision == "selected":
                 try:
+                    _physical_plan_identity(plan)
                     _validate_atom_composition(plan, request.intervention_atoms)
+                    if plan.engine_kind == "ncm_parallel_worlds":
+                        evidence, _ = _effective_evidence_state(request)
+                        _resolved_ncm_evidence(evidence, plan)
                 except JointSimulationControllerError as exc:
                     decision = _unsupported(plan, exc.code, (exc.code,))
             decisions.append(decision)
@@ -2243,6 +3325,7 @@ class JointSimulationHorizonController:
         if type(request) is not JointSimulationRequest or type(result) is not JointSimulationResult:
             raise JointSimulationControllerError("selected_plan_execution_binding_missing")
         try:
+            _validate_ncm_comparator_request(request)
             # model_copy can bypass Pydantic validation; revisit the same
             # actual work/event owner used by fresh result construction.
             _ = result.physical_work_observations
@@ -2274,14 +3357,64 @@ class JointSimulationHorizonController:
                 or result.receipt.engine_kind != selected.decision.engine_kind
             ):
                 raise ValueError("selected_engine_owner_mismatch")
+            if result.schema_version == JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION:
+                numeric_limitations = _assignment_numeric_limitations(
+                    request.intervention_atoms, selected.decision.engine_kind
+                )
+                if result.diagnostics.get("intervention_numeric_limitations", []) != (
+                    numeric_limitations
+                ) or any(
+                    item not in result.promotion_ready_value_packet.get("authority_blockers", ())
+                    for item in numeric_limitations
+                ):
+                    raise ValueError("selected_numeric_assignment_limitation_mismatch")
+                graph_limitation = (
+                    "program_parameter_override_atom_semantics_not_established"
+                    if selected.decision.engine_kind == "program_graph"
+                    else None
+                )
+                if result.diagnostics.get(
+                    "intervention_semantics_limitation"
+                ) != graph_limitation or (
+                    graph_limitation is not None
+                    and graph_limitation
+                    not in result.promotion_ready_value_packet.get("authority_blockers", ())
+                ):
+                    raise ValueError("selected_intervention_semantics_limitation_mismatch")
             self._validate_selected_trajectories(
                 request=request,
                 plan=selected.plan,
                 decision=selected.decision,
                 trajectories=result.trajectories,
             )
+            comparator = result.diagnostics.get("ncm_conditional_comparator")
+            if request.comparator_profile is not None:
+                _validate_embedded_ncm_comparator(result)
+                if (
+                    not isinstance(comparator, dict)
+                    or comparator.get("request")
+                    != _ncm_comparator_request_projection(request, selected.plan, selected.decision)
+                    or comparator.get("input")
+                    != _ncm_comparator_input(request, selected.plan).model_dump(mode="json")
+                ):
+                    raise ValueError("selected_comparator_request_mismatch")
+                expected_ref = _physical_spec_digest(
+                    _physical_run_ref(request, selected.plan, selected.decision, ())
+                )
+                events = {item.event_id: item for item in result.physical_work_observations}
+                if any(
+                    events[sample["physical_work_event_id"]].physical_spec_ref != expected_ref
+                    for sample in comparator["result"]["samples"]
+                ):
+                    raise ValueError("selected_comparator_physical_spec_mismatch")
+            elif comparator is not None:
+                raise ValueError("unexpected_selected_comparator")
             for trajectory in result.trajectories:
                 for point in trajectory.points:
+                    if comparator is not None:
+                        # The embedded verifier checked every aligned seed against
+                        # the actual model comparator; a scalar baseline is not used.
+                        continue
                     for outcome in request.selected_outcomes:
                         expected = _effect_for_outcome(request, outcome, point.outcomes[outcome])
                         if not math.isclose(
@@ -2481,6 +3614,16 @@ class JointSimulationHorizonController:
             return _unsupported(plan, "engine_eligibility_failed", ("policy_domain_mismatch",))
         if required_structure and not required_structure.issubset(conditions):
             return _unsupported(plan, "engine_eligibility_failed", ("required_structure_missing",))
+        try:
+            validate_coupled_policy_inputs(plan.coupled_state)
+        except ValueError as exc:
+            key = str(exc).split(" ", 1)[0]
+            blocker = (
+                f"coupled_{key}_invalid"
+                if key in {"initial_income", "initial_savings", "is_employed", "risk_aversion"}
+                else "coupled_input_invalid"
+            )
+            return _unsupported(plan, "coupled_input_invalid", (blocker,))
         return EngineDecision(
             engine_kind=plan.engine_kind,
             objective_ref=plan.objective_ref,
@@ -2775,10 +3918,12 @@ class JointSimulationHorizonController:
                 metrics_payload = artifacts.metrics_ref.model_dump(mode="json")
                 state_delta_refs.append(str(artifacts.state_delta_ref.artifact_id))
                 metrics_refs.append(str(artifacts.metrics_ref.artifact_id))
+                aggregation_basis: dict[str, Any] = {}
                 outcomes = _program_graph_outcomes(
                     current_state,
                     request.selected_outcomes,
                     plan,
+                    aggregation_basis,
                 )
                 points.append(
                     TrajectoryPoint(
@@ -2793,6 +3938,11 @@ class JointSimulationHorizonController:
                             "metrics_ref_produced": True,
                             "state_delta_artifact_ref": state_delta_payload,
                             "metrics_artifact_ref": metrics_payload,
+                            **(
+                                {"outcome_aggregation_basis": aggregation_basis}
+                                if aggregation_basis
+                                else {}
+                            ),
                         },
                     )
                 )
@@ -2883,6 +4033,22 @@ class JointSimulationHorizonController:
             controller=self,
             method_fqn=decision.method_fqn,
         )
+        comparator_query = (
+            _ncm_comparator_input(request, plan) if request.comparator_profile is not None else None
+        )
+        comparator_by_seed: dict[int, dict[str, float]] = {}
+        comparator_samples: list[dict[str, Any]] = []
+
+        def comparator_once(replication_seed: int) -> dict[str, float]:
+            if comparator_query is None:
+                raise JointSimulationControllerError("ncm_comparator_request_binding_invalid")
+            with capture.observe_numerical_call():
+                output = selected_step(
+                    {"ncm_query_data": comparator_query}, {"__seed__": int(replication_seed)}
+                )
+                outcomes = _ncm_outcomes(output, request.selected_outcomes, plan)
+            comparator_by_seed[replication_seed] = outcomes
+            return outcomes
 
         def run_once(
             run_level: RunLevel,
@@ -2892,10 +4058,7 @@ class JointSimulationHorizonController:
             with capture.observe_numerical_call():
                 intervention = _ncm_intervention(subset, plan)
                 evidence_state, _ = _effective_evidence_state(request)
-                evidence = {
-                    _engine_variable(variable, plan): float(value)
-                    for variable, value in evidence_state.items()
-                }
+                evidence = _resolved_ncm_evidence(evidence_state, plan)
                 step = request.horizon.start
                 output = selected_step(
                     {
@@ -2913,13 +4076,23 @@ class JointSimulationHorizonController:
                     {"__seed__": int(replication_seed)},
                 )
                 outcomes = _ncm_outcomes(output, request.selected_outcomes, plan)
+                effects = {
+                    outcome: (
+                        outcomes[outcome] - comparator_by_seed[replication_seed][outcome]
+                        if comparator_query is not None
+                        else _effect_for_outcome(request, outcome, outcomes[outcome])
+                    )
+                    for outcome in request.selected_outcomes
+                }
+                for outcome, effect in effects.items():
+                    if not math.isfinite(effect):
+                        raise JointSimulationControllerError(
+                            "ncm_effect_non_finite", outcome, context={"outcome": outcome}
+                        )
                 point = TrajectoryPoint(
                     step=step,
                     outcomes=outcomes,
-                    effect={
-                        outcome: _effect_for_outcome(request, outcome, outcomes[outcome])
-                        for outcome in request.selected_outcomes
-                    },
+                    effect=effects,
                     engine_state={"intervention": dict(intervention)},
                 )
                 return SimulationTrajectory(
@@ -2936,14 +4109,80 @@ class JointSimulationHorizonController:
                     },
                 )
 
-        with capture:
-            trajectories = _run_cached_replicates(
-                request,
-                plan,
-                decision,
-                run_once,
-                producer_budget_observer=self._producer_budget_observer,
+        def comparator_record() -> dict[str, Any]:
+            if comparator_query is None:
+                raise JointSimulationControllerError("ncm_comparator_capture_missing")
+            return {
+                "schema_version": "policyos.runtime.ncm_conditional_comparator.v1",
+                "estimand": "conditional_model_outcome_difference.v1",
+                "request": _ncm_comparator_request_projection(request, plan, decision),
+                "input": comparator_query.model_dump(mode="json"),
+                "result": {"samples": list(comparator_samples)},
+            }
+
+        try:
+            with capture:
+                trajectories = _run_cached_replicates(
+                    request,
+                    plan,
+                    decision,
+                    run_once,
+                    producer_budget_observer=self._producer_budget_observer,
+                    comparator_once=comparator_once if comparator_query is not None else None,
+                    comparator_samples=comparator_samples if comparator_query is not None else None,
+                )
+        except _PhysicalWorkInterruptedError as exc:
+            if comparator_query is not None and len(comparator_samples) == request.replications:
+                exc.comparator_record = comparator_record()
+            raise
+        if comparator_query is not None:
+            from polisyos.foundry.coupling import (
+                PairedMonteCarloNumericalError,
+                paired_monte_carlo_effect,
             )
+
+            seeds = _replication_seeds(request)
+            checked_trajectories: list[SimulationTrajectory] = []
+            for trajectory in trajectories:
+                point = trajectory.points[0]
+                sampling = point.replication_sampling
+                if sampling is None:
+                    raise JointSimulationControllerError("ncm_comparator_paired_samples_missing")
+                policy_by_seed = {sample.seed: sample.outcomes for sample in sampling.samples}
+                try:
+                    paired = paired_monte_carlo_effect(
+                        lambda seed: comparator_by_seed[seed],
+                        lambda seed, policy_by_seed=policy_by_seed: policy_by_seed[seed],
+                        seeds=seeds,
+                        metric_names=request.selected_outcomes,
+                    )
+                except PairedMonteCarloNumericalError as exc:
+                    if type(trajectories) is not _PhysicalRunOutput:
+                        raise JointSimulationControllerError(
+                            "ncm_comparator_capture_missing"
+                        ) from exc
+                    interrupted = _PhysicalWorkInterruptedError(
+                        "n5_replication_projection_failed",
+                        checked_trajectories,
+                        trajectories.observations,
+                        trajectories.budget_observations,
+                    )
+                    interrupted.comparator_record = comparator_record()
+                    interrupted.projection_error_code, interrupted.projection_error_context = (
+                        _safe_work_cause(exc)
+                    )
+                    raise interrupted from exc
+                if any(
+                    dict(sample.effects) != dict(difference)
+                    for sample, difference in zip(
+                        sampling.samples, paired.paired_differences, strict=True
+                    )
+                ):
+                    raise JointSimulationControllerError("ncm_comparator_paired_samples_mismatch")
+                checked_trajectories.append(trajectory)
+            if type(trajectories) is not _PhysicalRunOutput:
+                raise JointSimulationControllerError("ncm_comparator_capture_missing")
+            trajectories.comparator_record = comparator_record()
         capture.bind_trajectories(trajectories)
         self._last_n5_implementation_capture = capture
         return trajectories
@@ -3130,6 +4369,21 @@ class JointSimulationHorizonController:
                     "trajectory_coverage_incomplete",
                     decision.method_fqn,
                 )
+            entry = self._registry.get_entry(decision.method_fqn)
+            declared_contract = (
+                entry.metadata.assumptions.get("joint_simulation_trajectory_row_contract")
+                if entry is not None
+                else None
+            )
+            row_profile, row_basis = _trajectory_row_profile(
+                method,
+                declared_contract,
+                state,
+                raw_trajectory,
+                params,
+                len(requested_steps),
+                error_prefix="system_dynamics",
+            )
             points: list[TrajectoryPoint] = []
             for index, step in enumerate(requested_steps[:covered_count]):
                 stock_values = raw_trajectory[index]
@@ -3140,6 +4394,13 @@ class JointSimulationHorizonController:
                     plan,
                     horizon_length=len(requested_steps),
                 )
+                if (
+                    row_profile["row_contract"] == "initial_then_transitions.v1"
+                    and not np.isfinite(np.asarray(stock_values, dtype=float)).all()
+                ):
+                    raise JointSimulationControllerError(
+                        "system_dynamics_trajectory_contract_invalid"
+                    )
                 points.append(
                     TrajectoryPoint(
                         step=step,
@@ -3150,10 +4411,15 @@ class JointSimulationHorizonController:
                         },
                         engine_state={
                             "stock_values": _json_ready(stock_values),
-                            "mass_balance": result.get("mass_balance"),
+                            **row_basis[index],
                         },
                     )
                 )
+            if row_profile["row_contract"] == "initial_then_transitions.v1" and any(
+                not np.isfinite(np.asarray(row, dtype=float)).all()
+                for row in raw_trajectory[covered_count:]
+            ):
+                raise JointSimulationControllerError("system_dynamics_trajectory_contract_invalid")
             return SimulationTrajectory(
                 run_level=run_level,
                 atom_ids=tuple(atom.intervention_id for atom in subset),
@@ -3166,11 +4432,26 @@ class JointSimulationHorizonController:
                     "horizon_loop": True,
                     "temporal_capability": "multi_period",
                     "coverage_status": (
+                        "partial"
+                        if covered_count < len(requested_steps)
+                        else "not_established"
+                        if row_profile["row_contract"] == "not_established"
+                        else "complete"
+                    ),
+                    "row_count_coverage": (
                         "complete" if covered_count == len(requested_steps) else "partial"
                     ),
                     "covered_steps": requested_steps[:covered_count],
                     "requested_steps": requested_steps,
                     "hold_last": False,
+                    **row_profile,
+                    **_stockflow_final_summary(
+                        result,
+                        raw_trajectory,
+                        params,
+                        row_profile,
+                        error_prefix="system_dynamics",
+                    ),
                     **time_alignment,
                 },
             )
@@ -3235,6 +4516,21 @@ class JointSimulationHorizonController:
                     "trajectory_coverage_incomplete",
                     decision.method_fqn,
                 )
+            entry = self._registry.get_entry(decision.method_fqn)
+            declared_contract = (
+                entry.metadata.assumptions.get("joint_simulation_trajectory_row_contract")
+                if entry is not None
+                else None
+            )
+            row_profile, row_basis = _trajectory_row_profile(
+                method,
+                declared_contract,
+                state,
+                raw_trajectory,
+                params,
+                len(requested_steps),
+                error_prefix="method_registry",
+            )
             points: list[TrajectoryPoint] = []
             for index, step in enumerate(requested_steps[:covered_count]):
                 state_values = raw_trajectory[index]
@@ -3245,6 +4541,13 @@ class JointSimulationHorizonController:
                     plan,
                     horizon_length=len(requested_steps),
                 )
+                if (
+                    row_profile["row_contract"] == "initial_then_transitions.v1"
+                    and not np.isfinite(np.asarray(state_values, dtype=float)).all()
+                ):
+                    raise JointSimulationControllerError(
+                        "method_registry_trajectory_contract_invalid"
+                    )
                 points.append(
                     TrajectoryPoint(
                         step=step,
@@ -3255,10 +4558,15 @@ class JointSimulationHorizonController:
                         },
                         engine_state={
                             "stock_values": _json_ready(state_values),
-                            "mass_balance": result.get("mass_balance"),
+                            **row_basis[index],
                         },
                     )
                 )
+            if row_profile["row_contract"] == "initial_then_transitions.v1" and any(
+                not np.isfinite(np.asarray(row, dtype=float)).all()
+                for row in raw_trajectory[covered_count:]
+            ):
+                raise JointSimulationControllerError("method_registry_trajectory_contract_invalid")
             return SimulationTrajectory(
                 run_level=run_level,
                 atom_ids=tuple(atom.intervention_id for atom in subset),
@@ -3271,11 +4579,26 @@ class JointSimulationHorizonController:
                     "horizon_loop": True,
                     "temporal_capability": "multi_period",
                     "coverage_status": (
+                        "partial"
+                        if covered_count < len(requested_steps)
+                        else "not_established"
+                        if row_profile["row_contract"] == "not_established"
+                        else "complete"
+                    ),
+                    "row_count_coverage": (
                         "complete" if covered_count == len(requested_steps) else "partial"
                     ),
                     "covered_steps": requested_steps[:covered_count],
                     "requested_steps": requested_steps,
                     "hold_last": False,
+                    **row_profile,
+                    **_stockflow_final_summary(
+                        result,
+                        raw_trajectory,
+                        params,
+                        row_profile,
+                        error_prefix="method_registry",
+                    ),
                     **time_alignment,
                 },
             )
@@ -3548,31 +4871,123 @@ def _causal_assignment_writes(
     dotted_paths: bool,
 ) -> dict[tuple[str, ...], float]:
     """Resolve simultaneous direct effects without arrival-order semantics."""
+    return _resolve_assignment_writes(
+        _causal_assignment_write_items(
+            atoms, plan, engine_kind=engine_kind, dotted_paths=dotted_paths
+        )
+    )
+
+
+def _causal_assignment_write_items(
+    atoms: Sequence[InterventionAtomBinding],
+    plan: EnginePlan,
+    *,
+    engine_kind: EngineKind,
+    dotted_paths: bool,
+) -> list[tuple[tuple[str, ...], Any, str]]:
+    """Collect direct assignments before resolving container-specific targets."""
     prefix = _outcome_error_prefix(engine_kind)
     writes: list[tuple[tuple[str, ...], Any, str]] = []
     for atom in atoms:
+        if atom.causal_do_expr.intervention_type != ProofKernelInterventionType.NODE:
+            raise JointSimulationControllerError(
+                "intervention_direct_assignment_unsupported", atom.intervention_id
+            )
+        try:
+            node = atom.to_node_intervention()
+        except (TypeError, ValueError) as exc:
+            raise JointSimulationControllerError(
+                "intervention_assignment_projection_mismatch", atom.intervention_id
+            ) from exc
+        projected = atom.causal_do_expr.assignments
+        if len(node.assignments) != len(projected) or any(
+            actual.variable != projection.variable
+            or actual.value_expr != projection.value_expr
+            or not _same_assignment_value(actual.value, projection.value)
+            or (
+                type(actual.value) is float
+                and type(projection.value) is float
+                and actual.value.hex() != projection.value.hex()
+            )
+            for actual, projection in zip(node.assignments, projected, strict=False)
+        ):
+            raise JointSimulationControllerError(
+                "intervention_assignment_projection_mismatch", atom.intervention_id
+            )
         for assignment in atom.causal_do_expr.assignments:
             if assignment.value is None:
                 raise JointSimulationControllerError(
                     f"value_expr_intervention_not_supported_by_{prefix}_controller",
                     assignment.variable,
                 )
-            try:
-                value = float(assignment.value)
-            except (TypeError, ValueError, OverflowError) as exc:
-                raise JointSimulationControllerError(
-                    "intervention_assignment_non_numeric",
-                    assignment.variable,
-                ) from exc
-            if not np.isfinite(value):
-                raise JointSimulationControllerError(
-                    "intervention_assignment_non_finite",
-                    assignment.variable,
-                )
+            value, _ = _numeric_assignment_binary64(assignment.value, assignment.variable)
             target = _engine_variable(assignment.variable, plan)
             path = tuple(target.split(".")) if dotted_paths else (target,)
             writes.append((path, value, atom.intervention_id))
-    return _resolve_assignment_writes(writes)
+    return writes
+
+
+def _numeric_assignment_binary64(value: object, variable: str) -> tuple[float, bool]:
+    """Convert an assignment, refusing nonzero decimal underflow to zero.
+
+    Decimal text remains bound to the atom; the boolean discloses whether its
+    actual binary64 input differs. It makes no claim about downstream precision.
+    """
+    try:
+        converted = float(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise JointSimulationControllerError(
+            "intervention_assignment_non_numeric", variable
+        ) from exc
+    if not math.isfinite(converted):
+        raise JointSimulationControllerError("intervention_assignment_non_finite", variable)
+    if type(value) is int:
+        return converted, int(converted) != value
+    if type(value) is str:
+        try:
+            source = Decimal(value)
+        except InvalidOperation as exc:
+            raise JointSimulationControllerError(
+                "intervention_assignment_non_numeric", variable
+            ) from exc
+        if converted == 0.0 and source != 0:
+            raise JointSimulationControllerError("intervention_assignment_underflow", variable)
+        rounded = Decimal.from_float(converted) != source
+    else:
+        rounded = False
+    if converted == 0.0 and math.copysign(1.0, converted) < 0:
+        raise JointSimulationControllerError(
+            "intervention_assignment_signed_zero_unsupported", variable
+        )
+    return converted, rounded
+
+
+def _assignment_numeric_limitations(
+    atoms: Sequence[InterventionAtomBinding], engine_kind: EngineKind
+) -> list[str]:
+    """Project actual integer and decimal conversion boundaries for supported adapters."""
+    if engine_kind not in {
+        "ncm_parallel_worlds",
+        "coupled_des_abm",
+        "system_dynamics",
+        "method_registry_estimator",
+    }:
+        return []
+    limitations: list[str] = []
+    for atom in atoms:
+        for assignment in atom.causal_do_expr.assignments:
+            if (
+                assignment.value is not None
+                and _numeric_assignment_binary64(assignment.value, assignment.variable)[1]
+            ):
+                limitation = (
+                    "integer_source_preserved_binary64_input_backend_precision_not_established"
+                    if type(assignment.value) is int
+                    else "decimal_source_preserved_binary64_input_backend_precision_not_established"
+                )
+                if limitation not in limitations:
+                    limitations.append(limitation)
+    return limitations
 
 
 def _nested_mapping_writes(
@@ -3603,10 +5018,10 @@ def _nested_mapping_writes(
 
 
 def _resolve_assignment_writes(
-    writes: Sequence[tuple[tuple[str, ...], Any, str]],
-) -> dict[tuple[str, ...], Any]:
+    writes: Sequence[tuple[tuple[str | int, ...], Any, str]],
+) -> dict[tuple[str | int, ...], Any]:
     """Merge identical writes and reject conflicting or overlapping targets."""
-    resolved: dict[tuple[str, ...], tuple[Any, set[str]]] = {}
+    resolved: dict[tuple[str | int, ...], tuple[Any, set[str]]] = {}
     for path, value, source_id in writes:
         for prior_path, (prior_value, prior_sources) in resolved.items():
             exact = prior_path == path
@@ -3618,14 +5033,119 @@ def _resolve_assignment_writes(
                 break
             if exact or overlap:
                 sources = ",".join(sorted((*prior_sources, source_id)))
-                target = ".".join(path)
+                target = ".".join(map(str, path))
                 raise JointSimulationControllerError(
                     "intervention_assignment_conflict",
                     f"{target} is assigned incompatibly by {sources}",
                 )
         else:
             resolved[path] = (deepcopy(value), {source_id})
-    return {path: value for path, (value, _) in sorted(resolved.items())}
+    return {
+        path: value
+        for path, (value, _) in sorted(
+            resolved.items(),
+            key=lambda row: tuple((type(part).__name__, str(part)) for part in row[0]),
+        )
+    }
+
+
+def _resolved_state_path(
+    state: object, path: tuple[str, ...], *, allow_new_mapping_keys: bool
+) -> tuple[str | int, ...]:
+    """Resolve map keys and bounded sequence indices once against the source state."""
+    current = state
+    result: list[str | int] = []
+    for part in path:
+        if isinstance(current, Mapping):
+            result.append(part)
+            if part not in current:
+                if not allow_new_mapping_keys:
+                    raise KeyError(part)
+                current = {}
+            else:
+                current = current[part]
+        elif isinstance(current, list | np.ndarray):
+            index = int(part)
+            length = len(current)
+            index = index + length if index < 0 else index
+            if index < 0 or index >= length:
+                raise IndexError(part)
+            result.append(index)
+            current = current[index]
+        else:
+            result.append(part)
+            current = getattr(current, part)
+    return tuple(result)
+
+
+def _write_resolved_state_path(state: object, path: tuple[str | int, ...], value: object) -> None:
+    """Execute the already checked typed path; never reparse its segments."""
+    current = state
+    for segment in path[:-1]:
+        if isinstance(current, dict):
+            if segment not in current:
+                current[segment] = {}
+            current = current[segment]
+        elif isinstance(current, list | np.ndarray):
+            current = current[segment]
+        else:
+            current = getattr(current, str(segment))
+    last = path[-1]
+    try:
+        if isinstance(current, dict | list | np.ndarray):
+            current[last] = deepcopy(value)
+            actual = current[last]
+        else:
+            setattr(current, str(last), deepcopy(value))
+            actual = getattr(current, str(last))
+    except OverflowError as exc:
+        raise JointSimulationControllerError("intervention_assignment_lossy") from exc
+    try:
+        preserved = _preserves_state_assignment(actual, value)
+    except (OverflowError, TypeError, ValueError) as exc:
+        raise JointSimulationControllerError("intervention_assignment_lossy") from exc
+    if not preserved:
+        raise JointSimulationControllerError("intervention_assignment_lossy")
+
+
+def _preserves_state_assignment(actual: object, requested: object) -> bool:
+    """Detect fixed-dtype coercion while accepting exactly represented numbers."""
+    if isinstance(actual, np.generic):
+        actual = actual.item()
+    if isinstance(requested, np.generic):
+        requested = requested.item()
+    if isinstance(actual, np.ndarray) or isinstance(requested, np.ndarray):
+        left, right = np.asarray(actual), np.asarray(requested)
+        return left.shape == right.shape and all(
+            _preserves_state_assignment(left[index], right[index])
+            for index in np.ndindex(left.shape)
+        )
+    if isinstance(actual, bool) or isinstance(requested, bool):
+        return type(actual) is type(requested) and actual == requested
+    if isinstance(actual, int | float) and isinstance(requested, int | float):
+        return bool(math.isfinite(actual) and math.isfinite(requested) and actual == requested)
+    return _same_assignment_value(actual, requested)
+
+
+def _resolved_state_writes(
+    state: object,
+    writes: Sequence[tuple[tuple[str, ...], Any, str, bool]],
+    *,
+    error_prefix: str,
+) -> dict[tuple[str | int, ...], Any]:
+    """Bind every source path before conflict detection or any producer call."""
+    bound = []
+    for path, value, source_id, allow_new_mapping_keys in writes:
+        try:
+            resolved = _resolved_state_path(
+                state, path, allow_new_mapping_keys=allow_new_mapping_keys
+            )
+        except (AttributeError, IndexError, KeyError, TypeError, ValueError) as exc:
+            raise JointSimulationControllerError(
+                f"{error_prefix}_intervention_binding_missing", ".".join(path)
+            ) from exc
+        bound.append((resolved, value, source_id))
+    return _resolve_assignment_writes(bound)
 
 
 def _same_assignment_value(left: object, right: object) -> bool:
@@ -3758,6 +5278,109 @@ def _method_step_parameter_diagnostics(
     }
 
 
+def _trajectory_row_profile(
+    method: object,
+    declared_contract: object,
+    state: Mapping[str, Any],
+    trajectory: Sequence[Any],
+    parameters: Mapping[str, Any],
+    requested_count: int,
+    *,
+    error_prefix: str,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Qualify the real stock-flow initial/prefix contract without claiming physical time."""
+    from polisyos.foundry.methods.catalog.simulation.dynamics import (
+        StockFlowSystemDynamicsEstimator,
+    )
+
+    source_count = len(trajectory)
+    retained = min(source_count, requested_count)
+    contract = "initial_then_transitions.v1"
+    if method is not StockFlowSystemDynamicsEstimator or declared_contract != contract:
+        if source_count > requested_count:
+            raise JointSimulationControllerError(f"{error_prefix}_trajectory_exceeds_horizon")
+        return (
+            {
+                "source_row_count": source_count,
+                "retained_row_count": retained,
+                "excluded_source_rows": 0,
+                "row_contract": "not_established",
+            },
+            [{} for _ in range(retained)],
+        )
+    try:
+        initial = np.asarray(state["initial_stocks"], dtype=float)
+        rows = [np.asarray(row, dtype=float) for row in trajectory]
+        dt = float(parameters["dt"])
+    except (KeyError, TypeError, ValueError, OverflowError) as exc:
+        raise JointSimulationControllerError(f"{error_prefix}_trajectory_contract_invalid") from exc
+    if (
+        initial.ndim != 1
+        or not np.isfinite(initial).all()
+        or not math.isfinite(dt)
+        or any(row.shape != initial.shape for row in rows)
+        or (rows and not np.array_equal(rows[0], initial))
+    ):
+        raise JointSimulationControllerError(f"{error_prefix}_trajectory_contract_invalid")
+    # This is the producer's computational coordinate, not a world-time claim.
+    effective_dt = max(1e-6, dt)
+    row_basis = [
+        {
+            "row_role": "initial" if index == 0 else "transition",
+            "source_coordinate": float(index * effective_dt),
+        }
+        for index in range(retained)
+    ]
+    return (
+        {
+            "source_row_count": source_count,
+            "retained_row_count": retained,
+            "excluded_source_rows": source_count - retained,
+            "row_contract": contract,
+            "slice_basis": "declared_prefix",
+            "source_coordinate_basis": "stock_flow_computational_dt",
+        },
+        row_basis,
+    )
+
+
+def _stockflow_final_summary(
+    result: Mapping[str, Any],
+    trajectory: Sequence[Any],
+    parameters: Mapping[str, Any],
+    row_profile: Mapping[str, Any],
+    *,
+    error_prefix: str,
+) -> dict[str, Any]:
+    """Expose a final summary without attaching it to a shorter emitted prefix."""
+    if row_profile.get("row_contract") != "initial_then_transitions.v1":
+        return {}
+    if "mass_balance" not in result:
+        return {}
+    value = _finite_source_coordinate(result["mass_balance"])
+    if value is None:
+        raise JointSimulationControllerError(f"{error_prefix}_trajectory_contract_invalid")
+    summary: dict[str, Any] = {
+        "role": "producer_final_summary",
+        "mass_balance": value,
+        "row_binding_status": "not_established",
+    }
+    expected_last = int(parameters["n_steps"])
+    if len(trajectory) == expected_last + 1:
+        first = np.asarray(trajectory[0], dtype=float)
+        last = np.asarray(trajectory[-1], dtype=float)
+        recomputed = float(np.sum(last) - np.sum(first))
+        if math.isfinite(recomputed) and value == recomputed:
+            summary.update(
+                {
+                    "row_binding_status": "recomputed_from_producer_rows",
+                    "source_row_index": expected_last,
+                    "source_coordinate": float(expected_last * max(1e-6, float(parameters["dt"]))),
+                }
+            )
+    return {"final_summary": summary}
+
+
 def _finite_source_coordinate(value: object) -> float | None:
     """Return a finite coordinate only from a Python or NumPy real scalar."""
     if isinstance(value, bool | np.bool_ | np.ndarray):
@@ -3844,29 +5467,79 @@ def _selected_outcome_value(
     *,
     outcome: str,
     engine_kind: EngineKind,
+    aggregation: OutcomeAggregation | None = None,
+    aggregation_basis: dict[str, Any] | None = None,
 ) -> float:
-    """Return one real finite selected scalar or a typed missing/invalid refusal."""
+    """Project a finite scalar or a declared, bounded population aggregation."""
     prefix = _outcome_error_prefix(engine_kind)
     if value is _MISSING_OUTCOME:
-        raise JointSimulationControllerError(f"{prefix}_outcome_missing", outcome)
+        raise JointSimulationControllerError(
+            f"{prefix}_outcome_missing", outcome, context={"outcome": outcome}
+        )
     try:
         raw = np.asarray(value)
     except (TypeError, ValueError, OverflowError) as exc:
-        raise JointSimulationControllerError(f"{prefix}_outcome_non_numeric", outcome) from exc
+        raise JointSimulationControllerError(
+            f"{prefix}_outcome_non_numeric", outcome, context={"outcome": outcome}
+        ) from exc
     if raw.size == 0:
-        raise JointSimulationControllerError(f"{prefix}_outcome_missing", outcome)
+        raise JointSimulationControllerError(
+            f"{prefix}_outcome_missing", outcome, context={"outcome": outcome}
+        )
     if raw.dtype.kind not in "iuf":
-        raise JointSimulationControllerError(f"{prefix}_outcome_non_numeric", outcome)
+        raise JointSimulationControllerError(
+            f"{prefix}_outcome_non_numeric", outcome, context={"outcome": outcome}
+        )
     try:
         numeric = raw.astype(float)
     except (TypeError, ValueError, OverflowError) as exc:
-        raise JointSimulationControllerError(f"{prefix}_outcome_non_numeric", outcome) from exc
+        raise JointSimulationControllerError(
+            f"{prefix}_outcome_non_numeric", outcome, context={"outcome": outcome}
+        ) from exc
     if not np.isfinite(numeric).all():
-        raise JointSimulationControllerError(f"{prefix}_outcome_non_finite", outcome)
-    value_mean = float(np.mean(numeric))
-    if not np.isfinite(value_mean):
-        raise JointSimulationControllerError(f"{prefix}_outcome_non_finite", outcome)
-    return value_mean
+        raise JointSimulationControllerError(
+            f"{prefix}_outcome_non_finite", outcome, context={"outcome": outcome}
+        )
+    if numeric.ndim == 0:
+        return float(numeric.item())
+    if numeric.ndim != 1:
+        raise JointSimulationControllerError(
+            f"{prefix}_outcome_shape_unsupported", outcome, context={"outcome": outcome}
+        )
+    if aggregation is None:
+        raise JointSimulationControllerError(
+            f"{prefix}_outcome_aggregation_not_established", outcome, context={"outcome": outcome}
+        )
+    if aggregation.method == "weighted_mean":
+        weights = np.asarray(aggregation.weights, dtype=float)
+        if weights.shape != numeric.shape:
+            raise JointSimulationControllerError(
+                f"{prefix}_outcome_aggregation_invalid", outcome, context={"outcome": outcome}
+            )
+        denominator = float(np.sum(weights))
+        if not math.isfinite(denominator) or denominator <= 0:
+            raise JointSimulationControllerError(
+                f"{prefix}_outcome_aggregation_invalid", outcome, context={"outcome": outcome}
+            )
+        result = math.fsum(
+            float(item) * (float(weight) / denominator)
+            for item, weight in zip(numeric, weights, strict=True)
+        )
+    else:
+        denominator = float(numeric.size)
+        result = _finite_mean(numeric.tolist())
+    if not math.isfinite(result):
+        raise JointSimulationControllerError(
+            f"{prefix}_outcome_non_finite", outcome, context={"outcome": outcome}
+        )
+    if aggregation_basis is not None:
+        aggregation_basis[outcome] = {
+            "method": aggregation.method,
+            "unit": aggregation.unit,
+            "element_count": int(numeric.size),
+            "effective_weight_sum": denominator,
+        }
+    return result
 
 
 _MISSING_OUTCOME = object()
@@ -3975,7 +5648,7 @@ def _coupled_outcomes(
                 initial_queue_length=initial_queue_length,
             )
         else:
-            if horizon_length > 1 and index < horizon_length - 1:
+            if index == 0 or (horizon_length > 1 and index < horizon_length - 1):
                 raise JointSimulationControllerError(
                     "coupled_temporal_outcome_series_missing",
                     outcome,
@@ -3997,20 +5670,31 @@ def _method_state_for_subset(
         return _system_dynamics_state_for_subset(plan, atoms)
     if plan.coupled_state:
         state = deepcopy(plan.coupled_state)
-        writes = _causal_assignment_writes(
+        direct = _causal_assignment_write_items(
             atoms,
             plan,
             engine_kind="method_registry_estimator",
             dotted_paths=True,
         )
+        writes = _resolved_state_writes(
+            plan.coupled_state,
+            [(path, value, source, False) for path, value, source in direct],
+            error_prefix="method_registry",
+        )
         for path, value in writes.items():
-            target = ".".join(path)
+            target = ".".join(map(str, path))
             try:
-                _state_path_value(state, target)
-                _assign_path_value(state, target, float(value))
-                written = _state_path_value(state, target)
+                _write_resolved_state_path(state, path, value)
+                written: Any = state
+                for segment in path:
+                    if isinstance(written, Mapping | list | np.ndarray):
+                        written = written[segment]
+                    else:
+                        written = getattr(written, str(segment))
                 if float(written) != float(value):
                     raise ValueError("method_registry_assignment_not_applied")
+            except JointSimulationControllerError:
+                raise
             except (AttributeError, IndexError, KeyError, TypeError, ValueError) as exc:
                 raise JointSimulationControllerError(
                     "method_registry_intervention_binding_missing",
@@ -4027,6 +5711,7 @@ def _program_graph_outcomes(
     state: object,
     selected_outcomes: Sequence[str],
     plan: EnginePlan,
+    aggregation_basis: dict[str, Any] | None = None,
 ) -> dict[str, float]:
     outcomes: dict[str, float] = {}
     for outcome in selected_outcomes:
@@ -4038,11 +5723,36 @@ def _program_graph_outcomes(
                 "program_graph_outcome_missing",
                 path,
             ) from exc
+        profile = plan.outcome_aggregations.get(outcome)
+        unit_binding: dict[str, str] = {"unit_binding_status": "not_established"}
+        slots = getattr(plan.slot_registry, "slots", None)
+        if profile is not None and isinstance(slots, Mapping):
+            matching = [
+                slot for slot in slots.values() if getattr(slot, "state_path", None) == path
+            ]
+            if len(matching) == 1:
+                slot = matching[0]
+                actual_unit = getattr(getattr(slot, "unit", None), "unit_id", None)
+                if isinstance(actual_unit, str) and actual_unit:
+                    if actual_unit != profile.unit:
+                        raise JointSimulationControllerError(
+                            "program_graph_outcome_aggregation_unit_mismatch",
+                            outcome,
+                            context={"outcome": outcome},
+                        )
+                    unit_binding = {
+                        "unit_binding_status": "matched_producer_slot",
+                        "unit_slot_id": str(slot.slot_id),
+                    }
         outcomes[outcome] = _selected_outcome_value(
             value,
             outcome=outcome,
             engine_kind="program_graph",
+            aggregation=profile,
+            aggregation_basis=aggregation_basis,
         )
+        if aggregation_basis is not None and outcome in aggregation_basis:
+            aggregation_basis[outcome].update(unit_binding)
     return outcomes
 
 
@@ -4086,7 +5796,9 @@ def _ncm_outcomes(
         engine_outcome = _engine_variable(outcome, plan)
         stats = summary.get(engine_outcome)
         if not isinstance(stats, Mapping) or "mean" not in stats:
-            raise JointSimulationControllerError("ncm_outcome_missing", engine_outcome)
+            raise JointSimulationControllerError(
+                "ncm_outcome_missing", engine_outcome, context={"outcome": engine_outcome}
+            )
         outcomes[outcome] = _selected_outcome_value(
             stats["mean"],
             outcome=engine_outcome,
@@ -4107,34 +5819,27 @@ def _system_dynamics_state_for_subset(
         ).items()
         for write in _nested_mapping_writes(value, (str(key),), atom.intervention_id)
     ]
-    direct_writes = _causal_assignment_writes(
+    direct_writes = _causal_assignment_write_items(
         atoms,
         plan,
         engine_kind=plan.engine_kind,
         dotted_paths=True,
     )
-    writes.extend((path, value, "direct_effect") for path, value in direct_writes.items())
-    _resolve_assignment_writes(writes)
-
+    combined = [(path, value, source, True) for path, value, source in writes]
+    combined.extend((path, value, source, False) for path, value, source in direct_writes)
+    resolved = _resolved_state_writes(
+        plan.system_dynamics_state, combined, error_prefix="system_dynamics"
+    )
     state = deepcopy(plan.system_dynamics_state)
-    for atom in sorted(atoms, key=lambda item: item.intervention_id):
-        _merge_mapping(
-            state,
-            plan.system_dynamics_state_overrides_by_atom.get(atom.intervention_id, {}),
-        )
-    for path, value in direct_writes.items():
-        target = ".".join(path)
-        if target not in state and "." not in target:
-            raise JointSimulationControllerError(
-                "system_dynamics_intervention_binding_missing",
-                target,
-            )
+    for path, value in resolved.items():
         try:
-            _assign_path_value(state, target, float(value))
+            _write_resolved_state_path(state, path, value)
+        except JointSimulationControllerError:
+            raise
         except (AttributeError, IndexError, KeyError, TypeError, ValueError) as exc:
             raise JointSimulationControllerError(
                 "system_dynamics_intervention_binding_missing",
-                target,
+                ".".join(map(str, path)),
             ) from exc
     return state
 
@@ -4170,33 +5875,27 @@ def _system_dynamics_outcomes(
         target = _engine_variable(outcome, plan)
         if target == "mass_balance":
             value = result.get("mass_balance", _MISSING_OUTCOME)
-            selected_value = _selected_outcome_value(
+            _selected_outcome_value(
                 value,
                 outcome=outcome,
                 engine_kind=plan.engine_kind,
             )
-            if horizon_length > 1:
-                raise JointSimulationControllerError(
-                    f"{prefix}_temporal_outcome_series_missing",
-                    outcome,
-                )
-            outcomes[outcome] = selected_value
-            continue
+            raise JointSimulationControllerError(
+                f"{prefix}_temporal_outcome_series_missing",
+                outcome,
+            )
         index = _stock_index(target)
         if index is None:
             value = result.get(target, _MISSING_OUTCOME)
-            selected_value = _selected_outcome_value(
+            _selected_outcome_value(
                 value,
                 outcome=outcome,
                 engine_kind=plan.engine_kind,
             )
-            if horizon_length > 1:
-                raise JointSimulationControllerError(
-                    f"{prefix}_temporal_outcome_series_missing",
-                    outcome,
-                )
-            outcomes[outcome] = selected_value
-            continue
+            raise JointSimulationControllerError(
+                f"{prefix}_temporal_outcome_series_missing",
+                outcome,
+            )
         if index < 0 or index >= stocks.shape[0]:
             raise JointSimulationControllerError(
                 f"{prefix}_outcome_missing",
@@ -4701,6 +6400,38 @@ def _recompute_result_interaction_sampling(
     )
 
 
+def _qualified_numeric_decision(
+    result: JointSimulationResult,
+) -> Literal["additive", "non_additive", "unsupported"] | None:
+    """Recompute a v5 bounded arithmetic decision from its selected profile."""
+    if result.schema_version != JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION:
+        return None
+    tolerance = result.diagnostics.get("interaction_numerical_tolerance")
+    if tolerance == {"status": "not_established"}:
+        return None
+    if not isinstance(tolerance, dict) or set(tolerance) != {"status", "contract"}:
+        raise ValueError("interaction_numeric_tolerance_projection_invalid")
+    comparator = result.diagnostics.get("ncm_conditional_comparator")
+    if tolerance["status"] != "qualified" or not isinstance(comparator, dict):
+        raise ValueError("interaction_numeric_tolerance_binding_invalid")
+    try:
+        expected = _ncm_numeric_contract_from_binding(comparator["request"])
+        if tolerance["contract"] != expected:
+            raise ValueError("interaction_numeric_tolerance_contract_mismatch")
+        decision = _evaluate_ncm_numeric_contract(
+            expected,
+            result.trajectories,
+            comparator["result"]["samples"],
+            result.interaction_terms,
+            result.higher_order_residuals,
+        )
+    except (KeyError, TypeError, ValueError, OverflowError) as exc:
+        raise ValueError("interaction_numeric_tolerance_recomputation_failed") from exc
+    if decision is None:
+        raise ValueError("interaction_numeric_tolerance_samples_mismatch")
+    return decision
+
+
 def _numeric_interaction_classification(
     *,
     interaction_terms: Sequence[InteractionTerm],
@@ -4711,6 +6442,8 @@ def _numeric_interaction_classification(
     interaction_evidence_issues: Sequence[str],
     aggregate_order_three_plus: bool,
     interaction_required: bool = True,
+    require_qualified_tolerance: bool = False,
+    qualified_decision: Literal["additive", "non_additive", "unsupported"] | None = None,
 ) -> Literal["none", "additive", "non_additive", "unsupported"]:
     """Classify only a finite selected-model estimate with complete paired uncertainty."""
 
@@ -4722,6 +6455,8 @@ def _numeric_interaction_classification(
         or _sampling_variation_observed(interaction_terms, higher_order_residual_sampling)
     ):
         return "unsupported"
+    if require_qualified_tolerance:
+        return qualified_decision if qualified_decision is not None else "unsupported"
     any_nonzero = any(
         abs(value) > 1e-12 for term in interaction_terms for value in term.by_step.values()
     ) or any(
@@ -4752,6 +6487,7 @@ def _feedback_classification(
         "estimated", "standard_error_not_estimated", "not_established"
     ] = "not_established",
     interaction_sampling_issues: Sequence[str] = (),
+    qualified_numeric_decision: Literal["additive", "non_additive", "unsupported"] | None = None,
 ) -> FeedbackClassification:
     classification = coupling_support.classification
     coupling_verdict = None
@@ -4818,6 +6554,8 @@ def _feedback_classification(
         interaction_evidence_issues=interaction_evidence_issues,
         aggregate_order_three_plus=aggregate_order_three_plus,
         interaction_required=len(request.intervention_atoms) >= 2,
+        require_qualified_tolerance=True,
+        qualified_decision=qualified_numeric_decision,
     )
     evidence_limitations: list[str] = []
     if interaction_evidence_issues:
@@ -4911,6 +6649,7 @@ def _json_ready(value: object) -> Any:  # noqa: ANN401
 
 
 __all__ = [
+    "JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION",
     "JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION",
     "JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION",
     "JOINT_SIMULATION_HORIZON_SCHEMA_VERSION",
@@ -4926,6 +6665,8 @@ __all__ = [
     "JointSimulationHorizonController",
     "JointSimulationRequest",
     "JointSimulationResult",
+    "NCMConditionalComparatorProfile",
+    "OutcomeAggregation",
     "ProofReceiptError",
     "ReplicationSample",
     "ReplicationSamplingSummary",

@@ -5182,6 +5182,7 @@ export interface components {
          * @description Data-only evidence-class route to code-owned owner verification.
          */
         CertificateClassRoute: {
+            build_evidence_ref?: components["schemas"]["_BuildIdentityArtifactSelection"] | null;
             /** Certificate Class */
             certificate_class: string;
             certificate_role: components["schemas"]["CertificateRole"];
@@ -14066,7 +14067,7 @@ export interface components {
                 [key: string]: unknown;
             }[];
             /** Joint Interaction Candidate Intent */
-            joint_interaction_candidate_intent?: "n4_unique_parent_source_members.v1" | null;
+            joint_interaction_candidate_intent?: ("n4_unique_parent_source_members.v1" | "authored_joint_components.v1") | null;
             /** Llm Model */
             llm_model?: string | null;
             /** Llm Models */
@@ -16895,10 +16896,135 @@ export interface components {
             tenant_id: string;
         };
         /**
+         * RunCandidateEvaluationAttemptProjection
+         * @description One owner-history-replayed local refusal, not a numerical verification.
+         */
+        RunCandidateEvaluationAttemptProjection: {
+            /** Attempt Ref */
+            attempt_ref: string;
+            /** Candidate Content Hash */
+            candidate_content_hash: string;
+            /** Candidate Id */
+            candidate_id: string;
+            context_job_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Cycle Index */
+            cycle_index: number;
+            /**
+             * Failure Scope
+             * @default candidate_local
+             * @constant
+             */
+            failure_scope: "candidate_local";
+            /**
+             * Failure Stage
+             * @enum {string}
+             */
+            failure_stage: "n5" | "n8";
+            n4_source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            n5_execution_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            n5_input_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Node Ref */
+            node_ref: string;
+            /**
+             * Numerical Result Verification
+             * @default not_established
+             * @constant
+             */
+            numerical_result_verification: "not_established";
+            /** Problem Ref */
+            problem_ref: string;
+            /** Profile Selection Ref */
+            profile_selection_ref?: string | null;
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            /**
+             * Scope
+             * @default recorded_candidate_attempt
+             * @constant
+             */
+            scope: "recorded_candidate_attempt";
+            /** Selected Method Fqn */
+            selected_method_fqn?: string | null;
+            /**
+             * Simulation Authority Blockers
+             * @default []
+             */
+            simulation_authority_blockers: string[];
+            /** Simulation Ref */
+            simulation_ref?: string | null;
+            simulation_result_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Simulation Status
+             * @enum {string}
+             */
+            simulation_status: "joint_simulated" | "simulation_pending_n5" | "simulation_blocked";
+            /**
+             * Value Authority Blockers
+             * @default []
+             */
+            value_authority_blockers: string[];
+            /** Value Decision Grade */
+            value_decision_grade?: ("blocked" | "low" | "medium" | "high") | null;
+            /** Value Ref */
+            value_ref?: string | null;
+            /**
+             * Value Status
+             * @enum {string}
+             */
+            value_status: "value_pending_n8" | "value_ready" | "value_conditional" | "value_blocked";
+        };
+        /**
+         * RunCandidateSimulationAcquiredOutcomeRevision
+         * @description Owner-replayed acquired outcome baseline, distinct from coefficient inference.
+         */
+        RunCandidateSimulationAcquiredOutcomeRevision: {
+            admitted_source_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Authority Purpose
+             * @default candidate_observation_only
+             * @constant
+             */
+            authority_purpose: "candidate_observation_only";
+            /**
+             * Changed Field
+             * @default outcome_baseline
+             * @constant
+             */
+            changed_field: "outcome_baseline";
+            evaluation_decision_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Outcome World Slot */
+            outcome_world_slot: string;
+            /**
+             * Predicate Provenance
+             * @default recomputed
+             * @constant
+             */
+            predicate_provenance: "recomputed";
+            previous_basis_ref: components["schemas"]["ArtifactRef-Output"];
+            previous_declaration_ref: components["schemas"]["ArtifactRef-Output"];
+            previous_input_ref: components["schemas"]["ArtifactRef-Output"];
+            previous_ncm_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            selected_basis_ref: components["schemas"]["ArtifactRef-Output"];
+            selected_declaration_ref: components["schemas"]["ArtifactRef-Output"];
+            selected_input_ref: components["schemas"]["ArtifactRef-Output"];
+            selected_ncm_ref: components["schemas"]["ArtifactRef-Output"];
+        };
+        /**
          * RunCandidateSimulationAcquisitionContinuationProjection
          * @description Typed candidate-only projection of the exact N9 continuation.
          */
         RunCandidateSimulationAcquisitionContinuationProjection: {
+            acquired_outcome_revision?: components["schemas"]["RunCandidateSimulationAcquiredOutcomeRevision"] | null;
             /**
              * Authority Purpose
              * @default candidate_observation_only
@@ -16925,6 +17051,7 @@ export interface components {
              * @constant
              */
             currentness_status: "not_established";
+            model_revision?: components["schemas"]["RunCandidateSimulationModelRevision"] | null;
             /**
              * N9 Certified Candidate Ids
              * @default []
@@ -16957,6 +17084,13 @@ export interface components {
             selected_profile_content_hash: string;
             /** Selected Profile Selection Ref */
             selected_profile_selection_ref: string;
+            /**
+             * Selected Simulation Authority Blockers
+             * @default []
+             */
+            selected_simulation_authority_blockers: string[];
+            /** Selected Simulation Status */
+            selected_simulation_status?: ("joint_simulated" | "simulation_pending_n5" | "simulation_blocked") | null;
             /** Selected Target Baseline Hash */
             selected_target_baseline_hash?: string | null;
             /** Selected Target World Slot */
@@ -16995,6 +17129,8 @@ export interface components {
              * @constant
              */
             currentness_status: "not_established";
+            /** Evaluation Provenance */
+            evaluation_provenance?: "new_execution" | null;
             expected_origin_source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             /** New Candidate Id */
             new_candidate_id?: string | null;
@@ -17018,6 +17154,7 @@ export interface components {
             route_receipt_ref: components["schemas"]["ArtifactRef-Output"];
             /** Schema Version */
             schema_version?: "policyos.runtime.run_candidate_simulation_acquisition_history.v2" | null;
+            selected_n5_observation?: components["schemas"]["RunCandidateSimulationN5Observation"] | null;
             /**
              * Terminal Outcome
              * @enum {string}
@@ -17045,6 +17182,7 @@ export interface components {
             continuation?: null;
             /** Continuation Join Status */
             continuation_join_status?: null;
+            current_cheap_consequences?: components["schemas"]["RunCandidateSimulationCheapConsequences"] | null;
             current_continuation_ref: components["schemas"]["ArtifactRef-Output"];
             /**
              * Currentness Status
@@ -17059,6 +17197,12 @@ export interface components {
              * @constant
              */
             evaluation_disposition: "retained_prior";
+            /**
+             * Evaluation Provenance
+             * @default retained_prior
+             * @constant
+             */
+            evaluation_provenance: "retained_prior";
             /** Expected Origin Source Ref */
             expected_origin_source_ref?: null;
             growth_receipt_ref: components["schemas"]["ArtifactRef-Output"];
@@ -17091,6 +17235,7 @@ export interface components {
              * @constant
              */
             schema_version: "policyos.runtime.run_candidate_simulation_acquisition_history.v3";
+            selected_n5_observation?: components["schemas"]["RunCandidateSimulationN5Observation"] | null;
             /**
              * Source Admission Status
              * @default admitted
@@ -17102,6 +17247,155 @@ export interface components {
              * @constant
              */
             terminal_outcome: "source_admitted_evaluation_retained";
+        };
+        /**
+         * RunCandidateSimulationAcquisitionHistoryEntryV4
+         * @description Owner-replayed candidate-only source continuation, not observed admission.
+         */
+        RunCandidateSimulationAcquisitionHistoryEntryV4: {
+            /** Action Generation */
+            action_generation: number;
+            /**
+             * Authority Purpose
+             * @default candidate_observation_only
+             * @constant
+             */
+            authority_purpose: "candidate_observation_only";
+            /** Basis Transition Content Hash */
+            basis_transition_content_hash: string;
+            candidate_action_ref: components["schemas"]["ArtifactRef-Output"];
+            candidate_source_ref: components["schemas"]["ArtifactRef-Output"];
+            context_job_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Continued Cycle Index */
+            continued_cycle_index: number;
+            /** Continued Generation Run Content Hash */
+            continued_generation_run_content_hash: string;
+            /**
+             * Currentness Status
+             * @default not_established
+             * @constant
+             */
+            currentness_status: "not_established";
+            data_snapshot_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Limitations */
+            limitations: string[];
+            model_declaration_ref: components["schemas"]["ArtifactRef-Output"];
+            n4_source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            n5_execution_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            n5_input_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            n5_result_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            ncm_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Observed Admission
+             * @default false
+             * @constant
+             */
+            observed_admission: false;
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            reentry_receipt_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Route Id */
+            route_id: string;
+            route_receipt_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Schema Version
+             * @default policyos.runtime.run_candidate_simulation_acquisition_history.v4
+             * @constant
+             */
+            schema_version: "policyos.runtime.run_candidate_simulation_acquisition_history.v4";
+            /**
+             * Simulation Authority Blockers
+             * @default []
+             */
+            simulation_authority_blockers: string[];
+            /**
+             * Simulation Status
+             * @enum {string}
+             */
+            simulation_status: "joint_simulated" | "simulation_pending_n5" | "simulation_blocked";
+            /** Source Cycle Index */
+            source_cycle_index: number;
+            /** Source Generation Run Content Hash */
+            source_generation_run_content_hash: string;
+            /**
+             * Terminal Outcome
+             * @default candidate_reentry_completed
+             * @constant
+             */
+            terminal_outcome: "candidate_reentry_completed";
+            world_model_ref: components["schemas"]["ArtifactRef-Output"];
+        };
+        /**
+         * RunCandidateSimulationCheapConsequences
+         * @description Verified cheap reactions at a recorded action, without a new N5 occurrence.
+         */
+        RunCandidateSimulationCheapConsequences: {
+            /** Candidate Content Hash */
+            candidate_content_hash: string;
+            /** Candidate Id */
+            candidate_id: string;
+            current_planner_report_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Grounding Current Valid */
+            grounding_current_valid: boolean;
+            /**
+             * Grounding Status
+             * @enum {string}
+             */
+            grounding_status: "current_valid" | "grounded_shadow" | "grounding_gap" | "grounding_failed" | "grounding_unavailable";
+            /**
+             * Numerical Provenance
+             * @default retained_prior
+             * @constant
+             */
+            numerical_provenance: "retained_prior";
+            /**
+             * Refinement Decision
+             * @enum {string}
+             */
+            refinement_decision: "refine" | "acquire" | "reframe" | "decompose" | "human_decision" | "abstain" | "block_candidate" | "stop";
+            /**
+             * Scope
+             * @default current_cheap_consequences_at_recorded_action
+             * @constant
+             */
+            scope: "current_cheap_consequences_at_recorded_action";
+            /**
+             * Search Iteration Status
+             * @enum {string}
+             */
+            search_iteration_status: "blocked" | "blocked_no_retry" | "governance_required" | "acquisition_required" | "abstained" | "stopped" | "refined_shadow";
+            /** Source Cycle Index */
+            source_cycle_index: number;
+            /**
+             * Terminal Kind
+             * @enum {string}
+             */
+            terminal_kind: "a_spec_gap" | "tool_failure" | "composition_invalid" | "recursive_blocked" | "search_ceiling_repair_required" | "human_decision_required" | "acquisition_required" | "budget_exhausted" | "frontier_stable" | "grounded_admissible" | "grounded_partial_admissible" | "grounded_abstention";
+            /**
+             * Value Authority Blockers
+             * @default []
+             */
+            value_authority_blockers: string[];
+            /** Value Decision Grade */
+            value_decision_grade?: ("blocked" | "low" | "medium" | "high") | null;
+            /** Value Ref */
+            value_ref?: string | null;
+            /**
+             * Value Status
+             * @enum {string}
+             */
+            value_status: "value_pending_n8" | "value_ready" | "value_conditional" | "value_blocked";
+            /**
+             * Voi Next Action
+             * @enum {string}
+             */
+            voi_next_action: "advance" | "stop" | "escalate" | "blocked";
+            /** Voi Reason */
+            voi_reason: string;
         };
         /**
          * RunCandidateSimulationChildProfileBinding
@@ -17165,6 +17459,14 @@ export interface components {
          * @description One current candidate occurrence after append-only N6 continuation.
          */
         RunCandidateSimulationCurrentOccurrence: {
+            /** Candidate Basis Content Hash */
+            candidate_basis_content_hash?: string | null;
+            /** Candidate Basis Cycle Index */
+            candidate_basis_cycle_index?: number | null;
+            /** Candidate Basis Limitation Code */
+            candidate_basis_limitation_code?: "candidate_source_basis_prior_occurrence_not_revalidated" | null;
+            /** Candidate Basis Status */
+            candidate_basis_status?: ("prior_basis_not_revalidated" | "recorded_on_selected_basis") | null;
             /** Candidate Id */
             candidate_id: string;
             /** Certified By N9 */
@@ -17178,8 +17480,73 @@ export interface components {
              * @enum {string}
              */
             front: "decision" | "research" | "quarantine" | "portfolio";
+            /** Historical Certified By N9 */
+            historical_certified_by_n9?: boolean | null;
+            /** Historical Front */
+            historical_front?: ("decision" | "research" | "quarantine" | "portfolio") | null;
+            /**
+             * Historical Value Blockers
+             * @default []
+             */
+            historical_value_blockers: string[];
+            /** Historical Value Decision Grade */
+            historical_value_decision_grade?: ("blocked" | "low" | "medium" | "high") | null;
+            /** Historical Value Ref */
+            historical_value_ref?: string | null;
+            /** Historical Value Status */
+            historical_value_status?: ("value_pending_n8" | "value_ready" | "value_conditional" | "value_blocked") | null;
             /** Source Content Hash */
             source_content_hash?: string | null;
+            /**
+             * Value Blockers
+             * @default []
+             */
+            value_blockers: string[];
+            /** Value Decision Grade */
+            value_decision_grade?: ("blocked" | "low" | "medium" | "high") | null;
+            /** Value Ref */
+            value_ref?: string | null;
+            /** Value Status */
+            value_status?: ("value_pending_n8" | "value_ready" | "value_conditional" | "value_blocked") | null;
+        };
+        /**
+         * RunCandidateSimulationModelRevision
+         * @description A replayed coefficient-only candidate model change, not new empirical evidence.
+         */
+        RunCandidateSimulationModelRevision: {
+            /**
+             * Authority Purpose
+             * @default candidate_observation_only
+             * @constant
+             */
+            authority_purpose: "candidate_observation_only";
+            /**
+             * Changed Field
+             * @default outcome_per_target_unit
+             * @constant
+             */
+            changed_field: "outcome_per_target_unit";
+            evaluation_decision_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Predicate Provenance
+             * @default recomputed
+             * @constant
+             */
+            predicate_provenance: "recomputed";
+            previous_basis_ref: components["schemas"]["ArtifactRef-Output"];
+            previous_declaration_ref: components["schemas"]["ArtifactRef-Output"];
+            previous_input_ref: components["schemas"]["ArtifactRef-Output"];
+            previous_ncm_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            selected_basis_ref: components["schemas"]["ArtifactRef-Output"];
+            selected_declaration_ref: components["schemas"]["ArtifactRef-Output"];
+            selected_input_ref: components["schemas"]["ArtifactRef-Output"];
+            selected_ncm_ref: components["schemas"]["ArtifactRef-Output"];
         };
         /**
          * RunCandidateSimulationN5Observation
@@ -17228,6 +17595,10 @@ export interface components {
             n5_execution_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             n5_input_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             n5_interaction_evidence?: components["schemas"]["RunN5InteractionEvidence"] | null;
+            /** N8 Authored Joint Intent Digest */
+            n8_authored_joint_intent_digest?: string | null;
+            n8_authored_joint_relation_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            n8_authored_joint_request_payload_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             /**
              * N8 Authority Blockers
              * @default []
@@ -17235,6 +17606,16 @@ export interface components {
             n8_authority_blockers: string[];
             /** N8 Candidate Decision Grade */
             n8_candidate_decision_grade?: "low" | null;
+            /**
+             * N8 Candidate Derived Atom Content Hashes
+             * @default []
+             */
+            n8_candidate_derived_atom_content_hashes: string[];
+            /**
+             * N8 Candidate Derived Atom Ids
+             * @default []
+             */
+            n8_candidate_derived_atom_ids: string[];
             /** N8 Candidate Joint Selection Content Hash */
             n8_candidate_joint_selection_content_hash?: string | null;
             /** N8 Candidate Joint Selection Limitation Code */
@@ -17242,7 +17623,7 @@ export interface components {
             /** N8 Candidate Joint Selection Status */
             n8_candidate_joint_selection_status?: ("resolved" | "not_established") | null;
             /** N8 Candidate Member Basis */
-            n8_candidate_member_basis?: ("hypothetical_all_unique_n4_source_members" | "not_established") | null;
+            n8_candidate_member_basis?: ("hypothetical_all_unique_n4_source_members" | "authored_materialized_n4_source_members" | "not_established") | null;
             /**
              * N8 Candidate Parent Atom Content Hashes
              * @default []
@@ -17310,9 +17691,11 @@ export interface components {
              */
             n8_parent_child_source_bindings: components["schemas"]["RunCandidateSimulationN8ChildSourceBinding"][];
             /** N8 Policy Composition Limitation Code */
-            n8_policy_composition_limitation_code?: ("n4_source_candidates_are_alternatives_not_authored_compound_design" | "legacy_selection_receipt_has_no_composition_basis" | "parent_joint_candidate_source_selection_not_established") | null;
+            n8_policy_composition_limitation_code?: ("n4_source_candidates_are_alternatives_not_authored_compound_design" | "legacy_selection_receipt_has_no_composition_basis" | "parent_joint_candidate_source_selection_not_established" | "authored_candidate_coupling_not_established") | null;
             /** N8 Policy Composition Status */
-            n8_policy_composition_status?: "not_established" | null;
+            n8_policy_composition_status?: ("not_established" | "authored_candidate") | null;
+            /** N8 Selected Member Relationship */
+            n8_selected_member_relationship?: "joint_components" | null;
             /** N8 Source Candidate Relationship */
             n8_source_candidate_relationship?: ("alternatives" | "not_established") | null;
             /** N8 Status */
@@ -17364,7 +17747,7 @@ export interface components {
              * Artifact Schema Version
              * @enum {string}
              */
-            artifact_schema_version: "1.0.0" | "2.0.0" | "3.0.0" | "4.0.0";
+            artifact_schema_version: "1.0.0" | "2.0.0" | "3.0.0" | "4.0.0" | "5.0.0";
             /** Atom Ids */
             atom_ids: string[];
             /**
@@ -17386,6 +17769,11 @@ export interface components {
              */
             currentness_status: "not_established";
             horizon: components["schemas"]["RunGenericCycleSimulationN5Horizon"];
+            model_declaration_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Outcome Units */
+            outcome_units?: {
+                [key: string]: string;
+            };
             /**
              * Publication Authority
              * @default false
@@ -17396,7 +17784,7 @@ export interface components {
              * Result Schema Version
              * @enum {string}
              */
-            result_schema_version: "policyos.runtime.joint_simulation_horizon.v1" | "policyos.runtime.joint_simulation_horizon.v2" | "policyos.runtime.joint_simulation_horizon.v3" | "policyos.runtime.joint_simulation_horizon.v4";
+            result_schema_version: "policyos.runtime.joint_simulation_horizon.v1" | "policyos.runtime.joint_simulation_horizon.v2" | "policyos.runtime.joint_simulation_horizon.v3" | "policyos.runtime.joint_simulation_horizon.v4" | "policyos.runtime.joint_simulation_horizon.v5";
             /**
              * Schema Version
              * @default policyos.runtime.run_candidate_simulation_n5_result_body.v1
@@ -17415,6 +17803,12 @@ export interface components {
              * @constant
              */
             uncertainty_kind: "K_sim";
+            /**
+             * Unit Provenance
+             * @default not_established
+             * @enum {string}
+             */
+            unit_provenance: "declared_candidate_model" | "not_established";
             /** World Model Record Content Hash */
             world_model_record_content_hash: string;
             /** World Model Record Ref */
@@ -17459,7 +17853,7 @@ export interface components {
              * Acquisition History
              * @default []
              */
-            acquisition_history: (components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"])[];
+            acquisition_history: (components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"])[];
             /** Acquisition History Limitation Code */
             acquisition_history_limitation_code?: ("acquisition_n4_source_not_established" | "acquisition_action_history_not_observed" | "acquisition_action_history_incomplete" | "acquisition_action_history_integrity_not_established" | "acquisition_reentry_source_not_established") | null;
             /**
@@ -17473,6 +17867,14 @@ export interface components {
              * @constant
              */
             authority_purpose: "candidate_observation_only";
+            /**
+             * Candidate Evaluation Attempts
+             * @default []
+             */
+            candidate_evaluation_attempts: components["schemas"]["RunCandidateEvaluationAttemptProjection"][];
+            /** Candidate Evaluation Attempts Limitation Code */
+            candidate_evaluation_attempts_limitation_code?: "candidate_attempt_context_history_not_established" | null;
+            candidate_source_current_projection?: components["schemas"]["RunCandidateSourceCurrentProjection"] | null;
             /** Limitation Code */
             limitation_code?: ("compiled_cycle_artifact_ambiguous" | "compiled_cycle_artifact_ref_invalid" | "compiled_cycle_artifact_integrity_not_established" | "compiled_cycle_artifact_content_invalid" | "n5_observation_not_emitted" | "n5_result_reference_not_established" | "n5_interaction_scope_not_established") | null;
             /**
@@ -17558,6 +17960,57 @@ export interface components {
             n5_result_ref: components["schemas"]["ArtifactRef-Output"];
             /** World Model Record Hash */
             world_model_record_hash: string;
+        };
+        /**
+         * RunCandidateSourceCurrentProjection
+         * @description One reopened candidate-basis fold; no deployment or publication authority.
+         */
+        RunCandidateSourceCurrentProjection: {
+            /**
+             * Authority Purpose
+             * @default candidate_observation_only
+             * @constant
+             */
+            authority_purpose: "candidate_observation_only";
+            /** Basis Cycle Index */
+            basis_cycle_index?: number | null;
+            /** Basis Transition Content Hash */
+            basis_transition_content_hash?: string | null;
+            /**
+             * Certified Candidate Ids
+             * @default []
+             */
+            certified_candidate_ids: string[];
+            /**
+             * Currentness Status
+             * @default not_established
+             * @constant
+             */
+            currentness_status: "not_established";
+            fronts?: components["schemas"]["RunCandidateSimulationContinuationFronts"] | null;
+            /** Generation Run Content Hash */
+            generation_run_content_hash?: string | null;
+            /**
+             * Issues
+             * @default []
+             */
+            issues: string[];
+            /**
+             * Occurrences
+             * @default []
+             */
+            occurrences: components["schemas"]["RunCandidateSimulationCurrentOccurrence"][];
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "resolved" | "not_established";
         };
         /**
          * RunCompareResponse
@@ -18213,7 +18666,7 @@ export interface components {
              * Artifact Schema Version
              * @enum {string}
              */
-            artifact_schema_version: "1.0.0" | "2.0.0" | "3.0.0" | "4.0.0";
+            artifact_schema_version: "1.0.0" | "2.0.0" | "3.0.0" | "4.0.0" | "5.0.0";
             /** Atom Ids */
             atom_ids: string[];
             /**
@@ -18245,7 +18698,7 @@ export interface components {
              * Result Schema Version
              * @enum {string}
              */
-            result_schema_version: "policyos.runtime.joint_simulation_horizon.v1" | "policyos.runtime.joint_simulation_horizon.v2" | "policyos.runtime.joint_simulation_horizon.v3" | "policyos.runtime.joint_simulation_horizon.v4";
+            result_schema_version: "policyos.runtime.joint_simulation_horizon.v1" | "policyos.runtime.joint_simulation_horizon.v2" | "policyos.runtime.joint_simulation_horizon.v3" | "policyos.runtime.joint_simulation_horizon.v4" | "policyos.runtime.joint_simulation_horizon.v5";
             /**
              * Schema Version
              * @default policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1
@@ -18380,6 +18833,13 @@ export interface components {
              * @constant
              */
             authority_purpose: "cycle_input_candidate_only";
+            /**
+             * Candidate Evaluation Attempts
+             * @default []
+             */
+            candidate_evaluation_attempts: components["schemas"]["RunCandidateEvaluationAttemptProjection"][];
+            /** Candidate Evaluation Attempts Limitation Code */
+            candidate_evaluation_attempts_limitation_code?: "candidate_attempt_context_history_not_established" | null;
             /**
              * Child Profile Bindings
              * @default []
@@ -18561,7 +19021,7 @@ export interface components {
              * Schema Version
              * @enum {string}
              */
-            schema_version: "policyos.runtime.joint_simulation_horizon.v1" | "policyos.runtime.joint_simulation_horizon.v2" | "policyos.runtime.joint_simulation_horizon.v3" | "policyos.runtime.joint_simulation_horizon.v4";
+            schema_version: "policyos.runtime.joint_simulation_horizon.v1" | "policyos.runtime.joint_simulation_horizon.v2" | "policyos.runtime.joint_simulation_horizon.v3" | "policyos.runtime.joint_simulation_horizon.v4" | "policyos.runtime.joint_simulation_horizon.v5";
         };
         /**
          * RunN5InteractionSample
@@ -19163,6 +19623,16 @@ export interface components {
         RunRecursiveCycleCheckpoint: {
             /** Budget Stop Node Ref */
             budget_stop_node_ref?: string | null;
+            /** Capacity Limitation Code */
+            capacity_limitation_code?: "physical_need_not_established" | null;
+            /** Capacity Pending Child Index */
+            capacity_pending_child_index?: number | null;
+            /** Capacity Pending Child Node Ref */
+            capacity_pending_child_node_ref?: string | null;
+            /** Capacity Source Content Hash */
+            capacity_source_content_hash?: string | null;
+            /** Capacity Stop Parent Node Ref */
+            capacity_stop_parent_node_ref?: string | null;
             /**
              * Completed Design Refs
              * @default []
@@ -19199,7 +19669,7 @@ export interface components {
              * @default policyos.runtime.recursive_cycle_checkpoint.v1
              * @enum {string}
              */
-            schema_version: "policyos.runtime.recursive_cycle_checkpoint.v1" | "policyos.runtime.recursive_cycle_checkpoint.v2";
+            schema_version: "policyos.runtime.recursive_cycle_checkpoint.v1" | "policyos.runtime.recursive_cycle_checkpoint.v2" | "policyos.runtime.recursive_cycle_checkpoint.v3";
             /**
              * Status
              * @default partial
@@ -21312,6 +21782,26 @@ export interface components {
             research_intent_ref?: string | null;
             /** Trinity Bundle Ref */
             trinity_bundle_ref?: components["schemas"]["ArtifactRef-Input"] | string | null;
+        };
+        /**
+         * _BuildIdentityArtifactSelection
+         * @description Ledger-owned wire selector decoded by the canonical Core artifact owner.
+         */
+        _BuildIdentityArtifactSelection: {
+            /** Artifact Id */
+            artifact_id: string;
+            /**
+             * Kind
+             * @constant
+             */
+            kind: "runtime.quality.confidence_ledger.build_identity";
+            /** Manifest Profile Sha256 */
+            manifest_profile_sha256: string;
+            /**
+             * Media Type
+             * @constant
+             */
+            media_type: "application/json";
         };
         /**
          * _QualifiedOutcomeOfInterestV3

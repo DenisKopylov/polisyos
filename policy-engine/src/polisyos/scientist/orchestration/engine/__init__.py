@@ -7,6 +7,7 @@ from importlib import import_module
 __all__ = [
     "BudgetInvocationCapacityObservation",
     "BudgetInvocationExhaustionWitness",
+    "ProducerBudgetObserver",
     "ATTR_CACHE_HIT",
     "ATTR_CELL_ID",
     "ATTR_DURATION_MS",
@@ -131,6 +132,10 @@ __all__ = [
 ]
 
 _EXPORTS = {
+    "ProducerBudgetObserver": (
+        "polisyos.scientist.orchestration.engine.producer_budget",
+        "ProducerBudgetObserver",
+    ),
     "BudgetInvocationCapacityObservation": (
         "polisyos.scientist.orchestration.engine.producer_budget",
         "BudgetInvocationCapacityObservation",

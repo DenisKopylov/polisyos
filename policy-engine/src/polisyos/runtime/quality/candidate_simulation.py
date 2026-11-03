@@ -8,8 +8,10 @@ owners.
 
 from __future__ import annotations
 
+import math
 import struct
 from dataclasses import dataclass, fields
+from decimal import Decimal
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -18,6 +20,7 @@ from polisyos.core.artifacts import (
     ArtifactRef,
     artifact_ref_identity_key,
 )
+from polisyos.ir.kernel import ParamValue
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.cycle_substrate import (
     CandidateLeverEvidence,  # Pydantic resolves these model fields at runtime.
@@ -33,6 +36,7 @@ from polisyos.runtime.quality.intervention_substrate import (
 from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
 from polisyos.runtime.quality.substrate_registry import SubstrateRegistry
 from polisyos.runtime.quality.world_model_record import WorldModelRecord
+from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
 
 _HASH_PATTERN = r"^sha256:[0-9a-f]{64}$"
 
@@ -76,6 +80,31 @@ class CandidateScenarioSetToRule(_StrictModel):
         return self
 
 
+class CandidateScenarioDecimalSetToRuleV2(_StrictModel):
+    """Explicit finite decimal domain for a candidate-only direct state edit."""
+
+    schema_version: Literal["policyos.runtime.candidate_scenario.decimal_set_to.v2"] = (
+        "policyos.runtime.candidate_scenario.decimal_set_to.v2"
+    )
+    operator_kind: str = Field(min_length=1, strict=True)
+    parameter_id: str = Field(min_length=1, strict=True)
+    target_world_slot: str = Field(min_length=1, strict=True)
+    unit_id: str = Field(min_length=1, strict=True)
+    minimum: Decimal
+    maximum: Decimal
+    parameter_context: dict[str, ParamValue] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _finite_decimal_domain(self) -> CandidateScenarioDecimalSetToRuleV2:
+        if not self.minimum.is_finite() or not self.maximum.is_finite():
+            raise ValueError("candidate_scenario_decimal_domain_non_finite")
+        if self.minimum > self.maximum:
+            raise ValueError("candidate_scenario_decimal_domain_invalid")
+        if self.parameter_id in self.parameter_context:
+            raise ValueError("candidate_scenario_parameter_context_shadows_value")
+        return self
+
+
 class CandidateScenarioN5Config(_StrictModel):
     """Server-owned, explicit request-shaping inputs for the N5 engine."""
 
@@ -89,6 +118,12 @@ class CandidateScenarioN5Config(_StrictModel):
     comparator_refs: tuple[str, ...] = ()
     seed: int = Field(default=0, strict=True)
     replications: int = Field(default=1, ge=1, strict=True)
+    invocation_quota_policy: BudgetInvocationQuotaPolicy | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    invocation_purpose: Literal["standard", "diagnostic", "counterevidence"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _finite_baseline(self) -> CandidateScenarioN5Config:
@@ -98,6 +133,8 @@ class CandidateScenarioN5Config(_StrictModel):
             raise ValueError("candidate_scenario_n5_baseline_non_finite")
         if len(self.comparator_refs) != len(set(self.comparator_refs)):
             raise ValueError("candidate_scenario_n5_comparator_duplicate")
+        if (self.invocation_quota_policy is None) != (self.invocation_purpose is None):
+            raise ValueError("candidate_scenario_invocation_profile_incomplete")
         return self
 
 
@@ -113,6 +150,8 @@ class CandidateN5RequestValues:
     comparator_refs: tuple[str, ...]
     seed: int
     replications: int
+    invocation_quota_policy: BudgetInvocationQuotaPolicy | None = None
+    invocation_purpose: Literal["standard", "diagnostic", "counterevidence"] | None = None
 
     @property
     def horizon_spec(self) -> HorizonSpec:
@@ -161,6 +200,8 @@ def prepare_candidate_n5_request_values(
         comparator_refs=validated.comparator_refs,
         seed=validated.seed,
         replications=validated.replications,
+        invocation_quota_policy=validated.invocation_quota_policy,
+        invocation_purpose=validated.invocation_purpose,
     )
 
 
@@ -401,6 +442,60 @@ class CandidateScenarioMaterializationV1(_StrictModel):
             raise ValueError("candidate_scenario_derived_atom_not_candidate")
         if self.derived_n5_atom.content_hash == self.original_atom_hash:
             raise ValueError("candidate_scenario_derived_atom_hash_not_changed")
+        return self
+
+
+class CandidateScenarioNumericMaterializationV1(_StrictModel):
+    """Exact source-bound decimal projection; source atoms remain immutable."""
+
+    schema_version: Literal["policyos.runtime.candidate_scenario.numeric_materialization.v1"] = (
+        "policyos.runtime.candidate_scenario.numeric_materialization.v1"
+    )
+    profile_hash: str = Field(pattern=_HASH_PATTERN, strict=True)
+    problem_ref: str = Field(pattern=_HASH_PATTERN, strict=True)
+    context_hash: str = Field(pattern=_HASH_PATTERN, strict=True)
+    context_job_ref: str = Field(pattern=_HASH_PATTERN, strict=True)
+    world_model_record_hash: str = Field(pattern=_HASH_PATTERN, strict=True)
+    source_handoff_ref: str = Field(pattern=_HASH_PATTERN, strict=True)
+    candidate_id: str = Field(min_length=1, strict=True)
+    original_candidate_hash: str = Field(pattern=_HASH_PATTERN, strict=True)
+    original_atom_hash: str = Field(pattern=_HASH_PATTERN, strict=True)
+    operator_kind: str = Field(min_length=1, strict=True)
+    parameter_id: str = Field(min_length=1, strict=True)
+    value: Decimal
+    source_value_kind: Literal["int", "float", "decimal", "numeric_string"]
+    native_input_value: float
+    numeric_execution_limitation: Literal[
+        "decimal_source_preserved_binary64_input_backend_precision_not_established"
+    ] = "decimal_source_preserved_binary64_input_backend_precision_not_established"
+    target_world_slot: str = Field(min_length=1, strict=True)
+    unit_id: str = Field(min_length=1, strict=True)
+    derived_n5_atom: InterventionAtomBinding
+    content_hash: str = Field(pattern=_HASH_PATTERN, strict=True)
+
+    @model_validator(mode="after")
+    def _verify_numeric_materialization(self) -> CandidateScenarioNumericMaterializationV1:
+        if (
+            not self.value.is_finite()
+            or not math.isfinite(self.native_input_value)
+            or self.native_input_value != float(self.value)
+            or (self.value != 0 and self.native_input_value == 0)
+        ):
+            raise ValueError("candidate_scenario_numeric_materialization_non_finite")
+        if (
+            self.derived_n5_atom.status != "candidate_unverified"
+            or self.derived_n5_atom.content_hash == self.original_atom_hash
+            or self.derived_n5_atom.target_world_slots != (self.target_world_slot,)
+            or self.derived_n5_atom.causal_do_expr.write_variables != (self.target_world_slot,)
+            or len(self.derived_n5_atom.causal_do_expr.assignments) != 1
+        ):
+            raise ValueError("candidate_scenario_numeric_derived_atom_binding_invalid")
+        assignment = self.derived_n5_atom.causal_do_expr.assignments[0]
+        if assignment.value_expr is not None or assignment.value != str(self.value):
+            raise ValueError("candidate_scenario_numeric_assignment_mismatch")
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
+        if self.content_hash != expected:
+            raise ValueError("candidate_scenario_numeric_materialization_hash_mismatch")
         return self
 
 

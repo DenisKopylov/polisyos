@@ -418,6 +418,7 @@ class StockFlowSystemDynamicsEstimator:
         assumptions={
             "joint_simulation_output_shape": "time_series_trajectory",
             "joint_simulation_equilibrium_semantics": "dynamic_SCM",
+            "joint_simulation_trajectory_row_contract": "initial_then_transitions.v1",
         },
     )
 

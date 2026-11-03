@@ -10,8 +10,18 @@ import {
   useRunPredictiveCalibration,
   type PredictiveCalibrationRequest,
 } from "@/api/hooks/useRunPredictiveCalibration";
-import type { RunArtifactRef, RunDetailsView } from "@/api/validators";
-import { runCandidateSimulationAcquisitionHistoryEntryV3Schema } from "@/api/validators";
+import type {
+  RunArtifactRef,
+  RunDetailsView,
+  RunCandidateSimulationCurrentOccurrenceView,
+  RunCandidateSourceCurrentProjectionView,
+} from "@/api/validators";
+import {
+  runCandidateSimulationAcquisitionHistoryEntrySchema,
+  runCandidateSimulationAcquisitionHistoryEntryV3Schema,
+  runCandidateSimulationAcquisitionHistoryEntryV4Schema,
+  runCandidateSourceCurrentProjectionSchema,
+} from "@/api/validators";
 import { isRuntimeApiNotFound } from "@/api/http";
 import { usePermission } from "@/app/authz/AuthzProvider";
 import { buildArtifactHref } from "@/features/artifacts";
@@ -448,14 +458,22 @@ function hasContinuationCandidate(
   );
 }
 
-type N5NumericalBody = Pick<
+type CandidateNumericalBody = NonNullable<
   NonNullable<
-    NonNullable<
-      RunDetailsView["candidate_simulation"]
-    >["n5_observations"][number]["result_body"]
-  >,
-  "horizon" | "trajectories"
+    RunDetailsView["candidate_simulation"]
+  >["n5_observations"][number]["result_body"]
 >;
+
+type N5NumericalBody = Pick<
+  CandidateNumericalBody,
+  "horizon" | "trajectories"
+> &
+  Partial<
+    Pick<
+      CandidateNumericalBody,
+      "outcome_units" | "unit_provenance" | "model_declaration_ref"
+    >
+  >;
 
 function N5NumericalResultBody({
   body,
@@ -479,6 +497,34 @@ function N5NumericalResultBody({
           step: body.horizon.step,
         })}
       </p>
+      {body.unit_provenance === "declared_candidate_model" ? (
+        Object.entries(body.outcome_units ?? {}).map(([name, unit]) => (
+          <p key={name} data-testid={testIdPrefix + "-outcome-unit"}>
+            {t("pages.runs.genericCycleSimulation.outcomeUnit", {
+              name,
+              unit,
+              provenance: body.unit_provenance,
+            })}
+          </p>
+        ))
+      ) : (
+        <p>
+          {t("pages.runs.genericCycleSimulation.outcomeUnitsNotEstablished")}
+        </p>
+      )}
+      {body.model_declaration_ref ? (
+        <Link
+          className="text-accent text-xs break-all underline"
+          to={buildArtifactHref(body.model_declaration_ref.artifact_id, {
+            tab: "content",
+            artifactRef: body.model_declaration_ref,
+          })}
+        >
+          {t("pages.runs.genericCycleSimulation.modelDeclaration", {
+            ref: body.model_declaration_ref.artifact_id,
+          })}
+        </Link>
+      ) : null}
       {body.trajectories.map((trajectory, index) => (
         <section
           key={
@@ -528,6 +574,212 @@ function N5NumericalResultBody({
         </section>
       ))}
     </div>
+  );
+}
+
+type RecordedCandidateAttempt = NonNullable<
+  NonNullable<
+    RunDetailsView["generic_cycle_simulation"]
+  >["candidate_evaluation_attempts"]
+>[number];
+
+function CandidateEvaluationAttemptHistory({
+  rows = [],
+  limitation,
+}: {
+  rows?: readonly RecordedCandidateAttempt[];
+  limitation?: string | null;
+}) {
+  const { t } = useI18n();
+  if (rows.length === 0 && limitation == null) return null;
+  return (
+    <section
+      className="space-y-2"
+      data-testid="overview-candidate-attempt-history"
+    >
+      <h5>{t("pages.runs.candidateSimulation.attemptHistoryTitle")}</h5>
+      <p>{t("pages.runs.candidateSimulation.attemptHistoryScope")}</p>
+      {limitation ? (
+        <p data-testid="overview-candidate-attempt-history-limited">
+          {limitation}
+        </p>
+      ) : null}
+      {rows.map((row) => (
+        <div
+          className="space-y-1 border-t pt-2"
+          data-testid="overview-candidate-attempt"
+          key={[row.node_ref, row.attempt_ref].join(":")}
+        >
+          <p>
+            {t("pages.runs.candidateSimulation.attemptSubject", {
+              candidate: row.candidate_id,
+              cycle: String(row.cycle_index),
+              stage: row.failure_stage,
+            })}
+          </p>
+          <p>
+            {t("pages.runs.candidateSimulation.attemptStatuses", {
+              simulation: row.simulation_status,
+              value: row.value_status,
+              grade: row.value_decision_grade ?? "not_established",
+            })}
+          </p>
+          <p className="text-xs break-all">
+            {t("pages.runs.candidateSimulation.attemptBasis", {
+              problem: row.problem_ref,
+              attempt: row.attempt_ref,
+            })}
+          </p>
+          {Array.from(
+            new Set([
+              ...row.simulation_authority_blockers,
+              ...row.value_authority_blockers,
+            ]),
+          ).map((blocker) => (
+            <p key={blocker}>{blocker}</p>
+          ))}
+          {[
+            row.n4_source_ref,
+            row.context_job_ref,
+            row.n5_input_ref,
+            row.n5_execution_ref,
+            row.simulation_result_ref,
+          ].map((ref, index) =>
+            ref ? (
+              <p key={index} className="text-xs break-all">
+                <Link
+                  className="text-accent underline"
+                  to={buildArtifactHref(ref.artifact_id, {
+                    tab: "content",
+                    artifactRef: ref,
+                  })}
+                >
+                  {ref.kind}: {ref.artifact_id}
+                </Link>
+              </p>
+            ) : null,
+          )}
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function CandidateCurrentOccurrence({
+  row,
+}: {
+  row: RunCandidateSimulationCurrentOccurrenceView;
+}) {
+  const { t } = useI18n();
+  return (
+    <div className="space-y-1">
+      <p
+        data-testid="overview-acquisition-current-occurrence"
+        className="text-xs break-all"
+      >
+        {t("pages.runs.candidateSimulation.acquisitionCurrentOccurrence", {
+          candidate: row.candidate_id,
+          cycle: String(row.cycle_index),
+          hash: row.content_hash,
+          front: row.front,
+        })}
+      </p>
+      {row.candidate_basis_status != null ? (
+        <div
+          data-testid="overview-candidate-basis-occurrence"
+          className="text-xs break-all"
+        >
+          <p>
+            {t("pages.runs.candidateSimulation.occurrenceBasis", {
+              cycle: String(row.candidate_basis_cycle_index),
+              hash: row.candidate_basis_content_hash ?? "not_established",
+              status: row.candidate_basis_status,
+            })}
+          </p>
+          <p data-testid="overview-candidate-basis-historical">
+            {t("pages.runs.candidateSimulation.occurrenceHistorical", {
+              front: row.historical_front ?? "not_established",
+              certified: String(row.historical_certified_by_n9),
+              status: row.historical_value_status ?? "not_established",
+              grade: row.historical_value_decision_grade ?? "not_established",
+              ref: row.historical_value_ref ?? "not_established",
+            })}
+          </p>
+          <p data-testid="overview-candidate-basis-effective">
+            {t("pages.runs.candidateSimulation.occurrenceCurrent", {
+              status: row.value_status ?? "not_established",
+              grade: row.value_decision_grade ?? "not_established",
+              certified: String(row.certified_by_n9),
+              ref: row.value_ref ?? "not_established",
+            })}
+          </p>
+          {Array.from(
+            new Set([
+              ...(row.candidate_basis_limitation_code
+                ? [row.candidate_basis_limitation_code]
+                : []),
+              ...(row.value_blockers ?? []),
+            ]),
+          ).map((code) => (
+            <p key={code}>{code}</p>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function CandidateSourceCurrentView({
+  view: suppliedView,
+}: {
+  view: RunCandidateSourceCurrentProjectionView;
+}) {
+  const { t } = useI18n();
+  const parsed =
+    runCandidateSourceCurrentProjectionSchema.safeParse(suppliedView);
+  if (!parsed.success)
+    return (
+      <section data-testid="overview-candidate-source-current">
+        <h5>{t("pages.runs.candidateSimulation.candidateCurrentTitle")}</h5>
+        <p data-testid="overview-candidate-source-current-unavailable">
+          {t("pages.runs.candidateSimulation.candidateCurrentUnavailable", {
+            issues: "candidate_source_current_projection_contract_invalid",
+          })}
+        </p>
+      </section>
+    );
+  const view = parsed.data;
+  return (
+    <section
+      className="space-y-2"
+      data-testid="overview-candidate-source-current"
+    >
+      <h5>{t("pages.runs.candidateSimulation.candidateCurrentTitle")}</h5>
+      <p>{t("pages.runs.candidateSimulation.candidateCurrentScope")}</p>
+      {view.status === "not_established" ? (
+        <p data-testid="overview-candidate-source-current-unavailable">
+          {t("pages.runs.candidateSimulation.candidateCurrentUnavailable", {
+            issues: view.issues.join(", "),
+          })}
+        </p>
+      ) : (
+        <>
+          <p className="text-xs break-all">
+            {t("pages.runs.candidateSimulation.candidateCurrentHash", {
+              hash: view.generation_run_content_hash ?? "not_established",
+            })}
+          </p>
+          {view.occurrences.map((row) => (
+            <CandidateCurrentOccurrence
+              key={[row.candidate_id, row.cycle_index, row.content_hash].join(
+                ":",
+              )}
+              row={row}
+            />
+          ))}
+        </>
+      )}
+    </section>
   );
 }
 
@@ -601,6 +853,20 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
           {projection.limitation_code}
         </p>
       ) : null}
+      {projectionKnown &&
+      compiledProjection?.candidate_source_current_projection ? (
+        <CandidateSourceCurrentView
+          view={compiledProjection.candidate_source_current_projection}
+        />
+      ) : null}
+      {projectionKnown && compiledProjection?.artifact_status === "resolved" ? (
+        <CandidateEvaluationAttemptHistory
+          rows={compiledProjection.candidate_evaluation_attempts}
+          limitation={
+            compiledProjection.candidate_evaluation_attempts_limitation_code
+          }
+        />
+      ) : null}
       {acquisitionHistory.length > 0 ||
       typeof acquisitionHistoryLimitation === "string" ? (
         <div
@@ -618,6 +884,85 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
           ) : null}
           {acquisitionHistory.map((value, index) => {
             const row = asRecord(value);
+            if (
+              row?.schema_version ===
+              "policyos.runtime.run_candidate_simulation_acquisition_history.v4"
+            ) {
+              const parsed =
+                runCandidateSimulationAcquisitionHistoryEntryV4Schema.safeParse(
+                  row,
+                );
+              if (
+                !projectionKnown ||
+                projection.artifact_status !== "resolved" ||
+                !parsed.success
+              ) {
+                return (
+                  <p
+                    key={index}
+                    data-testid="overview-acquisition-history-refused"
+                  >
+                    {t(
+                      "pages.runs.candidateSimulation.acquisitionHistoryRefused",
+                    )}
+                  </p>
+                );
+              }
+              const candidate = parsed.data;
+              return (
+                <div
+                  key={index}
+                  className="space-y-1 border-t pt-2"
+                  data-testid="overview-acquisition-history-candidate"
+                >
+                  <p>
+                    {t("pages.runs.candidateSimulation.acquisitionRoute", {
+                      route: candidate.route_id,
+                      generation: String(candidate.action_generation),
+                    })}
+                  </p>
+                  <p>
+                    {t("pages.runs.candidateSimulation.acquisitionOutcome", {
+                      outcome: candidate.terminal_outcome,
+                    })}
+                  </p>
+                  <p>
+                    {t("pages.runs.candidateSimulation.candidateHistoryScope")}
+                  </p>
+                  <p>
+                    {t(
+                      "pages.runs.candidateSimulation.candidateHistorySimulation",
+                      { status: candidate.simulation_status },
+                    )}
+                  </p>
+                  {[
+                    ...candidate.limitations,
+                    ...candidate.simulation_authority_blockers,
+                  ].map((issue) => (
+                    <p key={issue}>{issue}</p>
+                  ))}
+                  {[
+                    candidate.candidate_action_ref,
+                    candidate.candidate_source_ref,
+                    candidate.data_snapshot_ref,
+                    candidate.world_model_ref,
+                    candidate.context_job_ref,
+                    candidate.model_declaration_ref,
+                    candidate.ncm_ref,
+                    candidate.n4_source_ref,
+                    candidate.n5_input_ref,
+                    candidate.n5_execution_ref,
+                    candidate.n5_result_ref,
+                  ]
+                    .filter((ref) => ref != null)
+                    .map((ref) => (
+                      <p className="text-xs break-all" key={ref.artifact_id}>
+                        {ref.kind}: {ref.artifact_id}
+                      </p>
+                    ))}
+                </div>
+              );
+            }
             if (
               row?.schema_version ===
               "policyos.runtime.run_candidate_simulation_acquisition_history.v3"
@@ -644,6 +989,8 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
               }
               const retained = parsed.data;
               const evaluation = retained.retained_evaluation;
+              const numerical = retained.selected_n5_observation;
+              const cheap = retained.current_cheap_consequences;
               return (
                 <div
                   key={index}
@@ -734,6 +1081,84 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                       },
                     )}
                   </p>
+                  {numerical?.result_body_status === "resolved" &&
+                  numerical.result_body ? (
+                    <>
+                      <p data-testid="overview-acquisition-numerical-provenance">
+                        {t(
+                          "pages.runs.candidateSimulation.acquisitionNumericalProvenance",
+                          {
+                            provenance: retained.evaluation_provenance,
+                            cycle: String(numerical.cycle_index),
+                          },
+                        )}
+                      </p>
+                      <N5NumericalResultBody
+                        body={numerical.result_body}
+                        testIdPrefix="overview-acquisition-retained-n5"
+                      />
+                    </>
+                  ) : null}
+                  {cheap ? (
+                    <div
+                      data-testid="overview-acquisition-current-cheap-consequences"
+                      className="space-y-1"
+                    >
+                      <p>
+                        {t(
+                          "pages.runs.candidateSimulation.acquisitionCheapConsequences",
+                        )}
+                      </p>
+                      <p>
+                        {t(
+                          "pages.runs.candidateSimulation.acquisitionCheapGrounding",
+                          {
+                            status: cheap.grounding_status,
+                            valid: String(cheap.grounding_current_valid),
+                          },
+                        )}
+                      </p>
+                      <p>
+                        {t(
+                          "pages.runs.candidateSimulation.acquisitionCheapValue",
+                          {
+                            status: cheap.value_status,
+                            grade:
+                              cheap.value_decision_grade ?? "not_established",
+                          },
+                        )}
+                      </p>
+                      {cheap.value_authority_blockers.map((code) => (
+                        <p key={code}>{code}</p>
+                      ))}
+                      <p>
+                        {t(
+                          "pages.runs.candidateSimulation.acquisitionCheapAction",
+                          {
+                            action: cheap.voi_next_action,
+                            terminal: cheap.terminal_kind,
+                            refinement: cheap.refinement_decision,
+                            search: cheap.search_iteration_status,
+                          },
+                        )}
+                      </p>
+                      <p>{cheap.voi_reason}</p>
+                      {cheap.current_planner_report_ref ? (
+                        <Link
+                          className="text-accent text-xs break-all underline"
+                          to={buildArtifactHref(
+                            cheap.current_planner_report_ref.artifact_id,
+                            {
+                              tab: "content",
+                              artifactRef: cheap.current_planner_report_ref,
+                            },
+                          )}
+                        >
+                          {cheap.current_planner_report_ref.artifact_id}
+                        </Link>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
               );
             }
@@ -790,6 +1215,10 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
               row.currentness_status === "not_established" &&
               row.authority_purpose === "candidate_observation_only" &&
               row.publication_authority === false;
+            const parsedHistory =
+              runCandidateSimulationAcquisitionHistoryEntrySchema.safeParse(
+                row,
+              );
             const reentryKnown =
               row?.terminal_outcome === "reentry_completed" &&
               isArtifactRef(
@@ -853,7 +1282,11 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
             const verifiedRoot =
               row?.origin_source_binding_status ===
                 "verified_same_candidate_root" && expectedOriginMatches;
-            if (!commonKnown || (!reentryKnown && !quarantineKnown)) {
+            if (
+              !commonKnown ||
+              !parsedHistory.success ||
+              (!reentryKnown && !quarantineKnown)
+            ) {
               return (
                 <p
                   key={index}
@@ -865,6 +1298,12 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                 </p>
               );
             }
+            const selectedContinuation = parsedHistory.data.continuation;
+            const numerical = parsedHistory.data.selected_n5_observation;
+            const modelRevision = selectedContinuation?.model_revision;
+            const outcomeRevision =
+              selectedContinuation?.acquired_outcome_revision;
+            const basisRevision = modelRevision ?? outcomeRevision;
             return (
               <div key={index} className="space-y-1 border-t pt-2">
                 <p>
@@ -946,6 +1385,96 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
                           },
                         )}
                       </p>
+                    ) : null}
+                    {selectedContinuation?.current_candidate_occurrences.map(
+                      (occurrence) => (
+                        <CandidateCurrentOccurrence
+                          key={JSON.stringify([
+                            occurrence.candidate_id,
+                            occurrence.cycle_index,
+                            occurrence.content_hash,
+                          ])}
+                          row={occurrence}
+                        />
+                      ),
+                    )}
+                    {selectedContinuation ? (
+                      <div data-testid="overview-acquisition-selected-simulation">
+                        <p>
+                          {t(
+                            "pages.runs.candidateSimulation.acquisitionSelectedSimulation",
+                            {
+                              status:
+                                selectedContinuation.selected_simulation_status ??
+                                numerical?.status ??
+                                "not_established",
+                            },
+                          )}
+                        </p>
+                        {selectedContinuation.selected_simulation_authority_blockers.map(
+                          (blocker) => (
+                            <p key={blocker}>{blocker}</p>
+                          ),
+                        )}
+                      </div>
+                    ) : null}
+                    {basisRevision ? (
+                      <div data-testid="overview-acquisition-model-revision">
+                        <p>
+                          {outcomeRevision
+                            ? t(
+                                "pages.runs.candidateSimulation.acquisitionOutcomeRevision",
+                                {
+                                  slot: outcomeRevision.outcome_world_slot,
+                                },
+                              )
+                            : t(
+                                "pages.runs.candidateSimulation.acquisitionModelRevision",
+                                {
+                                  field: basisRevision.changed_field,
+                                },
+                              )}
+                        </p>
+                        <Link
+                          className="text-accent text-xs break-all underline"
+                          to={buildArtifactHref(
+                            basisRevision.evaluation_decision_ref.artifact_id,
+                            {
+                              tab: "content",
+                              artifactRef:
+                                basisRevision.evaluation_decision_ref,
+                            },
+                          )}
+                        >
+                          {t(
+                            "pages.runs.candidateSimulation.acquisitionModelDecision",
+                            {
+                              ref: basisRevision.evaluation_decision_ref
+                                .artifact_id,
+                            },
+                          )}
+                        </Link>
+                      </div>
+                    ) : null}
+                    {numerical?.result_body_status === "resolved" &&
+                    numerical.result_body ? (
+                      <>
+                        <p data-testid="overview-acquisition-numerical-provenance">
+                          {t(
+                            "pages.runs.candidateSimulation.acquisitionNumericalProvenance",
+                            {
+                              provenance:
+                                parsedHistory.data.evaluation_provenance ??
+                                "not_established",
+                              cycle: String(numerical.cycle_index),
+                            },
+                          )}
+                        </p>
+                        <N5NumericalResultBody
+                          body={numerical.result_body}
+                          testIdPrefix="overview-acquisition-selected-n5"
+                        />
+                      </>
                     ) : null}
                   </>
                 ) : null}
@@ -1163,6 +1692,10 @@ function GenericCycleSimulationPanel({
 
   return (
     <Card className="space-y-4" data-testid="overview-generic-cycle-simulation">
+      <CandidateEvaluationAttemptHistory
+        rows={projection.candidate_evaluation_attempts}
+        limitation={projection.candidate_evaluation_attempts_limitation_code}
+      />
       <h4>{t("pages.runs.genericCycleSimulation.title")}</h4>
       <p className="text-muted text-sm">
         {t("pages.runs.genericCycleSimulation.authority")}
@@ -1320,6 +1853,93 @@ function GenericCycleSimulationPanel({
                     "not_established",
                 })}
               </p>
+              {parent.n8_selected_member_relationship === "joint_components" ? (
+                <div
+                  data-testid="overview-authored-joint-components"
+                  className="space-y-1"
+                >
+                  <p>
+                    {t(
+                      "pages.runs.genericCycleSimulation.jointParentAuthoredComposition",
+                      {
+                        selected: parent.n8_selected_member_relationship,
+                        composition:
+                          parent.n8_policy_composition_status ??
+                          "not_established",
+                        refinement:
+                          parent.n8_child_to_parent_refinement_status ??
+                          "not_established",
+                      },
+                    )}
+                  </p>
+                  <p className="text-xs break-all">
+                    {t(
+                      "pages.runs.genericCycleSimulation.jointParentSourceAtoms",
+                      {
+                        atoms: parent.n8_candidate_parent_atom_ids.join(", "),
+                      },
+                    )}
+                  </p>
+                  <p className="text-xs break-all">
+                    {t(
+                      "pages.runs.genericCycleSimulation.jointParentDerivedAtoms",
+                      {
+                        atoms: parent.n8_candidate_derived_atom_ids.join(", "),
+                      },
+                    )}
+                  </p>
+                  {parent.n8_policy_composition_limitation_code ? (
+                    <p>{parent.n8_policy_composition_limitation_code}</p>
+                  ) : null}
+                  {parent.n8_authored_joint_intent_digest ? (
+                    <p className="text-xs break-all">
+                      {parent.n8_authored_joint_intent_digest}
+                    </p>
+                  ) : null}
+                  {parent.n8_authored_joint_relation_ref ? (
+                    <Link
+                      className="text-accent text-xs break-all underline"
+                      to={buildArtifactHref(
+                        parent.n8_authored_joint_relation_ref.artifact_id,
+                        {
+                          tab: "content",
+                          artifactRef: parent.n8_authored_joint_relation_ref,
+                        },
+                      )}
+                    >
+                      {t(
+                        "pages.runs.genericCycleSimulation.jointParentAuthoredRelation",
+                        {
+                          ref: parent.n8_authored_joint_relation_ref
+                            .artifact_id,
+                        },
+                      )}
+                    </Link>
+                  ) : null}
+                  {parent.n8_authored_joint_request_payload_ref ? (
+                    <Link
+                      className="text-accent text-xs break-all underline"
+                      to={buildArtifactHref(
+                        parent.n8_authored_joint_request_payload_ref
+                          .artifact_id,
+                        {
+                          tab: "content",
+                          artifactRef:
+                            parent.n8_authored_joint_request_payload_ref,
+                        },
+                      )}
+                    >
+                      {t(
+                        "pages.runs.genericCycleSimulation.jointParentAuthoredRequest",
+                        {
+                          ref: parent.n8_authored_joint_request_payload_ref
+                            .artifact_id,
+                        },
+                      )}
+                    </Link>
+                  ) : null}
+                </div>
+              ) : null}
               {parent.simulation_result_ref ? (
                 <p
                   className="text-xs break-all"
@@ -1335,7 +1955,11 @@ function GenericCycleSimulationPanel({
                       "pages.runs.genericCycleSimulation.jointParentInteraction",
                       {
                         classification:
-                          parent.n5_interaction_evidence.numeric_interaction,
+                          parent.n5_interaction_evidence.schema_version ===
+                          "policyos.runtime.joint_simulation_horizon.v4"
+                            ? "unsupported"
+                            : parent.n5_interaction_evidence
+                                .numeric_interaction,
                         basis:
                           parent.n5_interaction_evidence
                             .numeric_interaction_basis,
@@ -1345,6 +1969,14 @@ function GenericCycleSimulationPanel({
                       },
                     )}
                   </p>
+                  {parent.n5_interaction_evidence.schema_version ===
+                  "policyos.runtime.joint_simulation_horizon.v4" ? (
+                    <p data-testid="overview-v4-interaction-classification-limitation">
+                      {t(
+                        "pages.runs.genericCycleSimulation.v4InteractionClassificationUnsupported",
+                      )}
+                    </p>
+                  ) : null}
                   <p>
                     {t("pages.runs.genericCycleSimulation.jointParentOrders", {
                       orders:
@@ -1495,6 +2127,19 @@ function GenericCycleSimulationPanel({
         >
           <h5>{t("pages.runs.candidateSimulation.checkpointTitle")}</h5>
           <p>{checkpoint.status}</p>
+          {checkpoint.schema_version ===
+          "policyos.runtime.recursive_cycle_checkpoint.v3" ? (
+            <div data-testid="overview-recursive-capacity-stop">
+              <p>{t("pages.runs.candidateSimulation.capacityStop")}</p>
+              <p>{checkpoint.capacity_stop_parent_node_ref}</p>
+              <p>
+                {checkpoint.capacity_pending_child_node_ref} (
+                {checkpoint.capacity_pending_child_index})
+              </p>
+              <p>{checkpoint.capacity_source_content_hash}</p>
+              <p>{checkpoint.capacity_limitation_code}</p>
+            </div>
+          ) : null}
           <p>
             {t("pages.runs.candidateSimulation.rootN9", {
               status: checkpoint.root_n9_status,

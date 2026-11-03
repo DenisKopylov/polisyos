@@ -181,12 +181,18 @@ class ControlledCandidateGateway:
     """Small OpenAI-compatible local gateway for the real traced-client factory."""
 
     def __init__(self) -> None:
+        from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
+
         self._lock = threading.Lock()
         self._recording: dict[str, object] | None = None
         self._problem: dict[str, object] | None = None
         self._n4_cursor = 0
         self._provider_profile: SyntheticCandidateProviderProfile | None = None
         self._compiled_problem_ref: str | None = None
+        self._configured_child_selections: frozenset[str] = frozenset()
+        self._derived_subjects: dict[str, tuple[str, str, str]] = {}
+        self._active_root_result_ref: str | None = None
+        self._canonical_child_derivation = derive_n4_candidate_child_problems
 
         class Handler(BaseHTTPRequestHandler):
             owner: ControlledCandidateGateway
@@ -267,6 +273,18 @@ class ControlledCandidateGateway:
                     compiled_problem_ref = self.owner._compiled_problem_ref
                 if profile is not None:
                     try:
+                        from polisyos.scientist.orchestration.llm._n4_request import _read_payload
+
+                        subject = _read_payload(request)["subject_ref"]
+                        with self.owner._lock:
+                            child = self.owner._derived_subjects.get(subject)
+                            if (
+                                child is not None
+                                and child[0] == compiled_problem_ref
+                                and child[1] == self.owner._active_root_result_ref
+                                and child[2] in self.owner._configured_child_selections
+                            ):
+                                compiled_problem_ref = subject
                         completion = profile.completion(
                             request,
                             raw_request=raw_request,
@@ -415,6 +433,9 @@ class ControlledCandidateGateway:
             self._n4_cursor = 0
             self._provider_profile = provider_profile
             self._compiled_problem_ref = None
+            self._configured_child_selections = frozenset()
+            self._derived_subjects = {}
+            self._active_root_result_ref = None
 
     def admit_compiled_problem(self, problem: object) -> None:
         """Bind the actual validated compiler product before profiled N4 calls."""
@@ -432,7 +453,97 @@ class ControlledCandidateGateway:
                 problem.nl_provenance.raw_request != self._problem["nl_provenance"]["raw_request"]
             ):
                 raise ValueError("synthetic_provider_compiler_request_mismatch")
-            self._compiled_problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+            selected_ref = gy_content_hash(problem.model_dump(mode="json"))
+            self._derived_subjects = {}
+            self._active_root_result_ref = None
+            self._compiled_problem_ref = selected_ref
+
+    def configure_child_profile_selections(self, selection_refs: Sequence[str]) -> None:
+        """Opt into the exact prepared child profile family, retaining root-only defaults."""
+        refs = tuple(selection_refs)
+        if (
+            not refs
+            or len(refs) != len(set(refs))
+            or any(
+                not isinstance(ref, str)
+                or len(ref) != 71
+                or not ref.startswith("sha256:")
+                or any(char not in "0123456789abcdef" for char in ref[7:])
+                for ref in refs
+            )
+        ):
+            raise ValueError("synthetic_provider_child_profile_family_invalid")
+        with self._lock:
+            self._configured_child_selections = frozenset(refs)
+            self._derived_subjects = {}
+            self._active_root_result_ref = None
+
+    def has_compiled_root(self, problem: object) -> bool:
+        """Recognize the actual admitted root without trusting raw lineage labels."""
+        if type(problem) is not DesignProblem:
+            return False
+        with self._lock:
+            return self._compiled_problem_ref == gy_content_hash(problem.model_dump(mode="json"))
+
+    def admit_actual_child_family(
+        self, *, parent_problem: object, root_result: object, children: object
+    ) -> None:
+        """Recompute exact source children before accepting their producer subjects."""
+        from polisyos.runtime.quality.cycle_substrate import generic_n4_child_profile_selection_ref
+        from polisyos.runtime.quality.design_generation import (
+            GenerationUnderAResult,
+            N4CandidateChildProblem,
+        )
+
+        if (
+            type(parent_problem) is not DesignProblem
+            or type(root_result) is not GenerationUnderAResult
+            or type(children) is not tuple
+            or any(type(child) is not N4CandidateChildProblem for child in children)
+        ):
+            raise TypeError("synthetic_provider_child_source_untyped")
+        with self._lock:
+            profile = self._provider_profile
+            root_ref = self._compiled_problem_ref
+            configured = self._configured_child_selections
+        if (
+            profile is None
+            or root_ref != gy_content_hash(parent_problem.model_dump(mode="json"))
+            or root_result.design_problem_ref != root_ref
+            or root_result.model_id != profile.model_id
+            or root_result.status != "generated"
+        ):
+            raise ValueError("synthetic_provider_child_root_not_admitted")
+        expected = self._canonical_child_derivation(
+            parent_problem, root_result, model_id=profile.model_id
+        )
+        if expected != children:
+            raise ValueError("synthetic_provider_child_derivation_mismatch")
+        result_ref = gy_content_hash(root_result.model_dump(mode="json"))
+        entries: dict[str, tuple[str, str, str]] = {}
+        for child in children:
+            selection = generic_n4_child_profile_selection_ref(
+                child.problem,
+                parent_problem_ref=root_ref,
+                source_result_ref=child.source_result_ref,
+                source_atom_refs=child.source_atom_refs,
+                semantic_ref=child.semantic_ref,
+            )
+            entries[gy_content_hash(child.problem.model_dump(mode="json"))] = (
+                root_ref,
+                result_ref,
+                selection,
+            )
+        if len(entries) != len(configured) or {row[2] for row in entries.values()} != configured:
+            raise ValueError("synthetic_provider_child_profile_family_mismatch")
+        with self._lock:
+            if (
+                root_ref != self._compiled_problem_ref
+                or configured != self._configured_child_selections
+            ):
+                raise ValueError("synthetic_provider_child_root_changed")
+            self._active_root_result_ref = result_ref
+            self._derived_subjects = entries
 
     @staticmethod
     def _validate_recording(recording: dict[str, object]) -> None:
@@ -901,8 +1012,9 @@ def _controlled_selected_slot_specs(
     declared_ncm_outcomes: frozenset[str],
     candidate_baseline_state: Mapping[str, object] | None,
     candidate_outcome_state_paths: Mapping[str, str] | None,
+    candidate_model_unit_ids: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
-    """Build a selected-only registry from requested slots and a persisted NCM."""
+    """Build selected slots, preserving explicit candidate model unit assumptions."""
     from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY, SlotSpec, UnitRef
 
     resolved = _controlled_resolve_policy_slot_ids(policy_slot_ids)
@@ -918,6 +1030,19 @@ def _controlled_selected_slot_specs(
     requested_ids = {slot_id for slot_id, _ in resolved}
     if set(state_paths) - requested_ids:
         raise ValueError("controlled_wmr_unselected_candidate_outcome_state_path")
+    if candidate_model_unit_ids is not None and not isinstance(candidate_model_unit_ids, Mapping):
+        raise ValueError("controlled_wmr_candidate_model_units_invalid")
+    model_units = dict(candidate_model_unit_ids or {})
+    if any(
+        not isinstance(slot_id, str)
+        or not slot_id.strip()
+        or not isinstance(unit_id, str)
+        or not unit_id.strip()
+        for slot_id, unit_id in model_units.items()
+    ):
+        raise ValueError("controlled_wmr_candidate_model_units_invalid")
+    if set(model_units) - requested_ids:
+        raise ValueError("controlled_wmr_unselected_candidate_model_unit")
 
     specs: dict[str, Any] = {}
     selected_state_paths: dict[str, str] = {}
@@ -925,6 +1050,14 @@ def _controlled_selected_slot_specs(
         if canonical_id in DEFAULT_SLOT_REGISTRY.slots:
             canonical_slot = DEFAULT_SLOT_REGISTRY.slots[canonical_id]
             slot_spec = canonical_slot.model_copy(update={"slot_id": slot_id})
+            declared_unit = model_units.get(slot_id)
+            if declared_unit is not None:
+                if canonical_slot.unit is not None and canonical_slot.unit.unit_id != declared_unit:
+                    raise ValueError("controlled_wmr_registered_model_unit_mismatch:" + slot_id)
+                if canonical_slot.unit is None:
+                    slot_spec = slot_spec.model_copy(
+                        update={"unit": UnitRef(unit_id=declared_unit)}
+                    )
             if slot_id in declared_ncm_outcomes:
                 value_type_name = getattr(
                     canonical_slot.value_type, "value", canonical_slot.value_type
@@ -966,7 +1099,7 @@ def _controlled_selected_slot_specs(
                 {
                     **template.model_dump(mode="python"),
                     "slot_id": slot_id,
-                    "unit": UnitRef(unit_id="synthetic_score"),
+                    "unit": UnitRef(unit_id=model_units.get(slot_id, "synthetic_score")),
                     "kind": "stock",
                     "state_path": state_path,
                     "description": (
@@ -1301,6 +1434,7 @@ def _materialize_controlled_world_model_build(
     ncm_view_refs: Sequence[Any] = (),
     candidate_baseline_state: Mapping[str, object] | None = None,
     candidate_outcome_state_paths: Mapping[str, str] | None = None,
+    candidate_model_unit_ids: Mapping[str, str] | None = None,
 ) -> Any:
     """Build a source-bound, limited WMR from real local owner artifacts.
 
@@ -1381,6 +1515,7 @@ def _materialize_controlled_world_model_build(
         declared_ncm_outcomes=declared_ncm_outcomes,
         candidate_baseline_state=candidate_baseline_state,
         candidate_outcome_state_paths=candidate_outcome_state_paths,
+        candidate_model_unit_ids=candidate_model_unit_ids,
     )
     controlled_slot_registry = SlotRegistry.model_validate(
         {
@@ -1613,6 +1748,7 @@ def _materialize_controlled_world_model_build(
                 )
             ),
             candidate_only=True,
+            return_selected_profile=True,
         )
         persisted_record = load_world_model_record(artifact_store, built.record_ref)
         if persisted_record != built.record:
@@ -1637,6 +1773,7 @@ def _materialize_controlled_world_model_record(
     ncm_view_refs: Sequence[Any] = (),
     candidate_baseline_state: Mapping[str, object] | None = None,
     candidate_outcome_state_paths: Mapping[str, str] | None = None,
+    candidate_model_unit_ids: Mapping[str, str] | None = None,
 ) -> Any:
     """Return the exact WMR from its owner build result for existing callers."""
 
@@ -1655,6 +1792,7 @@ def _materialize_controlled_world_model_record(
         ncm_view_refs=ncm_view_refs,
         candidate_baseline_state=candidate_baseline_state,
         candidate_outcome_state_paths=candidate_outcome_state_paths,
+        candidate_model_unit_ids=candidate_model_unit_ids,
     )
     return built.record
 
@@ -1819,6 +1957,21 @@ def _build_configured_procurement_profile(
         outcome_noise_stddev=0.01,
     )
     ncm = candidate_ncm_spec_from_declaration(model_parameters)
+    from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+
+    outcome_slot_id = _CONTROLLED_SLOT_ALIASES.get(outcome_variable, outcome_variable)
+    outcome_slot = DEFAULT_SLOT_REGISTRY.slots.get(outcome_slot_id)
+    outcome_unit_id = (
+        outcome_slot.unit.unit_id
+        if outcome_slot is not None and outcome_slot.unit is not None
+        else rule.unit_id
+    )
+    # These units are the explicit synthetic-model assumption, not a claim that
+    # a canonical unknown slot has acquired empirical measurement semantics.
+    model_unit_ids = {
+        rule.target_world_slot: rule.unit_id,
+        outcome_variable: outcome_unit_id,
+    }
     selected_source = selected_skg_source or _seed_controlled_selected_skg_source(
         tmp_path,
         source_root=source_root,
@@ -1862,6 +2015,7 @@ def _build_configured_procurement_profile(
         ncm_view_refs=(ncm_ref,),
         candidate_baseline_state=n5.baseline_state,
         candidate_outcome_state_paths=_controlled_direct_ncm_outcome_state_paths(outcome_variable),
+        candidate_model_unit_ids=model_unit_ids,
     )
     world = world_build.record
     context_inputs = CandidateSimulationContextInputs(
@@ -1906,17 +2060,6 @@ def _build_configured_procurement_profile(
                 draft_profile.model_dump(mode="json", exclude={"content_hash"})
             ),
         }
-    )
-    from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
-
-    outcome_slot_id = _CONTROLLED_SLOT_ALIASES.get(
-        model_parameters.outcome_variable, model_parameters.outcome_variable
-    )
-    outcome_slot = DEFAULT_SLOT_REGISTRY.slots.get(outcome_slot_id)
-    outcome_unit_id = (
-        outcome_slot.unit.unit_id
-        if outcome_slot is not None and outcome_slot.unit is not None
-        else rule.unit_id
     )
     declaration_fields = {
         "schema_version": ("policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"),

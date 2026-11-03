@@ -309,6 +309,158 @@ def test_all_success_control_returns_all_levels_without_partial_metadata() -> No
     assert observations["c_calls"] == 1
 
 
+def _read_retained_configured_n5_in_fresh_process(
+    handoff: dict[str, Any],
+) -> dict[str, Any]:
+    """Consume the failed leaf's exact persisted result without its producer memory."""
+    import hashlib
+    import os
+    from pathlib import Path
+
+    from polisyos.core.artifacts import ArtifactRef, FileSystemCAS
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.resilience import guard_runtime_cas
+    from polisyos.runtime.quality import generation_cycle as generation_cycle_module
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationExecutionV5,
+        CandidateSimulationN5InputV5,
+    )
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
+    from polisyos.runtime.quality.generation_cycle import (
+        SimulationPortObservation,
+        _DefaultSimulationBoundFoundryValuePort,
+        load_joint_simulation_result,
+    )
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    project_root = Path(handoff["project_root"])
+    source_path = Path(generation_cycle_module.__file__).resolve()
+    assert (
+        source_path == (project_root / "src/polisyos/runtime/quality/generation_cycle.py").resolve()
+    )
+    selected = {
+        name: ArtifactRef.model_validate(value) for name, value in handoff["selected_refs"].items()
+    }
+    expected_scope = {
+        "expected_run_id": handoff["run_id"],
+        "expected_job_id": handoff["job_id"],
+        "expected_tenant_id": handoff["tenant_id"],
+        "expected_cell_id": handoff["cell_id"],
+    }
+    with tenant_scope(
+        None,
+        tenant_id=handoff["tenant_id"],
+        cell_id=handoff["cell_id"],
+    ):
+        store = guard_runtime_cas(
+            FileSystemCAS(Path(handoff["cas_root"])).with_ambient_ownership_enforcement()
+        )
+        repository = GenerationSourceRepository(store)
+        input_record = repository.resolve_candidate_simulation_v5(
+            ref=selected["input"], **expected_scope
+        )
+        execution = repository.resolve_candidate_simulation_v5(
+            ref=selected["execution"], **expected_scope
+        )
+        assert type(input_record) is CandidateSimulationN5InputV5
+        assert type(execution) is CandidateSimulationExecutionV5
+        assert execution.n5_input_ref == selected["input"]
+        assert execution.n4_source_ref == input_record.n4_source_ref == selected["source"]
+        assert execution.n5_result_ref == selected["result"]
+        assert input_record.context_job_ref == selected["context"]
+        source = repository.load_candidate_scenario_source_for_n5(
+            selected["source"], **expected_scope
+        )
+        context_job = CycleSubstrateContextArtifactOwner(
+            store=store
+        ).resolve_historical_job_artifact(
+            selected["context"], problem=source.problem, **expected_scope
+        )
+        assert source.candidate.candidate_id == input_record.original_candidate_id
+        assert source.problem.design_problem_id == handoff["problem_id"]
+        world = context_job.context.world_model_record
+        assert world.content_hash == input_record.materialization.world_model_record_hash
+        simulation = SimulationPortObservation.model_validate(
+            {**handoff["simulation"], "world_model_record": world}
+        )
+        assert simulation.candidate_simulation_n5_input_ref == selected["input"]
+        assert simulation.simulation_result_ref == selected["result"]
+        assert simulation.simulation_ref == execution.n5_result_content_hash
+        result_bytes = store.get_bytes(selected["result"])
+        result_hash = "sha256:" + hashlib.sha256(result_bytes).hexdigest()
+        assert result_hash == str(selected["result"].artifact_id) == handoff["result_sha256"]
+        result = load_joint_simulation_result(
+            selected["result"],
+            store=store,
+            expected_world_model_record_content_hash=world.content_hash,
+            expected_atom_ids=(input_record.materialization.derived_n5_atom.intervention_id,),
+            expected_selected_outcomes=(input_record.outcome_variable,),
+            expected_receipt_payload_hash=simulation.simulation_ref,
+        )
+        assert result.receipt.payload_hash == execution.n5_result_content_hash
+        port = _DefaultSimulationBoundFoundryValuePort(
+            repo_root=project_root,
+            cycle_substrate_context=context_job.context,
+            artifact_store=store,
+        )
+
+        def consume(observation: SimulationPortObservation) -> dict[str, Any]:
+            return port(
+                candidate=source.candidate,
+                simulation=observation,
+                problem=source.problem,
+                cycle_index=handoff["cycle_index"],
+            ).model_dump(mode="json")
+
+        positive = consume(simulation)
+        wrong_world = consume(
+            simulation.model_copy(
+                update={
+                    "world_model_record": world.model_copy(
+                        update={"content_hash": "sha256:" + "e" * 64}
+                    )
+                }
+            )
+        )
+        missing_result = consume(
+            simulation.model_copy(update={"simulation_result_ref": None, "simulation_ref": None})
+        )
+        # The refusal controls alter only the receiving binding, not the
+        # historical artifact. Reopen it after both controls through its owner.
+        restored = load_joint_simulation_result(
+            selected["result"],
+            store=store,
+            expected_world_model_record_content_hash=world.content_hash,
+            expected_atom_ids=result.atom_ids,
+            expected_selected_outcomes=result.selected_outcomes,
+            expected_receipt_payload_hash=execution.n5_result_content_hash,
+        )
+        assert restored == result
+        assert store.get_bytes(selected["result"]) == result_bytes
+        replay = consume(simulation)
+        output = {
+            "consumer_pid": os.getpid(),
+            "generation_cycle_source": str(source_path),
+            "selected_refs": {name: ref.model_dump(mode="json") for name, ref in selected.items()},
+            "input_content_hash": input_record.content_hash,
+            "execution_content_hash": execution.content_hash,
+            "result_sha256": result_hash,
+            "receipt_payload_hash": result.receipt.payload_hash,
+            "outcome_unit_id": source.model_declaration.outcome_unit_id,
+            "model_declaration_ref": input_record.model_declaration_ref.model_dump(mode="json"),
+            "ncm_ref": input_record.ncm_ref.model_dump(mode="json"),
+            "trajectories": [
+                trajectory.model_dump(mode="json") for trajectory in result.trajectories
+            ],
+            "positive": positive,
+            "wrong_world": wrong_world,
+            "missing_result": missing_result,
+            "restored": replay,
+        }
+        store.close()
+        return output
+
+
 @pytest.mark.integration
 def test_configured_candidate_n5_persists_before_same_leaf_value_failure(
     tmp_path,
@@ -318,6 +470,9 @@ def test_configured_candidate_n5_persists_before_same_leaf_value_failure(
     """A real configured N5 survives CAS persistence before its value projection fails."""
     import hashlib
     import json
+    import os
+    import subprocess
+    import sys
     from pathlib import Path
 
     pytest.importorskip("fastapi.testclient")
@@ -1045,6 +1200,94 @@ def test_configured_candidate_n5_persists_before_same_leaf_value_failure(
                 )
                 assert_real_engine_work(loaded_result)
 
+        # DA-01 joins this exact partial configured result to CYC's canonical
+        # conditional N8 in another interpreter. No compiler, N5 producer,
+        # worker callback or successful cycle object is inherited by the child.
+        handoff = {
+            "project_root": str(repo_root),
+            "cas_root": str(failure_cas_root),
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "run_id": failed_job.run_id,
+            "job_id": failed_job.job_id,
+            "problem_id": compiled_problems[1].design_problem_id,
+            "cycle_index": 0,
+            "simulation": failed_simulation.model_dump(mode="json"),
+            "selected_refs": {
+                "input": input_ref.model_dump(mode="json"),
+                "execution": execution_ref.model_dump(mode="json"),
+                "source": persisted_input.n4_source_ref.model_dump(mode="json"),
+                "context": persisted_input.context_job_ref.model_dump(mode="json"),
+                "result": result_ref.model_dump(mode="json"),
+            },
+            "result_sha256": "sha256:" + hashlib.sha256(result_bytes).hexdigest(),
+        }
+        child_environment = dict(os.environ)
+        child_environment["PYTHONPATH"] = os.pathsep.join((str(repo_root / "src"), str(repo_root)))
+        child_environment["PYTHONDONTWRITEBYTECODE"] = "1"
+        for thread_setting in (
+            "JAX_NUM_THREADS",
+            "MKL_NUM_THREADS",
+            "NUMEXPR_NUM_THREADS",
+            "OMP_NUM_THREADS",
+            "OPENBLAS_NUM_THREADS",
+            "VECLIB_MAXIMUM_THREADS",
+        ):
+            child_environment[thread_setting] = "1"
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-B",
+                "-c",
+                "import json,sys; "
+                "from tests.unit.remediation.test_res_03 import "
+                "_read_retained_configured_n5_in_fresh_process; "
+                "print(json.dumps(_read_retained_configured_n5_in_fresh_process("
+                "json.load(sys.stdin)),sort_keys=True,separators=(',',':')))",
+            ],
+            cwd=repo_root,
+            env=child_environment,
+            input=json.dumps(handoff),
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=90,
+        )
+        assert completed.returncode == 0, completed.stdout + "\n" + completed.stderr
+        fresh_n8 = json.loads(completed.stdout.splitlines()[-1])
+        assert fresh_n8["consumer_pid"] != os.getpid()
+        assert fresh_n8["selected_refs"] == handoff["selected_refs"]
+        assert fresh_n8["result_sha256"] == handoff["result_sha256"]
+        assert fresh_n8["input_content_hash"] == persisted_input.content_hash
+        assert fresh_n8["execution_content_hash"] == persisted_execution.content_hash
+        assert fresh_n8["receipt_payload_hash"] == loaded_result.receipt.payload_hash
+        assert fresh_n8["outcome_unit_id"] == failure_model_declaration.outcome_unit_id
+        assert fresh_n8[
+            "model_declaration_ref"
+        ] == persisted_input.model_declaration_ref.model_dump(mode="json")
+        assert fresh_n8["ncm_ref"] == persisted_input.ncm_ref.model_dump(mode="json")
+        assert fresh_n8["trajectories"] == [
+            trajectory.model_dump(mode="json") for trajectory in loaded_result.trajectories
+        ]
+        for label in ("positive", "restored"):
+            observation = fresh_n8[label]
+            assert observation["status"] == "value_conditional", observation
+            assert observation["value_ref"] == str(result_ref.artifact_id)
+            assert observation["evaluation_mode"] == "simulate_only"
+            assert observation["decision_grade"] == "low"
+            assert observation["value_receipt"] is None
+            assert observation["method_selection_receipt"] is None
+            assert set(failed_simulation.authority_blockers).issubset(
+                observation["authority_blockers"]
+            )
+            assert "simulation_only_k_sim_not_world_evidence" in observation["authority_blockers"]
+        assert fresh_n8["wrong_world"]["status"] == "value_blocked"
+        assert fresh_n8["wrong_world"]["authority_blockers"] == [
+            "joint_simulation_result_wmr_mismatch"
+        ]
+        assert fresh_n8["missing_result"]["status"] == "value_blocked"
+        assert fresh_n8["missing_result"]["value_ref"] is None
+
         # Reopen the failed CAS and control database through a fresh API context.
         fresh_context = build_runtime_api_context(
             cas_root=failure_cas_root,
@@ -1413,6 +1656,7 @@ def test_configured_candidate_n5_persists_before_same_leaf_value_failure(
                         "tenant_id": scope.tenant_id,
                         "cell_id": scope.cell_id,
                     },
+                    "fresh_process_conditional_n8": fresh_n8,
                 },
             }
             record_property(

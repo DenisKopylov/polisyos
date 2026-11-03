@@ -140,6 +140,20 @@ def test_cli_consumes_actual_persisted_policy_refusal(admission_request, capsys)
     _assert_owner_negative(output.out, store)
 
 
+def test_cli_refuses_missing_explicit_data_owner(admission_request, capsys) -> None:
+    """The CLI must forward the selected source owner instead of guessing one."""
+    from polisyos.runtime.quality import acquisition_epoch_admission as cli
+
+    request_path, _ = admission_request
+    request = json.loads(request_path.read_text(encoding="utf-8"))
+    request["source_owner_root"] = str(request_path.parent / "missing-data-owner")
+    request_path.write_text(json.dumps(request), encoding="utf-8")
+    assert cli.main(["--request", str(request_path)]) == 2
+    output = capsys.readouterr()
+    assert output.out == ""
+    assert "resolver_unavailable" in json.loads(output.err)["error"]
+
+
 def test_python_module_is_runnable_terminus(admission_request) -> None:
     """A fresh interpreter reaches the same producer and persisted audit consumer."""
 

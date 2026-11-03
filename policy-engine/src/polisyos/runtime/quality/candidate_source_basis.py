@@ -1,0 +1,1147 @@
+"""Reopen candidate-source inputs for the existing acquisition basis comparator.
+
+This adapter neither decides equality nor issues an evaluation, passport, epoch,
+world, or context. Its values describe a declared candidate computation. Source
+currentness, scientific independence, measurement validity, and publication
+authority remain limited by the real source and snapshot owners.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+from dataclasses import asdict, dataclass, field, fields
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import TYPE_CHECKING, Literal
+
+from pydantic import AwareDatetime, BaseModel, ConfigDict, model_validator
+
+from polisyos.core import artifacts, canon
+from polisyos.core.contracts.fabric import (
+    CandidateAcquisitionSourceDataSnapshotLineage,
+    DataSnapshot,
+    RetrievalSummary,
+)
+from polisyos.runtime.quality.candidate_simulation import (
+    CandidateSimulationScenarioProfile,
+    CandidateSimulationSyntheticModelDeclarationV1,
+)
+from polisyos.runtime.quality.data_state_substrate import CandidateAcquisitionSourceSlotBinding
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from polisyos.core.contracts.foundry import FoundryInputBindingRule
+    from polisyos.foundry.data_plane import InputBindingValuesPreparation
+    from polisyos.ir.connectors import FetchResult
+    from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+    from polisyos.runtime.quality.candidate_acquisition_source import CandidateAcquisitionSource
+    from polisyos.runtime.quality.cycle_substrate import AcquiredCandidateModelValues
+    from polisyos.runtime.quality.data_state_substrate import AcquiredObservationWorldPreparation
+    from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.runtime.quality.world_model_record import (
+        WorldModelLimitations,
+        WorldModelRecord,
+    )
+
+_PRODUCER = "polisyos.runtime.quality.data_state_substrate.build_candidate_acquisition_world"
+
+
+class CandidateSourceBasisInputs(BaseModel):
+    """Exact historical selectors and candidate configuration, without a live lease."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    configured_profile: CandidateSimulationScenarioProfile
+    original_model_declaration: CandidateSimulationSyntheticModelDeclarationV1
+    base_data_snapshot_ref: artifacts.ArtifactRef
+    base_world_model_ref: artifacts.ArtifactRef | None = None
+    candidate_source_ref: artifacts.ArtifactRef
+    slot_binding: CandidateAcquisitionSourceSlotBinding
+    transaction_time: AwareDatetime
+
+    @model_validator(mode="after")
+    def _selected_inputs(self) -> CandidateSourceBasisInputs:
+        for ref, kind in (
+            (self.base_data_snapshot_ref, "fabric.data_snapshot"),
+            (self.candidate_source_ref, "runtime.quality.candidate_acquisition_source"),
+        ):
+            if (
+                ref.manifest_profile_sha256 is None
+                or ref.kind != kind
+                or ref.media_type != "application/json"
+            ):
+                raise ValueError("candidate_source_basis_selected_input_missing")
+        if self.base_world_model_ref is not None and (
+            self.base_world_model_ref.kind != "runtime.quality.world_model_record"
+            or self.base_world_model_ref.media_type != "application/json"
+            or self.base_world_model_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("candidate_source_basis_selected_base_world_missing")
+        return self
+
+
+@dataclass(frozen=True)
+class CandidateSourceBasisPredecessor:
+    """One prior producer transaction and its exact selected output views.
+
+    This is a replay input, not proof of a route, action, lease, or N5 result.
+    The calling owner must independently establish those facts.
+    """
+
+    inputs: CandidateSourceBasisInputs
+    data_snapshot_ref: artifacts.ArtifactRef
+    world_model_ref: artifacts.ArtifactRef
+
+
+@dataclass(frozen=True)
+class CandidateSourceBasisValues:
+    """Worker-local owner values; only the existing complete comparator may decide.
+
+    The payload bytes are ephemeral input to the real Foundry preparer and are
+    excluded from the repr. They are not a durable raw-source logging surface.
+    A partial result must never be treated as evidence of equal computations.
+    """
+
+    predicate_provenance: Literal["recomputed", "not_established"]
+    reason_codes: tuple[str, ...]
+    inputs: CandidateSourceBasisInputs | None = None
+    effective_values: dict[str, object] = field(default_factory=dict)
+    prospective_values: InputBindingValuesPreparation | None = field(default=None, repr=False)
+    prospective_model: AcquiredCandidateModelValues | None = field(default=None, repr=False)
+    payload_json: bytes | None = field(default=None, repr=False)
+    foundry_binding_rule: FoundryInputBindingRule | None = None
+    produced_data_snapshot_ref: artifacts.ArtifactRef | None = None
+    produced_world_model_ref: artifacts.ArtifactRef | None = None
+    canonical_base_data_snapshot_ref: artifacts.ArtifactRef | None = None
+
+
+def _selected_json(store: artifacts.ArtifactStore, ref: artifacts.ArtifactRef, kind: str) -> object:
+    if (
+        ref.kind != kind
+        or ref.media_type != "application/json"
+        or ref.manifest_profile_sha256 is None
+        or artifacts.profile_bound_ref(store, ref) != ref
+        or not store.verify(ref).ok
+    ):
+        raise ValueError("candidate_source_basis_selected_view_unverified")
+    return artifacts.load_core_json_artifact(store, ref)
+
+
+def _same_view(
+    store: artifacts.ArtifactStore, left: artifacts.ArtifactRef, right: artifacts.ArtifactRef
+) -> bool:
+    return artifacts.artifact_ref_identity_key(
+        artifacts.profile_bound_ref(store, left)
+    ) == artifacts.artifact_ref_identity_key(artifacts.profile_bound_ref(store, right))
+
+
+def _source_values(
+    store: artifacts.ArtifactStore, source: CandidateAcquisitionSource
+) -> dict[str, object]:
+    from polisyos.data_forge.read_api import catalog
+    from polisyos.fabric import connectors
+    from polisyos.runtime.quality.candidate_acquisition_source import _selected_compiler_candidate
+
+    _, _, query, discovery, candidate = _selected_compiler_candidate(
+        store,
+        binding=source.requirement_basis_binding,
+        compiler_report_ref=source.compiler_report_ref,
+        requirement_id=source.requirement_id,
+        candidate_digest=source.candidate_digest,
+    )
+    proof = source.live_source_execution
+    if proof.schema_version != "polisyos.data_forge.live_source_execution_evidence.v2":
+        raise ValueError("candidate_source_basis_execution_profile_not_established")
+    # The source owner has already replayed raw -> normalized -> canonical and
+    # verified the entire technical custody envelope. Decode through that same
+    # connector owner. Keep ALL raw JSON metadata: unknown time, sampling, or
+    # replication fields must not disappear merely because WDI's eight-column
+    # numerical projection does not consume them.
+    raw_values = json.loads(catalog.read_selected_live_raw_source(store, source.raw_source_ref))
+    result = connectors.ResultSerializer.deserialize(store.get_bytes(source.normalized_source_ref))
+    normalized_values = json.loads(catalog.normalized_acquisition_source_body(result))
+    normalized_metadata = result.model_dump(
+        mode="json",
+        exclude={
+            "data",
+            "version",
+            "fetched_at",
+            "fetch_duration_ms",
+            "bytes_transferred",
+            "evidence_ref",
+            "pii_scan",
+        },
+    )
+    # DataVersion.timestamp is explicitly the time this version was recorded;
+    # source_updated_at, raw release dates and version strategy/value survive.
+    normalized_metadata["version"] = result.version.model_dump(mode="json", exclude={"timestamp"})
+    normalized_metadata["pii_scan"] = (
+        result.pii_scan.model_dump(mode="json", exclude={"scan_duration_ms"})
+        if result.pii_scan is not None
+        else None
+    )
+    source_values = source.model_dump(
+        mode="json",
+        exclude={
+            "run_id",
+            "job_id",
+            "route_id",
+            "requirement_basis_binding",
+            "compiler_report_ref",
+            "requirement_id",
+            "candidate_digest",
+            "resolved_source",
+            "live_source_execution",
+            "request_projection",
+            "raw_source_ref",
+            "normalized_source_ref",
+            "source_snapshot_ref",
+            "source_evidence_ref",
+        },
+    )
+    return {
+        "source": source_values,
+        "requirement_query": query.model_dump(mode="json", by_alias=True),
+        "requirement_basis_resolution": source.requirement_basis_binding.resolution.model_dump(
+            mode="json"
+        ),
+        "discovery": discovery.model_dump(mode="json"),
+        "selected_descriptor": candidate.model_dump(mode="json", exclude={"content_digest"}),
+        "resolved_catalog_owner": source.resolved_source.model_dump(mode="json"),
+        "request": source.request_projection,
+        "raw_wdi_values": raw_values,
+        "normalized_values": normalized_values,
+        "normalized_metadata": normalized_metadata,
+        "ingestion_provenance": _source_ingestion_values(store, source, result),
+        "scientific_authority": {
+            "observation_class": "model_output",
+            "source_currentness": "not_established",
+            "measurement_validity": "not_established",
+            "independence": "not_established",
+            "sample_denominator_evidence": "not_established",
+            "publication_authority": False,
+        },
+    }
+
+
+def _source_ingestion_values(
+    store: artifacts.ArtifactStore,
+    source: CandidateAcquisitionSource,
+    result: FetchResult[Any],
+) -> dict[str, object]:
+    """Resolve full evidence/graph values, normalizing only verified writer clocks."""
+    from polisyos.core.contracts.provenance import ProvenanceCoreRef
+    from polisyos.fabric.evidence import load_provenance_graph
+    from polisyos.fabric.evidence.evidence import verify_live_ingestion_evidence_profile
+    from polisyos.fabric.ingestion._source_evidence_schema import load_source_evidence_bundle
+    from polisyos.fabric.ingestion.ingestion import (
+        _build_connector_provenance_graph,
+        _canon_scalar,
+    )
+
+    snapshot = DataSnapshot.model_validate(
+        _selected_json(store, source.source_snapshot_ref, "fabric.data_snapshot")
+    )
+    bundle, _manifest = load_source_evidence_bundle(
+        store, source.source_evidence_ref, require_selected_profile=True
+    )
+    verify_live_ingestion_evidence_profile(store, source.source_evidence_ref, bundle)
+    if bundle.transforms or bundle.execution_context is not None or bundle.provenance_ref is None:
+        raise ValueError("candidate_source_basis_ingestion_transform_or_session_not_established")
+    if snapshot.source_lineage is not None or any(
+        getattr(snapshot, name) is not None
+        for name in (
+            "data_schema_ref",
+            "uncertainty_ref",
+            "uncertainty_envelope_ref",
+            "warnings_ref",
+            "input_bindings_ref",
+        )
+    ):
+        raise ValueError("candidate_source_basis_ingestion_auxiliary_values_not_established")
+    graph = load_provenance_graph(
+        store,
+        ProvenanceCoreRef.from_dict(bundle.provenance_ref.model_dump(mode="json")),
+        require_selected_profile=True,
+    )
+    activity = graph.activities.get("connector_ingestion_run")
+    dataset_id = source.resolved_source.registration.request_dataset_id
+    dataset = graph.entities.get(f"dataset.worldbank.wdi.{dataset_id}")
+    if activity is None or dataset is None or activity.ended_at is None:
+        raise ValueError("candidate_source_basis_ingestion_recipe_not_established")
+    attributes = dataset.attributes
+    expected_attributes = {
+        "fetch_status": "complete",
+        "row_count": result.row_count,
+        "completeness": _canon_scalar(result.completeness),
+        "schema_id": result.schema_id,
+        "schema_version": result.schema_version,
+        "version_strategy": result.version.strategy.value,
+        "version_value": result.version.value,
+        "source_updated_at": result.source_updated_at.isoformat()
+        if result.source_updated_at
+        else None,
+        "fetch_duration_ms": _canon_scalar(result.fetch_duration_ms),
+        "data_artifact_id": source.normalized_source_ref.artifact_id.hex,
+    }
+    if any(attributes.get(name) != value for name, value in expected_attributes.items()):
+        raise ValueError("candidate_source_basis_ingestion_result_relation_mismatch")
+    # The owner constructor is deliberately the recipe denominator. Extra
+    # agents, scientific transform nodes or metadata cannot be stripped into a
+    # known profile: if that recipe cannot reproduce them, preparation is NE.
+    dataset_values = {
+        **attributes,
+        "connector_id": "worldbank.wdi",
+        "dataset_id": dataset_id,
+        "fetched_at": result.fetched_at.isoformat(),
+        "quality_flags": sorted(str(flag) for flag in result.quality_flags),
+    }
+    kwargs = {
+        "source": source.request_projection["variable_id"],
+        "license_name": source.resolved_source.license_id,
+        "manifest_hash": activity.parameters.get("manifest_hash"),
+    }
+    kwargs["source"] = f"acquisition:{kwargs['source']}"
+    expected = _build_connector_provenance_graph(
+        datasets=[dataset_values],
+        started_at=activity.started_at,
+        ended_at=activity.ended_at,
+        **kwargs,
+    )
+    if expected.to_dict() != graph.to_dict():
+        raise ValueError("candidate_source_basis_ingestion_recipe_not_established")
+    occurrence_time = datetime(2000, 1, 1, tzinfo=UTC)
+    projected = _build_connector_provenance_graph(
+        datasets=[
+            {
+                **dataset_values,
+                "fetched_at": occurrence_time.isoformat(),
+                "fetch_duration_ms": 0.0,
+                "data_artifact_id": "owner-occurrence:normalized-result",
+            }
+        ],
+        started_at=occurrence_time,
+        ended_at=occurrence_time,
+        **kwargs,
+    ).to_dict()
+    projected.pop("stable_id")
+    summary_values = None
+    if snapshot.quality_report_ref is not None:
+        summary = RetrievalSummary.model_validate(
+            _selected_json(store, snapshot.quality_report_ref, "fabric.retrieval_summary")
+        )
+        if summary.source_refs != [source.normalized_source_ref]:
+            raise ValueError("candidate_source_basis_ingestion_summary_relation_mismatch")
+        summary_values = summary.model_dump(mode="json", exclude={"source_refs"})
+    return {
+        "snapshot": snapshot.model_dump(
+            mode="json", exclude={"data_ref", "evidence_ref", "quality_report_ref"}
+        ),
+        "evidence": bundle.model_dump(mode="json", exclude={"sources", "provenance_ref"}),
+        "provenance": projected,
+        "retrieval_summary": summary_values,
+    }
+
+
+def _data_values(
+    *,
+    payload: dict[str, object],
+    base: DataSnapshot,
+    inputs: CandidateSourceBasisInputs,
+    canonical_base_ref: artifacts.ArtifactRef,
+) -> dict[str, object]:
+    # Round-trip into independent JSON values before touching only the exact
+    # compartments constructed by _candidate_acquisition_snapshot_values.
+    effective = json.loads(json.dumps(payload, allow_nan=False))
+    selected = effective["acquisition"]["selected"]
+    selected.pop("candidate_source_ref")
+    selected.pop("candidate_digest")
+    marker = effective["_policyos_candidate_acquisition"]
+    marker.pop("candidate_source_ref")
+    marker["base_data_snapshot_ref"] = canonical_base_ref.model_dump(mode="json")
+    marker["slot_binding"].pop("candidate_digest")
+    marker["materialized_at_transaction_time"] = "owner-occurrence:transaction-time"
+    return {
+        "payload_values": effective,
+        "base_snapshot": base.model_dump(mode="json"),
+        "binding": inputs.slot_binding.model_dump(mode="json", exclude={"candidate_digest"}),
+    }
+
+
+def _binding_values(
+    *,
+    payload: dict[str, object],
+    data_values: dict[str, object],
+    state_values: tuple[dict[str, object], ...],
+    inputs: CandidateSourceBasisInputs,
+    canonical_base_ref: artifacts.ArtifactRef,
+    actual_binding_path: str | None = None,
+) -> dict[str, object]:
+    from polisyos.data_forge import read_api
+    from polisyos.runtime.quality.data_state_substrate import (
+        _DATA_FORGE_SNAPSHOT_PIPELINE,
+        _cas_data_forge_ref,
+        _data_forge_payload_file_bytes,
+        _data_forge_snapshot_manifest_extra,
+    )
+
+    payload_hash = (
+        "sha256:"
+        + hashlib.sha256(
+            canon.to_canonical_bytes(payload, canon.CanonSpec(forbid_floats=False))
+        ).hexdigest()
+    )
+    lineage_refs = (
+        _cas_data_forge_ref(inputs.base_data_snapshot_ref),
+        _cas_data_forge_ref(inputs.candidate_source_ref),
+        f"cas://sha256/{str(payload_hash).removeprefix('sha256:')}",
+    )
+    extra = _data_forge_snapshot_manifest_extra(
+        corpus_id="candidate-acquisition-model-output",
+        builder_revision=(
+            "polisyos.runtime.quality.data_state_substrate."
+            "materialize_candidate_acquisition_snapshot"
+        ),
+        lineage_refs=lineage_refs,
+        claim_requirement_bindings=(
+            {
+                "claim_id": "candidate-acquired-world-state",
+                "requirement_id": (
+                    f"candidate-model-output:{inputs.slot_binding.canonical_variable_id}"
+                ),
+                "requirement_kind": "candidate_acquisition_model_output",
+                "authority_level": "candidate",
+                "time_role": "transaction_time",
+            },
+        ),
+        payload_content_hash=str(payload_hash),
+    )
+    artifact_meaning = {"candidate_source_data": data_values, "consumed_state": state_values}
+    lineage_meanings = (
+        canonical_base_ref.model_dump(mode="json"),
+        "resolved_candidate_source_values",
+        artifact_meaning,
+    )
+    if actual_binding_path is None:
+        artifact_path = Path("data_state_payload.json")
+        content = _data_forge_payload_file_bytes(payload)
+    else:
+        artifact_path = (
+            Path(actual_binding_path).parent
+            / _DATA_FORGE_SNAPSHOT_PIPELINE
+            / "data_state_payload.json"
+        )
+        content = artifact_path.read_bytes()
+        if canon.to_canonical_bytes(
+            read_api.read_manifest(artifact_path), canon.CanonSpec(forbid_floats=False)
+        ) != canon.to_canonical_bytes(payload, canon.CanonSpec(forbid_floats=False)):
+            raise ValueError("candidate_source_basis_publisher_payload_mismatch")
+    manifest = read_api.prepare_publish_manifest(
+        pipeline=_DATA_FORGE_SNAPSHOT_PIPELINE,
+        artifacts=(artifact_path,),
+        captured_artifact_bytes={artifact_path: content},
+        extra=extra,
+        published_at=inputs.transaction_time.astimezone(UTC).isoformat(),
+    )
+    kwargs = {
+        "pipeline": _DATA_FORGE_SNAPSHOT_PIPELINE,
+        "artifact_contents": (content,),
+        "artifact_meanings": (artifact_meaning,),
+        "expected_lineage_refs": lineage_refs,
+        "lineage_meanings": lineage_meanings,
+    }
+    if actual_binding_path is not None:
+        return read_api.read_snapshot_binding_meaning(
+            binding_path=actual_binding_path, expected_manifest=manifest, **kwargs
+        )
+    return read_api.prepare_snapshot_binding_meaning(manifest=manifest, **kwargs)
+
+
+def _effective_rule(
+    rule: FoundryInputBindingRule, inputs: CandidateSourceBasisInputs
+) -> dict[str, object]:
+    values = rule.model_dump(mode="json")
+    # Only generated report selectors are replaced. Scientific/limitation notes
+    # and every field of all retained rules remain intact.
+    occurrence_notes = {
+        f"profile_selection_ref:{inputs.slot_binding.profile_selection_ref}",
+        f"candidate_digest:{inputs.slot_binding.candidate_digest}",
+        f"candidate_source_ref:{inputs.candidate_source_ref.artifact_id}",
+    }
+    values["notes"] = [note for note in rule.notes if note not in occurrence_notes]
+    return values
+
+
+def _verify_actual_world(
+    *,
+    store: artifacts.ArtifactStore,
+    inputs: CandidateSourceBasisInputs,
+    world_model_ref: artifacts.ArtifactRef,
+    data_snapshot_ref: artifacts.ArtifactRef,
+    payload: dict[str, object],
+    plan: AcquiredObservationWorldPreparation,
+    prospective: InputBindingValuesPreparation,
+    limitations: WorldModelLimitations,
+) -> WorldModelRecord:
+    from polisyos.foundry.data_plane import load_input_bindings, prepare_input_bindings
+    from polisyos.foundry.execute import load_state_snapshot, state_snapshot_value_projection
+    from polisyos.runtime.quality.data_snapshot_lineage import validate_data_snapshot_owner_lineage
+    from polisyos.runtime.quality.data_state_substrate import _verify_actual_acquired_native_world
+    from polisyos.runtime.quality.world_model_record import (
+        _prepare_world_simulation_model_ref,
+        load_world_model_record,
+        read_world_model_record_owner_values,
+        world_model_artifact_views,
+    )
+
+    _selected_json(store, world_model_ref, "runtime.quality.world_model_record")
+    world = load_world_model_record(store, world_model_ref)
+    views = world_model_artifact_views(world)
+    snapshot = DataSnapshot.model_validate(
+        _selected_json(store, data_snapshot_ref, "fabric.data_snapshot")
+    )
+    owner = read_world_model_record_owner_values(
+        store,
+        world_model_record=world,
+        registry_bundle_ref=views.registry_bundle_ref,
+        substrate_registry=inputs.configured_profile.context_inputs.substrate_registry,
+    )
+    lineage = validate_data_snapshot_owner_lineage(
+        store,
+        data_snapshot_ref,
+        snapshot,
+        candidate_only=True,
+        binding_lineage_refs=owner.data_forge_binding.lineage_refs,
+    )
+    if (
+        not isinstance(snapshot.source_lineage, CandidateAcquisitionSourceDataSnapshotLineage)
+        or snapshot.source_lineage.base_data_snapshot_ref != inputs.base_data_snapshot_ref
+        or snapshot.source_lineage.candidate_source_ref != inputs.candidate_source_ref
+        or artifacts.load_core_json_artifact(store, snapshot.data_ref) != payload
+        or views.data_snapshot_ref != data_snapshot_ref
+    ):
+        raise ValueError("candidate_source_basis_actual_snapshot_mismatch")
+    bindings = load_input_bindings(store, views.input_bindings_ref)
+    if (
+        any(
+            not _same_view(store, getattr(bindings, name), getattr(views, name))
+            for name in ("data_snapshot_ref", "registry_bundle_ref", "bound_state_snapshot_ref")
+        )
+        or tuple(bindings.rules) != prospective.effective_rules
+    ):
+        raise ValueError("candidate_source_basis_actual_binding_mismatch")
+    replay = prepare_input_bindings(
+        store,
+        data_snapshot_ref=views.data_snapshot_ref,
+        registry_bundle_ref=views.registry_bundle_ref,
+        rules=list(bindings.rules),
+        registered_sql_admission_ref=bindings.registered_sql_admission_ref,
+    )
+    actual_state = load_state_snapshot(store, snapshot_ref=views.bound_state_snapshot_ref)
+    for current in (replay, prospective):
+        if (
+            current.effective_rules != tuple(bindings.rules)
+            or current.applied_binding_ids != replay.applied_binding_ids
+            or current.warnings != replay.warnings
+            or state_snapshot_value_projection(current.materialized_state)
+            != state_snapshot_value_projection(actual_state)
+        ):
+            raise ValueError("candidate_source_basis_actual_state_mismatch")
+    base = inputs.configured_profile.context_inputs.world_model_record
+    base_views = world_model_artifact_views(base)
+    expected_model = plan.materialized_model(data_snapshot_ref)
+    expected_simulation = _prepare_world_simulation_model_ref(
+        model_spec=expected_model,
+        model_spec_ref=views.model_spec_ref,
+        registry_bundle_ref=base_views.registry_bundle_ref,
+        mechanism_refs=base.simulation_model_ref.mechanism_refs,
+        gcm_refs=base.simulation_model_ref.gcm_refs,
+        ncm_refs=base.simulation_model_ref.ncm_refs,
+        program_graph_refs=base.simulation_model_ref.program_graph_refs,
+    )
+    changed = {
+        "schema_version",
+        "world_model_record_id",
+        "content_hash",
+        "created_at",
+        "producer_ref",
+        "authority_status",
+        "valid_time_scope",
+        "tx_time_scope",
+        "fabric_world_ref",
+        "data_forge_binding_ref",
+        "simulation_model_ref",
+        "foundry_binding_ref",
+        "limitations",
+        "artifact_views",
+        "substrate_registry_ref",
+    }
+    tx = inputs.transaction_time.astimezone(UTC).isoformat()
+    if (
+        world.model_dump(mode="json", exclude=changed)
+        != base.model_dump(mode="json", exclude=changed)
+        or world.producer_ref != _PRODUCER
+        or world.authority_status != "limited"
+        or world.valid_time_scope != "not_established"
+        or world.tx_time_scope != tx
+        or owner.model_spec != expected_model
+        or world.simulation_model_ref != expected_simulation
+        or views.registry_bundle_ref != base_views.registry_bundle_ref
+        or views.ncm_refs != base_views.ncm_refs
+        or views.program_graph_refs != base_views.program_graph_refs
+        or world.fabric_world_ref.snapshot_id != snapshot.stats.get("snapshot_id")
+        or world.fabric_world_ref.as_of_valid_time != base.fabric_world_ref.as_of_valid_time
+        or world.fabric_world_ref.world_query_policy != base.fabric_world_ref.world_query_policy
+        or world.substrate_registry_ref.model_dump(exclude={"registry_artifact_ref"})
+        != base.substrate_registry_ref.model_dump(exclude={"registry_artifact_ref"})
+        or world.limitations != limitations
+        or not set(lineage.required_admissibility_blockers).issubset(
+            world.limitations.admissibility_blockers
+        )
+    ):
+        raise ValueError("candidate_source_basis_actual_world_recipe_mismatch")
+    _verify_actual_acquired_native_world(world, str(snapshot.data_ref.artifact_id), tx)
+    return world
+
+
+def _prepare_candidate_source_basis_step(
+    *,
+    store: artifacts.ArtifactStore,
+    problem: DesignProblem,
+    inputs: CandidateSourceBasisInputs,
+    data_snapshot_ref: artifacts.ArtifactRef | None = None,
+    world_model_ref: artifacts.ArtifactRef | None = None,
+    previous: CandidateSourceBasisValues | None = None,
+) -> CandidateSourceBasisValues:
+    """Replay one candidate producer step, optionally after a verified step."""
+    from polisyos.foundry.data_plane import prepare_json_input_binding_values
+    from polisyos.foundry.execute import state_snapshot_value_projection
+    from polisyos.ir import prepare_ncm_spec_selected_values
+    from polisyos.runtime.quality.candidate_acquisition_source import (
+        read_candidate_acquisition_source,
+    )
+    from polisyos.runtime.quality.candidate_simulation import prepare_candidate_n5_request_values
+    from polisyos.runtime.quality.cycle_substrate import (
+        ConfiguredCandidateSimulationContextAdmissionOwner,
+    )
+    from polisyos.runtime.quality.data_snapshot_lineage import (
+        ACQUIRED_SOURCE_ROW_REVALIDATION_LIMITATION,
+        CANDIDATE_SOURCE_LIMITATIONS,
+        validate_data_snapshot_owner_lineage,
+    )
+    from polisyos.runtime.quality.data_state_substrate import (
+        _acquired_fabric_meaning,
+        _acquired_model_dependency_values,
+        _acquired_world_meaning,
+        _candidate_acquisition_snapshot_values,
+        _prepare_acquired_observation_world,
+        _require_candidate_acquisition_world_scope,
+    )
+    from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+    from polisyos.runtime.quality.world_model_record import (
+        load_world_model_record,
+        read_world_model_record_owner_values,
+        world_model_artifact_views,
+    )
+
+    effective: dict[str, object] = {}
+    try:
+        if type(inputs) is not CandidateSourceBasisInputs:
+            raise TypeError("candidate_source_basis_inputs_untyped")
+        inputs = CandidateSourceBasisInputs.model_validate(inputs.model_dump(mode="python"))
+        if (data_snapshot_ref is None) != (world_model_ref is None):
+            raise ValueError("candidate_source_basis_actual_pair_incomplete")
+        source = read_candidate_acquisition_source(store, source_ref=inputs.candidate_source_ref)
+        configured = inputs.configured_profile
+        base = configured.context_inputs.world_model_record
+        if inputs.base_world_model_ref is not None:
+            _selected_json(store, inputs.base_world_model_ref, "runtime.quality.world_model_record")
+            selected_base = load_world_model_record(store, inputs.base_world_model_ref)
+            if exact_n5_content_bytes(selected_base) != exact_n5_content_bytes(base):
+                raise ValueError("candidate_source_basis_selected_base_world_mismatch")
+        if previous is not None and (
+            previous.predicate_provenance != "recomputed"
+            or previous.inputs is None
+            or previous.produced_data_snapshot_ref is None
+            or previous.produced_world_model_ref is None
+            or previous.canonical_base_data_snapshot_ref is None
+            or inputs.base_world_model_ref is None
+            or not _same_view(store, inputs.base_world_model_ref, previous.produced_world_model_ref)
+            or not _same_view(
+                store, inputs.base_data_snapshot_ref, previous.produced_data_snapshot_ref
+            )
+        ):
+            raise ValueError("candidate_source_basis_predecessor_selection_mismatch")
+        views = world_model_artifact_views(base)
+        if inputs.base_data_snapshot_ref != views.data_snapshot_ref:
+            raise ValueError("candidate_source_basis_base_selection_mismatch")
+        _require_candidate_acquisition_world_scope(
+            problem=problem, base=base, binding=inputs.slot_binding, source=source
+        )
+        base_snapshot = DataSnapshot.model_validate(
+            _selected_json(store, inputs.base_data_snapshot_ref, "fabric.data_snapshot")
+        )
+        base_lineage = validate_data_snapshot_owner_lineage(
+            store, inputs.base_data_snapshot_ref, base_snapshot, candidate_only=True
+        )
+        base_owner = read_world_model_record_owner_values(
+            store,
+            world_model_record=base,
+            registry_bundle_ref=views.registry_bundle_ref,
+            substrate_registry=configured.context_inputs.substrate_registry,
+        )
+        payload, _stats, _notes, rule = _candidate_acquisition_snapshot_values(
+            store,
+            base_data_snapshot_ref=inputs.base_data_snapshot_ref,
+            candidate_source_ref=inputs.candidate_source_ref,
+            slot_binding=inputs.slot_binding,
+            transaction_time=inputs.transaction_time,
+        )
+        plan = _prepare_acquired_observation_world(
+            store,
+            base_world_model_record=base,
+            acquired_rule=rule,
+            registry_bundle_ref=views.registry_bundle_ref,
+            substrate_registry=base_owner.substrate_registry,
+        )
+        payload_json = json.dumps(
+            payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        ).encode()
+        prospective = prepare_json_input_binding_values(
+            store,
+            payload_json=payload_json,
+            registry_bundle_ref=views.registry_bundle_ref,
+            rules=list(plan.rules),
+        )
+        model_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
+            profiles=(configured,),
+            model_declarations=(inputs.original_model_declaration,),
+            store=store,
+        )
+        model = model_owner.prepare_model_values_for_acquired_state(
+            problem=problem,
+            profile_selection_ref=inputs.slot_binding.profile_selection_ref,
+            source_world_model=base,
+            state=prospective.materialized_state,
+        )
+        source_values = _source_values(store, source)
+        same_previous = (
+            previous is not None
+            and previous.inputs is not None
+            and exact_n5_content_bytes(previous.effective_values["candidate_source"])
+            == exact_n5_content_bytes(source_values)
+            and previous.inputs.slot_binding.model_dump(mode="json", exclude={"candidate_digest"})
+            == inputs.slot_binding.model_dump(mode="json", exclude={"candidate_digest"})
+        )
+        canonical_base_ref = (
+            previous.canonical_base_data_snapshot_ref
+            if same_previous and previous is not None
+            else inputs.base_data_snapshot_ref
+        )
+        if canonical_base_ref is None:  # pragma: no cover - checked above
+            raise ValueError("candidate_source_basis_predecessor_base_missing")
+        canonical_base = (
+            DataSnapshot.model_validate(
+                _selected_json(store, canonical_base_ref, "fabric.data_snapshot")
+            )
+            if same_previous
+            else base_snapshot
+        )
+        data_values = _data_values(
+            payload=payload,
+            base=canonical_base,
+            inputs=inputs,
+            canonical_base_ref=canonical_base_ref,
+        )
+        state_values = tuple(
+            asdict(leaf) for leaf in state_snapshot_value_projection(prospective.materialized_state)
+        )
+        limitations = plan.limitations.model_copy(
+            update={
+                "admissibility_blockers": tuple(
+                    dict.fromkeys(
+                        (
+                            *plan.limitations.admissibility_blockers,
+                            ACQUIRED_SOURCE_ROW_REVALIDATION_LIMITATION,
+                            *CANDIDATE_SOURCE_LIMITATIONS,
+                            *source.limitations,
+                            *base_lineage.required_admissibility_blockers,
+                        )
+                    )
+                )
+            }
+        )
+        actual = None
+        if data_snapshot_ref is not None and world_model_ref is not None:
+            actual = _verify_actual_world(
+                store=store,
+                inputs=inputs,
+                world_model_ref=world_model_ref,
+                data_snapshot_ref=data_snapshot_ref,
+                payload=payload,
+                plan=plan,
+                prospective=prospective,
+                limitations=limitations,
+            )
+        binding = _binding_values(
+            payload=payload,
+            data_values=data_values,
+            state_values=state_values,
+            inputs=inputs,
+            canonical_base_ref=canonical_base_ref,
+            actual_binding_path=actual.data_forge_binding_ref.binding_path
+            if actual is not None
+            else None,
+        )
+        model_values = json.loads(plan.model_values_json)
+        if same_previous and previous is not None:
+            owner_suffix = [
+                "candidate_acquisition_world",
+                "source_time_not_established",
+                "causal_coupling_not_established",
+            ]
+            if model_values.get("notes") != [*base_owner.model_spec.notes, *owner_suffix]:
+                raise ValueError("candidate_source_basis_model_note_recipe_mismatch")
+            previous_world_values = previous.effective_values["world"]
+            model_values["notes"] = previous_world_values["model_spec"]["notes"]
+        world_values = _acquired_world_meaning(
+            world=base,
+            model_values=model_values,
+            limitations=limitations,
+            rules=plan.rules,
+            state=prospective.materialized_state,
+            registry_values=base_owner.registry_values,
+            substrate_registry=base_owner.substrate_registry,
+            data_values=data_values,
+            fabric_values=_acquired_fabric_meaning(base),
+            binding_values=binding,
+        )
+        world_values["inherited_world"]["producer_ref"] = _PRODUCER
+        # The producer and its admissibility consumers compose blockers as a
+        # set. Keep every blocker while ignoring only their generated order.
+        limitation_values = world_values["inherited_world"]["limitations"]
+        limitation_values["admissibility_blockers"] = sorted(
+            set(limitation_values["admissibility_blockers"])
+        )
+        owned = tuple(item for item in plan.rules if item.target_slot_id == rule.target_slot_id)
+        if owned != (rule,):
+            raise ValueError("candidate_source_basis_owned_rule_mismatch")
+        rule_values = tuple(
+            _effective_rule(item, inputs) if item == rule else item.model_dump(mode="json")
+            for item in plan.rules
+        )
+        world_values["rules"] = rule_values
+        world_values["model_dependencies"] = _acquired_model_dependency_values(store, base)
+        world_values["binding_execution"] = {
+            "applied_binding_ids": prospective.applied_binding_ids,
+            "warnings": prospective.warnings,
+        }
+        declaration_values = model.original_declaration.model_dump(
+            mode="python", exclude={"profile_config_ref", "profile_content_hash", "content_hash"}
+        )
+        declaration_values.update(
+            {
+                item.name: getattr(model.declared_model_values, item.name)
+                for item in fields(model.declared_model_values)
+            }
+        )
+        effective = {
+            "candidate_source": source_values,
+            "world": world_values,
+            "foundry_state": state_snapshot_value_projection(prospective.materialized_state),
+            "applied_rules": rule_values,
+            "selected_native_ncm": prepare_ncm_spec_selected_values(model.ncm_spec).value_bytes,
+            "n5_request_values": prepare_candidate_n5_request_values(model.n5_config),
+            "declared_model": declaration_values,
+            "context_inputs": configured.context_inputs.model_dump(
+                mode="python", exclude={"world_model_record"}
+            ),
+            "profile_schema": configured.schema_version,
+            "profile_purpose": configured.purpose,
+            "profile_limitations": configured.limitations,
+        }
+        exact_n5_content_bytes(effective)
+        return CandidateSourceBasisValues(
+            "recomputed",
+            (),
+            inputs,
+            effective,
+            prospective,
+            model,
+            payload_json,
+            rule,
+            data_snapshot_ref,
+            world_model_ref,
+            canonical_base_ref,
+        )
+    except (OSError, RuntimeError, TypeError, ValueError, KeyError, AttributeError) as exc:
+        code = str(getattr(exc, "code", None) or exc)
+        return CandidateSourceBasisValues(
+            "not_established",
+            (code,),
+            inputs if type(inputs) is CandidateSourceBasisInputs else None,
+            effective,
+        )
+
+
+def prepare_candidate_source_basis_values(
+    *,
+    store: artifacts.ArtifactStore,
+    problem: DesignProblem,
+    inputs: CandidateSourceBasisInputs,
+    data_snapshot_ref: artifacts.ArtifactRef | None = None,
+    world_model_ref: artifacts.ArtifactRef | None = None,
+    predecessors: tuple[CandidateSourceBasisPredecessor, ...] = (),
+) -> CandidateSourceBasisValues:
+    """Recompute candidate inputs, replaying any selected predecessor chain.
+
+    Every predecessor is independently replayed through the actual snapshot,
+    world, binding, source and model owners before its selected output can be
+    used as the next base. Only a consecutive, semantically identical source
+    step can reuse that verified step's occurrence-normalized base. The caller
+    remains responsible for establishing route, action and N5 ownership.
+    Unsupported or foreign predecessor views produce typed not-established.
+    """
+    if type(predecessors) is not tuple or len(predecessors) > 128:
+        return CandidateSourceBasisValues(
+            "not_established", ("candidate_source_basis_predecessor_chain_unavailable",)
+        )
+    previous: CandidateSourceBasisValues | None = None
+    seen: set[tuple[str, str, str, str | None]] = set()
+    for item in predecessors:
+        if (
+            type(item) is not CandidateSourceBasisPredecessor
+            or type(item.inputs) is not CandidateSourceBasisInputs
+            or not isinstance(item.data_snapshot_ref, artifacts.ArtifactRef)
+            or not isinstance(item.world_model_ref, artifacts.ArtifactRef)
+        ):
+            return CandidateSourceBasisValues(
+                "not_established", ("candidate_source_basis_predecessor_untyped",)
+            )
+        identity = artifacts.artifact_ref_identity_key(item.world_model_ref)
+        if identity in seen:
+            return CandidateSourceBasisValues(
+                "not_established", ("candidate_source_basis_predecessor_cycle",)
+            )
+        seen.add(identity)
+        previous = _prepare_candidate_source_basis_step(
+            store=store,
+            problem=problem,
+            inputs=item.inputs,
+            data_snapshot_ref=item.data_snapshot_ref,
+            world_model_ref=item.world_model_ref,
+            previous=previous,
+        )
+        if previous.predicate_provenance != "recomputed":
+            return previous
+    return _prepare_candidate_source_basis_step(
+        store=store,
+        problem=problem,
+        inputs=inputs,
+        data_snapshot_ref=data_snapshot_ref,
+        world_model_ref=world_model_ref,
+        previous=previous,
+    )
+
+
+def _live_candidate_source_predecessors(
+    *, bridge: AcquisitionWorldGrowthBridge, closure: VerifiedAcquisitionRouteClosure
+) -> tuple[CandidateSourceBasisPredecessor, ...]:
+    """Reopen only this route's already verified candidate transition prefix.
+
+    The caller must first re-resolve the live selected action and its complete
+    route closure through the control owner. That fold independently verifies
+    each receipt, action, intent, checkpoint, event, and continued run. The
+    first embedded world remains the selected prior owner's exact hypothesis;
+    no candidate ancestry before this route is inferred or removed.
+    """
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        CandidateAcquisitionWorldCheckpoint,
+        CandidateAcquisitionWorldIntent,
+    )
+    from polisyos.runtime.quality.candidate_acquisition_action import (
+        CandidateAcquisitionActionReceipt,
+    )
+    from polisyos.runtime.quality.data_state_substrate import CandidateAcquisitionSourceSlotBinding
+    from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+
+    rows: list[CandidateSourceBasisPredecessor] = []
+    preceding_world_ref: artifacts.ArtifactRef | None = None
+    for receipt in closure.candidate_basis_transitions:
+        action = CandidateAcquisitionActionReceipt.model_validate(
+            _selected_json(
+                bridge.artifact_store,
+                receipt.candidate_action_ref,
+                "runtime_quality.acquisition_candidate_action_receipt",
+            )
+        )
+        intent = CandidateAcquisitionWorldIntent.model_validate(
+            _selected_json(
+                bridge.artifact_store,
+                receipt.candidate_world_intent_ref,
+                "runtime_quality.acquisition_candidate_world_intent",
+            )
+        )
+        checkpoint = CandidateAcquisitionWorldCheckpoint.model_validate(
+            _selected_json(
+                bridge.artifact_store,
+                receipt.candidate_world_checkpoint_ref,
+                "runtime_quality.acquisition_candidate_world_checkpoint",
+            )
+        )
+        scope = (closure.tenant_id, closure.cell_id, closure.run_id, closure.route_id)
+        if (
+            any(
+                (item.tenant_id, item.cell_id, item.run_id, item.route_id) != scope
+                for item in (receipt, action, intent, checkpoint)
+            )
+            or receipt.source_job_id != closure.source_job_id
+            or action.source_job_id != closure.source_job_id
+            or action.action_job_id != receipt.action_job_id
+            or action.action_generation != receipt.action_generation
+            or intent.action_job_id != action.action_job_id
+            or checkpoint.action_job_id != action.action_job_id
+            or intent.action_phase_ref != action.action_phase_ref
+            or checkpoint.action_phase_ref != action.action_phase_ref
+            or intent.transaction_time != checkpoint.transaction_time
+            or intent.configured_profile.profile_selection_ref != action.profile_selection_ref
+            or not _same_view(
+                bridge.artifact_store, intent.candidate_action_ref, receipt.candidate_action_ref
+            )
+            or not _same_view(
+                bridge.artifact_store, checkpoint.candidate_action_ref, receipt.candidate_action_ref
+            )
+            or not _same_view(
+                bridge.artifact_store, checkpoint.intent_ref, receipt.candidate_world_intent_ref
+            )
+            or not _same_view(
+                bridge.artifact_store, action.candidate_source_ref, receipt.candidate_source_ref
+            )
+            or not _same_view(
+                bridge.artifact_store, checkpoint.candidate_source_ref, receipt.candidate_source_ref
+            )
+            or not _same_view(
+                bridge.artifact_store, checkpoint.data_snapshot_ref, receipt.data_snapshot_ref
+            )
+            or not _same_view(
+                bridge.artifact_store, checkpoint.world_model_ref, receipt.world_model_ref
+            )
+            or not _same_view(
+                bridge.artifact_store,
+                checkpoint.base_data_snapshot_ref,
+                world_model_artifact_views(
+                    intent.configured_profile.context_inputs.world_model_record
+                ).data_snapshot_ref,
+            )
+        ):
+            raise ValueError("candidate_source_basis_prior_owner_binding_mismatch")
+        rows.append(
+            CandidateSourceBasisPredecessor(
+                inputs=CandidateSourceBasisInputs(
+                    configured_profile=intent.configured_profile,
+                    original_model_declaration=intent.original_model_declaration,
+                    base_data_snapshot_ref=checkpoint.base_data_snapshot_ref,
+                    base_world_model_ref=preceding_world_ref,
+                    candidate_source_ref=receipt.candidate_source_ref,
+                    slot_binding=CandidateAcquisitionSourceSlotBinding(
+                        profile_selection_ref=action.profile_selection_ref,
+                        candidate_digest=action.candidate_digest,
+                        canonical_variable_id=action.canonical_variable_id,
+                        target_slot_id=action.target_slot_id,
+                    ),
+                    transaction_time=intent.transaction_time,
+                ),
+                data_snapshot_ref=receipt.data_snapshot_ref,
+                world_model_ref=receipt.world_model_ref,
+            )
+        )
+        preceding_world_ref = receipt.world_model_ref
+    return tuple(rows)
+
+
+def prepare_live_candidate_source_basis_values(
+    *,
+    bridge: AcquisitionWorldGrowthBridge,
+    closure: VerifiedAcquisitionRouteClosure,
+    candidate_action_ref: artifacts.ArtifactRef,
+    transaction_time: datetime,
+) -> CandidateSourceBasisValues:
+    """Use the real selected-action/live-source owners before pure preparation."""
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+    from polisyos.runtime.quality.candidate_acquisition_source import (
+        read_candidate_acquisition_source,
+    )
+    from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+
+    try:
+        if type(bridge) is not AcquisitionWorldGrowthBridge:
+            raise TypeError("candidate_source_basis_live_bridge_untyped")
+        receipt = bridge._require_selected_candidate_action(
+            closure=closure, candidate_action_ref=candidate_action_ref
+        )
+        selection = bridge.candidate_source_selection(closure)
+        if selection is None:
+            raise ValueError("candidate_source_basis_configured_owner_unavailable")
+        source = read_candidate_acquisition_source(
+            bridge.artifact_store,
+            source_ref=receipt.candidate_source_ref,
+            authority=bridge.authority,
+        )
+        if (
+            source.tenant_id != closure.tenant_id
+            or source.cell_id != closure.cell_id
+            or source.run_id != closure.run_id
+            or source.job_id != receipt.action_job_id
+            or source.route_id != closure.route_id
+            or source.candidate_digest != selection.candidate_digest
+            or receipt.profile_selection_ref != selection.profile_selection_ref
+            or receipt.canonical_variable_id != selection.canonical_variable_id
+            or receipt.target_slot_id != selection.target_slot_id
+        ):
+            raise ValueError("candidate_source_basis_live_source_scope_mismatch")
+        profile, declaration, _owner = bridge._candidate_source_prior_owner(closure=closure)
+        predecessors = _live_candidate_source_predecessors(bridge=bridge, closure=closure)
+        inputs = CandidateSourceBasisInputs(
+            configured_profile=profile,
+            original_model_declaration=declaration,
+            base_data_snapshot_ref=world_model_artifact_views(
+                profile.context_inputs.world_model_record
+            ).data_snapshot_ref,
+            base_world_model_ref=(predecessors[-1].world_model_ref if predecessors else None),
+            candidate_source_ref=receipt.candidate_source_ref,
+            slot_binding=CandidateAcquisitionSourceSlotBinding(
+                profile_selection_ref=selection.profile_selection_ref,
+                candidate_digest=selection.candidate_digest,
+                canonical_variable_id=selection.canonical_variable_id,
+                target_slot_id=selection.target_slot_id,
+            ),
+            transaction_time=transaction_time,
+        )
+        result = prepare_candidate_source_basis_values(
+            store=bridge.artifact_store,
+            problem=closure.design_problem_basis,
+            inputs=inputs,
+            predecessors=predecessors,
+        )
+        # Numerical preparation can take time; the actual pending head and live
+        # worker fence must still select this exact action when values return.
+        if (
+            bridge._require_selected_candidate_action(
+                closure=closure, candidate_action_ref=candidate_action_ref
+            )
+            != receipt
+        ):
+            raise ValueError("candidate_source_basis_live_action_changed")
+        fresh_profile, fresh_declaration, _fresh_owner = bridge._candidate_source_prior_owner(
+            closure=closure
+        )
+        if fresh_profile != profile or fresh_declaration != declaration:
+            raise ValueError("candidate_source_basis_live_prior_changed")
+        return result
+    except (OSError, RuntimeError, TypeError, ValueError, KeyError, AttributeError) as exc:
+        return CandidateSourceBasisValues(
+            "not_established", (str(getattr(exc, "code", None) or exc),)
+        )

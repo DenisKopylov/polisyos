@@ -497,6 +497,16 @@ class _SequentialOracle:
                 design_problem_ref=ctx.closure.design_problem_ref,
             )
             selected_b = actual_b.selected
+            assert selected_b.context_job_ref.manifest_profile_sha256 is not None
+            assert fixture._within_fixture_owner(
+                control._artifact_store.verify, selected_b.context_job_ref
+            ).ok
+            from polisyos.core.artifacts import read_core_manifest_profile
+
+            context_manifest = fixture._within_fixture_owner(
+                read_core_manifest_profile, control._artifact_store, selected_b.context_job_ref
+            )[0]
+            assert artifact_ref_for_manifest(context_manifest) == selected_b.context_job_ref
             witness = fixture._within_fixture_owner(
                 reconcile_live_n5_implementation,
                 actual_b.result,
@@ -704,6 +714,41 @@ class _SequentialOracle:
             assert retained[
                 "current_continuation_ref"
             ] == terminal.current_continuation_ref.model_dump(mode="json")
+            current = continuation.current_projection
+            assert retained["current_cheap_consequences"] == {
+                "source_cycle_index": current.source_cycle_index,
+                "candidate_id": current.selected_candidate_id,
+                "candidate_content_hash": current.selected_candidate_content_hash,
+                "grounding_status": current.grounding.status,
+                "grounding_current_valid": current.grounding.current_valid,
+                "value_status": current.value_port.status,
+                "value_decision_grade": current.value_port.decision_grade,
+                "value_authority_blockers": list(current.value_port.authority_blockers),
+                "value_ref": current.value_port.value_ref,
+                "voi_next_action": current.voi_decision.next_action,
+                "voi_reason": current.voi_decision.reason,
+                "terminal_kind": current.terminal_kind,
+                "refinement_decision": current.refinement_decision.decision,
+                "search_iteration_status": current.search_iteration.status,
+                "current_planner_report_ref": (
+                    current.current_planner_report_ref.model_dump(mode="json")
+                    if current.current_planner_report_ref is not None
+                    else None
+                ),
+                "scope": "current_cheap_consequences_at_recorded_action",
+                "numerical_provenance": "retained_prior",
+            }
+            assert retained["evaluation_provenance"] == "retained_prior"
+            selected_observation = retained["selected_n5_observation"]
+            assert selected_observation["n5_input_ref"] == selected_b.n5_input_ref.model_dump(
+                mode="json"
+            )
+            assert selected_observation["n5_execution_ref"] == (
+                selected_b.n5_execution_ref.model_dump(mode="json")
+            )
+            assert selected_observation["simulation_result_ref"] == (
+                selected_b.n5_result_ref.model_dump(mode="json")
+            )
             assert_live_history_owner_was_exercised(history_records)
             retained_terminals.append(terminal)
             for retained_terminal in retained_terminals:

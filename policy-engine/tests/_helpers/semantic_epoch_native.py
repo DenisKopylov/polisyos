@@ -980,6 +980,7 @@ def _authority(
         entries_list.append(
             catalog_read_api.build_authority_entry(
                 source_lane="local_lift",
+                source_provenance_class="observed",  # Synthetic test-owned source.
                 target_variable=str(spec["target_variable"]),
                 landing_dataset_id=str(
                     spec.get(

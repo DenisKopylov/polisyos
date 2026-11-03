@@ -2475,6 +2475,16 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
     assert all(
         input_ref.manifest_profile_sha256 is not None for input_ref in snapshot_manifest.inputs
     )
+    real_passport = build_admission_passport(
+        epoch_id=1,
+        raw_evidence_ref=live_evidence.raw_evidence_ref,
+        artifact_store=store,
+        raw_artifact_id=str(live_evidence.raw_artifact_id),
+        authority=authority,
+        boundary_candidate=candidate,
+        prepared_epoch=prepared,
+        live_source_execution=live_evidence,
+    )
 
     def _matches_with_quality_ref(
         quality_ref: ArtifactRef,
@@ -2482,8 +2492,10 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
         snapshot_changes: dict[str, object] | None = None,
         manifest_inputs: list[object] | None = None,
         live_bundle_ref: ArtifactRef | None = None,
+        proof_bundle_ref: ArtifactRef | None = None,
         live_snapshot_profileless: bool = False,
         candidate_source_ref: ArtifactRef | None = None,
+        require_current_admission: bool = False,
     ) -> bool:
         from polisyos.core.contracts import (
             data_snapshot_reference_fields,
@@ -2496,6 +2508,7 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
         changed_snapshot = snapshot.model_copy(
             update=changed_snapshot_updates | {"quality_report_ref": quality_ref}
         )
+        use_owner_snapshot = manifest_inputs is None and changed_snapshot == snapshot
         if manifest_inputs is None:
             available_edges = list(store.get_manifest(produced_snapshot_ref).inputs)
             manifest_inputs = []
@@ -2522,24 +2535,36 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
                     manifest_inputs.append(input_ref_from_artifact_ref(owner_ref, role=role))
             if available_edges:
                 return False
-        selected_snapshot = store.put_json(
-            changed_snapshot,
-            PutOptions(
-                kind="fabric.data_snapshot",
-                media_type="application/json",
-                schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
-                inputs=manifest_inputs,
-            ),
-            canon_spec=CanonSpec(forbid_floats=False),
-            return_selected_profile=True,
+            owner_roles = {
+                edge.role: index
+                for index, edge in enumerate(store.get_manifest(produced_snapshot_ref).inputs)
+            }
+            manifest_inputs.sort(
+                key=lambda edge: owner_roles.get(getattr(edge, "role", ""), len(owner_roles))
+            )
+        selected_snapshot = (
+            produced_snapshot_ref
+            if use_owner_snapshot
+            else store.put_json(
+                changed_snapshot,
+                PutOptions(
+                    kind="fabric.data_snapshot",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+                    inputs=manifest_inputs,
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
         )
         selected_snapshot_ref = DataSnapshotRef.model_validate(
             selected_snapshot.model_dump(mode="python")
         )
         if changed_snapshot.evidence_ref is None:
             return False
+        selected_proof_bundle = proof_bundle_ref or changed_snapshot.evidence_ref
         evidence_bundle_ref = EvidenceBundleRef.model_validate(
-            changed_snapshot.evidence_ref.model_dump(mode="python")
+            selected_proof_bundle.model_dump(mode="python")
         )
         if live_snapshot_profileless:
             selected_snapshot_ref = DataSnapshotRef.model_validate(
@@ -2552,6 +2577,7 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
             raw_evidence_ref=live_evidence.raw_evidence_ref,
             transport_trace=live_evidence.transport_trace,
             raw_artifact_id=live_evidence.raw_artifact_id,
+            raw_artifact_ref=live_evidence.raw_artifact_ref,
             evidence_bundle_ref=evidence_bundle_ref,
             data_snapshot_ref=selected_snapshot_ref,
             normalized_data_artifact_id=live_evidence.normalized_data_artifact_id,
@@ -2562,16 +2588,21 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
             raw_body_sha256=live_evidence.raw_body_sha256,
             normalized_result_content_sha256=(live_evidence.normalized_result_content_sha256),
         )
-        passport = build_admission_passport(
-            epoch_id=1,
-            raw_evidence_ref=proof.raw_evidence_ref,
-            artifact_store=store,
-            raw_artifact_id=str(proof.raw_artifact_id),
-            authority=authority,
-            boundary_candidate=candidate,
-            prepared_epoch=prepared,
-            live_source_execution=proof,
-        )
+        if require_current_admission:
+            build_admission_passport(
+                epoch_id=1,
+                raw_evidence_ref=proof.raw_evidence_ref,
+                artifact_store=store,
+                raw_artifact_id=str(proof.raw_artifact_id),
+                authority=authority,
+                boundary_candidate=candidate,
+                prepared_epoch=prepared,
+                live_source_execution=proof,
+            )
+        # Feed an explicitly adversarial, self-consistent projection to the
+        # matcher without claiming that the owner admitted the changed proof.
+        passport = real_passport.model_copy(update={"live_source_execution": proof})
+        passport = passport.model_copy(update={"passport_id": passport.recomputed_passport_id()})
         candidate_statement = candidate.statement
         if candidate_source_ref is not None:
             candidate_statement = candidate_statement.model_copy(
@@ -2611,6 +2642,15 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
     profileless_summary_ref = _unprofiled(summary_ref)
     assert not _matches_with_quality_ref(profileless_summary_ref)
     assert not _matches_with_quality_ref(
+        summary_ref,
+        snapshot_changes={"data_ref": _unprofiled(snapshot.data_ref)},
+    )
+    assert not _matches_with_quality_ref(
+        summary_ref,
+        snapshot_changes={"evidence_ref": _unprofiled(snapshot.evidence_ref)},
+        proof_bundle_ref=live_evidence.evidence_bundle_ref,
+    )
+    assert not _matches_with_quality_ref(
         profileless_summary_ref,
         snapshot_changes={
             "data_ref": _unprofiled(snapshot.data_ref),
@@ -2648,6 +2688,10 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
         summary_ref,
         snapshot_changes={"data_schema_ref": _unprofiled(schema_payload_ref)},
     )
+    assert not _matches_with_quality_ref(
+        summary_ref,
+        snapshot_changes={"data_schema_ref": schema_payload_ref},
+    )
 
     forged_summary_label_ref = store.put_json(
         summary.model_copy(update={"source": "forged-descriptive-label"}),
@@ -2662,8 +2706,10 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
-    assert _matches_with_quality_ref(forged_summary_label_ref)
-    assert _matches_with_quality_ref(
+    # The writer binds both descriptive fields to each other; the particular
+    # matching label does not itself change the underlying source identity.
+    assert not _matches_with_quality_ref(forged_summary_label_ref)
+    assert not _matches_with_quality_ref(
         summary_ref,
         snapshot_changes={"stats": snapshot.stats | {"source": "different-descriptive-label"}},
     )
@@ -2735,6 +2781,7 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
         _matches_with_quality_ref(
             summary_ref,
             snapshot_changes={"stats": snapshot.stats | {"datasets_fetched": 2}},
+            require_current_admission=True,
         )
     assert "live_snapshot_dataset_count_invalid" in str(count_error.value.__cause__)
 
@@ -2762,7 +2809,10 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
-    assert _matches_with_quality_ref(legacy_quality_ref)
+    # A legacy quality artifact stays readable, but is not a current v2
+    # ingestion-writer snapshot or a protected live requalification.
+    assert from_canonical_bytes(store.get_bytes(legacy_quality_ref))["datasets_count"] == 1
+    assert not _matches_with_quality_ref(legacy_quality_ref)
 
     broken_legacy_ref = store.put_json(
         {

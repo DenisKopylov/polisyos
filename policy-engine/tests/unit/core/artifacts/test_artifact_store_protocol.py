@@ -1232,3 +1232,30 @@ def test_read_only_cas_refuses_symlinked_member_parent_without_repair(tmp_path: 
 
     assert _cas_tree_state(root) == before_root
     assert _cas_tree_state(external_dir) == before_external
+
+
+def test_read_only_cas_verifies_exact_signed_profile_without_mutating_store(tmp_path: Path) -> None:
+    from polisyos.core.artifacts import Ed25519Signer, Ed25519Verifier, KeyPair
+
+    root = tmp_path / "cas"
+    writer = FileSystemCAS(root)
+    refs = [
+        writer.put_json(
+            {"value": "same payload, different manifest views"},
+            PutOptions(kind=kind, media_type="application/json"),
+            return_selected_profile=True,
+        )
+        for kind in ("test.read_only.signed", "test.read_only.unsigned")
+    ]
+    key = KeyPair.generate()
+    signer = Ed25519Signer.from_pem(key.private_pem())
+    writer.sign_artifact(refs[0], signer, signer_identity="readonly-test-owner")
+    verifier = Ed25519Verifier(strict_identity=True)
+    verifier.add_trusted_key(key.public_key, key_id=key.key_id, identity="readonly-test-owner")
+    before = _cas_tree_state(root)
+    reader = FileSystemCAS.open_existing_read_only(root)
+    assert reader.verify_signature(refs[0], verifier, strict_identity=True).ok
+    assert not reader.verify_signature(refs[1], verifier, strict_identity=True).ok
+    verifier.add_revoked_key_id(key.key_id)
+    assert not reader.verify_signature(refs[0], verifier, strict_identity=True).ok
+    assert _cas_tree_state(root) == before

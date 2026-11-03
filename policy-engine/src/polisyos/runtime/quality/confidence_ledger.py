@@ -86,6 +86,7 @@ _SUPPORTED_OWNER_VERIFIER_KERNELS = frozenset(
         "n8_data_trust_recompute_v1",
         "n10_route_projection_recompute_v1",
         "n13b_passport_revalidate_v1",
+        "n6_build_identity_reconcile_v1",
     }
 )
 
@@ -479,6 +480,19 @@ class InstrumentDefinition(_StrictModel):
         return self
 
 
+class _BuildIdentityArtifactSelection(_StrictModel):
+    """Ledger-owned wire selector decoded by the canonical Core artifact owner."""
+
+    artifact_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    kind: Literal["runtime.quality.confidence_ledger.build_identity"]
+    media_type: Literal["application/json"]
+    manifest_profile_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    def as_core_ref(self) -> artifacts.ArtifactRef:
+        """Resolve the finite ledger selector through Core's existing typed ABI."""
+        return artifacts.ArtifactRef.model_validate(self.model_dump(mode="json"))
+
+
 class CertificateClassRoute(_StrictModel):
     """Data-only evidence-class route to code-owned owner verification."""
 
@@ -490,6 +504,9 @@ class CertificateClassRoute(_StrictModel):
     owner_ref: str = Field(min_length=1)
     verifier_kernel_id: str = Field(min_length=1)
     verifier_ref: str = Field(min_length=1)
+    build_evidence_ref: _BuildIdentityArtifactSelection | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _is_semantically_bound(self) -> Self:
@@ -497,6 +514,13 @@ class CertificateClassRoute(_StrictModel):
             raise ValueError("certificate_role_polarity_mismatch")
         if self.owner_ref == self.verifier_ref:
             raise ValueError("owner_and_verifier_must_be_distinct")
+        if self.build_evidence_ref is not None and (
+            self.certificate_class != "n6_build_identity"
+            or self.certificate_role != "promotion_conformance"
+            or self.claim_polarity != "conformance_only"
+            or self.verifier_kernel_id != "n6_build_identity_reconcile_v1"
+        ):
+            raise ValueError("build_evidence_route_purpose_mismatch")
         return self
 
 
@@ -997,6 +1021,19 @@ class N6DeploymentCurrentnessObservation(_StrictModel):
         return self
 
 
+type _PackagedIdentityLimitation = Literal[
+    "packaged_build_identity_issuer_not_appointed",
+    "n6_strangle_census_not_established",
+    "deployment_authority_issuer_not_appointed",
+    "build_evidence_invalid",
+    "build_evidence_inputs_missing",
+    "build_evidence_appointment_verification_only",
+    "n6_source_census_production_binding_not_established",
+    "loaded_deployment_baseline_not_established",
+    "deployment_disk_drift",
+]
+
+
 class PackagedDeploymentIdentityReadiness(_StrictModel):
     """Three-valued installed-package identity readiness from the ledger owner.
 
@@ -1010,14 +1047,21 @@ class PackagedDeploymentIdentityReadiness(_StrictModel):
     )
     verdict: Literal["PASS", "FAIL", "UNRUN"]
     inputs: dict[str, str | bool]
-    unresolved_by_construction: tuple[
-        Literal[
-            "packaged_build_identity_issuer_not_appointed",
-            "n6_strangle_census_not_established",
-            "deployment_authority_issuer_not_appointed",
-        ],
-        ...,
-    ]
+    unresolved_by_construction: tuple[_PackagedIdentityLimitation, ...]
+
+
+class _SourceCheckoutBuildIdentityEvidence(_StrictModel):
+    """Finite technical build input; it does not certify N6 reachability or N9."""
+
+    schema_version: Literal["policyos.runtime.confidence_ledger.build_identity.v1"]
+    profile: Literal["source_checkout_import_snapshot_v1"]
+    authority_purpose: Literal["n6_technical_build_readiness"]
+    issuer_ref: str = Field(min_length=1)
+    deployment_identity: str = Field(pattern=r"^policy-engine-deployment:sha256:[0-9a-f]{64}$")
+    deployment_baseline_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    loaded_code_manifest_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    import_binding_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    census: dict[str, Any]
 
 
 class ConfidenceLedgerReceipt(_StrictModel):
@@ -5545,8 +5589,23 @@ def capture_loaded_deployment_identity() -> LoadedDeploymentIdentityObservation:
     )
 
 
-def inspect_packaged_deployment_identity() -> PackagedDeploymentIdentityReadiness:
-    """Report installed identity inputs without trusting a self-issued manifest."""
+def inspect_packaged_deployment_identity(
+    *,
+    build_evidence_ref: artifacts.ArtifactRef | None = None,
+    evidence_store: artifacts.FileSystemCAS | artifacts.ReadOnlyFileSystemCAS | None = None,
+    signature_verifier: artifacts.Ed25519Verifier | None = None,
+    registry_source: str | Path | Mapping[str, object] | None = None,
+) -> PackagedDeploymentIdentityReadiness:
+    """Resolve authenticated finite build inputs without inventing N6 authority.
+
+    The source-checkout profile reconciles a selected CAS artifact with the
+    frozen import baseline and a cheap current disk/runtime fence. Its census
+    remains a direct-source diagnostic: it cannot establish production roots,
+    dynamic bindings, or N9 authority. Installed distributions require the
+    separately qualified LANE-12 producer/profile and remain UNRUN here.
+    Explicit registry inputs are verification-only, like ledger test sessions;
+    the ordinary path reads the existing canonical certificate route registry.
+    """
 
     root = _loaded_policy_engine_root()
     package_root = root / "polisyos"
@@ -5556,6 +5615,54 @@ def inspect_packaged_deployment_identity() -> PackagedDeploymentIdentityReadines
         and (root / "uv.lock").is_file()
         and (root / "src" / "polisyos").is_dir()
     )
+    verification_only = any(
+        item is not None
+        for item in (build_evidence_ref, evidence_store, signature_verifier, registry_source)
+    )
+    configuration_error: str | None = None
+    if build_evidence_ref is None:
+        try:
+            registry = load_confidence_ledger_registry(
+                root / DEFAULT_REGISTRY_RELATIVE_PATH
+                if registry_source is None
+                else registry_source
+            )
+            selected = registry.resolve_certificate_route("n6_build_identity").build_evidence_ref
+            build_evidence_ref = None if selected is None else selected.as_core_ref()
+        except (ConfidenceLedgerError, OSError, ValueError):
+            # No appointment/declared artifact retains the historical default.
+            pass
+    if build_evidence_ref is not None:
+        if evidence_store is None or signature_verifier is None:
+            try:
+                if evidence_store is None:
+                    store_config = ArtifactStoreConfig.from_env()
+                    if store_config.backend != "filesystem":
+                        raise ValueError("build_evidence_filesystem_profile_required")
+                    cas_root = (
+                        Path(store_config.root) if store_config.root else root / ".polisyos/cas"
+                    )
+                    if not cas_root.is_absolute():
+                        cas_root = root / cas_root
+                    evidence_store = artifacts.FileSystemCAS.open_existing_read_only(cas_root)
+                if signature_verifier is None:
+                    signature_verifier = _configured_build_identity_verifier(root)
+            except Exception as exc:
+                configuration_error = f"{type(exc).__name__}: {str(exc)[:200]}"
+        readiness = _inspect_source_checkout_build_identity(
+            root=root,
+            reference=build_evidence_ref,
+            store=evidence_store,
+            verifier=signature_verifier,
+            registry_source=registry_source,
+            source_checkout=source_checkout,
+            verification_only=verification_only,
+        )
+        if configuration_error is not None:
+            return readiness.model_copy(
+                update={"inputs": {**readiness.inputs, "configuration_error": configuration_error}}
+            )
+        return readiness
     return PackagedDeploymentIdentityReadiness(
         verdict="UNRUN",
         inputs={
@@ -5574,10 +5681,194 @@ def inspect_packaged_deployment_identity() -> PackagedDeploymentIdentityReadines
     )
 
 
+def _configured_build_identity_verifier(root: Path) -> artifacts.Ed25519Verifier:
+    """Read the existing public-key policy without loading private signing keys."""
+
+    config = artifacts.SigningConfig.from_env()
+
+    def rooted(path: Path) -> Path:
+        expanded = path.expanduser()
+        return expanded if expanded.is_absolute() else root / expanded
+
+    verifier = artifacts.Ed25519Verifier(strict_identity=True)
+    verifier.load_trust_dir(rooted(config.trust_dir))
+    verifier.load_revoked_dir(rooted(config.revoked_dir))
+    verifier.load_identity_bindings(rooted(config.identities_path))
+    return verifier
+
+
+def _inspect_source_checkout_build_identity(
+    *,
+    root: Path,
+    reference: artifacts.ArtifactRef,
+    store: artifacts.FileSystemCAS | artifacts.ReadOnlyFileSystemCAS | None,
+    verifier: artifacts.Ed25519Verifier | None,
+    registry_source: str | Path | Mapping[str, object] | None,
+    source_checkout: bool,
+    verification_only: bool,
+) -> PackagedDeploymentIdentityReadiness:
+    """Verify technical content and issuer at the existing ledger boundary."""
+
+    inputs: dict[str, str | bool] = {
+        "canonical_identity_owner": "polisyos.runtime.quality.confidence_ledger",
+        "source_checkout_inputs_present": source_checkout,
+        "build_evidence_ref": str(reference.artifact_id),
+        "build_evidence_profile": reference.manifest_profile_sha256 or "not_selected",
+        "build_evidence_status": "not_established",
+        "readiness_scope": "technical_build_artifact_only",
+        "issuer_route_provenance": "verification" if verification_only else "canonical_repo",
+        "n6_census_verdict": "UNRUN",
+        "census_predicate_provenance": "not_established",
+        "runtime_binding_currentness": "not_established",
+    }
+
+    def result(
+        verdict: Literal["PASS", "FAIL", "UNRUN"], reason: _PackagedIdentityLimitation
+    ) -> PackagedDeploymentIdentityReadiness:
+        inputs["reason_code"] = reason
+        return PackagedDeploymentIdentityReadiness(
+            verdict=verdict,
+            inputs=inputs,
+            unresolved_by_construction=(reason,),
+        )
+
+    if not source_checkout or not _IMPORT_TIME_LOADED_CODE_CONSISTENT:
+        return result("UNRUN", "loaded_deployment_baseline_not_established")
+    if store is None or verifier is None:
+        return result("UNRUN", "build_evidence_inputs_missing")
+    try:
+        registry = load_confidence_ledger_registry(
+            root / DEFAULT_REGISTRY_RELATIVE_PATH if registry_source is None else registry_source
+        )
+        route = registry.resolve_certificate_route("n6_build_identity")
+    except ConfidenceLedgerError, OSError, ValueError:
+        return result("UNRUN", "packaged_build_identity_issuer_not_appointed")
+    if (
+        route.certificate_role != "promotion_conformance"
+        or route.claim_polarity != "conformance_only"
+        or route.verifier_kernel_id != "n6_build_identity_reconcile_v1"
+        or route.verifier_ref != "polisyos.runtime.quality.confidence_ledger"
+    ):
+        return result("UNRUN", "packaged_build_identity_issuer_not_appointed")
+    try:
+        if (
+            route.build_evidence_ref is not None
+            and route.build_evidence_ref.as_core_ref() != reference
+        ):
+            raise ValueError("build_evidence_declared_reference_mismatch")
+        if not verification_only and route.build_evidence_ref is None:
+            raise ValueError("build_evidence_declared_reference_missing")
+        if reference.manifest_profile_sha256 is None:
+            raise ValueError("build_evidence_selected_profile_missing")
+        manifest = store.get_manifest(reference)
+        schema = manifest.artifact_schema
+        if (
+            manifest.kind != "runtime.quality.confidence_ledger.build_identity"
+            or manifest.media_type != "application/json"
+            or schema is None
+            or (schema.name, schema.version)
+            != ("runtime.quality.confidence_ledger.build_identity", "1")
+            or manifest.producer is None
+            or str(manifest.producer.component) != route.owner_ref
+        ):
+            raise ValueError("build_evidence_manifest_mismatch")
+        signature = store.verify_signature(reference, verifier, strict_identity=True)
+        inputs["signature_status"] = signature.status.value
+        if signature.status in {
+            artifacts.SignatureVerificationStatus.ERROR,
+            artifacts.SignatureVerificationStatus.UNSIGNED,
+            artifacts.SignatureVerificationStatus.UNTRUSTED,
+        }:
+            return result("UNRUN", "build_evidence_inputs_missing")
+        if (
+            not signature.ok
+            or signature.key_id is None
+            or signature.signer_identity != route.owner_ref
+            or verifier.expected_identity(signature.key_id) != route.owner_ref
+        ):
+            raise ValueError("build_evidence_issuer_signature_mismatch")
+        evidence = _SourceCheckoutBuildIdentityEvidence.model_validate(
+            artifacts.load_core_json_artifact(store, reference)
+        )
+        if evidence.issuer_ref != route.owner_ref:
+            raise ValueError("build_evidence_issuer_mismatch")
+        loaded = capture_loaded_deployment_identity()
+        if (
+            evidence.deployment_identity != loaded.deployment_identity
+            or evidence.deployment_baseline_sha256
+            != _bytes_hash(_IMPORT_TIME_DEPLOYMENT_BASELINE.encode("utf-8"))
+            or evidence.loaded_code_manifest_sha256
+            != _bytes_hash(_IMPORT_TIME_LOADED_CODE_MANIFEST.encode("utf-8"))
+            or evidence.import_binding_sha256
+            != _bytes_hash(_IMPORT_TIME_FACADE_RUNTIME_PROJECTION.encode("utf-8"))
+        ):
+            raise ValueError("build_evidence_loaded_baseline_mismatch")
+        # Reuse the canonical census decoder; no second AST/census framework.
+        from polisyos.runtime.quality.generation_cycle import N6SourceCensusGateResult
+
+        census = N6SourceCensusGateResult.model_validate(evidence.census)
+        census.verify_content_binding()
+        source_bytes_digest = census.inputs.get("source_bytes_sha256")
+        if (
+            not census.source_path_enumeration_complete
+            or census.source_path_count == 0
+            or "source_read_or_parse_incomplete" in census.unresolved_by_construction
+            or not isinstance(source_bytes_digest, str)
+            or len(source_bytes_digest) != 64
+            or any(char not in "0123456789abcdef" for char in source_bytes_digest)
+        ):
+            raise ValueError("build_evidence_census_incomplete")
+        if _deployment_quick_fence(root) != _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE:
+            return result("FAIL", "deployment_disk_drift")
+    except (OSError, artifacts.ArtifactReadOnlyUnavailableError) as exc:
+        inputs["evidence_error"] = type(exc).__name__
+        inputs["evidence_error_detail"] = str(exc)[:240]
+        return result("UNRUN", "build_evidence_inputs_missing")
+    except Exception as exc:
+        # Backend, missing bytes and malformed input are unavailable/invalid
+        # evidence, never semantic N6 FAIL or a positive source census.
+        inputs["evidence_error"] = type(exc).__name__
+        inputs["evidence_error_detail"] = str(exc)[:240]
+        return result("FAIL", "build_evidence_invalid")
+    inputs.update(
+        build_evidence_status="verified",
+        issuer_ref=route.owner_ref,
+        issuer_key_id=signature.key_id,
+        registry_content_hash=registry.content_hash,
+        certificate_route_hash=_content_hash(route),
+        profile=evidence.profile,
+        loaded_deployment_identity=evidence.deployment_identity,
+        census_content_hash=_content_hash(evidence.census),
+        census_scope=census.source_scope,
+        census_rule=census.census_rule,
+        census_path_set_sha256=census.source_path_set_sha256,
+        census_source_bytes_sha256=source_bytes_digest,
+        census_loaded_binding="not_established",
+        census_predicate_provenance="institutionally_supplied",
+        runtime_binding_currentness="frozen_import_snapshot_only",
+    )
+    unresolved: list[_PackagedIdentityLimitation] = [
+        "n6_source_census_production_binding_not_established"
+    ]
+    if verification_only:
+        unresolved.append("build_evidence_appointment_verification_only")
+    return PackagedDeploymentIdentityReadiness(
+        # Authenticated technical inputs are useful preparation, but the
+        # declared census lacks the final production/loaded-binding proof.
+        verdict="UNRUN",
+        inputs=inputs,
+        unresolved_by_construction=tuple(unresolved),
+    )
+
+
 def observe_n6_deployment_currentness(
     *,
     recorded_identity_status: Literal["established", "not_established"] | None,
     recorded_deployment_identity: str | None,
+    build_evidence_ref: artifacts.ArtifactRef | None = None,
+    evidence_store: artifacts.FileSystemCAS | artifacts.ReadOnlyFileSystemCAS | None = None,
+    signature_verifier: artifacts.Ed25519Verifier | None = None,
+    registry_source: str | Path | Mapping[str, object] | None = None,
 ) -> N6DeploymentCurrentnessObservation:
     """Compare a run with canonical loaded identity without reading source files.
 
@@ -5587,10 +5878,17 @@ def observe_n6_deployment_currentness(
     """
 
     loaded = capture_loaded_deployment_identity()
-    readiness = inspect_packaged_deployment_identity()
+    readiness = inspect_packaged_deployment_identity(
+        build_evidence_ref=build_evidence_ref,
+        evidence_store=evidence_store,
+        signature_verifier=signature_verifier,
+        registry_source=registry_source,
+    )
     unresolved = tuple(readiness.unresolved_by_construction)
     common = {
-        "census_verdict": readiness.verdict,
+        # Build-input failure is not an established negative census. Preserve
+        # the observation's typed UNRUN boundary for every unestablished basis.
+        "census_verdict": "UNRUN",
         "recorded_identity_status": recorded_identity_status,
         "recorded_deployment_identity": recorded_deployment_identity,
         "loaded_identity_status": loaded.status,
@@ -5745,11 +6043,18 @@ def _require_import_time_identity_snapshot() -> None:
         raise ConfidenceLedgerError(_IMPORT_TIME_DEPLOYMENT_IDENTITY_REASON, detail)
 
 
-def _deployment_baseline(repo_root: Path) -> str:
+def _deployment_baseline(
+    repo_root: Path, *, capture_closure: tuple[tuple[str, str], ...] | None = None
+) -> str:
     """Return a path-normalized full source, lock, project, and ABI baseline."""
 
+    paths = (
+        _deployment_relative_paths(repo_root)
+        if capture_closure is None
+        else _deployment_relative_paths_from_closure(capture_closure)
+    )
     files: dict[str, str] = {}
-    for relative in _deployment_relative_paths(repo_root):
+    for relative in paths:
         path = repo_root / relative
         try:
             content = path.read_bytes()
@@ -5766,22 +6071,37 @@ def _deployment_baseline(repo_root: Path) -> str:
     )
 
 
-def _stable_deployment_snapshot(repo_root: Path) -> tuple[str, _DeploymentQuickFence]:
-    """Capture content only when the cheap file/runtime fence remains stable."""
+def _stable_deployment_snapshot(
+    repo_root: Path, *, capture_closure: tuple[tuple[str, str], ...] | None = None
+) -> tuple[str, _DeploymentQuickFence]:
+    """Capture content only when the cheap file/runtime fence remains stable.
 
-    before = _deployment_quick_fence(repo_root)
-    baseline = _deployment_baseline(repo_root)
-    after = _deployment_quick_fence(repo_root)
+    Initial capture supplies its provisional source-derived closure explicitly;
+    the public admission snapshot is published only after reconciliation. Normal
+    revalidation continues to require that already admitted snapshot.
+    """
+
+    if capture_closure is None:
+        before = _deployment_quick_fence(repo_root)
+        baseline = _deployment_baseline(repo_root)
+        after = _deployment_quick_fence(repo_root)
+    else:
+        before = _deployment_quick_fence(repo_root, capture_closure=capture_closure)
+        baseline = _deployment_baseline(repo_root, capture_closure=capture_closure)
+        after = _deployment_quick_fence(repo_root, capture_closure=capture_closure)
     if before != after:
         raise ConfidenceLedgerError("canonical_deployment_identity_invalid")
     return baseline, after
 
 
-def _deployment_quick_fence(repo_root: Path) -> _DeploymentQuickFence:
+def _deployment_quick_fence(
+    repo_root: Path, *, capture_closure: tuple[tuple[str, str], ...] | None = None
+) -> _DeploymentQuickFence:
     """Return a cheap path/inode/size/time fence for authority deployment files."""
 
+    closure = _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE if capture_closure is None else capture_closure
     entries: list[_DeploymentFileFence] = []
-    for relative in _deployment_relative_paths_from_closure(_IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE):
+    for relative in _deployment_relative_paths_from_closure(closure):
         path = repo_root / relative
         try:
             stat = path.stat()
@@ -12730,12 +13050,140 @@ def _source_dataclass_enum_member(
     return actual_members.get(node.attr, _SOURCE_DERIVATION_FAILED)
 
 
+def _source_dataclass_constant_expression(node: ast.expr) -> object:
+    """Read only inert compiler-folded constants, without executing an expression."""
+
+    if sum(1 for _ in ast.walk(node)) > 80:
+        return _SOURCE_DERIVATION_FAILED
+    try:
+        literal = ast.literal_eval(node)
+    except (ValueError, TypeError, SyntaxError, MemoryError):
+        try:
+            code = compile(ast.Expression(body=node), "<dataclass-default>", "eval")
+            instructions = tuple(
+                item
+                for item in dis.get_instructions(code)
+                if item.opname not in {"RESUME", "CACHE", "NOP", "EXTENDED_ARG"}
+            )
+        except (ValueError, TypeError, SyntaxError, MemoryError):
+            return _SOURCE_DERIVATION_FAILED
+        if (len(instructions) == 1 and instructions[0].opname == "RETURN_CONST") or (
+            len(instructions) == 2
+            and instructions[0].opname in {"LOAD_CONST", "LOAD_SMALL_INT"}
+            and instructions[1].opname == "RETURN_VALUE"
+        ):
+            literal = instructions[0].argval
+        else:
+            return _SOURCE_DERIVATION_FAILED
+    # Imported defaults must be immutable. Mutable factories retain their
+    # separate existing stdlib-only path; no object or call is evaluated here.
+    if type(literal) in {str, int, bool, float, bytes, type(None)}:
+        return literal
+    if type(literal) is tuple and all(
+        type(item) in {str, int, bool, float, bytes, type(None)} for item in literal
+    ):
+        return literal
+    return _SOURCE_DERIVATION_FAILED
+
+
+def _source_dataclass_named_constant(
+    name: str,
+    *,
+    repo_root: Path,
+    tree: ast.Module,
+    module: types.ModuleType,
+    module_name: str,
+    visited: frozenset[tuple[str, str]] = frozenset(),
+) -> object:
+    """Reconcile a finite source-owned immutable default through explicit imports."""
+
+    key = (module_name, name)
+    if key in visited or len(visited) >= 40:
+        return _SOURCE_DERIVATION_FAILED
+    sites = _module_scope_direct_binding_sites(tree, name)
+    if len(sites) != 1:
+        return _SOURCE_DERIVATION_FAILED
+    kind, statement, alias = sites[0]
+    if kind == "assignment" and isinstance(statement, (ast.Assign, ast.AnnAssign)):
+        expression = statement.value
+        if expression is None:
+            return _SOURCE_DERIVATION_FAILED
+        if isinstance(expression, ast.Name):
+            expected = _source_dataclass_named_constant(
+                expression.id,
+                repo_root=repo_root,
+                tree=tree,
+                module=module,
+                module_name=module_name,
+                visited=visited | {key},
+            )
+        else:
+            expected = _source_dataclass_constant_expression(expression)
+    elif kind == "import_from" and isinstance(statement, ast.ImportFrom) and alias is not None:
+        if (
+            _source_import_binding(name, tree=tree, module=module, module_name=module_name)
+            is _SOURCE_DERIVATION_FAILED
+        ):
+            return _SOURCE_DERIVATION_FAILED
+        try:
+            provider_name = (
+                importlib.util.resolve_name(
+                    "." * statement.level + (statement.module or ""),
+                    module_name.rpartition(".")[0],
+                )
+                if statement.level
+                else statement.module
+            )
+            if not isinstance(provider_name, str):
+                return _SOURCE_DERIVATION_FAILED
+            provider = sys.modules.get(provider_name)
+            if type(provider) is not types.ModuleType:
+                return _SOURCE_DERIVATION_FAILED
+            provider_spec = getattr(provider, "__spec__", None)
+            provider_file = getattr(provider, "__file__", None)
+            origin = getattr(provider_spec, "origin", None)
+            if not (
+                isinstance(getattr(provider_spec, "loader", None), SourceFileLoader)
+                and type(provider_file) is str
+                and type(origin) is str
+            ):
+                return _SOURCE_DERIVATION_FAILED
+            source_path = Path(provider_file).resolve()
+            source_path.relative_to(repo_root.resolve())
+            if Path(origin).resolve() != source_path:
+                return _SOURCE_DERIVATION_FAILED
+            analysis = _active_integrity_analysis()
+            provider_tree = (
+                analysis.source_tree(source_path)
+                if analysis is not None
+                else ast.parse(source_path.read_bytes(), filename=str(source_path))
+            )
+        except (OSError, TypeError, ValueError, SyntaxError):
+            return _SOURCE_DERIVATION_FAILED
+        expected = _source_dataclass_named_constant(
+            alias.name,
+            repo_root=repo_root,
+            tree=provider_tree,
+            module=provider,
+            module_name=provider_name,
+            visited=visited | {key},
+        )
+    else:
+        return _SOURCE_DERIVATION_FAILED
+    if expected is _SOURCE_DERIVATION_FAILED or not _source_dataclass_values_equal(
+        vars(module).get(name, _SOURCE_DERIVATION_FAILED), expected
+    ):
+        return _SOURCE_DERIVATION_FAILED
+    return expected
+
+
 def _source_dataclass_value(
     node: ast.expr,
     *,
     tree: ast.Module,
     module: types.ModuleType,
     module_name: str,
+    repo_root: Path | None = None,
     depth: int = 0,
 ) -> object:
     """Evaluate only source literals, exact builtins, Enum members, and dataclasses.field."""
@@ -12769,7 +13217,17 @@ def _source_dataclass_value(
             _builtins.tuple,
             _builtins.frozenset,
         )
-        return value if any(value is item for item in safe_callables) else _SOURCE_DERIVATION_FAILED
+        if any(value is item for item in safe_callables):
+            return value
+        if repo_root is None:
+            return _SOURCE_DERIVATION_FAILED
+        return _source_dataclass_named_constant(
+            node.id,
+            repo_root=repo_root,
+            tree=tree,
+            module=module,
+            module_name=module_name,
+        )
     if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
         return _SOURCE_DERIVATION_FAILED
     function_name = node.func.id
@@ -12803,6 +13261,7 @@ def _source_dataclass_value(
                 tree=tree,
                 module=module,
                 module_name=module_name,
+                repo_root=repo_root,
                 depth=depth + 1,
             )
             if value is _SOURCE_DERIVATION_FAILED:
@@ -13346,6 +13805,7 @@ def _source_python_dataclass_binding_supported(
                     tree=tree,
                     module=source_module,
                     module_name=module_name,
+                    repo_root=repo_root,
                 )
                 if value is _SOURCE_DERIVATION_FAILED:
                     return False
@@ -13572,6 +14032,849 @@ def _source_python_dataclass_binding_supported(
     return True
 
 
+@functools.lru_cache(maxsize=4)
+def _python_provider_source_code_objects(
+    source_bytes: bytes, source_filename: str
+) -> tuple[types.CodeType, ...]:
+    """Compile provider bytes once, preserving immutable whole-module code context."""
+
+    pending = [compile(source_bytes, source_filename, "exec", dont_inherit=True)]
+    found: list[types.CodeType] = []
+    while pending:
+        code = pending.pop()
+        found.append(code)
+        pending.extend(item for item in code.co_consts if type(item) is types.CodeType)
+    return tuple(found)
+
+
+@functools.lru_cache(maxsize=4)
+def _typing_protocol_source_codes(
+    source_bytes: bytes,
+    source_filename: str,
+    wanted: tuple[str, ...] | None = None,
+) -> tuple[tuple[str, tuple[str, ...]], ...]:
+    """Derive immutable provider-code expectations from exact supported backend bytes."""
+
+    wanted = wanted or (
+        "runtime_checkable",
+        "_get_protocol_attrs",
+        "_no_init_or_replace_init",
+        "_proto_hook",
+        "_LazyAnnotationLib.__getattr__",
+        "_ProtocolMeta.__new__",
+        "_ProtocolMeta.__init__",
+        "_ProtocolMeta.__instancecheck__",
+        "_ProtocolMeta.__subclasscheck__",
+        "Protocol.__init_subclass__",
+    )
+    found: dict[str, list[str]] = {name: [] for name in wanted}
+    for code in _python_provider_source_code_objects(source_bytes, source_filename):
+        if code.co_qualname in found:
+            found[code.co_qualname].append(_content_hash(_normalize_code_object(code)))
+    if any(len(values) != 1 for values in found.values()):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "typing provider shape")
+    return tuple((name, tuple(found[name])) for name in wanted)
+
+
+def _typing_protocol_provider_projection() -> dict[str, object]:
+    """Bind the supported Python backend, without claiming independent typing verification."""
+
+    try:
+        if (sys.version_info.major, sys.version_info.minor) != (3, 14):
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "typing backend profile"
+            )
+        provider = sys.modules.get("typing")
+        namespace = vars(typing)
+        source_path = (Path(sysconfig.get_path("stdlib")) / "typing.py").resolve()
+        spec = getattr(typing, "__spec__", None)
+        if (
+            provider is not typing
+            or not isinstance(getattr(spec, "loader", None), SourceFileLoader)
+            or Path(str(getattr(spec, "origin", ""))).resolve() != source_path
+            or Path(str(getattr(typing, "__file__", ""))).resolve() != source_path
+        ):
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "typing provider origin"
+            )
+        source_bytes = source_path.read_bytes()
+        bindings: dict[str, object] = {}
+        runtime_globals: dict[str, object] = {}
+        for qualname, expected_hashes in _typing_protocol_source_codes(
+            source_bytes, str(source_path)
+        ):
+            value: object = namespace
+            for name in qualname.split("."):
+                value = value.get(name) if isinstance(value, Mapping) else vars(value).get(name)
+            if type(value) in {classmethod, staticmethod}:
+                value = value.__func__
+            if not (
+                type(value) is types.FunctionType
+                and value.__module__ == "typing"
+                and value.__qualname__ == qualname
+                and value.__globals__ is namespace
+                and Path(value.__code__.co_filename).resolve() == source_path
+            ):
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch", "typing provider binding"
+                )
+            code_hash = _content_hash(_normalize_code_object(value.__code__))
+            if code_hash not in expected_hashes:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch", "typing provider source"
+                )
+            closure = value.__closure__ or ()
+            owner = namespace.get(qualname.partition(".")[0]) if "." in qualname else None
+            if any(
+                name != "__class__" or cell.cell_contents is not owner
+                for name, cell in zip(value.__code__.co_freevars, closure, strict=True)
+            ):
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch", "typing provider closure"
+                )
+            bindings[qualname] = _normalize_function_binding(value)
+            pending = [value.__code__]
+            while pending:
+                code = pending.pop()
+                pending.extend(item for item in code.co_consts if isinstance(item, types.CodeType))
+                for instruction in dis.get_instructions(code):
+                    if instruction.opname != "LOAD_GLOBAL":
+                        continue
+                    name = str(instruction.argval)
+                    bound = namespace.get(
+                        name, vars(_builtins).get(name, _SOURCE_DERIVATION_FAILED)
+                    )
+                    if bound is _SOURCE_DERIVATION_FAILED:
+                        raise ConfidenceLedgerError(
+                            "canonical_loaded_runtime_mismatch", "typing global"
+                        )
+                    if name == "_lazy_annotationlib":
+                        # Resolving this stock lazy import changes its Python
+                        # representation, not the annotation backend it denotes.
+                        lazy_type = namespace.get("_LazyAnnotationLib")
+                        if not (
+                            (type(bound) is lazy_type and not vars(bound))
+                            or (
+                                isinstance(bound, types.ModuleType)
+                                and sys.modules.get("annotationlib") is bound
+                            )
+                        ):
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch", "typing annotation backend"
+                            )
+                        runtime_globals[name] = {"module": "annotationlib", "lazy_or_loaded": True}
+                    elif isinstance(bound, types.ModuleType):
+                        runtime_globals[name] = {
+                            "module": vars(bound).get("__name__"),
+                            "provider_assumption": "supported_python_runtime",
+                        }
+                    elif type(bound) in {types.BuiltinFunctionType, types.BuiltinMethodType}:
+                        runtime_globals[name] = {
+                            "builtin_module": bound.__module__,
+                            "builtin_qualname": bound.__qualname__,
+                        }
+                    else:
+                        runtime_globals[name] = _normalize_runtime_binding_value(bound, seen=set())
+        return {
+            "profile": "python314_typing_protocol_provider_v1",
+            "provider_module": "typing",
+            "provider_relative_path": "typing.py",
+            "provider_source_sha256": _bytes_hash(source_bytes),
+            "runtime_bindings_sha256": _content_hash(bindings),
+            "runtime_direct_globals_sha256": _content_hash(runtime_globals),
+            "independent_transform_verification": False,
+            "assumption": "supported_python_runtime_provider",
+        }
+    except ConfidenceLedgerError:
+        raise
+    except (OSError, AttributeError, TypeError, ValueError, SyntaxError) as exc:
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch", f"typing provider input: {type(exc).__name__}"
+        ) from exc
+
+
+def _source_python_provider_class_binding_supported(
+    module: types.ModuleType,
+    source_path: Path,
+    source: bytes,
+    name: str,
+    *,
+    metaclass: type,
+    proven_bases: tuple[type, ...],
+    abstractmethod: types.FunctionType,
+) -> bool:
+    """Reconcile a finite provider class before using any inherited construction path.
+
+    ABCMeta itself is part of the declared supported Python backend. Provider
+    class bodies must still be literal data, non-construction methods, or the
+    exact builtin GenericAlias classmethod. No uncertain source is executed.
+    """
+
+    tree = ast.parse(source, filename=str(source_path))
+    sites = _module_scope_direct_binding_sites(tree, name)
+    if len(sites) != 1 or sites[0][0] != "local":
+        return False
+    statement = sites[0][1]
+    if not isinstance(statement, ast.ClassDef) or (
+        statement.decorator_list or getattr(statement, "type_params", ())
+    ):
+        return False
+    namespace = vars(module)
+    actual = namespace.get(name)
+    if (
+        type(actual) is not metaclass
+        or actual.__module__ != module.__name__
+        or actual.__qualname__ != name
+    ):
+        return False
+
+    def source_reference(expression: ast.expr) -> object:
+        if isinstance(expression, ast.Name):
+            # The metaclass implementation is the explicit runtime trust
+            # boundary, rather than another recursively verified interpreter.
+            if namespace.get(expression.id) is metaclass:
+                return metaclass
+            return _source_import_binding(
+                expression.id, tree=tree, module=module, module_name=module.__name__
+            )
+        if isinstance(expression, ast.Attribute) and isinstance(expression.value, ast.Name):
+            owner = _source_import_binding(
+                expression.value.id, tree=tree, module=module, module_name=module.__name__
+            )
+            if type(owner) is types.ModuleType:
+                return vars(owner).get(expression.attr, _SOURCE_DERIVATION_FAILED)
+        return _SOURCE_DERIVATION_FAILED
+
+    bases = tuple(source_reference(item) for item in statement.bases) or (object,)
+    if (
+        len(bases) != 1
+        or all(bases[0] is not item for item in proven_bases)
+        or actual.__bases__ != bases
+        or actual.__mro__ != (actual, *bases[0].__mro__)
+        or len(statement.keywords) > 1
+        or any(
+            item.arg != "metaclass" or source_reference(item.value) is not metaclass
+            for item in statement.keywords
+        )
+    ):
+        return False
+    for member in statement.body:
+        if (
+            isinstance(member, ast.Expr)
+            and isinstance(member.value, ast.Constant)
+            and type(member.value.value) is str
+        ):
+            continue
+        if isinstance(member, ast.Assign) and len(member.targets) == 1:
+            target = member.targets[0]
+            if not isinstance(target, ast.Name):
+                return False
+            if target.id == "__slots__" and _source_literal(member.value) == ():
+                continue
+            value = member.value
+            if (
+                target.id == "__class_getitem__"
+                and isinstance(value, ast.Call)
+                and source_reference(value.func) is classmethod
+                and len(value.args) == 1
+                and not value.keywords
+                and source_reference(value.args[0]) is types.GenericAlias
+            ):
+                continue
+            return False
+        if isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            if (
+                member.name
+                in {
+                    "__new__",
+                    "__init__",
+                    "__init_subclass__",
+                    "__class_getitem__",
+                    "__getattribute__",
+                    "__mro_entries__",
+                }
+                or getattr(member, "type_params", ())
+                or member.returns is not None
+                or any(
+                    argument.annotation is not None
+                    for argument in (
+                        *member.args.posonlyargs,
+                        *member.args.args,
+                        *member.args.kwonlyargs,
+                        *(item for item in (member.args.vararg, member.args.kwarg) if item),
+                    )
+                )
+                or len(member.decorator_list) > 1
+                or any(
+                    all(
+                        source_reference(item) is not candidate
+                        for candidate in (classmethod, staticmethod, abstractmethod)
+                    )
+                    for item in member.decorator_list
+                )
+                or any(
+                    _source_literal(item) is _UNSUPPORTED_SOURCE_LITERAL
+                    for item in (
+                        *member.args.defaults,
+                        *(item for item in member.args.kw_defaults if item is not None),
+                    )
+                )
+            ):
+                return False
+            continue
+        return False
+    # Base/MRO proof above happens before this finite replay, so a coherently
+    # rebound origin cannot smuggle an inherited __init_subclass__ invocation.
+    replay_namespace = dict(namespace)
+    class_codes = tuple(
+        code
+        for code in _python_provider_source_code_objects(source, str(source_path))
+        if code.co_qualname == name
+    )
+    if len(class_codes) != 1 or class_codes[0].co_freevars:
+        return False
+    # Python 3.14's compiler uses whole-module import knowledge for method-call
+    # opcodes. Replaying an isolated ClassDef loses that exact code identity.
+    # Execute only this already grammar-checked class body, never module code.
+    expected = _builtins.__build_class__(
+        types.FunctionType(class_codes[0], replay_namespace), name, *bases, metaclass=metaclass
+    )
+    replay_namespace[name] = expected
+    actual_values, expected_values = dict(vars(actual)), dict(vars(expected))
+    for values in (actual_values, expected_values):
+        # Python 3.14 may materialize these lazy stores during ordinary
+        # introspection. The finite source grammar above has no annotations:
+        # only an absent/None callback and absent/exactly-empty dict are equal.
+        # Never invoke a callback or exempt a nonempty claimed annotation.
+        if "__annotate_func__" in values and values.pop("__annotate_func__") is not None:
+            return False
+        if "__annotations_cache__" in values:
+            annotations = values.pop("__annotations_cache__")
+            if type(annotations) is not dict or annotations:
+                return False
+    return bool(
+        actual.__mro__ == (actual, *expected.__mro__[1:])
+        and set(actual_values) == set(expected_values)
+        and all(
+            _source_protocol_value_matches(
+                actual_values[key],
+                expected_values[key],
+                actual_class=actual,
+                expected_class=expected,
+                namespace=namespace,
+                replay_namespace=replay_namespace,
+                source_path=source_path,
+            )
+            for key in actual_values
+        )
+    )
+
+
+def _context_manager_provider_projection() -> dict[str, object]:
+    """Bind the finite stock context-manager ABI under the same Python backend assumption."""
+
+    try:
+        return _context_manager_provider_details()
+    except ConfidenceLedgerError:
+        raise
+    except (OSError, AttributeError, TypeError, ValueError, SyntaxError, RuntimeError) as exc:
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch", f"context provider input: {type(exc).__name__}"
+        ) from exc
+
+
+def _context_manager_provider_details() -> dict[str, object]:
+    """Reconcile the finite source-defined provider hierarchy and class members."""
+
+    module = sys.modules.get("contextlib")
+    if type(module) is not types.ModuleType:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "contextlib provider")
+    path = (Path(sysconfig.get_path("stdlib")) / "contextlib.py").resolve()
+    spec = getattr(module, "__spec__", None)
+    if (
+        not isinstance(getattr(spec, "loader", None), SourceFileLoader)
+        or Path(str(getattr(spec, "origin", ""))).resolve() != path
+        or Path(str(getattr(module, "__file__", ""))).resolve() != path
+    ):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "contextlib origin")
+    namespace = vars(module)
+    source = path.read_bytes()
+    abc = namespace.get("abc")
+    abc_path = path.with_name("abc.py")
+    abc_namespace = vars(abc) if type(abc) is types.ModuleType else {}
+    abc_spec = getattr(abc, "__spec__", None)
+    abc_loader = getattr(abc_spec, "loader", None)
+    abc_origin = getattr(abc_spec, "origin", None)
+    metaclass = vars(typing).get("ABCMeta")
+    if (
+        abc is not sys.modules.get("abc")
+        or Path(str(abc_namespace.get("__file__", ""))).resolve() != abc_path
+        or not (
+            (
+                abc_origin == "frozen"
+                and abc_loader
+                is getattr(sys.modules.get("_frozen_importlib"), "FrozenImporter", None)
+            )
+            or (
+                isinstance(abc_loader, SourceFileLoader)
+                and Path(str(abc_origin)).resolve() == abc_path
+            )
+        )
+        or type(metaclass) is not type
+        or abc_namespace.get("ABCMeta") is not metaclass
+        or type(typing.Protocol).__bases__ != (metaclass,)
+    ):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "abc provider origin")
+    abc_source = abc_path.read_bytes()
+    abstractmethod = abc_namespace.get("abstractmethod")
+    abstract_hashes = dict(
+        _typing_protocol_source_codes(abc_source, str(abc_path), ("abstractmethod",))
+    )["abstractmethod"]
+    if not (
+        type(abstractmethod) is types.FunctionType
+        and abstractmethod.__module__ == "abc"
+        and abstractmethod.__qualname__ == "abstractmethod"
+        and abstractmethod.__globals__ is abc_namespace
+        and abstractmethod.__closure__ is None
+        and abstractmethod.__defaults__ is None
+        and abstractmethod.__kwdefaults__ is None
+        and not abstractmethod.__dict__
+        and _content_hash(_normalize_code_object(abstractmethod.__code__)) in abstract_hashes
+        and _source_python_provider_class_binding_supported(
+            abc,
+            abc_path,
+            abc_source,
+            "ABC",
+            metaclass=metaclass,
+            proven_bases=(object,),
+            abstractmethod=abstractmethod,
+        )
+    ):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "abc source/base ABI")
+    names = (
+        "AbstractContextManager.__enter__",
+        "AbstractContextManager.__exit__",
+        "AbstractContextManager.__subclasshook__",
+        "AbstractAsyncContextManager.__aenter__",
+        "AbstractAsyncContextManager.__aexit__",
+        "AbstractAsyncContextManager.__subclasshook__",
+    )
+    bindings: dict[str, object] = {}
+    for owner_name in {name.partition(".")[0] for name in names}:
+        if not _source_python_provider_class_binding_supported(
+            module,
+            path,
+            source,
+            owner_name,
+            metaclass=metaclass,
+            proven_bases=(abc_namespace["ABC"],),
+            abstractmethod=abstractmethod,
+        ):
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "contextlib source/base ABI"
+            )
+    for name, hashes in _typing_protocol_source_codes(source, str(path), names):
+        owner_name, _, member_name = name.partition(".")
+        owner = namespace.get(owner_name)
+        if not isinstance(owner, type):
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "contextlib class")
+        raw = vars(owner).get(member_name)
+        function = raw.__func__ if type(raw) in {classmethod, staticmethod} else raw
+        if not (
+            type(function) is types.FunctionType
+            and function.__globals__ is namespace
+            and function.__module__ == "contextlib"
+            and function.__qualname__ == name
+            and Path(function.__code__.co_filename).resolve() == path
+            and _content_hash(_normalize_code_object(function.__code__)) in hashes
+        ):
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "contextlib source")
+        getitem = vars(owner).get("__class_getitem__")
+        if type(getitem) is not classmethod or getitem.__func__ is not types.GenericAlias:
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "contextlib base ABI")
+        bindings[name] = {
+            "function": _normalize_function_binding(function),
+            "metadata": _normalize_runtime_binding_value(function.__dict__, seen=set()),
+            "abstract_members": sorted(owner.__abstractmethods__),
+        }
+    return {
+        "profile": "python314_context_manager_generic_alias_v1",
+        "provider_relative_path": "contextlib.py",
+        "provider_source_sha256": _bytes_hash(source),
+        "abc_provider_source_sha256": _bytes_hash(abc_source),
+        "abc_provider_mode": "frozen" if abc_origin == "frozen" else "source",
+        "runtime_bindings_sha256": _content_hash(bindings),
+        "independent_transform_verification": False,
+        "assumption": "supported_python_runtime_provider",
+    }
+
+
+def _source_protocol_bound_name(
+    name: str,
+    *,
+    repo_root: Path,
+    module_name: str,
+    module: types.ModuleType,
+    relative: Path,
+    tree: ast.Module,
+    visited: frozenset[tuple[str, str]],
+) -> object:
+    """Resolve a Protocol name from its declaration/import, not its live self-description."""
+
+    value = vars(module).get(name)
+    if value is typing.Protocol:
+        return (
+            value
+            if _source_import_binding(name, tree=tree, module=module, module_name=module_name)
+            is value
+            else _SOURCE_DERIVATION_FAILED
+        )
+    if type(value) is not type(typing.Protocol):
+        return _SOURCE_DERIVATION_FAILED
+    sites = _module_scope_direct_binding_sites(tree, name)
+    if len(sites) != 1:
+        return _SOURCE_DERIVATION_FAILED
+    kind, statement, _alias = sites[0]
+    if kind == "local" and isinstance(statement, ast.ClassDef):
+        if (
+            value.__module__ == module_name
+            and value.__qualname__ == statement.name
+            and value.__name__ == name
+            and _source_python_protocol_binding_supported(
+                repo_root,
+                module_name,
+                name,
+                relative,
+                tree,
+                statement,
+                visited=visited,
+            )
+        ):
+            return value
+    elif kind == "import_from" and isinstance(statement, ast.ImportFrom):
+        if (
+            _source_import_binding(name, tree=tree, module=module, module_name=module_name)
+            is not value
+        ):
+            return _SOURCE_DERIVATION_FAILED
+        try:
+            route = _source_module_import_route(
+                repo_root,
+                module_name,
+                name,
+                directory_entries={},
+                source_index=_AuthorityImportClosureSourceIndex({}, {}),
+                visited=visited,
+            )
+        except ConfidenceLedgerError:
+            return _SOURCE_DERIVATION_FAILED
+        if route == ("symbol", value.__module__, value.__qualname__):
+            return value
+    return _SOURCE_DERIVATION_FAILED
+
+
+def _source_protocol_value_matches(
+    actual: object,
+    expected: object,
+    *,
+    actual_class: type,
+    expected_class: type,
+    namespace: dict[str, object],
+    replay_namespace: dict[str, object],
+    source_path: Path,
+) -> bool:
+    """Compare source-defined members and provider bookkeeping without executing them."""
+
+    if actual is expected:
+        return True
+    if type(actual) is not type(expected):
+        return False
+    if type(actual) is types.FunctionType:
+        return bool(
+            expected.__globals__ is replay_namespace
+            and actual.__globals__ is namespace
+            and actual.__module__ == expected.__module__
+            and actual.__qualname__ == expected.__qualname__
+            and actual.__name__ == expected.__name__
+            and actual.__doc__ == expected.__doc__
+            and _source_dataclass_values_equal(
+                getattr(actual, "__type_params__", ()), getattr(expected, "__type_params__", ())
+            )
+            and Path(actual.__code__.co_filename).resolve() == source_path
+            and _normalize_function_binding(actual) == _normalize_function_binding(expected)
+            and _source_protocol_value_matches(
+                actual.__annotate__,
+                expected.__annotate__,
+                actual_class=actual_class,
+                expected_class=expected_class,
+                namespace=namespace,
+                replay_namespace=replay_namespace,
+                source_path=source_path,
+            )
+            and _source_dataclass_values_equal(actual.__annotations__, expected.__annotations__)
+            and _source_dataclass_values_equal(actual.__dict__, expected.__dict__)
+        )
+    if type(actual) in {classmethod, staticmethod}:
+        return _source_protocol_value_matches(
+            actual.__func__,
+            expected.__func__,
+            actual_class=actual_class,
+            expected_class=expected_class,
+            namespace=namespace,
+            replay_namespace=replay_namespace,
+            source_path=source_path,
+        )
+    if type(actual) is property:
+        return actual.__doc__ == expected.__doc__ and all(
+            _source_protocol_value_matches(
+                getattr(actual, name),
+                getattr(expected, name),
+                actual_class=actual_class,
+                expected_class=expected_class,
+                namespace=namespace,
+                replay_namespace=replay_namespace,
+                source_path=source_path,
+            )
+            for name in ("fget", "fset", "fdel")
+        )
+    if type(actual) is types.GetSetDescriptorType:
+        return bool(
+            actual.__objclass__ is actual_class
+            and expected.__objclass__ is expected_class
+            and actual.__name__ == expected.__name__
+            and actual.__name__ in {"__dict__", "__weakref__"}
+        )
+    # ABC's registration/cache object is opaque mutable backend bookkeeping;
+    # its contents are not asserted as repository source or store authority.
+    if _runtime_type_ref(type(actual)) == "_abc._abc_data":
+        return True
+    return _source_dataclass_values_equal(actual, expected)
+
+
+def _source_python_protocol_binding_supported(
+    repo_root: Path,
+    module_name: str,
+    export_name: str,
+    relative: Path,
+    tree: ast.Module,
+    statement: ast.ClassDef,
+    *,
+    visited: frozenset[tuple[str, str]] = frozenset(),
+) -> bool:
+    """Replay only finite stub Protocol declarations under the supported Python backend."""
+
+    key = (module_name, export_name)
+    if key in visited or len(visited) >= 40 or statement.name != export_name:
+        return False
+    sites = _module_scope_direct_binding_sites(tree, export_name)
+    if len(sites) != 1 or sites[0][0] != "local" or sites[0][1] is not statement:
+        return False
+    if statement.keywords or getattr(statement, "type_params", ()) or not statement.bases:
+        return False
+    if not _source_future_annotations_enabled(tree) or len(statement.decorator_list) > 1:
+        return False
+    module = sys.modules.get(module_name)
+    if type(module) is not types.ModuleType:
+        return False
+    namespace = vars(module)
+    source_path = (repo_root / relative).resolve()
+    spec = getattr(module, "__spec__", None)
+    if (
+        not isinstance(getattr(spec, "loader", None), SourceFileLoader)
+        or Path(str(getattr(spec, "origin", ""))).resolve() != source_path
+        or Path(str(getattr(module, "__file__", ""))).resolve() != source_path
+    ):
+        return False
+    if statement.decorator_list:
+        decorator = statement.decorator_list[0]
+        if (
+            not isinstance(decorator, ast.Name)
+            or _source_import_binding(
+                decorator.id, tree=tree, module=module, module_name=module_name
+            )
+            is not typing.runtime_checkable
+        ):
+            return False
+    try:
+        _typing_protocol_provider_projection()
+    except (ConfidenceLedgerError, OSError, ValueError, TypeError):
+        return False
+    actual = namespace.get(export_name)
+    if type(actual) is not type(typing.Protocol):
+        return False
+    if actual.__module__ != module_name or actual.__qualname__ != export_name:
+        return False
+    replay_bases: list[ast.expr] = []
+    alias_bindings: dict[str, object] = {}
+    for position, base in enumerate(statement.bases):
+        if isinstance(base, ast.Name):
+            value = _source_protocol_bound_name(
+                base.id,
+                repo_root=repo_root,
+                module_name=module_name,
+                module=module,
+                relative=relative,
+                tree=tree,
+                visited=visited | {key},
+            )
+            if value is _SOURCE_DERIVATION_FAILED:
+                return False
+            replay_bases.append(base)
+            continue
+        if not (
+            isinstance(base, ast.Subscript)
+            and isinstance(base.value, ast.Name)
+            and isinstance(base.slice, ast.Name)
+        ):
+            return False
+        origin = _source_import_binding(
+            base.value.id, tree=tree, module=module, module_name=module_name
+        )
+        contextlib_namespace = vars(sys.modules["contextlib"])
+        if not any(
+            origin is contextlib_namespace.get(name)
+            for name in ("AbstractContextManager", "AbstractAsyncContextManager")
+        ):
+            return False
+        try:
+            _context_manager_provider_projection()
+        except (ConfidenceLedgerError, OSError, AttributeError, TypeError, ValueError):
+            return False
+        argument = _source_protocol_bound_name(
+            base.slice.id,
+            repo_root=repo_root,
+            module_name=module_name,
+            module=module,
+            relative=relative,
+            tree=tree,
+            visited=visited | {key},
+        )
+        original_bases = vars(actual).get("__orig_bases__")
+        if (
+            argument is _SOURCE_DERIVATION_FAILED
+            or type(original_bases) is not tuple
+            or len(original_bases) != len(statement.bases)
+        ):
+            return False
+        alias = original_bases[position]
+        if (
+            type(alias) is not types.GenericAlias
+            or alias.__origin__ is not origin
+            or len(alias.__args__) != 1
+            or alias.__args__[0] is not argument
+        ):
+            return False
+        # Reuse only the independently source-bound, exact builtin alias. This
+        # never evaluates an arbitrary source __class_getitem__ during replay.
+        selected_name = f"__policyos_protocol_base_{position}"
+        while selected_name in namespace or selected_name in alias_bindings:
+            selected_name += "_"
+        alias_bindings[selected_name] = alias
+        replay_bases.append(ast.copy_location(ast.Name(id=selected_name, ctx=ast.Load()), base))
+    for member in statement.body:
+        if (
+            isinstance(member, ast.Expr)
+            and isinstance(member.value, ast.Constant)
+            and (type(member.value.value) is str or member.value.value is Ellipsis)
+        ):
+            continue
+        if isinstance(member, ast.AnnAssign) and isinstance(member.target, ast.Name):
+            if member.target.id.startswith("__") or member.target.id in {
+                "_is_protocol",
+                "_is_runtime_protocol",
+            }:
+                return False
+            if (
+                member.value is None
+                or _source_literal(member.value) is not _UNSUPPORTED_SOURCE_LITERAL
+            ):
+                continue
+        if isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            if getattr(member, "type_params", ()) or member.name in {
+                "__new__",
+                "__init__",
+                "__init_subclass__",
+                "__subclasshook__",
+                "__class_getitem__",
+                "__getattribute__",
+            }:
+                return False
+            if len(member.decorator_list) > 1 or any(
+                not isinstance(decorator, ast.Name)
+                or _source_import_binding(
+                    decorator.id, tree=tree, module=module, module_name=module_name
+                )
+                not in {property, classmethod, staticmethod}
+                for decorator in member.decorator_list
+            ):
+                return False
+            if any(
+                _source_literal(default) is _UNSUPPORTED_SOURCE_LITERAL
+                for default in (
+                    *member.args.defaults,
+                    *(item for item in member.args.kw_defaults if item is not None),
+                )
+            ):
+                return False
+            if all(
+                isinstance(item, ast.Pass)
+                or (
+                    isinstance(item, ast.Expr)
+                    and isinstance(item.value, ast.Constant)
+                    and (type(item.value.value) is str or item.value.value is Ellipsis)
+                )
+                for item in member.body
+            ):
+                continue
+        return False
+    try:
+        replay_namespace = {**namespace, **alias_bindings}
+        replay_statement = ast.copy_location(
+            ast.ClassDef(
+                name=statement.name,
+                bases=replay_bases,
+                keywords=[],
+                body=statement.body,
+                decorator_list=statement.decorator_list,
+                type_params=[],
+            ),
+            statement,
+        )
+        replay = ast.Module(
+            body=[
+                *(
+                    item
+                    for item in tree.body
+                    if isinstance(item, ast.ImportFrom) and item.module == "__future__"
+                ),
+                replay_statement,
+            ],
+            type_ignores=[],
+        )
+        exec(compile(replay, str(source_path), "exec", dont_inherit=True), replay_namespace)  # noqa: S102
+        expected = replay_namespace[export_name]
+        actual_values, expected_values = vars(actual), vars(expected)
+        return bool(
+            type(actual) is type(expected)
+            and actual.__bases__ == expected.__bases__
+            and set(actual_values) == set(expected_values)
+            and all(
+                _source_protocol_value_matches(
+                    actual_values[name],
+                    expected_values[name],
+                    actual_class=actual,
+                    expected_class=expected,
+                    namespace=namespace,
+                    replay_namespace=replay_namespace,
+                    source_path=source_path,
+                )
+                for name in actual_values
+            )
+        )
+    except (AttributeError, NameError, RuntimeError, SyntaxError, TypeError, ValueError):
+        return False
+
+
 def _source_module_direct_binding_route(
     repo_root: Path,
     module_name: str,
@@ -13716,6 +15019,18 @@ def _source_module_direct_binding_route(
                 module_name,
                 export_name,
                 tree,
+            )
+            or (
+                isinstance(statement, ast.ClassDef)
+                and _source_python_protocol_binding_supported(
+                    repo_root,
+                    module_name,
+                    export_name,
+                    relative,
+                    tree,
+                    statement,
+                    visited=visited - {(module_name, export_name)},
+                )
             )
             or (
                 isinstance(statement, ast.ClassDef)
@@ -16492,6 +17807,8 @@ def _python_runtime_manifest() -> dict[str, object]:
         "multiarch": sysconfig.get_config_var("MULTIARCH"),
         "py_debug": sysconfig.get_config_var("Py_DEBUG"),
         "gil_disabled": sysconfig.get_config_var("Py_GIL_DISABLED"),
+        "typing_protocol_provider": _typing_protocol_provider_projection(),
+        "context_manager_provider": _context_manager_provider_projection(),
     }
 
 
@@ -16768,7 +18085,7 @@ elif (
             __name__,
         )
         deployment_baseline, deployment_quick_fence = _stable_deployment_snapshot(
-            _IMPORT_TIME_OWNER_ROOT
+            _IMPORT_TIME_OWNER_ROOT, capture_closure=authority_import_closure
         )
         _import_authority_closure_modules(authority_import_closure)
         facade_runtime_binding_references: list[_FacadeRuntimeBindingReference] = []
@@ -16790,7 +18107,12 @@ elif (
                 "canonical_loaded_runtime_mismatch",
                 "loaded authority code does not match its import-time source",
             )
-        if _deployment_quick_fence(_IMPORT_TIME_OWNER_ROOT) != deployment_quick_fence:
+        if (
+            _deployment_quick_fence(
+                _IMPORT_TIME_OWNER_ROOT, capture_closure=authority_import_closure
+            )
+            != deployment_quick_fence
+        ):
             raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
     except ConfidenceLedgerError as exc:
         # A failed first capture is terminal for this process. Preserve its typed

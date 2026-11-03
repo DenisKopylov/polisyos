@@ -614,6 +614,7 @@ def _program_graph_plan(
         merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
         selector_field_registry=DEFAULT_SELECTOR_FIELD_REGISTRY,
         constraint_registry=ConstraintRegistry(constraints={}),
+        outcome_aggregations={"mean_income": {"method": "mean", "unit": "usd"}},
     )
 
 
@@ -727,43 +728,106 @@ def test_joint_simulation_v1_result_replays_byte_exactly_without_state_handoff(
 def test_joint_simulation_v4_result_replays_byte_exactly_with_interaction_summary(
     tmp_path: Path,
 ) -> None:
-    """New v4 N5 bytes replay exactly with the selected interaction summary."""
+    """A historical v4 wire replays exactly beside a separate current v5 result."""
 
     from polisyos.core.canon import from_canonical_bytes
+    from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.runtime.quality.generation_cycle import (
         load_joint_simulation_result,
         persist_joint_simulation_result,
     )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JOINT_SIMULATION_HORIZON_SCHEMA_VERSION,
+    )
+    from tests.unit.remediation.test_cyc_02 import (
+        _historical_v4_numeric_interaction,
+        _persist_legacy_n5_result,
+    )
 
-    request = _request().model_copy(update={"horizon": HorizonSpec(start=0, end=0, step=1)})
+    request = _request().model_copy(
+        update={"horizon": HorizonSpec(start=0, end=0, step=1), "replications": 2}
+    )
     result = JointSimulationHorizonController().run(request)
-    assert result.schema_version == "policyos.runtime.joint_simulation_horizon.v4"
+    assert result.schema_version == JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
+    assert result.schema_version == "policyos.runtime.joint_simulation_horizon.v5"
+    assert "interaction_numerical_tolerance" in result.diagnostics
     assert result.state_consumption is None
+    assert result.interaction_terms
+    for term in result.interaction_terms:
+        assert term.replication_sampling_by_step
+        for summary in term.replication_sampling_by_step.values():
+            assert summary.status == "estimated"
+            assert summary.replicate_count == 2
+            assert len(summary.samples) == 2
 
-    store = FileSystemCAS(tmp_path / "n5-v4-replay-cas")
+    store = FileSystemCAS(tmp_path / "n5-historical-v4-replay-cas")
     try:
-        first_ref = persist_joint_simulation_result(result, store=store)
-        first_bytes = store.get_bytes(first_ref)
-        first_payload = from_canonical_bytes(first_bytes)
-        first_manifest = store.get_manifest(first_ref)
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            current_ref = persist_joint_simulation_result(result, store=store)
+            current_bytes = store.get_bytes(current_ref)
+            current_manifest = store.get_manifest(current_ref)
+            current_replayed = load_joint_simulation_result(
+                current_ref,
+                store=store,
+                expected_world_model_record_content_hash=result.world_model_record_content_hash,
+            )
+        current_payload = from_canonical_bytes(current_bytes)
+        assert current_payload["schema_version"] == result.schema_version
+        assert current_manifest.artifact_schema is not None
+        assert current_manifest.artifact_schema.version == "5.0.0"
+        assert current_replayed.schema_version == JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
+        assert current_replayed.content_bound_payload() == result.content_bound_payload()
 
-        assert first_payload["schema_version"] == "policyos.runtime.joint_simulation_horizon.v4"
-        assert "state_consumption" not in first_payload
-        assert first_manifest.artifact_schema is not None
-        assert first_manifest.artifact_schema.version == "4.0.0"
-
-        replayed = load_joint_simulation_result(
-            first_ref,
+        # Build a real historical wire from current paired samples and the
+        # verified v4 history helper; changing only the schema label would
+        # leave v5-only fields and the wrong historical verdict in the bytes.
+        historical_ref, historical_v4 = _persist_legacy_n5_result(
+            result,
             store=store,
-            expected_world_model_record_content_hash=result.world_model_record_content_hash,
+            source_ref=current_ref,
+            schema_version=4,
         )
-        assert replayed.schema_version == result.schema_version
-        assert replayed.state_consumption is None
-        assert replayed.content_bound_payload() == result.content_bound_payload()
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            historical_bytes = store.get_bytes(historical_ref)
+            historical_manifest = store.get_manifest(historical_ref)
+        historical_payload = from_canonical_bytes(historical_bytes)
 
-        replayed_ref = persist_joint_simulation_result(replayed, store=store)
-        assert replayed_ref.artifact_id == first_ref.artifact_id
-        assert store.get_bytes(replayed_ref) == first_bytes
+        assert (
+            historical_payload["schema_version"] == "policyos.runtime.joint_simulation_horizon.v4"
+        )
+        assert "state_consumption" not in historical_payload
+        assert "interaction_numerical_tolerance" not in historical_payload["diagnostics"]
+        assert historical_manifest.artifact_schema is not None
+        assert historical_manifest.artifact_schema.version == "4.0.0"
+        assert historical_v4.feedback_classification.numeric_interaction == (
+            _historical_v4_numeric_interaction(historical_payload)
+        )
+        assert historical_v4.feedback_classification.interaction_sampling_status == (
+            result.feedback_classification.interaction_sampling_status
+        )
+        current_terms = {(term.atom_ids, term.outcome): term for term in result.interaction_terms}
+        for historical_term in historical_v4.interaction_terms:
+            current_term = current_terms[(historical_term.atom_ids, historical_term.outcome)]
+            assert historical_term.by_step == current_term.by_step
+            assert (
+                historical_term.replication_sampling_by_step
+                == current_term.replication_sampling_by_step
+            )
+
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            replayed = load_joint_simulation_result(
+                historical_ref,
+                store=store,
+                expected_world_model_record_content_hash=result.world_model_record_content_hash,
+            )
+            replayed_ref = persist_joint_simulation_result(replayed, store=store)
+            assert replayed_ref.artifact_id == historical_ref.artifact_id
+            assert store.get_bytes(replayed_ref) == historical_bytes
+            assert store.get_bytes(current_ref) == current_bytes
+        assert replayed.schema_version == "policyos.runtime.joint_simulation_horizon.v4"
+        assert replayed.state_consumption is None
+        assert replayed.content_bound_payload() == historical_v4.content_bound_payload()
+        assert replayed.feedback_classification == historical_v4.feedback_classification
     finally:
         close = getattr(store, "close", None)
         if callable(close):
@@ -962,7 +1026,11 @@ def test_committed_v1_joint_result_keeps_original_receipt_projection() -> None:
     )
 
     assert _n8_sampling_uncertainty_limitations(parsed) == frozenset(
-        {"legacy_sampling_not_established", "legacy_interaction_not_established"}
+        {
+            "legacy_sampling_not_established",
+            "legacy_interaction_not_established",
+            "interaction_numeric_classification_unsupported",
+        }
     )
 
 

@@ -690,6 +690,7 @@ class _LiveHTTPExecutionObserver:
                 kind="fabric.acquisition.raw_evidence",
                 media_type="application/json",
             ),
+            return_selected_profile=True,
         )
         self.raw_evidence_ref = raw_ref
         self.raw_artifact_ref = raw_artifact_ref
@@ -1096,6 +1097,7 @@ def _execute_authorized_live_acquisition(
         raw_evidence_ref=observer.raw_evidence_ref,
         transport_trace=transport_trace,
         raw_artifact_id=observer.raw_artifact_ref.artifact_id,
+        raw_artifact_ref=observer.raw_artifact_ref,
         evidence_bundle_ref=ingestion_result.evidence_bundle_ref,
         data_snapshot_ref=ingestion_result.data_snapshot_ref,
         normalized_data_artifact_id=snapshot.data_ref.artifact_id,
@@ -1733,11 +1735,7 @@ def build_admission_passport(
         authority_ref=resolved.l5_trust.authority_ref,
         owner_ref=resolved.l5_trust.owner_ref,
     )
-    observation_class = (
-        ObservationProvenanceClass.PROXY
-        if resolved.field_binding.is_proxy
-        else ObservationProvenanceClass.OBSERVED
-    )
+    observation_class = data_forge_read_api.catalog.resolve_source_observation_class(resolved)
     body_sha = f"sha256:{hashlib.sha256(body).hexdigest()}"
     dataset_version = (
         live_source_execution.normalized_result_content_sha256
@@ -2015,10 +2013,13 @@ def admit_acquisition_with_production_semantic_epoch(
     facet_source_refs: Mapping[str, ArtifactRef],
     live_source_execution: LiveSourceExecutionEvidence | None = None,
     epoch_deployment: EpochDeployment | None = None,
+    source_owner_root: Path | None = None,
 ) -> ActivatedSemanticEpochAdmissionReceipt | PersistedSemanticEpochProductionReceipt:
     """Compose and invoke the production epoch adapter without policy self-admission.
 
-    Operational paths and evidence selectors are explicit inputs.  All semantic
+    Operational paths and evidence selectors are explicit inputs. An optional
+    source-owner root selects the existing L5 data owner separately from the
+    code checkout; it does not by itself grant authority. All semantic
     coordinate digests are independently recomputed. A factory-produced
     deployment may supply the existing native policy producer and verifier;
     absent deployment or owner retains the unallocated refusal.
@@ -2052,7 +2053,11 @@ def admit_acquisition_with_production_semantic_epoch(
                 "resolver_unavailable",
                 "semantic facet source-binding denominator differs",
             )
-        l5_owner = load_l5_catalog_authority(default_substrate_catalog_paths(root), repo_root=root)
+        l5_owner = load_l5_catalog_authority(
+            default_substrate_catalog_paths(root, source_owner_root=source_owner_root),
+            repo_root=root,
+            source_owner_root=source_owner_root,
+        )
         from polisyos.lex.knowledge import LegalKnowledgeStore
 
         lex_path = root / DEFAULT_L3_LEX_KG_PATH
@@ -2434,6 +2439,11 @@ def revalidate_admission_passport(
         or resolved.entry.source_lane != passport.source_lane
     ):
         raise ValueError("acquisition_authority_drift")
+    if (
+        data_forge_read_api.catalog.resolve_source_observation_class(resolved)
+        is not passport.observation_class
+    ):
+        raise ValueError("source_provenance_drift")
     if passport.source_lane == "live_fetch":
         if passport.live_source_execution is None:
             raise ValueError("live_source_execution_evidence_required")

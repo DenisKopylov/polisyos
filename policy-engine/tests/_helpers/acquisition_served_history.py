@@ -248,6 +248,9 @@ def _served_wdi_candidate_profile(
     problem,
     source_owner_root: Path | None = None,
     prepared_substrate_registry: substrate_registry.SubstrateRegistry | None = None,
+    country_code: str | None = None,
+    data_year: int | None = None,
+    population_scope: str = "served_controlled_candidate_fixture",
 ):
     """Build one typed synthetic N5 profile over a real owner-built base WMR."""
     tmp_path.mkdir(parents=True, exist_ok=True)
@@ -297,10 +300,31 @@ def _served_wdi_candidate_profile(
     source_owner_root = (
         Path(source_owner_root).resolve(strict=True) if source_owner_root is not None else None
     )
+    scoped_country_year = country_code is not None or data_year is not None
+    if scoped_country_year and (
+        country_code is None
+        or data_year is None
+        or country_code != problem.jurisdiction_time.region
+        or str(data_year) != problem.jurisdiction_time.data_time
+    ):
+        raise ValueError("served_candidate_profile_problem_scope_mismatch")
+    outcome_variable = problem.outcome_of_interest.target_variable
+    policy_slots = tuple(dict.fromkeys(("government.balance", outcome_variable)))
+    family_id = "macro_state" if scoped_country_year else "firm_fundamentals"
     snapshot_id = "served-wdi-controlled-candidate-base"
     base_data_snapshot_ref = wmr_fixture._data_snapshot_ref(store, snapshot_id=snapshot_id)
     if prepared_substrate_registry is None:
-        substrate_registry = wmr_fixture._substrate_registry()
+        substrate_registry = (
+            wmr_fixture._substrate_registry(
+                source_id="controlled_country_year_measurement_fixture",
+                family_id=family_id,
+                trust_tier="weak_anchor",
+                trust_cap=0.25,
+                identification_mode="bounds_only",
+            )
+            if scoped_country_year
+            else wmr_fixture._substrate_registry()
+        )
     else:
         source = current_catalog_serving_source()
         if (
@@ -315,12 +339,39 @@ def _served_wdi_candidate_profile(
         )
         require_catalog_source_registry_binding(source_owner_root, substrate_registry, source)
     substrate_registry_ref = persist_substrate_registry(store, substrate_registry)
-    registry_bundle = build_default_registry_bundle(store)
+    registry_bundle = (
+        build_default_registry_bundle(store, return_selected_profile=True)
+        if scoped_country_year
+        else build_default_registry_bundle(store)
+    )
     model_spec = wmr_fixture._model_spec(
         base_data_snapshot_ref,
         registry_bundle.bundle_ref,
     )
-    wmr_fixture._write_fabric_world_snapshot(tmp_path, snapshot_id=snapshot_id)
+    if scoped_country_year:
+        from polisyos.ir.kernel.time_semantics import TimeSemantics
+        from polisyos.ir.model_layer.model_spec import ModelSpec
+        from polisyos.ir.model_layer.types import TimeFrequency
+
+        model_spec = ModelSpec.model_validate(
+            {
+                **model_spec.model_dump(mode="json"),
+                "model_id": "controlled_country_year_candidate_model",
+                "calibrated": False,
+                "calibration_ref": None,
+                "time_semantics": TimeSemantics(
+                    frequency=TimeFrequency.YEAR,
+                    start_date=f"{data_year}-01-01",
+                    step_count=1,
+                ),
+                "notes": ["test_owned_unvalidated_country_year_model"],
+            }
+        )
+    wmr_fixture._write_fabric_world_snapshot(
+        tmp_path,
+        snapshot_id=snapshot_id,
+        **({"fact_valid_time": f"{data_year}-01-01T00:00:00Z"} if scoped_country_year else {}),
+    )
     # Use the canonical batch producer, then validate the exact selected source
     # through the prepared reader consumed by the real credal-reference path.
     selected_skg_root = (source_owner_root or tmp_path) / "controlled-candidate-source"
@@ -340,7 +391,7 @@ def _served_wdi_candidate_profile(
             EstimateCandidate(
                 value=0.0,
                 pattern_name="controlled_candidate_fixture",
-                variable_hint="global.tax_rate",
+                variable_hint=outcome_variable,
             ),
         ],
         metadata={"synthetic": True, "fixture_scope": "served_candidate_only"},
@@ -358,7 +409,7 @@ def _served_wdi_candidate_profile(
         selected_skg_version_id = int(selected_skg_rows.version_id)
         selected_skg_snapshot_ref = prepared_skg.source_snapshot_ref
         selected_variables = {row.canonical_name for row in selected_skg_rows.variables}
-        if not {"government.balance", "global.tax_rate"}.issubset(selected_variables):
+        if not set(policy_slots).issubset(selected_variables):
             raise AssertionError("served_controlled_skg_producer_variables_missing")
         if selected_skg_rows.causal_edges:
             raise AssertionError("served_controlled_candidate_fixture_claimed_causal_edges")
@@ -380,24 +431,39 @@ def _served_wdi_candidate_profile(
         skg_causal_prior_ref=skg_causal_prior_ref,
         substrate_registry=substrate_registry,
         region_or_jurisdiction=problem.jurisdiction_time.region,
-        population_scope="served_controlled_candidate_fixture",
+        population_scope=population_scope,
         policy_domain=problem.domain,
-        valid_time_scope="controlled_fixture_baseline_only",
+        valid_time_scope=(
+            f"{data_year}-01-01/{data_year}-12-31"
+            if scoped_country_year
+            else "controlled_fixture_baseline_only"
+        ),
         tx_time_scope="2026-05-24T12:00:00+00:00",
         resolution="country_year",
-        branch_mode=BranchMode.OBSERVED,
-        policy_slot_ids=("government.balance", "global.tax_rate"),
+        branch_mode=BranchMode.SCENARIO if scoped_country_year else BranchMode.OBSERVED,
+        policy_slot_ids=policy_slots,
         producer_ref="test.served_wdi_candidate_profile",
-        required_substrate_families=("firm_fundamentals",),
+        required_substrate_families=(family_id,),
         limitations=WorldModelLimitations(
             admissibility_blockers=ACQUIRED_DATA_STATE_LIMITATION_CODES,
         ),
         candidate_only=True,
         substrate_registry_artifact_ref=substrate_registry_ref,
+        **(
+            {"registry_bundle_artifact_ref": registry_bundle.bundle_ref}
+            if scoped_country_year
+            else {}
+        ),
     )
     slot_units = {binding.slot_id: binding.unit for binding in base_world.record.policy_slot_map}
     target_baseline = float(base_world.bound_global_state.government_balance)
-    outcome_baseline = float(base_world.bound_global_state.tax_rate)
+    outcome_binding = base_world.record.slot_binding(outcome_variable)
+    if outcome_binding is None:
+        raise AssertionError("served_candidate_profile_outcome_binding_missing")
+    outcome_state = base_world.bound_global_state
+    for segment in outcome_binding.state_path.split("."):
+        outcome_state = getattr(outcome_state, segment)
+    outcome_baseline = float(outcome_state)
     # Inventory admission and model selection have distinct owners. Keep the
     # complete registry; use only entries actually resolved by the WMR builder.
     selected_hashes = tuple(
@@ -483,7 +549,6 @@ def _served_wdi_candidate_profile(
             ),
         }
     )
-    outcome_variable = problem.outcome_of_interest.target_variable
     declaration_fields = {
         "schema_version": ("policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"),
         "profile_config_ref": candidate_simulation_profile_ref(profile),
@@ -776,6 +841,7 @@ def _produce_served_acquisition_history(
     sequential_oracle=None,
     provider_mode: str = "recorded_capture",
     seed_only_observer: Callable[..., None] | None = None,
+    run_budget_usd: float | None = None,
     prepared_catalog: tuple[
         substrate_registry.CatalogServingSourceSelection,
         substrate_registry.CatalogServingSourcePaths,
@@ -931,6 +997,18 @@ def _produce_served_acquisition_history(
         os.environ.get("POLISYOS_R1_REMOVE_ACQUIRED_N5_INPUT_CONSUMPTION") == "1"
     )
     removal_probe_n5_baselines: list[dict[str, float]] = []
+
+    def set_candidate_model_declaration(declaration: object | None) -> None:
+        """Configure the next served app through its ordinary model-owner input."""
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationSyntheticModelDeclarationV1,
+        )
+
+        if declaration is not None and type(declaration) is not (
+            CandidateSimulationSyntheticModelDeclarationV1
+        ):
+            raise TypeError("served_candidate_model_declaration_untyped")
+        candidate_model_declarations[:] = [] if declaration is None else [declaration]
 
     def app():
         return create_runtime_api_app(
@@ -1340,6 +1418,7 @@ def _produce_served_acquisition_history(
                         ).model_dump(mode="json")
                     },
                     "execution_profile": "dev",
+                    **({"run_budget_usd": run_budget_usd} if run_budget_usd is not None else {}),
                 },
                 headers={
                     **(
@@ -2453,6 +2532,8 @@ def _produce_served_acquisition_history(
                     seed_input=seed_n5_input,
                     evaluated_input=n5_input,
                     target_world_slot=model_declaration.target_world_slot,
+                    candidate_model_declaration=model_declaration,
+                    set_candidate_model_declaration=set_candidate_model_declaration,
                     cases=cases,
                     approve_request=approve_request,
                     appoint_mandate=appoint_mandate,

@@ -678,7 +678,15 @@ def test_store_only_acquisition_rows_never_enter_the_authority_band(
     snapshot = DataSnapshot.model_validate(
         from_canonical_bytes(store.get_bytes(result.data_snapshot_ref))
     )
-    # The candidate structural path must reach and verify all real CAS/epoch edges.
+    if forge:
+        # Coherent hashes and real owner refs cannot substitute a changed row.
+        for candidate_only in (True, False):
+            with pytest.raises(DataSnapshotLineageError, match="acquired_observation_owner_replay"):
+                validate_data_snapshot_owner_lineage(
+                    store, result.data_snapshot_ref, snapshot, candidate_only=candidate_only
+                )
+        return
+    # A genuine row remains usable only in the limited candidate band.
     verdict = validate_data_snapshot_owner_lineage(
         store, result.data_snapshot_ref, snapshot, candidate_only=True
     )
@@ -700,7 +708,7 @@ def test_acquired_world_is_limited_and_default_authority_reentry_refuses_coheren
     )
 
     store = owner_case.scenario.store
-    result = _coherently_forged_materialization(owner_case, forge=True)
+    result = _coherently_forged_materialization(owner_case, forge=False)
     _same_store, base_world, _model_spec, _bundle = world_fixture._build_record(
         store.root.parent,
         data_snapshot_factory=lambda _store: owner_case.args["base_data_snapshot_ref"],
@@ -726,6 +734,13 @@ def test_acquired_world_is_limited_and_default_authority_reentry_refuses_coheren
         load_world_model_record(store, candidate.world_model.record_ref).authority_status
         == "limited"
     )
+    forged = _coherently_forged_materialization(owner_case, forge=True)
+    with pytest.raises(WorldModelRecordError, match="data_snapshot_owner_lineage_invalid"):
+        owner.build_acquired_observation_candidate_world(
+            store,
+            **{**kwargs, "materialization": forged},
+            workspace_dir=owner_case.workspace.parent / "forged-limited-world",
+        )
     from polisyos.runtime.quality.world_model_record import (
         WorldModelRecord,
         persist_world_model_record,
@@ -784,11 +799,14 @@ def test_predictive_observed_intake_refuses_coherent_acquired_rows(
         _load_verified_observed_data_snapshot,
     )
 
-    result = _coherently_forged_materialization(owner_case, forge=True)
+    result = _coherently_forged_materialization(owner_case, forge=False)
     with pytest.raises(PredictiveCalibrationError) as refusal:
         _load_verified_observed_data_snapshot(owner_case.scenario.store, result.data_snapshot_ref)
     assert refusal.value.code == "predictive_calibration_acquired_source_row_not_established"
     assert isinstance(refusal.value.__cause__, DataSnapshotSourceRowNotEstablishedError)
+    forged = _coherently_forged_materialization(owner_case, forge=True)
+    with pytest.raises(DataSnapshotLineageError, match="acquired_observation_owner_replay"):
+        _load_verified_observed_data_snapshot(owner_case.scenario.store, forged.data_snapshot_ref)
 
 
 def test_predictive_observed_intake_keeps_valid_generic_legacy_snapshot(

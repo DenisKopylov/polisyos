@@ -125,12 +125,50 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
         projection = fresh_run["generic_cycle_simulation"]
         candidate_before = projection["n5_observations"]
         source_leaf = next(
-            row for row in projection["n5_observations"] if row["n5_execution_ref"] is not None
+            row
+            for row in projection["n5_observations"]
+            if row["n5_execution_ref"] is not None and row["n8_status"] == "value_conditional"
         )
         assert source_leaf["n5_owner_join_status"] == "resolved"
         owner_artifact_id = str(source_leaf["n5_execution_ref"]["artifact_id"])
         store = service._artifact_store
         original_raw_manifest = store.get_raw_manifest_bytes
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.runtime.http.routes import runs as runs_route
+        from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+
+        selected_result_ref = ArtifactRef.model_validate(source_leaf["simulation_result_ref"])
+        with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
+            selected_result = load_joint_simulation_result(
+                selected_result_ref,
+                store=store,
+                expected_world_model_record_content_hash=source_leaf[
+                    "world_model_record_content_hash"
+                ],
+                expected_atom_ids=tuple(source_leaf["atom_ids"]),
+                expected_selected_outcomes=tuple(source_leaf["selected_outcomes"]),
+            )
+        selected_result_payload = selected_result.model_dump(mode="json")
+        original_n8_qualification = runs_route._n8_interaction_qualification_fields
+        fallback_result_observations: list[dict[str, Any]] = []
+
+        def observe_actual_fallback(
+            value_port: Any, *, include_status: bool = True, n5_result: Any = None
+        ) -> dict[str, Any]:
+            # This observes the actual fresh missing-owner branch, then forwards
+            # unchanged to its real consumer. It does not manufacture an old v4
+            # result: the independent v4-format control qualifies that mapping.
+            if not include_status:
+                assert n5_result is not None, "actual fallback dropped its selected N5 result"
+                if n5_result.receipt.payload_hash == selected_result.receipt.payload_hash:
+                    observed = n5_result.model_dump(mode="json")
+                    assert observed == selected_result_payload
+                    assert n5_result.schema_version == selected_result.schema_version
+                    fallback_result_observations.append(observed)
+            return original_n8_qualification(
+                value_port, include_status=include_status, n5_result=n5_result
+            )
+
         missing_owner_calls: list[str] = []
 
         def missing_one_owner(ref: Any, *args: Any, **kwargs: Any) -> bytes:
@@ -141,9 +179,42 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
 
         with monkeypatch.context() as missing_owner:
             missing_owner.setattr(store, "get_raw_manifest_bytes", missing_one_owner)
+            missing_owner.setattr(
+                runs_route, "_n8_interaction_qualification_fields", observe_actual_fallback
+            )
             missing_response = client.get(f"/api/v1/runs/{run_id}")
         assert missing_response.status_code == 200, missing_response.text
         assert missing_owner_calls
+        assert fallback_result_observations == [selected_result_payload]
+
+        def drop_fallback_result(
+            value_port: Any, *, include_status: bool = True, n5_result: Any = None
+        ) -> dict[str, Any]:
+            return observe_actual_fallback(
+                value_port,
+                include_status=include_status,
+                n5_result=n5_result if include_status else None,
+            )
+
+        with monkeypatch.context() as removed_result:
+            removed_result.setattr(store, "get_raw_manifest_bytes", missing_one_owner)
+            removed_result.setattr(
+                runs_route, "_n8_interaction_qualification_fields", drop_fallback_result
+            )
+            with pytest.raises(
+                AssertionError, match="actual fallback dropped its selected N5 result"
+            ):
+                client.get(f"/api/v1/runs/{run_id}")
+        restored_response = client.get(f"/api/v1/runs/{run_id}")
+        assert restored_response.status_code == 200, restored_response.text
+        assert any(
+            row["node_ref"] == source_leaf["node_ref"]
+            and row["candidate_id"] == source_leaf["candidate_id"]
+            and row["n5_owner_join_status"] == "resolved"
+            for row in restored_response.json()["run"]["generic_cycle_simulation"][
+                "n5_observations"
+            ]
+        )
         candidates_after = missing_response.json()["run"]["generic_cycle_simulation"][
             "n5_observations"
         ]
@@ -176,7 +247,6 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
         )
         from polisyos.core.artifacts import ArtifactOwnershipError
         from polisyos.core.artifacts.ownership import ArtifactReadOnlyUnavailableError
-        from polisyos.runtime.http.routes import runs as runs_route
 
         def is_parent(ref: Any) -> bool:
             return (

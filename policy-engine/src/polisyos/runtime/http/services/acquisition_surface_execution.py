@@ -24,7 +24,7 @@ from polisyos.runtime.quality.acquisition_executor import (
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from polisyos.core.artifacts import ArtifactStore
+    from polisyos.core.artifacts import ArtifactRef, ArtifactStore
     from polisyos.runtime.http.services.acquisition_action_service import (
         AcquisitionOwnerExecutionResult,
     )
@@ -376,11 +376,18 @@ class WorldBankWDIAcquisitionExecutionPort:
                 raise TypeError("acquisition world growth bridge must be production-owned")
             if world_growth_bridge.artifact_store is not artifact_store:
                 raise ValueError("acquisition_world_growth_runtime_store_mismatch")
+            if world_growth_bridge.authority is not authority:
+                raise ValueError("acquisition_world_growth_authority_mismatch")
         self._world_growth_bridge = world_growth_bridge
 
     def require_route_ready(self, closure: VerifiedAcquisitionRouteClosure) -> None:
         """Require fresh transport, deferred admission, or a verified duplicate check."""
 
+        bridge = self._world_growth_bridge
+        if bridge is not None and bridge.candidate_source_selection(closure) is not None:
+            if not callable(getattr(bridge, "complete_candidate_reentry", None)):
+                raise LiveAcquisitionExecutionError("candidate_reentry_owner_not_available")
+            bridge.candidate_source_reentry_preflight(closure=closure)
         bindings = resolve_world_bank_wdi_route_execution_bindings(
             closure=closure,
             authority=self._authority,
@@ -388,7 +395,42 @@ class WorldBankWDIAcquisitionExecutionPort:
             provision=self._provision,
             provision_content_sha256=self._provision_content_sha256,
         )
-        bridge = self._world_growth_bridge
+        candidate_selection = (
+            bridge.candidate_source_selection(closure) if bridge is not None else None
+        )
+        for binding in bindings:
+            resolved = self._authority.resolve(binding.authority_entry_id)
+            if (
+                _CATALOG_API.resolve_source_observation_class(resolved)
+                is _CATALOG_API.ObservationProvenanceClass.MODEL_OUTPUT
+                and candidate_selection is None
+            ):
+                raise LiveAcquisitionExecutionError("candidate_source_owner_not_configured")
+        if bridge is not None:
+            selection = candidate_selection
+            if selection is not None:
+                from polisyos.runtime.quality.candidate_acquisition_source import (
+                    validate_candidate_acquisition_selection,
+                )
+
+                basis = closure.planner_report.requirement_basis_binding
+                if basis is None:
+                    raise LiveAcquisitionExecutionError("candidate_compiler_basis_missing")
+                for binding in bindings:
+                    _candidate, resolved = validate_candidate_acquisition_selection(
+                        self._artifact_store,
+                        requirement_basis_binding=basis,
+                        compiled_requirement_ref=selection.compiled_requirement_ref,
+                        requirement_id=selection.requirement_id,
+                        candidate_digest=selection.candidate_digest,
+                        authority=bridge.authority,
+                        entry_id=binding.authority_entry_id,
+                        target_slot_id=selection.target_slot_id,
+                        country_code=selection.country_code,
+                        year=selection.year,
+                        population=selection.population,
+                    )
+                    bridge.validate_candidate_source_world_scope(closure=closure, resolved=resolved)
         if bridge is not None and bridge.has_admission_attempt(closure):
             if bridge.has_deferred_admission(closure):
                 return
@@ -410,6 +452,10 @@ class WorldBankWDIAcquisitionExecutionPort:
         """Reserve fresh transport only; deferred admission requires a new action authority."""
         self.require_route_ready(closure)
         bridge = self._world_growth_bridge
+        if bridge is not None and bridge.candidate_source_selection(closure) is not None:
+            # Candidate transport is reserved only by the live worker, after
+            # its source-budget and lease preflight has succeeded.
+            return
         if bridge is not None and bridge.has_admission_attempt(closure):
             return
         self.reserve_route_binding(closure)
@@ -435,7 +481,7 @@ class WorldBankWDIAcquisitionExecutionPort:
         *,
         action_phase_ref: str | None = None,
     ) -> AcquisitionOwnerExecutionResult:
-        """Execute one bound attempt and admit only native, activated observation growth."""
+        """Execute one bound attempt under native or limited candidate source custody."""
 
         self.require_route_ready(closure)
         bridge = self._world_growth_bridge
@@ -443,6 +489,20 @@ class WorldBankWDIAcquisitionExecutionPort:
             if bridge is None:
                 self._raise_reentry_not_admitted()
             bridge.begin_action(closure, action_phase_ref)
+        if bridge is not None and bridge.candidate_source_selection(closure) is not None:
+            if action_phase_ref is None:
+                raise LiveAcquisitionExecutionError("candidate_action_phase_missing")
+            from polisyos.scientist import BudgetState
+
+            window = bridge.prepare_candidate_source_budget_window(
+                closure=closure, action_phase_ref=action_phase_ref
+            )
+            probe = BudgetState.model_validate(
+                {"limits": {"run": {"key": "run", "max_usd": window.effective_limit_usd}}}
+            )
+            bridge.candidate_source_reentry_preflight(
+                closure=closure, budget_state=probe, reentry_budget_scope=window.scope
+            )
         if bridge is not None and bridge.has_admission_attempt(closure):
             if bridge.has_deferred_admission(closure):
                 owner_refs, growth = bridge.resume_deferred_admission(
@@ -497,6 +557,20 @@ class WorldBankWDIAcquisitionExecutionPort:
                 )
             )
         )
+        resolved = self._authority.resolve(binding.authority_entry_id)
+        source_class = _CATALOG_API.resolve_source_observation_class(resolved)
+        if source_class is _CATALOG_API.ObservationProvenanceClass.MODEL_OUTPUT:
+            if bridge is None or action_phase_ref is None:
+                self._raise_reentry_not_admitted()
+            candidate_ref, _receipt = bridge.admit_candidate(
+                closure=closure,
+                binding=binding,
+                evidence=evidence,
+                action_phase_ref=action_phase_ref,
+            )
+            return self._candidate_result(
+                candidate_ref, owner_receipt_refs, action_phase_ref=action_phase_ref
+            )
         growth = None
         if bridge is not None:
             try:
@@ -513,6 +587,31 @@ class WorldBankWDIAcquisitionExecutionPort:
                 growth = None
         return self._admission_result(
             closure, owner_receipt_refs, growth, action_phase_ref=action_phase_ref
+        )
+
+    @staticmethod
+    def _candidate_result(
+        candidate_ref: ArtifactRef,
+        owner_receipt_refs: tuple[str, ...],
+        *,
+        action_phase_ref: str,
+    ) -> AcquisitionOwnerExecutionResult:
+        """Return the selected candidate input without claiming observation growth."""
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            AcquisitionOwnerExecutionResult,
+        )
+
+        refs = tuple(
+            dict.fromkeys((*owner_receipt_refs, str(candidate_ref.artifact_id), action_phase_ref))
+        )
+        return AcquisitionOwnerExecutionResult(
+            schema_version="AcquisitionOwnerExecutionResult@1.1",
+            disposition="candidate_input_prepared",
+            owner_receipt_refs=refs,
+            admitted_observation_delta=0,
+            authority_badge="candidate_input_only",
+            action_phase_ref=action_phase_ref,
+            candidate_action_ref=candidate_ref,
         )
 
     def _admission_result(
@@ -575,6 +674,10 @@ class WorldBankWDIAcquisitionExecutionPort:
             self._raise_reentry_not_admitted()
         if action_phase_ref is None:
             self._raise_reentry_not_admitted()
+        candidate = bridge.recover_candidate_action(closure, action_phase_ref)
+        if candidate is not None:
+            candidate_ref, _receipt = candidate
+            return self._candidate_result(candidate_ref, (), action_phase_ref=action_phase_ref)
         recovered = bridge.recover_admission(closure, action_phase_ref)
         from polisyos.runtime.http.services.acquisition_action_service import (
             AcquisitionOwnerExecutionResult,
@@ -633,6 +736,18 @@ class WorldBankWDIAcquisitionExecutionPort:
         )
 
         return complete_positive_acquisition_admission(self._world_growth_bridge, closure)
+
+    def complete_candidate_reentry(
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+    ) -> AcquisitionActionHeadRecord | None:
+        """Resume candidate-only re-entry through the same live route owner."""
+        if self._world_growth_bridge is None:
+            return None
+        consumer = getattr(self._world_growth_bridge, "complete_candidate_reentry", None)
+        if not callable(consumer):
+            return None
+        return consumer(closure)
 
     def reenter(
         self,

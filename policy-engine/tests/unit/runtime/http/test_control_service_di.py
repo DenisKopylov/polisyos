@@ -3668,7 +3668,7 @@ def test_n5_run_projection_preserves_actual_shared_seed_pair_and_residual_sample
     scope_fields = _n5_interaction_scope_fields(result)
 
     assert projection is not None
-    assert projection["schema_version"] == "policyos.runtime.joint_simulation_horizon.v4"
+    assert projection["schema_version"] == "policyos.runtime.joint_simulation_horizon.v5"
     assert projection["numeric_interaction"] == "unsupported"
     assert projection["numeric_interaction_basis"] == "finite_checked_model_point_estimate_only"
     assert projection["interaction_sampling_status"] == "estimated"

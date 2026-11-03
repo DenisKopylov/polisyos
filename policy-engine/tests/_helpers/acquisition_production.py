@@ -19,12 +19,8 @@ import duckdb
 import pandas as pd
 import pytest
 
-from polisyos.core.artifacts.manifest import (
-    ArtifactTenantContextInfo,
-    SchemaInfo,
-)
+from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.contracts import DataSnapshotRef
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
@@ -40,14 +36,12 @@ from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import 
 )
 from polisyos.data_forge.read_api.catalog import build_slice0_fixture_catalog_graph
 from polisyos.fabric.connectors import (
-    ResultSerializer,
+    ConnectionConfig,
+    ConnectorCacheStore,
+    PolicyRegistry,
     SourceProfileRegistry,
+    get_registry,
     resolve_connection_config,
-)
-from polisyos.fabric.connectors.cache.store import (
-    CACHE_PAYLOAD_KIND,
-    CACHE_SCHEMA_NAME,
-    CACHE_SCHEMA_VERSION,
 )
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 from polisyos.fabric.data_plane import content_sha256
@@ -226,16 +220,27 @@ async def persist_wdi_route(
     generation_cycle_repo_root: Path | None = None,
     revised_source: bool = False,
     llm_model_id: str = "fixture-model",
+    fixture_problem=None,
+    fixture_value_port=None,
+    fixture_target_world_slots: tuple[str, ...] = ("government.balance",),
+    fixture_capability_resolver=None,
 ):
     """Install a real compiled fixture case into the supplied app's canonical owners."""
-    problem = fixtures._problem("served_wdi_acquisition")
-    problem = problem.model_copy(
-        update={
-            "jurisdiction_time": problem.jurisdiction_time.model_copy(
-                update={"region": "UKR", "data_time": "2024"}
-            )
-        }
-    )
+    if fixture_problem is None:
+        problem = fixtures._problem("served_wdi_acquisition")
+        problem = problem.model_copy(
+            update={
+                "jurisdiction_time": problem.jurisdiction_time.model_copy(
+                    update={"region": "UKR", "data_time": "2024"}
+                )
+            }
+        )
+    else:
+        from polisyos.runtime.quality.design_problem import DesignProblem
+
+        problem = DesignProblem.model_validate(fixture_problem.model_dump(mode="python"))
+    if revised_source and fixture_value_port is not None:
+        raise ValueError("revised_source_fixture_value_port_not_supported")
     problem_ref = gy_content_hash(problem.model_dump(mode="json"))
     root_ref = "design-problem://" + problem_ref.removeprefix("sha256:")
     graph = derive_recursive_design_graph(
@@ -257,6 +262,7 @@ async def persist_wdi_route(
                 authority_scope="contract_testing",
                 artifact_store=control._artifact_store,
                 repo_root=generation_cycle_repo_root,
+                capability_resolver=fixture_capability_resolver,
             )
 
         cycle_budget = RecursiveCycleBudget(
@@ -267,12 +273,13 @@ async def persist_wdi_route(
         def cycle_controller_factory(_node_ref: str, _problem: object) -> GenerationCycleController:
             return GenerationCycleController(
                 generation_port=fixtures._CgfGenerationPort(
-                    target_world_slots=("government.balance",)
+                    target_world_slots=fixture_target_world_slots
                 ),
-                value_port=_WDIGap(),
+                value_port=fixture_value_port if fixture_value_port is not None else _WDIGap(),
                 authority_scope="contract_testing",
                 artifact_store=control._artifact_store,
                 repo_root=generation_cycle_repo_root,
+                capability_resolver=fixture_capability_resolver,
             )
 
         cycle_budget = RecursiveCycleBudget(
@@ -884,6 +891,7 @@ def _baseline(repo_root: Path, *, license_id: str = "CC-BY-4.0") -> Path:
 def _entry():
     return build_authority_entry(
         source_lane="live_fetch",
+        source_provenance_class="observed",  # Synthetic test-owned source.
         target_variable="government.balance",
         landing_dataset_id="acquisition.worldbank.government_balance",
         landing_distribution_id="acquisition.worldbank.government_balance.json",
@@ -1237,6 +1245,16 @@ class _OrchestratedWorldBankStub:
         self.cas_root: Path | None = None
 
     def __call__(self, **kwargs: object) -> IngestionResult:
+        from polisyos.core.artifacts import input_ref_from_artifact_ref
+        from polisyos.fabric.evidence import persist_provenance_graph
+        from polisyos.fabric.ingestion.ingestion import (
+            _build_connector_provenance_graph,
+            _canon_scalar,
+            _manifest_fingerprint,
+            _normalize_connector_manifest,
+        )
+
+        started_at = datetime.now(UTC)
         self.calls.append(dict(kwargs))
         self.cas_root = Path(str(kwargs["cas_root"]))
         manifest = kwargs["connector_manifest"]
@@ -1335,21 +1353,69 @@ class _OrchestratedWorldBankStub:
             raise RuntimeError("simulated transport failure after baseline mutation")
 
         store = FileSystemCAS(self.cas_root)
-        serialized, media_type = ResultSerializer.serialize(result)
-        data_ref = store.put_bytes(
-            serialized,
-            ArtifactWriteOptions(
-                kind=CACHE_PAYLOAD_KIND,
-                media_type=media_type,
-                schema=SchemaInfo(name=CACHE_SCHEMA_NAME, version=CACHE_SCHEMA_VERSION),
+        source_config = kwargs["connection_config"]
+        assert isinstance(source_config, ConnectionConfig)
+        cache_namespace = kwargs.get("cache_namespace")
+        assert cache_namespace is None or isinstance(cache_namespace, str)
+        connector_metadata = get_registry().get_metadata(_CONNECTOR_ID)
+        with ConnectorCacheStore(
+            store, PolicyRegistry(), namespace=cache_namespace or "connector_cache"
+        ) as cache:
+            data_ref = cache.put(
+                fetch_request,
+                result,
+                connector_id=_CONNECTOR_ID,
+                source_config=source_config,
+                classification=connector_metadata.data_classification,
+                column_classification=connector_metadata.column_classification,
+            ).payload_ref
+        manifest_hash = _manifest_fingerprint(_normalize_connector_manifest(manifest))
+        activity = {
+            "connector_id": _CONNECTOR_ID,
+            "dataset_id": _INDICATOR_ID,
+            "fetch_status": "complete",
+            "fetched_at": result.fetched_at.isoformat(),
+            "cache_key": fetch_request.cache_key,
+            "row_count": result.row_count,
+            "completeness": _canon_scalar(result.completeness),
+            "schema_id": result.schema_id,
+            "schema_version": result.schema_version,
+            "version_strategy": result.version.strategy.value,
+            "version_value": result.version.value,
+            "content_hash": result.version.content_hash,
+            "source_updated_at": (
+                result.source_updated_at.isoformat() if result.source_updated_at else None
             ),
+            "fetch_duration_ms": _canon_scalar(result.fetch_duration_ms),
+            "quality_flags": sorted(str(flag) for flag in result.quality_flags),
+            "data_artifact_id": data_ref.artifact_id.hex,
+            "quarantined_records_count": 0,
+        }
+        provenance_graph = _build_connector_provenance_graph(
+            datasets=[activity],
+            source=str(kwargs["source"]),
+            license_name=str(kwargs["license_name"]),
+            started_at=started_at,
+            ended_at=datetime.now(UTC),
+            manifest_hash=manifest_hash,
+        )
+        provenance_ref = persist_provenance_graph(
+            store,
+            provenance_graph,
+            inputs=[input_ref_from_artifact_ref(data_ref, role="fabric.ingestion.payload")],
             return_selected_profile=True,
         )
         evidence_ref = persist_evidence_bundle(
             store,
             build_evidence_bundle(
                 sources=[data_ref],
-                notes=["network-free orchestrated WDI test"],
+                notes=[
+                    "connector_ingestion: 1 dataset(s) fetched",
+                    f"manifest_hash: {manifest_hash}",
+                    f"{_CONNECTOR_ID}:{_INDICATOR_ID} rows={result.row_count} "
+                    f"version={result.version.strategy.value}:{result.version.value}",
+                ],
+                provenance_ref=provenance_ref,
             ),
             return_selected_profile=True,
         )

@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+from pathlib import Path
 from typing import Any, cast, get_args
 
 import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
+from polisyos.foundry.methods.catalog.simulation.coupled import CoupledPolicySimulationEstimator
 from polisyos.runtime.quality.generation_cycle import _joint_simulation_port_outcome
 from polisyos.runtime.quality.joint_simulation_horizon import (
     EngineDecision,
@@ -16,6 +19,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     HorizonSpec,
     JointSimulationControllerError,
     JointSimulationHorizonController,
+    JointSimulationRequest,
     JointSimulationResult,
     SimulationTrajectory,
     TemporalCapability,
@@ -60,6 +64,39 @@ def _coupled_plan() -> EnginePlan:
 def _single_step_request():
     """Use one point when exercising the static NCM path."""
     return _request().model_copy(update={"horizon": HorizonSpec(start=0, end=0, step=1)})
+
+
+def _coupled_request(
+    *plans: EnginePlan,
+    policy_domain: str = "unemployment_claims_benefit",
+) -> JointSimulationRequest:
+    """Exercise the native queue engine on one transition and the same atom scope."""
+
+    return _request(policy_domain=policy_domain).model_copy(
+        update={
+            "horizon": HorizonSpec(start=0, end=1, step=1),
+            "coupling_graph": _coupling_graph("shared_resource"),
+            "selected_outcomes": ("final_queue_length",),
+            "baseline_state": {"final_queue_length": 0.0},
+            "engine_plan": plans or (_coupled_plan(),),
+        }
+    )
+
+
+def _record_native_coupled_calls(
+    monkeypatch: pytest.MonkeyPatch,
+) -> list[dict[str, Any]]:
+    """Count actual method calls without replacing the numerical producer."""
+
+    original = CoupledPolicySimulationEstimator.pure_step
+    calls: list[dict[str, Any]] = []
+
+    def recording_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+        calls.append({"state": dict(state), "params": dict(params)})
+        return original(state, params)
+
+    monkeypatch.setattr(CoupledPolicySimulationEstimator, "pure_step", staticmethod(recording_step))
+    return calls
 
 
 def _trajectory(
@@ -143,6 +180,217 @@ def test_fallback_does_not_select_an_engine_without_the_required_coupling() -> N
     assert status == "simulation_blocked"
     assert _joint_simulation_is_unsupported(result) is True
     assert "n5_coupling_blocked" in blockers
+
+
+@pytest.mark.parametrize(
+    "bad_state",
+    [
+        {},
+        {"initial_income": [[1000.0, 600.0, 400.0]]},
+        {"initial_income": [1000.0, float("nan"), 400.0]},
+    ],
+    ids=("missing", "two-dimensional", "nonfinite"),
+)
+def test_coupled_required_input_rejection_precedes_real_second_plan_execution(
+    monkeypatch: pytest.MonkeyPatch,
+    bad_state: dict[str, Any],
+) -> None:
+    """TEST-SIM-01-01: invalid input is local to its plan and spends no physical work."""
+
+    supported = _coupled_plan()
+    rejected = supported.model_copy(
+        update={
+            "objective_ref": "objective://invalid-coupled-input",
+            "coupled_state": bad_state,
+        }
+    )
+    request = _coupled_request(rejected, supported)
+    calls = _record_native_coupled_calls(monkeypatch)
+
+    result = JointSimulationHorizonController().run(request)
+
+    assert [row.decision for row in result.engine_decisions] == ["unsupported", "selected"]
+    first, selected = result.engine_decisions
+    assert first.objective_ref == rejected.objective_ref
+    assert first.reason != "engine_eligibility_satisfied"
+    assert any("initial_income" in blocker for blocker in first.blockers)
+    assert selected.objective_ref == supported.objective_ref
+    assert selected.engine_kind == "coupled_des_abm"
+    assert len(calls) == len(result.physical_work_observations) == 3
+    assert all(call["state"] == supported.coupled_state for call in calls)
+    assert all(work.status == "completed" for work in result.physical_work_observations)
+    assert result.diagnostics["physical_work_units"] == 3
+    assert {row.objective_ref for row in result.trajectories} == {supported.objective_ref}
+    joint = result.trajectory_for("joint", result.atom_ids)
+    # Three active unemployed agents each emit one arrival; service cannot
+    # finish at the first arrival instant. This oracle is independent of N5.
+    assert [point.outcomes["final_queue_length"] for point in joint.points] == [0.0, 3.0]
+    assert joint.points[-1].effect == {"final_queue_length": 3.0}
+    status, blockers = _joint_simulation_port_outcome(result, request=request)
+    assert status == "joint_simulated"
+    assert "selected_plan_execution_binding_missing" not in blockers
+
+
+def test_all_coupled_required_inputs_bad_preserve_history_without_runner_lookup(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """TEST-SIM-01-01: no viable required vector means typed no-run, not a failed run."""
+
+    first = _coupled_plan().model_copy(update={"coupled_state": {}})
+    second = first.model_copy(
+        update={
+            "objective_ref": "objective://second-invalid-coupled-input",
+            "coupled_state": {"initial_income": [[1.0]]},
+        }
+    )
+    controller = JointSimulationHorizonController()
+    runner_lookups: list[None] = []
+
+    def runner_map() -> dict[str, object]:
+        runner_lookups.append(None)
+        raise AssertionError("all-invalid preflight reached an execution boundary")
+
+    monkeypatch.setattr(controller, "_engine_runners", runner_map)
+
+    result = controller.run(_coupled_request(first, second))
+
+    assert [row.objective_ref for row in result.engine_decisions] == [
+        first.objective_ref,
+        second.objective_ref,
+    ]
+    assert [row.decision for row in result.engine_decisions] == ["unsupported", "unsupported"]
+    assert all(
+        any("initial_income" in blocker for blocker in row.blockers)
+        for row in result.engine_decisions
+    )
+    assert result.receipt.calibration_status == "no_run"
+    assert result.receipt.trajectory_count == 0
+    assert result.trajectories == ()
+    assert result.physical_work_observations == ()
+    assert result.diagnostics["engine_run_claimed"] is False
+    assert result.diagnostics["physical_work_units"] == 0
+    assert runner_lookups == []
+    status, _ = _joint_simulation_port_outcome(result)
+    assert status == "simulation_blocked"
+
+
+def test_coupled_optional_defaults_preserve_real_native_result(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """TEST-SIM-01-01: signature presence cannot turn legal optional defaults into gates."""
+
+    defaulted = _coupled_plan().model_copy(
+        update={"coupled_state": {"initial_income": [1000.0, 600.0, 400.0]}}
+    )
+    explicit = defaulted.model_copy(
+        update={
+            "coupled_state": {
+                **defaulted.coupled_state,
+                "initial_savings": [0.0, 0.0, 0.0],
+                "is_employed": [0.0, 0.0, 0.0],
+                "risk_aversion": [0.5, 0.5, 0.5],
+            }
+        }
+    )
+    calls = _record_native_coupled_calls(monkeypatch)
+    controller = JointSimulationHorizonController()
+
+    default_result = controller.run(_coupled_request(defaulted))
+    explicit_result = controller.run(_coupled_request(explicit))
+
+    assert len(calls) == 6
+    assert default_result.engine_decisions[0].decision == "selected"
+    assert explicit_result.engine_decisions[0].decision == "selected"
+    assert [row["state"] for row in calls[:3]] == [defaulted.coupled_state] * 3
+    assert [row["state"] for row in calls[3:]] == [explicit.coupled_state] * 3
+    for left, right in zip(default_result.trajectories, explicit_result.trajectories, strict=True):
+        assert (left.run_level, left.atom_ids) == (right.run_level, right.atom_ids)
+        assert [(point.outcomes, point.effect) for point in left.points] == [
+            (point.outcomes, point.effect) for point in right.points
+        ]
+    joint = default_result.trajectory_for("joint", default_result.atom_ids)
+    assert joint.points[-1].outcomes == {"final_queue_length": 3.0}
+
+
+def test_coupled_alternatives_cannot_bypass_wrong_domain(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """TEST-SIM-01-01: valid vectors do not override the shared domain admission boundary."""
+
+    first = _coupled_plan()
+    second = first.model_copy(update={"objective_ref": "objective://foreign-domain-alternative"})
+    calls = _record_native_coupled_calls(monkeypatch)
+
+    result = JointSimulationHorizonController().run(
+        _coupled_request(first, second, policy_domain="housing_zoning")
+    )
+
+    assert [row.decision for row in result.engine_decisions] == ["unsupported", "unsupported"]
+    assert [row.reason for row in result.engine_decisions] == [
+        "engine_eligibility_failed",
+        "engine_eligibility_failed",
+    ]
+    assert all(row.blockers == ("policy_domain_mismatch",) for row in result.engine_decisions)
+    assert result.trajectories == ()
+    assert result.physical_work_observations == ()
+    assert calls == []
+
+
+def test_coupled_alternatives_cannot_bypass_global_budget_exhaustion(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """TEST-SIM-01-01: a rejected first plan cannot restart a shared exhausted budget."""
+
+    from polisyos.scientist.orchestration.engine.producer_budget import ProducerBudgetObserver
+    from tests.unit.runtime.quality.test_c49_native_stopping_budget import _producer_owner
+
+    store, binding, state = _producer_owner(tmp_path, cap="0")
+    observer = ProducerBudgetObserver(
+        settlement_store=store, producer_run_binding=binding, budget_state=state
+    )
+    supported = _coupled_plan()
+    rejected = supported.model_copy(
+        update={"objective_ref": "objective://budget-first-invalid", "coupled_state": {}}
+    )
+    calls = _record_native_coupled_calls(monkeypatch)
+
+    result = JointSimulationHorizonController(producer_budget_observer=observer).run(
+        _coupled_request(rejected, supported)
+    )
+
+    assert [row.decision for row in result.engine_decisions] == ["unsupported", "selected"]
+    assert result.engine_decisions[1].objective_ref == supported.objective_ref
+    assert result.diagnostics["physical_work_interruption"] == "n5_current_budget_exhausted"
+    assert result.diagnostics["budget_interruption_basis"]["status"] == "configured_limit_only"
+    assert result.trajectories == ()
+    assert result.physical_work_observations == ()
+    assert calls == []
+    assert observer.last_checked is None
+
+
+def test_coupled_alternatives_do_not_retry_after_access_denial(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """TEST-SIM-01-01: access denial propagates rather than being a per-plan fallback."""
+
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+
+    first = _coupled_plan()
+    second = first.model_copy(update={"objective_ref": "objective://after-access-denial"})
+    calls: list[None] = []
+    denied = ArtifactOwnershipError("controlled selected-backend access denial")
+
+    def access_denied(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+        del state, params
+        calls.append(None)
+        raise denied
+
+    monkeypatch.setattr(CoupledPolicySimulationEstimator, "pure_step", staticmethod(access_denied))
+    with pytest.raises(ArtifactOwnershipError) as caught:
+        JointSimulationHorizonController().run(_coupled_request(first, second))
+    assert caught.value is denied
+    assert calls == [None]
 
 
 @pytest.mark.parametrize("engine_kind", get_args(EngineKind))
@@ -636,6 +884,155 @@ def test_fresh_selected_cas_refuses_foreign_physical_ref_with_valid_receipt(tmp_
         GenerationCycleError, match="joint_simulation_result_execution_binding_invalid"
     ):
         load_joint_simulation_result(ref, store=store, expected_request=request)
+
+
+def test_native_coupled_fallback_cas_rechecks_full_selected_request_and_manifest(
+    tmp_path: Path,
+) -> None:
+    """TEST-SIM-01-03: actual fallback numbers and history survive only their selected binding."""
+
+    from polisyos.core.artifacts.manifest import WarningRecord
+    from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleError,
+        load_joint_simulation_result,
+        persist_joint_simulation_result,
+    )
+    from polisyos.runtime.quality.world_model_record import world_model_record_content_hash
+
+    supported = _coupled_plan()
+    rejected = supported.model_copy(
+        update={"objective_ref": "objective://cas-first-invalid", "coupled_state": {}}
+    )
+    request = _coupled_request(rejected, supported)
+    result = JointSimulationHorizonController().run(request)
+    assert [row.decision for row in result.engine_decisions] == ["unsupported", "selected"]
+    joint = result.trajectory_for("joint", result.atom_ids)
+    assert joint.points[-1].outcomes == {"final_queue_length": 3.0}
+    cas_path = tmp_path / "native-coupled-fallback-cas"
+    writer = FileSystemCAS(cas_path)
+    result_ref = persist_joint_simulation_result(result, store=writer)
+    forged = _reissue_result_with_trajectory_ref(result, "sha256:" + "f" * 64)
+    forged_ref = persist_joint_simulation_result(forged, store=writer)
+    assert result_ref.manifest_profile_sha256 is not None
+    assert forged_ref.manifest_profile_sha256 is not None
+    assert forged_ref.artifact_id != result_ref.artifact_id
+    # Profiles describe the write contract, not the blob's content identity.
+    # Persist a genuinely different view on the foreign blob before trying
+    # its profile selector against the original content ID.
+    forged_manifest = writer.get_manifest(forged_ref)
+    foreign_manifest_ref = writer.put_bytes(
+        writer.get_bytes(forged_ref),
+        PutOptions(
+            kind=forged_ref.kind,
+            media_type=forged_ref.media_type,
+            schema=forged_manifest.artifact_schema,
+            canon=forged_manifest.canon,
+            warnings=[WarningRecord(code="foreign_view_fixture", msg="Adversarial selected view")],
+        ),
+        return_selected_profile=True,
+    )
+    assert foreign_manifest_ref.artifact_id == forged_ref.artifact_id
+    assert foreign_manifest_ref.manifest_profile_sha256 is not None
+    assert foreign_manifest_ref.manifest_profile_sha256 != result_ref.manifest_profile_sha256
+    fresh_store = FileSystemCAS.open_existing_read_only(cas_path)
+
+    fresh = load_joint_simulation_result(
+        result_ref,
+        store=fresh_store,
+        expected_request=request,
+        expected_world_model_record_content_hash=request.world_model_record.content_hash,
+        expected_atom_ids=result.atom_ids,
+        expected_selected_outcomes=request.selected_outcomes,
+        expected_receipt_payload_hash=result.receipt.payload_hash,
+    )
+
+    assert fresh.engine_decisions == result.engine_decisions
+    assert [row.model_dump(mode="json") for row in fresh.trajectories] == [
+        row.model_dump(mode="json") for row in result.trajectories
+    ]
+    assert fresh.physical_work_observations == result.physical_work_observations
+    assert fresh.trajectory_for("joint", fresh.atom_ids).points[-1].outcomes == {
+        "final_queue_length": 3.0
+    }
+    assert _joint_simulation_port_outcome(fresh, request=request)[0] == "joint_simulated"
+    status, historical_blockers = _joint_simulation_port_outcome(fresh)
+    assert status == "joint_simulated"
+    assert "n5_execution_request_provenance_not_established" in historical_blockers
+    assert "simulation_only_k_sim_not_world_evidence" in historical_blockers
+
+    changed_plan = supported.model_copy(
+        update={"coupled_params": {**supported.coupled_params, "capacity": 1.0}}
+    )
+    changed_atom = _atom(
+        intervention_id=request.intervention_atoms[0].intervention_id,
+        causal_variable="agents.income",
+        engine_variable="income_delta",
+        value=2.0,
+        world_model_record_ref=request.world_model_record_ref,
+    )
+    changed_world = request.world_model_record.model_copy(
+        update={
+            "simulation_model_ref": request.world_model_record.simulation_model_ref.model_copy(
+                update={"model_id": "another-coupled-world-model"}
+            )
+        }
+    )
+    changed_world_hash = world_model_record_content_hash(changed_world)
+    changed_world = type(changed_world).model_validate(
+        {
+            **changed_world.model_dump(mode="python"),
+            "world_model_record_id": (
+                f"world_model_record_{changed_world_hash.removeprefix('sha256:')[:16]}"
+            ),
+            "content_hash": changed_world_hash,
+        }
+    )
+    changed_requests = {
+        "seed": request.model_copy(update={"seed": request.seed + 1}),
+        "same-triple-plan": request.model_copy(update={"engine_plan": (rejected, changed_plan)}),
+        "same-id-atom": request.model_copy(
+            update={"intervention_atoms": (changed_atom, *request.intervention_atoms[1:])}
+        ),
+        "model": request.model_copy(
+            update={
+                "world_model_record_ref": changed_world.world_model_record_id,
+                "world_model_record": changed_world,
+                "intervention_atoms": _request(record=changed_world).intervention_atoms,
+            }
+        ),
+        "outcome": request.model_copy(update={"selected_outcomes": ("completed_count",)}),
+        "horizon": request.model_copy(update={"horizon": HorizonSpec(start=0, end=2, step=1)}),
+    }
+    assert changed_plan.objective_ref == supported.objective_ref
+    assert changed_plan.engine_kind == supported.engine_kind
+    assert changed_atom.intervention_id == request.intervention_atoms[0].intervention_id
+    for binding, changed_request in changed_requests.items():
+        status, blockers = _joint_simulation_port_outcome(fresh, request=changed_request)
+        assert status == "simulation_blocked", binding
+        assert "selected_plan_execution_binding_missing" in blockers, binding
+        with pytest.raises(
+            GenerationCycleError, match="joint_simulation_result_execution_binding_invalid"
+        ):
+            load_joint_simulation_result(
+                result_ref, store=fresh_store, expected_request=changed_request
+            )
+
+    # The foreign profile exists in this store, and its bytes/receipt are
+    # consistent. Neither that profile nor its foreign work spec authorizes
+    # this result's selected request.
+    assert fresh_store.get_bytes(foreign_manifest_ref) == fresh_store.get_bytes(forged_ref)
+    foreign_profile_ref = result_ref.model_copy(
+        update={"manifest_profile_sha256": foreign_manifest_ref.manifest_profile_sha256}
+    )
+    with pytest.raises(GenerationCycleError, match="joint_simulation_result_unavailable"):
+        load_joint_simulation_result(
+            foreign_profile_ref, store=fresh_store, expected_request=request
+        )
+    with pytest.raises(
+        GenerationCycleError, match="joint_simulation_result_execution_binding_invalid"
+    ):
+        load_joint_simulation_result(forged_ref, store=fresh_store, expected_request=request)
 
 
 def test_n8_refuses_other_atom_when_candidate_has_only_canonical_atom(tmp_path: Any) -> None:

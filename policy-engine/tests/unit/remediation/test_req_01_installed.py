@@ -151,10 +151,16 @@ def test_installed_wheel_keeps_active_compiler_and_retires_legacy_helpers(
     )
     record_property("req01_installed_wheel_probe_cwd", str(outside_checkout))
     assert result.returncode == 0, result.stdout + "\n" + result.stderr
+    summary_lines = [
+        line for line in result.stdout.splitlines() if line.startswith("REQ01_INSTALLED_PROBE=")
+    ]
+    assert len(summary_lines) == 1, result.stdout + "\n" + result.stderr
+    record_property("req01_installed_wheel_probe_summary", summary_lines[0].partition("=")[2])
 
 
 _INSTALLED_WHEEL_PROBE = r"""
 import importlib
+import hashlib
 import json
 import os
 import sys
@@ -166,6 +172,7 @@ from polisyos.data_requirement import (
     write_data_requirement_compilation_report,
 )
 from polisyos.core.contracts.capability_resolution import RequirementToCapabilityQuery
+from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
 
 site_packages = Path(os.environ["REQ01_INSTALLED_SITE"]).resolve()
 product_root = Path(os.environ["REQ01_PRODUCT_ROOT"]).resolve()
@@ -174,7 +181,34 @@ assert Path(importlib.import_module("polisyos").__file__).resolve().parent == pa
 
 compiler_module_name = "polisyos.data_requirement.compiler"
 compiler_module = importlib.import_module(compiler_module_name)
-assert compiler_module.DataRequirementCompiler is FacadeCompiler
+package_facade = importlib.import_module("polisyos.data_requirement")
+model_module = importlib.import_module("polisyos.data_requirement._impl.models")
+for export_name in (
+    "DataRequirementCompiler",
+    "ScenarioDomainInputError",
+    "compile_data_requirements_for_scenario",
+    "compiled_requirements_for_world_slot",
+    "parse_data_requirement_compilation_report",
+    "data_requirement_compilation_audit_surface",
+    "write_data_requirement_compilation_report",
+):
+    assert getattr(package_facade, export_name) is getattr(compiler_module, export_name), (
+        export_name,
+        "public facade must preserve the canonical compiler/helper identity",
+    )
+for export_name in (
+    "CapabilityBindingSnapshot",
+    "CapabilityRequirementResolution",
+    "DataRequirementBasisResolution",
+    "DataRequirementCompilationReport",
+    "DataRequirementCompilationReportV1",
+    "DataRequirementSpec",
+):
+    assert getattr(package_facade, export_name) is getattr(model_module, export_name), (
+        export_name,
+        "public DTO facade must preserve the canonical model identity",
+    )
+assert FacadeCompiler is compiler_module.DataRequirementCompiler
 
 retired_names = (
     "_data_families_from_obligation_graph",
@@ -194,7 +228,6 @@ family_rows = ({
 assert compiler_module.construct_for_legacy_family("Employment Panel", rows=family_rows) == (
     "employment_status"
 )
-package_facade = importlib.import_module("polisyos.data_requirement")
 for retired_name in retired_names:
     assert retired_name not in compiler_module.__all__
     assert retired_name not in package_facade.__all__
@@ -276,6 +309,7 @@ report = compiler.compile_for_claim_ledger(
     authority_profile_refs=("authority_profile:req-01-test",),
 )
 
+assert type(report) is package_facade.DataRequirementCompilationReport
 assert len(resolver.queries) == 1
 query = resolver.queries[0]
 assert query.construct == "employment_status"
@@ -286,6 +320,7 @@ assert report.metadata["capability_index_refs"] == (
 )
 assert len(report.specs) == 1
 spec = report.specs[0]
+assert type(spec) is package_facade.DataRequirementSpec
 assert spec.claim_id == "claim:req-01-employment"
 assert spec.required_data_families == ("employment_panel",)
 assert spec.metadata["construct_ref"] == "employment_status"
@@ -295,13 +330,98 @@ persisted_path = write_data_requirement_compilation_report(
     report,
     Path(os.environ["REQ01_REPORT_DIR"]),
 )
-persisted = json.loads(persisted_path.read_text(encoding="utf-8"))
+persisted_bytes = persisted_path.read_bytes()
+persisted = json.loads(persisted_bytes)
 assert persisted["schema_version"] == "policyos.data_requirement_compilation.v2"
 assert persisted["specs"][0]["required_data_families"] == ["employment_panel"]
 assert persisted["specs"][0]["metadata"]["construct_ref"] == "employment_status"
 assert persisted["metadata"]["capability_index_refs"] == [
     "capability-index://req-01-installed-wheel"
 ]
+parsed_report = package_facade.parse_data_requirement_compilation_report(persisted_bytes)
+assert type(parsed_report) is package_facade.DataRequirementCompilationReport
+assert parsed_report.model_dump(mode="json") == report.model_dump(mode="json")
+audit_surface = package_facade.data_requirement_compilation_audit_surface(persisted_bytes)
+assert audit_surface["surface"] == "data_requirement.audit_surface"
+assert audit_surface["summary"]["requirement_count"] == 1
+assert audit_surface["summary"]["required_data_families"] == ["employment_panel"]
+
+# Run the installed public scenario helper with the exact declared domain
+# spelling. The lexical text deliberately mentions fiscal policy so a topic
+# guess cannot masquerade as honoring the declared domain.
+education_report = package_facade.compile_data_requirements_for_scenario(
+    {
+        "scenario_id": "req-01-installed-education-alias",
+        "request": "Evaluate a fiscal intervention for education policy.",
+        "domain": "Education Policy",
+    }
+)
+assert type(education_report) is package_facade.DataRequirementCompilationReport
+education_domain = education_report.metadata["scenario_domain_resolution"]
+assert education_domain["raw_inputs"] == {"domain": "Education Policy"}
+assert education_domain["canonical_domain"] == "education"
+assert education_domain["canonical_domain"] != "fiscal"
+assert education_domain["status"] == "resolved"
+assert education_domain["rule_version_ref"] in education_report.rule_version_refs
+education_path = package_facade.write_data_requirement_compilation_report(
+    education_report,
+    Path(os.environ["REQ01_REPORT_DIR"]) / "education-alias",
+)
+education_bytes = education_path.read_bytes()
+parsed_education = package_facade.parse_data_requirement_compilation_report(education_bytes)
+assert type(parsed_education) is package_facade.DataRequirementCompilationReport
+assert parsed_education.metadata["scenario_domain_resolution"] == education_domain
+education_surface = package_facade.data_requirement_compilation_audit_surface(education_bytes)
+assert education_surface["metadata"]["scenario_domain_resolution"] == education_domain
+
+# Exercise the canonical world-slot helper on a real governed candidate
+# discovery. Its source rows are a repository fixture; discovery stays
+# candidate-only and does not claim source admission or empirical authority.
+governed_resolver = RequirementToCapabilityResolver.governed_fixture(repo_root=product_root)
+governed_rows_path = (
+    product_root / "architecture/policy_design_case/layer2_s3_governed_capability_rows.json"
+)
+governed_rows = json.loads(governed_rows_path.read_text(encoding="utf-8"))
+world_slot_report = FacadeCompiler(
+    capability_resolver=governed_resolver,
+    require_capability_index=True,
+    scenario_family_construct_rows=governed_rows["scenario_family_construct_rows"],
+).compile_for_scenario(
+    {
+        "scenario_id": "req-01-installed-world-slot",
+        "text": "Evaluate annual nominal GDP for the national economy.",
+        "domain": "fiscal",
+        "scope_profile": {
+            "profile_id": "scope:req-01-installed-gdp-usa-2024:v1",
+            "jurisdiction": "USA",
+            "population": "national_economy",
+            "entity_scope": "country",
+            "time_window": {"start": "2024-01-01", "end": "2024-12-31"},
+            "time_role": "observation_time",
+            "granularity": "annual",
+            "required_constructs": ["economic.gdp"],
+        },
+        "expected_evidence_contract": {"admissible_data_source_families": ["global.gdp"]},
+    }
+)
+assert type(world_slot_report) is package_facade.DataRequirementCompilationReport
+assert [item.required_data_families for item in world_slot_report.specs] == [
+    ("wdi_nominal_gdp_annual",)
+]
+world_slot_matches = package_facade.compiled_requirements_for_world_slot(
+    world_slot="global.gdp",
+    specs=world_slot_report.specs,
+    capability_resolutions=world_slot_report.capability_requirement_resolutions,
+)
+assert len(world_slot_matches) == 1
+assert world_slot_matches[0] is world_slot_report.specs[0]
+assert world_slot_matches[0].metadata["construct_ref"] == "construct:economic.gdp"
+(world_slot_resolution,) = world_slot_report.capability_requirement_resolutions
+assert type(world_slot_resolution) is package_facade.CapabilityRequirementResolution
+assert world_slot_resolution.candidate_discovery is not None
+assert world_slot_resolution.candidate_discovery.satisfies_claim_evidence is False
+assert world_slot_resolution.candidate_discovery.requires_native_source_admission is True
+assert governed_resolver.resolve(world_slot_resolution.query).satisfies_claim_evidence is False
 
 unknown_resolver = RecordingResolver("capability-index://req-01-negative")
 unknown_report = FacadeCompiler(
@@ -335,4 +455,24 @@ for entry in sys.path:
     assert not resolved.is_relative_to(product_root / "src"), entry
     assert not resolved.is_relative_to(product_root / "tests"), entry
     assert not resolved.is_relative_to(product_root / "architecture"), entry
+
+print(
+    "REQ01_INSTALLED_PROBE="
+    + json.dumps(
+        {
+            "education_domain": education_domain["canonical_domain"],
+            "education_rule_version": education_domain["rule_version_ref"],
+            "helper_world_slot": "global.gdp",
+            "helper_requirement_ids": [item.requirement_id for item in world_slot_matches],
+            "candidate_discovery_satisfies_claim_evidence": (
+                world_slot_resolution.candidate_discovery.satisfies_claim_evidence
+            ),
+            "report_schema": parsed_report.schema_version,
+            "report_sha256": hashlib.sha256(persisted_bytes).hexdigest(),
+            "wheel_package_root": str(package_root),
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+)
 """

@@ -23,6 +23,10 @@ __all__ = [
     "IDEMPOTENCY_CONTRACT_VERSION",
     "AsyncWorkflowExecutor",
     "BudgetExhaustedError",
+    "BudgetInvocationQuotaPolicy",
+    "BudgetLedgerInvocationProfile",
+    "BudgetLedgerReentryBudgetScope",
+    "BudgetLedgerReentryBudgetWindow",
     "BudgetLedger",
     "BudgetLedgerMutation",
     "BudgetLedgerCacheReuseAdmission",
@@ -125,6 +129,22 @@ __all__ = [
 ]
 
 _EXPORTS = {
+    "BudgetLedgerReentryBudgetScope": (
+        "polisyos.scientist.orchestration.engine.budget_ledger",
+        "BudgetLedgerReentryBudgetScope",
+    ),
+    "BudgetLedgerReentryBudgetWindow": (
+        "polisyos.scientist.orchestration.engine.budget_ledger",
+        "BudgetLedgerReentryBudgetWindow",
+    ),
+    "BudgetInvocationQuotaPolicy": (
+        "polisyos.scientist.orchestration.engine.budget_ledger",
+        "BudgetInvocationQuotaPolicy",
+    ),
+    "BudgetLedgerInvocationProfile": (
+        "polisyos.scientist.orchestration.engine.budget_ledger",
+        "BudgetLedgerInvocationProfile",
+    ),
     "NodeInputRule": (
         "polisyos.scientist.orchestration.engine.protocol",
         "NodeInputRule",

@@ -311,7 +311,7 @@ def test_existing_only_upgrades_legacy_only_when_original_identity_is_persisted(
         )
         assert continued.settlement_owner_identity == expected
         assert continued.budget_state.spent["run"] == Decimal("2")
-        assert json.loads(path.read_bytes())["schema_version"] == "1.6"
+        assert json.loads(path.read_bytes())["schema_version"] == "1.8"
 
 
 @pytest.mark.parametrize(
@@ -647,7 +647,7 @@ def test_complete_legacy_wire_upgrades_but_sparse_legacy_never_defaults(tmp_path
     assert _child(path, "load")["status"] == "accepted"
     assert path.read_bytes() == before
     assert _child(path, "settle")["receipt"]["revision"] == 1
-    assert json.loads(path.read_bytes())["schema_version"] == "1.6"
+    assert json.loads(path.read_bytes())["schema_version"] == "1.8"
     for missing in ("limits", "spent", "provider_spent", "reserved"):
         damaged = copy.deepcopy(old)
         del damaged["state"][missing]

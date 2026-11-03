@@ -9203,12 +9203,37 @@
           "named_inputs": 16,
           "governed_rows_sha256": "bd3e6363bfe9cc0b7fe861df7ea09de3b121b3d12b4bd1530751856bde65668f",
           "scope": "affected candidate/digest/fallback selectors, no automatic whole228 rebind"
+        },
+        "reentry_budget_owner": {
+          "output": "policy-engine/_cache/e02/lane01-reentry/owner-r3",
+          "observed": {
+            "PASS": 15,
+            "FAIL": 0
+          },
+          "seconds": 17.68,
+          "peak_gib": 1.22,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 7,
+          "scope": "Owner component, not actual served action/recovery qualification. "
+        },
+        "budget_ledger_llm_affected": {
+          "output": "policy-engine/_cache/e02/lane01-reentry/affected-r1",
+          "observed": {
+            "PASS": 393,
+            "FAIL": 0
+          },
+          "seconds": 63.7,
+          "peak_gib": 1.5,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 17,
+          "scope": "Owner component, not actual served action/recovery qualification. Five tests importing active Cycle/design sources explicitly excluded; Cycle will repeat them after its freeze."
         }
       },
       "independent_component_reviews": {
         "selection": "lane01_inputs_review GO on source/outputs; shared N8 consumer separate",
         "numerics": "lane01_sim_review GO on 89-case outputs/current13inputs and actual quantile removal; Runtime separate",
-        "requirements": "lane01_inputs_review GO on actual228 and final9 outputs/current code/descriptor; source→N5 and installed remain separate"
+        "requirements": "lane01_inputs_review GO on actual228 and final9 outputs/current code/descriptor; source→N5 and installed remain separate",
+        "budget": "Independent owner review GO; 15 window/393 ledger-LLM and separate 13 native N5 quota PASS on named frozen inputs. Five Cycle-importing cases and actual served lifecycle remain pending."
       }
     },
     {

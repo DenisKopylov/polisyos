@@ -15,7 +15,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from decimal import Decimal
+from decimal import Decimal, Inexact, localcontext
 from pathlib import Path
 from typing import Any, Literal, Protocol
 
@@ -29,7 +29,7 @@ from polisyos.scientist.orchestration.engine.budget import BudgetState
 
 _CANONICAL_LEDGER_CONTRACT = "scientist.multi_host_budget_ledger.v1"
 _COORDINATION_MODE = "shared_posix_file_lock"
-_SNAPSHOT_VERSION = "1.6"
+_SNAPSHOT_VERSION = "1.8"
 _ENGINE_EVENT_PREFIX = "scientist.engine-invocation:"
 _LEDGER_THREAD_GATES = tuple(threading.RLock() for _ in range(64))
 
@@ -42,6 +42,12 @@ __all__ = [
     "BudgetLedgerMutationResult",
     "BudgetLedgerSnapshot",
     "BudgetLedgerComputeReservation",
+    "BudgetInvocationQuotaPolicy",
+    "BudgetLedgerInvocationProfile",
+    "BudgetLedgerInvocationReservation",
+    "BudgetLedgerInvocationQuotaExhaustedError",
+    "BudgetLedgerReentryBudgetScope",
+    "BudgetLedgerReentryBudgetWindow",
     "BudgetLedgerWriter",
     "BudgetLedgerSpendReceipt",
     "BudgetLedgerProducerRecord",
@@ -80,6 +86,11 @@ class BudgetLedgerMutation(BaseModel):
         "reserve_compute",
         "settle_compute",
         "mark_compute_unknown",
+        "configure_invocation_quota",
+        "select_unconfigured_invocation_quota",
+        "open_reentry_budget_window",
+        "reserve_invocation",
+        "finish_invocation",
     ]
     key: str | None = None
     amount: Decimal | None = None
@@ -408,6 +419,10 @@ class BudgetLedgerSettlementOutcomeUnknownError(RuntimeError):
         )
 
 
+class BudgetLedgerInvocationQuotaExhaustedError(ValueError):
+    """The selected physical-invocation allocation has no unit for this purpose."""
+
+
 class BudgetLedgerComputeReservation(BaseModel):
     """One durable, identified compute reservation and its eventual actual charge."""
 
@@ -439,6 +454,140 @@ class BudgetLedgerComputeReservation(BaseModel):
         return self
 
 
+class BudgetInvocationQuotaPolicy(BaseModel):
+    """Owner-selected finite allocation of physical N5 invocation units.
+
+    The protected portion is shared by diagnostic and counterevidence work.
+    It is a count of physical calls, not a USD price or a calibration claim.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["scientist.n5_invocation_quota.v1"] = "scientist.n5_invocation_quota.v1"
+    allocation_id: str = Field(min_length=1, max_length=160)
+    total_units: int = Field(ge=0, strict=True)
+    protected_units: int = Field(ge=0, strict=True)
+    work_unit: Literal["n5_physical_invocation"] = "n5_physical_invocation"
+    price_origin: Literal["unknown"] = "unknown"
+
+    @model_validator(mode="after")
+    def _validate_allocation(self) -> BudgetInvocationQuotaPolicy:
+        if self.allocation_id != self.allocation_id.strip():
+            raise ValueError("invocation_quota_allocation_id_invalid")
+        if self.protected_units > self.total_units:
+            raise ValueError("invocation_quota_protected_exceeds_total")
+        return self
+
+
+class BudgetLedgerInvocationProfile(BudgetInvocationQuotaPolicy):
+    """A finite policy bound to the actual server-issued run owner."""
+
+    run_binding: BudgetLedgerProducerRunBinding
+
+    @classmethod
+    def from_policy(
+        cls, run_binding: BudgetLedgerProducerRunBinding, policy: BudgetInvocationQuotaPolicy
+    ) -> BudgetLedgerInvocationProfile:
+        """Bind an owner-selected policy to this actual run without inventing scope."""
+        if type(policy) is not BudgetInvocationQuotaPolicy:
+            raise TypeError("invocation_quota_policy_untyped")
+        if type(run_binding) is not BudgetLedgerProducerRunBinding:
+            raise TypeError("invocation_quota_run_binding_untyped")
+        return cls(**policy.model_dump(mode="python"), run_binding=run_binding)
+
+    @property
+    def profile_digest(self) -> str:
+        """Hash the complete versioned profile, including owner and unit basis."""
+        return content_hash(to_canonical_bytes(self.model_dump(mode="json")))
+
+
+class BudgetLedgerInvocationReservation(BaseModel):
+    """One admitted invocation, counted even if its outcome remains unknown."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    operation_id: str = Field(pattern=r"^[0-9a-f]{64}$")
+    request_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    run_id: str = Field(min_length=1)
+    profile_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    purpose: Literal["standard", "diagnostic", "counterevidence"]
+    units: int = Field(default=1, ge=1, le=1, strict=True)
+    status: Literal["reserved", "completed", "failed", "unknown"] = "reserved"
+    revision: int = Field(ge=1)
+
+
+class BudgetLedgerReentryBudgetScope(BaseModel):
+    """Owner-selected acquisition action that receives one fresh USD window."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    run_binding: BudgetLedgerProducerRunBinding
+    action_job_id: str = Field(min_length=1)
+    route_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    action_generation: int = Field(ge=1, strict=True)
+    action_phase_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_payload_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    profile_selection_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _validate_action_id(self) -> BudgetLedgerReentryBudgetScope:
+        if not self.action_job_id.strip() or self.action_job_id != self.action_job_id.strip():
+            raise ValueError("reentry_budget_action_job_invalid")
+        return self
+
+    @property
+    def window_id(self) -> str:
+        """Keep one identity across phase or attempt changes within this action."""
+        return content_hash(
+            to_canonical_bytes(
+                {
+                    "run_binding": self.run_binding.model_dump(mode="json"),
+                    "action_job_id": self.action_job_id,
+                    "route_id": self.route_id,
+                    "action_generation": self.action_generation,
+                }
+            )
+        )
+
+
+class BudgetLedgerReentryBudgetWindow(BaseModel):
+    """Immutable owner-observed starting point for a bounded reentry allocation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["scientist.reentry_budget_window.v1"] = (
+        "scientist.reentry_budget_window.v1"
+    )
+    scope: BudgetLedgerReentryBudgetScope
+    ledger_id: str = Field(min_length=1)
+    resource_identity: tuple[int, int, str, int, int]
+    fresh_limit_usd: Decimal = Field(gt=0, allow_inf_nan=False)
+    global_limit_usd: Decimal = Field(ge=0, allow_inf_nan=False)
+    baseline_total_usd: Decimal = Field(ge=0, allow_inf_nan=False)
+    baseline_revision: int = Field(ge=0)
+    baseline_prefix_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    revision: int = Field(ge=1)
+
+    @property
+    def window_id(self) -> str:
+        """Return the stable action identity, independent of retry attempt."""
+        return self.scope.window_id
+
+    @property
+    def record_digest(self) -> str:
+        """Identify the complete original owner-issued record for action custody."""
+        return content_hash(to_canonical_bytes(self.model_dump(mode="json")))
+
+    @property
+    def effective_limit_usd(self) -> Decimal:
+        """Bound the full-run total by both global and fresh-window limits."""
+        if self.global_limit_usd <= self.baseline_total_usd:
+            return self.global_limit_usd
+        return min(
+            self.global_limit_usd, _reentry_add(self.baseline_total_usd, self.fresh_limit_usd)
+        )
+
+
 class BudgetLedgerSnapshot(BaseModel):
     """Persisted budget ledger state."""
 
@@ -463,6 +612,96 @@ class BudgetLedgerSnapshot(BaseModel):
     compute_reservations: dict[str, BudgetLedgerComputeReservation] = Field(
         default_factory=dict, json_schema_extra={"introduced_in": "1.6"}
     )
+    invocation_profiles: dict[str, BudgetLedgerInvocationProfile] = Field(
+        default_factory=dict, json_schema_extra={"introduced_in": "1.7"}
+    )
+    invocation_unconfigured_runs: dict[str, BudgetLedgerProducerRunBinding] = Field(
+        default_factory=dict, json_schema_extra={"introduced_in": "1.7"}
+    )
+    invocation_reservations: dict[str, BudgetLedgerInvocationReservation] = Field(
+        default_factory=dict, json_schema_extra={"introduced_in": "1.7"}
+    )
+    reentry_budget_windows: dict[str, BudgetLedgerReentryBudgetWindow] = Field(
+        default_factory=dict, json_schema_extra={"introduced_in": "1.8"}
+    )
+
+
+def _reentry_add(left: Decimal, right: Decimal) -> Decimal:
+    """Refuse rather than silently round a USD admission calculation."""
+    try:
+        with localcontext() as context:
+            context.traps[Inexact] = True
+            return left + right
+    except ArithmeticError as exc:
+        raise ValueError("reentry_budget_arithmetic_not_established") from exc
+
+
+def _reentry_prefix(
+    snapshot: BudgetLedgerSnapshot,
+    binding: BudgetLedgerProducerRunBinding,
+    *,
+    cutoff: int | None,
+) -> tuple[Decimal, str]:
+    """Recompute one exact known-cost run prefix from the durable producer owner."""
+    key = f"nl-run:{binding.run_id}"
+    records = sorted(
+        (
+            record
+            for record in snapshot.producer_settlements.values()
+            if (record.key == key or record.run_binding == binding)
+            and (cutoff is None or record.revision <= cutoff)
+        ),
+        key=lambda record: record.event_id,
+    )
+    if not records:
+        raise ValueError("reentry_budget_producer_prefix_not_established")
+    total = Decimal(0)
+    for record in records:
+        if record.key != key or record.run_binding != binding:
+            raise ValueError("reentry_budget_producer_binding_mismatch")
+        if (
+            record.status != "committed"
+            or record.amount is None
+            or not record.amount.is_finite()
+            or record.amount < 0
+            or record.payload_digest is None
+            or record.cost_origin not in {"reported", "estimated", "reuse"}
+        ):
+            raise ValueError("reentry_budget_producer_outcome_not_established")
+        if record.cost_origin == "reuse":
+            record.validate_reuse_origin(
+                snapshot.producer_settlements.get(record.origin_event_id or "")
+            )
+        total = _reentry_add(total, record.amount)
+        if not total.is_finite():
+            raise ValueError("reentry_budget_producer_total_invalid")
+    digest = content_hash(
+        to_canonical_bytes([record.model_dump(mode="json") for record in records])
+    )
+    return total, digest
+
+
+def _same_reentry_action_basis(
+    first: BudgetLedgerReentryBudgetScope, current: BudgetLedgerReentryBudgetScope
+) -> bool:
+    """The action owner separately verifies phase ancestry across attempts."""
+    return (
+        first.window_id == current.window_id
+        and first.source_payload_ref == current.source_payload_ref
+        and first.profile_selection_ref == current.profile_selection_ref
+    )
+
+
+def _reentry_limit_identity(value: Decimal) -> str:
+    """Canonicalize a finite Decimal without context-dependent rounding."""
+    sign, digits, exponent = value.as_tuple()
+    significant = list(digits)
+    if not any(significant):
+        return "0"
+    while significant[-1] == 0:
+        significant.pop()
+        exponent += 1
+    return f"{sign}:{''.join(str(digit) for digit in significant)}:{exponent}"
 
 
 @dataclass
@@ -550,6 +789,8 @@ def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
         "1.3",
         "1.4",
         "1.5",
+        "1.6",
+        "1.7",
         _SNAPSHOT_VERSION,
     }:
         raise ValueError("budget ledger schema_version is missing or unsupported")
@@ -558,6 +799,14 @@ def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
         or value.get("coordination_mode") != _COORDINATION_MODE
     ):
         raise ValueError("budget ledger contract or coordination mode is unsupported")
+    if version not in {"1.7", _SNAPSHOT_VERSION} and (
+        value.get("invocation_profiles")
+        or value.get("invocation_unconfigured_runs")
+        or value.get("invocation_reservations")
+    ):
+        raise ValueError("budget_ledger_invocation_fields_require_version_1_7")
+    if version != _SNAPSHOT_VERSION and value.get("reentry_budget_windows"):
+        raise ValueError("budget_ledger_reentry_windows_require_version_1_8")
     _require_wire_fields(
         value,
         _PERSISTED_SNAPSHOT_SCHEMA,
@@ -615,6 +864,47 @@ def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
     for key, amount in identified_reserved.items():
         if snapshot.state.reserved.get(key, Decimal(0)) < amount:
             raise ValueError("identified reservations exceed aggregate reserved amount")
+    invocation_usage: dict[str, tuple[int, int]] = {}
+    for run_id, profile in snapshot.invocation_profiles.items():
+        if run_id != profile.run_binding.run_id:
+            raise ValueError("invocation_quota_run_binding_mismatch")
+        if run_id in snapshot.invocation_unconfigured_runs:
+            raise ValueError("invocation_quota_mode_conflict")
+    for run_id, binding in snapshot.invocation_unconfigured_runs.items():
+        if run_id != binding.run_id:
+            raise ValueError("invocation_quota_run_binding_mismatch")
+    for operation_id, record in snapshot.invocation_reservations.items():
+        profile = snapshot.invocation_profiles.get(record.run_id)
+        if (
+            operation_id != record.operation_id
+            or record.revision > snapshot.revision
+            or profile is None
+            or record.profile_digest != profile.profile_digest
+        ):
+            raise ValueError("invocation_reservation_identity_mismatch")
+        standard, protected = invocation_usage.get(record.run_id, (0, 0))
+        if record.purpose == "standard":
+            standard += record.units
+        else:
+            protected += record.units
+        if standard > profile.total_units - profile.protected_units:
+            raise ValueError("invocation_quota_standard_exceeded")
+        if protected > profile.protected_units:
+            raise ValueError("invocation_quota_protected_exceeded")
+        invocation_usage[record.run_id] = (standard, protected)
+    for window_id, window in snapshot.reentry_budget_windows.items():
+        if (
+            window_id != window.window_id
+            or window.ledger_id != snapshot.ledger_id
+            or window.revision > snapshot.revision
+            or window.baseline_revision >= window.revision
+        ):
+            raise ValueError("reentry_budget_window_identity_mismatch")
+        total, digest = _reentry_prefix(
+            snapshot, window.scope.run_binding, cutoff=window.baseline_revision
+        )
+        if total != window.baseline_total_usd or digest != window.baseline_prefix_digest:
+            raise ValueError("reentry_budget_window_prefix_mismatch")
     _validate_producer_settlement_origin_graph(snapshot.producer_settlements)
     for key, amount in amounts.items():
         if snapshot.state.spent.get(key, Decimal("0")) < amount:
@@ -695,6 +985,39 @@ class BudgetLedger(Protocol):
     ) -> BudgetLedgerComputeReservation: ...
 
     def resolve_compute(self, event_id: str) -> BudgetLedgerComputeReservation | None: ...
+    def configure_invocation_profile(
+        self, profile: BudgetLedgerInvocationProfile
+    ) -> BudgetLedgerInvocationProfile: ...
+    def select_unconfigured_invocations(self, binding: BudgetLedgerProducerRunBinding) -> None: ...
+    def reserve_invocation(
+        self,
+        operation_id: str,
+        request_digest: str,
+        *,
+        profile: BudgetLedgerInvocationProfile,
+        purpose: Literal["standard", "diagnostic", "counterevidence"],
+    ) -> tuple[BudgetLedgerInvocationReservation, bool]: ...
+    def finish_invocation(
+        self,
+        operation_id: str,
+        request_digest: str,
+        *,
+        profile: BudgetLedgerInvocationProfile,
+        outcome: Literal["completed", "failed", "unknown"],
+    ) -> BudgetLedgerInvocationReservation: ...
+    def resolve_invocation(
+        self, operation_id: str, *, profile: BudgetLedgerInvocationProfile
+    ) -> BudgetLedgerInvocationReservation | None: ...
+    def open_reentry_budget_window(
+        self,
+        scope: BudgetLedgerReentryBudgetScope,
+        *,
+        fresh_limit_usd: Decimal,
+        global_limit_usd: Decimal,
+    ) -> BudgetLedgerReentryBudgetWindow: ...
+    def resolve_reentry_budget_window(
+        self, scope: BudgetLedgerReentryBudgetScope
+    ) -> BudgetLedgerReentryBudgetWindow | None: ...
     def begin_producer_event(
         self,
         event_id: str,
@@ -741,6 +1064,36 @@ def _fsync_dir(path: Path) -> None:
 def _snapshot_anchor(snapshot: BudgetLedgerSnapshot) -> _BudgetSnapshotAnchor:
     return snapshot.revision, content_hash(
         to_canonical_bytes(snapshot, CanonSpec(forbid_floats=False))
+    )
+
+
+def _legacy_snapshot_anchor_v16(snapshot: BudgetLedgerSnapshot) -> _BudgetSnapshotAnchor:
+    """Reproduce the predecessor owner's exact normalized 1.6 anchor."""
+    projection = snapshot.model_dump(
+        mode="python",
+        by_alias=True,
+        exclude_none=True,
+        exclude={
+            "invocation_profiles",
+            "invocation_unconfigured_runs",
+            "invocation_reservations",
+            "reentry_budget_windows",
+        },
+    )
+    projection["schema_version"] = "1.6"
+    return snapshot.revision, content_hash(
+        to_canonical_bytes(projection, CanonSpec(forbid_floats=False))
+    )
+
+
+def _legacy_snapshot_anchor_v17(snapshot: BudgetLedgerSnapshot) -> _BudgetSnapshotAnchor:
+    """Reproduce the actual previous owner's normalized 1.7 anchor."""
+    projection = snapshot.model_dump(
+        mode="python", by_alias=True, exclude_none=True, exclude={"reentry_budget_windows"}
+    )
+    projection["schema_version"] = "1.7"
+    return snapshot.revision, content_hash(
+        to_canonical_bytes(projection, CanonSpec(forbid_floats=False))
     )
 
 
@@ -897,6 +1250,29 @@ class FileBudgetLedger:
         """Read the confirmed local owner, actual lock resource, and snapshot together."""
         owner, resource, anchor, _snapshot = self._continuation_state()
         return owner, resource, anchor
+
+    def _bind_live_producer_resource(
+        self,
+    ) -> tuple[tuple[str, str, str], _BudgetResourceIdentity]:
+        """Pin a live producer to this existing owner and concrete lock resource."""
+        with self._thread_lock, self._file_lock(exclusive=True, require_concrete=True) as lock_fd:
+            snapshot = self._load_snapshot()
+            if snapshot is None or snapshot.ledger_id is None:
+                raise ValueError("budget_ledger_identity_not_established")
+            owner = (snapshot.ledger_id, snapshot.canonical_contract, snapshot.coordination_mode)
+            resource = self._resource_identity(lock_fd)
+            if self._expected_ledger_id is not None and self._expected_ledger_id != owner[0]:
+                raise ValueError("budget_ledger_identity_mismatch")
+            if (
+                self._expected_resource_identity is not None
+                and self._expected_resource_identity != resource
+            ):
+                raise ValueError("budget_ledger_resource_identity_mismatch")
+            self._confirm_snapshot_durability("ledger-snapshot", snapshot)
+            self._expected_ledger_id = owner[0]
+            self._expected_resource_identity = resource
+            self._require_existing = True
+            return owner, resource
 
     def _continuation_state(
         self,
@@ -1269,6 +1645,367 @@ class FileBudgetLedger:
                 raise ValueError("budget_event_kind_conflict")
             self._confirm_snapshot_durability(event_id, snapshot)
             return snapshot.compute_reservations.get(event_id)
+
+    def _persist_invocation_update(
+        self,
+        snapshot: BudgetLedgerSnapshot,
+        *,
+        mutation: BudgetLedgerMutation,
+        profiles: dict[str, BudgetLedgerInvocationProfile] | None = None,
+        unconfigured_runs: dict[str, BudgetLedgerProducerRunBinding] | None = None,
+        reservations: dict[str, BudgetLedgerInvocationReservation] | None = None,
+    ) -> BudgetLedgerSnapshot:
+        """Persist invocation-unit changes in the existing locked budget snapshot."""
+        return self._persist_snapshot(
+            self._build_snapshot(
+                prior_snapshot=snapshot,
+                state=snapshot.state,
+                revision=mutation.revision,
+                recent_mutations=[*snapshot.recent_mutations, mutation],
+                spend_receipts=snapshot.spend_receipts,
+                producer_settlements=snapshot.producer_settlements,
+                compute_reservations=snapshot.compute_reservations,
+                invocation_profiles=profiles,
+                invocation_unconfigured_runs=unconfigured_runs,
+                invocation_reservations=reservations,
+            )
+        )
+
+    def configure_invocation_profile(
+        self, profile: BudgetLedgerInvocationProfile
+    ) -> BudgetLedgerInvocationProfile:
+        """Persist one immutable, owner-selected unit allocation for this run."""
+        if type(profile) is not BudgetLedgerInvocationProfile:
+            raise TypeError("invocation_quota_profile_untyped")
+        run_id = profile.run_binding.run_id
+        event_id = f"n5-invocation-profile:{profile.profile_digest}"
+        with (
+            self._thread_lock,
+            self._file_lock(exclusive=True, outcome_identity=(event_id, profile.profile_digest)),
+        ):
+            snapshot = self._load_snapshot()
+            if snapshot is None:
+                raise FileNotFoundError("budget ledger requires explicit bootstrap")
+            if run_id in snapshot.invocation_unconfigured_runs:
+                raise ValueError("invocation_quota_run_already_unconfigured")
+            existing = snapshot.invocation_profiles.get(run_id)
+            if existing is not None:
+                if existing != profile:
+                    raise ValueError("invocation_quota_profile_conflict")
+                self._confirm_snapshot_durability(event_id, snapshot)
+                return existing
+            profiles = dict(snapshot.invocation_profiles)
+            profiles[run_id] = profile
+            revision = snapshot.revision + 1
+            written = self._persist_invocation_update(
+                snapshot,
+                profiles=profiles,
+                mutation=self._build_mutation(
+                    revision=revision,
+                    operation="configure_invocation_quota",
+                    key=f"nl-run:{run_id}",
+                ),
+            )
+            self._confirm_snapshot_durability(
+                event_id, written, payload_digest=profile.profile_digest
+            )
+            return written.invocation_profiles[run_id]
+
+    def select_unconfigured_invocations(self, binding: BudgetLedgerProducerRunBinding) -> None:
+        """Atomically select no guarantee for this exact run, before physical work.
+
+        Once selected, finite quota cannot be introduced for the run: earlier
+        unmetered work cannot truthfully be counted towards a new allocation.
+        """
+        if type(binding) is not BudgetLedgerProducerRunBinding:
+            raise TypeError("invocation_quota_run_binding_untyped")
+        binding_digest = content_hash(to_canonical_bytes(binding.model_dump(mode="json")))
+        event_id = f"n5-invocation-unconfigured:{binding_digest}"
+        with (
+            self._thread_lock,
+            self._file_lock(exclusive=True, outcome_identity=(event_id, binding_digest)),
+        ):
+            snapshot = self._load_snapshot()
+            if snapshot is None:
+                raise FileNotFoundError("budget ledger requires explicit bootstrap")
+            if binding.run_id in snapshot.invocation_profiles:
+                raise ValueError("invocation_quota_profile_required")
+            existing = snapshot.invocation_unconfigured_runs.get(binding.run_id)
+            if existing is not None:
+                if existing != binding:
+                    raise ValueError("invocation_quota_run_binding_mismatch")
+                self._confirm_snapshot_durability(event_id, snapshot)
+                return
+            runs = dict(snapshot.invocation_unconfigured_runs)
+            runs[binding.run_id] = binding
+            written = self._persist_invocation_update(
+                snapshot,
+                unconfigured_runs=runs,
+                mutation=self._build_mutation(
+                    revision=snapshot.revision + 1,
+                    operation="select_unconfigured_invocation_quota",
+                    key=f"nl-run:{binding.run_id}",
+                ),
+            )
+            self._confirm_snapshot_durability(event_id, written, payload_digest=binding_digest)
+
+    def open_reentry_budget_window(
+        self,
+        scope: BudgetLedgerReentryBudgetScope,
+        *,
+        fresh_limit_usd: Decimal,
+        global_limit_usd: Decimal,
+    ) -> BudgetLedgerReentryBudgetWindow:
+        """Issue or reopen one owner-observed window before the action fetches.
+
+        The caller is the action owner: it verifies the current action phase,
+        its ancestry, and the selected source/profile and limits. The ledger
+        fixes the actual producer prefix once for this stable action identity.
+        """
+        if type(scope) is not BudgetLedgerReentryBudgetScope:
+            raise TypeError("reentry_budget_scope_untyped")
+        if (
+            type(fresh_limit_usd) is not Decimal
+            or not fresh_limit_usd.is_finite()
+            or fresh_limit_usd <= 0
+            or type(global_limit_usd) is not Decimal
+            or not global_limit_usd.is_finite()
+            or global_limit_usd < 0
+        ):
+            raise ValueError("reentry_budget_limit_invalid")
+        event_id = f"reentry-budget:{scope.window_id}"
+        request_digest = content_hash(
+            to_canonical_bytes(
+                {
+                    "window_id": scope.window_id,
+                    "source_payload_ref": scope.source_payload_ref,
+                    "profile_selection_ref": scope.profile_selection_ref,
+                    "fresh_limit_usd": _reentry_limit_identity(fresh_limit_usd),
+                    "global_limit_usd": _reentry_limit_identity(global_limit_usd),
+                }
+            )
+        )
+        with (
+            self._thread_lock,
+            self._file_lock(
+                exclusive=True, require_concrete=True, outcome_identity=(event_id, request_digest)
+            ) as lock_fd,
+        ):
+            snapshot = self._load_snapshot()
+            if snapshot is None or snapshot.ledger_id is None:
+                raise ValueError("budget_ledger_identity_not_established")
+            resource = self._resource_identity(lock_fd)
+            existing = snapshot.reentry_budget_windows.get(scope.window_id)
+            if existing is not None:
+                if (
+                    not _same_reentry_action_basis(existing.scope, scope)
+                    or existing.fresh_limit_usd != fresh_limit_usd
+                    or existing.global_limit_usd != global_limit_usd
+                    or existing.resource_identity != resource
+                ):
+                    raise ValueError("reentry_budget_window_conflict")
+                _reentry_prefix(snapshot, scope.run_binding, cutoff=None)
+                self._confirm_snapshot_durability(event_id, snapshot, payload_digest=request_digest)
+                return existing
+            baseline_total, prefix_digest = _reentry_prefix(
+                snapshot, scope.run_binding, cutoff=None
+            )
+            revision = snapshot.revision + 1
+            window = BudgetLedgerReentryBudgetWindow(
+                scope=scope,
+                ledger_id=snapshot.ledger_id,
+                resource_identity=resource,
+                fresh_limit_usd=fresh_limit_usd,
+                global_limit_usd=global_limit_usd,
+                baseline_total_usd=baseline_total,
+                baseline_revision=snapshot.revision,
+                baseline_prefix_digest=prefix_digest,
+                revision=revision,
+            )
+            # Validate arithmetic before persisting an unusable or rounded allowance.
+            if not window.effective_limit_usd.is_finite():
+                raise ValueError("reentry_budget_arithmetic_not_established")
+            windows = dict(snapshot.reentry_budget_windows)
+            windows[scope.window_id] = window
+            written = self._persist_snapshot(
+                self._build_snapshot(
+                    prior_snapshot=snapshot,
+                    state=snapshot.state,
+                    revision=revision,
+                    recent_mutations=[
+                        *snapshot.recent_mutations,
+                        self._build_mutation(
+                            revision=revision,
+                            operation="open_reentry_budget_window",
+                            key=f"nl-run:{scope.run_binding.run_id}",
+                        ),
+                    ],
+                    spend_receipts=snapshot.spend_receipts,
+                    producer_settlements=snapshot.producer_settlements,
+                    compute_reservations=snapshot.compute_reservations,
+                    reentry_budget_windows=windows,
+                )
+            )
+            self._confirm_snapshot_durability(event_id, written, payload_digest=request_digest)
+            return written.reentry_budget_windows[scope.window_id]
+
+    def resolve_reentry_budget_window(
+        self, scope: BudgetLedgerReentryBudgetScope
+    ) -> BudgetLedgerReentryBudgetWindow | None:
+        """Read the same durable action window; never select a new baseline."""
+        if type(scope) is not BudgetLedgerReentryBudgetScope:
+            raise TypeError("reentry_budget_scope_untyped")
+        event_id = f"reentry-budget:{scope.window_id}"
+        with (
+            self._thread_lock,
+            self._file_lock(exclusive=True, require_concrete=True) as lock_fd,
+        ):
+            snapshot = self._load_snapshot()
+            if snapshot is None or snapshot.ledger_id is None:
+                raise ValueError("budget_ledger_identity_not_established")
+            window = snapshot.reentry_budget_windows.get(scope.window_id)
+            if window is not None and (
+                not _same_reentry_action_basis(window.scope, scope)
+                or window.resource_identity != self._resource_identity(lock_fd)
+            ):
+                raise ValueError("reentry_budget_window_conflict")
+            self._confirm_snapshot_durability(event_id, snapshot)
+            return window
+
+    def reserve_invocation(
+        self,
+        operation_id: str,
+        request_digest: str,
+        *,
+        profile: BudgetLedgerInvocationProfile,
+        purpose: Literal["standard", "diagnostic", "counterevidence"],
+    ) -> tuple[BudgetLedgerInvocationReservation, bool]:
+        """Reserve one physical call; an existing operation is never a new permit."""
+        if type(profile) is not BudgetLedgerInvocationProfile:
+            raise TypeError("invocation_quota_profile_untyped")
+        candidate = BudgetLedgerInvocationReservation(
+            operation_id=operation_id,
+            request_digest=request_digest,
+            run_id=profile.run_binding.run_id,
+            profile_digest=profile.profile_digest,
+            purpose=purpose,
+            revision=1,
+        )
+        with (
+            self._thread_lock,
+            self._file_lock(exclusive=True, outcome_identity=(operation_id, request_digest)),
+        ):
+            snapshot = self._load_snapshot()
+            if snapshot is None:
+                raise FileNotFoundError("budget ledger requires explicit bootstrap")
+            if snapshot.invocation_profiles.get(candidate.run_id) != profile:
+                raise ValueError("invocation_quota_profile_not_current")
+            existing = snapshot.invocation_reservations.get(operation_id)
+            if existing is not None:
+                if any(
+                    getattr(existing, field) != getattr(candidate, field)
+                    for field in ("request_digest", "run_id", "profile_digest", "purpose")
+                ):
+                    raise ValueError("invocation_reservation_identity_conflict")
+                self._confirm_snapshot_durability(operation_id, snapshot)
+                return existing, False
+            protected = purpose != "standard"
+            consumed = sum(
+                item.units
+                for item in snapshot.invocation_reservations.values()
+                if item.run_id == candidate.run_id and (item.purpose != "standard") == protected
+            )
+            limit = (
+                profile.protected_units
+                if protected
+                else profile.total_units - profile.protected_units
+            )
+            if consumed >= limit:
+                raise BudgetLedgerInvocationQuotaExhaustedError("invocation_quota_exhausted")
+            revision = snapshot.revision + 1
+            record = candidate.model_copy(update={"revision": revision})
+            reservations = dict(snapshot.invocation_reservations)
+            reservations[operation_id] = record
+            written = self._persist_invocation_update(
+                snapshot,
+                reservations=reservations,
+                mutation=self._build_mutation(
+                    revision=revision, operation="reserve_invocation", key=f"nl-run:{record.run_id}"
+                ),
+            )
+            self._confirm_snapshot_durability(operation_id, written, payload_digest=request_digest)
+            return written.invocation_reservations[operation_id], True
+
+    def finish_invocation(
+        self,
+        operation_id: str,
+        request_digest: str,
+        *,
+        profile: BudgetLedgerInvocationProfile,
+        outcome: Literal["completed", "failed", "unknown"],
+    ) -> BudgetLedgerInvocationReservation:
+        """Record the real terminal outcome without returning a used unit."""
+        if type(profile) is not BudgetLedgerInvocationProfile:
+            raise TypeError("invocation_quota_profile_untyped")
+        if outcome not in {"completed", "failed", "unknown"}:
+            raise ValueError("invocation_outcome_invalid")
+        with (
+            self._thread_lock,
+            self._file_lock(exclusive=True, outcome_identity=(operation_id, request_digest)),
+        ):
+            snapshot = self._load_snapshot()
+            if snapshot is None:
+                raise FileNotFoundError("budget ledger requires explicit bootstrap")
+            existing = snapshot.invocation_reservations.get(operation_id)
+            if (
+                snapshot.invocation_profiles.get(profile.run_binding.run_id) != profile
+                or existing is None
+                or existing.run_id != profile.run_binding.run_id
+                or existing.profile_digest != profile.profile_digest
+                or existing.request_digest != request_digest
+            ):
+                raise ValueError("invocation_reservation_missing_or_conflicting")
+            if existing.status != "reserved":
+                if existing.status != outcome:
+                    raise ValueError("invocation_outcome_conflict")
+                self._confirm_snapshot_durability(operation_id, snapshot)
+                return existing
+            revision = snapshot.revision + 1
+            record = existing.model_copy(update={"status": outcome, "revision": revision})
+            reservations = dict(snapshot.invocation_reservations)
+            reservations[operation_id] = record
+            written = self._persist_invocation_update(
+                snapshot,
+                reservations=reservations,
+                mutation=self._build_mutation(
+                    revision=revision, operation="finish_invocation", key=f"nl-run:{record.run_id}"
+                ),
+            )
+            self._confirm_snapshot_durability(operation_id, written, payload_digest=request_digest)
+            return written.invocation_reservations[operation_id]
+
+    def resolve_invocation(
+        self, operation_id: str, *, profile: BudgetLedgerInvocationProfile
+    ) -> BudgetLedgerInvocationReservation | None:
+        """Read an exact invocation record; absence never proves that work was free."""
+        if type(profile) is not BudgetLedgerInvocationProfile:
+            raise TypeError("invocation_quota_profile_untyped")
+        if re.fullmatch(r"[0-9a-f]{64}", operation_id) is None:
+            raise ValueError("invocation_operation_id_invalid")
+        with (
+            self._thread_lock,
+            self._file_lock(exclusive=True, outcome_identity=(operation_id, "readback")),
+        ):
+            snapshot = self._load_snapshot()
+            if snapshot is None:
+                raise FileNotFoundError("budget ledger requires explicit bootstrap")
+            if snapshot.invocation_profiles.get(profile.run_binding.run_id) != profile:
+                raise ValueError("invocation_quota_profile_not_current")
+            record = snapshot.invocation_reservations.get(operation_id)
+            if record is not None and record.run_id != profile.run_binding.run_id:
+                raise ValueError("invocation_reservation_owner_mismatch")
+            self._confirm_snapshot_durability(operation_id, snapshot)
+            return record
 
     def settle_spend(
         self,
@@ -2029,8 +2766,24 @@ class FileBudgetLedger:
         ):
             raise ValueError("budget_ledger_identity_mismatch")
         if self._strict_snapshot_anchor is not None:
-            current_anchor = _snapshot_anchor(self._normalize_snapshot(snapshot))
-            if current_anchor != self._strict_snapshot_anchor:
+            normalized = self._normalize_snapshot(snapshot)
+            current_anchor = _snapshot_anchor(normalized)
+            legacy_16_match = (
+                snapshot.schema_version not in {"1.7", _SNAPSHOT_VERSION}
+                and not snapshot.invocation_profiles
+                and not snapshot.invocation_unconfigured_runs
+                and not snapshot.invocation_reservations
+                and not snapshot.reentry_budget_windows
+                and _legacy_snapshot_anchor_v16(normalized) == self._strict_snapshot_anchor
+            )
+            legacy_17_match = (
+                snapshot.schema_version == "1.7"
+                and not snapshot.reentry_budget_windows
+                and _legacy_snapshot_anchor_v17(normalized) == self._strict_snapshot_anchor
+            )
+            if current_anchor != self._strict_snapshot_anchor and not (
+                legacy_16_match or legacy_17_match
+            ):
                 raise ValueError("budget_ledger_snapshot_anchor_mismatch")
         return snapshot
 
@@ -2099,6 +2852,10 @@ class FileBudgetLedger:
         spend_receipts: dict[str, BudgetLedgerSpendReceipt] | None = None,
         producer_settlements: dict[str, BudgetLedgerProducerRecord] | None = None,
         compute_reservations: dict[str, BudgetLedgerComputeReservation] | None = None,
+        invocation_profiles: dict[str, BudgetLedgerInvocationProfile] | None = None,
+        invocation_unconfigured_runs: dict[str, BudgetLedgerProducerRunBinding] | None = None,
+        invocation_reservations: dict[str, BudgetLedgerInvocationReservation] | None = None,
+        reentry_budget_windows: dict[str, BudgetLedgerReentryBudgetWindow] | None = None,
     ) -> BudgetLedgerSnapshot:
         return BudgetLedgerSnapshot(
             canonical_contract=_CANONICAL_LEDGER_CONTRACT,
@@ -2113,6 +2870,34 @@ class FileBudgetLedger:
             spend_receipts=dict(spend_receipts or {}),
             producer_settlements=dict(producer_settlements or {}),
             compute_reservations=dict(compute_reservations or {}),
+            invocation_profiles=dict(
+                invocation_profiles
+                if invocation_profiles is not None
+                else prior_snapshot.invocation_profiles
+                if prior_snapshot is not None
+                else {}
+            ),
+            invocation_unconfigured_runs=dict(
+                invocation_unconfigured_runs
+                if invocation_unconfigured_runs is not None
+                else prior_snapshot.invocation_unconfigured_runs
+                if prior_snapshot is not None
+                else {}
+            ),
+            invocation_reservations=dict(
+                invocation_reservations
+                if invocation_reservations is not None
+                else prior_snapshot.invocation_reservations
+                if prior_snapshot is not None
+                else {}
+            ),
+            reentry_budget_windows=dict(
+                reentry_budget_windows
+                if reentry_budget_windows is not None
+                else prior_snapshot.reentry_budget_windows
+                if prior_snapshot is not None
+                else {}
+            ),
         )
 
     def _build_mutation(
@@ -2131,6 +2916,11 @@ class FileBudgetLedger:
             "reserve_compute",
             "settle_compute",
             "mark_compute_unknown",
+            "configure_invocation_quota",
+            "select_unconfigured_invocation_quota",
+            "open_reentry_budget_window",
+            "reserve_invocation",
+            "finish_invocation",
         ],
         key: str | None = None,
         amount: Decimal | None = None,

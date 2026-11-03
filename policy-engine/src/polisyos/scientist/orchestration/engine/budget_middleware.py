@@ -20,8 +20,12 @@ from polisyos.core.llm.cache_settlement import CacheSettlementSession
 from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError, BudgetState
 from polisyos.scientist.orchestration.engine.budget_ledger import (
     BudgetLedger,
+    BudgetLedgerInvocationProfile,
+    BudgetLedgerInvocationReservation,
     BudgetLedgerProducerRecord,
     BudgetLedgerProducerRunBinding,
+    BudgetLedgerReentryBudgetScope,
+    BudgetLedgerReentryBudgetWindow,
     BudgetLedgerSettlementOutcomeUnknownError,
     BudgetLedgerSnapshot,
     BudgetLedgerSpendReceipt,
@@ -130,6 +134,15 @@ class BudgetMiddleware:
             if self._ledger is None:
                 raise RuntimeError("budget continuation requires a configured ledger")
             return self._ledger.continuation_binding()
+
+    def _bind_live_producer_resource(
+        self,
+    ) -> tuple[tuple[str, str, str], tuple[int, int, str, int, int]]:
+        """Keep producer reads and admissions on the same concrete ledger lock."""
+        with self._lock:
+            if type(self._ledger) is not FileBudgetLedger:
+                raise ValueError("budget_ledger_producer_owner_not_supported")
+            return self._ledger._bind_live_producer_resource()
 
     def _continuation_state(
         self,
@@ -590,6 +603,87 @@ class BudgetMiddleware:
                 raise TypeError("budget_ledger_snapshot_must_be_typed")
             self._budget = snapshot.state.model_copy(deep=True)
             return snapshot.model_copy(deep=True)
+
+    def configure_invocation_profile_safe(
+        self, profile: BudgetLedgerInvocationProfile
+    ) -> BudgetLedgerInvocationProfile:
+        """Persist the actual owner's finite non-USD invocation allocation."""
+        with self._lock:
+            if self._ledger is None:
+                raise RuntimeError("invocation quota requires a configured ledger")
+            return self._ledger.configure_invocation_profile(profile)
+
+    def select_unconfigured_invocations_safe(self, binding: BudgetLedgerProducerRunBinding) -> None:
+        """Bind this run to no unit guarantee only if no allocation was selected."""
+        with self._lock:
+            if self._ledger is None:
+                raise RuntimeError("invocation quota requires a configured ledger")
+            self._ledger.select_unconfigured_invocations(binding)
+
+    def open_reentry_budget_window_safe(
+        self,
+        scope: BudgetLedgerReentryBudgetScope,
+        *,
+        fresh_limit_usd: Decimal,
+        global_limit_usd: Decimal,
+    ) -> BudgetLedgerReentryBudgetWindow:
+        """Issue the action's one durable USD starting point before source work."""
+        with self._lock:
+            if type(self._ledger) is not FileBudgetLedger:
+                raise RuntimeError("reentry budget requires the durable file ledger owner")
+            return self._ledger.open_reentry_budget_window(
+                scope, fresh_limit_usd=fresh_limit_usd, global_limit_usd=global_limit_usd
+            )
+
+    def resolve_reentry_budget_window_safe(
+        self, scope: BudgetLedgerReentryBudgetScope
+    ) -> BudgetLedgerReentryBudgetWindow | None:
+        """Reopen an existing action window without taking a new baseline."""
+        with self._lock:
+            if type(self._ledger) is not FileBudgetLedger:
+                raise RuntimeError("reentry budget requires the durable file ledger owner")
+            return self._ledger.resolve_reentry_budget_window(scope)
+
+    def reserve_invocation_safe(
+        self,
+        operation_id: str,
+        request_digest: str,
+        *,
+        profile: BudgetLedgerInvocationProfile,
+        purpose: Literal["standard", "diagnostic", "counterevidence"],
+    ) -> tuple[BudgetLedgerInvocationReservation, bool]:
+        """Reserve one physical invocation through the existing ledger owner."""
+        with self._lock:
+            if self._ledger is None:
+                raise RuntimeError("invocation quota requires a configured ledger")
+            return self._ledger.reserve_invocation(
+                operation_id, request_digest, profile=profile, purpose=purpose
+            )
+
+    def finish_invocation_safe(
+        self,
+        operation_id: str,
+        request_digest: str,
+        *,
+        profile: BudgetLedgerInvocationProfile,
+        outcome: Literal["completed", "failed", "unknown"],
+    ) -> BudgetLedgerInvocationReservation:
+        """Retain the actual outcome without releasing a consumed unit."""
+        with self._lock:
+            if self._ledger is None:
+                raise RuntimeError("invocation quota requires a configured ledger")
+            return self._ledger.finish_invocation(
+                operation_id, request_digest, profile=profile, outcome=outcome
+            )
+
+    def resolve_invocation_safe(
+        self, operation_id: str, *, profile: BudgetLedgerInvocationProfile
+    ) -> BudgetLedgerInvocationReservation | None:
+        """Read the exact durable physical-operation record."""
+        with self._lock:
+            if self._ledger is None:
+                raise RuntimeError("invocation quota requires a configured ledger")
+            return self._ledger.resolve_invocation(operation_id, profile=profile)
 
     def _active_run_binding_for_key(
         self,

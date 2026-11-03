@@ -67,8 +67,8 @@ control removes only required-field admission inside the child process; the
 same consumer tests must then fail. These witnesses do not establish power-loss
 or multi-host filesystem guarantees.
 
-The ledger writer's current snapshot version is `1.6`; complete valid `1.0` through
-`1.5` snapshots remain readable. Unknown versions, contracts and coordination modes
+The ledger writer's current snapshot version is `1.8`; complete valid `1.0` through
+`1.7` snapshots remain readable. Unknown versions, contracts and coordination modes
 are rejected. Version `1.2` introduced producer settlement records; `1.3` added
 server-issued run binding, `1.4` added attempt attribution, and `1.5` adds an optional
 `BudgetLedgerCacheReuseAdmission`. Existing receipts keep their original accounting
@@ -659,6 +659,37 @@ actual physical invocation units separately, reads this owner before every
 physical seed, and reuses role projections without additional work events. These
 work observations establish neither a USD price nor scientific producer
 authenticity. A serialized observation is an audit view, never a reusable permit.
+
+Snapshot `1.7` adds a physical-invocation journal under the same ledger lock.
+An owner-selected `BudgetInvocationQuotaPolicy` declares an allocation ID, total
+units and a protected portion shared by diagnostic/counterevidence work. The
+bound profile also names the actual server-issued run owner. Standard work
+cannot consume protected units. Every admitted physical attempt remains counted,
+including failed, reserved and unknown outcomes; replaying an operation does not
+create another allowance. The unit is `n5_physical_invocation` and its price is
+explicitly unknown. These counts neither reserve USD nor prove an invoice.
+
+An absent policy or zero protected portion reports `no_guarantee`; a calibration
+floor or priority label does not create protected capacity. The first physical
+admission atomically binds the run's configured or unconfigured mode, preventing
+an omitted/stale observer from escaping an existing cap and preventing later
+configuration from certifying earlier unmetered work. Historical pre-`1.7` runs
+need an established prior-work boundary before a new guarantee can apply.
+The original `1.6` and `1.7` continuation anchors are verified against their exact
+historical projections; the first actual `1.8` mutation establishes a new anchor.
+Old writers are not forward-compatible with the new snapshot. Upgrade all writers
+sharing a ledger before allowing `1.8` writes; never downgrade or rewrite its history.
+
+Snapshot `1.8` also binds a fresh acquisition reentry allowance to one durable
+action-scoped window. Its immutable baseline is the verified settled producer
+prefix before acquisition; retry reopens the same window instead of resetting
+spend. Admission uses the smaller of the original global cap and the baseline
+plus the fresh allowance. Pending or unknown costs refuse; later same-run spend
+counts conservatively. Action/lease custody is independently checked by the
+acquisition owner. This is a pre-call gate, not a USD reservation for an unknown
+call cost. A live `BudgetState` shares one reconciliation owner by object identity;
+preexisting nonzero spend without an established projection basis refuses rather
+than guessing whether it already includes producer costs.
 
 The observation also retains the existing Core producer request digest as
 `producer_request_ref`. The caller-input hash names another quantity and is not

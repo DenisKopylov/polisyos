@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.6",
+  "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+  "coordination_mode": "shared_posix_file_lock",
+  "ledger_id": "fixture-ledger-v16",
+  "revision": 1,
+  "updated_at": "2026-11-03T14:21:03.703988Z",
+  "last_writer": {
+    "host_id": "fixture-host",
+    "writer_id": "fixture-writer",
+    "pid": 25072
+  },
+  "recent_mutations": [
+    {
+      "revision": 0,
+      "operation": "bootstrap",
+      "writer": {
+        "host_id": "fixture-host",
+        "writer_id": "fixture-writer",
+        "pid": 25072
+      },
+      "committed_at": "2026-11-03T14:21:03.702956Z"
+    },
+    {
+      "revision": 1,
+      "operation": "record_spend",
+      "key": "run",
+      "amount": "0.25",
+      "applied_amount": "0.25",
+      "provider": "fixture-provider",
+      "writer": {
+        "host_id": "fixture-host",
+        "writer_id": "fixture-writer",
+        "pid": 25072
+      },
+      "committed_at": "2026-11-03T14:21:03.703983Z"
+    }
+  ],
+  "state": {
+    "limits": {
+      "run": {
+        "key": "run",
+        "max_usd": "10"
+      }
+    },
+    "spent": {
+      "run": "0.25"
+    },
+    "provider_spent": {
+      "fixture-provider": "0.25"
+    },
+    "reserved": {}
+  },
+  "spend_receipts": {},
+  "producer_settlements": {},
+  "compute_reservations": {}
+}

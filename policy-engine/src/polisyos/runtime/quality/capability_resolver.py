@@ -27,6 +27,7 @@ from polisyos.core.contracts import (
 from polisyos.core.contracts.capability_resolution import (
     CapabilitySourceCandidate,
     CapabilitySourceDiscoveryResult,
+    candidate_source_time_coverage,
 )
 from polisyos.runtime.http.execution_policy import (
     ExecutionProfileError,
@@ -66,7 +67,7 @@ legacy_family_for_construct = core_contracts.legacy_family_for_construct
 
 REQUIREMENT_TO_CAPABILITY_RESOLVER_RULE_VERSION = "requirement-to-capability-resolver-v1.0"
 REQUIREMENT_TO_CAPABILITY_SOURCE_DISCOVERY_RULE_VERSION = (
-    "requirement-to-capability-source-discovery-v1.0"
+    "requirement-to-capability-source-discovery-v1.2"
 )
 DEFAULT_CAPABILITY_INDEX_REF = "capability-index:policy-evidence-phase4-governed-rows"
 GOVERNED_CAPABILITY_ROWS_PATH = Path(
@@ -1010,16 +1011,24 @@ def _source_discovery_scope(
         unknowns.append("requirement_geography_not_established")
     elif not _geography_matches(query.geography, capability.scope.geography):
         return "geography_mismatch", ()
+    elif capability.scope.jurisdiction is not None and not _geography_matches(
+        query.geography, capability.scope.jurisdiction
+    ):
+        return "jurisdiction_mismatch", ()
+    if capability.scope.jurisdiction is None:
+        unknowns.append("source_jurisdiction_not_established")
     if _slug(query.entity_scope) in {"entity", "construct", "unspecified", "scenario_entity"}:
         unknowns.append("requirement_entity_scope_not_established")
     elif not _entity_scope_matches(query.entity_scope, capability.scope.entity_scope):
         return "entity_scope_mismatch", ()
-    if not _time_window_matches(query.time_window, capability.scope):
-        return "time_window_outside_claim", ()
-    if query.time_window.start is None or query.time_window.end is None:
-        unknowns.append("requirement_time_coverage_not_established")
-    if capability.scope.time_start is None or capability.scope.time_end is None:
-        unknowns.append("source_time_coverage_not_established")
+    time_refusal, time_unknowns = candidate_source_time_coverage(
+        query_window=query.time_window,
+        source_start=capability.scope.time_start,
+        source_end=capability.scope.time_end,
+    )
+    if time_refusal is not None:
+        return time_refusal, ()
+    unknowns.extend(time_unknowns)
     return None, tuple(unknowns)
 
 

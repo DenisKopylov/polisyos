@@ -31,6 +31,7 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "RequirementToCapabilityQuery",
         "ScenarioFamilyConstructRow",
         "ScenarioFamilyConstructRows",
+        "candidate_source_time_coverage",
         "construct_for_legacy_family",
         "legacy_family_for_construct",
     ),
@@ -1005,6 +1006,7 @@ if TYPE_CHECKING:
         CapabilityTimeSemantics,
         DiscoveryPosture,
     )
+    from .capability_resolution import candidate_source_time_coverage
     from .causal import (
         AbstractionCertificateRef,
         CausalDiscoveryReportRef,
@@ -1804,6 +1806,7 @@ __all__ = [
     "CapabilityFreshness",
     "CapabilityResolverPort",
     "CAPABILITY_SOURCE_DISCOVERY_SCHEMA_VERSION",
+    "candidate_source_time_coverage",
     "CapabilitySourceCandidate",
     "CapabilitySourceDiscoveryResult",
     "CapabilityCandidateDiscoveryPort",

@@ -1802,7 +1802,10 @@ class RealAcquisitionOwnerGateway:
         from polisyos.core.contracts.control import DataResolveRequest
         from polisyos.data_forge.read_api import catalog as catalog_read_api
         from polisyos.data_requirement import DataRequirementSpec
-        from polisyos.fabric import project_data_requirement_to_catalog_needs
+        from polisyos.fabric import (
+            project_data_requirement_to_catalog_needs,
+            validate_catalog_candidate_fetch_plans,
+        )
         from polisyos.fabric.retrieval.service import RetrievalService
         from polisyos.runtime.quality.substrate_registry import (
             default_substrate_catalog_paths,
@@ -1879,6 +1882,10 @@ class RealAcquisitionOwnerGateway:
                     response = service.resolve(
                         request,
                         run_profile=self._catalog_run_profile,
+                    )
+                    validate_catalog_candidate_fetch_plans(
+                        requirement_projection=requirement_projection,
+                        fetch_plans=response.fetch_plans,
                     )
                     if len(response.fetch_plans) != 1:
                         raise ValueError("fabric_fetch_capture_requires_one_plan")
@@ -1972,6 +1979,10 @@ class RealAcquisitionOwnerGateway:
                 response = service.resolve(
                     request,
                     run_profile=self._catalog_run_profile,
+                )
+                validate_catalog_candidate_fetch_plans(
+                    requirement_projection=requirement_projection,
+                    fetch_plans=response.fetch_plans,
                 )
         finally:
             close = getattr(graph, "close", None)
@@ -2787,7 +2798,7 @@ def run_acquisition_closed_loop(
             for row in planner_report.acquisition_records
         )
         source_rule = request.get("n7_source_join_rule")
-        if source_rule is not None and source_rule != _N7_SOURCE_JOIN_RULE:
+        if source_rule is not None and source_rule not in _N7_SOURCE_JOIN_RULES:
             raise AcquisitionPlannerBindingError("n7_candidate_source_not_established")
         if source_rule is not None or actual_records != expected_records or source_semantic_row:
             # A source-semantic candidate action is not a compiled-only gap.
@@ -3138,9 +3149,9 @@ def validate_acquisition_receipt(
         if "n7_candidate_source_ref" in normalized.acquisition_request:
             issues.append({"code": "n7_candidate_receipt_source_gap_invalid"})
     source_rule = normalized.acquisition_request.get("n7_source_join_rule")
-    if source_rule is not None and source_rule != _N7_SOURCE_JOIN_RULE:
+    if source_rule is not None and source_rule not in _N7_SOURCE_JOIN_RULES:
         issues.append({"code": "n7_candidate_receipt_source_rule_unsupported"})
-    joined = source_rule == _N7_SOURCE_JOIN_RULE or (
+    joined = source_rule in _N7_SOURCE_JOIN_RULES or (
         source_gap is not None
         and any(
             row.requirement_gap_ref == source_gap.requirement_gap_id
@@ -3998,8 +4009,8 @@ def _captured_fabric_fetches(
     ):
         raise ValueError("fabric_fetch_capture_catalog_binding_mismatch")
     expected_inputs = [
-        artifacts.InputRef(artifact_id=payload_ref.artifact_id, role="fetched_payload"),
-        artifacts.InputRef(artifact_id=binding_ref.artifact_id, role="catalog_binding"),
+        artifacts.input_ref_from_artifact_ref(payload_ref, role="fetched_payload"),
+        artifacts.input_ref_from_artifact_ref(binding_ref, role="catalog_binding"),
     ]
     if receipt_manifest.inputs != expected_inputs:
         raise ValueError("fabric_fetch_capture_receipt_lineage_mismatch")
@@ -4902,14 +4913,37 @@ def _n7_route_compiler_gaps(
     specs: Sequence[object],
     capability_resolutions: Sequence[CapabilityRequirementResolution] | None,
     strict_family: bool = True,
+    require_descriptor_join: bool = False,
 ) -> tuple[tuple[AcquisitionRequirementGap, ...], str | None]:
     """Preserve all compiler gaps while linking one exact source gap to its spec."""
 
-    matching_specs = tuple(
-        spec
-        for spec in specs
-        if _n7_compiler_gap_matches_source(spec, source_gap, strict_family=strict_family)
-    )
+    matching_specs: tuple[DataRequirementSpec, ...] = ()
+    if require_descriptor_join:
+        if (
+            not strict_family
+            or source_gap.metadata.get("source") != "l1_dcat_variable_availability"
+        ):
+            return (), "requirement_gap_not_compiled"
+        world_slot = _n7_requirement_family(source_gap)
+        if world_slot is not None:
+            from polisyos.data_requirement import compiled_requirements_for_world_slot
+
+            try:
+                matching_specs = compiled_requirements_for_world_slot(
+                    world_slot=world_slot,
+                    specs=tuple(spec for spec in specs if type(spec) is DataRequirementSpec),
+                    capability_resolutions=capability_resolutions,
+                )
+            except (TypeError, ValueError):
+                return (), "requirement_gap_not_compiled"
+    else:
+        # Historical/unmarked family matching remains its own replay law.
+        # An inventory row alone cannot appoint a source or broaden that law.
+        matching_specs = tuple(
+            spec
+            for spec in specs
+            if _n7_compiler_gap_matches_source(spec, source_gap, strict_family=strict_family)
+        )
     if len(matching_specs) != 1:
         return (), "requirement_gap_not_compiled"
     compiled_ref = matching_specs[0].requirement_id
@@ -4975,6 +5009,7 @@ def _n7_source_semantic_planning_gaps(
     This is a planning projection, not evidence that compiler facets are satisfied.
     """
     source_gap = AcquisitionRequirementGap.model_validate(source_gap.model_dump(mode="json"))
+    source_family = _n7_requirement_family(source_gap)
     selected = tuple(
         gap
         for gap in compiler_gaps
@@ -5017,6 +5052,7 @@ def _n7_source_semantic_planning_gaps(
                     *source_gap.scenario_requirement_refs,
                     source_gap.requirement_gap_id,
                     source_gap.compiled_requirement_ref,
+                    *((source_family,) if source_family is not None else ()),
                     *gap.scenario_requirement_refs,
                     gap.compiled_requirement_ref,
                     binding_ref,
@@ -5034,6 +5070,7 @@ def _n7_planner_join_records_match(
     specs: Sequence[object],
     capability_resolutions: Sequence[CapabilityRequirementResolution] | None,
     report: AcquisitionPlannerReport,
+    require_descriptor_join: bool = False,
 ) -> bool:
     """Recompute the full planning records from validated source/compiler inputs.
 
@@ -5045,6 +5082,7 @@ def _n7_planner_join_records_match(
         specs=specs,
         capability_resolutions=capability_resolutions,
         strict_family=True,
+        require_descriptor_join=require_descriptor_join,
     )
     if routing_error is not None:
         return False
@@ -5066,6 +5104,8 @@ def _n7_planner_join_records_match(
 
 
 _N7_SOURCE_JOIN_RULE = "policyos.runtime.n7_source_compiler_join.v1"
+_N7_SOURCE_DESCRIPTOR_JOIN_RULE = "policyos.runtime.n7_source_compiler_descriptor_join.v1"
+_N7_SOURCE_JOIN_RULES = (_N7_SOURCE_JOIN_RULE, _N7_SOURCE_DESCRIPTOR_JOIN_RULE)
 
 
 def _n7_legacy_planner_records_match(
@@ -5332,11 +5372,18 @@ def _n7_validate_candidate_checkpoint(
     request_in_cycle = (
         cycle.get("revision_request", {}).get("strategy_payload", {}).get("acquisition_request")
     )
+    source_join_rule = (
+        request_in_cycle.get("n7_source_join_rule", _N7_SOURCE_JOIN_RULE)
+        if isinstance(request_in_cycle, Mapping)
+        else None
+    )
+    if source_join_rule not in _N7_SOURCE_JOIN_RULES:
+        raise ValueError("n7_candidate_source_rule_unsupported")
     expected_request = (
         {
             **request_in_cycle,
             "cycle_index": checkpoint.cycle_index,
-            "n7_source_join_rule": _N7_SOURCE_JOIN_RULE,
+            "n7_source_join_rule": source_join_rule,
             "n7_candidate_source_ref": checkpoint_ref.model_dump(mode="json"),
         }
         if isinstance(request_in_cycle, Mapping)
@@ -5373,7 +5420,9 @@ def _n7_validate_candidate_checkpoint(
 
     basis = report.requirement_basis_binding
     if basis is None or _validate_persisted_data_requirement_compilation_report(
-        store=store, binding=basis
+        store=store,
+        binding=basis,
+        require_selected_writer_profile=source_join_rule == _N7_SOURCE_DESCRIPTOR_JOIN_RULE,
     ):
         raise ValueError("n7_candidate_source_compiler_basis_missing")
     compiler_report = DataRequirementCompilationReport.model_validate(
@@ -5390,6 +5439,7 @@ def _n7_validate_candidate_checkpoint(
             specs=compiler_report.specs,
             capability_resolutions=compiler_report.capability_requirement_resolutions,
             report=report,
+            require_descriptor_join=source_join_rule == _N7_SOURCE_DESCRIPTOR_JOIN_RULE,
         )
     ):
         raise ValueError("n7_candidate_source_compiler_projection_mismatch")
@@ -5990,8 +6040,8 @@ def acquisition_report_inputs(
         artifact_id = str(basis_binding.compiler_report_ref.artifact_id)
         if artifact_id not in seen:
             inputs.append(
-                artifacts.InputRef(
-                    artifact_id=basis_binding.compiler_report_ref.artifact_id,
+                artifacts.input_ref_from_artifact_ref(
+                    basis_binding.compiler_report_ref,
                     role="data_requirement_compiler_report",
                 )
             )
@@ -6048,6 +6098,26 @@ def data_requirement_compilation_report_digest(
     return _stable_content_hash(report.model_dump(mode="json"))
 
 
+def _data_requirement_compilation_write_profile(
+    report: DataRequirementCompilationReport,
+) -> tuple[artifacts.PutOptions, canon.CanonSpec]:
+    """Declare the actual compiler-report representation shared by writer/readers."""
+
+    spec = canon.CanonSpec(forbid_floats=False)
+    return (
+        artifacts.PutOptions(
+            kind=DATA_REQUIREMENT_COMPILATION_ARTIFACT_KIND,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name=DATA_REQUIREMENT_COMPILATION_ARTIFACT_SCHEMA,
+                version=report.schema_version,
+            ),
+            canon=artifacts.CanonInfo.from_spec(spec),
+        ),
+        spec,
+    )
+
+
 def persist_and_verify_data_requirement_compilation_report(
     store: ArtifactStore,
     report: DataRequirementCompilationReport,
@@ -6061,17 +6131,12 @@ def persist_and_verify_data_requirement_compilation_report(
     scenario_id = _required_text(expected_scenario_id)
     if not _compiler_report_source_binding_is_complete(report, scenario_id=scenario_id):
         raise ValueError("n7_compiler_report_subject_or_input_binding_mismatch")
+    options, spec = _data_requirement_compilation_write_profile(report)
     ref = store.put_json(
         report,
-        artifacts.PutOptions(
-            kind=DATA_REQUIREMENT_COMPILATION_ARTIFACT_KIND,
-            media_type="application/json",
-            schema=artifacts.SchemaInfo(
-                name=DATA_REQUIREMENT_COMPILATION_ARTIFACT_SCHEMA,
-                version=report.schema_version,
-            ),
-        ),
-        canon_spec=canon.CanonSpec(forbid_floats=False),
+        options,
+        canon_spec=spec,
+        return_selected_profile=True,
     )
     binding = AcquisitionRequirementBasisBinding(
         compiler_report_ref=ref,
@@ -6085,6 +6150,7 @@ def persist_and_verify_data_requirement_compilation_report(
         store=store,
         binding=binding,
         expected_report=report,
+        require_selected_writer_profile=True,
     )
     if issues:
         raise ValueError(json.dumps(issues, sort_keys=True))
@@ -6096,17 +6162,23 @@ def _validate_persisted_data_requirement_compilation_report(
     store: ArtifactStore,
     binding: AcquisitionRequirementBasisBinding,
     expected_report: DataRequirementCompilationReport | None = None,
+    require_selected_writer_profile: bool = False,
 ) -> tuple[dict[str, Any], ...]:
     """Resolve a basis CAS ref and compare its complete typed report and digest."""
 
     ref = binding.compiler_report_ref
+    if require_selected_writer_profile and ref.manifest_profile_sha256 is None:
+        return ({"code": "n7_compiler_report_selected_writer_profile_missing"},)
     try:
         if (
             ref.kind != DATA_REQUIREMENT_COMPILATION_ARTIFACT_KIND
             or ref.media_type != "application/json"
         ):
             return ({"code": "n7_compiler_report_ref_profile_mismatch"},)
-        manifest = store.get_manifest(ref)
+        if require_selected_writer_profile:
+            manifest, _declaration = artifacts.read_core_manifest_profile(store, ref)
+        else:
+            manifest = store.get_manifest(ref)
         schema = manifest.artifact_schema
         if (
             manifest.kind != DATA_REQUIREMENT_COMPILATION_ARTIFACT_KIND
@@ -6119,6 +6191,22 @@ def _validate_persisted_data_requirement_compilation_report(
 
         payload = load_core_json_artifact(store, ref)
         report = DataRequirementCompilationReport.model_validate(payload)
+        if require_selected_writer_profile:
+            options, spec = _data_requirement_compilation_write_profile(report)
+            expected_manifest = artifacts.expected_artifact_manifest_for_write(
+                artifact_id=ref.artifact_id,
+                data=canon.to_canonical_bytes(report, spec),
+                opts=options,
+                created_at=manifest.created_at,
+            )
+            if artifacts.artifact_manifest_profile_projection(
+                manifest
+            ) != artifacts.artifact_manifest_profile_projection(
+                expected_manifest
+            ) or ref.manifest_profile_sha256 != artifacts.artifact_manifest_profile_sha256(
+                expected_manifest
+            ):
+                return ({"code": "n7_compiler_report_selected_writer_profile_mismatch"},)
     except Exception as exc:
         return ({"code": "n7_compiler_report_readback_failed", "error": str(exc)},)
     if schema.version != report.schema_version:
@@ -6172,13 +6260,21 @@ def validate_persisted_data_requirement_compilation_report(
     binding: AcquisitionRequirementBasisBinding,
     *,
     expected_report: DataRequirementCompilationReport | None = None,
+    require_selected_writer_profile: bool = False,
 ) -> tuple[dict[str, Any], ...]:
-    """Validate a compiler report CAS binding against an optional fresh replay."""
+    """Validate compiler content and optionally its exact current write representation.
+
+    Historical/default readers retain the existing profile-compatible path.
+    New selected-source admission can require the complete producer-owned write
+    profile; this proves representation/custody conformity, not producer authenticity
+    or authority to use the report's external source as claim evidence.
+    """
 
     return _validate_persisted_data_requirement_compilation_report(
         store=store,
         binding=binding,
         expected_report=expected_report,
+        require_selected_writer_profile=require_selected_writer_profile,
     )
 
 

@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Iterable, Mapping
+from datetime import date
 from typing import Any, Literal, Protocol, runtime_checkable
 
 from pydantic import (
@@ -136,6 +137,49 @@ class RequirementToCapabilityQuery(BaseModel):
     @classmethod
     def _clean_text_tuple(cls, value: object) -> tuple[str, ...]:
         return _text_tuple(value)
+
+
+def candidate_source_time_coverage(
+    *,
+    query_window: RequirementTimeWindow,
+    source_start: str | None,
+    source_end: str | None,
+) -> tuple[str | None, tuple[str, ...]]:
+    """Compare declared ISO calendar intervals without inventing missing dates.
+
+    This uses the kernel's calendar-date parsing law. A malformed or inverted
+    declared interval refuses; absent bounds remain named candidate unknowns.
+    No refusal is compatibility, not proof of an observation or current release.
+    """
+
+    try:
+        q_start = date.fromisoformat(query_window.start) if query_window.start is not None else None
+        q_end = date.fromisoformat(query_window.end) if query_window.end is not None else None
+    except (TypeError, ValueError):
+        return "requirement_time_window_invalid", ()
+    if q_start is not None and q_end is not None and q_end < q_start:
+        return "requirement_time_window_inverted", ()
+    try:
+        s_start = date.fromisoformat(source_start) if source_start is not None else None
+        s_end = date.fromisoformat(source_end) if source_end is not None else None
+    except (TypeError, ValueError):
+        return "source_time_window_invalid", ()
+    if s_start is not None and s_end is not None and s_end < s_start:
+        return "source_time_window_inverted", ()
+    if (q_start is not None and s_end is not None and s_end < q_start) or (
+        q_end is not None and s_start is not None and s_start > q_end
+    ):
+        return "time_window_outside_claim", ()
+    if (q_start is not None and s_start is not None and s_start > q_start) or (
+        q_end is not None and s_end is not None and s_end < q_end
+    ):
+        return "time_window_not_covered", ()
+    unknowns: list[str] = []
+    if q_start is None or q_end is None:
+        unknowns.append("requirement_time_coverage_not_established")
+    if s_start is None or s_end is None:
+        unknowns.append("source_time_coverage_not_established")
+    return None, tuple(unknowns)
 
 
 @runtime_checkable
@@ -382,6 +426,7 @@ __all__ = [
     "RequirementToCapabilityQuery",
     "ScenarioFamilyConstructRow",
     "ScenarioFamilyConstructRows",
+    "candidate_source_time_coverage",
     "construct_for_legacy_family",
     "legacy_family_for_construct",
 ]

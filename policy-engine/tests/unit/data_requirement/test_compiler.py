@@ -2195,3 +2195,282 @@ def test_grammar_unavailable_candidate_merge_does_not_upgrade_legacy_denominator
         assert families == ["wdi_nominal_gdp_annual"]
         assert report.requirement_basis.source == "governed_capability_resolution"
         assert report.requirement_basis.basis_grade == "recomputed"
+
+
+@pytest.mark.parametrize(
+    ("construct", "population", "source_family", "world_slot"),
+    [
+        ("economic.gdp", "national_economy", "wdi_nominal_gdp_annual", "global.gdp"),
+        (
+            "labor.unemployment_rate",
+            "total_labor_force",
+            "wdi_unemployment_laborforce_annual",
+            "global.unemployment_rate",
+        ),
+    ],
+)
+def test_declared_world_slot_joins_exact_canonical_construct_need(
+    construct: str,
+    population: str,
+    source_family: str,
+    world_slot: str,
+) -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    scenario = _declared_source_scenario(construct, population)
+    scenario["expected_evidence_contract"] = {"admissible_data_source_families": [world_slot]}
+    resolver = RequirementToCapabilityResolver.governed_fixture()
+    report = DataRequirementCompiler(capability_resolver=resolver).compile_for_scenario(scenario)
+    # The slot declaration is the same declared need only through the actual
+    # content-bound source mapping, never because names or families look alike.
+    assert [spec.required_data_families for spec in report.specs] == [(source_family,)]
+    matches = compiler_module.compiled_requirements_for_world_slot(
+        world_slot=world_slot,
+        specs=report.specs,
+        capability_resolutions=report.capability_requirement_resolutions,
+    )
+    assert len(matches) == 1
+    spec = matches[0]
+    (resolution,) = report.capability_requirement_resolutions
+    assert spec.metadata["capability_binding"]["requirement_id"] == resolution.query.requirement_id
+    assert spec.metadata["capability_binding"]["construct_ref"] == f"construct:{construct}"
+    assert spec.metadata["construct_ref"] == f"construct:{construct}"
+    assert resolution.binding.status.startswith("blocked_")
+    assert resolver.resolve(resolution.query).satisfies_claim_evidence is False
+    assert report.requirement_basis.basis_grade == "recomputed"
+    assert report.metadata["declared_legacy_data_source_families"] == [world_slot]
+    assert "policyos.data_requirement.world_slot_projection.v1" in report.rule_version_refs
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["missing_slot", "foreign_metric", "foreign_dataset", "foreign_population", "missing_fetch"],
+)
+def test_world_slot_join_requires_actual_declared_source_binding(mutation: str) -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    original = RequirementToCapabilityResolver.governed_fixture()
+    source = next(
+        row for row in original.capabilities if row.construct_id == "labor.unemployment_rate"
+    )
+    (asset,) = source.source_assets
+    metadata = {
+        **asset.metadata,
+        "catalog_fetch_binding": dict(asset.metadata["catalog_fetch_binding"]),
+    }
+    if mutation == "missing_slot":
+        metadata.pop("target_world_slot")
+    elif mutation == "foreign_metric":
+        metadata["catalog_fetch_binding"]["metric_id"] = "economic.gdp"
+    elif mutation == "foreign_dataset":
+        metadata["catalog_fetch_binding"]["dataset_id"] = "wrong-dataset"
+    elif mutation == "foreign_population":
+        metadata["population_scope"] = "households"
+    else:
+        metadata.pop("catalog_fetch_binding")
+    source = source.model_copy(
+        update={"source_assets": (asset.model_copy(update={"metadata": metadata}),)}
+    )
+    resolver = RequirementToCapabilityResolver(
+        capabilities=(source,), capability_index_ref=original.capability_index_ref
+    )
+    scenario = _declared_source_scenario("labor.unemployment_rate", "total_labor_force")
+    scenario["expected_evidence_contract"] = {
+        "admissible_data_source_families": ["global.unemployment_rate"]
+    }
+    report = DataRequirementCompiler(capability_resolver=resolver).compile_for_scenario(scenario)
+    # The actual resolver regenerates the descriptor digest after this source
+    # input mutation; retaining an old digest is not the refusal under test.
+    (resolution,) = report.capability_requirement_resolutions
+    assert resolution.candidate_discovery.candidates
+    assert (
+        compiler_module.compiled_requirements_for_world_slot(
+            world_slot="global.unemployment_rate",
+            specs=report.specs,
+            capability_resolutions=report.capability_requirement_resolutions,
+        )
+        == ()
+    )
+    assert len(report.specs) == 2
+    assert report.requirement_basis.basis_grade == "consumer_asserted"
+    assert report.metadata["candidate_world_slot_aliases"] == []
+    assert resolution.binding.status.startswith("blocked_")
+
+
+def test_world_slot_join_refuses_foreign_slot_or_unbound_spec() -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    report = DataRequirementCompiler(
+        capability_resolver=RequirementToCapabilityResolver.governed_fixture()
+    ).compile_for_scenario(
+        _declared_source_scenario("labor.unemployment_rate", "total_labor_force")
+    )
+    assert (
+        compiler_module.compiled_requirements_for_world_slot(
+            world_slot="global.gdp",
+            specs=report.specs,
+            capability_resolutions=report.capability_requirement_resolutions,
+        )
+        == ()
+    )
+    (spec,) = report.specs
+    metadata = dict(spec.metadata)
+    metadata.pop("capability_binding")
+    unbound = DataRequirementSpec.model_validate(
+        {**spec.model_dump(mode="json"), "metadata": metadata}
+    )
+    assert (
+        compiler_module.compiled_requirements_for_world_slot(
+            world_slot="global.unemployment_rate",
+            specs=(unbound,),
+            capability_resolutions=report.capability_requirement_resolutions,
+        )
+        == ()
+    )
+
+
+def test_world_slot_join_preserves_multiple_matching_claim_specs_as_ambiguous() -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    scenario = _declared_source_scenario("labor.unemployment_rate", "total_labor_force")
+    report = DataRequirementCompiler(
+        capability_resolver=RequirementToCapabilityResolver.governed_fixture()
+    ).compile_for_claim_ledger(
+        run_id="world-slot-two-claims",
+        scenario_id=scenario["scenario_id"],
+        facet_snapshots=(),
+        scope_profile=compiler_module._scenario_scope_profile(scenario),
+        claim_ledger={
+            "claims": [
+                {
+                    "claim_id": claim_id,
+                    "claim_family": "implementation",
+                    "claim_type": "implementation",
+                    "claim_use": "decision_support",
+                    "text": "Use the declared annual labor-market source.",
+                    "metadata": {"required_constructs": ["labor.unemployment_rate"]},
+                }
+                for claim_id in ("claim:one", "claim:two")
+            ]
+        },
+    )
+    assert len(report.specs) == 2
+    matches = compiler_module.compiled_requirements_for_world_slot(
+        world_slot="global.unemployment_rate",
+        specs=report.specs,
+        capability_resolutions=report.capability_requirement_resolutions,
+    )
+    assert len(matches) == 2
+    assert {spec.claim_id for spec in matches} == {"claim:one", "claim:two"}
+
+
+def test_world_slot_join_preserves_source_alternatives_inside_one_spec() -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    original = RequirementToCapabilityResolver.governed_fixture()
+    source = next(
+        row for row in original.capabilities if row.construct_id == "labor.unemployment_rate"
+    )
+    (asset,) = source.source_assets
+    alternate = source.model_copy(
+        update={
+            "capability_id": source.capability_id + ":alternative",
+            "source_assets": (asset.model_copy(update={"ref": asset.ref + "?alternative"}),),
+        }
+    )
+    resolver = RequirementToCapabilityResolver(
+        capabilities=(source, alternate), capability_index_ref=original.capability_index_ref
+    )
+    scenario = _declared_source_scenario("labor.unemployment_rate", "total_labor_force")
+    scenario["expected_evidence_contract"] = {
+        "admissible_data_source_families": ["global.unemployment_rate"]
+    }
+    report = DataRequirementCompiler(capability_resolver=resolver).compile_for_scenario(scenario)
+    assert len(report.specs) == 1
+    matches = compiler_module.compiled_requirements_for_world_slot(
+        world_slot="global.unemployment_rate",
+        specs=report.specs,
+        capability_resolutions=report.capability_requirement_resolutions,
+    )
+    assert len(matches) == 1
+    (resolution,) = report.capability_requirement_resolutions
+    assert {
+        candidate.capability_ref for candidate in resolution.candidate_discovery.candidates
+    } == {source.capability_id, alternate.capability_id}
+    assert resolver.resolve(resolution.query).satisfies_claim_evidence is False
+
+
+def test_world_slot_join_preserves_valid_optional_fetch_profile() -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    original = RequirementToCapabilityResolver.governed_fixture()
+    source = next(row for row in original.capabilities if row.construct_id == "economic.gdp")
+    (asset,) = source.source_assets
+    metadata = {
+        **asset.metadata,
+        "catalog_fetch_binding": {**asset.metadata["catalog_fetch_binding"], "profile_id": None},
+    }
+    source = source.model_copy(
+        update={"source_assets": (asset.model_copy(update={"metadata": metadata}),)}
+    )
+    report = DataRequirementCompiler(
+        capability_resolver=RequirementToCapabilityResolver(
+            capabilities=(source,), capability_index_ref=original.capability_index_ref
+        )
+    ).compile_for_scenario(_declared_source_scenario("economic.gdp", "national_economy"))
+    matches = compiler_module.compiled_requirements_for_world_slot(
+        world_slot="global.gdp",
+        specs=report.specs,
+        capability_resolutions=report.capability_requirement_resolutions,
+    )
+    assert len(matches) == 1
+    (resolution,) = report.capability_requirement_resolutions
+    assert (
+        resolution.candidate_discovery.candidates[0].source_assets[0]["metadata"][
+            "catalog_fetch_binding"
+        ]["profile_id"]
+        is None
+    )
+    assert resolution.candidate_discovery.satisfies_claim_evidence is False
+
+
+@pytest.mark.parametrize(
+    ("source_window", "compatible"),
+    [
+        ({"time_start": "0000-garbage", "time_end": "9999-garbage"}, False),
+        ({"time_start": "2025-01-01", "time_end": "2023-01-01"}, False),
+        ({"time_start": "2024-W01-1", "time_end": "2024-12-31"}, True),
+    ],
+)
+def test_world_slot_receiver_reconciles_calendar_scope_after_valid_rehash(
+    source_window: dict[str, str],
+    compatible: bool,
+) -> None:
+    from polisyos.data_requirement import CapabilityRequirementResolution
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    report = DataRequirementCompiler(
+        capability_resolver=RequirementToCapabilityResolver.governed_fixture()
+    ).compile_for_scenario(_declared_source_scenario("economic.gdp", "national_economy"))
+    (resolution,) = report.capability_requirement_resolutions
+    wire = resolution.model_dump(mode="json")
+    (candidate,) = wire["candidate_discovery"]["candidates"]
+    candidate["descriptor"]["scope"].update(source_window)
+    candidate["content_digest"] = (
+        "sha256:"
+        + hashlib.sha256(
+            json.dumps(
+                candidate["descriptor"],
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            ).encode()
+        ).hexdigest()
+    )
+    rebound = CapabilityRequirementResolution.model_validate(wire)
+    matches = compiler_module.compiled_requirements_for_world_slot(
+        world_slot="global.gdp", specs=report.specs, capability_resolutions=(rebound,)
+    )
+    assert bool(matches) is compatible
+    assert rebound.candidate_discovery.satisfies_claim_evidence is False

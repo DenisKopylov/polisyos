@@ -820,3 +820,113 @@ def test_source_discovery_wire_tampering_refuses(mutation: str) -> None:
         wire["requires_native_source_admission"] = False
     with pytest.raises(ValueError):
         CapabilitySourceDiscoveryResult.model_validate(wire)
+
+
+@pytest.mark.parametrize(
+    ("source_change", "reason"),
+    [
+        ({"jurisdiction": "GBR"}, "jurisdiction_mismatch"),
+        ({"time_start": "2024-06-01"}, "time_window_not_covered"),
+        ({"time_end": "2024-06-30"}, "time_window_not_covered"),
+    ],
+)
+def test_candidate_discovery_checks_jurisdiction_and_full_known_interval(
+    source_change: dict[str, str],
+    reason: str,
+) -> None:
+    original = RequirementToCapabilityResolver.governed_fixture()
+    source = next(row for row in original.capabilities if row.construct_id == "economic.gdp")
+    source = source.model_copy(
+        update={
+            "scope": CapabilityScope.model_validate(
+                {**source.scope.model_dump(mode="python"), **source_change}
+            )
+        }
+    )
+    resolver = RequirementToCapabilityResolver(capabilities=(source,))
+    query = _query(
+        construct="economic.gdp",
+        entity_scope="country",
+        population_filter={"type": "national_economy"},
+        geography="USA",
+        time_window={"start": "2024-01-01", "end": "2024-12-31"},
+    )
+    authority_before = resolver.resolve(query).model_dump(mode="json")
+    result = resolver.discover_sources(query)
+    assert result.state == "no_match"
+    assert result.candidates == ()
+    assert result.rejected_candidates[0]["rejection_reason"] == reason
+    assert resolver.resolve(query).model_dump(mode="json") == authority_before
+
+
+@pytest.mark.parametrize(
+    ("source_window", "query_window", "reason"),
+    [
+        (
+            {"time_start": "0000-garbage", "time_end": "9999-garbage"},
+            None,
+            "source_time_window_invalid",
+        ),
+        ({"time_start": "2024-02-30"}, None, "source_time_window_invalid"),
+        (
+            {"time_start": "2025-01-01", "time_end": "2023-01-01"},
+            None,
+            "source_time_window_inverted",
+        ),
+        ({}, {"start": "not-a-date", "end": "2024-12-31"}, "requirement_time_window_invalid"),
+        ({}, {"start": "2025-01-01", "end": "2024-12-31"}, "requirement_time_window_inverted"),
+    ],
+)
+def test_candidate_time_coverage_refuses_malformed_or_inverted_calendar_windows(
+    source_window: dict[str, str],
+    query_window: dict[str, str] | None,
+    reason: str,
+) -> None:
+    original = RequirementToCapabilityResolver.governed_fixture()
+    source = next(row for row in original.capabilities if row.construct_id == "economic.gdp")
+    source = source.model_copy(
+        update={
+            "scope": CapabilityScope.model_validate(
+                {**source.scope.model_dump(mode="python"), **source_window}
+            )
+        }
+    )
+    resolver = RequirementToCapabilityResolver(capabilities=(source,))
+    query = _query(
+        construct="economic.gdp",
+        entity_scope="country",
+        population_filter={"type": "national_economy"},
+        geography="USA",
+        time_window=query_window or {"start": "2024-01-01", "end": "2024-12-31"},
+    )
+    result = resolver.discover_sources(query)
+    assert result.state == "no_match"
+    assert result.rejected_candidates[0]["rejection_reason"] == reason
+
+
+def test_candidate_calendar_coverage_is_semantic_not_lexicographic() -> None:
+    original = RequirementToCapabilityResolver.governed_fixture()
+    source = next(row for row in original.capabilities if row.construct_id == "economic.gdp")
+    source = source.model_copy(
+        update={
+            "scope": CapabilityScope.model_validate(
+                {
+                    **source.scope.model_dump(mode="python"),
+                    "time_start": "2024-W01-1",
+                    "time_end": "2024-12-31",
+                }
+            )
+        }
+    )
+    result = RequirementToCapabilityResolver(capabilities=(source,)).discover_sources(
+        _query(
+            construct="economic.gdp",
+            entity_scope="country",
+            population_filter={"type": "national_economy"},
+            geography="USA",
+            time_window={"start": "2024-01-01", "end": "2024-12-31"},
+        )
+    )
+    assert len(result.candidates) == 1
+    assert "source_time_coverage_not_established" not in result.candidates[0].limitations
+    assert result.satisfies_claim_evidence is False

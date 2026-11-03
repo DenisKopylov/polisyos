@@ -15,6 +15,7 @@ from polisyos.core import contracts
 from polisyos.core.contracts.capability_resolution import (
     CapabilitySourceDiscoveryResult,
     CapabilitySourceDiscoveryUnavailableError,
+    candidate_source_time_coverage,
 )
 from polisyos.ir import governance
 from polisyos.obligation_graph import (
@@ -667,11 +668,45 @@ class DataRequirementCompiler:
         canonical_families = {
             family for spec in compiled.specs for family in spec.required_data_families
         }
-        legacy_only_specs = tuple(
-            spec
-            for spec in specs
-            if not canonical_families.intersection(spec.required_data_families)
+        legacy_only: list[DataRequirementSpec] = []
+        slot_aliases: list[dict[str, str]] = []
+        source_refs_by_requirement: dict[str, list[str]] = {}
+        for spec in specs:
+            if canonical_families.intersection(spec.required_data_families):
+                continue
+            world_slot = spec.required_data_families[0]
+            matched = compiled_requirements_for_world_slot(
+                world_slot=world_slot,
+                specs=compiled.specs,
+                capability_resolutions=compiled.capability_requirement_resolutions,
+            )
+            if len(matched) != 1:
+                legacy_only.append(spec)
+                continue
+            canonical_ref = matched[0].requirement_id
+            source_refs_by_requirement.setdefault(canonical_ref, []).extend(
+                spec.source_requirement_refs
+            )
+            slot_aliases.append(
+                {"world_slot": world_slot, "compiled_requirement_ref": canonical_ref}
+            )
+        canonical_specs = tuple(
+            DataRequirementSpec.model_validate(
+                {
+                    **spec.model_dump(mode="json"),
+                    "source_requirement_refs": list(
+                        dict.fromkeys(
+                            (
+                                *spec.source_requirement_refs,
+                                *source_refs_by_requirement.get(spec.requirement_id, ()),
+                            )
+                        )
+                    ),
+                }
+            )
+            for spec in compiled.specs
         )
+        legacy_only_specs = tuple(legacy_only)
         basis = compiled.requirement_basis
         if legacy_only_specs:
             # A verified canonical subset cannot upgrade a caller-only tail.
@@ -693,7 +728,7 @@ class DataRequirementCompiler:
         payload.update(
             {
                 "specs": [
-                    spec.model_dump(mode="json") for spec in (*compiled.specs, *legacy_only_specs)
+                    spec.model_dump(mode="json") for spec in (*canonical_specs, *legacy_only_specs)
                 ],
                 "legacy_admissible_data_source_families": [],
                 "requirement_basis": basis.model_dump(mode="json"),
@@ -707,12 +742,23 @@ class DataRequirementCompiler:
                         "policy_execution",
                     ],
                     "family_declaration": family_declaration,
+                    "declared_legacy_data_source_families": list(families),
+                    "candidate_world_slot_aliases": slot_aliases,
                     "candidate_construct_proposals": (
                         scope_profile.candidate_construct_proposals if scope_profile else ()
                     ),
                 },
             }
         )
+        if slot_aliases:
+            payload["rule_version_refs"] = list(
+                dict.fromkeys(
+                    (
+                        *compiled.rule_version_refs,
+                        "policyos.data_requirement.world_slot_projection.v1",
+                    )
+                )
+            )
         return DataRequirementCompilationReport.model_validate(payload)
 
     def _resolver_for_compilation(self) -> CapabilityResolverPort | None:
@@ -731,6 +777,153 @@ def compile_data_requirements_for_scenario(
     """Compile data requirements for a scenario mapping."""
 
     return DataRequirementCompiler().compile_for_scenario(scenario)
+
+
+def compiled_requirements_for_world_slot(
+    *,
+    world_slot: str,
+    specs: Sequence[DataRequirementSpec],
+    capability_resolutions: Sequence[CapabilityRequirementResolution] | None,
+) -> tuple[DataRequirementSpec, ...]:
+    """Recompute candidate slot-to-need joins from actual compiler carriers.
+
+    Only an exact owner spec/query/profile and digest-validated source asset
+    declaration can join a world slot to a construct. An empty result means no
+    established join; multiple spec occurrences are ambiguous. Source
+    alternatives inside one discovery remain intact for later selected-digest
+    admission. This lookup grants neither source nor claim authority.
+    """
+
+    if not isinstance(world_slot, str) or not world_slot.strip():
+        raise ValueError("compiled_requirement_world_slot_invalid")
+    rows = tuple(
+        CapabilityRequirementResolution.model_validate(row.model_dump(mode="json"))
+        for row in capability_resolutions or ()
+    )
+    matches: list[DataRequirementSpec] = []
+    for original in specs:
+        if type(original) is not DataRequirementSpec:
+            continue
+        spec = DataRequirementSpec.model_validate(original.model_dump(mode="json"))
+        linked = tuple(row for row in rows if _world_slot_spec_query_matches(spec, row))
+        if len(linked) != 1:
+            continue
+        resolution = linked[0]
+        discovery = resolution.candidate_discovery
+        if discovery is not None and any(
+            _world_slot_source_asset_matches(world_slot, spec, resolution, candidate.scope, asset)
+            for candidate in discovery.candidates
+            for asset in candidate.source_assets
+        ):
+            matches.append(original)
+    return tuple(matches)
+
+
+def _world_slot_spec_query_matches(
+    spec: DataRequirementSpec,
+    resolution: CapabilityRequirementResolution,
+) -> bool:
+    binding = resolution.binding
+    discovery = resolution.candidate_discovery
+    if binding is None or discovery is None or discovery.state != "candidates_returned":
+        return False
+    if (
+        spec.metadata.get("capability_binding") != binding.model_dump(mode="json")
+        or spec.metadata.get("construct_ref") != binding.construct_ref
+        or spec.metadata.get("capability_index_ref") != discovery.capability_index_ref
+        or spec.required_data_families != (resolution.query.source_family_alias,)
+    ):
+        return False
+    raw_profile = spec.metadata.get("scope_profile")
+    if not isinstance(raw_profile, Mapping) or raw_profile.get("unrepresented_fields"):
+        return False
+    try:
+        profile = _parse_scenario_scope_profile(
+            {key: value for key, value in raw_profile.items() if key != "unrepresented_fields"},
+            source="compiled_requirement.scope_profile",
+        )
+    except ScenarioScopeProfileInputError:
+        return False
+    query = resolution.query
+    return (
+        not profile.unrepresented_fields
+        and profile.profile_id == resolution.scope_profile_id
+        and query.construct in profile.required_constructs
+        and profile.population is not None
+        and profile.entity_scope is not None
+        and profile.jurisdiction is not None
+        and profile.time_start is not None
+        and profile.time_end is not None
+        and profile.granularity is not None
+        and profile.time_role == spec.scope.time_role == "observation_time"
+        and query.entity_scope == profile.entity_scope
+        and query.population_filter == {"type": profile.population}
+        and query.geography == profile.jurisdiction == spec.scope.jurisdiction
+        and spec.scope.population == profile.population
+        and query.time_window.start == profile.time_start
+        and query.time_window.end == profile.time_end
+    )
+
+
+def _world_slot_source_asset_matches(
+    world_slot: str,
+    spec: DataRequirementSpec,
+    resolution: CapabilityRequirementResolution,
+    source_scope: Mapping[str, Any],
+    asset: Mapping[str, Any],
+) -> bool:
+    query = resolution.query
+    metadata = asset.get("metadata")
+    if not isinstance(metadata, Mapping) or metadata.get("target_world_slot") != world_slot:
+        return False
+    if query.time_window.start is None or query.time_window.end is None:
+        return False
+    if any(
+        source_scope.get(field) is not None
+        and (not isinstance(source_scope[field], str) or not source_scope[field].strip())
+        for field in (
+            "geography",
+            "jurisdiction",
+            "entity_scope",
+            "population",
+            "time_start",
+            "time_end",
+        )
+    ):
+        return False
+    fetch = metadata.get("catalog_fetch_binding")
+    if (
+        not isinstance(fetch, Mapping)
+        or set(fetch) != {"metric_id", "connector_id", "dataset_id", "profile_id"}
+        or any(
+            not isinstance(fetch[field], str) or not fetch[field].strip()
+            for field in ("metric_id", "connector_id", "dataset_id")
+        )
+        or (
+            fetch["profile_id"] is not None
+            and (not isinstance(fetch["profile_id"], str) or not fetch["profile_id"].strip())
+        )
+        or fetch["metric_id"] != query.construct
+        or (
+            metadata.get("indicator_id") is not None
+            and metadata["indicator_id"] != fetch["dataset_id"]
+        )
+        or metadata.get("population_scope") != spec.scope.population
+        or metadata.get("temporal_granularity") != spec.metadata["scope_profile"]["granularity"]
+        or not isinstance(metadata.get("canonical_unit"), str)
+        or not metadata["canonical_unit"].strip()
+        or source_scope.get("entity_scope") != query.entity_scope
+        or source_scope.get("population") != spec.scope.population
+        or source_scope.get("geography") not in {query.geography, "global", "multi_context"}
+        or source_scope.get("jurisdiction") not in {None, query.geography}
+    ):
+        return False
+    time_refusal, _ = candidate_source_time_coverage(
+        query_window=query.time_window,
+        source_start=source_scope.get("time_start"),
+        source_end=source_scope.get("time_end"),
+    )
+    return time_refusal is None
 
 
 def _strict_report_json_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -2618,6 +2811,7 @@ __all__ = [
     "DataRequirementCompiler",
     "ScenarioDomainInputError",
     "compile_data_requirements_for_scenario",
+    "compiled_requirements_for_world_slot",
     "data_requirement_compilation_audit_surface",
     "parse_data_requirement_compilation_report",
     "write_data_requirement_compilation_report",

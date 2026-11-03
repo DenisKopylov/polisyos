@@ -9227,12 +9227,26 @@
           "inputs_unchanged_during_run": true,
           "named_inputs": 17,
           "scope": "Owner component, not actual served action/recovery qualification. Five tests importing active Cycle/design sources explicitly excluded; Cycle will repeat them after its freeze."
+        },
+        "compiler_slot_calendar_planner": {
+          "output": "policy-engine/_cache/e02/lane01-requirements/world-slot-composed-r1",
+          "observed": {
+            "PASS": 261,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 18.26,
+          "peak_gib": 1.25,
+          "named_inputs": 28,
+          "inputs_unchanged_during_run": true,
+          "scope": "Full compiler/resolver and strict descriptor/profile planner modules; captured confidence_ledger80914361… precedes later independent readiness edit. No actual controller N7/served N5, installed or whole-current-tree qualification."
         }
       },
       "independent_component_reviews": {
         "selection": "lane01_inputs_review GO on source/outputs; shared N8 consumer separate",
         "numerics": "lane01_sim_review GO on 89-case outputs/current13inputs and actual quantile removal; Runtime separate",
-        "requirements": "lane01_inputs_review GO on actual228 and final9 outputs/current code/descriptor; source→N5 and installed remain separate",
+        "requirements": "GO on actual261 composed compiler/calendar/slot/planner/profile cases. Later readiness inspector delta excluded; actual served/installed remain separate.",
         "budget": "Independent owner review GO; 15 window/393 ledger-LLM and separate 13 native N5 quota PASS on named frozen inputs. Five Cycle-importing cases and actual served lifecycle remain pending."
       }
     },

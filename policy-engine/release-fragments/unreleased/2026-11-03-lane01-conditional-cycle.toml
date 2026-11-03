@@ -33,3 +33,15 @@ release_note = "Ledger snapshots1.7 add owner-bound physical N5 invocation alloc
 migration = "Read actual historical1.6/1.7 snapshots and continuation anchors without rewriting; the first real mutation writes1.8. Upgrade all ledger writers before1.8 writes because old writers are not forward-compatible. Existing unconfigured runs cannot retrospectively certify protected capacity."
 generated_client_compatibility = "not_applicable: this component adds Python engine APIs and ledger fields; Runtime transport companions follow the composed lane wave"
 limitations = "A fresh window is a pre-call gate, not a hard reservation of unknown concurrent USD costs. Native invocation counts do not establish price, invoice or calibration authority. Actual action/recovery/lifecycle composition remains separately qualified."
+
+[[compatibility_change]]
+id = "lane01-descriptor-join-and-selected-compiler-writer"
+change_class = "python-public-api-and-versioned-planning"
+impact = "additive"
+surface = "public_experimental: Core candidate_source_time_coverage, DataRequirement compiled_requirements_for_world_slot and Fabric validate_catalog_candidate_fetch_plans through existing facades"
+owner = "team-runtime"
+version_owner = "team-core"
+deprecation_window = "not_applicable"
+release_note = "Use one calendar-coverage law in candidate discovery and the compiler-owned descriptor/slot join. The new persisted descriptor-join rule cannot fall back to legacy family matching; old rules remain readable with their original semantics. Current selected compiler receipts can require the exact canonical writer profile while historical content-only reading remains explicit."
+generated_client_compatibility = "not_applicable: these experimental Python APIs do not change Runtime HTTP DTOs"
+limitations = "Candidate source discovery and selected writer conformity do not establish source authority, currentness, completeness, native acquisition or served N5 acceptance."

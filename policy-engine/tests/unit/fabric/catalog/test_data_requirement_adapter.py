@@ -1,12 +1,20 @@
 from __future__ import annotations
 
+from pathlib import Path
+
+import pytest
+
+from polisyos.core.contracts.capability_resolution import RequirementToCapabilityQuery
+from polisyos.core.contracts.control import FetchPlan
 from polisyos.data_requirement import (
+    CapabilityBindingSnapshot,
     CapabilityRequirementResolution,
     DataRequirementSpec,
 )
 from polisyos.fabric import project_data_requirement_to_catalog_needs
 from polisyos.fabric.catalog.data_requirement_adapter import (
     build_source_contract_requirement_bindings,
+    validate_catalog_candidate_fetch_plans,
 )
 
 
@@ -508,6 +516,228 @@ def test_catalog_projection_refuses_missing_granularity_and_profile_mismatch() -
     needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=base)
     assert needs == ()
     assert report["reason_codes"] == ["capability_resolution_profile_mismatch"]
+
+
+@pytest.mark.parametrize(
+    ("construct", "family", "indicator", "population"),
+    [
+        ("economic.gdp", "wdi_nominal_gdp_annual", "NY.GDP.MKTP.CD", "national_economy"),
+        (
+            "labor.unemployment_rate",
+            "wdi_unemployment_laborforce_annual",
+            "SL.UEM.TOTL.ZS",
+            "total_labor_force",
+        ),
+    ],
+)
+def test_governed_candidate_descriptor_selects_actual_catalog_metric_without_claim_authority(
+    construct: str, family: str, indicator: str, population: str
+) -> None:
+    """Use the real governed resolver result, not an always-success discovery stub."""
+
+    payload = _source_candidate_spec(construct=construct, family=family, population=population)
+    resolution = payload["capability_requirement_resolutions"][0]
+    authority_before = resolution["binding"]
+
+    needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=payload)
+
+    assert [need.metric for need in needs] == [construct]
+    assert needs[0].geography == "USA"
+    assert needs[0].time_start == "2024-01-01"
+    assert needs[0].time_end == "2024-12-31"
+    assert report["schema_version"] == "policyos.fabric.catalog_data_need_projection.v2"
+    assert report["authority_status"] == "not_established"
+    assert report["candidate_discovery_satisfies_claim_evidence"] is False
+    assert report["candidate_discovery_requires_native_source_admission"] is True
+    constraint = report["candidate_source_constraints"][0]
+    assert constraint["catalog_fetch_binding"]["dataset_id"] == indicator
+    assert constraint["declared_scope"]["population"] == population
+    assert constraint["content_digest"].startswith("sha256:")
+    assert constraint["query"] == resolution["query"]
+    assert payload["capability_requirement_resolutions"][0]["binding"] == authority_before
+    assert authority_before["status"].startswith("blocked_")
+    plan = FetchPlan(plan_id="candidate-only", **constraint["catalog_fetch_binding"])
+    validate_catalog_candidate_fetch_plans(requirement_projection=report, fetch_plans=[plan])
+
+
+@pytest.mark.parametrize(
+    ("field", "replacement", "reason"),
+    [
+        ("dataset_id", "OTHER.INDICATOR", "fetch_binding_mismatch"),
+        ("connector_id", "files.tabular", "fetch_binding_mismatch"),
+        ("profile_id", "other-profile", "fetch_binding_mismatch"),
+        ("metric_id", "other.construct", "plan_metric_mismatch"),
+    ],
+)
+def test_candidate_source_plan_identity_mismatch_is_not_a_selected_source(
+    field: str, replacement: str, reason: str
+) -> None:
+    payload = _source_candidate_spec()
+    _, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=payload)
+    binding = report["candidate_source_constraints"][0]["catalog_fetch_binding"]
+    wrong_plan = FetchPlan(plan_id="wrong-source", **{**binding, field: replacement})
+    with pytest.raises(ValueError, match=f"catalog_candidate_source_{reason}"):
+        validate_catalog_candidate_fetch_plans(
+            requirement_projection=report, fetch_plans=[wrong_plan]
+        )
+
+
+def test_candidate_source_contract_also_constrains_fallback_and_missing_execution_binding() -> None:
+    from polisyos.core.contracts.control import FetchPlanFallback
+
+    payload = _source_candidate_spec()
+    _, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=payload)
+    binding = report["candidate_source_constraints"][0]["catalog_fetch_binding"]
+    plan = FetchPlan(
+        plan_id="bound-primary",
+        **binding,
+        fallbacks=[FetchPlanFallback(**{**binding, "dataset_id": "unrelated"})],
+    )
+    with pytest.raises(ValueError, match="catalog_candidate_source_fetch_binding_mismatch"):
+        validate_catalog_candidate_fetch_plans(
+            requirement_projection=report, fetch_plans=[plan], allow_fallback=True
+        )
+    report["candidate_source_constraints"][0]["catalog_fetch_binding"] = None
+    with pytest.raises(ValueError, match="catalog_candidate_source_fetch_binding_mismatch"):
+        validate_catalog_candidate_fetch_plans(
+            requirement_projection=report,
+            fetch_plans=[plan.model_copy(update={"fallbacks": []})],
+        )
+
+
+@pytest.mark.parametrize("field", ["population", "entity_scope"])
+def test_candidate_descriptor_cannot_change_the_compiled_population_or_entity(field: str) -> None:
+    payload = _source_candidate_spec()
+    payload["metadata"]["scope_profile"][field] = "unrelated"
+    needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=payload)
+    assert needs == ()
+    assert report["disposition"] == "refused"
+    assert report["reason_codes"] == [
+        "scope_profile_population_conflict"
+        if field == "population"
+        else "capability_resolution_entity_scope_mismatch"
+    ]
+
+
+@pytest.mark.parametrize("family", ["wdi_nominal_gdp_annual", "economic.gdp"])
+def test_metadata_only_discovery_keeps_legacy_family_search_explicitly_unbound(family: str) -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    resolver = RequirementToCapabilityResolver.governed_fixture(Path(__file__).resolve().parents[4])
+    source = next(
+        capability
+        for capability in resolver.capabilities
+        if capability.construct_id == "economic.gdp"
+    )
+    metadata_only = source.model_copy(
+        update={
+            "source_assets": tuple(
+                asset.model_copy(update={"metadata": {}}) for asset in source.source_assets
+            )
+        }
+    )
+    payload = _source_candidate_spec(
+        family=family, resolver=RequirementToCapabilityResolver(capabilities=(metadata_only,))
+    )
+    needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=payload)
+    assert [need.metric for need in needs] == [family]
+    assert "candidate_catalog_fetch_binding_not_established" in report["limitations"]
+    assert (
+        report["candidate_source_constraints"][0]["catalog_fetch_binding_status"]
+        == "not_established"
+    )
+    assert report["authority_status"] == "not_established"
+    assert report["candidate_discovery_satisfies_claim_evidence"] is False
+    validate_catalog_candidate_fetch_plans(
+        requirement_projection=report,
+        fetch_plans=[
+            FetchPlan(
+                plan_id="legacy-family",
+                metric_id=family,
+                connector_id="files.tabular",
+                dataset_id="legacy-recorded-file",
+            )
+        ],
+    )
+
+
+@pytest.mark.parametrize("corruption", ["missing_field", "extra_field", "wrong_type"])
+def test_declared_source_binding_shape_cannot_be_partially_projected(corruption: str) -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    resolver = RequirementToCapabilityResolver.governed_fixture(Path(__file__).resolve().parents[4])
+    source = next(
+        capability
+        for capability in resolver.capabilities
+        if capability.construct_id == "economic.gdp"
+    )
+    asset = source.source_assets[0]
+    declared = dict(asset.metadata["catalog_fetch_binding"])
+    if corruption == "missing_field":
+        declared.pop("profile_id")
+    elif corruption == "extra_field":
+        declared["unrepresented_source_selector"] = "other"
+    else:
+        declared["metric_id"] = 42
+    malformed = source.model_copy(
+        update={
+            "source_assets": (
+                asset.model_copy(update={"metadata": {"catalog_fetch_binding": declared}}),
+            )
+        }
+    )
+    payload = _source_candidate_spec(
+        resolver=RequirementToCapabilityResolver(capabilities=(malformed,))
+    )
+    needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=payload)
+    assert needs == ()
+    assert report["reason_codes"] == ["candidate_source_fetch_binding_invalid"]
+
+
+def _source_candidate_spec(
+    *,
+    construct: str = "economic.gdp",
+    family: str = "wdi_nominal_gdp_annual",
+    population: str = "national_economy",
+    resolver: object | None = None,
+) -> dict:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    if resolver is None:
+        resolver = RequirementToCapabilityResolver.governed_fixture(
+            Path(__file__).resolve().parents[4]
+        )
+    query = RequirementToCapabilityQuery(
+        requirement_id="data-requirement:profile:usa-2024:" + construct,
+        construct=construct,
+        source_family_alias=family,
+        entity_scope="country",
+        population_filter={"type": population},
+        geography="USA",
+        time_window={"start": "2024-01-01", "end": "2024-12-31"},
+        claim_use="claim_evidence_closeout",
+    )
+    binding = resolver.resolve(query)
+    snapshot = {name: getattr(binding, name) for name in CapabilityBindingSnapshot.model_fields}
+    resolution = CapabilityRequirementResolution.model_validate(
+        {
+            "scope_profile_id": "profile:usa-2024",
+            "query": query.model_dump(mode="json", by_alias=True),
+            "state": "binding_returned",
+            "binding": snapshot,
+            "candidate_discovery": resolver.discover_sources(query).model_dump(mode="json"),
+        }
+    )
+    payload = _profiled_spec(
+        profile_id="profile:usa-2024", geography="USA", start="2024-01-01", end="2024-12-31"
+    ).model_dump(mode="json")
+    payload["required_data_families"] = [family]
+    payload["scope"]["population"] = population
+    payload["metadata"]["scope_profile"].update(
+        {"required_constructs": [construct], "population": population, "entity_scope": "country"}
+    )
+    payload["capability_requirement_resolutions"] = [resolution.model_dump(mode="json")]
+    return payload
 
 
 def _profiled_spec(

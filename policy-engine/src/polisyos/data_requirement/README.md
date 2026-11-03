@@ -195,3 +195,29 @@ same-family legacy projection; additional caller-only legacy families remain
 in the denominator with an aggregate `consumer_asserted` basis. A recomputed
 canonical subset cannot upgrade that tail. The report retains the grammar
 limitation and complete blocked or admitted claim binding independently.
+
+### World-Slot Requirement Joins
+
+`compiled_requirements_for_world_slot` recomputes a routing-only join from the
+existing typed specs and capability resolutions. It checks the complete spec
+binding, original query and scope profile, index, descriptor digest, declared
+source asset, target slot, and supported fetch/metric relationship. It returns
+all matching spec occurrences: zero is unresolved and more than one is
+ambiguous. Multiple source descriptors inside one spec remain available for
+later independent selected-digest admission; the helper never chooses one.
+
+A uniquely established slot declaration can reuse its canonical construct
+spec rather than create a second legacy need. The original declaration and
+source reference remain recorded. Unmapped or ambiguous declarations retain
+their legacy rows and consumer-asserted aggregate basis. Optional fetch
+`profile_id=None` remains valid. Semantic metric aliases require an actual
+owner-bound mapping; this helper does not invent equivalence for differing
+construct and metric identifiers.
+
+Candidate discovery rule v1.2 and this join share the neutral
+`candidate_source_time_coverage` predicate. It follows the kernel's ISO
+calendar-date law, compares actual dates, refuses malformed or inverted
+intervals, and requires complete coverage for known bounds. Absent bounds
+remain explicit unknowns. A source's explicit foreign jurisdiction also
+refuses. Existing claim-evidence resolution and historical report bytes retain
+their original interpretation; these candidate checks confer no authority.

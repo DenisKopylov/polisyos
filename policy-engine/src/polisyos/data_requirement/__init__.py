@@ -37,6 +37,7 @@ if TYPE_CHECKING:
         ClaimConstructDeclarationInputError,
         DataRequirementCompiler,
         ScenarioDomainInputError,
+        compiled_requirements_for_world_slot,
     )
 
 
@@ -66,6 +67,7 @@ def __getattr__(name: str) -> object:
         "ScenarioDomainInputError",
         "ClaimConstructDeclarationInputError",
         "compile_data_requirements_for_scenario",
+        "compiled_requirements_for_world_slot",
         "parse_data_requirement_compilation_report",
         "data_requirement_compilation_audit_surface",
         "write_data_requirement_compilation_report",
@@ -75,6 +77,7 @@ def __getattr__(name: str) -> object:
             DataRequirementCompiler,
             ScenarioDomainInputError,
             compile_data_requirements_for_scenario,
+            compiled_requirements_for_world_slot,
             data_requirement_compilation_audit_surface,
             parse_data_requirement_compilation_report,
             write_data_requirement_compilation_report,
@@ -85,6 +88,7 @@ def __getattr__(name: str) -> object:
             "ScenarioDomainInputError": ScenarioDomainInputError,
             "ClaimConstructDeclarationInputError": ClaimConstructDeclarationInputError,
             "compile_data_requirements_for_scenario": compile_data_requirements_for_scenario,
+            "compiled_requirements_for_world_slot": compiled_requirements_for_world_slot,
             "parse_data_requirement_compilation_report": parse_data_requirement_compilation_report,
             "data_requirement_compilation_audit_surface": (
                 data_requirement_compilation_audit_surface
@@ -115,6 +119,7 @@ __all__ = [
     "DataRequirementSpec",
     "ScenarioDomainInputError",
     "compile_data_requirements_for_scenario",
+    "compiled_requirements_for_world_slot",
     "data_requirement_authority_boundary",
     "data_requirement_compilation_audit_surface",
     "data_requirement_compilation_event_ref",

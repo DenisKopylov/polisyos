@@ -68,6 +68,7 @@ __all__ = [
     "resolve_world_snapshot",
     "run_connectors_ingestion",
     "stream_processing_contract",
+    "validate_catalog_candidate_fetch_plans",
     "verify_federation_core_payload",
     "world",
 ]
@@ -257,6 +258,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "build_source_contract_requirement_bindings": (
         "polisyos.fabric.catalog",
         "build_source_contract_requirement_bindings",
+    ),
+    "validate_catalog_candidate_fetch_plans": (
+        "polisyos.fabric.catalog.data_requirement_adapter",
+        "validate_catalog_candidate_fetch_plans",
     ),
     "project_data_requirement_to_catalog_needs": (
         "polisyos.fabric.catalog.data_requirement_adapter",

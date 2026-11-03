@@ -89,13 +89,13 @@ def test_coupled_smm_method_selects_best_grid_point(isolated_registry) -> None:
         "initial_savings": np.asarray([0.0, 0.0]),
         "is_employed": np.asarray([0.0, 0.0]),
         "risk_aversion": np.asarray([0.1, 0.9]),
-        "observed_moments": np.asarray([1.0, 1.0]),
+        "observed_moments": np.asarray([1.0, 0.0]),
     }
 
     result = method.pure_step(
         state,
         {
-            "moment_names": ("completed_count", "final_queue_length"),
+            "moment_names": ("completed_count", "final_mean_savings"),
             "service_rate_grid": (0.5, 1.0),
             "benefit_amount_grid": (0.0,),
             "n_steps": 2,
@@ -106,6 +106,24 @@ def test_coupled_smm_method_selects_best_grid_point(isolated_registry) -> None:
 
     assert result["best_params"]["service_rate"] == 1.0
     assert result["best_loss"] == 0.0
+    permuted = method.pure_step(
+        {**state, "observed_moments": state["observed_moments"][::-1]},
+        {
+            "moment_names": ("final_mean_savings", "completed_count"),
+            "service_rate_grid": (0.5, 1.0),
+            "benefit_amount_grid": (0.0,),
+            "n_steps": 2,
+            "capacity": 10,
+            "seeds": (0,),
+        },
+    )["result"]
+    assert permuted["best_params"] == result["best_params"]
+    assert permuted["best_loss"] == result["best_loss"]
+    assert permuted["fitted_summary"] == result["fitted_summary"]
+    assert permuted["fitted_moment_counts"] == result["fitted_moment_counts"]
+    assert [item["loss"] for item in permuted["evaluated"]] == [
+        item["loss"] for item in result["evaluated"]
+    ]
 
 
 def test_particle_filter_and_paired_mc_methods_run(isolated_registry) -> None:
@@ -278,3 +296,102 @@ def test_coupled_queue_mle_method_requires_exposure_and_preserves_zero_arrivals(
     assert result["observation_window"] == 1.0
     assert result["n_arrivals"] == 0
     assert result["arrival_rate"] == 0.0
+
+
+@pytest.mark.parametrize(
+    "names", [("completed_count", "completed_count"), ("completed_count", " completed_count ")]
+)
+@pytest.mark.parametrize("observations", [(0.0, 100.0), (100.0, 0.0)])
+def test_coupled_smm_rejects_duplicate_effective_moments_before_work(
+    monkeypatch: pytest.MonkeyPatch,
+    names: tuple[str, str],
+    observations: tuple[float, float],
+) -> None:
+    import polisyos.foundry.methods.catalog.simulation.coupled as module
+
+    calls = []
+
+    def observe(*args, **kwargs):
+        calls.append((args, kwargs))
+        return {"summary": {"completed_count": 0.0}}
+
+    monkeypatch.setattr(module, "_run_coupled_policy", observe)
+    with pytest.raises(ValueError, match="moment_names must be unique"):
+        module.CoupledSMMEstimator.pure_step(
+            {"observed_moments": np.asarray(observations)},
+            {
+                "moment_names": names,
+                "service_rate_grid": (1.0,),
+                "benefit_amount_grid": (0.0,),
+                "seeds": (0,),
+            },
+        )
+    assert calls == []
+
+
+@pytest.mark.parametrize(
+    ("state", "reason"),
+    [
+        ({}, "initial_income is required"),
+        ({"initial_income": [[0.0]]}, "initial_income must be a 1D vector"),
+        ({"initial_income": [float("nan")]}, "initial_income must be finite"),
+        (
+            {"initial_income": [0.0], "initial_savings": [0.0, 0.0]},
+            "initial_savings must have shape",
+        ),
+        ({"initial_income": [0.0], "risk_aversion": [float("inf")]}, "risk_aversion.*finite"),
+    ],
+)
+def test_coupled_shared_preflight_refuses_invalid_vector_contract(
+    state: dict[str, object], reason: str
+) -> None:
+    from polisyos.foundry.methods.catalog.simulation import validate_coupled_policy_inputs
+
+    with pytest.raises(ValueError, match=reason):
+        validate_coupled_policy_inputs(state)
+
+
+@pytest.mark.parametrize("income", [[], [0.0, 1.0]])
+def test_coupled_shared_preflight_preserves_legal_defaults(income: list[float]) -> None:
+    from polisyos.foundry.methods.catalog.simulation import validate_coupled_policy_inputs
+
+    validate_coupled_policy_inputs({"initial_income": income})
+    validate_coupled_policy_inputs(
+        {
+            "initial_income": income,
+            "initial_savings": [0.0] * len(income),
+            "is_employed": [0.0] * len(income),
+            "risk_aversion": [0.5] * len(income),
+        }
+    )
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+def test_coupled_required_vector_refuses_nonfinite_before_native_work(value: float) -> None:
+    from polisyos.foundry.methods.catalog.simulation.coupled import _vector
+
+    with pytest.raises(ValueError, match="initial_income.*finite"):
+        _vector({"initial_income": [value]}, "initial_income")
+
+
+def test_coupled_paired_adapter_revalidates_mutated_typed_estimate(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import polisyos.foundry.coupling.estimation as estimation
+    from polisyos.foundry.methods.catalog.simulation.coupled import (
+        CoupledPairedMonteCarloEstimator,
+    )
+
+    result = estimation.PairedMonteCarloResult(
+        mean_effects={"value": 2.0},
+        standard_errors={"value": 1.0},
+        standard_error_status={"value": "estimated"},
+        paired_differences=({"value": 1.0}, {"value": 3.0}),
+        n_replications=2,
+    )
+    result.standard_errors["value"] = float("nan")
+    monkeypatch.setattr(estimation, "paired_monte_carlo_effect", lambda *args, **kwargs: result)
+    with pytest.raises(ValueError, match="finite"):
+        CoupledPairedMonteCarloEstimator.pure_step(
+            {}, {"metric_names": ("value",), "n_replications": 2}
+        )

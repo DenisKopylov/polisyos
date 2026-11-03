@@ -20,6 +20,7 @@ from polisyos.core.contracts.execution_plan import (
     MethodCatalogSnapshot,
     MethodDagNode,
 )
+from polisyos.foundry.extensions.registry import FoundryExtensionRegistryReport
 from polisyos.foundry.methods.base import MethodSignature, parse_fqn
 from polisyos.foundry.methods.catalog.snapshot import (
     build_method_capability_matrix,
@@ -49,6 +50,7 @@ from polisyos.foundry.methods.selection.history import (
 )
 from polisyos.foundry.methods.selection.receipt import (
     MethodSelectionAlternative,
+    MethodSelectionDisposition,
     MethodSelectionReceipt,
     _method_selection_receipt_content_hash,
 )
@@ -58,7 +60,7 @@ from polisyos.ir.analytics import (
     reconcile_truthfulness_tiers,
     truthfulness_depth,
 )
-from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
+from polisyos.ir.analytics.uncertainty import OutputContractCapability, UncertaintyEnvelope
 
 _FIDELITY_ORDER = {"low": 0, "medium": 1, "high": 2}
 _IMPLEMENTATION_DEPTH = {
@@ -1202,9 +1204,7 @@ def _method_selection_context_hash_for_catalog(
     """Hash one effective value-advisor query and its catalog snapshot."""
 
     value_entries = tuple(
-        entry
-        for entry in catalog.entries
-        if _catalog_entry_is_value_method(entry, registry=registry)
+        entry for entry in catalog.entries if _owner_declares_value_method(entry, registry=registry)
     )
     query = _value_method_advisor_query(
         candidate=candidate,
@@ -1218,7 +1218,7 @@ def _method_selection_context_hash_for_catalog(
     profile_hash = _problem_runtime_hints(problem).get("value_data_profile_content_hash")
     value_catalog_projection_hash = _value_catalog_projection_hash(value_entries)
     payload = {
-        "schema_version": "policyos.foundry.method_selection_context.v4",
+        "schema_version": "policyos.foundry.method_selection_context.v5",
         "value_catalog_projection_hash": value_catalog_projection_hash,
         "candidate_signal": _candidate_selection_signal(candidate),
         "problem_signal": _problem_selection_signal(problem),
@@ -1243,6 +1243,8 @@ def select_value_method_for_problem(
     observation_to_contract_manifest: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None = None,
     runtime_budget_ms: float | None = None,
     route_constraint: MethodRouteConstraint | None = None,
+    registry_report: FoundryExtensionRegistryReport | None = None,
+    require_bound_discovery: bool = False,
 ) -> dict[str, Any]:
     """Select a registry value method without relaxing hard query constraints.
 
@@ -1251,6 +1253,39 @@ def select_value_method_for_problem(
     It does not override a required data modality.
     """
 
+    reg = registry if registry is not None else MethodRegistry.get_instance()
+    if require_bound_discovery and (registry is None or registry_report is None):
+        return _blocked_value_selection(
+            code="value_method_bound_discovery_required",
+            reason="Bound selection requires the actual registry and discovery report.",
+        )
+    # Keep owner classification, catalog and receipt bound to one immutable registry view.
+    with reg.snapshot_scope():
+        return _select_value_method_for_problem(
+            candidate=candidate,
+            problem=problem,
+            registry=reg,
+            requested_method_fqn=requested_method_fqn,
+            observation_to_contract_manifest=observation_to_contract_manifest,
+            runtime_budget_ms=runtime_budget_ms,
+            route_constraint=route_constraint,
+            registry_report=registry_report,
+            require_bound_discovery=require_bound_discovery,
+        )
+
+
+def _select_value_method_for_problem(
+    *,
+    candidate: object,
+    problem: object,
+    registry: MethodRegistry,
+    requested_method_fqn: str | None,
+    observation_to_contract_manifest: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None,
+    runtime_budget_ms: float | None,
+    route_constraint: MethodRouteConstraint | None,
+    registry_report: FoundryExtensionRegistryReport | None,
+    require_bound_discovery: bool,
+) -> dict[str, Any]:
     try:
         _manifest_targets(observation_to_contract_manifest)
     except ValueError as exc:
@@ -1258,11 +1293,12 @@ def select_value_method_for_problem(
             code=str(exc),
             reason="Only explicit flat advisory hints are accepted; source manifests require their owner projection.",
         )
-    reg = registry if registry is not None else MethodRegistry.get_instance()
+    reg = registry
     try:
         from polisyos.foundry.methods import ensure_all_methods_registered
 
-        ensure_all_methods_registered(reg)
+        if not require_bound_discovery:
+            ensure_all_methods_registered(reg)
     except Exception as exc:
         return _blocked_value_selection(
             code="value_method_registry_unavailable",
@@ -1270,14 +1306,19 @@ def select_value_method_for_problem(
         )
 
     try:
-        catalog = build_method_catalog_snapshot(registry=reg)
+        if require_bound_discovery:
+            catalog = build_method_catalog_snapshot(
+                registry=reg, registry_report=registry_report, require_bound_discovery=True
+            )
+        else:
+            catalog = build_method_catalog_snapshot(registry=reg)
     except Exception as exc:
         return _blocked_value_selection(
             code="value_method_catalog_unavailable",
             reason=str(exc),
         )
     value_entries = tuple(
-        entry for entry in catalog.entries if _catalog_entry_is_value_method(entry, registry=reg)
+        entry for entry in catalog.entries if _owner_declares_value_method(entry, registry=reg)
     )
     if not value_entries:
         return _blocked_value_selection(
@@ -1291,20 +1332,6 @@ def select_value_method_for_problem(
         route_constraint = _validated_route_constraint(route_constraint, reg)
     except ValueError as exc:
         return _blocked_value_selection(code=str(exc), reason=str(exc), denominator=denominator)
-    if route_constraint is not None:
-        allowed = set(route_constraint.allowed_method_fqns)
-        if requested_method_fqn and requested_method_fqn not in allowed:
-            return _blocked_value_selection(
-                code="value_method_request_outside_manifest_route",
-                reason="The requested method does not consume the selected observation route.",
-                denominator=denominator,
-            )
-        if not allowed.intersection(denominator):
-            return _blocked_value_selection(
-                code="value_method_route_no_native_value_output",
-                reason="Registered route methods have no owner-verified native value output.",
-                denominator=denominator,
-            )
     try:
         _required_modalities(candidate=candidate, problem=problem)
     except ValueError as exc:
@@ -1333,14 +1360,31 @@ def select_value_method_for_problem(
         route_constraint=route_constraint,
     )
     required_data_modalities = tuple(query.criteria.required_data_modalities)
-    eligible_value_entries = tuple(
-        entry
-        for entry in value_entries
-        if _method_entry_meets_hard_selection_criteria(
-            entry,
-            query.criteria,
-            query_runnable_only=query.runnable_only,
+    member_dispositions = tuple(
+        _value_member_disposition(
+            entry, registry=reg, criteria=query.criteria, query_runnable_only=query.runnable_only
         )
+        for entry in sorted(value_entries, key=lambda item: item.fqn)
+    )
+    if route_constraint is not None:
+        allowed = set(route_constraint.allowed_method_fqns)
+        if requested_method_fqn and requested_method_fqn not in allowed:
+            return _blocked_value_selection(
+                code="value_method_request_outside_manifest_route",
+                reason="The requested method does not consume the selected observation route.",
+                denominator=denominator,
+                member_dispositions=member_dispositions,
+            )
+        if not allowed.intersection(denominator):
+            return _blocked_value_selection(
+                code="value_method_route_no_native_value_output",
+                reason="Registered route methods have no declared native value output.",
+                denominator=denominator,
+                member_dispositions=member_dispositions,
+            )
+    dispositions_by_fqn = {row.method_fqn: row for row in member_dispositions}
+    eligible_value_entries = tuple(
+        entry for entry in value_entries if dispositions_by_fqn[entry.fqn].disposition == "eligible"
     )
     eligible_value_fqns = {entry.fqn for entry in eligible_value_entries}
     if requested_method_fqn:
@@ -1351,6 +1395,7 @@ def select_value_method_for_problem(
                 code="unsupported_method_unavailable",
                 reason=f"Requested value method {requested!r} is not in the reachable registry.",
                 denominator=denominator,
+                member_dispositions=member_dispositions,
             )
         if not entry.runnable:
             return _blocked_value_selection(
@@ -1359,9 +1404,13 @@ def select_value_method_for_problem(
                 selected_method_fqn=requested,
                 denominator=denominator,
                 disabled_reasons=tuple(str(item) for item in entry.disabled_reasons),
+                member_dispositions=member_dispositions,
             )
         if requested not in eligible_value_fqns:
-            if required_data_modalities:
+            requested_reasons = dispositions_by_fqn[requested].reasons
+            if any(
+                reason.startswith("required_data_modality_missing:") for reason in requested_reasons
+            ):
                 return _blocked_value_selection(
                     code="value_method_required_data_modality_unavailable",
                     reason=(
@@ -1371,6 +1420,15 @@ def select_value_method_for_problem(
                     selected_method_fqn=requested,
                     denominator=denominator,
                     required_data_modalities=required_data_modalities,
+                    member_dispositions=member_dispositions,
+                )
+            if "value_owner_contract_unresolved" in requested_reasons:
+                return _blocked_value_selection(
+                    code="value_method_owner_contract_unresolved",
+                    reason="The requested owner's declared native value contract did not resolve.",
+                    selected_method_fqn=requested,
+                    denominator=denominator,
+                    member_dispositions=member_dispositions,
                 )
             return _blocked_value_selection(
                 code="unsupported_method_unavailable",
@@ -1380,12 +1438,15 @@ def select_value_method_for_problem(
                 ),
                 selected_method_fqn=requested,
                 denominator=denominator,
+                member_dispositions=member_dispositions,
             )
         selection_receipt = _build_registry_requested_value_method_selection_receipt(
             catalog=catalog,
             registry=reg,
             requested_method_fqn=requested,
             selection_context_hash=selection_context_hash,
+            member_dispositions=member_dispositions,
+            discovery_scope="bound_discovery" if require_bound_discovery else "registry_snapshot",
         )
         return {
             "status": "selected",
@@ -1394,6 +1455,9 @@ def select_value_method_for_problem(
             "candidate_signal": _candidate_selection_signal(candidate),
             "problem_signal": _problem_selection_signal(problem),
             "denominator": denominator,
+            "member_dispositions": tuple(
+                row.model_dump(mode="python") for row in member_dispositions
+            ),
             "score_trace": (),
             "ranked_alternatives": tuple(
                 row.model_dump(mode="python") for row in selection_receipt.ranked_alternatives
@@ -1411,6 +1475,7 @@ def select_value_method_for_problem(
             ),
             denominator=denominator,
             required_data_modalities=required_data_modalities,
+            member_dispositions=member_dispositions,
         )
     # Restrict the advisor's input before it applies limit/top-k.  The receipt
     # below still recomputes its denominator from the complete value projection
@@ -1427,6 +1492,7 @@ def select_value_method_for_problem(
             denominator=denominator,
             score_trace=tuple(item.fqn for item in value_score_trace),
             required_data_modalities=required_data_modalities,
+            member_dispositions=member_dispositions,
         )
     try:
         selection_receipt = _build_value_method_selection_receipt(
@@ -1434,6 +1500,8 @@ def select_value_method_for_problem(
             registry=reg,
             advisor_result=advised,
             selection_context_hash=selection_context_hash,
+            member_dispositions=member_dispositions,
+            discovery_scope="bound_discovery" if require_bound_discovery else "registry_snapshot",
         )
     except ValueError as exc:
         return _blocked_value_selection(
@@ -1442,6 +1510,7 @@ def select_value_method_for_problem(
             denominator=denominator,
             score_trace=tuple(item.fqn for item in value_score_trace),
             required_data_modalities=required_data_modalities,
+            member_dispositions=member_dispositions,
         )
     selected = runnable_recommended[0]
     ranked_alternatives = tuple(
@@ -1454,6 +1523,7 @@ def select_value_method_for_problem(
         "candidate_signal": _candidate_selection_signal(candidate),
         "problem_signal": _problem_selection_signal(problem),
         "denominator": denominator,
+        "member_dispositions": tuple(row.model_dump(mode="python") for row in member_dispositions),
         "score_trace": tuple(item.fqn for item in value_score_trace),
         "ranked_alternatives": ranked_alternatives,
         "selection_receipt": selection_receipt.model_dump(mode="json"),
@@ -1467,6 +1537,174 @@ def select_value_method_for_problem(
         },
         "blockers": (),
     }
+
+
+def verify_value_method_selection_receipt(
+    receipt: MethodSelectionReceipt,
+    *,
+    candidate: object,
+    problem: object,
+    registry: MethodRegistry,
+    registry_report: FoundryExtensionRegistryReport,
+    requested_method_fqn: str | None = None,
+    observation_to_contract_manifest: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None = None,
+    runtime_budget_ms: float | None = None,
+    route_constraint: MethodRouteConstraint | None = None,
+    replay_ranking: bool = True,
+) -> MethodSelectionReceipt:
+    """Verify a selection against the actual bound discovery scope.
+
+    The report is the receiver's independently obtained registry report, not a
+    self-declared completeness claim in the receipt. Live admission replays
+    ranking by default. A receiver reopening a previously admitted, CAS-bound
+    artifact may set ``replay_ranking=False``: it still verifies the live scope,
+    hard eligibility, and internal rank explanation but does not claim that
+    historical scores can be independently reconstructed from mutable history.
+
+    Raises:
+        ValueError: If the context or value denominator differs from the live scope.
+    """
+    # Pydantic's model_copy(update=...) does not validate, and model_validate
+    # normally trusts an existing instance. Reparse the received wire fields so
+    # an altered object cannot retain an unrelated, previously valid hash.
+    receipt = MethodSelectionReceipt.model_validate(receipt.model_dump(mode="json"))
+    with registry.snapshot_scope():
+        catalog = build_method_catalog_snapshot(
+            registry=registry, registry_report=registry_report, require_bound_discovery=True
+        )
+        route = _validated_route_constraint(route_constraint, registry)
+        expected = _method_selection_context_hash_for_catalog(
+            catalog=catalog,
+            registry=registry,
+            candidate=candidate,
+            problem=problem,
+            requested_method_fqn=requested_method_fqn,
+            observation_to_contract_manifest=observation_to_contract_manifest,
+            runtime_budget_ms=runtime_budget_ms,
+            route_constraint=route,
+        )
+        receipt.verify_selection_context(expected)
+        denominator = tuple(
+            sorted(
+                entry.fqn
+                for entry in catalog.entries
+                if _owner_declares_value_method(entry, registry=registry)
+            )
+        )
+        if receipt.denominator != denominator:
+            raise ValueError("value_method_selection_denominator_mismatch")
+        if (
+            receipt.schema_version != "policyos.foundry.method_selection_receipt.v3"
+            or receipt.discovery_scope != "bound_discovery"
+        ):
+            raise ValueError("value_method_selection_unqualified_receipt")
+        value_entries = tuple(
+            entry
+            for entry in catalog.entries
+            if _owner_declares_value_method(entry, registry=registry)
+        )
+        query = _value_method_advisor_query(
+            candidate=candidate,
+            problem=problem,
+            value_entries=value_entries,
+            catalog_entries=catalog.entries,
+            observation_to_contract_manifest=observation_to_contract_manifest,
+            runtime_budget_ms=runtime_budget_ms,
+            route_constraint=route,
+        )
+        expected_dispositions = tuple(
+            _value_member_disposition(
+                entry,
+                registry=registry,
+                criteria=query.criteria,
+                query_runnable_only=query.runnable_only,
+            )
+            for entry in sorted(value_entries, key=lambda item: item.fqn)
+        )
+        if receipt.member_dispositions != expected_dispositions:
+            raise ValueError("value_method_selection_disposition_mismatch")
+        _verify_receipt_rank_trace(
+            receipt, entries=value_entries, requested_method_fqn=requested_method_fqn
+        )
+        if not replay_ranking:
+            return receipt
+        recomputed = _select_value_method_for_problem(
+            candidate=candidate,
+            problem=problem,
+            registry=registry,
+            requested_method_fqn=requested_method_fqn,
+            observation_to_contract_manifest=observation_to_contract_manifest,
+            runtime_budget_ms=runtime_budget_ms,
+            route_constraint=route,
+            registry_report=registry_report,
+            require_bound_discovery=True,
+        )
+        if recomputed.get("status") != "selected":
+            raise ValueError("value_method_selection_no_longer_admissible")
+        if recomputed["selection_receipt"]["content_hash"] != receipt.content_hash:
+            raise ValueError("value_method_selection_recomputed_receipt_mismatch")
+        return receipt
+
+
+def _verify_receipt_rank_trace(
+    receipt: MethodSelectionReceipt,
+    *,
+    entries: Sequence[MethodCatalogEntry],
+    requested_method_fqn: str | None,
+) -> None:
+    """Check source-owned row shape and the trace's own ordering and explanations."""
+    by_fqn = {entry.fqn: entry for entry in entries}
+    for row in receipt.ranked_alternatives:
+        entry = by_fqn[row.method_fqn]
+        if row.method_family != entry.family or row.data_modalities != tuple(entry.data_modalities):
+            raise ValueError("value_method_selection_rank_owner_mismatch")
+    if requested_method_fqn is not None:
+        if (
+            receipt.selection_authority != "requested_registry_method"
+            or receipt.selected_method_fqn != requested_method_fqn
+            or len(receipt.ranked_alternatives) != 1
+            or receipt.ranked_alternatives[0].advisor_score is not None
+            or receipt.ranked_alternatives[0].loss_reasons != ("explicit_registry_request",)
+            or receipt.ranked_alternatives[0].truthfulness_depth
+            != _truthfulness_depth_score(by_fqn[requested_method_fqn].truthfulness_tier)
+        ):
+            raise ValueError("value_method_selection_requested_trace_mismatch")
+        return
+    if receipt.selection_authority != "foundry_registry_advisor":
+        raise ValueError("value_method_selection_advisor_trace_mismatch")
+    rows = receipt.ranked_alternatives
+    if not rows[0].selected:
+        raise ValueError("value_method_selection_selected_rank_mismatch")
+    keys = tuple(
+        (-int(row.truthfulness_depth), -float(row.advisor_score), row.method_fqn) for row in rows
+    )
+    if keys != tuple(sorted(keys)):
+        raise ValueError("value_method_selection_rank_order_mismatch")
+    selected = rows[0]
+    for row in rows:
+        if row.selected:
+            expected = ()
+        elif row.truthfulness_depth != selected.truthfulness_depth:
+            expected = ("advisor_truthfulness_depth_below_selected",)
+        elif row.advisor_score != selected.advisor_score:
+            expected = ("advisor_score_below_selected_on_owner_data_shape",)
+        else:
+            expected = ("advisor_fqn_tiebreak_below_selected",)
+        if row.loss_reasons != expected:
+            raise ValueError("value_method_selection_rank_reason_mismatch")
+
+
+def _owner_declares_value_method(entry: MethodCatalogEntry, *, registry: MethodRegistry) -> bool:
+    """Keep owner-declared value outputs even when their contract cannot resolve."""
+    try:
+        method_cls = registry.get(entry.fqn)
+        signature = getattr(method_cls, "signature", None)
+        return isinstance(signature, MethodSignature) and any(
+            OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION in slot.contract_capabilities
+            for slot in signature.output_slots
+        )
+    except Exception:
+        return False
 
 
 def _catalog_entry_is_value_method(
@@ -1522,13 +1760,13 @@ def _build_value_method_selection_receipt(
     registry: MethodRegistry,
     advisor_result: MethodAdvisorResult,
     selection_context_hash: str,
+    member_dispositions: tuple[MethodSelectionDisposition, ...] | None = None,
+    discovery_scope: Literal["registry_snapshot", "bound_discovery"] = "registry_snapshot",
 ) -> MethodSelectionReceipt:
     """Build a strict receipt from the real advisor result and registry catalog."""
 
     value_entries = tuple(
-        entry
-        for entry in catalog.entries
-        if _catalog_entry_is_value_method(entry, registry=registry)
+        entry for entry in catalog.entries if _owner_declares_value_method(entry, registry=registry)
     )
     denominator = tuple(sorted({entry.fqn for entry in value_entries}))
     entry_by_fqn = {entry.fqn: entry for entry in value_entries}
@@ -1556,30 +1794,44 @@ def _build_value_method_selection_receipt(
             method_family=item.family,
             data_modalities=tuple(entry_by_fqn[item.fqn].data_modalities),
             advisor_score=float(item.advisor_score),
+            truthfulness_depth=item.truthfulness_depth_score,
             selected=item.fqn == selected.fqn,
             loss_reasons=(
                 ()
                 if item.fqn == selected.fqn
                 else (
-                    "advisor_tie_broken_by_rank_on_owner_data_shape"
-                    if math.isclose(
-                        float(item.advisor_score),
-                        float(selected_trace.advisor_score),
-                        rel_tol=0.0,
-                        abs_tol=1.0e-12,
-                    )
-                    else "advisor_score_below_selected_on_owner_data_shape",
+                    "advisor_truthfulness_depth_below_selected"
+                    if item.truthfulness_depth_score != selected_trace.truthfulness_depth_score
+                    else (
+                        "advisor_score_below_selected_on_owner_data_shape"
+                        if item.advisor_score != selected_trace.advisor_score
+                        else "advisor_fqn_tiebreak_below_selected"
+                    ),
                 )
             ),
         )
         for rank, item in enumerate(value_score_trace, start=1)
     )
     payload = {
-        "schema_version": "policyos.foundry.method_selection_receipt.v2",
+        "schema_version": "policyos.foundry.method_selection_receipt.v3",
         "selection_authority": "foundry_registry_advisor",
         "selected_method_fqn": selected.fqn,
         "ranked_alternatives": tuple(row.model_dump(mode="json") for row in alternatives),
         "denominator": denominator,
+        "discovery_scope": discovery_scope,
+        "member_dispositions": tuple(
+            row.model_dump(mode="json")
+            for row in (
+                member_dispositions
+                if member_dispositions is not None
+                else tuple(
+                    _value_member_disposition(
+                        entry, registry=registry, criteria=MethodSelectionCriteria()
+                    )
+                    for entry in sorted(value_entries, key=lambda item: item.fqn)
+                )
+            )
+        ),
         "selection_context_hash": selection_context_hash,
     }
     return MethodSelectionReceipt.model_validate(
@@ -1596,11 +1848,11 @@ def _build_registry_requested_value_method_selection_receipt(
     registry: MethodRegistry,
     requested_method_fqn: str,
     selection_context_hash: str,
+    member_dispositions: tuple[MethodSelectionDisposition, ...],
+    discovery_scope: Literal["registry_snapshot", "bound_discovery"],
 ) -> MethodSelectionReceipt:
     value_entries = tuple(
-        entry
-        for entry in catalog.entries
-        if _catalog_entry_is_value_method(entry, registry=registry)
+        entry for entry in catalog.entries if _owner_declares_value_method(entry, registry=registry)
     )
     denominator = tuple(sorted({entry.fqn for entry in value_entries}))
     entry = next(
@@ -1615,15 +1867,18 @@ def _build_registry_requested_value_method_selection_receipt(
         method_family=entry.family,
         data_modalities=tuple(entry.data_modalities),
         advisor_score=None,
+        truthfulness_depth=_truthfulness_depth_score(entry.truthfulness_tier),
         selected=True,
         loss_reasons=("explicit_registry_request",),
     )
     payload = {
-        "schema_version": "policyos.foundry.method_selection_receipt.v2",
+        "schema_version": "policyos.foundry.method_selection_receipt.v3",
         "selection_authority": "requested_registry_method",
         "selected_method_fqn": entry.fqn,
         "ranked_alternatives": (alternative.model_dump(mode="json"),),
         "denominator": denominator,
+        "discovery_scope": discovery_scope,
+        "member_dispositions": tuple(row.model_dump(mode="json") for row in member_dispositions),
         "selection_context_hash": selection_context_hash,
     }
     return MethodSelectionReceipt.model_validate(
@@ -1672,6 +1927,7 @@ def _value_selection_criteria(
     observation_to_contract_manifest: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None,
     route_constraint: MethodRouteConstraint | None = None,
 ) -> MethodSelectionCriteria:
+    del catalog_entries
     family_prefixes = _value_family_prefixes(candidate=candidate, problem=problem)
     modalities = _required_modalities(candidate=candidate, problem=problem)
     manifest_targets = _manifest_targets(observation_to_contract_manifest)
@@ -1686,9 +1942,8 @@ def _value_selection_criteria(
             tuple(
                 sorted(
                     entry.fqn
-                    for entry in catalog_entries
+                    for entry in value_entries
                     if entry.fqn not in route_constraint.allowed_method_fqns
-                    or entry.fqn not in {value.fqn for value in value_entries}
                 )
             )
             if route_constraint is not None
@@ -1724,6 +1979,7 @@ def _value_family_prefixes(*, candidate: object, problem: object) -> tuple[str, 
 
 
 def _value_data_characteristics(*, candidate: object, problem: object) -> DataCharacteristics:
+    del candidate
     hints = _problem_runtime_hints(problem)
     raw = hints.get("value_data_characteristics")
     if isinstance(raw, DataCharacteristics):
@@ -1739,42 +1995,39 @@ def _value_data_characteristics(*, candidate: object, problem: object) -> DataCh
             treatment_is_binary=_optional_bool(raw.get("treatment_is_binary")),
             outcome_is_continuous=_optional_bool(raw.get("outcome_is_continuous")),
         )
-    signal = _candidate_selection_signal(candidate).casefold()
     return DataCharacteristics(
         n_obs=_optional_int(hints.get("n_obs")),
         n_units=_optional_int(hints.get("n_units")),
         n_periods=_optional_int(hints.get("n_periods")),
-        is_panel=bool("panel" in signal or "period" in signal),
-        treatment_is_binary=True,
-        outcome_is_continuous=True,
     )
 
 
 def _required_modalities(*, candidate: object, problem: object) -> tuple[str, ...]:
+    del candidate
     raw_hints = _object_get(problem, "runtime_hints")
     if raw_hints is not None and not isinstance(raw_hints, Mapping):
         raise ValueError("value_method_runtime_hints_projection_required")
     hints = raw_hints if isinstance(raw_hints, Mapping) else {}
-    hint_modalities: tuple[str, ...] = ()
-    if "value_required_data_modalities" in hints:
-        raw = hints["value_required_data_modalities"]
+    modalities: list[str] = []
+    for hint_name in ("value_required_data_modalities", "value_owner_required_data_modalities"):
+        if hint_name not in hints:
+            continue
+        raw = hints[hint_name]
         if isinstance(raw, str):
             normalized = raw.strip()
             if not normalized:
                 raise ValueError("value_method_required_data_modalities_invalid")
-            hint_modalities = (normalized,)
+            modalities.append(normalized)
         elif isinstance(raw, Sequence) and not isinstance(raw, str | bytes | bytearray):
             values: list[str] = []
             for item in raw:
                 if not isinstance(item, str) or not item.strip():
                     raise ValueError("value_method_required_data_modalities_invalid")
                 values.append(item.strip())
-            hint_modalities = tuple(dict.fromkeys(values))
+            modalities.extend(values)
         else:
             raise ValueError("value_method_required_data_modalities_invalid")
-    signal = _candidate_selection_signal(candidate).casefold()
-    candidate_modalities = ("panel",) if "panel" in signal else ()
-    return tuple(dict.fromkeys((*hint_modalities, *candidate_modalities)))
+    return tuple(dict.fromkeys(modalities))
 
 
 def _manifest_targets(
@@ -1819,6 +2072,7 @@ def _blocked_value_selection(
     score_trace: Sequence[str] = (),
     disabled_reasons: Sequence[str] = (),
     required_data_modalities: Sequence[str] = (),
+    member_dispositions: Sequence[MethodSelectionDisposition] = (),
 ) -> dict[str, Any]:
     return {
         "status": "blocked",
@@ -1829,6 +2083,7 @@ def _blocked_value_selection(
         "blockers": (code,),
         "disabled_reasons": tuple(disabled_reasons),
         "required_data_modalities": tuple(required_data_modalities),
+        "member_dispositions": tuple(row.model_dump(mode="python") for row in member_dispositions),
         "reason": reason,
     }
 
@@ -1933,20 +2188,49 @@ def _method_entry_meets_hard_selection_criteria(
 ) -> bool:
     """Apply every hard catalog constraint shared by ranking and direct selection."""
 
+    return not _hard_selection_rejection_reasons(
+        entry, criteria, query_runnable_only=query_runnable_only
+    )
+
+
+def _hard_selection_rejection_reasons(
+    entry: MethodCatalogEntry,
+    criteria: MethodSelectionCriteria,
+    *,
+    query_runnable_only: bool = False,
+) -> tuple[str, ...]:
+    reasons: list[str] = []
     if entry.fqn in criteria.exclude_fqns:
-        return False
+        reasons.append("excluded_by_route_or_criteria")
     if (criteria.runnable_only or query_runnable_only) and not entry.runnable:
-        return False
-    if criteria.required_data_modalities and not set(criteria.required_data_modalities).issubset(
-        set(entry.data_modalities)
-    ):
-        return False
+        reasons.append("method_not_runnable")
+    for modality in sorted(set(criteria.required_data_modalities) - set(entry.data_modalities)):
+        reasons.append(f"required_data_modality_missing:{modality}")
     if criteria.minimum_fidelity_tier is not None:
         required_rank = _FIDELITY_ORDER.get(criteria.minimum_fidelity_tier, -1)
         entry_rank = _FIDELITY_ORDER.get(entry.fidelity_tier, -1)
         if entry_rank < required_rank:
-            return False
-    return True
+            reasons.append("minimum_fidelity_unmet")
+    return tuple(reasons)
+
+
+def _value_member_disposition(
+    entry: MethodCatalogEntry,
+    *,
+    registry: MethodRegistry,
+    criteria: MethodSelectionCriteria,
+    query_runnable_only: bool = False,
+) -> MethodSelectionDisposition:
+    reasons = _hard_selection_rejection_reasons(
+        entry, criteria, query_runnable_only=query_runnable_only
+    )
+    if not _catalog_entry_is_value_method(entry, registry=registry):
+        reasons = (*reasons, "value_owner_contract_unresolved")
+    return MethodSelectionDisposition(
+        method_fqn=entry.fqn,
+        disposition="excluded" if reasons else "eligible",
+        reasons=reasons,
+    )
 
 
 def _rank_entries_with_scores(

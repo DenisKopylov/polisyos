@@ -1,0 +1,11 @@
+id = "2026-11-03-lane01-conditional-cycle"
+title = "Bind method selection and finite native simulation to their actual contracts"
+type = "fixed"
+owner = "e02-coordinator"
+summary = "Keep opaque IDs independent of hard modality requirements, bind the complete value-owner denominator and disposition/ranking trace to a verified selection receipt, validate coupled inputs before work, reject duplicate SMM coordinates and preserve finite paired estimates. Use deterministic inverse-normal quantiles with explicit interval status."
+compatibility = "New selection receipts use v3 while v2 reads remain compatible. NCM summary2.0 retains mean/std/n, makes unavailable bounds null and labels normal-reference intervals descriptive_unqualified; these are not calibrated confidence claims. Historical persisted artifacts are not rewritten."
+surface_classification = "public_experimental: canonical Foundry registry/report/selection-verifier and disposition exports; typed paired numerical error and shared coupled preflight"
+generated_client_compatibility = "not_applicable"
+migration = "Consumers of the NCM untyped JSON summary must inspect schema_version and interval_status. Existing mean-only readers remain qualified. Live receipt verification replays selection; historical admitted reads explicitly preserve their limited score-replay boundary."
+limitations = "This component release does not establish Runtime N5/N8 composition, empirical model validity, institutional authority, G acceptance or E02 closure. Shared public/generated qualification follows the lane source freeze."
+evidence = ["tests/unit/foundry/coupling/test_estimation.py", "tests/unit/foundry/methods/catalog/simulation/test_coupled_policy.py", "tests/unit/foundry/methods/catalog/causal/test_ncm_engine.py", "tests/unit/foundry/methods/test_selection_advisor.py"]

@@ -258,3 +258,81 @@ def test_particle_filter_requires_observations_and_preserves_observed_zero() -> 
     assert np.isfinite(filtered.log_likelihood)
     with pytest.raises(ValueError, match="finite"):
         filter_queue_counts([np.nan], arrival_rate=0.0, service_rate=0.0)
+
+
+@pytest.mark.parametrize(
+    ("baseline", "policy", "stage"),
+    [
+        (float("nan"), 0.0, "baseline"),
+        (float("inf"), 0.0, "baseline"),
+        (0.0, float("-inf"), "policy"),
+        (-1e308, 1e308, "difference"),
+    ],
+)
+def test_paired_monte_carlo_rejects_nonfinite_at_its_actual_stage(
+    baseline: float, policy: float, stage: str
+) -> None:
+    with pytest.raises(ValueError) as error:
+        paired_monte_carlo_effect(
+            lambda seed: {"value": baseline},
+            lambda seed: {"value": policy},
+            seeds=(7,),
+            metric_names=("value",),
+        )
+    assert error.value.code == "paired_monte_carlo_non_finite"
+    assert error.value.details == {"metric": "value", "seed": 7, "stage": stage}
+
+
+def test_paired_monte_carlo_keeps_finite_large_mean_and_sample_error() -> None:
+    result = paired_monte_carlo_effect(
+        lambda seed: {"large": 0.0, "ordinary": 0.0},
+        lambda seed: {"large": 1e308, "ordinary": float(2 * seed - 1)},
+        seeds=(1, 2),
+        metric_names=("large", "ordinary"),
+    )
+    assert result.mean_effects == {"large": 1e308, "ordinary": 2.0}
+    assert result.standard_errors == {"large": 0.0, "ordinary": 1.0}
+    singleton = paired_monte_carlo_effect(
+        lambda seed: {"value": 0.0},
+        lambda seed: {"value": 2.0},
+        seeds=(1,),
+        metric_names=("value",),
+    )
+    assert singleton.standard_errors == {"value": None}
+    assert singleton.standard_error_status == {"value": "standard_error_not_estimated"}
+
+
+def test_paired_monte_carlo_keeps_extreme_spread_and_cancellation() -> None:
+    extremes = (1e308, -1e308)
+    spread = paired_monte_carlo_effect(
+        lambda seed: {"value": 0.0},
+        lambda seed: {"value": extremes[seed]},
+        seeds=(0, 1),
+        metric_names=("value",),
+    )
+    # Sample-SE([x, -x]) is |x|; neither the centered squares nor the
+    # intermediate sample standard deviation need be representable.
+    assert spread.mean_effects == {"value": 0.0}
+    assert spread.standard_errors == {"value": 1e308}
+    canceling = (1e308, 1.0, -1e308)
+    reduced = paired_monte_carlo_effect(
+        lambda seed: {"value": 0.0},
+        lambda seed: {"value": canceling[seed]},
+        seeds=(0, 1, 2),
+        metric_names=("value",),
+    )
+    assert reduced.mean_effects == {"value": 1.0 / 3.0}
+    assert np.isfinite(reduced.standard_errors["value"])
+
+
+def test_paired_result_constructor_refuses_forged_nonfinite_estimate() -> None:
+    from polisyos.foundry.coupling.estimation import PairedMonteCarloResult
+
+    with pytest.raises(ValueError, match="finite"):
+        PairedMonteCarloResult(
+            mean_effects={"value": 2.0},
+            standard_errors={"value": float("nan")},
+            standard_error_status={"value": "estimated"},
+            paired_differences=({"value": 1.0}, {"value": 3.0}),
+            n_replications=2,
+        )

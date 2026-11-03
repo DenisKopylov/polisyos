@@ -14,6 +14,7 @@ __all__ = [
     "DefaultPolicyCoupler",
     "NoOpABMKernel",
     "PairedMonteCarloResult",
+    "PairedMonteCarloNumericalError",
     "ParticleFilterResult",
     "QueueDESKernel",
     "QueueMLEEstimate",
@@ -28,6 +29,10 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "PairedMonteCarloNumericalError": (
+        "polisyos.foundry.coupling.estimation",
+        "PairedMonteCarloNumericalError",
+    ),
     "AdaptiveAgentABMKernel": ("polisyos.foundry.coupling.abm_kernel", "AdaptiveAgentABMKernel"),
     "CoupledContractsExecutor": (
         "polisyos.foundry.coupling.executor",

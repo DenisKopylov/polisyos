@@ -12,6 +12,7 @@ from .coupled import (
     CoupledQueueMLEEstimator,
     CoupledQueueParticleFilterEstimator,
     CoupledSMMEstimator,
+    validate_coupled_policy_inputs,
 )
 from .demography import StaticAgingResult, StaticAgingSimulationEstimator
 from .dynamics import (
@@ -53,4 +54,5 @@ __all__ = [
     "StockFlowSystemDynamicsEstimator",
     "ensure_simulation_methods_registered",
     "register_simulation_methods",
+    "validate_coupled_policy_inputs",
 ]

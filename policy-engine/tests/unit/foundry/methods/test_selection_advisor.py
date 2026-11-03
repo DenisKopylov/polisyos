@@ -806,11 +806,11 @@ def test_method_selection_context_hash_uses_exact_canonical_selector_payload() -
         tuple(
             entry
             for entry in catalog.entries
-            if advisor_module._catalog_entry_is_value_method(entry, registry=registry)
+            if advisor_module._owner_declares_value_method(entry, registry=registry)
         )
     )
     expected_payload = {
-        "schema_version": "policyos.foundry.method_selection_context.v4",
+        "schema_version": "policyos.foundry.method_selection_context.v5",
         "route_constraint": None,
         "value_catalog_projection_hash": value_catalog_projection_hash,
         "candidate_signal": "candidate_selection_context posterior tabular effect",
@@ -2523,8 +2523,9 @@ def _run_source_free_receipt_probe(
     package_files = (
         "__init__.py",
         "common/__init__.py",
-        "common/logger.py",
-        "common/serialization.py",
+        "common/logger/__init__.py",
+        "common/serialization/__init__.py",
+        "common/serialization/_strict_json.py",
         "foundry/__init__.py",
         "foundry/methods/__init__.py",
         "foundry/methods/api.py",
@@ -2541,15 +2542,19 @@ def _run_source_free_receipt_probe(
     selection_init = package_root / "foundry/methods/selection/__init__.py"
     source_text = selection_init.read_text(encoding="utf-8")
     assert '"MethodSelectionReceipt"' in source_text
-    assert "_RECEIPT_IMPORTS" in source_text
+    assert "_EXPORT_MODULES" in source_text
     assert (selection_init.parent / "receipt.py").is_file()
     if remove_receipt_route:
-        route = (
-            '        else "polisyos.foundry.methods.selection.receipt"\n'
-            "        if name in _RECEIPT_IMPORTS\n"
-        )
+        route = '    "MethodSelectionReceipt": "polisyos.foundry.methods.selection.receipt",\n'
         assert source_text.count(route) == 1
-        selection_init.write_text(source_text.replace(route, "", 1), encoding="utf-8")
+        selection_init.write_text(
+            source_text.replace(
+                route,
+                '    "MethodSelectionReceipt": "polisyos.foundry.methods.selection.advisor",\n',
+                1,
+            ),
+            encoding="utf-8",
+        )
 
     python_paths = [
         Path(value)
@@ -2727,7 +2732,7 @@ def test_explicit_value_method_respects_hard_panel_modality(
 def test_explicit_value_method_keeps_all_required_modality_inputs_hard(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Hints, candidate modality, and manifest targets constrain explicit selection."""
+    """Declared hints and manifest targets constrain explicit selection."""
 
     registry = MethodRegistry.get_instance()
     catalog = _catalog_with_real_entries(
@@ -2748,17 +2753,6 @@ def test_explicit_value_method_keeps_all_required_modality_inputs_hard(
                 "problem_statement": "Estimate an effect.",
                 "domain": "generic_policy",
                 "runtime_hints": {"value_required_data_modalities": ("panel",)},
-            },
-            None,
-            ("panel",),
-        ),
-        (
-            "candidate signal",
-            {"candidate_id": "panel-candidate"},
-            {
-                "design_problem_id": "candidate-panel-signal",
-                "problem_statement": "Estimate an effect.",
-                "domain": "generic_policy",
             },
             None,
             ("panel",),
@@ -2787,18 +2781,6 @@ def test_explicit_value_method_keeps_all_required_modality_inputs_hard(
             ("tabular", "panel"),
         ),
         (
-            "hint and candidate union",
-            {"candidate_id": "panel-candidate"},
-            {
-                "design_problem_id": "hint-candidate-union",
-                "problem_statement": "Estimate an effect.",
-                "domain": "generic_policy",
-                "runtime_hints": {"value_required_data_modalities": ("tabular",)},
-            },
-            None,
-            ("tabular", "panel"),
-        ),
-        (
             "hint candidate and manifest union with duplicates",
             {"candidate_id": "panel-candidate"},
             {
@@ -2816,18 +2798,6 @@ def test_explicit_value_method_keeps_all_required_modality_inputs_hard(
                 ]
             },
             ("tabular", "panel"),
-        ),
-        (
-            "empty hint keeps candidate modality",
-            {"candidate_id": "panel-candidate"},
-            {
-                "design_problem_id": "empty-hint-candidate-union",
-                "problem_statement": "Estimate an effect.",
-                "domain": "generic_policy",
-                "runtime_hints": {"value_required_data_modalities": ()},
-            },
-            None,
-            ("panel",),
         ),
     )
 
@@ -2919,7 +2889,7 @@ def test_present_malformed_runtime_hints_container_does_not_become_absent() -> N
 def test_required_modalities_require_one_method_with_the_full_source_union() -> None:
     candidate = {"candidate_id": "panel-candidate"}
     problem = {
-        "runtime_hints": {"value_required_data_modalities": ("tabular",)},
+        "runtime_hints": {"value_required_data_modalities": ("tabular", "panel")},
     }
     criteria = advisor_module._value_selection_criteria(
         candidate=candidate,
@@ -2958,3 +2928,703 @@ def test_required_modalities_require_one_method_with_the_full_source_union() -> 
     assert not advisor_module._method_entry_meets_hard_selection_criteria(
         panel_only, criteria, query_runnable_only=True
     )
+
+
+def test_opaque_selection_identifiers_do_not_create_a_hard_panel_requirement(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Technical renaming cannot exclude a real requested tabular method."""
+    from polisyos.core.components import DeclaredBuiltinLoader
+    from polisyos.foundry.extensions import discovery
+    from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
+    from polisyos.foundry.methods.selection.registry import registry_scope
+
+    candidates = [
+        {"candidate_id": "case-alpha", "atom": {"intervention_id": "atom-alpha"}},
+        {"candidate_id": "case-panel-alpha", "atom": {"intervention_id": "panel-id"}},
+        {"candidate_id": "no_panel_data", "diversity_key": ("panel", "effect")},
+    ]
+    monkeypatch.setattr(
+        discovery,
+        "BUILTIN_LOADER",
+        DeclaredBuiltinLoader(
+            target="tests._helpers.value_selection_fixture:singleton_value_components",
+            group=discovery.ENTRY_POINT_GROUP,
+        ),
+    )
+    requested = "bayesian.gp.gp_regression@1.0.0"
+    problem = {
+        "design_problem_id": "selection-domain",
+        "problem_statement": "Estimate an outcome.",
+        "runtime_hints": {"value_required_data_modalities": ("tabular",)},
+    }
+    contexts = set()
+    with registry_scope() as registry:
+        report = bootstrap_foundry_method_registry(
+            registry,
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+            require_bound_discovery_manifest=True,
+        )
+        assert report.success
+        for candidate in candidates:
+            result = select_value_method_for_problem(
+                candidate=candidate,
+                problem=problem,
+                registry=registry,
+                registry_report=report,
+                require_bound_discovery=True,
+                requested_method_fqn=requested,
+            )
+            assert result["status"] == "selected", result
+            assert result["selected_method_fqn"] == requested
+            assert advisor_module._required_modalities(candidate=candidate, problem=problem) == (
+                "tabular",
+            )
+            receipt = MethodSelectionReceipt.model_validate(result["selection_receipt"])
+            contexts.add(receipt.selection_context_hash)
+            assert (
+                advisor_module.verify_value_method_selection_receipt(
+                    receipt,
+                    candidate=candidate,
+                    problem=problem,
+                    registry=registry,
+                    registry_report=report,
+                    requested_method_fqn=requested,
+                )
+                == receipt
+            )
+    assert len(contexts) == len(candidates)
+
+
+def test_value_receipt_explains_the_first_differing_lexicographic_key() -> None:
+    """Higher truthfulness must not be explained by a lower scalar score."""
+    registry = MethodRegistry.get_instance()
+    catalog = _catalog_with_real_entries(
+        registry,
+        "bayesian.gp.gp_regression@1.0.0",
+        "econometrics.panel.event_study@1.0.0",
+    )
+    entries = [
+        catalog.entries[0].model_copy(update={"truthfulness_tier": "exact", "family": "other"}),
+        catalog.entries[1].model_copy(
+            update={"truthfulness_tier": "unverified", "family": "preferred"}
+        ),
+    ]
+    catalog = catalog.model_copy(update={"entries": entries})
+    result = advise_methods(
+        catalog,
+        MethodAdvisorQuery(criteria=MethodSelectionCriteria(preferred_family="preferred")),
+    )
+    assert result.score_trace[0].advisor_score < result.score_trace[1].advisor_score
+    assert (
+        result.score_trace[0].truthfulness_depth_score
+        > result.score_trace[1].truthfulness_depth_score
+    )
+    receipt = advisor_module._build_value_method_selection_receipt(
+        catalog=catalog,
+        registry=registry,
+        advisor_result=result,
+        selection_context_hash="sha256:" + "0" * 64,
+    )
+    loser = receipt.ranked_alternatives[1]
+    assert loser.loss_reasons == ("advisor_truthfulness_depth_below_selected",)
+    assert loser.truthfulness_depth == result.score_trace[1].truthfulness_depth_score
+
+
+def test_declared_and_owner_required_modalities_are_merged_and_validated() -> None:
+    problem = {
+        "runtime_hints": {
+            "value_required_data_modalities": ("tabular",),
+            "value_owner_required_data_modalities": ("panel", "tabular"),
+        }
+    }
+    assert advisor_module._required_modalities(candidate={"id": "other"}, problem=problem) == (
+        "tabular",
+        "panel",
+    )
+    problem["runtime_hints"]["value_owner_required_data_modalities"] = ["panel", None]
+    with pytest.raises(ValueError, match="value_method_required_data_modalities_invalid"):
+        advisor_module._required_modalities(candidate={}, problem=problem)
+
+
+def test_receipt_distinguishes_scalar_score_from_fqn_tie() -> None:
+    """Same truthfulness: the actual next differing rank key explains the loser."""
+    registry = MethodRegistry.get_instance()
+    catalog = _catalog_with_real_entries(
+        registry,
+        "bayesian.gp.gp_regression@1.0.0",
+        "econometrics.panel.event_study@1.0.0",
+    )
+    entries = [
+        entry.model_copy(
+            update={
+                "truthfulness_tier": "exact",
+                "family": "preferred" if index == 0 else "other",
+                "runnable": True,
+                "disabled_reasons": [],
+            }
+        )
+        for index, entry in enumerate(catalog.entries)
+    ]
+    catalog = catalog.model_copy(update={"entries": entries})
+    for preferred, expected in (
+        ("preferred", "advisor_score_below_selected_on_owner_data_shape"),
+        (None, "advisor_fqn_tiebreak_below_selected"),
+    ):
+        result = advise_methods(
+            catalog,
+            MethodAdvisorQuery(criteria=MethodSelectionCriteria(preferred_family=preferred)),
+        )
+        receipt = advisor_module._build_value_method_selection_receipt(
+            catalog=catalog,
+            registry=registry,
+            advisor_result=result,
+            selection_context_hash="sha256:" + "0" * 64,
+        )
+        consumer = MethodSelectionReceipt.model_validate(receipt.model_dump(mode="json"))
+        assert consumer.selected_method_fqn == result.score_trace[0].fqn
+        assert consumer.ranked_alternatives[1].advisor_score == result.score_trace[1].advisor_score
+        assert consumer.ranked_alternatives[1].loss_reasons == (expected,)
+
+
+def test_source_bound_singleton_and_rehashed_hidden_member_fail_closed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An actual declared intake qualifies one owner, not a truncated two-owner receipt."""
+    from polisyos.core.components import DeclaredBuiltinLoader
+    from polisyos.foundry.extensions import discovery
+    from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
+    from polisyos.foundry.methods.selection.registry import registry_scope
+
+    candidate = {"candidate_id": "finite-scope"}
+    problem = {"problem_statement": "Estimate an outcome."}
+    requested = "bayesian.gp.gp_regression@1.0.0"
+    for loader, count in (("singleton_value_components", 1), ("two_value_components", 2)):
+        monkeypatch.setattr(
+            discovery,
+            "BUILTIN_LOADER",
+            DeclaredBuiltinLoader(
+                target=f"tests._helpers.value_selection_fixture:{loader}",
+                group=discovery.ENTRY_POINT_GROUP,
+            ),
+        )
+        with registry_scope() as registry:
+            report = bootstrap_foundry_method_registry(
+                registry,
+                include_builtins=True,
+                include_entry_points=False,
+                include_dev_scan=False,
+                require_bound_discovery_manifest=True,
+            )
+            assert report.success
+            assert report.discovery_manifest is not None and report.discovery_manifest.is_bound
+            result = select_value_method_for_problem(
+                candidate=candidate,
+                problem=problem,
+                registry=registry,
+                registry_report=report,
+                require_bound_discovery=True,
+                requested_method_fqn=requested,
+            )
+            assert result["status"] == "selected", result
+            receipt = MethodSelectionReceipt.model_validate(result["selection_receipt"])
+            assert len(receipt.denominator) == count
+            assert receipt.discovery_scope == "bound_discovery"
+            assert (
+                advisor_module.verify_value_method_selection_receipt(
+                    receipt,
+                    candidate=candidate,
+                    problem=problem,
+                    registry=registry,
+                    registry_report=report,
+                    requested_method_fqn=requested,
+                )
+                == receipt
+            )
+            if count == 1:
+                automatic = select_value_method_for_problem(
+                    candidate=candidate,
+                    problem=problem,
+                    registry=registry,
+                    registry_report=report,
+                    require_bound_discovery=True,
+                )
+                assert automatic["status"] == "selected", automatic
+                assert automatic["selected_method_fqn"] == requested
+                advisor_module.verify_value_method_selection_receipt(
+                    MethodSelectionReceipt.model_validate(automatic["selection_receipt"]),
+                    candidate=candidate,
+                    problem=problem,
+                    registry=registry,
+                    registry_report=report,
+                )
+                fictional = select_value_method_for_problem(
+                    candidate=candidate,
+                    problem=problem,
+                    registry=registry,
+                    registry_report=report,
+                    require_bound_discovery=True,
+                    requested_method_fqn="fictional.method@1.0.0",
+                )
+                assert fictional["status"] == "blocked"
+                assert fictional["blockers"] == ("unsupported_method_unavailable",)
+            if count == 2:
+                wrong_depth = receipt.model_dump(mode="json")
+                wrong_depth["ranked_alternatives"][0]["truthfulness_depth"] += 1
+                wrong_depth.pop("content_hash")
+                wrong_depth["content_hash"] = advisor_module._method_selection_receipt_content_hash(
+                    wrong_depth
+                )
+                with pytest.raises(
+                    ValueError, match="value_method_selection_requested_trace_mismatch"
+                ):
+                    advisor_module.verify_value_method_selection_receipt(
+                        MethodSelectionReceipt.model_validate(wrong_depth),
+                        candidate=candidate,
+                        problem=problem,
+                        registry=registry,
+                        registry_report=report,
+                        requested_method_fqn=requested,
+                        replay_ranking=False,
+                    )
+                other_fqn = next(fqn for fqn in receipt.denominator if fqn != requested)
+                bypass = receipt.model_copy(update={"selected_method_fqn": other_fqn})
+                with pytest.raises(ValueError, match="value_method_selection_receipt_incoherent"):
+                    advisor_module.verify_value_method_selection_receipt(
+                        bypass,
+                        candidate=candidate,
+                        problem=problem,
+                        registry=registry,
+                        registry_report=report,
+                        requested_method_fqn=requested,
+                    )
+                changed = receipt.model_dump(mode="json")
+                other = next(
+                    row for row in changed["member_dispositions"] if row["method_fqn"] != requested
+                )
+                assert other["disposition"] == "eligible"
+                other.update(disposition="excluded", reasons=["invented_reason"])
+                changed.pop("content_hash")
+                changed["content_hash"] = advisor_module._method_selection_receipt_content_hash(
+                    changed
+                )
+                with pytest.raises(ValueError, match="value_method_selection_disposition_mismatch"):
+                    advisor_module.verify_value_method_selection_receipt(
+                        MethodSelectionReceipt.model_validate(changed),
+                        candidate=candidate,
+                        problem=problem,
+                        registry=registry,
+                        registry_report=report,
+                        requested_method_fqn=requested,
+                    )
+                payload = receipt.model_dump(mode="json")
+                payload["denominator"] = [requested]
+                payload["member_dispositions"] = [
+                    row for row in payload["member_dispositions"] if row["method_fqn"] == requested
+                ]
+                payload.pop("content_hash")
+                payload["content_hash"] = advisor_module._method_selection_receipt_content_hash(
+                    payload
+                )
+                truncated = MethodSelectionReceipt.model_validate(payload)
+                with pytest.raises(ValueError, match="value_method_selection_denominator_mismatch"):
+                    advisor_module.verify_value_method_selection_receipt(
+                        truncated,
+                        candidate=candidate,
+                        problem=problem,
+                        registry=registry,
+                        registry_report=report,
+                        requested_method_fqn=requested,
+                    )
+
+
+def test_historical_v2_receipt_remains_byte_compatible() -> None:
+    alternative = {
+        "rank": 1,
+        "method_fqn": "method.example",
+        "method_family": "family",
+        "data_modalities": [],
+        "advisor_score": None,
+        "selected": True,
+        "loss_reasons": ["explicit_registry_request"],
+    }
+    payload = {
+        "schema_version": "policyos.foundry.method_selection_receipt.v2",
+        "selection_authority": "requested_registry_method",
+        "selected_method_fqn": "method.example",
+        "ranked_alternatives": [alternative],
+        "denominator": ["method.example"],
+        "selection_context_hash": "sha256:" + "0" * 64,
+    }
+    payload["content_hash"] = advisor_module._method_selection_receipt_content_hash(payload)
+    assert MethodSelectionReceipt.model_validate(payload).model_dump(mode="json") == payload
+
+
+def test_persisted_selection_read_does_not_replay_mutated_live_history(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """History changes cannot rewrite prior candidate basis, while current scope is rechecked."""
+    from polisyos.core.components import DeclaredBuiltinLoader
+    from polisyos.foundry.extensions import discovery
+    from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
+    from polisyos.foundry.methods.selection.registry import registry_scope
+
+    history = SelectionHistoryStore()
+    monkeypatch.setattr(advisor_module, "get_global_selection_history", lambda: history)
+    monkeypatch.setattr(
+        discovery,
+        "BUILTIN_LOADER",
+        DeclaredBuiltinLoader(
+            target="tests._helpers.value_selection_fixture:two_value_components",
+            group=discovery.ENTRY_POINT_GROUP,
+        ),
+    )
+    candidate, problem = {"candidate_id": "history-basis"}, {}
+    with registry_scope() as registry:
+        report = bootstrap_foundry_method_registry(
+            registry,
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+            require_bound_discovery_manifest=True,
+        )
+        selection = select_value_method_for_problem(
+            candidate=candidate,
+            problem=problem,
+            registry=registry,
+            registry_report=report,
+            require_bound_discovery=True,
+        )
+        assert selection["status"] == "selected", selection
+        receipt = MethodSelectionReceipt.model_validate(selection["selection_receipt"])
+        assert len(receipt.ranked_alternatives) == 2
+        advisor_module.verify_value_method_selection_receipt(
+            receipt,
+            candidate=candidate,
+            problem=problem,
+            registry=registry,
+            registry_report=report,
+        )
+        history.record(
+            MethodExecutionRecord(
+                method_fqn=receipt.selected_method_fqn,
+                timestamp=time.time(),
+                latency_ms=1.0,
+                success=False,
+            )
+        )
+        with pytest.raises(ValueError, match="value_method_selection_recomputed_receipt_mismatch"):
+            advisor_module.verify_value_method_selection_receipt(
+                receipt,
+                candidate=candidate,
+                problem=problem,
+                registry=registry,
+                registry_report=report,
+            )
+        assert (
+            advisor_module.verify_value_method_selection_receipt(
+                receipt,
+                candidate=candidate,
+                problem=problem,
+                registry=registry,
+                registry_report=report,
+                replay_ranking=False,
+            )
+            == receipt
+        )
+
+        tampered = receipt.model_dump(mode="json")
+        tampered["ranked_alternatives"][1]["loss_reasons"] = ["fabricated_reason"]
+        tampered.pop("content_hash")
+        tampered["content_hash"] = advisor_module._method_selection_receipt_content_hash(tampered)
+        with pytest.raises(ValueError, match="value_method_selection_rank_reason_mismatch"):
+            advisor_module.verify_value_method_selection_receipt(
+                MethodSelectionReceipt.model_validate(tampered),
+                candidate=candidate,
+                problem=problem,
+                registry=registry,
+                registry_report=report,
+                replay_ranking=False,
+            )
+
+        panel_problem = {"runtime_hints": {"value_required_data_modalities": ("panel",)}}
+        panel_result = select_value_method_for_problem(
+            candidate=candidate,
+            problem=panel_problem,
+            registry=registry,
+            registry_report=report,
+            require_bound_discovery=True,
+        )
+        panel_receipt = MethodSelectionReceipt.model_validate(panel_result["selection_receipt"])
+        tampered = panel_receipt.model_dump(mode="json")
+        gp = next(
+            row for row in tampered["member_dispositions"] if row["disposition"] == "excluded"
+        )
+        gp.update(disposition="eligible", reasons=[])
+        tampered.pop("content_hash")
+        tampered["content_hash"] = advisor_module._method_selection_receipt_content_hash(tampered)
+        with pytest.raises(ValueError, match="value_method_selection_disposition_mismatch"):
+            advisor_module.verify_value_method_selection_receipt(
+                MethodSelectionReceipt.model_validate(tampered),
+                candidate=candidate,
+                problem=panel_problem,
+                registry=registry,
+                registry_report=report,
+                replay_ranking=False,
+            )
+
+
+def test_bound_builtin_population_filters_before_limit_and_explains_every_exclusion(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Real owner inventory, non-value clutter and a removed hard-filter control."""
+    from polisyos.foundry.extensions.registry import (
+        controlled_builtin_foundry_method_registry_scope,
+    )
+
+    candidate = {"candidate_id": "case-alpha"}
+    problem = {"runtime_hints": {"value_required_data_modalities": ("panel",)}}
+    gp = "bayesian.gp.gp_regression@1.0.0"
+    with controlled_builtin_foundry_method_registry_scope() as (registry, report):
+        catalog = build_method_catalog_snapshot(
+            registry=registry, registry_report=report, require_bound_discovery=True
+        )
+        value = {
+            entry.fqn
+            for entry in catalog.entries
+            if advisor_module._owner_declares_value_method(entry, registry=registry)
+        }
+        assert len(catalog.entries) - len(value) >= 20
+        result = select_value_method_for_problem(
+            candidate=candidate,
+            problem=problem,
+            registry=registry,
+            registry_report=report,
+            require_bound_discovery=True,
+        )
+        assert result["status"] == "selected", result
+        receipt = MethodSelectionReceipt.model_validate(result["selection_receipt"])
+        assert set(receipt.denominator) == value
+        dispositions = {row.method_fqn: row for row in receipt.member_dispositions}
+        assert len(dispositions) == len(value)
+        eligible = {fqn for fqn, row in dispositions.items() if row.disposition == "eligible"}
+        assert len(eligible) >= 12
+        assert receipt.selected_method_fqn in eligible
+        assert dispositions[gp].disposition == "excluded"
+        assert "required_data_modality_missing:panel" in dispositions[gp].reasons
+        assert gp not in {row.method_fqn for row in receipt.ranked_alternatives}
+        assert all(row.method_fqn in eligible for row in receipt.ranked_alternatives)
+        assert any("method_not_runnable" in row.reasons for row in dispositions.values())
+
+        original = advisor_module._hard_selection_rejection_reasons
+
+        def omit_modality(entry, criteria, *, query_runnable_only=False):
+            return tuple(
+                reason
+                for reason in original(entry, criteria, query_runnable_only=query_runnable_only)
+                if not reason.startswith("required_data_modality_missing:")
+            )
+
+        monkeypatch.setattr(advisor_module, "_hard_selection_rejection_reasons", omit_modality)
+        removed = select_value_method_for_problem(
+            candidate=candidate,
+            problem=problem,
+            registry=registry,
+            registry_report=report,
+            require_bound_discovery=True,
+        )
+        assert removed["status"] == "selected", removed
+        removed_rows = {row["method_fqn"]: row for row in removed["member_dispositions"]}
+        assert removed_rows[gp]["disposition"] == "eligible"
+        assert gp in {row["method_fqn"] for row in removed["ranked_alternatives"]}
+
+
+def test_owner_contract_gap_remains_visible_in_success_and_blocked_results(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A native value declaration with a broken catalog contract is not erased."""
+    registry = MethodRegistry.get_instance()
+    gp = "bayesian.gp.gp_regression@1.0.0"
+    panel = "econometrics.panel.event_study@1.0.0"
+    catalog = _catalog_with_real_entries(registry, gp, panel)
+    broken_rows = [
+        entry.model_copy(update={"capability_matrix": {}}) if entry.fqn == gp else entry
+        for entry in catalog.entries
+    ]
+    monkeypatch.setattr(
+        advisor_module,
+        "build_method_catalog_snapshot",
+        lambda **_kwargs: catalog.model_copy(update={"entries": broken_rows}),
+    )
+    result = select_value_method_for_problem(candidate={}, problem={}, registry=registry)
+    assert result["status"] == "selected", result
+    assert result["selected_method_fqn"] == panel
+    assert set(result["denominator"]) == {gp, panel}
+    gp_row = next(row for row in result["member_dispositions"] if row["method_fqn"] == gp)
+    assert gp_row["disposition"] == "excluded"
+    assert "value_owner_contract_unresolved" in gp_row["reasons"]
+    assert gp not in {row["method_fqn"] for row in result["ranked_alternatives"]}
+    blocked = select_value_method_for_problem(
+        candidate={},
+        problem={},
+        registry=registry,
+        requested_method_fqn=gp,
+    )
+    assert blocked["blockers"] == ("value_method_owner_contract_unresolved",)
+    assert any(row["method_fqn"] == gp for row in blocked["member_dispositions"])
+
+
+def test_bound_native_owner_contract_gap_is_not_erased(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A real declared method with an unresolved output owner is still accounted for."""
+    from polisyos.core.components import DeclaredBuiltinLoader
+    from polisyos.foundry.extensions import discovery
+    from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
+    from polisyos.foundry.methods.selection.registry import registry_scope
+
+    monkeypatch.setattr(
+        discovery,
+        "BUILTIN_LOADER",
+        DeclaredBuiltinLoader(
+            target="tests._helpers.value_selection_fixture:one_valid_one_broken_value_components",
+            group=discovery.ENTRY_POINT_GROUP,
+        ),
+    )
+    broken = "test.value_selection.broken_owner@1.0.0"
+    with registry_scope() as registry:
+        report = bootstrap_foundry_method_registry(
+            registry,
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+            require_bound_discovery_manifest=True,
+        )
+        assert report.success and report.discovery_manifest is not None
+        assert report.discovery_manifest.is_bound
+        selected = select_value_method_for_problem(
+            candidate={},
+            problem={},
+            registry=registry,
+            registry_report=report,
+            require_bound_discovery=True,
+        )
+        assert selected["status"] == "selected", selected
+        assert broken in selected["denominator"]
+        row = next(row for row in selected["member_dispositions"] if row["method_fqn"] == broken)
+        assert row["disposition"] == "excluded"
+        assert "value_owner_contract_unresolved" in row["reasons"]
+        blocked = select_value_method_for_problem(
+            candidate={},
+            problem={},
+            registry=registry,
+            registry_report=report,
+            require_bound_discovery=True,
+            requested_method_fqn=broken,
+        )
+        assert blocked["blockers"] == ("value_method_owner_contract_unresolved",)
+
+
+def test_actual_bound_intake_unrelated_and_relevant_drift_have_distinct_effects(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Changing only non-value members preserves the decision; losing a value owner does not."""
+    from polisyos.core.components import DeclaredBuiltinLoader
+    from polisyos.foundry.extensions import discovery
+    from polisyos.foundry.extensions.registry import (
+        bootstrap_foundry_method_registry,
+        controlled_builtin_foundry_method_registry_scope,
+    )
+    from polisyos.foundry.methods.selection.registry import registry_scope
+
+    candidate = {"candidate_id": "same-input"}
+    problem = {"runtime_hints": {"value_required_data_modalities": ("panel",)}}
+    routed_method = "causal.inference.did.standard@1.0.0"
+    route = advisor_module.MethodRouteConstraint(
+        family="budget_flows",
+        target_contract_id="foundry.causal.panel_observational_data.v1",
+        allowed_method_fqns=(routed_method,),
+        manifest_content_hash="sha256:" + "1" * 64,
+        route_content_hashes=("sha256:" + "2" * 64,),
+    )
+    cases = (("econometrics.panel.event_study@1.0.0", None), (routed_method, route))
+    with controlled_builtin_foundry_method_registry_scope() as (registry, report):
+        originals = {}
+        for requested, route_constraint in cases:
+            selected = select_value_method_for_problem(
+                candidate=candidate,
+                problem=problem,
+                registry=registry,
+                registry_report=report,
+                require_bound_discovery=True,
+                requested_method_fqn=requested,
+                route_constraint=route_constraint,
+            )
+            assert selected["status"] == "selected", selected
+            originals[requested] = MethodSelectionReceipt.model_validate(
+                selected["selection_receipt"]
+            )
+
+    for loader, expect_same in (
+        ("builtins_without_unrelated_twenty", True),
+        ("builtins_without_gp", False),
+    ):
+        monkeypatch.setattr(
+            discovery,
+            "BUILTIN_LOADER",
+            DeclaredBuiltinLoader(
+                target=f"tests._helpers.value_selection_fixture:{loader}",
+                group=discovery.ENTRY_POINT_GROUP,
+            ),
+        )
+        with registry_scope() as registry:
+            report = bootstrap_foundry_method_registry(
+                registry,
+                include_builtins=True,
+                include_entry_points=False,
+                include_dev_scan=False,
+                require_bound_discovery_manifest=True,
+            )
+            assert report.success and report.discovery_manifest is not None
+            assert report.discovery_manifest.is_bound
+            for requested, route_constraint in cases:
+                original = originals[requested]
+                result = select_value_method_for_problem(
+                    candidate=candidate,
+                    problem=problem,
+                    registry=registry,
+                    registry_report=report,
+                    require_bound_discovery=True,
+                    requested_method_fqn=requested,
+                    route_constraint=route_constraint,
+                )
+                assert result["status"] == "selected", result
+                current = MethodSelectionReceipt.model_validate(result["selection_receipt"])
+                if expect_same:
+                    assert current.content_hash == original.content_hash
+                    assert (
+                        advisor_module.verify_value_method_selection_receipt(
+                            original,
+                            candidate=candidate,
+                            problem=problem,
+                            registry=registry,
+                            registry_report=report,
+                            requested_method_fqn=requested,
+                            route_constraint=route_constraint,
+                        )
+                        == original
+                    )
+                else:
+                    assert current.selection_context_hash != original.selection_context_hash
+                    with pytest.raises(
+                        ValueError, match="value_method_selection_context_hash_mismatch"
+                    ):
+                        advisor_module.verify_value_method_selection_receipt(
+                            original,
+                            candidate=candidate,
+                            problem=problem,
+                            registry=registry,
+                            registry_report=report,
+                            requested_method_fqn=requested,
+                            route_constraint=route_constraint,
+                        )

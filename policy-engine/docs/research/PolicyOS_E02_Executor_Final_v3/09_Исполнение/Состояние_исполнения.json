@@ -5,7 +5,7 @@
   "specification_version": "v3",
   "reference_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
   "actual_start_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
-  "active_lane": "LANE-09",
+  "active_lane": "LANE-01",
   "lane_order": [
     "LANE-06",
     "LANE-08",
@@ -9079,11 +9079,112 @@
     {
       "lane_id": "LANE-01",
       "sequence": 8,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "IN_PROGRESS",
+      "local_qualification": "COMPONENTS_QUALIFIED_SHARED_ROUTE_PENDING",
       "capability_acceptance": "NOT_RUN",
       "transition_evidence": [],
-      "corrective_windows": []
+      "corrective_windows": [],
+      "source_admission": {
+        "commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
+        "tree": "29d5f2e1786fd89916eb345cd8025ff3c4b98c56",
+        "tracked_state": "clean at admission; named concurrent writers thereafter",
+        "resources": "Mac16GiB8logicalCPU;~12GiBdisk available;memory_pressure55%free;existingPython3.14.3/Node22;CPU1;initial unknown profile alone,up to2measured lightjobs;no cloud/reinstall/source/env/data copies"
+      },
+      "denominator": {
+        "original": {
+          "task_rows": 26,
+          "bundles": 127,
+          "finding_ids_unique": 282,
+          "criterion_occurrences": 291,
+          "task_finding_edges_declared": 319,
+          "task_finding_edges_recomputed": 319,
+          "task_rows_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+          "coverage_source": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+          "coverage_counts": {
+            "bundles": 127,
+            "findings": 282,
+            "canonical_source_block_occurrences": 291
+          }
+        },
+        "v3": {
+          "packet_rows_state": 127,
+          "packet_rows_crosswalk": 127,
+          "requirements": 606,
+          "local_tests": 613,
+          "scenarios": 42
+        },
+        "LANE-01": {
+          "packets": 11,
+          "requirement_rows": 66,
+          "unique_requirement_ids": 66,
+          "test_rows": 64,
+          "unique_test_ids": 64,
+          "shared_binding_occurrences": 17,
+          "requirement_binding_rows": 73,
+          "req_test_edge_occurrences_with_binding_repeats": 86,
+          "unique_req_test_pairs_across_bindings": 66,
+          "repeated_req_test_pair_occurrences": 20
+        }
+      },
+      "write_ownership": {
+        "requirements": "lane01_requirements: data_requirement/compiler/models+mirroredtests",
+        "selection": "lane01_selection: Foundryadvisor/receipt/currentregistryverifier+mirroredtests",
+        "cycle": "lane01_cycle: quality/generation_cycle.py and agreedrecursive/controller companions/tests; one canonical writer",
+        "acquisition": "lane01_acquisition: acquisition_world_growth/evaluation_dispatch/evaluation/history, data_forge_binding/cycle_substrate+mirroredtests",
+        "numerics": "lane01_numerics: pairedestimation, coupledmethod/preflight/SMM,NCMquantile/profile+mirroredtests",
+        "horizon": "lane01_horizon: joint_simulation_horizon.py/DTOs+SIMtests, sole common mechanism writer",
+        "served": "lane01_served: HTTPcontrolgeneration/job/profile and servedtests, explicitcompanionleases",
+        "readiness": "lane01_readiness: confidence_ledger existingreadiness/censusbridge+mirroredtests;actualfinalproducer afterLANE12",
+        "root": "index/HEAD/refs,sharedfacades/generatedfamilies,normalrelease/WorkPlan/fillablestate;independentreview andcomposition",
+        "surface": "lane01_surface: core/contracts/runtime.py,HTTP runs projections,dashboard validators/Overview/locales+mirroredtests",
+        "offpilot": "lane01_offpilot: scalar slots,catalog unit/provenance/passport/governed descriptors+actual compact WDI profiles",
+        "candidate_adapter": "lane01_candidate_adapter: actual Fabric data_requirement adapter+mirroredtests"
+      },
+      "evidence_catalog": {
+        "numeric_native": {
+          "output": "policy-engine/_cache/e02/lane01-numerics/native-full-r2",
+          "observed": {
+            "PASS": 89,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 21.588333750027232,
+          "peak_rss_bytes": 687800320,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 13,
+          "scope": "paired/coupled/SMM/NCM native algorithms and actual CausalEngine reader; Runtime comparator/cause/shared route separate"
+        },
+        "numeric_quantile_removal": {
+          "output": "policy-engine/_cache/e02/lane01-numerics/constant-quantile-removal-r1",
+          "observed": {
+            "FAIL": 1
+          },
+          "interpretation": "expected semantic failure with constant1.96, actual NCM and independent erfc residual"
+        },
+        "selection_final": {
+          "output": "policy-engine/_cache/e02/lane01-selection/final-combined-r1",
+          "observed": {
+            "PASS": 7
+          },
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 9,
+          "scope": "receipt/history/tamper/singleton/source-free owner controls; actual Runtime selected numerical execution pending"
+        },
+        "selection_final_catalog_drift": {
+          "output": "policy-engine/_cache/e02/lane01-selection/final-route-r2",
+          "observed": {
+            "PASS": 1
+          },
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 7,
+          "scope": "actual bound/unbound catalog scopes; full value-owner denominator and unaffected nonvalue drift"
+        }
+      },
+      "independent_component_reviews": {
+        "selection": "lane01_inputs_review GO on source/outputs; shared N8 consumer separate",
+        "numerics": "lane01_sim_review GO on 89-case outputs/current13inputs and actual quantile removal; Runtime separate"
+      }
     },
     {
       "lane_id": "LANE-03",
@@ -24740,14 +24841,14 @@
       "lane_sequence": 8,
       "track_id": "01-A",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "lane01_requirements",
+      "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
       "integrated_commit": null,
       "actual_write_set": [],
-      "shared_writer": null,
+      "shared_writer": "One writer per mechanism named in LANE01 write_ownership; companion conflicts reconciled before edits.",
       "decision_records": [],
       "requirement_ids": [
         "REQ-REQ-01-01",
@@ -24780,14 +24881,14 @@
       "lane_sequence": 8,
       "track_id": "01-A",
       "track_position": 2,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "lane01_cycle + lane01_served",
+      "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
       "integrated_commit": null,
       "actual_write_set": [],
-      "shared_writer": null,
+      "shared_writer": "One writer per mechanism named in LANE01 write_ownership; companion conflicts reconciled before edits.",
       "decision_records": [],
       "requirement_ids": [
         "REQ-CYC-01-01",
@@ -24818,14 +24919,14 @@
       "lane_sequence": 8,
       "track_id": "01-A",
       "track_position": 3,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "lane01_acquisition + lane01_cycle",
+      "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
       "integrated_commit": null,
       "actual_write_set": [],
-      "shared_writer": null,
+      "shared_writer": "One writer per mechanism named in LANE01 write_ownership; companion conflicts reconciled before edits.",
       "decision_records": [],
       "requirement_ids": [
         "REQ-ACQ-01-01",
@@ -24853,14 +24954,14 @@
       "lane_sequence": 8,
       "track_id": "01-A",
       "track_position": 4,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "lane01_cycle + lane01_acquisition",
+      "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
       "integrated_commit": null,
       "actual_write_set": [],
-      "shared_writer": null,
+      "shared_writer": "One writer per mechanism named in LANE01 write_ownership; companion conflicts reconciled before edits.",
       "decision_records": [],
       "requirement_ids": [
         "REQ-CYC-03-01",
@@ -24888,14 +24989,14 @@
       "lane_sequence": 8,
       "track_id": "01-A",
       "track_position": 5,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "lane01_cycle",
+      "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
       "integrated_commit": null,
       "actual_write_set": [],
-      "shared_writer": null,
+      "shared_writer": "One writer per mechanism named in LANE01 write_ownership; companion conflicts reconciled before edits.",
       "decision_records": [],
       "requirement_ids": [
         "REQ-CYC-04-01",
@@ -24923,14 +25024,14 @@
       "lane_sequence": 8,
       "track_id": "01-A",
       "track_position": 6,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "lane01_cycle + lane01_served + lane01_readiness",
+      "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
       "integrated_commit": null,
       "actual_write_set": [],
-      "shared_writer": null,
+      "shared_writer": "One writer per mechanism named in LANE01 write_ownership; companion conflicts reconciled before edits.",
       "decision_records": [],
       "requirement_ids": [
         "REQ-CYC-05-01",
@@ -24962,14 +25063,14 @@
       "lane_sequence": 8,
       "track_id": "01-A",
       "track_position": 7,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "lane01_cycle",
+      "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
       "integrated_commit": null,
       "actual_write_set": [],
-      "shared_writer": null,
+      "shared_writer": "One writer per mechanism named in LANE01 write_ownership; companion conflicts reconciled before edits.",
       "decision_records": [],
       "requirement_ids": [
         "REQ-CYC-02-01",
@@ -24998,14 +25099,14 @@
       "lane_sequence": 8,
       "track_id": "01-B",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "lane01_horizon;coupledpreflight numericalowner",
+      "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
       "integrated_commit": null,
       "actual_write_set": [],
-      "shared_writer": null,
+      "shared_writer": "One writer per mechanism named in LANE01 write_ownership; companion conflicts reconciled before edits.",
       "decision_records": [],
       "requirement_ids": [
         "REQ-SIM-01-01",
@@ -25029,14 +25130,14 @@
       "lane_sequence": 8,
       "track_id": "01-B",
       "track_position": 2,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "lane01_horizon",
+      "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
       "integrated_commit": null,
       "actual_write_set": [],
-      "shared_writer": null,
+      "shared_writer": "One writer per mechanism named in LANE01 write_ownership; companion conflicts reconciled before edits.",
       "decision_records": [],
       "requirement_ids": [
         "REQ-SIM-02-01",
@@ -25062,14 +25163,14 @@
       "lane_sequence": 8,
       "track_id": "01-B",
       "track_position": 3,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "lane01_horizon + lane01_numerics",
+      "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
       "integrated_commit": null,
       "actual_write_set": [],
-      "shared_writer": null,
+      "shared_writer": "One writer per mechanism named in LANE01 write_ownership; companion conflicts reconciled before edits.",
       "decision_records": [],
       "requirement_ids": [
         "REQ-SIM-03-01",
@@ -25097,14 +25198,14 @@
       "lane_sequence": 8,
       "track_id": "01-C",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "lane01_selection",
+      "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
       "integrated_commit": null,
       "actual_write_set": [],
-      "shared_writer": null,
+      "shared_writer": "One writer per mechanism named in LANE01 write_ownership; companion conflicts reconciled before edits.",
       "decision_records": [],
       "requirement_ids": [
         "REQ-SEL-01-01",
@@ -30030,6 +30131,12 @@
       "base_commit": "37cfbaf9eb7b5a1f29f5baa84103eb2533408969",
       "base_tree": "f46d9bc83b7eda7b23bf2f8b870f4d8b183c8d5b",
       "result": "22local requirements and25test contracts qualified; I09A159PASS, I09B721PASS/1conditionalSKIP; source/outputs retain exact bindings. Final DA08/G/globalCI/Main separate."
+    },
+    {
+      "lane": "LANE-01",
+      "commit": "containing_lane01_foundry_component_commit",
+      "base_commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
+      "result": "Released SEL/numeric owners and canonical facades only; shared I01A/B/C, remaining criteria, public/generated qualification and G acceptance remain pending."
     }
   ],
   "open_remainders_index": "E02-WORK-PLAN.md#open-remainders-across-completed-lanes"

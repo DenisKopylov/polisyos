@@ -19,6 +19,44 @@ output metric uncertainty in Foundry simulations.
 - **Aggregation** - envelope merging for multi-strategy or multi-run outputs.
 - **Config-driven fallback** - strategy choice is explicit and inspectable.
 
+### Empirical sampling and adaptive stopping
+
+Empirical weights are normalized once in finite binary64. Each positive source
+weight must retain a nonempty cumulative interval intersecting `[0, 1)`;
+otherwise propagation returns `empirical_numeric_resolution` without executing
+the evaluator. Aligned columns require the same normalized weights. Random and
+QMC sampling map their actual finite uniform coordinates through that same
+admitted CDF; zero-weight atoms are skipped. Neither finite lattice nor a finite
+sample promises to visit every representable positive interval. This fixes the
+previous Gaussian-style endpoint clipping on empirical draws and changes seeded
+random empirical streams; historical samples are not rewritten. The output's
+`empirical_sampling_profile` is a producer assertion, not an independently
+verified implementation identity or generic persisted-replay proof.
+
+Foundry and the Scientist welfare consumer use the same admitted empirical
+rows and CDF. Delta covariance is recomputed from the actual weighted rows,
+including their cross terms; inconsistent row identities, weights, or declared
+covariance are refused. Moment calculation can remain representable when a
+finite sampling CDF cannot: these are separate admissions. A declared joint
+row identity remains candidate provenance, not verified authority.
+
+Adaptive stopping retains the historical `ci_half_width_target` serialized
+field and its existing meaning. It is a target for the **full relative output
+interval width**, not a half-width or Monte Carlo standard error. New callers
+may supply `relative_full_width_target` to the Python model; the current schema
+and serialized historical reports retain the old field. Results declare
+`relative_full_output_width_heuristic_v1` and
+whether an early stop reached that target. This heuristic does not establish
+convergence, coverage, a sampling-error bound, or policy authority.
+
+The delta backend uses float32 for varying coordinates and its Jacobian,
+independently of the global JAX x64 setting. Applicability probing, output
+roster discovery and execution all evaluate the same float32 nominal point;
+fixed inputs retain their supplied values and types. Results disclose the
+coordinate dtype and names whose nominal values rounded. Coordinates outside
+finite float32 range are refused before any evaluator call rather than silently
+falling back to a different nominal meaning.
+
 Precision-weighted and Bayesian aggregation require a resolved relation basis before they can
 narrow distinct inputs. In-memory IDs, composition labels, and metadata such as
 `dependency="independent"` or `independence=true` cannot establish source identity or statistical
@@ -76,6 +114,11 @@ this covariance before its nominal callback. Exact zero variance remains a
 point mass in random, Sobol and Halton sampling rather than receiving an
 artificial minimum spread.
 
+Gaussian decomposition combines finite component scales without squaring them
+first. A representable nonzero interval uses the existing exact numeric profile
+when the default rounding would erase a bound; a nonzero interval that binary64
+cannot represent is refused. Zero variance remains an explicit point interval.
+
 These checks preserve numerical input laws; they do not establish a source
 population, dependence provenance, calibration or downstream authority.
 
@@ -101,6 +144,7 @@ population, dependence provenance, calibration or downstream authority.
 | `compute_first_order_indices()` | Sensitivity helper for variance attribution.              |
 | `extract_std()`                 | Extracts scale from a typed parametric fit or legacy interval. |
 | Covariance reconciliation constants and builders | Lazy exact-owner exports for covariance construction, reconciliation, and singular-matrix handling. |
+| Empirical admission, CDF, and moment helpers | One shared finite-weight, aligned-row law for Foundry and Scientist consumers. |
 | `EvaluationFailureClassification` and classifier | Bounded exception-graph classification and existing node/edge limits. |
 
 ## Envelope aggregation boundaries
@@ -167,13 +211,6 @@ interval, and draws in its returned summary, omits the incompatible `Uncertainty
 returns the typed `point_outside_credible_interval` limitation. The existing envelope validator
 still enforces point-in-interval for representable envelope artifacts; no clipping or median
 substitution is applied.
-
-## Current State
-
-- Last updated: 2026-10-20
-- Files: 13 Python files in this package
-- Exports: 30 names declared in `__all__`
-
 
 ### Source-derived posterior consumption
 

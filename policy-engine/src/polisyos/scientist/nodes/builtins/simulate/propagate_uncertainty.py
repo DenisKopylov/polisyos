@@ -947,8 +947,21 @@ def _read_calibration_response_intake(
     assert report_manifest is not None
     if report.ordered_batch_execution is not None:
         raise _InvalidResponseBasis("ordered_batch_response_basis_not_supported")
-    if report.schema_version != "2.0":
+    if report.schema_version not in {"2.0", "2.2"}:
         raise _InvalidResponseBasis("execute response requires a scalar v2 calibration report")
+    if report.schema_version == "2.2":
+        scope = report.uncertainty_field_scope
+        projection = report.coordinate_projection
+        if (
+            not scope
+            or projection is None
+            or tuple(scope) != projection.field_order
+            or not set(scope) <= set(report.calibrated_params)
+        ):
+            raise _InvalidResponseBasis(
+                "scoped calibration report and coordinate projection disagree",
+                source_status="mismatch",
+            )
 
     basis_source = read_calibration_execution_input_basis_source(
         ctx.store, inputs=report_manifest.inputs

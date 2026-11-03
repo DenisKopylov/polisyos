@@ -12,8 +12,11 @@ import numpy as np
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     ParametricFitCarrier,
+    PosteriorSamplesCarrier,
     UncertaintyEnvelope,
 )
+
+from .empirical import empirical_joint_moments, empirical_weighted_moments, prepare_empirical_joint
 
 CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1 = 1e-7
 CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1 = 1e-10
@@ -77,6 +80,12 @@ def _float32_covariance(values: object) -> jnp.ndarray:
 def extract_std(env: UncertaintyEnvelope) -> float:
     """Extract a standard deviation from a typed law or a valid interval."""
     payload = env.distribution_payload
+    if isinstance(payload, PosteriorSamplesCarrier):
+        weights = (
+            tuple(1.0 for _ in payload.samples) if payload.weights is None else payload.weights
+        )
+        _, covariance = empirical_weighted_moments([(value,) for value in payload.samples], weights)
+        return math.sqrt(float(covariance[0, 0]))
     if isinstance(payload, ParametricFitCarrier):
         if env.distribution_family is not payload.family:
             raise ValueError("parametric fit family does not match envelope family")
@@ -107,9 +116,29 @@ def extract_std(env: UncertaintyEnvelope) -> float:
             if not all(math.isfinite(value) for value in (low, high)) or low > high:
                 raise ValueError("uniform parametric fit requires ordered support")
             return (high - low) / math.sqrt(12.0)
+        if payload.family is DistributionFamily.TRIANGULAR:
+            if payload.support is not None:
+                low, high = payload.support
+            else:
+                low = payload.parameters.get("low")
+                high = payload.parameters.get("high")
+                if low is None or high is None:
+                    raise ValueError("triangular parametric fit requires ordered support")
+            mode = payload.parameters.get("mode")
+            if mode is None:
+                raise ValueError("triangular parametric fit requires a mode")
+            if (float(low), float(high), float(mode)) != (
+                env.ci_lower,
+                env.ci_upper,
+                env.point_estimate,
+            ):
+                raise ValueError("triangular fit and envelope support or mode disagree")
+            return _triangular_std(float(low), float(mode), float(high))
         raise ValueError(f"unsupported parametric fit family: {payload.family.value}")
 
     lo, hi = env.confidence_interval
+    if env.distribution_family is DistributionFamily.TRIANGULAR:
+        return _triangular_std(float(lo), float(env.point_estimate), float(hi))
     width = max(float(hi - lo), 0.0)
     level = env.confidence_level
     if (
@@ -128,6 +157,27 @@ def extract_std(env: UncertaintyEnvelope) -> float:
     return width / (2.0 * (3.0**0.5))
 
 
+def _triangular_std(low: float, mode: float, high: float) -> float:
+    """Compute the actual triangular scale without squaring the support width."""
+    if not all(math.isfinite(value) for value in (low, mode, high)) or not low <= mode <= high:
+        raise ValueError("triangular support and mode must be finite and ordered")
+    if low == high:
+        return 0.0
+    width = high - low
+    if math.isfinite(width):
+        fraction = (mode - low) / width
+        std = width * math.sqrt((1.0 + fraction * fraction - fraction) / 18.0)
+    else:
+        scale = max(abs(low), abs(high))
+        low_scaled, mode_scaled, high_scaled = low / scale, mode / scale, high / scale
+        width_scaled = high_scaled - low_scaled
+        fraction = (mode_scaled - low_scaled) / width_scaled
+        std = scale * (width_scaled * math.sqrt((1.0 + fraction * fraction - fraction) / 18.0))
+    if not math.isfinite(std) or std == 0.0:
+        raise ValueError("triangular scale is not representable")
+    return std
+
+
 def build_covariance_matrix(
     param_names: list[str],
     input_envelopes: Mapping[str, UncertaintyEnvelope],
@@ -139,10 +189,28 @@ def build_covariance_matrix(
     """Build a validated covariance matrix, optionally retaining exact null spaces."""
     if not math.isfinite(float(jitter)) or jitter < 0.0:
         raise ValueError("jitter must be finite and non-negative")
+    if any(
+        isinstance(input_envelopes[name].distribution_payload, PosteriorSamplesCarrier)
+        for name in param_names
+    ):
+        joint, limitation = prepare_empirical_joint(
+            param_names, input_envelopes, require_sampling_cdf=False
+        )
+        if joint is None:
+            raise ValueError(limitation or "empirical joint law is not established")
+        _, empirical_covariance = empirical_joint_moments(joint, input_envelopes)
+        if not use_full_covariance and len(param_names) > 1:
+            off_diagonal = empirical_covariance - np.diag(np.diag(empirical_covariance))
+            if np.any(off_diagonal != 0.0):
+                raise ValueError("diagonal mode cannot discard declared empirical covariance")
+        return _float32_covariance(empirical_covariance)
     marginal_stds: list[float] = []
     for name in param_names:
         envelope = input_envelopes[name]
-        if isinstance(envelope.distribution_payload, ParametricFitCarrier):
+        if (
+            isinstance(envelope.distribution_payload, ParametricFitCarrier)
+            or envelope.distribution_family is DistributionFamily.TRIANGULAR
+        ):
             marginal_stds.append(extract_std(envelope))
             continue
         declared_std = envelope.metadata.get("std")

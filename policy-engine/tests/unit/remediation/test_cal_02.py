@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
+import numpy as np
 import numpy.testing as npt
 import pytest
 
@@ -139,6 +140,29 @@ def test_scale_uses_observed_training_mask_not_placeholder_dates() -> None:
     )
 
     npt.assert_allclose(scale, 10.0, atol=1e-6)
+    original = jnp.asarray([10.0, 10.0], dtype=jnp.float32)
+    original_scale = _compute_scale_local(original, _target())
+    before = reduce_weighted_loss(
+        pointwise_base_loss(
+            jnp.asarray([8.0, 12.0], dtype=jnp.float32),
+            original,
+            _target().loss,
+            original_scale,
+            support_mask=jnp.ones(2, dtype=bool),
+        ),
+        jnp.ones(2, dtype=jnp.float32),
+    )
+    after = reduce_weighted_loss(
+        pointwise_base_loss(
+            jnp.asarray([8.0, 12.0, 12345.0, -12345.0], dtype=jnp.float32),
+            values,
+            _target().loss,
+            scale,
+            support_mask=observed_mask & training_mask,
+        ),
+        jnp.asarray([1.0, 1.0, 0.0, 0.0], dtype=jnp.float32),
+    )
+    npt.assert_allclose([before, after], [1.0 / 25.0, 1.0 / 25.0], rtol=1e-6, atol=1e-6)
 
 
 def test_mask_shape_is_checked_before_scale_arithmetic() -> None:
@@ -150,3 +174,29 @@ def test_mask_shape_is_checked_before_scale_arithmetic() -> None:
             observed_mask=jnp.ones((2, 1), dtype=bool),
             training_mask=jnp.ones(2, dtype=bool),
         )
+
+
+@pytest.mark.parametrize(
+    ("method", "values"),
+    [("mean_abs", [3e38, 3e38]), ("std", [1e20, 2e20])],
+)
+def test_finite_float32_scale_uses_bounded_reduction(method, values) -> None:
+    """Representable statistics cannot collapse to epsilon after float32 overflow."""
+    observed = np.asarray(values, dtype=np.float32)
+    reference = observed.astype(np.float64)
+    expected = np.std(reference) if method == "std" else np.mean(np.abs(reference))
+    actual = _compute_scale_local(
+        jnp.asarray(observed),
+        _target(scale=method),
+        observed_mask=jnp.ones(2, dtype=bool),
+        training_mask=jnp.ones(2, dtype=bool),
+    )
+    npt.assert_allclose(actual, expected, rtol=2e-6, atol=0)
+    assert np.isfinite(actual)
+    loss = pointwise_base_loss(
+        jnp.asarray(observed * np.float32(0.99)),
+        jnp.asarray(observed),
+        _target(scale=method).loss,
+        actual,
+    )
+    assert bool(jnp.all(jnp.isfinite(loss)))

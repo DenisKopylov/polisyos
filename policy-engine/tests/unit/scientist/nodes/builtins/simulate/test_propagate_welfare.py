@@ -1150,7 +1150,7 @@ def test_propagate_welfare_uses_typed_normal_scale_independent_of_display_level(
 _B197_REPLAY_BY_STORE_ROOT: dict[str, SimulationResultRef] = {}
 
 
-def _build_b197_tied_execution_source(store: FileSystemCAS):
+def _build_b197_tied_execution_source(store: FileSystemCAS, *, include_unassigned: bool = False):
     """Persist a real selected Foundry graph, plan, state, bindings, and baseline run."""
     registry = build_default_registry_bundle(store, return_selected_profile=True)
     base_state = GlobalState.empty(n_agents=1, n_firms=1)
@@ -1208,10 +1208,12 @@ def _build_b197_tied_execution_source(store: FileSystemCAS):
                         "value": "all",
                     },
                     "schedule": {"start_step": 0, "duration_steps": 1},
-                    "params": {"rate": "0.2"},
+                    "params": {"rate": "0.7" if intervention_id == "c" else "0.2"},
                     "priority": priority,
                 }
-                for intervention_id, priority in (("a", 0), ("b", 1))
+                for intervention_id, priority in (
+                    (("a", 0), ("b", 1), ("c", 2)) if include_unassigned else (("a", 0), ("b", 1))
+                )
             ],
         ),
         model_spec=ModelSpec(
@@ -1260,6 +1262,8 @@ def _build_b197_tied_execution_source(store: FileSystemCAS):
         from_canonical_bytes(store.get_bytes(source_graph_ref))
     )
     node_aliases = {"a": "A", "b": "B"}
+    if include_unassigned:
+        node_aliases["c"] = "C"
     mapped_graph = source_graph.model_copy(
         update={
             "nodes": [
@@ -1428,16 +1432,17 @@ def _run_b197_tied_calibrator(
     hessian_enabled: bool = True,
     seed_competing_profile: bool = False,
     caller_configs: list[CalibrationConfig] | None = None,
+    include_unassigned: bool = False,
+    tie_id: str = "shared_rate",
 ) -> tuple[ArtifactRef, CalibrationReport]:
-    source = _build_b197_tied_execution_source(store)
+    source = _build_b197_tied_execution_source(store, include_unassigned=include_unassigned)
     source_basis = source["source_basis"]
     graph = source["graph"]
     plan = source["plan"]
     base_state = source["base_state"]
     registry_content = source["registry_content"]
     tied_trainables = [
-        TrainableParamRef(param_id="rate", node_id=node_id, tie_id="shared_rate")
-        for node_id in ("A", "B")
+        TrainableParamRef(param_id="rate", node_id=node_id, tie_id=tie_id) for node_id in ("A", "B")
     ]
     config = CalibrationConfig(
         targets=[
@@ -1493,7 +1498,7 @@ def _run_b197_tied_calibrator(
         parameter_loader=lambda source_ref: from_canonical_bytes(store.get_bytes(source_ref))
         if isinstance(source_ref, ArtifactRef)
         else {},
-        raw_targets={"gov_balance": jnp.asarray([36.0])},
+        raw_targets={"gov_balance": jnp.asarray([106.0 if include_unassigned else 36.0])},
         controls_seq=jnp.arange(1),
         constraint_registry=registry_content.constraint_registry,
         registry_bundle_ref=source_basis.runtime_registry_ref,
@@ -1514,15 +1519,25 @@ def _run_b197_tied_calibrator(
     else:
         assert report.uncertainties is not None
         if incomplete_projection:
-            assert report.coordinate_projection is None
-            assert report.coordinate_projection_status == "incomplete"
-            assert report.uncertainty_envelopes is None
+            assert report.coordinate_projection is not None
+            assert report.coordinate_projection_status == "complete"
+            assert report.coordinate_projection.field_order == ("A.rate",)
+            assert report.coordinate_projection.coordinate_order == (tie_id,)
+            assert report.coordinate_projection.matrix == ((1.0,),)
+            assert report.uncertainty_field_scope == ("A.rate",)
+            assert report.uncertainty_envelopes is not None
+            assert set(report.uncertainty_envelopes) == {"A.rate"}
         else:
             assert report.coordinate_projection_status == "complete"
             assert report.coordinate_projection is not None
             assert report.coordinate_projection.field_order == ("A.rate", "B.rate")
-            assert report.coordinate_projection.coordinate_order == ("shared_rate",)
+            assert report.coordinate_projection.coordinate_order == (tie_id,)
             assert report.coordinate_projection.matrix == ((1.0,), (1.0,))
+            if include_unassigned:
+                assert report.uncertainty_field_scope == ("A.rate", "B.rate")
+                assert report.calibrated_params["C.rate"] == pytest.approx(0.7)
+                assert report.uncertainty_envelopes is not None
+                assert "C.rate" not in report.uncertainty_envelopes
     assert report.target_weights["gov_balance"] == pytest.approx(0.005)
     if hessian_enabled:
         expected_coordinate_variance = 0.01 if incomplete_projection else 0.0025
@@ -1533,7 +1548,8 @@ def _run_b197_tied_calibrator(
         )
 
     report_manifest = store.get_manifest(report_ref)
-    assert report_manifest.artifact_schema.version == "2.0"
+    expected_report_version = "2.2" if include_unassigned or incomplete_projection else "2.0"
+    assert report_manifest.artifact_schema.version == expected_report_version
     config_inputs = [item for item in report_manifest.inputs if item.role == "calibration_config"]
     assert len(config_inputs) == 1
     config_input = config_inputs[0]
@@ -1601,16 +1617,19 @@ def _run_b197_tied_calibrator(
     persisted_payload = from_canonical_bytes(store.get_bytes(report_ref.artifact_id))
     persisted = CalibrationReport.model_validate(persisted_payload)
     assert persisted == report
-    assert persisted.schema_version == "2.0"
+    assert persisted.schema_version == expected_report_version
     if not hessian_enabled:
         assert persisted.uncertainties is None
         assert persisted.coordinate_projection is None
         assert persisted.coordinate_projection_status == "not_established"
         assert persisted.uncertainty_envelopes is None
     elif incomplete_projection:
-        assert persisted.coordinate_projection is None
-        assert persisted.coordinate_projection_status == "incomplete"
-        assert persisted.uncertainty_envelopes is None
+        assert persisted.coordinate_projection is not None
+        assert persisted.coordinate_projection.field_order == ("A.rate",)
+        assert persisted.coordinate_projection_status == "complete"
+        assert persisted.uncertainty_field_scope == ("A.rate",)
+        assert persisted.uncertainty_envelopes is not None
+        assert set(persisted.uncertainty_envelopes) == {"A.rate"}
     else:
         for field_name in ("A.rate", "B.rate"):
             persisted_envelope = persisted_payload["uncertainty_envelopes"][field_name]
@@ -2435,12 +2454,17 @@ def _b197_execution_state(simulation_ref, report_ref):
     )
 
 
-def test_unassigned_calibration_field_stays_typed_partial_at_welfare_boundary(tmp_path) -> None:
+@pytest.mark.parametrize("method", ["delta", "monte_carlo"])
+def test_unassigned_calibration_field_stays_typed_partial_at_welfare_boundary(
+    tmp_path, method: str
+) -> None:
     store = FileSystemCAS(tmp_path)
     registry_ref = build_default_registry_bundle(store).bundle_ref
     report_ref, report = _run_b197_tied_calibrator(store, incomplete_projection=True)
-    assert report.coordinate_projection_status == "incomplete"
-    assert report.uncertainty_envelopes is None
+    assert report.coordinate_projection_status == "complete"
+    assert report.uncertainty_field_scope == ("A.rate",)
+    assert report.uncertainty_envelopes is not None
+    assert "B.rate" not in report.uncertainty_envelopes
     sim_ref = _b197_simulation_result(store)
 
     outcome, bundle = _run_b197_welfare(
@@ -2449,15 +2473,19 @@ def test_unassigned_calibration_field_stays_typed_partial_at_welfare_boundary(tm
         sim_ref,
         report_ref,
         run_id="R_b197_incomplete_projection",
-        method="delta",
+        method=method,
         weights=[1.0, 1.0],
     )
 
     assert bundle.credible_interval is None
+    assert bundle.robust_interval is None
+    assert bundle.sample_bundle_ref is None
     assert bundle.status.value == "partial"
-    assert "calibration_projection_incomplete" in bundle.warnings
+    assert "calibration_used_field_uncertainty_missing" in bundle.warnings
     report_id = ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"])
     manifest = store.get_manifest(report_id)
+    persisted_propagation = from_canonical_bytes(FileSystemCAS(tmp_path).get_bytes(report_id))
+    assert persisted_propagation["dependence_resolution"]["missing_fields"] == ["B.rate"]
     assert any(
         item.role == "calibration_report" and str(item.artifact_id) == str(report_ref.artifact_id)
         for item in manifest.inputs
@@ -2468,6 +2496,299 @@ def test_unassigned_calibration_field_stays_typed_partial_at_welfare_boundary(tm
         item.role == "calibration_report" and str(item.artifact_id) == str(report_ref.artifact_id)
         for item in outer_manifest.inputs
     )
+    # An unused point-only B must not defeat a genuine A-only interval.
+    _, positive = _run_b197_welfare(
+        store,
+        registry_ref,
+        sim_ref,
+        report_ref,
+        run_id=f"R_b197_scoped_a_only_{method}",
+        method=method,
+        labels=["A"],
+        weights=[1.0],
+    )
+    assert positive is not None
+    assert positive.credible_interval is not None
+    assert "calibration_used_field_uncertainty_missing" not in positive.warnings
+
+    # If only B is used, the node must report the limitation rather than skip.
+    _, missing_only = _run_b197_welfare(
+        store,
+        registry_ref,
+        sim_ref,
+        report_ref,
+        run_id=f"R_b197_scoped_b_only_{method}",
+        method=method,
+        labels=["B"],
+        weights=[1.0],
+    )
+    assert missing_only is not None
+    assert missing_only.status.value == "partial"
+    assert missing_only.credible_interval is None
+    assert missing_only.robust_interval is None
+    assert "calibration_used_field_uncertainty_missing" in missing_only.warnings
+
+    # A point-only parameter can affect the GE operator without appearing in PE.
+    _, missing_ge = _run_b197_welfare(
+        store,
+        registry_ref,
+        sim_ref,
+        report_ref,
+        run_id=f"R_b197_scoped_ge_only_{method}",
+        method=method,
+        labels=["A"],
+        weights=[1.0],
+        welfare_config_overrides={
+            "ge_technical_coefficients": [[report.calibrated_params["B.rate"]]],
+            "ge_entry_map": {"B.rate": [0, 0]},
+        },
+    )
+    assert missing_ge is not None
+    assert missing_ge.status.value == "partial"
+    assert missing_ge.credible_interval is None
+    assert missing_ge.robust_interval is None
+    assert "calibration_used_field_uncertainty_missing" in missing_ge.warnings
+
+
+def test_scoped_external_welfare_envelope_must_match_selected_calibration_center(tmp_path) -> None:
+    """A same-name external law must not silently replace the selected point."""
+    from polisyos.ir.analytics.uncertainty import NumericPolicySpec, NumericToleranceMode
+
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    report_ref, report = _run_b197_tied_calibrator(store, incomplete_projection=True)
+    sim_ref = _b197_simulation_result(store)
+    dependence_ref = _b197_dependence_structure_ref(
+        store, [[1.0, 0.5], [0.5, 1.0]], parameter_order=["A.rate", "B.rate"]
+    )
+
+    def external(
+        center: float, *, policy: NumericPolicySpec | None = None, std: float = 0.1
+    ) -> dict[str, object]:
+        envelope = UncertaintyEnvelope(
+            numeric_policy=policy or NumericPolicySpec(mode=NumericToleranceMode.DECIMAL_EXACT),
+            point_estimate=center,
+            confidence_interval=(center - 2 * std, center + 2 * std),
+            confidence_level=None,
+            distribution_family=DistributionFamily.NORMAL,
+            source=UncertaintySource.MANUAL,
+            propagation_method=PropagationMethod.NONE,
+            interval_semantics=IntervalSemantics.HEURISTIC_RANGE,
+            is_heuristic_ci=True,
+            gate_eligible=False,
+            distribution_payload=ParametricFitCarrier(
+                family=DistributionFamily.NORMAL,
+                parameters={"mean": center, "std": std},
+            ),
+            metadata={"param_name": "B.rate", "std": std},
+        )
+        return persist_uncertainty_envelope(_ensure_ir_artifact_store(store), envelope).model_dump(
+            mode="json"
+        )
+
+    # A caller cannot choose coarse rounding to declare distinct centers equal.
+    _, coarse = _run_b197_welfare(
+        store,
+        registry_ref,
+        sim_ref,
+        report_ref,
+        run_id="R_b197_scoped_external_coarse_policy",
+        method="delta",
+        weights=[1.0, 1.0],
+        input_envelopes={
+            "B.rate": external(
+                report.calibrated_params["B.rate"],
+                policy=NumericPolicySpec(decimal_places=0),
+                std=2.0,
+            )
+        },
+        dependence_structure_ref=dependence_ref.model_dump(mode="json"),
+    )
+    assert coarse is not None
+    assert coarse.status.value == "partial"
+    assert coarse.credible_interval is None
+    assert coarse.robust_interval is None
+    assert "calibration_used_field_center_mismatch" in coarse.warnings
+
+    _, mismatch = _run_b197_welfare(
+        store,
+        registry_ref,
+        sim_ref,
+        report_ref,
+        run_id="R_b197_scoped_external_mismatch",
+        method="delta",
+        weights=[1.0, 1.0],
+        input_envelopes={"B.rate": external(report.calibrated_params["B.rate"] + 0.5)},
+        dependence_structure_ref=dependence_ref.model_dump(mode="json"),
+    )
+    assert mismatch is not None
+    assert mismatch.status.value == "partial"
+    assert mismatch.credible_interval is None
+    assert mismatch.robust_interval is None
+    assert "calibration_used_field_center_mismatch" in mismatch.warnings
+
+    _, aligned = _run_b197_welfare(
+        store,
+        registry_ref,
+        sim_ref,
+        report_ref,
+        run_id="R_b197_scoped_external_aligned",
+        method="delta",
+        weights=[1.0, 1.0],
+        input_envelopes={"B.rate": external(report.calibrated_params["B.rate"])},
+        dependence_structure_ref=dependence_ref.model_dump(mode="json"),
+    )
+    assert aligned is not None
+    assert aligned.credible_interval is not None
+    assert "calibration_used_field_center_mismatch" not in aligned.warnings
+
+
+@pytest.mark.parametrize("method", ["delta", "monte_carlo"])
+@pytest.mark.parametrize("law", ["normal", "unknown", "zero"])
+def test_welfare_rejects_hidden_unproved_cross_source_independence(
+    tmp_path, method: str, law: str
+) -> None:
+    """A correlated sibling cannot justify assuming another source is independent."""
+    from polisyos.ir.analytics.uncertainty import NumericPolicySpec, NumericToleranceMode
+
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    report_ref, report = _run_b197_tied_calibrator(store, incomplete_projection=True)
+    sim_ref = _b197_simulation_result(store)
+
+    def external(
+        name: str, point: float, family: DistributionFamily, std: float = 0.1
+    ) -> dict[str, object]:
+        payload = (
+            ParametricFitCarrier(
+                family=DistributionFamily.NORMAL,
+                parameters={"mean": point, "std": std},
+            )
+            if family is DistributionFamily.NORMAL
+            else None
+        )
+        envelope = UncertaintyEnvelope(
+            numeric_policy=NumericPolicySpec(mode=NumericToleranceMode.DECIMAL_EXACT),
+            point_estimate=point,
+            confidence_interval=(point - 2 * std, point + 2 * std),
+            confidence_level=0.95,
+            distribution_family=family,
+            source=UncertaintySource.MANUAL,
+            propagation_method=PropagationMethod.NONE,
+            interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+            gate_eligible=False,
+            distribution_payload=payload,
+            metadata={"param_name": name},
+        )
+        return persist_uncertainty_envelope(_ensure_ir_artifact_store(store), envelope).model_dump(
+            mode="json"
+        )
+
+    b_family = DistributionFamily.UNKNOWN if law == "unknown" else DistributionFamily.NORMAL
+    inputs = {
+        "B.rate": external(
+            "B.rate",
+            report.calibrated_params["B.rate"],
+            b_family,
+            std=0.0 if law == "zero" else 0.1,
+        ),
+        "D.rate": external("D.rate", 0.3, DistributionFamily.NORMAL),
+    }
+    correlation = _b197_dependence_structure_ref(
+        store,
+        [[1.0, 0.0, 0.5], [0.0, 1.0, 0.0], [0.5, 0.0, 1.0]],
+        parameter_order=["A.rate", "B.rate", "D.rate"],
+    )
+    _, bundle = _run_b197_welfare(
+        store,
+        registry_ref,
+        sim_ref,
+        report_ref,
+        run_id=f"R_b197_unproved_independence_{method}_{law}",
+        method=method,
+        labels=["A", "B", "D"],
+        weights=[0.0, 1.0, 0.0] if law == "zero" else [1.0, 1.0, 1.0],
+        input_envelopes=inputs,
+        dependence_structure_ref=correlation.model_dump(mode="json"),
+    )
+    assert bundle is not None
+    if law == "zero":
+        assert bundle.credible_interval is not None
+        assert "calibration_cross_source_dependence_unknown" not in bundle.warnings
+        if method == "monte_carlo":
+            assert bundle.sample_bundle_ref is not None
+            samples = load_welfare_sample_bundle(
+                _ensure_ir_artifact_store(FileSystemCAS(tmp_path)), bundle.sample_bundle_ref
+            )
+            np.testing.assert_array_equal(samples.welfare_draws, np.ones(100))
+        return
+    assert bundle.status.value == "partial"
+    assert bundle.credible_interval is None
+    assert bundle.sample_bundle_ref is None
+    expected_limitation = (
+        "welfare_input_distribution_not_established"
+        if law == "unknown"
+        else "calibration_cross_source_dependence_unknown"
+    )
+    assert expected_limitation in bundle.warnings
+
+    if law == "normal":
+        zero_pe = {
+            "A": {"A.rate": 1.0},
+            "B": {"B.rate": 0.0},
+            "D": {"D.rate": 1.0},
+        }
+        _, unused_b = _run_b197_welfare(
+            store,
+            registry_ref,
+            sim_ref,
+            report_ref,
+            run_id=f"R_b197_zero_pe_{method}",
+            method=method,
+            labels=["A", "B", "D"],
+            weights=[1.0, 1.0, 1.0],
+            input_envelopes=inputs,
+            dependence_structure_ref=correlation.model_dump(mode="json"),
+            welfare_config_overrides={"pe_sensitivity": zero_pe},
+        )
+        assert unused_b is not None
+        assert unused_b.credible_interval is not None
+        assert "B.rate" not in unused_b.metadata["used_input_params"]
+
+        # The same zero PE coefficient cannot erase a genuine GE dependency.
+        _, used_in_ge = _run_b197_welfare(
+            store,
+            registry_ref,
+            sim_ref,
+            report_ref,
+            run_id=f"R_b197_zero_pe_b_used_in_ge_{method}",
+            method=method,
+            labels=["A", "B", "D"],
+            weights=[1.0, 1.0, 1.0],
+            input_envelopes=inputs,
+            dependence_structure_ref=correlation.model_dump(mode="json"),
+            welfare_config_overrides={
+                "pe_sensitivity": zero_pe,
+                "ge_technical_coefficients": [
+                    [report.calibrated_params["B.rate"], 0.0, 0.0],
+                    [0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0],
+                ],
+                "ge_entry_map": {"B.rate": [0, 0]},
+            },
+        )
+        assert used_in_ge is not None
+        assert used_in_ge.credible_interval is None
+        assert "B.rate" in used_in_ge.metadata["used_input_params"]
+        assert "calibration_cross_source_dependence_unknown" in used_in_ge.warnings
+        assert "B.rate" not in used_in_ge.pe_uncertainty_refs
+        ge_report_id = ArtifactID.model_validate(used_in_ge.diagnostics["propagation_report_ref"])
+        assert _manifest_has_input(
+            FileSystemCAS(tmp_path),
+            ge_report_id,
+            ArtifactRefModel.model_validate(inputs["B.rate"]),
+            "input_envelope.B.rate",
+        )
 
 
 def _b197_simulation_result(store: FileSystemCAS) -> SimulationResultRef:
@@ -2497,6 +2818,373 @@ def _b197_dependence_structure_ref(
             },
         ),
     )
+
+
+@pytest.mark.parametrize("method", ["delta", "monte_carlo"])
+def test_welfare_does_not_invent_unknown_input_distribution(tmp_path, method: str) -> None:
+    """An interval alone does not authorize sampling or a variance assumption."""
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    sim_ref = _b197_simulation_result(store)
+
+    def input_ref(family: DistributionFamily, *, hard_bounds: bool = False) -> ArtifactRefModel:
+        payload = (
+            ParametricFitCarrier(
+                family=DistributionFamily.NORMAL,
+                parameters={"mean": 0.5, "std": 0.1},
+            )
+            if family is DistributionFamily.NORMAL
+            else None
+        )
+        envelope = UncertaintyEnvelope(
+            point_estimate=0.5,
+            confidence_interval=(0.3, 0.7),
+            confidence_level=None if hard_bounds else 0.95,
+            distribution_family=family,
+            source=UncertaintySource.MANUAL,
+            propagation_method=PropagationMethod.NONE,
+            interval_semantics=(
+                IntervalSemantics.DETERMINISTIC_BOUNDS
+                if hard_bounds
+                else IntervalSemantics.CONFIDENCE_INTERVAL
+            ),
+            gate_eligible=False,
+            distribution_payload=payload,
+            metadata={"param_name": "C.rate"},
+        )
+        return persist_uncertainty_envelope(_ensure_ir_artifact_store(store), envelope)
+
+    _, missing = _run_b197_welfare(
+        store,
+        registry_ref,
+        sim_ref,
+        None,
+        run_id=f"R_welfare_unknown_law_{method}",
+        method=method,
+        labels=["C"],
+        weights=[1.0],
+        input_envelopes={"C.rate": input_ref(DistributionFamily.UNKNOWN).model_dump(mode="json")},
+    )
+    assert missing is not None
+    assert missing.status.value == "partial"
+    assert missing.credible_interval is None
+    assert missing.robust_interval is None
+    assert missing.sample_bundle_ref is None
+    assert "welfare_input_distribution_not_established" in missing.warnings
+
+    _, bounded = _run_b197_welfare(
+        store,
+        registry_ref,
+        sim_ref,
+        None,
+        run_id=f"R_welfare_unknown_law_bounded_{method}",
+        method=method,
+        labels=["C"],
+        weights=[1.0],
+        input_envelopes={
+            "C.rate": input_ref(DistributionFamily.UNKNOWN, hard_bounds=True).model_dump(
+                mode="json"
+            )
+        },
+    )
+    assert bounded is not None
+    assert bounded.status.value == "partial"
+    assert bounded.credible_interval is None
+    assert bounded.robust_interval is not None
+    assert "welfare_input_distribution_not_established" in bounded.warnings
+
+    _, known = _run_b197_welfare(
+        store,
+        registry_ref,
+        sim_ref,
+        None,
+        run_id=f"R_welfare_known_law_{method}",
+        method=method,
+        labels=["C"],
+        weights=[1.0],
+        input_envelopes={"C.rate": input_ref(DistributionFamily.NORMAL).model_dump(mode="json")},
+    )
+    assert known is not None
+    assert known.credible_interval is not None
+
+
+@pytest.mark.parametrize("method", ["delta", "monte_carlo"])
+def test_welfare_keeps_declared_zero_normal_as_point(tmp_path, method: str) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    envelope = UncertaintyEnvelope(
+        point_estimate=0.5,
+        confidence_interval=(0.5, 0.5),
+        confidence_level=0.95,
+        distribution_family=DistributionFamily.NORMAL,
+        source=UncertaintySource.MANUAL,
+        propagation_method=PropagationMethod.NONE,
+        interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+        gate_eligible=False,
+        distribution_payload=ParametricFitCarrier(
+            family=DistributionFamily.NORMAL,
+            parameters={"mean": 0.5, "std": 0.0},
+        ),
+        metadata={"param_name": "C.rate"},
+    )
+    ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(store), envelope)
+    _, bundle = _run_b197_welfare(
+        store,
+        registry_ref,
+        _b197_simulation_result(store),
+        None,
+        run_id=f"R_welfare_exact_zero_normal_{method}",
+        method=method,
+        labels=["C"],
+        weights=[1.0],
+        input_envelopes={"C.rate": ref.model_dump(mode="json")},
+    )
+    assert bundle is not None
+    if method == "delta":
+        assert bundle.credible_interval == (1.0, 1.0)
+        report_id = ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"])
+        report = from_canonical_bytes(FileSystemCAS(tmp_path).get_bytes(report_id))
+        assert report["covariance"] == [[0.0]]
+        return
+    assert bundle.sample_bundle_ref is not None
+    samples = load_welfare_sample_bundle(
+        _ensure_ir_artifact_store(FileSystemCAS(tmp_path)), bundle.sample_bundle_ref
+    )
+    np.testing.assert_array_equal(samples.welfare_draws, np.ones(100))
+
+
+def test_welfare_delta_uses_weighted_empirical_variance(tmp_path) -> None:
+    """The selected weighted atoms, not their range, determine the variance."""
+    from fractions import Fraction
+
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    envelope = UncertaintyEnvelope(
+        point_estimate=0.1,
+        confidence_interval=(0.0, 10.0),
+        confidence_level=0.95,
+        distribution_family=DistributionFamily.BOOTSTRAP,
+        source=UncertaintySource.BOOTSTRAP,
+        propagation_method=PropagationMethod.MONTE_CARLO,
+        interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+        distribution_payload=PosteriorSamplesCarrier(
+            samples=(0.0, 10.0), weights=(0.99, 0.01), sample_axis="row"
+        ),
+        gate_eligible=False,
+        metadata={"param_name": "C.rate"},
+    )
+    ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(store), envelope)
+    _, bundle = _run_b197_welfare(
+        store,
+        registry_ref,
+        _b197_simulation_result(store),
+        None,
+        run_id="R_welfare_weighted_empirical_delta",
+        method="delta",
+        labels=["C"],
+        weights=[1.0],
+        input_envelopes={"C.rate": ref.model_dump(mode="json")},
+    )
+    assert bundle is not None
+    assert bundle.credible_interval is not None
+    report_id = ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"])
+    report = from_canonical_bytes(FileSystemCAS(tmp_path).get_bytes(report_id))
+    expected = (
+        Fraction(99, 100) * (Fraction(0) - Fraction(1, 10)) ** 2
+        + Fraction(1, 100) * (Fraction(10) - Fraction(1, 10)) ** 2
+    )
+    assert report["covariance"][0][0] == pytest.approx(float(expected), rel=1e-10)
+
+
+def test_welfare_delta_keeps_weighted_empirical_rows_joint(tmp_path) -> None:
+    """The actual covariance retains row alignment through a fresh report."""
+    from fractions import Fraction
+
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+
+    def input_ref(
+        name: str,
+        point: float,
+        samples: tuple[float, float],
+        *,
+        weights: tuple[float, float] = (0.99, 0.01),
+        joint_id: str = "shared_weighted_rows",
+    ) -> dict[str, object]:
+        envelope = UncertaintyEnvelope(
+            point_estimate=point,
+            confidence_interval=(samples[0], samples[1]),
+            confidence_level=0.95,
+            distribution_family=DistributionFamily.BOOTSTRAP,
+            source=UncertaintySource.BOOTSTRAP,
+            propagation_method=PropagationMethod.MONTE_CARLO,
+            interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+            distribution_payload=PosteriorSamplesCarrier(
+                samples=samples, weights=weights, sample_axis="row"
+            ),
+            gate_eligible=False,
+            metadata={"param_name": name, "joint_sample_id": joint_id},
+        )
+        return persist_uncertainty_envelope(_ensure_ir_artifact_store(store), envelope).model_dump(
+            mode="json"
+        )
+
+    _, bundle = _run_b197_welfare(
+        store,
+        registry_ref,
+        _b197_simulation_result(store),
+        None,
+        run_id="R_welfare_paired_empirical_delta",
+        method="delta",
+        labels=["C", "D"],
+        weights=[1.0, -0.5],
+        input_envelopes={
+            "C.rate": input_ref("C.rate", 0.1, (0.0, 10.0)),
+            "D.rate": input_ref("D.rate", 0.2, (0.0, 20.0)),
+        },
+    )
+    assert bundle is not None
+    assert bundle.credible_interval is not None
+    np.testing.assert_allclose(bundle.credible_interval, (0.5, 0.5), rtol=0, atol=1e-7)
+    report_id = ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"])
+    report = from_canonical_bytes(FileSystemCAS(tmp_path).get_bytes(report_id))
+    expected = [
+        [float(Fraction(99, 100)), float(Fraction(99, 50))],
+        [float(Fraction(99, 50)), float(Fraction(99, 25))],
+    ]
+    np.testing.assert_allclose(report["covariance"], expected, rtol=1e-12, atol=0)
+    assert report["dependence_sampling"]["joint_identity_status"] == "declared_non_authoritative"
+
+    for suffix, invalid in (
+        ("weights", {"weights": (0.5, 0.5)}),
+        ("identity", {"joint_id": "different_rows"}),
+    ):
+        _, rejected = _run_b197_welfare(
+            store,
+            registry_ref,
+            _b197_simulation_result(store),
+            None,
+            run_id=f"R_welfare_paired_empirical_delta_bad_{suffix}",
+            method="delta",
+            labels=["C", "D"],
+            weights=[1.0, -0.5],
+            input_envelopes={
+                "C.rate": input_ref("C.rate", 0.1, (0.0, 10.0)),
+                "D.rate": input_ref("D.rate", 0.2, (0.0, 20.0), **invalid),
+            },
+        )
+        assert rejected is not None
+        assert rejected.credible_interval is None
+        assert "empirical_joint_law_missing" in rejected.warnings
+
+
+def test_welfare_delta_uses_asymmetric_triangular_variance(tmp_path) -> None:
+    from fractions import Fraction
+
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    envelope = UncertaintyEnvelope(
+        point_estimate=1.0,
+        confidence_interval=(0.0, 4.0),
+        confidence_level=None,
+        distribution_family=DistributionFamily.TRIANGULAR,
+        source=UncertaintySource.MANUAL,
+        interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS,
+        gate_eligible=False,
+        metadata={"param_name": "C.rate"},
+    )
+    ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(store), envelope)
+    _, bundle = _run_b197_welfare(
+        store,
+        registry_ref,
+        _b197_simulation_result(store),
+        None,
+        run_id="R_welfare_triangular_delta",
+        method="delta",
+        labels=["C"],
+        weights=[1.0],
+        input_envelopes={"C.rate": ref.model_dump(mode="json")},
+    )
+    assert bundle is not None
+    assert bundle.credible_interval is not None
+    report_id = ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"])
+    report = from_canonical_bytes(FileSystemCAS(tmp_path).get_bytes(report_id))
+    assert report["covariance"][0][0] == pytest.approx(float(Fraction(13, 18)), rel=1e-12)
+
+
+def test_welfare_empirical_sampling_refuses_collapsed_positive_tail(tmp_path, monkeypatch) -> None:
+    """A retained positive atom must not silently vanish from the draw law."""
+    from polisyos.ir.analytics.uncertainty import NumericPolicySpec, NumericToleranceMode
+    from polisyos.scientist.nodes.builtins.simulate import welfare_draws
+
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    sim_ref = _b197_simulation_result(store)
+
+    def empirical(weights: tuple[float, float]) -> dict[str, object]:
+        envelope = UncertaintyEnvelope(
+            numeric_policy=NumericPolicySpec(mode=NumericToleranceMode.DECIMAL_EXACT),
+            point_estimate=0.0,
+            confidence_interval=(0.0, 1.0),
+            confidence_level=0.95,
+            distribution_family=DistributionFamily.BOOTSTRAP,
+            source=UncertaintySource.BOOTSTRAP,
+            propagation_method=PropagationMethod.MONTE_CARLO,
+            interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+            distribution_payload=PosteriorSamplesCarrier(
+                samples=(0.0, 1.0), weights=weights, sample_axis="row"
+            ),
+            gate_eligible=False,
+            metadata={"param_name": "C.rate"},
+        )
+        return persist_uncertainty_envelope(_ensure_ir_artifact_store(store), envelope).model_dump(
+            mode="json"
+        )
+
+    calls = []
+    original = welfare_draws._sample_empirical_row
+
+    def observe(*args, **kwargs):
+        calls.append(1)
+        return original(*args, **kwargs)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(welfare_draws, "_sample_empirical_row", observe)
+        _, collapsed = _run_b197_welfare(
+            store,
+            registry_ref,
+            sim_ref,
+            None,
+            run_id="R_welfare_collapsed_positive_tail",
+            method="monte_carlo",
+            labels=["C"],
+            weights=[1.0],
+            input_envelopes={"C.rate": empirical((1.0, 1e-20))},
+        )
+    assert collapsed is not None
+    assert collapsed.status.value == "partial"
+    assert collapsed.credible_interval is None
+    assert collapsed.sample_bundle_ref is None
+    assert "empirical_numeric_resolution" in collapsed.warnings
+    assert calls == []
+
+    _, zero = _run_b197_welfare(
+        store,
+        registry_ref,
+        sim_ref,
+        None,
+        run_id="R_welfare_exact_zero_mass",
+        method="monte_carlo",
+        labels=["C"],
+        weights=[1.0],
+        input_envelopes={"C.rate": empirical((1.0, 0.0))},
+    )
+    assert zero is not None
+    assert zero.sample_bundle_ref is not None
+    samples = load_welfare_sample_bundle(
+        _ensure_ir_artifact_store(FileSystemCAS(tmp_path)), zero.sample_bundle_ref
+    )
+    np.testing.assert_array_equal(samples.welfare_draws, np.ones(100))
 
 
 def _run_b197_welfare(
@@ -2813,6 +3501,154 @@ def test_calibrator_tied_report_reaches_delta_and_monte_carlo_welfare(tmp_path) 
     fresh_mc_bundle = load_welfare_bundle(fresh_ir_store, fresh_mc_bundle_ref)
     assert fresh_mc_bundle.status == mc_bundle.status
     assert _manifest_has_input(fresh_store, fresh_mc_bundle_ref, report_ref, "calibration_report")
+
+
+@pytest.mark.parametrize("tie_id", ["shared_rate", "unrelated_optimizer_coordinate"])
+def test_scoped_tied_calibration_reaches_fresh_welfare_with_unassigned_field(
+    tmp_path, tie_id: str
+) -> None:
+    """A/B retain their real common coordinate while unrelated C remains point-only."""
+    from polisyos.foundry.uncertainty import (
+        aggregate_persisted_envelope_views,
+        load_aggregated_envelope_fresh,
+        persist_aggregated_envelope,
+    )
+
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    report_ref, report = _run_b197_tied_calibrator(store, include_unassigned=True, tie_id=tie_id)
+    assert report.schema_version == "2.2"
+    assert report.coordinate_projection is not None
+    assert report.coordinate_projection.coordinate_order == (tie_id,)
+    assert report.uncertainty_field_scope == ("A.rate", "B.rate")
+    assert report.uncertainty_envelopes is not None
+    assert set(report.uncertainty_envelopes) == {"A.rate", "B.rate"}
+    assert report.calibrated_params["C.rate"] == pytest.approx(0.7)
+
+    simulation_ref = _b197_simulation_result(store)
+    outcome, bundle = _run_b197_welfare(
+        store,
+        registry_ref,
+        simulation_ref,
+        report_ref,
+        run_id="R_b197_scoped_tied_mc",
+        method="monte_carlo",
+        weights=[1.0, -1.0],
+    )
+    assert bundle is not None
+    assert bundle.sample_bundle_ref is not None
+    fresh_store = FileSystemCAS(tmp_path)
+    fresh_report = CalibrationReport.model_validate(
+        from_canonical_bytes(fresh_store.get_bytes(report_ref))
+    )
+    assert fresh_report.uncertainty_field_scope == ("A.rate", "B.rate")
+    assert fresh_report.uncertainty_envelopes is not None
+    assert "C.rate" not in fresh_report.uncertainty_envelopes
+    fresh_samples = load_welfare_sample_bundle(
+        _ensure_ir_artifact_store(fresh_store), bundle.sample_bundle_ref
+    )
+    assert fresh_samples.metadata["calibration_covariance_order"] == ["A.rate", "B.rate"]
+    assert fresh_samples.metadata["uncertainty_status"] == "candidate"
+    assert fresh_samples.metadata["independence_source_validated"] is False
+    np.testing.assert_allclose(fresh_samples.welfare_draws, np.zeros(100), rtol=0, atol=1e-8)
+    assert _manifest_has_input(
+        fresh_store, bundle.sample_bundle_ref, report_ref, "calibration_report"
+    )
+    assert _manifest_has_input(
+        fresh_store,
+        outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF],
+        report_ref,
+        "calibration_report",
+    )
+    # The real scoped producer's envelope is selected, report-bound, and can
+    # flow through the existing single-view aggregation/fresh-reader path.
+    source_ref = bundle.pe_uncertainty_refs["A.rate"]
+    assert source_ref.manifest_profile_sha256 is not None
+    assert _manifest_has_input(fresh_store, source_ref, report_ref, "calibration_report")
+    ir_store = _ensure_ir_artifact_store(fresh_store)
+    single = persist_aggregated_envelope(ir_store, (source_ref,))
+    repeated = persist_aggregated_envelope(ir_store, (source_ref, source_ref))
+    single_value = load_aggregated_envelope_fresh(ir_store, single, source_refs=(source_ref,))
+    repeated_value = load_aggregated_envelope_fresh(
+        ir_store, repeated, source_refs=(source_ref, source_ref)
+    )
+    assert repeated_value.point_estimate == single_value.point_estimate
+    assert repeated_value.confidence_interval == single_value.confidence_interval
+    assert repeated_value.confidence_level == single_value.confidence_level
+    assert repeated_value.metadata["unique_selected_view_count"] == 1
+    assert repeated_value.metadata["repeated_selected_view_count"] == 1
+    assert repeated_value.metadata["effective_information_count"] is None
+    assert repeated_value.gate_eligible is False
+    without_profile = source_ref.model_copy(update={"manifest_profile_sha256": None})
+    with pytest.raises(ValueError, match="selected_profile_missing"):
+        aggregate_persisted_envelope_views(ir_store, (without_profile,))
+    with pytest.raises(ValueError, match="manifest_source_mismatch"):
+        load_aggregated_envelope_fresh(ir_store, repeated, source_refs=(source_ref,))
+
+    # An unrelated caller-supplied envelope must not acquire the CAL report edge.
+    external = UncertaintyEnvelope(
+        point_estimate=0.5,
+        confidence_interval=(0.3, 0.7),
+        confidence_level=0.95,
+        distribution_family=DistributionFamily.NORMAL,
+        source=UncertaintySource.MANUAL,
+        interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+        distribution_payload=ParametricFitCarrier(
+            family=DistributionFamily.NORMAL,
+            parameters={"mean": 0.5, "std": 0.1},
+        ),
+        gate_eligible=False,
+        metadata={"param_name": "D.rate"},
+    )
+    _, mixed = _run_b197_welfare(
+        fresh_store,
+        registry_ref,
+        simulation_ref,
+        report_ref,
+        run_id=f"R_b197_scoped_external_origin_{tie_id}",
+        method="delta",
+        labels=["A", "D"],
+        weights=[1.0, 1.0],
+        input_envelopes={"D.rate": external.model_dump(mode="json")},
+    )
+    assert mixed is not None
+    assert not _manifest_has_input(
+        fresh_store, mixed.pe_uncertainty_refs["D.rate"], report_ref, "calibration_report"
+    )
+
+    # A report-owned field used only by GE keeps the same origin as a PE field.
+    _, ge_only = _run_b197_welfare(
+        fresh_store,
+        registry_ref,
+        simulation_ref,
+        report_ref,
+        run_id=f"R_b197_scoped_ge_origin_{tie_id}",
+        method="delta",
+        labels=["A"],
+        weights=[1.0],
+        welfare_config_overrides={
+            "ge_technical_coefficients": [[report.calibrated_params["B.rate"]]],
+            "ge_entry_map": {"B.rate": [0, 0]},
+        },
+    )
+    assert ge_only is not None
+    assert "B.rate" not in ge_only.pe_uncertainty_refs
+    ge_report_id = ArtifactID.model_validate(ge_only.diagnostics["propagation_report_ref"])
+    ge_manifest = fresh_store.get_manifest(ge_report_id)
+    ge_edge = next(edge for edge in ge_manifest.inputs if edge.role == "input_envelope.B.rate")
+    assert ge_edge.manifest_profile_sha256 is not None
+    ge_ref = UncertaintyEnvelopeRef(
+        artifact_id=ge_edge.artifact_id,
+        kind="ir.uncertainty_envelope",
+        media_type="application/json",
+        manifest_profile_sha256=ge_edge.manifest_profile_sha256,
+    )
+    assert _manifest_has_input(fresh_store, ge_ref, report_ref, "calibration_report")
+
+    inconsistent = fresh_report.model_dump(mode="json")
+    inconsistent["uncertainty_field_scope"] = ["A.rate", "C.rate"]
+    with pytest.raises(ValueError, match="scope|projection"):
+        CalibrationReport.model_validate(inconsistent)
 
 
 def test_real_calibration_display_level_preserves_persisted_welfare_law(
@@ -5713,9 +6549,13 @@ def test_autotune_actual_consumer_admits_only_replayed_new_batch_metrics(
             baseline_join,
             baseline_admission,
         )
-        assert baseline_result.status == "ok"
+        assert baseline_result.status == "limited"
+        assert baseline_result.guardrails["uncertainty_not_worse"] is False
+        assert "calibration_hessian_curvature_verification_missing" in baseline_result.notes
         assert baseline_result.guardrails["calibration_metric_sources_ready"] is True
         assert baseline_result.sample_counts == {"selection": 1, "holdout": 1}
+        assert baseline_result.holdout_metrics["fit_quality_score"] > 0
+        assert baseline_result.holdout_metrics["runtime_cost_score"] > 0
     returned = report
     if mode in {
         "missing_basis",
@@ -5828,9 +6668,13 @@ def test_autotune_actual_consumer_admits_only_replayed_new_batch_metrics(
             in admission["limitation_codes"]
         ), admission
     if mode == "selected":
-        assert result.status == "ok"
+        assert result.status == "limited"
+        assert result.guardrails["uncertainty_not_worse"] is False
+        assert "calibration_hessian_curvature_verification_missing" in result.notes
         assert result.guardrails["calibration_metric_sources_ready"] is True
         assert result.sample_counts == {"selection": 1, "holdout": 1}
+        assert result.holdout_metrics["fit_quality_score"] > 0
+        assert result.holdout_metrics["runtime_cost_score"] > 0
         aggregate = report.fit_quality.aggregate
         penalty = 0.0 if aggregate.r2 is None else max(0.0, 1.0 - aggregate.r2)
         fit = 1.0 / (1.0 + aggregate.rmse + aggregate.mae + penalty)

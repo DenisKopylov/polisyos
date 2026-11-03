@@ -47,6 +47,7 @@ from polisyos.foundry.calibration.calibrator import Calibrator, CalibratorInputs
 from polisyos.foundry.calibration.execution_basis import (
     load_calibration_execution_input_basis,
     put_calibration_execution_input_basis,
+    read_calibration_report_source,
 )
 from polisyos.foundry.calibration.identifiability import (
     IdentifiabilityDiagnosticConfig,
@@ -106,6 +107,7 @@ def _native_fixture(
     return_selected_profile=True,
     feedback=False,
     unrelated_override=False,
+    unrelated_point=False,
     source_override_profile_selected=True,
 ):
     store = FileSystemCAS(tmp_path / "cas") if store is None else store
@@ -158,7 +160,7 @@ def _native_fixture(
             "params": {"rate": Decimal("0.5")},
         }
     ]
-    if unrelated_override:
+    if unrelated_override or unrelated_point:
         interventions.append(
             {
                 "intervention_id": "unrelated_tax",
@@ -1521,10 +1523,13 @@ def test_nested_state_npz_bytes_are_verified_before_state_interpretation(
     assert type(refusal.value) is ArtifactIntegrityError
 
 
+@pytest.mark.parametrize("scoped_subset", [False, True], ids=["legacy", "scoped-subset"])
 def test_native_response_calibration_report_reaches_fresh_state_slot_consumer(
-    tmp_path, monkeypatch
+    tmp_path, monkeypatch, scoped_subset
 ):
-    store, source_simulation_ref, parameter = _native_fixture(tmp_path)
+    store, source_simulation_ref, parameter = _native_fixture(
+        tmp_path, unrelated_point=scoped_subset
+    )
     diagnostic = _diagnostic(store, source_simulation_ref, parameter)
     assert diagnostic.diagnostic_ref is not None
     selected_simulation_ref = attach_identifiability_diagnostic_ref(
@@ -1597,6 +1602,34 @@ def test_native_response_calibration_report_reaches_fresh_state_slot_consumer(
     assert report.uncertainty_envelopes is not None
     assert parameter in report.uncertainty_envelopes
     assert report.calibrated_params[parameter] == response.parameter_center[parameter]
+    unrelated_parameter = "unrelated_tax.rate"
+    if scoped_subset:
+        # The native producer retains the unassigned point field without
+        # inventing its uncertainty or broadening the selected coordinate.
+        assert report.schema_version == "2.2"
+        assert report.uncertainty_field_scope == (parameter,)
+        assert report.coordinate_projection is not None
+        assert report.coordinate_projection_status == "complete"
+        assert report.coordinate_projection.field_order == (parameter,)
+        assert report.coordinate_projection.coordinate_order == (parameter,)
+        assert report.coordinate_projection.matrix == ((1.0,),)
+        assert set(report.calibrated_params) == {parameter, unrelated_parameter}
+        assert report.calibrated_params[unrelated_parameter] == 0.0
+        assert set(report.uncertainty_envelopes) == {parameter}
+        assert unrelated_parameter not in (report.uncertainty_envelope_refs or {})
+        assert report.uncertainties is not None
+        assert report.uncertainties.params == [parameter]
+        assert (
+            f"uncertainty_not_established_for_point_only_fields:{unrelated_parameter}"
+            in report.diagnostics
+        )
+        restored = read_calibration_report_source(
+            FileSystemCAS(tmp_path / "cas"), ref=report_ref
+        ).require_value()
+        assert restored.model_dump(mode="json") == report.model_dump(mode="json")
+    else:
+        assert report.schema_version == "2.0"
+        assert report.uncertainty_field_scope is None
     report_manifest = store.get_manifest(report_ref)
     basis_edge = next(
         edge for edge in report_manifest.inputs if edge.role == "calibration_execution_input_basis"
@@ -1607,19 +1640,25 @@ def test_native_response_calibration_report_reaches_fresh_state_slot_consumer(
         media_type="application/json",
         manifest_profile_sha256=basis_edge.manifest_profile_sha256,
     )
-    calibration_basis = load_calibration_execution_input_basis(store, basis_ref)
+    calibration_basis = load_calibration_execution_input_basis(
+        FileSystemCAS(tmp_path / "cas") if scoped_subset else store, basis_ref
+    )
     assert calibration_basis.target_inputs[0].source_kind == "caller_raw_targets"
     assert calibration_basis.source_attestation_status == "not_established"
+    if scoped_subset:
+        assert calibration_basis.schema_version == "1.1"
+        assert set(calibration_basis.report_envelope_sha256) == {parameter}
 
     def execute_node(*, selected_report_ref, run_id):
+        intake_store = FileSystemCAS(tmp_path / "cas") if scoped_subset else store
         run = RunContext.start(
-            store=store,
+            store=intake_store,
             registry_bundle=registry_ref,
             run_dir=tmp_path / run_id,
             run_id=run_id,
         )
         context = ExecutionContext(
-            store=store,
+            store=intake_store,
             run=run,
             logger=logging.getLogger(f"test.execute-response-bridge.{run_id}"),
         )
@@ -1705,6 +1744,28 @@ def test_native_response_calibration_report_reaches_fresh_state_slot_consumer(
     assert projected_source["state_response_moment"] == "balance"
     assert projection.envelope.metadata["candidate_only"] is True
     assert projection.envelope.gate_eligible is False
+    if scoped_subset:
+        assert propagated_report["input_envelope_count"] == 1
+        assert propagated_report["mapped_params"] == [parameter]
+        assert set(
+            propagated_report["state_slot_outputs"]["government.balance"]["input_envelope_sources"]
+        ) == {parameter}
+        assert response_claim["missing_parameter_envelopes"] == []
+        assert unrelated_parameter not in response.parameter_names
+        assert report.calibrated_params[unrelated_parameter] == 0.0
+
+        # A genuine scoped report still requires its selected manifest view;
+        # scope declaration is never a replacement for source admission.
+        profileless, profileless_state = execute_node(
+            selected_report_ref=report_ref.model_copy(update={"manifest_profile_sha256": None}),
+            run_id="scoped-response-profileless-refusal",
+        )
+        assert profileless.status == "fail"
+        assert profileless.error is not None
+        assert profileless.error.code == "propagation_response_basis_invalid"
+        assert profileless.artifacts == []
+        assert profileless.state.artifacts_index == profileless_state.artifacts_index
+        return
 
     # The SAME genuine scalar2.0 report is consumed by both public nodes.
     # A small real execute replay supplies welfare's existing fitted-override
@@ -2218,7 +2279,8 @@ def test_native_response_calibration_report_reaches_fresh_state_slot_consumer(
     assert not calls
 
 
-def test_response_reader_does_not_reinterpret_new_batch_basis_as_v1_0(tmp_path):
+@pytest.mark.parametrize("scoped_subset", [False, True], ids=["legacy", "scoped-subset"])
+def test_response_reader_does_not_reinterpret_new_batch_basis_as_v1_0(tmp_path, scoped_subset):
     import jax
 
     from polisyos.foundry.calibration import OrderedBatchCalibrationProfile
@@ -2227,7 +2289,7 @@ def test_response_reader_does_not_reinterpret_new_batch_basis_as_v1_0(tmp_path):
         _load_calibration_response_source,
     )
 
-    store, source, parameter = _native_fixture(tmp_path)
+    store, source, parameter = _native_fixture(tmp_path, unrelated_point=scoped_subset)
     diagnostic = _diagnostic(store, source, parameter)
     assert diagnostic.diagnostic_ref is not None
     selected = attach_identifiability_diagnostic_ref(
@@ -2290,7 +2352,23 @@ def test_response_reader_does_not_reinterpret_new_batch_basis_as_v1_0(tmp_path):
         )
     ).run_and_persist(store)
     assert report.uncertainties is not None
+    assert report.schema_version == ("2.3" if scoped_subset else "2.1")
+    if scoped_subset:
+        assert report.uncertainty_field_scope == (parameter,)
+        assert report.coordinate_projection is not None
+        assert report.coordinate_projection.field_order == (parameter,)
+        assert report.coordinate_projection.coordinate_order == (parameter,)
+        assert report.coordinate_projection.matrix == ((1.0,),)
+        assert set(report.calibrated_params) == {parameter, "unrelated_tax.rate"}
+        assert report.calibrated_params["unrelated_tax.rate"] == 0.0
     fresh = FileSystemCAS(tmp_path / "cas")
+    from polisyos.foundry.calibration.execution_basis import replay_ordered_batch_report_projection
+
+    replay_status, replay_limitations = replay_ordered_batch_report_projection(
+        fresh, None, report_ref
+    )
+    assert replay_status == "matched"
+    assert replay_limitations == ("ordered_hessian_is_unreplayed_curvature_diagnostic",)
     run = RunContext.start(
         store=fresh,
         registry_bundle=source_basis.runtime_registry_ref,

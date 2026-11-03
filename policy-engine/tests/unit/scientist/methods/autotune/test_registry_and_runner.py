@@ -78,6 +78,34 @@ class PredictableDummyEvaluator:
         )
 
 
+def test_noncalibration_registry_promotion_reaches_fresh_runtime_loader(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "other_loop_cas")
+    registry_root = tmp_path / "other_loop_registry"
+    registry = ChampionRegistry(root=registry_root, store=store)
+    suite_ref = persist_benchmark_suite(
+        store, BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0")
+    )
+    candidate_ref = _persist_candidate(store, value=7, suite_ref=suite_ref)
+    evaluation_ref = _persist_evaluation(
+        store, candidate_ref=candidate_ref, suite_ref=suite_ref, score=7.0
+    )
+    decision = registry.consider_promotion(
+        "dummy_loop", candidate_ref, evaluation_ref, _promotion_policy(), suite_ref=suite_ref
+    )
+    assert decision.promoted is True
+    fresh_store = FileSystemCAS(tmp_path / "other_loop_cas")
+    fresh_registry = ChampionRegistry(root=registry_root, store=fresh_store)
+    loader = ChampionBackedRuntimeLoader(
+        loop_id="dummy_loop",
+        model_cls=DummyMutationConfig,
+        baseline_factory=lambda _context: DummyMutationConfig(value=1),
+        store=fresh_store,
+        registry=fresh_registry,
+    )
+    assert loader.load().value == 7
+    assert fresh_registry.get("dummy_loop").candidate_ref == candidate_ref
+
+
 def _promotion_policy(
     *,
     loop_id: str = "dummy_loop",

@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import math
+from fractions import Fraction
+
 import numpy.testing as npt
 import pytest
 
@@ -14,6 +17,7 @@ from polisyos.foundry.uncertainty.covariance import (
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
+    ParametricFitCarrier,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
@@ -61,6 +65,36 @@ class TestExtractStd:
         )
         std = extract_std(env)
         assert std > 0
+
+    def test_triangular_scale_uses_declared_asymmetric_mode(self) -> None:
+        env = UncertaintyEnvelope(
+            point_estimate=1.0,
+            confidence_interval=(0.0, 4.0),
+            confidence_level=None,
+            distribution_family=DistributionFamily.TRIANGULAR,
+            source=UncertaintySource.MANUAL,
+            interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS,
+            distribution_payload=ParametricFitCarrier(
+                family=DistributionFamily.TRIANGULAR,
+                parameters={"low": 0.0, "mode": 1.0, "high": 4.0},
+            ),
+        )
+        assert extract_std(env) == pytest.approx(math.sqrt(float(Fraction(13, 18))), rel=1e-15)
+        misleading_std = env.model_copy(update={"metadata": {"std": 999.0}})
+        covariance = build_covariance_matrix(
+            ["x"], {"x": misleading_std}, use_full_covariance=False, jitter=0.0
+        )
+        assert float(covariance[0, 0]) == pytest.approx(float(Fraction(13, 18)), rel=1e-6)
+        conflicting = env.model_copy(
+            update={
+                "distribution_payload": ParametricFitCarrier(
+                    family=DistributionFamily.TRIANGULAR,
+                    parameters={"low": 0.0, "mode": 2.0, "high": 4.0},
+                )
+            }
+        )
+        with pytest.raises(ValueError, match="disagree"):
+            extract_std(conflicting)
 
 
 class TestBuildCovarianceMatrix:

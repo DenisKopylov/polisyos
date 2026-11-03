@@ -5576,8 +5576,8 @@
         {
           "module": "polisyos.ir.analytics",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 320,
-          "known_export_count": 320,
+          "export_count": 321,
+          "known_export_count": 321,
           "exports": [
             "ABMBifurcationReport",
             "ABMIdentifiabilityCertificate",
@@ -5754,6 +5754,7 @@
             "MultiEnvironmentCausalContract",
             "NetworkInterferenceReport",
             "NodeMechanism",
+            "NumericPolicySpec",
             "OperatingCharacteristicKey",
             "OperatingCharacteristicLibrary",
             "OperatingCharacteristicRecord",
@@ -5943,8 +5944,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/api.py",
@@ -5986,8 +5987,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/api.py",
@@ -6017,8 +6018,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/analytics",
@@ -6729,8 +6730,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/api",
@@ -7506,8 +7507,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/api.py",
@@ -7549,8 +7550,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/api.py",
@@ -7580,8 +7581,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/kernel",
@@ -7750,8 +7751,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/api.py",
@@ -7793,8 +7794,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/api.py",
@@ -7824,8 +7825,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/loading",
@@ -7952,8 +7953,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/api.py",
@@ -7995,8 +7996,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/api.py",
@@ -8026,8 +8027,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/model_layer",
@@ -8272,8 +8273,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/api.py",
@@ -8315,8 +8316,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/api.py",
@@ -8346,8 +8347,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/registry",
@@ -8572,8 +8573,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/api.py",
@@ -8615,8 +8616,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/api.py",
@@ -8646,8 +8647,8 @@
                 "path": "src/polisyos/ir/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 70394,
-                "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+                "bytes": 70479,
+                "sha256": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
               },
               {
                 "path": "src/polisyos/ir/world",
@@ -13464,14 +13465,16 @@
         {
           "module": "polisyos.foundry.uncertainty",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 30,
-          "known_export_count": 30,
+          "export_count": 38,
+          "known_export_count": 38,
           "exports": [
             "CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1",
             "CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1",
             "EXCEPTION_CHAIN_EDGE_LIMIT",
             "EXCEPTION_CHAIN_NODE_LIMIT",
             "EvaluationFailureClassification",
+            "EmpiricalNumericResolutionError",
+            "EmpiricalJointRows",
             "build_covariance_matrix",
             "calibration_covariance_blocks_agree_v1",
             "classify_evaluation_failure",
@@ -13495,8 +13498,14 @@
             "load_aggregated_envelope_fresh",
             "persist_aggregated_envelope",
             "compute_first_order_indices",
+            "empirical_indices_from_cdf",
+            "empirical_joint_moments",
+            "empirical_weighted_moments",
             "extract_std",
-            "fabric_uncertainty_context_from_decision_data"
+            "fabric_uncertainty_context_from_decision_data",
+            "normalize_empirical_masses",
+            "prepare_empirical_cdf",
+            "prepare_empirical_joint"
           ],
           "has___getattr__": true,
           "has___dir__": true,
@@ -13522,8 +13531,8 @@
                 "path": "src/polisyos/foundry/uncertainty/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 5861,
-                "sha256": "1beedaa505ec99afa50d7da9a4bf2eb4329e5679af156211478a3d74462e3e19"
+                "bytes": 7448,
+                "sha256": "a767c0b2e7d946a2fa76c6bdec6ff8dcbe7573b928e0cd325acc768814be1cfe"
               },
               {
                 "path": "src/polisyos/foundry/uncertainty",
@@ -13575,6 +13584,12 @@
               },
               {
                 "path": "src/polisyos/foundry/uncertainty/dispatcher.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/uncertainty/empirical.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true

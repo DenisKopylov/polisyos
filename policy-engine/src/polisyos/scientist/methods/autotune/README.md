@@ -1,5 +1,37 @@
 # Autotune MethodJob evaluation
 
+## Calibration uncertainty boundary
+
+`CalibrationMetaEvaluator` retains useful fit and runtime diagnostics. Missing,
+non-finite, sub-unit or contradictory Hessian condition information has no
+conditioning score; it is never replaced by a perfect score or a measured zero.
+A consistent finite condition from the report producer can supply a candidate
+diagnostic, with its explicit provenance limitation.
+
+The protected `uncertainty_not_worse` guard remains false for these reports.
+The existing selected final-forward replay verifies objective and fit metrics,
+but explicitly does not recompute raw curvature. A selected report hash and
+matching fields in that same report therefore cannot authorize promotion.
+Evaluations stay `limited`, preserve the available metrics and explain
+`calibration_hessian_curvature_verification_missing`. The same calibration-only
+admission predicate protects registry publication, manual seeding, pointer reads
+and runtime loading. A stale unverified previous champion is refused; its pointer
+bytes remain available for audit while runtime uses the fixed built-in baseline.
+An existing admitted baseline permits metadata-only updates with every identity
+field unchanged. Baseline admission compares the actual typed configuration and
+the canonical seeding record; a caller's `seeded_baseline` label is not authority.
+New baseline refs retain their producer-selected manifest profiles, and safely
+resolved legacy baseline refs remain readable. This applies to legacy and scoped
+reports, without changing the other autotune loops.
+
+The missing canonical extension is a fresh raw-Hessian replay bound to the
+selected execution basis, parameter point, objective weights, replica and
+numeric profile. Its actual condition/degeneracy result must be reconciled with
+the report before this guard can admit promotion. Caller flags, verification
+callbacks and producer-declared statuses are not substitutes for that replay.
+
+## MethodJob evaluation
+
 `MethodJobBenchmarkEvaluator` connects `SearchLoopRunner` to the canonical
 Foundry MethodJob runner. Configure a method FQN, a mapping from method input
 slots to candidate fields, and a `PromotionPolicy`. Each evaluation runs the

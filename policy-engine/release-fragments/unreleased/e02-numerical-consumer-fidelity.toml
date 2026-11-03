@@ -1,15 +1,37 @@
 id = "e02-numerical-consumer-fidelity"
-title = "Bind DOE replay and preserve stress outcome diagnostics"
+title = "Preserve calibration support and numerical source semantics"
 type = "fixed"
-component = "scientist"
+component = "foundry"
 owner = "e02-coordinator"
-summary = "Preserve exact completed adaptive and multi-output DOE inputs, explicit local replica/PCA profiles and honest imputation uncertainty; retain full stress occurrence diagnostics without manufacturing protected objective intent."
-evidence = ["tests/unit/remediation/test_doe_03.py", "tests/unit/scientist/methods/doe/test_pca_request_profile.py", "tests/unit/scientist/methods/doe/test_design_handoff.py", "tests/unit/scientist/search/test_adversarial.py"]
+summary = "Keep calibration fit support separate from evaluation rows, retain checked numerical states and scoped uncertainty, preserve empirical sampling laws and declared stopping meaning, and bind DOE preprocessing/replay and stress outcome diagnostics to their actual sources."
+evidence = ["tests/unit/remediation/test_cal_02.py", "tests/unit/foundry/calibration/test_training_support.py", "tests/unit/foundry/uncertainty/test_empirical_resolution.py", "tests/unit/foundry/uncertainty/test_aggregation_exact_mean.py", "tests/unit/foundry/uncertainty/test_delta_numeric_profile.py", "tests/unit/remediation/test_doe_03.py", "tests/unit/scientist/search/test_adversarial.py"]
 change_class = "persisted-artifact-format"
-surface_classification = "internal: Scientist DOE and stress search"
-compatibility = "Replica zero preserves existing stage seeds. Keep legacy source-bound analysis inspection and declared unsupported backend refusals. Selected replay consumes recorded preprocessing facts rather than current defaults."
-limitations = "Named local CPU/SALib/sklearn profiles only. Adaptive is an API handoff without maintained internal orchestration. Seeded FAST/bounded LOGNORMAL remain compatibility_pending; stress lacks an independent selected current-run objective-intent input and cannot publish a protected robustness score. No empirical, G or final E02 acceptance."
+surface_classification = "public_stable: Foundry calibration and uncertainty; internal: Scientist DOE, stress search and calibration autotune"
+compatibility = "Keep historical calibration report meanings and the legacy full-width stopping alias. Explicit new numerical/scoped profiles do not reinterpret old persisted bytes. Unsupported laws, absent evidence and unverified curvature remain limited rather than becoming authority."
+limitations = "Named local CPU numerical profiles and declared synthetic mechanisms only. Empirical validity, observation-unit independence, selected institutional objective intent and independent curvature verification are not established by a report, UUID, replay label or matching hash. G and final E02 acceptance remain separate."
 public_surface_inventory_reviewed = true
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "calibration-fit-support-and-checked-state"
+change_class = "python-public-api"
+impact = "behavioral"
+surface = "public_stable: Calibrator objective, restart selection and final report"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable"
+release_note = "Normalize finite scales and positive quality weights before unstable reductions. Apply frozen fit support before nonlinear loss and automatic differentiation while retaining descriptive evaluation partitions. Final state, weights, replica, forward snapshot and Hessian must refer to the same checked candidate. Missing or raw-degenerate curvature is not a perfect uncertainty score. New ordinary report2.2 and ordered-batch2.3 profiles disclose the exact uncertainty-field subset; historical report1.0/2.0/2.1 retain their complete-coverage meanings. Candidate Bayesian summary1.1 uses the finite common mean; the 1.0 reader replays its original arithmetic instead of changing historical bytes."
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "uncertainty-numeric-domain-and-width-profile"
+change_class = "python-public-api"
+impact = "behavioral"
+surface = "public_stable: uncertainty dispatcher, empirical random/QMC and adaptive stopping"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable"
+release_note = "Use one admitted empirical CDF without Gaussian endpoint clipping and refuse collapsed or out-of-domain positive intervals before sampling. Reuse the common finite binary64 mean. Delta probing and execution share an explicit float32 invocation domain, with lossy coordinates disclosed and unrepresentable inputs refused before evaluation. The relative_full_width_target name preserves the old ci_half_width_target full-width heuristic value; neither alias claims MCSE or functional precision. Gaussian quantiles cannot be relabeled as deterministic bounds. The shared empirical owner retains paired weighted rows, actual triangular moments and representable covariance; unknown input law receives no invented distribution. Actual selected envelope origins, report scopes and used-input rosters are reconciled through fresh Science consumers. NumericPolicySpec is additionally exposed by the existing lazy IR analytics facade as the identical canonical type."
 generated_client_compatibility = "not_applicable"
 
 [[compatibility_change]]
@@ -32,4 +54,15 @@ owner = "team-scientist"
 version_owner = "team-scientist"
 deprecation_window = "not_applicable"
 release_note = "Count valid, invalid, skipped and unknown occurrences conservatively, with separate unavailable/not-established reasons. Classify invocation exceptions as unknown and malformed/nonfinite returned objectives as invalid through one shared owner. Preserve full occurrence diagnostics independently of top-k and deduplication. Adaptive diagnostics remain explicitly producer-reported when no replay profile is qualified; absent independently selected objective intent continues to withhold a protected robustness score."
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "calibration-autotune-curvature-admission"
+change_class = "python-public-api"
+impact = "behavioral"
+surface = "internal: calibration-meta champion promotion guard"
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "not_applicable"
+release_note = "Preserve useful calibration candidates and finite conditioning diagnostics, but do not promote a configuration on missing, degenerate or independently unverified curvature. A selected report carrying its own finite status is not independent Hessian verification; the guard remains withheld until that capability exists. Other autotune loops keep their contracts."
 generated_client_compatibility = "not_applicable"

@@ -523,6 +523,7 @@ def test_selected_conditional_tax_rows_reach_loss_and_fresh_report_basis(tmp_pat
         reconcile_ordered_batch_report_identity,
         replay_ordered_batch_report_projection,
     )
+    from polisyos.foundry.calibration.pure_executor import apply_trainable_values
     from polisyos.foundry.execute.executor import put_state_snapshot
     from polisyos.ir import get_json_artifact
 
@@ -647,6 +648,42 @@ def test_selected_conditional_tax_rows_reach_loss_and_fresh_report_basis(tmp_pat
         actual.final_row_keys, jnp.stack([keys[0], jax.random.split(keys[1])[1], keys[2]])
     )
     assert bool(actual.valid) and float(actual.objective) == pytest.approx(0.0, abs=1e-6)
+
+    def predictions_at_rate(rate):
+        return evaluate_ordered_batch_objective(
+            profile,
+            bundle=apply_trainable_values(bundle, [rate]),
+            loss_config=config.targets[0].loss,
+        ).predictions
+
+    def objective_at_rate(rate):
+        return evaluate_ordered_batch_objective(
+            profile,
+            bundle=apply_trainable_values(bundle, [rate]),
+            loss_config=config.targets[0].loss,
+        ).objective
+
+    # This declared float32 profile selects only the age40 agent's income200,
+    # and its schedule is active only at t=1. Unit row weights therefore give
+    # F(r)=(200*r-20)^2/3: at r=.1, F'=0 and F''=2*200^2/3.
+    # The default loss denominator rounds to exactly1 in this same profile.
+    rate = jnp.asarray(0.1, dtype=jnp.float32)
+    assert profile.targets.dtype == profile.weights.dtype == rate.dtype
+    assert np.float32(1.0 + config.targets[0].loss.epsilon) == np.float32(1.0)
+    for gradient in (jax.grad(objective_at_rate), jax.jit(jax.grad(objective_at_rate))):
+        assert float(gradient(rate)) == pytest.approx(0.0, abs=1e-6)
+    for hessian in (jax.hessian(objective_at_rate), jax.jit(jax.hessian(objective_at_rate))):
+        assert float(hessian(rate)) == pytest.approx(2.0 * 200.0**2 / 3.0, rel=1e-6)
+    np.testing.assert_allclose(
+        jax.jit(jax.jacrev(predictions_at_rate))(rate), [0.0, 200.0, 0.0], rtol=0, atol=1e-6
+    )
+    np.testing.assert_allclose(
+        jax.jit(jax.jacfwd(jax.jacrev(predictions_at_rate)))(rate),
+        [0.0, 0.0, 0.0],
+        rtol=0,
+        atol=1e-6,
+    )
+
     changed_target = replace(profile, targets=jnp.array([0, 30, 0], dtype=jnp.float32))
     changed = evaluate_ordered_batch_objective(changed_target, bundle=bundle)
     assert float(changed.objective) == pytest.approx(100.0 / 3.0, rel=1e-6)

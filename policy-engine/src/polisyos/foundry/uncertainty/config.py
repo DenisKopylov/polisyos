@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class AdaptiveStoppingConfig(BaseModel):
@@ -15,6 +15,23 @@ class AdaptiveStoppingConfig(BaseModel):
     max_samples: int = Field(default=10_000, le=100_000)
     ci_half_width_target: float = Field(default=0.01, gt=0.0)
     check_interval: int = Field(default=100, ge=10)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _accept_full_width_name(cls, value: object) -> object:
+        """Keep the historical serialized spelling and its full-width meaning."""
+        if not isinstance(value, dict) or "relative_full_width_target" not in value:
+            return value
+        if "ci_half_width_target" in value:
+            raise ValueError("specify only one adaptive relative full-width target")
+        normalized = dict(value)
+        normalized["ci_half_width_target"] = normalized.pop("relative_full_width_target")
+        return normalized
+
+    @property
+    def relative_full_width_target(self) -> float:
+        """Return the target for full relative output width, not an MC error."""
+        return self.ci_half_width_target
 
 
 class PropagationConfig(BaseModel):

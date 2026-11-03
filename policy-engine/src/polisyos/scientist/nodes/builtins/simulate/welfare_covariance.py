@@ -13,6 +13,7 @@ from polisyos.foundry.uncertainty import (
     CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
     build_covariance_matrix,
     calibration_covariance_blocks_agree_v1,
+    prepare_empirical_joint,
     preserve_singular_covariance,
 )
 from polisyos.ir import (
@@ -26,7 +27,6 @@ from polisyos.ir import (
 from polisyos.ir.analytics import WelfareMethod
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
-from .welfare_draws import _posterior_sample_probabilities
 from .welfare_ge import _stabilize_correlation_matrix
 from .welfare_types import (
     _CALIBRATION_COORDINATE_PROJECTION_VERSION,
@@ -473,6 +473,29 @@ def _resolve_cross_source_calibration_matrix(
     )
     if mixed is not None:
         return mixed
+    calibration_index_set = set(calibration_indices)
+    unproved_zero_pairs = [
+        [param_names[left], param_names[right]]
+        for left in range(len(param_names))
+        for right in range(left + 1, len(param_names))
+        if not (left in calibration_index_set and right in calibration_index_set)
+        and stds[left] > 0.0
+        and stds[right] > 0.0
+        and abs(float(covariance[left, right])) <= tolerance
+    ]
+    if unproved_zero_pairs:
+        code = "calibration_cross_source_dependence_unknown"
+        return _covariance_limitation(
+            code,
+            {
+                "strategy": "calibration_report_plus_disjoint_sources",
+                "calibration_fields": calibration_fields,
+                "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
+                "reason": "near_zero_cross_covariance_requires_verified_independence",
+                "unproved_zero_pairs": unproved_zero_pairs,
+                "independence_source_validated": False,
+            },
+        )
     return _CovarianceResolution(
         matrix=covariance,
         dependence_applied=True,
@@ -909,6 +932,7 @@ def _resolve_empirical_row_sampler(
     input_envelopes: Mapping[str, UncertaintyEnvelope],
     *,
     calibration_coordinates_active: bool,
+    require_sampling_cdf: bool = True,
 ) -> tuple[_EmpiricalRowSampler | None, str | None]:
     """Admit only a single empirical marginal or explicitly paired source rows."""
     payloads = {
@@ -921,84 +945,42 @@ def _resolve_empirical_row_sampler(
     if calibration_coordinates_active:
         return None, "empirical_joint_law_missing"
 
-    probabilities_by_name: dict[str, tuple[float, ...]] = {}
-    for name, payload in payloads.items():
-        assert isinstance(payload, PosteriorSamplesCarrier)
-        probabilities = _posterior_sample_probabilities(payload)
-        if probabilities is None:
-            return None, "empirical_sample_weights_invalid"
-        probabilities_by_name[name] = probabilities
-
-    if len(param_names) == 1 and set(payloads) == set(param_names):
-        name = param_names[0]
-        payload = payloads[name]
-        assert isinstance(payload, PosteriorSamplesCarrier)
-        return (
-            _EmpiricalRowSampler(
-                param_names=(name,),
-                samples_by_name={name: payload.samples},
-                probabilities=probabilities_by_name[name],
-                dependence_note={
-                    "applied": False,
-                    "strategy": "empirical_weighted_marginal",
-                    "covered_params": [name],
-                    "uncovered_params": [],
-                    "source_weights_applied": payload.weights is not None,
-                },
-            ),
-            None,
+    joint, limitation = prepare_empirical_joint(
+        param_names, input_envelopes, require_sampling_cdf=require_sampling_cdf
+    )
+    if joint is None:
+        return None, (
+            "empirical_numeric_resolution"
+            if limitation == "empirical_numeric_resolution"
+            else "empirical_joint_law_missing"
         )
-
-    if set(payloads) != set(param_names) or len(payloads) < 2:
-        return None, "empirical_joint_law_missing"
-
-    joint_ids = [input_envelopes[name].metadata.get("joint_sample_id") for name in param_names]
-    sample_axes = [
-        payloads[name].sample_axis
-        for name in param_names
-        if isinstance(payloads[name], PosteriorSamplesCarrier)
-    ]
-    sample_counts = [
-        len(payloads[name].samples)
-        for name in param_names
-        if isinstance(payloads[name], PosteriorSamplesCarrier)
-    ]
-    first_probabilities = probabilities_by_name[param_names[0]]
-    if (
-        not all(isinstance(value, str) and value.strip() for value in joint_ids)
-        or len(set(joint_ids)) != 1
-        or not sample_axes
-        or not all(isinstance(value, str) and value.strip() for value in sample_axes)
-        or len(set(sample_axes)) != 1
-        or not sample_counts
-        or len(set(sample_counts)) != 1
-        or any(probabilities_by_name[name] != first_probabilities for name in param_names[1:])
-    ):
-        return None, "empirical_joint_law_missing"
-
-    joint_id = str(joint_ids[0])
-    sample_axis = sample_axes[0]
     source_weights_applied = any(
         isinstance(payloads[name], PosteriorSamplesCarrier) and payloads[name].weights is not None
         for name in param_names
     )
+    is_joint = len(param_names) > 1
     return (
         _EmpiricalRowSampler(
             param_names=tuple(param_names),
             samples_by_name={
-                name: payloads[name].samples
-                for name in param_names
-                if isinstance(payloads[name], PosteriorSamplesCarrier)
+                name: tuple(float(value) for value in joint.samples[name]) for name in param_names
             },
-            probabilities=first_probabilities,
+            probabilities=joint.probabilities,
+            cumulative=joint.cumulative,
             dependence_note={
-                "applied": True,
-                "strategy": "empirical_joint_rows",
+                "applied": is_joint,
+                "strategy": "empirical_joint_rows" if is_joint else "empirical_weighted_marginal",
                 "covered_params": list(param_names),
                 "uncovered_params": [],
-                "joint_sample_id": joint_id,
-                "sample_axis": sample_axis,
-                "joint_identity_status": "declared_non_authoritative",
+                **(
+                    {
+                        "joint_sample_id": joint.joint_sample_id,
+                        "sample_axis": joint.sample_axis,
+                        "joint_identity_status": "declared_non_authoritative",
+                    }
+                    if is_joint
+                    else {}
+                ),
                 "source_weights_applied": source_weights_applied,
             },
         ),
@@ -1013,8 +995,7 @@ def _build_parameter_covariance(
     input_envelopes: Mapping[str, UncertaintyEnvelope],
 ) -> tuple[np.ndarray, bool, dict[str, Any]]:
     stds = np.asarray(
-        [max(_extract_std(input_envelopes[name]), 1e-12) for name in param_names],
-        dtype=np.float64,
+        [_extract_std(input_envelopes[name]) for name in param_names], dtype=np.float64
     )
     covariance = np.diag(stds**2)
     note: dict[str, Any] = {

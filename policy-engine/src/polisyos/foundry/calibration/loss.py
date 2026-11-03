@@ -28,8 +28,15 @@ def pointwise_base_loss(
     y_real: jnp.ndarray,
     cfg: TargetLossConfig,
     scale: float,
+    *,
+    support_mask: jnp.ndarray | None = None,
 ) -> jnp.ndarray:
-    """Compute elementwise squared or Huber residual loss for one target series."""
+    """Compute elementwise loss with optional pre-arithmetic observation support.
+
+    Excluded observations and residual operands are neutralized before nonlinear
+    arithmetic. The original model prediction must still be finite everywhere;
+    observation support never licenses an invalid model result.
+    """
     y_pred = jnp.asarray(y_pred, dtype=jnp.float32)
     y_real = jnp.asarray(y_real, dtype=jnp.float32)
     if y_pred.shape != y_real.shape:
@@ -37,13 +44,19 @@ def pointwise_base_loss(
             "Calibration loss operands must have identical shapes: "
             f"predicted={y_pred.shape}, observed={y_real.shape}"
         )
+    predictions_finite = jnp.all(jnp.isfinite(y_pred))
+    if support_mask is not None:
+        support = jnp.asarray(support_mask)
+        if support.shape != y_pred.shape or support.dtype != jnp.bool_:
+            raise ValueError(
+                "Calibration loss support must have the exact operand shape and bool dtype"
+            )
+        y_pred = jnp.where(support, y_pred, jnp.zeros_like(y_pred))
+        y_real = jnp.where(support, y_real, jnp.zeros_like(y_real))
     epsilon = max(float(cfg.epsilon), epsilon_for(NumericDomain.RELATIVE_LOSS))
     denom = jnp.asarray(scale + epsilon, dtype=y_pred.dtype)
     invalid = (
-        ~jnp.all(jnp.isfinite(y_pred))
-        | ~jnp.all(jnp.isfinite(y_real))
-        | ~jnp.isfinite(denom)
-        | (denom <= 0.0)
+        ~predictions_finite | ~jnp.all(jnp.isfinite(y_real)) | ~jnp.isfinite(denom) | (denom <= 0.0)
     )
     err = (y_pred - y_real) / denom
     if cfg.kind == "huber":
@@ -62,11 +75,15 @@ def reduce_weighted_loss(
 ) -> jnp.ndarray:
     """Reduce a pointwise loss array with optional non-negative weights.
 
-    When all weights collapse to zero, the helper returns `0.0` instead of
-    dividing by a near-zero total and injecting NaNs into the optimizer state.
+    When all weights collapse to zero, the helper returns `0.0`. Positive
+    sample quality is normalized by its maximum before reduction so a common
+    quality-unit scaling cannot erase a computable fit or overflow its sum.
+    ``epsilon`` remains accepted for call compatibility; residual-scale
+    stabilization is independent of the sample measure's exact zero support.
     Weighted inputs must have exactly the same shape as the pointwise loss;
     broadcasting is not an implicit axis contract.
     """
+    del epsilon
     pointwise_loss = jnp.asarray(pointwise_loss, dtype=jnp.float32)
     inf_value = jnp.asarray(jnp.inf, dtype=pointwise_loss.dtype)
     pointwise_finite = jnp.all(jnp.isfinite(pointwise_loss))
@@ -80,21 +97,25 @@ def reduce_weighted_loss(
             f"loss={pointwise_loss.shape}, weights={weight_arr.shape}"
         )
     weights_valid = jnp.all(jnp.isfinite(weight_arr)) & jnp.all(weight_arr >= 0.0)
-    total_weight = jnp.sum(weight_arr)
+    maximum = jnp.max(weight_arr, initial=0.0)
+    safe_maximum = jnp.where(maximum > 0.0, maximum, jnp.asarray(1.0, weight_arr.dtype))
+    normalized_weights = weight_arr / safe_maximum
+    total_weight = jnp.sum(normalized_weights)
     safe_total_weight = jnp.where(
-        total_weight > epsilon,
+        total_weight > 0.0,
         total_weight,
         jnp.asarray(1.0, dtype=pointwise_loss.dtype),
     )
+    probability_weights = normalized_weights / safe_total_weight
     reduced = jnp.where(
-        total_weight <= epsilon,
+        total_weight <= 0.0,
         jnp.array(0.0, dtype=jnp.float32),
-        jnp.sum(pointwise_loss * weight_arr) / safe_total_weight,
+        jnp.sum(pointwise_loss * probability_weights),
     )
     reduced = finite_loss_or_inf(reduced)
     return jnp.where(
         pointwise_finite & weights_valid,
-        jnp.where(total_weight <= epsilon, jnp.array(0.0, dtype=pointwise_loss.dtype), reduced),
+        jnp.where(total_weight <= 0.0, jnp.array(0.0, dtype=pointwise_loss.dtype), reduced),
         inf_value,
     )
 

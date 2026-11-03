@@ -52,6 +52,87 @@ metric_is_improved = academic.metric_is_improved
 read_claim_promotion_predecessor = academic.read_claim_promotion_predecessor
 
 
+class _CalibrationChampionUnavailableError(ValueError):
+    """Refuse a calibration champion without verified curvature or fixed baseline semantics."""
+
+
+def _calibration_champion_admission_failure(
+    store: CoreJSONArtifactStore,
+    *,
+    loop_id: str,
+    candidate_ref: ArtifactRef,
+    evaluation_ref: ArtifactRef,
+    pointer: ChampionPointer | None = None,
+) -> str | None:
+    """Admit only the actual built-in calibration baseline until curvature replay exists.
+
+    The exception is a semantic comparison with the product's own baseline and its
+    actual seeding record. A caller's baseline label, evaluation booleans, pointer
+    presence or matching selected hashes cannot authorize a different configuration.
+    """
+    if loop_id != "calibration_meta":
+        return None
+    from .calibration import (
+        CalibrationMetaSearchConfig,
+        build_baseline_calibration_meta_config,
+    )
+    from .runtime import _build_baseline_evaluation
+
+    refusal = "calibration_hessian_curvature_verification_missing"
+    try:
+        candidate = validate_core_model_json_artifact(
+            CalibrationMetaSearchConfig, store, candidate_ref
+        )
+        baseline = build_baseline_calibration_meta_config()
+        if candidate.model_dump(mode="python") != baseline.model_dump(mode="python"):
+            return refusal
+        candidate_manifest = store.get_manifest(candidate_ref)
+        candidate_schema = candidate_manifest.artifact_schema
+        if (
+            candidate_manifest.kind != "scientist.autotune.calibration_meta.candidate"
+            or candidate_manifest.media_type != "application/json"
+            or candidate_schema is None
+            or candidate_schema.name
+            != "polisyos.scientist.methods.autotune.CalibrationMetaSearchConfig"
+            or candidate_schema.version != baseline.artifact_version
+            or candidate_manifest.inputs
+        ):
+            return refusal
+        evaluation = validate_core_model_json_artifact(BenchmarkEvaluation, store, evaluation_ref)
+        expected = _build_baseline_evaluation(
+            loop_id=loop_id,
+            candidate_ref=candidate_ref,
+            suite_version=evaluation.suite_version,
+        )
+        # Notes and metadata describe the baseline; neither field grants admission.
+        if evaluation.model_dump(mode="python", exclude={"notes", "metadata"}) != (
+            expected.model_dump(mode="python", exclude={"notes", "metadata"})
+        ):
+            return refusal
+        evaluation_manifest = store.get_manifest(evaluation_ref)
+        evaluation_schema = evaluation_manifest.artifact_schema
+        if (
+            evaluation_manifest.kind != "scientist.autotune.calibration_meta.evaluation"
+            or evaluation_manifest.media_type != "application/json"
+            or evaluation_schema is None
+            or evaluation_schema.name != "polisyos.scientist.methods.autotune.BenchmarkEvaluation"
+            or evaluation_schema.version != evaluation.suite_version
+            or evaluation_manifest.inputs
+            != [input_ref_from_artifact_ref(candidate_ref, role="candidate")]
+        ):
+            return refusal
+        if pointer is not None and (
+            pointer.loop_id != loop_id
+            or pointer.metrics
+            or pointer.search_space_version != baseline.search_space_version
+            or pointer.suite_version != evaluation.suite_version
+        ):
+            return refusal
+    except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        return refusal
+    return None
+
+
 def _methodjob_suite_source_data_ref(
     store: CoreJSONArtifactStore,
     suite_ref: ArtifactRef,
@@ -558,7 +639,9 @@ class ChampionRegistry:
                 self._root, pointer.model_dump(mode="json", exclude_none=True)
             )
             return pointer
-        return ChampionPointer.model_validate(document)
+        pointer = ChampionPointer.model_validate(document)
+        self._require_champion_admission(loop_id, pointer)
+        return pointer
 
     def seed_baseline(
         self,
@@ -621,7 +704,10 @@ class ChampionRegistry:
         if not isinstance(evaluation, BenchmarkEvaluation):
             raise TypeError("Expected BenchmarkEvaluation")
         with self._promotion_lock(loop_id):
-            current = self.get(loop_id)
+            try:
+                current = self.get(loop_id)
+            except _CalibrationChampionUnavailableError:
+                current = None
             rejection = self._promotion_binding_failure(
                 loop_id=loop_id,
                 candidate_ref=candidate_ref,
@@ -881,6 +967,20 @@ class ChampionRegistry:
                 previous_champion=current,
             )
 
+        calibration_failure = _calibration_champion_admission_failure(
+            self._store,
+            loop_id=loop_id,
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+        )
+        if calibration_failure is not None:
+            return PromotionDecision(
+                loop_id=loop_id,
+                promoted=False,
+                reason=calibration_failure,
+                champion=current,
+                previous_champion=current,
+            )
         pointer = ChampionPointer(
             loop_id=loop_id,
             candidate_ref=candidate_ref,
@@ -982,12 +1082,32 @@ class ChampionRegistry:
         if loop_id == "claim_adjudication":
             raise ValueError("claim_adjudication_manual_pointer_transition_unverified")
         with self._promotion_lock(loop_id):
+            if loop_id == "calibration_meta":
+                current = self.get(loop_id)
+                if current is None or pointer.model_dump(
+                    mode="python", exclude={"metadata"}
+                ) != current.model_dump(mode="python", exclude={"metadata"}):
+                    raise _CalibrationChampionUnavailableError(
+                        "calibration_hessian_curvature_verification_missing"
+                    )
             self._write_pointer(loop_id, pointer)
 
     def _write_pointer(self, loop_id: str, pointer: ChampionPointer) -> None:
+        self._require_champion_admission(loop_id, pointer)
         path = self._pointer_path(loop_id)
         payload = pointer.model_dump_json(indent=2, exclude_none=True).encode("utf-8")
         self._write_json(path, payload)
+
+    def _require_champion_admission(self, loop_id: str, pointer: ChampionPointer) -> None:
+        refusal = _calibration_champion_admission_failure(
+            self._store,
+            loop_id=loop_id,
+            candidate_ref=pointer.candidate_ref,
+            evaluation_ref=pointer.evaluation_ref,
+            pointer=pointer,
+        )
+        if refusal is not None:
+            raise _CalibrationChampionUnavailableError(refusal)
 
     @staticmethod
     def _write_json(path: Path, payload: bytes) -> None:

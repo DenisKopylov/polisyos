@@ -1618,7 +1618,7 @@ def replay_ordered_batch_report_projection(
     report = report_source.require_value()
     manifest = report_source.manifest
     assert manifest is not None
-    if report.schema_version != "2.1" or report.ordered_batch_execution is None:
+    if report.schema_version not in {"2.1", "2.3"} or report.ordered_batch_execution is None:
         return "mismatch", ("ordered_selected_report_manifest_invalid",)
     basis_source = read_calibration_execution_input_basis_source(
         store, ref=basis_ref, inputs=manifest.inputs

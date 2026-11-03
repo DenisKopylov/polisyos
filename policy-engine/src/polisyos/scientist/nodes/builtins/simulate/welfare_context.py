@@ -1166,6 +1166,9 @@ def _build_calibration_covariance_source(
         issue_codes=tuple(sorted(issues)),
         source_execution_status=source_execution_status,
         source_execution_limitations=source_execution_limitations,
+        selected_centers=tuple(
+            sorted((str(name), float(value)) for name, value in report.calibrated_params.items())
+        ),
         inference_status=(
             "curvature_only"
             if report.ordered_batch_execution is not None
@@ -1286,6 +1289,7 @@ def _collect_input_envelopes(
         envelopes=envelopes,
         refs=refs,
         calibration_source=calibration_source,
+        origins=origins,
     )
 
 

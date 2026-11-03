@@ -679,6 +679,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.structural_causal_model",
         "NodeMechanism",
     ),
+    "NumericPolicySpec": ("polisyos.ir.analytics.uncertainty", "NumericPolicySpec"),
     "OutcomeComparison": ("polisyos.ir.analytics.backtest", "OutcomeComparison"),
     "PAGIdentificationPolicy": (
         "polisyos.ir.analytics.causal_graph",

@@ -37,6 +37,24 @@ CALIBRATION_LOOP_ID = "calibration_meta"
 
 
 @dataclass(frozen=True)
+class _CurvatureDiagnostic:
+    """Keep a report's conditioning summary separate from verified curvature."""
+
+    score: float | None
+    status: Literal["diagnostic", "not_established", "invalid"]
+    limitation_codes: tuple[str, ...]
+
+    def projection(self) -> dict[str, Any]:
+        return {
+            "score": self.score,
+            "condition_status": self.status,
+            "gate_eligible": False,
+            "predicate_provenance": "not_established",
+            "limitation_codes": list(self.limitation_codes),
+        }
+
+
+@dataclass(frozen=True)
 class _CalibrationCase:
     report: CalibrationReport
     report_ref: ArtifactRef | None = None
@@ -223,12 +241,6 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
         split_manifest = read_split_manifest(Path(suite.split_manifest_path))
         split_rows = split_manifest.partition_rows(rows, suite=suite)
         holdout_rows = split_rows[BenchmarkSplit.HOLDOUT]
-        champion_uncertainty = self._champion_uncertainty_score(
-            candidate_ref=candidate_ref,
-            holdout_rows=holdout_rows,
-            runner=runner,
-            context=context,
-        )
         selection_reports = _run_calibration_cases(
             config=config,
             rows=split_rows[BenchmarkSplit.SELECTION],
@@ -245,15 +257,17 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
         )
         selection_metrics = _calibration_metrics(selection_reports)
         holdout_metrics = _calibration_metrics(holdout_reports)
-        uncertainty_margin = float(context.get("uncertainty_regression_tolerance", 0.05) or 0.05)
+        uncertainty = {
+            "selection": [_curvature_diagnostic(case.report) for case in selection_reports],
+            "holdout": [_curvature_diagnostic(case.report) for case in holdout_reports],
+        }
         guardrails = {
             "no_divergence": float(holdout_metrics.get("divergence_rate", 1.0)) == 0.0,
-            "uncertainty_not_worse": float(
-                holdout_metrics.get("uncertainty_conditioning_score", 0.0)
-            )
-            >= (champion_uncertainty - uncertainty_margin)
-            if champion_uncertainty is not None
-            else False,
+            # Current selected-report replay verifies the final forward and fit metrics,
+            # explicitly not the raw Hessian. Neither producer fields nor a selected hash
+            # can supply the missing curvature verification. Preserve the candidate below;
+            # do not admit promotion through an unknown score compared to a zero baseline.
+            "uncertainty_not_worse": False,
         }
         cases = [*selection_reports, *holdout_reports]
         new_profile = any(case.report.ordered_batch_execution is not None for case in cases)
@@ -262,10 +276,16 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
         )
         if new_profile:
             guardrails["calibration_metric_sources_ready"] = metric_sources_ready
-        limitations = sorted({code for case in cases for code in case.limitation_codes})
-        if champion_uncertainty is None:
-            limitations.append("ordered_autotune_champion_metrics_not_established")
-            metric_sources_ready = False
+        limitations = sorted(
+            {code for case in cases for code in case.limitation_codes}
+            | {
+                code
+                for split in uncertainty.values()
+                for diagnostic in split
+                for code in diagnostic.limitation_codes
+            }
+            | {"calibration_hessian_curvature_verification_missing"}
+        )
         return BenchmarkEvaluation(
             loop_id=CALIBRATION_LOOP_ID,
             suite_id=suite.suite_id,
@@ -282,47 +302,25 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
             runtime_split_type=(
                 BenchmarkSplit.HOLDOUT if holdout_reports else BenchmarkSplit.SELECTION
             ),
-            status="ok" if metric_sources_ready else "limited",
+            status="limited",
             notes=limitations,
-            metadata=(
-                {
-                    "calibration_metric_sources": {
-                        "selection": [case.source_projection() for case in selection_reports],
-                        "holdout": [case.source_projection() for case in holdout_reports],
+            metadata={
+                "calibration_uncertainty": {
+                    split: [diagnostic.projection() for diagnostic in diagnostics]
+                    for split, diagnostics in uncertainty.items()
+                },
+                **(
+                    {
+                        "calibration_metric_sources": {
+                            "selection": [case.source_projection() for case in selection_reports],
+                            "holdout": [case.source_projection() for case in holdout_reports],
+                        }
                     }
-                }
-                if new_profile
-                else {}
-            ),
+                    if new_profile
+                    else {}
+                ),
+            },
         )
-
-    def _champion_uncertainty_score(
-        self,
-        *,
-        candidate_ref,
-        holdout_rows: list[dict[str, Any]],
-        runner: Any,
-        context: dict[str, Any],
-    ) -> float | None:
-        registry = context.get("registry") or self._registry
-        store = context.get("store") or self._store
-        if registry is None or store is None:
-            return 0.0
-        champion = registry.get(CALIBRATION_LOOP_ID)
-        if champion is None or champion.candidate_ref.artifact_id == candidate_ref.artifact_id:
-            return 0.0
-        cfg = load_model_artifact(store, champion.candidate_ref, CalibrationMetaSearchConfig)
-        metrics = _calibration_metrics(
-            _run_calibration_cases(
-                config=cfg,
-                rows=holdout_rows,
-                runner=runner,
-                context=context,
-                store=store,
-            )
-        )
-        value = metrics.get("uncertainty_conditioning_score")
-        return None if value is None else float(value)
 
 
 class CalibrationMetaRuntimeLoader(ChampionBackedRuntimeLoader[CalibrationMetaSearchConfig]):
@@ -424,9 +422,6 @@ def _calibration_metrics(reports: list[_CalibrationCase]) -> dict[str, float]:
     if not reports:
         return {
             "sample_count": 0.0,
-            "aggregate_fit_quality": 0.0,
-            "runtime_cost_score": 0.0,
-            "uncertainty_conditioning_score": 0.0,
             "divergence_rate": 1.0,
         }
     if any(case.source_status not in {"legacy_candidate", "matched"} for case in reports):
@@ -441,19 +436,23 @@ def _calibration_metrics(reports: list[_CalibrationCase]) -> dict[str, float]:
         report = case.report
         fit_scores.append(_fit_quality_score(report))
         runtime_scores.append(_runtime_score(report))
-        uncertainty_scores.append(_uncertainty_score(report))
+        uncertainty_scores.append(_curvature_diagnostic(report).score)
         if _has_divergence(report):
             divergence += 1
-    composite = (
-        (_avg(fit_scores) * 0.7) + (_avg(runtime_scores) * 0.15) + (_avg(uncertainty_scores) * 0.15)
-    )
-    return {
+    metrics = {
         "sample_count": float(len(reports)),
-        "aggregate_fit_quality": composite,
+        "fit_quality_score": _avg(fit_scores),
         "runtime_cost_score": _avg(runtime_scores),
-        "uncertainty_conditioning_score": _avg(uncertainty_scores),
         "divergence_rate": divergence / len(reports),
     }
+    if all(score is not None for score in uncertainty_scores):
+        # This remains a diagnostic over producer-reported curvature, not promotion evidence.
+        conditioning = _avg([score for score in uncertainty_scores if score is not None])
+        metrics["uncertainty_conditioning_score"] = conditioning
+        metrics["aggregate_fit_quality"] = (
+            _avg(fit_scores) * 0.7 + _avg(runtime_scores) * 0.15 + conditioning * 0.15
+        )
+    return metrics
 
 
 def _fit_quality_score(report: CalibrationReport) -> float:
@@ -474,11 +473,60 @@ def _runtime_score(report: CalibrationReport) -> float:
     return max(0.0, min(1.0, 1.0 / (1.0 + runtime_seconds + (step_count / 100.0))))
 
 
-def _uncertainty_score(report: CalibrationReport) -> float:
-    if report.uncertainties is None or report.uncertainties.hessian_condition is None:
-        return 1.0
-    condition = max(float(report.uncertainties.hessian_condition), 1.0)
-    return max(0.0, min(1.0, 1.0 / (1.0 + math.log10(condition))))
+def _curvature_diagnostic(report: CalibrationReport) -> _CurvatureDiagnostic:
+    """Validate the report projection without claiming to replay the raw Hessian."""
+    uncertainty = report.uncertainties
+    raw = report.execution_context.get("hessian")
+    if uncertainty is None:
+        return _CurvatureDiagnostic(
+            None, "not_established", ("calibration_uncertainty_not_established",)
+        )
+    condition = uncertainty.hessian_condition
+    if condition is None:
+        known_invalid = isinstance(raw, dict) and raw.get("raw_condition_status") in {
+            "non_finite",
+            "invalid",
+        }
+        return _CurvatureDiagnostic(
+            None,
+            "invalid" if known_invalid else "not_established",
+            (
+                "calibration_hessian_condition_invalid"
+                if known_invalid
+                else "calibration_hessian_condition_not_established",
+            ),
+        )
+    if not math.isfinite(condition) or condition < 1.0:
+        return _CurvatureDiagnostic(None, "invalid", ("calibration_hessian_condition_invalid",))
+    if not isinstance(raw, dict) or raw.get("raw_condition_status") == "unavailable":
+        return _CurvatureDiagnostic(
+            None, "not_established", ("calibration_hessian_raw_condition_not_established",)
+        )
+    raw_value = raw.get("raw_condition_value")
+    if (
+        raw.get("raw_condition_status") != "finite"
+        or type(raw_value) not in (int, float)
+        or not math.isfinite(raw_value)
+        or raw_value != condition
+    ):
+        return _CurvatureDiagnostic(
+            None, "invalid", ("calibration_hessian_condition_projection_mismatch",)
+        )
+    if (
+        raw.get("method") != "actual_selected_forward_hessian"
+        or raw.get("non_authoritative") is not True
+        or not uncertainty.params
+        or uncertainty.hessian_rank != len(uncertainty.params)
+        or uncertainty.non_identifiable
+    ):
+        return _CurvatureDiagnostic(
+            None, "not_established", ("calibration_hessian_condition_scope_not_established",)
+        )
+    return _CurvatureDiagnostic(
+        1.0 / (1.0 + math.log10(condition)),
+        "diagnostic",
+        ("calibration_hessian_curvature_verification_missing",),
+    )
 
 
 def _has_divergence(report: CalibrationReport) -> bool:

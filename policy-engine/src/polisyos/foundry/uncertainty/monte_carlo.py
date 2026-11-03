@@ -54,12 +54,19 @@ from .covariance import (
     _SINGULAR_PSD_SCALE_RTOL,
     _SINGULAR_SYMMETRY_ATOL,
     _SINGULAR_SYMMETRY_RTOL,
-    _real_float64,
     build_covariance_matrix,
     extract_std,
     has_unknown_dependency,
     joint_dependency_assurance,
 )
+from .empirical import EmpiricalJointRows as _EmpiricalJointSpec
+from .empirical import (
+    empirical_indices_from_cdf as _empirical_indices_from_admitted_cdf,
+)
+from .empirical import (
+    prepare_empirical_cdf as _normalize_empirical_weights,
+)
+from .empirical import prepare_empirical_joint
 from .evaluation_failures import classify_evaluation_failure
 from .protocol import PropagationResult, _validate_effective_inputs
 
@@ -146,18 +153,6 @@ class _GaussianExecutionTrace:
     """Record actual numeric batches for the declared Gaussian transform."""
 
     batches: list[dict[str, Any]]
-
-
-@dataclass(frozen=True)
-class _EmpiricalJointSpec:
-    """Describe an aligned empirical law shared by input carriers."""
-
-    names: tuple[str, ...]
-    sample_axis: str
-    sample_count: int
-    samples: Mapping[str, np.ndarray]
-    probabilities: np.ndarray
-    joint_sample_id: str | None
 
 
 class _DrawOutcomeCode(StrEnum):
@@ -666,73 +661,7 @@ def _build_empirical_joint_spec(
 
     if not carriers:
         return None, None
-    if len(carriers) != len(param_names):
-        return None, "incompatible_joint_law"
-
-    joint_sample_id: str | None = None
-    if len(carriers) > 1:
-        declared_ids: list[str] = []
-        for name in carriers:
-            raw_id = input_envelopes[name].metadata.get("joint_sample_id")
-            if not isinstance(raw_id, str) or not raw_id.strip():
-                return None, "unestablished_joint_law"
-            declared_ids.append(raw_id.strip())
-        if len(set(declared_ids)) != 1:
-            return None, "incompatible_joint_law"
-        joint_sample_id = declared_ids[0]
-
-    first = next(iter(carriers.values()))
-    axis = first.sample_axis.strip()
-    if not axis:
-        return None, "incompatible_joint_law"
-    sample_count = len(first.samples)
-    if sample_count < 1:
-        return None, "incompatible_joint_law"
-
-    normalized_weights: list[np.ndarray] = []
-    samples: dict[str, np.ndarray] = {}
-    for name, carrier in carriers.items():
-        if carrier.sample_axis.strip() != axis or len(carrier.samples) != sample_count:
-            return None, "incompatible_joint_law"
-        try:
-            samples[name] = _real_float64(carrier.samples)
-            weights = (
-                np.ones(sample_count, dtype=np.float64)
-                if carrier.weights is None
-                else _real_float64(carrier.weights)
-            )
-        except (TypeError, ValueError, OverflowError):
-            return None, "incompatible_joint_law"
-        if (
-            samples[name].shape != (sample_count,)
-            or weights.shape != (sample_count,)
-            or not np.all(np.isfinite(weights))
-            or np.any(weights < 0.0)
-        ):
-            return None, "incompatible_joint_law"
-        total = float(np.sum(weights))
-        if not math.isfinite(total) or total <= 0.0:
-            return None, "incompatible_joint_law"
-        normalized_weights.append(weights / total)
-
-    probabilities = normalized_weights[0]
-    if any(
-        not np.allclose(probabilities, weights, rtol=0.0, atol=1e-12)
-        for weights in normalized_weights[1:]
-    ):
-        return None, "incompatible_joint_law"
-
-    return (
-        _EmpiricalJointSpec(
-            names=tuple(carriers),
-            sample_axis=axis,
-            sample_count=sample_count,
-            samples=samples,
-            probabilities=probabilities,
-            joint_sample_id=joint_sample_id,
-        ),
-        None,
-    )
+    return prepare_empirical_joint(param_names, input_envelopes)
 
 
 def _unknown_joint_results(
@@ -791,11 +720,13 @@ def _empirical_indices_from_uniform(
     uniform_samples: np.ndarray,
     probabilities: np.ndarray,
 ) -> np.ndarray:
-    """Map one QMC coordinate to aligned empirical row indices."""
-    clipped = np.clip(np.asarray(uniform_samples, dtype=np.float64), 1e-10, 1.0 - 1e-10)
-    cumulative = np.cumsum(np.asarray(probabilities, dtype=np.float64))
-    indices = np.searchsorted(cumulative, clipped, side="right")
-    return np.minimum(indices, len(probabilities) - 1)
+    """Map finite uniforms in [0, 1) to aligned empirical rows.
+
+    Zero-weight atoms are skipped, and the last positive atom owns any small
+    normalization roundoff below 1. Invalid uniform values are refused.
+    """
+    normalized, cumulative = _normalize_empirical_weights(probabilities)
+    return _empirical_indices_from_admitted_cdf(uniform_samples, normalized, cumulative)
 
 
 _NATIVE_NUMPY_SCALAR_TYPES = frozenset(np.sctypeDict.values())
@@ -1796,14 +1727,16 @@ class MonteCarloPropagator:
                         }
                     )
                 batch_samples.update({name: joint[:, i] for i, name in enumerate(param_names)})
-            shared_indices: jnp.ndarray | None = None
+            shared_indices: np.ndarray | None = None
             if empirical_spec is not None:
                 rng, shared_key = jrandom.split(rng)
-                shared_indices = jrandom.choice(
-                    shared_key,
-                    empirical_spec.sample_count,
-                    shape=(this_batch,),
-                    p=jnp.asarray(empirical_spec.probabilities, dtype=jnp.float32),
+                # The JAX uniform lattice is finite (currently float32 by default),
+                # but its draws must be mapped using the admitted float64 CDF.
+                # Casting the CDF to float32 can erase a positive source interval.
+                shared_indices = _empirical_indices_from_admitted_cdf(
+                    np.asarray(jrandom.uniform(shared_key, shape=(this_batch,))),
+                    empirical_spec.probabilities,
+                    empirical_spec.cumulative,
                 )
             for name in param_names:
                 if gaussian_spec is not None:
@@ -1811,8 +1744,7 @@ class MonteCarloPropagator:
                 env = input_envelopes[name]
                 if empirical_spec is not None and name in empirical_spec.names:
                     assert shared_indices is not None
-                    selected_indices = np.asarray(shared_indices, dtype=np.intp)
-                    batch_samples[name] = empirical_spec.samples[name][selected_indices]
+                    batch_samples[name] = empirical_spec.samples[name][shared_indices]
                     continue
                 rng, subkey = jrandom.split(rng)
                 batch_samples[name] = self._sample_from_envelope(subkey, env, this_batch)
@@ -1998,11 +1930,11 @@ class MonteCarloPropagator:
             point = float(np.mean(valid))
             lo = float(np.percentile(valid, 100.0 * alpha / 2.0))
             hi = float(np.percentile(valid, 100.0 * (1.0 - alpha / 2.0)))
-            half_width = (hi - lo) / max(abs(point), 1e-12)
-            if half_width > adaptive.ci_half_width_target:
+            relative_full_width = (hi - lo) / max(abs(point), 1e-12)
+            if relative_full_width > adaptive.relative_full_width_target:
                 return False
 
-        logger.info("Adaptive MC stopping: converged after %d samples.", n_generated)
+        logger.info("Adaptive MC reached_width_target after %d samples.", n_generated)
         return True
 
     @staticmethod
@@ -2079,6 +2011,27 @@ class MonteCarloPropagator:
             )
         )
         qmc_has_full_certificate = qmc_method is not None and qmc_scrambled and qmc_replicates >= 2
+        empirical_sampling_profile: dict[str, Any] = {}
+        if any(
+            isinstance(envelope.distribution_payload, PosteriorSamplesCarrier)
+            for envelope in input_envelopes.values()
+        ):
+            empirical_sampling_profile = {
+                "algorithm": "float64_empirical_cdf_inverse_v1",
+                "uniform_backend": "jax_default_float" if qmc_method is None else "scipy_qmc",
+                "finite_uniform_lattice": True,
+                "implementation_identity_status": "producer_asserted",
+            }
+        adaptive_profile: dict[str, Any] = {}
+        if self._config.adaptive_stopping.enabled:
+            adaptive_profile = {
+                "profile": "relative_full_output_width_heuristic_v1",
+                "relative_full_width_target": (
+                    self._config.adaptive_stopping.relative_full_width_target
+                ),
+                "stop_reason": "reached_width_target" if stopped_early else "budget_exhausted",
+                "is_monte_carlo_standard_error": False,
+            }
         if input_envelope_digests is None:
             input_envelope_digests = {
                 name: _envelope_content_digest(envelope)
@@ -2228,6 +2181,10 @@ class MonteCarloPropagator:
                     "mc_n_samples": actual_n_samples,
                     "fallback_point_estimate_source": point_source,
                 }
+                if empirical_sampling_profile:
+                    failure_metadata["empirical_sampling_profile"] = empirical_sampling_profile
+                if adaptive_profile:
+                    failure_metadata["adaptive_stopping_profile"] = adaptive_profile
                 if declared_gaussian_joint:
                     failure_metadata["joint_gaussian_basis"] = "declared_non_authoritative"
                     failure_metadata["parameter_unit_binding"] = "not_established"
@@ -2337,6 +2294,11 @@ class MonteCarloPropagator:
                     "mc_seed": int(self._config.mc_seed),
                     "mc_sampling_method": self._config.mc_sampling_method,
                 }
+                if empirical_sampling_profile:
+                    metadata["empirical_sampling_profile"] = empirical_sampling_profile
+                    metadata["empirical_source_weights_applied"] = True
+                if adaptive_profile:
+                    metadata["adaptive_stopping_profile"] = adaptive_profile
                 if declared_gaussian_joint:
                     metadata["joint_gaussian_basis"] = "declared_non_authoritative"
                     metadata["parameter_unit_binding"] = "not_established"
@@ -2520,6 +2482,16 @@ class MonteCarloPropagator:
                         "qmc_method": qmc_method,
                         "qmc_scrambled": qmc_scrambled if qmc_method is not None else None,
                         "qmc_replicates": qmc_replicates if qmc_method is not None else None,
+                        **(
+                            {"empirical_sampling_profile": empirical_sampling_profile}
+                            if empirical_sampling_profile
+                            else {}
+                        ),
+                        **(
+                            {"adaptive_stopping_profile": adaptive_profile}
+                            if adaptive_profile
+                            else {}
+                        ),
                     },
                 )
             )
@@ -2641,9 +2613,10 @@ class MonteCarloPropagator:
             return {name: joint[:, i] for i, name in enumerate(param_names)}
         if empirical_spec is not None:
             empirical_anchor_idx = dimension_names.index(empirical_spec.names[0])
-            shared_indices = _empirical_indices_from_uniform(
+            shared_indices = _empirical_indices_from_admitted_cdf(
                 uniform_samples[:, empirical_anchor_idx],
                 empirical_spec.probabilities,
+                empirical_spec.cumulative,
             )
         else:
             shared_indices = None

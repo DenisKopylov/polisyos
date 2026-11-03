@@ -10,8 +10,11 @@ from statistics import NormalDist
 from typing import Any, Protocol
 
 from polisyos.ir.analytics.uncertainty import (
+    CompositionProvenance,
     DistributionFamily,
     IntervalSemantics,
+    NumericPolicySpec,
+    NumericToleranceMode,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
@@ -64,13 +67,21 @@ class UncertaintyDecomposition:
         source: UncertaintySource = UncertaintySource.CALIBRATION,
         distribution_family: DistributionFamily = DistributionFamily.NORMAL,
         propagation_method: PropagationMethod = PropagationMethod.MONTE_CARLO,
+        interval_semantics: IntervalSemantics = IntervalSemantics.CREDIBLE_INTERVAL,
+        is_heuristic_ci: bool = False,
+        gate_eligible: bool = True,
+        composition_provenance: CompositionProvenance | None = None,
         metadata: Mapping[str, Any] | None = None,
     ) -> UncertaintyDecomposition:
         if not (0.0 < confidence_level < 1.0):
             raise ValueError("confidence_level must be in (0, 1)")
-        epi = max(float(epistemic_std), 0.0)
-        ale = max(float(aleatoric_std), 0.0)
-        total_std = math.sqrt(epi * epi + ale * ale)
+        supplied_epi = float(epistemic_std)
+        supplied_ale = float(aleatoric_std)
+        if not math.isfinite(supplied_epi) or not math.isfinite(supplied_ale):
+            raise ValueError("Gaussian component scales must be finite")
+        epi = max(supplied_epi, 0.0)
+        ale = max(supplied_ale, 0.0)
+        total_std = math.hypot(epi, ale)
         base_metadata = dict(metadata or {})
         total = gaussian_uncertainty_envelope(
             point_estimate=point_estimate,
@@ -79,6 +90,10 @@ class UncertaintyDecomposition:
             source=source,
             distribution_family=distribution_family,
             propagation_method=propagation_method,
+            interval_semantics=interval_semantics,
+            is_heuristic_ci=is_heuristic_ci,
+            gate_eligible=gate_eligible,
+            composition_provenance=composition_provenance,
             metadata={**base_metadata, "component": "total"},
         )
         epistemic = gaussian_uncertainty_envelope(
@@ -88,6 +103,10 @@ class UncertaintyDecomposition:
             source=source,
             distribution_family=distribution_family,
             propagation_method=propagation_method,
+            interval_semantics=interval_semantics,
+            is_heuristic_ci=is_heuristic_ci,
+            gate_eligible=gate_eligible,
+            composition_provenance=composition_provenance,
             metadata={**base_metadata, "component": "epistemic"},
         )
         aleatoric = gaussian_uncertainty_envelope(
@@ -97,6 +116,10 @@ class UncertaintyDecomposition:
             source=source,
             distribution_family=distribution_family,
             propagation_method=propagation_method,
+            interval_semantics=interval_semantics,
+            is_heuristic_ci=is_heuristic_ci,
+            gate_eligible=gate_eligible,
+            composition_provenance=composition_provenance,
             metadata={**base_metadata, "component": "aleatoric"},
         )
         return cls(
@@ -121,28 +144,64 @@ def gaussian_uncertainty_envelope(
     source: UncertaintySource,
     distribution_family: DistributionFamily = DistributionFamily.NORMAL,
     propagation_method: PropagationMethod = PropagationMethod.MONTE_CARLO,
+    interval_semantics: IntervalSemantics = IntervalSemantics.CREDIBLE_INTERVAL,
+    is_heuristic_ci: bool = False,
+    gate_eligible: bool = True,
+    composition_provenance: CompositionProvenance | None = None,
     metadata: Mapping[str, Any] | None = None,
 ) -> UncertaintyEnvelope:
     """Build a Gaussian envelope from a point estimate and one standard deviation."""
 
     if not (0.0 < confidence_level < 1.0):
         raise ValueError("confidence_level must be in (0, 1)")
-    sigma = max(float(std), 0.0)
+    semantics = IntervalSemantics(interval_semantics)
+    if semantics is IntervalSemantics.DETERMINISTIC_BOUNDS:
+        raise ValueError("Gaussian quantiles do not establish deterministic bounds")
+    point = float(point_estimate)
+    supplied_sigma = float(std)
+    if not math.isfinite(point) or not math.isfinite(supplied_sigma):
+        raise ValueError("Gaussian point and scale must be finite")
+    sigma = max(supplied_sigma, 0.0)
     z_value = NormalDist().inv_cdf((1.0 + confidence_level) / 2.0)
-    lower = float(point_estimate) - z_value * sigma
-    upper = float(point_estimate) + z_value * sigma
+    lower = point - z_value * sigma
+    upper = point + z_value * sigma
     if lower > upper:
         lower, upper = upper, lower
+    if not math.isfinite(lower) or not math.isfinite(upper):
+        raise ValueError("Gaussian interval bounds must be finite")
+    if sigma > 0.0 and not lower < point < upper:
+        raise ValueError("binary64 cannot represent the nonzero Gaussian interval")
+    numeric_policy = NumericPolicySpec()
+    canonical_point = numeric_policy.canonicalize(point)
+    canonical_lower = numeric_policy.canonicalize(lower)
+    canonical_upper = numeric_policy.canonicalize(upper)
+    assert canonical_point is not None
+    assert canonical_lower is not None
+    assert canonical_upper is not None
+    if sigma > 0.0 and not canonical_lower < canonical_point < canonical_upper:
+        # Keep the existing compact profile unless it would erase a real bound.
+        numeric_policy = NumericPolicySpec(mode=NumericToleranceMode.DECIMAL_EXACT)
+    envelope_metadata = dict(metadata or {})
+    statistical = semantics in {
+        IntervalSemantics.CONFIDENCE_INTERVAL,
+        IntervalSemantics.CREDIBLE_INTERVAL,
+    }
+    if not statistical:
+        envelope_metadata["gaussian_reference_level"] = float(confidence_level)
     return UncertaintyEnvelope(
-        point_estimate=float(point_estimate),
+        numeric_policy=numeric_policy,
+        point_estimate=point,
         confidence_interval=(lower, upper),
-        confidence_level=float(confidence_level),
+        confidence_level=float(confidence_level) if statistical else None,
         distribution_family=distribution_family,
         source=source,
         propagation_method=propagation_method,
-        interval_semantics=IntervalSemantics.CREDIBLE_INTERVAL,
+        interval_semantics=semantics,
+        is_heuristic_ci=is_heuristic_ci,
+        gate_eligible=gate_eligible,
+        composition_provenance=composition_provenance,
         sample_size=None,
-        metadata=dict(metadata or {}),
+        metadata=envelope_metadata,
     )
 
 

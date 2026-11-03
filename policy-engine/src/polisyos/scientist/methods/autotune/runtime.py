@@ -70,6 +70,8 @@ from .models import (
 )
 from .registry import (
     ChampionRegistry,
+    _calibration_champion_admission_failure,
+    _CalibrationChampionUnavailableError,
     _methodjob_execution_provenance_failure,
     _methodjob_method_inputs_only_basis,
     _methodjob_source_admission_failure,
@@ -149,6 +151,26 @@ def _is_rooted_core_json_artifact_store(
 ModelT = TypeVar("ModelT", bound=MutationArtifact)
 
 
+def _build_baseline_evaluation(
+    *,
+    loop_id: str,
+    candidate_ref: ArtifactRef,
+    suite_version: str,
+    metadata: dict[str, Any] | None = None,
+) -> BenchmarkEvaluation:
+    """Construct the baseline's non-benchmark record for seeding and readback."""
+    return BenchmarkEvaluation(
+        loop_id=loop_id,
+        suite_id=f"{loop_id}.baseline",
+        suite_version=suite_version,
+        candidate_ref=candidate_ref,
+        promotable=True,
+        status="seeded_baseline",
+        notes=["seeded production baseline"],
+        metadata={"seeded_baseline": True, **(metadata or {})},
+    )
+
+
 def seed_loop_baseline(
     *,
     loop_id: str,
@@ -161,21 +183,20 @@ def seed_loop_baseline(
     """Seed loop baseline helper."""
     active_store = store if store is not None else _default_core_json_store()
     active_registry = registry or ChampionRegistry(store=active_store)
-    candidate_ref = persist_mutation_artifact(active_store, baseline)
-    evaluation = BenchmarkEvaluation(
+    candidate_ref = persist_mutation_artifact(
+        active_store, baseline, return_selected_profile=loop_id == "calibration_meta"
+    )
+    evaluation = _build_baseline_evaluation(
         loop_id=loop_id,
-        suite_id=f"{loop_id}.baseline",
         suite_version=suite_version,
         candidate_ref=candidate_ref,
-        promotable=True,
-        status="seeded_baseline",
-        notes=["seeded production baseline"],
-        metadata={"seeded_baseline": True, **(metadata or {})},
+        metadata=metadata,
     )
     evaluation_ref = persist_benchmark_evaluation(
         active_store,
         evaluation,
         inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
+        return_selected_profile=loop_id == "calibration_meta",
     )
     return active_registry.seed_baseline(
         loop_id,
@@ -217,9 +238,29 @@ class ChampionBackedRuntimeLoader(Generic[ModelT]):
         )
 
     def load(self, context: dict[str, Any] | None = None) -> ModelT:
-        champion = self._registry.get(self._loop_id)
-        if champion is None:
-            champion = self.ensure_baseline(context)
+        try:
+            champion = self._registry.get(self._loop_id)
+            if champion is None:
+                champion = self.ensure_baseline(context)
+            refusal = _calibration_champion_admission_failure(
+                self._store,
+                loop_id=self._loop_id,
+                candidate_ref=champion.candidate_ref,
+                evaluation_ref=champion.evaluation_ref,
+                pointer=champion,
+            )
+            if refusal is not None:
+                raise _CalibrationChampionUnavailableError(refusal)
+        except _CalibrationChampionUnavailableError:
+            if self._loop_id != "calibration_meta":
+                raise
+            # Keep an old unverified pointer intact for inspection. The fallback is the
+            # fixed product baseline, never a caller-provided factory or baseline label.
+            from .calibration import build_baseline_calibration_meta_config
+
+            return self._model_cls.model_validate(
+                build_baseline_calibration_meta_config().model_dump(mode="python")
+            )
         payload = load_model_artifact(self._store, champion.candidate_ref, self._model_cls)
         return payload
 

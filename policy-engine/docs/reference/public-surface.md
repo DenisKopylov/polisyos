@@ -2015,7 +2015,7 @@ security
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 532 |
-| `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `lazy_facade` | 320 |
+| `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `lazy_facade` | 321 |
 | `polisyos.ir.analytics.calibration_diagnostics` | `src/polisyos/ir/analytics/calibration_diagnostics.py` | `eager_exports` | 6 |
 | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `eager_exports` | 14 |
 | `polisyos.ir.governance` | `src/polisyos/ir/governance/__init__.py` | `lazy_facade` | 106 |
@@ -2579,7 +2579,7 @@ transportability_proof_review_grade
 - Facade: `lazy_facade`
 - Summary: Curated lazy facade for analytics IR contracts.
 
-<details><summary>Entrypoint exports (320)</summary>
+<details><summary>Entrypoint exports (321)</summary>
 
 ```text
 ABMBifurcationReport
@@ -2757,6 +2757,7 @@ MobilityReportRef
 MultiEnvironmentCausalContract
 NetworkInterferenceReport
 NodeMechanism
+NumericPolicySpec
 OperatingCharacteristicKey
 OperatingCharacteristicLibrary
 OperatingCharacteristicRecord
@@ -5266,7 +5267,7 @@ world
 | `polisyos.foundry.methods.artifacts` | `src/polisyos/foundry/methods/artifacts/__init__.py` | `eager_exports` | 15 |
 | `polisyos.foundry.methods.backends` | `src/polisyos/foundry/methods/backends/__init__.py` | `lazy_facade` | 25 |
 | `polisyos.foundry.methods.causal` | `src/polisyos/foundry/methods/causal/__init__.py` | `lazy_facade` | 229 |
-| `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `lazy_facade` | 30 |
+| `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `lazy_facade` | 38 |
 | `polisyos.foundry.validation` | `src/polisyos/foundry/validation/__init__.py` | `eager_exports` | 11 |
 
 #### `polisyos.foundry`
@@ -6135,7 +6136,7 @@ compute_scalar_distributional_effect
 - Facade: `lazy_facade`
 - Summary: Expose uncertainty propagation helpers used around Foundry simulation outputs.
 
-<details><summary>Entrypoint exports (30)</summary>
+<details><summary>Entrypoint exports (38)</summary>
 
 ```text
 CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1
@@ -6143,6 +6144,8 @@ CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1
 EXCEPTION_CHAIN_EDGE_LIMIT
 EXCEPTION_CHAIN_NODE_LIMIT
 EvaluationFailureClassification
+EmpiricalNumericResolutionError
+EmpiricalJointRows
 build_covariance_matrix
 calibration_covariance_blocks_agree_v1
 classify_evaluation_failure
@@ -6166,8 +6169,14 @@ aggregate_persisted_envelope_views
 load_aggregated_envelope_fresh
 persist_aggregated_envelope
 compute_first_order_indices
+empirical_indices_from_cdf
+empirical_joint_moments
+empirical_weighted_moments
 extract_std
 fabric_uncertainty_context_from_decision_data
+normalize_empirical_masses
+prepare_empirical_cdf
+prepare_empirical_joint
 ```
 
 </details>

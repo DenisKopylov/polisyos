@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import jax.numpy as jnp
 import numpy as np
 import pytest
 
 from polisyos.foundry.calibration.calibrator import _calibration_span_context
-from polisyos.foundry.calibration.hessian import HessianResult
+from polisyos.foundry.calibration.hessian import HessianResult, compute_hessian
 from polisyos.foundry.calibration.multi_start import SingleRunResult, select_best
 from polisyos.ir.analytics.calibration import MultiStartConfig
 
@@ -92,6 +93,40 @@ def test_nan_loss_cannot_win_by_input_order() -> None:
     idx, _ = select_best(runs, MultiStartConfig(n_starts=2))
 
     assert idx == 1
+
+
+def test_actual_native_raw_hessians_reach_the_finite_run_selector() -> None:
+    """Native degeneracy stays distinct from absent or acceptable curvature."""
+    point = jnp.zeros(1, dtype=jnp.float32)
+    degenerate = compute_hessian(
+        lambda value: jnp.sum(value * 0.0),
+        point,
+        param_names=["rate"],
+        damping=1e-3,
+    )
+    quadratic = compute_hessian(
+        lambda value: jnp.sum(jnp.square(value)),
+        point,
+        param_names=["rate"],
+        damping=1e-3,
+    )
+    assert degenerate.strategy == quadratic.strategy == "exact"
+    assert degenerate.fallback_cause is quadratic.fallback_cause is None
+    np.testing.assert_allclose(degenerate.raw_eigenvalues, [0.0], rtol=0, atol=1e-6)
+    np.testing.assert_allclose(quadratic.raw_eigenvalues, [2.0], rtol=0, atol=1e-6)
+    assert np.isinf(degenerate.condition_number)
+    assert quadratic.condition_number == pytest.approx(1.0)
+    runs = [
+        SingleRunResult(loss=0.1, params=[point], hessian_result=degenerate),
+        SingleRunResult(loss=0.5, params=[point], hessian_result=quadratic),
+    ]
+    chosen, reason = select_best(runs, MultiStartConfig(n_starts=2, condition_threshold=1e8))
+    assert chosen == 1 and "condition<" in reason
+    limited, limited_reason = select_best(
+        [runs[0], SingleRunResult(loss=0.6, params=[point], hessian_result=degenerate)],
+        MultiStartConfig(n_starts=2, condition_threshold=1e8),
+    )
+    assert limited == 0 and "fallback" in limited_reason and "inf" in limited_reason
 
 
 def test_non_numeric_loss_cannot_win_by_input_order() -> None:

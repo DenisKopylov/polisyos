@@ -1275,12 +1275,17 @@ class FileBudgetLedger:
             return owner, resource
 
     def _continuation_state(
-        self,
+        self, *, require_existing_lock: bool = False
     ) -> tuple[
         tuple[str, str, str], _BudgetResourceIdentity, _BudgetSnapshotAnchor, BudgetLedgerSnapshot
     ]:
         """Read one confirmed owner, physical resource, and detached normalized snapshot."""
-        with self._thread_lock, self._file_lock(exclusive=True, require_concrete=True) as lock_fd:
+        file_lock = (
+            self._file_lock(exclusive=True, require_concrete=True, create_if_missing=False)
+            if require_existing_lock
+            else self._file_lock(exclusive=True, require_concrete=True)
+        )
+        with self._thread_lock, file_lock as lock_fd:
             snapshot = self._load_snapshot()
             if snapshot is None:
                 raise FileNotFoundError("budget ledger requires an existing snapshot")
@@ -2557,6 +2562,7 @@ class FileBudgetLedger:
         *,
         exclusive: bool,
         require_concrete: bool = False,
+        create_if_missing: bool = True,
         outcome_identity: tuple[str, str] | None = None,
     ) -> Iterator[int]:
         """Hold the stable lockfile for one complete read or publication."""
@@ -2575,7 +2581,9 @@ class FileBudgetLedger:
             hash((parent.st_dev, parent.st_ino, self._path.name)) % len(_LEDGER_THREAD_GATES)
         ]
         concrete = require_concrete or self._expected_resource_identity is not None
-        flags = os.O_RDWR | os.O_CREAT | getattr(os, "O_CLOEXEC", 0)
+        flags = os.O_RDWR | getattr(os, "O_CLOEXEC", 0)
+        if create_if_missing:
+            flags |= os.O_CREAT
         if concrete:
             nofollow = getattr(os, "O_NOFOLLOW", 0)
             if not nofollow:

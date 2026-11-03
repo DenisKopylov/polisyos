@@ -2215,8 +2215,15 @@ def test_actual_retained_source_drives_effect_writer_and_marks_bridge(actual_n4_
         value=source_record,
         kind=current._EFFECT_OBLIGATION_SOURCE_KIND,
         inputs=(
-            artifacts.InputRef(
-                artifact_id=bridge_owner._verifier_provenance_ref.artifact_id,
+            artifacts.input_ref_from_artifact_ref(
+                artifacts.ArtifactRef(
+                    artifact_id=artifacts.ArtifactID(bridge_record.verifier_provenance_ref),
+                    kind=current._PROMOTION_EVIDENCE_VERIFIER_KIND,
+                    media_type="text/plain",
+                    manifest_profile_sha256=(
+                        bridge_record.verifier_provenance_manifest_profile_sha256
+                    ),
+                ),
                 role="unowned_source_input",
             ),
         ),

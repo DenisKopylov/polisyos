@@ -3025,6 +3025,157 @@ def _independence_line(line_id: str, *, primary_source: str) -> dict[str, Any]:
     }
 
 
+def test_n9_fresh_repository_replays_tenant_owned_verifier_without_claiming_it(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    cas_path = tmp_path / "cas"
+    first_store = FileSystemCAS(cas_path, ownership_enforced=True, ownership_requires_scope=False)
+    first = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(store=first_store)
+    input_a = CanonicalPromotionInput(
+        design_problem_binding=_problem_binding(), candidate_summary=_summary()
+    )
+    input_b = input_a.model_copy(
+        update={"candidate_summary": _summary().model_copy(update={"candidate_id": "candidate-b"})}
+    )
+
+    def produce(
+        repository: Any, promotion_input: CanonicalPromotionInput, name: str
+    ) -> ArtifactRef:
+        return repository.persist_effective_independence(
+            promotion_input=promotion_input,
+            evidence_lines=(_independence_line(name, primary_source=name),),
+            portfolio_designs=(_independence_portfolio_design(),),
+            graph_id=f"effective-independence:{name}",
+        )
+
+    def resolve(
+        repository: Any, bridge: ArtifactRef, promotion_input: CanonicalPromotionInput
+    ) -> Any:
+        return repository.resolve_with_credal_reference(
+            bridge_ref=bridge,
+            promotion_input=promotion_input,
+            evidence_kind="effective_independence",
+        )[0]
+
+    with tenant_scope(None, tenant_id="tenant-a"):
+        bridge_a = produce(first, input_a, "source-a")
+        assert resolve(first, bridge_a, input_a).status == "established"
+    with tenant_scope(None, tenant_id="tenant-b"):
+        bridge_b = produce(first, input_b, "source-b")
+        assert resolve(first, bridge_b, input_b).status == "established"
+        assert resolve(first, bridge_a, input_a).status == "not_established"
+
+    # Reopen the same durable ownership index with no active tenant.
+    second_store = FileSystemCAS(cas_path, ownership_enforced=True, ownership_requires_scope=False)
+    second = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(store=second_store)
+    for tenant, bridge, promotion_input in (
+        ("tenant-a", bridge_a, input_a),
+        ("tenant-b", bridge_b, input_b),
+    ):
+        with tenant_scope(None, tenant_id=tenant):
+            assert resolve(second, bridge, promotion_input).status == "established"
+    with tenant_scope(None, tenant_id="tenant-a"):
+        assert resolve(second, bridge_b, input_b).status == "not_established"
+    with pytest.raises(ArtifactOwnershipError):
+        second_store.put_bytes(
+            promotion_sequence_module._PROMOTION_EVIDENCE_VERIFIER_BYTES,
+            core_artifacts.ArtifactWriteOptions(
+                kind=promotion_sequence_module._PROMOTION_EVIDENCE_VERIFIER_KIND,
+                media_type="text/plain",
+            ),
+        )
+
+    # A v3-shaped record omits the new field and replays with default-owner checks.
+    selector_a = core_artifacts.ArtifactRef(
+        artifact_id=core_artifacts.ArtifactID(bridge_a.artifact_id),
+        kind=promotion_sequence_module._PROMOTION_EVIDENCE_BRIDGE_KIND,
+        media_type="application/vnd.polisyos.chronology+json",
+        manifest_profile_sha256=bridge_a.manifest_profile_sha256,
+    )
+    with tenant_scope(None, tenant_id="tenant-a"):
+        payload_a = json.loads(second_store.get_bytes(selector_a))
+        legacy_payload = dict(payload_a)
+        legacy_payload["schema_version"] = (
+            "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v3"
+        )
+        legacy_payload.pop("verifier_provenance_manifest_profile_sha256")
+        legacy = promotion_sequence_module.N9PromotionEvidenceBridgeRecord.model_validate(
+            legacy_payload
+        )
+        assert legacy.model_dump(mode="json", exclude_none=True) == legacy_payload
+        legacy_semantic = legacy.model_dump(mode="json")
+        assert "verifier_provenance_manifest_profile_sha256" not in legacy_semantic
+        source_inputs = second_store.get_manifest(selector_a).inputs
+        legacy_ref, _, _ = promotion_sequence_module._persist_model(
+            store=second_store,
+            value=legacy,
+            kind=promotion_sequence_module._PROMOTION_EVIDENCE_BRIDGE_KIND,
+            inputs=source_inputs,
+            selected_profile=True,
+        )
+        assert json.loads(second_store.get_bytes(legacy_ref)) == legacy_payload
+        old_bridge = bridge_a.model_copy(
+            update={
+                "artifact_id": str(legacy_ref.artifact_id),
+                "uri": f"cas://{legacy_ref.artifact_id}",
+                "content_hash": gy_content_hash(legacy_semantic),
+                "schema_ref": legacy_payload["schema_version"],
+                "version": "v3",
+                "manifest_profile_sha256": legacy_ref.manifest_profile_sha256,
+            }
+        )
+        assert resolve(second, old_bridge, input_a).status == "established"
+        with pytest.raises(ValueError, match="evidence_bridge_verifier_profile_missing"):
+            promotion_sequence_module.N9PromotionEvidenceBridgeRecord.model_validate(
+                {
+                    key: value
+                    for key, value in payload_a.items()
+                    if key != "verifier_provenance_manifest_profile_sha256"
+                }
+            )
+        wrong_profile = promotion_sequence_module.N9PromotionEvidenceBridgeRecord.model_validate(
+            {**payload_a, "verifier_provenance_manifest_profile_sha256": _hash("f")}
+        )
+        wrong_ref, _, _ = promotion_sequence_module._persist_model(
+            store=second_store,
+            value=wrong_profile,
+            kind=promotion_sequence_module._PROMOTION_EVIDENCE_BRIDGE_KIND,
+            inputs=source_inputs,
+            selected_profile=True,
+        )
+        wrong_bridge = bridge_a.model_copy(
+            update={
+                "artifact_id": str(wrong_ref.artifact_id),
+                "uri": f"cas://{wrong_ref.artifact_id}",
+                "content_hash": gy_content_hash(wrong_profile.model_dump(mode="json")),
+                "manifest_profile_sha256": wrong_ref.manifest_profile_sha256,
+            }
+        )
+        assert resolve(second, wrong_bridge, input_a).status == "not_established"
+
+    # Both bridges retain their own selected view of the same verifier bytes.
+    selector = core_artifacts.ArtifactRef(
+        artifact_id=core_artifacts.ArtifactID(bridge_b.artifact_id),
+        kind=promotion_sequence_module._PROMOTION_EVIDENCE_BRIDGE_KIND,
+        media_type="application/vnd.polisyos.chronology+json",
+        manifest_profile_sha256=bridge_b.manifest_profile_sha256,
+    )
+    with tenant_scope(None, tenant_id="tenant-b"):
+        payload = json.loads(second_store.get_bytes(selector))
+        profile = payload["verifier_provenance_manifest_profile_sha256"]
+        verifier_id = core_artifacts.ArtifactID(payload["verifier_provenance_ref"])
+        assert verifier_id == core_artifacts.ArtifactID(
+            promotion_sequence_module._raw_hash(
+                promotion_sequence_module._PROMOTION_EVIDENCE_VERIFIER_BYTES
+            )
+        )
+        second_store._manifest_path_for_ref(verifier_id, profile).unlink()
+        assert resolve(second, bridge_b, input_b).status == "not_established"
+
+
 def test_real_dependent_independence_graph_refuses_legacy_true(
     tmp_path: Path,
 ) -> None:

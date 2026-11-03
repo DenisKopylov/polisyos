@@ -691,6 +691,19 @@ call cost. A live `BudgetState` shares one reconciliation owner by object identi
 preexisting nonzero spend without an established projection basis refuses rather
 than guessing whether it already includes producer costs.
 
+Capacity inspection is separate from a physical reservation. The canonical
+`producer_budget` owner exposes a current advisory observation and a narrower
+`BudgetInvocationExhaustionWitness` for standard capacity exhausted by immutable
+terminal invocation records. Historical verification takes the independently
+selected original run and policy, reads the existing ledger/lock without creating
+or configuring either, and checks those exact terminal records. It does not
+reconstruct an old protected balance or old snapshot anchor. Unknown, pending or
+missing evidence stays `not_established`; positive availability is not a permit.
+The recursive consumer must bind this witness to its actual completed prefix and
+stop. It must retain `physical_need_not_established` when the unstarted child's
+need for physical work has not been established; a cheaper action needs its own
+admission. The current ledger schema remains `1.8`.
+
 The observation also retains the existing Core producer request digest as
 `producer_request_ref`. The caller-input hash names another quantity and is not
 a claim to recompute Core's tenant/sanitizer/caching contract. The canonical Core

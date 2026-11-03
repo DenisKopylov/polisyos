@@ -34,19 +34,297 @@ from polisyos.scientist.orchestration.engine.budget_ledger import (
     BudgetLedgerReentryBudgetScope,
     BudgetLedgerReentryBudgetWindow,
     BudgetLedgerSnapshot,
+    FileBudgetLedger,
     _reentry_add,
 )
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 
 __all__ = [
+    "BudgetInvocationCapacityObservation",
+    "BudgetInvocationExhaustionWitness",
     "ProducerBudgetObservation",
     "ProducerBudgetObserver",
     "ProducerBudgetSourceError",
+    "verify_standard_invocation_exhaustion_historical",
 ]
 
 
 class ProducerBudgetSourceError(ValueError):
     """The current selected run's budget basis could not be established."""
+
+
+class BudgetInvocationExhaustionWitness(BaseModel):
+    """Terminal unit facts sufficient to replay standard-quota exhaustion.
+
+    The producing partial artifact must bind this witness to the actual stop.
+    This proves no protected balance, past snapshot hash, or future permit.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["scientist.n5_standard_invocation_exhaustion.v1"] = (
+        "scientist.n5_standard_invocation_exhaustion.v1"
+    )
+    run_binding: BudgetLedgerProducerRunBinding
+    settlement_owner: tuple[str, str, str]
+    resource_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    profile_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    standard_limit_units: int = Field(gt=0, strict=True)
+    source_revision: int = Field(ge=1, strict=True)
+    terminal_witnesses: tuple[tuple[str, int], ...] = Field(min_length=1)
+    not_a_permit: Literal[True] = True
+
+    @model_validator(mode="after")
+    def _validate_terminal_witnesses(self) -> BudgetInvocationExhaustionWitness:
+        ids = tuple(item[0] for item in self.terminal_witnesses)
+        if (
+            len(self.terminal_witnesses) != self.standard_limit_units
+            or ids != tuple(sorted(set(ids)))
+            or any(
+                len(event_id) != 64
+                or any(char not in "0123456789abcdef" for char in event_id)
+                or type(event_revision) is not int
+                or event_revision < 1
+                or event_revision > self.source_revision
+                for event_id, event_revision in self.terminal_witnesses
+            )
+        ):
+            raise ValueError("invocation_exhaustion_witness_invalid")
+        return self
+
+
+class BudgetInvocationCapacityObservation(BaseModel):
+    """A current quota view, never a reservation or a general N5 permit.
+
+    Only terminal-witness exhaustion is replayable against the same durable
+    owner. An available result is advisory for the captured snapshot only.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["scientist.n5_standard_invocation_capacity.v1"] = (
+        "scientist.n5_standard_invocation_capacity.v1"
+    )
+    status: Literal["available", "exhausted", "not_established"]
+    predicate_basis: Literal["independently_reconciled", "not_established"]
+    reason_code: str | None = None
+    run_binding: BudgetLedgerProducerRunBinding
+    settlement_owner: tuple[str, str, str]
+    resource_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    profile_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    standard_limit_units: int | None = Field(default=None, ge=0, strict=True)
+    standard_remaining_units: int | None = Field(default=None, ge=0, strict=True)
+    protected_limit_units: int | None = Field(default=None, ge=0, strict=True)
+    protected_remaining_units: int | None = Field(default=None, ge=0, strict=True)
+    source_revision: int | None = Field(default=None, ge=0, strict=True)
+    source_anchor: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    terminal_witnesses: tuple[tuple[str, int], ...] = ()
+    not_a_permit: Literal[True] = True
+
+    @property
+    def exhaustion_witness(self) -> BudgetInvocationExhaustionWitness | None:
+        """Select only the replayable exhausted facts; other fields remain advisory."""
+        if self.status != "exhausted":
+            return None
+        if (
+            self.profile_digest is None
+            or self.standard_limit_units is None
+            or self.source_revision is None
+        ):
+            raise ValueError("invocation_exhaustion_observation_incomplete")
+        return BudgetInvocationExhaustionWitness(
+            run_binding=self.run_binding,
+            settlement_owner=self.settlement_owner,
+            resource_digest=self.resource_digest,
+            profile_digest=self.profile_digest,
+            standard_limit_units=self.standard_limit_units,
+            source_revision=self.source_revision,
+            terminal_witnesses=self.terminal_witnesses,
+        )
+
+    @model_validator(mode="after")
+    def _validate_capacity_projection(self) -> BudgetInvocationCapacityObservation:
+        measurements = (
+            self.profile_digest,
+            self.standard_limit_units,
+            self.standard_remaining_units,
+            self.protected_limit_units,
+            self.protected_remaining_units,
+            self.source_revision,
+            self.source_anchor,
+        )
+        if self.status == "not_established":
+            if (
+                self.predicate_basis != "not_established"
+                or not self.reason_code
+                or any(value is not None for value in measurements)
+                or self.terminal_witnesses
+            ):
+                raise ValueError("invocation_capacity_unknown_projection_invalid")
+            return self
+        if (
+            self.predicate_basis != "independently_reconciled"
+            or self.reason_code is not None
+            or any(value is None for value in measurements)
+        ):
+            raise ValueError("invocation_capacity_projection_incomplete")
+        limit = self.standard_limit_units
+        remaining = self.standard_remaining_units
+        protected_limit = self.protected_limit_units
+        protected_remaining = self.protected_remaining_units
+        revision = self.source_revision
+        if (
+            limit is None
+            or remaining is None
+            or revision is None
+            or protected_limit is None
+            or protected_remaining is None
+        ):
+            raise ValueError("invocation_capacity_projection_incomplete")
+        witnesses = self.terminal_witnesses
+        ids = tuple(item[0] for item in witnesses)
+        if (
+            limit <= 0
+            or protected_remaining > protected_limit
+            or remaining > limit
+            or len(witnesses) != limit - remaining
+            or ids != tuple(sorted(set(ids)))
+            or any(
+                len(event_id) != 64
+                or any(char not in "0123456789abcdef" for char in event_id)
+                or type(event_revision) is not int
+                or event_revision < 1
+                or event_revision > revision
+                for event_id, event_revision in witnesses
+            )
+            or (self.status == "exhausted") != (remaining == 0)
+        ):
+            raise ValueError("invocation_capacity_projection_invalid")
+        return self
+
+
+def _capacity_resource_digest(resource: tuple[int, int, str, int, int]) -> str:
+    encoded = json.dumps(resource, ensure_ascii=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _capacity_store_snapshot(
+    store: BudgetMiddleware, *, require_existing_lock: bool = False
+) -> tuple[
+    tuple[str, str, str], tuple[int, int, str, int, int], tuple[int, str], BudgetLedgerSnapshot
+]:
+    """Read the exact file owner, refusing shadowed source-boundary methods."""
+    if type(store) is not BudgetMiddleware or "_continuation_state" in vars(store):
+        raise ValueError("invocation_capacity_source_shadowed")
+    with store._lock:
+        ledger = store._ledger
+        if type(ledger) is not FileBudgetLedger or any(
+            name in vars(ledger)
+            for name in (
+                "_continuation_state",
+                "_file_lock",
+                "_load_snapshot",
+                "_read_snapshot",
+                "_resource_identity",
+                "_confirm_snapshot_durability",
+                "_normalize_snapshot",
+            )
+        ):
+            raise ValueError("invocation_capacity_source_shadowed")
+        if require_existing_lock:
+            return FileBudgetLedger._continuation_state(ledger, require_existing_lock=True)
+        return FileBudgetLedger._continuation_state(ledger)
+
+
+def _validate_exhaustion_witness(witness: object) -> BudgetInvocationExhaustionWitness:
+    if type(witness) is not BudgetInvocationExhaustionWitness:
+        raise ProducerBudgetSourceError("invocation_exhaustion_witness_untyped")
+    try:
+        return BudgetInvocationExhaustionWitness.model_validate_json(
+            witness.model_dump_json(), strict=True
+        )
+    except (TypeError, ValueError) as exc:
+        raise ProducerBudgetSourceError("invocation_exhaustion_witness_invalid") from exc
+
+
+def _verify_exhaustion_terminal_records(
+    snapshot: BudgetLedgerSnapshot,
+    profile: BudgetLedgerInvocationProfile,
+    witness: BudgetInvocationExhaustionWitness,
+) -> None:
+    for operation_id, revision in witness.terminal_witnesses:
+        record = snapshot.invocation_reservations.get(operation_id)
+        if (
+            type(record) is not BudgetLedgerInvocationReservation
+            or record.run_id != profile.run_binding.run_id
+            or record.profile_digest != profile.profile_digest
+            or record.purpose != "standard"
+            or record.units != 1
+            or record.status not in {"completed", "failed"}
+            or record.revision != revision
+            or revision > witness.source_revision
+        ):
+            raise ProducerBudgetSourceError("invocation_exhaustion_witness_mismatch")
+
+
+def verify_standard_invocation_exhaustion_historical(
+    *,
+    settlement_store: BudgetMiddleware,
+    expected_run_binding: BudgetLedgerProducerRunBinding,
+    expected_policy: BudgetInvocationQuotaPolicy,
+    witness: BudgetInvocationExhaustionWitness,
+) -> bool:
+    """Replay an issued stop against its existing owner without configuring a budget.
+
+    The completed-run caller must independently reopen its selected policy and
+    original run binding, and authenticate the stop artifact carrying witness.
+    This verifies standard terminal units, not physical need or a future permit.
+
+    Args:
+        settlement_store: The completed run's already selected durable owner.
+        expected_run_binding: Original binding established by the run owner.
+        expected_policy: Policy independently reopened from selected input.
+        witness: Terminal-only evidence from the persisted stop artifact.
+
+    Returns:
+        True when the exact historical terminal units remain reconciled.
+
+    Raises:
+        ProducerBudgetSourceError: If selection, owner, or evidence cannot be established.
+    """
+    if (
+        type(expected_run_binding) is not BudgetLedgerProducerRunBinding
+        or type(expected_policy) is not BudgetInvocationQuotaPolicy
+    ):
+        raise ProducerBudgetSourceError("invocation_exhaustion_selection_untyped")
+    checked = _validate_exhaustion_witness(witness)
+    try:
+        binding = BudgetLedgerProducerRunBinding.model_validate_json(
+            expected_run_binding.model_dump_json(), strict=True
+        )
+        policy = BudgetInvocationQuotaPolicy.model_validate_json(
+            expected_policy.model_dump_json(), strict=True
+        )
+        profile = BudgetLedgerInvocationProfile.from_policy(binding, policy)
+        owner, resource, anchor, snapshot = _capacity_store_snapshot(
+            settlement_store, require_existing_lock=True
+        )
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise ProducerBudgetSourceError("invocation_exhaustion_source_unavailable") from exc
+    if (
+        checked.run_binding != binding
+        or checked.settlement_owner != owner
+        or checked.resource_digest != _capacity_resource_digest(resource)
+        or checked.profile_digest != profile.profile_digest
+        or checked.standard_limit_units != profile.total_units - profile.protected_units
+        or type(snapshot) is not BudgetLedgerSnapshot
+        or snapshot.revision != anchor[0]
+        or snapshot.invocation_profiles.get(binding.run_id) != profile
+        or anchor[0] < checked.source_revision
+    ):
+        raise ProducerBudgetSourceError("invocation_exhaustion_owner_mismatch")
+    _verify_exhaustion_terminal_records(snapshot, profile, checked)
+    return True
 
 
 class _LiveProducerReconciliation:
@@ -317,6 +595,160 @@ class ProducerBudgetObserver:
             if profile is not None and profile.protected_units
             else "no_guarantee"
         )
+
+    def _unknown_standard_capacity(self, reason: str) -> BudgetInvocationCapacityObservation:
+        return BudgetInvocationCapacityObservation(
+            status="not_established",
+            predicate_basis="not_established",
+            reason_code=reason,
+            run_binding=self._binding,
+            settlement_owner=self._owner,
+            resource_digest=_capacity_resource_digest(self._reconciliation.resource),
+        )
+
+    def _capacity_owner_snapshot(
+        self,
+    ) -> tuple[
+        tuple[str, str, str], tuple[int, int, str, int, int], tuple[int, str], BudgetLedgerSnapshot
+    ]:
+        """Read the exact file owner, refusing shadowed source-boundary methods."""
+        return _capacity_store_snapshot(self._store)
+
+    def observe_standard_invocation_capacity(self) -> BudgetInvocationCapacityObservation:
+        """Read current standard quota without consuming a unit or granting a permit.
+
+        A zero partition, unavailable profile, or unresolved invocation is not
+        promoted to a historical stop. USD and the need for N5 remain separate.
+        """
+        with self._lock:
+            try:
+                ProducerBudgetObserver.require_bound_state(self, self._state)
+            except ProducerBudgetSourceError:
+                return ProducerBudgetObserver._unknown_standard_capacity(
+                    self, "budget_state_not_established"
+                )
+            profile = self._invocation_profile
+            if self._invocation_selection_pending or profile is None:
+                return ProducerBudgetObserver._unknown_standard_capacity(
+                    self, "quota_profile_not_established"
+                )
+            if self.invocation_purpose != "standard":
+                return ProducerBudgetObserver._unknown_standard_capacity(
+                    self, "standard_purpose_not_selected"
+                )
+            standard_limit = profile.total_units - profile.protected_units
+            if standard_limit <= 0:
+                return ProducerBudgetObserver._unknown_standard_capacity(
+                    self, "zero_standard_partition_not_established"
+                )
+            try:
+                if "_capacity_owner_snapshot" in vars(self):
+                    raise ValueError("invocation_capacity_source_shadowed")
+                owner, resource, anchor, snapshot = ProducerBudgetObserver._capacity_owner_snapshot(
+                    self
+                )
+            except (OSError, RuntimeError, TypeError, ValueError):
+                return ProducerBudgetObserver._unknown_standard_capacity(
+                    self, "quota_source_not_established"
+                )
+            if (
+                owner != self._owner
+                or resource != self._reconciliation.resource
+                or type(snapshot) is not BudgetLedgerSnapshot
+                or snapshot.revision != anchor[0]
+                or snapshot.invocation_profiles.get(self._binding.run_id) != profile
+                or (
+                    self._reentry_window is not None
+                    and snapshot.reentry_budget_windows.get(self._reentry_window.window_id)
+                    != self._reentry_window
+                )
+            ):
+                return ProducerBudgetObserver._unknown_standard_capacity(
+                    self, "quota_owner_basis_not_established"
+                )
+            records = tuple(
+                record
+                for record in snapshot.invocation_reservations.values()
+                if record.run_id == self._binding.run_id
+            )
+            if any(record.status not in {"completed", "failed"} for record in records):
+                return ProducerBudgetObserver._unknown_standard_capacity(
+                    self, "quota_invocation_unresolved"
+                )
+            standard = tuple(record for record in records if record.purpose == "standard")
+            protected = tuple(record for record in records if record.purpose != "standard")
+            remaining = standard_limit - sum(record.units for record in standard)
+            protected_remaining = profile.protected_units - sum(
+                record.units for record in protected
+            )
+            if remaining < 0 or protected_remaining < 0:
+                return ProducerBudgetObserver._unknown_standard_capacity(
+                    self, "quota_capacity_inconsistent"
+                )
+            return BudgetInvocationCapacityObservation(
+                status="exhausted" if remaining == 0 else "available",
+                predicate_basis="independently_reconciled",
+                run_binding=self._binding,
+                settlement_owner=owner,
+                resource_digest=_capacity_resource_digest(resource),
+                profile_digest=profile.profile_digest,
+                standard_limit_units=standard_limit,
+                standard_remaining_units=remaining,
+                protected_limit_units=profile.protected_units,
+                protected_remaining_units=protected_remaining,
+                source_revision=anchor[0],
+                source_anchor=anchor[1],
+                terminal_witnesses=tuple(
+                    sorted((record.operation_id, record.revision) for record in standard)
+                ),
+            )
+
+    def verify_standard_invocation_exhaustion(
+        self, witness: BudgetInvocationExhaustionWitness
+    ) -> bool:
+        """Replay immutable terminal units; no current or future permit is issued.
+
+        The caller must independently bind this witness to its actual
+        owner-produced stop artifact. A snapshot hash alone is not provenance.
+        """
+        checked = _validate_exhaustion_witness(witness)
+        with self._lock:
+            profile = self._invocation_profile
+            if (
+                checked.run_binding != self._binding
+                or checked.settlement_owner != self._owner
+                or checked.resource_digest
+                != _capacity_resource_digest(self._reconciliation.resource)
+                or self._invocation_selection_pending
+                or profile is None
+                or self.invocation_purpose != "standard"
+                or checked.profile_digest != profile.profile_digest
+                or checked.standard_limit_units != profile.total_units - profile.protected_units
+            ):
+                raise ProducerBudgetSourceError("invocation_exhaustion_basis_mismatch")
+            try:
+                if "_capacity_owner_snapshot" in vars(self):
+                    raise ValueError("invocation_capacity_source_shadowed")
+                owner, resource, anchor, snapshot = ProducerBudgetObserver._capacity_owner_snapshot(
+                    self
+                )
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                raise ProducerBudgetSourceError("invocation_exhaustion_source_unavailable") from exc
+            if (
+                owner != self._owner
+                or resource != self._reconciliation.resource
+                or type(snapshot) is not BudgetLedgerSnapshot
+                or snapshot.invocation_profiles.get(self._binding.run_id) != profile
+                or anchor[0] < checked.source_revision
+                or (
+                    self._reentry_window is not None
+                    and snapshot.reentry_budget_windows.get(self._reentry_window.window_id)
+                    != self._reentry_window
+                )
+            ):
+                raise ProducerBudgetSourceError("invocation_exhaustion_owner_mismatch")
+            _verify_exhaustion_terminal_records(snapshot, profile, checked)
+            return True
 
     def bind_invocation_policy_from_selected_owner(
         self,

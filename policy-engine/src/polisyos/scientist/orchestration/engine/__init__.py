@@ -5,6 +5,8 @@ from __future__ import annotations
 from importlib import import_module
 
 __all__ = [
+    "BudgetInvocationCapacityObservation",
+    "BudgetInvocationExhaustionWitness",
     "ATTR_CACHE_HIT",
     "ATTR_CELL_ID",
     "ATTR_DURATION_MS",
@@ -129,6 +131,14 @@ __all__ = [
 ]
 
 _EXPORTS = {
+    "BudgetInvocationCapacityObservation": (
+        "polisyos.scientist.orchestration.engine.producer_budget",
+        "BudgetInvocationCapacityObservation",
+    ),
+    "BudgetInvocationExhaustionWitness": (
+        "polisyos.scientist.orchestration.engine.producer_budget",
+        "BudgetInvocationExhaustionWitness",
+    ),
     "BudgetLedgerReentryBudgetScope": (
         "polisyos.scientist.orchestration.engine.budget_ledger",
         "BudgetLedgerReentryBudgetScope",

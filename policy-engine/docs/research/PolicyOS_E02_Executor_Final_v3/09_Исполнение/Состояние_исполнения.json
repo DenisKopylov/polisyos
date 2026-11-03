@@ -9241,6 +9241,40 @@
           "named_inputs": 28,
           "inputs_unchanged_during_run": true,
           "scope": "Full compiler/resolver and strict descriptor/profile planner modules; captured confidence_ledger80914361… precedes later independent readiness edit. No actual controller N7/served N5, installed or whole-current-tree qualification."
+        },
+        "quota_historical_owner": {
+          "output": "policy-engine/_cache/e02/lane01-capacity-historical/green-r1",
+          "observed": {
+            "PASS": 23
+          },
+          "named_inputs": 6,
+          "scope": "Readonly terminal standard-exhaustion owner, no completed-NL/recursive consumer claim"
+        },
+        "quota_historical_affected": {
+          "output": "policy-engine/_cache/e02/lane01-capacity-historical/affected-r1",
+          "observed": {
+            "PASS": 48
+          },
+          "named_inputs": 8,
+          "scope": "Existing quota/reentry/producer and exact policy/symlink controls"
+        },
+        "n9_scoped_verifier": {
+          "output": "policy-engine/_cache/e02/lane01-n9-cross-tenant-r2",
+          "observed": {
+            "PASS": 1
+          },
+          "named_inputs": 10,
+          "scope": "Actual same-CAS tenantA+tenantB producer/fresh-owner replay, foreign/tamper/removal; v3 synthetic only"
+        },
+        "generic_fiscal_strict_oracle": {
+          "output": "policy-engine/_cache/e02/lane01-served/fiscal-singleton-native-r5",
+          "observed": {
+            "PASS": 3
+          },
+          "named_inputs": 164,
+          "seconds": 37.79,
+          "peak_gib": 1.655,
+          "scope": "Declared synthetic fiscal singleton, real N4/N5/fresh same-process app; explicit sample+aggregate removal controls. Historical ancestor profile selection and configured candidate reentry are not established."
         }
       },
       "independent_component_reviews": {

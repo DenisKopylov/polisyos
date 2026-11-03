@@ -475,6 +475,72 @@ def test_postgres_fresh_app_ignores_unheaded_scenario_candidate_artifact(
     assert fetched.json()["scenario"]["manifest_hash"] == head.manifest_hash
 
 
+def test_postgres_acquisition_head_legacy_schema_migrates_without_profile_backfill(
+    postgres_dsn: str,
+    tmp_path: Path,
+) -> None:
+    """Migrate the real prior head schema and retain its unknown selected profile."""
+    psycopg = importlib.import_module("psycopg")
+    legacy_ref = frontier_helpers._sha("postgres-legacy-receipt")
+    route = frontier_helpers._sha("postgres-legacy-route")
+    with psycopg.connect(postgres_dsn) as connection:
+        connection.execute(
+            "CREATE TABLE runtime_acquisition_action_heads ("
+            "tenant_id TEXT NOT NULL, cell_id TEXT NOT NULL, run_id TEXT NOT NULL, "
+            "source_job_id TEXT NOT NULL, route_id TEXT NOT NULL, "
+            "action_generation INTEGER NOT NULL, head_generation INTEGER NOT NULL, "
+            "receipt_ref TEXT NOT NULL, receipt_sha256 TEXT NOT NULL, "
+            "durable_event_id TEXT NOT NULL, coarse_phase TEXT NOT NULL, "
+            "receipt_phase TEXT NOT NULL, recovery_state TEXT NOT NULL, job_id TEXT NOT NULL, "
+            "predecessor_receipt_ref TEXT, evaluation_frontier_before_ref TEXT, "
+            "evaluation_frontier_ref TEXT, created_at TIMESTAMPTZ NOT NULL, "
+            "PRIMARY KEY (tenant_id, cell_id, run_id, source_job_id, route_id, "
+            "action_generation, head_generation))"
+        )
+        connection.execute(
+            "INSERT INTO runtime_acquisition_action_heads "
+            "(tenant_id, cell_id, run_id, source_job_id, route_id, action_generation, "
+            "head_generation, receipt_ref, receipt_sha256, durable_event_id, coarse_phase, "
+            "receipt_phase, recovery_state, job_id, predecessor_receipt_ref, created_at) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            (
+                "tenant-a",
+                "cell-a",
+                "run-a",
+                "source-nl",
+                route,
+                1,
+                1,
+                legacy_ref,
+                legacy_ref,
+                "legacy-event",
+                "terminal",
+                "terminal",
+                "complete",
+                "legacy-job",
+                None,
+                "2026-01-01T00:00:00+00:00",
+            ),
+        )
+    store = ControlPlaneStore(
+        backend="postgres",
+        sqlite_path=tmp_path / "unused-legacy.sqlite3",
+        postgres_dsn=postgres_dsn,
+    )
+    scope = frontier_helpers._oracle_action_scope(frontier_helpers._key(), "postgres-legacy-route")
+    legacy = store.get_acquisition_action_head(**scope)
+    assert legacy is not None
+    assert legacy.receipt_ref == legacy_ref
+    assert legacy.receipt_manifest_profile_sha256 is None
+    assert store.get_acquisition_action_head_by_receipt(**scope, receipt_ref=legacy_ref) == legacy
+    reopened = ControlPlaneStore(
+        backend="postgres",
+        sqlite_path=tmp_path / "unused-reopen.sqlite3",
+        postgres_dsn=postgres_dsn,
+    )
+    assert reopened.get_acquisition_action_head(**scope) == legacy
+
+
 def test_postgres_acquisition_frontier_cas_race_is_linearizable(
     postgres_dsn: str,
     tmp_path: Path,
@@ -512,6 +578,11 @@ def test_postgres_acquisition_frontier_cas_race_is_linearizable(
         frontier_helpers._value("compiled-frontier-a", "tuple-frontier-a"),
         frontier_helpers._value("compiled-frontier-b", "tuple-frontier-b"),
     )
+    selected_receipts = tuple(
+        frontier_helpers._selected_receipt_ref(tmp_path, f"pg-selected-{index}", version=str(index))
+        for index in range(2)
+    )
+    assert all(ref.manifest_profile_sha256 is not None for ref in selected_receipts)
     barrier = threading.Barrier(2)
 
     def _compete(index: int) -> tuple[str, Any]:
@@ -528,6 +599,8 @@ def test_postgres_acquisition_frontier_cas_race_is_linearizable(
                 expected_ref=initial.frontier_ref,
                 route_id=f"frontier-race-{suffix}-{index}",
                 replacement=replacements[index],
+                receipt_ref=str(selected_receipts[index].artifact_id),
+                receipt_manifest_profile_sha256=selected_receipts[index].manifest_profile_sha256,
             )
         except ValueError as exc:
             return "conflict", exc
@@ -546,9 +619,34 @@ def test_postgres_acquisition_frontier_cas_race_is_linearizable(
         index for index, (outcome, _) in enumerate(outcomes) if outcome == "committed"
     )
     losing_index = 1 - winning_index
+    assert winning_commit.head.receipt_ref == str(selected_receipts[winning_index].artifact_id)
+    assert (
+        winning_commit.head.receipt_manifest_profile_sha256
+        == selected_receipts[winning_index].manifest_profile_sha256
+    )
     assert stores[0].read_acquisition_evaluation_frontier(key) == winning_commit.frontier
     assert stores[1].read_acquisition_evaluation_frontier(key) == winning_commit.frontier
     assert stores[1].get_acquisition_evaluation_frontier_by_ref(initial.frontier_ref) == initial
+    reopened = ControlPlaneStore(
+        backend="postgres",
+        sqlite_path=tmp_path / "unused-pg-reopen.sqlite3",
+        postgres_dsn=postgres_dsn,
+    )
+    winner_scope = {
+        "tenant_id": key.tenant_id,
+        "cell_id": key.cell_id,
+        "run_id": "run-a",
+        "source_job_id": key.source_job_id,
+        "route_id": frontier_helpers._sha(f"frontier-race-{suffix}-{winning_index}"),
+        "action_generation": 1,
+    }
+    assert reopened.get_acquisition_action_head(**winner_scope) == winning_commit.head
+    assert (
+        reopened.get_acquisition_action_head_by_receipt(
+            **winner_scope, receipt_ref=winning_commit.head.receipt_ref
+        )
+        == winning_commit.head
+    )
     assert (
         stores[0].get_acquisition_action_head(
             tenant_id=key.tenant_id,

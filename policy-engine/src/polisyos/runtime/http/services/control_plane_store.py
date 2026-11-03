@@ -1345,6 +1345,7 @@ class AcquisitionActionHeadRecord:
 
     evaluation_frontier_before_ref: str | None = None
     evaluation_frontier_ref: str | None = None
+    receipt_manifest_profile_sha256: str | None = None
 
 
 @dataclass(frozen=True)
@@ -4806,7 +4807,8 @@ class ControlPlaneStore:
                    action_generation, head_generation, receipt_ref, receipt_sha256,
                    durable_event_id, coarse_phase, receipt_phase, recovery_state,
                    job_id, predecessor_receipt_ref, created_at,
-                   evaluation_frontier_before_ref, evaluation_frontier_ref
+                   evaluation_frontier_before_ref, evaluation_frontier_ref,
+                   receipt_manifest_profile_sha256
             FROM runtime_acquisition_action_heads
             WHERE tenant_id = ? AND cell_id = ? AND run_id = ?
               AND source_job_id = ? AND route_id = ? AND action_generation = ?
@@ -4839,7 +4841,8 @@ class ControlPlaneStore:
                    action_generation, head_generation, receipt_ref, receipt_sha256,
                    durable_event_id, coarse_phase, receipt_phase, recovery_state,
                    job_id, predecessor_receipt_ref, created_at,
-                   evaluation_frontier_before_ref, evaluation_frontier_ref
+                   evaluation_frontier_before_ref, evaluation_frontier_ref,
+                   receipt_manifest_profile_sha256
             FROM runtime_acquisition_action_heads
             WHERE tenant_id = ? AND cell_id = ? AND run_id = ?
               AND source_job_id = ? AND route_id = ? AND action_generation = ?
@@ -4885,7 +4888,8 @@ class ControlPlaneStore:
                    heads.receipt_ref, heads.receipt_sha256, heads.durable_event_id,
                    heads.coarse_phase, heads.receipt_phase, heads.recovery_state,
                    heads.job_id, heads.predecessor_receipt_ref, heads.created_at,
-                   heads.evaluation_frontier_before_ref, heads.evaluation_frontier_ref
+                   heads.evaluation_frontier_before_ref, heads.evaluation_frontier_ref,
+                   heads.receipt_manifest_profile_sha256
             FROM runtime_acquisition_action_heads AS heads
             WHERE heads.tenant_id = ? AND heads.cell_id = ? AND heads.run_id = ?
               AND heads.source_job_id = ? AND heads.route_id = ?
@@ -4930,7 +4934,8 @@ class ControlPlaneStore:
                    heads.receipt_ref, heads.receipt_sha256, heads.durable_event_id,
                    heads.coarse_phase, heads.receipt_phase, heads.recovery_state,
                    heads.job_id, heads.predecessor_receipt_ref, heads.created_at,
-                   heads.evaluation_frontier_before_ref, heads.evaluation_frontier_ref
+                   heads.evaluation_frontier_before_ref, heads.evaluation_frontier_ref,
+                   heads.receipt_manifest_profile_sha256
             FROM runtime_acquisition_action_heads AS heads
             WHERE heads.tenant_id = ? AND heads.cell_id = ? AND heads.run_id = ?
               AND heads.source_job_id = ?
@@ -4968,19 +4973,25 @@ class ControlPlaneStore:
         job_id: str,
         predecessor_receipt_ref: str | None,
         frontier_cas: AcquisitionEvaluationFrontierCAS | None = None,
+        receipt_manifest_profile_sha256: str | None = None,
     ) -> AcquisitionActionHeadRecord:
         """Append one predecessor-consistent action head under the job lease.
 
         When a frontier CAS is supplied, its shared candidate/task selector
         transition is part of this same SQL transaction. Legacy callers retain
         the original route-only behavior and must not emit B09 source-retained
-        terminals.
+        terminals. A selected receipt profile cannot be dropped by a successor;
+        the store never infers a profile for a different or historical receipt.
         """
 
         if action_generation < 1 or expected_head_generation < 0:
             raise ValueError("acquisition_action_generation_invalid")
         if receipt_ref != receipt_sha256 or not _is_sha256_ref(receipt_ref):
             raise ValueError("acquisition_action_receipt_binding_invalid")
+        if receipt_manifest_profile_sha256 is not None and not _is_sha256_ref(
+            receipt_manifest_profile_sha256
+        ):
+            raise ValueError("acquisition_action_receipt_manifest_profile_invalid")
         if frontier_cas is not None:
             _validate_acquisition_evaluation_frontier_cas(frontier_cas)
             if (
@@ -5040,13 +5051,48 @@ class ControlPlaneStore:
                 or (current is None and predecessor_receipt_ref is not None)
             ):
                 raise ValueError("acquisition_action_predecessor_conflict")
+            if (
+                current is not None
+                and current.receipt_manifest_profile_sha256 is not None
+                and receipt_manifest_profile_sha256 is None
+            ):
+                raise ValueError("acquisition_action_receipt_manifest_profile_downgrade")
+            prior_receipts = self._fetchall(
+                """
+                SELECT receipt_manifest_profile_sha256
+                FROM runtime_acquisition_action_heads
+                WHERE tenant_id = ? AND cell_id = ? AND run_id = ?
+                  AND source_job_id = ? AND route_id = ? AND action_generation = ?
+                  AND receipt_ref = ?
+                """,
+                (
+                    tenant_id,
+                    cell_id,
+                    run_id,
+                    source_job_id,
+                    route_id,
+                    action_generation,
+                    receipt_ref,
+                ),
+            )
+            if prior_receipts and (
+                receipt_manifest_profile_sha256 is not None
+                or any(row["receipt_manifest_profile_sha256"] is not None for row in prior_receipts)
+            ):
+                if any(
+                    row["receipt_manifest_profile_sha256"] != receipt_manifest_profile_sha256
+                    for row in prior_receipts
+                ):
+                    raise ValueError("acquisition_action_receipt_manifest_profile_conflict")
+                raise ValueError("acquisition_action_receipt_duplicate")
             next_generation = expected_head_generation + 1
             created_at = _utc_now()
             insert_columns = """tenant_id, cell_id, run_id, source_job_id, route_id,
                 action_generation, head_generation, receipt_ref, receipt_sha256,
                 durable_event_id, coarse_phase, receipt_phase, recovery_state,
                 job_id, predecessor_receipt_ref, created_at,
-                evaluation_frontier_before_ref, evaluation_frontier_ref"""
+                evaluation_frontier_before_ref, evaluation_frontier_ref,
+                receipt_manifest_profile_sha256"""
             values = (
                 tenant_id,
                 cell_id,
@@ -5066,13 +5112,14 @@ class ControlPlaneStore:
                 _iso(created_at),
                 frontier_cas.expected_frontier_ref if frontier_cas is not None else None,
                 committed_frontier.frontier_ref if committed_frontier is not None else None,
+                receipt_manifest_profile_sha256,
             )
             try:
                 if fence is None:
                     affected_rows = self._execute(
                         "INSERT INTO runtime_acquisition_action_heads "
                         f"({insert_columns}) "
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         values,
                     )
                 else:
@@ -5084,7 +5131,7 @@ class ControlPlaneStore:
                     affected_rows = self._execute(
                         "INSERT INTO runtime_acquisition_action_heads "
                         f"({insert_columns}) "
-                        f"SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? "
+                        f"SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? "
                         f"WHERE EXISTS (SELECT 1 FROM control_jobs WHERE {where})",
                         (*values, *where_params),
                     )
@@ -5108,10 +5155,13 @@ class ControlPlaneStore:
             if (
                 loaded is None
                 or loaded.head_generation != next_generation
+                or loaded.receipt_ref != receipt_ref
+                or loaded.receipt_sha256 != receipt_sha256
                 or loaded.evaluation_frontier_ref
                 != (committed_frontier.frontier_ref if committed_frontier is not None else None)
                 or loaded.evaluation_frontier_before_ref
                 != (frontier_cas.expected_frontier_ref if frontier_cas is not None else None)
+                or loaded.receipt_manifest_profile_sha256 != receipt_manifest_profile_sha256
             ):
                 raise RuntimeError("acquisition_action_head_readback_failed")
             return loaded
@@ -5135,6 +5185,7 @@ class ControlPlaneStore:
         job_id: str,
         predecessor_receipt_ref: str | None,
         frontier_cas: AcquisitionEvaluationFrontierCAS,
+        receipt_manifest_profile_sha256: str | None = None,
     ) -> AcquisitionActionHeadFrontierCommit:
         """Append an action head and condition the shared evaluation frontier atomically."""
 
@@ -5156,6 +5207,7 @@ class ControlPlaneStore:
             job_id=job_id,
             predecessor_receipt_ref=predecessor_receipt_ref,
             frontier_cas=frontier_cas,
+            receipt_manifest_profile_sha256=receipt_manifest_profile_sha256,
         )
         if frontier_cas.replacement is None:
             frontier_ref = frontier_cas.expected_frontier_ref
@@ -8166,6 +8218,9 @@ class ControlPlaneStore:
         )
 
     def _row_to_acquisition_action_head(self, row: Any) -> AcquisitionActionHeadRecord:
+        receipt_profile = row["receipt_manifest_profile_sha256"]
+        if receipt_profile is not None and not _is_sha256_ref(receipt_profile):
+            raise RuntimeError("acquisition_action_receipt_manifest_profile_corrupt")
         return AcquisitionActionHeadRecord(
             tenant_id=str(row["tenant_id"]),
             cell_id=str(row["cell_id"]),
@@ -8197,6 +8252,7 @@ class ControlPlaneStore:
                 if row["evaluation_frontier_ref"] is not None
                 else None
             ),
+            receipt_manifest_profile_sha256=receipt_profile,
         )
 
     def _row_to_worker_lease(self, row: Any) -> ControlWorkerLeaseRecord:
@@ -8735,6 +8791,7 @@ class ControlPlaneStore:
                         predecessor_receipt_ref TEXT,
                         evaluation_frontier_before_ref TEXT,
                         evaluation_frontier_ref TEXT,
+                        receipt_manifest_profile_sha256 TEXT,
                         created_at TEXT NOT NULL,
                         PRIMARY KEY (
                             tenant_id, cell_id, run_id, source_job_id, route_id,
@@ -8951,7 +9008,11 @@ class ControlPlaneStore:
                             "PRAGMA table_info(runtime_acquisition_action_heads)"
                         )
                     }
-                    for column in ("evaluation_frontier_before_ref", "evaluation_frontier_ref"):
+                    for column in (
+                        "evaluation_frontier_before_ref",
+                        "evaluation_frontier_ref",
+                        "receipt_manifest_profile_sha256",
+                    ):
                         if column not in action_head_columns:
                             conn.execute(
                                 "ALTER TABLE runtime_acquisition_action_heads ADD COLUMN "
@@ -9188,8 +9249,9 @@ class ControlPlaneStore:
                     recovery_state TEXT NOT NULL,
                     job_id TEXT NOT NULL,
                     predecessor_receipt_ref TEXT,
-                        evaluation_frontier_before_ref TEXT,
-                        evaluation_frontier_ref TEXT,
+                    evaluation_frontier_before_ref TEXT,
+                    evaluation_frontier_ref TEXT,
+                    receipt_manifest_profile_sha256 TEXT,
                     created_at TIMESTAMPTZ NOT NULL,
                     PRIMARY KEY (
                         tenant_id, cell_id, run_id, source_job_id, route_id,
@@ -9205,6 +9267,10 @@ class ControlPlaneStore:
             cur.execute(
                 "ALTER TABLE runtime_acquisition_action_heads "
                 "ADD COLUMN IF NOT EXISTS evaluation_frontier_ref TEXT"
+            )
+            cur.execute(
+                "ALTER TABLE runtime_acquisition_action_heads "
+                "ADD COLUMN IF NOT EXISTS receipt_manifest_profile_sha256 TEXT"
             )
             cur.execute(
                 """

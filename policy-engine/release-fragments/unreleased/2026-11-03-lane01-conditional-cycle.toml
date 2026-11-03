@@ -103,3 +103,16 @@ migration = "Use selected references from each writer return and reopen the same
 generated_client_compatibility = "declared_compatible"
 generated_client_notes = "additive through the Runtime N5 body; shared client regeneration is required"
 limitations = "Synthetic model consistency and numerical error bounds do not establish empirical calibration, source currentness, scientific independence, observed-data admission or publication authority."
+
+[[compatibility_change]]
+id = "lane01-selected-acquisition-head-profile"
+change_class = "runtime-state-format"
+impact = "additive"
+surface = "existing Control acquisition action-head storage and fenced head/frontier transaction"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Persist the CAS writer-selected receipt manifest profile atomically with the existing head and frontier. All four readers reopen the nullable profile; malformed values, profiled-chain downgrade, receipt/profile rebinding and corrupt transactional readback refuse. Legacy null chains remain null. No new store or default-view backfill is introduced."
+migration = "The normal SQLite/PostgreSQL schema migrations add a nullable column without inventing historical values. Upgrade writers before emitting profiled heads. The lifecycle must supply the actual writer selector and verify selected content; store shape and transaction checks alone establish no authority."
+generated_client_compatibility = "not_applicable"
+limitations = "Forty SQLite cases and the existing legacy history profile pass; two native PostgreSQL cases are unrun because the test DSN is absent. This store component does not qualify the unfinished candidate terminal producer/history/consumer integration."

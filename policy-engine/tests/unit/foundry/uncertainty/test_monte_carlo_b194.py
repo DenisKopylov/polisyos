@@ -2117,6 +2117,146 @@ def test_b194_exact_symmetric_partial_draws_reach_fresh_normative_consumer(
     assert result.rights_audit[0].status is NormativeAuditStatus.UNEVALUATED
 
 
+def test_numeric_resolution_ledger_reaches_fresh_science_reader(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A real partial result uses the new grammar while legacy grammars stay closed."""
+    from polisyos.scientist.nodes.builtins.simulate.uncertainty_source_projection import (
+        PropagationReportV11,
+        PropagationReportV13,
+        _load_validated_uncertainty_source_read,
+        load_science_simulation_result_uncertainty_admission,
+    )
+
+    store, ctx, state = _build_node_context(
+        tmp_path,
+        run_id="R_b194_float32_output_resolution",
+        metric_values={"y": 0, "z": 0},
+        propagation_config={
+            "preferred_method": "monte_carlo",
+            "mc_n_samples": 100,
+            "mc_batch_size": 100,
+            "mc_min_valid_samples": 10,
+            "mc_seed": 194,
+            "compute_sensitivity": False,
+        },
+        propagation_sensitivity={"y": {"x": 1.0}, "z": {"x": 1.0}},
+    )
+    _, offset = _install_fixed_symmetric_draws(monkeypatch)
+
+    def build_fn(params, *, base_metric_values, nominal_params):
+        del params, base_metric_values, nominal_params
+
+        def fn(**current_params):
+            x = float(current_params["x"])
+            return {"y": 1e-50 if x < 0.0 else 1.0, "z": 2.0}
+
+        fn._sensitivity_map = {"y": {"x": 1.0}, "z": {"x": 1.0}}
+        return fn, {"x"}
+
+    monkeypatch.setattr(node_module, "_build_propagation_fn", build_fn)
+    produced = PropagateUncertaintyNode().execute(ctx, state)
+    assert produced.status == "ok"
+    assert offset == [100]
+    simulation_ref = produced.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
+    fresh_store = FileSystemCAS(tmp_path)
+    projection = _load_validated_uncertainty_source_read(fresh_store, simulation_ref)
+    assert type(projection.propagation_report) is PropagationReportV13
+    report = projection.propagation_report.model_dump(mode="json")
+    assert report["schema_version"] == "1.3"
+    ledger = report["draw_outcome_provenance"]
+    assert ledger["schema_version"] == "1.2"
+    assert ledger["output_numeric_profile"] == "float32_finite_support_v1"
+    assert ledger["successful_draw_count"] == 50
+    assert len(ledger["failure_records"]) == 50
+    assert all(
+        record["output_outcomes"]
+        == [
+            {
+                "output_metric_id": "y",
+                "outcome_code": "numeric_resolution_lost",
+                "error_type": "float32_projection_underflow",
+            }
+        ]
+        for record in ledger["failure_records"]
+    )
+    fresh_ir = _ensure_ir_artifact_store(fresh_store)
+    y = load_uncertainty_envelope(fresh_ir, projection.simulation_result.uncertainty_envelopes["y"])
+    z = load_uncertainty_envelope(fresh_ir, projection.simulation_result.uncertainty_envelopes["z"])
+    assert y.sample_size == 50 and y.gate_eligible is False
+    assert z.sample_size == 100
+    admission = load_science_simulation_result_uncertainty_admission(
+        fresh_store, simulation_ref, "y"
+    )
+    assert admission.admitted is False
+    assert "propagation_metric_has_failed_draws" in admission.limitation_codes
+    assert "source_owner_validation_not_performed" not in admission.limitation_codes
+    assert "propagation_report_schema_version_mismatch" not in admission.limitation_codes
+    assert "propagation_report_payload_version_mismatch" not in admission.limitation_codes
+
+    downgraded = deepcopy(report)
+    downgraded["schema_version"] = "1.1"
+    downgraded["draw_outcome_provenance"]["schema_version"] = "1.0"
+    downgraded["draw_outcome_provenance"].pop("output_numeric_profile")
+    with pytest.raises(ValidationError):
+        PropagationReportV11.model_validate(downgraded)
+
+
+def test_numeric_resolution_ledger_preserves_gaussian_recipe(tmp_path: Path) -> None:
+    """The new output profile retains the existing selected Gaussian draw recipe."""
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+    from polisyos.scientist.nodes.builtins.simulate.uncertainty_source_projection import (
+        PropagationReportV12,
+        PropagationReportV13,
+    )
+
+    inputs = _joint_normal_inputs()
+    _, context, _ = _build_node_context(
+        tmp_path,
+        run_id="R_b194_gaussian_numeric_resolution",
+        metric_values={"y": 0},
+        propagation_config={},
+    )
+    results = MonteCarloPropagator(
+        _config(mc_n_samples=100, mc_batch_size=100, mc_min_valid_samples=10, mc_seed=194)
+    ).propagate(
+        lambda a, b: {"y": 1e-50 if a < 0.0 else 1.0},
+        {"a": 0.0, "b": 0.0},
+        inputs,
+        ["y"],
+    )
+    assert results[0].envelope.gate_eligible is False
+    report_ref = node_module._persist_report(
+        context,
+        results=results,
+        input_envelopes=inputs,
+        output_metrics=["y"],
+        mapped_params={"a", "b"},
+        unmapped_metric_ids=[],
+        missing_output_metric_ids=[],
+        incomplete_output_metric_ids=["y"],
+        mapping_source="caller_parameters",
+    )
+    report = validate_core_model_json_artifact(
+        PropagationReportV13, FileSystemCAS(tmp_path), report_ref
+    )
+    ledger = report.draw_outcome_provenance
+    assert ledger.schema_version == "1.2"
+    assert ledger.output_numeric_profile == "float32_finite_support_v1"
+    recipe = ledger.sampling_recipe.model_dump(mode="json")
+    assert recipe["gaussian_joint_names"] == ["a", "b"]
+    assert (
+        sum(batch["draw_count"] for batch in recipe["gaussian_numeric_profile"]["draw_batches"])
+        == 100
+    )
+    downgraded = report.model_dump(mode="json")
+    downgraded["schema_version"] = "1.2"
+    downgraded["draw_outcome_provenance"]["schema_version"] = "1.1"
+    downgraded["draw_outcome_provenance"].pop("output_numeric_profile")
+    with pytest.raises(ValidationError, match="outcome_code"):
+        PropagationReportV12.model_validate(downgraded)
+
+
 def test_b194_adaptive_stop_with_partial_draws_reaches_fresh_normative_consumer(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

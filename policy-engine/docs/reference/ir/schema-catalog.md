@@ -13,14 +13,14 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ## Summary
 
 - Total IR types: `1675`.
-- Public/root-or-package facade types: `681`.
+- Public/root-or-package facade types: `682`.
 - ABI snapshot-backed types: `103`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
 | `polisyos.ir` | 535 |
-| `polisyos.ir.analytics` | 320 |
+| `polisyos.ir.analytics` | 321 |
 | `polisyos.ir.kernel` | 81 |
 | `polisyos.ir.loading` | 12 |
 | `polisyos.ir.model_layer` | 6 |
@@ -31,7 +31,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 1028 | 343 | 45 |
+| `analytics` | 1028 | 344 | 45 |
 | `artifacts` | 30 | 3 | 0 |
 | `governance` | 99 | 27 | 8 |
 | `kernel` | 60 | 54 | 0 |
@@ -21562,9 +21562,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.uncertainty.NumericPolicySpec` { #polisyos-ir-analytics-uncertainty-numericpolicyspec }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:NumericPolicySpec`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.uncertainty.NumericToleranceMode`

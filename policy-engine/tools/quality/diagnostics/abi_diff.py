@@ -80,7 +80,7 @@ class DiffReport:
         has_p0_breaking = any(
             change.breaking and change.priority == "p0" for change in self.changes
         )
-        if has_p0_breaking:
+        if has_p0_breaking or self.warnings:
             return "WARN"
         return "PASS"
 
@@ -114,11 +114,8 @@ def _load_json(path: Path) -> dict[str, Any]:
 
 def _load_snapshots(root: Path) -> dict[str, ModelSnapshot]:
     snapshots: dict[str, ModelSnapshot] = {}
-    for module in ("ir", "fabric"):
-        manifest_path = root / module / "_manifest.json"
-        if not manifest_path.exists():
-            continue
-
+    for manifest_path in sorted(root.glob("*/_manifest.json")):
+        module = manifest_path.parent.name
         manifest = _load_json(manifest_path)
         models = manifest.get("models", {})
         if not isinstance(models, dict):

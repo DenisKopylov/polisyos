@@ -820,6 +820,17 @@ SCIENTIST_ABI_MODELS: tuple[ABIModelEntry, ...] = (
         schema_mode=SchemaMode.SERIALIZATION,
     ),
     ABIModelEntry(
+        abi_key="propagation_report_v1_3",
+        fqn=(
+            "polisyos.scientist.nodes.builtins.simulate.uncertainty_source_projection."
+            "PropagationReportV13"
+        ),
+        module="scientist",
+        schema_file="propagation_report_v1_3.schema.json",
+        priority=Priority.P1,
+        schema_mode=SchemaMode.SERIALIZATION,
+    ),
+    ABIModelEntry(
         abi_key="calibration_validation_bundle_v1_1",
         fqn="polisyos.scientist.governance.calibration_validation.CalibrationValidationBundle",
         module="scientist",

@@ -1830,9 +1830,16 @@ def _persist_report(
         and ledger.get("schema_version") == "1.1"
         for item in results
     )
-    if has_gaussian_ledger and shared_provenance is None:
-        raise ValueError("Gaussian joint report requires one shared draw ledger")
-    report_version = "1.2" if has_gaussian_ledger else "1.1"
+    has_numeric_resolution_ledger = any(
+        isinstance(ledger := item.diagnostics.get("draw_outcome_provenance"), Mapping)
+        and ledger.get("schema_version") == "1.2"
+        for item in results
+    )
+    if (has_gaussian_ledger or has_numeric_resolution_ledger) and shared_provenance is None:
+        raise ValueError("versioned propagation report requires one shared draw ledger")
+    report_version = (
+        "1.3" if has_numeric_resolution_ledger else "1.2" if has_gaussian_ledger else "1.1"
+    )
 
     diagnostics: list[dict[str, Any]] = []
     for item in results:

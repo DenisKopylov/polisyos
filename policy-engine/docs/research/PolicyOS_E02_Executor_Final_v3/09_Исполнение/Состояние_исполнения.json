@@ -4197,7 +4197,7 @@
               "bytes": 353
             }
           },
-          "scope": "Full114/114 ABI snapshot check PASS. Registry/model/catalog bytes unchanged by later facade-only addition; no new DTO/schema shape."
+          "scope": "Historical pre-facade114/114 snapshot result only. CI correctly exposed stale generated schema-catalog after the facade addition. Normal regeneration fixed it; current115/115 check is abi_schema_current after V13 registration. Do not promote the old114 check to current generated freshness."
         },
         "uq_original_red": {
           "output": "policy-engine/_cache/e02/lane10-root/composed-uq",
@@ -5018,15 +5018,1389 @@
           "G_acceptance": false,
           "formal_closure": "NOT_RUN",
           "closure_ids": [],
-          "independent_review": "GO from non-author installed reviewer plus CAL and UQ independent reviewers for the exact completed named profiles; no whole-platform/G acceptance."
+          "scope_note": "Initial62case47a11wheel profile retained at its source. Current numerical producer/consumer qualification is installed_output_law60, with final catalog/tool metadata separately installed_metadata_current. Unchanged CAL17/DOE15/stress/autotune bodies preserve their named profiles; not all oldwheel bytes equal current source."
         },
         "environment": {
           "path": "policy-engine/_cache/e02/lane10-root/environment.json",
           "scope": "Observed existing interpreter/dependency metadata and locations, not a complete hermetic binary attestation. Actual backend/profile per run; no dependency reinstall."
+        },
+        "mc_output_composed": {
+          "output": "policy-engine/_cache/e02/lane10-root/composed-output-final",
+          "command": [
+            "env",
+            "JAX_ENABLE_X64=0",
+            ".venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "--tb=short",
+            "tests/unit/foundry/uncertainty/test_empirical_resolution.py",
+            "tests/unit/foundry/uncertainty/test_aggregation_exact_mean.py",
+            "tests/unit/foundry/uncertainty/test_uncertainty_protocol.py",
+            "tests/unit/foundry/uncertainty/test_delta_numeric_profile.py",
+            "tests/unit/remediation/test_uqp_02.py",
+            "tests/unit/remediation/test_uqp_03.py",
+            "tests/unit/remediation/test_uqs_01.py",
+            "tests/unit/foundry/uncertainty/test_numeric_admission.py",
+            "tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+            "tests/unit/remediation/test_uqp_01.py",
+            "tests/unit/remediation/test_c43_joint_gaussian.py",
+            "tests/unit/foundry/uncertainty/test_covariance.py",
+            "tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py",
+            "tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py::test_native_bayesian_method_evidence_persists_candidate_summary",
+            "tests/unit/scientist/nodes/builtins/simulate/test_uncertainty_source_projection.py",
+            "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_joint_gaussian_failure_ledger_survives_fresh_consumer[float32]",
+            "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_transient_retry_survives_fresh_cas_normative_consumption",
+            "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_exact_symmetric_partial_draws_reach_fresh_normative_consumer",
+            "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_exhausted_typed_transient_fails_closed_after_one_same_draw_retry",
+            "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_global_permission_error_after_nominal_preflight_escapes",
+            "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_global_permission_error_does_not_persist_partial_node_result",
+            "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_nominal_typed_transient_retry_does_not_consume_a_sample_draw",
+            "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_numeric_resolution_ledger_reaches_fresh_science_reader",
+            "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_numeric_resolution_ledger_preserves_gaussian_recipe",
+            "--junitxml=_cache/e02/lane10-root/composed-output-final/pytest.xml"
+          ],
+          "return_code": 0,
+          "counts": {
+            "tests": 384,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0,
+            "passed": 384
+          },
+          "complete": true,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 72,
+          "wall_seconds": 23.401849874993786,
+          "peak_sampled_process_tree_rss_bytes": 1230454784,
+          "outputs": {
+            "result.json": {
+              "path": "policy-engine/_cache/e02/lane10-root/composed-output-final/result.json",
+              "sha256": "dd7809e545acdf49ada84988dc96b01019c8c708c809487f3b795860c2758465",
+              "bytes": 3280
+            },
+            "pytest.xml": {
+              "path": "policy-engine/_cache/e02/lane10-root/composed-output-final/pytest.xml",
+              "sha256": "9a0c9488767d8d60be6fc0e52dd860ec375267c5a1c54752b0d489db92bdba1c",
+              "bytes": 67846
+            },
+            "command.stdout.txt": {
+              "path": "policy-engine/_cache/e02/lane10-root/composed-output-final/command.stdout.txt",
+              "sha256": "07a461987b0d2fa5d04afd2f082a71405588e2b58f22a8c4d25113d11e0e9e98",
+              "bytes": 1631
+            },
+            "command.stderr.txt": {
+              "path": "policy-engine/_cache/e02/lane10-root/composed-output-final/command.stderr.txt",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "bytes": 0
+            },
+            "before.json": {
+              "path": "policy-engine/_cache/e02/lane10-root/composed-output-final/before.json",
+              "sha256": "b8af20309a00eaa1b2f0ab96227bde252fc893b63fa87f14b2443b095a5de40e",
+              "bytes": 8856
+            },
+            "after.json": {
+              "path": "policy-engine/_cache/e02/lane10-root/composed-output-final/after.json",
+              "sha256": "b8af20309a00eaa1b2f0ab96227bde252fc893b63fa87f14b2443b095a5de40e",
+              "bytes": 8856
+            }
+          },
+          "current_input_delta": "384PASS on72 unchanged run pins. Subsequent IR one-line1.3 allowlist+B194no-mismatchassertions are covered by report_v13_current2PASS. Later catalog registration and ABI diagnostic changes do not alter numerical producer/consumer bodies; final metadata wheel proves those exact2 changed members separately."
+        },
+        "report_v13_current": {
+          "output": "policy-engine/_cache/e02/lane10-root/report-v13-current",
+          "command": [
+            "env",
+            "JAX_ENABLE_X64=0",
+            ".venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "--tb=short",
+            "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_numeric_resolution_ledger_reaches_fresh_science_reader",
+            "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_numeric_resolution_ledger_preserves_gaussian_recipe",
+            "--junitxml=_cache/e02/lane10-root/report-v13-current/pytest.xml"
+          ],
+          "return_code": 0,
+          "counts": {
+            "tests": 2,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0,
+            "passed": 2
+          },
+          "complete": true,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 72,
+          "wall_seconds": 7.771296042017639,
+          "peak_sampled_process_tree_rss_bytes": 771145728,
+          "outputs": {
+            "result.json": {
+              "path": "policy-engine/_cache/e02/lane10-root/report-v13-current/result.json",
+              "sha256": "ffc4f0381fb05b16c9f7bc9f08b7140b6405d67c107e64703285e02c504bb0c0",
+              "bytes": 1290
+            },
+            "pytest.xml": {
+              "path": "policy-engine/_cache/e02/lane10-root/report-v13-current/pytest.xml",
+              "sha256": "0904d43c6798080e5f8f20ad9989182b21d3585957a6270030a990a6bfa8e648",
+              "bytes": 570
+            },
+            "command.stdout.txt": {
+              "path": "policy-engine/_cache/e02/lane10-root/report-v13-current/command.stdout.txt",
+              "sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87",
+              "bytes": 80
+            },
+            "command.stderr.txt": {
+              "path": "policy-engine/_cache/e02/lane10-root/report-v13-current/command.stderr.txt",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "bytes": 0
+            },
+            "before.json": {
+              "path": "policy-engine/_cache/e02/lane10-root/report-v13-current/before.json",
+              "sha256": "7223a550e945538d05b42ada44e328b272c0077d1f792656d28c364d6558d7d5",
+              "bytes": 8856
+            },
+            "after.json": {
+              "path": "policy-engine/_cache/e02/lane10-root/report-v13-current/after.json",
+              "sha256": "7223a550e945538d05b42ada44e328b272c0077d1f792656d28c364d6558d7d5",
+              "bytes": 8856
+            }
+          },
+          "current_input_delta": "All72 inputs unchanged during run; subsequent ABIcatalog-onlyregistration and diagnostic tool change are separately qualified by final installed metadata115-entry/8CLI tests."
+        },
+        "abi_tool_current": {
+          "output": "policy-engine/_cache/e02/lane10-root/abi-tool-current",
+          "command": [
+            ".venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "--tb=short",
+            "tests/contract/test_abi_diff_tool.py",
+            "--junitxml=_cache/e02/lane10-root/abi-tool-current/pytest.xml"
+          ],
+          "return_code": 0,
+          "counts": {
+            "tests": 8,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0,
+            "passed": 8
+          },
+          "complete": true,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 2,
+          "wall_seconds": 1.6702570419292897,
+          "peak_sampled_process_tree_rss_bytes": 115818496,
+          "outputs": {
+            "result.json": {
+              "path": "policy-engine/_cache/e02/lane10-root/abi-tool-current/result.json",
+              "sha256": "7a25c58d0baf0002facfed974e7fc60c46826e8170c22a5c6d7fbb5fa3bb26a3",
+              "bytes": 1045
+            },
+            "pytest.xml": {
+              "path": "policy-engine/_cache/e02/lane10-root/abi-tool-current/pytest.xml",
+              "sha256": "27db5f0b5406c4ef752710cc81beba1d6639f89f09c341408aac48785858ebc3",
+              "bytes": 1317
+            },
+            "command.stdout.txt": {
+              "path": "policy-engine/_cache/e02/lane10-root/abi-tool-current/command.stdout.txt",
+              "sha256": "06955fb47f16312e5d13266c774a2aa4648c46e423cbe6564a92e25b68e39131",
+              "bytes": 80
+            },
+            "command.stderr.txt": {
+              "path": "policy-engine/_cache/e02/lane10-root/abi-tool-current/command.stderr.txt",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "bytes": 0
+            },
+            "before.json": {
+              "path": "policy-engine/_cache/e02/lane10-root/abi-tool-current/before.json",
+              "sha256": "24888b6911af5ca1108173a71eec0a0e82b570afa85c6f0d5a6d0a4a04e6cd0c",
+              "bytes": 224
+            },
+            "after.json": {
+              "path": "policy-engine/_cache/e02/lane10-root/abi-tool-current/after.json",
+              "sha256": "24888b6911af5ca1108173a71eec0a0e82b570afa85c6f0d5a6d0a4a04e6cd0c",
+              "bytes": 224
+            }
+          }
+        },
+        "abi_schema_current": {
+          "output": "policy-engine/_cache/e02/lane10-root/schema-v13-check",
+          "command": [
+            ".venv/bin/python",
+            "-B",
+            "tools/quality/diagnostics/gen_schema.py",
+            "--check"
+          ],
+          "return_code": 0,
+          "counts": null,
+          "complete": true,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 2,
+          "wall_seconds": 7.289842874975875,
+          "peak_sampled_process_tree_rss_bytes": 707018752,
+          "outputs": {
+            "result.json": {
+              "path": "policy-engine/_cache/e02/lane10-root/schema-v13-check/result.json",
+              "sha256": "10f02305ee81ad9707985fbe757952716ca9b10e38c54e0852239e1c7f7c6ecd",
+              "bytes": 934
+            },
+            "command.stdout.txt": {
+              "path": "policy-engine/_cache/e02/lane10-root/schema-v13-check/command.stdout.txt",
+              "sha256": "3be132c5a9aeda816c3d9fd0e32ab56b1b3d48932321a5b60d4bb65f80edd842",
+              "bytes": 92
+            },
+            "command.stderr.txt": {
+              "path": "policy-engine/_cache/e02/lane10-root/schema-v13-check/command.stderr.txt",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "bytes": 0
+            },
+            "before.json": {
+              "path": "policy-engine/_cache/e02/lane10-root/schema-v13-check/before.json",
+              "sha256": "27df1fbece22c1a0732f98f870533f7fed92c9a7d0ed6a8d803bb373d93d8cde",
+              "bytes": 272
+            },
+            "after.json": {
+              "path": "policy-engine/_cache/e02/lane10-root/schema-v13-check/after.json",
+              "sha256": "27df1fbece22c1a0732f98f870533f7fed92c9a7d0ed6a8d803bb373d93d8cde",
+              "bytes": 272
+            }
+          }
+        },
+        "public_sync_current": {
+          "output": "policy-engine/_cache/e02/lane10-root/public-current-sync",
+          "command": [
+            ".venv/bin/python",
+            "-B",
+            "tools/devx/architecture/guardrails.py",
+            "sync",
+            "--skip-deep-import-baseline"
+          ],
+          "return_code": 0,
+          "counts": null,
+          "complete": true,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 3,
+          "wall_seconds": 48.83901220804546,
+          "peak_sampled_process_tree_rss_bytes": 185303040,
+          "outputs": {
+            "result.json": {
+              "path": "policy-engine/_cache/e02/lane10-root/public-current-sync/result.json",
+              "sha256": "afd43a5ddc4e64ec295ed55de6655d46aa65abea1f70bd746c092ee241efc554",
+              "bytes": 966
+            },
+            "command.stdout.txt": {
+              "path": "policy-engine/_cache/e02/lane10-root/public-current-sync/command.stdout.txt",
+              "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8",
+              "bytes": 44
+            },
+            "command.stderr.txt": {
+              "path": "policy-engine/_cache/e02/lane10-root/public-current-sync/command.stderr.txt",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "bytes": 0
+            },
+            "before.json": {
+              "path": "policy-engine/_cache/e02/lane10-root/public-current-sync/before.json",
+              "sha256": "9847bcf944fa13daf62bf9abd762222c5c4a2ec4da214dd37033bdf989bddefd",
+              "bytes": 334
+            },
+            "after.json": {
+              "path": "policy-engine/_cache/e02/lane10-root/public-current-sync/after.json",
+              "sha256": "9847bcf944fa13daf62bf9abd762222c5c4a2ec4da214dd37033bdf989bddefd",
+              "bytes": 334
+            }
+          }
+        },
+        "installed_output_law": {
+          "state": "FINISHED: changed-source installed numerical qualification PASS, root catalog companion pending separately",
+          "source_base_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
+          "source_base_tree": "7abea2c785016695be9907076d59fcd59ae21734",
+          "actual_head_at_reconciliation": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
+          "source_binding": "Current e30a3df base plus68 exact frozen authorinputs including7followupdelta; root final compositioncommit pending. Not HEAD-onlysource attribution.",
+          "source_change_paths_by_installed_worker": [],
+          "wheel": {
+            "source_base_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
+            "source_base_tree": "7abea2c785016695be9907076d59fcd59ae21734",
+            "source_binding": "Current e30a3df base plus68 exact frozen authorinputs including7followupdelta; root final compositioncommit pending. Not HEAD-onlysource attribution.",
+            "frozen_author_input_count": 68,
+            "frozen_author_inputs_unchanged": true,
+            "build_command": [
+              "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/.venv/bin/python",
+              "-m",
+              "hatchling",
+              "build",
+              "-t",
+              "wheel",
+              "-d",
+              "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/wheel"
+            ],
+            "build_exit": 0,
+            "install_command": [
+              "uv",
+              "pip",
+              "install",
+              "--python",
+              "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/bin/python",
+              "--no-deps",
+              "--offline",
+              "--reinstall-package",
+              "policy-engine",
+              "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/wheel/policy_engine-0.1.0-py3-none-any.whl"
+            ],
+            "install_exit": 0,
+            "wheel": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/wheel/policy_engine-0.1.0-py3-none-any.whl",
+            "wheel_sha256": "ebb714af851e30f7312d93dafe7ae7d946fe1cc0db35f436f6f3f13d6d2f6fff",
+            "wheel_bytes": 18998518,
+            "mapped_python_members": 3397,
+            "source_wheel_installed_byte_mismatches": [],
+            "prefix": "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8",
+            "purelib": "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages",
+            "dependency_site": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+            "previous_qualified_wheel_sha256": "47a11f88f909e6b5642a8222fe8c8866aeb0d35b1d654fcc7e9e66fed6d698e3",
+            "previous_evidence_preserved": true,
+            "native_execution": "FINISHED: uq_consumers21PASS, uq_output_law37PASS, cal_candidate2PASS, all exits0/unchangedpins",
+            "source_wheel_installed_members_reconciled": 3397
+          },
+          "input_reconciliation": {
+            "frozen_author_inputs": 68,
+            "copied_test_helper_inputs": 24,
+            "source_wheel_installed_python_members": 3397,
+            "mismatch_count": 0
+          },
+          "results": {
+            "uq_consumers": {
+              "classification": "PASS",
+              "profile": {
+                "JAX_ENABLE_X64": "0",
+                "selectors": [
+                  "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_scoped_tied_calibration_reaches_fresh_welfare_with_unassigned_field",
+                  "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_scoped_external_welfare_envelope_must_match_selected_calibration_center",
+                  "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_uses_weighted_empirical_atoms_through_fresh_cas_consumer",
+                  "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_preserves_only_declared_shared_empirical_rows",
+                  "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_does_not_invent_unknown_input_distribution",
+                  "tests/unit/foundry/uncertainty/test_aggregation_exact_mean.py::test_widest_uses_exact_binary64_mean_without_intermediate_overflow",
+                  "tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py::test_exact_selected_view_repeats_once_with_ordered_fresh_lineage",
+                  "tests/unit/foundry/uncertainty/test_empirical_resolution.py::test_native_sampler_reports_collapsed_positive_source_mass_before_evaluation",
+                  "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_joint_gaussian_failure_ledger_survives_fresh_consumer[float32]",
+                  "tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py::test_native_bayesian_method_evidence_persists_candidate_summary"
+                ],
+                "cap_gib": 2,
+                "seconds": 120,
+                "scope": "Repeat exactly prior21 UQ installed cases on changedMC/IR/Science source; previousprofile outputs remainimmutable."
+              },
+              "actual_command": [
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/bin/python",
+                "-I",
+                "-B",
+                "-m",
+                "pytest",
+                "-q",
+                "--tb=short",
+                "-c",
+                "/dev/null",
+                "--import-mode=importlib",
+                "--confcutdir",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests",
+                "-p",
+                "tests._helpers.artifacts",
+                "-o",
+                "addopts=",
+                "-o",
+                "junit_family=legacy",
+                "-o",
+                "markers=integration: selected native integration profile",
+                "-o",
+                "cache_dir=/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_consumers/pytest-cache",
+                "--basetemp=/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_consumers/pytest-temp",
+                "--junitxml=/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_consumers/pytest.xml",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_scoped_tied_calibration_reaches_fresh_welfare_with_unassigned_field",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_scoped_external_welfare_envelope_must_match_selected_calibration_center",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_uses_weighted_empirical_atoms_through_fresh_cas_consumer",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_preserves_only_declared_shared_empirical_rows",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_welfare_does_not_invent_unknown_input_distribution",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests/unit/foundry/uncertainty/test_aggregation_exact_mean.py::test_widest_uses_exact_binary64_mean_without_intermediate_overflow",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py::test_exact_selected_view_repeats_once_with_ordered_fresh_lineage",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests/unit/foundry/uncertainty/test_empirical_resolution.py::test_native_sampler_reports_collapsed_positive_source_mass_before_evaluation",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_joint_gaussian_failure_ledger_survives_fresh_consumer[float32]",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py::test_native_bayesian_method_evidence_persists_candidate_summary"
+              ],
+              "supervision": {
+                "inputs_unchanged": true,
+                "named_input_count": 5,
+                "result": {
+                  "aborted_reason": null,
+                  "argv": [
+                    ".venv/bin/python",
+                    "-I",
+                    "-B",
+                    "_cache/e02/lane10-installed/final-output-law/run_profile.py",
+                    "uq_consumers"
+                  ],
+                  "complete": true,
+                  "cwd": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine",
+                  "disk_free_before_bytes": 8561930240,
+                  "finished_at": "2026-11-03T09:02:38.143628+00:00",
+                  "id": "command",
+                  "max_sampled_process_tree_rss_bytes": 1163427840,
+                  "minimum_sampled_disk_free_bytes": 8546652160,
+                  "pid": 73423,
+                  "process_group_gone": true,
+                  "return_code": 0,
+                  "sample_count": 102,
+                  "started_at": "2026-11-03T09:01:41.382685+00:00",
+                  "status": "passed",
+                  "stderr_path": "command.stderr.txt",
+                  "stdout_path": "command.stdout.txt",
+                  "termination_signal": null,
+                  "wall_seconds": 56.759668790968135,
+                  "wall_total_before_seconds": 2.1834042854607105e-05
+                }
+              },
+              "pytest": {
+                "tests": 21,
+                "failures": 0,
+                "errors": 0,
+                "skipped": 0
+              },
+              "passed_cases": [
+                "test_scoped_tied_calibration_reaches_fresh_welfare_with_unassigned_field[shared_rate]",
+                "test_scoped_tied_calibration_reaches_fresh_welfare_with_unassigned_field[unrelated_optimizer_coordinate]",
+                "test_scoped_external_welfare_envelope_must_match_selected_calibration_center",
+                "test_welfare_uses_weighted_empirical_atoms_through_fresh_cas_consumer",
+                "test_welfare_preserves_only_declared_shared_empirical_rows[joint_ids0-paired_samples0-sample_axes0-True-expected_values0]",
+                "test_welfare_preserves_only_declared_shared_empirical_rows[joint_ids1-paired_samples1-sample_axes1-True-expected_values1]",
+                "test_welfare_preserves_only_declared_shared_empirical_rows[joint_ids2-paired_samples2-sample_axes2-False-expected_values2]",
+                "test_welfare_preserves_only_declared_shared_empirical_rows[joint_ids3-paired_samples3-sample_axes3-False-expected_values3]",
+                "test_welfare_preserves_only_declared_shared_empirical_rows[joint_ids4-paired_samples4-sample_axes4-False-expected_values4]",
+                "test_welfare_preserves_only_declared_shared_empirical_rows[joint_ids5-paired_samples5-sample_axes5-False-expected_values5]",
+                "test_welfare_does_not_invent_unknown_input_distribution[delta]",
+                "test_welfare_does_not_invent_unknown_input_distribution[monte_carlo]",
+                "test_widest_uses_exact_binary64_mean_without_intermediate_overflow[points0-bounds0]",
+                "test_widest_uses_exact_binary64_mean_without_intermediate_overflow[points1-bounds1]",
+                "test_widest_uses_exact_binary64_mean_without_intermediate_overflow[points2-bounds2]",
+                "test_widest_uses_exact_binary64_mean_without_intermediate_overflow[points3-bounds3]",
+                "test_exact_selected_view_repeats_once_with_ordered_fresh_lineage",
+                "test_native_sampler_reports_collapsed_positive_source_mass_before_evaluation[random]",
+                "test_native_sampler_reports_collapsed_positive_source_mass_before_evaluation[sobol]",
+                "test_joint_gaussian_failure_ledger_survives_fresh_consumer[float32]",
+                "test_native_bayesian_method_evidence_persists_candidate_summary"
+              ]
+            },
+            "uq_output_law": {
+              "classification": "PASS",
+              "profile": {
+                "JAX_ENABLE_X64": "0",
+                "selectors": [
+                  "tests/unit/remediation/test_uqp_02.py",
+                  "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_numeric_resolution_ledger_reaches_fresh_science_reader",
+                  "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_numeric_resolution_ledger_preserves_gaussian_recipe"
+                ],
+                "cap_gib": 2,
+                "seconds": 120,
+                "scope": "Whole currentUQP02 two-stage/mask/f32overflow-underflow/atomidentity+actualreport1.3ledger1.2freshScience/IR andGaussianrecipe withstrictlegacyrefusals."
+              },
+              "actual_command": [
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/bin/python",
+                "-I",
+                "-B",
+                "-m",
+                "pytest",
+                "-q",
+                "--tb=short",
+                "-c",
+                "/dev/null",
+                "--import-mode=importlib",
+                "--confcutdir",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests",
+                "-p",
+                "tests._helpers.artifacts",
+                "-o",
+                "addopts=",
+                "-o",
+                "junit_family=legacy",
+                "-o",
+                "markers=integration: selected native integration profile",
+                "-o",
+                "cache_dir=/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_output_law/pytest-cache",
+                "--basetemp=/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_output_law/pytest-temp",
+                "--junitxml=/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_output_law/pytest.xml",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests/unit/remediation/test_uqp_02.py",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_numeric_resolution_ledger_reaches_fresh_science_reader",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_numeric_resolution_ledger_preserves_gaussian_recipe"
+              ],
+              "supervision": {
+                "inputs_unchanged": true,
+                "named_input_count": 5,
+                "result": {
+                  "aborted_reason": null,
+                  "argv": [
+                    ".venv/bin/python",
+                    "-I",
+                    "-B",
+                    "_cache/e02/lane10-installed/final-output-law/run_profile.py",
+                    "uq_output_law"
+                  ],
+                  "complete": true,
+                  "cwd": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine",
+                  "disk_free_before_bytes": 8547045376,
+                  "finished_at": "2026-11-03T09:02:50.532501+00:00",
+                  "id": "command",
+                  "max_sampled_process_tree_rss_bytes": 999620608,
+                  "minimum_sampled_disk_free_bytes": 8545296384,
+                  "pid": 73642,
+                  "process_group_gone": true,
+                  "return_code": 0,
+                  "sample_count": 22,
+                  "started_at": "2026-11-03T09:02:38.270361+00:00",
+                  "status": "passed",
+                  "stderr_path": "command.stderr.txt",
+                  "stdout_path": "command.stdout.txt",
+                  "termination_signal": null,
+                  "wall_seconds": 12.262109166942537,
+                  "wall_total_before_seconds": 1.6832957044243813e-05
+                }
+              },
+              "pytest": {
+                "tests": 37,
+                "failures": 0,
+                "errors": 0,
+                "skipped": 0
+              },
+              "passed_cases": [
+                "test_covariance_reorders_columns_without_reordering_owner_rows",
+                "test_covariance_rejects_mixed_column_declarations",
+                "test_covariance_rejects_marginally_incompatible_matrix",
+                "test_analytical_uses_joint_covariance_for_shared_difference_and_independent_control",
+                "test_delta_uses_joint_covariance_for_shared_difference",
+                "test_random_mc_preserves_shared_empirical_rows_and_axis",
+                "test_qmc_preserves_shared_empirical_rows_and_axis",
+                "test_fresh_joint_results_repropagate_the_same_executed_rows[repeated-atoms]",
+                "test_fresh_joint_results_repropagate_the_same_executed_rows[weighted-nine-to-one]",
+                "test_distinct_equal_length_output_masks_do_not_form_joint_rows",
+                "test_float32_overflow_uses_the_actual_emitted_row_mask",
+                "test_nonzero_output_underflow_does_not_become_an_authoritative_zero[1e-50-True]",
+                "test_nonzero_output_underflow_does_not_become_an_authoritative_zero[0.0-False]",
+                "test_representable_small_output_is_not_erased_by_envelope_rounding[1e-14]",
+                "test_representable_small_output_is_not_erased_by_envelope_rounding[1e-40]",
+                "test_representable_constant_output_keeps_nonzero_summary[1e-14]",
+                "test_representable_constant_output_keeps_nonzero_summary[1e-40]",
+                "test_adjacent_float32_atoms_do_not_collapse_during_envelope_creation",
+                "test_representable_float32_rows_keep_a_finite_nonzero_scale[1e-20]",
+                "test_representable_float32_rows_keep_a_finite_nonzero_scale[1e+20]",
+                "test_large_representable_constant_does_not_overflow_its_mean",
+                "test_outputs_from_different_sampled_corpora_do_not_share_joint_rows",
+                "test_same_inputs_and_seed_but_different_emitted_rows_do_not_join",
+                "test_matching_conditional_masks_remain_candidate_only_on_repropagation",
+                "test_random_mc_uses_weighted_empirical_atoms_instead_of_ci_normal",
+                "test_qmc_uses_weighted_empirical_atoms_instead_of_ci_normal",
+                "test_incompatible_empirical_axes_are_not_sampled_as_independent",
+                "test_same_empirical_axis_with_different_weights_is_not_a_joint_law",
+                "test_same_empirical_axis_with_different_lengths_is_not_a_joint_law",
+                "test_mixed_empirical_and_parametric_inputs_are_not_assumed_independent",
+                "test_default_empirical_draws_without_shared_identity_are_not_coupled",
+                "test_unknown_dependency_does_not_fall_back_to_independent_normal",
+                "test_random_mc_uses_normal_parametric_fit_payload",
+                "test_qmc_uses_normal_parametric_fit_payload",
+                "test_non_gate_input_stays_non_gate_through_all_propagators",
+                "test_numeric_resolution_ledger_reaches_fresh_science_reader",
+                "test_numeric_resolution_ledger_preserves_gaussian_recipe"
+              ]
+            },
+            "cal_candidate": {
+              "classification": "PASS",
+              "profile": {
+                "JAX_ENABLE_X64": "1",
+                "selectors": [
+                  "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py::test_candidate_store_fresh_reader_reaches_actual_univariate_mc_consumer",
+                  "tests/unit/foundry/calibration/test_bayesian_summary_profiles.py::test_fresh_candidate_binds_finite_mean_and_detects_owner_removal"
+                ],
+                "cap_gib": 2,
+                "seconds": 120,
+                "scope": "Actualcurrentcandidate1.1store→freshMC withchangedoutputbuilder plus independentmean ownerremoval; unchangedotherCAL/DOEproofs impactreused, not rerun."
+              },
+              "actual_command": [
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/bin/python",
+                "-I",
+                "-B",
+                "-m",
+                "pytest",
+                "-q",
+                "--tb=short",
+                "-c",
+                "/dev/null",
+                "--import-mode=importlib",
+                "--confcutdir",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests",
+                "-p",
+                "tests._helpers.artifacts",
+                "-o",
+                "addopts=",
+                "-o",
+                "junit_family=legacy",
+                "-o",
+                "markers=integration: selected native integration profile",
+                "-o",
+                "cache_dir=/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/cal_candidate/pytest-cache",
+                "--basetemp=/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/cal_candidate/pytest-temp",
+                "--junitxml=/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/cal_candidate/pytest.xml",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py::test_candidate_store_fresh_reader_reaches_actual_univariate_mc_consumer",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests/unit/foundry/calibration/test_bayesian_summary_profiles.py::test_fresh_candidate_binds_finite_mean_and_detects_owner_removal"
+              ],
+              "supervision": {
+                "inputs_unchanged": true,
+                "named_input_count": 5,
+                "result": {
+                  "aborted_reason": null,
+                  "argv": [
+                    ".venv/bin/python",
+                    "-I",
+                    "-B",
+                    "_cache/e02/lane10-installed/final-output-law/run_profile.py",
+                    "cal_candidate"
+                  ],
+                  "complete": true,
+                  "cwd": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine",
+                  "disk_free_before_bytes": 8545263616,
+                  "finished_at": "2026-11-03T09:02:57.909578+00:00",
+                  "id": "command",
+                  "max_sampled_process_tree_rss_bytes": 748650496,
+                  "minimum_sampled_disk_free_bytes": 8544251904,
+                  "pid": 73693,
+                  "process_group_gone": true,
+                  "return_code": 0,
+                  "sample_count": 13,
+                  "started_at": "2026-11-03T09:02:50.650928+00:00",
+                  "status": "passed",
+                  "stderr_path": "command.stderr.txt",
+                  "stdout_path": "command.stdout.txt",
+                  "termination_signal": null,
+                  "wall_seconds": 7.2586394579848275,
+                  "wall_total_before_seconds": 1.708301715552807e-05
+                }
+              },
+              "pytest": {
+                "tests": 2,
+                "failures": 0,
+                "errors": 0,
+                "skipped": 0
+              },
+              "passed_cases": [
+                "test_candidate_store_fresh_reader_reaches_actual_univariate_mc_consumer",
+                "test_fresh_candidate_binds_finite_mean_and_detects_owner_removal"
+              ]
+            }
+          },
+          "observer": {
+            "record_count": 3,
+            "all_finished": true,
+            "errors": [],
+            "pids": [
+              73425,
+              73644,
+              73695
+            ],
+            "distinct_first_party_modules": 1394,
+            "distinct_loaded_file_paths_rechecked": 1394,
+            "all_loaded_files_match_current_wheel": true,
+            "complete_lossless_records": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/observer-records.jsonl.gz",
+              "bytes": 67159,
+              "sha256": "0083c449e204e4559bcbb8b4e0ae04894c79a90c6473db737806258e50c1ebf8"
+            }
+          },
+          "prior_qualification": {
+            "summary_locator": "/tmp/e02-lane10-installed-final.json",
+            "summary_sha256": "101e057f20364c81770e0f03d3f8111edd1601243a8721c8ebd22cf5c8bd8917",
+            "all_37_catalogued_files_unchanged": true,
+            "old_wheel_bytes_retained": true,
+            "scope": "Prior62remainqualifiedtotheir47a11wheel/source; new60include repeatedaffected21 and2, not122distinctcriteria. UnchangedCAL/DOE/ST/autotune proof reuse is impactqualified, not claimedasfreshwholecurrentwheelrun."
+          },
+          "evidence": {
+            "build.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/build.json",
+              "bytes": 2114,
+              "sha256": "8a038b6accca7bbc000e70bf9023c5ea77c8bc39f6408309207b34b3d551392c"
+            },
+            "build.stdout.txt": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/build.stdout.txt",
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build.stderr.txt": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/build.stderr.txt",
+              "bytes": 88,
+              "sha256": "2db55172a22e720442ec5c203ee9335256dbb7c595a9deeefcd92a7829ba58b5"
+            },
+            "install.stdout.txt": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/install.stdout.txt",
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "install.stderr.txt": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/install.stderr.txt",
+              "bytes": 602,
+              "sha256": "2f6d6bbeeec5b6ded19fc161ef45904f08d30bec6a25dc3af2ac562e05293f42"
+            },
+            "frozen-author-inputs.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/frozen-author-inputs.json",
+              "bytes": 9439,
+              "sha256": "1f03e35b355c1eea02ec751409a1896074040839e7c3f5da0d1407a9a4a22994"
+            },
+            "source-delta.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/source-delta.json",
+              "bytes": 892,
+              "sha256": "7c279202688a0f12c303b7c5bb909db0ca7ea0c865f01d2ed2d69fcbe88af301"
+            },
+            "copied-inputs.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/copied-inputs.json",
+              "bytes": 4603,
+              "sha256": "6f600219624b2e933da8258fa18d253db6fbfa056d7ae9701556b23c7d297ae6"
+            },
+            "observer-setup.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/observer-setup.json",
+              "bytes": 1138,
+              "sha256": "afa11d4e6a3fe0f4cf378df0ce6b5f8e61d85ebefb82e34d67a2441e765bfcef"
+            },
+            "observer-records.jsonl.gz": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/observer-records.jsonl.gz",
+              "bytes": 67159,
+              "sha256": "0083c449e204e4559bcbb8b4e0ae04894c79a90c6473db737806258e50c1ebf8"
+            },
+            "selectors.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/selectors.json",
+              "bytes": 3191,
+              "sha256": "72972fc9f31801b8b57ed11885a18b2642ebbdb7a8547060575f773e3a648afd"
+            },
+            "commands-planned.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/commands-planned.json",
+              "bytes": 2959,
+              "sha256": "e8237544ffd17d3fb7ad86aac62b368c704a6828a2c82f8616624737ec1cf7ad"
+            },
+            "run_profile.py": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/run_profile.py",
+              "bytes": 2532,
+              "sha256": "21c14b9e8b45ba33d38b58dd1ec46c07f69aa6aeea2d5560b5a141f24d107dc3"
+            },
+            "uq_consumers/actual-command.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_consumers/actual-command.json",
+              "bytes": 3557,
+              "sha256": "a37e0536b301f0be81d0d82ccc646df97a9a888e54d39ce6581af6355db09ccf"
+            },
+            "uq_consumers/execution.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_consumers/execution.json",
+              "bytes": 5632,
+              "sha256": "4b59c4f8b755775ad0ae2a135b6d944dad113bd9e052e6e7bc3ff2586cec888a"
+            },
+            "uq_consumers/pytest.xml": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_consumers/pytest.xml",
+              "bytes": 7395,
+              "sha256": "4780f6596a29f8213191d30157509800a72e039b511a0c32353c3ec2b2f5c6ad"
+            },
+            "uq_consumers/supervision/result.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_consumers/supervision/result.json",
+              "bytes": 974,
+              "sha256": "08496aef714faed467d407822f92533518a54358c6c94be6f7266b7c0f1ef9d7"
+            },
+            "uq_consumers/supervision/before.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_consumers/supervision/before.json",
+              "bytes": 711,
+              "sha256": "7900677037e8a7af5e2b4bf7bb4a9e4dd452c7a932901a961ea3584c769c12e4"
+            },
+            "uq_consumers/supervision/after.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_consumers/supervision/after.json",
+              "bytes": 711,
+              "sha256": "7900677037e8a7af5e2b4bf7bb4a9e4dd452c7a932901a961ea3584c769c12e4"
+            },
+            "uq_consumers/supervision/command.stdout.txt": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_consumers/supervision/command.stdout.txt",
+              "bytes": 1223,
+              "sha256": "61831fbc89fb75335832f22d4489647a4620c0c78ac98b6f1223bc15ec472896"
+            },
+            "uq_consumers/supervision/command.stderr.txt": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_consumers/supervision/command.stderr.txt",
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "uq_output_law/actual-command.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_output_law/actual-command.json",
+              "bytes": 1621,
+              "sha256": "9c718972fc40ab9f701748a81e9db3b816b45d4b080b89481a3552ccdb16acbd"
+            },
+            "uq_output_law/execution.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_output_law/execution.json",
+              "bytes": 2565,
+              "sha256": "699e89e0129c38c0f54ad7eb61c70f8a8744ac1cf976c1278fa7a7ba27d8b79a"
+            },
+            "uq_output_law/pytest.xml": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_output_law/pytest.xml",
+              "bytes": 10796,
+              "sha256": "e7c67c569782ec8f9789e0cb001c9434061158f7df42549175e597e0783d701a"
+            },
+            "uq_output_law/supervision/result.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_output_law/supervision/result.json",
+              "bytes": 973,
+              "sha256": "69bd313346666da39ec615b727ae33a6139ac8b69985372c136c967444b3ca93"
+            },
+            "uq_output_law/supervision/before.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_output_law/supervision/before.json",
+              "bytes": 711,
+              "sha256": "7900677037e8a7af5e2b4bf7bb4a9e4dd452c7a932901a961ea3584c769c12e4"
+            },
+            "uq_output_law/supervision/after.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_output_law/supervision/after.json",
+              "bytes": 711,
+              "sha256": "7900677037e8a7af5e2b4bf7bb4a9e4dd452c7a932901a961ea3584c769c12e4"
+            },
+            "uq_output_law/supervision/command.stdout.txt": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_output_law/supervision/command.stdout.txt",
+              "bytes": 1113,
+              "sha256": "a83f0d3e9ccb843a2bac08454b1cd086f8add6ee57e9ea6eb142bac90dcfd661"
+            },
+            "uq_output_law/supervision/command.stderr.txt": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/uq_output_law/supervision/command.stderr.txt",
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "cal_candidate/actual-command.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/cal_candidate/actual-command.json",
+              "bytes": 1506,
+              "sha256": "b2d9ace20a946d1d1b4c6ac8bb95b6319308373ebc78d7badcde2e634609b985"
+            },
+            "cal_candidate/execution.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/cal_candidate/execution.json",
+              "bytes": 2449,
+              "sha256": "90a589f9ac12bee05f9c724823bf359d22c9b668288f061c8973db04b115d851"
+            },
+            "cal_candidate/pytest.xml": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/cal_candidate/pytest.xml",
+              "bytes": 893,
+              "sha256": "4d007cbd4c705343822d84aefc807ad5ae56d74e77fb4b6c07333d97cde3baa7"
+            },
+            "cal_candidate/supervision/result.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/cal_candidate/supervision/result.json",
+              "bytes": 972,
+              "sha256": "ed5e889f42433af057407ba3f891a85ed41a3314bdd30284b3f62f613bb7bbd7"
+            },
+            "cal_candidate/supervision/before.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/cal_candidate/supervision/before.json",
+              "bytes": 711,
+              "sha256": "7900677037e8a7af5e2b4bf7bb4a9e4dd452c7a932901a961ea3584c769c12e4"
+            },
+            "cal_candidate/supervision/after.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/cal_candidate/supervision/after.json",
+              "bytes": 711,
+              "sha256": "7900677037e8a7af5e2b4bf7bb4a9e4dd452c7a932901a961ea3584c769c12e4"
+            },
+            "cal_candidate/supervision/command.stdout.txt": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/cal_candidate/supervision/command.stdout.txt",
+              "bytes": 98,
+              "sha256": "56922d819ab8d5a53406822cdb058c396043638a242503db304add1bfb7dca85"
+            },
+            "cal_candidate/supervision/command.stderr.txt": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/cal_candidate/supervision/command.stderr.txt",
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "evidence_total_bytes": 140750,
+          "limits": [
+            "Selected Darwin CPU namedprofiles only; no Linux/GPU/deployment/scientific/institutional authority.",
+            "Canonicalstartup verifies normallyterminating observedPython imports/wheelbytes, notsyscalltracing orfullthirdparty authenticity.",
+            "One oldqualifiedwheel and one changed-source executedwheel are retained; SAMEminimalprefix updated firstparty-only, no dependency/environmentcopy.",
+            "Root identified pendingordinaryABIcatalog registration forPropagationReportV13; this numericalqualification is bound to pre-catalog current68source. No schema/catalog completionclaimed here.",
+            "No wholeE02/G acceptance/formalclosure; testoccurrences are not canonicalrequirementcounts."
+          ],
+          "G_acceptance": false,
+          "formal_closure": "NOT_RUN",
+          "closure_ids": []
+        },
+        "installed_metadata_current": {
+          "state": "FINISHED: final installed ABI registry and diagnostic tool qualification PASS; numerical impact reuse explicit",
+          "source_base_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
+          "source_base_tree": "7abea2c785016695be9907076d59fcd59ae21734",
+          "actual_head_at_reconciliation": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
+          "source_binding": "Current base plus71 exact frozen author/ABI/tool inputs, final rootcommit pending; onlycatalog and abi_diff Pythonmembers differ from the60PASS wheel.",
+          "source_change_paths_by_installed_worker": [],
+          "wheel": {
+            "source_base_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
+            "source_base_tree": "7abea2c785016695be9907076d59fcd59ae21734",
+            "source_binding": "Current base plus71 exact frozen author/ABI/tool inputs, final rootcommit pending; onlycatalog and abi_diff Pythonmembers differ from the60PASS wheel.",
+            "frozen_author_input_count": 71,
+            "build_command": [
+              "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/.venv/bin/python",
+              "-m",
+              "hatchling",
+              "build",
+              "-t",
+              "wheel",
+              "-d",
+              "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/wheel"
+            ],
+            "build_exit": 0,
+            "install_command": [
+              "uv",
+              "pip",
+              "install",
+              "--python",
+              "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/bin/python",
+              "--no-deps",
+              "--offline",
+              "--reinstall-package",
+              "policy-engine",
+              "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/wheel/policy_engine-0.1.0-py3-none-any.whl"
+            ],
+            "install_exit": 0,
+            "wheel": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/wheel/policy_engine-0.1.0-py3-none-any.whl",
+            "wheel_sha256": "88b5f7488612ff54e1ab96ad0d5e2f82c825267c4db086ccea8ffd09522f907f",
+            "wheel_bytes": 18998538,
+            "mapped_python_members": 3397,
+            "source_wheel_installed_mismatches": [],
+            "changed_python_members_from_60pass_wheel": [
+              "tools/quality/diagnostics/abi_diff.py",
+              "polisyos/schemas/abi_models/catalog.py"
+            ],
+            "prefix": "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8",
+            "purelib": "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages",
+            "dependency_site": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+            "previous_qualified_wheel_sha256": "ebb714af851e30f7312d93dafe7ae7d946fe1cc0db35f436f6f3f13d6d2f6fff",
+            "native_execution": "FINISHED115-entry/FQN/serialization ABI probe and8CLIcases; numerical60notrerun",
+            "all_source_wheel_installed_python_members": 3397,
+            "actual_changed_python_members_from_qualified60": [
+              "tools/quality/diagnostics/abi_diff.py",
+              "polisyos/schemas/abi_models/catalog.py"
+            ]
+          },
+          "input_reconciliation": {
+            "frozen_author_inputs": 71,
+            "copied_test_helper_inputs": 25,
+            "copy_scope": "Prior24unchanged exactcopies plus one exact tests/contract/test_abi_diff_tool.py companion for real installed8CLI tests.",
+            "source_wheel_installed_mismatch_count": 0
+          },
+          "actual_metadata_commands": [
+            {
+              "command": [
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/bin/python",
+                "-I",
+                "-B",
+                "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/smoke.py"
+              ],
+              "exit": 0
+            },
+            {
+              "command": [
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/bin/python",
+                "-I",
+                "-B",
+                "-m",
+                "pytest",
+                "-q",
+                "--tb=short",
+                "-c",
+                "/dev/null",
+                "--import-mode=importlib",
+                "--confcutdir",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests/contract",
+                "-o",
+                "addopts=",
+                "-o",
+                "cache_dir=/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/pytest-cache",
+                "--basetemp=/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/pytest-temp",
+                "--junitxml=/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/pytest.xml",
+                "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/e02-lane10-installed-85ri57a8/lib/python3.14/site-packages/tests/contract/test_abi_diff_tool.py"
+              ],
+              "exit": 0
+            }
+          ],
+          "supervision": {
+            "inputs_unchanged": true,
+            "named_input_count": 8,
+            "result": {
+              "aborted_reason": null,
+              "argv": [
+                ".venv/bin/python",
+                "-I",
+                "-B",
+                "_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/run_smoke.py"
+              ],
+              "complete": true,
+              "cwd": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine",
+              "disk_free_before_bytes": 8317620224,
+              "finished_at": "2026-11-03T09:18:06.405037+00:00",
+              "id": "command",
+              "max_sampled_process_tree_rss_bytes": 594903040,
+              "minimum_sampled_disk_free_bytes": 8316407808,
+              "pid": 75222,
+              "process_group_gone": true,
+              "return_code": 0,
+              "sample_count": 14,
+              "started_at": "2026-11-03T09:17:58.622356+00:00",
+              "status": "passed",
+              "stderr_path": "command.stderr.txt",
+              "stdout_path": "command.stdout.txt",
+              "termination_signal": null,
+              "wall_seconds": 7.78267741703894,
+              "wall_total_before_seconds": 2.4832901544868946e-05
+            }
+          },
+          "pytest": {
+            "tests": 8,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "passed_cli_cases": [
+            "test_strict_optional_property_addition_is_breaking",
+            "test_tolerant_optional_property_addition_is_compatible",
+            "test_breaking_change_with_major_bump_is_warn",
+            "test_alias_match_reports_model_renamed",
+            "test_scientist_p1_breaking_change_is_reported_as_warning",
+            "test_scientist_p0_breaking_change_with_major_bump_is_non_blocking",
+            "test_scientist_p0_breaking_change_without_major_bump_fails",
+            "test_future_manifest_family_is_discovered_from_empty_baseline"
+          ],
+          "abi_probe": {
+            "active_entry_count": 115,
+            "resolved_keys": [
+              "propagation_report_v1_1",
+              "propagation_report_v1_2",
+              "propagation_report_v1_3"
+            ],
+            "V13_priority": "p1",
+            "schema_mode": "serialization",
+            "catalog_sha256": "db8f08de099551b68cb605f64fcefd95f4bc35876287b0887aa224c757d9acec",
+            "diagnostic_tool_sha256": "31ae0ace5ed6e27e12eaf127f1535e6c399b2c973fd9221250f0debade4216ec",
+            "complete_output": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/supervision/command.stdout.txt",
+              "bytes": 2271,
+              "sha256": "52cc1160d8db863b22df5a11b93ffd412813bfbd8ca849e4b715101ee014a255"
+            }
+          },
+          "observer": {
+            "record_count": 10,
+            "all_finished": true,
+            "errors": [],
+            "pids": [
+              75224,
+              75236,
+              75238,
+              75239,
+              75240,
+              75241,
+              75242,
+              75243,
+              75244,
+              75245
+            ],
+            "distinct_first_party_modules": 705,
+            "distinct_loaded_file_paths_rechecked": 705,
+            "all_loaded_files_match_final_wheel": true,
+            "complete_lossless_records": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/observer-records.jsonl.gz",
+              "bytes": 17215,
+              "sha256": "228a05f9aa22a0d086cb516760248c9eea659dd4d9f668de43e2725185c616ec"
+            }
+          },
+          "reused_qualifications": {
+            "initial62": {
+              "summary": {
+                "locator": "/tmp/e02-lane10-installed-final.json",
+                "bytes": 43391,
+                "sha256": "101e057f20364c81770e0f03d3f8111edd1601243a8721c8ebd22cf5c8bd8917"
+              },
+              "wheel_sha256": "47a11f88f909e6b5642a8222fe8c8866aeb0d35b1d654fcc7e9e66fed6d698e3",
+              "all_catalogued_evidence_unchanged": true,
+              "retained_wheel_bytes": true,
+              "results": {
+                "calibration": {
+                  "tests": 30,
+                  "failures": 0,
+                  "errors": 0,
+                  "skipped": 0
+                },
+                "uncertainty": {
+                  "tests": 21,
+                  "failures": 0,
+                  "errors": 0,
+                  "skipped": 0
+                },
+                "doe_stress_autotune": {
+                  "tests": 11,
+                  "failures": 0,
+                  "errors": 0,
+                  "skipped": 0
+                }
+              }
+            },
+            "changed_source60": {
+              "summary": {
+                "locator": "/tmp/e02-lane10-installed-output-law-final.json",
+                "bytes": 35993,
+                "sha256": "083504947a50d7879ee9d3b9bb95468f3c19aa8de57b839bf9aec1b7606f5bd6"
+              },
+              "wheel_sha256": "ebb714af851e30f7312d93dafe7ae7d946fe1cc0db35f436f6f3f13d6d2f6fff",
+              "all_catalogued_evidence_unchanged": true,
+              "retained_wheel_bytes": true,
+              "results": {
+                "uq_consumers": {
+                  "tests": 21,
+                  "failures": 0,
+                  "errors": 0,
+                  "skipped": 0
+                },
+                "uq_output_law": {
+                  "tests": 37,
+                  "failures": 0,
+                  "errors": 0,
+                  "skipped": 0
+                },
+                "cal_candidate": {
+                  "tests": 2,
+                  "failures": 0,
+                  "errors": 0,
+                  "skipped": 0
+                }
+              }
+            }
+          },
+          "numeric_reuse_boundary": "Prior changed-source60(21+37+2) remain exactebb714source/wheel qualified. Finalwheel differs only in ordinaryABI catalogdata and isolated diagnostictool; actualnumerical producer/reader/function bodies unchanged. No false60fresh finalwheel replay. Initial62 remainhistorical qualifiedprofiles; unchangedCAL/DOE/ST/autotune proofs reused only byactualdisjointfunctions, not an all122distincttest/criterion total.",
+          "intermediate_catalog_profile": {
+            "wheel_sha256": "3976ea6030ab87eb21f8a5d3de24fa1340227d8daba4f117ee4d8072adf590db",
+            "wheel": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog/wheel/policy_engine-0.1.0-py3-none-any.whl",
+              "bytes": 18998529,
+              "sha256": "3976ea6030ab87eb21f8a5d3de24fa1340227d8daba4f117ee4d8072adf590db"
+            },
+            "supervision": {
+              "inputs_unchanged": true,
+              "named_input_count": 6,
+              "result": {
+                "aborted_reason": null,
+                "argv": [
+                  ".venv/bin/python",
+                  "-I",
+                  "-B",
+                  "_cache/e02/lane10-installed/final-output-law/abi-catalog/run_smoke.py"
+                ],
+                "complete": true,
+                "cwd": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine",
+                "disk_free_before_bytes": 8421732352,
+                "finished_at": "2026-11-03T09:09:16.563525+00:00",
+                "id": "command",
+                "max_sampled_process_tree_rss_bytes": 603521024,
+                "minimum_sampled_disk_free_bytes": 8421228544,
+                "pid": 74363,
+                "process_group_gone": true,
+                "return_code": 0,
+                "sample_count": 12,
+                "started_at": "2026-11-03T09:09:09.817690+00:00",
+                "status": "passed",
+                "stderr_path": "command.stderr.txt",
+                "stdout_path": "command.stdout.txt",
+                "termination_signal": null,
+                "wall_seconds": 6.745829291990958,
+                "wall_total_before_seconds": 2.520799171179533e-05
+              }
+            },
+            "scope": "Intermediate catalog-only115-entry metadata smoke, preserved as its own3976wheel profile before the diagnostictool change; not called finalsamewheel."
+          },
+          "evidence": {
+            "build.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/build.json",
+              "bytes": 2251,
+              "sha256": "867cde0dc48a6ed607d1b17500948e2180cc697b0fc96fabaf35bfcedd5b1ef3"
+            },
+            "build.stdout.txt": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/build.stdout.txt",
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build.stderr.txt": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/build.stderr.txt",
+              "bytes": 105,
+              "sha256": "6e6f95a0224a4c7cb2b77768465f90fa0770154375fe8cdbc3c47825f377cfda"
+            },
+            "install.stdout.txt": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/install.stdout.txt",
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "install.stderr.txt": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/install.stderr.txt",
+              "bytes": 648,
+              "sha256": "4713a086264a2187d654fa699ec89222945be2b4149f7d8f4e7edd613e653941"
+            },
+            "frozen-author-inputs.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/frozen-author-inputs.json",
+              "bytes": 9818,
+              "sha256": "0dcdc30d990b5d05cf47beba0b586683875cb0d1f50e3670c25688ca6b73566e"
+            },
+            "copied-inputs.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/copied-inputs.json",
+              "bytes": 4834,
+              "sha256": "d11e1d58372890ee4d368be07fbbcec85c5287df1cb932596ccd2752c5a1852c"
+            },
+            "observer-setup.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/observer-setup.json",
+              "bytes": 1155,
+              "sha256": "fdc2c3de80794fae75b3de64b6d01288b784fb30c85366ba38582093a28b960f"
+            },
+            "observer-records.jsonl.gz": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/observer-records.jsonl.gz",
+              "bytes": 17215,
+              "sha256": "228a05f9aa22a0d086cb516760248c9eea659dd4d9f668de43e2725185c616ec"
+            },
+            "smoke.py": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/smoke.py",
+              "bytes": 2744,
+              "sha256": "f69e55b9b2bdf18fd6ae982b9978b469f48ffafaaf047f6f2c9d909aad78674e"
+            },
+            "run_smoke.py": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/run_smoke.py",
+              "bytes": 1766,
+              "sha256": "9f8e04ae8f3a1751d8d481a882a92bee822e727b801e9a5b22c7f707bda783fa"
+            },
+            "actual-commands.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/actual-commands.json",
+              "bytes": 1346,
+              "sha256": "a40ca3edb3f44ca3c602814ccf69d41434245b94960928a163a12e2a40d6b023"
+            },
+            "execution.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/execution.json",
+              "bytes": 1741,
+              "sha256": "207620cee0f40e172ffc57f46cefac67798041414907f3bcd4406e7d4a85fba7"
+            },
+            "pytest.xml": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/pytest.xml",
+              "bytes": 1053,
+              "sha256": "1bae1ab8bc5c74d0ffab076ea6e036a017dce0e313fcd199615f80543acf3952"
+            },
+            "supervision/result.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/supervision/result.json",
+              "bytes": 963,
+              "sha256": "f2692013cfd0b324599661420c5828a8de9bb0fa1ae9401981d037701945fd09"
+            },
+            "supervision/before.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/supervision/before.json",
+              "bytes": 1125,
+              "sha256": "49ab76b0d23ec8e80c04e12a5df9e27f5310ca83642789a08e5e9fe1de23d00a"
+            },
+            "supervision/after.json": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/supervision/after.json",
+              "bytes": 1125,
+              "sha256": "49ab76b0d23ec8e80c04e12a5df9e27f5310ca83642789a08e5e9fe1de23d00a"
+            },
+            "supervision/command.stdout.txt": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/supervision/command.stdout.txt",
+              "bytes": 2271,
+              "sha256": "52cc1160d8db863b22df5a11b93ffd412813bfbd8ca849e4b715101ee014a255"
+            },
+            "supervision/command.stderr.txt": {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/supervision/command.stderr.txt",
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "actual_cli_reports": [
+            {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/pytest-temp/test_alias_match_reports_model0/report.json",
+              "bytes": 703,
+              "sha256": "ec7dc3f740d3b519fb4bb9cf723b15eede3334f592050145927d763a0656741a"
+            },
+            {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/pytest-temp/test_breaking_change_with_majo0/report.json",
+              "bytes": 626,
+              "sha256": "0b9468d4812d127cc2cd2afc1eafd66156abc15e50cb0b9aece9faf5fc0014f7"
+            },
+            {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/pytest-temp/test_future_manifest_family_is0/report.json",
+              "bytes": 565,
+              "sha256": "f85fac2290874253d16fae31cc9217eeb7f8b00ed45304291c828b3a58cf64d6"
+            },
+            {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/pytest-temp/test_scientist_p0_breaking_cha0/report.json",
+              "bytes": 707,
+              "sha256": "6eb76c643ce3850052e8c08dc7767a71eee6ff6a34ea062fbf9e06cfbdabab41"
+            },
+            {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/pytest-temp/test_scientist_p0_breaking_cha1/report.json",
+              "bytes": 819,
+              "sha256": "1141e2395b54398f6da0605f0599a31337de6e0e66aa7146526ce05d492f6a4b"
+            },
+            {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/pytest-temp/test_scientist_p1_breaking_cha0/report.json",
+              "bytes": 807,
+              "sha256": "34150b08194f51cea013297867d43936365742bcac665a5dc47772c829061263"
+            },
+            {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/pytest-temp/test_strict_optional_property_0/report.json",
+              "bytes": 732,
+              "sha256": "70697fae82e0aab609fd6d9bc133b8b43637cd1a5338826d0c117324a49d5106"
+            },
+            {
+              "locator": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane10-installed/final-output-law/abi-catalog-tool/pytest-temp/test_tolerant_optional_propert0/report.json",
+              "bytes": 598,
+              "sha256": "eef936299fb37cb55690a9cd0efc7e57478cedd72609bcd6dd99da130e0db78c"
+            }
+          ],
+          "current_evidence_total_bytes": 55717,
+          "limits": [
+            "Named Darwin CPU/shared-dependency installedprofile only; no Linux/GPU/deployment/thirdparty-authenticity orscientific/institutional authority.",
+            "Canonical observer covers normal inheritedPython startup and recorded loaded files, not syscall-level tracing orhostile interpreterbypass.",
+            "One minimalprefix updated firstparty-only; old47a11,ebb714,3976decidingwheelbytes retained at distinctlocators. No dependencies/environment/source copies.",
+            "No numericalreruns for metadata-only companions. No G/formalclosure orglobalCI/Main merge claimed."
+          ],
+          "G_acceptance": false,
+          "formal_closure": "NOT_RUN",
+          "closure_ids": []
+        },
+        "abi_all_families": {
+          "output": "policy-engine/_cache/e02/lane10-root/abi-all-families-current.json",
+          "baseline_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+          "command": [
+            ".venv/bin/python",
+            "-B",
+            "tools/quality/diagnostics/abi_diff.py",
+            "--baseline",
+            "_cache/e02/lane10-root/abi-main-baseline",
+            "--current",
+            "schemas/snapshots",
+            "--output",
+            "_cache/e02/lane10-root/abi-all-families-current.json"
+          ],
+          "return_code": 0,
+          "verdict": "WARN",
+          "total_changes": 12,
+          "breaking_changes": 3,
+          "compatible_changes": 9,
+          "version_errors": 0,
+          "scope": "Every immediate manifest family includingScientist. V13 is additive; V11/V12 descriptions/required-order differences are nonsemantic. Three nonblockingP2 measurement-aware-target changes from priorLANE07 remain their original versioned story, not newLANE10 closures. ExistingP0major-version gate remains enforced."
+        },
+        "post_audit_reds": {
+          "outputs": [
+            "policy-engine/_cache/e02/lane10-uncertainty/two-stage-joint-red",
+            "policy-engine/_cache/e02/lane10-uncertainty/output-overflow-red",
+            "policy-engine/_cache/e02/lane10-uncertainty/output-underflow-red",
+            "policy-engine/_cache/e02/lane10-uncertainty/output-small-summary-red",
+            "policy-engine/_cache/e02/lane10-uncertainty/output-scale-red",
+            "policy-engine/_cache/e02/lane10-uncertainty/output-profile-qualified"
+          ],
+          "current_green": "policy-engine/_cache/e02/lane10-uncertainty/output-profile-final",
+          "observed": "44/44 final focusedPASS. Preserve prior43PASS/1FAIL and all actual reds; later2fileallowlist/assertion delta has independent source review and report_v13_current2PASS."
+        },
+        "environment_event": {
+          "output": "policy-engine/_cache/e02/lane10-root/environment-after-cli-touch.json",
+          "event": "Read-only CI helper mistakenly invokeduv run for schema check, rebuilding/reinstalling only first-party editable package. Existingenv retained, no dependency reinstall claimed. CurrenteditableURL points tothis8ddaproduct.",
+          "observed_backend_metadata_changes": [],
+          "scope": "All previously observed named backend METADATA/version hashes reconciled unchanged. Source checks use explicitcheckout paths; isolated installed checks exclude editable.pth and enforcewheel origin. No full hermetic binary attestation."
         }
       },
       "current_source_checkpoint": {
-        "binding": "Containing final source commit plus earlier9df8d417.64 named author source/test/README blobs; ordinary docs/generated/release companions separately staged and read back. No self-referential finalSHA assertion.",
+        "source_base_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
+        "binding": "Containing follow-up source commit:7author mechanism/test/README paths plus rootregistry/ABItool/test and ordinary generated/schema/release/current-plan/state companions. Original15DOE/stress and49CAL/UQ/autotune/facade paths remain in9df8d417/e30a3df.71named author inputs are pinned here; numerical scopes reflect actual preimages and narrow later deltas.",
         "released_sha256": {
           "policy-engine/src/polisyos/foundry/calibration/README.md": "7dea68eb977f118397274a8573b12629e2181c89500b092004f286fcf3b2f174",
           "policy-engine/src/polisyos/foundry/calibration/calibrator.py": "9a4400ea05cb5d01eab36f6cb246449dbfecbccd32afc056399f65efbe0b3447",
@@ -5066,7 +6440,7 @@
           "policy-engine/src/polisyos/scientist/methods/search/adversarial.py": "73cbccb8e3fb3a055c4ecf7455455a9c62ecb1ee2e938652bdcb019c32653b46",
           "policy-engine/src/polisyos/scientist/methods/search/README.md": "9e09d0806bfbb31641e820a3044dd1993f91faca95db1a2a59fb998d38fc8e7d",
           "policy-engine/tests/unit/scientist/search/test_adversarial.py": "c55d2ead085e9e797638ae7c4268f695c1e2844f91e4a3a828f5269b632dfaa8",
-          "policy-engine/src/polisyos/foundry/uncertainty/README.md": "f11c709ee229460c86c651571204ff8a68f573f4df86678b2f604ddfb98ed17c",
+          "policy-engine/src/polisyos/foundry/uncertainty/README.md": "66986083b181e867f3752b5fb087ae1ef9eb56efa067a6c12f679b592b026f54",
           "policy-engine/src/polisyos/foundry/uncertainty/__init__.py": "a767c0b2e7d946a2fa76c6bdec6ff8dcbe7573b928e0cd325acc768814be1cfe",
           "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py": "e657fabe3e6fde7fac9ea340c2b93713ad6ebc16a5b7db60ea6a6a6317f8e0f4",
           "policy-engine/src/polisyos/foundry/uncertainty/config.py": "489d098a19563b897f8f9d5bca12b48546f1cdd05d281f1176a87547c65249bd",
@@ -5074,9 +6448,9 @@
           "policy-engine/src/polisyos/foundry/uncertainty/delta.py": "6b3597eaf7926cdf8a239eace4378635f6ea1cdc455b26a8816fc06b24fc452f",
           "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py": "0dc3f7a50e3d2ee4703075390eab7355394661d2617ef955add53389473e9e0a",
           "policy-engine/src/polisyos/foundry/uncertainty/empirical.py": "3c281c180f43311a027aba946c4b88f897d77ee81f278f36463527f947928556",
-          "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py": "3fbb602312e23ec5ec5e1b3a28e782511051859aa09f69a99f95fa80c5d76c0d",
+          "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py": "f233cd71a46d5623b6f16799e91a271991ffe371e293ed8b4103f7c5abb30bcb",
           "policy-engine/src/polisyos/foundry/uncertainty/protocol.py": "d798d501d400fe15a5ae95fce69787ee9d4428b75b40123cfec331e16f44a544",
-          "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": "199991fffe2c659d7cdd6fb7b5cc3cff49010d9c3eb09e43f9becf5f404657c3",
+          "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": "18dd6c4c2b3d45b14db43bf5301e4aee9732f42a00c8f47f910d4502e13a0edd",
           "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/welfare_context.py": "d8c95eaf9d6cb49694aacfb6851e012e6382cd4d79cecc9241872b9097430348",
           "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/welfare_covariance.py": "1fb0b6d8a48bff7ad091e0f262c3f71f29dc931727263b9d6f65493e2e0153b6",
           "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/welfare_draws.py": "b16185326456cca2770095e3c46ae61fbf46b8b5ce65e355b9cb4239b129c8ff",
@@ -5091,11 +6465,18 @@
           "policy-engine/tests/unit/remediation/test_uqp_01.py": "db65bb8858922ade3513a1c394235901ea8c66db0f9973c7384288abe6619e56",
           "policy-engine/tests/unit/remediation/test_uqp_03.py": "062f1ca88b53d240fa266c1b820f5d381cdf88d96c73b36d169a15e716153fd2",
           "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py": "b8430bac2984afb48bfddfffefa01b821549d20b8ba6d1285c8ced168b467c49",
-          "policy-engine/src/polisyos/ir/api.py": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac"
+          "policy-engine/src/polisyos/ir/api.py": "a3cfda505b6a11ab3dc153f05b8c0ec4122cb3bf5aab2f2142a73ef42e9978ac",
+          "policy-engine/src/polisyos/ir/analytics/uncertainty.py": "65120b22a1ba371f22eb951d7f0394436701ca42de6b6e340cefbc2d69cceb94",
+          "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/uncertainty_source_projection.py": "7cdd87bd67faf425f24a751a9ce5c477da073bdfcdd9ac0c8488dd2819d98e14",
+          "policy-engine/tests/unit/remediation/test_uqp_02.py": "52c3e11bdc5d55170cb1fceccb6407c5b448bf657e78ff60473ac189e0672722",
+          "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py": "44bc8b32238a07f48ef1381c12ca8dce33945cb845e1c5606615f680c64b8d9c",
+          "policy-engine/src/polisyos/schemas/abi_models/catalog.py": "db8f08de099551b68cb605f64fcefd95f4bc35876287b0887aa224c757d9acec",
+          "policy-engine/tools/quality/diagnostics/abi_diff.py": "31ae0ace5ed6e27e12eaf127f1535e6c399b2c973fd9221250f0debade4216ec",
+          "policy-engine/tests/contract/test_abi_diff_tool.py": "6a1a43d60ec7212783ce0218304a8ef40b972102661599b5ce092d29b84873ea"
         },
-        "remaining": "Exact3 partial criteria plus auxiliary guarded curvature promotion and unchanged previous-lane/global delivery remainders; nextLANE05 not started."
+        "remaining": "Exactly3partialLANE10criteria, auxiliaryprotectedcurvaturepromotion and unchangedL6/globalDA08/CI/G remainders. LANE05 notstarted."
       },
-      "source_review": "Independent GO: DOE12, stress3, CAL17, UQ25 plus identical-type facade companion and calibration autotune6. Current root353+1+7/48 and final installed consumers qualify actual combined scope; no source-only runtime PASS.",
+      "source_review": "IndependentGO for initial coherent CAL/UQ/DOE/stress/autotune source,7path output-fidelity class and current2lineIR/testdelta. Root independently reviewed ABItool2path classfix; nonauthor reviewer verified registryV13/oldschema semanticcompatibility. Installedreview separately qualifies actualorigin/hash/runtime scope; no fullplatform/hermetic/scientific/G assertion.",
       "component_generated_boundary": {
         "complete_inventory_read_path_count": 94,
         "component_read_intersection": [],
@@ -5135,6 +6516,19 @@
         "criterion_context": "CAL03 canonical conditioning companion, not a59th requirement",
         "label": "verification_missing",
         "remaining": "Independent raw-Hessian replay required before non-baseline protected promotion. All actual registry/pointer/runtime routes guarded; built-in baseline and same-identity metadata updates usable. Other loops retain their contracts."
+      },
+      "post_composition_followup": {
+        "source_base_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
+        "status": "REVIEWED_LOCAL_IMPLEMENTATION_AND_AFFECTED_QUALIFICATION_COMPLETE",
+        "finding": "Final literalTEST04 audit exposed a real second-propagation joint-row gap, then the same output-fidelity class exposed float32/DTOsupport and ledger inconsistencies. Repair uses canonical MC owner, numeric policy and stable reducers; no new statistics/verifier subsystem.",
+        "affected_requirements": [
+          "REQ-UQP-01-05",
+          "REQ-UQP-02-04",
+          "REQ-UQP-02-05",
+          "REQ-UQP-03-03"
+        ],
+        "versions": "New output-resolution loss uses ledger1.2/report1.3; oldledger1.0/1.1 andreport1.1/1.2 retain strictgrammar and semantics. V13 registered115th ABI model.",
+        "acceptance": "44focused/384composed/2currentV13PASS;60affectedinstalledPASS; currentmetadatawheel115entryprobe+8realCLItestsPASS. No formalG closure."
       }
     },
     {
@@ -12350,7 +13744,7 @@
       "integration_qualification": "QUALIFIED_NAMED_PROFILE",
       "assigned_executor": "/root/lane10_calibration",
       "base_commit": "50389f682411555e03911152f792519116e63cb1",
-      "integrated_commit": "containing_lane10_final_source_commit",
+      "integrated_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
       "actual_write_set": [
         "policy-engine/src/polisyos/foundry/calibration/README.md",
         "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
@@ -12576,7 +13970,7 @@
       "integration_qualification": "QUALIFIED_NAMED_PROFILE",
       "assigned_executor": "/root/lane10_calibration",
       "base_commit": "50389f682411555e03911152f792519116e63cb1",
-      "integrated_commit": "containing_lane10_final_source_commit",
+      "integrated_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
       "actual_write_set": [
         "policy-engine/src/polisyos/foundry/calibration/README.md",
         "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
@@ -12723,7 +14117,7 @@
       "integration_qualification": "QUALIFIED_NAMED_PROFILE",
       "assigned_executor": "/root/lane10_calibration",
       "base_commit": "50389f682411555e03911152f792519116e63cb1",
-      "integrated_commit": "containing_lane10_final_source_commit",
+      "integrated_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
       "actual_write_set": [
         "policy-engine/src/polisyos/foundry/calibration/README.md",
         "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
@@ -12891,7 +14285,7 @@
       "integration_qualification": "QUALIFIED_NAMED_PROFILE",
       "assigned_executor": "/root/lane10_calibration",
       "base_commit": "50389f682411555e03911152f792519116e63cb1",
-      "integrated_commit": "containing_lane10_final_source_commit",
+      "integrated_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
       "actual_write_set": [
         "policy-engine/src/polisyos/foundry/calibration/README.md",
         "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
@@ -12953,7 +14347,11 @@
           "evidence_refs": [
             "cal_release",
             "science_scope_origin",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Explicit report2.2/2.3 uncertainty-field scope, strict coordinate coverage and tied singular JΣJᵀ; C stays point-only; actual persisted fresh response/welfare consumer and historical version meanings preserved.",
           "capability_gaps": [],
@@ -12976,7 +14374,11 @@
           "evidence_refs": [
             "cal_release",
             "science_scope_origin",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Explicit report2.2/2.3 uncertainty-field scope, strict coordinate coverage and tied singular JΣJᵀ; C stays point-only; actual persisted fresh response/welfare consumer and historical version meanings preserved.",
           "capability_gaps": [],
@@ -12999,7 +14401,11 @@
           "evidence_refs": [
             "cal_release",
             "science_scope_origin",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Explicit report2.2/2.3 uncertainty-field scope, strict coordinate coverage and tied singular JΣJᵀ; C stays point-only; actual persisted fresh response/welfare consumer and historical version meanings preserved.",
           "capability_gaps": [],
@@ -13022,7 +14428,11 @@
           "evidence_refs": [
             "cal_release",
             "science_scope_origin",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Explicit report2.2/2.3 uncertainty-field scope, strict coordinate coverage and tied singular JΣJᵀ; C stays point-only; actual persisted fresh response/welfare consumer and historical version meanings preserved.",
           "capability_gaps": [],
@@ -13046,7 +14456,11 @@
           "evidence_refs": [
             "cal_release",
             "science_scope_origin",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Explicit report2.2/2.3 uncertainty-field scope, strict coordinate coverage and tied singular JΣJᵀ; C stays point-only; actual persisted fresh response/welfare consumer and historical version meanings preserved.",
           "capability_gaps": [],
@@ -13066,7 +14480,7 @@
       "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane10_uncertainty",
       "base_commit": "50389f682411555e03911152f792519116e63cb1",
-      "integrated_commit": "containing_lane10_final_source_commit",
+      "integrated_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
       "actual_write_set": [
         "policy-engine/src/polisyos/foundry/uncertainty/README.md",
         "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
@@ -13092,7 +14506,11 @@
         "policy-engine/tests/unit/foundry/uncertainty/test_uncertainty_protocol.py",
         "policy-engine/tests/unit/remediation/test_uqp_01.py",
         "policy-engine/tests/unit/remediation/test_uqp_03.py",
-        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+        "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/uncertainty_source_projection.py",
+        "policy-engine/tests/unit/remediation/test_uqp_02.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py"
       ],
       "shared_writer": null,
       "decision_records": [],
@@ -13114,7 +14532,11 @@
         "uq_composed",
         "native_posterior",
         "science_scope_origin",
-        "installed_composed"
+        "installed_composed",
+        "mc_output_composed",
+        "report_v13_current",
+        "installed_output_law",
+        "installed_metadata_current"
       ],
       "blockers": [
         "REQ-UQS-01-03"
@@ -13139,7 +14561,11 @@
             "uq_composed",
             "native_posterior",
             "science_scope_origin",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Gaussian secondary components preserve explicit semantics/non-gating provenance; stable finite scales, deterministic-label refusal and representation collapse controls. CAL caller composition remains root/CAL-owned.",
           "capability_gaps": [],
@@ -13162,7 +14588,11 @@
             "uq_composed",
             "native_posterior",
             "science_scope_origin",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Existing CPython3.14 finite mean owner consumed by widest aggregation; independent Fraction and Decimal oracles cover overflow, subnormal cancellation and permutation. No new information-unit independence.",
           "capability_gaps": [],
@@ -13188,7 +14618,11 @@
             "uq_composed",
             "native_posterior",
             "science_scope_origin",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Exact repeated selected-view dedup and context/profile admission are qualified; distinct unresolved views stay a non-gating hull. Four-unit precision fusion remains producer_missing/verification_missing/bridge_missing: common-estimand, disjoint-unit and prior/model-overlap verifier absent.",
           "capability_gaps": [
@@ -13219,7 +14653,11 @@
             "uq_composed",
             "native_posterior",
             "science_scope_origin",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Actual selected HMC summary preserves source mean/interval/draw corpus/joint rows, rejects wrong selected evidence profile and performs real ordered pushforward without invented joint authority.",
           "capability_gaps": [],
@@ -13244,14 +14682,31 @@
             "uq_composed",
             "native_posterior",
             "science_scope_origin",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Positive actual producer to selected profile to fresh posterior consumer and single-view aggregate exists independently of the missing independent-fusion capability; no hull-only substitution for this positive.",
           "capability_gaps": [],
           "scope": "Named actual software/input/backend profiles only. Synthetic mathematical adequacy is not empirical causal validity, law/issuer/currentness or G acceptance."
         }
       ],
-      "independent_review": "GO for released coherent source and actual named runtime scope; explicit partial rows remain unresolved. Independent G acceptance NOT_RUN."
+      "independent_review": "GO for released coherent source and actual named runtime scope; explicit partial rows remain unresolved. Independent G acceptance NOT_RUN.",
+      "source_followup": {
+        "source_base_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
+        "final_binding": "Containing follow-up commit plus exact released source hashes inLANE10 current_source_checkpoint. No self-referentialSHA; root reads committed blobs and remote identity back.",
+        "paths": [
+          "src/polisyos/foundry/uncertainty/monte_carlo.py",
+          "src/polisyos/foundry/uncertainty/README.md",
+          "src/polisyos/ir/analytics/uncertainty.py",
+          "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "src/polisyos/scientist/nodes/builtins/simulate/uncertainty_source_projection.py",
+          "tests/unit/remediation/test_uqp_02.py",
+          "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py"
+        ]
+      }
     },
     {
       "packet_id": "UQP-01",
@@ -13264,7 +14719,7 @@
       "integration_qualification": "QUALIFIED_NAMED_PROFILE",
       "assigned_executor": "/root/lane10_uncertainty",
       "base_commit": "50389f682411555e03911152f792519116e63cb1",
-      "integrated_commit": "containing_lane10_final_source_commit",
+      "integrated_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
       "actual_write_set": [
         "policy-engine/src/polisyos/foundry/uncertainty/README.md",
         "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
@@ -13290,7 +14745,11 @@
         "policy-engine/tests/unit/foundry/uncertainty/test_uncertainty_protocol.py",
         "policy-engine/tests/unit/remediation/test_uqp_01.py",
         "policy-engine/tests/unit/remediation/test_uqp_03.py",
-        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+        "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/uncertainty_source_projection.py",
+        "policy-engine/tests/unit/remediation/test_uqp_02.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py"
       ],
       "shared_writer": null,
       "decision_records": [],
@@ -13312,7 +14771,11 @@
         "uq_composed",
         "science_scope_origin",
         "retry_ledger",
-        "installed_composed"
+        "installed_composed",
+        "mc_output_composed",
+        "report_v13_current",
+        "installed_output_law",
+        "installed_metadata_current"
       ],
       "blockers": [],
       "deferred_ids": [],
@@ -13334,7 +14797,11 @@
             "uq_composed",
             "science_scope_origin",
             "retry_ledger",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Real legacy-Normal Delta/auto/random/Sobol fixed-scale invocation; separate tracer-safe typed-fit policy controls preserve MC law precedence. Defaults, explicit zero and missing bindings retained.",
           "capability_gaps": [],
@@ -13359,7 +14826,11 @@
             "uq_composed",
             "science_scope_origin",
             "retry_ledger",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Actual eager/JIT/Jacobian affine zero-baseline and genuine nondifferentiable fallback; candidate/partial response mapping stays limited. S is impact-qualified after the sole import delta.",
           "capability_gaps": [],
@@ -13383,7 +14854,11 @@
             "uq_composed",
             "science_scope_origin",
             "retry_ledger",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Missing output remains UNKNOWN/non-gating; real zero remains zero; structural pre-bind failure avoids sampled-call repetition.",
           "capability_gaps": [],
@@ -13407,7 +14882,11 @@
             "uq_composed",
             "science_scope_origin",
             "retry_ledger",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Actual selected calibration/execute source refs, digests, centers, units and used roster reach persisted fresh consumer; false/missing/foreign profile/center/roster controls refuse. Scope is the required native source route, not a universal model inventor or independent scientific authority.",
           "capability_gaps": [],
@@ -13431,14 +14910,31 @@
             "uq_composed",
             "science_scope_origin",
             "retry_ledger",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Consistent explicit float32 nominal/probe/roster/Jacobian domain, loss metadata and out-of-domain refusal; no arbitrary-precision or unrun x64 claim.",
           "capability_gaps": [],
           "scope": "Named actual software/input/backend profiles only. Synthetic mathematical adequacy is not empirical causal validity, law/issuer/currentness or G acceptance."
         }
       ],
-      "independent_review": "GO for released coherent source and actual named runtime scope; explicit partial rows remain unresolved. Independent G acceptance NOT_RUN."
+      "independent_review": "GO for released coherent source and actual named runtime scope; explicit partial rows remain unresolved. Independent G acceptance NOT_RUN.",
+      "source_followup": {
+        "source_base_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
+        "final_binding": "Containing follow-up commit plus exact released source hashes inLANE10 current_source_checkpoint. No self-referentialSHA; root reads committed blobs and remote identity back.",
+        "paths": [
+          "src/polisyos/foundry/uncertainty/monte_carlo.py",
+          "src/polisyos/foundry/uncertainty/README.md",
+          "src/polisyos/ir/analytics/uncertainty.py",
+          "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "src/polisyos/scientist/nodes/builtins/simulate/uncertainty_source_projection.py",
+          "tests/unit/remediation/test_uqp_02.py",
+          "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py"
+        ]
+      }
     },
     {
       "packet_id": "UQP-02",
@@ -13451,7 +14947,7 @@
       "integration_qualification": "QUALIFIED_NAMED_PROFILE",
       "assigned_executor": "/root/lane10_uncertainty",
       "base_commit": "50389f682411555e03911152f792519116e63cb1",
-      "integrated_commit": "containing_lane10_final_source_commit",
+      "integrated_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
       "actual_write_set": [
         "policy-engine/src/polisyos/foundry/uncertainty/README.md",
         "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
@@ -13477,7 +14973,11 @@
         "policy-engine/tests/unit/foundry/uncertainty/test_uncertainty_protocol.py",
         "policy-engine/tests/unit/remediation/test_uqp_01.py",
         "policy-engine/tests/unit/remediation/test_uqp_03.py",
-        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+        "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/uncertainty_source_projection.py",
+        "policy-engine/tests/unit/remediation/test_uqp_02.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py"
       ],
       "shared_writer": null,
       "decision_records": [],
@@ -13497,7 +14997,11 @@
       "evidence": [
         "uq_composed",
         "science_law_empirical",
-        "installed_composed"
+        "installed_composed",
+        "mc_output_composed",
+        "report_v13_current",
+        "installed_output_law",
+        "installed_metadata_current"
       ],
       "blockers": [],
       "deferred_ids": [],
@@ -13518,7 +15022,11 @@
           "evidence_refs": [
             "uq_composed",
             "science_law_empirical",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Normal sigma-zero is an exact point mass in native random/QMC and Science; positive variance controls retained.",
           "capability_gaps": [],
@@ -13540,7 +15048,11 @@
           "evidence_refs": [
             "uq_composed",
             "science_law_empirical",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "One admitted empirical CDF preserves representable positive intervals, zero-weight exclusions, finite uniform lattice boundary and typed collapsed-tail refusal before evaluator execution.",
           "capability_gaps": [],
@@ -13564,7 +15076,11 @@
           "evidence_refs": [
             "uq_composed",
             "science_law_empirical",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Named Gaussian covariance and singular directions plus actual paired weighted row moments. One anchored weighted-dot owner serves diagonal/cross moments; no artificial jitter in the declared law.",
           "capability_gaps": [],
@@ -13588,9 +15104,13 @@
           "evidence_refs": [
             "uq_composed",
             "science_law_empirical",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
-          "basis": "Actual empirical atoms/weights/shared rows, incompatible-joint refusals and selected posterior/profile/fresh-reader propagation; declared joint identity does not become verified authority.",
+          "basis": "Literal two-stage native MC→actual result builder→selected-profile CAS persistence/fresh load→second real Sobol MC preserves repeated atoms,9:1 source lineage and actual new uniform-mass realization rows. New corpus/post-f32-mask IDs cannot be joined across differing masks or output corpora; no source ID copying or independent-information promotion.",
           "capability_gaps": [],
           "scope": "Named actual software/input/backend profiles only. Synthetic mathematical adequacy is not empirical causal validity, law/issuer/currentness or G acceptance."
         },
@@ -13611,14 +15131,31 @@
           "evidence_refs": [
             "uq_composed",
             "science_law_empirical",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
-          "basis": "Native re-propagation preserves candidate/non-gating limitations; resampling does not create independent evidence or verified joint provenance.",
+          "basis": "Current random/QMC/native persisted and second-generation consumers exercise actual empirical law/covariance/zero and numerical-resolution refusal.44focused+384composed+2currentreader and60installed cases retain their exact inputs; no missing-backend or scientific authority promotion.",
           "capability_gaps": [],
           "scope": "Named actual software/input/backend profiles only. Synthetic mathematical adequacy is not empirical causal validity, law/issuer/currentness or G acceptance."
         }
       ],
-      "independent_review": "GO for released coherent source and actual named runtime scope; explicit partial rows remain unresolved. Independent G acceptance NOT_RUN."
+      "independent_review": "GO for released coherent source and actual named runtime scope; explicit partial rows remain unresolved. Independent G acceptance NOT_RUN.",
+      "source_followup": {
+        "source_base_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
+        "final_binding": "Containing follow-up commit plus exact released source hashes inLANE10 current_source_checkpoint. No self-referentialSHA; root reads committed blobs and remote identity back.",
+        "paths": [
+          "src/polisyos/foundry/uncertainty/monte_carlo.py",
+          "src/polisyos/foundry/uncertainty/README.md",
+          "src/polisyos/ir/analytics/uncertainty.py",
+          "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "src/polisyos/scientist/nodes/builtins/simulate/uncertainty_source_projection.py",
+          "tests/unit/remediation/test_uqp_02.py",
+          "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py"
+        ]
+      }
     },
     {
       "packet_id": "UQP-03",
@@ -13631,7 +15168,7 @@
       "integration_qualification": "PARTIAL",
       "assigned_executor": "/root/lane10_uncertainty",
       "base_commit": "50389f682411555e03911152f792519116e63cb1",
-      "integrated_commit": "containing_lane10_final_source_commit",
+      "integrated_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
       "actual_write_set": [
         "policy-engine/src/polisyos/foundry/uncertainty/README.md",
         "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
@@ -13657,7 +15194,11 @@
         "policy-engine/tests/unit/foundry/uncertainty/test_uncertainty_protocol.py",
         "policy-engine/tests/unit/remediation/test_uqp_01.py",
         "policy-engine/tests/unit/remediation/test_uqp_03.py",
-        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+        "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/uncertainty_source_projection.py",
+        "policy-engine/tests/unit/remediation/test_uqp_02.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py"
       ],
       "shared_writer": null,
       "decision_records": [],
@@ -13678,7 +15219,11 @@
       "evidence": [
         "uq_composed",
         "retry_ledger",
-        "installed_composed"
+        "installed_composed",
+        "mc_output_composed",
+        "report_v13_current",
+        "installed_output_law",
+        "installed_metadata_current"
       ],
       "blockers": [
         "REQ-UQP-03-05"
@@ -13701,7 +15246,11 @@
           "evidence_refs": [
             "uq_composed",
             "retry_ledger",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Named full relative output-width heuristic; legacy serialized alias retained, conflicting aliases refused; no half-width, MCSE, coverage or convergence claim.",
           "capability_gaps": [],
@@ -13723,7 +15272,11 @@
           "evidence_refs": [
             "uq_composed",
             "retry_ledger",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Non-divisible checkpoint/budget accounting and early-stop unattempted counts tested on actual MC.",
           "capability_gaps": [],
@@ -13747,7 +15300,11 @@
           "evidence_refs": [
             "uq_composed",
             "retry_ledger",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Native conditional successful draws plus complete terminal failure/unattempted ledger survive fresh CAS and bounded normative consumption; no zero imputation.",
           "capability_gaps": [],
@@ -13769,7 +15326,11 @@
           "evidence_refs": [
             "uq_composed",
             "retry_ledger",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Same-invocation transient retry is bounded to two physical attempts; nominal retry is separate from draws; exhausted retry/global cause fails closed without partial node persistence.",
           "capability_gaps": [],
@@ -13792,7 +15353,11 @@
           "evidence_refs": [
             "uq_composed",
             "retry_ledger",
-            "installed_composed"
+            "installed_composed",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "basis": "Specific persisted fresh-consumer controls pass. A generic recomputed selected served-source/draw-ledger/implementation identity verifier for Science/normative authority is not established; retained outputs remain candidate-grade.",
           "capability_gaps": [
@@ -13802,7 +15367,20 @@
           "remaining": "Actual source-bound persisted ledger and normative consumption are qualified, but generic served-source/draw/implementation verification is not established. Complete producer counts do not confer verified served-source authority; current candidate/conditional limitations remain enforced."
         }
       ],
-      "independent_review": "GO for released coherent source and actual named runtime scope; explicit partial rows remain unresolved. Independent G acceptance NOT_RUN."
+      "independent_review": "GO for released coherent source and actual named runtime scope; explicit partial rows remain unresolved. Independent G acceptance NOT_RUN.",
+      "source_followup": {
+        "source_base_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
+        "final_binding": "Containing follow-up commit plus exact released source hashes inLANE10 current_source_checkpoint. No self-referentialSHA; root reads committed blobs and remote identity back.",
+        "paths": [
+          "src/polisyos/foundry/uncertainty/monte_carlo.py",
+          "src/polisyos/foundry/uncertainty/README.md",
+          "src/polisyos/ir/analytics/uncertainty.py",
+          "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "src/polisyos/scientist/nodes/builtins/simulate/uncertainty_source_projection.py",
+          "tests/unit/remediation/test_uqp_02.py",
+          "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py"
+        ]
+      }
     },
     {
       "packet_id": "DOE-01",
@@ -18025,12 +19603,16 @@
     {
       "scenario_id": "E02-I10-A",
       "status": "QUALIFIED_NAMED_PROFILE",
-      "commit": "containing_lane10_final_source_commit",
+      "commit": "containing_lane10_followup_source_commit",
       "profile": "ExistingPython3.14.3/JAX0.8.2 CPU; CALx64True, UQ/DOEdefaultFalse with explicitlocalfloat32 controls, NumPyHMC32+32, SALib1.5.2/sklearn1.8.0; actual current wheel and compact commands in evidence catalog.",
       "evidence": [
         "installed_composed",
         "cal_composed",
-        "native_support"
+        "native_support",
+        "mc_output_composed",
+        "report_v13_current",
+        "installed_output_law",
+        "installed_metadata_current"
       ],
       "binding_ids": [
         "E02-I10-A-B01",
@@ -18063,7 +19645,11 @@
           "evidence_refs": [
             "installed_composed",
             "cal_composed",
-            "native_support"
+            "native_support",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "coverage_extent": "Only the declared selected producer/interface/fresh-consumer property plus actual distinguishing controls. Local criterion results retain their own native/oracle/compatibility profiles; not every backend or empirical authority."
         },
@@ -18084,7 +19670,11 @@
           "evidence_refs": [
             "installed_composed",
             "cal_composed",
-            "native_support"
+            "native_support",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "coverage_extent": "Only the declared selected producer/interface/fresh-consumer property plus actual distinguishing controls. Local criterion results retain their own native/oracle/compatibility profiles; not every backend or empirical authority."
         },
@@ -18108,7 +19698,11 @@
           "evidence_refs": [
             "installed_composed",
             "cal_composed",
-            "native_support"
+            "native_support",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "coverage_extent": "Only the declared selected producer/interface/fresh-consumer property plus actual distinguishing controls. Local criterion results retain their own native/oracle/compatibility profiles; not every backend or empirical authority."
         },
@@ -18132,7 +19726,11 @@
           "evidence_refs": [
             "installed_composed",
             "cal_composed",
-            "native_support"
+            "native_support",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "coverage_extent": "Only the declared selected producer/interface/fresh-consumer property plus actual distinguishing controls. Local criterion results retain their own native/oracle/compatibility profiles; not every backend or empirical authority."
         }
@@ -18141,7 +19739,7 @@
     {
       "scenario_id": "E02-I10-B",
       "status": "PARTIAL_WITH_EXACT_REMAINDERS",
-      "commit": "containing_lane10_final_source_commit",
+      "commit": "containing_lane10_followup_source_commit",
       "profile": "ExistingPython3.14.3/JAX0.8.2 CPU; CALx64True, UQ/DOEdefaultFalse with explicitlocalfloat32 controls, NumPyHMC32+32, SALib1.5.2/sklearn1.8.0; actual current wheel and compact commands in evidence catalog.",
       "evidence": [
         "installed_composed",
@@ -18149,7 +19747,11 @@
         "science_scope_origin",
         "science_law_empirical",
         "native_posterior",
-        "retry_ledger"
+        "retry_ledger",
+        "mc_output_composed",
+        "report_v13_current",
+        "installed_output_law",
+        "installed_metadata_current"
       ],
       "binding_ids": [
         "E02-I10-B-B01",
@@ -18185,7 +19787,11 @@
             "science_scope_origin",
             "science_law_empirical",
             "native_posterior",
-            "retry_ledger"
+            "retry_ledger",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "coverage_extent": "Only the declared selected producer/interface/fresh-consumer property plus actual distinguishing controls. Local criterion results retain their own native/oracle/compatibility profiles; not every backend or empirical authority."
         },
@@ -18213,7 +19819,11 @@
             "science_scope_origin",
             "science_law_empirical",
             "native_posterior",
-            "retry_ledger"
+            "retry_ledger",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "coverage_extent": "Only the declared selected producer/interface/fresh-consumer property plus actual distinguishing controls. Local criterion results retain their own native/oracle/compatibility profiles; not every backend or empirical authority."
         },
@@ -18240,7 +19850,11 @@
             "science_scope_origin",
             "science_law_empirical",
             "native_posterior",
-            "retry_ledger"
+            "retry_ledger",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "coverage_extent": "Only the declared selected producer/interface/fresh-consumer property plus actual distinguishing controls. Local criterion results retain their own native/oracle/compatibility profiles; not every backend or empirical authority."
         },
@@ -18270,7 +19884,11 @@
             "science_scope_origin",
             "science_law_empirical",
             "native_posterior",
-            "retry_ledger"
+            "retry_ledger",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "coverage_extent": "Only the declared selected producer/interface/fresh-consumer property plus actual distinguishing controls. Local criterion results retain their own native/oracle/compatibility profiles; not every backend or empirical authority."
         },
@@ -18290,7 +19908,11 @@
             "science_scope_origin",
             "science_law_empirical",
             "native_posterior",
-            "retry_ledger"
+            "retry_ledger",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "coverage_extent": "Only the declared selected producer/interface/fresh-consumer property plus actual distinguishing controls. Local criterion results retain their own native/oracle/compatibility profiles; not every backend or empirical authority."
         }
@@ -18299,12 +19921,16 @@
     {
       "scenario_id": "E02-I10-C",
       "status": "PARTIAL_WITH_EXACT_REMAINDERS",
-      "commit": "containing_lane10_final_source_commit",
+      "commit": "containing_lane10_followup_source_commit",
       "profile": "ExistingPython3.14.3/JAX0.8.2 CPU; CALx64True, UQ/DOEdefaultFalse with explicitlocalfloat32 controls, NumPyHMC32+32, SALib1.5.2/sklearn1.8.0; actual current wheel and compact commands in evidence catalog.",
       "evidence": [
         "installed_composed",
         "doe_release",
-        "stress_release"
+        "stress_release",
+        "mc_output_composed",
+        "report_v13_current",
+        "installed_output_law",
+        "installed_metadata_current"
       ],
       "binding_ids": [
         "E02-I10-C-B01",
@@ -18331,7 +19957,11 @@
           "evidence_refs": [
             "installed_composed",
             "doe_release",
-            "stress_release"
+            "stress_release",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "coverage_extent": "Only the declared selected producer/interface/fresh-consumer property plus actual distinguishing controls. Local criterion results retain their own native/oracle/compatibility profiles; not every backend or empirical authority."
         },
@@ -18353,7 +19983,11 @@
           "evidence_refs": [
             "installed_composed",
             "doe_release",
-            "stress_release"
+            "stress_release",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "coverage_extent": "Only the declared selected producer/interface/fresh-consumer property plus actual distinguishing controls. Local criterion results retain their own native/oracle/compatibility profiles; not every backend or empirical authority."
         },
@@ -18378,7 +20012,11 @@
           "evidence_refs": [
             "installed_composed",
             "doe_release",
-            "stress_release"
+            "stress_release",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "coverage_extent": "Only the declared selected producer/interface/fresh-consumer property plus actual distinguishing controls. Local criterion results retain their own native/oracle/compatibility profiles; not every backend or empirical authority."
         },
@@ -18403,7 +20041,11 @@
           "evidence_refs": [
             "installed_composed",
             "doe_release",
-            "stress_release"
+            "stress_release",
+            "mc_output_composed",
+            "report_v13_current",
+            "installed_output_law",
+            "installed_metadata_current"
           ],
           "coverage_extent": "Only the declared selected producer/interface/fresh-consumer property plus actual distinguishing controls. Local criterion results retain their own native/oracle/compatibility profiles; not every backend or empirical authority."
         }
@@ -18715,10 +20357,11 @@
       "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope.",
       "status": "QUALIFIED_FINAL_CHANGED_CONSUMER_NAMED_PROFILE",
       "assigned_owner": "root / lane10_calibration",
-      "actual_provider_commit": "containing_lane10_final_source_commit",
+      "actual_provider_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
       "evidence": [
         "cal_composed",
-        "installed_composed"
+        "installed_composed",
+        "installed_output_law"
       ],
       "remaining": "No remaining late changed-consumer extent in this named profile. Preserve already qualified local assertions; requalify only an actual later invalidation. Final impact-basedDA08 remains separate."
     },
@@ -18766,10 +20409,11 @@
       "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope.",
       "status": "QUALIFIED_FINAL_CHANGED_CONSUMER_NAMED_PROFILE",
       "assigned_owner": "root / lane10_calibration",
-      "actual_provider_commit": "containing_lane10_final_source_commit",
+      "actual_provider_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
       "evidence": [
         "da04_final",
-        "installed_composed"
+        "installed_composed",
+        "installed_output_law"
       ],
       "current_disposition": "CAL05-01/02 and actual current CAL05-03 schedule→ordered loss→fresh persisted report/replay are qualified now. Only repeat the final changed CAL02/CAL04 loss/report consumer after those LANE10 edits; do not reopen independent local controls.",
       "remaining": "No remaining late changed-consumer extent in this named profile. Preserve already qualified local assertions; requalify only an actual later invalidation. Final impact-basedDA08 remains separate."
@@ -19749,6 +21393,25 @@
         "author_ref": "codex/e02-main-composition-20261031",
         "pull_request": "https://github.com/DenisKopylov/polisyos/pull/70",
         "publication": "Normal commit/push/readback pending at this containing record; later delivery identity is Git history, not a self-referential hash. RemoteMain not promoted while requiredCIred."
+      }
+    },
+    {
+      "base_commit": "e30a3df588af8f707ba1a7b4167fdc0314ba7423",
+      "status": "REVIEWED_LOCAL_IMPLEMENTATION_WITH_EXACT_REMAINDERS",
+      "source_binding": "Containing follow-up source commit; exact71source/test/README/tool/registry SHA256 pins plus explicitly staged generated/docs/release companions. Finalwheel88b5f7488612ff54e1ab96ad0d5e2f82c825267c4db086ccea8ffd09522f907f differs from executed60-casewheel only incatalog/tool; metadata115entryand8installedCLI checks qualify both.",
+      "packets": [
+        "UQP-02",
+        "UQP-03",
+        "UQS-01",
+        "UQP-01"
+      ],
+      "local_result": "44focused/384composed/2currentV13PASS;60affectedinstalledPASS;8sourceABItool+8installedCLI controls;115/115fullschemafreshnessPASS;ABIallfamiliesWARN/nonblocking0versionerrors;66PythonpathsRuff/formatPASS.",
+      "remaining": "Three exactLANE10criteria plusauxiliarycurvatureverification and earlierunresolvedL6/DA08/globalCI/G, allsingleindex. No newlane orformalclosure.",
+      "next_lane_started": false,
+      "delivery": {
+        "author_ref": "codex/e02-main-composition-20261031",
+        "pull_request": "https://github.com/DenisKopylov/polisyos/pull/70",
+        "publication": "Normalhooks/commit/push/readback follow this record. ActualfinalSHA/tree are Git delivery identity, not a self-referentialfield. RemoteMain remainsunchanged untilrequiredCIgreen."
       }
     }
   ],

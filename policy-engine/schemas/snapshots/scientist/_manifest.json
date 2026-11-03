@@ -6,8 +6,8 @@
     "release_fragment_change_class": "persisted-artifact-format",
     "version_owner": "team-scientist"
   },
-  "content_hash": "da1a7c7e27c8cdc6eb9f6d476f39194e7bd2512409712dc0c0759929863d430d",
-  "generated_at": "2026-10-30T23:58:36+00:00",
+  "content_hash": "375d76d52225b060314fdcf714bc438cd84f1762920d94b639310acd318e1804",
+  "generated_at": "2026-11-03T09:06:04+00:00",
   "generator_version": "1.1.0",
   "models": {
     "calibration_validation_bundle_v1_1": {
@@ -34,8 +34,8 @@
       "schema_mode": "serialization",
       "schema_variant_version": null,
       "schema_version": "1.1",
-      "sha256_full": "6ad3be588de799adb9cb8caf2380b8eba597cb1d9cc59d9c5b79cb68bfeb8efa",
-      "sha256_semantic": "ed2b16a88b19bc80258d041b6e2c3d6d45cd99d6b6ea66fa226e4ce6399f64a0",
+      "sha256_full": "0afb63d73d9874f77fcd5eaf7f2eee8eeefec181eb408e631373503239311638",
+      "sha256_semantic": "b0a408c87dbafe870ab81a7d4a94fa2d736d07fe78c438c9d0f59c88c2a8dbfd",
       "version_field": "schema_version"
     },
     "propagation_report_v1_2": {
@@ -48,8 +48,22 @@
       "schema_mode": "serialization",
       "schema_variant_version": null,
       "schema_version": "1.2",
-      "sha256_full": "dbf65b0455b5905ef33017bc17aac3cf2a1e964c395f1c06ff17deb2523a3bc8",
-      "sha256_semantic": "2677c8982212bc85a3cdcbca39fdf7226c7e65106c727c1395e020c6ff53eb01",
+      "sha256_full": "6944fb1ca67302178e49d33bb5fff6b0ee21ed02c44c351a2ebb079fe03a1602",
+      "sha256_semantic": "cadfc5c009da074ff048ad239b29fdce83a5013ad9c8fcdc38b55c1f581b5193",
+      "version_field": "schema_version"
+    },
+    "propagation_report_v1_3": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.scientist.nodes.builtins.simulate.uncertainty_source_projection.PropagationReportV13",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "propagation_report_v1_3.schema.json",
+      "schema_mode": "serialization",
+      "schema_variant_version": null,
+      "schema_version": "1.3",
+      "sha256_full": "0a2f333cd7cc64b3a6e9ae6b4a7cfc454b15e19eb38d18f7493ddd65408d109e",
+      "sha256_semantic": "b7b77506e3eabe32fa8321f593adfdc9a67639d26e189fbc99b857ef8afb5837",
       "version_field": "schema_version"
     },
     "retained_skg_snapshot_v1_1": {

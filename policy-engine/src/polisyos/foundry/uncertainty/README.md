@@ -40,6 +40,28 @@ covariance are refused. Moment calculation can remain representable when a
 finite sampling CDF cannot: these are separate admissions. A declared joint
 row identity remains candidate provenance, not verified authority.
 
+Multiple outputs from one Monte Carlo execution carry a new candidate joint
+row ID bound to the realized input and output corpus and the exact successful
+draw positions. Outputs with different surviving positions or different
+realizations cannot be joined by row count alone. This ID is not the source
+row ID and does not establish scientific independence, source authority, or
+new information. The output preserves the compatible source axis label; it
+does not claim that the resampled row positions are the original source rows.
+Each output row already represents a draw from the input weights and therefore
+has uniform mass; source weights remain with the selected input artifacts.
+
+Finite evaluator values that overflow the output's float32 representation, or
+nonzero values rounded to zero by it, are recorded as per-output numerical
+failures. Other outputs from the same draw remain available, and incomplete
+results retain their conditional, non-gating status. These failures use draw
+ledger 1.2 and Science propagation report 1.3; older ledger/report versions keep
+their existing interpretation. Output rows retain their admitted float32 values:
+the existing exact-decimal policy is selected if default canonicalization would
+change a row. If float32 summary arithmetic would overflow, erase a nonzero
+scale, or process subnormal rows, the same rows are summarized with the shared
+finite binary64 mean and moments and NumPy quantiles. This scoped fallback does
+not increase source precision or establish evidence authority.
+
 Adaptive stopping retains the historical `ci_half_width_target` serialized
 field and its existing meaning. It is a target for the **full relative output
 interval width**, not a half-width or Monte Carlo standard error. New callers

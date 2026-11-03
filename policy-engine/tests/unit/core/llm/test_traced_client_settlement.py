@@ -1825,3 +1825,334 @@ async def test_real_cache_reuse_capture_cannot_be_replayed_as_a_new_estimated_ze
     )
     with pytest.raises(ValueError, match="reuse_downgraded_to_provider"):
         type(envelope).model_validate(changed)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("method", ["invoke", "ainvoke", "generate"])
+@pytest.mark.parametrize(
+    "fault",
+    ["none", "create", "enter", "exit", "attribute", "status", "record_exception", "suppress"],
+)
+@pytest.mark.parametrize("outcome", ["success", "provider_error", "accounting_error"])
+async def test_optional_span_faults_preserve_real_settlement_and_primary_outcome(
+    tmp_path: Path,
+    method: str,
+    fault: str,
+    outcome: str,
+) -> None:
+    """Export failure is independent of provider result and mandatory accounting."""
+    from polisyos.core.llm.traced_client import LLMAccountingError
+
+    primary = ValueError("primary provider failure")
+    accounting = OSError("mandatory accounting failure")
+
+    class Provider:
+        model = "fixture-model"
+        provider = "fixture"
+        calls = 0
+        response = GatewayLLMResponse(
+            content="retained provider answer",
+            usage=GatewayUsage(
+                prompt_tokens=2,
+                completion_tokens=3,
+                cost_usd=0.02,
+            ),
+            model=model,
+            provider=provider,
+        )
+
+        def invoke(self, *_args, **_kwargs):
+            self.calls += 1
+            if outcome == "provider_error":
+                raise primary
+            return self.response
+
+        async def ainvoke(self, *args, **kwargs):
+            return self.invoke(*args, **kwargs)
+
+        async def generate(self, *args, **kwargs):
+            return self.invoke(*args, **kwargs)
+
+    class Span(_Span):
+        def set_attribute(self, name, value):
+            if fault == "attribute":
+                raise RuntimeError("optional attribute failure")
+
+        def set_status(self, status):
+            if fault == "status":
+                raise RuntimeError("optional status failure")
+
+        def record_exception(self, exc):
+            if fault == "record_exception":
+                raise RuntimeError("optional exception export failure")
+
+    class SpanContext:
+        def __enter__(self):
+            if fault == "enter":
+                raise RuntimeError("optional enter failure")
+            return Span()
+
+        def __exit__(self, *args):
+            if fault == "exit":
+                raise RuntimeError("optional exit failure")
+            return fault == "suppress"
+
+    class Tracer:
+        def start_as_current_span(self, *args, **kwargs):
+            if fault == "create":
+                raise RuntimeError("optional span creation failure")
+            return SpanContext()
+
+    def required(event):
+        if outcome == "accounting_error":
+            raise accounting
+        return None
+
+    ledger_path = tmp_path / "span-settlement.json"
+    middleware = _middleware(ledger_path)
+    provider = Provider()
+    client = TracedLLMClient(
+        provider,
+        tracer=Tracer(),
+        metrics=_Metrics(),
+        required_accounting=required,
+        producer_settlement_store=middleware,
+    )
+
+    async def call():
+        if method == "invoke":
+            return client.invoke("question")
+        if method == "ainvoke":
+            return await client.ainvoke("question")
+        return await client.generate(user="question")
+
+    if outcome == "success":
+        response = await call()
+        assert response.content == provider.response.content
+        assert response.response is provider.response
+    elif outcome == "provider_error":
+        with pytest.raises(ValueError, match="primary provider failure") as raised:
+            await call()
+        assert raised.value is primary
+    else:
+        with pytest.raises(LLMAccountingError) as raised:
+            await call()
+        assert raised.value.cause is accounting
+        assert raised.value.__cause__ is accounting
+        assert raised.value.response is provider.response
+    assert provider.calls == 1
+    snapshot = FileBudgetLedger(ledger_path).snapshot()
+    assert len(snapshot.producer_settlements) == 1
+    record = next(iter(snapshot.producer_settlements.values()))
+    if outcome == "provider_error":
+        assert record.status == "unknown"
+        assert record.amount is None
+        assert snapshot.state.spent.get("run", Decimal(0)) == 0
+    else:
+        assert record.status == "committed"
+        assert record.amount == Decimal("0.02")
+        assert snapshot.state.spent["run"] == Decimal("0.02")
+        assert len(snapshot.spend_receipts) == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("outcome", ["success", "provider_error"])
+async def test_optional_metrics_and_diagnostic_failures_cannot_replace_outcome(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    outcome: str,
+) -> None:
+    import logging
+
+    primary = ValueError("actual provider error")
+
+    class Provider(_Provider):
+        async def generate(self, *args, **kwargs):
+            if outcome == "provider_error":
+                self.calls += 1
+                raise primary
+            return await super().generate(*args, **kwargs)
+
+    class Metrics:
+        def record_llm_call(self, **kwargs):
+            raise RuntimeError("metrics sink failed")
+
+    def fail_diagnostic(*args, **kwargs):
+        raise RuntimeError("diagnostic sink failed too")
+
+    monkeypatch.setattr(
+        logging.getLogger("polisyos.core.llm.traced_client"), "warning", fail_diagnostic
+    )
+    provider = Provider(cost=0.02)
+    client = TracedLLMClient(
+        provider,
+        tracer=_Tracer(),
+        metrics=Metrics(),
+        producer_settlement_store=_middleware(tmp_path / "diagnostic-ledger.json"),
+    )
+    if outcome == "success":
+        assert (await client.generate(user="question")).content == "answer"
+    else:
+        with pytest.raises(ValueError) as raised:
+            await client.generate(user="question")
+        assert raised.value is primary
+    assert provider.calls == 1
+
+
+def test_supported_no_otel_fallback_contract_reaches_real_settlement(tmp_path: Path) -> None:
+    """A fresh no-OTel process uses the real fallback API, not a tracer shim."""
+    import subprocess
+    import sys
+    import textwrap
+
+    script = textwrap.dedent("""
+        import asyncio, importlib.abc, json, sys
+        from decimal import Decimal
+        class NoOTel(importlib.abc.MetaPathFinder):
+            def find_spec(self, fullname, path=None, target=None):
+                if fullname == 'opentelemetry' or fullname.startswith('opentelemetry.'):
+                    raise ModuleNotFoundError(fullname)
+        sys.meta_path.insert(0, NoOTel())
+        import polisyos.core.observability as obs
+        from polisyos.core.llm.traced_client import TracedLLMClient
+        from polisyos.scientist.orchestration.engine.budget import BudgetState
+        from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+        from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayUsage
+        assert obs.PolicyOSTracer.__module__ == 'polisyos.core.observability'
+        tracer = obs.get_tracer()
+        with tracer.start_as_current_span('compat', attributes={'profile': 'no-otel'},
+                kind='CLIENT', record_exception=False, set_status_on_exception=False) as span:
+            span.set_attribute('reached_body', True)
+        class Provider:
+            calls = 0
+            def invoke(self, prompt, **kwargs):
+                self.calls += 1
+                return GatewayLLMResponse(content='actual fallback result',
+                    usage=GatewayUsage(prompt_tokens=2, completion_tokens=1, cost_usd=.02),
+                    model='fixture', provider='fixture')
+            async def generate(self, **kwargs):
+                return self.invoke('question', **kwargs)
+        ledger = FileBudgetLedger(sys.argv[1])
+        store = BudgetMiddleware(BudgetState(), ledger=ledger)
+        provider = Provider()
+        client = TracedLLMClient(provider, producer_settlement_store=store)
+        assert client.invoke('question').content == 'actual fallback result'
+        assert asyncio.run(client.generate(user='question')).content == 'actual fallback result'
+        fresh = FileBudgetLedger(sys.argv[1]).snapshot()
+        assert provider.calls == 2
+        assert fresh.state.spent['run'] == Decimal('.04')
+        assert len(fresh.producer_settlements) == len(fresh.spend_receipts) == 2
+        assert all(r.status == 'committed' for r in fresh.producer_settlements.values())
+        print(json.dumps({'profile': 'no-otel', 'calls': provider.calls, 'committed': 2}))
+    """)
+    completed = subprocess.run(
+        [sys.executable, "-B", "-c", script, str(tmp_path / "fallback-ledger.json")],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert json.loads(completed.stdout) == {"profile": "no-otel", "calls": 2, "committed": 2}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("logging_failure", [False, True])
+async def test_unknown_settlement_diagnostic_cannot_mask_primary_provider_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    logging_failure: bool,
+) -> None:
+    """A missing settlement operation and broken warning sink preserve the body error."""
+    import logging
+
+    primary = ValueError("primary failed physical provider")
+
+    class Provider(_Provider):
+        async def generate(self, *args, **kwargs):
+            self.calls += 1
+            raise primary
+
+    diagnostics = []
+
+    def warning(*args, **kwargs):
+        diagnostics.append(args)
+        if logging_failure:
+            raise RuntimeError("warning sink unavailable")
+
+    monkeypatch.setattr(logging.getLogger("polisyos.core.llm.traced_client"), "warning", warning)
+    ledger_path = tmp_path / "unknown-and-log-fault.json"
+    store = _middleware(ledger_path)
+    # Actual durable begin remains available; the mandatory terminal operation
+    # is unavailable. This is not a fabricated successful settlement.
+    monkeypatch.setattr(store, "settle_producer_event_safe", None)
+    provider = Provider(cost=0.02)
+    client = TracedLLMClient(
+        provider,
+        tracer=_Tracer(),
+        metrics=_Metrics(),
+        producer_settlement_store=store,
+    )
+    with pytest.raises(ValueError, match="primary failed physical provider") as raised:
+        await client.generate(user="question")
+    assert raised.value is primary
+    assert provider.calls == 1
+    fresh = FileBudgetLedger(ledger_path).snapshot()
+    assert len(fresh.producer_settlements) == 1
+    assert next(iter(fresh.producer_settlements.values())).status == "pending"
+    assert fresh.spend_receipts == {}
+    assert fresh.state.spent.get("run", Decimal(0)) == 0
+    assert diagnostics
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("logging_failure", [False, True])
+async def test_reuse_begin_failure_and_diagnostic_fault_preserve_response_without_false_commit(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    logging_failure: bool,
+) -> None:
+    """A cache-consumer begin failure stays unknown without discarding received text."""
+    import logging
+
+    ledger_path = tmp_path / "reuse-and-log-fault.json"
+    store = _middleware(ledger_path)
+    provider = _Provider(cost=0.02)
+    cached = CachingLLMClient(
+        provider,
+        cache=InMemoryPromptCache(maxsize=4, default_ttl_s=30),
+        model="fixture-model",
+        ttl_s=30,
+        inflight_timeout_s=2,
+    )
+    client = TracedLLMClient(
+        cached,
+        model_name="fixture-model",
+        tracer=_Tracer(),
+        metrics=_Metrics(),
+        producer_settlement_store=store,
+    )
+    first = await client.generate(user="same question", temperature=0)
+    assert first.settlement.ack.status == "committed"
+    diagnostics = []
+
+    def warning(*args, **kwargs):
+        diagnostics.append(args)
+        if logging_failure:
+            raise RuntimeError("warning sink unavailable")
+
+    def unavailable_begin(*args, **kwargs):
+        raise OSError("consumer durable begin unavailable")
+
+    monkeypatch.setattr(logging.getLogger("polisyos.core.llm.traced_client"), "warning", warning)
+    monkeypatch.setattr(store, "begin_producer_event_safe", unavailable_begin)
+    second = await client.generate(user="same question", temperature=0)
+    assert second.content == first.content == "answer"
+    assert second.settlement.event.kind == "reuse"
+    assert second.settlement.ack.status == "unknown"
+    assert provider.calls == 1
+    fresh = FileBudgetLedger(ledger_path).snapshot()
+    assert len(fresh.producer_settlements) == len(fresh.spend_receipts) == 1
+    assert fresh.state.spent["run"] == Decimal("0.02")
+    assert diagnostics

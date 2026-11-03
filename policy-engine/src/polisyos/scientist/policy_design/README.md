@@ -6,6 +6,15 @@ outside this package: outputs here are candidate or analytic material until
 they are bound by governed runtime-quality producers and closeout gates.
 The `polisyos.scientist.policy_design` package facade is the supported import path for policy candidate schemas, builders, and `derive_phase2_parameter_bounds()`. The latter is the same owner function defined in `search.py`. LLM-authored values remain candidate-grade until grounded and separately admitted.
 
+For a scoped policy translator call, `materialize_translator_inputs(store, bundle)`
+persists the exact six known input roles as selected CAS views, recording absence of an
+optional implementation plan. Pass the returned `TranslatorMaterialization` to
+`PolicyTranslatorWorker.translate_async(..., materialization=...)` or its persist
+variant to attempt reuse under the current factory owner. The cache rereads those
+views and binds them to the actual prepared plain-completion request; the independent
+authorizer still decides current access. A missing or mismatched view leaves the call
+physical-only. Materialization is neither permission nor authority for the brief.
+
 ## Persisted Frontier Artifacts
 
 `PolicyFrontierReport` and `RejectedAlternativesSummary` support schema v1 and

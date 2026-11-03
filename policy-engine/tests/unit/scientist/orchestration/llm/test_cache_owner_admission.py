@@ -3,7 +3,12 @@
 from __future__ import annotations
 
 import asyncio
+import contextvars
 import hashlib
+import threading
+from collections.abc import Iterator
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import ExitStack
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
@@ -13,6 +18,7 @@ import pytest
 from aiohttp import web
 
 from polisyos.core.llm import LLMSettlementOwnershipError
+from polisyos.core.llm.cache_settlement import CacheSettlementSession, session_for_cache_client
 from polisyos.core.llm.traced_client import TracedLLMClient
 from polisyos.scientist.orchestration.engine.budget import BudgetState
 from polisyos.scientist.orchestration.engine.budget_ledger import (
@@ -45,13 +51,16 @@ class _Owner:
 
     def __init__(self, active: bool = True) -> None:
         self.active = active
+        self.epoch = "epoch-1"
+        self.requests: list[Any] = []
 
     def authorize_reuse(self, request: Any) -> CacheReuseDecision | None:
+        self.requests.append(request)
         if not self.active:
             return None
         return CacheReuseDecision(
             issuer="component-fixture",
-            epoch="epoch-1",
+            epoch=self.epoch,
             actor_id=request.actor_id,
             tenant=request.tenant,
             scope=request.scope,
@@ -103,17 +112,16 @@ class _Provider:
 @pytest.mark.parametrize("temperature", [None, False, "0", float("nan"), 0.5, 0, 0.0])
 async def test_unknown_default_never_establishes_deterministic_reuse(temperature: Any) -> None:
     provider = _Provider()
-    cached = CachingLLMClient(provider, cache=InMemoryPromptCache(), model="fixture-model")
+    cache = InMemoryPromptCache()
+    cached = CachingLLMClient(provider, cache=cache, model="fixture-model")
     kwargs = {"user": "same request", "temperature": temperature}
-    if isinstance(temperature, float) and temperature != temperature:
-        with pytest.raises(ValueError):
-            await cached.generate(**kwargs)
-        assert not provider.calls
-        return
     await cached.generate(**kwargs)
     await cached.generate(**kwargs)
     eligible = type(temperature) in (int, float) and temperature == 0
     assert len(provider.calls) == (1 if eligible else 2)
+    if isinstance(temperature, float) and temperature != temperature:
+        assert cache.size == 0
+        assert all(call["temperature"] is temperature for call in provider.calls)
 
 
 @pytest.mark.asyncio
@@ -133,8 +141,10 @@ async def test_omitted_temperature_is_uncached_for_an_unknown_provider() -> None
 )
 async def test_injected_cache_selectors_never_reach_actual_gateway_wire(route: str) -> None:
     bodies: list[dict[str, Any]] = []
+    request_paths: list[str] = []
 
     async def completion(request: web.Request) -> web.Response:
+        request_paths.append(request.path)
         bodies.append(await request.json())
         return web.json_response(
             {
@@ -145,6 +155,7 @@ async def test_injected_cache_selectors_never_reach_actual_gateway_wire(route: s
         )
 
     async def unavailable(request: web.Request) -> web.Response:
+        request_paths.append(request.path)
         bodies.append(await request.json())
         return web.json_response({"error": {"message": "fixture unavailable"}}, status=500)
 
@@ -171,9 +182,10 @@ async def test_injected_cache_selectors_never_reach_actual_gateway_wire(route: s
                 ),
             ]
         )
+    cache = InMemoryPromptCache()
     cached = CachingLLMClient(
         provider,
-        cache=InMemoryPromptCache(),
+        cache=cache,
         model="fixture-model",
         reuse_authorizer=_Owner(active=route != "denied"),
         reuse_principal=CacheReusePrincipal("actor-a", "tenant-a", "tenant-a/cell-a"),
@@ -198,11 +210,18 @@ async def test_injected_cache_selectors_never_reach_actual_gateway_wire(route: s
     if route == "seed":
         kwargs["seed"] = 11
     try:
-        await cached.generate(**kwargs)
+        first = await cached.generate(**kwargs)
         if route == "wire_variation":
             kwargs["metadata"].update(cache_buster="new", nested={"policy_at": "new"})
-        await cached.generate(**kwargs)
-        assert len(bodies) == (1 if route == "allowed" else 2)
+        second = await cached.generate(**kwargs)
+        assert first.content == second.content == "answer"
+        expected_attempts = 1 if route == "allowed" else 4 if route == "fallback" else 2
+        assert len(bodies) == expected_attempts
+        if route == "fallback":
+            assert request_paths == ["/unavailable/chat/completions", "/chat/completions"] * 2
+            assert first.raw["_polisyos_cache"]["status"] == "uncached"
+            assert second.raw["_polisyos_cache"]["status"] == "uncached"
+            assert cache.size == 0
         for index, body in enumerate(bodies):
             value = "new" if route == "wire_variation" and index else "old"
             assert body["metadata"] == {
@@ -372,6 +391,328 @@ def _fixture_binding(run_id: str) -> BudgetLedgerProducerRunBinding:
         cell_id="cell-a",
         profile_id="fixture-profile",
     )
+
+
+class _PublicationAdmissionPause:
+    """Pause after actual guarded lookups, outside the factory's owner tickets."""
+
+    def __init__(self, client: Any, *, pauses: int = 1) -> None:
+        cached = client._client
+        assert isinstance(cached, CachingLLMClient)
+        self.guard = cached._reuse_guard
+        assert callable(self.guard)
+        self.lookups = 0
+        self.reached = [threading.Event() for _ in range(pauses)]
+        self.release = [threading.Event() for _ in range(pauses)]
+        cached._reuse_guard = self
+
+    def __call__(self, operation: Any) -> Any:
+        lookup = operation.__name__ == "admit_lookup"
+        if lookup:
+            self.lookups += 1
+        result = self.guard(operation)
+        if lookup and self.lookups <= len(self.reached):
+            index = self.lookups - 1
+            self.reached[index].set()
+            assert self.release[index].wait(5), "publication race was not released"
+        return result
+
+
+@pytest.fixture
+def publication_race_clients(monkeypatch: Any, tmp_path: Path) -> Iterator[SimpleNamespace]:
+    """Keep the actual factory fence live while either event loop consumes it."""
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "1")
+    owner = _Owner()
+    cache = InMemoryPromptCache()
+    ledger_path = tmp_path / "publication-race.json"
+    middleware = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+    binding = _fixture_binding("publication-race")
+    dependency_errors: list[Exception] = []
+
+    def dependency_operation(operation: Any) -> Any:
+        if dependency_errors:
+            raise dependency_errors[0]
+        return operation()
+
+    with (
+        middleware.producer_run_binding_scope(binding, control_job_attempt=1),
+        ExitStack() as scopes,
+    ):
+        scopes.enter_context(
+            _gateway_cache_reuse_scope(
+                authorizer=owner,
+                principal=CacheReusePrincipal("actor-a", "tenant-a", "tenant-a/cell-a"),
+                context=_context(),
+                cache=cache,
+                run_id=binding.run_id,
+                settlement_store=middleware,
+                reuse_guard=dependency_operation,
+            )
+        )
+        config = GatewayLLMConfig(base_url="http://fixture.invalid", api_key="fixture")
+        first = create_traced_gateway_client(model_name="fixture", config=config)
+        second = create_traced_gateway_client(model_name="fixture", config=config)
+        assert first is not None and second is not None
+        yield SimpleNamespace(
+            first=first,
+            second=second,
+            owner=owner,
+            cache=cache,
+            ledger_path=ledger_path,
+            close=scopes.close,
+            dependency_errors=dependency_errors,
+        )
+
+
+@pytest.mark.parametrize(
+    "boundary", ["current", "closed", "revoked", "epoch", "expired", "guard_timeout"]
+)
+def test_publication_revision_race_readmits_once_under_current_owner(
+    publication_race_clients: Any, monkeypatch: Any, boundary: str
+) -> None:
+    from polisyos.runtime.http.errors import RuntimeDependencyTimeoutError
+    from polisyos.scientist.orchestration.llm import prompt_cache
+
+    clients = publication_race_clients
+    clock = [100.0]
+    monkeypatch.setattr(prompt_cache, "time", SimpleNamespace(monotonic=lambda: clock[0]))
+    pause = _PublicationAdmissionPause(clients.first)
+    call = {"user": "same frozen request", "temperature": 0}
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        context = contextvars.copy_context()
+        pending = executor.submit(context.run, lambda: asyncio.run(clients.first.generate(**call)))
+        try:
+            assert pause.reached[0].wait(5)
+            origin = asyncio.run(clients.second.generate(**call))
+            sequential = asyncio.run(clients.second.generate(**call))
+            assert origin.settlement.event.cost_origin == "reported"
+            assert sequential.settlement.event.cost_origin == "reuse"
+            assert len(clients.second.unwrap().calls) == 1
+            assert not clients.first.unwrap().calls
+            authorizations = len(clients.owner.requests)
+            if boundary == "closed":
+                clients.close()
+            elif boundary == "revoked":
+                clients.owner.active = False
+            elif boundary == "epoch":
+                clients.owner.epoch = "epoch-2"
+            elif boundary == "expired":
+                clock[0] += 301
+            elif boundary == "guard_timeout":
+                clients.dependency_errors.append(
+                    RuntimeDependencyTimeoutError("control_plane_store")
+                )
+        finally:
+            pause.release[0].set()
+        if boundary in {"closed", "guard_timeout"}:
+            error = (
+                LLMSettlementOwnershipError
+                if boundary == "closed"
+                else RuntimeDependencyTimeoutError
+            )
+            with pytest.raises(error):
+                pending.result(timeout=5)
+            assert len(clients.owner.requests) == authorizations
+        else:
+            response = pending.result(timeout=5)
+            if boundary == "current":
+                assert (
+                    sum(len(client.unwrap().calls) for client in (clients.first, clients.second))
+                    == 1
+                )
+                assert response.content == origin.content == sequential.content
+                assert response is not sequential
+                assert response.settlement.event.cost_origin == "reuse"
+                assert response.settlement.event.origin_event_id == origin.settlement.event.event_id
+                assert (
+                    len(
+                        {
+                            result.settlement.event.event_id
+                            for result in (origin, sequential, response)
+                        }
+                    )
+                    == 3
+                )
+                sequential.response.content = "consumer mutation"
+                assert response.content == origin.content
+            else:
+                assert response.settlement.event.cost_origin == "reported"
+            assert len(clients.owner.requests) == authorizations + 1
+        assert pause.lookups == 2
+    expected_physical = 1 if boundary in {"current", "closed", "guard_timeout"} else 2
+    assert sum(len(client.unwrap().calls) for client in (clients.first, clients.second)) == (
+        expected_physical
+    )
+    rows = tuple(FileBudgetLedger(clients.ledger_path).snapshot().producer_settlements.values())
+    assert len(rows) == (2 if boundary in {"closed", "guard_timeout"} else 3)
+    assert sum(row.cost_origin == "reported" for row in rows) == expected_physical
+
+
+def test_second_publication_revision_conflict_uses_bounded_physical_fallback(
+    publication_race_clients: Any,
+) -> None:
+    clients = publication_race_clients
+    pause = _PublicationAdmissionPause(clients.first, pauses=2)
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        context = contextvars.copy_context()
+        pending = executor.submit(
+            context.run,
+            lambda: asyncio.run(clients.first.generate(user="pending request", temperature=0)),
+        )
+        try:
+            assert pause.reached[0].wait(5)
+            asyncio.run(clients.second.generate(user="other publication 1", temperature=0))
+            pause.release[0].set()
+            assert pause.reached[1].wait(5)
+            asyncio.run(clients.second.generate(user="other publication 2", temperature=0))
+        finally:
+            for release in pause.release:
+                release.set()
+        response = pending.result(timeout=5)
+    assert pause.lookups == 2
+    assert len(clients.owner.requests) == 4
+    assert len(clients.first.unwrap().calls) == 1
+    assert len(clients.second.unwrap().calls) == 2
+    assert response.settlement.event.cost_origin == "reported"
+    assert clients.cache.size == 2
+    assert clients.cache.stats()["skip_reasons"]["reuse_admission_unavailable"] == 1
+    rows = tuple(FileBudgetLedger(clients.ledger_path).snapshot().producer_settlements.values())
+    assert len(rows) == 3 and all(row.cost_origin == "reported" for row in rows)
+
+
+@pytest.mark.parametrize("revoked_while_waiting", [False, True])
+def test_cross_loop_scoped_flight_isolates_cancel_and_readmits_live_followers(
+    publication_race_clients: Any,
+    monkeypatch: pytest.MonkeyPatch,
+    revoked_while_waiting: bool,
+) -> None:
+    from polisyos.scientist.orchestration.llm.simulated_gateway import SimulatedGatewayLLMClient
+
+    clients = publication_race_clients
+    cache_session = session_for_cache_client(clients.first._client)
+    assert cache_session is not None
+    assert session_for_cache_client(clients.second._client) is cache_session
+    provider_entered, provider_release = threading.Event(), threading.Event()
+    all_joined, cancelled_seen = threading.Event(), threading.Event()
+    observation_lock = threading.Lock()
+    physical_calls: list[dict[str, Any]] = []
+    joined: list[Any] = []
+    released: list[Any] = []
+    loops: dict[int, tuple[Any, list[asyncio.Task[Any]]]] = {}
+    actual_join = CacheSettlementSession.join
+    actual_release = CacheSettlementSession.release_flight
+
+    async def provider(client: Any, **kwargs: Any) -> GatewayLLMResponse:
+        client.calls.append(dict(kwargs))
+        with observation_lock:
+            physical_calls.append(dict(kwargs))
+        provider_entered.set()
+        assert await asyncio.to_thread(provider_release.wait, 5)
+        return GatewayLLMResponse(
+            content="same physical answer",
+            model="fixture",
+            provider="simulated_gateway",
+            usage=GatewayUsage(prompt_tokens=12, completion_tokens=4, cost_usd=0.02),
+            response_headers={"source": "provider"},
+            raw={"nested": {"observations": [{"score": 7}]}},
+        )
+
+    def observe_join(session: CacheSettlementSession, *args: Any, **kwargs: Any) -> None:
+        actual_join(session, *args, **kwargs)
+        if session is cache_session:
+            with observation_lock:
+                joined.append(args[0])
+                if len(joined) == 3:
+                    all_joined.set()
+
+    def observe_release(session: CacheSettlementSession, registrations: Any, outcome: Any) -> None:
+        actual_release(session, registrations, outcome)
+        if session is cache_session:
+            with observation_lock:
+                released.extend(registrations)
+
+    monkeypatch.setattr(SimulatedGatewayLLMClient, "generate", provider)
+    monkeypatch.setattr(CacheSettlementSession, "join", observe_join)
+    monkeypatch.setattr(CacheSettlementSession, "release_flight", observe_release)
+
+    async def consume(client: Any, identity: tuple[int, int]) -> Any:
+        try:
+            return await client.generate(user="same frozen request", temperature=0)
+        except asyncio.CancelledError:
+            if identity == (1, 0):
+                cancelled_seen.set()
+            raise
+
+    async def run_loop(index: int, client: Any) -> list[Any]:
+        tasks = [asyncio.create_task(consume(client, (index, item))) for item in range(2)]
+        loops[index] = asyncio.get_running_loop(), tasks
+        return await asyncio.gather(*tasks, return_exceptions=True)
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        first_context, second_context = contextvars.copy_context(), contextvars.copy_context()
+        producing = executor.submit(
+            first_context.run, lambda: asyncio.run(run_loop(0, clients.first))
+        )
+        try:
+            assert provider_entered.wait(5)
+            following = executor.submit(
+                second_context.run, lambda: asyncio.run(run_loop(1, clients.second))
+            )
+            assert all_joined.wait(5)
+            assert len({id(registration) for registration in joined}) == 3
+            assert len(physical_calls) == 1
+            assert len(clients.owner.requests) == 4
+            assert all(request == clients.owner.requests[0] for request in clients.owner.requests)
+            following_loop, follower_tasks = loops[1]
+            following_loop.call_soon_threadsafe(follower_tasks[0].cancel)
+            assert cancelled_seen.wait(5)
+            assert not producing.done() and not following.done()
+            assert len(physical_calls) == 1 and not released
+            if revoked_while_waiting:
+                clients.owner.active = False
+        finally:
+            provider_release.set()
+        results = producing.result(timeout=5) + following.result(timeout=5)
+
+    assert isinstance(results[2], asyncio.CancelledError)
+    responses = [result for result in results if not isinstance(result, BaseException)]
+    assert len(responses) == 3
+    assert all(response.content == "same physical answer" for response in responses)
+    assert len({id(response.response) for response in responses}) == 3
+    assert len({response.settlement.event.event_id for response in responses}) == 3
+    assert all(response.settlement.ack.status == "committed" for response in responses)
+    assert len(clients.owner.requests) == 6
+    assert len(physical_calls) == (3 if revoked_while_waiting else 1)
+    assert clients.first._inflight == clients.second._inflight == {}
+    assert len(released) == len({id(registration) for registration in released}) == 4
+    assert all(any(registration is handle for handle in released) for registration in joined)
+    for registration in released:
+        with pytest.raises(ValueError, match="stale or foreign"):
+            cache_session.bind_request_key(registration, "released-registration")
+
+    rows = tuple(FileBudgetLedger(clients.ledger_path).snapshot().producer_settlements.values())
+    assert len(rows) == 3
+    if revoked_while_waiting:
+        assert all(row.cost_origin == "reported" for row in rows)
+    else:
+        origin_id = responses[0].settlement.event.event_id
+        assert sum(row.cost_origin == "reported" for row in rows) == 1
+        assert sum(row.cost_origin == "reuse" for row in rows) == 2
+        assert all(row.origin_event_id == origin_id for row in rows if row.cost_origin == "reuse")
+
+    responses[1].response.raw["nested"]["observations"][0]["score"] = 999
+    responses[1].response.response_headers["source"] = "consumer mutation"
+    responses[1].response.usage.prompt_tokens = 999
+    for response in (responses[0], responses[2]):
+        assert response.raw["nested"]["observations"] == [{"score": 7}]
+        assert response.response_headers == {"source": "provider"}
+        assert response.usage.prompt_tokens == 12
+    if not revoked_while_waiting:
+        fresh = asyncio.run(clients.second.generate(user="same frozen request", temperature=0))
+        assert fresh.raw["nested"]["observations"] == [{"score": 7}]
+        assert fresh.settlement.event.cost_origin == "reuse"
+        assert fresh.settlement.event.origin_event_id == origin_id
+        assert len(physical_calls) == 1
 
 
 @pytest.mark.asyncio
@@ -726,8 +1067,8 @@ def test_scope_close_refuses_a_late_begin_without_waiting_for_worker(
             release.set()
         with pytest.raises(LLMSettlementOwnershipError, match="scope_closed"):
             producing.result(timeout=3)
-    # A late durable begin may remain pending. It never creates a physical call
-    # or a falsely committed owned event after the binding was closed.
+    # The pre-write pause ends after closure: the inactive owner may neither
+    # create an intent nor start a physical provider call.
     rows = FileBudgetLedger(path).snapshot().producer_settlements.values()
-    assert len(rows) == 1 and all(row.status == "pending" for row in rows)
+    assert len(rows) == 0
     assert not client.unwrap().calls

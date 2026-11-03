@@ -12,6 +12,7 @@ import tempfile
 import threading
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -771,6 +772,9 @@ class FileBudgetLedger:
         self._path.parent.mkdir(parents=True, exist_ok=True)
         self._lock_path = self._path.with_suffix(self._path.suffix + ".lock")
         self._thread_lock = threading.Lock()
+        self._producer_admission: ContextVar[
+            Callable[[BudgetLedgerProducerRecord], bool] | None
+        ] = ContextVar(f"budget_ledger_producer_admission_{id(self)}", default=None)
         self._expected_ledger_id = ledger_id
         self._require_existing = False
         self._expected_resource_identity: _BudgetResourceIdentity | None = None
@@ -1389,6 +1393,17 @@ class FileBudgetLedger:
                     ) from exc
                 return written.spend_receipts[event_id]
 
+    @contextmanager
+    def _guarded_producer_begin(
+        self, is_live_attempt: Callable[[BudgetLedgerProducerRecord], bool]
+    ) -> Iterator[None]:
+        """Bind an owner check to one call without replacing the normal begin seam."""
+        token = self._producer_admission.set(is_live_attempt)
+        try:
+            yield
+        finally:
+            self._producer_admission.reset(token)
+
     def begin_producer_event(
         self,
         event_id: str,
@@ -1402,6 +1417,37 @@ class FileBudgetLedger:
         pre_admission_attempt_id: str | None = None,
     ) -> BudgetLedgerProducerRecord:
         """Persist the provider intent before dispatch; pending is never zero."""
+        return self._begin_producer_event(
+            event_id,
+            request_digest,
+            key,
+            model,
+            provider,
+            run_binding=run_binding,
+            control_job_attempt=control_job_attempt,
+            pre_admission_attempt_id=pre_admission_attempt_id,
+            is_live_attempt=self._producer_admission.get(),
+        )
+
+    def _begin_producer_event(
+        self,
+        event_id: str,
+        request_digest: str,
+        key: str,
+        model: str,
+        provider: str,
+        *,
+        run_binding: BudgetLedgerProducerRunBinding | None = None,
+        control_job_attempt: int | None = None,
+        pre_admission_attempt_id: str | None = None,
+        is_live_attempt: Callable[[BudgetLedgerProducerRecord], bool] | None = None,
+    ) -> BudgetLedgerProducerRecord:
+        """Check the current run and issue one intent in a single ledger transaction.
+
+        The predicate is owned by the middleware and reads its live registry at
+        admission time. A different process cannot assert that its pending row
+        is active: absent local ownership, the outcome stays unresolved.
+        """
         event_id = _normalize_public_event_id(event_id)
         with self._thread_lock:
             with self._file_lock(exclusive=True, outcome_identity=(event_id, request_digest)):
@@ -1410,6 +1456,26 @@ class FileBudgetLedger:
                     raise FileNotFoundError(
                         "budget ledger requires explicit load_or_bootstrap before use"
                     )
+                if is_live_attempt is not None:
+                    if run_binding is None or key != f"nl-run:{run_binding.run_id}":
+                        raise ValueError("producer_spend_owner_not_established")
+                    for prior in snapshot.producer_settlements.values():
+                        if prior.key != key:
+                            continue
+                        if prior.run_binding != run_binding:
+                            raise ValueError("producer_spend_owner_binding_conflict")
+                        if prior.status == "committed":
+                            continue
+                        if (
+                            prior.status == "pending"
+                            and is_live_attempt(prior)
+                            and prior.control_job_attempt == control_job_attempt
+                            and prior.pre_admission_attempt_id == pre_admission_attempt_id
+                        ):
+                            continue
+                        raise BudgetLedgerSettlementOutcomeUnknownError(
+                            prior.event_id, prior.payload_digest or prior.request_digest
+                        )
                 if event_id in snapshot.compute_reservations:
                     raise ValueError("budget_event_kind_conflict")
                 existing = snapshot.producer_settlements.get(event_id)

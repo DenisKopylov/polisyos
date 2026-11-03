@@ -5,6 +5,8 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import subprocess
+import sys
 import threading
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -28,17 +30,23 @@ from polisyos.core.security.tenant_context import (
     tenant_scope,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
-from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+from polisyos.scientist.orchestration.engine.budget_ledger import (
+    BudgetLedgerProducerRunBinding,
+    FileBudgetLedger,
+)
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.llm.factory import (
     GatewayLLMConfig,
+    _gateway_cache_reuse_scope,
     create_traced_gateway_client,
 )
 from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
 from polisyos.scientist.orchestration.llm.prompt_cache import (
     CacheReuseDecision,
+    CacheReusePrincipal,
     CacheReuseRequest,
     CachingLLMClient,
+    InMemoryPromptCache,
 )
 
 
@@ -63,6 +71,7 @@ def _local_gateway(
     *,
     request_entered: threading.Event | None = None,
     response_release: threading.Event | None = None,
+    fail_request_numbers: frozenset[int] = frozenset(),
 ) -> Iterator[tuple[str, list[dict[str, Any]], threading.Lock]]:
     """Stub only the external HTTP provider while retaining the real client stack."""
     requests: list[dict[str, Any]] = []
@@ -82,6 +91,14 @@ def _local_gateway(
                 request_entered.set()
             if response_release is not None and not response_release.wait(timeout=5.0):
                 self.send_error(504)
+                return
+            if request_number in fail_request_numbers:
+                body = b"fixture provider failure"
+                self.send_response(400)
+                self.send_header("Content-Type", "text/plain")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
                 return
             body = json.dumps(
                 {
@@ -463,3 +480,160 @@ async def test_factory_cache_scoped_singleflight_success_settles_each_waiter(
     assert len(reuse_origins) == 1
     assert reuse_origins.issubset({row.event_id for row in provider_records})
     assert snapshot.state.spent["run"] == Decimal("0.04")
+
+
+def _run_no_otel_scoped_cache_scenario(
+    base_url: str,
+    ledger_path: str,
+    snapshot_root: str,
+) -> None:
+    """Run the real factory/ledger path after the facade selects its no-OTel fallback."""
+    import asyncio
+    from decimal import Decimal as ChildDecimal
+    from pathlib import Path as ChildPath
+
+    from polisyos.core.observability import get_tracer
+
+    # The subprocess import blocker represents an installation with the optional
+    # dependency absent. It leaves PolicyOS' real fallback method and signature intact.
+    assert type(get_tracer()).__module__ == "polisyos.core.observability"
+
+    run_id = "factory-cache-no-otel-run"
+    budget_key = f"nl-run:{run_id}"
+    ledger = FileBudgetLedger(ChildPath(ledger_path))
+    middleware = BudgetMiddleware(
+        BudgetState(limits={budget_key: BudgetLimit(key=budget_key, max_usd=ChildDecimal("1"))}),
+        ledger=ledger,
+    )
+    binding = BudgetLedgerProducerRunBinding(
+        run_id=run_id,
+        control_job_id="job-factory-cache-no-otel",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        profile_id="fixture-profile",
+    )
+    owner = _SnapshotOwner(ChildPath(snapshot_root))
+    with _principal("tenant-a"):
+        context = owner.metadata("tenant-a")["cache_reuse"]
+
+    async def exercise() -> None:
+        with middleware.producer_run_binding_scope(binding, control_job_attempt=1):
+            with _gateway_cache_reuse_scope(
+                authorizer=owner,
+                principal=CacheReusePrincipal(
+                    "spiffe://fixture/factory-cache-owner", "tenant-a", "scope-a"
+                ),
+                context=context,
+                cache=InMemoryPromptCache(),
+                run_id=run_id,
+                settlement_store=middleware,
+                reuse_guard=lambda operation: operation(),
+            ):
+                client = create_traced_gateway_client(
+                    model_name="fixture-model",
+                    provider_hint="local-http-fixture",
+                    config=GatewayLLMConfig(
+                        base_url=base_url,
+                        api_key="sk-fixture-no-otel-cache-test-key",
+                        timeout_s=3.0,
+                        max_retries=0,
+                        cache_ttl_s=60.0,
+                        cache_maxsize=8,
+                        enable_prompt_sanitizer=False,
+                    ),
+                )
+                assert client is not None
+                assert type(client._client) is CachingLLMClient
+                cache_session = session_for_cache_client(client._client)
+                assert cache_session is not None and cache_session.owns(client._client)
+                gateway = client.unwrap()
+
+                async def generate() -> Any:
+                    with _principal("tenant-a"):
+                        return await client.generate(
+                            user="Compare the same policy option against the admitted snapshot.",
+                            temperature=0.0,
+                            metadata=owner.metadata("tenant-a"),
+                        )
+
+                try:
+                    first = await generate()
+                    second = await generate()
+                    assert first.content == second.content == "fixture answer"
+
+                    owner.active_tenants.remove("tenant-a")
+                    owner.epochs["tenant-a"] = "grant-a-revoked"
+                    try:
+                        await generate()
+                    except RuntimeError as error:
+                        assert "Gateway request failed (400)" in str(error)
+                    else:
+                        raise AssertionError("provider failure was hidden by the no-OTel fallback")
+                finally:
+                    await gateway.aclose()
+
+    asyncio.run(exercise())
+
+    assert len(owner.requests) == 3
+    snapshot = FileBudgetLedger(ChildPath(ledger_path)).snapshot()
+    records = tuple(snapshot.producer_settlements.values())
+    assert len(records) == 3
+    reported = tuple(row for row in records if row.cost_origin == "reported")
+    reused = tuple(row for row in records if row.cost_origin == "reuse")
+    failed = tuple(row for row in records if row.cost_origin == "unknown")
+    assert len(reported) == len(reused) == len(failed) == 1
+    assert reported[0].status == reused[0].status == "committed"
+    assert reported[0].amount == ChildDecimal("0.02")
+    assert reused[0].amount == ChildDecimal(0)
+    assert reused[0].origin_event_id == reported[0].event_id
+    assert failed[0].status == "unknown" and failed[0].amount is None
+    assert failed[0].run_binding == binding
+    assert snapshot.state.spent[budget_key] == ChildDecimal("0.02")
+
+
+def test_factory_scoped_cache_and_ledger_use_real_no_otel_fallback(tmp_path: Path) -> None:
+    """The optional-telemetry fallback preserves scoped cache and settlement semantics."""
+    with _local_gateway(fail_request_numbers=frozenset({2})) as (
+        base_url,
+        provider_requests,
+        requests_lock,
+    ):
+        script = """
+from importlib.abc import MetaPathFinder
+import runpy
+import sys
+
+class _WithoutOpenTelemetry(MetaPathFinder):
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname == "opentelemetry" or fullname.startswith("opentelemetry."):
+            raise ModuleNotFoundError(
+                "OpenTelemetry omitted for the optional-dependency profile", name=fullname
+            )
+        return None
+
+sys.meta_path.insert(0, _WithoutOpenTelemetry())
+sys.path.insert(0, sys.argv[4])
+module = runpy.run_path(sys.argv[1])
+module["_run_no_otel_scoped_cache_scenario"](sys.argv[2], sys.argv[3], sys.argv[5])
+"""
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                script,
+                str(Path(__file__).resolve()),
+                base_url,
+                str(tmp_path / "no-otel-ledger.json"),
+                str(Path(__file__).resolve().parents[5] / "src"),
+                str(tmp_path / "no-otel-snapshot-cas"),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=20,
+            check=False,
+        )
+        assert result.returncode == 0, f"no-OTel child failed:\n{result.stdout}\n{result.stderr}"
+
+        with requests_lock:
+            assert len(provider_requests) == 2
+            assert provider_requests[0]["metadata"] == provider_requests[1]["metadata"]

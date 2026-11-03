@@ -20,7 +20,7 @@ import time
 import uuid
 import weakref
 from collections.abc import Iterator, Mapping
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from dataclasses import dataclass, field
 from decimal import Decimal
 from enum import Enum
@@ -187,6 +187,72 @@ def _settlement_ack(
     )
 
 
+def _warn_best_effort(message: str, *args: object) -> None:
+    """Report a failure without making the diagnostic sink another failure path."""
+    with suppress(Exception):
+        logging.getLogger(__name__).warning(message, *args, exc_info=True)
+
+
+def _report_optional_telemetry_failure(operation: str) -> None:
+    """Report exporter degradation without making logging another failure path."""
+    # Diagnostics have no authority over a provider/settlement outcome.
+    _warn_best_effort("Optional LLM telemetry failed: %s", operation)
+
+
+class _OptionalSpan:
+    """Isolate only the optional span's used export methods."""
+
+    def __init__(self, span: Any | None) -> None:
+        self._span = span
+
+    def _export(self, method: str, *args: Any) -> None:
+        if self._span is None:
+            return
+        try:
+            getattr(self._span, method)(*args)
+        except Exception:
+            _report_optional_telemetry_failure(method)
+
+    def set_attribute(self, name: str, value: Any) -> None:
+        self._export("set_attribute", name, value)
+
+    def set_status(self, status: Any) -> None:
+        self._export("set_status", status)
+
+    def record_exception(self, error: BaseException) -> None:
+        self._export("record_exception", error)
+
+
+@contextmanager
+def _optional_span(tracer: Any, name: str, **kwargs: Any) -> Iterator[_OptionalSpan]:
+    """Preserve the body result/error even if an exporter raises or suppresses it."""
+    manager = None
+    span = None
+    try:
+        candidate = tracer.start_as_current_span(name, **kwargs)
+        span = candidate.__enter__()
+        manager = candidate
+    except Exception:
+        _report_optional_telemetry_failure("start_as_current_span")
+    try:
+        yield _OptionalSpan(span)
+    except BaseException as exc:
+        if manager is not None:
+            try:
+                # A telemetry context must never suppress an accounting/security
+                # failure or cancellation raised by the actual body.
+                manager.__exit__(type(exc), exc, exc.__traceback__)
+            except Exception:
+                _report_optional_telemetry_failure("span_exit")
+        raise
+    else:
+        if manager is not None:
+            try:
+                manager.__exit__(None, None, None)
+            except Exception:
+                _report_optional_telemetry_failure("span_exit")
+
+
 def _default_tracer() -> PolicyOSTracer:
     return get_tracer()
 
@@ -334,7 +400,11 @@ class TracedLLMClient:
         self._prepared_producer_call: contextvars.ContextVar[_PreparedInvocation | None] = (
             contextvars.ContextVar("prepared_producer_llm_input", default=None)
         )
-        self._tracer = tracer if tracer is not None else _default_tracer()
+        try:
+            self._tracer = tracer if tracer is not None else _default_tracer()
+        except Exception:
+            self._tracer = None
+            _report_optional_telemetry_failure("get_tracer")
         if metrics is not None:
             self._metrics = metrics
         else:
@@ -620,6 +690,7 @@ class TracedLLMClient:
         provider: str | None = None,
         *,
         route: _ProducerSettlementRoute | None = None,
+        reuse_response: object | None = None,
     ) -> Any | None:
         store = self._producer_settlement_store
         if store is None:
@@ -635,17 +706,49 @@ class TracedLLMClient:
         ):
             raise LLMSettlementOwnershipError("producer_settlement_owner_conflict")
 
+        scoped_admission = getattr(store, "_scoped_producer_admission", None)
+        finish_attempt = getattr(store, "_finish_scoped_producer_attempt", None)
+        requires_scope = self._producer_begin_executor is not None
+        scoped_begin = callable(scoped_admission) and callable(finish_attempt)
+        if requires_scope and not scoped_begin:
+            raise LLMSettlementOwnershipError("producer_spend_admission_unavailable")
+        issued_lock = threading.Lock()
+        issued_intent: Any | None = None
+        abandoned = False
+
         def begin_owned() -> Any:
             selected_provider = self._provider_name or provider or self._detect_provider()
 
             def durable_begin() -> Any:
-                return begin(
-                    event_id,
-                    request_digest,
-                    key=self._producer_budget_key,
-                    model=self._model_name,
-                    provider=selected_provider,
-                )
+                nonlocal issued_intent
+
+                def issue() -> Any:
+                    return begin(
+                        event_id,
+                        request_digest,
+                        key=self._producer_budget_key,
+                        model=self._model_name,
+                        provider=selected_provider,
+                    )
+
+                if scoped_begin:
+                    with scoped_admission(
+                        required=requires_scope,
+                        reuse_session=self._cache_settlement_session,
+                        reuse_response=reuse_response,
+                        reuse_event_id=event_id if reuse_response is not None else None,
+                        reuse_request_digest=request_digest if reuse_response is not None else None,
+                    ):
+                        issued = issue()
+                else:
+                    issued = issue()
+                with issued_lock:
+                    retire = abandoned
+                    if not retire:
+                        issued_intent = issued
+                if retire and scoped_begin:
+                    finish_attempt(event_id, issued)
+                return issued
 
             executor = self._producer_begin_executor
             intent = executor(durable_begin) if executor is not None else durable_begin()
@@ -664,7 +767,18 @@ class TracedLLMClient:
             return intent
 
         guard = self._producer_admission_guard
-        intent = guard(begin_owned) if guard is not None else begin_owned()
+        try:
+            intent = guard(begin_owned) if guard is not None else begin_owned()
+        except BaseException:
+            # A bounded begin may finish after its waiter was refused. Retire
+            # the actual issued handle in either ordering, leaving the durable
+            # pending outcome visible to the next owner's admission.
+            with issued_lock:
+                abandoned = True
+                pending_intent = issued_intent
+            if scoped_begin and pending_intent is not None:
+                finish_attempt(event_id, pending_intent)
+            raise
         if active_route is not None and active_route.owner is self:
             active_route.intent = intent
         with self._producer_intents_lock:
@@ -887,9 +1001,7 @@ class TracedLLMClient:
             self._clear_pending_ledger_observation(event_id)
             return settlement
         except Exception:
-            logging.getLogger(__name__).warning(
-                "Unable to persist unknown provider outcome", exc_info=True
-            )
+            _warn_best_effort("Unable to persist unknown provider outcome")
             return None
 
     def _observe_provider_settlement(
@@ -995,10 +1107,7 @@ class TracedLLMClient:
             selected_observer(dict(event))
         except Exception:
             # Observability callback must never break agent execution.
-            logging.getLogger(__name__).debug(
-                "Observability callback failed",
-                exc_info=True,
-            )
+            _report_optional_telemetry_failure("call_observer")
 
     def _has_pending_ledger_observation(self, event_id: str) -> bool:
         with self._producer_intents_lock:
@@ -1116,6 +1225,9 @@ class TracedLLMClient:
         finally:
             with self._producer_intents_lock:
                 self._producer_intents_by_event.pop(event.event_id, None)
+            finish_attempt = getattr(store, "_finish_scoped_producer_attempt", None)
+            if callable(finish_attempt) and intent is not None:
+                finish_attempt(event.event_id, intent)
         ack = LLMSettlementAck(
             event.event_id,
             event.payload_digest,
@@ -1297,13 +1409,15 @@ class TracedLLMClient:
                     producer_event.request_digest,
                     provider,
                     route=route,
+                    # `parsed.cache_hit` is the existing Core-session proof of
+                    # this exact detached response, not a caller cache flag.
+                    # Its separate zero-increment receipt is not a physical call.
+                    reuse_response=response,
                 )
             except Exception:
                 if self._producer_admission_guard is not None:
                     raise
-                logging.getLogger(__name__).warning(
-                    "Unable to persist cache reuse intent", exc_info=True
-                )
+                _warn_best_effort("Unable to persist cache reuse intent")
                 callback_result = LLMSettlementAck(
                     producer_event.event_id,
                     producer_event.payload_digest,
@@ -1368,10 +1482,7 @@ class TracedLLMClient:
                 metrics_status = "recorded"
             except Exception:
                 metrics_status = "degraded"
-                logging.getLogger(__name__).warning(
-                    "Optional LLM metrics sink failed",
-                    exc_info=True,
-                )
+                _report_optional_telemetry_failure("record_llm_call")
         span.set_attribute("polisyos.llm.metrics_status", metrics_status)
         event["metrics_status"] = metrics_status
         ack = (
@@ -1403,7 +1514,8 @@ class TracedLLMClient:
         span_attrs = self._build_span_attributes(prompt_text, provider=provider)
         start = time.perf_counter()
 
-        with self._tracer.start_as_current_span(
+        with _optional_span(
+            self._tracer,
             f"llm.invoke.{self._model_name}",
             attributes=span_attrs,
             kind=_RuntimeSpanKind.CLIENT,
@@ -1473,7 +1585,8 @@ class TracedLLMClient:
         span_attrs = self._build_span_attributes(prompt_text, provider=provider)
         start = time.perf_counter()
 
-        with self._tracer.start_as_current_span(
+        with _optional_span(
+            self._tracer,
             f"llm.ainvoke.{self._model_name}",
             attributes=span_attrs,
             kind=_RuntimeSpanKind.CLIENT,
@@ -1548,7 +1661,8 @@ class TracedLLMClient:
         span_attrs = self._build_span_attributes(prompt_text, provider=provider)
         start = time.perf_counter()
 
-        with self._tracer.start_as_current_span(
+        with _optional_span(
+            self._tracer,
             f"llm.generate.{self._model_name}",
             attributes=span_attrs,
             kind=_RuntimeSpanKind.CLIENT,
@@ -1673,10 +1787,7 @@ class TracedLLMClient:
                 latency_ms=latency_ms,
             )
         except Exception:
-            logging.getLogger(__name__).warning(
-                "Optional LLM error metrics sink failed",
-                exc_info=True,
-            )
+            _report_optional_telemetry_failure("record_error_metric")
 
 
 __all__ = [

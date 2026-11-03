@@ -19,6 +19,7 @@ from typing import Any
 import pytest
 
 from polisyos.core.artifacts import FileSystemCAS, PutOptions
+from polisyos.core.llm.cache_settlement import CacheSettlementSession, session_for_cache_client
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.tenant_context import (
     reset_current_access_scope,
@@ -237,19 +238,30 @@ async def test_cas_admitted_flight_cleanup_allows_fresh_physical_retry(
         reuse_authorizer=owner,
         inflight_timeout_s=0.2 if terminal == "deadline" else None,
     )
-    actual_shield = asyncio.shield
-    shielded: list[asyncio.Task[Any]] = []
+    cache_session = session_for_cache_client(client)
+    assert cache_session is not None
+    actual_join = CacheSettlementSession.join
+    actual_release = CacheSettlementSession.release_flight
+    joined: list[Any] = []
+    released: list[Any] = []
     all_waiting = asyncio.Event()
 
-    def observe_real_wait(future: Any) -> Any:
-        protected = actual_shield(future)
-        if any(flight.task is future for flight in client._inflight.values()):
-            shielded.append(future)
-            if len(shielded) == 4:
+    def observe_real_join(session: CacheSettlementSession, *args: Any, **kwargs: Any) -> None:
+        actual_join(session, *args, **kwargs)
+        if session is cache_session:
+            joined.append(args[0])
+            if len(joined) == 3:
                 all_waiting.set()
-        return protected
 
-    monkeypatch.setattr(asyncio, "shield", observe_real_wait)
+    def observe_real_release(
+        session: CacheSettlementSession, registrations: Any, outcome: Any
+    ) -> None:
+        actual_release(session, registrations, outcome)
+        if session is cache_session:
+            released.extend(registrations)
+
+    monkeypatch.setattr(CacheSettlementSession, "join", observe_real_join)
+    monkeypatch.setattr(CacheSettlementSession, "release_flight", observe_real_release)
     with _principal():
         metadata = owner.snapshot("tenant-a", "v1")
         tasks = [
@@ -263,18 +275,25 @@ async def test_cas_admitted_flight_cleanup_allows_fresh_physical_retry(
         try:
             await asyncio.wait_for(all_waiting.wait(), timeout=2.0)
             await asyncio.wait_for(provider.first_entered.wait(), timeout=2.0)
-            assert len(set(shielded)) == 1
+            assert len({id(registration) for registration in joined}) == 3
             assert provider.calls == len(provider.effects()) == 1
             tasks[1].cancel()
             with pytest.raises(asyncio.CancelledError):
                 await tasks[1]
-            assert not shielded[0].cancelled()
+            assert provider.calls == 1
             if terminal == "error":
                 provider.release.set()
             results = await asyncio.gather(tasks[0], tasks[2], tasks[3], return_exceptions=True)
             expected = RuntimeError if terminal == "error" else TimeoutError
             assert all(isinstance(result, expected) for result in results)
             assert client._inflight == {} and client._cache.size == 0
+            assert len(released) == len({id(registration) for registration in released}) == 4
+            assert all(
+                any(registration is handle for handle in released) for registration in joined
+            )
+            for registration in released:
+                with pytest.raises(ValueError, match="stale or foreign"):
+                    cache_session.bind_request_key(registration, "released-registration")
         finally:
             provider.release.set()
             await asyncio.gather(*tasks, return_exceptions=True)

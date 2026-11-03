@@ -6281,7 +6281,7 @@ validate_source_bound_gcm_spec
 | `polisyos.scientist.replay.deterministic` | `src/polisyos/scientist/replay/deterministic.py` | `eager_exports` | 20 |
 | `polisyos.scientist.validation.policy_verified` | `src/polisyos/scientist/validation/policy_verified/__init__.py` | `eager_exports` | 28 |
 | `polisyos.scientist.agent` | `src/polisyos/scientist/agent/__init__.py` | `lazy_facade` | 102 |
-| `polisyos.scientist.policy_design` | `src/polisyos/scientist/policy_design/__init__.py` | `lazy_facade` | 105 |
+| `polisyos.scientist.policy_design` | `src/polisyos/scientist/policy_design/__init__.py` | `lazy_facade` | 107 |
 
 #### `polisyos.scientist`
 
@@ -6958,7 +6958,7 @@ register_worker_tool
 - Facade: `lazy_facade`
 - Summary: Policy design typed schema and objective stack.
 
-<details><summary>Entrypoint exports (105)</summary>
+<details><summary>Entrypoint exports (107)</summary>
 
 ```text
 AdversarialScenarioBundle
@@ -7043,6 +7043,7 @@ TranslatorComplianceFinding
 TranslatorCompliancePass
 TranslatorComplianceResult
 TranslatorInputBundle
+TranslatorMaterialization
 TransportAssumptionSpec
 TransportabilityReport
 UncertaintyReport
@@ -7060,6 +7061,7 @@ load_adversarial_scenario_bundle
 load_policy_artifact_bundle
 load_policy_brief
 load_policy_candidate_schema
+materialize_translator_inputs
 persist_adversarial_scenario_bundle
 persist_policy_artifact_bundle
 persist_policy_brief

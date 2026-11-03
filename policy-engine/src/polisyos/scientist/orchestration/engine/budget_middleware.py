@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import Literal
 
+from polisyos.core.llm import LLMSettlementOwnershipError
 from polisyos.core.llm.cache_settlement import CacheSettlementSession
 from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError, BudgetState
 from polisyos.scientist.orchestration.engine.budget_ledger import (
@@ -93,6 +94,13 @@ class BudgetMiddleware:
         self._producer_attempt_scope: ContextVar[_ProducerAttemptScope | None] = ContextVar(
             f"budget_producer_attempt_scope_{id(self)}", default=None
         )
+        self._scoped_producer_begin: ContextVar[Literal["physical", "reuse"] | None] = ContextVar(
+            f"budget_scoped_producer_begin_{id(self)}", default=None
+        )
+        # Only an actual durable begin issued by this owner is live. Handles
+        # survive a waiter cancellation until the shielded producer settles.
+        self._live_producer_lock = threading.Lock()
+        self._live_producer_attempts: dict[str, BudgetLedgerProducerRecord] = {}
 
     @property
     def budget_state(self) -> BudgetState:
@@ -302,6 +310,52 @@ class BudgetMiddleware:
                 raise BudgetLedgerSettlementOutcomeUnknownError(event_id, digest) from exc
             return receipt
 
+    @contextmanager
+    def _scoped_producer_admission(
+        self,
+        *,
+        required: bool = False,
+        reuse_session: CacheSettlementSession | None = None,
+        reuse_response: object | None = None,
+        reuse_event_id: str | None = None,
+        reuse_request_digest: str | None = None,
+    ) -> Iterator[None]:
+        """Admit attributed physical work or an exact verified reuse receipt."""
+        scope = self._producer_attempt_scope.get()
+        attributed = scope is not None and (
+            scope.control_job_attempt is not None or scope.pre_admission_attempt_id is not None
+        )
+        if reuse_response is not None:
+            attestation = getattr(reuse_response, "_polisyos_reuse_provenance", None)
+            proof = (
+                reuse_session.verify_reuse_attestation(attestation, reuse_response)
+                if type(reuse_session) is CacheSettlementSession and attestation is not None
+                else None
+            )
+            if (
+                proof is None
+                or proof.reuse_event_id != reuse_event_id
+                or proof.request_digest != reuse_request_digest
+            ):
+                raise LLMSettlementOwnershipError("producer_reuse_proof_not_established")
+        mode = "reuse" if reuse_response is not None else "physical"
+        token = self._scoped_producer_begin.set(mode if required or attributed else None)
+        try:
+            yield
+        finally:
+            self._scoped_producer_begin.reset(token)
+
+    def _finish_scoped_producer_attempt(self, event_id: str, intent: object) -> None:
+        """Retire only the exact handle issued for a producer that has finished."""
+        with self._live_producer_lock:
+            if self._live_producer_attempts.get(event_id) is intent:
+                del self._live_producer_attempts[event_id]
+
+    def _is_live_producer_attempt(self, record: BudgetLedgerProducerRecord) -> bool:
+        """Read actual current liveness without waiting on monetary I/O."""
+        with self._live_producer_lock:
+            return self._live_producer_attempts.get(record.event_id) == record
+
     def begin_producer_event_safe(
         self,
         event_id: str,
@@ -319,6 +373,42 @@ class BudgetMiddleware:
             control_job_attempt, pre_admission_attempt_id = self._attempt_attribution_for(
                 run_binding
             )
+            mode = self._scoped_producer_begin.get()
+            if mode is not None:
+                scope = self._producer_attempt_scope.get()
+                if scope is None or run_binding is None or scope.run_binding != run_binding:
+                    raise LLMSettlementOwnershipError("producer_job_scope_closed")
+                if control_job_attempt is None and pre_admission_attempt_id is None:
+                    raise ValueError("producer_spend_attempt_not_established")
+                if type(self._ledger) is not FileBudgetLedger:
+                    raise ValueError("producer_spend_admission_backend_not_supported")
+
+                def issue() -> BudgetLedgerProducerRecord:
+                    assert self._ledger is not None
+                    record = self._ledger.begin_producer_event(
+                        event_id,
+                        request_digest,
+                        key,
+                        model,
+                        provider,
+                        run_binding=run_binding,
+                        control_job_attempt=control_job_attempt,
+                        pre_admission_attempt_id=pre_admission_attempt_id,
+                    )
+                    return record
+
+                if mode == "physical":
+                    with self._ledger._guarded_producer_begin(self._is_live_producer_attempt):
+                        record = issue()
+                else:
+                    # The live Core session just proved this exact response is
+                    # a cache reuse; it writes a receipt but cannot dispatch.
+                    record = issue()
+                with self._live_producer_lock:
+                    if record.status != "pending" or event_id in self._live_producer_attempts:
+                        raise ValueError("producer_spend_intent_already_issued")
+                    self._live_producer_attempts[event_id] = record
+                return record
             return self._ledger.begin_producer_event(
                 event_id,
                 request_digest,

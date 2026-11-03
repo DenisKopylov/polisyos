@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import math
 import re
 import urllib.parse
 from html.parser import HTMLParser
@@ -16,6 +17,7 @@ from polisyos.scholar.search.models import FetchResult, SearchConstraints, Sourc
 from polisyos.scholar.search.scoring import compress_page_to_snippets
 from polisyos.scholar.search.security import (
     _resolve_fetch_target,
+    _validate_fetch_url_offline,
     detect_paywall,
     sanitize_untrusted_text,
     validate_content_type,
@@ -24,7 +26,7 @@ from polisyos.scholar.search.security import (
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from polisyos.scholar.search.cache import UrlFetchCache
+    from polisyos.scholar.search.cache import CachedPageRecord, UrlFetchCache
     from polisyos.scholar.search.security import _ResolvedFetchTarget
 
 
@@ -39,11 +41,27 @@ async def fetch_open_page(
     source_type_hint: str = "web",
 ) -> FetchResult:
     """Fetch one URL safely, reuse cache when fresh, and extract normalized page text."""
-    resolved_target = _resolve_fetch_target(url, constraints)
+    # Freeze the actual acquisition policy before an asynchronous handoff. A caller
+    # mutating its DTO while the request runs cannot change the recorded profile.
+    constraints = SearchConstraints.model_validate(constraints.model_dump(mode="python"))
+    normalized_mimes = sorted(
+        {mime.strip().lower() for mime in constraints.allowed_content_types if mime.strip()}
+    )
+    # A nonempty but all-blank allowlist means deny all, not unrestricted MIME.
+    if normalized_mimes or not constraints.allowed_content_types:
+        constraints.allowed_content_types = normalized_mimes
+    _validate_fetch_url_offline(url, constraints)
     cached = cache.get(url) if cache is not None else None
     if cached is not None:
+        try:
+            _admit_cached_page(cached, url=url, constraints=constraints, max_bytes=max_bytes)
+        except ValueError as exc:
+            return FetchResult(
+                url=url, final_url=url, status="error", error=str(exc), source_type=source_type_hint
+            )
         return cached.to_fetch_result()
 
+    resolved_target = _resolve_fetch_target(url, constraints)
     try:
         (
             raw_bytes,
@@ -79,6 +97,16 @@ async def fetch_open_page(
             last_modified=response_headers.get("Last-Modified")
             or response_headers.get("last-modified"),
             redirect_chain=redirect_chain,
+            byte_size=len(raw_bytes),
+            fetch_profile={
+                "profile_version": "1.0",
+                "transport": "polisyos.scholar.discover.transport",
+                "transport_version": "1.0",
+                "constraints": constraints.model_dump(mode="json"),
+                "max_bytes": max_bytes,
+                "timeout_s": float(timeout_s),
+                "user_agent": user_agent,
+            },
             paywalled=paywalled,
             error=error,
             source_type=_infer_source_type(
@@ -101,6 +129,69 @@ async def fetch_open_page(
             source_type=source_type_hint,
         )
         return result
+
+
+def _admit_cached_page(
+    cached: CachedPageRecord, *, url: str, constraints: SearchConstraints, max_bytes: int
+) -> None:
+    """Admit saved content using current offline policy and known acquisition facts.
+
+    Acquisition settings are provenance, not a demand that a later reader use the
+    same timeout/user agent. Missing historical facts require an explicit refresh,
+    never a hidden network call or a retroactively invented profile.
+    """
+    profile = cached.fetch_profile
+    if (
+        profile.get("profile_version") != "1.0"
+        or profile.get("transport") != "polisyos.scholar.discover.transport"
+        or profile.get("transport_version") != "1.0"
+    ):
+        raise ValueError("cache-ineligible: acquisition profile unknown or unsupported")
+    saved_constraints = profile.get("constraints")
+    if not isinstance(saved_constraints, dict) or set(saved_constraints) != set(
+        SearchConstraints.model_fields
+    ):
+        raise ValueError("cache-ineligible: acquisition constraints unknown")
+    try:
+        acquisition = SearchConstraints.model_validate(saved_constraints, strict=True)
+    except ValueError as exc:
+        raise ValueError("cache-ineligible: acquisition constraints invalid") from exc
+    timeout = profile.get("timeout_s")
+    saved_max_bytes = profile.get("max_bytes")
+    try:
+        valid_timeout = (
+            isinstance(timeout, (int, float))
+            and not isinstance(timeout, bool)
+            and math.isfinite(timeout)
+            and timeout > 0
+        )
+    except OverflowError:
+        valid_timeout = False
+    if (
+        not valid_timeout
+        or not isinstance(profile.get("user_agent"), str)
+        or not isinstance(saved_max_bytes, int)
+        or isinstance(saved_max_bytes, bool)
+        or saved_max_bytes < 0
+    ):
+        raise ValueError("cache-ineligible: acquisition bounds unknown")
+    if cached.url != url:
+        raise ValueError("cache-ineligible: saved initial URL mismatch")
+    if cached.final_url != cached.url and (
+        not cached.redirect_chain or cached.redirect_chain[-1] != cached.final_url
+    ):
+        raise ValueError("cache-ineligible: redirect facts incomplete")
+    for saved_url in [cached.url, *cached.redirect_chain, cached.final_url]:
+        _validate_fetch_url_offline(saved_url, constraints)
+    if not constraints.allow_private_networks and acquisition.allow_private_networks:
+        raise ValueError("cache-ineligible: saved public-destination assurance not established")
+    validate_content_type(cached.content_type, constraints)
+    if cached.byte_size is None:
+        raise ValueError("cache-ineligible: raw byte_size unknown")
+    if cached.byte_size > saved_max_bytes:
+        raise ValueError("cache-ineligible: raw byte_size exceeds acquisition bounds")
+    if cached.byte_size > max_bytes:
+        raise ValueError(f"cached page exceeds max_bytes={max_bytes}")
 
 
 def find_in_page(

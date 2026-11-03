@@ -93,6 +93,7 @@ _SYMBOL_TO_MODULE = {
     "TranslatorCompliancePass": "polisyos.scientist.policy_design.translator",
     "TranslatorComplianceResult": "polisyos.scientist.policy_design.translator",
     "TranslatorInputBundle": "polisyos.scientist.policy_design.translator",
+    "TranslatorMaterialization": "polisyos.scientist.policy_design.translator",
     "UncertaintyReport": "polisyos.scientist.policy_design.output",
     "build_critic_candidate": "polisyos.scientist.policy_design.critic_contracts",
     "critic_consensus_to_obligation_candidates": (
@@ -100,6 +101,7 @@ _SYMBOL_TO_MODULE = {
     ),
     "critic_verdict": "polisyos.scientist.policy_design.critic_contracts",
     "derive_phase2_parameter_bounds": "polisyos.scientist.policy_design.search",
+    "materialize_translator_inputs": "polisyos.scientist.policy_design.translator",
     "project_critic_consensus": "polisyos.scientist.policy_design.critic_ensemble",
     "critique_to_failure_cards": "polisyos.scientist.policy_design.critic",
     "critique_to_lesson_cards": "polisyos.scientist.policy_design.critic",

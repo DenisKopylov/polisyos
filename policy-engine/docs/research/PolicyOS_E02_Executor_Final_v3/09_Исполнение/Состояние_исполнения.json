@@ -5,7 +5,7 @@
   "specification_version": "v3",
   "reference_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
   "actual_start_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
-  "active_lane": "LANE-05",
+  "active_lane": "LANE-09",
   "lane_order": [
     "LANE-06",
     "LANE-08",
@@ -7868,11 +7868,1213 @@
     {
       "lane_id": "LANE-09",
       "sequence": 7,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "LOCAL_IMPLEMENTATION_COMPLETE",
+      "local_qualification": "QUALIFIED_AVAILABLE_NAMED_PROFILES",
       "capability_acceptance": "NOT_RUN",
       "transition_evidence": [],
-      "corrective_windows": []
+      "corrective_windows": [],
+      "source_admission": {
+        "commit": "37cfbaf9eb7b5a1f29f5baa84103eb2533408969",
+        "tree": "f46d9bc83b7eda7b23bf2f8b870f4d8b183c8d5b",
+        "tracked_state": "clean",
+        "disk_available_gib_approx": 12,
+        "resource_profile": "Existing Mac arm64/Python3.14.3/Node22; two measured light tests at most, unknown native profile initially alone; CPU numeric threads1; no reinstall/data copies/cloud."
+      },
+      "denominator": {
+        "packets": 4,
+        "requirements": 22,
+        "tests": 25,
+        "requirement_test_edges": 40,
+        "shared_i09_scenarios": [
+          "E02-I09-A",
+          "E02-I09-B"
+        ],
+        "i09_binding_rows": 6,
+        "lane09_requirement_binding_edges_across_all_scenarios": 24,
+        "binding_rows_with_lane09_requirements": 8,
+        "shared_i09_unique_requirement_ids": 19,
+        "local_only_requirement_ids": [
+          "REQ-SCL-01-05",
+          "REQ-LLM-01-04",
+          "REQ-LLM-02-07"
+        ],
+        "repeated_external_occurrences": {
+          "REQ-SCL-03-01": 2,
+          "REQ-SCL-03-03": 3,
+          "REQ-SCL-03-04": 3
+        },
+        "preserve_global_E02": [
+          26,
+          127,
+          282,
+          291,
+          319
+        ]
+      },
+      "write_ownership": {
+        "fetch": "lane09_fetch: search fetcher/security/cache/models and mirrored cache/native transport tests; sole fetch_profile writer for SCL01+03",
+        "deadline": "lane09_search: search service/providers and mirrored provider/service tests",
+        "snapshot": "lane09_snapshot: discover/manual, enrich, source_binding, API and mirrored selected-source/docs tests",
+        "telemetry": "lane09_telemetry: budget_enforcer, Core traced_client and fallback observability + mirrored tests",
+        "cache": "lane09_cache: cache/factory/finite Translator binder and consumer + mirrored tests; one ordered prompt_cache writer including its leaf",
+        "coordinator": "root: index/refs, shared public/generated companions, release fragment and current state/plan"
+      },
+      "evidence_catalog": {
+        "lane09-root": [
+          {
+            "locator": "policy-engine/_cache/e02/lane09-root/architecture-static-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "tools/devx/architecture/guardrails.py",
+              "check",
+              "--skip-generated-checks"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 82.19127654202748,
+            "peak_sampled_tree_rss_bytes": 192380928,
+            "named_inputs": 5,
+            "inputs_unchanged": true,
+            "counts": null,
+            "outputs": {
+              "result.json": "8f387194c26cfff127e54c9207f8ec5ee0c477a7b60048908054dc2ec7dc4191",
+              "command.stdout.txt": "f82f86743616287e6df81689dc18bdd8166034076f913157a2c5e06ada156035",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          {
+            "locator": "policy-engine/_cache/e02/lane09-root/llm-composed-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/unit/scientist/orchestration/llm",
+              "tests/unit/core/llm",
+              "tests/unit/scientist/orchestration/engine/test_llm_spend_admission.py",
+              "tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+              "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+              "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+              "tests/unit/runtime/http/test_control_nl_producer_admission.py",
+              "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+              "--junitxml=_cache/e02/lane09-root/llm-composed-r1/junit.xml"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 102.37824387499131,
+            "peak_sampled_tree_rss_bytes": 1531199488,
+            "named_inputs": 262,
+            "inputs_unchanged": true,
+            "counts": {
+              "tests": 700,
+              "failures": 6,
+              "errors": 0,
+              "skipped": 1,
+              "passed": 693
+            },
+            "outputs": {
+              "result.json": "379fd24a46a169631c22aa8c1b16d7924748f0975eaaf45c45cb2d2b14965261",
+              "command.stdout.txt": "5f05a059d144fff8d35fa6282afbe39230126896a7aac0a00dcf85b7c8181397",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "junit.xml": "366237399946006d2d1bac69e638a7581af8f529c7ce5bfcd39fc5888fc11d59"
+            }
+          },
+          {
+            "locator": "policy-engine/_cache/e02/lane09-root/llm-composed-r2",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/unit/scientist/orchestration/llm",
+              "tests/unit/core/llm",
+              "tests/unit/scientist/orchestration/engine/test_llm_spend_admission.py",
+              "tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+              "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+              "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+              "tests/unit/runtime/http/test_control_nl_producer_admission.py",
+              "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+              "--junitxml=_cache/e02/lane09-root/llm-composed-r2/junit.xml"
+            ],
+            "return_code": 0,
+            "execution_status": "passed",
+            "aborted_reason": null,
+            "wall_seconds": 79.67609791702125,
+            "peak_sampled_tree_rss_bytes": 1678704640,
+            "named_inputs": 262,
+            "inputs_unchanged": true,
+            "counts": {
+              "tests": 722,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 1,
+              "passed": 721
+            },
+            "outputs": {
+              "result.json": "95739438c92b6cd432dcf5ac2374f11e1e738466e81d5b329da98f62f13027d7",
+              "command.stdout.txt": "3bac9f1fce062debfb22da1f2715e3c48befcb2592bab729b5be298e7351d5ec",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "junit.xml": "7ccaed1456c243b3cf27707324299d7222c442cc68090d4bd9ee84ef9eb3728f"
+            }
+          },
+          {
+            "locator": "policy-engine/_cache/e02/lane09-root/module-size-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "tools.quality.validation.architecture_report_only_contracts",
+              "--report",
+              "module-size",
+              "--json-output",
+              "_cache/e02/lane09-root/module-size-r1/report.json",
+              "--fail-on-contract-errors"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 11.363023416954093,
+            "peak_sampled_tree_rss_bytes": 45613056,
+            "named_inputs": 3,
+            "inputs_unchanged": true,
+            "counts": null,
+            "outputs": {
+              "result.json": "5911caed62b841b9d9a1fb7030612eda7681ed1e52b3dc4cff886db361096714",
+              "command.stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          {
+            "locator": "policy-engine/_cache/e02/lane09-root/public-contract-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+              "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+              "tests/repo_quality/architecture/test_public_surface_snapshot.py",
+              "--junitxml=_cache/e02/lane09-root/public-contract-r1/junit.xml"
+            ],
+            "return_code": -15,
+            "execution_status": "resource_limit_abort",
+            "aborted_reason": "overall_wall_cap",
+            "wall_seconds": 115.24905079195742,
+            "peak_sampled_tree_rss_bytes": 1364688896,
+            "named_inputs": 4,
+            "inputs_unchanged": true,
+            "counts": null,
+            "outputs": {
+              "result.json": "bf5f8e1836c6368e98d7ab1c60c173f064285e787c933ee27aeb1ae070d09ecd",
+              "command.stdout.txt": "e05817b81a887315fc695def797bdf8c98494e2b248c9dbae30c2b03b08ce4d5",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          {
+            "locator": "policy-engine/_cache/e02/lane09-root/public-contract-r2",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+              "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+              "tests/repo_quality/architecture/test_public_surface_snapshot.py",
+              "--junitxml=_cache/e02/lane09-root/public-contract-r2/junit.xml"
+            ],
+            "return_code": -15,
+            "execution_status": "resource_limit_abort",
+            "aborted_reason": "sampled_process_tree_rss_cap",
+            "wall_seconds": 128.21957625006326,
+            "peak_sampled_tree_rss_bytes": 2317434880,
+            "named_inputs": 4,
+            "inputs_unchanged": true,
+            "counts": null,
+            "outputs": {
+              "result.json": "e18a82161e43985ea2c0fb0f8898db885e99ce208e96a8925ea5e601a74ff3d5",
+              "command.stdout.txt": "9f83df8617c645724c0538998a94c35b167f1a173d2bf8d5adaef665a2de9ae6",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          {
+            "locator": "policy-engine/_cache/e02/lane09-root/public-contract-r3",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+              "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+              "tests/repo_quality/architecture/test_public_surface_snapshot.py",
+              "--junitxml=_cache/e02/lane09-root/public-contract-r3/junit.xml"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 135.26012995792553,
+            "peak_sampled_tree_rss_bytes": 3267559424,
+            "named_inputs": 4,
+            "inputs_unchanged": true,
+            "counts": {
+              "tests": 146,
+              "failures": 1,
+              "errors": 0,
+              "skipped": 0,
+              "passed": 145
+            },
+            "outputs": {
+              "result.json": "20e211f753e3f84c46f0f7e4b628ae9a0960982bab1f6c8e1ed11deb4cd32180",
+              "command.stdout.txt": "5c5d3654d0c6632b480b8167b2078e73c5450f1b454de806232aeb75acd9f9a7",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "junit.xml": "2652c8d8bfbc256c787dcd04be2b4cb5e2391963ee563863044c1a65617eb560"
+            }
+          },
+          {
+            "locator": "policy-engine/_cache/e02/lane09-root/public-sync-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "tools/devx/architecture/guardrails.py",
+              "sync",
+              "--skip-deep-import-baseline"
+            ],
+            "return_code": 0,
+            "execution_status": "passed",
+            "aborted_reason": null,
+            "wall_seconds": 48.08496304205619,
+            "peak_sampled_tree_rss_bytes": 185040896,
+            "named_inputs": 4,
+            "inputs_unchanged": true,
+            "counts": null,
+            "outputs": {
+              "result.json": "487b2673ea82c084db1ed2446323a0cc42cb32064e100c98666bdd84abe22666",
+              "command.stdout.txt": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          {
+            "locator": "policy-engine/_cache/e02/lane09-root/scholar-composed-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/unit/scholar/search",
+              "tests/unit/remediation/test_scl_03.py",
+              "tests/unit/scholar/test_api_web_bootstrap.py",
+              "--junitxml=_cache/e02/lane09-root/scholar-composed-r1/junit.xml"
+            ],
+            "return_code": 0,
+            "execution_status": "passed",
+            "aborted_reason": null,
+            "wall_seconds": 18.461224166909233,
+            "peak_sampled_tree_rss_bytes": 758611968,
+            "named_inputs": 140,
+            "inputs_unchanged": true,
+            "counts": {
+              "tests": 159,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0,
+              "passed": 159
+            },
+            "outputs": {
+              "result.json": "e2be814c8df8cd69dcffcabccfac7856062e590bdc6d511af0d2c4768328a56a",
+              "command.stdout.txt": "50d311a14aa9997f6554fa75c24d607047174ea3bcea99fe19aa538524a8c7f3",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "junit.xml": "7e1155f10332949721f8e3d68c9b05cf2ed465196083871b341c17ae648b6464"
+            }
+          }
+        ],
+        "lane09-fetch": [
+          {
+            "locator": "policy-engine/_cache/e02/lane09-fetch/final-r2",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "-s",
+              "tests/unit/scholar/search/test_fetcher_security_cache.py",
+              "tests/unit/scholar/search/test_fetcher_dns_pinning.py::test_real_local_tls_keeps_hostname_and_verifies_connected_peer",
+              "--junitxml=_cache/e02/lane09-fetch/final-r2/junit.xml"
+            ],
+            "return_code": 0,
+            "execution_status": "passed",
+            "aborted_reason": null,
+            "wall_seconds": 5.057250457932241,
+            "peak_sampled_tree_rss_bytes": 325648384,
+            "named_inputs": 9,
+            "inputs_unchanged": true,
+            "counts": {
+              "tests": 27,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0,
+              "passed": 27
+            },
+            "outputs": {
+              "result.json": "765c821bb54be69b2bdcc7d67270d8d38c5f5ce422babee8e5e8e170750c55f4",
+              "command.stdout.txt": "7f1ccacf2fb271e2c775bc133811c49c9a8cbb6d0ef8ccb764c5ca85964be545",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "junit.xml": "6464011766fc4d616cdfeb9664ecefb206047386c380c51e92900ce1d1f1b826"
+            }
+          },
+          {
+            "locator": "policy-engine/_cache/e02/lane09-fetch/red-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/unit/scholar/search/test_fetcher_security_cache.py",
+              "-k",
+              "persisted_cache_reuse or actual_fetch_profile or legacy_missing_cache",
+              "--junitxml=_cache/e02/lane09-fetch/red-r1/junit.xml"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 4.929622124996968,
+            "peak_sampled_tree_rss_bytes": 321961984,
+            "named_inputs": 6,
+            "inputs_unchanged": true,
+            "counts": {
+              "tests": 4,
+              "failures": 4,
+              "errors": 0,
+              "skipped": 0,
+              "passed": 0
+            },
+            "outputs": {
+              "result.json": "45cf6d7eb739e34c4e186eb5c4053a321ba61584278276ae3bda987a3093fcdc",
+              "command.stdout.txt": "3e8f836a44ab7e8a68542f57263243ed941cf98a618388d12cb0d4782b7724d3",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "junit.xml": "9bb5822eb4d050f9a10d5414fa3abc7ccd54490544035ebf9ea55577a4d71bfa"
+            }
+          },
+          {
+            "locator": "policy-engine/_cache/e02/lane09-fetch/removal-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "_cache/e02/lane09-fetch/remove-admission.py"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 5.188081041909754,
+            "peak_sampled_tree_rss_bytes": 297074688,
+            "named_inputs": 8,
+            "inputs_unchanged": true,
+            "counts": {
+              "tests": 1,
+              "failures": 1,
+              "errors": 0,
+              "skipped": 0,
+              "passed": 0
+            },
+            "outputs": {
+              "result.json": "57c7898f25f129a8cdc48ce34831f6a7bf1c61f29642f6a6d7c65569ae85a007",
+              "command.stdout.txt": "c89f8dc36155188e18d2e2802acda1916191e39432f4e97bac1dcaf2109e319b",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "junit.xml": "615c3d7e2e381cf016e3b999a812b80d35c6ae103974b99744814162826f58e6"
+            }
+          }
+        ],
+        "lane09-search": [
+          {
+            "locator": "policy-engine/_cache/e02/lane09-search/red-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/unit/scholar/search/test_service_jobs_tools.py::test_deep_search_final_batch_preserves_deadline_and_allowed_failover",
+              "tests/unit/scholar/search/test_service_jobs_tools.py::test_deep_search_deadline_after_only_provider_is_still_partial",
+              "--junitxml=_cache/e02/lane09-search/red-r1/junit.xml"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 3.273249499965459,
+            "peak_sampled_tree_rss_bytes": 344129536,
+            "named_inputs": 4,
+            "inputs_unchanged": true,
+            "counts": {
+              "tests": 4,
+              "failures": 4,
+              "errors": 0,
+              "skipped": 0,
+              "passed": 0
+            },
+            "outputs": {
+              "result.json": "5369b7e422e8402bb96dde788ccd5212dae8e281611947d218f324652bb96251",
+              "command.stdout.txt": "e4a28f472091e5867d78b003ae1a3fe069086bfad704a2180b362456fbf45bb8",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "junit.xml": "a8ce26675d0562eb38b34d88c0d3957ee9cf7484a5a6ca8cadae90f702f3a6a2"
+            }
+          }
+        ],
+        "lane09-snapshot": [
+          {
+            "locator": "policy-engine/_cache/e02/lane09-snapshot/cache-provenance-removal-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-c",
+              "import pytest; import polisyos.scholar.api as api; api._cache_record_for_source = lambda source, cache: cache.get(str(source.url)) if cache is not None else None; raise SystemExit(pytest.main([\"-q\", \"--show-capture=no\", \"tests/unit/remediation/test_scl_03.py::test_historical_snapshot_does_not_inherit_later_cache_provenance\", \"--junitxml=_cache/e02/lane09-snapshot/cache-provenance-removal-r1/junit.xml\"]))"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 3.2772727919509634,
+            "peak_sampled_tree_rss_bytes": 326811648,
+            "named_inputs": 3,
+            "inputs_unchanged": true,
+            "counts": {
+              "tests": 2,
+              "failures": 2,
+              "errors": 0,
+              "skipped": 0,
+              "passed": 0
+            },
+            "outputs": {
+              "result.json": "9fffd0e3c767f229641c02b5fdefd81dd6506ea651a7c9b595d4928a6dfb0714",
+              "command.stdout.txt": "2479caafdf2daeb8c0dab097fb30d9517b0e0256073b96c266c6aadef236ffcb",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "junit.xml": "754aa57e973387e2ff9001fcce24187743aed97e45a49b3223442c9cdd0acab5"
+            }
+          },
+          {
+            "locator": "policy-engine/_cache/e02/lane09-snapshot/normalization-red-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/unit/remediation/test_scl_03.py::test_normalized_snapshot_rechecks_selected_view_before_docs_publication",
+              "--junitxml=_cache/e02/lane09-snapshot/normalization-red-r1/junit.xml"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 3.8296006249729544,
+            "peak_sampled_tree_rss_bytes": 342917120,
+            "named_inputs": 3,
+            "inputs_unchanged": true,
+            "counts": {
+              "tests": 2,
+              "failures": 2,
+              "errors": 0,
+              "skipped": 0,
+              "passed": 0
+            },
+            "outputs": {
+              "result.json": "fb7fbff844bf611d762bbc68e27966b5d12b7f7fb956beaf1ad7441b204685dd",
+              "command.stdout.txt": "d207a152794e5b9484890fbddab6e27027210e8195f709130f908ac48c513def",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "junit.xml": "00b7f4fba687459c264e3ee5c52f5a79c4ed64c2fec33871e0de97158d551400"
+            }
+          }
+        ],
+        "lane09-telemetry": [
+          {
+            "locator": "policy-engine/_cache/e02/lane09-telemetry/before-budget-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py::test_optional_exports_preserve_actual_settlement_and_local_projection",
+              "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py::test_optional_export_isolation_does_not_swallow_mandatory_audit",
+              "--junitxml=_cache/e02/lane09-telemetry/before-budget-r1/junit.xml"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 6.272894417052157,
+            "peak_sampled_tree_rss_bytes": 180797440,
+            "named_inputs": 3,
+            "inputs_unchanged": true,
+            "counts": {
+              "tests": 10,
+              "failures": 6,
+              "errors": 0,
+              "skipped": 0,
+              "passed": 4
+            },
+            "outputs": {
+              "result.json": "8abd4bf9e7a849573b039608cd6f4a0206601dab604613d4b5ac3a100466ce31",
+              "command.stdout.txt": "b5cf28457f1b0c01d2c8115b12a8ee7918710a27fc3765eab1f1246dd855485d",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "junit.xml": "357d57481eb099a70c5b829bbf6a6527cdbbd88a8c4d31b10f128334594bd55b"
+            }
+          },
+          {
+            "locator": "policy-engine/_cache/e02/lane09-telemetry/before-span-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/unit/core/llm/test_traced_client_settlement.py::test_optional_span_faults_preserve_real_settlement_and_primary_outcome",
+              "--junitxml=_cache/e02/lane09-telemetry/before-span-r1/junit.xml"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 3.7741050829645246,
+            "peak_sampled_tree_rss_bytes": 141000704,
+            "named_inputs": 3,
+            "inputs_unchanged": true,
+            "counts": {
+              "tests": 72,
+              "failures": 51,
+              "errors": 0,
+              "skipped": 0,
+              "passed": 21
+            },
+            "outputs": {
+              "result.json": "486bf710ee787dff1e6b65a55ef4adbf1812325eb2570687c7642a78a4654e06",
+              "command.stdout.txt": "d0097780ccce28c30f7a9e7a1193a4e578a163e64377073f2889a2e1068c11a3",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "junit.xml": "4d629c6aee01a373a0f070dcf3bac7b3a0130e449ad0cc27644c1eb627245417"
+            }
+          },
+          {
+            "locator": "policy-engine/_cache/e02/lane09-telemetry/soft-limit-red-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py::test_soft_limit_export_preserves_all_keys_and_mandatory_audit",
+              "--junitxml=_cache/e02/lane09-telemetry/soft-limit-red-r1/junit.xml"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 1.66653549997136,
+            "peak_sampled_tree_rss_bytes": 168607744,
+            "named_inputs": 3,
+            "inputs_unchanged": true,
+            "counts": {
+              "tests": 12,
+              "failures": 8,
+              "errors": 0,
+              "skipped": 0,
+              "passed": 4
+            },
+            "outputs": {
+              "result.json": "76ee9995851a43481d8408baeb57b03dfbde01634947a9869edbdd5211c421af",
+              "command.stdout.txt": "b773de2640e845c699291d9c5dddab124333569bb07745922b156ebbe2eef7c5",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "junit.xml": "81c0bb5fcaf053a41df6309ee8ddd59c2e34a61dafa13b5646ebdd36756572f9"
+            }
+          }
+        ],
+        "lane09-cache": [
+          {
+            "locator": "policy-engine/_cache/e02/lane09-cache/closure-red-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_materialized_translator_reuses_only_the_exact_scoped_call"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 12.878819666919298,
+            "peak_sampled_tree_rss_bytes": 855621632,
+            "named_inputs": 11,
+            "inputs_unchanged": true,
+            "counts": null,
+            "outputs": {
+              "result.json": "3c410fc0726793df1c5c0dda3c3ab5f1796c3dbe184e0a1a35c748bdeb106d24",
+              "command.stdout.txt": "3eb8862812a407c8fced4e584ade412feb51d9ea1231e2577782202d13c8f5f3",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        ],
+        "lane09-race": [
+          {
+            "locator": "policy-engine/_cache/e02/lane09-race/before-provider",
+            "command": [
+              ".venv/bin/python",
+              "-m",
+              "pytest",
+              "-q",
+              "tests/unit/scientist/orchestration/llm/test_cache_owner_admission.py::test_publication_revision_race_readmits_once_under_current_owner[current]",
+              "--tb=short"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 2.175186292035505,
+            "peak_sampled_tree_rss_bytes": 232947712,
+            "named_inputs": 5,
+            "inputs_unchanged": true,
+            "counts": null,
+            "outputs": {
+              "result.json": "c972149a3cf17706e12c79973c391de6d6eb983af4d1792eca529ab8d12197ec",
+              "command.stdout.txt": "147472f688663e44465cdd0c723ec94ebe77b0138bba54766fce8ff7e7e143e1",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        ],
+        "lane09-spend": [
+          {
+            "locator": "policy-engine/_cache/e02/lane09-spend/red-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/unit/scientist/orchestration/engine/test_llm_spend_admission.py",
+              "--junitxml=_cache/e02/lane09-spend/red-r1/junit.xml"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 14.195201042108238,
+            "peak_sampled_tree_rss_bytes": 1404862464,
+            "named_inputs": 7,
+            "inputs_unchanged": true,
+            "counts": {
+              "tests": 3,
+              "failures": 2,
+              "errors": 0,
+              "skipped": 0,
+              "passed": 1
+            },
+            "outputs": {
+              "result.json": "a65a42d0b2e094cb2c4611a4466da78a64a67a8ce24095d4d1d9d7a3e4310fa7",
+              "command.stdout.txt": "4e3d15f26321f1403597b03192121c0d812cf19b6e9c5fd77c887dfc20c9459d",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "junit.xml": "bec03c8522bede91aa76ba71955a3c9ad646e2293043a6a4fd9ac657fed69bfb"
+            }
+          },
+          {
+            "locator": "policy-engine/_cache/e02/lane09-spend/retirement-red-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/unit/scientist/orchestration/engine/test_llm_spend_admission.py::test_failed_settlement_completion_does_not_wait_for_other_ledger_io",
+              "--junitxml=_cache/e02/lane09-spend/retirement-red-r1/junit.xml"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 16.494746209005825,
+            "peak_sampled_tree_rss_bytes": 1405468672,
+            "named_inputs": 6,
+            "inputs_unchanged": true,
+            "counts": {
+              "tests": 1,
+              "failures": 1,
+              "errors": 0,
+              "skipped": 0,
+              "passed": 0
+            },
+            "outputs": {
+              "result.json": "d6911502e518286a3ed25159f7c5b38f825eb336b3961b290813ffa7441d02c8",
+              "command.stdout.txt": "563e02e1b6ff38d1a6b1a1c31626d8afc840f26348669e9850c7899702f5a63e",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "junit.xml": "0d4670b9c49a2fc502895cab4e58b76db2c714691b8224195d05f2d99762f0e9"
+            }
+          },
+          {
+            "locator": "policy-engine/_cache/e02/lane09-spend/reuse-red-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/unit/scientist/orchestration/engine/test_llm_spend_admission.py::test_verified_reuse_preserves_unknown_origin_without_a_new_physical_call",
+              "--junitxml=_cache/e02/lane09-spend/reuse-red-r1/junit.xml"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 13.09668912505731,
+            "peak_sampled_tree_rss_bytes": 1411006464,
+            "named_inputs": 7,
+            "inputs_unchanged": true,
+            "counts": {
+              "tests": 1,
+              "failures": 1,
+              "errors": 0,
+              "skipped": 0,
+              "passed": 0
+            },
+            "outputs": {
+              "result.json": "48ea43c8f636b7e347d53cd5ccb31a831ef430ea7dfe3629cd486c8914775437",
+              "command.stdout.txt": "1be20d54f534d14e096f9da749d36ef368a298f772ee0e2b39132d5d4b085c2d",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "junit.xml": "ad4cc1d40234b8e7a5677cb5d03857c569abe366e1859cbafc0de2b7542374cb"
+            }
+          },
+          {
+            "locator": "policy-engine/_cache/e02/lane09-spend/runtime-reuse-red-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/unit/scientist/orchestration/engine/test_llm_spend_admission.py::test_live_verified_reuse_receipt_does_not_block_other_physical_work",
+              "tests/unit/runtime/http/test_control_nl_producer_admission.py::test_running_dependency_timeout_closes_without_holding_the_job_transaction",
+              "tests/unit/runtime/http/test_control_nl_producer_admission.py::test_actual_begin_receipt_with_lost_attempt_is_refused_before_dispatch",
+              "tests/unit/runtime/http/test_control_nl_producer_admission.py::test_scoped_spend_admission_refuses_a_lost_attempt_before_any_write_or_dispatch",
+              "--junitxml=_cache/e02/lane09-spend/runtime-reuse-red-r1/junit.xml"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 15.445568250026554,
+            "peak_sampled_tree_rss_bytes": 1421639680,
+            "named_inputs": 8,
+            "inputs_unchanged": true,
+            "counts": {
+              "tests": 9,
+              "failures": 1,
+              "errors": 0,
+              "skipped": 0,
+              "passed": 8
+            },
+            "outputs": {
+              "result.json": "1609897e2005ae78b655439dd3cfa397d1475f004c35570b851b870ee4d8a3f0",
+              "command.stdout.txt": "4b02e2bf7dac9eb9a5f4823c47d8b4096c53e8546f43a4f480dc6eefb05e924b",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "junit.xml": "3d4c08b75ab143b7abe584d2ebd3195f007519e3f610ac6fecc48d3103dac042"
+            }
+          }
+        ],
+        "lane09-no-otel": [
+          {
+            "locator": "policy-engine/_cache/e02/lane09-no-otel/r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/unit/scientist/orchestration/llm/test_factory_cache_composition.py::test_factory_scoped_cache_and_ledger_use_real_no_otel_fallback"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 2.1817248340230435,
+            "peak_sampled_tree_rss_bytes": 216088576,
+            "named_inputs": 8,
+            "inputs_unchanged": true,
+            "counts": null,
+            "outputs": {
+              "result.json": "4a4f7d169435eed76be25d0462fac925e52da986f68a13d4e5f41b93246387a7",
+              "command.stdout.txt": "d051a37628446f5f25b3a55674e18405bec36188f9f61606b8e35a49c65beaa7",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          {
+            "locator": "policy-engine/_cache/e02/lane09-no-otel/r2",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "--show-capture=no",
+              "tests/unit/scientist/orchestration/llm/test_factory_cache_composition.py::test_factory_scoped_cache_and_ledger_use_real_no_otel_fallback"
+            ],
+            "return_code": 0,
+            "execution_status": "passed",
+            "aborted_reason": null,
+            "wall_seconds": 2.179895250010304,
+            "peak_sampled_tree_rss_bytes": 221659136,
+            "named_inputs": 8,
+            "inputs_unchanged": true,
+            "counts": null,
+            "outputs": {
+              "result.json": "36293c1bd633d0fb5058b9a86a930adfde0384cfec0b258f7346dce2dfa44805",
+              "command.stdout.txt": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        ],
+        "lane09-adversary-entry": [
+          {
+            "locator": "policy-engine/_cache/e02/lane09-adversary-entry/base-r1",
+            "command": [
+              ".venv/bin/python",
+              "-B",
+              "/tmp/e02-lane09-adversary-entry-run.py"
+            ],
+            "return_code": 1,
+            "execution_status": "command_failed",
+            "aborted_reason": null,
+            "wall_seconds": 11.43782662495505,
+            "peak_sampled_tree_rss_bytes": 862863360,
+            "named_inputs": 6,
+            "inputs_unchanged": true,
+            "counts": {
+              "tests": 1,
+              "failures": 1,
+              "errors": 0,
+              "skipped": 0,
+              "passed": 0
+            },
+            "outputs": {
+              "result.json": "9cf68f7f5ef98cdcaa93613b39a56c9103b817b1fb66ec4a4e31167c098bffc1",
+              "command.stdout.txt": "2b610fb03696dedb0d2a465b6dd79f73caebde51881b05cbdae7f252d576fae6",
+              "command.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "junit.xml": "ab5df404074f22ad575bb3483bd8db4e5553271f4e1fd487aabc5d0fc5d2ba59"
+            }
+          }
+        ],
+        "access": "Complete deciding bytes are retained once at these local Mac paths. Git delivers code, fixtures and commands; ignored locators/hashes are not remote evidence delivery. A receiver lacking local bytes must rerun only the exact needed check.",
+        "global_gates": {
+          "static_architecture": "FAIL:8 Fabric deep-import edges plus baseline drift;0 changed-path edges. Full isolated generated probes explicitly omitted. No entry-base replay or inherited attribution; no baseline waiver.",
+          "module_size": "FAIL:69 contract errors,0 changed-path contract errors; normal budgets preserved. Source unchanged outside this lane is not an inherited proof.",
+          "public_historical_snapshot": "FAIL:145/146 public-contract tests pass; exact Phase3A public_surface_pre_decomp snapshot drift remains. Normal current inventory generation and canonical facade identity checks pass. Historical baseline is not rewritten to waive drift; no inherited attribution.",
+          "main": "Required global CI is not green; author topic only. G acceptance/formal E02 separate."
+        },
+        "interpretation": "Each run retains its own source/profile/inputs. Counts overlap and are not summed into requirements. Expected semantic controls, setup errors and superseded development failures retain actual execution outcomes; no red is discarded.",
+        "profiles": {
+          "python": "Existing .venv Python3.14.3, Mac arm64, source checkout imports; no install/environment copy",
+          "threads": "CPU1 per test command; bounded RSS/time supervision",
+          "network": "Controlled HTTP/DNS/TLS/provider only, real cache/CAS/docs/ledger; no production payload or paid/live retrieval quality claim",
+          "observability": "Configured polisyos.core.observability.tracer in actual Translator matrix; separate fresh-process actual no-OTel fallback factory/cache/ledger",
+          "scope": "Explicit finite temperature0 plain-completion Translator profile; default0.1 and ordinary/tool-calling NL unchanged"
+        },
+        "selection": "Only final composed/generation gates and decisive causal/removal/admission witnesses are indexed here. Superseded development runs remain in the same local group directories; they are not promoted to current PASS. Each result.json contains its exact command and source pins."
+      },
+      "shared_binding_occurrences": [
+        {
+          "scenario_id": "E02-I09-A",
+          "binding_id": "E02-I09-A-B01",
+          "pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/28/bindings/0",
+          "requirements": [
+            "REQ-SCL-01-02",
+            "REQ-SCL-01-03",
+            "REQ-SCL-01-04"
+          ],
+          "requirement_test_edges": [
+            {
+              "requirement_id": "REQ-SCL-01-02",
+              "local_test_ids": [
+                "TEST-SCL-01-03"
+              ]
+            },
+            {
+              "requirement_id": "REQ-SCL-01-03",
+              "local_test_ids": [
+                "TEST-SCL-01-03",
+                "TEST-SCL-01-04"
+              ]
+            },
+            {
+              "requirement_id": "REQ-SCL-01-04",
+              "local_test_ids": [
+                "TEST-SCL-01-04",
+                "TEST-SCL-01-05"
+              ]
+            }
+          ]
+        },
+        {
+          "scenario_id": "E02-I09-A",
+          "binding_id": "E02-I09-A-B02",
+          "pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/28/bindings/1",
+          "requirements": [
+            "REQ-SCL-01-01",
+            "REQ-SCL-03-02"
+          ],
+          "requirement_test_edges": [
+            {
+              "requirement_id": "REQ-SCL-01-01",
+              "local_test_ids": [
+                "TEST-SCL-01-01",
+                "TEST-SCL-01-02"
+              ]
+            },
+            {
+              "requirement_id": "REQ-SCL-03-02",
+              "local_test_ids": [
+                "TEST-SCL-03-03"
+              ]
+            }
+          ]
+        },
+        {
+          "scenario_id": "E02-I09-A",
+          "binding_id": "E02-I09-A-B03",
+          "pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/28/bindings/2",
+          "requirements": [
+            "REQ-SCL-03-01",
+            "REQ-SCL-03-03",
+            "REQ-SCL-03-04"
+          ],
+          "requirement_test_edges": [
+            {
+              "requirement_id": "REQ-SCL-03-01",
+              "local_test_ids": [
+                "TEST-SCL-03-01",
+                "TEST-SCL-03-02"
+              ]
+            },
+            {
+              "requirement_id": "REQ-SCL-03-03",
+              "local_test_ids": [
+                "TEST-SCL-03-02",
+                "TEST-SCL-03-04"
+              ]
+            },
+            {
+              "requirement_id": "REQ-SCL-03-04",
+              "local_test_ids": [
+                "TEST-SCL-03-01",
+                "TEST-SCL-03-04",
+                "TEST-SCL-03-05"
+              ]
+            }
+          ]
+        },
+        {
+          "scenario_id": "E02-I09-B",
+          "binding_id": "E02-I09-B-B01",
+          "pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/29/bindings/0",
+          "requirements": [
+            "REQ-LLM-01-01",
+            "REQ-LLM-01-02",
+            "REQ-LLM-01-03",
+            "REQ-LLM-01-05",
+            "REQ-LLM-01-06"
+          ],
+          "requirement_test_edges": [
+            {
+              "requirement_id": "REQ-LLM-01-01",
+              "local_test_ids": [
+                "TEST-LLM-01-01"
+              ]
+            },
+            {
+              "requirement_id": "REQ-LLM-01-02",
+              "local_test_ids": [
+                "TEST-LLM-01-02"
+              ]
+            },
+            {
+              "requirement_id": "REQ-LLM-01-03",
+              "local_test_ids": [
+                "TEST-LLM-01-03"
+              ]
+            },
+            {
+              "requirement_id": "REQ-LLM-01-05",
+              "local_test_ids": [
+                "TEST-LLM-01-05"
+              ]
+            },
+            {
+              "requirement_id": "REQ-LLM-01-06",
+              "local_test_ids": [
+                "TEST-LLM-01-06"
+              ]
+            }
+          ]
+        },
+        {
+          "scenario_id": "E02-I09-B",
+          "binding_id": "E02-I09-B-B02",
+          "pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/29/bindings/1",
+          "requirements": [
+            "REQ-LLM-02-02",
+            "REQ-LLM-02-03"
+          ],
+          "requirement_test_edges": [
+            {
+              "requirement_id": "REQ-LLM-02-02",
+              "local_test_ids": [
+                "TEST-LLM-02-03",
+                "TEST-LLM-02-04"
+              ]
+            },
+            {
+              "requirement_id": "REQ-LLM-02-03",
+              "local_test_ids": [
+                "TEST-LLM-02-03",
+                "TEST-LLM-02-04",
+                "TEST-LLM-02-05"
+              ]
+            }
+          ]
+        },
+        {
+          "scenario_id": "E02-I09-B",
+          "binding_id": "E02-I09-B-B03",
+          "pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/29/bindings/2",
+          "requirements": [
+            "REQ-LLM-02-01",
+            "REQ-LLM-02-04",
+            "REQ-LLM-02-05",
+            "REQ-LLM-02-06"
+          ],
+          "requirement_test_edges": [
+            {
+              "requirement_id": "REQ-LLM-02-01",
+              "local_test_ids": [
+                "TEST-LLM-02-01",
+                "TEST-LLM-02-02"
+              ]
+            },
+            {
+              "requirement_id": "REQ-LLM-02-04",
+              "local_test_ids": [
+                "TEST-LLM-02-01",
+                "TEST-LLM-02-05",
+                "TEST-LLM-02-06"
+              ]
+            },
+            {
+              "requirement_id": "REQ-LLM-02-05",
+              "local_test_ids": [
+                "TEST-LLM-02-02",
+                "TEST-LLM-02-05",
+                "TEST-LLM-02-06"
+              ]
+            },
+            {
+              "requirement_id": "REQ-LLM-02-06",
+              "local_test_ids": [
+                "TEST-LLM-02-07",
+                "TEST-LLM-02-08"
+              ]
+            }
+          ]
+        },
+        {
+          "scenario_id": "E02-X02",
+          "binding_id": "E02-X02-B04",
+          "pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/39/bindings/3",
+          "requirements": [
+            "REQ-SCL-03-01",
+            "REQ-SCL-03-03",
+            "REQ-SCL-03-04"
+          ],
+          "requirement_test_edges": [
+            {
+              "requirement_id": "REQ-SCL-03-01",
+              "local_test_ids": [
+                "TEST-SCL-03-01",
+                "TEST-SCL-03-02"
+              ]
+            },
+            {
+              "requirement_id": "REQ-SCL-03-03",
+              "local_test_ids": [
+                "TEST-SCL-03-02",
+                "TEST-SCL-03-04"
+              ]
+            },
+            {
+              "requirement_id": "REQ-SCL-03-04",
+              "local_test_ids": [
+                "TEST-SCL-03-01",
+                "TEST-SCL-03-04",
+                "TEST-SCL-03-05"
+              ]
+            }
+          ]
+        },
+        {
+          "scenario_id": "E02-X03",
+          "binding_id": "E02-X03-B04",
+          "pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/Связь_требований_с_интеграцией.json#/scenario_mappings/40/bindings/3",
+          "requirements": [
+            "REQ-SCL-03-03",
+            "REQ-SCL-03-04"
+          ],
+          "requirement_test_edges": [
+            {
+              "requirement_id": "REQ-SCL-03-03",
+              "local_test_ids": [
+                "TEST-SCL-03-02",
+                "TEST-SCL-03-04"
+              ]
+            },
+            {
+              "requirement_id": "REQ-SCL-03-04",
+              "local_test_ids": [
+                "TEST-SCL-03-01",
+                "TEST-SCL-03-04",
+                "TEST-SCL-03-05"
+              ]
+            }
+          ]
+        }
+      ],
+      "remaining": {
+        "local_requirements": [],
+        "deferred": [
+          "DA-08 final affected Ixx and X02/X03 participant window after actual later consumers/final source freeze"
+        ],
+        "g_acceptance": false,
+        "closure_ids": []
+      },
+      "review": {
+        "scholar": "GO",
+        "llm": "GO",
+        "author_distinct": true,
+        "main_promotion": "Not admitted while required global CI is red; author topic publication only."
+      },
+      "composed_regression_dispositions": {
+        "initial_llm": "693PASS/6FAIL/1SKIP on700cases; actual six failures retained. Runtime public-begin seam/timeout and independent malformed receipt guards fixed; PI cache-disable test strengthened without sampling change; adversary test now asserts actual unbound objective outcome.",
+        "adversary_entry": "Original test reproducesFAIL on entry37cfbaf9;1095loadedfirstparty source files reconcile exactly,1086current/9virtualoverlays. Nine loaded inputs overlap lane09 changes, so strict disjoint/inherited attribution is not established. No adversary source fix or STR01 closure.",
+        "public_budget": "Public-contract r1 exceeded the120s wall envelope; r2 hit the2GiB RSS cap at2.16GiB. Both are HARNESS_ERROR/UNQUALIFIED completion, not productFAIL. The identical full command completes alone in measured300s/4GiB envelope:145PASS/1FAIL for the historical Phase3A snapshot gate. All outcomes are retained separately; the baseline is not waived."
+      }
     },
     {
       "lane_id": "LANE-01",
@@ -22396,14 +23598,24 @@
       "lane_sequence": 7,
       "track_id": "09-A",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "implementation_status": "LOCAL_IMPLEMENTATION_COMPLETE",
+      "local_qualification": "QUALIFIED_AVAILABLE_NAMED_PROFILES",
+      "integration_qualification": "QUALIFIED_I09_NAMED_PROFILE",
+      "assigned_executor": "lane09_fetch + lane09_search",
+      "base_commit": "37cfbaf9eb7b5a1f29f5baa84103eb2533408969",
+      "integrated_commit": "containing_lane09_composition_commit",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scholar/search/cache.py",
+        "policy-engine/src/polisyos/scholar/search/fetcher.py",
+        "policy-engine/src/polisyos/scholar/search/providers.py",
+        "policy-engine/src/polisyos/scholar/search/security.py",
+        "policy-engine/src/polisyos/scholar/search/service.py",
+        "policy-engine/tests/unit/scholar/search/test_fetcher_dns_pinning.py",
+        "policy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py",
+        "policy-engine/tests/unit/scholar/search/test_providers.py",
+        "policy-engine/tests/unit/scholar/search/test_service_jobs_tools.py"
+      ],
+      "shared_writer": "Root composes; disjoint canonical owners named in lane write_ownership.",
       "decision_records": [],
       "requirement_ids": [
         "REQ-SCL-01-01",
@@ -22420,9 +23632,217 @@
         "TEST-SCL-01-05",
         "TEST-SCL-01-06"
       ],
-      "evidence": [],
+      "evidence": [
+        "lane09-root",
+        "lane09-fetch",
+        "lane09-search",
+        "lane09-snapshot"
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [
+        "DA-08"
+      ],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-SCL-01-01",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-SCL-01-01",
+            "TEST-SCL-01-02"
+          ],
+          "binding_ids": [
+            "E02-I09-A-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "basis": "Current offline policy checks every saved URL hop, MIME, actual raw size and supported acquisition facts; admitted saved reuse and denial perform DNS0/socket0. Legacy missing facts remain unknown; explicit refresh is separately qualified.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        },
+        {
+          "requirement_id": "REQ-SCL-01-02",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-SCL-01-03"
+          ],
+          "binding_ids": [
+            "E02-I09-A-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "basis": "One monotonic deadline bounds each actual provider attempt including async cancellation; no new provider at remaining<=0, and final-batch cutoff stays partial.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        },
+        {
+          "requirement_id": "REQ-SCL-01-03",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-SCL-01-03",
+            "TEST-SCL-01-04"
+          ],
+          "binding_ids": [
+            "E02-I09-A-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "basis": "Empty/error/filter/normalization failover remains useful; legacy unknown counts and unstarted queries are not fabricated search observations.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        },
+        {
+          "requirement_id": "REQ-SCL-01-04",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-SCL-01-04",
+            "TEST-SCL-01-05"
+          ],
+          "binding_ids": [
+            "E02-I09-A-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "basis": "One shared redirect-aware raw transport serves actual seed/search HTTP/TLS with pin/peer/SNI and proxy refusal; ordinary local bytes/files and full raw→docs handoff remain.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        },
+        {
+          "requirement_id": "REQ-SCL-01-05",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-01.json#/requirements/4",
+          "test_ids": [
+            "TEST-SCL-01-05",
+            "TEST-SCL-01-06"
+          ],
+          "binding_ids": [],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "basis": "Finite compatibility decision in Scholar README preserves historical1.0 reads and candidate1.1 producer/reader, no ratification. Native controlled Python3.14 direct HTTP/TLS is qualified; existing ambient proxy/NO_PROXY limits remain explicit.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        }
+      ],
+      "test_results": [
+        {
+          "test_id": "TEST-SCL-01-01",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-01.json#/tests/0",
+          "requirement_ids": [
+            "REQ-SCL-01-01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-SCL-01-02",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-01.json#/tests/1",
+          "requirement_ids": [
+            "REQ-SCL-01-01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-SCL-01-03",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-01.json#/tests/2",
+          "requirement_ids": [
+            "REQ-SCL-01-02",
+            "REQ-SCL-01-03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-SCL-01-04",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-01.json#/tests/3",
+          "requirement_ids": [
+            "REQ-SCL-01-03",
+            "REQ-SCL-01-04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-SCL-01-05",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-01.json#/tests/4",
+          "requirement_ids": [
+            "REQ-SCL-01-04",
+            "REQ-SCL-01-05"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-SCL-01-06",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-01.json#/tests/5",
+          "requirement_ids": [
+            "REQ-SCL-01-05"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "remaining_extent": []
+        }
+      ],
+      "independent_review": {
+        "status": "GO",
+        "reviewer": "lane09_scholar_review",
+        "author_distinct": true,
+        "scope": "Released coherent mechanism and material deltas; actual deciding outputs and final root composed wave. G remains separate."
+      },
+      "source_followup": "Current159case root cohort composes fetch/profile/deadline/selected-source/docs; schema1.1 candidate and actual source permission remain separate."
     },
     {
       "packet_id": "SCL-03",
@@ -22430,14 +23850,24 @@
       "lane_sequence": 7,
       "track_id": "09-A",
       "track_position": 2,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "implementation_status": "LOCAL_IMPLEMENTATION_COMPLETE",
+      "local_qualification": "QUALIFIED_AVAILABLE_NAMED_PROFILES",
+      "integration_qualification": "QUALIFIED_I09_NAMED_PROFILE",
+      "assigned_executor": "lane09_snapshot; fetch_profile by lane09_fetch",
+      "base_commit": "37cfbaf9eb7b5a1f29f5baa84103eb2533408969",
+      "integrated_commit": "containing_lane09_composition_commit",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scholar/api.py",
+        "policy-engine/src/polisyos/scholar/discover/manual.py",
+        "policy-engine/src/polisyos/scholar/search/cache.py",
+        "policy-engine/src/polisyos/scholar/search/fetcher.py",
+        "policy-engine/src/polisyos/scholar/search/security.py",
+        "policy-engine/tests/unit/remediation/test_scl_03.py",
+        "policy-engine/tests/unit/scholar/search/test_fetcher_dns_pinning.py",
+        "policy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py",
+        "policy-engine/tests/unit/scholar/test_api_web_bootstrap.py"
+      ],
+      "shared_writer": "Root composes; disjoint canonical owners named in lane write_ownership.",
       "decision_records": [],
       "requirement_ids": [
         "REQ-SCL-03-01",
@@ -22452,9 +23882,190 @@
         "TEST-SCL-03-04",
         "TEST-SCL-03-05"
       ],
-      "evidence": [],
+      "evidence": [
+        "lane09-root",
+        "lane09-fetch",
+        "lane09-search",
+        "lane09-snapshot"
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [
+        "DA-08"
+      ],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-SCL-03-01",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-03.json#/requirements/0",
+          "test_ids": [
+            "TEST-SCL-03-01",
+            "TEST-SCL-03-02"
+          ],
+          "binding_ids": [
+            "E02-I09-A-B03",
+            "E02-X02-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "basis": "Typed selected ref and compatible locator survive normalization into actual acquisition recheck; payload/digest/size/selected-profile mismatches refuse before docs, ordinary manual bytes remain useful.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        },
+        {
+          "requirement_id": "REQ-SCL-03-02",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-03.json#/requirements/1",
+          "test_ids": [
+            "TEST-SCL-03-03"
+          ],
+          "binding_ids": [
+            "E02-I09-A-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "basis": "Actual producer records applied normalized constraints, raw maximum, timeout, user agent, transport/profile version and byte size with/without cache. Metadata/seed retains facts; historical v1 cannot inherit later acquisition provenance.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        },
+        {
+          "requirement_id": "REQ-SCL-03-03",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-03.json#/requirements/2",
+          "test_ids": [
+            "TEST-SCL-03-02",
+            "TEST-SCL-03-04"
+          ],
+          "binding_ids": [
+            "E02-I09-A-B03",
+            "E02-X02-B04",
+            "E02-X03-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "basis": "Actual API→CAS→docs/fragments/claims→fresh readers use v1/cachedv1 without refetch; explicitv2 preserves immutablev1 and lineage. Missing/corrupt selected raw never becomes reconstructed snippets.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        },
+        {
+          "requirement_id": "REQ-SCL-03-04",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-03.json#/requirements/3",
+          "test_ids": [
+            "TEST-SCL-03-01",
+            "TEST-SCL-03-04",
+            "TEST-SCL-03-05"
+          ],
+          "binding_ids": [
+            "E02-I09-A-B03",
+            "E02-X02-B04",
+            "E02-X03-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "basis": "Selected manifest/kind/profile/digest and every exact extracted snippet are verified; actual document/byte/MIME limits and independent useful documents survive selected-source failure. Public-web is not permission.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        }
+      ],
+      "test_results": [
+        {
+          "test_id": "TEST-SCL-03-01",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-03.json#/tests/0",
+          "requirement_ids": [
+            "REQ-SCL-03-01",
+            "REQ-SCL-03-04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-SCL-03-02",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-03.json#/tests/1",
+          "requirement_ids": [
+            "REQ-SCL-03-01",
+            "REQ-SCL-03-03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-SCL-03-03",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-03.json#/tests/2",
+          "requirement_ids": [
+            "REQ-SCL-03-02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-SCL-03-04",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-03.json#/tests/3",
+          "requirement_ids": [
+            "REQ-SCL-03-03",
+            "REQ-SCL-03-04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-SCL-03-05",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/SCL-03.json#/tests/4",
+          "requirement_ids": [
+            "REQ-SCL-03-04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-fetch",
+            "lane09-search",
+            "lane09-snapshot"
+          ],
+          "remaining_extent": []
+        }
+      ],
+      "independent_review": {
+        "status": "GO",
+        "reviewer": "lane09_scholar_review",
+        "author_distinct": true,
+        "scope": "Released coherent mechanism and material deltas; actual deciding outputs and final root composed wave. G remains separate."
+      },
+      "source_followup": "Current159case root cohort composes fetch/profile/deadline/selected-source/docs; schema1.1 candidate and actual source permission remain separate."
     },
     {
       "packet_id": "LLM-01",
@@ -22462,14 +24073,24 @@
       "lane_sequence": 7,
       "track_id": "09-B",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "implementation_status": "LOCAL_IMPLEMENTATION_COMPLETE",
+      "local_qualification": "QUALIFIED_AVAILABLE_NAMED_PROFILES",
+      "integration_qualification": "QUALIFIED_I09_NAMED_PROFILE",
+      "assigned_executor": "lane09_telemetry + lane09_spend_gate",
+      "base_commit": "37cfbaf9eb7b5a1f29f5baa84103eb2533408969",
+      "integrated_commit": "containing_lane09_composition_commit",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "policy-engine/src/polisyos/core/observability/__init__.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "policy-engine/tests/unit/core/llm/test_traced_client_settlement.py",
+        "policy-engine/tests/unit/runtime/http/test_control_nl_producer_admission.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_llm_spend_admission.py",
+        "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py"
+      ],
+      "shared_writer": "Root composes; disjoint canonical owners named in lane write_ownership.",
       "decision_records": [],
       "requirement_ids": [
         "REQ-LLM-01-01",
@@ -22487,9 +24108,255 @@
         "TEST-LLM-01-05",
         "TEST-LLM-01-06"
       ],
-      "evidence": [],
+      "evidence": [
+        "lane09-root",
+        "lane09-telemetry",
+        "lane09-cache",
+        "lane09-race",
+        "lane09-spend",
+        "lane09-no-otel"
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [
+        "DA-08"
+      ],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-LLM-01-01",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-LLM-01-01"
+          ],
+          "binding_ids": [
+            "E02-I09-B-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "basis": "Optional metrics/log/diagnostic failures cannot replace response or skip mandatory per-key post-record/audit; warnings export outside the lock after all keys. Actual ledger charge and local projection remain once-only.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        },
+        {
+          "requirement_id": "REQ-LLM-01-02",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-LLM-01-02"
+          ],
+          "binding_ids": [
+            "E02-I09-B-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "basis": "Safe span create/enter/exit/attribute/status/exception handling preserves exact body response or primary provider/accounting error/cause; optional context suppression cannot swallow mandatory failure.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        },
+        {
+          "requirement_id": "REQ-LLM-01-03",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-LLM-01-03"
+          ],
+          "binding_ids": [
+            "E02-I09-B-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "basis": "Actual managed scoped factory and attributed provider preflight fence new physical spend on unresolved durable outcomes inside the intent transaction. Current same-attempt live calls overlap; verified zero-increment reuse stays useful. Exact known pending event reconciliation restores admission once. Unknown terminal amount is never zero; known committed money plus injected callback failure is not an unresolved monetary event or a new durable callback-retry capability.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        },
+        {
+          "requirement_id": "REQ-LLM-01-04",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-LLM-01-04"
+          ],
+          "binding_ids": [],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "basis": "Native Core/Gateway normalization preserves named/positional/equal/conflicting prompt, user/system/messages and configured sanitizer semantics; conflict/nonfinite wire refuses before transport. Defaults are unchanged.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        },
+        {
+          "requirement_id": "REQ-LLM-01-05",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-01.json#/requirements/4",
+          "test_ids": [
+            "TEST-LLM-01-05"
+          ],
+          "binding_ids": [
+            "E02-I09-B-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "basis": "Actual factory/cache/Core proof/ledger preserves miss and separate hit receipts, original usage, exact zero hit increment, expiry new charge, invalid-origin refusal and unknown source cost.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        },
+        {
+          "requirement_id": "REQ-LLM-01-06",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-01.json#/requirements/5",
+          "test_ids": [
+            "TEST-LLM-01-06"
+          ],
+          "binding_ids": [
+            "E02-I09-B-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "basis": "Actual native configured tracer and fresh-process no-OTel facade consume the used keyword API through real factory/traced/cache/ledger paths, without a signature shim.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        }
+      ],
+      "test_results": [
+        {
+          "test_id": "TEST-LLM-01-01",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-01.json#/tests/0",
+          "requirement_ids": [
+            "REQ-LLM-01-01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-LLM-01-02",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-01.json#/tests/1",
+          "requirement_ids": [
+            "REQ-LLM-01-02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-LLM-01-03",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-01.json#/tests/2",
+          "requirement_ids": [
+            "REQ-LLM-01-03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-LLM-01-04",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-01.json#/tests/3",
+          "requirement_ids": [
+            "REQ-LLM-01-04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-LLM-01-05",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-01.json#/tests/4",
+          "requirement_ids": [
+            "REQ-LLM-01-05"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-LLM-01-06",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-01.json#/tests/5",
+          "requirement_ids": [
+            "REQ-LLM-01-06"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "remaining_extent": []
+        }
+      ],
+      "independent_review": {
+        "status": "GO",
+        "reviewer": "lane09_llm_review",
+        "author_distinct": true,
+        "scope": "Released coherent mechanism and material deltas; actual deciding outputs and final root composed wave. G remains separate."
+      },
+      "source_followup": "Current root composed wave includes all latest source/test bytes; author cohorts retain their own earlier bindings. Mandatory known committed accounting callback error remains primary, not a fabricated monetary unknown."
     },
     {
       "packet_id": "LLM-02",
@@ -22497,14 +24364,32 @@
       "lane_sequence": 7,
       "track_id": "09-B",
       "track_position": 2,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "implementation_status": "LOCAL_IMPLEMENTATION_COMPLETE",
+      "local_qualification": "QUALIFIED_AVAILABLE_NAMED_PROFILES",
+      "integration_qualification": "QUALIFIED_I09_NAMED_PROFILE",
+      "assigned_executor": "lane09_cache",
+      "base_commit": "37cfbaf9eb7b5a1f29f5baa84103eb2533408969",
+      "integrated_commit": "containing_lane09_composition_commit",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/_translator_materialization.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/prepared_request.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "policy-engine/src/polisyos/scientist/policy_design/README.md",
+        "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+        "policy-engine/tests/unit/runtime/http/test_control_nl_producer_admission.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_llm_spend_admission.py",
+        "policy-engine/tests/unit/scientist/orchestration/llm/test_cache_owner_admission.py",
+        "policy-engine/tests/unit/scientist/orchestration/llm/test_factory_cache_composition.py",
+        "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_scope_admission.py",
+        "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"
+      ],
+      "shared_writer": "Root composes; disjoint canonical owners named in lane write_ownership.",
       "decision_records": [],
       "requirement_ids": [
         "REQ-LLM-02-01",
@@ -22525,9 +24410,329 @@
         "TEST-LLM-02-07",
         "TEST-LLM-02-08"
       ],
-      "evidence": [],
+      "evidence": [
+        "lane09-root",
+        "lane09-telemetry",
+        "lane09-cache",
+        "lane09-race",
+        "lane09-spend",
+        "lane09-no-otel"
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [
+        "DA-08"
+      ],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-LLM-02-01",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-02.json#/requirements/0",
+          "test_ids": [
+            "TEST-LLM-02-01",
+            "TEST-LLM-02-02"
+          ],
+          "binding_ids": [
+            "E02-I09-B-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "basis": "One complete current-owner re-admission on publication-revision conflict prevents duplicate physical work; repeated churn falls back boundedly under actual producer admission, no stale grant.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        },
+        {
+          "requirement_id": "REQ-LLM-02-02",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-02.json#/requirements/1",
+          "test_ids": [
+            "TEST-LLM-02-03",
+            "TEST-LLM-02-04"
+          ],
+          "binding_ids": [
+            "E02-I09-B-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "basis": "Two distinct actual six-role selected CAS materializations, optional-plan absent/present, feed real PolicyTranslatorWorker and scoped factory. Literal URL/uncertainty text is preserved at explicit temperature0; defaults and tool NL remain unchanged.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        },
+        {
+          "requirement_id": "REQ-LLM-02-03",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-02.json#/requirements/2",
+          "test_ids": [
+            "TEST-LLM-02-03",
+            "TEST-LLM-02-04",
+            "TEST-LLM-02-05"
+          ],
+          "binding_ids": [
+            "E02-I09-B-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "basis": "Selected role bytes/profile plus exact actual prepared Gateway body/request/model/route/settings and current principal/epoch/purpose bind reuse. Missing/live/foreign/tampered roles, caller flags and hidden preset/plugins/tools/stream/seed cannot authorize the finite profile.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        },
+        {
+          "requirement_id": "REQ-LLM-02-04",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-02.json#/requirements/3",
+          "test_ids": [
+            "TEST-LLM-02-01",
+            "TEST-LLM-02-05",
+            "TEST-LLM-02-06"
+          ],
+          "binding_ids": [
+            "E02-I09-B-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "basis": "Four consumers/two loops share one admitted physical producer with separate detached responses/receipts, retained original producer and Core whole-projection proof; distinct identities and independent seeds remain distinct.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        },
+        {
+          "requirement_id": "REQ-LLM-02-05",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-02.json#/requirements/4",
+          "test_ids": [
+            "TEST-LLM-02-02",
+            "TEST-LLM-02-05",
+            "TEST-LLM-02-06"
+          ],
+          "binding_ids": [
+            "E02-I09-B-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "basis": "Follower cancellation does not kill other consumers. Current guard/proof is rechecked, failed/deadline/closed flights release bookkeeping and permitted retry works; cleanup does not wait on unrelated monetary I/O.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        },
+        {
+          "requirement_id": "REQ-LLM-02-06",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-02.json#/requirements/5",
+          "test_ids": [
+            "TEST-LLM-02-07",
+            "TEST-LLM-02-08"
+          ],
+          "binding_ids": [
+            "E02-I09-B-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "basis": "Native cache/factory/CAS/owner suite consumes configured and actual no-OTel profiles; current lifecycle and opaque-input contracts replace stale private-task assertions.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        },
+        {
+          "requirement_id": "REQ-LLM-02-07",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-02.json#/requirements/6",
+          "test_ids": [
+            "TEST-LLM-02-06",
+            "TEST-LLM-02-08"
+          ],
+          "binding_ids": [],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "basis": "Opaque Python/custom/NaN inputs stay physical-only unchanged, while actual Gateway JSON rejects nonfinite/unknown values before dispatch. Resource lifecycle is checked rather than private task shape.",
+          "scope": "Named local software/profile only; no source licensing, model truth, scientific/institutional authority, G acceptance or formal closure."
+        }
+      ],
+      "test_results": [
+        {
+          "test_id": "TEST-LLM-02-01",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-02.json#/tests/0",
+          "requirement_ids": [
+            "REQ-LLM-02-01",
+            "REQ-LLM-02-04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-LLM-02-02",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-02.json#/tests/1",
+          "requirement_ids": [
+            "REQ-LLM-02-01",
+            "REQ-LLM-02-05"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-LLM-02-03",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-02.json#/tests/2",
+          "requirement_ids": [
+            "REQ-LLM-02-02",
+            "REQ-LLM-02-03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-LLM-02-04",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-02.json#/tests/3",
+          "requirement_ids": [
+            "REQ-LLM-02-02",
+            "REQ-LLM-02-03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-LLM-02-05",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-02.json#/tests/4",
+          "requirement_ids": [
+            "REQ-LLM-02-03",
+            "REQ-LLM-02-04",
+            "REQ-LLM-02-05"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-LLM-02-06",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-02.json#/tests/5",
+          "requirement_ids": [
+            "REQ-LLM-02-04",
+            "REQ-LLM-02-05",
+            "REQ-LLM-02-07"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-LLM-02-07",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-02.json#/tests/6",
+          "requirement_ids": [
+            "REQ-LLM-02-06"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "remaining_extent": []
+        },
+        {
+          "test_id": "TEST-LLM-02-08",
+          "criterion_pointer": "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/04_Трассировка/LLM-02.json#/tests/7",
+          "requirement_ids": [
+            "REQ-LLM-02-06",
+            "REQ-LLM-02-07"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "lane09-root",
+            "lane09-telemetry",
+            "lane09-cache",
+            "lane09-race",
+            "lane09-spend",
+            "lane09-no-otel"
+          ],
+          "remaining_extent": []
+        }
+      ],
+      "independent_review": {
+        "status": "GO",
+        "reviewer": "lane09_llm_review",
+        "author_distinct": true,
+        "scope": "Released coherent mechanism and material deltas; actual deciding outputs and final root composed wave. G remains separate."
+      },
+      "source_followup": "Current root composed wave includes all latest source/test bytes; author cohorts retain their own earlier bindings. Mandatory known committed accounting callback error remains primary, not a fabricated monetary unknown."
     },
     {
       "packet_id": "REQ-01",
@@ -25949,27 +28154,33 @@
     },
     {
       "scenario_id": "E02-I09-A",
-      "status": "NOT_RUN",
-      "commit": null,
-      "profile": null,
-      "evidence": [],
+      "status": "QUALIFIED_LOCAL_NAMED_PROFILE",
+      "commit": "containing_lane09_composition_commit",
+      "profile": "Existing Mac Python3.14.3, controlled external endpoints, actual CAS/cache/docs/Coreproof/FileBudgetLedger",
+      "evidence": [
+        "lane09-root/scholar-composed-r1"
+      ],
       "binding_ids": [
         "E02-I09-A-B01",
         "E02-I09-A-B02",
         "E02-I09-A-B03"
-      ]
+      ],
+      "g_acceptance": false
     },
     {
       "scenario_id": "E02-I09-B",
-      "status": "NOT_RUN",
-      "commit": null,
-      "profile": null,
-      "evidence": [],
+      "status": "QUALIFIED_LOCAL_NAMED_PROFILE",
+      "commit": "containing_lane09_composition_commit",
+      "profile": "Existing Mac Python3.14.3, controlled external endpoints, actual CAS/cache/docs/Coreproof/FileBudgetLedger",
+      "evidence": [
+        "lane09-root/llm-composed-r2"
+      ],
       "binding_ids": [
         "E02-I09-B-B01",
         "E02-I09-B-B02",
         "E02-I09-B-B03"
-      ]
+      ],
+      "g_acceptance": false
     },
     {
       "scenario_id": "E02-I10-A",
@@ -27812,6 +30023,13 @@
         "pull_request": "https://github.com/DenisKopylov/polisyos/pull/70",
         "publication": "Normal hooks/commit/topic push/remote readback follow this record; Main/integration not promoted while requiredCIred."
       }
+    },
+    {
+      "lane": "LANE-09",
+      "commit": "containing_lane09_composition_commit",
+      "base_commit": "37cfbaf9eb7b5a1f29f5baa84103eb2533408969",
+      "base_tree": "f46d9bc83b7eda7b23bf2f8b870f4d8b183c8d5b",
+      "result": "22local requirements and25test contracts qualified; I09A159PASS, I09B721PASS/1conditionalSKIP; source/outputs retain exact bindings. Final DA08/G/globalCI/Main separate."
     }
   ],
   "open_remainders_index": "E02-WORK-PLAN.md#open-remainders-across-completed-lanes"

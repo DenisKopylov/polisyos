@@ -3487,8 +3487,8 @@
                 "path": "src/polisyos/core/observability/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 21483,
-                "sha256": "b0dfb0934dc4d335ee1b68e1e593a853a8a368676ed2174053cc792b229f84cf"
+                "bytes": 21779,
+                "sha256": "8a64c6c239f486989c17eaa7298288ff555ff8fde6fa8663cd915c19d132dec1"
               },
               {
                 "path": "src/polisyos/core/observability",
@@ -16065,8 +16065,8 @@
         {
           "module": "polisyos.scientist.policy_design",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 105,
-          "known_export_count": 105,
+          "export_count": 107,
+          "known_export_count": 107,
           "exports": [
             "AdversarialScenarioBundle",
             "AdversarialScenarioProposal",
@@ -16150,6 +16150,7 @@
             "TranslatorCompliancePass",
             "TranslatorComplianceResult",
             "TranslatorInputBundle",
+            "TranslatorMaterialization",
             "TransportAssumptionSpec",
             "TransportabilityReport",
             "UncertaintyReport",
@@ -16167,6 +16168,7 @@
             "load_policy_artifact_bundle",
             "load_policy_brief",
             "load_policy_candidate_schema",
+            "materialize_translator_inputs",
             "persist_adversarial_scenario_bundle",
             "persist_policy_artifact_bundle",
             "persist_policy_brief",
@@ -16198,8 +16200,8 @@
                 "path": "src/polisyos/scientist/policy_design/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 8918,
-                "sha256": "4379a7a921cb7d96adfa2cc1c011631d7051894ef922085a80b142d004c5493d"
+                "bytes": 9082,
+                "sha256": "85daafa3af6ac73b4242075e4de4e98a484c8eeb991f5e9f7211d969c8381793"
               },
               {
                 "path": "src/polisyos/scientist/policy_design",

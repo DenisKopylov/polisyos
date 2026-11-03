@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import socket
 
 import pytest
@@ -11,7 +12,11 @@ from polisyos.core.contracts.scholar import SourceSpec
 from polisyos.scholar.discover.http_fetch import fetch_url
 from polisyos.scholar.discover.transport import fetch_raw
 from polisyos.scholar.search.cache import UrlFetchCache
-from polisyos.scholar.search.fetcher import fetch_open_page, find_in_page
+from polisyos.scholar.search.fetcher import (
+    fetch_and_find_in_page,
+    fetch_open_page,
+    find_in_page,
+)
 from polisyos.scholar.search.models import SearchConstraints
 from polisyos.scholar.search.security import sanitize_untrusted_text, validate_fetch_url
 
@@ -404,3 +409,253 @@ async def test_fetch_open_page_uses_shared_executor_bridge(monkeypatch):
     assert calls
     assert calls[0][0].__name__ == "_fetch_url_bytes_sync"
     assert calls[0][1] == 5
+
+
+@pytest.mark.asyncio
+async def test_persisted_cache_reuse_and_current_denial_need_no_dns_or_transport(
+    monkeypatch, tmp_path
+):
+    """A saved acquisition is admitted from current policy and its own saved facts."""
+    url = "https://example.gov/report"
+    final_url = "https://cdn.example.gov/report"
+    body = b"<html><body>Full frozen policy evidence.</body></html>"
+    policy = SearchConstraints(allowed_domains=["example.gov"])
+    monkeypatch.setattr(
+        "polisyos.scholar.search.security.socket.getaddrinfo",
+        lambda host, port, **kw: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("93.184.216.34", port))
+        ],
+    )
+
+    class RedirectOpener:
+        def __init__(self, handlers):
+            self.redirect = handlers[0]
+
+        def open(self, request, timeout):
+            self.redirect.redirect_request(request, None, 302, "Found", {}, final_url)
+            return _FakeResponse(body, url=final_url)
+
+    monkeypatch.setattr(
+        "polisyos.scholar.discover.transport.urllib.request.build_opener",
+        lambda *handlers: RedirectOpener(handlers),
+    )
+    index = tmp_path / "index.json"
+    first = await fetch_open_page(url, constraints=policy, cache=UrlFetchCache(index_path=index))
+    assert first.status == "ok"
+    assert first.redirect_chain == [final_url]
+    cache = UrlFetchCache(index_path=index)
+    calls = []
+
+    def forbid_network(*args, **kwargs):
+        calls.append((args, kwargs))
+        raise AssertionError("offline cache admission must not touch DNS/socket/transport")
+
+    monkeypatch.setattr("polisyos.scholar.search.security.socket.getaddrinfo", forbid_network)
+    monkeypatch.setattr("polisyos.scholar.search.security.socket.socket", forbid_network)
+    monkeypatch.setattr("polisyos.scholar.search.fetcher._fetch_url_bytes_sync", forbid_network)
+    # UA and timeout are acquisition provenance, not a reason to re-fetch admitted saved content.
+    reused, snippets = await fetch_and_find_in_page(
+        url, pattern="policy", constraints=policy, cache=cache, timeout_s=3, user_agent="new-agent"
+    )
+    assert reused.status == "cached"
+    assert reused.text == first.text
+    assert reused.content_sha256 == first.content_sha256
+    assert snippets and all(reused.text[s.start_char : s.end_char] == s.text for s in snippets)
+    for current, limit, reason in [
+        (SearchConstraints(blocked_domains=["cdn.example.gov"]), 1000, "domain blocked"),
+        (SearchConstraints(allowed_content_types=["text/plain"]), 1000, "content type blocked"),
+        (policy, 1, "max_bytes"),
+    ]:
+        denied, spans = await fetch_and_find_in_page(
+            url, pattern="policy", constraints=current, cache=cache, max_bytes=limit
+        )
+        assert denied.status == "error"
+        assert reason in (denied.error or "")
+        assert denied.text == "" and spans == []
+    assert calls == []
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("use_cache", [False, True])
+async def test_actual_fetch_profile_and_raw_size_are_produced_before_cache(
+    monkeypatch, tmp_path, use_cache
+):
+    body = b"<html><body>Applied constraints.</body></html>"
+    policy = SearchConstraints(
+        allowed_domains=[" EXAMPLE.GOV "], allowed_content_types=["text/html"]
+    )
+    observed = []
+    monkeypatch.setattr(
+        "polisyos.scholar.search.security.socket.getaddrinfo",
+        lambda host, port, **kw: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("93.184.216.34", port))
+        ],
+    )
+
+    def response(request, timeout):
+        observed.append((request.get_header("User-agent"), timeout))
+        return _FakeResponse(body)
+
+    monkeypatch.setattr(
+        "polisyos.scholar.discover.transport.urllib.request.build_opener",
+        lambda *handlers: _FakeOpener(response),
+    )
+    cache = UrlFetchCache(index_path=tmp_path / "index.json") if use_cache else None
+    result = await fetch_open_page(
+        "https://example.gov/report",
+        constraints=policy,
+        cache=cache,
+        max_bytes=4096,
+        timeout_s=3,
+        user_agent="bounded-profile-test",
+    )
+    assert result.status == "ok"
+    assert result.byte_size == len(body)
+    assert result.fetch_profile == {
+        "profile_version": "1.0",
+        "transport": "polisyos.scholar.discover.transport",
+        "transport_version": "1.0",
+        "constraints": policy.model_dump(mode="json"),
+        "max_bytes": 4096,
+        "timeout_s": 3.0,
+        "user_agent": "bounded-profile-test",
+    }
+    assert observed == [("bounded-profile-test", 3)]
+    if use_cache:
+        loaded = UrlFetchCache(index_path=tmp_path / "index.json").get(str(result.url))
+        assert loaded is not None
+        assert loaded.fetch_profile == result.fetch_profile
+        assert loaded.byte_size == len(body)
+
+
+@pytest.mark.asyncio
+async def test_legacy_missing_cache_facts_refuse_only_affected_entry_without_refresh(
+    monkeypatch, tmp_path
+):
+    """Unknown acquisition facts never become implied access permission."""
+    from polisyos.scholar.search.models import FetchResult
+
+    index = tmp_path / "index.json"
+    cache = UrlFetchCache(index_path=index)
+    cache.put(
+        FetchResult(
+            url="https://example.gov/legacy", final_url="https://example.gov/legacy", text="legacy"
+        )
+    )
+    payload = json.loads(index.read_text())
+    payload["https://broken.gov/"] = {"unknown_field": 1}
+    index.write_text(json.dumps(payload))
+    loaded = UrlFetchCache(index_path=index)
+    assert loaded.get("https://example.gov/legacy") is not None
+    calls = []
+
+    def forbid_network(*args, **kwargs):
+        calls.append((args, kwargs))
+        raise AssertionError("missing cache facts do not authorize implicit refresh")
+
+    monkeypatch.setattr("polisyos.scholar.search.security.socket.getaddrinfo", forbid_network)
+    monkeypatch.setattr("polisyos.scholar.search.fetcher._fetch_url_bytes_sync", forbid_network)
+    result = await fetch_open_page(
+        "https://example.gov/legacy", constraints=SearchConstraints(), cache=loaded
+    )
+    assert result.status == "error"
+    assert "cache-ineligible" in (result.error or "")
+    assert result.text == ""
+    assert calls == []
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("changed_fact", "value", "reason"),
+    [
+        (
+            "redirect_chain",
+            ["http://127.0.0.1/private", "https://example.gov/report"],
+            "private network",
+        ),
+        (
+            "redirect_chain",
+            ["https://blocked.gov/hop", "https://example.gov/report"],
+            "domain blocked",
+        ),
+        ("byte_size", None, "byte_size unknown"),
+        ("fetch_profile", {}, "profile unknown"),
+    ],
+)
+async def test_saved_hop_and_unknown_facts_are_rechecked_before_cached_text(
+    monkeypatch, tmp_path, changed_fact, value, reason
+):
+    """One altered persisted fact changes admission, without a network probe."""
+    url = "https://example.gov/report"
+    monkeypatch.setattr(
+        "polisyos.scholar.search.security.socket.getaddrinfo",
+        lambda host, port, **kw: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("93.184.216.34", port))
+        ],
+    )
+    monkeypatch.setattr(
+        "polisyos.scholar.discover.transport.urllib.request.build_opener",
+        lambda *handlers: _FakeOpener(lambda request, timeout: _FakeResponse(b"Frozen evidence")),
+    )
+    index = tmp_path / "index.json"
+    first = await fetch_open_page(
+        url, constraints=SearchConstraints(), cache=UrlFetchCache(index_path=index)
+    )
+    assert first.status == "ok"
+    payload = json.loads(index.read_text())
+    payload[url][changed_fact] = value
+    index.write_text(json.dumps(payload))
+
+    def forbid_network(*args, **kwargs):
+        raise AssertionError("saved-policy denial is entirely offline")
+
+    monkeypatch.setattr("polisyos.scholar.search.security.socket.getaddrinfo", forbid_network)
+    monkeypatch.setattr("polisyos.scholar.search.fetcher._fetch_url_bytes_sync", forbid_network)
+    denied = await fetch_open_page(
+        url,
+        constraints=SearchConstraints(blocked_domains=["blocked.gov"]),
+        cache=UrlFetchCache(index_path=index),
+    )
+    assert denied.status == "error"
+    assert reason in (denied.error or "")
+    assert denied.text == ""
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "url", ["http://127.0.0.1/path", "http://[::1]/path", "http://example.local/path"]
+)
+async def test_offline_private_url_denial_precedes_dns(monkeypatch, url):
+    def forbid_dns(*args, **kwargs):
+        raise AssertionError("literal/local URL policy must run before DNS")
+
+    monkeypatch.setattr("polisyos.scholar.search.security.socket.getaddrinfo", forbid_dns)
+    with pytest.raises(ValueError, match="private network address blocked"):
+        await fetch_open_page(url, constraints=SearchConstraints())
+
+
+@pytest.mark.asyncio
+async def test_all_blank_nonempty_mime_allowlist_still_denies_live_and_saved_content(
+    monkeypatch, tmp_path
+):
+    url = "https://example.gov/report"
+    monkeypatch.setattr(
+        "polisyos.scholar.search.security.socket.getaddrinfo",
+        lambda host, port, **kw: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("93.184.216.34", port))
+        ],
+    )
+    monkeypatch.setattr(
+        "polisyos.scholar.discover.transport.urllib.request.build_opener",
+        lambda *handlers: _FakeOpener(lambda request, timeout: _FakeResponse(b"Evidence")),
+    )
+    cache = UrlFetchCache(index_path=tmp_path / "index.json")
+    first = await fetch_open_page(url, constraints=SearchConstraints(), cache=cache)
+    assert first.status == "ok"
+    for target_cache in (None, cache):
+        denied = await fetch_open_page(
+            url, constraints=SearchConstraints(allowed_content_types=[" ", ""]), cache=target_cache
+        )
+        assert denied.status == "error"
+        assert "content type blocked" in (denied.error or "")
+        assert denied.text == ""

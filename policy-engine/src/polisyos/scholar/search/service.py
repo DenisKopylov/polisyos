@@ -266,7 +266,7 @@ class ScholarDeepSearchService:
         if bundle.brief != active_brief:
             bundle.brief = active_brief
 
-        start_time = time.monotonic()
+        deadline = time.monotonic() + search_budgets.max_wall_time_s
         seen_urls = {str(source.url) for source in bundle.sources}
         seen_by_hash = {
             source.content_sha256: source.source_id
@@ -297,7 +297,7 @@ class ScholarDeepSearchService:
             if len(source_by_id) >= search_budgets.max_fetch_pages:
                 bundle.uncertainty_notes.append("stopped:max_fetch_pages")
                 break
-            if time.monotonic() - start_time > search_budgets.max_wall_time_s:
+            if time.monotonic() >= deadline:
                 bundle.partial = True
                 bundle.uncertainty_notes.append("stopped:max_wall_time_s")
                 break
@@ -323,6 +323,7 @@ class ScholarDeepSearchService:
                         constraints=active_constraints,
                         max_results=max(5, min(search_budgets.max_fetch_pages, 20)),
                         timeout_s=self._search_timeout_s,
+                        deadline=deadline,
                     )
                     for node in batch_nodes
                 ]
@@ -333,6 +334,13 @@ class ScholarDeepSearchService:
             for node, (provider_name, hits, error, provider_attempts) in zip(
                 batch_nodes, search_results, strict=False
             ):
+                if error == "stopped:max_wall_time_s":
+                    bundle.partial = True
+                    bundle.uncertainty_notes.append("stopped:max_wall_time_s")
+                if not provider_attempts:
+                    # A queued query can lose its budget before its first actual call.
+                    # Leave it pending instead of fabricating a search/no-hit observation.
+                    continue
                 persisted_error = (
                     None
                     if hits
@@ -343,7 +351,7 @@ class ScholarDeepSearchService:
                 )
                 node.provider = provider_name
                 node.hit_count = len(hits)
-                node.status = "failed" if error and not hits else "searched"
+                node.status = "failed" if persisted_error and not hits else "searched"
                 query_trace = SearchQueryTrace(
                     query_node_id=node.node_id,
                     query=node.query,
@@ -360,7 +368,11 @@ class ScholarDeepSearchService:
                         query=node.query,
                         perspective=node.perspective,
                         provider=provider_name,
-                        reason=("provider_error_no_hits" if error else "provider_returned_no_hits"),
+                        reason=(
+                            "provider_error_no_hits"
+                            if persisted_error
+                            else "provider_returned_no_hits"
+                        ),
                         searched_at=query_trace.searched_at,
                         error=persisted_error,
                     )
@@ -382,6 +394,11 @@ class ScholarDeepSearchService:
                 for hit in candidates:
                     batch_seen_urls.add(str(hit.url))
                     fetch_specs.append((hit, node))
+
+            if time.monotonic() >= deadline:
+                bundle.partial = True
+                bundle.uncertainty_notes.append("stopped:max_wall_time_s")
+                fetch_specs = []
 
             fetch_tasks = [
                 _fetch_hit(
@@ -425,6 +442,11 @@ class ScholarDeepSearchService:
                     snippet.snippet_id,
                 ),
             )
+
+            if time.monotonic() >= deadline:
+                bundle.partial = True
+                bundle.uncertainty_notes.append("stopped:max_wall_time_s")
+                break
 
             for node in batch_nodes:
                 if (

@@ -76,6 +76,19 @@ flight rather than whichever entry is currently at the cache head. No-key and ex
 zero-size/zero-TTL modes remain uncached. `GatewayLLMConfig.cache_maxsize` also bounds
 retained Core origins; legacy get/put-only adapters cannot cause unbounded Core history.
 The current authorizer still runs for every candidate reuse, including cache hits.
+If a publication races a miss admission, the cache performs one new guarded
+authorization and lookup before falling back to separately admitted physical work.
+
+The optional `policy_translator_plain_completion.v1` profile binds six materialized
+translator roles, including an explicitly absent implementation plan, to their selected
+CAS views and to the actual prepared call. The scoped authorizer must independently
+resolve every supplied view and return the exact current decision. Literal URLs and
+uncertainty notes in those frozen inputs do not themselves imply retrieval. Missing,
+changed, live, or unrecognized roles and a transformed prompt that no longer matches
+the materialization remain physical-only; tools and other existing guards still apply.
+The first profile supports the direct Gateway's actual plain prepared body; implicit
+presets/plugins and providers without that projection remain physical-only. This cache
+optimization does not make a translated brief authoritative.
 
 Ordinary NL jobs bind every factory-created client to the admitted job's run, producer
 ledger, and request-local cache dependencies. The current job creation envelope and
@@ -87,6 +100,14 @@ retained clients from starting further work. Already begun work retains its orig
 intent/attempt through settlement. Missing snapshot reuse facts allow a physical call
 only while the separate current job admission is established; a closed scope, lease
 failure, guard timeout or unavailable control store refuses new dispatch.
+
+For a scoped Runtime factory call, beginning physical work checks the current run and
+attempt against the durable ledger within its write transaction. A terminal unknown
+charge or pending charge without this middleware's live issuance handle blocks new
+physical spending; current-attempt live producers may overlap. Another process or
+takeover attempt cannot treat an older pending producer as settled. A known-cost pending
+event may be reconciled by settling that exact event once; terminal unknown amounts
+remain unknown until an authoritative correction exists. Separate runs remain independent.
 
 Cache eligibility requires explicit numeric zero temperature or the existing exact
 deterministic simulator implementation. Omitted external-provider sampling defaults,
@@ -109,8 +130,8 @@ an old secondary answer cannot stand in for a recovered primary request. A provi
 no prepared call contract is physical-only. The built-in deterministic simulator also
 freezes its response-producing configuration. Native wire values must already be projected
 by their typed owner: raw datetime/model/unknown values and nonfinite JSON numbers are
-rejected, never coerced through `default=str`. A cache publication racing admission may
-degrade to uncached work; this path does not claim minimal provider work for that race.
+rejected, never coerced through `default=str`. Repeated publication churn may degrade
+to uncached work; that bounded fallback is not a distributed-lock guarantee.
 
 Fresh job status and the agents/debug view reconcile cost events with the same durable
 ledger payload and current owning attempt. Fresh job status additionally joins the exact

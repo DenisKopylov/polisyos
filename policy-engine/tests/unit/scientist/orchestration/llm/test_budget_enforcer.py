@@ -568,3 +568,271 @@ class TestLLMBudgetEnforcer:
 
         assert budget_state.spent["run"] == Decimal("0.6")
         assert budget_state.reserved.get("run", Decimal(0)) == Decimal(0)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("method", ["generate", "invoke"])
+@pytest.mark.parametrize("fault", ["none", "latency", "cost", "diagnostic"])
+async def test_optional_exports_preserve_actual_settlement_and_local_projection(
+    tmp_path,
+    method: str,
+    fault: str,
+) -> None:
+    """A broken optional sink cannot spend again or skip mandatory recording."""
+    from contextlib import nullcontext
+    from types import SimpleNamespace
+
+    from polisyos.core.llm.traced_client import TracedLLMClient
+    from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayUsage
+
+    class Provider:
+        model = "fixture-model"
+        provider = "fixture"
+        calls = 0
+
+        def invoke(self, prompt, **kwargs):
+            self.calls += 1
+            return GatewayLLMResponse(
+                content="received once",
+                usage=GatewayUsage(
+                    prompt_tokens=2,
+                    completion_tokens=3,
+                    cost_usd=0.02,
+                ),
+                model=self.model,
+                provider=self.provider,
+            )
+
+        async def generate(self, **kwargs):
+            return self.invoke("frozen question", **kwargs)
+
+    class Metrics(_FakeBudgetMetrics):
+        def __init__(self):
+            super().__init__()
+            self.degraded = []
+            if fault in {"latency", "diagnostic"}:
+                self.llm_latency_ms.record = self.fail
+            if fault == "cost":
+                self.llm_cost_usd.record = self.fail
+
+        def fail(self, *args, **kwargs):
+            raise RuntimeError("optional export unavailable")
+
+        def record_degraded_path(self, **kwargs):
+            self.degraded.append(kwargs)
+            if fault == "diagnostic":
+                raise RuntimeError("optional diagnostic unavailable too")
+
+        def record_llm_call(self, **kwargs):
+            pass
+
+    ledger_path = tmp_path / "settlement.json"
+    middleware = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+    provider = Provider()
+    metrics = Metrics()
+
+    class Tracer:
+        def start_as_current_span(self, *args, **kwargs):
+            return nullcontext(
+                SimpleNamespace(
+                    set_attribute=lambda *args: None,
+                    set_status=lambda *args: None,
+                    record_exception=lambda *args: None,
+                )
+            )
+
+    traced = TracedLLMClient(
+        provider,
+        producer_settlement_store=middleware,
+        metrics=metrics,
+        tracer=Tracer(),
+    )
+    state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("1"))})
+    enforcer = LLMBudgetEnforcer(
+        client=traced,
+        budget_state=state,
+        budget_keys=["run"],
+        metrics=metrics,
+    )
+    result = (
+        (await enforcer.generate(user="frozen question"))
+        if method == "generate"
+        else (enforcer.invoke("frozen question"))
+    )
+    assert result.content == "received once"
+    assert provider.calls == 1
+    assert state.spent["run"] == Decimal("0.02")
+    assert state.reserved["run"] == 0
+    snapshot = FileBudgetLedger(ledger_path).snapshot()
+    assert snapshot.state.spent["run"] == Decimal("0.02")
+    assert len(snapshot.producer_settlements) == len(snapshot.spend_receipts) == 1
+    assert next(iter(snapshot.producer_settlements.values())).status == "committed"
+    if fault != "none":
+        assert len(metrics.degraded) == 1
+        assert metrics.degraded[0]["reason"] == "optional_observability_failed"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("method", ["generate", "invoke"])
+async def test_optional_export_isolation_does_not_swallow_mandatory_audit(method: str) -> None:
+    """The optional export guard must not cover the accounting/audit body."""
+
+    class Provider:
+        calls = 0
+
+        def invoke(self, prompt, **kwargs):
+            self.calls += 1
+            return _make_response_with_provider_cost(cost_usd=0.02)
+
+        async def generate(self, **kwargs):
+            return self.invoke("question", **kwargs)
+
+    failure = OSError("mandatory committed audit unavailable")
+
+    class Audit:
+        def append(self, **kwargs):
+            if kwargs["action"] == "BUDGET_COMMITTED":
+                raise failure
+
+    provider = Provider()
+    state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("1"))})
+    enforcer = LLMBudgetEnforcer(
+        client=provider,
+        budget_state=state,
+        budget_keys=["run"],
+        audit_log=Audit(),
+        metrics=_FakeBudgetMetrics(),
+    )
+
+    async def call():
+        if method == "generate":
+            return await enforcer.generate(user="question")
+        return enforcer.invoke("question")
+
+    with pytest.raises(OSError, match="mandatory committed audit unavailable") as raised:
+        await call()
+    assert raised.value is failure
+    assert provider.calls == 1
+    assert state.spent["run"] == Decimal("0.02")
+    assert state.reserved["run"] == 0
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("method", ["generate", "invoke"])
+async def test_optional_metric_resolution_and_diagnostic_resolution_preserve_post_record(
+    monkeypatch: pytest.MonkeyPatch,
+    method: str,
+) -> None:
+    """A resolver failure cannot escape through its own degraded diagnostic."""
+    attempts = []
+
+    def unavailable():
+        attempts.append("resolve")
+        raise RuntimeError("optional metrics configuration unavailable")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.llm.budget_enforcer._default_metrics",
+        unavailable,
+    )
+    response = _make_response_with_provider_cost(cost_usd=0.02)
+    client = MagicMock()
+    client.generate = AsyncMock(return_value=response)
+    client.invoke.return_value = response
+    state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("1"))})
+    enforcer = LLMBudgetEnforcer(
+        client=client,
+        budget_state=state,
+        budget_keys=["run"],
+    )
+    result = (
+        (await enforcer.generate(user="question"))
+        if method == "generate"
+        else (enforcer.invoke("question"))
+    )
+    assert result is response
+    assert state.spent["run"] == Decimal("0.02")
+    assert state.reserved["run"] == 0
+    assert len(attempts) == 4  # latency/cost export, then each attempted diagnostic
+    if method == "generate":
+        client.generate.assert_awaited_once()
+        client.invoke.assert_not_called()
+    else:
+        client.invoke.assert_called_once()
+        client.generate.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("method", ["generate", "invoke"])
+@pytest.mark.parametrize("fault", ["none", "warning", "warning_and_diagnostic"])
+@pytest.mark.parametrize("mandatory_error", [False, True])
+async def test_soft_limit_export_preserves_all_keys_and_mandatory_audit(
+    monkeypatch: pytest.MonkeyPatch,
+    method: str,
+    fault: str,
+    mandatory_error: bool,
+) -> None:
+    """Warning export cannot interrupt the multi-key commit or hide audit failure."""
+    state = BudgetState(
+        limits={
+            key: BudgetLimit(key=key, max_usd=Decimal("1"), soft_limit_usd=Decimal("0.01"))
+            for key in ("run", "parent")
+        }
+    )
+    response = _make_response_with_provider_cost(cost_usd=0.02)
+    client = MagicMock()
+    client.generate = AsyncMock(return_value=response)
+    client.invoke.return_value = response
+    audit_events = []
+    exports = []
+    failure = OSError("mandatory commit audit failure")
+
+    class Audit:
+        def append(self, **kwargs):
+            audit_events.append(kwargs)
+            if kwargs["action"] == "BUDGET_COMMITTED" and mandatory_error:
+                raise failure
+
+    def warning(message, *args, **kwargs):
+        operation = "soft" if message.startswith("Soft budget limit") else "diagnostic"
+        exports.append(operation)
+        if (operation == "soft" and fault != "none") or fault == "warning_and_diagnostic":
+            raise RuntimeError(f"optional {operation} sink failure")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.llm.budget_enforcer.logger.warning", warning
+    )
+    enforcer = LLMBudgetEnforcer(
+        client=client,
+        budget_state=state,
+        budget_keys=["run", "parent"],
+        audit_log=Audit(),
+        metrics=_FakeBudgetMetrics(),
+    )
+
+    async def call():
+        if method == "generate":
+            return await enforcer.generate(user="question")
+        return enforcer.invoke("question")
+
+    if mandatory_error:
+        with pytest.raises(OSError, match="mandatory commit audit failure") as raised:
+            await call()
+        assert raised.value is failure
+    else:
+        assert await call() is response
+        assert exports.count("soft") == 2
+        if fault != "none":
+            assert exports.count("diagnostic") == 2
+    assert state.spent == {"run": Decimal("0.02"), "parent": Decimal("0.02")}
+    assert state.reserved == {"run": Decimal(0), "parent": Decimal(0)}
+    committed = [event for event in audit_events if event["action"] == "BUDGET_COMMITTED"]
+    assert len(committed) == 1
+    assert committed[0]["metadata"]["budget_charge_usd"] == "0.02"
+    if method == "generate":
+        client.generate.assert_awaited_once()
+        client.invoke.assert_not_called()
+    else:
+        client.invoke.assert_called_once()
+        client.generate.assert_not_awaited()

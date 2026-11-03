@@ -68,6 +68,9 @@ class PreparedLLMRequest:
     identity: bytes = field(repr=False)
     execute: Callable[[], Awaitable[PreparedLLMResult]] = field(repr=False, compare=False)
     reusable: bool = True
+    # The actual owner may expose its detached request body for a narrower
+    # materialization profile. It is never logged or included in a repr.
+    wire_payload: bytes | None = field(default=None, repr=False, compare=False)
 
     def admits(self, result: PreparedLLMResult) -> bool:
         """Admit only a result from the exact prepared successful request."""

@@ -1,0 +1,48 @@
+id = "2026-11-03-lane05-causal-composition"
+title = "Compose source-bound causal queries, estimator profiles and fit reuse"
+type = "fixed"
+component = "foundry"
+owner = "e02-coordinator"
+summary = "Preserve complete graph relation payloads and admit direct Kuzu updates before writes; reuse one prepared ADMG query. Bind selected ID/IDC production to its actual graph/profile and fresh proof reader. Repair DiD cluster identities and stable intervals, add explicit fixed-bandwidth kernel-HC0 RDD, preserve native envelope numbers, and reconcile whole Scientist reports against actual selected inputs. Keep nuisance preprocessing fold-local and consolidate maintained DR/RLearner fit-core admission. Bind finite temporal fits and shared-noise SCM queries through their actual persisted consumers; preserve pooled fixed-model outcome draws as a non-gating heuristic range rather than bootstrap estimator confidence."
+evidence = ["tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py", "tests/unit/ir/test_causal_graph_kuzu.py", "tests/unit/ir/test_temporal_graph_expansion.py", "tests/unit/foundry/methods/catalog/causal/test_temporal_gcm_fit.py", "tests/unit/foundry/methods/catalog/causal/test_rdd_kernel_hc0.py", "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py", "tests/unit/ir/analytics/test_causal_report_projection.py", "tests/unit/scientist/nodes/builtins/simulate/test_rdd_selected_consumer.py", "tests/unit/scientist/nodes/builtins/causal/test_causal_ensemble_selected_consumer.py", "workers/dowhy-014/tests/test_worker.py"]
+compatibility = "Retain the old RDD method name/version and weighted-residual computational profile; the new kernel-HC0 method has a distinct explicit name/version. Retain direct-import DiD and causal/interference aliases without a generic historical-plan lookup. Ordinary unselected CausalEngine inspection remains separate from the new selected proof path. Existing persisted envelope numeric policies retain their decoding semantics. Kuzu payload_json is additive; legacy rows are not silently backfilled."
+change_class = "python-public-api"
+surface_classification = "public_experimental: selected CausalEngine proof reader, explicit kernel-HC0 RDD and finite temporal adapter; public_stable: preserve existing IR report/envelope contracts and recorded policies"
+api = "Expose KernelHC0RegressionDiscontinuity and explicit temporal graph/fit/persistence helpers through their defining owners. Selected static ID/IDC audit requires controlled producer context and exact graph selection. Preserve whole query/SCM/ensemble InputRef profiles. No new sovereign workflow or external institutional authority."
+limitations = "Named synthetic/numerical profiles establish computational properties, not empirical causal validity or G acceptance. Optional native Kuzu and undeclared Rustworkx are separately unqualified where absent. Final shared installed/FQN evidence remains in DA-05/LANE-12 and final impact-based cross-lane verification in DA-08."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+
+[[compatibility_change]]
+id = "lane05-explicit-rdd-kernel-hc0"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: causal.inference.regression_discontinuity_kernel_hc0@1.1.0"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable"
+release_note = "Opt in to fixed-bandwidth sharp conventional localization-kernel HC0 covariance. Preserve regression_discontinuity@1.0.0 and supported resolution of its old base name; RBC remains separate."
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "lane05-kuzu-full-payload"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "public_experimental: Kuzu causal relation payload_json column"
+owner = "team-ir"
+version_owner = "team-ir"
+deprecation_window = "not_applicable"
+release_note = "Run the additive schema helper before direct export to an old database. Preserve legacy columns and every new relation occurrence/payload; old rows without payload_json are not certified lossless. Unsupported incremental bulk writes and ambiguous direct target multiplicity refuse before mutation."
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "lane05-canonical-ir-consumer-routes"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: lazy polisyos.ir causal reference, loader and graph projection routes"
+owner = "team-ir"
+version_owner = "team-ir"
+deprecation_window = "not_applicable"
+release_note = "Expose the existing InterventionQueryRef, StructuralCausalModelSpecRef, load_intervention_query, load_proof_bundle, graph_for_analysis and project_graph_to_dag owner objects. Cross-layer consumers use the governed facade; object identity and graph/provenance checks are unchanged."
+public_surface_inventory_reviewed = true
+generated_client_compatibility = "not_applicable"

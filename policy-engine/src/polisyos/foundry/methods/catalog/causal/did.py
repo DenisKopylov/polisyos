@@ -7,7 +7,6 @@ import json
 import math
 from collections.abc import Mapping
 from decimal import ROUND_CEILING, Decimal
-from statistics import NormalDist
 from typing import Any, ClassVar
 
 import numpy as np
@@ -27,6 +26,7 @@ from polisyos.foundry.methods.base import (
 )
 from polisyos.foundry.methods.catalog._payloads import extract_model_payload
 from polisyos.foundry.methods.catalog.causal._common import (
+    _normal_critical_value,
     build_failure_report,
     build_success_report,
     compute_cohen_d,
@@ -54,15 +54,6 @@ _DID_ASSUMPTIONS = {
     "no_anticipation": "No treatment effect before treatment start (unless explicitly modeled).",
     "stable_composition": "Group composition is stable over analysis horizon.",
 }
-
-
-def _normal_critical_value(confidence_level: float) -> float:
-    """Return the two-sided normal critical value for a validated confidence level."""
-
-    level = float(confidence_level)
-    if not math.isfinite(level) or not 0.0 < level < 1.0:
-        raise ValueError("confidence_level must be in (0, 1)")
-    return float(NormalDist().inv_cdf((1.0 + level) / 2.0))
 
 
 def _did_output_slots() -> frozenset[SlotSpec]:
@@ -216,21 +207,71 @@ def _ols_cluster_cr0(
 ) -> tuple[np.ndarray, np.ndarray]:
     """Fit OLS with the uncorrected cluster-robust (CR0) covariance."""
 
+    codes = np.asarray(cluster_ids)
+    n_obs = x_mat.shape[0]
+    if (
+        codes.ndim != 1
+        or codes.size != n_obs
+        or codes.dtype.kind not in "iu"
+        or np.any(codes < 0)
+        or np.any(codes >= n_obs)
+    ):
+        raise ValueError("cluster codes must be dense nonnegative integers, one per observation")
+    codes = codes.astype(np.intp, copy=False)
+    counts = np.bincount(codes)
+    if counts.size < 2 or np.any(counts == 0):
+        raise ValueError("cluster codes must cover at least two nonempty consecutive groups")
+
     beta, *_ = np.linalg.lstsq(x_mat, y_vec, rcond=None)
     residual = y_vec - x_mat @ beta
     xtx_inv = np.linalg.pinv(x_mat.T @ x_mat)
-    meat = np.zeros((x_mat.shape[1], x_mat.shape[1]), dtype=float)
-    for cluster in np.unique(cluster_ids):
-        mask = cluster_ids == cluster
-        score = x_mat[mask].T @ residual[mask]
-        meat += np.outer(score, score)
+    # Dense validated membership covers each observation once, including zero-score groups.
+    scores = np.zeros((counts.size, x_mat.shape[1]), dtype=float)
+    np.add.at(scores, codes, x_mat * residual[:, None])
+    meat = scores.T @ scores
     covariance = xtx_inv @ meat @ xtx_inv
     se = np.sqrt(np.maximum(np.diag(covariance), 0.0))
     return beta, se
 
 
+def _cluster_label_codes(labels: Any) -> np.ndarray:
+    """Validate scalar unit identities before forming complete dense membership codes."""
+
+    values = np.asarray(labels, dtype=object)
+    if values.ndim != 1:
+        raise ValueError("cluster_var must be a one-dimensional array")
+    kinds = set()
+    for value in values:
+        value_type = type(value)
+        if not (value_type is str or value_type is int or value_type is float):
+            # Object arrays preserve subclasses, including overridden equality.
+            # Only the dtype's canonical NumPy scalar type has standard identity.
+            try:
+                canonical_numpy_scalar = isinstance(value, np.generic) and (
+                    np.dtype(value_type).type is value_type
+                )
+            except TypeError:
+                canonical_numpy_scalar = False
+            if not canonical_numpy_scalar:
+                raise ValueError(
+                    "cluster labels must be finite numbers or strings with standard scalar identity"
+                )
+        if isinstance(value, str):
+            kinds.add("string")
+        elif (isinstance(value, (int, np.integer)) and not isinstance(value, (bool, np.bool_))) or (
+            isinstance(value, (float, np.floating)) and math.isfinite(value)
+        ):
+            kinds.add("number")
+        else:
+            raise ValueError("cluster labels must be finite numbers or strings")
+    if len(kinds) > 1:
+        raise ValueError("cluster labels must be homogeneous numbers or strings")
+    _, codes = np.unique(values, return_inverse=True)
+    return codes
+
+
 def _unit_cluster_ids(data: PanelObservationalData, params: Mapping[str, Any]) -> np.ndarray:
-    """Return one cluster label per panel row, preserving unit membership."""
+    """Return validated dense codes covering every row of every panel unit exactly once."""
 
     cluster_spec = params.get("cluster_var")
     named_cluster = cluster_spec.strip().lower() if isinstance(cluster_spec, str) else None
@@ -238,11 +279,9 @@ def _unit_cluster_ids(data: PanelObservationalData, params: Mapping[str, Any]) -
     if uses_panel_unit_ids:
         if data.unit_ids is None:
             raise ValueError("cluster covariance requires unit_ids")
-        unit_clusters = np.asarray(data.unit_ids)
+        unit_clusters = _cluster_label_codes(data.unit_ids)
     else:
-        candidate = np.asarray(cluster_spec)
-        if candidate.ndim != 1:
-            raise ValueError("cluster_var must be a one-dimensional array")
+        candidate = _cluster_label_codes(cluster_spec)
         if candidate.size == data.n_units:
             unit_clusters = candidate
         elif candidate.size == data.n_units * data.n_periods:
@@ -423,6 +462,14 @@ def _run_standard_did(data: PanelObservationalData, params: Mapping[str, Any]) -
     att = float(beta[3])
     att_se = float(se[3]) if se.shape[0] > 3 else 0.0
     ci = (att - z_critical * att_se, att + z_critical * att_se)
+    if (
+        not all(math.isfinite(value) for value in (att, att_se, *ci))
+        or att_se < 0.0
+        or (att_se > 0.0 and not ci[0] < att < ci[1])
+    ):
+        return _invalid_did_request_output(
+            data, "normal interval is outside the representable numerical range"
+        )
     z_score = 0.0 if att_se <= 0 else att / att_se
     p_value = _normal_two_sided_pvalue(z_score)
 
@@ -805,7 +852,8 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
     try:
         target = _staggered_target_contract(data, params)
         confidence_level = float(params.get("confidence_level", 0.95))
-        _normal_critical_value(confidence_level)
+        if not math.isfinite(confidence_level) or not 0.0 < confidence_level < 1.0:
+            raise ValueError("confidence_level must be in (0, 1)")
         raw_bootstrap = params.get("n_bootstrap", 1000)
         if (
             isinstance(raw_bootstrap, (bool, np.bool_))
@@ -1012,7 +1060,7 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
     },
 )
 class DifferenceInDifferences:
-    """Historical direct-import replay adapter; default planning registers dedicated owners only."""
+    """Direct-import compatibility adapter; frozen-plan replay is not a supported contract."""
 
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)

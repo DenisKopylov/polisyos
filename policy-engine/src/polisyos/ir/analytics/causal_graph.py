@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import importlib
 import json
+import operator
 from collections.abc import Mapping, Sequence
 from copy import deepcopy
 from enum import Enum
@@ -840,10 +841,69 @@ class CausalGraphModel(BaseModel):
         return tuple(json.loads(row) for row in self._kuzu_edge_rows_json)
 
     def to_kuzu(self, kuzu_conn: _KuzuParameterConnection) -> None:
-        for row in self.kuzu_node_rows:
+        """Merge a simple endpoint graph into an existing Kuzu schema.
+
+        Repeating this simple export updates the one relation per ordered pair.
+        For parallel, mixed, or duplicate relation occurrences, use the lossless
+        ``materialize_causal_kuzu_from_graph`` bulk adapter instead. This check
+        also rejects multiple existing target relations before every database
+        write, including creation of nodes. The caller owns exclusive access to
+        its target database for the complete preflight and upsert operation.
+        """
+        graph = _canonical_causal_graph(self)
+        pairs: set[tuple[str, str]] = set()
+        for edge in graph.edges:
+            pair = (edge.src, edge.dst)
+            if pair in pairs:
+                raise ValueError(
+                    "direct Kuzu export cannot preserve multiple relation occurrences "
+                    f"at {pair!r}; use materialize_causal_kuzu_from_graph for lossless export"
+                )
+            pairs.add(pair)
+        schema = kuzu_conn.execute("CALL table_info('CausalEdge') RETURN name", {})
+        read_frame = getattr(schema, "get_as_df", None)
+        if not callable(read_frame):
+            raise ValueError("direct Kuzu export requires a readable relation schema")
+        frame = read_frame()
+        if "name" not in frame.columns or "payload_json" not in set(frame["name"]):
+            raise ValueError(
+                "direct Kuzu export requires payload_json schema migration; call "
+                "ensure_causal_kuzu_schema(clear_on_start=False) before export"
+            )
+        # Admit the entire update plan before a single node is created. An
+        # endpoint-only MERGE must never overwrite a previous bulk multigraph.
+        for src, dst in sorted(pairs):
+            current = kuzu_conn.execute(
+                "MATCH (s:CausalVar {name: $src})-[e:CausalEdge]->(d:CausalVar {name: $dst}) "
+                "RETURN COUNT(e) AS c",
+                {"src": src, "dst": dst},
+            )
+            read_frame = getattr(current, "get_as_df", None)
+            if not callable(read_frame):
+                raise ValueError("direct Kuzu export requires readable target multiplicity")
+            frame = read_frame()
+            if "c" not in frame.columns or len(frame) != 1:
+                raise ValueError("direct Kuzu export target multiplicity is unavailable")
+            value = frame["c"].iloc[0]
+            if isinstance(value, bool):
+                raise ValueError("direct Kuzu export target multiplicity must be an integer")
+            try:
+                count = operator.index(value)
+            except TypeError as exc:
+                raise ValueError(
+                    "direct Kuzu export target multiplicity must be an integer"
+                ) from exc
+            if count < 0:
+                raise ValueError("direct Kuzu export target multiplicity cannot be negative")
+            if count > 1:
+                raise ValueError(
+                    "direct Kuzu export cannot update multiple existing relation occurrences "
+                    f"at {(src, dst)!r}; use materialize_causal_kuzu_from_graph"
+                )
+        for row in graph.kuzu_node_rows:
             kuzu_conn.execute("MERGE (v:CausalVar {name: $name})", row)
 
-        for row in self.kuzu_edge_rows:
+        for row in graph.kuzu_edge_rows:
             kuzu_conn.execute(
                 (
                     "MATCH (s:CausalVar {name: $src}), (d:CausalVar {name: $dst}) "
@@ -855,7 +915,8 @@ class CausalGraphModel(BaseModel):
                     "r.graph_type = $graph_type, "
                     "r.sources = $sources, "
                     "r.evidence_refs = $evidence_refs, "
-                    "r.metadata_json = $metadata_json"
+                    "r.metadata_json = $metadata_json, "
+                    "r.payload_json = $payload_json"
                 ),
                 row,
             )
@@ -873,6 +934,7 @@ def _serialize_kuzu_edge_row(edge: CausalEdge, *, graph_type: str) -> dict[str, 
         "sources": json.dumps([source.value for source in edge.sources]),
         "evidence_refs": json.dumps(edge.evidence_refs),
         "metadata_json": json.dumps(edge.metadata, sort_keys=True),
+        "payload_json": json.dumps(edge.model_dump(mode="json"), sort_keys=True),
     }
 
 
@@ -1189,6 +1251,157 @@ def project_graph_to_dag(graph: CausalGraphModel) -> tuple[CausalGraphModel, lis
     return projected, latent_vars
 
 
+def expand_temporal_graph(
+    store: ArtifactStore,
+    source_ref: CausalGraphModelRef,
+    *,
+    query_coordinates: Sequence[tuple[str, int]],
+    start_step: int,
+    end_step: int,
+    boundary_coordinates: Sequence[tuple[str, int]],
+    lag_unit: str,
+    time_unit: str,
+) -> CausalGraphModel:
+    """Expand the necessary ancestors of a finite, directed temporal query.
+
+    A positive lag L means that the parent at t-L affects the child at t.
+    Explicit boundary coordinates terminate that recurrence; they represent
+    declared initial conditions, never inferred zeros. The returned static DAG
+    keeps the selected compact source and the complete coordinate mapping in its
+    content-bound metadata. Numerical data alignment belongs to the fit-data
+    adapter, which must resolve the same source and exact time coordinates.
+    Time units here are explicit assumptions: the fit-data adapter must compare
+    them with the resolved observation contract. Source relation occurrences
+    remain intact; numerical consumers must use logical parent coordinates,
+    rather than treating repeated occurrences as separate design columns.
+
+    Args:
+        store: Artifact store resolving the selected compact graph.
+        source_ref: Exact selected graph profile, not an inspection-only ref.
+        query_coordinates: Requested variable and integer-step pairs.
+        start_step: Earliest modeled recurrence step.
+        end_step: Last permitted query step.
+        boundary_coordinates: Explicit initial/history coordinates at or before start.
+        lag_unit: Unit represented by one source lag.
+        time_unit: Unit represented by one integer time step.
+
+    Returns:
+        A validated finite static DAG with deterministic coordinate names.
+
+    Raises:
+        ValueError: Scope, source, boundary, or temporal profile is unsupported.
+    """
+    selected = CausalGraphModelRef.from_selected_write(dict(source_ref))
+    source = _canonical_causal_graph(load_causal_graph_model(store, selected))
+    if source.graph_type is not GraphType.DAG or any(
+        (edge.mark_src, edge.mark_dst) != (EdgeMark.TAIL, EdgeMark.ARROW) for edge in source.edges
+    ):
+        raise ValueError("temporal_expansion_requires_directed_dag_profile")
+    if type(start_step) is not int or type(end_step) is not int or start_step > end_step:
+        raise ValueError("temporal_expansion_invalid_horizon")
+    if (
+        type(time_unit) is not str
+        or not time_unit.strip()
+        or type(lag_unit) is not str
+        or lag_unit != time_unit
+    ):
+        raise ValueError("temporal_expansion_lag_time_unit_mismatch")
+
+    def coordinates(values: Sequence[tuple[str, int]], *, boundary: bool) -> set[tuple[str, int]]:
+        result: set[tuple[str, int]] = set()
+        for pair in values:
+            if (
+                not isinstance(pair, (tuple, list))
+                or len(pair) != 2
+                or type(pair[0]) is not str
+                or pair[0] not in source.nodes
+                or type(pair[1]) is not int
+            ):
+                raise ValueError("temporal_expansion_invalid_coordinate")
+            variable, step = pair
+            if (boundary and step > start_step) or (
+                not boundary and not start_step <= step <= end_step
+            ):
+                raise ValueError("temporal_expansion_coordinate_outside_horizon")
+            coordinate = (variable, step)
+            if coordinate in result:
+                raise ValueError("temporal_expansion_duplicate_coordinate")
+            result.add(coordinate)
+        return result
+
+    requested = coordinates(query_coordinates, boundary=False)
+    boundaries = coordinates(boundary_coordinates, boundary=True)
+    if not requested:
+        raise ValueError("temporal_expansion_empty_query")
+    incoming: dict[str, list[tuple[int, CausalEdge]]] = {name: [] for name in source.nodes}
+    for index, edge in enumerate(source.edges):
+        incoming[edge.dst].append((index, edge))
+    used: set[tuple[str, int]] = set()
+    used_boundaries: set[tuple[str, int]] = set()
+    edges: dict[tuple[tuple[str, int], tuple[str, int], int], CausalEdge] = {}
+    pending = sorted(requested)
+
+    def node_name(coordinate: tuple[str, int]) -> str:
+        return "temporal:" + json.dumps(coordinate, ensure_ascii=False, separators=(",", ":"))
+
+    while pending:
+        coordinate = pending.pop()
+        if coordinate in used:
+            continue
+        used.add(coordinate)
+        variable, step = coordinate
+        if coordinate in boundaries:
+            used_boundaries.add(coordinate)
+            continue
+        if step < start_step:
+            raise ValueError(f"temporal_expansion_missing_boundary:{variable}:{step}")
+        for index, edge in incoming[variable]:
+            parent = (edge.src, step - (edge.lag or 0))
+            expanded = edge.model_copy(
+                update={
+                    "src": node_name(parent),
+                    "dst": node_name(coordinate),
+                    "lag": None,
+                    "metadata": {
+                        **dict(edge.metadata),
+                        "temporal_source_edge_index": index,
+                        "temporal_source_lag": edge.lag,
+                    },
+                }
+            )
+            edges[(parent, coordinate, index)] = expanded
+            pending.append(parent)
+    ordered = sorted(used, key=lambda item: (item[1], item[0]))
+    mapping = [
+        {"node": node_name(coordinate), "variable": coordinate[0], "step": coordinate[1]}
+        for coordinate in ordered
+    ]
+    return CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=[entry["node"] for entry in mapping],
+        edges=[edge for _, edge in sorted(edges.items())],
+        discovery_method=source.discovery_method,
+        skg_version_id=source.skg_version_id,
+        metadata={
+            **dict(source.metadata),
+            "temporal_expansion": {
+                "profile": "finite_directed_temporal_v1",
+                "source_graph_ref": selected.model_dump(mode="json"),
+                "source_graph_sha256": graph_content_sha256(source),
+                "time_unit": time_unit,
+                "lag_unit": lag_unit,
+                "time_basis": "caller_declared_discrete_step_unit",
+                "start_step": start_step,
+                "end_step": end_step,
+                "query_coordinates": sorted(requested),
+                "boundary_coordinates": sorted(used_boundaries),
+                "coordinates": mapping,
+                "scope": "conditional_on_declared_graph_and_initial_conditions",
+            },
+        },
+    )
+
+
 __all__ = [
     "CausalEdge",
     "CausalGraphModel",
@@ -1199,6 +1412,7 @@ __all__ = [
     "GraphType",
     "PAGIdentificationPolicy",
     "UnsupportedGraphProjectionError",
+    "expand_temporal_graph",
     "graph_content_sha256",
     "graph_for_analysis",
     "graph_projection_disposition",

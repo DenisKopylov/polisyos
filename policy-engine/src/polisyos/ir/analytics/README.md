@@ -16,6 +16,8 @@ specialized surfaces remain in their defining modules.
 
 - [`__init__.py`](./__init__.py) — curated lazy facade for the most common analytics import paths.
 - [`causal.py`](./causal.py) — core effect-report surface, diagnostics, and refutations.
+- [`causal_graph.py`](./causal_graph.py) — immutable graph admission, lossless relation
+  transport and the public experimental `expand_temporal_graph` finite ancestor adapter.
 - [`dynamic_regime.py`](./dynamic_regime.py) — continuous-time query contracts, trajectory bundles, and runtime support gates.
 - [`hte.py`](./hte.py) — heterogeneous effects, feature importance, and targeting outputs.
 - [`recourse_manifold.py`](./recourse_manifold.py) — typed causal recourse queries, intervention-cost manifolds, proof bundles, and feasibility certificates for Stage 13.4.
@@ -86,6 +88,29 @@ available without dropping a caller-supplied selected view.
 ## Causal report CAS persistence
 
 `persist_causal_effect_report` preserves historical default-reference behavior when `return_selected_profile` is omitted or `False`; the default view is profileless, while a write differing from that view may return its selected profile. Pass `True` when a downstream join must bind the exact profile selected by the report write; the typed helper returns that same-write CAS result and does not infer a profile from a later read. A non-boolean value is rejected, and stores without selected-profile write support fail closed. This option changes the reference returned to the caller, not the causal-report payload or schema.
+
+Fresh native report projections reuse the existing exact numeric policy when
+ordinary rounding would change the emitted point, interval or open confidence
+level. Persisted older envelopes retain their recorded rounding policy. These
+projections remain non-gating numerical candidates.
+
+`CausalModelEnsemble.to_uncertainty_envelope` preserves pooled fixed-model
+median/percentiles as a heuristic range with unknown distribution family, no CI
+level and no gate eligibility. Selected member limitations and structural pooling
+weights remain visible; they do not establish an estimator sampling distribution.
+
+Direct Kuzu export is a simple-relation upsert in an exclusively accessed target:
+incoming collisions, legacy schemas without `payload_json`, and existing target
+multiplicity are refused before any write. The additive schema helper upgrades
+old tables without inventing old payloads. Use the existing bulk materializer for
+lossless mixed/parallel occurrences; unsupported incremental bulk mode refuses.
+NetworkX, Kuzu and other backend qualification are separate profiles.
+
+Finite temporal expansion declares its time unit, required initial coordinates
+and source selection; it does not license static consumers to ignore lag or
+complete a PAG arbitrarily. The actual observation/fit/query bridge and its
+explicit-call boundary are documented in the
+[causal catalog](../../foundry/methods/catalog/causal/README.md#explicit-finite-temporal-fit).
 
 ## NCM source views
 

@@ -8,8 +8,13 @@ from scipy.stats import binom
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.foundry.methods.backends import numpy_runner
+from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+from polisyos.foundry.methods.catalog.causal import did as did_module
 from polisyos.foundry.methods.catalog.causal.did import StaggeredDifferenceInDifferences
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
+from polisyos.foundry.methods.causal import ensure_causal_methods_registered
+from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.analytics.causal import (
     EstimationStatus,
     load_causal_effect_report,
@@ -143,6 +148,104 @@ def test_same_centered_studentized_law_drives_null_test_and_interval():
     assert report.method_params["multiplier_distribution"] == "iid_mammen"
     assert report.method_params["bootstrap_shared_draw"] is True
     assert report.method_params["null_statistic"] == "centered_studentized_scalar"
+
+
+def test_registered_dispatch_injects_one_actual_unit_draw_stream(monkeypatch):
+    """Observe the real selected backend RNG without substituting estimator or draw values."""
+
+    data = _panel()
+    factory = np.random.default_rng
+    records = []
+
+    class RecordedGenerator:
+        def __init__(self, seed):
+            self.seed = seed
+            self.inner = factory(seed)
+            self.shapes = []
+
+        def choice(self, values, *, size, p):
+            self.shapes.append(size)
+            return self.inner.choice(values, size=size, p=p)
+
+    def record_generator(seed=None):
+        recorded = RecordedGenerator(seed)
+        records.append(recorded)
+        return recorded
+
+    MethodRegistry.reset_instance()
+    MethodDispatcher.reset_instance()
+    try:
+        ensure_causal_methods_registered()
+        method = MethodRegistry.get_instance().get("causal.inference.did.staggered@1.0.0")
+        monkeypatch.setattr(numpy_runner.np.random, "default_rng", record_generator)
+        result = MethodDispatcher.get_instance().dispatch(
+            method_class=method,
+            signature=method.signature,
+            state=data,
+            params={"n_bootstrap": 399, "confidence_level": 0.95},
+            seed=19,
+        )
+        report = result.output["report"]
+        used = [record for record in records if record.shapes]
+        assert len(used) == 1
+        assert used[0].seed == 19
+        assert used[0].shapes == [(128, 12), (128, 12), (128, 12), (15, 12)]
+        assert report.status is EstimationStatus.SUCCESS
+        assert report.point_estimate == pytest.approx(41.0 / 6.0)
+        assert report.n_bootstrap_samples == 399
+        assert report.method_params["target_contract"]["sampling_unit"] == "independent_panel_unit"
+        assert report.method_params["bootstrap_shared_draw"] is True
+    finally:
+        MethodRegistry.reset_instance()
+        MethodDispatcher.reset_instance()
+
+
+def test_cohort_share_removal_fails_the_independent_functional_oracle(monkeypatch):
+    """The same target and markers cannot hide omission of estimated cohort-share influence."""
+
+    data = _panel()
+    periods = {2: [2, 3, 4, 5], 4: [4, 5]}
+    derivatives = []
+    for unit in range(data.n_units):
+        upper, lower = np.ones(data.n_units), np.ones(data.n_units)
+        upper[unit] += 1e-5
+        lower[unit] -= 1e-5
+        derivatives.append(
+            data.n_units
+            * (
+                _weighted_functional(data, upper, periods)
+                - _weighted_functional(data, lower, periods)
+            )
+            / 2e-5
+        )
+    expected_se = np.linalg.norm(derivatives) / data.n_units
+    original = did_module._selected_participation_influence
+
+    def without_share_uncertainty(panel, cells):
+        point, influence, summaries = original(panel, cells)
+        # This fixture's cohort means are independently known as 2.5 and9,
+        # with6 of12 units selected and theta_sel=41/6. Remove only that ratio term.
+        omitted = np.zeros(panel.n_units)
+        omitted[:2] = 2.0 * (2.5 - 41.0 / 6.0)
+        omitted[2:6] = 2.0 * (9.0 - 41.0 / 6.0)
+        return point, influence - omitted, summaries
+
+    positive = _run(data)
+    with monkeypatch.context() as control:
+        control.setattr(did_module, "_selected_participation_influence", without_share_uncertainty)
+        removed = _run(data)
+    restored = _run(data)
+    assert positive.standard_error == pytest.approx(expected_se, rel=2e-9)
+    assert removed.point_estimate == positive.point_estimate
+    assert removed.method_params["target_binding"] == positive.method_params["target_binding"]
+    assert removed.method_params["cohort_share_influence"] is True  # unchanged proxy
+    # Hand-known centered within-cohort scores: (-2,2),(-3,-1,1,3),
+    # and controls ±(1/3,1/5,1/15). Their norm/12 omits the ratio term.
+    assert removed.standard_error == pytest.approx(
+        np.sqrt(28.0 + 2.0 * (1.0 / 9 + 1.0 / 25 + 1.0 / 225)) / 12.0, rel=1e-8
+    )
+    assert removed.standard_error != pytest.approx(expected_se, rel=2e-9)
+    assert restored.model_dump(mode="json") == positive.model_dump(mode="json")
 
 
 @pytest.mark.parametrize("level, draws", [(0.95, 399), (0.99, 999), (0.8, 99)])

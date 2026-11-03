@@ -88,7 +88,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 9 | `team-polisyos` | `src/polisyos/common/README.md` |
 | `polisyos.core` | `public_stable` | `lazy_facade` | 134 | `team-polisyos` | `src/polisyos/core/README.md` |
-| `polisyos.ir` | `public_stable` | `lazy_facade` | 532 | `team-polisyos` | `src/polisyos/ir/README.md` |
+| `polisyos.ir` | `public_stable` | `lazy_facade` | 538 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
@@ -2014,7 +2014,7 @@ security
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 532 |
+| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 538 |
 | `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `lazy_facade` | 321 |
 | `polisyos.ir.analytics.calibration_diagnostics` | `src/polisyos/ir/analytics/calibration_diagnostics.py` | `eager_exports` | 6 |
 | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `eager_exports` | 14 |
@@ -2034,7 +2034,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Expose the stable IR contract surface through a lazy package facade.
 
-<details><summary>Entrypoint exports (532)</summary>
+<details><summary>Entrypoint exports (538)</summary>
 
 ```text
 GATE_REQUEST_SCHEMA_VERSION
@@ -2254,6 +2254,7 @@ InterferenceMethod
 IntervalSemantics
 InterventionExpr
 InterventionQuery
+InterventionQueryRef
 InterventionSpec
 InterventionType
 JudgeVerdictRef
@@ -2411,6 +2412,7 @@ StrategicResponseChannel
 StrategicResponseSpecsBundle
 StrategicSCMRef
 StructuralCausalModelSpec
+StructuralCausalModelSpecRef
 SubgroupDistributionComparison
 SubgroupEffect
 SuccessCriterion
@@ -2474,6 +2476,7 @@ get_ir_schema_catalog
 get_ir_type
 get_json_artifact
 get_json_artifact_with_bytes
+graph_for_analysis
 inspect_ir_schema
 list_ir_types
 load_abm_alignment_report
@@ -2501,6 +2504,7 @@ load_hte_point_result
 load_hte_refusal_diagnostic
 load_hte_result
 load_hte_result_v2
+load_intervention_query
 load_kernel_estimator_spec
 load_mean_field_equilibrium_certificate
 load_mean_field_macro_simulation_config
@@ -2515,6 +2519,7 @@ load_policy
 load_policy_recommendation
 load_post_adaptation_policy_value_summary
 load_posterior_summary
+load_proof_bundle
 load_sensitivity_result
 load_simulation_result_subject_uncertainty_projection
 load_simulation_result_uncertainty_admission
@@ -2559,6 +2564,7 @@ persist_uncertainty_envelope
 persist_welfare_bundle
 persist_welfare_sample_bundle
 prepare_ncm_spec_selected_values
+project_graph_to_dag
 proof_bundle_from_identification_result
 proof_bundle_from_negative_certificate
 proof_bundle_from_transportability_result
@@ -3685,7 +3691,7 @@ world_event_id_from_payload
 
 </details>
 
-<details><summary>Supported exports (532)</summary>
+<details><summary>Supported exports (538)</summary>
 
 ```text
 GATE_REQUEST_SCHEMA_VERSION
@@ -3905,6 +3911,7 @@ InterferenceMethod
 IntervalSemantics
 InterventionExpr
 InterventionQuery
+InterventionQueryRef
 InterventionSpec
 InterventionType
 JudgeVerdictRef
@@ -4062,6 +4069,7 @@ StrategicResponseChannel
 StrategicResponseSpecsBundle
 StrategicSCMRef
 StructuralCausalModelSpec
+StructuralCausalModelSpecRef
 SubgroupDistributionComparison
 SubgroupEffect
 SuccessCriterion
@@ -4125,6 +4133,7 @@ get_ir_schema_catalog
 get_ir_type
 get_json_artifact
 get_json_artifact_with_bytes
+graph_for_analysis
 inspect_ir_schema
 list_ir_types
 load_abm_alignment_report
@@ -4152,6 +4161,7 @@ load_hte_point_result
 load_hte_refusal_diagnostic
 load_hte_result
 load_hte_result_v2
+load_intervention_query
 load_kernel_estimator_spec
 load_mean_field_equilibrium_certificate
 load_mean_field_macro_simulation_config
@@ -4166,6 +4176,7 @@ load_policy
 load_policy_recommendation
 load_post_adaptation_policy_value_summary
 load_posterior_summary
+load_proof_bundle
 load_sensitivity_result
 load_simulation_result_subject_uncertainty_projection
 load_simulation_result_uncertainty_admission
@@ -4210,6 +4221,7 @@ persist_uncertainty_envelope
 persist_welfare_bundle
 persist_welfare_sample_bundle
 prepare_ncm_spec_selected_values
+project_graph_to_dag
 proof_bundle_from_identification_result
 proof_bundle_from_negative_certificate
 proof_bundle_from_transportability_result

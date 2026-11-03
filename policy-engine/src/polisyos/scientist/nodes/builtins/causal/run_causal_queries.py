@@ -12,6 +12,7 @@ from pydantic import ValidationError
 from polisyos.common import serialization
 from polisyos.core import canon
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import input_ref_from_artifact_ref
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -139,12 +140,12 @@ def _resolve_structural_model_ref(state: ExperimentState) -> ArtifactRef | None:
 def _append_input_ref(
     refs: list[InputRef],
     *,
-    artifact_id: Any | None,
+    artifact_ref: ArtifactRef | None,
     role: str,
 ) -> None:
-    if artifact_id is None:
+    if artifact_ref is None:
         return
-    refs.append(InputRef(artifact_id=artifact_id, role=role))
+    refs.append(input_ref_from_artifact_ref(artifact_ref, role=role))
 
 
 def _load_bound_query_result(
@@ -172,9 +173,10 @@ def _load_bound_query_result(
         or not ctx.store.verify(ref).ok
     ):
         raise ValueError("causal query method-result artifact identity mismatch")
-    if not any(
-        item.artifact_id == scm_ref.artifact_id and item.role == "input:scm_spec"
-        for item in manifest.inputs
+    scm_inputs = [item for item in manifest.inputs if item.role == "input:scm_spec"]
+    if len(scm_inputs) != 1 or (
+        scm_inputs[0].artifact_id != scm_ref.artifact_id
+        or scm_inputs[0].manifest_profile_sha256 != scm_ref.manifest_profile_sha256
     ):
         raise ValueError("causal query method result lacks original SCM input binding")
     source_bytes = ctx.store.get_bytes(ref)
@@ -257,7 +259,13 @@ class RunCausalQueriesNode:
             scm_spec = load_structural_causal_model_spec(
                 _ensure_ir_artifact_store(ctx.store), scm_spec_ref
             )
-            validate_source_bound_gcm_spec(scm_spec, ctx.store)
+            if (
+                scm_spec.source_graph is not None
+                and "temporal_observation_binding" in scm_spec.source_graph.metadata
+            ):
+                validate_source_bound_gcm_spec(scm_spec, ctx.store, scm_ref=scm_spec_ref)
+            else:
+                validate_source_bound_gcm_spec(scm_spec, ctx.store)
         except _CAUSAL_QUERY_LOAD_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
@@ -344,18 +352,18 @@ class RunCausalQueriesNode:
             )
 
         input_refs: list[InputRef] = [
-            InputRef(artifact_id=scm_ref.artifact_id, role="structural_causal_model_spec")
+            input_ref_from_artifact_ref(scm_ref, role="structural_causal_model_spec")
         ]
         if result.method_result_ref is not None:
             _append_input_ref(
                 input_refs,
-                artifact_id=result.method_result_ref.artifact_id,
+                artifact_ref=result.method_result_ref,
                 role="causal_query_method_result",
             )
         if result.method_evidence_ref is not None:
             _append_input_ref(
                 input_refs,
-                artifact_id=result.method_evidence_ref.artifact_id,
+                artifact_ref=result.method_evidence_ref,
                 role="causal_query_method_evidence",
             )
 

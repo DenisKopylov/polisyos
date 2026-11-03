@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import heapq
 import json
 import math
 import re
@@ -28,6 +29,7 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData
+from polisyos.ir import graph_for_analysis, project_graph_to_dag
 from polisyos.ir.analytics.causal_queries import (
     CausalEstimatorInterval,
     CausalQuery,
@@ -49,12 +51,51 @@ def _append_warning(warnings: list[str], message: str) -> None:
         warnings.append(message)
 
 
+def _prepared_scm_query_spec(scm_spec: StructuralCausalModelSpec) -> StructuralCausalModelSpec:
+    """Admit a detached static DAG view without changing the supplied SCM.
+
+    A manual graph must pass the same canonical projection as a fitted graph;
+    interpreting its stored endpoints directly would reverse known marks or
+    guess unresolved orientations.  The projected graph must describe the
+    mechanisms already present, including any introduced latent parents.
+    """
+    if scm_spec.source_graph is not None:
+        graph = graph_for_analysis(scm_spec.source_graph, scm_spec.graph, scm_spec.graph_projection)
+        if graph is None:
+            raise ValueError("SCM graph source disposition does not admit a static DAG")
+        graph, _ = project_graph_to_dag(graph)
+    else:
+        graph, _ = project_graph_to_dag(scm_spec.graph)
+    if any(edge.lag not in (None, 0) for edge in graph.edges):
+        raise ValueError("static SCM query requires temporal graph expansion before sampling")
+
+    parents = {node: set() for node in graph.nodes}
+    for edge in graph.edges:
+        parents[edge.dst].add(edge.src)
+    mechanisms = _mechanism_map(scm_spec)
+    if len(mechanisms) != len(scm_spec.mechanisms):
+        raise ValueError("SCM has multiple mechanisms for one variable")
+    introduced = set(graph.nodes) - set(scm_spec.graph.nodes)
+    if introduced - mechanisms.keys():
+        raise ValueError("projected graph requires unavailable latent mechanisms")
+    for node, mechanism in mechanisms.items():
+        if (
+            node not in parents
+            or len(mechanism.parents) != len(set(mechanism.parents))
+            or set(mechanism.parents) != parents[node]
+        ):
+            raise ValueError(f"SCM mechanism parents do not match admitted graph for '{node}'")
+    return scm_spec.model_copy(update={"graph": graph})
+
+
 def _parents_by_node(scm_spec: StructuralCausalModelSpec) -> dict[str, list[str]]:
     parents: dict[str, list[str]] = {node: [] for node in scm_spec.graph.nodes}
     for edge in scm_spec.graph.edges:
         if edge.lag not in (None, 0):
             continue
-        parents.setdefault(edge.dst, []).append(edge.src)
+        parent_list = parents.setdefault(edge.dst, [])
+        if edge.src not in parent_list:
+            parent_list.append(edge.src)
     return parents
 
 
@@ -233,38 +274,171 @@ def _observed_root_samples(
 ) -> dict[str, Sequence[float]]:
     """Return aligned empirical root rows carried by fitted mechanisms."""
     samples: dict[str, Sequence[float]] = {}
+    provenance: set[tuple[str, str, str]] = set()
+    lengths: set[int] = set()
     for variable, mechanism in mechanisms.items():
         if mechanism.parents or mechanism.family is not MechanismFamily.EMPIRICAL:
             continue
-        raw_samples = mechanism.family_params.get("observed_samples")
-        if not isinstance(raw_samples, Sequence) or isinstance(raw_samples, (str, bytes)):
+        if "observed_samples" not in mechanism.family_params:
             continue
-        if raw_samples and all(isinstance(value, (int, float)) for value in raw_samples):
-            samples[variable] = raw_samples
+        raw_samples = mechanism.family_params.get("observed_samples")
+        if (
+            not isinstance(raw_samples, Sequence)
+            or isinstance(raw_samples, (str, bytes))
+            or not raw_samples
+            or not all(
+                isinstance(value, (int, float)) and math.isfinite(value) for value in raw_samples
+            )
+        ):
+            raise ValueError(f"observed root carrier '{variable}' has invalid finite rows")
+        source = mechanism.family_params.get("observed_samples_source")
+        alignment = mechanism.family_params.get("observed_sample_alignment")
+        group = mechanism.family_params.get("joint_sample_group")
+        if not all(isinstance(part, str) and part.strip() for part in (source, alignment, group)):
+            raise ValueError(
+                f"observed root carrier '{variable}' requires source, alignment, and group"
+            )
+        provenance.add((source, alignment, group))
+        lengths.add(len(raw_samples))
+        samples[variable] = raw_samples
+    if len(provenance) > 1 or len(lengths) > 1:
+        raise ValueError("observed root carriers must share provenance, alignment, and row count")
     return samples
 
 
 def _joint_root_sample_index(
     observed_samples: Mapping[str, Sequence[float]],
     rng: np.random.Generator,
+    *,
+    compatible_indices: Sequence[int] | None = None,
 ) -> int | None:
     lengths = [len(values) for values in observed_samples.values() if values]
     if not lengths:
         return None
     if len(set(lengths)) != 1:
         raise ValueError("joint empirical roots require a common aligned row set")
+    if compatible_indices is not None:
+        return int(compatible_indices[int(rng.integers(len(compatible_indices)))])
     return int(rng.integers(lengths[0]))
+
+
+def _compatible_joint_root_indices(
+    observed_samples: Mapping[str, Sequence[float]],
+    condition: Mapping[str, float],
+) -> tuple[int, ...] | None:
+    """Condition one aligned empirical row group on all observed root values.
+
+    The finite profile uses exact declared values and retains duplicate rows as
+    separate units; no nearest-neighbor or unconditional fallback is implied.
+    """
+    observed_roots = sorted(set(observed_samples).intersection(condition))
+    if not observed_roots:
+        return None
+    lengths = {len(values) for values in observed_samples.values()}
+    if len(lengths) != 1 or 0 in lengths:
+        raise ValueError("joint empirical roots require a common aligned row set")
+    indices = tuple(
+        index
+        for index in range(next(iter(lengths)))
+        if all(
+            float(observed_samples[node][index]) == float(condition[node])
+            for node in observed_roots
+        )
+    )
+    if not indices:
+        raise ValueError("factual evidence is incompatible with empirical root support")
+    return indices
 
 
 def _linear_noise_std(mechanism: NodeMechanism) -> float:
     params = mechanism.family_params
+    raw = params.get("noise_std", 0.0)
+    if isinstance(raw, bool):
+        raise ValueError("invalid structural noise scale")
     try:
-        std = float(params.get("noise_std", 0.0))
-    except (TypeError, ValueError, ArithmeticError):
-        return 0.0
+        std = float(raw)
+    except (TypeError, ValueError, ArithmeticError) as exc:
+        raise ValueError("invalid structural noise scale") from exc
     if not math.isfinite(std) or std < 0.0:
-        return 0.0
+        raise ValueError("invalid structural noise scale")
     return std
+
+
+def _empirical_root_location_scale(mechanism: NodeMechanism) -> tuple[float, float]:
+    """Validate the legacy location-scale hypothesis for a root without rows."""
+    raw_mean = mechanism.family_params.get("mean", 0.0)
+    raw_std = mechanism.family_params.get("std", 1.0)
+    if isinstance(raw_mean, bool) or isinstance(raw_std, bool):
+        raise ValueError("invalid empirical root location or scale")
+    try:
+        mean, std = float(raw_mean), float(raw_std)
+    except (TypeError, ValueError, ArithmeticError) as exc:
+        raise ValueError("invalid empirical root location or scale") from exc
+    if not math.isfinite(mean) or not math.isfinite(std) or std < 0.0:
+        raise ValueError("invalid empirical root location or scale")
+    return mean, std
+
+
+def _parametric_prior_noise_std(mechanism: NodeMechanism) -> float:
+    """Resolve one prior noise scale for both structural samplers."""
+    prior = mechanism.family_params.get("prior")
+    raw = (
+        mechanism.family_params.get("noise_std", 0.2)
+        if isinstance(prior, Mapping)
+        else mechanism.family_params.get("std", 1.0)
+    )
+    if isinstance(raw, bool):
+        raise ValueError("invalid parametric prior location or scale")
+    try:
+        std = float(raw)
+    except (TypeError, ValueError, ArithmeticError) as exc:
+        raise ValueError("invalid parametric prior location or scale") from exc
+    if not math.isfinite(std) or std < 0.0:
+        raise ValueError("invalid parametric prior location or scale")
+    return std
+
+
+def _parametric_prior_location_scale(
+    mechanism: NodeMechanism, parent_values: Mapping[str, float]
+) -> tuple[float, float]:
+    """Resolve the actual declared Gaussian prior, including a zero scale."""
+    prior = mechanism.family_params.get("prior")
+    try:
+        if isinstance(prior, Mapping):
+            intercept = prior.get("__intercept__", {})
+            if not isinstance(intercept, Mapping):
+                raise ValueError("invalid prior intercept")
+            mean = float(intercept.get("mean", 0.0))
+            for parent in mechanism.parents:
+                stats = prior.get(parent, {})
+                if not isinstance(stats, Mapping):
+                    raise ValueError("invalid prior coefficient")
+                mean += float(stats.get("mean", 0.0)) * float(parent_values[parent])
+        else:
+            mean = float(mechanism.family_params.get("mean", 0.0))
+    except (TypeError, ValueError, KeyError, ArithmeticError) as exc:
+        raise ValueError("invalid parametric prior location or scale") from exc
+    if not math.isfinite(mean):
+        raise ValueError("invalid parametric prior location or scale")
+    return mean, _parametric_prior_noise_std(mechanism)
+
+
+def _empirical_structural_residuals(mechanism: NodeMechanism) -> Sequence[float] | None:
+    """Resolve the finite residual law used by every structural consumer."""
+    samples = mechanism.family_params.get("residual_samples")
+    if samples is None:
+        return None
+    if (
+        not isinstance(samples, Sequence)
+        or isinstance(samples, (str, bytes))
+        or not samples
+        or not all(
+            isinstance(item, (int, float)) and not isinstance(item, bool) and math.isfinite(item)
+            for item in samples
+        )
+    ):
+        raise ValueError("empirical structural residuals must be a non-empty finite vector")
+    return samples
 
 
 @dataclass(frozen=True)
@@ -445,6 +619,7 @@ def _sample_node_value(
     sample_index: int | None = None,
     observed_root_samples: Mapping[str, Sequence[float]] | None = None,
     allow_declared_hypothesis: bool = False,
+    declared_root_hypotheses: set[str] | None = None,
 ) -> float:
     if mechanism is None:
         if not allow_declared_hypothesis:
@@ -463,12 +638,9 @@ def _sample_node_value(
         mean = _linear_predict(mechanism, parent_values)
         if linear_noise_override is not None:
             return float(mean + linear_noise_override)
-        residual_samples = mechanism.family_params.get("residual_samples")
+        residual_samples = _empirical_structural_residuals(mechanism)
         if residual_samples is not None:
-            residuals = np.asarray(residual_samples, dtype=float)
-            if residuals.ndim != 1 or len(residuals) < 1 or not np.isfinite(residuals).all():
-                raise ValueError("empirical structural residuals must be a non-empty finite vector")
-            return float(mean + rng.choice(residuals))
+            return float(mean + rng.choice(residual_samples))
         std = _linear_noise_std(mechanism)
         if std <= 0.0:
             return float(mean)
@@ -485,36 +657,25 @@ def _sample_node_value(
             if not 0 <= sample_index < len(values):
                 raise ValueError("joint root row index is outside its aligned source rows")
             return float(values[sample_index])
-        mean = float(mechanism.family_params.get("mean", 0.0))
-        std = float(mechanism.family_params.get("std", 1.0))
-        if not math.isfinite(mean):
-            mean = 0.0
-        if not math.isfinite(std) or std < 0.0:
-            std = 1.0
+        mean, std = _empirical_root_location_scale(mechanism)
+        if not allow_declared_hypothesis:
+            raise ValueError(
+                f"empirical root '{mechanism.variable}' has no observed rows; explicitly enable "
+                "allow_declared_root_hypothesis to use a limited location-scale hypothesis"
+            )
+        if declared_root_hypotheses is not None:
+            declared_root_hypotheses.add(mechanism.variable)
+        _append_warning(
+            warnings,
+            f"empirical root '{mechanism.variable}' has no observed rows; "
+            "its location-scale sampler is a declared hypothesis, not an established law",
+        )
         if std <= 0.0:
             return mean
         return float(rng.normal(loc=mean, scale=std))
 
     if mechanism.family is MechanismFamily.PARAMETRIC_PRIOR:
-        prior = mechanism.family_params.get("prior")
-        if isinstance(prior, Mapping):
-            intercept_spec = prior.get("__intercept__", {})
-            if not isinstance(intercept_spec, Mapping):
-                intercept_spec = {}
-            intercept = float(intercept_spec.get("mean", 0.0))
-            value = intercept
-            for parent in mechanism.parents:
-                stats = prior.get(parent, {})
-                if not isinstance(stats, Mapping):
-                    stats = {}
-                coef = float(stats.get("mean", 0.0))
-                value += coef * parent_values[parent]
-            std = float(mechanism.family_params.get("noise_std", 0.2))
-            std = std if math.isfinite(std) and std > 0.0 else 0.2
-            return float(rng.normal(loc=value, scale=std))
-        mean = float(mechanism.family_params.get("mean", 0.0))
-        std = float(mechanism.family_params.get("std", 1.0))
-        std = std if math.isfinite(std) and std > 0.0 else 1.0
+        mean, std = _parametric_prior_location_scale(mechanism, parent_values)
         return float(rng.normal(loc=mean, scale=std))
 
     if mechanism.family is MechanismFamily.ADDITIVE_NOISE:
@@ -522,6 +683,9 @@ def _sample_node_value(
         if polynomial is not None:
             if linear_noise_override is not None:
                 return float(polynomial + linear_noise_override)
+            residual_samples = _empirical_structural_residuals(mechanism)
+            if residual_samples is not None:
+                return float(polynomial + rng.choice(residual_samples))
             std = _linear_noise_std(mechanism)
             return float(polynomial + rng.normal(scale=std)) if std > 0.0 else float(polynomial)
         if mechanism.family_params.get("fit_mode") == "additive_noise_poly":
@@ -542,6 +706,7 @@ def _sample_node_value(
             sample_index=sample_index,
             observed_root_samples=observed_root_samples,
             allow_declared_hypothesis=allow_declared_hypothesis,
+            declared_root_hypotheses=declared_root_hypotheses,
         )
 
     if mechanism.family in {
@@ -565,6 +730,7 @@ def _sample_node_value(
                 sample_index=sample_index,
                 observed_root_samples=observed_root_samples,
                 allow_declared_hypothesis=allow_declared_hypothesis,
+                declared_root_hypotheses=declared_root_hypotheses,
             )
         return _sample_node_value(
             mechanism=mechanism.model_copy(update={"family": MechanismFamily.EMPIRICAL}),
@@ -575,6 +741,7 @@ def _sample_node_value(
             sample_index=sample_index,
             observed_root_samples=observed_root_samples,
             allow_declared_hypothesis=allow_declared_hypothesis,
+            declared_root_hypotheses=declared_root_hypotheses,
         )
 
     raise ValueError(f"unsupported mechanism family: {mechanism.family.value}")
@@ -632,6 +799,7 @@ def _abduce_noises_unified(
     parents_map: Mapping[str, list[str]],
     mechanisms: Mapping[str, NodeMechanism],
     warnings: list[str],
+    conditioned_empirical_roots: frozenset[str] = frozenset(),
 ) -> dict[str, float]:
     """Abduct exogenous noise values from a factual observation.
 
@@ -725,7 +893,7 @@ def _abduce_noises_unified(
                 mean_val = float(mechanism.family_params.get("mean", 0.0))
                 noise[node] = float(condition[node]) - mean_val
 
-        else:
+        elif node not in conditioned_empirical_roots:
             # EMPIRICAL, POST_NONLINEAR, CLASSIFIER: cannot abduct analytically
             _append_warning(
                 warnings,
@@ -746,6 +914,7 @@ class _LinearGaussianPosterior:
     node_order: tuple[str, ...]
     mean: np.ndarray
     covariance: np.ndarray
+    factor: np.ndarray
 
 
 @dataclass(frozen=True)
@@ -782,6 +951,8 @@ class _AbductionDiagnostic:
         }
         if self.limitation is not None:
             metadata["abduction_limitation"] = self.limitation
+        if self.profile == "linear_gaussian_posterior":
+            metadata["abduction_computation_profile"] = "canonical_standardized_svd_v1"
         return metadata
 
 
@@ -797,10 +968,16 @@ def _fallback_residual_is_exact(
     """Check whether legacy fallback only uses directly observed residual inputs."""
     observed = set(condition).intersection(order)
     for node in order:
-        if node not in observed or node == treatment_variable:
+        if node not in observed:
             continue
         mechanism = mechanisms.get(node)
         if mechanism is None:
+            return False
+        if node == treatment_variable and not parents_map.get(node):
+            if mechanism.family in {MechanismFamily.LINEAR, MechanismFamily.ADDITIVE_NOISE}:
+                continue
+            if mechanism.family is MechanismFamily.EMPIRICAL:
+                continue
             return False
         if mechanism.family in {
             MechanismFamily.LINEAR,
@@ -813,10 +990,87 @@ def _fallback_residual_is_exact(
             allow_observed_empirical_roots
             and mechanism.family is MechanismFamily.EMPIRICAL
             and not mechanism.parents
+            and (
+                node in _observed_root_samples(mechanisms)
+                or _empirical_root_location_scale(mechanism)[1] == 0.0
+            )
         ):
             continue
         return False
     return True
+
+
+def _validate_factual_support(
+    *,
+    condition: Mapping[str, float],
+    parents_map: Mapping[str, list[str]],
+    mechanisms: Mapping[str, NodeMechanism],
+) -> None:
+    """Check factual root and noise support for the actual supported samplers.
+
+    Gaussian structural noise with a positive scale has full real support.
+    Finite empirical residuals keep their declared support; duplicates remain
+    relevant for sampling but do not alter membership.  A relative floating
+    error allowance accounts only for evaluating the same factual equation.
+    """
+    factual_nodes = _ancestors_for_targets(parents_map, list(condition))
+    for node in factual_nodes:
+        mechanism = mechanisms.get(node)
+        if mechanism is None:
+            continue
+        if mechanism.family is MechanismFamily.EMPIRICAL and not parents_map.get(node):
+            if node in _observed_root_samples(mechanisms):
+                continue  # The common finite-row selector checks these observations.
+            mean, std = _empirical_root_location_scale(mechanism)
+            if node in condition and std == 0.0:
+                observed = float(condition[node])
+                tolerance = 64.0 * np.finfo(float).eps * max(abs(observed), abs(mean))
+                if abs(observed - mean) > tolerance:
+                    raise ValueError("factual evidence is incompatible with empirical root support")
+            continue
+        if mechanism.family is MechanismFamily.PARAMETRIC_PRIOR:
+            parents = parents_map.get(node, [])
+            if node in condition and all(parent in condition for parent in parents):
+                mean, std = _parametric_prior_location_scale(
+                    mechanism, {parent: condition[parent] for parent in parents}
+                )
+                observed = float(condition[node])
+                tolerance = 64.0 * np.finfo(float).eps * max(abs(observed), abs(mean))
+                if std == 0.0 and abs(observed - mean) > tolerance:
+                    raise ValueError(
+                        "factual evidence is incompatible with parametric prior support"
+                    )
+            continue
+        if mechanism.family not in {
+            MechanismFamily.LINEAR,
+            MechanismFamily.ADDITIVE_NOISE,
+        }:
+            continue
+        scale = _linear_noise_std(mechanism)
+        parents = parents_map.get(node, [])
+        if node not in condition or not all(parent in condition for parent in parents):
+            continue
+        prediction = _mechanism_predict(
+            mechanism, {parent: condition[parent] for parent in parents}
+        )
+        observed = float(condition[node])
+        residual = observed - prediction
+        if not math.isfinite(residual):
+            raise ValueError("factual residual is outside the supported numerical range")
+        samples = _empirical_structural_residuals(mechanism)
+        if samples is not None:
+            candidates = [float(item) for item in samples]
+        elif scale == 0.0:
+            candidates = [0.0]
+        else:
+            continue
+        epsilon = 64.0 * np.finfo(float).eps
+        if not any(
+            abs(residual - candidate)
+            <= epsilon * max(abs(observed), abs(prediction), abs(candidate))
+            for candidate in candidates
+        ):
+            raise ValueError("factual evidence is incompatible with structural residual support")
 
 
 def _prepare_linear_gaussian_abduction(
@@ -829,9 +1083,11 @@ def _prepare_linear_gaussian_abduction(
     allow_observed_empirical_roots: bool = True,
 ) -> tuple[_LinearGaussianPosterior | None, _AbductionDiagnostic]:
     """Select supported posterior, exact residual, or limited fallback explicitly."""
-    observed_nodes = tuple(node for node in order if node in condition)
+    observed_nodes = tuple(sorted(node for node in order if node in condition))
     if not observed_nodes:
         return None, _AbductionDiagnostic(profile="not_requested")
+
+    _validate_factual_support(condition=condition, parents_map=parents_map, mechanisms=mechanisms)
 
     posterior = _linear_gaussian_posterior(
         condition=condition,
@@ -854,9 +1110,27 @@ def _prepare_linear_gaussian_abduction(
         treatment_variable=treatment_variable,
         allow_observed_empirical_roots=allow_observed_empirical_roots,
     ):
+        empirical_roots = set(_observed_root_samples(mechanisms)).intersection(observed_nodes)
+        unsupported_root_support = sorted(
+            node
+            for node in observed_nodes
+            if (
+                node not in empirical_roots
+                and (mechanism := mechanisms.get(node)) is not None
+                and mechanism.family is MechanismFamily.EMPIRICAL
+                and not parents_map.get(node)
+            )
+        )
         return None, _AbductionDiagnostic(
-            profile="exact_residual_fallback",
+            profile="empirical_root_conditional" if empirical_roots else "exact_residual_fallback",
             observed_nodes=observed_nodes,
+            gate_eligible=not unsupported_root_support,
+            limitation=(
+                "observed empirical root support is unestablished: only location and scale "
+                f"were declared for {unsupported_root_support}"
+                if unsupported_root_support
+                else None
+            ),
         )
 
     observed_empirical_roots = tuple(
@@ -910,11 +1184,35 @@ def _linear_gaussian_posterior(
     if not condition or not order:
         return None
 
+    # Topological siblings may arrive in source edge order.  Canonical logical
+    # coordinates make a joint draw independent of that storage representation.
+    available = set(order)
+    if any(parent not in available for node in order for parent in parents_map.get(node, ())):
+        return None
+    pending_count = {node: len(parents_map.get(node, ())) for node in order}
+    children: dict[str, list[str]] = {node: [] for node in order}
+    for node in order:
+        for parent in parents_map.get(node, ()):
+            children[parent].append(node)
+    ready = [node for node, count in pending_count.items() if count == 0]
+    heapq.heapify(ready)
+    canonical_order: list[str] = []
+    while ready:
+        node = heapq.heappop(ready)
+        canonical_order.append(node)
+        for child in children[node]:
+            pending_count[child] -= 1
+            if pending_count[child] == 0:
+                heapq.heappush(ready, child)
+    if len(canonical_order) != len(order):
+        return None
+    order = canonical_order
+
     node_count = len(order)
     node_index = {node: index for index, node in enumerate(order)}
     intercepts = np.zeros(node_count, dtype=float)
     affine = np.zeros((node_count, node_count), dtype=float)
-    variances = np.zeros(node_count, dtype=float)
+    standard_deviations = np.zeros(node_count, dtype=float)
 
     for node in order:
         mechanism = mechanisms.get(node)
@@ -939,7 +1237,7 @@ def _linear_gaussian_posterior(
             coefficients = {}
         try:
             intercept = float(coefficients.get("__intercept__", params.get("intercept", 0.0)))
-            for parent in parents_map.get(node, []):
+            for parent in sorted(parents_map.get(node, [])):
                 if parent not in node_index:
                     return None
                 coefficient = float(coefficients.get(parent, 0.0))
@@ -953,14 +1251,13 @@ def _linear_gaussian_posterior(
             return None
         intercepts[node_index[node]] = intercept
         affine[node_index[node], node_index[node]] += 1.0
-        variances[node_index[node]] = std**2
+        standard_deviations[node_index[node]] = std
 
     observed_nodes = [node for node in order if node in condition]
     if not observed_nodes:
         return None
     observed_indices = [node_index[node] for node in observed_nodes]
-    observation_matrix = affine[observed_indices, :]
-    prior_covariance = np.diag(variances)
+    observation_matrix = affine[observed_indices, :] * standard_deviations[np.newaxis, :]
     residual = np.asarray(
         [float(condition[node]) - intercepts[node_index[node]] for node in observed_nodes],
         dtype=float,
@@ -968,33 +1265,63 @@ def _linear_gaussian_posterior(
     if not np.isfinite(residual).all():
         return None
 
-    observation_covariance = observation_matrix @ prior_covariance @ observation_matrix.T
-    try:
-        observation_pseudoinverse = np.linalg.pinv(observation_covariance, hermitian=True)
-    except (TypeError, ValueError, np.linalg.LinAlgError):
-        return None
+    # Condition independent unit-normal structural noises, not the squared
+    # physical-unit covariance.  Normalize each observed row before the SVD so
+    # a change of units cannot turn a positive posterior into zero variance.
+    normalized_rows: list[np.ndarray] = []
+    normalized_residual: list[float] = []
+    epsilon = np.finfo(float).eps
+    for row, value, observed in zip(observation_matrix, residual, observed_nodes, strict=True):
+        scale = math.hypot(*(float(item) for item in row))
+        if not math.isfinite(scale):
+            raise ValueError("Gaussian observation map exceeds the supported numerical range")
+        if scale == 0.0:
+            magnitude = max(abs(float(condition[observed])), abs(intercepts[node_index[observed]]))
+            if abs(value) > 64.0 * epsilon * magnitude:
+                raise ValueError("factual evidence is incompatible with the singular Gaussian SCM")
+            continue
+        normalized_rows.append(row / scale)
+        normalized_residual.append(float(value / scale))
 
-    projected_residual = observation_covariance @ observation_pseudoinverse @ residual
-    if not np.allclose(projected_residual, residual, atol=1.0e-8, rtol=1.0e-8):
-        raise ValueError("factual evidence is incompatible with the singular Gaussian SCM")
+    if normalized_rows:
+        matrix = np.asarray(normalized_rows)
+        target = np.asarray(normalized_residual)
+        if not np.isfinite(matrix).all() or not np.isfinite(target).all():
+            raise ValueError("Gaussian factual evidence exceeds the supported numerical range")
+        try:
+            left, singular_values, right = np.linalg.svd(matrix, full_matrices=True)
+        except np.linalg.LinAlgError as exc:
+            raise ValueError("Gaussian posterior factorization did not converge") from exc
+        threshold = epsilon * max(matrix.shape) * singular_values[0]
+        rank = int(np.count_nonzero(singular_values > threshold))
+        standardized_mean = right[:rank].T @ ((left[:, :rank].T @ target) / singular_values[:rank])
+        projected = matrix @ standardized_mean
+        residual_norm = math.hypot(*(float(value) for value in target - projected))
+        target_norm = math.hypot(*(float(value) for value in target))
+        # The unit floor here is dimensionless: it corresponds to rounding in
+        # standardized noise coordinates, not a tolerance in physical units.
+        if residual_norm > 64.0 * epsilon * max(1.0, target_norm):
+            raise ValueError("factual evidence is incompatible with the singular Gaussian SCM")
+        null_basis = right[rank:].T
+    else:
+        standardized_mean = np.zeros(node_count)
+        null_basis = np.eye(node_count)
 
-    gain = prior_covariance @ observation_matrix.T @ observation_pseudoinverse
-    posterior_mean = gain @ residual
-    posterior_covariance = prior_covariance - gain @ observation_matrix @ prior_covariance
-    posterior_covariance = (posterior_covariance + posterior_covariance.T) / 2.0
-    try:
-        eigenvalues, eigenvectors = np.linalg.eigh(posterior_covariance)
-    except np.linalg.LinAlgError:
-        return None
-    if np.any(eigenvalues < -1.0e-8):
-        return None
-    posterior_covariance = eigenvectors @ np.diag(np.clip(eigenvalues, 0.0, None)) @ eigenvectors.T
+    posterior_mean = standard_deviations * standardized_mean
+    factor = standard_deviations[:, np.newaxis] * null_basis
+    with np.errstate(over="ignore", invalid="ignore", under="ignore"):
+        posterior_covariance = factor @ factor.T
     if not np.isfinite(posterior_mean).all() or not np.isfinite(posterior_covariance).all():
-        return None
+        raise ValueError("Gaussian posterior exceeds the supported numerical range")
+    if any(
+        np.any(row != 0.0) and posterior_covariance[i, i] == 0.0 for i, row in enumerate(factor)
+    ):
+        raise ValueError("Gaussian posterior variance is below the supported numerical range")
     return _LinearGaussianPosterior(
         node_order=tuple(order),
         mean=posterior_mean,
         covariance=posterior_covariance,
+        factor=factor,
     )
 
 
@@ -1003,14 +1330,10 @@ def _draw_linear_gaussian_noises(
     rng: np.random.Generator,
 ) -> dict[str, float]:
     """Draw one jointly conditioned structural-noise realization."""
-    if np.allclose(posterior.covariance, 0.0, atol=1.0e-12, rtol=0.0):
+    if posterior.factor.size == 0 or not np.any(posterior.factor):
         draw = posterior.mean
     else:
-        draw = rng.multivariate_normal(
-            posterior.mean,
-            posterior.covariance,
-            check_valid="raise",
-        )
+        draw = posterior.mean + posterior.factor @ rng.normal(size=posterior.factor.shape[1])
     return {node: float(value) for node, value in zip(posterior.node_order, draw, strict=True)}
 
 
@@ -1267,16 +1590,46 @@ def _active_query_nodes(
     action cuts only the treatment's incoming natural mechanism; ancestors that
     still feed the outcome through another path remain active.
     """
-    parents_map = _parents_by_node(scm_spec)
-    targets = [query.outcome_variable, query.treatment_variable]
-    if query.query_type is QueryType.COUNTERFACTUAL:
-        targets.extend(query.condition)
-    stop_nodes: set[str] = set()
-    if query.query_type is not QueryType.COUNTERFACTUAL and _intervention_replaces_natural(
-        intervention
-    ):
-        stop_nodes.add(query.treatment_variable)
-    return _ancestors_for_targets(parents_map, targets, stop_nodes=stop_nodes)
+    condition = query.condition if query.query_type is QueryType.COUNTERFACTUAL else {}
+    return _query_relevance_plan(
+        scm_spec,
+        treatment_variable=query.treatment_variable,
+        outcome_variable=query.outcome_variable,
+        interventions=[intervention],
+        condition=condition,
+    )[0]
+
+
+def _query_relevance_plan(
+    scm_spec: StructuralCausalModelSpec,
+    *,
+    treatment_variable: str,
+    outcome_variable: str,
+    interventions: Sequence[InterventionSpec | None],
+    condition: Mapping[str, float],
+) -> tuple[set[str], set[str]]:
+    """Return shared prediction/abduction nodes and nodes requiring natural laws.
+
+    Every arm is sliced after its own surgery. Factual observations use the
+    unmodified graph, and their root-carrier rows remain available for the
+    joint empirical conditional law even without a graph edge to the outcome.
+    """
+    parents = _parents_by_node(scm_spec)
+    unknown = set(condition) - parents.keys()
+    if unknown:
+        raise ValueError(f"factual evidence references unknown nodes: {sorted(unknown)}")
+    factual = _ancestors_for_targets(parents, list(condition))
+    active = set(factual)
+    natural = set(factual)
+    for intervention in interventions:
+        replaces = _intervention_replaces_natural(intervention)
+        stopped = {treatment_variable} if replaces else set()
+        world = _ancestors_for_targets(
+            parents, [outcome_variable, treatment_variable], stop_nodes=stopped
+        )
+        active.update(world)
+        natural.update(world - stopped)
+    return active, natural
 
 
 def _required_missing_root_nodes(
@@ -1284,32 +1637,20 @@ def _required_missing_root_nodes(
     query: CausalQuery,
 ) -> list[str]:
     """Find roots whose natural law is required by any simulated query arm."""
-    order = _topological_order(scm_spec)
     mechanisms = _mechanism_map(scm_spec)
     interventions: list[InterventionSpec | None] = [_effective_intervention(query)]
     if query.query_type is QueryType.ATTRIBUTION:
         interventions.append(_attribution_comparator(query))
-    active_nodes: set[str] = set()
-    for intervention in interventions:
-        active_nodes.update(
-            _active_query_nodes(
-                scm_spec,
-                query,
-                intervention=intervention,
-            )
-        )
+    condition = query.condition if query.query_type is QueryType.COUNTERFACTUAL else {}
+    _active, natural = _query_relevance_plan(
+        scm_spec,
+        treatment_variable=query.treatment_variable,
+        outcome_variable=query.outcome_variable,
+        interventions=interventions,
+        condition=condition,
+    )
     parents_map = _parents_by_node(scm_spec)
-    roots = {node for node in active_nodes if not parents_map.get(node)}
-    all_arms_replace_natural = all(
-        _intervention_replaces_natural(intervention) for intervention in interventions
-    )
-    directly_intervened_root = query.treatment_variable in roots and all_arms_replace_natural
-    return sorted(
-        root
-        for root in roots
-        if root not in mechanisms
-        and not (directly_intervened_root and root == query.treatment_variable)
-    )
+    return sorted(node for node in natural if not parents_map.get(node) and node not in mechanisms)
 
 
 def _simulate_samples(
@@ -1325,6 +1666,7 @@ def _simulate_samples(
     condition_override: Mapping[str, float] | None = None,
     precomputed_abduced_noises: dict[str, float] | None = None,
     allow_declared_hypothesis: bool = False,
+    declared_root_hypotheses: set[str] | None = None,
     include_all_nodes: bool = False,
     # Existing remediation consumers unpack two values; provenance is opt-in
     # for the owning GCM query path rather than a breaking helper change.
@@ -1374,6 +1716,10 @@ def _simulate_samples(
         for node, values in _observed_root_samples(mechanisms).items()
         if node in active_nodes
     }
+    compatible_root_indices = _compatible_joint_root_indices(
+        observed_root_samples,
+        condition if query.query_type is QueryType.COUNTERFACTUAL else {},
+    )
     descendants = _descendants_of_treatment(scm_spec, query.treatment_variable)
 
     linear_gaussian_posterior: _LinearGaussianPosterior | None = None
@@ -1423,7 +1769,9 @@ def _simulate_samples(
             if linear_gaussian_posterior is not None
             else abduced_noises
         )
-        root_sample_index = _joint_root_sample_index(observed_root_samples, root_index_rng)
+        root_sample_index = _joint_root_sample_index(
+            observed_root_samples, root_index_rng, compatible_indices=compatible_root_indices
+        )
         for node in order:
             parent_values = {
                 parent: assignment[parent]
@@ -1459,6 +1807,7 @@ def _simulate_samples(
                         sample_index=root_sample_index,
                         observed_root_samples=observed_root_samples,
                         allow_declared_hypothesis=allow_declared_hypothesis,
+                        declared_root_hypotheses=declared_root_hypotheses,
                     )
 
             if node == query.treatment_variable and intervention is not None:
@@ -1723,7 +2072,7 @@ class GCMQuery:
     def pure_step(state: SCMQueryData, params: Mapping[str, Any]) -> dict[str, Any]:
         payload = state if isinstance(state, SCMQueryData) else SCMQueryData.model_validate(state)
         query = payload.query
-        scm_spec = payload.scm_spec
+        scm_spec = _prepared_scm_query_spec(payload.scm_spec)
 
         seed = int(params.get("__seed__", 0) or 0)
         rng_param = params.get("__rng__")
@@ -1752,6 +2101,7 @@ class GCMQuery:
                 "declared root hypothesis used for missing node(s): "
                 f"{missing_root_nodes}; result is limited and not gate eligible",
             )
+        declared_root_hypotheses = set(missing_root_nodes)
 
         if query.query_type is QueryType.ATTRIBUTION:
             intervention = _effective_intervention(query)
@@ -1768,6 +2118,7 @@ class GCMQuery:
                 intervention_override=intervention,
                 condition_override={},
                 allow_declared_hypothesis=allow_declared_hypothesis,
+                declared_root_hypotheses=declared_root_hypotheses,
                 return_diagnostic=True,
             )
             baseline, _, baseline_abduction = _simulate_samples(
@@ -1781,6 +2132,7 @@ class GCMQuery:
                 intervention_override=_attribution_comparator(query),
                 condition_override={},
                 allow_declared_hypothesis=allow_declared_hypothesis,
+                declared_root_hypotheses=declared_root_hypotheses,
                 return_diagnostic=True,
             )
             samples = treated - baseline
@@ -1798,6 +2150,7 @@ class GCMQuery:
                 stream_namespace="primary",
                 intervention_override=_effective_intervention(query),
                 allow_declared_hypothesis=allow_declared_hypothesis,
+                declared_root_hypotheses=declared_root_hypotheses,
                 return_diagnostic=True,
             )
 
@@ -1846,19 +2199,20 @@ class GCMQuery:
             metadata={
                 "confidence_level": confidence_level,
                 "warnings_count": len(warnings),
-                "declared_root_hypothesis": missing_root_nodes,
+                "sampling_profile": "relevant_query_logical_stream_v2",
+                "declared_root_hypothesis": sorted(declared_root_hypotheses),
                 **abduction_diagnostic.as_metadata(),
             },
         )
 
         envelope = query_result.to_uncertainty_envelope()
-        if missing_root_nodes or not abduction_diagnostic.gate_eligible:
+        if declared_root_hypotheses or not abduction_diagnostic.gate_eligible:
             envelope = envelope.model_copy(
                 update={
                     "gate_eligible": False,
                     "metadata": {
                         **dict(envelope.metadata),
-                        "declared_root_hypothesis": missing_root_nodes,
+                        "declared_root_hypothesis": sorted(declared_root_hypotheses),
                         **abduction_diagnostic.as_metadata(),
                     },
                 }

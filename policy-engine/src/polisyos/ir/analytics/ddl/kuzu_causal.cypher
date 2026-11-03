@@ -12,5 +12,6 @@ CREATE REL TABLE IF NOT EXISTS CausalEdge(
     graph_type STRING,
     sources STRING,
     evidence_refs STRING,
-    metadata_json STRING
+    metadata_json STRING,
+    payload_json STRING
 );

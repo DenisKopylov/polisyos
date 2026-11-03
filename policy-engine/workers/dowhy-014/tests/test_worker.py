@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import math
 import sys
+from fractions import Fraction
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -66,17 +68,20 @@ def oracle(value: dict[str, Any]) -> sm.regression.linear_model.RegressionResult
     return sm.OLS(data[:, 1], sm.add_constant(data[:, [0, 2]])).fit()
 
 
-def test_actual_dowhy_identification_estimation_matches_independent_statsmodels() -> None:
+def test_actual_dowhy_identification_estimation_matches_statsmodels_adapter_parity() -> None:
     value = request()
     response = execute(value)
     result = response["result"]
     expected = oracle(value)
-    np.testing.assert_equal(result["point"] == pytest.approx(expected.params[1], abs=1e-12), True)
     np.testing.assert_equal(
-        result["interval"] == pytest.approx(expected.conf_int(alpha=0.05)[1], abs=1e-12), True
+        result["point"] == pytest.approx(expected.params[1], rel=0, abs=1e-12), True
     )
     np.testing.assert_equal(
-        result["standard_error"] == pytest.approx(expected.bse[1], abs=1e-12), True
+        result["interval"] == pytest.approx(expected.conf_int(alpha=0.05)[1], rel=0, abs=1e-12),
+        True,
+    )
+    np.testing.assert_equal(
+        result["standard_error"] == pytest.approx(expected.bse[1], rel=0, abs=1e-12), True
     )
     np.testing.assert_equal(result["effective_confidence_level"], 0.95)
     np.testing.assert_equal(result["adjustment_set"], ["X"])
@@ -88,18 +93,194 @@ def test_actual_dowhy_identification_estimation_matches_independent_statsmodels(
     np.testing.assert_equal(response["versions"]["dowhy"], "0.14")
 
 
+def _balanced_algebraic_reference(rows: list[list[float]]) -> dict[str, Any]:
+    """Derive this finite orthogonal design using exact sums and a t5 CDF.
+
+    This deliberately uses no NumPy linear algebra, Statsmodels, DoWhy, SciPy,
+    or product interval helper. It is a numerical oracle for the declared eight
+    rows, not a coverage theorem or an empirical causal-identification argument.
+    """
+    n = len(rows)
+    a, y, x = (tuple(Fraction(row[i]) for row in rows) for i in range(3))
+    mean_a, mean_y, mean_x = (sum(v) / n for v in (a, y, x))
+    centered_a = tuple(v - mean_a for v in a)
+    centered_x = tuple(v - mean_x for v in x)
+    if sum(u * v for u, v in zip(centered_a, centered_x, strict=True)) != 0:
+        raise ValueError("the finite oracle requires orthogonal centered design columns")
+    ss_a = sum(v * v for v in centered_a)
+    ss_x = sum(v * v for v in centered_x)
+    beta_a = sum(u * v for u, v in zip(centered_a, y, strict=True)) / ss_a
+    beta_x = sum(u * v for u, v in zip(centered_x, y, strict=True)) / ss_x
+    intercept = mean_y - beta_a * mean_a - beta_x * mean_x
+    sse = sum(
+        (yi - intercept - beta_a * ai - beta_x * xi) ** 2
+        for ai, yi, xi in zip(a, y, x, strict=True)
+    )
+    degrees_of_freedom = n - 3
+    if degrees_of_freedom != 5:
+        raise ValueError("the finite oracle requires eight rows and three parameters")
+    variance = sse / degrees_of_freedom / ss_a
+    standard_error = math.sqrt(variance)
+
+    def t5_cdf(value: float) -> float:
+        theta = math.atan(value / math.sqrt(5))
+        return (
+            0.5
+            + theta / math.pi
+            + 2 * math.sin(2 * theta) / (3 * math.pi)
+            + math.sin(4 * theta) / (12 * math.pi)
+        )
+
+    low, high = 0.0, 10.0
+    for _ in range(80):
+        middle = (low + high) / 2
+        if t5_cdf(middle) < 0.975:
+            low = middle
+        else:
+            high = middle
+    quantile = (low + high) / 2
+    point = float(beta_a)
+    return {
+        "coefficients": [float(intercept), point, float(beta_x)],
+        "sse": float(sse),
+        "degrees_of_freedom": degrees_of_freedom,
+        "variance": float(variance),
+        "point": point,
+        "standard_error": standard_error,
+        "quantile": quantile,
+        "interval": [point - quantile * standard_error, point + quantile * standard_error],
+    }
+
+
+def _eight_row_request(*, variant: str = "original") -> dict[str, Any]:
+    # The packet states (A, X, Y); the transport's fixed order is (A, Y, X).
+    rows = [
+        [0, -3, -1],
+        [0, 3, 1],
+        [0, -1, -1],
+        [0, 5, 1],
+        [1, -1, -1],
+        [1, 5, 1],
+        [1, 1, -1],
+        [1, 7, 1],
+    ]
+    if variant == "permuted":
+        rows = [rows[i] for i in (5, 0, 7, 2, 4, 1, 6, 3)]
+    elif variant == "translated_x":
+        rows = [[a, y, x + 17] for a, y, x in rows]
+    elif variant == "relabelled_a":
+        rows = [[1 - a, y, x] for a, y, x in rows]
+    elif variant != "original":
+        raise ValueError("unknown finite oracle variant")
+    value = request(n=8)
+    value["basis"]["rows"] = rows
+    value["basis"]["data_sha256"] = digest({"columns": ["A", "Y", "X"], "rows": rows})
+    return bind(value)
+
+
+def _assert_algebraic_ate(result: dict[str, Any], reference: dict[str, Any]) -> None:
+    np.testing.assert_equal(
+        result["point"] == pytest.approx(reference["point"], rel=0, abs=1e-12), True
+    )
+    np.testing.assert_equal(
+        result["standard_error"] == pytest.approx(reference["standard_error"], rel=0, abs=1e-12),
+        True,
+    )
+    np.testing.assert_equal(
+        result["interval"] == pytest.approx(reference["interval"], rel=0, abs=1e-10), True
+    )
+
+
+@pytest.mark.parametrize("variant", ["original", "permuted", "translated_x", "relabelled_a"])
+def test_actual_worker_matches_independent_eight_row_algebraic_t5_oracle(variant: str) -> None:
+    value = _eight_row_request(variant=variant)
+    reference = _balanced_algebraic_reference(value["basis"]["rows"])
+    sign = -1 if variant == "relabelled_a" else 1
+    np.testing.assert_equal(reference["point"], sign * 2)
+    np.testing.assert_equal(reference["sse"], 8)
+    np.testing.assert_equal(reference["variance"], 0.8)
+    np.testing.assert_equal(
+        reference["standard_error"] == pytest.approx(0.8944271909999159, abs=1e-15), True
+    )
+    np.testing.assert_equal(
+        reference["quantile"] == pytest.approx(2.570581835636312, abs=1e-14), True
+    )
+    response = execute(value)
+    result = response["result"]
+    _assert_algebraic_ate(result, reference)
+    np.testing.assert_equal(result["adjustment_set"], ["X"])
+    np.testing.assert_equal(result["effective_confidence_level"], 0.95)
+    np.testing.assert_equal(
+        result["estimator_class"],
+        "dowhy.causal_estimators.linear_regression_estimator.LinearRegressionEstimator",
+    )
+    np.testing.assert_equal(response["authority"], "candidate_computation_only")
+    sys.stdout.write(
+        json.dumps(
+            {
+                "variant": variant,
+                "reference": reference,
+                "observed": result,
+                "python": response["python"],
+                "versions": response["versions"],
+            },
+            sort_keys=True,
+        )
+        + "\n"
+    )
+
+
+@pytest.mark.parametrize("mutation", ["point", "contrast", "interval"])
+def test_eight_row_algebraic_oracle_distinguishes_wrong_backend_numbers(
+    monkeypatch: pytest.MonkeyPatch, mutation: str
+) -> None:
+    """Keep real identification/fitting while corrupting a deciding backend value."""
+    from dowhy import CausalModel
+
+    original = CausalModel.estimate_effect
+
+    def corrupted(self: object, *args: object, **kwargs: object) -> object:
+        actual = original(self, *args, **kwargs)
+        if mutation == "point":
+            actual.value = 3.0  # The X coefficient instead of the treatment effect.
+        elif mutation == "contrast":
+            actual.value = -actual.value
+        else:
+            actual.get_confidence_intervals = lambda **kwargs: [0.0, 4.0]
+        return actual
+
+    monkeypatch.setattr(CausalModel, "estimate_effect", corrupted)
+    value = _eight_row_request()
+    result = execute(value)["result"]
+    reference = _balanced_algebraic_reference(value["basis"]["rows"])
+    with pytest.raises(AssertionError):
+        _assert_algebraic_ate(result, reference)
+
+
 def test_known_gaussian_dgp_nominal_95_coverage_over_independent_replicates() -> None:
     covered = 0
+    outcomes = []
     # Independent IID draws from a full-rank correctly specified homoscedastic DGP.
     for seed in range(1000, 1200):
         value = request(seed, n=180)
         actual = linear_ate(value)
         expected = oracle(value)
         np.testing.assert_equal(
-            actual["interval"] == pytest.approx(expected.conf_int(alpha=0.05)[1], abs=1e-11),
+            actual["interval"] == pytest.approx(expected.conf_int(alpha=0.05)[1], rel=0, abs=1e-11),
             True,
         )
-        covered += actual["interval"][0] <= 2 <= actual["interval"][1]
+        contains_truth = actual["interval"][0] <= 2 <= actual["interval"][1]
+        covered += contains_truth
+        outcomes.append(
+            {
+                "seed": seed,
+                "point": actual["point"],
+                "standard_error": actual["standard_error"],
+                "interval": actual["interval"],
+                "statsmodels_interval": expected.conf_int(alpha=0.05)[1].tolist(),
+                "covered": bool(contains_truth),
+            }
+        )
     # Predeclared conservative binomial band for 200 independent 95% intervals.
     np.testing.assert_equal(180 <= covered <= 199, True, str(covered))
     sys.stdout.write(
@@ -111,6 +292,7 @@ def test_known_gaussian_dgp_nominal_95_coverage_over_independent_replicates() ->
                 "nominal_level": 0.95,
                 "allowed_covered": [180, 199],
                 "scope": "known IID homoscedastic Gaussian synthetic DGP",
+                "outcomes": outcomes,
             }
         )
         + "\n"

@@ -85,11 +85,14 @@ import json,sys
 from polisyos.core.artifacts import FileSystemCAS,ArtifactRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
-from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import _verify_selected_did_diagnostics
+from types import SimpleNamespace
+from polisyos.scientist.compute.job_spec import JobResult,JobSpec
+from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import _verify_selected_did_diagnostics,_reconcile_selected_causal_output
 store=FileSystemCAS(sys.argv[1])
 data=PanelObservationalData.model_validate(from_canonical_bytes(store.get_bytes(ArtifactRef.model_validate_json(sys.argv[2]))))
 output=from_canonical_bytes(store.get_bytes(ArtifactRef.model_validate_json(sys.argv[3])))
 _verify_selected_did_diagnostics(output,observational_data=data,staggered=sys.argv[4]=='1')
+_reconcile_selected_causal_output(ctx=SimpleNamespace(store=store),result=JobResult.model_validate_json(sys.argv[5]),observational_data=data,spec=JobSpec.model_validate_json(sys.argv[6]))
 assert output['report']['method_params']['parallel_trends_identified'] is False
 print('PASS actual persisted numerical diagnostic; identification authority not established')
 """
@@ -102,6 +105,10 @@ print('PASS actual persisted numerical diagnostic; identification authority not 
             source.model_dump_json(),
             result.method_result_ref.model_dump_json(),
             "1" if method is StaggeredDifferenceInDifferences else "0",
+            result.model_dump_json(),
+            JobSpec(
+                job_kind="method", method_fqn=method.signature.fqn, method_params=params, seed=13
+            ).model_dump_json(),
         ],
         capture_output=True,
         text=True,
@@ -188,3 +195,56 @@ def test_fresh_cas_reader_refuses_diagnostic_substitution_with_target_markers_re
     saved = from_canonical_bytes(execution_context.store.get_bytes(ref))
     with pytest.raises(ValueError, match="diagnostic"):
         _verify_selected_did_diagnostics(saved, observational_data=data, staggered=True)
+
+
+@pytest.mark.parametrize(
+    "method", [StandardDifferenceInDifferences, StaggeredDifferenceInDifferences]
+)
+def test_actual_did_job_refuses_coherently_rewritten_numeric_report(
+    execution_context, minimal_state, monkeypatch, method
+):
+    """Equal peers and true diagnostic markers do not authenticate changed effects."""
+    from polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as evaluation
+
+    data = _panel()
+    if method is StandardDifferenceInDifferences:
+        data = data.model_copy(update={"treatment_timing": np.where(data.treatment, 3, -1)})
+    params = {"n_bootstrap": 99} if method is StaggeredDifferenceInDifferences else {}
+    state, _ = _source(execution_context, minimal_state, data, method)
+    actual_job = evaluation.run_job
+
+    def substituted_job(*args, **kwargs):
+        result = actual_job(*args, **kwargs)
+        assert not result.issues
+        output = copy.deepcopy(result.final_state)
+        report = CausalEffectReport.model_validate(output["report"])
+        assert report.status is EstimationStatus.SUCCESS
+        changed = report.model_copy(
+            update={
+                "point_estimate": report.point_estimate + 10.0,
+                "confidence_interval": tuple(x + 10.0 for x in report.confidence_interval),
+            }
+        )
+        # Keep actual diagnostic and target identities unchanged; mutate both peers.
+        output["report"] = changed
+        output["envelope"] = changed.to_uncertainty_envelope()
+        output["result"] = changed
+        output["uncertainty_envelope"] = output["envelope"]
+        ref = execution_context.store.put_json(
+            output,
+            PutOptions(kind="tests.did_substituted_output", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        saved = from_canonical_bytes(execution_context.store.get_bytes(ref))
+        return result.model_copy(update={"final_state": saved, "method_result_ref": ref})
+
+    monkeypatch.setattr(evaluation, "run_job", substituted_job)
+    with pytest.raises(ValueError, match="numerical report projection mismatch"):
+        evaluation._run_primary_causal_job(
+            ctx=execution_context,
+            state=state,
+            observational_data=data,
+            spec=JobSpec(
+                job_kind="method", method_fqn=method.signature.fqn, method_params=params, seed=13
+            ),
+        )

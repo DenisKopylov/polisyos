@@ -73,6 +73,9 @@ class IdentificationResult:
     proof_steps: list[ProofStep] = dataclasses.field(default_factory=list)
     query_str: str = ""
     metadata: dict[str, Any] = dataclasses.field(default_factory=dict)
+    # Set by the actual CausalEngine producer; absent on historical/direct-leaf results.
+    source_graph_ref: str | None = None
+    source_graph_selection: tuple[str, str] | None = None
 
 
 @dataclasses.dataclass(frozen=True)

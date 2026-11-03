@@ -16,6 +16,7 @@ import sysconfig
 from copy import deepcopy
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -105,19 +106,32 @@ def test_installed_detached_rows_csv_and_fresh_typed_graph_reader(
     ancestry_argument = "static_refused" if version == "mixed" else json.dumps(["Y"])
     rows = (deepcopy(graph.kuzu_node_rows), deepcopy(graph.kuzu_edge_rows))
 
-    # A real parameter consumer may mutate ordinary dictionaries. Neither this
-    # call nor base-dict mutation may alter a later CSV export or published graph.
+    # Simple direct exports allow consumer-owned parameter mutation. Parallel
+    # occurrences must instead retain the lossless rows for the bulk adapter.
     calls: list[dict[str, object]] = []
 
     class ParameterConsumer:
-        def execute(self, statement: str, parameters: dict[str, object]) -> None:
+        def execute(self, statement: str, parameters: dict[str, object]) -> object:
+            if statement == "CALL table_info('CausalEdge') RETURN name":
+
+                class Properties:
+                    def get_as_df(self):
+                        return pd.DataFrame({"name": ["payload_json"]})
+
+                return Properties()
             assert type(parameters) is dict
             calls.append(deepcopy(parameters))
             parameters.clear()
+            return None
 
-    graph.to_kuzu(ParameterConsumer())
-    assert tuple(calls[:2]) == rows[0]
-    assert tuple(calls[2:]) == rows[1]
+    if version == "mixed":
+        with pytest.raises(ValueError, match="materialize_causal_kuzu_from_graph"):
+            graph.to_kuzu(ParameterConsumer())
+        assert calls == []
+    else:
+        graph.to_kuzu(ParameterConsumer())
+        assert tuple(calls[:2]) == rows[0]
+        assert tuple(calls[2:]) == rows[1]
     dict.__setitem__(graph.kuzu_node_rows[0], "name", "hostile")
     if edge_count:
         dict.__setitem__(graph.kuzu_edge_rows[0], "src", "hostile")

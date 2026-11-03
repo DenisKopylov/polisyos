@@ -136,7 +136,12 @@ def test_unknown_and_incidental_names_remain_absent_on_real_reload(module, monke
         importlib.reload(module)
 
 
+@pytest.mark.parametrize(
+    "binding",
+    ["mz_id_algorithm", "id_with_oracle_fallback", "id_star_algorithm", "idc_star_algorithm"],
+)
 def test_same_name_wrapper_clone_and_removed_patch_bridge_fail_original_identity_oracle(
+    binding,
     monkeypatch,
 ) -> None:
     """Names, signatures and __all__ can stay fixed while the actual ABI is lost."""
@@ -148,19 +153,24 @@ def test_same_name_wrapper_clone_and_removed_patch_bridge_fail_original_identity
         assert causal_engine.__all__ == ["CausalEngine", "DataReadinessBlockedError"]
         with pytest.raises(AssertionError):
             assert causal_engine.CausalEngine is owner.CausalEngine
-    original = causal_engine.id_with_oracle_fallback
+    original = getattr(causal_engine, binding)
+    # Establish the real module binding before removing the synchronization property.
+    baseline = _identify(binding)
     calls = []
 
-    def observed(**kwargs):
-        calls.append(kwargs)
-        return original(**kwargs)
+    def observed(*args, **kwargs):
+        calls.append((args, kwargs))
+        return original(*args, **kwargs)
 
     with monkeypatch.context() as patch:
-        patch.setattr(causal_engine, "id_with_oracle_fallback", observed)
+        patch.setattr(causal_engine, binding, observed)
         patch.setattr(identification, "_sync_public_algorithm_overrides", lambda: None)
-        _identify("id_with_oracle_fallback")
+        actual = _identify(binding)
+        assert actual == baseline
         with pytest.raises(AssertionError):
             assert len(calls) == 1
+    assert _identify(binding) == baseline
+    assert getattr(identification, binding) is original
 
 
 def test_installed_id_package_executes_identification_and_reopens_persisted_result(

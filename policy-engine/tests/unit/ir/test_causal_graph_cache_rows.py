@@ -1,13 +1,17 @@
 """Native row-reader isolation with topology, export and copy coherence."""
 
 import csv
+import gc
 import json
+import weakref
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
+import pandas as pd
 import pytest
 
+from polisyos.foundry.methods.catalog.causal import admg_ops
 from polisyos.foundry.methods.catalog.causal.admg_ops import ancestors
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
@@ -64,10 +68,25 @@ def test_native_emitter_can_mutate_its_plain_dict_without_corrupting_cache() -> 
     calls: list[dict[str, Any]] = []
 
     class RecordingConsumer:
-        def execute(self, statement: str, parameters: dict[str, Any]) -> None:
+        def execute(self, statement: str, parameters: dict[str, Any]) -> object:
+            if statement == "CALL table_info('CausalEdge') RETURN name":
+
+                class Properties:
+                    def get_as_df(self):
+                        return pd.DataFrame({"name": ["payload_json"]})
+
+                return Properties()
+            if "RETURN COUNT(e) AS c" in statement:
+
+                class Count:
+                    def get_as_df(self):
+                        return pd.DataFrame({"c": [0]})
+
+                return Count()
             assert type(parameters) is dict
             calls.append(deepcopy(parameters))
             parameters.clear()
+            return None
 
     graph.to_kuzu(RecordingConsumer())
     assert tuple(calls[:2]) == expected[0]
@@ -186,3 +205,20 @@ def test_graph_content_hash_tracks_model_fields_and_rejects_forged_storage() -> 
     )
     with pytest.raises(ValueError, match="canonical causal graph validation failed"):
         graph_content_sha256(malformed)
+
+
+def test_both_content_caches_evict_at_128_without_retaining_callers() -> None:
+    admg_ops._ADJ_CACHE.clear()
+    admg_ops._CC_CACHE.clear()
+    weak_callers = []
+    keys = []
+    for index in range(140):
+        graph = _graph().model_copy(update={"metadata": {"version": index}})
+        weak_callers.append(weakref.ref(graph))
+        keys.append(admg_ops._get_cached_adjacency(graph).content_key)
+        assert len(admg_ops.c_components(graph)) == 2
+    del graph
+    gc.collect()
+    assert all(reference() is None for reference in weak_callers)
+    assert len(admg_ops._ADJ_CACHE) == len(admg_ops._CC_CACHE) == 128
+    assert list(admg_ops._ADJ_CACHE) == list(admg_ops._CC_CACHE) == keys[-128:]

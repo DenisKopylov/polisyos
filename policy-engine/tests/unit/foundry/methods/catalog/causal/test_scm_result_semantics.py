@@ -91,6 +91,8 @@ def test_exact_abduction_is_model_posterior_after_cas(tmp_path: Path) -> None:
     assert result.result_mean == pytest.approx(1.0, abs=0.03)
     assert result.result_std**2 == pytest.approx(0.5, abs=0.04)
     assert result.result_kind.value == "posterior_credible_interval"
+    assert result.metadata["sampling_profile"] == "relevant_query_logical_stream_v2"
+    assert result.metadata["abduction_computation_profile"] == "canonical_standardized_svd_v1"
     envelope = result.to_uncertainty_envelope()
     assert envelope.interval_semantics is IntervalSemantics.CREDIBLE_INTERVAL
     assert envelope.distribution_family is DistributionFamily.BAYESIAN
@@ -222,6 +224,8 @@ def test_twin_same_row_noise_same_arm_and_slope_after_fresh_cas(counter, expecte
     assert result.ite_distribution == pytest.approx(np.full(2500, expected), abs=1e-12)
     assert result.ite_mean == pytest.approx(expected, abs=1e-12)
     assert result.result_kind.value == "posterior_credible_interval"
+    assert result.metadata["sampling_profile"] == "relevant_twin_shared_noise_v1"
+    assert result.metadata["abduction_computation_profile"] == "canonical_standardized_svd_v1"
     assert not result.to_uncertainty_envelope().gate_eligible
 
 

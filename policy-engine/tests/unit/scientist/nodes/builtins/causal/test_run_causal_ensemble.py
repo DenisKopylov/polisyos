@@ -264,26 +264,50 @@ def test_member_query_accepts_guarded_rooted_store_and_checks_root_value(
         treatment_value=1.0,
         outcome_variable="outcome",
     )
-    query_payload = {
-        "query": query.model_dump(mode="json"),
-        "result_mean": 0.5,
-        "result_std": 0.1,
-        "result_ci": [0.3, 0.7],
-    }
+    from polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery
+    from polisyos.foundry.methods.registry import MethodRegistry
+
+    scm = StructuralCausalModelSpec(
+        graph=CausalGraphModel(
+            graph_type="dag",
+            nodes=["policy", "outcome"],
+            edges=[{"src": "policy", "dst": "outcome"}],
+        ),
+        mechanisms=[
+            NodeMechanism(
+                variable="policy",
+                parents=[],
+                family=MechanismFamily.EMPIRICAL,
+                family_params={"mean": 0.0, "std": 1.0},
+                source=MechanismSource.DEFAULT,
+            ),
+            NodeMechanism(
+                variable="outcome",
+                parents=["policy"],
+                family=MechanismFamily.LINEAR,
+                family_params={
+                    "intercept": -0.5,
+                    "coefficients": {"policy": 1.0},
+                    "noise_std": 0.0,
+                },
+                source=MechanismSource.DEFAULT,
+            ),
+        ],
+        fit_method="manual",
+    )
+    MethodRegistry.get_instance().register(GCMQuery, override=True)
     observed: dict[str, object] = {}
+    original = ensemble_module.run_job
 
-    monkeypatch.setattr(ensemble_module, "SCMQueryData", lambda **_: object())
-
-    def _run_job(_spec, *, cas_root, method_state):
-        del method_state
+    def _run_job(spec, *, cas_root, method_state):
         observed["cas_root"] = cas_root
-        return SimpleNamespace(issues=(), final_state={"query_result": query_payload})
+        return original(spec, cas_root=cas_root, method_state=method_state)
 
     monkeypatch.setattr(ensemble_module, "run_job", _run_job)
     result = _run_member_query(
         ctx=SimpleNamespace(store=guard_runtime_cas(store)),
         query=query,
-        scm_spec=object(),
+        scm_spec=scm,
         seed=7,
     )
 

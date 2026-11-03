@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
@@ -12,7 +13,14 @@ from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery
+from polisyos.foundry.methods.catalog.causal.gcm_query import (
+    GCMQuery,
+    _draw_linear_gaussian_noises,
+    _linear_gaussian_posterior,
+    _mechanism_map,
+    _parents_by_node,
+    _topological_order,
+)
 from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData, TwinNetworkQueryData
 from polisyos.foundry.methods.catalog.causal.twin_network_query import TwinNetworkQuery
 from polisyos.ir.analytics.causal_graph import (
@@ -39,7 +47,9 @@ from polisyos.ir.analytics.structural_causal_model import (
     StructuralCausalModelSpec,
     persist_structural_causal_model_spec,
 )
+from polisyos.ir.analytics.twin_network import load_twin_network_result, persist_twin_network_result
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+from polisyos.ir.artifacts import InputRef as IRInputRef
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import CausalQueryResultRef
 from polisyos.scientist.compute.job_spec import JobKey, JobResult
@@ -174,6 +184,534 @@ def _empirical_covariate_scm() -> StructuralCausalModelSpec:
     )
 
 
+@pytest.mark.parametrize("scale", [1.0, 1e-7])
+def test_gaussian_posterior_preserves_representable_small_scale(scale: float) -> None:
+    """Y=2s gives means s and covariance s²[[.5,-.5],[-.5,.5]]."""
+    scm = _linear_chain(noise_std=scale)
+    posterior = _linear_gaussian_posterior(
+        condition={"Y": 2.0 * scale},
+        order=_topological_order(scm),
+        parents_map=_parents_by_node(scm),
+        mechanisms=_mechanism_map(scm),
+    )
+    assert posterior is not None
+    np.testing.assert_allclose(posterior.mean / scale, [1.0, 1.0], rtol=1e-12, atol=1e-12)
+    np.testing.assert_allclose(
+        posterior.covariance / scale**2,
+        [[0.5, -0.5], [-0.5, 0.5]],
+        rtol=1e-12,
+        atol=1e-12,
+    )
+    rng = np.random.default_rng(43)
+    draws = np.asarray([_draw_linear_gaussian_noises(posterior, rng)["Y"] for _ in range(4096)])
+    normalized = draws / scale
+    assert np.mean(normalized) == pytest.approx(1.0, abs=0.05)
+    assert np.var(normalized) == pytest.approx(0.5, abs=0.06)
+    assert len(np.unique(normalized)) > 1
+
+
+def test_small_scale_twin_preserves_random_marginals_and_shared_u() -> None:
+    """Constant treatment effect does not make the potential outcomes deterministic."""
+    scale = 1e-7
+    result = TwinNetworkQuery.pure_step(
+        TwinNetworkQueryData(
+            scm_spec=_linear_chain(noise_std=scale),
+            factual_condition={"Y": 2 * scale},
+            treatment_variable="X",
+            factual_treatment_value=0.0,
+            counterfactual_treatment_value=scale,
+            outcome_variable="Y",
+            n_samples=4096,
+        ),
+        params={"__seed__": 43},
+    )["twin_network_result"]
+    assert (result.po_factual_std / scale) ** 2 == pytest.approx(0.5, abs=0.06)
+    assert (result.po_counter_std / scale) ** 2 == pytest.approx(0.5, abs=0.06)
+    assert result.ite_mean / scale == pytest.approx(1.0, abs=1e-12)
+    assert result.ite_std / scale == pytest.approx(0.0, abs=1e-12)
+
+
+def test_singular_gaussian_incompatible_evidence_is_not_hidden_by_small_units() -> None:
+    """A deterministic model rejects incompatible observations at either scale."""
+    scm = _linear_chain(noise_std=0.0)
+    with pytest.raises(ValueError, match="incompatible"):
+        _linear_gaussian_posterior(
+            condition={"Y": 2e-9},
+            order=_topological_order(scm),
+            parents_map=_parents_by_node(scm),
+            mechanisms=_mechanism_map(scm),
+        )
+
+
+def _joint_empirical_roots() -> StructuralCausalModelSpec:
+    """Three compatible rows retain multiplicity when conditioning on Z=1."""
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["T", "W", "Z", "Y"],
+        edges=[CausalEdge(src="T", dst="Y"), CausalEdge(src="W", dst="Y")],
+    )
+    provenance = {
+        "observed_samples_source": "joint-fixture",
+        "observed_sample_alignment": "row-index",
+        "joint_sample_group": "joint-fixture",
+    }
+    return StructuralCausalModelSpec(
+        graph=graph,
+        mechanisms=[
+            NodeMechanism(
+                variable="T",
+                parents=[],
+                family=MechanismFamily.LINEAR,
+                family_params={"intercept": 0.0, "coefficients": {}, "noise_std": 0.0},
+            ),
+            NodeMechanism(
+                variable="W",
+                parents=[],
+                family=MechanismFamily.EMPIRICAL,
+                family_params={**provenance, "observed_samples": [0.0, 10.0, 10.0, 20.0]},
+            ),
+            NodeMechanism(
+                variable="Z",
+                parents=[],
+                family=MechanismFamily.EMPIRICAL,
+                family_params={**provenance, "observed_samples": [0.0, 1.0, 1.0, 1.0]},
+            ),
+            NodeMechanism(
+                variable="Y",
+                parents=["T", "W"],
+                family=MechanismFamily.LINEAR,
+                family_params={
+                    "intercept": 0.0,
+                    "coefficients": {"T": 1.0, "W": 1.0},
+                    "noise_std": 0.0,
+                },
+            ),
+        ],
+        fit_method="manual",
+    )
+
+
+def test_joint_root_conditioning_preserves_row_multiplicity_for_gcm_and_twin() -> None:
+    """An auxiliary non-ancestor filters the same finite row in both consumers."""
+    scm = _joint_empirical_roots()
+    result = _run_query(
+        scm,
+        {
+            "query_type": "counterfactual",
+            "treatment_variable": "T",
+            "treatment_value": 0.0,
+            "outcome_variable": "Y",
+            "condition": {"Z": 1.0},
+            "n_samples": 3072,
+        },
+    )["query_result"]
+    values = np.asarray(result.result_distribution)
+    assert set(values) == {10.0, 20.0}
+    assert np.mean(values == 10.0) == pytest.approx(2 / 3, abs=0.035)
+    assert result.metadata["abduction_gate_eligible"] is True
+    low_condition = _run_query(
+        scm,
+        {
+            "query_type": "counterfactual",
+            "treatment_variable": "T",
+            "treatment_value": 0.0,
+            "outcome_variable": "Y",
+            "condition": {"Z": 0.0},
+            "n_samples": 32,
+        },
+    )["query_result"]
+    assert low_condition.result_distribution == [0.0] * 32
+
+    twin = TwinNetworkQuery.pure_step(
+        TwinNetworkQueryData(
+            scm_spec=scm,
+            factual_condition={"Z": 1.0},
+            treatment_variable="T",
+            factual_treatment_value=0.0,
+            counterfactual_treatment_value=1.0,
+            outcome_variable="Y",
+            n_samples=3072,
+        ),
+        params={"__seed__": 117},
+    )["twin_network_result"]
+    factual = np.asarray(twin.po_factual_distribution)
+    counter = np.asarray(twin.po_counter_distribution)
+    assert set(factual) == {10.0, 20.0}
+    assert np.mean(factual == 10.0) == pytest.approx(2 / 3, abs=0.035)
+    np.testing.assert_array_equal(counter - factual, np.ones(3072))
+    assert twin.metadata["abduction_gate_eligible"] is True
+
+
+@pytest.mark.parametrize("condition", [{"Z": 2.0}, {"Z": 1.0, "W": 0.0}])
+def test_joint_root_incompatible_evidence_refused_by_gcm_and_twin(condition) -> None:
+    """Absent support is not approximated with an unconditional empirical row."""
+    scm = _joint_empirical_roots()
+    with pytest.raises(ValueError, match=r"incompatible.*empirical"):
+        _run_query(
+            scm,
+            {
+                "query_type": "counterfactual",
+                "treatment_variable": "T",
+                "treatment_value": 0.0,
+                "outcome_variable": "Y",
+                "condition": condition,
+                "n_samples": 16,
+            },
+        )
+    with pytest.raises(ValueError, match=r"incompatible.*empirical"):
+        TwinNetworkQuery.pure_step(
+            TwinNetworkQueryData(
+                scm_spec=scm,
+                factual_condition=condition,
+                treatment_variable="T",
+                factual_treatment_value=0.0,
+                counterfactual_treatment_value=1.0,
+                outcome_variable="Y",
+                n_samples=16,
+            ),
+            params={"__seed__": 117},
+        )
+
+
+def test_observed_deterministic_child_outside_its_noise_support_is_refused() -> None:
+    """A factual contradiction cannot become an invented exact residual."""
+    scm = _joint_empirical_roots()
+    condition = {"T": 0.0, "W": 0.0, "Y": 5.0}
+    with pytest.raises(ValueError, match=r"incompatible.*residual"):
+        _run_query(
+            scm,
+            {
+                "query_type": "counterfactual",
+                "treatment_variable": "T",
+                "treatment_value": 1.0,
+                "outcome_variable": "Y",
+                "condition": condition,
+                "n_samples": 16,
+            },
+        )
+    with pytest.raises(ValueError, match=r"incompatible.*residual"):
+        TwinNetworkQuery.pure_step(
+            TwinNetworkQueryData(
+                scm_spec=scm,
+                factual_condition=condition,
+                treatment_variable="T",
+                factual_treatment_value=0.0,
+                counterfactual_treatment_value=1.0,
+                outcome_variable="Y",
+                n_samples=16,
+            ),
+            params={"__seed__": 117},
+        )
+
+
+def test_observed_deterministic_empirical_root_must_be_in_its_support() -> None:
+    """Both query consumers reject a factual root outside its actual sampler law."""
+    source = _empirical_root_chain()
+    root = source.mechanisms[0].model_copy(update={"family_params": {"mean": 0.0, "std": 0.0}})
+    scm = source.model_copy(update={"mechanisms": [root, source.mechanisms[1]]})
+    query = {
+        "query_type": "counterfactual",
+        "treatment_variable": "X",
+        "treatment_value": 2.0,
+        "outcome_variable": "Y",
+        "condition": {"X": 0.0, "Y": 1.0},
+        "n_samples": 16,
+    }
+    assert _run_query(scm, query)["query_result"].result_mean == pytest.approx(3.0, abs=1e-12)
+    supported = TwinNetworkQuery.pure_step(
+        TwinNetworkQueryData(
+            scm_spec=scm,
+            factual_condition={"X": 0.0, "Y": 1.0},
+            treatment_variable="X",
+            factual_treatment_value=0.0,
+            counterfactual_treatment_value=2.0,
+            outcome_variable="Y",
+            n_samples=16,
+        ),
+        params={"__seed__": 117},
+    )["twin_network_result"]
+    assert supported.po_counter_mean == pytest.approx(3.0, abs=1e-12)
+    query["condition"] = {"X": 1.0, "Y": 1.0}
+    with pytest.raises(ValueError, match=r"incompatible.*root"):
+        _run_query(scm, query)
+    with pytest.raises(ValueError, match=r"incompatible.*root"):
+        TwinNetworkQuery.pure_step(
+            TwinNetworkQueryData(
+                scm_spec=scm,
+                factual_condition={"X": 1.0, "Y": 1.0},
+                treatment_variable="X",
+                factual_treatment_value=0.0,
+                counterfactual_treatment_value=2.0,
+                outcome_variable="Y",
+                n_samples=16,
+            ),
+            params={"__seed__": 117},
+        )
+
+
+def test_deterministic_parametric_prior_root_observation_uses_declared_support() -> None:
+    """A zero-scale prior is a point law, not an implicit positive-noise fallback."""
+    source = _empirical_root_chain()
+    root = source.mechanisms[0].model_copy(
+        update={
+            "family": MechanismFamily.PARAMETRIC_PRIOR,
+            "family_params": {"mean": 0.0, "std": 0.0},
+        }
+    )
+    scm = source.model_copy(update={"mechanisms": [root, source.mechanisms[1]]})
+    query = {
+        "query_type": "counterfactual",
+        "treatment_variable": "X",
+        "treatment_value": 2.0,
+        "outcome_variable": "Y",
+        "condition": {"X": 0.0, "Y": 1.0},
+        "n_samples": 16,
+    }
+    result = _run_query(scm, query)["query_result"]
+    assert result.result_mean == pytest.approx(3.0)
+    assert result.metadata["abduction_gate_eligible"] is False
+    query["condition"] = {"X": 1.0, "Y": 1.0}
+    with pytest.raises(ValueError, match=r"incompatible.*prior"):
+        _run_query(scm, query)
+    with pytest.raises(ValueError, match=r"incompatible.*prior"):
+        TwinNetworkQuery.pure_step(
+            TwinNetworkQueryData(
+                scm_spec=scm,
+                factual_condition={"X": 1.0, "Y": 1.0},
+                treatment_variable="X",
+                factual_treatment_value=0.0,
+                counterfactual_treatment_value=2.0,
+                outcome_variable="Y",
+                n_samples=16,
+            ),
+            params={"__seed__": 117},
+        )
+
+
+def test_empirical_root_without_rows_exposes_its_sampler_hypothesis(tmp_path: Path) -> None:
+    """Location and scale alone are not an observed empirical distribution."""
+    source = _empirical_covariate_scm()
+    mechanisms = [
+        item.model_copy(update={"family_params": {"mean": 0.0, "std": 1.0}})
+        if item.variable == "Z"
+        else item
+        for item in source.mechanisms
+    ]
+    scm = source.model_copy(update={"mechanisms": mechanisms})
+    query = {
+        "query_type": "interventional",
+        "treatment_variable": "X",
+        "treatment_value": 0.0,
+        "outcome_variable": "Y",
+        "n_samples": 16,
+    }
+    with pytest.raises(ValueError, match="allow_declared_root_hypothesis"):
+        _run_query(scm, query)
+    result = GCMQuery.pure_step(
+        SCMQueryData(scm_spec=scm, query=query),
+        params={
+            "__seed__": 117,
+            "enable_dowhy_comparison": False,
+            "allow_declared_root_hypothesis": True,
+        },
+    )
+    assert any("hypothesis, not an established law" in warning for warning in result["warnings"])
+    assert result["query_result"].metadata["declared_root_hypothesis"] == ["Z"]
+    assert result["envelope"].gate_eligible is False
+    payload = TwinNetworkQueryData(
+        scm_spec=scm,
+        treatment_variable="X",
+        factual_treatment_value=0.0,
+        counterfactual_treatment_value=1.0,
+        outcome_variable="Y",
+        n_samples=16,
+    )
+    with pytest.raises(ValueError, match="allow_declared_root_hypothesis"):
+        TwinNetworkQuery.pure_step(payload, params={"__seed__": 117})
+    twin = TwinNetworkQuery.pure_step(
+        payload,
+        params={"__seed__": 117, "allow_declared_root_hypothesis": True},
+    )
+    assert any("hypothesis, not an established law" in warning for warning in twin["warnings"])
+    assert twin["twin_network_result"].metadata["declared_root_hypothesis"] == ["Z"]
+    assert twin["envelope"].gate_eligible is False
+
+    store = FileSystemCAS(tmp_path / "cas")
+    owner = _ensure_ir_artifact_store(store)
+    query_ref = persist_causal_query_result(owner, result["query_result"])
+    twin_ref = persist_twin_network_result(owner, twin["twin_network_result"])
+    fresh = _ensure_ir_artifact_store(FileSystemCAS(store.root))
+    assert load_causal_query_result(fresh, query_ref).metadata["declared_root_hypothesis"] == ["Z"]
+    assert load_twin_network_result(fresh, twin_ref).metadata["declared_root_hypothesis"] == ["Z"]
+
+    factual = {"Z": 5.0}
+    conditioned = _run_query(
+        scm,
+        {**query, "query_type": "counterfactual", "condition": factual},
+    )["query_result"]
+    assert conditioned.result_mean == pytest.approx(5.0)
+    assert conditioned.metadata["abduction_gate_eligible"] is False
+    twin_conditioned = TwinNetworkQuery.pure_step(
+        payload.model_copy(update={"factual_condition": factual}),
+        params={"__seed__": 117},
+    )["twin_network_result"]
+    assert twin_conditioned.po_factual_mean == pytest.approx(5.0)
+    assert twin_conditioned.po_counter_mean == pytest.approx(6.0)
+    assert twin_conditioned.metadata["abduction_gate_eligible"] is False
+
+
+@pytest.mark.parametrize("family", [MechanismFamily.LINEAR, MechanismFamily.ADDITIVE_NOISE])
+def test_empirical_residual_factual_support_has_positive_and_negative_controls(family) -> None:
+    """An exactly observed residual must belong to the declared finite law."""
+    source = _joint_empirical_roots()
+    mechanisms = []
+    for item in source.mechanisms:
+        if item.variable == "Y":
+            params = {**item.family_params, "residual_samples": [0.0, 1.0]}
+            if family is MechanismFamily.ADDITIVE_NOISE:
+                params.update(
+                    fit_mode="additive_noise_poly",
+                    poly_degree=1,
+                    poly_coefficients={"__intercept__": 0.0, "T^1": 1.0, "W^1": 1.0},
+                )
+            item = item.model_copy(update={"family": family, "family_params": params})
+        mechanisms.append(item)
+    scm = source.model_copy(update={"mechanisms": mechanisms})
+    query = {
+        "query_type": "counterfactual",
+        "treatment_variable": "T",
+        "treatment_value": 2.0,
+        "outcome_variable": "Y",
+        "condition": {"T": 0.0, "W": 0.0, "Y": 1.0},
+        "n_samples": 16,
+    }
+    result = _run_query(scm, query)["query_result"]
+    assert result.result_distribution == [3.0] * 16
+    twin = TwinNetworkQuery.pure_step(
+        TwinNetworkQueryData(
+            scm_spec=scm,
+            factual_condition=query["condition"],
+            treatment_variable="T",
+            factual_treatment_value=0.0,
+            counterfactual_treatment_value=2.0,
+            outcome_variable="Y",
+            n_samples=16,
+        ),
+        params={"__seed__": 117},
+    )["twin_network_result"]
+    assert twin.po_counter_distribution == [3.0] * 16
+    query["condition"] = {"T": 0.0, "W": 0.0, "Y": 5.0}
+    with pytest.raises(ValueError, match=r"incompatible.*residual"):
+        _run_query(scm, query)
+
+
+@pytest.mark.parametrize("bad_scale", [-1.0, "not-a-number"])
+def test_invalid_structural_noise_scale_is_not_treated_as_deterministic(bad_scale) -> None:
+    """Malformed scales cannot be laundered through exact-residual fallback."""
+    source = _joint_empirical_roots()
+    mechanisms = [
+        item.model_copy(update={"family_params": {**item.family_params, "noise_std": bad_scale}})
+        if item.variable == "Y"
+        else item
+        for item in source.mechanisms
+    ]
+    scm = source.model_copy(update={"mechanisms": mechanisms})
+    with pytest.raises(ValueError, match="invalid structural noise scale"):
+        _run_query(
+            scm,
+            {
+                "query_type": "counterfactual",
+                "treatment_variable": "T",
+                "treatment_value": 2.0,
+                "outcome_variable": "Y",
+                "condition": {"T": 0.0, "W": 0.0, "Y": 0.0},
+                "n_samples": 16,
+            },
+        )
+    with pytest.raises(ValueError, match="invalid structural noise scale"):
+        TwinNetworkQuery.pure_step(
+            TwinNetworkQueryData(
+                scm_spec=scm,
+                factual_condition={"T": 0.0, "W": 0.0, "Y": 0.0},
+                treatment_variable="T",
+                factual_treatment_value=0.0,
+                counterfactual_treatment_value=2.0,
+                outcome_variable="Y",
+                n_samples=16,
+            ),
+            params={"__seed__": 117},
+        )
+
+
+def test_observed_nonroot_treatment_with_unobserved_parent_is_not_exact() -> None:
+    """Unimplemented conditioning on an empirical parent remains limited."""
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["U", "T", "Y"],
+        edges=[
+            CausalEdge(src="U", dst="T"),
+            CausalEdge(src="U", dst="Y"),
+            CausalEdge(src="T", dst="Y"),
+        ],
+    )
+    scm = StructuralCausalModelSpec(
+        graph=graph,
+        mechanisms=[
+            NodeMechanism(
+                variable="U",
+                family=MechanismFamily.EMPIRICAL,
+                family_params={
+                    "observed_samples": [0.0, 1.0],
+                    "observed_samples_source": "observed-treatment-fixture",
+                    "observed_sample_alignment": "row-index",
+                    "joint_sample_group": "observed-treatment-fixture",
+                },
+            ),
+            NodeMechanism(
+                variable="T",
+                parents=["U"],
+                family=MechanismFamily.LINEAR,
+                family_params={"coefficients": {"U": 1.0}, "noise_std": 0.0},
+            ),
+            NodeMechanism(
+                variable="Y",
+                parents=["U", "T"],
+                family=MechanismFamily.LINEAR,
+                family_params={"coefficients": {"U": 1.0, "T": 1.0}, "noise_std": 0.0},
+            ),
+        ],
+        fit_method="manual",
+    )
+    condition = {"T": 1.0}
+    result = _run_query(
+        scm,
+        {
+            "query_type": "counterfactual",
+            "treatment_variable": "T",
+            "treatment_value": 0.0,
+            "outcome_variable": "Y",
+            "condition": condition,
+            "n_samples": 16,
+        },
+    )["query_result"]
+    assert result.metadata["abduction_profile"] == "limited_imputed_fallback"
+    assert result.metadata["abduction_gate_eligible"] is False
+    twin = TwinNetworkQuery.pure_step(
+        TwinNetworkQueryData(
+            scm_spec=scm,
+            factual_condition=condition,
+            treatment_variable="T",
+            factual_treatment_value=0.0,
+            counterfactual_treatment_value=1.0,
+            outcome_variable="Y",
+            n_samples=16,
+        ),
+        params={"__seed__": 117},
+    )["twin_network_result"]
+    assert twin.metadata["abduction_profile"] == "limited_imputed_fallback"
+    assert twin.metadata["abduction_gate_eligible"] is False
+
+
 def test_partial_gaussian_abduction_conditions_unobserved_parent() -> None:
     """Y=2 alone yields U_Y|Y=2 with mean 1 and variance 0.5 under do(X=0)."""
     output = _run_query(
@@ -218,7 +756,7 @@ def test_full_linear_factual_inputs_keep_exact_residual_control() -> None:
 
 
 def test_full_observed_empirical_root_keeps_exact_residual_fallback() -> None:
-    """A fully observed parent remains valid when Gaussian posterior is unavailable."""
+    """The exact child residual remains useful while root support is unknown."""
     output = _run_query(
         _empirical_root_chain(),
         {
@@ -235,7 +773,8 @@ def test_full_observed_empirical_root_keeps_exact_residual_fallback() -> None:
     assert result.result_mean == pytest.approx(1.0)
     assert result.result_std == pytest.approx(0.0)
     assert result.metadata["abduction_profile"] == "exact_residual_fallback"
-    assert result.metadata["abduction_gate_eligible"] is True
+    assert result.metadata["abduction_gate_eligible"] is False
+    assert "support is unestablished" in result.metadata["abduction_limitation"]
     assert output["envelope"].gate_eligible is False
 
 
@@ -357,8 +896,8 @@ def test_partial_unsupported_abduction_is_limited_not_gate_eligible() -> None:
     assert any("limited abduction" in str(item) for item in output["warnings"])
 
 
-def test_twin_empirical_factual_root_is_not_claimed_exact() -> None:
-    """Twin prediction must not gate an observed root it cannot pin."""
+def test_twin_empirical_factual_root_outside_support_is_refused() -> None:
+    """An exact empirical carrier does not admit an impossible observed root."""
     payload = TwinNetworkQueryData(
         scm_spec=_empirical_covariate_scm(),
         factual_condition={"X": 1.0, "Z": 50.0, "Y": 51.0},
@@ -369,13 +908,8 @@ def test_twin_empirical_factual_root_is_not_claimed_exact() -> None:
         n_samples=128,
     )
 
-    output = TwinNetworkQuery.pure_step(payload, params={"__seed__": 117})
-
-    result = output["twin_network_result"]
-    assert result.metadata["abduction_profile"] == "limited_unpinned_empirical_root"
-    assert result.metadata["abduction_gate_eligible"] is False
-    assert "cannot pin observed empirical root" in result.metadata["abduction_limitation"]
-    assert output["envelope"].gate_eligible is False
+    with pytest.raises(ValueError, match=r"incompatible.*empirical"):
+        TwinNetworkQuery.pure_step(payload, params={"__seed__": 117})
 
 
 def test_contrast_regime_requires_a_matching_intervention_payload() -> None:
@@ -612,8 +1146,9 @@ def test_legacy_result_rejects_self_attested_provenance_conflict(tmp_path: Path)
     )
     typed_legacy_ref = CausalQueryResultRef.model_validate(legacy_ref.model_dump(mode="json"))
 
-    with pytest.raises(ValueError, match=r"provenance|manifest"):
+    with pytest.raises(ValueError, match="ir_owned_artifact_projection_refused") as refusal:
         load_causal_query_result(_ensure_ir_artifact_store(store), typed_legacy_ref)
+    assert str(refusal.value.__cause__) == "legacy query provenance conflicts with CAS manifest"
 
 
 def test_raw_legacy_result_rejects_self_attested_provenance_without_cas() -> None:
@@ -671,6 +1206,7 @@ def test_legacy_provenance_is_manifest_bound_across_result_versions(tmp_path: Pa
 
     store = FileSystemCAS(tmp_path / "cas")
     v11_payload = result.model_dump(mode="json")
+    v11_payload["schema_version"] = "1.1"
     v11_payload["metadata"] = {
         "source_schema_version": "9.9",
         "source_schema_name": "attacker.claimed.schema",
@@ -685,8 +1221,9 @@ def test_legacy_provenance_is_manifest_bound_across_result_versions(tmp_path: Pa
         canon_spec=CanonSpec(forbid_floats=False),
     )
     typed_v11_ref = CausalQueryResultRef.model_validate(v11_ref.model_dump(mode="json"))
-    with pytest.raises(ValueError, match=r"provenance|manifest"):
+    with pytest.raises(ValueError, match="ir_owned_artifact_projection_refused") as refusal:
         load_causal_query_result(_ensure_ir_artifact_store(store), typed_v11_ref)
+    assert str(refusal.value.__cause__) == "legacy query provenance conflicts with CAS manifest"
 
 
 def test_causal_result_loader_requires_manifest_schema(tmp_path: Path) -> None:
@@ -756,7 +1293,13 @@ def test_causal_query_producer_reconciles_envelope_with_result(
                 kind="scientist.method_result.causal.structural",
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.scientist.MethodResult", version="0.1.0"),
-                inputs=[InputRef(artifact_id=scm_ref.artifact_id, role="input:scm_spec")],
+                inputs=[
+                    InputRef(
+                        artifact_id=scm_ref.artifact_id,
+                        role="input:scm_spec",
+                        manifest_profile_sha256=scm_ref.manifest_profile_sha256,
+                    )
+                ],
             ),
             canon_spec=CanonSpec(forbid_floats=False),
         )
@@ -903,7 +1446,13 @@ def test_causal_query_producer_persists_typed_contrast_and_v1_1_manifest(
                 kind="scientist.method_result.causal.structural",
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.scientist.MethodResult", version="0.1.0"),
-                inputs=[InputRef(artifact_id=scm_ref.artifact_id, role="input:scm_spec")],
+                inputs=[
+                    InputRef(
+                        artifact_id=scm_ref.artifact_id,
+                        role="input:scm_spec",
+                        manifest_profile_sha256=scm_ref.manifest_profile_sha256,
+                    )
+                ],
             ),
             canon_spec=CanonSpec(forbid_floats=False),
         )
@@ -1000,6 +1549,13 @@ def test_causal_ensemble_rejects_mixed_canonical_contrast_before_persisting(
                 result_ci=(6.0, 6.0),
                 result_distribution=[6.0],
             ),
+            inputs=[
+                IRInputRef(
+                    artifact_id=scm_ref.artifact_id,
+                    role="structural_causal_model_spec",
+                    manifest_profile_sha256=scm_ref.manifest_profile_sha256,
+                )
+            ],
         )
         for query in (observational, explicit_zero)
     ]

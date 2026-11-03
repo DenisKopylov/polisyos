@@ -173,17 +173,26 @@ def test_dedicated_metadata_and_estimator_survive_legacy_metadata_replacement(mo
 
 
 @pytest.mark.parametrize(
-    ("module_name", "runner_name", "report_key"),
+    ("module_name", "runner_name", "report_key", "staggered"),
     [
-        ("benchmarks.interference.policy_did_interference", "_runner_did", "artifact"),
+        ("benchmarks.interference.policy_did_interference", "_runner_did", "artifact", False),
         (
             "benchmarks.natural_experiments.policy_natural_experiments",
             "_runner_standard_did",
             "report",
+            False,
+        ),
+        (
+            "benchmarks.natural_experiments.policy_natural_experiments",
+            "_runner_staggered_did",
+            "report",
+            True,
         ),
     ],
 )
-def test_maintained_benchmark_callers_execute_dedicated_owner(module_name, runner_name, report_key):
+def test_maintained_benchmark_callers_execute_dedicated_owner(
+    module_name, runner_name, report_key, staggered
+):
     # Pytest also owns a tests/.../benchmarks package. Execute the actual CLI caller's
     # fresh import path to avoid that test-package collision, without replacing the caller.
     product_root = Path(__file__).resolve().parents[6]
@@ -201,14 +210,19 @@ DifferenceInDifferences.pure_step = retired_adapter
 module = importlib.import_module(sys.argv[1])
 outcome = np.tile(np.arange(5, dtype=float), (8, 1))
 outcome[:3, 3:] += 3.0
+staggered = sys.argv[4] == 'true'
+if staggered:
+    outcome[:3, 3:] += np.array([-1., 0., 1.])[:, None]
 data = PanelObservationalData(outcome=outcome, treatment=np.array([1,1,1,0,0,0,0,0]),
-                             time_treatment=3, unit_ids=np.arange(8))
+                             time_treatment=3, unit_ids=np.arange(8),
+                             treatment_timing=np.array([3,3,3,-1,-1,-1,-1,-1]) if staggered else None)
 report = getattr(module, sys.argv[2])(data, seed=19)[sys.argv[3]]
 print(report.model_dump_json())
 """,
             module_name,
             runner_name,
             report_key,
+            "true" if staggered else "false",
         ],
         cwd=product_root,
         env={**os.environ, "PYTHONPATH": str(product_root / "src")},
@@ -219,8 +233,17 @@ print(report.model_dump_json())
     assert child.returncode == 0, child.stdout + child.stderr
     report = json.loads(child.stdout)
     assert report["point_estimate"] == pytest.approx(3.0)
-    assert report["method_params"]["staggered"] is False
-    assert report["method_params"]["covariance_procedure"] == "hc1"
+    assert report["method_params"]["staggered"] is staggered
+    if staggered:
+        assert (
+            report["method_params"]["confidence_procedure"]
+            == "finite_B_plus_one_scalar_test_inversion"
+        )
+        assert (
+            report["method_params"]["target_contract"]["sampling_unit"] == "independent_panel_unit"
+        )
+    else:
+        assert report["method_params"]["covariance_procedure"] == "hc1"
 
 
 def _unit_permutation_panel():

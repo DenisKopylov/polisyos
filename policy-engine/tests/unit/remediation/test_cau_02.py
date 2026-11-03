@@ -77,11 +77,14 @@ def test_staggered_bootstrap_resamples_panel_units_not_att_cells():
 
     assert report.status is EstimationStatus.SUCCESS
     assert report.point_estimate == pytest.approx(5.0)
+    # Four treated changes2,4,6,8 and four constant controls: sqrt(20)/4.
+    assert report.standard_error == pytest.approx(np.sqrt(20.0) / 4.0, rel=1e-10)
     assert report.confidence_level == 0.95
     lower, upper = report.confidence_interval
     assert lower < report.point_estimate < upper
     envelope = report.to_uncertainty_envelope()
     assert envelope is not None
+    assert envelope.gate_eligible is False
     assert report.method_params["parallel_trends_identified"] is False
 
 

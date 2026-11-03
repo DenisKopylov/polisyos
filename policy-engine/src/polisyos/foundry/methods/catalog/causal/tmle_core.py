@@ -239,6 +239,7 @@ class ATENuisanceBundle:
                 "mean": float(self.scaler.mean),
                 "scale": float(self.scaler.scale),
                 "applied": bool(self.scaler.applied),
+                "scope": "targeting_reference_only",
             },
             "calibration_modes": list(self.calibration_modes),
             "propensity_backends": list(self.propensity_backends),
@@ -355,6 +356,7 @@ _SHARED_NUISANCE_CACHE: dict[str, _ATENuisanceFitCore] = {}
 _SHARED_NUISANCE_CACHE_ORDER: list[str] = []
 _SHARED_NUISANCE_CACHE_MAX = 64
 _SHARED_NUISANCE_LOCK = threading.RLock()
+_FIT_PREPROCESSING_VERSION = "fold_fit_outcome_scaling_v2"
 
 
 def _as_backend_candidates(raw: Any) -> tuple[str, ...]:
@@ -635,6 +637,7 @@ def _fit_regression_backend(
     contract: ATENuisanceContract,
     *,
     seed: int,
+    fallback_train_idx: np.ndarray | None = None,
 ) -> tuple[np.ndarray, str, dict[str, Any]]:
     X = np.asarray(X, dtype=float)
     y = np.asarray(y, dtype=float).reshape(-1)
@@ -654,8 +657,13 @@ def _fit_regression_backend(
     }
 
     if train_idx.size < 3 or np.unique(train_idx).size < 3:
-        mean_value = float(np.mean(y[train_idx])) if train_idx.size else float(np.mean(y))
+        support = train_idx if train_idx.size else fallback_train_idx
+        if support is None or not np.asarray(support).size:
+            raise ValueError("Outcome nuisance has no permitted fold-fit support")
+        mean_value = float(np.mean(y[np.asarray(support, dtype=int)]))
         selection_record["selected_outcome_backend"] = "constant"
+        selection_record["fallback_reason"] = "insufficient_arm_fit_support"
+        selection_record["fallback_indices_digest"] = _hash_array(np.asarray(support, dtype=int))
         return np.full(test_idx.size, mean_value, dtype=float), "constant", selection_record
 
     val_size = max(1, int(round(0.2 * train_idx.size)))
@@ -746,6 +754,7 @@ def _hash_array(arr: np.ndarray) -> str:
 def _contract_fingerprint(contract: ATENuisanceContract) -> str:
     return repr(
         (
+            _FIT_PREPROCESSING_VERSION,
             contract.nuisance_model_family,
             contract.propensity_backend,
             contract.propensity_backend_candidates,
@@ -850,6 +859,7 @@ def _fit_crossfit_fold(
         test_idx,
         contract,
         seed=rep_seed + 17 * (fold_id + 1),
+        fallback_train_idx=fit_idx,
     )
     mu0_scaled, mu0_backend, mu0_selection = _fit_regression_backend(
         X,
@@ -858,6 +868,7 @@ def _fit_crossfit_fold(
         test_idx,
         contract,
         seed=rep_seed + 29 * (fold_id + 1),
+        fallback_train_idx=fit_idx,
     )
     return {
         "test_idx": np.asarray(test_idx, dtype=int),
@@ -886,8 +897,9 @@ def _fit_crossfit_nuisance_bundle_uncached(
     Y = np.asarray(Y, dtype=float).reshape(-1)
     n_obs = Y.size
 
+    # This aggregate scale is a targeting/diagnostic reference only. Nuisance
+    # training and inverse transformation use each fold's own fitted scaler.
     scaler = fit_outcome_scaler(Y, contract.outcome_scaling)
-    Y_scaled = scale_outcome(Y, scaler)
 
     propensity_sum = np.zeros(n_obs, dtype=float)
     mu1_sum = np.zeros(n_obs, dtype=float)
@@ -936,12 +948,25 @@ def _fit_crossfit_nuisance_bundle_uncached(
             if fit_idx.size < 4:
                 fit_idx = train_idx
                 calib_idx = np.array([], dtype=int)
+            if not fit_idx.size:
+                raise ValueError("Outcome nuisance has no permitted fold-fit support")
+            fold_scaler = fit_outcome_scaler(Y[fit_idx], contract.outcome_scaling)
             split_manifest[repeat]["folds"][fold_id].update(
                 {
                     "test_indices": test_idx.tolist(),
                     "fit_indices_digest": _hash_array(fit_idx),
                     "calibration_indices_digest": _hash_array(calib_idx),
                     "test_indices_digest": _hash_array(test_idx),
+                    "outcome_preprocessing": {
+                        "version": _FIT_PREPROCESSING_VERSION,
+                        "scope": "fold_fit_only",
+                        "fit_indices_digest": _hash_array(fit_idx),
+                        "test_indices_digest": _hash_array(test_idx),
+                        "mean": float(fold_scaler.mean),
+                        "scale": float(fold_scaler.scale),
+                        "applied": bool(fold_scaler.applied),
+                        "policy": fold_scaler.policy,
+                    },
                 }
             )
             tasks.append(
@@ -951,6 +976,7 @@ def _fit_crossfit_nuisance_bundle_uncached(
                     "fit_idx": np.asarray(fit_idx, dtype=int),
                     "calib_idx": np.asarray(calib_idx, dtype=int),
                     "test_idx": np.asarray(test_idx, dtype=int),
+                    "scaler": fold_scaler,
                 }
             )
 
@@ -961,8 +987,8 @@ def _fit_crossfit_nuisance_bundle_uncached(
         _fit_crossfit_fold(
             X=X,
             T=T,
-            Y_scaled=Y_scaled,
-            scaler=scaler,
+            Y_scaled=scale_outcome(Y, task["scaler"]),
+            scaler=task["scaler"],
             contract=contract,
             rep_seed=int(task["rep_seed"]),
             fold_id=int(task["fold_id"]),

@@ -18,8 +18,9 @@ import pytest
 from polisyos.foundry.methods.catalog.causal import dowhy_identify_estimate as dowhy_module
 from polisyos.foundry.methods.catalog.causal.dowhy_identify_estimate import (
     DoWhyIdentifyEstimate,
+    DoWhyIdentifyEstimateV1,
 )
-from polisyos.foundry.methods.catalog.causal.protocols import GraphCausalData
+from polisyos.foundry.methods.catalog.causal.protocols import GraphCausalData, GraphCausalDataV1
 from polisyos.ir.analytics.causal import CausalMethod, EstimationStatus
 
 
@@ -107,8 +108,11 @@ def _load_recorders() -> tuple[_RecorderDoWhy, _RecorderPandas]:
     return _RecorderDoWhy(), _RecorderPandas()
 
 
-def test_point_only_dowhy_result_preserves_point_without_epsilon_ci(monkeypatch) -> None:
-    _RecorderModel.estimate = _Estimate(value=7.0, interval=None, standard_error=None)
+@pytest.mark.parametrize("standard_error", [None, 1.25])
+def test_point_only_dowhy_result_preserves_point_without_epsilon_ci(
+    monkeypatch, standard_error: float | None
+) -> None:
+    _RecorderModel.estimate = _Estimate(value=7.0, interval=None, standard_error=standard_error)
     monkeypatch.setattr(dowhy_module, "_load_dowhy_dependencies", _load_recorders)
 
     output = DoWhyIdentifyEstimate.pure_step(
@@ -119,6 +123,7 @@ def test_point_only_dowhy_result_preserves_point_without_epsilon_ci(monkeypatch)
 
     assert report.status is EstimationStatus.NUMERICAL_FAILURE
     assert report.point_estimate == pytest.approx(7.0)
+    assert report.standard_error == standard_error
     assert report.confidence_interval is None
     assert report.confidence_level is None
     assert report.metadata["inference_status"] == "point_only"
@@ -207,3 +212,22 @@ def test_unsupported_estimand_is_an_explicit_capability_result(monkeypatch) -> N
     assert report.metadata["capability"] == "unsupported_estimand_type"
     assert "unsupported-profile" in (report.status_reason or "")
     assert report.method is CausalMethod.DOWHY_BACKDOOR
+
+
+def test_legacy_v1_input_does_not_claim_the_selected_dot_worker_profile(monkeypatch) -> None:
+    """Retain the V1 class while refusing an unqualified implicit graph migration."""
+    from polisyos.foundry.methods.catalog.causal import _dowhy_worker as bridge
+
+    def unexpected_backend(**kwargs: Any) -> None:
+        pytest.fail("unsupported V1 input must be refused before worker dispatch")
+
+    monkeypatch.setattr(bridge, "run_worker", unexpected_backend)
+    payload = _data().model_dump()
+    graph = payload.pop("graph_dot")
+    data = GraphCausalDataV1(**payload, graph_gml=graph)
+    report = DoWhyIdentifyEstimateV1.pure_step(data, {})["report"]
+
+    assert report.status is EstimationStatus.INPUT_INVALID
+    assert report.point_estimate is None and report.confidence_interval is None
+    assert report.metadata["capability"] == "unsupported_worker_profile"
+    assert data.graph_gml == graph

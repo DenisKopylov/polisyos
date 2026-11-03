@@ -182,7 +182,10 @@ from polisyos.foundry.methods.catalog.causal.pcmci_discovery import PCMCIDiscove
 from polisyos.foundry.methods.catalog.causal.proximal_mediation import (
     ProximalMediationEstimator,
 )
-from polisyos.foundry.methods.catalog.causal.rdd import RegressionDiscontinuity
+from polisyos.foundry.methods.catalog.causal.rdd import (
+    KernelHC0RegressionDiscontinuity,
+    RegressionDiscontinuity,
+)
 from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import (
     IntersectionBoundsEstimator,
     RosenbaumSharpBoundsEstimator,
@@ -283,6 +286,7 @@ def register_causal_methods() -> Sequence[type]:
         StandardDifferenceInDifferences,
         StaggeredDifferenceInDifferences,
         RegressionDiscontinuity,
+        KernelHC0RegressionDiscontinuity,
         StructuralTimeSeries,
         HybridSCMFit,
         GCMQuery,

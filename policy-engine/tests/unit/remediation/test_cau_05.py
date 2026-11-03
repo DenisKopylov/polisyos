@@ -5,9 +5,11 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from polisyos.foundry.methods.catalog.causal import did as did_module
 from polisyos.foundry.methods.catalog.causal.did import (
     DifferenceInDifferences,
     StaggeredDifferenceInDifferences,
+    StandardDifferenceInDifferences,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
 from polisyos.ir.analytics.causal import EstimationStatus
@@ -78,15 +80,66 @@ def test_cau_05_legacy_staggered_slots_match_dedicated_request() -> None:
     legacy_report = _report(legacy)
     dedicated_report = _report(dedicated)
     assert legacy_report.status == dedicated_report.status == EstimationStatus.SUCCESS
-    assert legacy_report.point_estimate == pytest.approx(dedicated_report.point_estimate)
-    assert legacy_report.method_params == dedicated_report.method_params
+    assert legacy_report.model_dump(mode="json") == dedicated_report.model_dump(mode="json")
+    assert legacy["warnings"] == dedicated["warnings"]
+    assert legacy["result"] is legacy["report"]
+    assert dedicated["result"] is dedicated["report"]
+    assert legacy["uncertainty_envelope"] is legacy["envelope"]
+    assert dedicated["uncertainty_envelope"] is dedicated["envelope"]
+    assert legacy["envelope"].model_dump(mode="json") == dedicated["envelope"].model_dump(
+        mode="json"
+    )
+
+
+@pytest.mark.parametrize("mode", [False, np.bool_(False)])
+def test_cau_05_standard_old_slots_and_boolean_mode_preserve_whole_report(mode) -> None:
+    data = _panel()
+    old = DifferenceInDifferences.materialize_input(
+        {
+            "outcome_panel": data.outcome,
+            "treatment_indicator": data.treatment,
+            "time_treatment": data.time_treatment,
+            "unit_ids": data.unit_ids,
+        },
+        {},
+    )
+    params = {"cov_type": "cluster", "confidence_level": 0.8}
+    legacy = DifferenceInDifferences.pure_step(old, {**params, "staggered": mode})
+    dedicated = StandardDifferenceInDifferences.pure_step(data, params)
+    assert legacy["report"].status is EstimationStatus.SUCCESS
+    assert legacy["report"].model_dump(mode="json") == dedicated["report"].model_dump(mode="json")
     assert legacy["warnings"] == dedicated["warnings"]
 
 
-def test_cau_05_legacy_staggered_flag_rejects_ambiguous_mode() -> None:
+@pytest.mark.parametrize("mode", [True, np.bool_(True)])
+def test_cau_05_staggered_boolean_mode_preserves_whole_report(mode) -> None:
+    data = _staggered_panel()
+    params = {"n_bootstrap": 399, "control_group": "not_yet_treated", "confidence_level": 0.95}
+    legacy = DifferenceInDifferences.pure_step(
+        data,
+        {
+            **params,
+            "staggered": mode,
+            "__rng__": np.random.default_rng(13),
+        },
+    )
+    dedicated = StaggeredDifferenceInDifferences.pure_step(
+        data,
+        {
+            **params,
+            "__rng__": np.random.default_rng(13),
+        },
+    )
+    assert legacy["report"].status is EstimationStatus.SUCCESS
+    assert legacy["report"].model_dump(mode="json") == dedicated["report"].model_dump(mode="json")
+    assert legacy["warnings"] == dedicated["warnings"]
+
+
+@pytest.mark.parametrize("mode", ["false", "true", "not-a-bool", 0, 1, None, [], {}])
+def test_cau_05_legacy_staggered_flag_rejects_ambiguous_mode(mode) -> None:
     """An invalid legacy mode must not silently select the staggered estimator."""
 
-    report = _report(DifferenceInDifferences.pure_step(_panel(), {"staggered": "not-a-bool"}))
+    report = _report(DifferenceInDifferences.pure_step(_panel(), {"staggered": mode}))
 
     assert report.status is EstimationStatus.INPUT_INVALID
     assert report.status_reason == "staggered must be a boolean"
@@ -129,3 +182,28 @@ def test_cau_05_legacy_adapter_rejects_conflicting_slot_aliases() -> None:
             },
             {},
         )
+
+
+def test_cau_05_dedicated_methods_do_not_require_the_legacy_class_binding(monkeypatch) -> None:
+    """Removing the deprecated wrapper cannot remove either dedicated numerical owner."""
+
+    standard = StandardDifferenceInDifferences.pure_step(_panel(), {})["report"]
+    staggered = StaggeredDifferenceInDifferences.pure_step(
+        _staggered_panel(),
+        {
+            "n_bootstrap": 399,
+            "__rng__": np.random.default_rng(17),
+        },
+    )["report"]
+    monkeypatch.delattr(did_module, "DifferenceInDifferences")
+    actual_standard = StandardDifferenceInDifferences.pure_step(_panel(), {})["report"]
+    actual_staggered = StaggeredDifferenceInDifferences.pure_step(
+        _staggered_panel(),
+        {
+            "n_bootstrap": 399,
+            "__rng__": np.random.default_rng(17),
+        },
+    )["report"]
+    assert actual_standard.status is actual_staggered.status is EstimationStatus.SUCCESS
+    assert actual_standard.model_dump(mode="json") == standard.model_dump(mode="json")
+    assert actual_staggered.model_dump(mode="json") == staggered.model_dump(mode="json")

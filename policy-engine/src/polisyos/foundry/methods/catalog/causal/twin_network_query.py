@@ -40,15 +40,22 @@ from polisyos.foundry.methods.catalog.causal.gcm_query import (
     _abduce_noises_unified,
     _AbductionDiagnostic,
     _apply_intervention,
+    _compatible_joint_root_indices,
     _draw_linear_gaussian_noises,
+    _empirical_root_location_scale,
+    _empirical_structural_residuals,
     _joint_root_sample_index,
+    _linear_noise_std,
     _LinearGaussianPosterior,
     _mechanism_map,
     _mechanism_predict,
     _observed_root_samples,
+    _parametric_prior_noise_std,
     _parents_by_node,
     _percentile_ci,
     _prepare_linear_gaussian_abduction,
+    _prepared_scm_query_spec,
+    _query_relevance_plan,
     _topological_order,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import TwinNetworkQueryData
@@ -79,6 +86,9 @@ def _sample_node_noise(
     rng: np.random.Generator,
     *,
     observed_root_value: float | None = None,
+    warnings: list[str] | None = None,
+    allow_declared_hypothesis: bool = False,
+    declared_root_hypotheses: set[str] | None = None,
 ) -> float:
     """Pre-sample exogenous noise U for a single node.
 
@@ -90,44 +100,40 @@ def _sample_node_noise(
             return float(observed_root_value)
         return float(rng.normal())
 
-    if mechanism.family is MechanismFamily.LINEAR:
-        params = mechanism.family_params
-        if "residual_samples" in params:
-            residuals = np.asarray(params["residual_samples"], dtype=float)
-            if residuals.ndim != 1 or not len(residuals) or not np.isfinite(residuals).all():
-                raise ValueError("empirical structural residuals must be a non-empty finite vector")
+    if mechanism.family in {MechanismFamily.LINEAR, MechanismFamily.ADDITIVE_NOISE}:
+        residuals = _empirical_structural_residuals(mechanism)
+        if residuals is not None:
             return float(rng.choice(residuals))
-        try:
-            std = float(params.get("noise_std", 0.0))
-        except (TypeError, ValueError, ArithmeticError):
-            std = 0.0
-        if not math.isfinite(std) or std < 0.0:
-            std = 0.0
+        std = _linear_noise_std(mechanism)
         return float(rng.normal(scale=std)) if std > 0.0 else 0.0
 
     if mechanism.family is MechanismFamily.EMPIRICAL:
         if observed_root_value is not None:
-            mean = float(mechanism.family_params.get("mean", 0.0))
-            if not math.isfinite(mean):
-                mean = 0.0
-            return float(observed_root_value - mean)
-        std = float(mechanism.family_params.get("std", 1.0))
-        if not math.isfinite(std) or std < 0.0:
-            std = 1.0
+            # An aligned empirical root row is already the whole root value.
+            return float(observed_root_value)
+        _mean, std = _empirical_root_location_scale(mechanism)
+        if not allow_declared_hypothesis:
+            raise ValueError(
+                f"empirical root '{mechanism.variable}' has no observed rows; explicitly enable "
+                "allow_declared_root_hypothesis to use a limited location-scale hypothesis"
+            )
+        if declared_root_hypotheses is not None:
+            declared_root_hypotheses.add(mechanism.variable)
+        if warnings is not None:
+            message = (
+                f"empirical root '{mechanism.variable}' has no observed rows; "
+                "its location-scale sampler is a declared hypothesis, not an established law"
+            )
+            if message not in warnings:
+                warnings.append(message)
         return float(rng.normal(scale=std)) if std > 0.0 else 0.0
 
     if mechanism.family is MechanismFamily.PARAMETRIC_PRIOR:
-        std = float(mechanism.family_params.get("noise_std", 0.2))
-        std = std if math.isfinite(std) and std > 0.0 else 0.2
-        return float(rng.normal(scale=std))
+        std = _parametric_prior_noise_std(mechanism)
+        return float(rng.normal(scale=std)) if std > 0.0 else 0.0
 
-    # ADDITIVE_NOISE, POST_NONLINEAR, CLASSIFIER: best-effort linear noise std
-    try:
-        std = float(mechanism.family_params.get("noise_std", 0.0))
-    except (TypeError, ValueError, ArithmeticError):
-        std = 0.0
-    if not math.isfinite(std) or std < 0.0:
-        std = 0.0
+    # ADDITIVE_NOISE, POST_NONLINEAR, CLASSIFIER: use the declared noise scale.
+    std = _linear_noise_std(mechanism)
     return float(rng.normal(scale=std)) if std > 0.0 else 0.0
 
 
@@ -153,6 +159,8 @@ def _apply_node_noise(
         return float(mean + noise)
 
     if mechanism.family is MechanismFamily.EMPIRICAL:
+        if not mechanism.parents and "observed_samples" in mechanism.family_params:
+            return float(noise)
         mean = float(mechanism.family_params.get("mean", 0.0))
         if not math.isfinite(mean):
             mean = 0.0
@@ -208,6 +216,9 @@ def _twin_simulate_samples(
     rng: np.random.Generator,
     warnings: list[str],
     allow_declared_hypothesis: bool = False,
+    declared_root_hypotheses: set[str] | None = None,
+    active_nodes: set[str] | None = None,
+    factual_condition: Mapping[str, float] | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Run both factual and counterfactual worlds with shared exogenous noise.
 
@@ -220,10 +231,16 @@ def _twin_simulate_samples(
     Returns two correlated arrays (po_factual, po_counter) of length n_samples.
     Correlation between them is what gives non-trivial ITE variance and po_correlation.
     """
-    order = _topological_order(scm_spec)
+    full_order = _topological_order(scm_spec)
+    order = [node for node in full_order if active_nodes is None or node in active_nodes]
     parents_map = _parents_by_node(scm_spec)
     mechanisms = _mechanism_map(scm_spec)
-    observed_root_samples = _observed_root_samples(mechanisms)
+    observed_root_samples = {
+        node: values for node, values in _observed_root_samples(mechanisms).items() if node in order
+    }
+    compatible_root_indices = _compatible_joint_root_indices(
+        observed_root_samples, factual_condition or {}
+    )
 
     po_factual = np.zeros(n_samples, dtype=float)
     po_counter = np.zeros(n_samples, dtype=float)
@@ -236,12 +253,32 @@ def _twin_simulate_samples(
             if abduction_posterior is not None
             else abduced_noises
         )
-        root_sample_index = _joint_root_sample_index(observed_root_samples, rng)
+        root_sample_index = _joint_root_sample_index(
+            observed_root_samples, rng, compatible_indices=compatible_root_indices
+        )
         for node in order:
+            if node == treatment_variable:
+                # Both public twin arms are atomic and replace this mechanism.
+                # A factual posterior has already used its natural law where
+                # required; neither forward world samples it again.
+                shared_noise[node] = 0.0
+                continue
+            mechanism = mechanisms.get(node)
+            if (
+                node in (factual_condition or {})
+                and mechanism is not None
+                and mechanism.family is MechanismFamily.EMPIRICAL
+                and not mechanism.parents
+                and node not in observed_root_samples
+            ):
+                # A directly observed root is known even when its population
+                # law is not. Its support limitation is carried by abduction.
+                mean, _std = _empirical_root_location_scale(mechanism)
+                shared_noise[node] = float(factual_condition[node]) - mean
+                continue
             if node in sampled_abduced_noises:
                 shared_noise[node] = sampled_abduced_noises[node]
             else:
-                mechanism = mechanisms.get(node)
                 if mechanism is None:
                     if node != treatment_variable and not allow_declared_hypothesis:
                         raise ValueError(
@@ -269,12 +306,14 @@ def _twin_simulate_samples(
                     mechanism,
                     rng,
                     observed_root_value=observed_root_value,
+                    warnings=warnings,
+                    allow_declared_hypothesis=allow_declared_hypothesis,
+                    declared_root_hypotheses=declared_root_hypotheses,
                 )
 
         # ── Step 2: forward-simulate FACTUAL world (do(X=x₀)) ─────────────────
         factual: dict[str, float] = {}
         for node in order:
-            parent_vals = {p: factual[p] for p in parents_map.get(node, [])}
             if node == treatment_variable:
                 factual[node] = _apply_intervention(
                     current_value=float(factual_intervention.value or 0.0),
@@ -284,6 +323,7 @@ def _twin_simulate_samples(
                     warnings=warnings,
                 )
             else:
+                parent_vals = {p: factual[p] for p in parents_map.get(node, [])}
                 factual[node] = _apply_node_noise(
                     mechanisms.get(node),
                     parent_vals,
@@ -294,7 +334,6 @@ def _twin_simulate_samples(
         # ── Step 3: forward-simulate COUNTERFACTUAL world (do(X=x₁)) ──────────
         counter: dict[str, float] = {}
         for node in order:
-            parent_vals = {p: counter[p] for p in parents_map.get(node, [])}
             if node == treatment_variable:
                 counter[node] = _apply_intervention(
                     current_value=float(counterfactual_intervention.value or 0.0),
@@ -304,6 +343,7 @@ def _twin_simulate_samples(
                     warnings=warnings,
                 )
             else:
+                parent_vals = {p: counter[p] for p in parents_map.get(node, [])}
                 counter[node] = _apply_node_noise(
                     mechanisms.get(node),
                     parent_vals,
@@ -432,7 +472,7 @@ class TwinNetworkQuery:
             else TwinNetworkQueryData.model_validate(state)
         )
 
-        scm_spec = payload.scm_spec
+        scm_spec = _prepared_scm_query_spec(payload.scm_spec)
         n_samples = payload.n_samples
         confidence_level = float(params.get("confidence_level", 0.95))
         if not (0.0 < confidence_level < 1.0):
@@ -449,13 +489,25 @@ class TwinNetworkQuery:
         warnings: list[str] = []
         started_at = time.perf_counter()
 
-        # ── ABDUCTION ─────────────────────────────────────────────────────────
-        order = _topological_order(scm_spec)
+        # The same query-local relevance plan governs admission and both worlds.
+        factual_intervention = InterventionSpec(
+            type=InterventionType.ATOMIC, value=payload.factual_treatment_value
+        )
+        counterfactual_intervention = InterventionSpec(
+            type=InterventionType.ATOMIC, value=payload.counterfactual_treatment_value
+        )
+        active_nodes, natural_nodes = _query_relevance_plan(
+            scm_spec,
+            treatment_variable=payload.treatment_variable,
+            outcome_variable=payload.outcome_variable,
+            interventions=[factual_intervention, counterfactual_intervention],
+            condition=payload.factual_condition,
+        )
+        order = [node for node in _topological_order(scm_spec) if node in active_nodes]
         parents_map = _parents_by_node(scm_spec)
         mechanisms = _mechanism_map(scm_spec)
-        roots = {node for node, parents in parents_map.items() if not parents}
         missing_root_nodes = sorted(
-            node for node in roots if node not in mechanisms and node != payload.treatment_variable
+            node for node in natural_nodes if not parents_map.get(node) and node not in mechanisms
         )
         if missing_root_nodes and not allow_declared_hypothesis:
             raise ValueError(
@@ -468,7 +520,14 @@ class TwinNetworkQuery:
                 "declared root hypothesis used for missing node(s): "
                 f"{missing_root_nodes}; result is limited and not gate eligible"
             )
+        declared_root_hypotheses = set(missing_root_nodes)
 
+        observed_roots = {
+            node: values
+            for node, values in _observed_root_samples(mechanisms).items()
+            if node in active_nodes
+        }
+        _compatible_joint_root_indices(observed_roots, payload.factual_condition)
         abduced_noises: dict[str, float] = {}
         abduction_posterior: _LinearGaussianPosterior | None = None
         abduction_diagnostic = _AbductionDiagnostic(profile="not_requested")
@@ -479,7 +538,7 @@ class TwinNetworkQuery:
                 parents_map=parents_map,
                 mechanisms=mechanisms,
                 treatment_variable=payload.treatment_variable,
-                allow_observed_empirical_roots=False,
+                allow_observed_empirical_roots=True,
             )
             if abduction_posterior is None:
                 abduced_noises = _abduce_noises_unified(
@@ -488,20 +547,13 @@ class TwinNetworkQuery:
                     parents_map=parents_map,
                     mechanisms=mechanisms,
                     warnings=warnings,
+                    conditioned_empirical_roots=frozenset(observed_roots).intersection(
+                        payload.factual_condition
+                    ),
                 )
                 abduction_diagnostic = abduction_diagnostic.with_noise_nodes(abduced_noises)
             if abduction_diagnostic.limitation is not None:
                 warnings.append(f"limited abduction: {abduction_diagnostic.limitation}")
-
-        # ── ACTION: build ATOMIC InterventionSpecs ────────────────────────────
-        factual_intervention = InterventionSpec(
-            type=InterventionType.ATOMIC,
-            value=payload.factual_treatment_value,
-        )
-        counterfactual_intervention = InterventionSpec(
-            type=InterventionType.ATOMIC,
-            value=payload.counterfactual_treatment_value,
-        )
 
         # ── PREDICTION: dual-world Monte Carlo with shared noise ───────────────
         po_factual, po_counter = _twin_simulate_samples(
@@ -516,6 +568,9 @@ class TwinNetworkQuery:
             rng=rng,
             warnings=warnings,
             allow_declared_hypothesis=allow_declared_hypothesis,
+            declared_root_hypotheses=declared_root_hypotheses,
+            active_nodes=active_nodes,
+            factual_condition=payload.factual_condition,
         )
 
         # ── STATISTICS ────────────────────────────────────────────────────────
@@ -606,16 +661,17 @@ class TwinNetworkQuery:
             metadata={
                 "n_samples": n_samples,
                 "confidence_level": confidence_level,
+                "sampling_profile": "relevant_twin_shared_noise_v1",
                 "n_abduced_nodes": len(abduction_diagnostic.noise_nodes),
                 "factual_treatment_value": payload.factual_treatment_value,
                 "counterfactual_treatment_value": payload.counterfactual_treatment_value,
-                "declared_root_hypothesis": missing_root_nodes,
+                "declared_root_hypothesis": sorted(declared_root_hypotheses),
                 **abduction_diagnostic.as_metadata(),
             },
         )
 
         envelope = result.to_uncertainty_envelope()
-        if missing_root_nodes:
+        if declared_root_hypotheses or not abduction_diagnostic.gate_eligible:
             envelope = envelope.model_copy(update={"gate_eligible": False})
 
         return {

@@ -19,7 +19,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 535 |
+| `polisyos.ir` | 541 |
 | `polisyos.ir.analytics` | 321 |
 | `polisyos.ir.kernel` | 81 |
 | `polisyos.ir.loading` | 12 |
@@ -32823,9 +32823,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.InterventionQueryRef` { #polisyos-ir-registry-refs-interventionqueryref }
 
 - Kind: `pydantic_model`
-- Public status: `package_facade`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.registry:InterventionQueryRef`
+- Exported from: `polisyos.ir.registry:InterventionQueryRef`, `polisyos.ir:InterventionQueryRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -33741,9 +33741,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.StructuralCausalModelSpecRef` { #polisyos-ir-registry-refs-structuralcausalmodelspecref }
 
 - Kind: `pydantic_model`
-- Public status: `package_facade`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.registry:StructuralCausalModelSpecRef`
+- Exported from: `polisyos.ir.registry:StructuralCausalModelSpecRef`, `polisyos.ir:StructuralCausalModelSpecRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`

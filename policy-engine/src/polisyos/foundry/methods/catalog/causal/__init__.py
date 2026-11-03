@@ -192,7 +192,7 @@ from .query_preservation import (
     update_query_preservation_cache,
 )
 from .query_validator import CausalQueryValidator
-from .rdd import RegressionDiscontinuity
+from .rdd import KernelHC0RegressionDiscontinuity, RegressionDiscontinuity
 from .recourse_manifold import (
     DiscreteActionAtlas,
     PlannerOptions,
@@ -313,6 +313,7 @@ __all__ = [
     "StandardDifferenceInDifferences",
     "StaggeredDifferenceInDifferences",
     "RegressionDiscontinuity",
+    "KernelHC0RegressionDiscontinuity",
     "StructuralTimeSeries",
     "TemporalTrajectoryResult",
     "TemporalBackendTarget",

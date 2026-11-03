@@ -53,6 +53,8 @@ from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
     NativeValueEstimandBinding,
+    NumericPolicySpec,
+    NumericToleranceMode,
     OutputContractDeclaration,
     PropagationMethod,
     UncertaintyEnvelope,
@@ -677,7 +679,24 @@ class CausalEffectReport(BaseModel):
             else IntervalSemantics.CONFIDENCE_INTERVAL
         )
 
+        # A native interval is already a numerical result. The ordinary envelope
+        # policy must not turn a valid open confidence level into 0/1, erase a
+        # small interval, or move the point away from the report it projects.
+        # Reuse the existing exact policy only when ordinary rounding changes
+        # an emitted value; persisted envelopes retain their recorded policy.
+        numeric_policy = NumericPolicySpec()
+        native_values = [self.point_estimate, *self.confidence_interval]
+        if self.confidence_level is not None:
+            native_values.append(self.confidence_level)
+        if any(numeric_policy.canonicalize(value) != value for value in native_values):
+            numeric_policy = NumericPolicySpec(
+                policy_id="causal_report_binary64_v1",
+                mode=NumericToleranceMode.DECIMAL_EXACT,
+                absolute_tolerance=0.0,
+            )
+
         return UncertaintyEnvelope(
+            numeric_policy=numeric_policy,
             point_estimate=self.point_estimate,
             confidence_interval=self.confidence_interval,
             confidence_level=self.confidence_level,

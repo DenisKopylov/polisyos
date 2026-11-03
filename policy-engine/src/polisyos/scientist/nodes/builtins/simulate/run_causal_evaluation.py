@@ -22,7 +22,7 @@ from polisyos.foundry import (
     validate_source_bound_causal_worker_response,
 )
 from polisyos.foundry.data_plane import materialize_method_contract
-from polisyos.foundry.methods import MethodRegistry
+from polisyos.foundry.methods import MethodDispatcher, MethodRegistry
 from polisyos.foundry.methods.catalog import (
     ensure_all_methods_registered as ensure_causal_methods_registered,
 )
@@ -311,7 +311,10 @@ def _causal_evaluation_safety_blockers(
 
 
 def _is_rdd_method(method_fqn: str) -> bool:
-    return "regression_discontinuity" in method_fqn
+    return method_fqn.split("@", 1)[0] in {
+        "causal.inference.regression_discontinuity",
+        "causal.inference.regression_discontinuity_kernel_hc0",
+    }
 
 
 def _is_hte_method(method_fqn: str) -> bool:
@@ -488,6 +491,15 @@ def _run_primary_causal_job(
         raise ValueError("primary causal job source reference mismatch")
     refs[role] = source
     bound_spec = spec.model_copy(update={"input_refs": refs})
+    rdd_data = None
+    if _is_rdd_method(spec.method_fqn or ""):
+        rdd_data = _load_observational_data(ctx, state, spec.method_fqn)
+        if not isinstance(observational_data, RDDObservationalData) or not isinstance(
+            rdd_data, RDDObservationalData
+        ):
+            raise ValueError("selected RDD requires its typed observational source")
+        if observational_data.model_dump(mode="json") != rdd_data.model_dump(mode="json"):
+            raise ValueError("selected RDD materialization/source mismatch")
     tmle_data = None
     if (spec.method_fqn or "").split("@", 1)[0] == "causal.treatment_effects.tmle":
         tmle_data = _load_observational_data(ctx, state, spec.method_fqn)
@@ -542,7 +554,6 @@ def _run_primary_causal_job(
         "causal.inference.did.standard",
         "causal.inference.did.staggered",
     }:
-        _reconcile_selected_causal_output(ctx=ctx, result=result)
         bound_data = _load_observational_data(ctx, state, spec.method_fqn)
         for current_data in (observational_data, bound_data):
             _verify_selected_did_diagnostics(
@@ -556,6 +567,13 @@ def _run_primary_causal_job(
                     observational_data=current_data,
                     params=spec.method_params,
                 )
+        _reconcile_selected_causal_output(
+            ctx=ctx, result=result, observational_data=bound_data, spec=spec
+        )
+    if not result.issues and _is_rdd_method(spec.method_fqn or ""):
+        _reconcile_selected_causal_output(
+            ctx=ctx, result=result, observational_data=rdd_data, spec=spec
+        )
     return result
 
 
@@ -581,8 +599,21 @@ def _verify_selected_tmle_projection(
         raise ValueError("selected TMLE uncertainty projection mismatch")
 
 
-def _reconcile_selected_causal_output(*, ctx: ExecutionContext, result: JobResult) -> None:
-    """Read the canonical method artifact before consuming its peer projection."""
+def _reconcile_selected_causal_output(
+    *,
+    ctx: ExecutionContext,
+    result: JobResult,
+    observational_data: PanelObservationalData | RDDObservationalData | None = None,
+    spec: JobSpec | None = None,
+) -> None:
+    """Reconcile complete peers and, for selected DiD/RDD, current source replay.
+
+    The caller loads the admitted typed source.  Replaying the actual registered
+    method with its declared backend, defaults and seed distinguishes coherent
+    report/envelope substitution from correct numerical output.  It establishes
+    neither empirical assumptions nor independent numerical-method validation.
+    Other methods retain their own source/worker/native-result validators.
+    """
     from polisyos.core.artifacts import load_core_json_artifact
 
     if result.method_result_ref is None:
@@ -598,6 +629,49 @@ def _reconcile_selected_causal_output(*, ctx: ExecutionContext, result: JobResul
         or UncertaintyEnvelope.model_validate(result.final_state["envelope"]) != derived
     ):
         raise ValueError("selected causal uncertainty projection mismatch")
+    if (observational_data is None) != (spec is None):
+        raise ValueError("selected causal source replay requires both source and request")
+    if spec is not None:
+        name = (spec.method_fqn or "").split("@", 1)[0]
+        if name not in {"causal.inference.did.standard", "causal.inference.did.staggered"} and not (
+            _is_rdd_method(name)
+        ):
+            raise ValueError("selected causal source replay requires a declared DiD/RDD method")
+        registry = MethodRegistry.get_instance()
+        resolved_name = spec.method_fqn or ""
+        if spec.method_version and "@" not in resolved_name:
+            resolved_name = f"{resolved_name}@{spec.method_version}"
+        if registry.get_signature(resolved_name) is None:
+            ensure_causal_methods_registered()
+        owner = registry.get(resolved_name, version=spec.method_version)
+        expected_output = (
+            MethodDispatcher(enable_runtime_selection=False)
+            .dispatch(
+                method_class=owner,
+                signature=owner.signature,
+                state=observational_data,
+                params=spec.method_params,
+                seed=spec.seed,
+            )
+            .output
+        )
+        expected_report = CausalEffectReport.model_validate(expected_output["report"])
+        if report.model_dump(mode="json") != expected_report.model_dump(mode="json"):
+            raise ValueError("selected causal numerical report projection mismatch")
+        if derived != expected_report.to_uncertainty_envelope():
+            raise ValueError("selected causal numerical uncertainty projection mismatch")
+        # DiD declares historical aliases as actual output ports.  They must not
+        # diverge from the checked current report, including in persisted bytes.
+        for payload in (saved, result.final_state):
+            if "result" in expected_output and (
+                CausalEffectReport.model_validate(payload.get("result")).model_dump(mode="json")
+                != expected_report.model_dump(mode="json")
+            ):
+                raise ValueError("selected causal numerical report alias mismatch")
+            if "uncertainty_envelope" in expected_output and (
+                UncertaintyEnvelope.model_validate(payload.get("uncertainty_envelope")) != derived
+            ):
+                raise ValueError("selected causal numerical uncertainty alias mismatch")
 
 
 def _verify_dowhy_worker_projection(

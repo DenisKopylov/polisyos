@@ -7,6 +7,7 @@ it does not establish external observations, source rights, or causal validity.
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -40,6 +41,7 @@ from polisyos.runtime.quality.data_state_substrate import (
     CandidateAcquisitionSourceSlotBinding,
     DataStateSubstrateError,
     _acquired_candidate_fabric_rows,
+    _require_candidate_acquisition_world_values,
     _verify_actual_acquired_native_world,
     build_candidate_acquisition_world,
     materialize_candidate_acquisition_snapshot,
@@ -455,6 +457,57 @@ def test_candidate_acquisition_world_reopens_limited_model_output_and_actual_fou
         )
         with pytest.raises(DataSnapshotSourceRowNotEstablishedError):
             validate_data_snapshot_owner_lineage(fresh, views.data_snapshot_ref, snapshot)
+
+
+def test_candidate_world_scope_accepts_unconstrained_no_denominator_and_refuses_share_gap(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The native world-scope owner permits no denominator only for unconstrained values."""
+    with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+        case = _candidate_world_case(tmp_path, monkeypatch)
+        problem = case.problem.model_copy(
+            update={
+                "design_problem_id": "lane01_candidate_generated_gdp_scope",
+                "problem_statement": "Check a generated nominal GDP candidate value.",
+                "domain": "economic",
+                "outcome_of_interest": case.problem.outcome_of_interest.model_copy(
+                    update={"target_variable": "global.gdp", "metric_id": "gdp"}
+                ),
+            }
+        )
+        base = case.base.record.model_copy(
+            update={"population_scope": "national_economy", "policy_domain": "economic"}
+        )
+        slot = base.slot_binding("global.gdp")
+        assert slot is not None and slot.unit == "usd"
+        binding = CandidateAcquisitionSourceSlotBinding(
+            profile_selection_ref=cycle_job_profile_selection_ref(problem),
+            candidate_digest="sha256:" + hashlib.sha256(b"generated-gdp-scope-control").hexdigest(),
+            canonical_variable_id="global.gdp",
+            target_slot_id="global.gdp",
+        )
+        common = {
+            "problem": problem,
+            "base": base,
+            "binding": binding,
+            "candidate_digest": binding.candidate_digest,
+            "canonical_variable_id": "global.gdp",
+            "target_slot_id": "global.gdp",
+            "country_code": "USA",
+            "year": 2024,
+            "population": "national_economy",
+            "canonical_unit": "usd",
+        }
+        assert (
+            _require_candidate_acquisition_world_values(
+                **common, quantity_kind="unconstrained", denominator=None
+            )
+            is None
+        )
+        with pytest.raises(DataStateSubstrateError, match="candidate_source_world_scope_mismatch"):
+            _require_candidate_acquisition_world_values(
+                **common, quantity_kind="share_of_denominator", denominator=None
+            )
 
 
 @pytest.mark.parametrize(

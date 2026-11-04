@@ -12,7 +12,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon
 from polisyos.core.contracts import DataSnapshot, EvidenceBundle
@@ -34,6 +34,7 @@ if TYPE_CHECKING:
 
 CANDIDATE_ACQUISITION_SOURCE_KIND = "runtime.quality.candidate_acquisition_source"
 CANDIDATE_ACQUISITION_SOURCE_SCHEMA = "polisyos.runtime.candidate_acquisition_source.v1"
+CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V2 = "polisyos.runtime.candidate_acquisition_source.v2"
 _CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
 _LIMITATIONS = (
     "candidate_only",
@@ -54,9 +55,10 @@ class CandidateAcquisitionSource(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["polisyos.runtime.candidate_acquisition_source.v1"] = (
-        CANDIDATE_ACQUISITION_SOURCE_SCHEMA
-    )
+    schema_version: Literal[
+        "polisyos.runtime.candidate_acquisition_source.v1",
+        "polisyos.runtime.candidate_acquisition_source.v2",
+    ] = CANDIDATE_ACQUISITION_SOURCE_SCHEMA
     status: Literal["candidate_only"] = "candidate_only"
     purpose: Literal["candidate_simulation"] = "candidate_simulation"
     observation_class: Literal["model_output"] = "model_output"
@@ -76,7 +78,7 @@ class CandidateAcquisitionSource(BaseModel):
     country_code: str = Field(min_length=1)
     year: int = Field(ge=1, le=9999)
     population: str = Field(min_length=1)
-    denominator: str = Field(min_length=1)
+    denominator: str | None = Field(default=None, min_length=1)
     quantity_kind: Literal["unconstrained", "share_of_denominator"]
     canonical_unit: str = Field(min_length=1)
     pii_scan_detector_version: str = Field(min_length=1)
@@ -89,6 +91,14 @@ class CandidateAcquisitionSource(BaseModel):
     normalized_source_ref: artifacts.ArtifactRef
     source_snapshot_ref: artifacts.ArtifactRef
     source_evidence_ref: artifacts.ArtifactRef
+
+    @model_validator(mode="after")
+    def _denominator_matches_schema_and_quantity(self) -> CandidateAcquisitionSource:
+        if self.schema_version == CANDIDATE_ACQUISITION_SOURCE_SCHEMA and self.denominator is None:
+            raise ValueError("candidate_acquisition_source_v1_requires_denominator")
+        if self.quantity_kind == "share_of_denominator" and self.denominator is None:
+            raise ValueError("candidate_acquisition_source_share_requires_denominator")
+        return self
 
 
 @dataclass(frozen=True, slots=True)
@@ -151,12 +161,19 @@ def _source_inputs(source: CandidateAcquisitionSource) -> list[artifacts.InputRe
 
 
 def _write_options(source: CandidateAcquisitionSource) -> artifacts.ArtifactWriteOptions:
+    schema_name = (
+        CANDIDATE_ACQUISITION_SOURCE_SCHEMA
+        if source.schema_version == CANDIDATE_ACQUISITION_SOURCE_SCHEMA
+        else CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V2
+    )
+    schema_version = "1" if source.schema_version == CANDIDATE_ACQUISITION_SOURCE_SCHEMA else "2"
+    producer_version = schema_version + ".0"
     return artifacts.ArtifactWriteOptions(
         kind=CANDIDATE_ACQUISITION_SOURCE_KIND,
         media_type="application/json",
-        schema=artifacts.SchemaInfo(name=CANDIDATE_ACQUISITION_SOURCE_SCHEMA, version="1"),
+        schema=artifacts.SchemaInfo(name=schema_name, version=schema_version),
         canon=artifacts.CanonInfo.from_spec(_CANON),
-        producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+        producer=artifacts.ProducerInfo(component=__name__, version=producer_version),
         inputs=_source_inputs(source),
         tenant_context=artifacts.ArtifactTenantContextInfo(
             tenant_id=source.tenant_id, cell_id=source.cell_id
@@ -273,7 +290,7 @@ def _validate_scope(
     country_code: str,
     year: int,
     population: str,
-    denominator: str,
+    denominator: str | None,
     quantity_kind: str,
     canonical_unit: str,
     query: RequirementToCapabilityQuery,
@@ -453,7 +470,9 @@ def validate_candidate_acquisition_selection(
     ):
         raise ValueError("candidate_source_compiler_relation_mismatch")
     measure = resolved_source.entry.source_measure_scope
-    if measure is None or measure.denominator is None:
+    if measure is None or (
+        measure.quantity_kind == "share_of_denominator" and measure.denominator is None
+    ):
         raise ValueError("candidate_source_owner_measure_scope_missing")
     _validate_scope(
         resolved=resolved_source,
@@ -755,9 +774,9 @@ def persist_candidate_acquisition_source(
     ):
         raise ValueError("candidate_source_raw_profile_unselected")
     resolved = authority.resolve(entry_id)
-    if (
-        resolved.entry.source_measure_scope is None
-        or resolved.entry.source_measure_scope.denominator is None
+    if resolved.entry.source_measure_scope is None or (
+        resolved.entry.source_measure_scope.quantity_kind == "share_of_denominator"
+        and resolved.entry.source_measure_scope.denominator is None
     ):
         raise ValueError("candidate_source_owner_measure_scope_missing")
     authority.resolve_live_source_execution(entry_id, proof, store)
@@ -769,6 +788,11 @@ def persist_candidate_acquisition_source(
     evidence_ref = _selected(store, _as_ref(proof.evidence_bundle_ref))
     snapshot = DataSnapshot.model_validate(artifacts.load_core_json_artifact(store, snapshot_ref))
     source = CandidateAcquisitionSource(
+        schema_version=(
+            CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V2
+            if resolved.entry.source_measure_scope.denominator is None
+            else CANDIDATE_ACQUISITION_SOURCE_SCHEMA
+        ),
         tenant_id=tenant_id,
         cell_id=cell_id,
         run_id=run_id,

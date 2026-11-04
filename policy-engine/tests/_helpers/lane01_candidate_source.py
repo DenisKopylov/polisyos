@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import socket
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import ClassVar, Literal
 
@@ -51,14 +51,89 @@ class Lane01CandidateSourceFixture:
     source: CandidateAcquisitionSource
 
 
+@dataclass(frozen=True, slots=True)
+class Lane01CandidateCompilerInput:
+    """Explicit test-owned scenario and scope passed to the real compiler."""
+
+    scenario_id: str
+    text: str
+    domain: str
+    profile_id: str
+    jurisdiction: str
+    population: str
+    entity_scope: str
+    time_start: str
+    time_end: str
+    time_role: str
+    granularity: str
+    required_constructs: tuple[str, ...]
+
+    def as_scenario(self) -> dict[str, object]:
+        """Return the explicit compiler scenario mapping."""
+        return {
+            "scenario_id": self.scenario_id,
+            "text": self.text,
+            "domain": self.domain,
+            "scope_profile": {
+                "profile_id": self.profile_id,
+                "jurisdiction": self.jurisdiction,
+                "population": self.population,
+                "entity_scope": self.entity_scope,
+                "time_window": {"start": self.time_start, "end": self.time_end},
+                "time_role": self.time_role,
+                "granularity": self.granularity,
+                "required_constructs": list(self.required_constructs),
+            },
+        }
+
+
+UNEMPLOYMENT_COMPILER_INPUT = Lane01CandidateCompilerInput(
+    scenario_id="lane01-unemployment",
+    text="Assess employment policy using the annual unemployment rate in the United States.",
+    domain="social",
+    profile_id="scope:lane01-unemployment-usa-2024:v1",
+    jurisdiction="USA",
+    population="total_labor_force",
+    entity_scope="country",
+    time_start="2024-01-01",
+    time_end="2024-12-31",
+    time_role="observation_time",
+    granularity="annual",
+    required_constructs=("labor.unemployment_rate",),
+)
+
+GDP_COMPILER_INPUT = Lane01CandidateCompilerInput(
+    scenario_id="lane01-gdp-usa-2024",
+    text="Assess nominal GDP for the United States in 2024.",
+    domain="economic",
+    profile_id="scope:lane01-gdp-usa-2024:v1",
+    jurisdiction="USA",
+    population="national_economy",
+    entity_scope="country",
+    time_start="2024-01-01",
+    time_end="2024-12-31",
+    time_role="observation_time",
+    granularity="annual",
+    required_constructs=("economic.gdp",),
+)
+
+
 def compile_lane01_candidate_report(
     *,
-    scenario_id: str = "lane01-unemployment",
+    compiler_input: Lane01CandidateCompilerInput = UNEMPLOYMENT_COMPILER_INPUT,
+    scenario_id: str | None = None,
+    profile: CandidateWDIProfile = UNEMPLOYMENT_PROFILE,
+    capability_resolver: RequirementToCapabilityResolver | None = None,
     lifecycle_override: Literal["draft", "governed", "active", "deprecated", "withdrawn"]
     | None = None,
 ) -> DataRequirementCompilationReport:
     """Compile the real scoped candidate-discovery requirement for one scenario."""
-    resolver = RequirementToCapabilityResolver.governed_fixture()
+    selected_input = (
+        compiler_input if scenario_id is None else replace(compiler_input, scenario_id=scenario_id)
+    )
+    if selected_input.required_constructs != (profile.construct,):
+        raise ValueError("lane01_candidate_compiler_construct_profile_mismatch")
+    resolver = capability_resolver or RequirementToCapabilityResolver.governed_fixture()
     if lifecycle_override is not None:
         capabilities = tuple(
             capability.model_copy(
@@ -68,7 +143,7 @@ def compile_lane01_candidate_report(
                     )
                 }
             )
-            if capability.construct_id == "labor.unemployment_rate"
+            if capability.construct_id == profile.construct
             else capability
             for capability in resolver.capabilities
         )
@@ -81,23 +156,7 @@ def compile_lane01_candidate_report(
         )
     return DataRequirementCompiler(
         capability_resolver=resolver, require_capability_index=True
-    ).compile_for_scenario(
-        {
-            "scenario_id": scenario_id,
-            "text": "Assess employment policy using the annual unemployment rate in the United States.",
-            "domain": "social",
-            "scope_profile": {
-                "profile_id": "scope:lane01-unemployment-usa-2024:v1",
-                "jurisdiction": "USA",
-                "population": "total_labor_force",
-                "entity_scope": "country",
-                "time_window": {"start": "2024-01-01", "end": "2024-12-31"},
-                "time_role": "observation_time",
-                "granularity": "annual",
-                "required_constructs": ["labor.unemployment_rate"],
-            },
-        }
-    )
+    ).compile_for_scenario(selected_input.as_scenario())
 
 
 def build_lane01_candidate_source(
@@ -111,17 +170,24 @@ def build_lane01_candidate_source(
     job_id: str = "job-lane01",
     route_id: str = "route-lane01",
     profile: CandidateWDIProfile = UNEMPLOYMENT_PROFILE,
+    compiler_input: Lane01CandidateCompilerInput = UNEMPLOYMENT_COMPILER_INPUT,
+    capability_resolver: RequirementToCapabilityResolver | None = None,
     response_body: bytes | None = None,
     declared_population: str | None = None,
     lifecycle_override: Literal["draft", "governed", "active", "deprecated", "withdrawn"]
     | None = None,
 ) -> Lane01CandidateSourceFixture:
     """Compile a real scoped requirement and execute one intercepted source request."""
-    report = compile_lane01_candidate_report(lifecycle_override=lifecycle_override)
+    report = compile_lane01_candidate_report(
+        compiler_input=compiler_input,
+        profile=profile,
+        capability_resolver=capability_resolver,
+        lifecycle_override=lifecycle_override,
+    )
     matches = [
         resolution
         for resolution in (report.capability_requirement_resolutions or ())
-        if resolution.query.construct == "labor.unemployment_rate"
+        if resolution.query.construct == profile.construct
         and resolution.candidate_discovery is not None
         and resolution.candidate_discovery.candidates
     ]
@@ -132,7 +198,7 @@ def build_lane01_candidate_source(
     candidate_digest = selected.candidate_discovery.candidates[0].content_digest
     artifact_store = store if store is not None else artifacts.FileSystemCAS(tmp_path / "cas")
     binding = persist_and_verify_data_requirement_compilation_report(
-        artifact_store, report, expected_scenario_id="lane01-unemployment"
+        artifact_store, report, expected_scenario_id=compiler_input.scenario_id
     )
     authority, entry = build_fixture_wdi_authority(tmp_path / "repo", profile)
     body = fixture_wdi_response(profile) if response_body is None else response_body

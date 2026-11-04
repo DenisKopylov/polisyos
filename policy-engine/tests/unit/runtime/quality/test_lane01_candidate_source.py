@@ -8,6 +8,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from pydantic import ValidationError
 
 from polisyos.core import artifacts, canon
 from polisyos.data_forge.read_api import catalog
@@ -17,15 +18,92 @@ from polisyos.runtime.quality.acquisition_planner import (
     persist_and_verify_data_requirement_compilation_report,
 )
 from polisyos.runtime.quality.candidate_acquisition_source import (
+    CANDIDATE_ACQUISITION_SOURCE_SCHEMA,
+    CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V2,
+    CandidateAcquisitionSource,
     _write_options,
     persist_candidate_acquisition_source,
     read_candidate_acquisition_source,
 )
+from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
 from tests._helpers.lane01_candidate_source import (
+    GDP_COMPILER_INPUT,
     build_lane01_candidate_source,
     compile_lane01_candidate_report,
 )
-from tests._helpers.lane01_wdi_profiles import UNEMPLOYMENT_PROFILE, fixture_wdi_response
+from tests._helpers.lane01_wdi_profiles import (
+    GDP_PROFILE,
+    UNEMPLOYMENT_PROFILE,
+    CandidateWDIProfile,
+    fixture_wdi_response,
+)
+
+
+def _generated_gdp_profile() -> CandidateWDIProfile:
+    """Describe generated fixture bytes without relabeling the governed GDP row."""
+    return replace(
+        GDP_PROFILE,
+        source_title="Controlled generated GDP candidate fixture",
+        source_description=(
+            "Test-owned generated GDP-shaped bytes in current US dollars; not an empirical "
+            "observation, release, or current source value."
+        ),
+        source_provenance_class="model_output",
+    )
+
+
+def _generated_gdp_candidate_resolver() -> RequirementToCapabilityResolver:
+    """Bind the synthetic GDP fixture semantics in a candidate-only resolver input."""
+    governed = RequirementToCapabilityResolver.governed_fixture()
+    capabilities = []
+    found = False
+    for capability in governed.capabilities:
+        if capability.construct_id != "economic.gdp":
+            capabilities.append(capability)
+            continue
+        found = True
+        if len(capability.source_assets) != 1:
+            raise AssertionError("governed GDP source candidate must have one source asset")
+        asset = capability.source_assets[0]
+        metadata = asset.metadata | {
+            "observation_provenance": "model_output",
+            "population_scope": "national_economy",
+            "quantity_kind": "unconstrained",
+        }
+        capabilities.append(
+            capability.model_copy(
+                update={
+                    "capability_id": "capability:test_owned_generated_gdp_candidate",
+                    "evidence_mode": "model_output",
+                    "limitations": (
+                        *capability.limitations,
+                        "test_owned_generated_bytes_not_empirical_gdp_or_source_authority",
+                    ),
+                    "metadata": {
+                        **capability.metadata,
+                        "test_fixture_title": "Controlled generated GDP candidate fixture",
+                    },
+                    "source_assets": (
+                        asset.model_copy(
+                            update={
+                                "ref": "fixture://lane01/generated-gdp-candidate",
+                                "source_layer": "test_fixture",
+                                "metadata": metadata,
+                            }
+                        ),
+                    ),
+                }
+            )
+        )
+    if not found:
+        raise AssertionError("governed resolver must contain the economic.gdp candidate")
+    return RequirementToCapabilityResolver(
+        capabilities=capabilities,
+        failure_modes=governed.failure_modes,
+        acquisition_strategies=governed.acquisition_strategies,
+        conflicts=governed.conflicts,
+        capability_index_ref="capability-index:test-generated-gdp-candidate-v1",
+    )
 
 
 def test_candidate_source_reopens_owner_bytes_and_refuses_changed_inputs(
@@ -44,6 +122,9 @@ def test_candidate_source_reopens_owner_bytes_and_refuses_changed_inputs(
     assert source.population == "total_labor_force"
     assert source.denominator == "total_labor_force"
     assert source.quantity_kind == "share_of_denominator"
+    assert source.schema_version == CANDIDATE_ACQUISITION_SOURCE_SCHEMA
+    assert _write_options(source).schema.name == CANDIDATE_ACQUISITION_SOURCE_SCHEMA
+    assert _write_options(source).schema.version == "1"
     assert source.canonical_unit == "ratio"
     assert {
         "measurement_validity_not_established",
@@ -236,6 +317,135 @@ def test_candidate_source_reopens_owner_bytes_and_refuses_changed_inputs(
             )
     finally:
         unavailable.rename(journal)
+
+
+def test_generated_gdp_candidate_source_reopens_with_independent_identity_oracle(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Persist generated GDP-shaped bytes through the real compiler and source owners."""
+    synthetic_profile = _generated_gdp_profile()
+    resolver = _generated_gdp_candidate_resolver()
+    fixture = build_lane01_candidate_source(
+        tmp_path / "gdp-80",
+        monkeypatch,
+        profile=synthetic_profile,
+        compiler_input=GDP_COMPILER_INPUT,
+        capability_resolver=resolver,
+        response_body=fixture_wdi_response(synthetic_profile, value=80.0),
+    )
+    source = fixture.source
+    assert source.observation == 80.0
+    assert source.target_slot_id == "global.gdp"
+    assert source.canonical_unit == "usd"
+    assert source.country_code == "USA" and source.year == 2024
+    assert source.population == "national_economy"
+    assert source.denominator is None
+    assert source.quantity_kind == "unconstrained"
+    assert source.schema_version == CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V2
+    assert _write_options(source).schema.name == CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V2
+    assert _write_options(source).schema.version == "2"
+    assert source.status == "candidate_only"
+    assert source.source_currentness == "source_currentness_not_established"
+    report = DataRequirementCompilationReport.model_validate(
+        artifacts.load_core_json_artifact(fixture.store, fixture.binding.compiler_report_ref)
+    )
+    (resolution,) = report.capability_requirement_resolutions or ()
+    (candidate,) = resolution.candidate_discovery.candidates
+    assert candidate.capability_ref == "capability:test_owned_generated_gdp_candidate"
+    assert (
+        candidate.descriptor["metadata"]["test_fixture_title"]
+        == "Controlled generated GDP candidate fixture"
+    )
+    assert candidate.source_assets[0]["ref"] == "fixture://lane01/generated-gdp-candidate"
+    assert candidate.descriptor["capability_lifecycle"]["state"] == "draft"
+    assert candidate.descriptor["rights_envelope"]["claim_evidence_use_allowed"] is False
+    assert "test_owned_generated_bytes_not_empirical_gdp_or_source_authority" in (
+        candidate.limitations
+    )
+    assert {
+        "measurement_validity_not_established",
+        "causal_validity_not_established",
+        "claim_evidence_not_established",
+    }.issubset(source.limitations)
+    assert (
+        read_candidate_acquisition_source(
+            fixture.store, source_ref=fixture.source_ref, authority=fixture.authority
+        )
+        == source
+    )
+
+    changed = build_lane01_candidate_source(
+        tmp_path / "gdp-81",
+        monkeypatch,
+        profile=synthetic_profile,
+        compiler_input=GDP_COMPILER_INPUT,
+        capability_resolver=resolver,
+        response_body=fixture_wdi_response(synthetic_profile, value=81.0),
+    )
+    assert changed.source.observation == 81.0
+    assert changed.source.target_slot_id == "global.gdp"
+    assert changed.source.canonical_unit == "usd"
+    assert changed.source.status == "candidate_only"
+
+
+def test_candidate_source_v2_rejects_share_without_denominator(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """V2 permits a missing denominator only for an unconstrained quantity."""
+    fixture = build_lane01_candidate_source(tmp_path, monkeypatch)
+    payload = fixture.source.model_dump(mode="json")
+    payload.update(
+        {
+            "schema_version": CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V2,
+            "denominator": None,
+            "quantity_kind": "share_of_denominator",
+        }
+    )
+    with pytest.raises(
+        ValidationError, match="candidate_acquisition_source_share_requires_denominator"
+    ):
+        CandidateAcquisitionSource.model_validate(payload)
+
+
+def test_candidate_source_v1_keeps_required_denominator_contract(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Historical v1 remains strict when an unconstrained measure lacks a denominator."""
+    fixture = build_lane01_candidate_source(tmp_path, monkeypatch)
+    payload = fixture.source.model_dump(mode="json")
+    payload["denominator"] = None
+    with pytest.raises(
+        ValidationError, match="candidate_acquisition_source_v1_requires_denominator"
+    ):
+        CandidateAcquisitionSource.model_validate(payload)
+
+
+def test_governed_observed_gdp_profile_cannot_be_promoted_to_candidate_source(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The unchanged GDP profile lacks the model-output custody contract."""
+    with pytest.raises(ValueError, match="candidate_source_owner_scope_mismatch"):
+        build_lane01_candidate_source(
+            tmp_path,
+            monkeypatch,
+            profile=GDP_PROFILE,
+            compiler_input=GDP_COMPILER_INPUT,
+        )
+
+
+def test_generated_gdp_candidate_refuses_observed_source_class(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A model-output candidate descriptor cannot admit an observed-class source owner."""
+    observed_profile = replace(_generated_gdp_profile(), source_provenance_class="observed")
+    with pytest.raises(ValueError, match="candidate_source_owner_scope_mismatch"):
+        build_lane01_candidate_source(
+            tmp_path,
+            monkeypatch,
+            profile=observed_profile,
+            compiler_input=GDP_COMPILER_INPUT,
+            capability_resolver=_generated_gdp_candidate_resolver(),
+        )
 
 
 def test_candidate_source_refuses_wrong_indicator_scope_and_sensitive_input(

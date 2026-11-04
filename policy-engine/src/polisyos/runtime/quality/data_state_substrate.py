@@ -3118,7 +3118,7 @@ def _require_candidate_acquisition_world_values(
     population: str,
     canonical_unit: str,
     quantity_kind: str,
-    denominator: str,
+    denominator: str | None,
 ) -> None:
     """Apply the same scope law to owner-resolved input before and after fetch."""
     from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref

@@ -9139,8 +9139,9 @@
         "surface": "lane01_surface: core/contracts/runtime.py,HTTP runs projections,dashboard validators/Overview/locales+mirroredtests",
         "offpilot": "lane01_offpilot: scalar slots,catalog unit/provenance/passport/governed descriptors+actual compact WDI profiles",
         "candidate_adapter": "lane01_candidate_adapter: actual Fabric data_requirement adapter+mirroredtests",
-        "candidate_action": "lane01_candidate_action: served action/execution/route-loop/sink candidate-only handshake; shared run_lifecycle single writer",
-        "quota_ledger": "lane09_spend_gate reused canonical FileBudgetLedger/Middleware/Observer owner; Horizon owns actual physical-call admission"
+        "candidate_action": "luna_action_contract: PA2 service/provider/canonical action-kind and mirrored tests; luna_phase_history: Control sink/phase registry/test; luna_reentry_budget: candidate_action canonical live lease validator/test. Root composes shared boundaries; no overlapping writers.",
+        "quota_ledger": "lane09_spend_gate reused canonical FileBudgetLedger/Middleware/Observer owner; Horizon owns actual physical-call admission",
+        "frontier": "luna_source_handoff: N4 port + verified child factory; luna_frontier: complete actual custody/atom/frontier oracle; independent Luna child_n4 review; root deciding runtime."
       },
       "evidence_catalog": {
         "numeric_native": {
@@ -9991,6 +9992,32 @@
           "named_inputs": 273,
           "seconds": 32.522,
           "scope": "Stops at prepared/current atom hash equality; actual current custody differs. Both genuine child source handoffs have generation_unavailable/diversity1<3 and zero candidates. No N5 input/execution/quota receipt or actual quota frontier established. Preserve r1/r2/r3 FAIL."
+        },
+        "candidate_source_second_domain": {
+          "output": "policy-engine/_cache/e02/lane01-gdp-source-r1",
+          "observed": {
+            "PASS": 7,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "seconds": 25,
+          "peak_rss_bytes": 1669971968,
+          "scope": "Same canonical compiler/candidate source; V1 roundtrip, V2 unconstrained denominator=None, controlled generated GDP80/81 identity, share missing-denominator and observed/contradictory-source refusals. Test-owned descriptor has distinct identity; governed GDP unchanged. No production source/range/N5 claim. Later4-file formatting AST-equivalent."
+        },
+        "candidate_source_world_scope_companion": {
+          "output": "policy-engine/_cache/e02/lane01-gdp-source-consumer-r1",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "seconds": 19,
+          "peak_rss_bytes": 1689583616,
+          "scope": "Actual world-scope consumer accepts unconstrained None and rejects share None with exact candidate_source_world_scope_mismatch. Mandatory optional-denominator annotation corrected; no N5."
         }
       },
       "independent_component_reviews": {
@@ -9998,7 +10025,8 @@
         "numerics": "lane01_sim_review GO on 89-case outputs/current13inputs and actual quantile removal; Runtime separate",
         "requirements": "GO on actual261 composed compiler/calendar/slot/planner/profile cases. Later readiness inspector delta excluded; actual served/installed remain separate.",
         "budget": "Independent owner review GO; 15 window/393 ledger-LLM and separate 13 native N5 quota PASS on named frozen inputs. Five Cycle-importing cases and actual served lifecycle remain pending.",
-        "candidate_experiment_read_surface": "Luna independent GO on scoped API and typed example; actual HTTP3, OpenAPI/client drift and focused SDK outputs retained. Protected-action composition separate."
+        "candidate_experiment_read_surface": "Luna independent GO on scoped API and typed example; actual HTTP3, OpenAPI/client drift and focused SDK outputs retained. Protected-action composition separate.",
+        "candidate_source_second_domain": "Luna bridge_review GO except optional-denominator consumer typing companion; companion fixed with focused native1PASS, root source review and AST-preserving formatting."
       }
     },
     {

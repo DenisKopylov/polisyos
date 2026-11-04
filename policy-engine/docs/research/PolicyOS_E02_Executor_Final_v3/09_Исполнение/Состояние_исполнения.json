@@ -9139,7 +9139,7 @@
         "surface": "lane01_surface: core/contracts/runtime.py,HTTP runs projections,dashboard validators/Overview/locales+mirroredtests",
         "offpilot": "lane01_offpilot: scalar slots,catalog unit/provenance/passport/governed descriptors+actual compact WDI profiles",
         "candidate_adapter": "lane01_candidate_adapter: actual Fabric data_requirement adapter+mirroredtests",
-        "candidate_action": "luna_action_contract: PA2 service/provider/canonical action-kind and mirrored tests; luna_phase_history: Control sink/phase registry/test; luna_reentry_budget: candidate_action canonical live lease validator/test. Root composes shared boundaries; no overlapping writers.",
+        "candidate_action": "luna_action_contract: PA2/admission/provider/shared history reader; luna_policy_surface: protected routes/HTTP; luna_phase_history: sink/registry then job-publication design; luna_reentry_budget: current origin/selection/live lease helper. Root owns generation/index/composition; next producer implementation requires explicit owner handoff.",
         "quota_ledger": "lane09_spend_gate reused canonical FileBudgetLedger/Middleware/Observer owner; Horizon owns actual physical-call admission",
         "frontier": "luna_source_handoff: N4 port + verified child factory; luna_frontier: complete actual custody/atom/frontier oracle; independent Luna child_n4 review; root deciding runtime."
       },
@@ -10048,6 +10048,98 @@
           "seconds": 43.392,
           "peak_rss_bytes": 1886978048,
           "scope": "Full current run FAIL at complete canonical atom comparison: world_model_record_ref and corresponding causal assumptions/direct-effect notes differ. All274 inputs stable; inspect retained producer before another N5. Does not establish quota frontier or fresh GET."
+        },
+        "candidate_experiment_api_contract_final": {
+          "output": "policy-engine/_cache/e02/lane01-experiment-post-contract-r2",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 9,
+          "seconds": 20.312,
+          "peak_rss_bytes": 1935572992,
+          "scope": "Full GET+POST OpenAPI hardening/canonical client drift after explicit POST generator entry;9 stable inputs. r1 returned0 but ActionService changed, so unqualified."
+        },
+        "candidate_experiment_phase_owner_controls": {
+          "output": "policy-engine/_cache/e02/lane01-experiment-phase-owner-r1",
+          "observed": {
+            "PASS": 3,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 8,
+          "seconds": 15.541,
+          "peak_rss_bytes": 1665810432,
+          "scope": "Real SQLite empty-history/event registration/missing-composed-owner refusal only. Four phase states implemented but no production job/phase producer or positive write/readback yet. Live source selection helper changed later; this result qualifies listed source bytes only."
+        },
+        "frontier_retained_ncm_input_diagnostic": {
+          "output": "policy-engine/_cache/e02/lane01-frontier-r4-ncm-input-diagnostic-r2",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 3,
+          "seconds": 10.311,
+          "peak_rss_bytes": 1261944832,
+          "scope": "Diagnostic only: exact retained request constructs NCMQueryData and reproduces unknown evidence cells.distress_score in the tax NCM. No kernel/controller/pure_step/N5. r1 harness ArtifactID/string comparison error retained; fixture child baseline is repair owner, not runtime evidence/quota weakening."
+        },
+        "candidate_experiment_pa2_history_admission": {
+          "output": "_cache/e02/lane01-candidate-pa2-composed-r5",
+          "observed": {
+            "PASS": 12,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "scope": "Root-relative cache (not policy-engine/_cache): exact candidate/legacy disjoint action tuple and request resource, human/changed-body/nonempty-query refusals; shared signed PA2 history reader and wrong-job/untrusted-signer controls. History test signs a refusal verdict; not actual completed-source allowed PA2 or live phase/effect proof."
+        },
+        "candidate_experiment_http_post": {
+          "output": "policy-engine/_cache/e02/lane01-experiment-post-http-r1",
+          "observed": {
+            "PASS": 5,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 3,
+          "scope": "Complete HTTP file including actual permission/step-up and candidate resource binding with explicit fake service. Full JUnit/stdout/stderr and source pin files available. Not actual source-to-service authority positive."
+        },
+        "candidate_experiment_sdk_post": {
+          "output": "policy-engine/_cache/e02/lane01-experiment-post-sdk-r2",
+          "observed": {
+            "PASS": 2,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "typecheck": "PASS",
+          "scope": "Generated GET/POST methods preserve encoded path, exact body/full selected refs and one-call403. Initialr1 missing generated POST method FAIL retained; explicit generator operation entry fixes it. Transport fixture only."
+        },
+        "authored_joint_relationship_order": {
+          "output": "policy-engine/_cache/e02/lane01-authored-order-retained-r4",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 308,
+          "seconds": 11.277,
+          "peak_rss_bytes": 1376960512,
+          "scope": "Fresh read-only actual R2 compiled/relation/source selection, member/materialization/request atom alignment and rehashed permutation refusal; no N5 or CAS writes, no HTTP/GET or causal chronology claim. Original failed R2 pytest and r1-r3 pre-child PATH/supervisor errors preserved."
         }
       },
       "independent_component_reviews": {
@@ -10057,7 +10149,8 @@
         "budget": "Independent owner review GO; 15 window/393 ledger-LLM and separate 13 native N5 quota PASS on named frozen inputs. Five Cycle-importing cases and actual served lifecycle remain pending.",
         "candidate_experiment_read_surface": "Luna independent GO on scoped API and typed example; actual HTTP3, OpenAPI/client drift and focused SDK outputs retained. Protected-action composition separate.",
         "candidate_source_second_domain": "Luna bridge_review GO except optional-denominator consumer typing companion; companion fixed with focused native1PASS, root source review and AST-preserving formatting.",
-        "verified_child_n4_diversity": "Luna child_n4 GO on canonical full child-family admission and narrow floor predicate; complete-atom oracle independently GO, but full runtime r4 remains FAIL on actual basis differences."
+        "verified_child_n4_diversity": "Luna child_n4 GO on canonical full child-family admission and narrow floor predicate; complete-atom oracle independently GO, but full runtime r4 remains FAIL on actual basis differences.",
+        "candidate_pa2_phase": "Luna PA2 review GO for signed-history/current-permit separation and owner read/write source; phase remains implemented_but_not_orchestrated/producer_missing until atomic job/phase producer and true positive. Current decision preparation only."
       }
     },
     {

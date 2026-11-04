@@ -18,11 +18,18 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionActionService,
     AcquisitionActionServiceError,
     AcquisitionRouteMutationRequest,
+    CandidateExperimentRouteMutationRequest,
+    CandidateExperimentRouteReplayPins,
 )
 from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionScope
+from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+    CandidateUnpricedPolicyScope,
+)
 from polisyos.runtime.quality.agent_action_authority import (
+    CANDIDATE_EXPERIMENT_ACTION_KIND,
     AgentActionAuthorityGateway,
     AgentActionAuthorityWriteContext,
+    agent_action_content_hash,
 )
 from tests._helpers.acquisition_production import (
     install_fixture_wdi_cost_basis,
@@ -192,6 +199,124 @@ async def _fixture_route(
         job_id="job-dx0-terminal-replay-source",
     )
     yield closure
+
+
+def _candidate_experiment_action_fixture(
+    *,
+    tenant_id: str = "tenant-action-test",
+    cell_id: str = "cell-action-test",
+    run_id: str = "run-action-test",
+) -> tuple[Any, CandidateExperimentRouteMutationRequest]:
+    """Build typed source pins for tuple-only tests; these are not CAS evidence."""
+
+    def ref(kind: str, digit: str) -> artifacts.ArtifactRef:
+        return artifacts.ArtifactRef(
+            artifact_id=f"sha256:{digit * 64}",
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "f" * 64,
+        )
+
+    scope = CandidateUnpricedPolicyScope(
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        run_id=run_id,
+        source_job_id="job-source-test",
+        design_problem_ref="sha256:" + "1" * 64,
+        design_problem_basis_ref="sha256:" + "2" * 64,
+        source_cycle_index=3,
+        candidate_id="candidate-test",
+        candidate_content_hash="sha256:" + "3" * 64,
+        requirement_id="requirement-test",
+        compiled_requirement_ref="compiled-requirement-test",
+        candidate_digest="sha256:" + "4" * 64,
+        planner_report_hash="sha256:" + "5" * 64,
+        compiled_ref=ref("runtime.compiled_recursive_generation_cycle", "6"),
+        planner_report_ref=ref("runtime.acquisition_planner_report", "7"),
+        compiler_report_ref=ref("runtime.data_requirement_compilation_report", "8"),
+        configured_port_source_ref=ref("runtime.quality.n7_configured_candidate_port_source", "9"),
+    )
+    policy_ref = ref("runtime_quality.candidate_unpriced_acquisition_policy", "a")
+    origin = SimpleNamespace(
+        tenant_id=scope.tenant_id,
+        cell_id=scope.cell_id,
+        run_id=scope.run_id,
+        source_job_id=scope.source_job_id,
+        source_payload_ref="sha256:" + "b" * 64,
+        request_content_hash="sha256:" + "c" * 64,
+        route_id="sha256:" + "d" * 64,
+        policy_ref=policy_ref,
+        policy_scope=scope,
+        source_cycle=SimpleNamespace(
+            cycle_index=scope.source_cycle_index,
+            voi_decision=SimpleNamespace(
+                scheduler_action="acquire",
+                scheduler_reason="synthetic tuple fixture",
+            ),
+        ),
+    )
+    request = CandidateExperimentRouteMutationRequest(
+        route_id=origin.route_id,
+        replay_pins=CandidateExperimentRouteReplayPins(
+            source_job_id=origin.source_job_id,
+            source_payload_ref=origin.source_payload_ref,
+            request_content_hash=origin.request_content_hash,
+            compiled_ref=scope.compiled_ref,
+            planner_report_ref=scope.planner_report_ref,
+            compiler_report_ref=scope.compiler_report_ref,
+            configured_port_source_ref=scope.configured_port_source_ref,
+            policy_ref=policy_ref,
+            candidate_digest=scope.candidate_digest,
+        ),
+        idempotency_key="candidate-action-test",
+    )
+    return origin, request
+
+
+def test_candidate_experiment_action_tuple_binds_unpriced_source_and_decision_ref() -> None:
+    """Candidate PA2 identity binds selected inputs without borrowing costed fields."""
+    origin, request = _candidate_experiment_action_fixture()
+    operation, invocation, intent = AcquisitionActionService._candidate_experiment_action_tuple(
+        origin, request
+    )
+
+    assert operation.operation_id == CANDIDATE_EXPERIMENT_ACTION_KIND
+    assert operation.operation_version == "v1"
+    assert operation.operation_class.value == "ACQUIRE"
+    assert operation.cost_model == {"monetary_cost": "not_established"}
+    assert intent.action_kind == CANDIDATE_EXPERIMENT_ACTION_KIND
+    assert invocation.parameters["source_payload_ref"] == origin.source_payload_ref
+    assert invocation.parameters["request_content_hash"] == origin.request_content_hash
+    assert invocation.parameters["candidate_digest"] == request.replay_pins.candidate_digest
+    assert invocation.parameters[
+        "action_job_id"
+    ] == AcquisitionActionService._candidate_experiment_job_id(origin, request)
+    assert invocation.parameters["policy_ref"] == request.replay_pins.policy_ref.model_dump(
+        mode="json"
+    )
+    assert "cost_basis_hash" not in invocation.parameters
+    assert invocation.parameters["replay_pins"] == request.replay_pins.model_dump(mode="json")
+
+    decision_ref = "sha256:" + "e" * 64
+    decision_request = request.model_copy(update={"human_decision_record_ref": decision_ref})
+    changed_tuple = AcquisitionActionService._candidate_experiment_action_tuple(
+        origin, decision_request
+    )
+    assert changed_tuple[1].invocation_id != invocation.invocation_id
+    assert agent_action_content_hash(changed_tuple[1]) != agent_action_content_hash(invocation)
+
+    changed_policy = request.replay_pins.policy_ref.model_copy(
+        update={"artifact_id": "sha256:" + "f" * 64}
+    )
+    changed_policy_request = request.model_copy(
+        update={
+            "replay_pins": request.replay_pins.model_copy(update={"policy_ref": changed_policy})
+        }
+    )
+    policy_tuple = AcquisitionActionService._candidate_experiment_action_tuple(
+        origin, changed_policy_request
+    )
+    assert agent_action_content_hash(policy_tuple[1]) != agent_action_content_hash(invocation)
 
 
 @pytest.mark.asyncio

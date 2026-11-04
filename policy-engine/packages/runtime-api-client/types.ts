@@ -1657,6 +1657,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Request Run Candidate Acquisition Experiment Decision */
+        post: operations["request_run_candidate_acquisition_experiment_decision"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/runs/{run_id}/case-inspection": {
         parameters: {
             query?: never;
@@ -4671,6 +4688,19 @@ export interface components {
             source?: components["schemas"]["CompletedMethodHTESource"] | null;
         };
         /**
+         * CandidateExperimentRouteMutationRequest
+         * @description Optimistic pins only; permission and live action owners remain separate.
+         */
+        CandidateExperimentRouteMutationRequest: {
+            /** Human Decision Record Ref */
+            human_decision_record_ref?: string | null;
+            /** Idempotency Key */
+            idempotency_key: string;
+            replay_pins: components["schemas"]["CandidateExperimentRouteReplayPins-Input"];
+            /** Route Id */
+            route_id: string;
+        };
+        /**
          * CandidateExperimentRouteProjection
          * @description Read-only experiment proposal with unknown cost and no action authority.
          */
@@ -4701,7 +4731,7 @@ export interface components {
              * @constant
              */
             publication_authority: false;
-            replay_pins: components["schemas"]["CandidateExperimentRouteReplayPins"];
+            replay_pins: components["schemas"]["CandidateExperimentRouteReplayPins-Output"];
             /** Route Id */
             route_id: string;
             /** Run Id */
@@ -4723,7 +4753,26 @@ export interface components {
          * CandidateExperimentRouteReplayPins
          * @description Exact selected source and policy views for an unknown-cost experiment.
          */
-        CandidateExperimentRouteReplayPins: {
+        "CandidateExperimentRouteReplayPins-Input": {
+            /** Candidate Digest */
+            candidate_digest: string;
+            compiled_ref: components["schemas"]["ArtifactRef-Input"];
+            compiler_report_ref: components["schemas"]["ArtifactRef-Input"];
+            configured_port_source_ref: components["schemas"]["ArtifactRef-Input"];
+            planner_report_ref: components["schemas"]["ArtifactRef-Input"];
+            policy_ref: components["schemas"]["ArtifactRef-Input"];
+            /** Request Content Hash */
+            request_content_hash: string;
+            /** Source Job Id */
+            source_job_id: string;
+            /** Source Payload Ref */
+            source_payload_ref: string;
+        };
+        /**
+         * CandidateExperimentRouteReplayPins
+         * @description Exact selected source and policy views for an unknown-cost experiment.
+         */
+        "CandidateExperimentRouteReplayPins-Output": {
             /** Candidate Digest */
             candidate_digest: string;
             compiled_ref: components["schemas"]["ArtifactRef-Output"];
@@ -30877,6 +30926,97 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CandidateExperimentRouteProjection"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    request_run_candidate_acquisition_experiment_decision: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+                route_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CandidateExperimentRouteMutationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcquisitionDecisionRequestResponse"];
                 };
             };
             /** @description Malformed request payload or parameters. */

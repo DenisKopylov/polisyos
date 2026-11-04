@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from hashlib import sha256
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.canonical_profile import require_declared_profile
@@ -15,13 +16,17 @@ from polisyos.runtime.http.deployment_security import (
     RuntimeDeploymentSecurity,
     require_factory_produced_deployment_security,
 )
+from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionActionService,
     AcquisitionRouteMutationRequest,
+    CandidateExperimentRouteMutationRequest,
 )
 from polisyos.runtime.http.services.acquisition_admission_bundle import (
     AcquisitionAdmissionBundleBlocked,
     AcquisitionAdmissionBundleProducer,
+    candidate_experiment_request_resource_digest,
+    require_candidate_experiment_bound_permission,
 )
 from polisyos.runtime.http.services.human_decision_contracts import (
     HumanDecisionPA2GatewayAdapterInput,
@@ -32,6 +37,7 @@ from polisyos.runtime.http.services.human_decisions import (
 )
 from polisyos.runtime.quality.agent_action_authority import (
     ACQUISITION_ACTION_KIND,
+    CANDIDATE_EXPERIMENT_ACTION_KIND,
     AgentActionAuthorityDecision,
     AgentActionAuthorityGateway,
     AgentActionAuthorityOwnerResolutionError,
@@ -39,15 +45,17 @@ from polisyos.runtime.quality.agent_action_authority import (
     AgentActionAuthorityResolutionFailure,
     AgentActionAuthorityWriteContext,
     AgentActionEffectBinding,
+    AuthenticatedAgentActionDecisionHistory,
     agent_action_content_hash,
     agent_action_permission_hash,
+    load_agent_action_decision_history,
 )
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     from polisyos.core import artifacts
-    from polisyos.pdc import OperationInvocationRecord
+    from polisyos.pdc import OperationContract, OperationInvocationRecord
     from polisyos.runtime.http.authorization import BoundActionPermissionVerification
     from polisyos.runtime.http.mutation_policy import RuntimeIdempotencyStore
     from polisyos.runtime.http.services.acquisition_authority_configuration import (
@@ -55,8 +63,10 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.acquisition_route_loop import (
         VerifiedAcquisitionRouteClosure,
+        VerifiedCandidateExperimentOrigin,
     )
     from polisyos.runtime.quality.agent_action_authority import (
+        AgentActionIntent,
         ResolvedDelegationContract,
     )
     from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
@@ -120,7 +130,9 @@ class ProductionAcquisitionAuthorityProvider:
         )
 
     def _context(
-        self, closure: VerifiedAcquisitionRouteClosure, job_id: str
+        self,
+        closure: VerifiedAcquisitionRouteClosure | VerifiedCandidateExperimentOrigin,
+        job_id: str,
     ) -> AgentActionAuthorityWriteContext:
         return AgentActionAuthorityWriteContext(
             tenant_id=closure.tenant_id,
@@ -148,8 +160,26 @@ class ProductionAcquisitionAuthorityProvider:
             handler=effect_handler,
         )
 
+    @staticmethod
+    def _candidate_experiment_binding(
+        effect_handler: Callable[[OperationInvocationRecord], object],
+    ) -> AgentActionEffectBinding:
+        """Bind the candidate-experiment operation to its own exact owner slot."""
+        return AgentActionEffectBinding(
+            binding_id="runtime.candidate_experiment_route_loop.owner_port.v1",
+            action_kind=CANDIDATE_EXPERIMENT_ACTION_KIND,
+            operation_id=CANDIDATE_EXPERIMENT_ACTION_KIND,
+            operation_version="v1",
+            implementation_ref=(
+                "polisyos.runtime.acquisition_route_loop.candidate_experiment_owner_port.v1"
+            ),
+            handler=effect_handler,
+        )
+
     def _slot(
-        self, closure: VerifiedAcquisitionRouteClosure, resource_digest: str
+        self,
+        closure: VerifiedAcquisitionRouteClosure | VerifiedCandidateExperimentOrigin,
+        resource_digest: str,
     ) -> AcquisitionMandateSlot | None:
         deployment = require_factory_produced_deployment_security(self._deployment)
         return next(
@@ -176,7 +206,7 @@ class ProductionAcquisitionAuthorityProvider:
 
     def _options(
         self,
-        closure: VerifiedAcquisitionRouteClosure,
+        closure: VerifiedAcquisitionRouteClosure | VerifiedCandidateExperimentOrigin,
         job_id: str,
         binding: AgentActionEffectBinding,
         slot: AcquisitionMandateSlot | None,
@@ -260,10 +290,65 @@ class ProductionAcquisitionAuthorityProvider:
         effect_handler: Callable[[OperationInvocationRecord], object],
     ) -> AgentActionAuthorityGateway:
         """Bind the live DS20 proof to signed inputs, or return a refusal gateway."""
+        return self._for_action_request(
+            closure=closure,
+            request=request,
+            job_id=job_id,
+            bound_permission=bound_permission,
+            effect_handler=effect_handler,
+            action_tuple=AcquisitionActionService._action_tuple(closure, request),
+            binding=self._binding(effect_handler),
+        )
+
+    def for_candidate_experiment_request(
+        self,
+        *,
+        origin: VerifiedCandidateExperimentOrigin,
+        request: CandidateExperimentRouteMutationRequest,
+        job_id: str,
+        bound_permission: BoundActionPermissionVerification,
+        effect_handler: Callable[[OperationInvocationRecord], object],
+    ) -> AgentActionAuthorityGateway:
+        """Resolve PA2/DS9 authority for the exact unpriced candidate action."""
+        self._require_candidate_request_source(origin, request)
+        if (
+            bound_permission.verification.requirement.permission
+            is not RuntimePermission.EVIDENCE_ACQUIRE
+        ):
+            raise AgentActionAuthorityRecordingError("candidate_experiment_permission_mismatch")
+        try:
+            require_candidate_experiment_bound_permission(bound_permission, request)
+        except AcquisitionAdmissionBundleBlocked as exc:
+            raise AgentActionAuthorityRecordingError(
+                "candidate_experiment_request_proof_mismatch"
+            ) from exc
+        return self._for_action_request(
+            closure=origin,
+            request=request,
+            job_id=job_id,
+            bound_permission=bound_permission,
+            effect_handler=effect_handler,
+            action_tuple=AcquisitionActionService._candidate_experiment_action_tuple(
+                origin, request
+            ),
+            binding=self._candidate_experiment_binding(effect_handler),
+        )
+
+    def _for_action_request(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure | VerifiedCandidateExperimentOrigin,
+        request: AcquisitionRouteMutationRequest | CandidateExperimentRouteMutationRequest,
+        job_id: str,
+        bound_permission: BoundActionPermissionVerification,
+        effect_handler: Callable[[OperationInvocationRecord], object],
+        action_tuple: tuple[OperationContract, OperationInvocationRecord, AgentActionIntent],
+        binding: AgentActionEffectBinding,
+    ) -> AgentActionAuthorityGateway:
+        """Resolve one typed acquisition action through shared PA2/DS9 owners."""
         agent_action_permission_hash(bound_permission)
         resource_digest = bound_permission.bound_resource.resource_digest
         slot = self._slot(closure, resource_digest)
-        binding = self._binding(effect_handler)
         options = self._options(closure, job_id, binding, slot)
         authority = self._deployment.acquisition_authority
         options.update(
@@ -318,7 +403,7 @@ class ProductionAcquisitionAuthorityProvider:
                     additional_refs=exc.replay_input_refs,
                 ),
             )
-        operation, invocation, intent = AcquisitionActionService._action_tuple(closure, request)
+        operation, invocation, intent = action_tuple
         selected_human_ref = request.human_decision_record_ref or slot.human_decision_record_ref
         source_refs = self._slot_replay_refs(
             slot,
@@ -385,6 +470,7 @@ class ProductionAcquisitionAuthorityProvider:
                     bound_permission=bound_permission,
                     effect_binding=binding,
                     admitted_at=datetime.now(UTC),
+                    request=request,
                 )
                 options["admission_refs_by_invocation_hash"] = receipt.invocation_refs
         except AcquisitionAdmissionBundleBlocked as exc:
@@ -442,6 +528,23 @@ class ProductionAcquisitionAuthorityProvider:
         return AgentActionAuthorityGateway(**options)
 
     @staticmethod
+    def _require_candidate_request_source(
+        origin: VerifiedCandidateExperimentOrigin,
+        request: CandidateExperimentRouteMutationRequest,
+    ) -> None:
+        """Reject a candidate request whose typed selected views differ from the owner."""
+        from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
+
+        projection = AcquisitionActionService._candidate_experiment_projection(origin)
+        if type(request) is not CandidateExperimentRouteMutationRequest or (
+            request.route_id != origin.route_id
+            or not _candidate_model_values_same(request.replay_pins, projection.replay_pins)
+        ):
+            raise AgentActionAuthorityRecordingError(
+                "candidate_experiment_authority_request_source_mismatch"
+            )
+
+    @staticmethod
     def _human_adapter(
         record: HumanDecisionRecord,
         record_ref: str,
@@ -483,6 +586,110 @@ class ProductionAcquisitionAuthorityProvider:
         effect_handler: Callable[[OperationInvocationRecord], object],
     ) -> AgentActionAuthorityGateway:
         """Reopen the exact worker decision and all authority inputs after a process restart."""
+        return self._for_persisted_decision(
+            closure=closure,
+            job_id=job_id,
+            decision_ref=decision_ref,
+            effect_handler=effect_handler,
+            action_tuple=AcquisitionActionService._action_tuple(closure, request),
+            binding=self._binding(effect_handler),
+            expected_human_decision_record_ref=request.human_decision_record_ref,
+        )
+
+    def for_candidate_experiment_job(
+        self,
+        *,
+        origin: VerifiedCandidateExperimentOrigin,
+        request: CandidateExperimentRouteMutationRequest,
+        job_id: str,
+        decision_ref: str,
+        effect_handler: Callable[[OperationInvocationRecord], object],
+    ) -> AgentActionAuthorityGateway:
+        """Reopen candidate PA2 and DS9 evidence for a live worker replay."""
+        self._require_candidate_request_source(origin, request)
+        return self._for_persisted_decision(
+            closure=origin,
+            job_id=job_id,
+            decision_ref=decision_ref,
+            effect_handler=effect_handler,
+            action_tuple=AcquisitionActionService._candidate_experiment_action_tuple(
+                origin, request
+            ),
+            binding=self._candidate_experiment_binding(effect_handler),
+            expected_human_decision_record_ref=request.human_decision_record_ref,
+            expected_action_kind=CANDIDATE_EXPERIMENT_ACTION_KIND,
+        )
+
+    def load_candidate_experiment_decision_history(
+        self,
+        *,
+        origin: VerifiedCandidateExperimentOrigin,
+        request: CandidateExperimentRouteMutationRequest,
+        job_id: str,
+        decision_ref: str,
+    ) -> AuthenticatedAgentActionDecisionHistory:
+        """Authenticate candidate PA2 history without implying a current permit."""
+        self._require_candidate_request_source(origin, request)
+        expected_job_id = AcquisitionActionService._candidate_experiment_job_id(origin, request)
+        if job_id != expected_job_id:
+            raise AgentActionAuthorityRecordingError("candidate_experiment_job_identity_mismatch")
+        operation, invocation, intent = AcquisitionActionService._candidate_experiment_action_tuple(
+            origin, request
+        )
+        authority = require_factory_produced_deployment_security(
+            self._deployment
+        ).acquisition_authority
+        history = load_agent_action_decision_history(
+            artifact_store=self._store,
+            event_log=self._event_log,
+            artifact_verifier=authority.verifier,
+            expected_signer_identity=authority.decision_signer_identity,
+            write_context=self._context(origin, job_id),
+            decision_ref=decision_ref,
+        )
+        decision = history.decision
+        if (
+            decision.action_kind != CANDIDATE_EXPERIMENT_ACTION_KIND
+            or decision.operation_id != operation.operation_id
+            or decision.operation_version != operation.operation_version
+            or decision.operation_content_hash != agent_action_content_hash(operation)
+            or decision.invocation_content_hash != agent_action_content_hash(invocation)
+            or decision.intent_content_hash != agent_action_content_hash(intent)
+            or decision.permission_snapshot is None
+            or decision.permission_snapshot.required_permission != "evidence.acquire"
+            or decision.permission_snapshot.resource_digest != decision.bound_resource_digest
+            or decision.permission_snapshot.resource_kind
+            != "runtime.evidence.acquisition.candidate_experiment.request_bound"
+            or decision.permission_snapshot.query_sha256 != f"sha256:{sha256(b'').hexdigest()}"
+            or decision.permission_snapshot.resource_digest
+            != candidate_experiment_request_resource_digest(
+                request,
+                body_sha256=decision.permission_snapshot.body_sha256,
+                query_sha256=decision.permission_snapshot.query_sha256,
+            )
+            or (
+                request.human_decision_record_ref is not None
+                and decision.human_decision_record_ref != request.human_decision_record_ref
+            )
+        ):
+            raise AgentActionAuthorityRecordingError(
+                "candidate_experiment_history_action_tuple_mismatch"
+            )
+        return history
+
+    def _for_persisted_decision(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure | VerifiedCandidateExperimentOrigin,
+        job_id: str,
+        decision_ref: str,
+        effect_handler: Callable[[OperationInvocationRecord], object],
+        action_tuple: tuple[OperationContract, OperationInvocationRecord, AgentActionIntent],
+        binding: AgentActionEffectBinding,
+        expected_human_decision_record_ref: str | None,
+        expected_action_kind: str = ACQUISITION_ACTION_KIND,
+    ) -> AgentActionAuthorityGateway:
+        """Reopen one exact PA2 decision and its current mandate and DS9 record."""
         self._require_worker_decision_verification()
         decision = AgentActionAuthorityDecision.model_validate(
             require_declared_profile(read_core_json_artifact(self._store, decision_ref))
@@ -492,15 +699,25 @@ class ProductionAcquisitionAuthorityProvider:
         slot = self._slot(closure, decision.bound_resource_digest or "")
         if slot is None or decision.admission_bundle_ref is None:
             raise AgentActionAuthorityRecordingError("acquisition replay authority slot is empty")
-        operation, invocation, intent = AcquisitionActionService._action_tuple(closure, request)
+        operation, invocation, intent = action_tuple
         if (
-            decision.operation_content_hash != agent_action_content_hash(operation)
+            decision.action_kind != expected_action_kind
+            or decision.operation_id != operation.operation_id
+            or decision.operation_version != operation.operation_version
+            or decision.operation_content_hash != agent_action_content_hash(operation)
             or decision.invocation_content_hash != agent_action_content_hash(invocation)
             or decision.intent_content_hash != agent_action_content_hash(intent)
+            or (
+                expected_human_decision_record_ref is not None
+                and decision.human_decision_record_ref != expected_human_decision_record_ref
+            )
+            or decision.permission_snapshot is None
+            or decision.permission_snapshot.required_permission != "evidence.acquire"
+            or decision.permission_snapshot.resource_digest != decision.bound_resource_digest
         ):
             raise AgentActionAuthorityRecordingError("acquisition replay action tuple changed")
         gateway = AgentActionAuthorityGateway.for_persisted_decision(
-            **self._options(closure, job_id, self._binding(effect_handler), slot),
+            **self._options(closure, job_id, binding, slot),
             decision_ref=decision_ref,
             admission_refs_by_invocation_hash={
                 decision.invocation_content_hash: decision.admission_bundle_ref

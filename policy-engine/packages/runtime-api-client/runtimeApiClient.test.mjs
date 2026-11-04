@@ -77,6 +77,107 @@ test("candidate acquisition experiment GET preserves unknown authority and repla
   assert.equal(deniedCalls, 1);
 });
 
+test("candidate acquisition experiment decision request POST forwards exact preparation pins", async () => {
+  // Transport fixture only; refs and response do not establish permission or an external effect.
+  const runId = "run/with space";
+  const routeId = `sha256:${"a".repeat(64)}`;
+  const selectedRef = (artifact_id, kind) => ({
+    artifact_id,
+    kind,
+    media_type: "application/json",
+    manifest_profile_sha256: `sha256:${"b".repeat(64)}`,
+  });
+  const body = {
+    route_id: routeId,
+    replay_pins: {
+      source_job_id: "source-job",
+      source_payload_ref: `sha256:${"c".repeat(64)}`,
+      request_content_hash: `sha256:${"d".repeat(64)}`,
+      compiled_ref: selectedRef(
+        `sha256:${"e".repeat(64)}`,
+        "runtime.compiled_recursive_generation_cycle",
+      ),
+      planner_report_ref: selectedRef(
+        `sha256:${"f".repeat(64)}`,
+        "runtime.acquisition_planner_report",
+      ),
+      compiler_report_ref: selectedRef(
+        `sha256:${"1".repeat(64)}`,
+        "runtime.data_requirement_compilation_report",
+      ),
+      configured_port_source_ref: selectedRef(
+        `sha256:${"2".repeat(64)}`,
+        "runtime.quality.n7_configured_candidate_port_source",
+      ),
+      policy_ref: selectedRef(
+        `sha256:${"3".repeat(64)}`,
+        "runtime_quality.candidate_unpriced_acquisition_policy",
+      ),
+      candidate_digest: `sha256:${"4".repeat(64)}`,
+    },
+    idempotency_key: "decision-request-fixture-1",
+    human_decision_record_ref: `sha256:${"5".repeat(64)}`,
+  };
+  const originalBody = structuredClone(body);
+  const responsePayload = {
+    authority_decision_ref: `sha256:${"6".repeat(64)}`,
+    outcome: "decision_required",
+    human_decision_request: {
+      request_id: "transport-request-1",
+      state: "pending",
+    },
+    route_id: routeId,
+    run_id: runId,
+    world_growth: "not_established",
+  };
+  const calls = [];
+  const client = createClient(calls, responsePayload);
+
+  assert.deepEqual(
+    await client.requestRunCandidateAcquisitionExperimentDecision({
+      run_id: runId,
+      route_id: routeId,
+      body,
+    }),
+    responsePayload,
+  );
+  assert.deepEqual(body, originalBody);
+  assert.equal(calls.length, 1);
+  assert.equal(
+    calls[0].url,
+    `https://runtime.test/api/v1/runs/${encodeURIComponent(runId)}` +
+      `/candidate-acquisition-experiment/${encodeURIComponent(routeId)}/decision-request`,
+  );
+  assert.equal(calls[0].init.method, "POST");
+  assert.deepEqual(JSON.parse(calls[0].init.body), body);
+
+  let deniedCalls = 0;
+  const deniedClient = new RuntimeApiClient({
+    baseUrl: "https://runtime.test",
+    fetchImpl: async () => {
+      deniedCalls += 1;
+      return new Response('{"code":"forbidden"}', {
+        status: 403,
+        statusText: "Forbidden",
+        headers: { "Content-Type": "application/problem+json" },
+      });
+    },
+  });
+  await assert.rejects(
+    () =>
+      deniedClient.requestRunCandidateAcquisitionExperimentDecision({
+        run_id: runId,
+        route_id: routeId,
+        body,
+      }),
+    {
+      name: "Error",
+      message: 'Runtime API request failed: 403 Forbidden {"code":"forbidden"}',
+    },
+  );
+  assert.equal(deniedCalls, 1);
+});
+
 test("normative evidence submission forwards the source head and signed refs", async () => {
   const calls = [];
   const payload = { status: "admitted", head_ref: "sha256:admitted" };

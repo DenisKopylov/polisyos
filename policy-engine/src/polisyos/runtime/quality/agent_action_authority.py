@@ -159,6 +159,7 @@ AGENT_ACTION_ADMISSION_ARTIFACT_KIND = "runtime_quality.agent_action_admission"
 HUMAN_DECISION_ARTIFACT_KIND = "runtime_quality.agent_action_human_decision"
 AGENT_ACTION_DECISION_ARTIFACT_KIND = "runtime_quality.agent_action_authority_decision"
 ACQUISITION_ACTION_KIND = "runtime.evidence.acquisition.execute"
+CANDIDATE_EXPERIMENT_ACTION_KIND = "runtime.evidence.acquisition.candidate_experiment.execute"
 CURRENT_MANDATE_OWNER_SCHEMA_VERSION: Literal["policyos.runtime.current_mandate_owner.v1"] = (
     "policyos.runtime.current_mandate_owner.v1"
 )
@@ -471,6 +472,129 @@ class PersistedAgentActionDecision:
     decision: AgentActionAuthorityDecision
     write_result: _AuthorityArtifactWriteResult
     durable_event_id: str
+
+
+@dataclass(frozen=True, slots=True)
+class AuthenticatedAgentActionDecisionHistory:
+    """Authenticated original PA2 record; this carries no current execution permit."""
+
+    decision: AgentActionAuthorityDecision
+    decision_ref: str
+    payload_sha256: str
+    durable_event_id: str
+    signer_identity: str | None
+    current_authority: Literal["not_revalidated"] = "not_revalidated"
+
+
+def load_agent_action_decision_history(
+    *,
+    artifact_store: _SignedCasProtocol,
+    event_log: RuntimeDiagnosticEventLog,
+    artifact_verifier: artifacts.Ed25519Verifier,
+    expected_signer_identity: str | None,
+    write_context: AgentActionAuthorityWriteContext,
+    decision_ref: str,
+) -> AuthenticatedAgentActionDecisionHistory:
+    """Authenticate one PA2 record at original write context, without current authority."""
+    if not expected_signer_identity:
+        raise AgentActionAuthorityRecordingError(
+            "agent action history requires a configured trusted decision signer"
+        )
+    history = _load_authenticated_decision_record(
+        artifact_store=artifact_store,
+        event_log=event_log,
+        artifact_verifier=artifact_verifier,
+        expected_signer_identity=expected_signer_identity,
+        write_context=write_context,
+        decision_ref=decision_ref,
+        require_signature=True,
+    )
+    if history.signer_identity is None:  # pragma: no cover - enforced by strict verification
+        raise AgentActionAuthorityRecordingError("agent action history signer is missing")
+    return history
+
+
+def _load_authenticated_decision_record(
+    *,
+    artifact_store: _SignedCasProtocol,
+    event_log: RuntimeDiagnosticEventLog,
+    artifact_verifier: artifacts.Ed25519Verifier,
+    expected_signer_identity: str | None,
+    write_context: AgentActionAuthorityWriteContext,
+    decision_ref: str,
+    require_signature: bool,
+) -> AuthenticatedAgentActionDecisionHistory:
+    """Shared CAS/profile/schema/signature/event validator for persisted PA2 records."""
+    try:
+        artifact_id = artifacts.ArtifactID.model_validate(decision_ref)
+        if not artifact_store.has(artifact_id):
+            raise ValueError("decision artifact missing")
+        payload_bytes = artifact_store.get_bytes(artifact_id)
+        payload_sha256 = canon.content_hash(payload_bytes)
+        if decision_ref != f"sha256:{payload_sha256}":
+            raise ValueError("decision artifact identity mismatch")
+        decision = AgentActionAuthorityDecision.model_validate(
+            require_declared_profile(
+                read_core_json_artifact(
+                    artifact_store, artifact_id, raw_payload_bytes=payload_bytes
+                )
+            )
+        )
+        canonical_sha256 = canon.content_hash(
+            canon.to_canonical_bytes(decision.model_dump(mode="json"), canon.CanonSpec())
+        )
+        if canonical_sha256 != payload_sha256:
+            raise ValueError("decision payload is not its canonical signed content")
+        manifest = artifact_store.get_manifest(artifact_id)
+        schema = manifest.artifact_schema
+        if (
+            manifest.artifact_id != artifact_id
+            or manifest.kind != AGENT_ACTION_DECISION_ARTIFACT_KIND
+            or manifest.media_type != "application/json"
+            or schema is None
+            or schema.name != "polisyos.runtime.AgentActionAuthorityDecision"
+            or schema.version != AGENT_ACTION_AUTHORITY_SCHEMA_VERSION
+            or manifest.authority is None
+            or manifest.authority.payload_sha256 != payload_sha256
+        ):
+            raise ValueError("decision manifest mismatch")
+        signer_identity: str | None = None
+        if require_signature or expected_signer_identity is not None:
+            signature = artifact_store.verify_signature(
+                artifact_id, artifact_verifier, strict_identity=True
+            )
+            if (
+                signature.status is not artifacts.SignatureVerificationStatus.VALID
+                or signature.signer_identity is None
+                or (
+                    expected_signer_identity is not None
+                    and signature.signer_identity != expected_signer_identity
+                )
+            ):
+                raise ValueError("decision source signature is unverified")
+            signer_identity = signature.signer_identity
+        report = reconcile_authority_ref(
+            artifact_store=artifact_store,
+            event_log=event_log,
+            cas_ref=decision_ref,
+            expected_tenant_id=write_context.tenant_id,
+            expected_cell_id=write_context.cell_id,
+            expected_run_id=write_context.run_id,
+            expected_job_id=write_context.job_id,
+        )
+        if report.durable_event_id is None:
+            raise ValueError("decision durable event missing")
+    except Exception as exc:
+        raise AgentActionAuthorityRecordingError(
+            "agent action history requires an authenticated durable decision ref"
+        ) from exc
+    return AuthenticatedAgentActionDecisionHistory(
+        decision=decision,
+        decision_ref=decision_ref,
+        payload_sha256=payload_sha256,
+        durable_event_id=report.durable_event_id,
+        signer_identity=signer_identity,
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -1210,58 +1334,27 @@ class AgentActionAuthorityGateway:
         """Load one exact decision ref without scanning or trusting a job payload."""
 
         try:
-            self._require_decision_signature(decision_ref)
-            artifact_id = artifacts.ArtifactID.model_validate(decision_ref)
-            if not self._artifact_store.has(artifact_id):
-                raise ValueError("decision artifact missing")
-            payload_bytes = self._artifact_store.get_bytes(artifact_id)
-            payload_sha256 = canon.content_hash(payload_bytes)
-            if decision_ref != f"sha256:{payload_sha256}":
-                raise ValueError("decision artifact identity mismatch")
-            decision = AgentActionAuthorityDecision.model_validate(
-                require_declared_profile(
-                    read_core_json_artifact(
-                        self._artifact_store,
-                        artifact_id,
-                        raw_payload_bytes=payload_bytes,
-                    )
-                )
-            )
-            manifest = self._artifact_store.get_manifest(artifact_id)
-            schema = manifest.artifact_schema
-            if (
-                manifest.artifact_id != artifact_id
-                or manifest.kind != AGENT_ACTION_DECISION_ARTIFACT_KIND
-                or manifest.media_type != "application/json"
-                or schema is None
-                or schema.name != "polisyos.runtime.AgentActionAuthorityDecision"
-                or schema.version != AGENT_ACTION_AUTHORITY_SCHEMA_VERSION
-                or manifest.authority is None
-                or manifest.authority.payload_sha256 != payload_sha256
-            ):
-                raise ValueError("decision manifest mismatch")
-            report = reconcile_authority_ref(
+            history = _load_authenticated_decision_record(
                 artifact_store=self._artifact_store,
                 event_log=self._event_log,
-                cas_ref=decision_ref,
-                expected_tenant_id=self._write_context.tenant_id,
-                expected_cell_id=self._write_context.cell_id,
-                expected_run_id=self._write_context.run_id,
-                expected_job_id=self._write_context.job_id,
+                artifact_verifier=self._artifact_verifier,
+                expected_signer_identity=self._decision_signer_identity,
+                write_context=self._write_context,
+                decision_ref=decision_ref,
+                require_signature=False,
             )
-            if report.durable_event_id is None:
-                raise ValueError("decision durable event missing")
+            artifact_id = artifacts.ArtifactID.model_validate(decision_ref)
             loaded = PersistedAgentActionDecision(
-                decision=decision,
+                decision=history.decision,
                 write_result=_LoadedDecisionWriteResult(
                     cas_ref=artifacts.ArtifactRef(
                         artifact_id=artifact_id,
-                        kind=manifest.kind,
-                        media_type=manifest.media_type,
+                        kind=AGENT_ACTION_DECISION_ARTIFACT_KIND,
+                        media_type="application/json",
                     ),
-                    payload_sha256=payload_sha256,
+                    payload_sha256=history.payload_sha256,
                 ),
-                durable_event_id=report.durable_event_id,
+                durable_event_id=history.durable_event_id,
             )
             self._revalidate_persisted_decision(loaded)
         except AgentActionAuthorityRecordingError:
@@ -2237,12 +2330,17 @@ def _is_acquisition_execution(
     intent: AgentActionIntent,
     operation: OperationContract,
 ) -> bool:
-    """Return whether the exact DS15 authority tuple is being evaluated."""
+    """Return whether the exact costed or candidate acquisition tuple is evaluated."""
 
-    return (
-        intent.action_kind == ACQUISITION_ACTION_KIND
-        and operation.operation_id == ACQUISITION_ACTION_KIND
-        and operation.operation_version == "v1"
+    return operation.operation_version == "v1" and (
+        (
+            intent.action_kind == ACQUISITION_ACTION_KIND
+            and operation.operation_id == ACQUISITION_ACTION_KIND
+        )
+        or (
+            intent.action_kind == CANDIDATE_EXPERIMENT_ACTION_KIND
+            and operation.operation_id == CANDIDATE_EXPERIMENT_ACTION_KIND
+        )
     )
 
 

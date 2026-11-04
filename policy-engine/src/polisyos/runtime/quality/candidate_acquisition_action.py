@@ -6,7 +6,9 @@ observed-data passport, semantic epoch admission, or a claim-evidence grant.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping
+from dataclasses import replace
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -24,12 +26,15 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.acquisition_surface_execution import (
         WorldBankWDIRouteExecutionBinding,
     )
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
     from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionAdmission
     from polisyos.runtime.quality.acquisition_executor import LiveSourceExecutionEvidence
     from polisyos.runtime.quality.acquisition_planner import AcquisitionRequirementBasisBinding
     from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentPhaseReceipt,
         AcquisitionRoutePhaseReceipt,
         VerifiedAcquisitionRouteClosure,
+        VerifiedCandidateExperimentOrigin,
     )
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionWorldGrowthBridge,
@@ -100,20 +105,9 @@ def _current_action(
     AcquisitionCandidateSourceRoute, AcquisitionRoutePhaseReceipt, ControlJobExecutionAdmission
 ]:
     """Resolve the owner route, durable action head and live worker lease again."""
-    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
     from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
-    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
 
-    service = bridge._source_control_service
-    if (
-        type(bridge) is not AcquisitionWorldGrowthBridge
-        or type(service) is not ControlPlaneService
-        or service._control_store is not bridge.control_store
-        or service._artifact_store is not bridge.artifact_store
-        or service._diagnostic_event_log is not bridge.event_log
-        or service.acquisition_route_sink is not bridge.action_head_sink
-    ):
-        raise TypeError("candidate_action_canonical_bridge_required")
+    service = _require_canonical_action_bridge(bridge)
     selection = bridge.candidate_source_selection(closure)
     if selection is None or bridge.control_store is None:
         raise ValueError("candidate_action_route_not_configured")
@@ -143,6 +137,360 @@ def _current_action(
     if current != closure:
         raise ValueError("candidate_action_route_no_longer_current")
     return selection, phase, admission
+
+
+def _require_canonical_action_bridge(
+    bridge: AcquisitionWorldGrowthBridge,
+) -> ControlPlaneService:
+    """Require the bridge's exact composed Control and artifact owners."""
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+
+    service = getattr(bridge, "_source_control_service", None)
+    if (
+        type(bridge) is not AcquisitionWorldGrowthBridge
+        or type(service) is not ControlPlaneService
+        or service._control_store is not bridge.control_store
+        or service._artifact_store is not bridge.artifact_store
+        or service._diagnostic_event_log is not bridge.event_log
+        or service.acquisition_route_sink is not bridge.action_head_sink
+    ):
+        raise TypeError("candidate_action_canonical_bridge_required")
+    return service
+
+
+def _candidate_experiment_source_selection(
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+) -> AcquisitionCandidateSourceRoute:
+    """Derive the typed source selection from its current experiment owners."""
+    from polisyos.data_requirement import DataRequirementCompilationReport
+    from polisyos.fabric import data_plane
+    from polisyos.runtime.http.services.acquisition_action_service import AcquisitionActionService
+    from polisyos.runtime.http.services.acquisition_surface_execution import (
+        WorldBankWDIAcquisitionExecutionPort,
+        _resolve_world_bank_wdi_source_attempts,
+        build_production_world_bank_wdi_execution_port,
+    )
+    from polisyos.runtime.quality.acquisition_executor import (
+        LiveCatalogExecutionConstraints,
+        _prepare_live_catalog_authorization,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        VerifiedCandidateExperimentOrigin,
+        _CandidateExperimentSourceIdentity,
+    )
+    from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+        resolve_current_candidate_unpriced_policy,
+        verify_candidate_unpriced_experiment_policy_intent,
+    )
+    from polisyos.runtime.quality.candidate_acquisition_source import (
+        validate_candidate_acquisition_selection,
+    )
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
+
+    if type(origin) is not VerifiedCandidateExperimentOrigin:
+        raise TypeError("candidate_experiment_origin_untyped")
+    service = _require_canonical_action_bridge(bridge)
+    scope = origin.policy_scope
+    problem = origin.design_problem_basis
+    try:
+        selected_ref, policy = resolve_current_candidate_unpriced_policy(
+            control_service=service, scope=scope
+        )
+        experiment_evidence = verify_candidate_unpriced_experiment_policy_intent(
+            control_service=service,
+            closure=_CandidateExperimentSourceIdentity(
+                tenant_id=origin.tenant_id,
+                cell_id=origin.cell_id,
+                run_id=origin.run_id,
+                source_job_id=origin.source_job_id,
+                source_payload_ref=origin.source_payload_ref,
+                capability_manifest_ref=origin.capability_manifest_ref,
+            ),
+            scope=scope,
+            policy_ref=origin.policy_ref,
+        )
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise ValueError("candidate_experiment_source_policy_not_current") from exc
+    if (
+        selected_ref != origin.policy_ref
+        or policy.schema_version != "polisyos.runtime.candidate_unpriced_acquisition_policy.v2"
+        or policy.configured_template is None
+        or policy.scope != scope
+        or policy.source_payload_ref != origin.source_payload_ref
+        or policy.request_content_hash != origin.request_content_hash
+        or policy.original_metered_budget_usd != experiment_evidence.run_budget_usd
+        or experiment_evidence.request_content_hash != origin.request_content_hash
+    ):
+        raise ValueError("candidate_experiment_source_policy_changed")
+
+    handler = getattr(service, "_acquisition_job_handler", None)
+    action_service = getattr(handler, "__self__", None)
+    live_port = getattr(action_service, "_production_execution_port", None)
+    if (
+        type(action_service) is not AcquisitionActionService
+        or action_service.control_service is not service
+        or type(live_port) is not WorldBankWDIAcquisitionExecutionPort
+        or action_service._execution_port is not live_port
+        or live_port._world_growth_bridge is not bridge
+        or live_port._artifact_store is not bridge.artifact_store
+    ):
+        raise ValueError("candidate_experiment_source_execution_owner_not_current")
+    current_port = build_production_world_bank_wdi_execution_port(control_service=service)
+    if (
+        type(current_port) is not WorldBankWDIAcquisitionExecutionPort
+        or current_port._artifact_store is not bridge.artifact_store
+        or current_port._registry != live_port._registry
+        or current_port._provision != live_port._provision
+        or current_port._provision_content_sha256 != live_port._provision_content_sha256
+    ):
+        raise ValueError("candidate_experiment_source_authority_changed")
+    template = policy.configured_template
+    if (
+        template.authority_registry_sha256 != current_port._registry.content_sha256
+        or template.authority_provision_sha256 != current_port._provision_content_sha256
+    ):
+        raise ValueError("candidate_experiment_source_template_authority_changed")
+
+    try:
+        variable_id, entry_id, constraints, attempts = _resolve_world_bank_wdi_source_attempts(
+            source=origin,
+            authority=current_port._authority,
+            registry=current_port._registry,
+            provision=current_port._provision,
+            provision_content_sha256=current_port._provision_content_sha256,
+        )
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise ValueError("candidate_experiment_source_attempt_not_current") from exc
+    selected_attempts = tuple(
+        attempt for attempt, _receipt in attempts if attempt.attempt_id == template.attempt_id
+    )
+    if entry_id != template.authority_entry_id or len(selected_attempts) != 1:
+        raise ValueError("candidate_experiment_source_attempt_changed")
+    bounded = LiveCatalogExecutionConstraints.model_validate(
+        {
+            **constraints.model_dump(),
+            "max_response_bytes": min(
+                constraints.max_response_bytes, template.max_http_response_bytes
+            ),
+            "max_decompressed_bytes": min(
+                constraints.max_decompressed_bytes, template.max_http_decompressed_bytes
+            ),
+            "timeout_cap_seconds": min(
+                constraints.timeout_cap_seconds, template.max_http_timeout_seconds
+            ),
+        }
+    )
+    try:
+        prepared = _prepare_live_catalog_authorization(
+            authority=current_port._authority,
+            entry_id=entry_id,
+            attempt_id=template.attempt_id,
+            constraints=bounded,
+            registry_providers=service._registry_providers,
+        )
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise ValueError("candidate_experiment_source_authorization_not_current") from exc
+    if type(policy.live_authorization) is not data_plane.LiveExecutionAuthorization or (
+        prepared.authorization != policy.live_authorization
+    ):
+        raise ValueError("candidate_experiment_source_authorization_changed")
+
+    compilation = DataRequirementCompilationReport.model_validate(
+        artifacts.load_core_json_artifact(bridge.artifact_store, scope.compiler_report_ref)
+    )
+    specs = tuple(
+        spec for spec in compilation.specs if spec.requirement_id == scope.compiled_requirement_ref
+    )
+    if len(specs) != 1:
+        raise ValueError("candidate_experiment_source_requirement_not_unique")
+    spec = specs[0]
+    if (
+        scope.compiled_requirement_ref != origin.planner_record.compiled_requirement_ref
+        or not spec.scope.population
+    ):
+        raise ValueError("candidate_experiment_source_requirement_scope_mismatch")
+    try:
+        candidate, resolved_source = validate_candidate_acquisition_selection(
+            bridge.artifact_store,
+            requirement_basis_binding=origin.planner_report.requirement_basis_binding,
+            compiled_requirement_ref=scope.compiled_requirement_ref,
+            requirement_id=scope.requirement_id,
+            candidate_digest=scope.candidate_digest,
+            authority=current_port._authority,
+            entry_id=entry_id,
+            target_slot_id=variable_id,
+            country_code=bounded.country_code,
+            year=bounded.start_year,
+            population=spec.scope.population,
+        )
+        live_resolved_source = live_port._authority.resolve(entry_id)
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise ValueError("candidate_experiment_source_selection_not_current") from exc
+    if (
+        candidate.content_digest != scope.candidate_digest
+        or resolved_source != live_resolved_source
+    ):
+        raise ValueError("candidate_experiment_source_entry_changed")
+    return AcquisitionCandidateSourceRoute(
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        run_id=origin.run_id,
+        route_id=origin.route_id,
+        design_problem_ref=scope.design_problem_ref,
+        compiled_requirement_ref=scope.compiled_requirement_ref,
+        requirement_id=scope.requirement_id,
+        candidate_digest=scope.candidate_digest,
+        profile_selection_ref=cycle_job_profile_selection_ref(problem),
+        canonical_variable_id=variable_id,
+        target_slot_id=variable_id,
+        country_code=constraints.country_code,
+        year=constraints.start_year,
+        population=spec.scope.population,
+        reentry_budget_usd=policy.configured_template.max_metered_reentry_usd,
+    )
+
+
+def _same_candidate_experiment_origin_source(
+    supplied: VerifiedCandidateExperimentOrigin,
+    current: VerifiedCandidateExperimentOrigin,
+) -> bool:
+    """Compare every immutable source field while resolving the action head separately."""
+    from polisyos.runtime.quality.acquisition_route_loop import VerifiedCandidateExperimentOrigin
+
+    return (
+        type(supplied) is VerifiedCandidateExperimentOrigin
+        and type(current) is VerifiedCandidateExperimentOrigin
+        and replace(supplied, current_action_head=None)
+        == replace(current, current_action_head=None)
+    )
+
+
+def _current_candidate_experiment_action(
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    action_phase_ref: str,
+) -> tuple[
+    AcquisitionCandidateSourceRoute,
+    AcquisitionCandidateExperimentPhaseReceipt,
+    ControlJobExecutionAdmission,
+]:
+    """Resolve the exact current experiment phase and separate live acquisition lease."""
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        VerifiedAcquisitionActionOutcome,
+    )
+    from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionAdmission
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentPhaseReceipt,
+        AcquisitionRouteLoop,
+    )
+
+    service = _require_canonical_action_bridge(bridge)
+    if (
+        not isinstance(action_phase_ref, str)
+        or re.fullmatch(r"sha256:[0-9a-f]{64}", action_phase_ref) is None
+    ):
+        raise ValueError("candidate_experiment_action_phase_ref_invalid")
+    if bridge.control_store is None:
+        raise ValueError("candidate_experiment_action_live_job_not_established")
+
+    loop = AcquisitionRouteLoop(
+        control_store=bridge.control_store,
+        artifact_store=bridge.artifact_store,
+        event_log=bridge.event_log,
+        core_source_resolver=service.resolve_completed_control_job_core_run_source,
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        action_outcome_reader=service.acquisition_route_sink,
+    )
+    try:
+        current_origin = loop.resolve_current_candidate_experiment(run_id=origin.run_id)
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise ValueError("candidate_experiment_action_source_not_current") from exc
+    if current_origin.current_action_head is None or not _same_candidate_experiment_origin_source(
+        origin, current_origin
+    ):
+        raise ValueError("candidate_experiment_action_source_changed")
+    selected = _candidate_experiment_source_selection(bridge, current_origin)
+
+    try:
+        outcomes = service.acquisition_route_sink.experiment_action_outcomes(
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            run_id=origin.run_id,
+            source_job_id=origin.source_job_id,
+            route_id=origin.route_id,
+        )
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise ValueError("candidate_experiment_action_history_not_verified") from exc
+    head = current_origin.current_action_head
+    if (
+        not isinstance(outcomes, tuple)
+        or len(outcomes) != 1
+        or type(outcomes[0]) is not VerifiedAcquisitionActionOutcome
+        or outcomes[0].head != head
+        or outcomes[0].head.receipt_ref != action_phase_ref
+        or outcomes[0].head.receipt_sha256 != action_phase_ref
+        or type(outcomes[0].latest_receipt) is not AcquisitionCandidateExperimentPhaseReceipt
+        or not outcomes[0].phase_chain
+    ):
+        raise ValueError("candidate_experiment_action_phase_not_current")
+    outcome = outcomes[0]
+    phase_record = outcome.phase_chain[-1]
+    phase = outcome.latest_receipt
+    if (
+        phase_record.receipt_ref != action_phase_ref
+        or phase_record.receipt != phase
+        or phase.receipt_phase != "executing"
+        or outcome.executing_phase_ref != action_phase_ref
+        or outcome.executing_phase != phase
+        or phase.tenant_id != origin.tenant_id
+        or phase.cell_id != origin.cell_id
+        or phase.run_id != origin.run_id
+        or phase.source_job_id != origin.source_job_id
+        or phase.route_id != origin.route_id
+        or phase.source_payload_ref != origin.source_payload_ref
+        or phase.capability_manifest_ref != origin.capability_manifest_ref
+        or phase.request_content_hash != origin.request_content_hash
+        or phase.policy_scope != origin.policy_scope
+        or phase.policy_ref != origin.policy_ref
+        or phase.action_generation != head.action_generation
+        or phase.job_id != head.job_id
+    ):
+        raise ValueError("candidate_experiment_action_phase_binding_mismatch")
+
+    admission = bridge.control_store.current_execution_job_admission()
+    job = admission.job
+    if (
+        type(admission) is not ControlJobExecutionAdmission
+        or job.kind != "acquisition"
+        or job.state != "running"
+        or job.run_id != origin.run_id
+        or job.job_id != phase.job_id
+        or admission.scope.status != "established"
+        or admission.scope.actor_authenticated is not True
+        or not admission.scope.actor_subject
+        or admission.scope.tenant_id != origin.tenant_id
+        or admission.scope.cell_id != origin.cell_id
+    ):
+        raise ValueError("candidate_experiment_action_live_job_scope_mismatch")
+    current_head = bridge.control_store.get_acquisition_action_head(
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        run_id=origin.run_id,
+        source_job_id=origin.source_job_id,
+        route_id=origin.route_id,
+        action_generation=head.action_generation,
+    )
+    after = bridge.control_store.current_execution_job_admission()
+    if (
+        current_head != head
+        or after != admission
+        or _candidate_experiment_source_selection(bridge, current_origin) != selected
+    ):
+        raise ValueError("candidate_experiment_action_live_owner_changed")
+    return selected, phase, admission
 
 
 def _compiler_binding(

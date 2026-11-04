@@ -20,14 +20,17 @@ from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRoutePhaseReceipt,
     AcquisitionRouteRecoveryRequired,
     VerifiedAcquisitionRouteClosure,
+    VerifiedCandidateExperimentOrigin,
     persist_world_commit_and_reenter,
     resume_world_committed_reentry,
 )
 from polisyos.runtime.quality.agent_action_authority import (
     ACQUISITION_ACTION_KIND,
+    CANDIDATE_EXPERIMENT_ACTION_KIND,
     AgentActionAuthorityGateway,
     AgentActionAuthorityRefused,
     AgentActionIntent,
+    AuthenticatedAgentActionDecisionHistory,
     agent_action_authority_scope,
     agent_action_content_hash,
     produce_agent_action_authority_decision,
@@ -137,6 +140,7 @@ class CandidateExperimentRouteMutationRequest(BaseModel):
     route_id: str = Field(pattern=_SHA256_PATTERN)
     replay_pins: CandidateExperimentRouteReplayPins
     idempotency_key: str = Field(min_length=1, max_length=200)
+    human_decision_record_ref: str | None = Field(default=None, pattern=_SHA256_PATTERN)
 
 
 class CandidateExperimentRouteProjection(BaseModel):
@@ -392,6 +396,25 @@ class AcquisitionAuthorityGatewayProvider(Protocol):
         bound_permission: BoundActionPermissionVerification,
         effect_handler: Callable[[OperationInvocationRecord], object],
     ) -> AgentActionAuthorityGateway: ...
+
+    def for_candidate_experiment_request(
+        self,
+        *,
+        origin: VerifiedCandidateExperimentOrigin,
+        request: CandidateExperimentRouteMutationRequest,
+        job_id: str,
+        bound_permission: BoundActionPermissionVerification,
+        effect_handler: Callable[[OperationInvocationRecord], object],
+    ) -> AgentActionAuthorityGateway: ...
+
+    def load_candidate_experiment_decision_history(
+        self,
+        *,
+        origin: VerifiedCandidateExperimentOrigin,
+        request: CandidateExperimentRouteMutationRequest,
+        job_id: str,
+        decision_ref: str,
+    ) -> AuthenticatedAgentActionDecisionHistory: ...
 
     def for_job(
         self,
@@ -1021,19 +1044,18 @@ class AcquisitionActionService:
         """Reopen a source-bound experiment projection without authorizing an action."""
         if not tenant_id or not cell_id or not run_id:
             raise AcquisitionActionServiceError("acquisition_actor_scope_missing")
-        loop = AcquisitionRouteLoop(
-            control_store=self.control_service._control_store,
-            artifact_store=self.control_service._artifact_store,
-            event_log=self.control_service._diagnostic_event_log,
-            core_source_resolver=self.control_service.resolve_completed_control_job_core_run_source,
+        origin = self._resolve_candidate_experiment_origin(
             tenant_id=tenant_id,
             cell_id=cell_id,
-            action_outcome_reader=self.control_service.acquisition_route_sink,
+            run_id=run_id,
         )
-        try:
-            origin = loop.resolve_candidate_experiment_origin(run_id=run_id)
-        except AcquisitionRouteClosureError as exc:
-            raise AcquisitionActionServiceError(exc.code) from exc
+        return self._candidate_experiment_projection(origin)
+
+    @staticmethod
+    def _candidate_experiment_projection(
+        origin: VerifiedCandidateExperimentOrigin,
+    ) -> CandidateExperimentRouteProjection:
+        """Project only the currently reopened source and policy identity."""
         scope = origin.policy_scope
         return CandidateExperimentRouteProjection(
             tenant_id=origin.tenant_id,
@@ -1053,6 +1075,36 @@ class AcquisitionActionService:
             ),
             scheduler_action=origin.source_cycle.voi_decision.scheduler_action,
             scheduler_reason=origin.source_cycle.voi_decision.scheduler_reason,
+        )
+
+    def _resolve_candidate_experiment_origin(
+        self, *, tenant_id: str, cell_id: str, run_id: str
+    ) -> VerifiedCandidateExperimentOrigin:
+        """Reopen the candidate source and policy through the canonical route owner."""
+        loop = self._candidate_experiment_loop(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+        )
+        try:
+            return loop.resolve_candidate_experiment_origin(run_id=run_id)
+        except AcquisitionRouteClosureError as exc:
+            raise AcquisitionActionServiceError(exc.code) from exc
+
+    def _candidate_experiment_loop(
+        self, *, tenant_id: str, cell_id: str, run_id: str
+    ) -> AcquisitionRouteLoop:
+        """Compose the candidate source reader from the existing run-bound owners."""
+        if not tenant_id or not cell_id or not run_id:
+            raise AcquisitionActionServiceError("acquisition_actor_scope_missing")
+        return AcquisitionRouteLoop(
+            control_store=self.control_service._control_store,
+            artifact_store=self.control_service._artifact_store,
+            event_log=self.control_service._diagnostic_event_log,
+            core_source_resolver=self.control_service.resolve_completed_control_job_core_run_source,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            action_outcome_reader=self.control_service.acquisition_route_sink,
         )
 
     def _validate_candidate_experiment_request(
@@ -1076,6 +1128,268 @@ class AcquisitionActionService:
         ):
             raise AcquisitionActionServiceError("candidate_experiment_route_revalidation_required")
         return projection
+
+    def replay_candidate_experiment_authority(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        route_id: str,
+        request: CandidateExperimentRouteMutationRequest,
+        job_id: str,
+        decision_ref: str,
+        effect_handler: Callable[[OperationInvocationRecord], object],
+    ) -> AgentActionAuthorityGateway:
+        """Reopen candidate source and persisted PA2/DS9 evidence for a checked worker."""
+        if type(request) is not CandidateExperimentRouteMutationRequest:
+            raise AcquisitionActionServiceError("candidate_experiment_request_untyped")
+        loop = self._candidate_experiment_loop(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+        )
+        try:
+            origin = loop._resolve_candidate_experiment_source(run_id=run_id)
+        except AcquisitionRouteClosureError as exc:
+            raise AcquisitionActionServiceError(exc.code) from exc
+        if route_id != origin.route_id:
+            raise AcquisitionActionServiceError("candidate_experiment_route_revalidation_required")
+        expected_job_id = self._candidate_experiment_job_id(origin, request)
+        if job_id != expected_job_id:
+            raise AcquisitionActionServiceError("candidate_experiment_job_identity_mismatch")
+        from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
+
+        projection = self._candidate_experiment_projection(origin)
+        if not _candidate_model_values_same(request.replay_pins, projection.replay_pins):
+            raise AcquisitionActionServiceError("candidate_experiment_route_revalidation_required")
+        provider = self._require_candidate_experiment_authority_provider()
+        return provider.for_candidate_experiment_job(
+            origin=origin,
+            request=request,
+            job_id=job_id,
+            decision_ref=decision_ref,
+            effect_handler=effect_handler,
+        )
+
+    def load_candidate_experiment_decision_history(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        route_id: str,
+        request: CandidateExperimentRouteMutationRequest,
+        job_id: str,
+        decision_ref: str,
+    ) -> AuthenticatedAgentActionDecisionHistory:
+        """Load immutable candidate PA2 history after rebuilding the exact tuple.
+
+        The returned record proves what PA2 recorded at the original write context;
+        it deliberately does not authorize current execution.
+        """
+        if type(request) is not CandidateExperimentRouteMutationRequest:
+            raise AcquisitionActionServiceError("candidate_experiment_request_untyped")
+        loop = self._candidate_experiment_loop(tenant_id=tenant_id, cell_id=cell_id, run_id=run_id)
+        try:
+            origin = loop._resolve_candidate_experiment_source(run_id=run_id)
+        except AcquisitionRouteClosureError as exc:
+            raise AcquisitionActionServiceError(exc.code) from exc
+        if origin.route_id != route_id:
+            raise AcquisitionActionServiceError("candidate_experiment_route_revalidation_required")
+        from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
+
+        if not _candidate_model_values_same(
+            request.replay_pins, self._candidate_experiment_projection(origin).replay_pins
+        ):
+            raise AcquisitionActionServiceError("candidate_experiment_route_revalidation_required")
+        expected_job_id = self._candidate_experiment_job_id(origin, request)
+        if job_id != expected_job_id:
+            raise AcquisitionActionServiceError("candidate_experiment_job_identity_mismatch")
+        provider = self._require_candidate_experiment_authority_provider()
+        return provider.load_candidate_experiment_decision_history(
+            origin=origin,
+            request=request,
+            job_id=job_id,
+            decision_ref=decision_ref,
+        )
+
+    def request_candidate_experiment_decision(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        route_id: str,
+        request: CandidateExperimentRouteMutationRequest,
+        bound_permission: BoundActionPermissionVerification,
+    ) -> AcquisitionDecisionRequestResponse:
+        """Persist the exact candidate-experiment PA2 decision without executing it."""
+        projection = self._validate_candidate_experiment_request(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            request=request,
+        )
+        if route_id != projection.route_id:
+            raise AcquisitionActionServiceError("candidate_experiment_route_revalidation_required")
+        origin = self._resolve_candidate_experiment_origin(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+        )
+        from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
+
+        if origin.route_id != projection.route_id or not _candidate_model_values_same(
+            self._candidate_experiment_projection(origin).replay_pins,
+            projection.replay_pins,
+        ):
+            raise AcquisitionActionServiceError("candidate_experiment_source_changed")
+        job_id = self._candidate_experiment_job_id(origin, request)
+        operation, invocation, intent = self._candidate_experiment_action_tuple(origin, request)
+        provider = self._require_candidate_experiment_authority_provider()
+
+        def _no_effect(_invocation: OperationInvocationRecord) -> object:
+            raise RuntimeError("candidate-experiment decision request cannot invoke an effect")
+
+        gateway = provider.for_candidate_experiment_request(
+            origin=origin,
+            request=request,
+            job_id=job_id,
+            bound_permission=bound_permission,
+            effect_handler=_no_effect,
+        )
+        with agent_action_authority_scope(gateway):
+            decision = produce_agent_action_authority_decision(
+                bound_permission=bound_permission,
+                operation=operation,
+                invocation=invocation,
+                intent=intent,
+            )
+            persisted = gateway.persist_decision(decision)
+        return AcquisitionDecisionRequestResponse(
+            run_id=run_id,
+            route_id=route_id,
+            authority_decision_ref=str(persisted.write_result.cas_ref.artifact_id),
+            outcome=(
+                "decision_required" if decision.outcome == "refused" else "decision_available"
+            ),
+            human_decision_request=(
+                decision.human_decision_request.model_dump(mode="json")
+                if decision.human_decision_request is not None
+                else None
+            ),
+        )
+
+    @staticmethod
+    def _candidate_experiment_action_tuple(
+        origin: VerifiedCandidateExperimentOrigin,
+        request: CandidateExperimentRouteMutationRequest,
+    ) -> tuple[OperationContract, OperationInvocationRecord, AgentActionIntent]:
+        """Bind the candidate policy, source, replay pins, and request into PA2."""
+        binding = agent_action_content_hash(
+            {
+                "tenant_id": origin.tenant_id,
+                "cell_id": origin.cell_id,
+                "run_id": origin.run_id,
+                "source_job_id": origin.source_job_id,
+                "source_payload_ref": origin.source_payload_ref,
+                "request_content_hash": origin.request_content_hash,
+                "route_id": origin.route_id,
+                "policy_ref": origin.policy_ref.model_dump(mode="json"),
+                "policy_scope": origin.policy_scope.model_dump(mode="json"),
+                "replay_pins": request.replay_pins.model_dump(mode="json"),
+                "idempotency_key": request.idempotency_key,
+                "human_decision_record_ref": request.human_decision_record_ref,
+                "action_job_id": AcquisitionActionService._candidate_experiment_job_id(
+                    origin, request
+                ),
+            }
+        )
+        operation = OperationContract(
+            operation_id=CANDIDATE_EXPERIMENT_ACTION_KIND,
+            operation_version="v1",
+            operation_class=OperationClass.ACQUIRE,
+            consumes=[],
+            produces=[],
+            formal_preconditions=[],
+            allowed_internal_execution=["tool_call"],
+            implementation_refs=[
+                {
+                    "module": "polisyos.runtime.http.services.acquisition_action_service",
+                    "symbol": "AcquisitionActionService.request_candidate_experiment_decision",
+                }
+            ],
+            cost_model={"monetary_cost": "not_established"},
+            authority_transform={"kind": "preserves"},
+            failure_modes=["authority_refused", "candidate_source_changed"],
+            repair_options=[OperationClass.ESCALATE],
+        )
+        invocation = OperationInvocationRecord(
+            invocation_id=f"candidate-experiment.execute.{binding.removeprefix('sha256:')}",
+            operation_id=operation.operation_id,
+            operation_version=operation.operation_version,
+            workspace_id=origin.run_id,
+            cycle_index=origin.source_cycle.cycle_index,
+            selected_by={"producer": "runtime.acquisition_route_loop"},
+            selection_rationale_ref=origin.route_id,
+            input_artifacts=[],
+            parameters={
+                "route_id": origin.route_id,
+                "source_job_id": origin.source_job_id,
+                "source_payload_ref": origin.source_payload_ref,
+                "request_content_hash": origin.request_content_hash,
+                "policy_ref": request.replay_pins.policy_ref.model_dump(mode="json"),
+                "candidate_digest": request.replay_pins.candidate_digest,
+                "replay_pins": request.replay_pins.model_dump(mode="json"),
+                "idempotency_key": request.idempotency_key,
+                "human_decision_record_ref": request.human_decision_record_ref,
+                "action_job_id": AcquisitionActionService._candidate_experiment_job_id(
+                    origin, request
+                ),
+            },
+            internal_trace={"phase": "candidate_experiment_decision_only"},
+            tool_calls=[],
+            human_requests=[],
+            output_artifacts=[],
+            applicability_result="applicable",
+            budget_delta={"candidate_experiment_actions": 1},
+            status="started",
+        )
+        return (
+            operation,
+            invocation,
+            AgentActionIntent(action_kind=CANDIDATE_EXPERIMENT_ACTION_KIND),
+        )
+
+    @staticmethod
+    def _candidate_experiment_job_id(
+        origin: VerifiedCandidateExperimentOrigin,
+        request: CandidateExperimentRouteMutationRequest,
+    ) -> str:
+        """Derive one stable decision identity without introducing a phase receipt."""
+        binding = agent_action_content_hash(
+            {
+                "tenant_id": origin.tenant_id,
+                "cell_id": origin.cell_id,
+                "run_id": origin.run_id,
+                "source_job_id": origin.source_job_id,
+                "route_id": origin.route_id,
+                "request_content_hash": origin.request_content_hash,
+                "replay_pins": request.replay_pins.model_dump(mode="json"),
+                "idempotency_key": request.idempotency_key,
+                "human_decision_record_ref": request.human_decision_record_ref,
+            }
+        )
+        return f"candidate-experiment-{binding.removeprefix('sha256:')}"
+
+    def _require_candidate_experiment_authority_provider(
+        self,
+    ) -> AcquisitionAuthorityGatewayProvider:
+        provider = self._require_authority_provider()
+        if not callable(getattr(provider, "for_candidate_experiment_request", None)):
+            raise AcquisitionActionServiceError("candidate_experiment_authority_producer_missing")
+        return provider
 
     def _resolve(
         self,

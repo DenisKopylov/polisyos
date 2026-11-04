@@ -44,6 +44,7 @@ for the complete schema-described and route-only surfaces.
 | `GET`  | `/api/v1/runs/{run_id}/paper`                  | `RunPaperPacket`                | Replay-pinned run paper and selected artifact refs                     |
 | `GET`  | `/api/v1/runs/{run_id}/workflow`               | `RunWorkflowResponse`           | Workflow/DAG view                                                      |
 | `GET`  | `/api/v1/runs/{run_id}/candidate-acquisition-experiment` | `CandidateExperimentRouteProjection` | Selected candidate policy and replay pins; no execution permission |
+| `POST` | `/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request` | `AcquisitionDecisionRequestResponse` | Prepare a signed decision; does not enqueue or execute |
 | `POST` | `/api/v1/runs/{run_id}/predictive-calibration` | `PredictiveCalibrationResponse` | Run-bound candidate diagnostic; appends a selected CAS ref event       |
 | `GET`  | `/api/v1/runs/{run_id}/predictive-calibration` | `PredictiveCalibrationResponse` | Reopens the latest appended diagnostic and recomputes S10              |
 | `GET`  | `/api/v1/runs/live`                            | `text/event-stream`             | Route-only, schema-hidden global live stream                           |
@@ -80,6 +81,29 @@ Transport permission/refusal tests, the typed OpenAPI success example, generated
 client drift and the SDK transport control are qualified in LANE-01's existing
 working state. Transport fixtures alone do not prove the completed-source reader
 or a protected action end to end.
+
+## `POST /api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request`
+
+Prepare the PA2 decision for an exact candidate route, source and selected
+policy. The strict body carries `route_id`, complete `replay_pins`,
+`idempotency_key`, and an optional `human_decision_record_ref`. The route requires
+`EVIDENCE_ACQUIRE`, request-composite binding under the distinct
+`runtime.evidence.acquisition.candidate_experiment` resource kind and
+`ACQUISITION_APPROVAL` step-up. A legacy acquisition approval cannot authorize
+this different operation.
+
+The canonical admission producer binds the exact body/query, source, operation,
+invocation and mandate. The existing human-decision requirement remains in
+force. Adding a human record to a previously bound request changes its body
+hash; an approval for the earlier body cannot be reused for that changed
+request. A configured mandate slot may supply its signed human record while
+the caller replays the original unchanged body.
+
+This endpoint prepares a decision only. A later worker must independently
+revalidate its current permission, selected phase and active lease before an
+effect. Authenticating a historical signed decision establishes its recorded
+verdict, not a current permit. Neither outcome prices an unpriced source,
+establishes VOI, admits observed data or authorizes publication.
 
 ## `GET /api/v1/runs`
 

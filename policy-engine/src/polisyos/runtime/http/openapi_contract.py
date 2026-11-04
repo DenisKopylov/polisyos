@@ -2535,6 +2535,7 @@ def _success_example_response_models() -> dict[str, Any]:
         PredictiveCoverageDiagnosticPreview,
     )
     from polisyos.runtime.http.services.acquisition_action_service import (
+        AcquisitionDecisionRequestResponse,
         CandidateExperimentRouteProjection,
     )
     from polisyos.runtime.http.services.candidate_hte_packet_projection import (
@@ -2567,6 +2568,9 @@ def _success_example_response_models() -> dict[str, Any]:
         "withdraw_registered_sql_materialization": RegisteredSQLWithdrawalResponse,
         "get_run_candidate_hte_packet": CandidateDecisionPacketHTEProjection,
         "get_run_candidate_acquisition_experiment": CandidateExperimentRouteProjection,
+        "request_run_candidate_acquisition_experiment_decision": (
+            AcquisitionDecisionRequestResponse
+        ),
         "get_control_pre_admission_attempt_by_idempotency_key": (
             ControlPreAdmissionAttemptResponse
         ),
@@ -3040,6 +3044,14 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
         "authority_decision_ref": "sha256:" + "1" * 64,
         "outcome": "decision_required",
         "human_decision_request": {"request_ref": "pdc://human-decision/ds15"},
+        "world_growth": "not_established",
+    },
+    "request_run_candidate_acquisition_experiment_decision": {
+        "run_id": "example-candidate-run",
+        "route_id": _ARTIFACT_ID_SAMPLE,
+        "authority_decision_ref": "sha256:" + "1" * 64,
+        "outcome": "decision_required",
+        "human_decision_request": {"request_ref": "pdc://human-decision/candidate-example"},
         "world_growth": "not_established",
     },
     "execute_run_acquisition_route": {

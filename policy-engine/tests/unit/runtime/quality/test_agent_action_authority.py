@@ -48,6 +48,9 @@ from polisyos.runtime.http.resource_binding import (
 )
 from polisyos.runtime.http.services.control.artifacts import write_runtime_authority_artifact
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+from polisyos.runtime.quality.agent_action_authority import (
+    CANDIDATE_EXPERIMENT_ACTION_KIND,
+)
 from polisyos.runtime.quality.authority import GovernanceMetadata
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
 from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
@@ -853,11 +856,18 @@ def _persist_human_record(
     )
 
 
+@pytest.mark.parametrize(
+    "action_kind",
+    [
+        "runtime.evidence.acquisition.execute",
+        CANDIDATE_EXPERIMENT_ACTION_KIND,
+    ],
+)
 def test_acquisition_action_in_envelope_still_requires_ds9_record(
     tmp_path: Path,
+    action_kind: str,
 ) -> None:
     harness = _harness(tmp_path)
-    action_kind = "runtime.evidence.acquisition.execute"
     operation = _operation(action_kind)
     invocation = _invocation(operation)
     intent = _intent(action_kind)

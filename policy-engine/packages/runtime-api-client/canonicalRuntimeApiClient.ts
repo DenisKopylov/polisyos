@@ -290,11 +290,17 @@ export type CacheStatusResponse =
 export type CandidateDecisionPacketHTEProjection =
   RuntimeApiComponents["schemas"]["CandidateDecisionPacketHTEProjection"];
 
+export type CandidateExperimentRouteMutationRequest =
+  RuntimeApiComponents["schemas"]["CandidateExperimentRouteMutationRequest"];
+
 export type CandidateExperimentRouteProjection =
   RuntimeApiComponents["schemas"]["CandidateExperimentRouteProjection"];
 
-export type CandidateExperimentRouteReplayPins =
-  RuntimeApiComponents["schemas"]["CandidateExperimentRouteReplayPins"];
+export type CandidateExperimentRouteReplayPinsInput =
+  RuntimeApiComponents["schemas"]["CandidateExperimentRouteReplayPins-Input"];
+
+export type CandidateExperimentRouteReplayPinsOutput =
+  RuntimeApiComponents["schemas"]["CandidateExperimentRouteReplayPins-Output"];
 
 export type CandidateLever = RuntimeApiComponents["schemas"]["CandidateLever"];
 
@@ -3409,6 +3415,22 @@ export class RuntimeApiClient {
       path,
       query,
       undefined,
+      undefined,
+    );
+  }
+
+  async requestRunCandidateAcquisitionExperimentDecision(params: {
+    run_id: string;
+    route_id: string;
+    body: CandidateExperimentRouteMutationRequest;
+  }): Promise<AcquisitionDecisionRequestResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/candidate-acquisition-experiment/${encodeURIComponent(String(params.route_id))}/decision-request`;
+    const query = undefined;
+    return this.request<AcquisitionDecisionRequestResponse>(
+      "POST",
+      path,
+      query,
+      params.body,
       undefined,
     );
   }

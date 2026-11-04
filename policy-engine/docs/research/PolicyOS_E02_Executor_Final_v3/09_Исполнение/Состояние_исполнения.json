@@ -9802,6 +9802,59 @@
           "peak_rss_bytes": 1541357568,
           "scope": "Typed V2 planner hash and V1 golden, scope controls, actual WDI earlier owner-unavailable refusal, currentness adapter. Actual live source/action authority unproved; later template WIP differs."
         },
+        "candidate_policy_bridge_composed": {
+          "output": "policy-engine/_cache/e02/lane01-policy-bridge-composed-r1",
+          "observed": {
+            "PASS": 12,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 11,
+          "seconds": 18.539,
+          "peak_rss_bytes": 1710489600,
+          "scope": "Actual WDI/Fabric and compiler component preparation, idempotent policy/event persistence, optional completion bridge and actual-child subject routing. Component source parents/callbacks declared; not a full completed-source issuer or protected action positive. Later formatter-only edits preserve AST."
+        },
+        "labor_retained_current_r6": {
+          "output": "policy-engine/_cache/e02/lane01-labor-consume-only-r6",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 288,
+          "seconds": 57.04,
+          "peak_rss_bytes": 1652557776,
+          "scope": "Same original native Labor producer, fresh current consumer and genuine idempotent public policy writer. No physical N5;213 prior blob/manifest files,22 prior SQL tuples across5 tables and ledger preserved. Original r1 pytest FAIL preserved; r5 semantic pass remains input-drifted. No template issuer/action effect or production authority established."
+        },
+        "frontier_current_r1": {
+          "output": "policy-engine/_cache/e02/lane01-frontier-current-r1",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 1,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 272,
+          "scope": "Full current-source run stops at unexplained zero persist-ref spy count; actual child-source lookup mismatch diagnosed separately. Helper and custody-readback oracle repaired afterward; full rerun pending."
+        },
+        "hard_budget_di_fixture_resource": {
+          "outputs": [
+            "policy-engine/_cache/e02/luna-physical-fixture-diagnostic-r1",
+            "policy-engine/_cache/e02/luna-physical-fixture-diagnostic-r2",
+            "policy-engine/_cache/e02/luna-physical-fixture-diagnostic-r3",
+            "policy-engine/_cache/e02/luna-physical-fixture-diagnostic-r4"
+          ],
+          "status": "ERROR_RESOURCE_LIMIT_SEMANTIC_UNRUN",
+          "scope": "Early runs expose stale signed-scope assertion and context observer signature; repaired. Subsequent cap aborts are resource outcomes. Latest3.5GiB cap sampled4067393536bytes before test output, not OOM/product FAIL. Three blanket-admission expectations remain WIP; no larger automatic run."
+        },
         "experiment_dashboard_types": {
           "output": "policy-engine/_cache/e02/lane01-shared-generated/experiment-dashboard-typecheck-r1",
           "observed": {

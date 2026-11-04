@@ -76,6 +76,13 @@ class _LiveSourceExecutionEvidence(Protocol):
     normalized_data_artifact_id: object
 
 
+class _LiveVariableSource(Protocol):
+    """Source fields needed before a route identity exists."""
+
+    planner_record: Any
+    design_problem_basis: Any
+
+
 _CATALOG_API: Any = data_forge_read_api.catalog
 ResolvedAcquisitionAuthority: Any = _CATALOG_API.ResolvedAcquisitionAuthority
 ResolvedLiveHarnessReceipt: Any = _CATALOG_API.ResolvedLiveHarnessReceipt
@@ -150,7 +157,54 @@ def resolve_world_bank_wdi_route_execution_bindings(
 ) -> tuple[WorldBankWDIRouteExecutionBinding, ...]:
     """Resolve one current data route into exact provisioned WDI attempt bindings."""
 
-    variable_id = _require_live_variable_route(closure)
+    variable_id, entry_id, constraints, attempts = _resolve_world_bank_wdi_source_attempts(
+        source=closure,
+        authority=authority,
+        registry=registry,
+        provision=provision,
+        provision_content_sha256=provision_content_sha256,
+    )
+    bindings: list[WorldBankWDIRouteExecutionBinding] = []
+    for attempt, receipt in attempts:
+        payload = {
+            "schema_version": WORLD_BANK_WDI_ROUTE_BINDING_SCHEMA_VERSION,
+            "tenant_id": closure.tenant_id,
+            "cell_id": closure.cell_id,
+            "run_id": closure.run_id,
+            "route_id": closure.route_id,
+            "target_variable": variable_id,
+            "authority_entry_id": entry_id,
+            "authority_provision_id": provision.provision_id,
+            "authority_provision_content_sha256": provision_content_sha256,
+            "authority_registry_content_sha256": registry.content_sha256,
+            "connector_id": WORLD_BANK_WDI_CONNECTOR_ID,
+            "attempt_id": attempt.attempt_id,
+            "harness_receipt_content_sha256": receipt.receipt_content_sha256,
+            "carrier_receipt_sha256": receipt.carrier_receipt_sha256,
+            "constraints": constraints.model_dump(mode="json"),
+        }
+        bindings.append(
+            WorldBankWDIRouteExecutionBinding(
+                **payload,
+                binding_id=(
+                    "acquisition-route-binding:" + fabric_data_plane.content_sha256(payload)
+                ),
+            )
+        )
+    return tuple(bindings)
+
+
+def _resolve_world_bank_wdi_source_attempts(
+    *,
+    source: _LiveVariableSource,
+    authority: _CanonicalAcquisitionAuthority,
+    registry: _AcquisitionAuthorityRegistry,
+    provision: _AcquisitionAuthorityProvision,
+    provision_content_sha256: str,
+) -> tuple[str, str, LiveCatalogExecutionConstraints, tuple[tuple[Any, Any], ...]]:
+    """Resolve exact provisioned source attempts before any route ID is needed."""
+
+    variable_id = _require_live_variable_route(source)
     entries = tuple(
         entry
         for entry in registry.entries
@@ -198,7 +252,7 @@ def resolve_world_bank_wdi_route_execution_bindings(
             resolved.registration.connector_id,
         )
 
-    constraints = _constraints_from_live_variable_route(closure)
+    constraints = _constraints_from_live_variable_route(source)
     require_live_catalog_constraints_within_authority_scope(entry, constraints)
     attempt_provisions = tuple(
         candidate
@@ -211,7 +265,7 @@ def resolve_world_bank_wdi_route_execution_bindings(
             entry.entry_id,
         )
 
-    bindings: list[WorldBankWDIRouteExecutionBinding] = []
+    attempts: list[tuple[Any, Any]] = []
     for attempt in attempt_provisions:
         try:
             receipt = ResolvedLiveHarnessReceipt.model_validate(
@@ -232,35 +286,11 @@ def resolve_world_bank_wdi_route_execution_bindings(
                 "live_route_authority_attempt_drift",
                 attempt.attempt_id,
             )
-        payload = {
-            "schema_version": WORLD_BANK_WDI_ROUTE_BINDING_SCHEMA_VERSION,
-            "tenant_id": closure.tenant_id,
-            "cell_id": closure.cell_id,
-            "run_id": closure.run_id,
-            "route_id": closure.route_id,
-            "target_variable": variable_id,
-            "authority_entry_id": entry.entry_id,
-            "authority_provision_id": provision.provision_id,
-            "authority_provision_content_sha256": provision_content_sha256,
-            "authority_registry_content_sha256": registry.content_sha256,
-            "connector_id": WORLD_BANK_WDI_CONNECTOR_ID,
-            "attempt_id": attempt.attempt_id,
-            "harness_receipt_content_sha256": receipt.receipt_content_sha256,
-            "carrier_receipt_sha256": receipt.carrier_receipt_sha256,
-            "constraints": constraints.model_dump(mode="json"),
-        }
-        bindings.append(
-            WorldBankWDIRouteExecutionBinding(
-                **payload,
-                binding_id=(
-                    "acquisition-route-binding:" + fabric_data_plane.content_sha256(payload)
-                ),
-            )
-        )
-    return tuple(bindings)
+        attempts.append((attempt, receipt))
+    return variable_id, entry.entry_id, constraints, tuple(attempts)
 
 
-def _require_live_variable_route(closure: VerifiedAcquisitionRouteClosure) -> str:
+def _require_live_variable_route(closure: _LiveVariableSource) -> str:
     record = closure.planner_record
     gap_type = getattr(record.gap_type, "value", record.gap_type)
     recommended_strategy = getattr(
@@ -286,7 +316,7 @@ def _require_live_variable_route(closure: VerifiedAcquisitionRouteClosure) -> st
 
 
 def _constraints_from_live_variable_route(
-    closure: VerifiedAcquisitionRouteClosure,
+    closure: _LiveVariableSource,
 ) -> LiveCatalogExecutionConstraints:
     semantics = closure.design_problem_basis.jurisdiction_time
     country_code = semantics.region

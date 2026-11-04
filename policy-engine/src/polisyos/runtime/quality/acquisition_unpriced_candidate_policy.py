@@ -330,6 +330,7 @@ def issue_candidate_unpriced_experiment_policy(
     request_content_hash: str,
     original_metered_budget_usd: Decimal,
     limitations: tuple[str, ...],
+    configured_template: CandidateUnpricedExperimentPolicyTemplate | None = None,
 ) -> CandidateUnpricedAcquisitionPolicy:
     """Declare one bounded experiment; live owners must verify its request.
 
@@ -357,6 +358,7 @@ def issue_candidate_unpriced_experiment_policy(
         source_payload_ref=source_payload_ref,
         request_content_hash=request_content_hash,
         original_metered_budget_usd=original_metered_budget_usd,
+        configured_template=configured_template,
         content_hash="sha256:" + "0" * 64,
     )
     payload = draft.model_dump(mode="json", exclude={"content_hash"})
@@ -451,7 +453,7 @@ def persist_candidate_unpriced_policy(
     event_log: RuntimeDiagnosticEventLog,
     policy: CandidateUnpricedAcquisitionPolicy,
 ) -> ArtifactRef:
-    """Persist a candidate policy as a selected owner artifact and durable event.
+    """Persist a non-template candidate policy as a selected owner artifact.
 
     Persistence alone does not select the policy in the server configuration.
     """
@@ -459,77 +461,175 @@ def persist_candidate_unpriced_policy(
         raise TypeError("candidate_unpriced_policy_untyped")
     policy = CandidateUnpricedAcquisitionPolicy.model_validate(policy.model_dump(mode="json"))
     if policy.configured_template is not None:
-        # Template declarations are not issuers. Keep the new path closed
-        # until its real source, quota and Fabric owner are composed.
         raise ValueError("candidate_unpriced_template_issuer_not_established")
+    return _persist_owned_candidate_unpriced_policy(
+        store=store,
+        event_log=event_log,
+        policy=policy,
+    )
+
+
+def _read_existing_owned_candidate_unpriced_policy(
+    *,
+    store: CoreJSONArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    policy: CandidateUnpricedAcquisitionPolicy,
+) -> ArtifactRef | None:
+    """Resolve one idempotent prior write from its event and complete CAS view."""
+    event_id = "evt_candidate_unpriced_policy_" + policy.content_hash.removeprefix("sha256:")
+    rows = event_log.list_events(event_id=event_id, limit=2)
+    if not rows:
+        return None
+    if len(rows) != 1:
+        raise ValueError("candidate_unpriced_policy_event_identity_ambiguous")
+    event = rows[0].event
+    if event.event_id != event_id or not event.payload_ref:
+        raise ValueError("candidate_unpriced_policy_event_mismatch")
+
+    inventory = getattr(store, "inventory_snapshot", None)
+    if not callable(inventory):
+        raise ValueError("candidate_unpriced_policy_inventory_unavailable")
+    snapshot = inventory(artifact_id=artifacts.ArtifactID.model_validate(event.payload_ref))
+    if getattr(snapshot, "verdict", None) != "pass":
+        raise ValueError("candidate_unpriced_policy_inventory_unverified")
+    matches: dict[tuple[str, str, str, str | None], ArtifactRef] = {}
+    for entry in snapshot.entries:
+        manifest = entry.manifest
+        if manifest.kind != POLICY_KIND:
+            continue
+        if (
+            manifest.media_type != "application/json"
+            or manifest.artifact_schema
+            != artifacts.SchemaInfo(name=POLICY_SCHEMA, version=_policy_schema_version(policy))
+            or manifest.producer != artifacts.ProducerInfo(component=POLICY_PRODUCER, version="1.0")
+            or manifest.artifact_id != artifacts.ArtifactID.model_validate(event.payload_ref)
+        ):
+            raise ValueError("candidate_unpriced_policy_inventory_identity_mismatch")
+        ref = artifacts.artifact_ref_for_manifest(manifest)
+        if not _selected_ref(ref, POLICY_KIND):
+            raise ValueError("candidate_unpriced_policy_inventory_ref_untyped")
+        entry_ref = entry.artifact_ref
+        entry_artifact_id = (
+            entry_ref.artifact_id if isinstance(entry_ref, artifacts.ArtifactRef) else entry_ref
+        )
+        if entry_artifact_id != ref.artifact_id:
+            raise ValueError("candidate_unpriced_policy_inventory_identity_mismatch")
+        identity = artifacts.artifact_ref_identity_key(ref)
+        matches[identity] = ref
+    if len(matches) != 1:
+        raise ValueError("candidate_unpriced_policy_inventory_not_unique")
+    selected = next(iter(matches.values()))
+    existing = read_candidate_unpriced_policy(store=store, event_log=event_log, ref=selected)
+    if existing != policy:
+        raise ValueError("candidate_unpriced_policy_existing_content_mismatch")
+    return selected
+
+
+def _persist_owned_candidate_unpriced_policy(
+    *,
+    store: CoreJSONArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    policy: CandidateUnpricedAcquisitionPolicy,
+) -> ArtifactRef:
+    """Persist a policy after its actual owners have selected it.
+
+    Template policies may use this private seam only after the composition root
+    has derived their source, quota, and Fabric authorization from current owners.
+    """
+    if type(policy) is not CandidateUnpricedAcquisitionPolicy:
+        raise TypeError("candidate_unpriced_policy_untyped")
+    policy = CandidateUnpricedAcquisitionPolicy.model_validate(policy.model_dump(mode="json"))
     _require_policy_sources(store, policy)
+    existing = _read_existing_owned_candidate_unpriced_policy(
+        store=store,
+        event_log=event_log,
+        policy=policy,
+    )
+    if existing is not None:
+        return existing
     inputs = _policy_inputs(policy)
     refs = tuple(sorted({str(item.artifact_id) for item in inputs}))
     generated_at = datetime.now(UTC).isoformat()
     scope = policy.scope
-    result = write_runtime_authority_artifact(
-        store,
-        event_log,
-        policy.model_dump(mode="json"),
-        artifacts.ArtifactWriteOptions(
-            kind=POLICY_KIND,
-            media_type="application/json",
-            schema=artifacts.SchemaInfo(name=POLICY_SCHEMA, version=_policy_schema_version(policy)),
-            producer=artifacts.ProducerInfo(component=POLICY_PRODUCER, version="1.0"),
-            inputs=list(inputs),
-        ),
-        evidence_id=policy.content_hash.removeprefix("sha256:"),
-        evidence_class="authority_bearing",
-        authority_role="producer_authority",
-        provenance_kind="runtime_emitted",
-        owner="team-runtime-quality",
-        reader_contract=POLICY_KIND + ".reader",
-        reader_contract_version=_policy_schema_version(policy),
-        tenant_id=scope.tenant_id,
-        cell_id=scope.cell_id,
-        run_id=scope.run_id,
-        job_id=scope.source_job_id,
-        trace_id="trace-" + scope.source_job_id,
-        span_id="span-candidate-unpriced-policy",
-        parent_span_id=None,
-        requested_execution_profile="governed",
-        effective_execution_profile="governed",
-        phase="candidate_unpriced_policy",
-        generated_at=generated_at,
-        as_of_time=generated_at,
-        same_input_closure={
-            "closure_id": "candidate-unpriced-policy:" + policy.content_hash,
-            "status": "closed",
-            "run_id": scope.run_id,
-            "job_id": scope.source_job_id,
-            "tenant_id": scope.tenant_id,
-            "cell_id": scope.cell_id,
-            "evidence_input_refs": refs,
-            "closure_sha256": scope.design_problem_ref,
-        },
-        input_refs=refs,
-        effective_mode_ref=policy.purpose,
-        degradation_ledger_ref=None,
-        semantic_binding_ref=policy.content_hash,
-        validation_status="pass",
-        blocking_status="non_blocking",
-        governance=GovernanceMetadata(
-            classification="internal",
-            authority_boundary=POLICY_PRODUCER,
-            pii="none",
-            retention_policy="runtime-quality-90d",
-            review_status="runtime_verified",
-            override_policy="no_override",
-            approval_policy="pa2_ds9_decision_required",
-        ),
-        event_id="evt_candidate_unpriced_policy_" + policy.content_hash.removeprefix("sha256:"),
-        event_source=POLICY_PRODUCER,
-        event_type=POLICY_EVENT,
-        event_subject="run/" + scope.run_id + "/candidate/" + scope.candidate_id,
-        state_before=None,
-        state_after="configured_candidate_only",
-        canon_spec=canon.CanonSpec(forbid_floats=False),
-    )
+    from polisyos.runtime.quality.diagnostic_events import DiagnosticEventContractError
+
+    try:
+        result = write_runtime_authority_artifact(
+            store,
+            event_log,
+            policy.model_dump(mode="json"),
+            artifacts.ArtifactWriteOptions(
+                kind=POLICY_KIND,
+                media_type="application/json",
+                schema=artifacts.SchemaInfo(
+                    name=POLICY_SCHEMA, version=_policy_schema_version(policy)
+                ),
+                producer=artifacts.ProducerInfo(component=POLICY_PRODUCER, version="1.0"),
+                inputs=list(inputs),
+            ),
+            evidence_id=policy.content_hash.removeprefix("sha256:"),
+            evidence_class="authority_bearing",
+            authority_role="producer_authority",
+            provenance_kind="runtime_emitted",
+            owner="team-runtime-quality",
+            reader_contract=POLICY_KIND + ".reader",
+            reader_contract_version=_policy_schema_version(policy),
+            tenant_id=scope.tenant_id,
+            cell_id=scope.cell_id,
+            run_id=scope.run_id,
+            job_id=scope.source_job_id,
+            trace_id="trace-" + scope.source_job_id,
+            span_id="span-candidate-unpriced-policy",
+            parent_span_id=None,
+            requested_execution_profile="governed",
+            effective_execution_profile="governed",
+            phase="candidate_unpriced_policy",
+            generated_at=generated_at,
+            as_of_time=generated_at,
+            same_input_closure={
+                "closure_id": "candidate-unpriced-policy:" + policy.content_hash,
+                "status": "closed",
+                "run_id": scope.run_id,
+                "job_id": scope.source_job_id,
+                "tenant_id": scope.tenant_id,
+                "cell_id": scope.cell_id,
+                "evidence_input_refs": refs,
+                "closure_sha256": scope.design_problem_ref,
+            },
+            input_refs=refs,
+            effective_mode_ref=policy.purpose,
+            degradation_ledger_ref=None,
+            semantic_binding_ref=policy.content_hash,
+            validation_status="pass",
+            blocking_status="non_blocking",
+            governance=GovernanceMetadata(
+                classification="internal",
+                authority_boundary=POLICY_PRODUCER,
+                pii="none",
+                retention_policy="runtime-quality-90d",
+                review_status="runtime_verified",
+                override_policy="no_override",
+                approval_policy="pa2_ds9_decision_required",
+            ),
+            event_id="evt_candidate_unpriced_policy_" + policy.content_hash.removeprefix("sha256:"),
+            event_source=POLICY_PRODUCER,
+            event_type=POLICY_EVENT,
+            event_subject="run/" + scope.run_id + "/candidate/" + scope.candidate_id,
+            state_before=None,
+            state_after="configured_candidate_only",
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+        )
+    except DiagnosticEventContractError as exc:
+        if exc.code != "authority_event_collision":
+            raise
+        existing = _read_existing_owned_candidate_unpriced_policy(
+            store=store,
+            event_log=event_log,
+            policy=policy,
+        )
+        if existing is None:
+            raise
+        return existing
     loaded = read_candidate_unpriced_policy(store=store, event_log=event_log, ref=result.cas_ref)
     if loaded != policy:
         raise RuntimeError("candidate_unpriced_policy_readback_mismatch")
@@ -605,6 +705,116 @@ def read_candidate_unpriced_policy(
     return policy
 
 
+def list_current_candidate_unpriced_policy_bindings(
+    *,
+    control_service: ControlPlaneService,
+    tenant_id: str,
+    cell_id: str,
+    run_id: str,
+    source_job_id: str,
+    candidate_id: str,
+) -> tuple[CandidateUnpricedPolicyBinding, ...]:
+    """Reopen configured views and uniquely selected issued template policies.
+
+    This is a read-only selection, not source permission or an action permit.
+    Template-issued entries are accepted only while their complete embedded
+    server configuration remains selected; every effect still replays its owners.
+    """
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.http.services.control_registry_providers import ControlRegistryProviders
+
+    if type(control_service) is not ControlPlaneService or any(
+        not isinstance(value, str) or not value.strip()
+        for value in (tenant_id, cell_id, run_id, source_job_id, candidate_id)
+    ):
+        raise ValueError("candidate_unpriced_policy_control_owner_missing")
+    providers = control_service._registry_providers
+    if type(providers) is not ControlRegistryProviders:
+        raise ValueError("candidate_unpriced_policy_control_owner_missing")
+    scope_key = (tenant_id, cell_id, run_id, source_job_id, candidate_id)
+    selected = [
+        item
+        for item in providers.candidate_unpriced_policy_bindings
+        if (
+            item.scope.tenant_id,
+            item.scope.cell_id,
+            item.scope.run_id,
+            item.scope.source_job_id,
+            item.scope.candidate_id,
+        )
+        == scope_key
+    ]
+    templates = providers.candidate_unpriced_policy_templates
+    if not templates:
+        return tuple(selected)
+    event_log = control_service._diagnostic_event_log
+    store = control_service._artifact_store
+    inventory = getattr(store, "inventory_snapshot", None)
+    if not callable(inventory):
+        raise ValueError("candidate_unpriced_policy_inventory_unavailable")
+    limit = 500
+    rows = event_log.list_events(run_id=run_id, job_id=source_job_id, limit=limit)
+    if len(rows) >= limit:
+        raise ValueError("candidate_unpriced_policy_event_inventory_incomplete")
+    seen = {artifacts.artifact_ref_identity_key(item.policy_ref) for item in selected}
+    for row in rows:
+        event = row.event
+        if (
+            event.event_type != POLICY_EVENT
+            or event.event_source != POLICY_PRODUCER
+            or event.producer_component != POLICY_PRODUCER
+            or event.event_subject != f"run/{run_id}/candidate/{candidate_id}"
+            or (event.tenant_id, event.cell_id, event.run_id, event.job_id)
+            != (tenant_id, cell_id, run_id, source_job_id)
+        ):
+            continue
+        if not event.payload_ref:
+            raise ValueError("candidate_unpriced_policy_event_payload_missing")
+        snapshot = inventory(artifact_id=artifacts.ArtifactID.model_validate(event.payload_ref))
+        if snapshot.verdict != "pass":
+            raise ValueError("candidate_unpriced_policy_inventory_unverified")
+        candidates: dict[tuple[str, str, str, str | None], CandidateUnpricedPolicyBinding] = {}
+        for entry in snapshot.entries:
+            manifest = entry.manifest
+            if (
+                manifest.kind != POLICY_KIND
+                or manifest.media_type != "application/json"
+                or manifest.producer
+                != artifacts.ProducerInfo(component=POLICY_PRODUCER, version="1.0")
+            ):
+                continue
+            ref = artifacts.artifact_ref_for_manifest(manifest)
+            identity = artifacts.artifact_ref_identity_key(ref)
+            if identity in candidates:
+                continue
+            policy = read_candidate_unpriced_policy(store=store, event_log=event_log, ref=ref)
+            if policy.configured_template is None:
+                continue
+            if policy.configured_template not in templates:
+                continue
+            if (
+                policy.scope.tenant_id,
+                policy.scope.cell_id,
+                policy.scope.run_id,
+                policy.scope.source_job_id,
+                policy.scope.candidate_id,
+            ) != scope_key:
+                raise ValueError("candidate_unpriced_policy_event_scope_mismatch")
+            candidates[identity] = CandidateUnpricedPolicyBinding(
+                scope=policy.scope, policy_ref=ref
+            )
+        if len(candidates) > 1:
+            raise ValueError("candidate_unpriced_policy_profile_not_unique")
+        for identity, binding in candidates.items():
+            if identity not in seen:
+                selected.append(binding)
+                seen.add(identity)
+    after = event_log.list_events(run_id=run_id, job_id=source_job_id, limit=limit)
+    if len(after) >= limit or after != rows or control_service._registry_providers is not providers:
+        raise ValueError("candidate_unpriced_policy_selection_changed")
+    return tuple(selected)
+
+
 def resolve_current_candidate_unpriced_policy(
     *,
     control_service: ControlPlaneService,
@@ -622,7 +832,14 @@ def resolve_current_candidate_unpriced_policy(
     providers = control_service._registry_providers
     if type(providers) is not ControlRegistryProviders:
         raise ValueError("candidate_unpriced_policy_control_owner_missing")
-    bindings = providers.candidate_unpriced_policy_bindings
+    bindings = list_current_candidate_unpriced_policy_bindings(
+        control_service=control_service,
+        tenant_id=scope.tenant_id,
+        cell_id=scope.cell_id,
+        run_id=scope.run_id,
+        source_job_id=scope.source_job_id,
+        candidate_id=scope.candidate_id,
+    )
     matches = tuple(
         binding for binding in bindings if _candidate_model_values_same(binding.scope, scope)
     )

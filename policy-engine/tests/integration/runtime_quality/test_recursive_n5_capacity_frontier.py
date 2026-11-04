@@ -308,20 +308,6 @@ async def test_original_two_child_run_stops_after_first_child_on_standard_n5_cap
         "build_design_problem_from_nl_request",
         run_deterministic_compiler,
     )
-    original_persist_ref = GenerationSourceRepository.persist_ref
-    served_parent_results: list[Any] = []
-
-    def capture_served_parent_result(repository: Any, **kwargs: Any) -> Any:
-        if cycle_job_design_problem_ref(kwargs["problem"]) == prepared_problem_ref:
-            served_parent_results.append(kwargs["organ"].result)
-        return original_persist_ref(repository, **kwargs)
-
-    monkeypatch.setattr(
-        GenerationSourceRepository,
-        "persist_ref",
-        capture_served_parent_result,
-    )
-
     observed_budget_owners: list[Any] = []
     original_budget_owner_builder = run_lifecycle._build_control_nl_producer_budget_reconciler
 
@@ -369,14 +355,6 @@ async def test_original_two_child_run_stops_after_first_child_on_standard_n5_cap
         assert dispatched == accepted["job_id"]
         job = service._control_store.get_job(accepted["job_id"])
         assert job is not None and job.state == "completed"
-        assert len(served_parent_results) == 1
-        served_candidate_semantics = _assert_original_second_capture_generation_result(
-            served_parent_results[0],
-            design_problem_ref=prepared_problem_ref,
-            recording_id=prepared.source_recording_id,
-            recording_content_hash=prepared.source_recording_content_hash,
-        )
-        assert served_candidate_semantics == candidate_semantics
         run_id = str(job.progress["core_run_id"])
         response_before = client.get(f"/api/v1/runs/{run_id}")
         assert response_before.status_code == 200, response_before.text
@@ -390,9 +368,46 @@ async def test_original_two_child_run_stops_after_first_child_on_standard_n5_cap
             owner_call(read_core_json_artifact, service._artifact_store, compiled_ref).value
         )
         control_run_id = str(job.run_id)
-        assert compiled.n4_recursive_source_run_id == control_run_id
-        assert compiled.generic_cycle_simulation_handoff is not None
-        assert compiled.generic_cycle_simulation_handoff.run_id == control_run_id
+        handoff = compiled.generic_cycle_simulation_handoff
+        assert handoff is not None
+        assert compiled.design_problem_ref == prepared_problem_ref
+        assert cycle_job_design_problem_ref(compiled.design_problem) == prepared_problem_ref
+        assert compiled.n4_recursive_source_ref is not None
+        assert compiled.n4_recursive_source_job_id == accepted["job_id"] == handoff.job_id
+        assert compiled.n4_recursive_source_run_id == control_run_id == handoff.run_id
+        assert compiled.n4_recursive_source_tenant_id == identity.tenant_id == handoff.tenant_id
+        assert compiled.n4_recursive_source_cell_id == identity.cell_id == handoff.cell_id
+        assert compiled.n4_recursive_source_context_job_ref == handoff.context_job_ref
+        assert compiled.n4_recursive_source_profile_config_ref == handoff.profile.profile_id
+        assert compiled.n4_recursive_source_profile_selection_ref == (
+            handoff.profile.profile_selection_ref
+        )
+        assert handoff.profile.profile_selection_ref == cycle_job_profile_selection_ref(
+            prepared.recorded_problem
+        )
+        assert handoff.profile.profile_id == configured_profiles[0].profile_id
+        assert compiled.n4_recursive_source_result_status == "generated"
+
+        served_source = owner_call(
+            GenerationSourceRepository(service._artifact_store).load,
+            compiled.n4_recursive_source_ref,
+            run_id=control_run_id,
+            expected_run_id=control_run_id,
+            expected_job_id=accepted["job_id"],
+            expected_tenant_id=identity.tenant_id,
+            expected_cell_id=identity.cell_id,
+            context_job_ref=handoff.context_job_ref,
+            profile_ref=handoff.profile_ref,
+            n4_child_profile_family_ref=handoff.n4_child_profile_family_ref,
+        )
+        assert cycle_job_design_problem_ref(served_source.problem) == prepared_problem_ref
+        served_candidate_semantics = _assert_original_second_capture_generation_result(
+            served_source.generation_result,
+            design_problem_ref=prepared_problem_ref,
+            recording_id=prepared.source_recording_id,
+            recording_content_hash=prepared.source_recording_content_hash,
+        )
+        assert served_candidate_semantics == candidate_semantics
         assert control_run_id != run_id
 
         from polisyos.scientist.orchestration.engine.budget_ledger import (

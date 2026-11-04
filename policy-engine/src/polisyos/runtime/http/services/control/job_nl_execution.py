@@ -1223,6 +1223,30 @@ class ControlNLJobExecutionMixin:
         )
         return
 
+    def _prepare_candidate_experiment_policies_after_completion(self, source_job_id: str) -> None:
+        """Prepare optional candidate experiment policies for a completed NL job."""
+        if not self._registry_providers.candidate_unpriced_policy_templates:
+            return
+
+        try:
+            from polisyos.runtime.quality.candidate_experiment_policy_issuer import (
+                prepare_candidate_experiment_policies_for_completed_job,
+            )
+
+            prepare_candidate_experiment_policies_for_completed_job(
+                control_service=self,
+                source_job_id=source_job_id,
+            )
+        except Exception as exc:
+            import logging
+
+            logging.getLogger(__name__).warning(
+                "Candidate experiment policy preparation failed for completed job "
+                "job_id=%s error_type=%s",
+                source_job_id,
+                type(exc).__name__[:80],
+            )
+
     def _complete_nl_candidate_only_result(self, context: _ControlNLJobContext) -> None:
         """Reject an unexpected recursive result for candidate-only intent."""
         job = context.job
@@ -1417,4 +1441,5 @@ class ControlNLJobExecutionMixin:
                 ),
             ],
         )
+        self._prepare_candidate_experiment_policies_after_completion(job.job_id)
         return

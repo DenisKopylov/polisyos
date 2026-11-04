@@ -7,7 +7,7 @@ import dataclasses
 import json
 import math
 import uuid
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
@@ -962,7 +962,7 @@ def _child_conditioned_synthetic_provider_profile(
         raise ValueError("child_provider_original_draft_candidate_name_missing")
 
     child_problem = child.problem
-    child_problem_ref = gy_content_hash(child_problem.model_dump(mode="json"))
+    child_problem_ref = cycle_job_design_problem_ref(child_problem)
     child_frame_id = str(child_problem.design_problem_id)
     formalizer_index = raw_interventions.index(raw_intervention)
 
@@ -1171,9 +1171,71 @@ def _child_conditioned_synthetic_provider_profile(
     )
     with projection_path.open("x", encoding="utf-8") as stream:
         stream.write(json.dumps(child_recording, sort_keys=True, indent=2) + "\n")
-    if cycle_job_design_problem_ref(child_problem) != child_problem_ref:
-        raise ValueError("child_provider_problem_ref_projection_mismatch")
     return provider_profile
+
+
+def _child_conditioned_provider_profile_bindings(
+    *,
+    parent_problem: Any,
+    children: Sequence[Any],
+    child_profiles_by_selection_ref: Mapping[str, Any],
+) -> dict[str, tuple[str, Any]]:
+    """Bind admitted actual child subjects to their selected prepared profiles."""
+    from polisyos.runtime.quality.cycle_substrate import (
+        cycle_job_design_problem_ref,
+        generic_n4_child_profile_selection_ref,
+    )
+
+    parent_problem_ref = cycle_job_design_problem_ref(parent_problem)
+    bindings: dict[str, tuple[str, Any]] = {}
+    for child in children:
+        selection_ref = generic_n4_child_profile_selection_ref(
+            child.problem,
+            parent_problem_ref=parent_problem_ref,
+            source_result_ref=child.source_result_ref,
+            source_atom_refs=child.source_atom_refs,
+            semantic_ref=child.semantic_ref,
+        )
+        profile = child_profiles_by_selection_ref.get(selection_ref)
+        if profile is None or profile.profile_selection_ref != selection_ref:
+            raise ValueError("child_conditioned_provider_selection_not_admitted")
+        subject_ref = cycle_job_design_problem_ref(child.problem)
+        if subject_ref in bindings:
+            raise ValueError("child_conditioned_provider_problem_ref_not_unique")
+        bindings[subject_ref] = (selection_ref, profile)
+    if len(bindings) != len(children):
+        raise ValueError("child_conditioned_provider_binding_family_incomplete")
+    return bindings
+
+
+def _complete_child_conditioned_provider_request(
+    *,
+    subject_ref: str,
+    request: dict[str, Any],
+    raw_request: bytes,
+    compiled_problem_ref: str | None,
+    parent_completion: Callable[..., dict[str, Any]],
+    child_profiles_by_problem_ref: Mapping[str, tuple[str, Any]],
+    child_keys: Sequence[str],
+) -> dict[str, Any]:
+    """Route one canonical child subject to its exact selected profile."""
+    if subject_ref != compiled_problem_ref:
+        raise ValueError("child_conditioned_provider_subject_not_admitted")
+    child_entry = child_profiles_by_problem_ref.get(subject_ref)
+    if child_entry is None:
+        return parent_completion(
+            request,
+            raw_request=raw_request,
+            compiled_problem_ref=compiled_problem_ref,
+        )
+    child_key, child_profile = child_entry
+    if child_key not in set(child_keys) or child_profile.profile_selection_ref != child_key:
+        raise ValueError("child_conditioned_provider_selection_not_admitted")
+    return child_profile.completion(
+        request,
+        raw_request=raw_request,
+        compiled_problem_ref=compiled_problem_ref,
+    )
 
 
 def _generic_profile_for_selection(
@@ -2333,11 +2395,8 @@ async def prepare_generic_n4_served_replay(
             or declared_recording is None
         ):
             raise AssertionError("child_conditioned_synthetic_provider_profile_missing")
-        child_profiles_by_problem_ref = {}
+        child_profiles_by_selection_ref = {}
         for child, child_key in zip(children, child_keys, strict=True):
-            child_problem_ref = gy_content_hash(child.problem.model_dump(mode="json"))
-            if child_problem_ref in child_profiles_by_problem_ref:
-                raise AssertionError("child_conditioned_provider_problem_ref_not_unique")
             child_profile = _child_conditioned_synthetic_provider_profile(
                 source_recording=source_recording,
                 base_controlled_recording=declared_recording,
@@ -2349,7 +2408,11 @@ async def prepare_generic_n4_served_replay(
             )
             if child_profile.profile_selection_ref != child_key:
                 raise AssertionError("child_conditioned_provider_selection_ref_mismatch")
-            child_profiles_by_problem_ref[child_problem_ref] = (child_key, child_profile)
+            if child_key in child_profiles_by_selection_ref:
+                raise AssertionError("child_conditioned_provider_selection_ref_not_unique")
+            child_profiles_by_selection_ref[child_key] = child_profile
+
+        child_profiles_by_problem_ref: dict[str, tuple[str, Any]] = {}
 
         parent_completion = provider_profile.completion
 
@@ -2360,22 +2423,14 @@ async def prepare_generic_n4_served_replay(
             compiled_problem_ref: str | None,
         ) -> dict[str, Any]:
             request_context = _read_payload(request)
-            if request_context["subject_ref"] != compiled_problem_ref:
-                raise ValueError("child_conditioned_provider_subject_not_admitted")
-            child_entry = child_profiles_by_problem_ref.get(request_context["subject_ref"])
-            if child_entry is None:
-                return parent_completion(
-                    request,
-                    raw_request=raw_request,
-                    compiled_problem_ref=compiled_problem_ref,
-                )
-            child_key, child_profile = child_entry
-            if child_key not in set(child_keys) or child_profile.profile_selection_ref != child_key:
-                raise ValueError("child_conditioned_provider_selection_not_admitted")
-            return child_profile.completion(
-                request,
+            return _complete_child_conditioned_provider_request(
+                subject_ref=request_context["subject_ref"],
+                request=request,
                 raw_request=raw_request,
                 compiled_problem_ref=compiled_problem_ref,
+                parent_completion=parent_completion,
+                child_profiles_by_problem_ref=child_profiles_by_problem_ref,
+                child_keys=child_keys,
             )
 
         # Keep the root provider's normal behavior while routing only an
@@ -2485,6 +2540,14 @@ async def prepare_generic_n4_served_replay(
                     root_result=result,
                     children=actual_children,
                 )
+                if condition_synthetic_provider_on_child_sources:
+                    actual_bindings = _child_conditioned_provider_profile_bindings(
+                        parent_problem=problem,
+                        children=actual_children,
+                        child_profiles_by_selection_ref=child_profiles_by_selection_ref,
+                    )
+                    child_profiles_by_problem_ref.clear()
+                    child_profiles_by_problem_ref.update(actual_bindings)
             return actual_children
 
         monkeypatch.setattr(

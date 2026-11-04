@@ -2419,6 +2419,15 @@ async def _run_controlled_simulate_only_job_fixture(
 
     original_n5_port = JointSimulationPort.__call__
     original_n5_engine = JointSimulationHorizonController.run
+    native_n5_calls: list[tuple[Any, Any]] = []
+    if hard_total_budget:
+        from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
+
+        def refuse_native_n5_call(state: Any, params: Any) -> dict[str, Any]:
+            native_n5_calls.append((state, params))
+            raise AssertionError("controlled_fixture_native_n5_kernel_invoked")
+
+        monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(refuse_native_n5_call))
 
     def record_n5_port(port, *, candidate, problem, cycle_index, **kwargs):
         execution_order.append(("N5_ENTER", ""))
@@ -2463,13 +2472,23 @@ async def _run_controlled_simulate_only_job_fixture(
     context_persist_attempts = []
     original_context_persist = CycleSubstrateContextArtifactOwner.persist_for_current_job
 
-    def record_context_persist_attempt(owner, context, *, problem, verified_nl_job_scope=None):
+    def record_context_persist_attempt(
+        owner,
+        context,
+        *,
+        problem,
+        repo_root=None,
+        verified_nl_job_scope=None,
+        return_selected_profile=False,
+    ):
         context_persist_attempts.append((context, problem, verified_nl_job_scope))
         return original_context_persist(
             owner,
             context,
             problem=problem,
+            repo_root=repo_root,
             verified_nl_job_scope=verified_nl_job_scope,
+            return_selected_profile=return_selected_profile,
         )
 
     monkeypatch.setattr(
@@ -2572,7 +2591,14 @@ async def _run_controlled_simulate_only_job_fixture(
         assert verified_nl_job_scope is not None
         assert get_current_access_scope_or_none() is None
         budget_scope = service._current_verified_nl_budget_scope()
-        assert budget_scope.require_current_physical_budget_scope() == "legacy_omitted"
+        expected_budget_scope = (
+            "legacy_omitted"
+            if not hard_total_budget
+            else "explicit_null"
+            if budget_scope_value is None
+            else budget_scope_value
+        )
+        assert budget_scope.require_current_physical_budget_scope() == expected_budget_scope
         for altered in (
             budget_scope.model_copy(update={"tenant_id": "foreign-tenant"}),
             budget_scope.model_copy(update={"attempt": budget_scope.attempt + 1}),
@@ -3042,6 +3068,7 @@ async def _run_controlled_simulate_only_job_fixture(
             )
         if hard_total_budget:
             assert completed is not None and completed.state == "failed", fixture_diagnostic
+            assert native_n5_calls == [], fixture_diagnostic
             assert completed.error_message is not None
             expected_code = (
                 "candidate_physical_quota_not_established"

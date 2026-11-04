@@ -1416,6 +1416,7 @@ class AcquisitionRouteLoop:
         from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
         from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
             CandidateUnpricedPolicyBinding,
+            list_current_candidate_unpriced_policy_bindings,
             verify_candidate_unpriced_experiment_policy_intent,
         )
         from polisyos.runtime.quality.candidate_acquisition_source import (
@@ -1446,7 +1447,15 @@ class AcquisitionRouteLoop:
         ):
             raise AcquisitionRouteClosureError("candidate_experiment_origin_not_established")
         candidates = []
-        for configured in service._registry_providers.candidate_unpriced_policy_bindings:
+        configured_bindings = list_current_candidate_unpriced_policy_bindings(
+            control_service=service,
+            tenant_id=self._tenant_id,
+            cell_id=self._cell_id,
+            run_id=run_id,
+            source_job_id=origin.job.job_id,
+            candidate_id=origin.source_cycle.selected_candidate_ref,
+        )
+        for configured in configured_bindings:
             if type(configured) is not CandidateUnpricedPolicyBinding:
                 raise AcquisitionRouteClosureError("candidate_experiment_policy_untyped")
             scope = configured.scope

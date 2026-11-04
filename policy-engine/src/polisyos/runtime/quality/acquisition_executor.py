@@ -15,7 +15,7 @@ import re
 import time
 from collections.abc import Mapping, Sequence
 from contextlib import ExitStack
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast
@@ -723,6 +723,108 @@ class _LiveHTTPExecutionObserver:
         return elapsed
 
 
+@dataclass(frozen=True, slots=True)
+class _PreparedLiveCatalogAuthorization:
+    """Owner-derived request facts shared by preparation and live execution."""
+
+    resolved: ResolvedAcquisitionAuthority
+    profile: Any
+    connection_config: Any
+    family_receipt: object
+    request: dict[str, Any]
+    schema_contract: dict[str, Any]
+    authorization: fabric_data_plane.LiveExecutionAuthorization
+
+
+def _prepare_live_catalog_authorization(
+    *,
+    authority: _CanonicalAuthority,
+    entry_id: str,
+    attempt_id: str,
+    constraints: LiveCatalogExecutionConstraints,
+    registry_providers: ControlRegistryProviders | None = None,
+) -> _PreparedLiveCatalogAuthorization:
+    """Reopen the real source and derive a bounded authorization without I/O effects."""
+    from polisyos.runtime.http.services.control_registry_providers import (
+        resolve_control_registry_providers,
+    )
+
+    resolved = ResolvedAcquisitionAuthority.model_validate(authority.resolve(entry_id))
+    entry = resolved.entry
+    registration = resolved.registration
+    if entry.source_lane != "live_fetch":
+        raise LiveAcquisitionExecutionError("live_source_lane_required", entry_id)
+    _require_constraints_within_authority_scope(entry, constraints)
+    if registration.connector_id != "worldbank.wdi":
+        raise LiveAcquisitionExecutionError(
+            "live_connector_family_not_implemented", registration.connector_id
+        )
+    if resolved.license_disposition.value != "admissible_open":
+        raise LiveAcquisitionExecutionError("live_license_not_admissible", resolved.license_id)
+    providers = (
+        registry_providers
+        if registry_providers is not None
+        else resolve_control_registry_providers()
+    )
+    profile = providers.source_profiles.get(registration.source_profile_id)
+    if profile is None:
+        raise LiveAcquisitionExecutionError(
+            "live_source_profile_unresolved", registration.source_profile_id
+        )
+    if not profile.base_url.startswith("https://"):
+        raise LiveAcquisitionExecutionError("live_profile_transport_not_https", profile.profile_id)
+    try:
+        harness_receipt = ResolvedLiveHarnessReceipt.model_validate(
+            authority.resolve_live_harness_receipt(entry_id, attempt_id)
+        )
+    except Exception as exc:
+        raise LiveAcquisitionExecutionError(
+            "live_harness_receipt_unresolved", type(exc).__name__
+        ) from exc
+    connection_config = resolve_connection_config(profile)
+    if harness_receipt.source_profile_family != str(profile.connector_family):
+        raise LiveAcquisitionExecutionError(
+            "live_harness_profile_family_drift", harness_receipt.source_profile_family
+        )
+    if harness_receipt.connection_config_content_sha256 != content_sha256(
+        connection_config.to_dict(redact=True)
+    ):
+        raise LiveAcquisitionExecutionError(
+            "live_harness_connection_config_drift", profile.profile_id
+        )
+    dry_run_request = FetchRequest(dataset_id=registration.request_dataset_id)
+    if harness_receipt.fetch_request_key != dry_run_request.request_key:
+        raise LiveAcquisitionExecutionError(
+            "live_harness_fetch_request_drift", registration.request_dataset_id
+        )
+    family_receipt = harness_receipt.family_receipt
+    request = _live_request_projection(resolved, constraints=constraints)
+    schema_contract = entry.schema_projection()
+    authorization = fabric_data_plane.build_live_execution_authorization(
+        attempt_id=attempt_id,
+        connector_id=registration.connector_id,
+        request_dataset_id=registration.request_dataset_id,
+        request=request,
+        schema_contract=schema_contract,
+        source_profile=profile,
+        baseline_sha256=resolved.baseline_content_sha256,
+        family_receipt=family_receipt,
+        timeout_cap_seconds=constraints.timeout_cap_seconds,
+        heartbeat_cap_seconds=constraints.heartbeat_cap_seconds,
+        max_response_bytes=constraints.max_response_bytes,
+        max_decompressed_bytes=constraints.max_decompressed_bytes,
+    )
+    return _PreparedLiveCatalogAuthorization(
+        resolved=resolved,
+        profile=profile,
+        connection_config=connection_config,
+        family_receipt=family_receipt,
+        request=request,
+        schema_contract=schema_contract,
+        authorization=authorization,
+    )
+
+
 def execute_live_catalog_acquisition(
     *,
     authority: _CanonicalAuthority,
@@ -745,10 +847,6 @@ def execute_live_catalog_acquisition(
     ``cache_namespace`` scopes the cache index independently per governed route.
     """
 
-    from polisyos.runtime.http.services.control_registry_providers import (
-        resolve_control_registry_providers,
-    )
-
     if candidate_unpriced_context is not None:
         from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
         from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
@@ -767,89 +865,22 @@ def execute_live_catalog_acquisition(
             raise LiveAcquisitionExecutionError("candidate_unpriced_context_untyped")
         registry_providers = candidate_unpriced_context.control_service._registry_providers
 
-    resolved = ResolvedAcquisitionAuthority.model_validate(authority.resolve(entry_id))
-    entry = resolved.entry
-    registration = resolved.registration
-    if entry.source_lane != "live_fetch":
-        raise LiveAcquisitionExecutionError("live_source_lane_required", entry_id)
-    _require_constraints_within_authority_scope(entry, constraints)
-    if registration.connector_id != "worldbank.wdi":
-        raise LiveAcquisitionExecutionError(
-            "live_connector_family_not_implemented",
-            registration.connector_id,
-        )
-    if resolved.license_disposition.value != "admissible_open":
-        raise LiveAcquisitionExecutionError(
-            "live_license_not_admissible",
-            resolved.license_id,
-        )
-    providers = (
-        registry_providers
-        if registry_providers is not None
-        else resolve_control_registry_providers()
-    )
-    profile = providers.source_profiles.get(registration.source_profile_id)
-    if profile is None:
-        raise LiveAcquisitionExecutionError(
-            "live_source_profile_unresolved",
-            registration.source_profile_id,
-        )
-    if not profile.base_url.startswith("https://"):
-        raise LiveAcquisitionExecutionError(
-            "live_profile_transport_not_https",
-            profile.profile_id,
-        )
-
-    try:
-        harness_receipt = ResolvedLiveHarnessReceipt.model_validate(
-            authority.resolve_live_harness_receipt(entry_id, attempt_id)
-        )
-    except Exception as exc:
-        raise LiveAcquisitionExecutionError(
-            "live_harness_receipt_unresolved",
-            type(exc).__name__,
-        ) from exc
-    base_connection_config = resolve_connection_config(profile)
-    if harness_receipt.source_profile_family != str(profile.connector_family):
-        raise LiveAcquisitionExecutionError(
-            "live_harness_profile_family_drift",
-            harness_receipt.source_profile_family,
-        )
-    if harness_receipt.connection_config_content_sha256 != content_sha256(
-        base_connection_config.to_dict(redact=True)
-    ):
-        raise LiveAcquisitionExecutionError(
-            "live_harness_connection_config_drift",
-            profile.profile_id,
-        )
-    dry_run_request = FetchRequest(dataset_id=registration.request_dataset_id)
-    if harness_receipt.fetch_request_key != dry_run_request.request_key:
-        raise LiveAcquisitionExecutionError(
-            "live_harness_fetch_request_drift",
-            registration.request_dataset_id,
-        )
-    family_receipt = harness_receipt.family_receipt
-
-    baseline_before_sha256 = resolved.baseline_content_sha256
-    request = _live_request_projection(
-        resolved,
-        constraints=constraints,
-    )
-    schema_contract = entry.schema_projection()
-    authorization = fabric_data_plane.build_live_execution_authorization(
+    prepared = _prepare_live_catalog_authorization(
+        authority=authority,
+        entry_id=entry_id,
         attempt_id=attempt_id,
-        connector_id=registration.connector_id,
-        request_dataset_id=registration.request_dataset_id,
-        request=request,
-        schema_contract=schema_contract,
-        source_profile=profile,
-        baseline_sha256=baseline_before_sha256,
-        family_receipt=family_receipt,
-        timeout_cap_seconds=constraints.timeout_cap_seconds,
-        heartbeat_cap_seconds=constraints.heartbeat_cap_seconds,
-        max_response_bytes=constraints.max_response_bytes,
-        max_decompressed_bytes=constraints.max_decompressed_bytes,
+        constraints=constraints,
+        registry_providers=registry_providers,
     )
+    resolved = prepared.resolved
+    registration = resolved.registration
+    profile = prepared.profile
+    base_connection_config = prepared.connection_config
+    family_receipt = prepared.family_receipt
+    request = prepared.request
+    schema_contract = prepared.schema_contract
+    authorization = prepared.authorization
+    baseline_before_sha256 = resolved.baseline_content_sha256
     if candidate_unpriced_context is not None:
         from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
             reconcile_candidate_unpriced_work,

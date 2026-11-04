@@ -26,7 +26,9 @@ from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
     POLICY_KIND,
     POLICY_SCHEMA,
     CandidateUnpricedAcquisitionPolicy,
+    CandidateUnpricedExperimentPolicyTemplate,
     CandidateUnpricedPolicyBinding,
+    _persist_owned_candidate_unpriced_policy,
     issue_candidate_unpriced_experiment_policy,
     persist_candidate_unpriced_policy,
     read_candidate_unpriced_policy,
@@ -203,6 +205,19 @@ def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
             raw = artifacts.load_core_json_artifact(cas, scope.planner_report_ref)
             assert agent_action_content_hash(raw) != agent_action_content_hash(report)
             payload_ref = _parent(cas, "runtime.control_nl_job_payload", "request")
+            configured_template = CandidateUnpricedExperimentPolicyTemplate(
+                tenant_id=scope.tenant_id,
+                cell_id=scope.cell_id,
+                authority_entry_id="acquisition-authority:" + "a" * 64,
+                authority_registry_sha256="sha256:" + "b" * 64,
+                authority_provision_sha256="sha256:" + "c" * 64,
+                attempt_id=authorization.attempt_id,
+                max_http_response_bytes=authorization.budget.max_response_bytes,
+                max_http_decompressed_bytes=authorization.budget.max_decompressed_bytes,
+                max_http_timeout_seconds=authorization.budget.timeout_seconds,
+                max_standard_n5_invocations=profile.total_units - profile.protected_units,
+                max_metered_reentry_usd=Decimal("1.00"),
+            )
             policy = issue_candidate_unpriced_experiment_policy(
                 scope=scope,
                 live_authorization=authorization,
@@ -214,6 +229,7 @@ def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
                     *legacy.limitations,
                     "candidate_experiment_voi_not_established",
                 ),
+                configured_template=configured_template,
             )
             assert legacy.model_dump(mode="json") == old_payload
             assert policy.purpose == "bounded_candidate_experiment_voi_unknown"
@@ -221,9 +237,33 @@ def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
             assert policy.monetary_cost == "not_established"
             assert policy.hard_usd_reservation is False
             assert policy.publication_authority is False
-            ref = persist_candidate_unpriced_policy(
+            event_id = "evt_candidate_unpriced_policy_" + policy.content_hash.removeprefix(
+                "sha256:"
+            )
+            event_rows_before = base._diagnostic_event_log.list_events(event_id=event_id, limit=2)
+            ledger_before = ledger.snapshot()
+            with pytest.raises(
+                ValueError, match="candidate_unpriced_template_issuer_not_established"
+            ):
+                persist_candidate_unpriced_policy(
+                    store=cas, event_log=base._diagnostic_event_log, policy=policy
+                )
+            ref = _persist_owned_candidate_unpriced_policy(
                 store=cas, event_log=base._diagnostic_event_log, policy=policy
             )
+            persisted_event_rows = base._diagnostic_event_log.list_events(
+                event_id=event_id, limit=2
+            )
+            repeated_ref = _persist_owned_candidate_unpriced_policy(
+                store=cas, event_log=base._diagnostic_event_log, policy=policy
+            )
+            assert repeated_ref == ref
+            assert len(event_rows_before) == 0
+            assert len(persisted_event_rows) == 1
+            assert base._diagnostic_event_log.list_events(event_id=event_id, limit=2) == (
+                persisted_event_rows
+            )
+            assert ledger.snapshot() == ledger_before
             manifest = cas.get_manifest(ref)
             assert manifest.artifact_schema == artifacts.SchemaInfo(
                 name=POLICY_SCHEMA, version="2.0"
@@ -367,6 +407,12 @@ def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
             with pytest.raises(ValueError, match="candidate_unpriced_policy_owner_mismatch"):
                 read_candidate_unpriced_policy(
                     store=cas, event_log=base._diagnostic_event_log, ref=foreign
+                )
+            with pytest.raises(
+                ValueError, match="candidate_unpriced_policy_inventory_identity_mismatch"
+            ):
+                _persist_owned_candidate_unpriced_policy(
+                    store=cas, event_log=base._diagnostic_event_log, policy=policy
                 )
             missing = scope.compiler_report_ref
             manifest_path = cas._manifest_path_for_ref(

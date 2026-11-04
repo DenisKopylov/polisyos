@@ -598,7 +598,7 @@ def _data_snapshot_manifest_inputs_match(
     if schema is None or schema.name != contracts.DataSnapshot.ARTIFACT_SCHEMA_NAME:
         return False
     try:
-        from polisyos.core.contracts.fabric import data_snapshot_manifest_inputs_match
+        from polisyos.core.contracts import data_snapshot_manifest_inputs_match
 
         if not data_snapshot_manifest_inputs_match(
             snapshot,
@@ -1025,7 +1025,7 @@ def _live_source_candidate_graph_matches(
     try:
         from polisyos.data_forge.read_api import catalog as catalog_read_api
         from polisyos.fabric.data_plane import verify_live_ingestion_snapshot_profile
-        from polisyos.fabric.evidence import verify_live_ingestion_evidence_profile
+        from polisyos.fabric.ingestion import verify_live_ingestion_evidence_profile
         from polisyos.runtime.quality.acquisition_executor import (
             PASSPORT_SCHEMA_VERSION,
             AdmissionPassport,

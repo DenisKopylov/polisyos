@@ -1224,9 +1224,12 @@ const runCandidateSimulationN5ObservationSchema = z
           "child_to_parent_refinement_rule_not_established" &&
         observation.atom_ids.length >= 2 &&
         derivedIds.length === observation.atom_ids.length &&
-        derivedIds.every((id, index) => id === observation.atom_ids[index]) &&
+        unique(derivedIds) &&
         derivedHashes.length === observation.atom_ids.length &&
         unique(derivedHashes) &&
+        derivedIds.every(
+          (id, index) => id === `atom_${derivedHashes[index]?.slice(7, 23)}`,
+        ) &&
         derivedHashes.every(
           (hash, index) => hash !== candidateAtomHashes[index],
         ) &&
@@ -2335,6 +2338,212 @@ export const runCandidateSimulationAcquisitionHistoryEntryV4Schema = z
     }
   });
 
+export const runCandidateSimulationAcquisitionHistoryEntryV5Schema = z
+  .object({
+    schema_version: z.literal(
+      "policyos.runtime.run_candidate_simulation_acquisition_history.v5",
+    ),
+    route_receipt_ref: coreArtifactRefSchema,
+    route_id: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    action_generation: z.number().int().positive(),
+    terminal_outcome: z.enum([
+      "candidate_reentry_completed",
+      "candidate_evaluation_retained",
+    ]),
+    candidate_action_ref: coreArtifactRefSchema,
+    candidate_source_ref: coreArtifactRefSchema,
+    evaluation_decision_ref: coreArtifactRefSchema,
+    current_basis_ref: coreArtifactRefSchema,
+    selected_basis_ref: coreArtifactRefSchema,
+    selected_evaluation_witness_ref: coreArtifactRefSchema,
+    comparison_result: z.enum(["equivalent", "different", "not_established"]),
+    predicate_provenance: z.enum(["recomputed", "not_established"]),
+    comparison_reason_codes: z.array(z.string()),
+    selected_basis_role: z.enum(["evaluated", "blocked"]),
+    current_basis_provenance: z.enum(["recomputed", "not_established"]),
+    selected_basis_provenance: z.enum(["recomputed", "not_established"]),
+    current_basis_limitations: z.array(z.string()).min(1),
+    selected_basis_limitations: z.array(z.string()).min(1),
+    frontier_ref: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    frontier_revision: z.number().int().positive(),
+    frontier_selection: z.enum(["selected", "superseded"]),
+    selected_evaluation:
+      runCandidateSimulationRetainedEvaluationSchema.nullable(),
+    selected_n5_observation:
+      runCandidateSimulationN5ObservationSchema.nullable(),
+    reentry: runCandidateSimulationAcquisitionHistoryEntryV4Schema.nullable(),
+    current_continuation_ref: coreArtifactRefSchema.nullable(),
+    current_cheap_consequences:
+      runCandidateSimulationCheapConsequencesSchema.nullable(),
+    evaluation_provenance: z.enum([
+      "new_execution",
+      "retained_prior",
+      "not_established",
+    ]),
+    observed_admission: z.literal(false),
+    currentness_status: z.literal("not_established"),
+    authority_purpose: z.literal("candidate_observation_only"),
+    publication_authority: z.literal(false),
+  })
+  .strict()
+  .superRefine((row, context) => {
+    const refs = [
+      [row.route_receipt_ref, "runtime_quality.acquisition_route_loop_receipt"],
+      [
+        row.candidate_action_ref,
+        "runtime_quality.acquisition_candidate_action_receipt",
+      ],
+      [
+        row.candidate_source_ref,
+        "runtime.quality.candidate_acquisition_source",
+      ],
+      [
+        row.evaluation_decision_ref,
+        "runtime_quality.acquisition_evaluation_decision",
+      ],
+      [row.current_basis_ref, "runtime_quality.acquisition_evaluation_basis"],
+      [row.selected_basis_ref, "runtime_quality.acquisition_evaluation_basis"],
+      [
+        row.current_continuation_ref,
+        "runtime_quality.candidate_acquisition_retained_continuation",
+      ],
+      [
+        row.selected_evaluation_witness_ref,
+        row.selected_evaluation
+          ? "runtime.quality.candidate_simulation_execution"
+          : "runtime_quality.candidate_source_reentry_receipt",
+      ],
+    ] as const;
+    const selected = row.selected_evaluation;
+    const observation = row.selected_n5_observation;
+    const cheap = row.current_cheap_consequences;
+    let invalid =
+      refs.some(
+        ([ref, kind]) =>
+          ref != null &&
+          (ref.kind !== kind ||
+            ref.media_type !== "application/json" ||
+            ref.manifest_profile_sha256 == null),
+      ) ||
+      (row.comparison_result === "not_established") !==
+        (row.predicate_provenance === "not_established") ||
+      (row.predicate_provenance === "recomputed") ===
+        row.comparison_reason_codes.length > 0 ||
+      (selected == null) !== (row.selected_basis_role === "blocked") ||
+      (row.selected_basis_role === "blocked" &&
+        row.selected_basis_provenance !== "not_established");
+    if (selected == null) {
+      invalid ||=
+        observation != null || row.evaluation_provenance !== "not_established";
+    } else {
+      invalid ||=
+        !sameCoreArtifactRefView(selected.basis_ref, row.selected_basis_ref) ||
+        !sameCoreArtifactRefView(
+          selected.n5_execution_ref,
+          row.selected_evaluation_witness_ref,
+        );
+      if (observation != null) {
+        invalid ||=
+          observation.status !== "joint_simulated" ||
+          observation.result_body_status !== "resolved" ||
+          observation.result_body == null ||
+          observation.candidate_id !== selected.candidate_id ||
+          observation.cycle_index !== selected.cycle_index ||
+          !sameCoreArtifactRefView(
+            observation.n4_source_ref,
+            selected.n4_source_ref,
+          ) ||
+          !sameCoreArtifactRefView(
+            observation.context_job_ref,
+            selected.context_job_ref,
+          ) ||
+          !sameCoreArtifactRefView(
+            observation.n5_input_ref,
+            selected.n5_input_ref,
+          ) ||
+          !sameCoreArtifactRefView(
+            observation.n5_execution_ref,
+            selected.n5_execution_ref,
+          ) ||
+          !sameCoreArtifactRefView(
+            observation.simulation_result_ref,
+            selected.n5_result_ref,
+          );
+      }
+      if (cheap != null)
+        invalid ||=
+          cheap.source_cycle_index !== selected.cycle_index ||
+          cheap.candidate_id !== selected.candidate_id ||
+          cheap.candidate_content_hash !== selected.candidate_content_hash;
+    }
+    if (row.terminal_outcome === "candidate_evaluation_retained") {
+      invalid ||=
+        row.reentry != null ||
+        row.current_continuation_ref == null ||
+        cheap == null ||
+        selected == null ||
+        row.evaluation_provenance !== "retained_prior" ||
+        row.comparison_result !== "equivalent" ||
+        row.predicate_provenance !== "recomputed";
+    } else {
+      invalid ||=
+        row.reentry == null ||
+        row.comparison_result === "equivalent" ||
+        row.current_continuation_ref != null ||
+        cheap != null ||
+        row.evaluation_provenance !==
+          (selected ? "new_execution" : "not_established") ||
+        (row.reentry != null &&
+          (!sameCoreArtifactRefView(
+            row.reentry.route_receipt_ref,
+            row.route_receipt_ref,
+          ) ||
+            !sameCoreArtifactRefView(
+              row.reentry.candidate_action_ref,
+              row.candidate_action_ref,
+            ) ||
+            !sameCoreArtifactRefView(
+              row.reentry.candidate_source_ref,
+              row.candidate_source_ref,
+            ) ||
+            row.reentry.route_id !== row.route_id ||
+            row.reentry.action_generation !== row.action_generation ||
+            (row.reentry.simulation_status === "joint_simulated") !==
+              (selected != null) ||
+            (selected == null &&
+              !sameCoreArtifactRefView(
+                row.reentry.reentry_receipt_ref,
+                row.selected_evaluation_witness_ref,
+              )) ||
+            (selected != null &&
+              (!sameCoreArtifactRefView(
+                row.reentry.n4_source_ref,
+                selected.n4_source_ref,
+              ) ||
+                !sameCoreArtifactRefView(
+                  row.reentry.context_job_ref,
+                  selected.context_job_ref,
+                ) ||
+                !sameCoreArtifactRefView(
+                  row.reentry.n5_input_ref,
+                  selected.n5_input_ref,
+                ) ||
+                !sameCoreArtifactRefView(
+                  row.reentry.n5_execution_ref,
+                  selected.n5_execution_ref,
+                ) ||
+                !sameCoreArtifactRefView(
+                  row.reentry.n5_result_ref,
+                  selected.n5_result_ref,
+                )))));
+    }
+    if (invalid)
+      context.addIssue({
+        code: "custom",
+        message: "candidate_acquisition_v5_binding_invalid",
+      });
+  });
+
 export const runCandidateSimulationAcquisitionHistoryEntryV3Schema = z
   .object({
     schema_version: z.literal(
@@ -3010,6 +3219,7 @@ const runCandidateSimulationProjectionSchema = z
     acquisition_history: z
       .array(
         z.union([
+          runCandidateSimulationAcquisitionHistoryEntryV5Schema,
           runCandidateSimulationAcquisitionHistoryEntryV4Schema,
           runCandidateSimulationAcquisitionHistoryEntryV3Schema,
           runCandidateSimulationAcquisitionHistoryEntrySchema,

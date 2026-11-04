@@ -241,6 +241,7 @@ from polisyos.foundry.methods.catalog.causal.distributional_bounds import (
 from polisyos.foundry.methods.catalog.causal.full_transport_bridge import (
     Y0_SURROGATE_DATA_PROFILE_ABSENT,
 )
+from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
 
 from ._exports import CAUSAL_METHOD_EXPORTS
 

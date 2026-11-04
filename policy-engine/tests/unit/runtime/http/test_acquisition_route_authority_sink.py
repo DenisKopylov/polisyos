@@ -300,10 +300,37 @@ def test_missing_candidate_frontier_owner_has_no_authority_side_effects(
             "runtime_quality.candidate_acquisition_retained_continuation", "c"
         ),
     )
+
+    class TypedBasisRef(ArtifactRef):
+        pass
+
+    typed_basis = TypedBasisRef.model_validate(basis.model_dump())
+    fields = {name: getattr(terminal, name) for name in type(terminal).model_fields}
+    same_view = AcquisitionCandidateRouteLoopReceipt.model_validate(
+        {**fields, "selected_evaluation": selected.model_copy(update={"basis_ref": typed_basis})}
+    )
+    assert same_view.selected_evaluation is not None
+    foreign_view = typed_basis.model_copy(update={"manifest_profile_sha256": "sha256:" + "e" * 64})
+    with pytest.raises(ValueError, match="candidate_terminal_evaluation_binding_invalid"):
+        AcquisitionCandidateRouteLoopReceipt.model_validate(
+            {
+                **fields,
+                "selected_evaluation": selected.model_copy(update={"basis_ref": foreign_view}),
+            }
+        )
+
+    class ExtendedBasisRef(ArtifactRef):
+        extra_meaning: str = "unverified"
+
+    extended = ExtendedBasisRef.model_validate(basis.model_dump())
+    with pytest.raises(ValueError, match="candidate_terminal_ref_subtype_semantics_unsupported"):
+        AcquisitionCandidateRouteLoopReceipt.model_validate(
+            {**fields, "selected_evaluation": selected.model_copy(update={"basis_ref": extended})}
+        )
     before_ids = {str(ref) for ref in cas.iter_artifact_ids()}
     before_events = store.list_diagnostic_events(run_id="run-a", limit=500)
     monkeypatch.delattr(dispatch, "candidate_terminal_frontier_cas", raising=False)
-    with pytest.raises(ImportError, match="candidate_terminal_frontier_cas"):
+    with pytest.raises(ValueError, match="acquisition_candidate_terminal_history_not_established"):
         sink.persist_terminal(terminal)
     assert {str(ref) for ref in cas.iter_artifact_ids()} == before_ids
     assert store.list_diagnostic_events(run_id="run-a", limit=500) == before_events

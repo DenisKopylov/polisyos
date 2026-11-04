@@ -70,7 +70,7 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
-    from polisyos.core.contracts import CatalogRunProfile
+    from polisyos.core.contracts import CapabilityResolverPort, CatalogRunProfile
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _DesignProblemGatewayClient,
         _SpanSupportVerifierClient,
@@ -80,6 +80,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContext,
+        VerifiedNLJobBudgetScope,
         VerifiedNLJobScope,
     )
     from polisyos.runtime.quality.data_forge_binding import (
@@ -1689,6 +1690,7 @@ async def compile_and_run_recursive_generation_cycle(
     ) = None,
     generic_cycle_simulation_admission_owner: GenericCycleSimulationAdmissionOwner | None = None,
     verified_nl_job_scope: VerifiedNLJobScope | None = None,
+    physical_n5_budget_scope: VerifiedNLJobBudgetScope | None = None,
     generic_cycle_simulation_currentness_resolver: Callable[[], bool] | None = None,
     enable_contract_testing_credal_source_attempts: bool = False,
     root_n4_generation_port: N4GenerationPort | None = None,
@@ -1699,6 +1701,7 @@ async def compile_and_run_recursive_generation_cycle(
     target_world_scope_profile_id: str | None = None,
     catalog_run_profile: CatalogRunProfile | None = None,
     catalog_serving_source: CatalogServingSourcePaths | None = None,
+    capability_resolver: CapabilityResolverPort | None = None,
     promotion_runtime: PromotionRuntime | None = None,
     measurement_root_execution_binding: MeasurementRootExecutionBinding | None = None,
     repo_root: Path | None = None,
@@ -2521,6 +2524,11 @@ async def compile_and_run_recursive_generation_cycle(
                 "recursive_controller_catalog_source_mismatch",
                 "The recursive controller must retain the exact resolved Catalog source.",
             )
+        if getattr(controller, "_capability_resolver", None) is not capability_resolver:
+            raise DesignProblemAuthorityError(
+                "recursive_controller_capability_resolver_mismatch",
+                "The recursive controller must retain the exact composition-owned resolver.",
+            )
         if (
             getattr(controller, "_measurement_root_execution_binding", None)
             is not measurement_root_execution_binding
@@ -2536,6 +2544,7 @@ async def compile_and_run_recursive_generation_cycle(
             model_id=model_name,
             catalog_run_profile=catalog_run_profile,
             catalog_serving_source=catalog_serving_source,
+            capability_resolver=capability_resolver,
             promotion_runtime=promotion_runtime,
             eval_safety_verifier=eval_safety_verifier,
             measurement_root_execution_binding=measurement_root_execution_binding,
@@ -2847,6 +2856,7 @@ async def compile_and_run_recursive_generation_cycle(
             problems_by_node={root_ref: problem, **(problems_by_node or {})},
             budget_state=budget_state,
             _producer_budget_reconciler=_producer_budget_reconciler,
+            physical_n5_budget_scope=physical_n5_budget_scope,
             recursive_budget=recursive_budget,
             joint_simulation_requests_by_node=parent_joint_requests,
             joint_candidate_selections_by_node=parent_joint_candidate_selections,

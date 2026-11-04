@@ -1663,3 +1663,59 @@ def test_configured_candidate_n5_persists_before_same_leaf_value_failure(
                 "res03_same_leaf_native_characterization",
                 json.dumps(diagnostic, sort_keys=True, separators=(",", ":")),
             )
+
+
+@pytest.mark.integration
+def test_da01_late_fault_n5_reaches_fresh_terminal_source_and_conditional_reader(tmp_path) -> None:
+    """A real failed leaf crosses terminal/source heads into fresh limited CYC value.
+
+    The unchanged procurement profile's normal counterpart is the CYC02
+    cross-process integration regression. This case executes one N5 only and
+    injects its fault after that N5's selected CAS publication. It does not run
+    the historical tax-profile suite or manufacture a completed cycle.
+    """
+    from tests.integration.runtime_quality.test_configured_ncm_fresh_process import _child
+
+    produced = _child("produce_late_fault", tmp_path)
+    consumed = _child("consume_late_fault", tmp_path, produced)
+    _assert_da01_late_fault_projection(produced, consumed)
+
+
+def _assert_da01_late_fault_projection(produced: dict[str, Any], consumed: dict[str, Any]) -> None:
+    """Verify exact failed-source identity and the real limited fresh consumer."""
+    import os
+
+    from polisyos.core.artifacts import ArtifactRef, artifact_ref_identity_key
+
+    assert produced["job_state"] == "failed"
+    assert produced["fault_stage"] == "value_projection"
+    assert produced["cycle_completed"] is False
+    assert produced["fault_code"] == "res03.configured_candidate_late_value_failure"
+    assert produced["physical_work_units"] == 2
+    assert produced["producer_pid"] != consumed["consumer_pid"] != os.getpid()
+    assert consumed["job_state"] == "failed"
+    assert consumed["terminal_status"] == "error"
+    assert consumed["fault_code"] == produced["fault_code"]
+    assert consumed["cycle_completed"] is False
+    assert (
+        consumed["protected_completed_source_refusal"]
+        == "control_job_core_run_source_not_completed"
+    )
+    assert consumed["witness"] == produced["witness"]
+    assert consumed["witness"]["expected_effect"] == 0.5
+    assert artifact_ref_identity_key(
+        ArtifactRef.model_validate(consumed["terminal_manifest_ref"])
+    ) == (artifact_ref_identity_key(ArtifactRef.model_validate(produced["terminal_manifest_ref"])))
+    value = consumed["conditional_value"]
+    assert value["status"] == "value_conditional"
+    assert value["evaluation_mode"] == "simulate_only"
+    assert value["decision_grade"] == "low"
+    assert value["value_receipt"] is value["method_selection_receipt"] is None
+    assert set(produced["witness"]["persisted_blockers"]).issubset(value["authority_blockers"])
+    projection = consumed["projection"]
+    assert projection["artifact_status"] == "resolved"
+    assert projection["cycle_completed"] is projection["publication_authority"] is False
+    assert projection["failed_stage"] == "value_projection"
+    assert projection["source_ref"] == produced["execution_ref"]
+    assert consumed["terminal_selected_outputs_verified"] is True
+    assert consumed["no_new_n5"] is True

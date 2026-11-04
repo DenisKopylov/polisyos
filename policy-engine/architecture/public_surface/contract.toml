@@ -275,6 +275,7 @@ supported_entrypoints = [
   "polisyos.foundry",
   "polisyos.foundry.api",
   "polisyos.foundry.compile",
+  "polisyos.foundry.coupling",
   "polisyos.foundry.analysis",
   "polisyos.foundry.calibration",
   "polisyos.foundry.data_plane",

@@ -9,7 +9,12 @@ from typing import Any
 
 import pytest
 
-from polisyos.core.artifacts import ArtifactRef, FileSystemCAS
+from polisyos.core.artifacts import (
+    ArtifactOwnershipError,
+    ArtifactReadOnlyUnavailableError,
+    ArtifactRef,
+    FileSystemCAS,
+)
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality import acquisition_planner as planner
 from polisyos.runtime.quality import generation_cycle as owner
@@ -168,7 +173,9 @@ def test_lost_worker_scope_and_unselected_context_cannot_emit_gap(
 
 
 @pytest.mark.asyncio
-async def test_mixed_request_keeps_both_sources_and_rejects_rebinding(tmp_path: Path) -> None:
+async def test_mixed_request_keeps_both_sources_and_rejects_rebinding(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     from tests.unit.runtime.quality.test_n7_descriptor_emission import _emitted_cycle
 
     problem, l1_gap, controller, original, cas_root = await _emitted_cycle(tmp_path)
@@ -238,6 +245,19 @@ async def test_mixed_request_keeps_both_sources_and_rejects_rebinding(tmp_path: 
         }
     )
     cycle = owner.GenerationCycleRecord.model_validate(candidate.model_dump(mode="json"))
+    original_failure = ArtifactOwnershipError("private-storage-location")
+    with pytest.raises(owner.GenerationCycleError) as captured_failure:
+        raise owner._n7_planner_persistence_refusal(original_failure) from original_failure
+    assert captured_failure.value.__cause__ is original_failure
+    assert captured_failure.value.source_refusal_code == "artifact_ownership_refused"
+    failed_cycle = owner._cycle_with_n7_route_failure(
+        cycle,
+        reason=(f"{captured_failure.value.code}.{captured_failure.value.source_refusal_code}"),
+    )
+    assert failed_cycle.counterexample.diagnostic.code == (
+        "n6.acquisition.n7_planner_report_persistence_refused.artifact_ownership_refused"
+    )
+    assert "private-storage-location" not in failed_cycle.counterexample.diagnostic.message
     request = cycle.revision_request.strategy_payload["acquisition_request"]
     assert request["n7_source_join_rule"] == planner._N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE
     assert request["driver"] == "acquire_data:value_panel_data_missing"
@@ -287,6 +307,128 @@ async def test_mixed_request_keeps_both_sources_and_rejects_rebinding(tmp_path: 
     assert legacy_retention.status == "not_established"
     assert legacy_retention.reason_code == "retained_cheap_profile_not_established"
 
+    # Exercise the actual cycle's configured-source failure boundary with a
+    # controlled engine result. A missing owner view may withhold the source;
+    # a wrapped access denial must retain its identity rather than masquerade
+    # as the same ordinary nonreceipt.
+    async def completed_engine(_state: object) -> dict[str, object]:
+        return {
+            "cycle": cycle,
+            "candidate_summaries": (),
+            "_n7_candidate_port_source_ref": object(),
+        }
+
+    for failure in (
+        ArtifactOwnershipError("controlled selected source denial"),
+        ArtifactReadOnlyUnavailableError("controlled selected source unavailable"),
+    ):
+
+        def fail_capture(*_args: object, _failure: Exception = failure, **_kwargs: object) -> None:
+            raise RuntimeError("controlled source wrapper") from _failure
+
+        with monkeypatch.context() as access_check:
+            access_check.setattr(controller, "_engine", SimpleNamespace(run_async=completed_engine))
+            access_check.setattr(controller, "_authority_scope", "production")
+            access_check.setattr(
+                controller, "_capture_n7_configured_candidate_port_source", fail_capture
+            )
+            controller._n7_configured_candidate_port_refs[0] = simulation.simulation_result_ref
+            if isinstance(failure, ArtifactReadOnlyUnavailableError):
+                observed_cycle, summaries = await controller._run_cycle(
+                    problem, cycle_index=0, budget_state=None, previous_cycle=None
+                )
+                assert observed_cycle is cycle and summaries == ()
+            else:
+                with pytest.raises(ArtifactOwnershipError) as captured_denial:
+                    await controller._run_cycle(
+                        problem, cycle_index=0, budget_state=None, previous_cycle=None
+                    )
+                assert captured_denial.value is failure
+            assert 0 not in controller._n7_configured_candidate_port_refs
+
+    # The older retained reader is reused by the new candidate owner. These
+    # adapter inputs stop at the actual repository read; they do not claim a
+    # real selected N5 or a protected retained action.
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextHandoff
+    from tests.unit.runtime.quality.test_generation_cycle import _budget
+
+    context = {"fixture": "controlled-retained-context"}
+    handoff = CandidateSimulationContextHandoff.model_construct(
+        context=context,
+        context_job_ref=simulation.candidate_simulation_context_job_ref,
+        run_id="fixture-run",
+        job_id="fixture-job",
+        tenant_id="fixture-tenant",
+        cell_id="fixture-cell",
+    )
+    retained_simulation = simulation.model_copy(
+        update={
+            "diagnostics": {
+                **simulation.diagnostics,
+                "candidate_simulation_n4_source_selected_ref": (
+                    simulation.candidate_simulation_n4_source_ref.model_dump(mode="json")
+                ),
+            }
+        }
+    )
+    retained_cycle = cycle.model_copy(
+        update={
+            "simulation": retained_simulation,
+            "value_port": owner._configured_candidate_value_observation(
+                candidate_id, retained_simulation
+            ),
+        }
+    )
+    prior = SimpleNamespace(
+        cycles=(retained_cycle,),
+        candidate_summaries=(
+            SimpleNamespace(
+                cycle_index=0,
+                candidate_id=candidate_id,
+                content_hash=retained_cycle.selected_candidate_content_hash,
+                generation_channel="n4_owner",
+            ),
+        ),
+    )
+    for failure in (
+        ArtifactOwnershipError("controlled retained source denial"),
+        ArtifactReadOnlyUnavailableError("controlled retained source unavailable"),
+    ):
+
+        def fail_selected_read(
+            *_args: object, _failure: Exception = failure, **_kwargs: object
+        ) -> None:
+            raise RuntimeError("controlled retained source wrapper") from _failure
+
+        with monkeypatch.context() as access_check:
+            access_check.setattr(controller, "_grounding_port", owner.PolicyGroundingPort())
+            access_check.setattr(controller, "_candidate_simulation_handoff", handoff)
+            access_check.setattr(controller, "_cycle_substrate_context", context)
+            access_check.setattr(
+                controller._source_repository,
+                "load_candidate_scenario_source_in_owner_scope",
+                fail_selected_read,
+            )
+
+            def call():
+                return controller._retained_configured_cheap_continuation(
+                    original_run=prior,
+                    source_cycle=retained_cycle,
+                    problem=problem,
+                    budget_state=_budget(),
+                    current_basis_ref=simulation.candidate_simulation_n5_input_ref,
+                    admitted_source_ref=simulation.candidate_simulation_n4_source_ref,
+                    growth_ref=simulation.simulation_result_ref,
+                )
+
+            if isinstance(failure, ArtifactReadOnlyUnavailableError):
+                refusal = call()
+                assert refusal.reason_code == "retained_cheap_prior_source_unresolved"
+            else:
+                with pytest.raises(ArtifactOwnershipError) as captured_denial:
+                    call()
+                assert captured_denial.value is failure
+
     # Capture through the real source and checkpoint writers, then reopen in a
     # fresh same-owner CAS. The N5-shaped inputs above remain controlled test
     # inputs; the served test is responsible for real N5 qualification.
@@ -317,6 +459,31 @@ async def test_mixed_request_keeps_both_sources_and_rejects_rebinding(tmp_path: 
         problem, acquisition_request=request, cycle=cycle
     )
     assert basis.routing_limitation_code is None and not basis.unbound_input_fields
+
+    # The real planner reaches compiler persistence with this mixed cycle. A
+    # wrapped ownership denial must not be presented as a missing compiler
+    # report; a genuinely unavailable owner remains a typed planner refusal.
+    for failure in (
+        ArtifactOwnershipError("controlled compiler owner denial"),
+        ArtifactReadOnlyUnavailableError("controlled compiler owner unavailable"),
+    ):
+
+        def fail_compiler(*_args: object, _failure: Exception = failure, **_kwargs: object) -> None:
+            raise RuntimeError("controlled compiler wrapper") from _failure
+
+        with monkeypatch.context() as access_check:
+            access_check.setattr(
+                owner, "persist_and_verify_data_requirement_compilation_report", fail_compiler
+            )
+            if isinstance(failure, ArtifactReadOnlyUnavailableError):
+                with pytest.raises(owner.GenerationCycleError) as refused:
+                    controller._plan_n7_requirement_gap_if_requested(problem, cycle=cycle)
+                assert refused.value.code == "n7_compiler_report_persistence_refused"
+            else:
+                with pytest.raises(ArtifactOwnershipError) as captured_denial:
+                    controller._plan_n7_requirement_gap_if_requested(problem, cycle=cycle)
+                assert captured_denial.value is failure
+
     binding = planner.persist_and_verify_data_requirement_compilation_report(
         store, basis.compilation_report, expected_scenario_id=problem.design_problem_id
     )

@@ -20,6 +20,7 @@ import {
   runCandidateSimulationAcquisitionHistoryEntrySchema,
   runCandidateSimulationAcquisitionHistoryEntryV3Schema,
   runCandidateSimulationAcquisitionHistoryEntryV4Schema,
+  runCandidateSimulationAcquisitionHistoryEntryV5Schema,
   runCandidateSourceCurrentProjectionSchema,
 } from "@/api/validators";
 import { isRuntimeApiNotFound } from "@/api/http";
@@ -884,6 +885,137 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
           ) : null}
           {acquisitionHistory.map((value, index) => {
             const row = asRecord(value);
+            if (
+              row?.schema_version ===
+              "policyos.runtime.run_candidate_simulation_acquisition_history.v5"
+            ) {
+              const parsed =
+                runCandidateSimulationAcquisitionHistoryEntryV5Schema.safeParse(
+                  row,
+                );
+              if (
+                !projectionKnown ||
+                projection.artifact_status !== "resolved" ||
+                !parsed.success
+              ) {
+                return (
+                  <p
+                    key={index}
+                    data-testid="overview-acquisition-history-refused"
+                  >
+                    {t(
+                      "pages.runs.candidateSimulation.acquisitionHistoryRefused",
+                    )}
+                  </p>
+                );
+              }
+              const candidate = parsed.data;
+              return (
+                <div
+                  key={index}
+                  className="space-y-1 border-t pt-2"
+                  data-testid="overview-acquisition-history-candidate-v5"
+                >
+                  <p>
+                    {t("pages.runs.candidateSimulation.acquisitionRoute", {
+                      route: candidate.route_id,
+                      generation: String(candidate.action_generation),
+                    })}
+                  </p>
+                  <p>
+                    {t("pages.runs.candidateSimulation.candidateHistoryScope")}
+                  </p>
+                  <p>
+                    {t(
+                      "pages.runs.candidateSimulation.candidateHistoryFrontier",
+                      {
+                        status: candidate.frontier_selection,
+                        revision: String(candidate.frontier_revision),
+                      },
+                    )}
+                  </p>
+                  <p>
+                    {t(
+                      "pages.runs.candidateSimulation.candidateHistoryComparison",
+                      {
+                        result: candidate.comparison_result,
+                        provenance: candidate.predicate_provenance,
+                      },
+                    )}
+                  </p>
+                  <p>
+                    {t(
+                      "pages.runs.candidateSimulation.candidateHistoryProvenance",
+                      { provenance: candidate.evaluation_provenance },
+                    )}
+                  </p>
+                  <p>
+                    {t("pages.runs.candidateSimulation.candidateHistoryBasis", {
+                      current: candidate.current_basis_provenance,
+                      selected: candidate.selected_basis_provenance,
+                    })}
+                  </p>
+                  {candidate.reentry ? (
+                    <p>
+                      {t(
+                        "pages.runs.candidateSimulation.candidateHistorySimulation",
+                        { status: candidate.reentry.simulation_status },
+                      )}
+                    </p>
+                  ) : null}
+                  {[
+                    ...candidate.comparison_reason_codes,
+                    ...candidate.current_basis_limitations,
+                    ...candidate.selected_basis_limitations,
+                    ...(candidate.reentry?.limitations ?? []),
+                    ...(candidate.reentry?.simulation_authority_blockers ?? []),
+                  ].map((issue, issueIndex) => (
+                    <p key={`${issue}-${issueIndex}`}>{issue}</p>
+                  ))}
+                  {candidate.current_cheap_consequences ? (
+                    <p>
+                      {t(
+                        "pages.runs.candidateSimulation.candidateHistoryCheap",
+                        {
+                          grounding:
+                            candidate.current_cheap_consequences
+                              .grounding_status,
+                          value:
+                            candidate.current_cheap_consequences.value_status,
+                          action:
+                            candidate.current_cheap_consequences
+                              .voi_next_action,
+                        },
+                      )}
+                    </p>
+                  ) : null}
+                  {candidate.selected_n5_observation?.result_body ? (
+                    <N5NumericalResultBody
+                      body={candidate.selected_n5_observation.result_body}
+                      testIdPrefix="overview-candidate-v5-n5"
+                    />
+                  ) : null}
+                  {[
+                    candidate.candidate_action_ref,
+                    candidate.candidate_source_ref,
+                    candidate.evaluation_decision_ref,
+                    candidate.current_basis_ref,
+                    candidate.selected_basis_ref,
+                    candidate.selected_evaluation_witness_ref,
+                    candidate.current_continuation_ref,
+                  ]
+                    .filter((ref) => ref != null)
+                    .map((ref, refIndex) => (
+                      <p
+                        className="text-xs break-all"
+                        key={`${ref.artifact_id}-${refIndex}`}
+                      >
+                        {ref.kind}: {ref.artifact_id}
+                      </p>
+                    ))}
+                </div>
+              );
+            }
             if (
               row?.schema_version ===
               "policyos.runtime.run_candidate_simulation_acquisition_history.v4"

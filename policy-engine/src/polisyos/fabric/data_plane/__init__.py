@@ -41,6 +41,7 @@ __all__ = [
     "list_quarantine_records",
     "load_quarantine_payload",
     "load_quarantine_record",
+    "parse_datetime_utc",
     "payload_to_dataframe",
     "persist_cdc_schema_change_event",
     "persist_fabric_benchmark_report",
@@ -65,6 +66,7 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "parse_datetime_utc": ("polisyos.fabric.data_plane.temporal", "parse_datetime_utc"),
     "IngestionResult": ("polisyos.fabric.data_plane.orchestrator", "IngestionResult"),
     "ingestion_is_complete": ("polisyos.fabric.data_plane.orchestrator", "ingestion_is_complete"),
     "AppendOnlyEvidenceJournal": (

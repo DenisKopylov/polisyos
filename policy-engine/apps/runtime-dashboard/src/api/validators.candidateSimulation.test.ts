@@ -632,3 +632,276 @@ describe("candidate acquisition lineage", () => {
     }
   });
 });
+
+describe("candidate terminal frontier wire", () => {
+  it("keeps a blocked reentry nonnumeric and rejects an old success graft", async () => {
+    const { runCandidateSimulationAcquisitionHistoryEntryV5Schema } =
+      await import("./validators");
+    const ref = (kind: string) => ({
+      artifact_id: "sha256:" + "1".repeat(64),
+      kind,
+      media_type: "application/json",
+      manifest_profile_sha256: "sha256:" + "f".repeat(64),
+    });
+    const route = ref("runtime_quality.acquisition_route_loop_receipt");
+    const action = ref("runtime_quality.acquisition_candidate_action_receipt");
+    const source = ref("runtime.quality.candidate_acquisition_source");
+    const failure = ref("runtime_quality.candidate_source_reentry_receipt");
+    const reentry = {
+      schema_version:
+        "policyos.runtime.run_candidate_simulation_acquisition_history.v4",
+      route_receipt_ref: route,
+      reentry_receipt_ref: failure,
+      route_id: "sha256:" + "2".repeat(64),
+      action_generation: 2,
+      terminal_outcome: "candidate_reentry_completed",
+      candidate_action_ref: action,
+      candidate_source_ref: source,
+      data_snapshot_ref: ref("fabric.data_snapshot"),
+      world_model_ref: ref("runtime.quality.world_model_record"),
+      context_job_ref: ref("runtime.quality.cycle_substrate_context_job"),
+      model_declaration_ref: ref(
+        "runtime.quality.candidate_simulation_model_declaration",
+      ),
+      ncm_ref: ref("ir.ncm_spec"),
+      n4_source_ref: null,
+      n5_input_ref: null,
+      n5_execution_ref: null,
+      n5_result_ref: null,
+      simulation_status: "simulation_blocked",
+      simulation_authority_blockers: ["n5_blocked"],
+      source_cycle_index: 0,
+      continued_cycle_index: 1,
+      source_generation_run_content_hash: "sha256:" + "3".repeat(64),
+      continued_generation_run_content_hash: "sha256:" + "4".repeat(64),
+      basis_transition_content_hash: "sha256:" + "5".repeat(64),
+      limitations: ["candidate_only"],
+      observed_admission: false,
+      currentness_status: "not_established",
+      authority_purpose: "candidate_observation_only",
+      publication_authority: false,
+    };
+    const row = {
+      schema_version:
+        "policyos.runtime.run_candidate_simulation_acquisition_history.v5",
+      route_receipt_ref: route,
+      route_id: reentry.route_id,
+      action_generation: 2,
+      terminal_outcome: "candidate_reentry_completed",
+      candidate_action_ref: action,
+      candidate_source_ref: source,
+      evaluation_decision_ref: ref(
+        "runtime_quality.acquisition_evaluation_decision",
+      ),
+      current_basis_ref: ref("runtime_quality.acquisition_evaluation_basis"),
+      selected_basis_ref: ref("runtime_quality.acquisition_evaluation_basis"),
+      selected_evaluation_witness_ref: failure,
+      comparison_result: "not_established",
+      predicate_provenance: "not_established",
+      comparison_reason_codes: ["prior_comparison_unavailable"],
+      selected_basis_role: "blocked",
+      current_basis_provenance: "not_established",
+      selected_basis_provenance: "not_established",
+      current_basis_limitations: ["candidate_only"],
+      selected_basis_limitations: ["candidate_only"],
+      frontier_ref: "sha256:" + "6".repeat(64),
+      frontier_revision: 2,
+      frontier_selection: "selected",
+      selected_evaluation: null,
+      selected_n5_observation: null,
+      reentry,
+      current_continuation_ref: null,
+      current_cheap_consequences: null,
+      evaluation_provenance: "not_established",
+      observed_admission: false,
+      currentness_status: "not_established",
+      authority_purpose: "candidate_observation_only",
+      publication_authority: false,
+    };
+    expect(
+      runCandidateSimulationAcquisitionHistoryEntryV5Schema.parse(row).reentry
+        ?.simulation_status,
+    ).toBe("simulation_blocked");
+    for (const change of [
+      {
+        selected_evaluation_witness_ref: ref(
+          "runtime.quality.candidate_simulation_execution",
+        ),
+      },
+      {
+        selected_evaluation_witness_ref: {
+          ...failure,
+          artifact_id: "sha256:" + "9".repeat(64),
+        },
+      },
+      { route_id: "sha256:" + "9".repeat(64) },
+      { evaluation_provenance: "retained_prior" },
+      { selected_basis_role: "evaluated" },
+      { comparison_reason_codes: [] },
+      {
+        comparison_result: "equivalent",
+        predicate_provenance: "recomputed",
+        comparison_reason_codes: [],
+      },
+      { publication_authority: true },
+      { comparison_result: "different" },
+    ]) {
+      expect(
+        runCandidateSimulationAcquisitionHistoryEntryV5Schema.safeParse({
+          ...row,
+          ...change,
+        }).success,
+      ).toBe(false);
+    }
+    for (const field of [
+      "route_receipt_ref",
+      "candidate_action_ref",
+      "candidate_source_ref",
+      "reentry_receipt_ref",
+    ] as const) {
+      const changed = {
+        ...reentry,
+        [field]: {
+          ...reentry[field],
+          manifest_profile_sha256: "sha256:" + "e".repeat(64),
+        },
+      };
+      expect(
+        runCandidateSimulationAcquisitionHistoryEntryV5Schema.safeParse({
+          ...row,
+          reentry: changed,
+        }).success,
+      ).toBe(false);
+    }
+    const { retainedAcquisitionHistoryFixture } =
+      await import("@/test/fixtures/retainedAcquisitionHistory");
+    const fresh = retainedAcquisitionHistoryFixture().retained_evaluation;
+    const freshRow = {
+      ...row,
+      selected_basis_ref: fresh.basis_ref,
+      selected_evaluation_witness_ref: fresh.n5_execution_ref,
+      selected_basis_role: "evaluated",
+      selected_basis_provenance: "recomputed",
+      selected_evaluation: fresh,
+      evaluation_provenance: "new_execution",
+      reentry: {
+        ...reentry,
+        simulation_status: "joint_simulated",
+        n4_source_ref: fresh.n4_source_ref,
+        context_job_ref: fresh.context_job_ref,
+        n5_input_ref: fresh.n5_input_ref,
+        n5_execution_ref: fresh.n5_execution_ref,
+        n5_result_ref: fresh.n5_result_ref,
+      },
+    };
+    const freshResult =
+      runCandidateSimulationAcquisitionHistoryEntryV5Schema.parse(freshRow);
+    expect(freshResult.comparison_result).toBe("not_established");
+    expect(freshResult.evaluation_provenance).toBe("new_execution");
+  });
+});
+
+describe("candidate retained terminal wire", () => {
+  it("preserves the selected prior evaluation and refuses invented equivalence", async () => {
+    const { runCandidateSimulationAcquisitionHistoryEntryV5Schema } =
+      await import("./validators");
+    const { retainedAcquisitionHistoryFixture } =
+      await import("@/test/fixtures/retainedAcquisitionHistory");
+    const ref = (kind: string) => ({
+      artifact_id: "sha256:" + "1".repeat(64),
+      kind,
+      media_type: "application/json",
+      manifest_profile_sha256: "sha256:" + "f".repeat(64),
+    });
+    const prior = retainedAcquisitionHistoryFixture().retained_evaluation;
+    const cheap = {
+      source_cycle_index: prior.cycle_index,
+      candidate_id: prior.candidate_id,
+      candidate_content_hash: prior.candidate_content_hash,
+      grounding_status: "grounding_gap",
+      grounding_current_valid: false,
+      value_status: "value_blocked",
+      value_decision_grade: "blocked",
+      value_authority_blockers: ["current_grounding_gap"],
+      value_ref: null,
+      voi_next_action: "stop",
+      voi_reason: "resource_budget_exhausted",
+      terminal_kind: "budget_exhausted",
+      refinement_decision: "stop",
+      search_iteration_status: "stopped",
+      current_planner_report_ref: null,
+      scope: "current_cheap_consequences_at_recorded_action",
+      numerical_provenance: "retained_prior",
+    };
+    const row = {
+      schema_version:
+        "policyos.runtime.run_candidate_simulation_acquisition_history.v5",
+      route_receipt_ref: ref("runtime_quality.acquisition_route_loop_receipt"),
+      route_id: "sha256:" + "2".repeat(64),
+      action_generation: 2,
+      terminal_outcome: "candidate_evaluation_retained",
+      candidate_action_ref: ref(
+        "runtime_quality.acquisition_candidate_action_receipt",
+      ),
+      candidate_source_ref: ref("runtime.quality.candidate_acquisition_source"),
+      evaluation_decision_ref: ref(
+        "runtime_quality.acquisition_evaluation_decision",
+      ),
+      current_basis_ref: ref("runtime_quality.acquisition_evaluation_basis"),
+      selected_basis_ref: prior.basis_ref,
+      selected_evaluation_witness_ref: prior.n5_execution_ref,
+      comparison_result: "equivalent",
+      predicate_provenance: "recomputed",
+      comparison_reason_codes: [],
+      selected_basis_role: "evaluated",
+      current_basis_provenance: "recomputed",
+      selected_basis_provenance: "recomputed",
+      current_basis_limitations: ["candidate_only"],
+      selected_basis_limitations: ["candidate_only"],
+      frontier_ref: "sha256:" + "6".repeat(64),
+      frontier_revision: 2,
+      frontier_selection: "selected",
+      selected_evaluation: prior,
+      selected_n5_observation: null,
+      reentry: null,
+      current_continuation_ref: ref(
+        "runtime_quality.candidate_acquisition_retained_continuation",
+      ),
+      current_cheap_consequences: cheap,
+      evaluation_provenance: "retained_prior",
+      observed_admission: false,
+      currentness_status: "not_established",
+      authority_purpose: "candidate_observation_only",
+      publication_authority: false,
+    };
+    const parsed =
+      runCandidateSimulationAcquisitionHistoryEntryV5Schema.parse(row);
+    expect(parsed.selected_evaluation?.n5_execution_ref).toEqual(
+      prior.n5_execution_ref,
+    );
+    expect(parsed.current_cheap_consequences?.value_status).toBe(
+      "value_blocked",
+    );
+    for (const change of [
+      {
+        comparison_result: "not_established",
+        predicate_provenance: "not_established",
+      },
+      { current_continuation_ref: null },
+      { comparison_reason_codes: ["invented"] },
+      {
+        selected_evaluation_witness_ref: ref(
+          "runtime.quality.candidate_simulation_execution",
+        ),
+      },
+      { current_cheap_consequences: { ...cheap, candidate_id: "foreign" } },
+    ]) {
+      expect(
+        runCandidateSimulationAcquisitionHistoryEntryV5Schema.safeParse({
+          ...row,
+          ...change,
+        }).success,
+      ).toBe(false);
+    }
+  });
+});

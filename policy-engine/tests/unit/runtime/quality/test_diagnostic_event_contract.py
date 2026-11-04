@@ -96,6 +96,58 @@ def test_missing_phase_is_rejected_for_registered_runtime_events() -> None:
     assert error.value.code == "diagnostic_event_phase_missing"
 
 
+@pytest.mark.parametrize("payload_ref", [None, "", "   "])
+def test_cas_required_diagnostic_event_rejects_missing_payload_ref(
+    payload_ref: str | None,
+) -> None:
+    with pytest.raises(DiagnosticEventContractError) as error:
+        validate_diagnostic_event(
+            _event(
+                event_type="polisyos.runtime.diagnostic.cas_write.v1",
+                payload_ref=payload_ref,
+            )
+        )
+
+    assert error.value.code == "authority_cas_missing"
+
+
+@pytest.mark.parametrize(
+    "payload_ref",
+    ["inline://payload", "sha256:" + "z" * 64, " " + _sha("a"), _sha("a") + " "],
+)
+def test_cas_required_diagnostic_event_rejects_non_cas_payload_ref(
+    payload_ref: str,
+) -> None:
+    with pytest.raises(DiagnosticEventContractError) as error:
+        validate_diagnostic_event(
+            _event(
+                event_type="polisyos.runtime.diagnostic.cas_write.v1",
+                payload_ref=payload_ref,
+            )
+        )
+
+    assert error.value.code == "authority_ref_not_cas"
+
+
+def test_cas_required_diagnostic_event_accepts_canonical_cas_payload_ref() -> None:
+    event = _event(
+        event_type="polisyos.runtime.diagnostic.cas_write.v1",
+        payload_ref=_sha("a"),
+    )
+
+    assert validate_diagnostic_event(event) == event
+
+
+def test_optional_blocker_event_can_omit_payload_ref() -> None:
+    event = _event(
+        event_type="polisyos.runtime.diagnostic.blocker.v1",
+        payload_ref=None,
+        blocking_status="blocking",
+    )
+
+    assert validate_diagnostic_event(event) == event
+
+
 def test_mismatched_output_refs_are_rejected() -> None:
     with pytest.raises(DiagnosticEventContractError) as error:
         validate_diagnostic_event(
@@ -278,6 +330,19 @@ def test_policy_design_runtime_record_events_reconcile_against_runtime_refs() ->
     assert "authority_cas_missing" not in blocking_codes(scorecard)
 
 
+def test_distinct_runtime_roles_with_same_ref_match_their_named_events() -> None:
+    job_payload = complete_job_payload()
+    details = job_payload["progress"]["details"]
+    shared_ref = details["policy_grounding_matrix_ref"]
+
+    assert shared_ref == details["policy_design_capability_ledger_ref"]
+
+    scorecard = scorecard_for(job_payload=job_payload)
+
+    assert "authority_cas_missing" not in blocking_codes(scorecard)
+    assert "hds_event_reconciliation_failed" not in blocking_codes(scorecard)
+
+
 def test_reconciliation_failure_codes_cover_phase_2_2_authority_cases() -> None:
     assert {
         "authority_cas_missing",
@@ -335,6 +400,8 @@ def test_runtime_event_without_cas_artifact_fails_serious_authority_checks() -> 
 def test_rejected_runtime_ref_cannot_reconcile_its_diagnostic_event() -> None:
     job_payload = complete_job_payload()
     valid_ref = job_payload["progress"]["details"]["policy_grounding_matrix_ref"]
+    sibling_ref = job_payload["progress"]["details"]["policy_design_capability_ledger_ref"]
+    assert valid_ref == sibling_ref
     job_payload["progress"]["runtime_quality_refs"] = {
         "policy_grounding_matrix_ref": "bad\nref",
     }
@@ -344,7 +411,117 @@ def test_rejected_runtime_ref_cannot_reconcile_its_diagnostic_event() -> None:
     assert valid_ref in {
         event_ref
         for event in job_payload["progress"]["details"]["diagnostic_events"]
-        for event_ref in event.get("artifact_refs", [])
+        for event_ref in (
+            event.get("artifact_ref"),
+            event.get("runtime_cas_ref"),
+            *event.get("artifact_refs", []),
+        )
+        if event_ref is not None
     }
     assert scorecard["quality_status"] == "fail"
     assert "authority_cas_missing" in blocking_codes(scorecard)
+
+
+def test_rejected_policy_design_role_cannot_borrow_same_hash_from_quality_role() -> None:
+    job_payload = complete_job_payload()
+    details = job_payload["progress"]["details"]
+    valid_ref = details["policy_design_capability_ledger_ref"]
+    assert valid_ref == details["policy_grounding_matrix_ref"]
+    job_payload["progress"]["runtime_quality_refs"] = {
+        "policy_design_capability_ledger_ref": "bad\nref",
+    }
+
+    scorecard = scorecard_for(job_payload=job_payload)
+
+    assert valid_ref in {
+        event_ref
+        for event in details["diagnostic_events"]
+        if event.get("event_name") == "policy_design_capability_ledger_ref.persisted"
+        for event_ref in (
+            event.get("artifact_ref"),
+            event.get("runtime_cas_ref"),
+            *event.get("artifact_refs", []),
+        )
+        if event_ref is not None
+    }
+    assert "authority_cas_missing" in blocking_codes(scorecard)
+
+
+def test_named_event_ref_cannot_borrow_a_different_accepted_role() -> None:
+    runtime_refs = runtime_cas_refs()
+    runtime_refs["policy_grounding_matrix_ref"] = sha("8")
+    job_payload = complete_job_payload(runtime_refs=runtime_refs)
+    details = job_payload["progress"]["details"]
+    sibling_ref = details["policy_design_capability_ledger_ref"]
+    event = next(
+        item
+        for item in details["diagnostic_events"]
+        if item.get("event_name") == "policy_grounding_matrix_ref.persisted"
+    )
+    event["artifact_ref"] = sibling_ref
+    event["runtime_cas_ref"] = sibling_ref
+
+    scorecard = scorecard_for(job_payload=job_payload)
+
+    assert "hds_event_reconciliation_failed" in blocking_codes(scorecard)
+
+
+def test_unknown_explicit_event_role_cannot_borrow_an_accepted_ref() -> None:
+    job_payload = complete_job_payload()
+    details = job_payload["progress"]["details"]
+    details["diagnostic_events"].append(
+        {
+            "event_name": "runtime.diagnostic",
+            "ref_key": "unknown_report_ref",
+            "artifact_ref": details["policy_design_capability_ledger_ref"],
+            "sampling": {"decision": "always_record", "rate": 1.0},
+        }
+    )
+
+    scorecard = scorecard_for(job_payload=job_payload)
+
+    assert "hds_event_reconciliation_failed" in blocking_codes(scorecard)
+
+
+@pytest.mark.parametrize(
+    ("field_name", "value"),
+    [
+        ("ref_key", "policy_design_capability_ledger_ref\n"),
+        ("report_key", "policy_grounding_matrix\n"),
+    ],
+)
+def test_malformed_explicit_event_role_cannot_become_unlabelled(
+    field_name: str,
+    value: str,
+) -> None:
+    job_payload = complete_job_payload()
+    details = job_payload["progress"]["details"]
+    details["diagnostic_events"].append(
+        {
+            "event_name": "runtime.diagnostic",
+            field_name: value,
+            "artifact_ref": details["policy_design_capability_ledger_ref"],
+            "sampling": {"decision": "always_record", "rate": 1.0},
+        }
+    )
+
+    scorecard = scorecard_for(job_payload=job_payload)
+
+    assert "hds_event_reconciliation_failed" in blocking_codes(scorecard)
+
+
+def test_unlabelled_diagnostic_event_keeps_generic_reference_matching() -> None:
+    job_payload = complete_job_payload()
+    details = job_payload["progress"]["details"]
+    details["diagnostic_events"].append(
+        {
+            "event_name": "runtime.blocker",
+            "artifact_ref": details["policy_design_capability_ledger_ref"],
+            "sampling": {"decision": "always_record", "rate": 1.0},
+        }
+    )
+
+    scorecard = scorecard_for(job_payload=job_payload)
+
+    assert "authority_ref_not_cas" not in blocking_codes(scorecard)
+    assert "hds_event_reconciliation_failed" not in blocking_codes(scorecard)

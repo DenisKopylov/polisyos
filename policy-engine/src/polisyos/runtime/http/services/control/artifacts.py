@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import os
 from collections.abc import Mapping
 from dataclasses import dataclass, replace
@@ -663,6 +664,90 @@ def write_runtime_authority_artifact(
     event_log.append(
         event,
         payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True),
+    )
+    return result
+
+
+def _recover_candidate_terminal_authority_artifact(
+    store: core_artifacts.ArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    receipt: object,
+    opts: ArtifactWriteOptions,
+    **authority_fields: Unpack[_AuthorityArtifactWriteFields],
+) -> AuthorityArtifactWriteResult:
+    """Resume an exact candidate-terminal writer after its caller verifies the fence.
+
+    This low-level writer does not establish a marker, lease, frontier, or action
+    authority. Its sink caller must verify those owners before invoking it.
+    """
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        _acquisition_route_receipt_inputs,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateRouteLoopReceipt,
+    )
+
+    if type(receipt) is not AcquisitionCandidateRouteLoopReceipt:
+        raise ValueError("candidate_terminal_recovery_writer_identity_invalid")
+    inputs = _acquisition_route_receipt_inputs(receipt)
+    event_suffix = hashlib.sha256(
+        to_canonical_bytes(receipt.model_dump(mode="json"), CanonSpec(forbid_floats=False))
+    ).hexdigest()
+    closure = SameInputClosure.model_validate(authority_fields.get("same_input_closure"))
+    if (
+        opts.kind != "runtime_quality.acquisition_route_loop_receipt"
+        or opts.media_type != "application/json"
+        or opts.schema is None
+        or opts.schema.name != "polisyos.runtime.AcquisitionRouteLoopReceipt"
+        or opts.schema.version != "3.0"
+        or opts.producer is None
+        or opts.producer.component != "polisyos.runtime.acquisition_route_loop"
+        or opts.producer.version != "2026.08.28+ds15-c02"
+        or authority_fields.get("event_type") != "polisyos.runtime.acquisition.route_loop.v3"
+        or authority_fields.get("event_source") != "polisyos.runtime.quality.acquisition_route_loop"
+        or authority_fields.get("tenant_id") != receipt.tenant_id
+        or authority_fields.get("cell_id") != receipt.cell_id
+        or authority_fields.get("run_id") != receipt.run_id
+        or authority_fields.get("job_id") != receipt.job_id
+        or authority_fields.get("generated_at") != receipt.generated_at.isoformat()
+        or authority_fields.get("as_of_time") != receipt.generated_at.isoformat()
+        or authority_fields.get("evidence_id") != receipt.receipt_id
+        or authority_fields.get("phase") != "acquisition_route_loop"
+        or authority_fields.get("state_before") != "candidate_input_reentry_pending"
+        or authority_fields.get("state_after") != "terminal"
+        or authority_fields.get("event_id")
+        != f"evt_acquisition_{receipt.action_generation}_loop_terminal_{event_suffix}"
+        or authority_fields.get("event_subject")
+        != f"run/{receipt.run_id}/job/{receipt.job_id}/acquisition/terminal"
+        or tuple(authority_fields.get("input_refs") or ()) != inputs
+        or closure.closure_id != f"acquisition-route:{receipt.receipt_id}"
+        or closure.status != "closed"
+        or (closure.tenant_id, closure.cell_id, closure.run_id, closure.job_id)
+        != (receipt.tenant_id, receipt.cell_id, receipt.run_id, receipt.job_id)
+        or closure.evidence_input_refs != inputs
+        or closure.closure_sha256 != receipt.route_id
+        or authority_fields.get("effective_mode_ref") != receipt.route_id
+        or authority_fields.get("semantic_binding_ref") != receipt.cost_basis_hash
+        or authority_fields.get("requested_execution_profile") != "governed"
+        or authority_fields.get("effective_execution_profile") != "governed"
+        or authority_fields.get("canon_spec") != CanonSpec(forbid_floats=False)
+    ):
+        raise ValueError("candidate_terminal_recovery_writer_identity_invalid")
+    payload = receipt.model_dump(mode="json")
+    result = write_authority_artifact(store, payload, opts, **authority_fields)
+    if result.cas_ref.manifest_profile_sha256 is None:
+        raise ValueError("candidate_terminal_recovery_writer_profile_missing")
+    event_payload = read_core_json_artifact(store, result.diagnostic_event_ref).value
+    event = DiagnosticEvent.model_validate(event_payload)
+    event_log.append(event, payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True))
+    reconcile_authority_ref(
+        artifact_store=store,
+        event_log=event_log,
+        cas_ref=result.cas_ref,
+        expected_tenant_id=receipt.tenant_id,
+        expected_cell_id=receipt.cell_id,
+        expected_run_id=receipt.run_id,
+        expected_job_id=receipt.job_id,
     )
     return result
 

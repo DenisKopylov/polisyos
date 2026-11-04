@@ -1542,6 +1542,9 @@ export type RunCandidateSimulationAcquisitionHistoryEntryV3 =
 export type RunCandidateSimulationAcquisitionHistoryEntryV4 =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"];
 
+export type RunCandidateSimulationAcquisitionHistoryEntryV5 =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV5"];
+
 export type RunCandidateSimulationCheapConsequences =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationCheapConsequences"];
 

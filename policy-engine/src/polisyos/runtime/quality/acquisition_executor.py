@@ -37,6 +37,9 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.control_registry_providers import (
         ControlRegistryProviders,
     )
+    from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+        CandidateUnpricedLiveContext,
+    )
     from polisyos.runtime.quality.epoch_deployment import EpochDeployment
     from polisyos.runtime.quality.semantic_epoch import (
         EpochResolutionQuery,
@@ -731,6 +734,7 @@ def execute_live_catalog_acquisition(
     artifact_store: ArtifactStore | None = None,
     cache_namespace: str | None = None,
     registry_providers: ControlRegistryProviders | None = None,
+    candidate_unpriced_context: CandidateUnpricedLiveContext | None = None,
 ) -> LiveSourceExecutionEvidence:
     """Execute one catalog-owned variable through Fabric and return quarantine evidence.
 
@@ -744,6 +748,24 @@ def execute_live_catalog_acquisition(
     from polisyos.runtime.http.services.control_registry_providers import (
         resolve_control_registry_providers,
     )
+
+    if candidate_unpriced_context is not None:
+        from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+        from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+            CandidateUnpricedLiveContext,
+        )
+
+        if (
+            type(candidate_unpriced_context) is not CandidateUnpricedLiveContext
+            or type(candidate_unpriced_context.control_service) is not ControlPlaneService
+            or (
+                registry_providers is not None
+                and registry_providers
+                is not candidate_unpriced_context.control_service._registry_providers
+            )
+        ):
+            raise LiveAcquisitionExecutionError("candidate_unpriced_context_untyped")
+        registry_providers = candidate_unpriced_context.control_service._registry_providers
 
     resolved = ResolvedAcquisitionAuthority.model_validate(authority.resolve(entry_id))
     entry = resolved.entry
@@ -828,6 +850,24 @@ def execute_live_catalog_acquisition(
         max_response_bytes=constraints.max_response_bytes,
         max_decompressed_bytes=constraints.max_decompressed_bytes,
     )
+    if candidate_unpriced_context is not None:
+        from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+            reconcile_candidate_unpriced_work,
+        )
+
+        reconcile_candidate_unpriced_work(
+            control_service=candidate_unpriced_context.control_service,
+            scope=candidate_unpriced_context.scope,
+            policy_ref=candidate_unpriced_context.policy_ref,
+            action_phase_ref=candidate_unpriced_context.action_phase_ref,
+            live_authorization=authorization,
+            budget_observer=candidate_unpriced_context.budget_observer,
+            budget_state=candidate_unpriced_context.budget_state,
+        )
+        # The original source-run USD contract has no currently wired owner
+        # establishing whether unpriced work is outside a hard all-in cap.
+        # Do not let a candidate policy silently change that contract.
+        raise LiveAcquisitionExecutionError("candidate_unpriced_budget_scope_not_established")
     if artifact_store is None:
         raise LiveAcquisitionExecutionError("live_runtime_artifact_store_required")
     journal = fabric_data_plane.AppendOnlyEvidenceJournal(journal_path)

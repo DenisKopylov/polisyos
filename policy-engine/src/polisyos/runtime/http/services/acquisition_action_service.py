@@ -92,6 +92,74 @@ class AcquisitionRouteMutationRequest(BaseModel):
     human_decision_record_ref: str | None = Field(default=None, pattern=_SHA256_PATTERN)
 
 
+class CandidateExperimentRouteReplayPins(BaseModel):
+    """Exact selected source and policy views for an unknown-cost experiment."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_job_id: str = Field(min_length=1)
+    source_payload_ref: str = Field(pattern=_SHA256_PATTERN)
+    request_content_hash: str = Field(pattern=_SHA256_PATTERN)
+    compiled_ref: artifacts.ArtifactRef
+    planner_report_ref: artifacts.ArtifactRef
+    compiler_report_ref: artifacts.ArtifactRef
+    configured_port_source_ref: artifacts.ArtifactRef
+    policy_ref: artifacts.ArtifactRef
+    candidate_digest: str = Field(pattern=_SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _selected_views_required(self) -> CandidateExperimentRouteReplayPins:
+        for ref, kind in (
+            (self.compiled_ref, "runtime.compiled_recursive_generation_cycle"),
+            (self.planner_report_ref, "runtime.acquisition_planner_report"),
+            (self.compiler_report_ref, "runtime.data_requirement_compilation_report"),
+            (
+                self.configured_port_source_ref,
+                "runtime.quality.n7_configured_candidate_port_source",
+            ),
+            (self.policy_ref, "runtime_quality.candidate_unpriced_acquisition_policy"),
+        ):
+            if (
+                set(type(ref).model_fields) != set(artifacts.ArtifactRef.model_fields)
+                or ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("candidate_experiment_selected_profile_required")
+        return self
+
+
+class CandidateExperimentRouteMutationRequest(BaseModel):
+    """Optimistic pins only; permission and live action owners remain separate."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    route_id: str = Field(pattern=_SHA256_PATTERN)
+    replay_pins: CandidateExperimentRouteReplayPins
+    idempotency_key: str = Field(min_length=1, max_length=200)
+
+
+class CandidateExperimentRouteProjection(BaseModel):
+    """Read-only experiment proposal with unknown cost and no action authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["CandidateExperimentRouteProjection@1.0"] = (
+        "CandidateExperimentRouteProjection@1.0"
+    )
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    route_id: str = Field(pattern=_SHA256_PATTERN)
+    replay_pins: CandidateExperimentRouteReplayPins
+    scheduler_action: str = Field(min_length=1)
+    scheduler_reason: str = Field(min_length=1)
+    monetary_cost: Literal["not_established"] = "not_established"
+    information_value: Literal["not_established"] = "not_established"
+    action_authority: Literal["not_established"] = "not_established"
+    publication_authority: Literal[False] = False
+
+
 class AcquisitionRouteProjection(BaseModel):
     """Read-only current route with independent execution and authority postures."""
 
@@ -947,6 +1015,68 @@ class AcquisitionActionService:
         if getattr(self, "_movement_service", None) is not None:
             self._movement_service.consume_terminal(supplier_receipt_ref=receipt_ref)
 
+    def get_candidate_experiment_route(
+        self, *, tenant_id: str, cell_id: str, run_id: str
+    ) -> CandidateExperimentRouteProjection:
+        """Reopen a source-bound experiment projection without authorizing an action."""
+        if not tenant_id or not cell_id or not run_id:
+            raise AcquisitionActionServiceError("acquisition_actor_scope_missing")
+        loop = AcquisitionRouteLoop(
+            control_store=self.control_service._control_store,
+            artifact_store=self.control_service._artifact_store,
+            event_log=self.control_service._diagnostic_event_log,
+            core_source_resolver=self.control_service.resolve_completed_control_job_core_run_source,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            action_outcome_reader=self.control_service.acquisition_route_sink,
+        )
+        try:
+            origin = loop.resolve_candidate_experiment_origin(run_id=run_id)
+        except AcquisitionRouteClosureError as exc:
+            raise AcquisitionActionServiceError(exc.code) from exc
+        scope = origin.policy_scope
+        return CandidateExperimentRouteProjection(
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            run_id=origin.run_id,
+            route_id=origin.route_id,
+            replay_pins=CandidateExperimentRouteReplayPins(
+                source_job_id=origin.source_job_id,
+                source_payload_ref=origin.source_payload_ref,
+                request_content_hash=origin.request_content_hash,
+                compiled_ref=scope.compiled_ref,
+                planner_report_ref=scope.planner_report_ref,
+                compiler_report_ref=scope.compiler_report_ref,
+                configured_port_source_ref=scope.configured_port_source_ref,
+                policy_ref=origin.policy_ref,
+                candidate_digest=scope.candidate_digest,
+            ),
+            scheduler_action=origin.source_cycle.voi_decision.scheduler_action,
+            scheduler_reason=origin.source_cycle.voi_decision.scheduler_reason,
+        )
+
+    def _validate_candidate_experiment_request(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        request: CandidateExperimentRouteMutationRequest,
+    ) -> CandidateExperimentRouteProjection:
+        """Reopen optimistic pins only; this does not reserve or authorize work."""
+        from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
+
+        if type(request) is not CandidateExperimentRouteMutationRequest:
+            raise AcquisitionActionServiceError("candidate_experiment_request_untyped")
+        projection = self.get_candidate_experiment_route(
+            tenant_id=tenant_id, cell_id=cell_id, run_id=run_id
+        )
+        if request.route_id != projection.route_id or not _candidate_model_values_same(
+            request.replay_pins, projection.replay_pins
+        ):
+            raise AcquisitionActionServiceError("candidate_experiment_route_revalidation_required")
+        return projection
+
     def _resolve(
         self,
         *,
@@ -1379,4 +1509,7 @@ __all__ = [
     "AcquisitionRouteMutationRequest",
     "AcquisitionRouteProjection",
     "AcquisitionRouteReplayPins",
+    "CandidateExperimentRouteMutationRequest",
+    "CandidateExperimentRouteProjection",
+    "CandidateExperimentRouteReplayPins",
 ]

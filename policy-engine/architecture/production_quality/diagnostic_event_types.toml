@@ -63,7 +63,7 @@ phase_required = true
 producer_required = true
 serious_no_sampling = true
 allowed_event_sources = ["polisyos.runtime"]
-payload_ref_policy = "cas_required_for_authority_payload"
+payload_ref_policy = "cas_required"
 
 [[event_types]]
 name = "polisyos.runtime.acquisition.route_loop.v1"
@@ -76,6 +76,54 @@ producer_required = true
 serious_no_sampling = true
 allowed_event_sources = ["polisyos.runtime"]
 payload_ref_policy = "cas_required_for_authority_payload"
+
+[[event_types]]
+name = "polisyos.runtime.acquisition.route_loop.v2"
+category = "acquisition_route_loop"
+description = "A version 2 acquisition terminal recorded its selected evaluation and re-entry or retained continuation evidence."
+owner = "team-runtime-quality"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime.quality.acquisition_route_loop"]
+payload_ref_policy = "cas_required"
+
+[[event_types]]
+name = "polisyos.runtime.acquisition.route_loop.v3"
+category = "acquisition_route_loop"
+description = "A version 3 candidate acquisition terminal recorded its selected source, evaluation and historical continuation evidence."
+owner = "team-runtime-quality"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime.quality.acquisition_route_loop"]
+payload_ref_policy = "cas_required"
+
+[[event_types]]
+name = "polisyos.runtime.acquisition.evaluation.v1"
+category = "acquisition_evaluation"
+description = "An acquisition evaluation basis, comparison decision, retained port capture, or retained continuation was persisted for exact-input replay without granting candidate publication authority."
+owner = "team-runtime-quality"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime.acquisition_evaluation"]
+payload_ref_policy = "cas_required"
+
+[[event_types]]
+name = "polisyos.runtime.acquisition.candidate_unpriced_policy.v1"
+category = "acquisition_candidate_unpriced_policy"
+description = "A candidate unpriced acquisition policy decision was persisted for governed replay without granting publication authority."
+owner = "team-runtime-quality"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime.acquisition_candidate_unpriced_policy"]
+payload_ref_policy = "cas_required"
 
 [[event_types]]
 name = "polisyos.runtime.diagnostic.phase_transition.v1"

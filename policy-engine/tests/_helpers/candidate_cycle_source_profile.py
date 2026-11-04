@@ -1030,6 +1030,8 @@ def candidate_cycle_kref_source_witness(
 def complete_candidate_cycle_catalog_source(
     source_root: Path,
     monkeypatch: pytest.MonkeyPatch,
+    *,
+    synthetic_usa_labor_scope: bool = False,
 ) -> Iterator[tuple[CatalogServingSourceSelection, CatalogServingSourcePaths, SubstrateRegistry]]:
     """Publish and readmit complete test-owned input before a candidate profile.
 
@@ -1067,6 +1069,44 @@ def complete_candidate_cycle_catalog_source(
     )
     graph_bytes = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in graph_paths}
     _write_substrate_catalog_fixture(root, include_graphs=False)
+    if synthetic_usa_labor_scope:
+        # Adapt only this unpublished test-owned L5 fixture. Its rows describe a
+        # synthetic candidate scope, not US measurement evidence or currentness.
+        measurement = json.loads(paths.measurement_registry_path.read_text())
+        measurement["coverage_rules"]["macro_state"] = 0.10
+        paths.measurement_registry_path.write_text(json.dumps(measurement, sort_keys=True) + "\n")
+        identification = json.loads(paths.identification_mode_registry_path.read_text())
+        identification["macro_state"] = {"selected_mode": "bounds_only"}
+        paths.identification_mode_registry_path.write_text(
+            json.dumps(identification, sort_keys=True) + "\n"
+        )
+        for path, old_id, new_id in (
+            (paths.schema_regime_registry_path, "ukraine_schema_v1", "synthetic_usa_labor_v1"),
+            (
+                paths.epoch_schema_regime_registry_path,
+                "ukraine_schema_v2",
+                "synthetic_usa_labor_v2",
+            ),
+        ):
+            payload = json.loads(path.read_text())
+            regime = payload["regimes"].pop(old_id)
+            regime["schema_regime_id"] = new_id
+            regime["source_version"] = "synthetic-candidate-only"
+            payload["regimes"][new_id] = regime
+            path.write_text(json.dumps(payload, sort_keys=True) + "\n")
+        relation_path = paths.epoch_schema_regime_scope_registry_path
+        relation_payload = json.loads(relation_path.read_text())
+        scope_ref = "sha256:" + hashlib.sha256(b"synthetic USA 2024 total labor force").hexdigest()
+        relation_ref = (
+            "sha256:" + hashlib.sha256(b"synthetic USA labor fixture relation").hexdigest()
+        )
+        for relation in relation_payload["relations"]:
+            relation["schema_regime_id"] = relation["schema_regime_id"].replace(
+                "ukraine_schema", "synthetic_usa_labor"
+            )
+            relation["scope_identity_refs"] = [scope_ref]
+            relation["relation_provenance_ref"]["artifact_id"] = relation_ref
+        relation_path.write_text(json.dumps(relation_payload, sort_keys=True) + "\n")
     if {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in graph_paths} != graph_bytes:
         raise AssertionError("complete_candidate_existing_graph_replaced")
     published_root = root / "complete-cov-published-catalog"

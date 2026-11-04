@@ -105,6 +105,30 @@ generated_client_notes = "additive through the Runtime N5 body; shared client re
 limitations = "Synthetic model consistency and numerical error bounds do not establish empirical calibration, source currentness, scientific independence, observed-data admission or publication authority."
 
 [[compatibility_change]]
+id = "lane01-canonical-public-owner-routing"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: canonical Core, Engine, Fabric and Foundry owner aliases; existing foundry.coupling entrypoint"
+owner = "team-runtime"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Route LANE01 consumers through supported facades while retaining the original function and class objects. Export FetchPlan, IngestionExecutionContext, the budget observation/error, cache and ingestion evidence readers/builders, UTC parser, NCM method and stock-flow estimator. Declare the existing coupling facade as a narrow supported entrypoint; do not waive the deep-import baseline."
+generated_client_compatibility = "not_applicable"
+limitations = "Aliases grant no source authority or scientific validity. The causal facade can load a wider set of modules on first lookup; selected N5 implementation capture is qualified on the composed source separately."
+
+[[compatibility_change]]
+id = "lane01-governed-resolver-composition"
+change_class = "internal"
+impact = "additive"
+surface = "existing Runtime registry, HTTP, recursive controller and requirement compiler composition"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Pass the explicitly appointed CapabilityResolverPort by identity from the composition root to the real recursive leaf/compiler, independently of the selected data root. The composed owner takes precedence over request hints. Preserve None and legacy failure behavior; do not copy the governed index or infer source authority from structural port validation."
+generated_client_compatibility = "not_applicable"
+limitations = "Fifteen transport/compiler/DI controls qualify this bridge before N4/N5. Native labor generation, source acquisition and candidate reentry remain separate checks; draft modeled-source descriptors stay candidate-only."
+
+[[compatibility_change]]
 id = "lane01-selected-acquisition-head-profile"
 change_class = "runtime-state-format"
 impact = "additive"
@@ -116,3 +140,32 @@ release_note = "Persist the CAS writer-selected receipt manifest profile atomica
 migration = "The normal SQLite/PostgreSQL schema migrations add a nullable column without inventing historical values. Upgrade writers before emitting profiled heads. The lifecycle must supply the actual writer selector and verify selected content; store shape and transaction checks alone establish no authority."
 generated_client_compatibility = "not_applicable"
 limitations = "Forty SQLite cases and the existing legacy history profile pass; two native PostgreSQL cases are unrun because the test DSN is absent. This store component does not qualify the unfinished candidate terminal producer/history/consumer integration."
+
+
+[[compatibility_change]]
+id = "lane01-explicit-nl-budget-scope"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: NaturalLanguageRunRequest optional run_budget_scope; Core RunBudgetScope alias; Runtime OpenAPI, SDK and new-run composer"
+owner = "team-runtime"
+version_owner = "team-core"
+deprecation_window = "not_applicable"
+release_note = "New requests may explicitly select hard_total_usd or metered_paid_producers_and_bounded_candidate. The latter caps metered paid producers in USD and requires separately verified finite physical candidate-work authorization; total USD cost is not established. Choosing a mode grants no execution permission. Separate candidate_acquisition_intent=bounded_experiment_voi_unknown records explicit unknown-VOI experiment intent without replacing ROI rejection. The composer and Clerk preserve omission for old or unselected drafts."
+migration = "Absent legacy scope retains its original wire bytes and meaning. Explicit null selects no mode and grants no unpriced-work permission. Signed snapshot v5 binds explicit experiment intent; v1–v4 omission remains unchanged. Physical-site owners enforce run-bound finite quotas and original caps; live acquisition issuer/action/fold/transport remains separately incomplete. No historical request is upgraded."
+generated_client_compatibility = "declared_compatible"
+generated_client_notes = "Runtime OpenAPI, dashboard types and canonical Runtime client regenerated; SDK checks and three dashboard TypeScript configurations pass."
+limitations = "Request and UI tests establish selection and omission, not successful backend admission, price, permission or total-cost guarantees. Physical N5 and acquisition owners verify actual scope, quota, live budget and source independently."
+
+[[compatibility_change]]
+id = "lane01-terminal-history-v5-surface"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: Core RunCandidateSimulationAcquisitionHistoryEntryV5 and selected Runtime candidate-history projection"
+owner = "team-runtime"
+version_owner = "team-core"
+deprecation_window = "not_applicable"
+release_note = "Expose verified candidate terminal outcome, exact selected manifest profiles, current-versus-superseded frontier, retained-versus-new evaluation provenance, and declared cheap-consequence and authority limitations. Keep legacy history branches intact and refuse unavailable terminal-owner verification."
+migration = "New @3 terminal history requires its canonical owner replay; old artifacts and numerical results retain their original versions and authority. Clients must use the typed outcome and provenance rather than treating retained or blocked history as a new execution."
+generated_client_compatibility = "declared_compatible"
+generated_client_notes = "OpenAPI, dashboard and canonical Runtime client types are additive; V5 Core and frontend controls preserve exact profile identity and blocked/retained semantics."
+limitations = "Component contracts and UI checks do not establish a full @3 producer-to-GET execution. The unfinished producer, history and retention composition remains fail-closed; no G acceptance or closure is inferred."

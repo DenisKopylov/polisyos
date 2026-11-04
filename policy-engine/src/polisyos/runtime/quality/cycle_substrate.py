@@ -11,6 +11,7 @@ import hashlib
 import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
+from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeGuard, cast
 
@@ -116,6 +117,7 @@ _REQUIRED_CONTEXT_JOB_LIMITATIONS = frozenset(
     }
 )
 _VERIFIED_NL_EXECUTION_OWNER_ISSUER = object()
+_VERIFIED_NL_BUDGET_OWNER_ISSUER = object()
 # This v1 artifact embeds only model versions whose field trees are frozen
 # below. The L6 owner explicitly supports both its v1 and v2 bundle formats.
 _CONTEXT_JOB_V1_SUPPORTED_MODEL_VERSIONS: dict[str, frozenset[str]] = {
@@ -1171,6 +1173,88 @@ class VerifiedNLJobScope(_StrictModel):
     @property
     def _was_issued_by_verified_nl_execution_owner(self) -> bool:
         return self._issuer is _VERIFIED_NL_EXECUTION_OWNER_ISSUER
+
+
+class VerifiedNLJobBudgetScope(_StrictModel):
+    """Ephemeral owner-replayed financial scope for any admitted NL job band.
+
+    This classification is not an intent grant, invocation permit, or price.
+    """
+
+    authority_purpose: Literal["nl_physical_budget_scope_only"] = "nl_physical_budget_scope_only"
+    job_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    tenant_id: str = Field(..., min_length=1)
+    cell_id: str = Field(..., min_length=1)
+    worker_id: str = Field(..., min_length=1)
+    attempt: int = Field(..., ge=1)
+    actor_subject: str = Field(..., min_length=1)
+    effective_execution_profile: str = Field(..., min_length=1)
+    intent_digest: str = Field(..., pattern=_HASH_PATTERN)
+    source_payload_ref: str = Field(..., pattern=_HASH_PATTERN)
+    run_budget_usd: Decimal | None = Field(default=None, ge=0, allow_inf_nan=False)
+    run_budget_scope_present: bool = Field(..., strict=True)
+    run_budget_scope: (
+        Literal["hard_total_usd", "metered_paid_producers_and_bounded_candidate"] | None
+    ) = None
+    _issuer: object = PrivateAttr(default=None)
+    _budget_scope_seal: object = PrivateAttr(default=None)
+    _budget_scope_owner: object = PrivateAttr(default=None)
+
+    @model_validator(mode="after")
+    def _validate_budget_scope_presence(self) -> VerifiedNLJobBudgetScope:
+        if not self.run_budget_scope_present and self.run_budget_scope is not None:
+            raise ValueError("verified_nl_budget_scope_presence_invalid")
+        return self
+
+    def _budget_scope_identity(self) -> tuple[object, ...]:
+        return (
+            self.authority_purpose,
+            self.job_id,
+            self.run_id,
+            self.tenant_id,
+            self.cell_id,
+            self.worker_id,
+            self.attempt,
+            self.actor_subject,
+            self.effective_execution_profile,
+            self.intent_digest,
+            self.source_payload_ref,
+            self.run_budget_usd,
+            self.run_budget_scope_present,
+            self.run_budget_scope,
+            id(self._budget_scope_owner),
+        )
+
+    @property
+    def _was_issued_by_verified_nl_budget_owner(self) -> bool:
+        return (
+            self._issuer is _VERIFIED_NL_BUDGET_OWNER_ISSUER
+            and self._budget_scope_seal is not None
+            and self._budget_scope_seal == self._budget_scope_identity()
+        )
+
+    def require_current_physical_budget_scope(
+        self,
+    ) -> Literal[
+        "legacy_omitted",
+        "hard_total_usd",
+        "explicit_null",
+        "metered_paid_producers_and_bounded_candidate",
+    ]:
+        """Reopen this issued scope through its concrete current Control owner."""
+        revalidate = getattr(self._budget_scope_owner, "revalidate_verified_nl_budget_scope", None)
+        if not self._was_issued_by_verified_nl_budget_owner or not callable(revalidate):
+            raise ValueError("nl_physical_budget_scope_owner_not_established")
+        result = revalidate(self)
+        if result not in {
+            "legacy_omitted",
+            "hard_total_usd",
+            "explicit_null",
+            "metered_paid_producers_and_bounded_candidate",
+        }:
+            raise ValueError("nl_physical_budget_scope_replay_invalid")
+        return result
 
 
 class _CurrentControlJobRecord(Protocol):

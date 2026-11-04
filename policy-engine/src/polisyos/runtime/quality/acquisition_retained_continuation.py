@@ -20,6 +20,8 @@ from polisyos.pdc import CounterexampleRecord, RefinementDecision, SearchIterati
 from polisyos.runtime.quality.acquisition_evaluation import (
     AcquisitionEvaluationDecision,
     AcquisitionSelectedEvaluation,
+    _candidate_model_values_same,
+    _candidate_ref_same,
     read_acquisition_evaluation_artifact,
 )
 from polisyos.runtime.quality.acquisition_planner import (
@@ -49,10 +51,20 @@ from polisyos.runtime.quality.n5_execution_basis import (
     exact_n5_content_hash,
 )
 from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
+from polisyos.scientist.orchestration.engine import ProducerBudgetObservation
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import CoreJSONArtifactStore
-    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoopReceiptV2
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        CandidateAcquisitionEvaluationDecision,
+        ResolvedAcquisitionEvaluation,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateRouteLoopReceipt,
+        AcquisitionRouteLoopReceiptV2,
+        VerifiedAcquisitionRouteClosure,
+    )
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 
 _HASH = r"^sha256:[0-9a-f]{64}$"
@@ -195,11 +207,625 @@ class AcquisitionRetainedContinuation(BaseModel):
         return self
 
 
+class CandidateAcquisitionRetainedContinuation(BaseModel):
+    """A candidate-only fresh reaction retaining one selected prior N5 result.
+
+    The producer must replay both complete candidate bases, recheck the live
+    owner and compare the same budget observation around the cheap work. This
+    record does not itself establish any of those owner checks or admission.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    ARTIFACT_KIND: ClassVar[str] = "runtime_quality.candidate_acquisition_retained_continuation"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = (
+        "polisyos.runtime.CandidateAcquisitionRetainedContinuation"
+    )
+    schema_version: Literal["CandidateAcquisitionRetainedContinuation@1.0"] = (
+        "CandidateAcquisitionRetainedContinuation@1.0"
+    )
+    authority_purpose: Literal["candidate_evaluation_retention_only"] = (
+        "candidate_evaluation_retention_only"
+    )
+    comparison_rule: Literal["candidate-source-current-cheap-consequences.v1"] = (
+        "candidate-source-current-cheap-consequences.v1"
+    )
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    source_job_id: str = Field(min_length=1)
+    action_job_id: str = Field(min_length=1)
+    action_generation: int = Field(ge=1)
+    route_id: str = Field(pattern=_HASH)
+    compiled_ref: str = Field(pattern=_HASH)
+    design_problem_ref: str = Field(pattern=_HASH)
+    design_problem_basis_ref: str = Field(pattern=_HASH)
+    candidate_id: str = Field(min_length=1)
+    candidate_action_ref: ArtifactRef
+    candidate_world_intent_ref: ArtifactRef
+    candidate_source_ref: ArtifactRef
+    evaluation_decision_ref: ArtifactRef
+    current_basis_ref: ArtifactRef
+    retained_evaluation: AcquisitionSelectedEvaluation
+    current_projection: AcquisitionRetainedCurrentProjection
+    retained_port_capture_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    budget_observation_before: ProducerBudgetObservation
+    budget_observation_after: ProducerBudgetObservation
+    limitations: tuple[str, ...] = Field(min_length=1)
+    predicate_provenance: Literal["recomputed"] = "recomputed"
+    observed_admission: Literal[False] = False
+    publication_authority: Literal[False] = False
+    generated_at: str = Field(min_length=1)
+    content_hash: str = Field(pattern=_HASH)
+
+    @model_validator(mode="after")
+    def _verify_content(self) -> CandidateAcquisitionRetainedContinuation:
+        if self.content_hash != exact_n5_content_hash(
+            self.model_dump(mode="json", exclude={"content_hash"})
+        ):
+            raise ValueError("candidate_retained_continuation_content_mismatch")
+        refs = (
+            (self.candidate_action_ref, "runtime_quality.acquisition_candidate_action_receipt"),
+            (self.candidate_world_intent_ref, "runtime_quality.acquisition_candidate_world_intent"),
+            (self.candidate_source_ref, "runtime.quality.candidate_acquisition_source"),
+            (self.evaluation_decision_ref, "runtime_quality.acquisition_evaluation_decision"),
+            (self.current_basis_ref, "runtime_quality.acquisition_evaluation_basis"),
+        )
+        if any(
+            not _candidate_ref_same(ref, ref)
+            or ref.kind != kind
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            for ref, kind in refs
+        ):
+            raise ValueError("candidate_retained_continuation_selected_ref_invalid")
+        if self.retained_port_capture_ref is not None and (
+            not _candidate_ref_same(self.retained_port_capture_ref, self.retained_port_capture_ref)
+            or self.retained_port_capture_ref.kind
+            != "runtime_quality.candidate_retained_port_capture"
+            or self.retained_port_capture_ref.media_type != "application/json"
+            or self.retained_port_capture_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("candidate_retained_port_capture_ref_invalid")
+        if self.budget_observation_before != self.budget_observation_after:
+            raise ValueError("candidate_retained_budget_observation_changed")
+        budget_binding = self.budget_observation_before.run_binding
+        if (
+            budget_binding.run_id != self.run_id
+            or budget_binding.tenant_id != self.tenant_id
+            or budget_binding.cell_id != self.cell_id
+            or budget_binding.control_job_id != self.source_job_id
+        ):
+            raise ValueError("candidate_retained_budget_run_binding_mismatch")
+        required_limitations = {
+            *self.budget_observation_before.limitations,
+            "runtime_allocation_not_established",
+        }
+        if (
+            not required_limitations.issubset(self.limitations)
+            or len(set(self.limitations)) != len(self.limitations)
+            or any(not item.strip() for item in self.limitations)
+        ):
+            raise ValueError("candidate_retained_limitations_incomplete")
+        projection = self.current_projection
+        retained = self.retained_evaluation
+        if not _candidate_model_values_same(retained, retained):
+            raise ValueError("candidate_retained_evaluation_view_invalid")
+        if (
+            retained.basis_ref is None
+            or projection.source_cycle_index != retained.cycle_index
+            or projection.selected_candidate_id != retained.candidate_id
+            or projection.selected_candidate_content_hash != retained.candidate_content_hash
+            or retained.candidate_id != self.candidate_id
+            or retained.design_problem_ref != self.design_problem_basis_ref
+            or projection.grounding.candidate_id != self.candidate_id
+            or projection.value_port.candidate_id != self.candidate_id
+            or projection.voi_decision.candidate_id != self.candidate_id
+        ):
+            raise ValueError("candidate_retained_projection_subject_mismatch")
+        if (
+            projection.counterexample.candidate_ref != self.candidate_id
+            or projection.refinement_decision.candidate_ref != self.candidate_id
+            or projection.search_iteration.candidate_ref != self.candidate_id
+            or projection.revision_request.source_counterexample_ref
+            != projection.counterexample.counterexample_ref
+            or projection.refinement_decision.consumed_counterexample_refs
+            != [projection.counterexample.counterexample_ref]
+            or projection.search_iteration.counterexample_refs
+            != [projection.counterexample.counterexample_ref]
+            or projection.search_iteration.refinement_decision_ref
+            != projection.refinement_decision.decision_ref
+        ):
+            raise ValueError("candidate_retained_diagnostic_join_mismatch")
+        if (
+            (projection.current_planner_report is None)
+            != (projection.current_planner_inputs is None)
+            or (projection.current_planner_report is None)
+            != (projection.current_planner_report_ref is None)
+            or (projection.current_planner_report is None)
+            != (projection.current_planner_world_snapshot is None)
+        ):
+            raise ValueError("candidate_retained_planner_binding_incomplete")
+        return self
+
+
+class CandidateRetainedPortCapture(BaseModel):
+    """Owner-recorded fresh candidate port outputs for one retained evaluation.
+
+    The referenced configured port source contains the actual observations and
+    their digest preimages. This record binds that selected view to the current
+    action and the original numerical occurrence; it is not catalog absence,
+    currentness, acquisition permission, or publication authority.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    ARTIFACT_KIND: ClassVar[str] = "runtime_quality.candidate_retained_port_capture"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.runtime.CandidateRetainedPortCapture"
+    schema_version: Literal["CandidateRetainedPortCapture@1.0"] = "CandidateRetainedPortCapture@1.0"
+    authority_purpose: Literal["recorded_candidate_routing_only"] = (
+        "recorded_candidate_routing_only"
+    )
+    comparison_rule: Literal["candidate-retained-current-port-capture.v1"] = (
+        "candidate-retained-current-port-capture.v1"
+    )
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    source_job_id: str = Field(min_length=1)
+    action_job_id: str = Field(min_length=1)
+    action_generation: int = Field(ge=1)
+    route_id: str = Field(pattern=_HASH)
+    compiled_ref: str = Field(pattern=_HASH)
+    design_problem_ref: str = Field(pattern=_HASH)
+    design_problem_basis_ref: str = Field(pattern=_HASH)
+    candidate_id: str = Field(min_length=1)
+    candidate_action_ref: ArtifactRef
+    candidate_world_intent_ref: ArtifactRef
+    candidate_source_ref: ArtifactRef
+    evaluation_decision_ref: ArtifactRef
+    current_basis_ref: ArtifactRef
+    retained_evaluation: AcquisitionSelectedEvaluation
+    configured_port_source_ref: ArtifactRef
+    catalog_content_ref: str = Field(pattern=r"^catalog_read_source_content://sha256:[0-9a-f]{64}$")
+    budget_observation_before: ProducerBudgetObservation
+    budget_observation_after: ProducerBudgetObservation
+    historical_catalog_absence: Literal["not_established"] = "not_established"
+    catalog_currentness: Literal["not_established"] = "not_established"
+    predicate_provenance: Literal["recomputed"] = "recomputed"
+    observed_admission: Literal[False] = False
+    publication_authority: Literal[False] = False
+    generated_at: str = Field(min_length=1)
+    content_hash: str = Field(pattern=_HASH)
+
+    @model_validator(mode="after")
+    def _validate_capture(self) -> CandidateRetainedPortCapture:
+        if self.content_hash != exact_n5_content_hash(
+            self.model_dump(mode="json", exclude={"content_hash"})
+        ):
+            raise ValueError("candidate_retained_port_capture_content_mismatch")
+        refs = (
+            (self.candidate_action_ref, "runtime_quality.acquisition_candidate_action_receipt"),
+            (self.candidate_world_intent_ref, "runtime_quality.acquisition_candidate_world_intent"),
+            (self.candidate_source_ref, "runtime.quality.candidate_acquisition_source"),
+            (self.evaluation_decision_ref, "runtime_quality.acquisition_evaluation_decision"),
+            (self.current_basis_ref, "runtime_quality.acquisition_evaluation_basis"),
+            (
+                self.configured_port_source_ref,
+                "runtime.quality.n7_configured_candidate_port_source",
+            ),
+        )
+        if any(
+            not _candidate_ref_same(ref, ref)
+            or ref.kind != kind
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            for ref, kind in refs
+        ):
+            raise ValueError("candidate_retained_port_capture_selected_ref_invalid")
+        selected = self.retained_evaluation
+        budget = self.budget_observation_before
+        if (
+            selected.basis_ref is None
+            or selected.candidate_id != self.candidate_id
+            or selected.design_problem_ref != self.design_problem_basis_ref
+            or selected.evaluation_run_id != self.run_id
+            or self.budget_observation_after != budget
+            or (
+                budget.run_binding.tenant_id,
+                budget.run_binding.cell_id,
+                budget.run_binding.run_id,
+                budget.run_binding.control_job_id,
+            )
+            != (self.tenant_id, self.cell_id, self.run_id, self.source_job_id)
+        ):
+            raise ValueError("candidate_retained_port_capture_subject_mismatch")
+        return self
+
+
 class _ReactionIdentityInputs(TypedDict):
     problem: DesignProblem
     cycle_index: int
     candidate_id: str
     source_reaction_ref: ArtifactRef
+
+
+def read_candidate_acquisition_retained_continuation(
+    *,
+    store: CoreJSONArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    control_store: ControlPlaneStore,
+    ref: ArtifactRef,
+    decision: CandidateAcquisitionEvaluationDecision,
+    terminal: AcquisitionCandidateRouteLoopReceipt,
+    prior_closure: VerifiedAcquisitionRouteClosure,
+) -> tuple[CandidateAcquisitionRetainedContinuation, ResolvedAcquisitionEvaluation]:
+    """Replay one candidate-only continuation against its selected prior owner.
+
+    The caller must independently verify the terminal head, bounded prior route,
+    both basis comparisons, ledger window and commit. This reader neither opens
+    a live lease nor establishes historical catalog absence or currentness.
+    """
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        CandidateAcquisitionEvaluationDecision,
+        resolve_selected_acquisition_evaluation_parts,
+    )
+    from polisyos.runtime.quality.acquisition_planner import (
+        _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE,
+        _N7_CONFIGURED_REPORT_SCHEMA,
+        _n7_candidate_n5_l1_planner_records_match,
+        _n7_load_configured_candidate_port_source,
+        _validate_persisted_planner_report,
+        produce_acquisition_cost_basis_record,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateRouteLoopReceipt,
+        VerifiedAcquisitionRouteClosure,
+    )
+    from polisyos.runtime.quality.generation_cycle import (
+        _counterexample_record,
+        _default_revision_request,
+        _refinement_decision,
+        _requirement_missing_distributions,
+        _search_iteration,
+    )
+
+    if (
+        type(decision) is not CandidateAcquisitionEvaluationDecision
+        or type(terminal) is not AcquisitionCandidateRouteLoopReceipt
+        or type(prior_closure) is not VerifiedAcquisitionRouteClosure
+        or decision.comparison_result != "equivalent"
+        or decision.predicate_provenance != "recomputed"
+        or terminal.terminal_outcome != "candidate_evaluation_retained"
+        or not _candidate_ref_same(terminal.current_continuation_ref, ref)
+    ):
+        raise ValueError("candidate_retained_owner_scope_not_established")
+    record = read_acquisition_evaluation_artifact(
+        store=store,
+        event_log=event_log,
+        ref=ref,
+        record_type=CandidateAcquisitionRetainedContinuation,
+    )
+    if type(record) is not CandidateAcquisitionRetainedContinuation:
+        raise TypeError("candidate_retained_continuation_reader_mismatch")
+    for name in (
+        "tenant_id",
+        "cell_id",
+        "run_id",
+        "source_job_id",
+        "action_job_id",
+        "action_generation",
+        "route_id",
+        "compiled_ref",
+        "design_problem_ref",
+        "candidate_id",
+    ):
+        if getattr(record, name) != getattr(decision, name):
+            raise ValueError("candidate_retained_action_mismatch:" + name)
+    if (
+        (record.tenant_id, record.cell_id, record.run_id, record.source_job_id, record.route_id)
+        != (
+            terminal.tenant_id,
+            terminal.cell_id,
+            terminal.run_id,
+            terminal.source_job_id,
+            terminal.route_id,
+        )
+        or record.action_job_id != terminal.job_id
+        or record.action_generation != terminal.action_generation
+        or record.compiled_ref != terminal.compiled_ref
+        or record.design_problem_ref != prior_closure.design_problem_ref
+        or record.design_problem_basis_ref != decision.design_problem_basis_ref
+        or record.design_problem_basis_ref != prior_closure.design_problem_basis_ref
+        or not _candidate_ref_same(record.candidate_action_ref, decision.candidate_action_ref)
+        or not _candidate_ref_same(record.candidate_action_ref, terminal.candidate_action_ref)
+        or not _candidate_ref_same(
+            record.candidate_world_intent_ref, decision.candidate_world_intent_ref
+        )
+        or not _candidate_ref_same(record.candidate_source_ref, decision.candidate_source_ref)
+        or not _candidate_ref_same(record.evaluation_decision_ref, terminal.evaluation_decision_ref)
+        or not _candidate_ref_same(record.current_basis_ref, decision.current_basis_ref)
+        or not _candidate_model_values_same(record.retained_evaluation, decision.prior_evaluation)
+        or not _candidate_model_values_same(
+            record.retained_evaluation, terminal.selected_evaluation
+        )
+        or not _candidate_ref_same(
+            record.retained_evaluation.basis_ref, terminal.selected_basis_ref
+        )
+        or not _candidate_ref_same(
+            record.retained_evaluation.n5_execution_ref, terminal.selected_evaluation_witness_ref
+        )
+        or (record.tenant_id, record.cell_id, record.run_id, record.source_job_id, record.route_id)
+        != (
+            prior_closure.tenant_id,
+            prior_closure.cell_id,
+            prior_closure.run_id,
+            prior_closure.source_job_id,
+            prior_closure.route_id,
+        )
+    ):
+        raise ValueError("candidate_retained_selected_join_mismatch")
+    prior = resolve_selected_acquisition_evaluation_parts(
+        artifact_store=store,
+        control_store=control_store,
+        tenant_id=prior_closure.tenant_id,
+        cell_id=prior_closure.cell_id,
+        run_id=prior_closure.run_id,
+        generation_run=prior_closure.generation_run,
+        source_cycle=prior_closure.source_cycle,
+        design_problem_ref=prior_closure.design_problem_ref,
+    )
+    if (
+        prior.source.problem != prior_closure.design_problem_basis
+        or not _candidate_model_values_same(
+            prior.selected.model_copy(update={"basis_ref": record.retained_evaluation.basis_ref}),
+            record.retained_evaluation,
+        )
+    ):
+        raise ValueError("candidate_retained_prior_evaluation_mismatch")
+    projection = record.current_projection
+    routing = projection.value_port.candidate_n5_l1_routing
+    previous_routing = prior_closure.source_cycle.value_port.candidate_n5_l1_routing
+    if routing is None or (
+        previous_routing is not None and routing.requirement_gap != previous_routing.requirement_gap
+    ):
+        raise ValueError("candidate_retained_current_l1_not_established")
+    for actual, expected in (
+        (routing.source_ref, prior.selected.n4_source_ref),
+        (routing.context_job_ref, prior.selected.context_job_ref),
+        (routing.n5_input_ref, prior.selected.n5_input_ref),
+        (routing.n5_execution_ref, prior.selected.n5_execution_ref),
+        (routing.n5_result_ref, prior.selected.n5_result_ref),
+    ):
+        if artifact_ref_identity_key(actual) != artifact_ref_identity_key(expected):
+            raise ValueError("candidate_retained_l1_evaluation_mismatch")
+    common: _ReactionIdentityInputs = {
+        "problem": prior.source.problem,
+        "cycle_index": projection.source_cycle_index,
+        "candidate_id": record.candidate_id,
+        "source_reaction_ref": record.current_basis_ref,
+    }
+    counterexample = _counterexample_record(
+        **common, grounding=projection.grounding, value_port=projection.value_port
+    )
+    revision = _default_revision_request(
+        **common,
+        terminal_kind=projection.terminal_kind,
+        counterexample=counterexample,
+        grounding=projection.grounding,
+        value_port=projection.value_port,
+        source_issue_rule=True,
+    )
+    refinement = _refinement_decision(
+        **common,
+        counterexample=counterexample,
+        revision=revision,
+        next_action=projection.voi_decision,
+    )
+    iteration = _search_iteration(
+        **common,
+        counterexample=counterexample,
+        decision=refinement,
+        next_action=projection.voi_decision,
+    )
+    if any(
+        exact_n5_content_bytes(actual) != exact_n5_content_bytes(expected)
+        for actual, expected in (
+            (projection.counterexample, counterexample),
+            (projection.revision_request, revision),
+            (projection.refinement_decision, refinement),
+            (projection.search_iteration, iteration),
+        )
+    ):
+        raise ValueError("candidate_retained_diagnostic_owner_replay_mismatch")
+    report = projection.current_planner_report
+    report_ref = projection.current_planner_report_ref
+    inputs = projection.current_planner_inputs
+    snapshot = projection.current_planner_world_snapshot
+    request = revision.strategy_payload.get("acquisition_request")
+    if (
+        report is None
+        or report_ref is None
+        or report_ref.manifest_profile_sha256 is None
+        or inputs is None
+        or snapshot is None
+        or not isinstance(request, dict)
+        or request.get("n7_source_join_rule") != _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE
+        or inputs.acquisition_request != {**request, "cycle_index": projection.source_cycle_index}
+        or inputs.design_problem != prior.source.problem
+        or inputs.run_id != report.run_id
+        or inputs.generated_at != report.generated_at
+        or inputs.requirement_basis_binding != report.requirement_basis_binding
+        or inputs.world_snapshot != snapshot
+        or inputs.planner_content_hash() != report.planning_context_hash
+        or inputs.capability_requirement_resolutions
+        != inputs.compilation_report.capability_requirement_resolutions
+        or not store.verify(report_ref).ok
+        or _validate_persisted_planner_report(store=store, ref=report_ref, report=report)
+        or validate_persisted_data_requirement_compilation_report(
+            store,
+            inputs.requirement_basis_binding,
+            expected_report=inputs.compilation_report,
+            require_selected_writer_profile=True,
+        )
+        or tuple(spec.model_dump(mode="json") for spec in inputs.compilation_report.specs)
+        != inputs.compiled_requirement_specs
+    ):
+        raise ValueError("candidate_retained_planner_inputs_not_established")
+    source_gap, refusal = _n7_bound_source_gap(
+        prior.source.problem,
+        grounding=projection.grounding,
+        value_port=projection.value_port,
+        selected_candidate_ref=projection.selected_candidate_id,
+        selected_candidate_content_hash=projection.selected_candidate_content_hash,
+        design_problem_basis_ref=record.design_problem_basis_ref,
+        acquisition_request=inputs.acquisition_request,
+    )
+    accompanying = (
+        (projection.grounding.acquisition_requirement,)
+        if projection.grounding.acquisition_requirement is not None
+        else ()
+    )
+    if report.schema_version == _N7_CONFIGURED_REPORT_SCHEMA:
+        if record.retained_port_capture_ref is None or report.candidate_lineage is None:
+            raise ValueError("candidate_retained_port_capture_not_established")
+        capture = read_acquisition_evaluation_artifact(
+            store=store,
+            event_log=event_log,
+            ref=record.retained_port_capture_ref,
+            record_type=CandidateRetainedPortCapture,
+        )
+        if type(capture) is not CandidateRetainedPortCapture:
+            raise ValueError("candidate_retained_port_capture_not_established")
+        port = _n7_load_configured_candidate_port_source(store, capture.configured_port_source_ref)
+        if (
+            any(
+                getattr(capture, name) != getattr(record, name)
+                for name in (
+                    "tenant_id",
+                    "cell_id",
+                    "run_id",
+                    "source_job_id",
+                    "action_job_id",
+                    "action_generation",
+                    "route_id",
+                    "compiled_ref",
+                    "design_problem_ref",
+                    "design_problem_basis_ref",
+                    "candidate_id",
+                )
+            )
+            or any(
+                not _candidate_ref_same(getattr(capture, name), getattr(record, name))
+                for name in (
+                    "candidate_action_ref",
+                    "candidate_world_intent_ref",
+                    "candidate_source_ref",
+                    "evaluation_decision_ref",
+                    "current_basis_ref",
+                )
+            )
+            or not _candidate_ref_same(
+                capture.configured_port_source_ref, report.candidate_lineage.port_source_ref
+            )
+            or not _candidate_model_values_same(
+                capture.retained_evaluation, record.retained_evaluation
+            )
+            or capture.budget_observation_before != record.budget_observation_before
+            or capture.budget_observation_after != record.budget_observation_after
+            or (
+                port.tenant_id,
+                port.cell_id,
+                port.run_id,
+                port.source_job_id,
+                port.source_generation_run_id,
+                port.cycle_index,
+                port.candidate_id,
+                port.candidate_content_hash,
+                port.design_problem_basis_ref,
+            )
+            != (
+                record.tenant_id,
+                record.cell_id,
+                record.run_id,
+                prior.selected.evaluation_job_id,
+                prior.selected.generation_run_id,
+                prior.selected.cycle_index,
+                prior.selected.candidate_id,
+                prior.selected.candidate_content_hash,
+                prior.selected.design_problem_ref,
+            )
+            or any(
+                not _candidate_ref_same(actual, expected)
+                for actual, expected in (
+                    (port.n4_source_ref, prior.selected.n4_source_ref),
+                    (port.context_job_ref, prior.selected.context_job_ref),
+                    (port.n5_input_ref, prior.selected.n5_input_ref),
+                    (port.n5_execution_ref, prior.selected.n5_execution_ref),
+                    (port.n5_result_ref, prior.selected.n5_result_ref),
+                )
+            )
+            or not _candidate_model_values_same(
+                CandidateGroundingObservation.model_validate(port.grounding_observation),
+                projection.grounding,
+            )
+            or not _candidate_model_values_same(
+                ValuePortObservation.model_validate(port.value_observation), projection.value_port
+            )
+            or not _candidate_model_values_same(port.source_gap, source_gap)
+            or len(port.accompanying_requirement_gaps) != len(accompanying)
+            or any(
+                not _candidate_model_values_same(actual, expected)
+                for actual, expected in zip(
+                    port.accompanying_requirement_gaps, accompanying, strict=True
+                )
+            )
+        ):
+            raise ValueError("candidate_retained_port_capture_mismatch")
+    elif record.retained_port_capture_ref is not None:
+        raise ValueError("candidate_retained_port_capture_unexpected")
+    if (
+        refusal is not None
+        or source_gap is None
+        or not _n7_candidate_n5_l1_planner_records_match(
+            source_gap=source_gap,
+            accompanying_requirement_gaps=accompanying,
+            specs=inputs.compilation_report.specs,
+            capability_resolutions=inputs.compilation_report.capability_requirement_resolutions,
+            report=report,
+        )
+    ):
+        # Empty refusals remain visible, but this version has no independent
+        # owner replay for their compiler-routing cause and cannot select them.
+        raise ValueError("candidate_retained_planner_projection_not_established")
+    selected_rows = tuple(
+        row
+        for row in report.acquisition_records
+        if source_gap.requirement_gap_id in row.scenario_requirement_refs
+    )
+    distributions = _requirement_missing_distributions(source_gap)
+    expected_cost = (
+        produce_acquisition_cost_basis_record(
+            missing_distribution=distributions[0], strategy=selected_rows[0].recommended_strategy
+        )
+        if report.status != "blocked" and len(selected_rows) == 1 and len(distributions) == 1
+        else None
+    )
+    if projection.current_cost_basis != expected_cost:
+        raise ValueError("candidate_retained_planner_cost_mismatch")
+    if (
+        snapshot.world_model_record_ref != prior.selected.world_model_record_hash
+        or snapshot.world_ref != prior.selected.world_model_record_hash
+        or not _candidate_ref_same(snapshot.current_candidate_basis_ref, record.current_basis_ref)
+        or not _candidate_ref_same(
+            snapshot.current_candidate_action_ref, record.candidate_action_ref
+        )
+        or not _candidate_ref_same(
+            snapshot.current_candidate_source_ref, record.candidate_source_ref
+        )
+    ):
+        raise ValueError("candidate_retained_planner_source_mismatch")
+    return record, prior
 
 
 def read_acquisition_retained_continuation(

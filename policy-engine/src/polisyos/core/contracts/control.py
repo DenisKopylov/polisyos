@@ -41,6 +41,10 @@ from .runtime import ApiMeta, TemporalScope
 # ---------------------------------------------------------------------------
 
 RunMode = Literal["workflow", "agent_circuit"]
+RunBudgetScope = Literal[
+    "hard_total_usd",
+    "metered_paid_producers_and_bounded_candidate",
+]
 CheckpointPolicyType = Literal["strict", "lenient", "disabled"]
 CachePolicyType = Literal["default", "static", "volatile", "smart"]
 RunLaunchStatus = Literal["accepted", "rejected"]
@@ -880,6 +884,26 @@ class NaturalLanguageRunRequest(BaseModel):
     llm_models: list[str] | None = None
     max_parallel_models: int = Field(default=1, ge=1, le=16)
     run_budget_usd: float | None = Field(default=None, ge=0.0)
+    run_budget_scope: RunBudgetScope | None = Field(
+        default=None,
+        description=(
+            "Explicit budget scope for this new request. hard_total_usd requires an enforceable "
+            "total USD ceiling. metered_paid_producers_and_bounded_candidate limits metered paid "
+            "producers in USD and requires separately authorized physical candidate-work limits; "
+            "total USD cost remains not established. This choice grants no execution permission. "
+            "Omission or null does not authorize unpriced candidate acquisition."
+        ),
+    )
+    candidate_acquisition_intent: Literal["bounded_experiment_voi_unknown"] | None = Field(
+        default=None,
+        description=(
+            "Explicit opt-in for a separately authorized bounded candidate data-acquisition "
+            "experiment with information value not established. Requires the limited metered "
+            "budget scope, an explicit finite USD cap and independent physical authorizations "
+            "before execution. Does not override an ROI rejection or grant publication authority. "
+            "Omission or null does not authorize this experiment."
+        ),
+    )
     per_model_budget_usd: float | None = Field(default=None, ge=0.0)
     checkpoint_policy: CheckpointPolicyType = "strict"
     execution_profile: ExecutionProfile | None = None
@@ -907,6 +931,10 @@ class NaturalLanguageRunRequest(BaseModel):
         The targeted typing/lint exceptions are intentional on this private hook.
         """
         serialized = handler(self)
+        if "run_budget_scope" not in self.model_fields_set:
+            serialized.pop("run_budget_scope", None)
+        if "candidate_acquisition_intent" not in self.model_fields_set:
+            serialized.pop("candidate_acquisition_intent", None)
         if "temporal_scope" not in self.model_fields_set:
             serialized.pop("temporal_scope", None)
         elif self.temporal_scope is not None and isinstance(serialized.get("temporal_scope"), dict):

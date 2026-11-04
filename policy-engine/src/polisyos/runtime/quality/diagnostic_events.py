@@ -11,7 +11,14 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from polisyos.core.artifacts import ArtifactRef, CanonInfo, InputRef, ProducerInfo, SchemaInfo
+from polisyos.core.artifacts import (
+    ArtifactID,
+    ArtifactRef,
+    CanonInfo,
+    InputRef,
+    ProducerInfo,
+    SchemaInfo,
+)
 
 DIAGNOSTIC_EVENT_SCHEMA_NAME = "polisyos.runtime.quality.diagnostic_event"
 DIAGNOSTIC_EVENT_SCHEMA_VERSION = "1.0"
@@ -373,6 +380,23 @@ def validate_diagnostic_event(
                 "allowed_event_sources": list(event_type.allowed_event_sources),
             },
         )
+
+    if event_type.payload_ref_policy == "cas_required":
+        payload_ref = diagnostic_event.payload_ref
+        if payload_ref is None or not payload_ref.strip():
+            raise DiagnosticEventContractError(
+                "authority_cas_missing",
+                "This diagnostic event type requires a CAS payload reference.",
+                details={"event_id": diagnostic_event.event_id},
+            )
+        try:
+            ArtifactID.model_validate(payload_ref)
+        except (TypeError, ValueError) as exc:
+            raise DiagnosticEventContractError(
+                "authority_ref_not_cas",
+                "Diagnostic event payload reference is not a supported CAS identifier.",
+                details={"event_id": diagnostic_event.event_id},
+            ) from exc
 
     if expected_artifact_refs is not None and _canonical_refs(
         diagnostic_event.artifact_refs

@@ -9591,6 +9591,231 @@
           "seconds": 22.7,
           "peak_rss_bytes": 1374748672,
           "scope": "Overall FAIL: one new test fixture replaced required defaults (subsequently repaired); six full scorecard authority/approval expectations differ, attribution UNKNOWN and under investigation. No inherited or all-green claim."
+        },
+        "budget_scope_signed_worker": {
+          "output": "policy-engine/_cache/e02/lane01-budget-owner-r2",
+          "observed": {
+            "PASS": 6,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 311,
+          "seconds": 17.955,
+          "peak_rss_bytes": 1571536896,
+          "scope": "Real signed NL job/live worker lease before compiler; original scope/cap, null/omitted amount, forged owner and expired lease controls. First r1 failed before target because durable settlement owner was missing; real FileBudgetLedger fixture repaired. No physical N5 proof."
+        },
+        "limited_budget_composer": {
+          "output": "policy-engine/_cache/e02/lane01-surface/limited-budget-composer-r2",
+          "observed": {
+            "PASS": 31,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 8,
+          "seconds": 9.173,
+          "peak_rss_bytes": 768507904,
+          "scope": "Actual rendered composer/Clerk old-draft omission, exact limited/hard choice, explicit finite nonnegative limited amount, untouched-field error and valid submit-to-hook. Backend physical admission remains separate. r1 retained30PASS/1 hidden-error FAIL."
+        },
+        "limited_budget_eslint": {
+          "output": "policy-engine/_cache/e02/lane01-surface/limited-budget-eslint-r1",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 4,
+          "seconds": 26.058,
+          "peak_rss_bytes": 2898247680,
+          "scope": "Targeted lint on final limited-amount UI delta; no backend permission claim."
+        },
+        "budget_scope_api_contract": {
+          "output": "policy-engine/_cache/e02/lane01-shared-generated/runtime-api-budget-scope-r1",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 254,
+          "seconds": 18.446,
+          "peak_rss_bytes": 2143813632,
+          "scope": "Normal Runtime OpenAPI/client-family drift and hardening command; exact source/import snapshot only, not physical execution or final @3 chain."
+        },
+        "budget_scope_sdk_types": {
+          "output": "policy-engine/_cache/e02/lane01-shared-generated/budget-scope-client-typecheck-r1",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 7,
+          "seconds": 1.081,
+          "peak_rss_bytes": 291110912,
+          "scope": "Canonical Runtime API client TypeScript on regenerated schema/types."
+        },
+        "budget_scope_sdk_tests": {
+          "output": "policy-engine/_cache/e02/lane01-shared-generated/budget-scope-client-tests-r1",
+          "observed": {
+            "PASS": 52,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 7,
+          "seconds": 9.186,
+          "peak_rss_bytes": 953876480,
+          "scope": "Canonical Runtime API client tests; no live Runtime owner admission."
+        },
+        "experiment_request_contract": {
+          "output": "policy-engine/_cache/e02/lane01-experiment-request-r1",
+          "observed": {
+            "PASS": 19,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 54,
+          "seconds": 1.611,
+          "peak_rss_bytes": 216662016,
+          "scope": "Sparse explicit experiment purpose only; no execution permission."
+        },
+        "experiment_composer": {
+          "output": "policy-engine/_cache/e02/lane01-surface/bounded-experiment-composer-r1",
+          "observed": {
+            "PASS": 33,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 8,
+          "seconds": 9.82,
+          "peak_rss_bytes": 799555584,
+          "scope": "Rendered opt-in, prerequisites and old-draft/Clerk omission; hook input only."
+        },
+        "authored_identity_core": {
+          "output": "policy-engine/_cache/e02/lane01-surface/authored-identity-core-r1",
+          "observed": {
+            "PASS": 25,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 2,
+          "seconds": 2.159,
+          "peak_rss_bytes": 231260160,
+          "scope": "Separate intervention and hash-derived atom identities; source authority still owner-bound."
+        },
+        "authored_identity_frontend": {
+          "output": "policy-engine/_cache/e02/lane01-surface/authored-identity-frontend-r1",
+          "observed": {
+            "PASS": 267,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 5,
+          "seconds": 7.223,
+          "peak_rss_bytes": 664338432,
+          "scope": "Zod/Overview shape and semantic identity controls."
+        },
+        "authored_joint_retained_fresh": {
+          "output": "policy-engine/_cache/e02/lane01-authored-r2-fresh-consumer-v3",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 242,
+          "seconds": 16.256,
+          "peak_rss_bytes": 1574125568,
+          "scope": "Separate cold same-CAS consumer of genuine completed authored NCM; exact .2/.375/.875 and .3, wrong request/component/terminal refusals; no N5. Original full producer pytest remains FAIL before DTO repair. Not sequential/full CYC05-07 closure."
+        },
+        "da01_late_fault_retained_fresh": {
+          "output": "policy-engine/_cache/e02/lane01-da01-retained-consumer-r2",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 295,
+          "seconds": 27.159,
+          "peak_rss_bytes": 3040460800,
+          "scope": "Actual failed N5 terminal and selected roots/context, exact failed_stage=value_projection, conditional .5 and protected completed-source refusal; no new N5 or original mutation. Initial native/context-root and first-stage-reader failures remain. Shared-basis dependent authority remains separate."
+        },
+        "artifact_access_cleanup": {
+          "output": "policy-engine/_cache/e02/lane01-artifact-access-r1",
+          "observed": {
+            "PASS": 13,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 258,
+          "seconds": 21.686,
+          "peak_rss_bytes": 1532313600,
+          "scope": "Controlled source/CAS errors versus unavailable and actual signed-job ledger cleanup; not protected retained-action E2E."
+        },
+        "planner_hash_policy_prefetch": {
+          "output": "policy-engine/_cache/e02/lane01-planner-hash-prefetch-r3",
+          "observed": {
+            "PASS": 9,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 245,
+          "seconds": 28.376,
+          "peak_rss_bytes": 1541357568,
+          "scope": "Typed V2 planner hash and V1 golden, scope controls, actual WDI earlier owner-unavailable refusal, currentness adapter. Actual live source/action authority unproved; later template WIP differs."
+        },
+        "experiment_dashboard_types": {
+          "output": "policy-engine/_cache/e02/lane01-shared-generated/experiment-dashboard-typecheck-r1",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 24,
+          "seconds": 19.663,
+          "peak_rss_bytes": 1813331968,
+          "scope": "All three dashboard TypeScript configurations on their recorded inputs; later identity repair requalification is pending."
         }
       },
       "independent_component_reviews": {
@@ -29359,9 +29584,10 @@
       "additional_invalidated_binding_ids": [],
       "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope.",
       "status": "NOT_RUN",
-      "assigned_owner": null,
+      "assigned_owner": "LANE-01 coordinator / RES-03 and CYC-02 execution owner",
       "actual_provider_commit": null,
-      "evidence": []
+      "evidence": [],
+      "input_availability_note": "Original56MiB RES03 configured-assets-r4 and exact Finder Trash destination are absent after manual Trash emptying; original deciding command outputs/refs survive. The completed normal procurement CYC02 result cannot substitute for late-failure CAS bytes. Recreate one narrowly scoped actual post-N5 late-fault witness, then terminal-source/fresh public/default conditional consumer; do not rerun all RES03 or invent a CMP dependency absent actual impact."
     },
     {
       "id": "DA-02",

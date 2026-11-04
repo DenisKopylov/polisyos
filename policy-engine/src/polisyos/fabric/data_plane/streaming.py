@@ -3367,8 +3367,7 @@ def read_stream_window(store: ArtifactStore, selected_ref: ArtifactRef) -> dict[
     Raises:
         StreamWindowBasisUnavailableError: If selection, binding, or any basis member fails.
     """
-    from polisyos.core.artifacts import read_core_json_artifact
-    from polisyos.core.artifacts.graph import resolve_dependency_graph
+    from polisyos.core.artifacts import read_core_json_artifact, resolve_dependency_graph
 
     if (
         not isinstance(selected_ref, ArtifactRef)

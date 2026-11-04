@@ -49,6 +49,7 @@ from polisyos.core.contracts.runtime import (
     RunCandidateSimulationAcquisitionHistoryEntry,
     RunCandidateSimulationAcquisitionHistoryEntryV3,
     RunCandidateSimulationAcquisitionHistoryEntryV4,
+    RunCandidateSimulationAcquisitionHistoryEntryV5,
     RunCandidateSimulationChildProfileBinding,
     RunCandidateSimulationModelRevision,
     RunCandidateSimulationN5Observation,
@@ -688,6 +689,101 @@ def _candidate_history_reconcile_current_basis(
     return current
 
 
+def _candidate_terminal_history_v5_projection(
+    *, verified: Any, store: Any, control_store: Any, tenant_id: str, cell_id: str
+) -> tuple[RunCandidateSimulationAcquisitionHistoryEntryV5, Any]:
+    """Project only owner-replayed candidate terminal facts and a read frontier."""
+    terminal = verified.terminal
+    decision = verified.decision
+    current_frontier = control_store.read_acquisition_evaluation_frontier(verified.frontier.key)
+    if current_frontier is None:
+        raise ValueError("candidate_history_current_frontier_unavailable")
+    selected = (
+        RunCandidateSimulationRetainedEvaluation.model_validate(
+            terminal.selected_evaluation.model_dump(mode="python")
+        )
+        if terminal.selected_evaluation is not None
+        else None
+    )
+    observation = (
+        _acquisition_selected_n5_observation(
+            selected=selected, store=store, tenant_id=tenant_id, cell_id=cell_id
+        )
+        if selected is not None
+        else None
+    )
+    reentry = verified.reentry
+    reentry_projection = None
+    if reentry is not None:
+        reentry_projection = RunCandidateSimulationAcquisitionHistoryEntryV4(
+            route_receipt_ref=verified.terminal_ref,
+            reentry_receipt_ref=terminal.candidate_reentry_ref,
+            route_id=terminal.route_id,
+            action_generation=terminal.action_generation,
+            candidate_action_ref=reentry.candidate_action_ref,
+            candidate_source_ref=reentry.candidate_source_ref,
+            data_snapshot_ref=reentry.data_snapshot_ref,
+            world_model_ref=reentry.world_model_ref,
+            context_job_ref=reentry.context_job_ref,
+            model_declaration_ref=reentry.model_declaration_ref,
+            ncm_ref=reentry.ncm_ref,
+            n4_source_ref=reentry.n4_source_ref,
+            n5_input_ref=reentry.n5_input_ref,
+            n5_execution_ref=reentry.n5_execution_ref,
+            n5_result_ref=reentry.n5_result_ref,
+            simulation_status=reentry.new_cycle.simulation.status,
+            simulation_authority_blockers=reentry.new_cycle.simulation.authority_blockers,
+            source_cycle_index=reentry.source_cycle_index,
+            continued_cycle_index=reentry.new_cycle.cycle_index,
+            source_generation_run_content_hash=reentry.source_generation_run_content_hash,
+            continued_generation_run_content_hash=reentry.continued_generation_run_content_hash,
+            basis_transition_content_hash=reentry.basis_transition.content_hash,
+            limitations=reentry.limitations,
+        )
+    cheap = None
+    if verified.continuation is not None:
+        from polisyos.runtime.quality.acquisition_evaluation_history import (
+            project_retained_cheap_consequences,
+        )
+
+        cheap = project_retained_cheap_consequences(verified.continuation.current_projection)
+    return RunCandidateSimulationAcquisitionHistoryEntryV5(
+        route_receipt_ref=verified.terminal_ref,
+        route_id=terminal.route_id,
+        action_generation=terminal.action_generation,
+        terminal_outcome=terminal.terminal_outcome,
+        candidate_action_ref=terminal.candidate_action_ref,
+        candidate_source_ref=decision.candidate_source_ref,
+        evaluation_decision_ref=terminal.evaluation_decision_ref,
+        current_basis_ref=decision.current_basis_ref,
+        selected_basis_ref=terminal.selected_basis_ref,
+        selected_evaluation_witness_ref=terminal.selected_evaluation_witness_ref,
+        comparison_result=decision.comparison_result,
+        predicate_provenance=decision.predicate_provenance,
+        comparison_reason_codes=decision.reason_codes,
+        selected_basis_role=verified.selected_basis.basis_role,
+        current_basis_provenance=verified.current_basis.predicate_provenance,
+        selected_basis_provenance=verified.selected_basis.predicate_provenance,
+        current_basis_limitations=verified.current_basis.limitations,
+        selected_basis_limitations=verified.selected_basis.limitations,
+        frontier_ref=verified.frontier.frontier_ref,
+        frontier_revision=verified.frontier.revision,
+        frontier_selection="selected" if current_frontier == verified.frontier else "superseded",
+        selected_evaluation=selected,
+        selected_n5_observation=observation,
+        reentry=reentry_projection,
+        current_continuation_ref=terminal.current_continuation_ref,
+        current_cheap_consequences=cheap,
+        evaluation_provenance=(
+            "retained_prior"
+            if verified.continuation is not None
+            else "new_execution"
+            if selected is not None
+            else "not_established"
+        ),
+    ), current_frontier
+
+
 def _candidate_acquisition_history_projection(
     *,
     compiled: Any,
@@ -704,7 +800,8 @@ def _candidate_acquisition_history_projection(
     tuple[
         RunCandidateSimulationAcquisitionHistoryEntry
         | RunCandidateSimulationAcquisitionHistoryEntryV3
-        | RunCandidateSimulationAcquisitionHistoryEntryV4,
+        | RunCandidateSimulationAcquisitionHistoryEntryV4
+        | RunCandidateSimulationAcquisitionHistoryEntryV5,
         ...,
     ],
     str | None,
@@ -797,6 +894,7 @@ def _candidate_acquisition_history_projection(
         artifact_ref_identity_key,
     )
     from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateRouteLoopReceipt,
         AcquisitionRouteLoopReceipt,
         AcquisitionRoutePhaseReceipt,
     )
@@ -818,11 +916,12 @@ def _candidate_acquisition_history_projection(
     )
     from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleNode
 
-    def _selected_ref(ref_id: str, *, kind: str) -> ArtifactRef:
+    def _selected_ref(ref_id: str, *, kind: str, profile: str | None = None) -> ArtifactRef:
         return ArtifactRef(
             artifact_id=ArtifactID.model_validate(ref_id),
             kind=kind,
             media_type="application/json",
+            manifest_profile_sha256=profile,
         )
 
     def _read_authority_payload(
@@ -944,12 +1043,15 @@ def _candidate_acquisition_history_projection(
             RunCandidateSimulationAcquisitionHistoryEntry
             | RunCandidateSimulationAcquisitionHistoryEntryV3
             | RunCandidateSimulationAcquisitionHistoryEntryV4
+            | RunCandidateSimulationAcquisitionHistoryEntryV5
         ] = []
         matching_receipts: list[
             tuple[
                 Any,
                 ArtifactRef,
-                AcquisitionRouteLoopReceipt | RunCandidateSimulationAcquisitionHistoryEntryV3,
+                AcquisitionRouteLoopReceipt
+                | AcquisitionCandidateRouteLoopReceipt
+                | RunCandidateSimulationAcquisitionHistoryEntryV3,
                 Any,
             ]
         ] = []
@@ -969,13 +1071,14 @@ def _candidate_acquisition_history_projection(
                 route_receipt_ref = _selected_ref(
                     head.receipt_ref,
                     kind="runtime_quality.acquisition_route_loop_receipt",
+                    profile=head.receipt_manifest_profile_sha256,
                 )
                 route_payload, _route_bytes, route_report, route_receipt_ref = (
                     _read_authority_payload(
                         route_receipt_ref,
                         expected_kind="runtime_quality.acquisition_route_loop_receipt",
                         expected_schema="polisyos.runtime.AcquisitionRouteLoopReceipt",
-                        expected_version=("1.0", "1.1", "2.0"),
+                        expected_version=("1.0", "1.1", "2.0", "3.0"),
                         expected_job_id=head.job_id,
                     )
                 )
@@ -983,6 +1086,22 @@ def _candidate_acquisition_history_projection(
                 route_schema = route_manifest.artifact_schema
                 if route_schema is None:
                     raise ValueError("acquisition_history_terminal_schema_missing")
+                if route_schema.version == "3.0":
+                    if head.receipt_manifest_profile_sha256 is None:
+                        raise ValueError("candidate_history_terminal_profile_missing")
+                    from polisyos.runtime.quality.acquisition_evaluation_history import (
+                        verify_candidate_terminal_history,
+                    )
+
+                    verified = verify_candidate_terminal_history(
+                        control_service=control_service,
+                        head=head,
+                        terminal_ref=route_receipt_ref,
+                    )
+                    if verified.terminal.compiled_ref != str(compiled_ref.artifact_id):
+                        continue
+                    matching_receipts.append((head, route_receipt_ref, verified.terminal, verified))
+                    continue
                 if route_schema.version == "2.0":
                     # Dispatch by the selected manifest epoch before legacy parsing.
                     # The Runtime owner reopens the actual closure; payload flags
@@ -1104,10 +1223,30 @@ def _candidate_acquisition_history_projection(
                 return (), "acquisition_action_history_incomplete", current_projection
             return (), "acquisition_action_history_not_observed", current_projection
 
+        frontier_snapshots: dict[Any, Any] = {}
         for _head, route_receipt_ref, route_receipt, verified_source in matching_receipts:
+            from polisyos.runtime.quality.acquisition_evaluation import (
+                CandidateEvaluationTerminalHistory,
+            )
+
+            if type(verified_source) is CandidateEvaluationTerminalHistory:
+                entry, frontier = _candidate_terminal_history_v5_projection(
+                    verified=verified_source,
+                    store=store,
+                    control_store=control_store,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                )
+                previous = frontier_snapshots.setdefault(frontier.key, frontier)
+                if previous != frontier:
+                    raise ValueError("candidate_history_frontier_changed_during_read")
+                history_entries.append(entry)
+                continue
             if isinstance(route_receipt, RunCandidateSimulationAcquisitionHistoryEntryV3):
                 history_entries.append(route_receipt)
                 continue
+            if not isinstance(route_receipt, AcquisitionRouteLoopReceipt):
+                raise ValueError("candidate_history_terminal_verification_missing")
             if route_receipt.terminal_outcome == "candidate_reentry_completed":
                 from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
                 from polisyos.runtime.quality.generation_cycle import (
@@ -1663,6 +1802,24 @@ def _candidate_acquisition_history_projection(
                     ),
                 )
             )
+        if frontier_snapshots:
+            reopened_current = _candidate_source_current_projection(
+                control_service=control_service,
+                control_store=control_store,
+                store=store,
+                event_log=event_log,
+                source_run_id=source_run_id,
+                source_job_id=source_job_id,
+                compiled_ref=compiled_ref,
+                compiled_content_hash=compiled.content_hash,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            if reopened_current != current_projection or any(
+                control_store.read_acquisition_evaluation_frontier(key) != frontier
+                for key, frontier in frontier_snapshots.items()
+            ):
+                raise ValueError("candidate_history_frontier_changed_during_read")
         return tuple(history_entries), None, current_projection
     except CanonicalProfileRefusalError:
         raise
@@ -1966,6 +2123,53 @@ def _configured_n5_public_numerical_read(
     return resolved, body
 
 
+def _failed_candidate_stage_from_terminal(
+    *,
+    run_id: str,
+    control_job_id: str,
+    tenant_id: str | None,
+    cell_id: str | None,
+    required_roots: tuple[ArtifactRef, ...],
+    store: Any,
+    control_service: Any,
+) -> Literal["value_projection", "revision"] | None:
+    """Read the stage only from the selected, scope-bound terminal manifest."""
+    from polisyos.runtime.http.services.adapters.core_run import load_terminal_core_run_source
+
+    try:
+        terminal = load_terminal_core_run_source(
+            store=store, core_runs_root=control_service._core_runs_root, run_id=run_id
+        )
+        manifest = terminal.manifest
+        if (
+            not tenant_id
+            or not cell_id
+            or terminal.run_id != run_id
+            or (terminal.tenant_id, terminal.cell_id) != (tenant_id, cell_id)
+            or manifest.run_id != run_id
+            or manifest.control_job_id != control_job_id
+            or (manifest.tenant_id, manifest.cell_id) != (tenant_id, cell_id)
+            or manifest.status != "error"
+            or any(
+                sum(
+                    artifact_ref_identity_key(output) == artifact_ref_identity_key(ref)
+                    for output in manifest.outputs
+                )
+                != 1
+                for ref in required_roots
+            )
+            or len(manifest.errors) != 1
+        ):
+            return None
+        stage = manifest.errors[0].get("stage")
+        return stage if stage in ("value_projection", "revision") else None
+    except CanonicalProfileRefusalError:
+        raise
+    except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise_artifact_read_access_error(exc)
+        return None
+
+
 def _failed_candidate_n5_projection(
     *,
     run_id: str,
@@ -2036,11 +2240,26 @@ def _failed_candidate_n5_projection(
             artifact_status="resolved",
             source_ref=execution_ref,
             source_content_hash=execution.content_hash,
+            failed_stage=_failed_candidate_stage_from_terminal(
+                run_id=run_id,
+                control_job_id=execution.job_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                required_roots=(
+                    execution_ref,
+                    execution.n5_input_ref,
+                    execution.n4_source_ref,
+                    execution.n5_result_ref,
+                ),
+                store=store,
+                control_service=control_service,
+            ),
             n5_observations=(observation,),
         )
     except CanonicalProfileRefusalError:
         raise
-    except Exception:
+    except Exception as exc:
+        _raise_generic_read_access_refusal(exc, code_prefix="candidate_n5_output")
         return RunFailedCandidateSimulationProjection(
             run_id=run_id,
             artifact_status="not_established",

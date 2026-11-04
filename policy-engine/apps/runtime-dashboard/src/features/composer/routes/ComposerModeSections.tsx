@@ -37,6 +37,7 @@ import type { GlyphName } from "@/shared/brand/glyph-vocabulary";
 import {
   Badge,
   Button,
+  Checkbox,
   Input,
   Label,
   PanelSkeleton,
@@ -49,6 +50,7 @@ import { ControlPreAdmissionRecoveryNotice } from "@/features/runs/components/Co
 import {
   buildNaturalLanguageLaunchRequest,
   buildWorkflowLaunchRequest,
+  hasInvalidLimitedRunBudget,
   naturalLanguageLaunchSchema,
   type NaturalLanguageLaunchFormInputValues,
   type NaturalLanguageLaunchFormValues,
@@ -270,6 +272,8 @@ function buildNaturalLanguageDefaults(
     selectedLlmModels: [],
     maxParallelModels: 2,
     runBudgetUsd: "",
+    runBudgetScope: "",
+    boundedCandidateExperiment: false,
     perModelBudgetUsd: "",
     maxIterations: 3,
     checkpointPolicy: "strict",
@@ -1622,6 +1626,15 @@ export function NaturalLanguageComposerSection({
     control: form.control,
     name: "nlRequest",
   });
+  const budgetScope = form.watch("runBudgetScope");
+  const budgetInvalid = hasInvalidLimitedRunBudget(
+    budgetScope,
+    form.watch("runBudgetUsd"),
+  );
+  const experimentSelected = form.watch("boundedCandidateExperiment") ?? false;
+  const experimentReady =
+    budgetScope === "metered_paid_producers_and_bounded_candidate" &&
+    !budgetInvalid;
   const [llmModelInput, setLlmModelInput] = useState("");
   const selectedProfiles = useMemo(
     () =>
@@ -2017,7 +2030,20 @@ export function NaturalLanguageComposerSection({
                   min={0}
                   step="0.01"
                   className="mt-3"
+                  aria-invalid={budgetInvalid}
+                  aria-describedby={
+                    budgetInvalid ? "nl-run-budget-error" : undefined
+                  }
                 />
+                {budgetInvalid ? (
+                  <p
+                    id="nl-run-budget-error"
+                    className="text-danger mt-2 text-xs"
+                    role="alert"
+                  >
+                    {t("pages.composer.runBudgetScope.limitedBudgetRequired")}
+                  </p>
+                ) : null}
               </div>
               <div className="rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4">
                 <Label
@@ -2035,6 +2061,73 @@ export function NaturalLanguageComposerSection({
                   className="mt-3"
                 />
               </div>
+            </div>
+            <div className="rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4">
+              <Label
+                htmlFor="nl-run-budget-scope"
+                className="text-sm font-semibold"
+              >
+                {t("pages.composer.runBudgetScope.label")}
+              </Label>
+              <Select
+                id="nl-run-budget-scope"
+                {...form.register("runBudgetScope")}
+                className="mt-3"
+                aria-describedby="nl-run-budget-scope-description"
+              >
+                <option value="">
+                  {t("pages.composer.runBudgetScope.unspecified")}
+                </option>
+                <option value="hard_total_usd">
+                  {t("pages.composer.runBudgetScope.hard")}
+                </option>
+                <option value="metered_paid_producers_and_bounded_candidate">
+                  {t("pages.composer.runBudgetScope.limited")}
+                </option>
+              </Select>
+              <p
+                id="nl-run-budget-scope-description"
+                className="text-muted mt-2 text-sm"
+              >
+                {t(
+                  budgetScope === "metered_paid_producers_and_bounded_candidate"
+                    ? "pages.composer.runBudgetScope.limitedDescription"
+                    : budgetScope === "hard_total_usd"
+                      ? "pages.composer.runBudgetScope.hardDescription"
+                      : "pages.composer.runBudgetScope.unspecifiedDescription",
+                )}
+              </p>
+            </div>
+            <div className="rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4">
+              <label
+                htmlFor="nl-candidate-experiment"
+                className="flex items-start gap-2 text-sm font-semibold"
+              >
+                <Checkbox
+                  id="nl-candidate-experiment"
+                  {...form.register("boundedCandidateExperiment")}
+                  disabled={!experimentReady && !experimentSelected}
+                  aria-invalid={experimentSelected && !experimentReady}
+                  aria-describedby="nl-candidate-experiment-description nl-candidate-experiment-requirements"
+                />
+                {t("pages.composer.candidateExperiment.label")}
+              </label>
+              <p
+                id="nl-candidate-experiment-description"
+                className="text-muted mt-2 text-sm"
+              >
+                {t("pages.composer.candidateExperiment.description")}
+              </p>
+              <p
+                id="nl-candidate-experiment-requirements"
+                className={
+                  experimentSelected && !experimentReady
+                    ? "text-danger mt-2 text-xs"
+                    : "text-muted mt-2 text-xs"
+                }
+              >
+                {t("pages.composer.candidateExperiment.requirements")}
+              </p>
             </div>
             <div className="grid gap-3 md:grid-cols-3">
               <AtlasMetricTile
@@ -2099,7 +2192,11 @@ export function NaturalLanguageComposerSection({
               <Button
                 type="submit"
                 data-testid="composer-launch-nl"
-                disabled={launchNlMutation.isPending || !form.formState.isValid}
+                disabled={
+                  launchNlMutation.isPending ||
+                  !form.formState.isValid ||
+                  (experimentSelected && !experimentReady)
+                }
                 variant="primary"
               >
                 {launchNlMutation.isPending

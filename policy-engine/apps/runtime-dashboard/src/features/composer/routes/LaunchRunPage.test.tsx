@@ -701,6 +701,196 @@ describe("LaunchRunPage", () => {
     );
   }, 15_000);
 
+  it("submits a restored legacy NL draft without adding a budget scope", async () => {
+    loadComposerDraftMock.mockResolvedValue({
+      fromRunId: null,
+      key: "nl:new",
+      mode: "nl",
+      updatedAt: 1_710_000_000_000,
+      values: {
+        checkpointPolicy: "strict",
+        domainHint: "custom",
+        executionIntent: "",
+        expectedOutputs: [
+          { description: "Decision packet", kind: "decision_packet" },
+        ],
+        governanceConstraints: [
+          { rule: "legal review", scope: "legal", severity: "warning" },
+        ],
+        maxIterations: 3,
+        maxParallelModels: 1,
+        nlDataSourceRef: "",
+        nlRequest: "Restored legacy request",
+        perModelBudgetUsd: "",
+        runBudgetUsd: "10",
+        selectedLlmModels: ["openai/gpt-5.4"],
+      },
+    });
+    const mutate = vi.fn((_body: Record<string, unknown>) => undefined);
+    useLaunchNlRunMock.mockReturnValue({
+      error: null,
+      isPending: false,
+      mutate,
+      recovery: { data: null, error: null },
+    });
+    const user = userEvent.setup();
+    renderLaunchRunPage();
+    expect(
+      await screen.findByDisplayValue("Restored legacy request"),
+    ).toBeInTheDocument();
+    const launch = screen.getByTestId("composer-launch-nl");
+    await waitFor(() => expect(launch).toBeEnabled());
+    await user.click(launch);
+    const body = mutate.mock.calls[0]?.[0];
+    expect(body?.run_budget_usd).toBe(10);
+    expect(Object.hasOwn(body ?? {}, "run_budget_scope")).toBe(false);
+    expect(Object.hasOwn(body ?? {}, "candidate_acquisition_intent")).toBe(
+      false,
+    );
+  }, 15_000);
+
+  it.each([
+    ["", "pages.composer.runBudgetScope.unspecifiedDescription"],
+    ["hard_total_usd", "pages.composer.runBudgetScope.hardDescription"],
+    [
+      "metered_paid_producers_and_bounded_candidate",
+      "pages.composer.runBudgetScope.limitedDescription",
+    ],
+  ] as const)(
+    "submits the selected budget scope %s without changing the cap",
+    async (scope, description) => {
+      const mutate = vi.fn((_body: Record<string, unknown>) => undefined);
+      useLaunchNlRunMock.mockReturnValue({
+        error: null,
+        isPending: false,
+        mutate,
+        recovery: { data: null, error: null },
+      });
+      const user = userEvent.setup();
+      renderLaunchRunPage();
+      await user.type(
+        screen.getByTestId("composer-nl-brief"),
+        "Assess affordability.",
+      );
+      await user.click(screen.getByTestId("llm-profile-openai/gpt-5.4"));
+      await user.type(
+        screen.getByLabelText("pages.composer.runBudgetUsd"),
+        "12.5",
+      );
+      await user.selectOptions(
+        screen.getByLabelText("pages.composer.runBudgetScope.label"),
+        scope,
+      );
+      expect(screen.getByText(description)).toBeInTheDocument();
+      const launch = screen.getByTestId("composer-launch-nl");
+      await waitFor(() => expect(launch).toBeEnabled());
+      await user.click(launch);
+      const body = mutate.mock.calls[0]?.[0];
+      expect(body).toBeDefined();
+      expect(body?.run_budget_usd).toBe(12.5);
+      expect(Object.hasOwn(body ?? {}, "run_budget_scope")).toBe(scope !== "");
+      expect(body?.run_budget_scope).toBe(scope || undefined);
+      expect(Object.hasOwn(body ?? {}, "candidate_acquisition_intent")).toBe(
+        false,
+      );
+    },
+    15_000,
+  );
+
+  it("requires an explicit amount for limited scope before submitting", async () => {
+    const mutate = vi.fn((_body: Record<string, unknown>) => undefined);
+    useLaunchNlRunMock.mockReturnValue({
+      error: null,
+      isPending: false,
+      mutate,
+      recovery: { data: null, error: null },
+    });
+    const user = userEvent.setup();
+    renderLaunchRunPage();
+    await user.type(
+      screen.getByTestId("composer-nl-brief"),
+      "Assess affordability.",
+    );
+    await user.click(screen.getByTestId("llm-profile-openai/gpt-5.4"));
+    await user.selectOptions(
+      screen.getByLabelText("pages.composer.runBudgetScope.label"),
+      "metered_paid_producers_and_bounded_candidate",
+    );
+    const budget = screen.getByLabelText("pages.composer.runBudgetUsd");
+    const launch = screen.getByTestId("composer-launch-nl");
+    await waitFor(() => expect(launch).toBeDisabled());
+    expect(
+      screen.getByText("pages.composer.runBudgetScope.limitedBudgetRequired"),
+    ).toBeInTheDocument();
+    expect(mutate).not.toHaveBeenCalled();
+    await user.type(budget, "5");
+    await waitFor(() => expect(launch).toBeEnabled());
+    await user.click(launch);
+    expect(mutate.mock.calls[0]?.[0]).toEqual(
+      expect.objectContaining({
+        run_budget_usd: 5,
+        run_budget_scope: "metered_paid_producers_and_bounded_candidate",
+      }),
+    );
+  }, 15_000);
+
+  it("requires explicit bounded experiment prerequisites without silently changing scope", async () => {
+    const mutate = vi.fn((_body: Record<string, unknown>) => undefined);
+    useLaunchNlRunMock.mockReturnValue({
+      error: null,
+      isPending: false,
+      mutate,
+      recovery: { data: null, error: null },
+    });
+    const user = userEvent.setup();
+    renderLaunchRunPage();
+    await user.type(
+      screen.getByTestId("composer-nl-brief"),
+      "Assess affordability.",
+    );
+    await user.click(screen.getByTestId("llm-profile-openai/gpt-5.4"));
+    const scope = screen.getByLabelText("pages.composer.runBudgetScope.label");
+    const budget = screen.getByLabelText("pages.composer.runBudgetUsd");
+    const experiment = screen.getByRole("checkbox", {
+      name: "pages.composer.candidateExperiment.label",
+    });
+    const launch = screen.getByTestId("composer-launch-nl");
+    expect(experiment).not.toBeChecked();
+    expect(experiment).toBeDisabled();
+    await user.selectOptions(
+      scope,
+      "metered_paid_producers_and_bounded_candidate",
+    );
+    expect(experiment).toBeDisabled();
+    await user.type(budget, "5");
+    await waitFor(() => expect(experiment).toBeEnabled());
+    await user.click(experiment);
+    expect(experiment).toBeChecked();
+    await user.selectOptions(scope, "hard_total_usd");
+    expect(scope).toHaveValue("hard_total_usd");
+    expect(experiment).toBeChecked();
+    expect(experiment).toHaveAttribute("aria-invalid", "true");
+    expect(launch).toBeDisabled();
+    expect(mutate).not.toHaveBeenCalled();
+    await user.selectOptions(
+      scope,
+      "metered_paid_producers_and_bounded_candidate",
+    );
+    await user.clear(budget);
+    expect(experiment).toBeChecked();
+    expect(launch).toBeDisabled();
+    await user.type(budget, "5");
+    await waitFor(() => expect(launch).toBeEnabled());
+    await user.click(launch);
+    expect(mutate.mock.calls[0]?.[0]).toEqual(
+      expect.objectContaining({
+        candidate_acquisition_intent: "bounded_experiment_voi_unknown",
+        run_budget_scope: "metered_paid_producers_and_bounded_candidate",
+        run_budget_usd: 5,
+      }),
+    );
+  }, 15_000);
+
   it("keeps one editable required output and governance constraint when removing rows", async () => {
     const user = userEvent.setup();
     renderLaunchRunPage("/compose?mode=workflow");

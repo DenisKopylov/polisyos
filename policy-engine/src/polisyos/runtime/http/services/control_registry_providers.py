@@ -9,8 +9,12 @@ from typing import TYPE_CHECKING, Any, Protocol, cast
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from polisyos.core.contracts import CatalogRunProfile
+    from polisyos.core.contracts import CapabilityResolverPort, CatalogRunProfile
     from polisyos.fabric.ingestion.source_progress import FiniteSourceProgressReader
+    from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+        CandidateUnpricedExperimentPolicyTemplate,
+        CandidateUnpricedPolicyBinding,
+    )
     from polisyos.runtime.quality.capability_discovery import (
         CapabilityDiscoveryProvider,
     )
@@ -65,11 +69,17 @@ class ControlRegistryProviders:
     catalog_run_profile: CatalogRunProfile | None = None
     catalog_source_selection: CatalogServingSourceSelection | None = None
     source_progress_readers: tuple[FiniteSourceProgressReader, ...] = ()
+    capability_resolver: CapabilityResolverPort | None = None
+    candidate_unpriced_policy_bindings: tuple[CandidateUnpricedPolicyBinding, ...] = ()
+    candidate_unpriced_policy_templates: tuple[CandidateUnpricedExperimentPolicyTemplate, ...] = ()
 
     def __post_init__(self) -> None:
-        """Validate an explicitly configured catalog scope without a default."""
+        """Validate explicitly configured owners and catalog scope without defaults."""
+        _validate_capability_resolver(self.capability_resolver)
         _validate_catalog_run_profile(self.catalog_run_profile)
         _validate_catalog_source_selection(self.catalog_source_selection)
+        _validate_candidate_unpriced_policy_bindings(self.candidate_unpriced_policy_bindings)
+        _validate_candidate_unpriced_policy_templates(self.candidate_unpriced_policy_templates)
         if self.catalog_source_selection is not None:
             profile = self.catalog_source_selection.catalog_run_profile
             if self.catalog_run_profile not in (None, profile):
@@ -98,6 +108,9 @@ def resolve_control_registry_providers(
     catalog_run_profile: CatalogRunProfile | None = None,
     catalog_source_selection: CatalogServingSourceSelection | None = None,
     source_progress_readers: tuple[FiniteSourceProgressReader, ...] = (),
+    capability_resolver: CapabilityResolverPort | None = None,
+    candidate_unpriced_policy_bindings: tuple[CandidateUnpricedPolicyBinding, ...] = (),
+    candidate_unpriced_policy_templates: tuple[CandidateUnpricedExperimentPolicyTemplate, ...] = (),
     connectors_factory: ConnectorRegistryFactory | None = None,
     source_profiles_factory: SourceProfileRegistryFactory | None = None,
     binding_profiles_factory: BindingProfileRegistryFactory | None = None,
@@ -205,7 +218,58 @@ def resolve_control_registry_providers(
         catalog_run_profile=catalog_run_profile,
         catalog_source_selection=catalog_source_selection,
         source_progress_readers=source_progress_readers,
+        capability_resolver=capability_resolver,
+        candidate_unpriced_policy_bindings=candidate_unpriced_policy_bindings,
+        candidate_unpriced_policy_templates=candidate_unpriced_policy_templates,
     )
+
+
+def _validate_candidate_unpriced_policy_bindings(bindings: object) -> None:
+    """Keep candidate research policy explicit, scoped and empty by default."""
+    if type(bindings) is not tuple:
+        raise ValueError("candidate_unpriced_policy_bindings_untyped")
+    if not bindings:
+        return
+    from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+        CandidateUnpricedPolicyBinding,
+    )
+
+    if any(type(binding) is not CandidateUnpricedPolicyBinding for binding in bindings):
+        raise ValueError("candidate_unpriced_policy_bindings_untyped")
+    scopes = tuple(binding.scope.model_dump_json() for binding in bindings)
+    if len(scopes) != len(set(scopes)):
+        raise ValueError("candidate_unpriced_policy_scope_ambiguous")
+
+
+def _validate_candidate_unpriced_policy_templates(templates: object) -> None:
+    """Accept only explicit, non-overlapping server experiment templates."""
+    if type(templates) is not tuple:
+        raise ValueError("candidate_unpriced_policy_templates_untyped")
+    if not templates:
+        return
+    from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+        CandidateUnpricedExperimentPolicyTemplate,
+    )
+
+    if any(type(item) is not CandidateUnpricedExperimentPolicyTemplate for item in templates):
+        raise ValueError("candidate_unpriced_policy_templates_untyped")
+    keys = tuple(
+        (item.tenant_id, item.cell_id, item.authority_entry_id, item.attempt_id)
+        for item in templates
+    )
+    if len(set(keys)) != len(keys):
+        raise ValueError("candidate_unpriced_policy_template_scope_ambiguous")
+
+
+def _validate_capability_resolver(resolver: object | None) -> None:
+    """Accept only an explicit resolver port, without selecting a source root."""
+    if resolver is None:
+        return
+    from polisyos.core.artifacts import matches_runtime_protocol
+    from polisyos.core.contracts import CapabilityResolverPort
+
+    if not matches_runtime_protocol(resolver, CapabilityResolverPort):
+        raise ValueError("capability_resolver_port_invalid")
 
 
 def _validate_catalog_source_selection(selection: object | None) -> None:

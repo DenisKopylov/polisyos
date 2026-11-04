@@ -18,7 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from polisyos.core.artifacts import ArtifactID, ArtifactRef
 from polisyos.core.canon.canon_json import CanonSpec
-from polisyos.core.contracts.fabric import IngestionExecutionContext
+from polisyos.core.contracts import IngestionExecutionContext
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     ConnectionHandle,

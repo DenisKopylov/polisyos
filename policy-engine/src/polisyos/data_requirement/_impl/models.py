@@ -16,8 +16,7 @@ from pydantic import (
     model_validator,
 )
 
-from polisyos.core.contracts import RequirementToCapabilityQuery
-from polisyos.core.contracts.capability_resolution import CapabilitySourceDiscoveryResult
+from polisyos.core.contracts import CapabilitySourceDiscoveryResult, RequirementToCapabilityQuery
 
 DATA_REQUIREMENT_SPEC_SCHEMA_VERSION = "policyos.data_requirement_spec.v1"
 DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION = "policyos.data_requirement_compilation.v2"

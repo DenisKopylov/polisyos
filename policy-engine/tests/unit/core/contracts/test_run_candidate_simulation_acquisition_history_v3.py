@@ -252,8 +252,179 @@ def test_candidate_v4_history_preserves_candidate_only_and_blocked_n5() -> None:
     for field, value in (
         ("observed_admission", True),
         ("publication_authority", True),
+        ("terminal_outcome", "candidate_evaluation_retained"),
         ("candidate_source_ref", _ref("fabric.data_snapshot", "1")),
         ("continued_cycle_index", 0),
     ):
         with pytest.raises(ValidationError):
             RunCandidateSimulationAcquisitionHistoryEntryV4.model_validate({**wire, field: value})
+
+
+def test_v5_candidate_frontier_preserves_blocked_and_fresh_uncompared_outcomes() -> None:
+    from polisyos.core.contracts.runtime import RunCandidateSimulationAcquisitionHistoryEntryV5
+
+    route = _ref("runtime_quality.acquisition_route_loop_receipt", "1")
+    action = _ref("runtime_quality.acquisition_candidate_action_receipt", "2")
+    source = _ref("runtime.quality.candidate_acquisition_source", "3")
+    failure = _ref("runtime_quality.candidate_source_reentry_receipt", "4")
+    reentry = {
+        "route_receipt_ref": route,
+        "reentry_receipt_ref": failure,
+        "route_id": f"sha256:{'5' * 64}",
+        "action_generation": 2,
+        "candidate_action_ref": action,
+        "candidate_source_ref": source,
+        "data_snapshot_ref": _ref("fabric.data_snapshot", "6"),
+        "world_model_ref": _ref("runtime.quality.world_model_record", "7"),
+        "context_job_ref": _ref("runtime.quality.cycle_substrate_context_job", "8"),
+        "model_declaration_ref": _ref(
+            "runtime.quality.candidate_simulation_model_declaration", "9"
+        ),
+        "ncm_ref": _ref("ir.ncm_spec", "a"),
+        "simulation_status": "simulation_blocked",
+        "simulation_authority_blockers": ["n5_blocked"],
+        "source_cycle_index": 0,
+        "continued_cycle_index": 1,
+        "source_generation_run_content_hash": f"sha256:{'b' * 64}",
+        "continued_generation_run_content_hash": f"sha256:{'c' * 64}",
+        "basis_transition_content_hash": f"sha256:{'d' * 64}",
+        "limitations": ["candidate_only"],
+    }
+    row = {
+        "route_receipt_ref": route,
+        "route_id": reentry["route_id"],
+        "action_generation": 2,
+        "terminal_outcome": "candidate_reentry_completed",
+        "candidate_action_ref": action,
+        "candidate_source_ref": source,
+        "evaluation_decision_ref": _ref("runtime_quality.acquisition_evaluation_decision", "e"),
+        "current_basis_ref": _ref("runtime_quality.acquisition_evaluation_basis", "f"),
+        "selected_basis_ref": _ref("runtime_quality.acquisition_evaluation_basis", "0"),
+        "selected_evaluation_witness_ref": failure,
+        "comparison_result": "not_established",
+        "predicate_provenance": "not_established",
+        "comparison_reason_codes": ["prior_unavailable"],
+        "selected_basis_role": "blocked",
+        "current_basis_provenance": "not_established",
+        "selected_basis_provenance": "not_established",
+        "current_basis_limitations": ["candidate_only"],
+        "selected_basis_limitations": ["candidate_only"],
+        "frontier_ref": f"sha256:{'1' * 64}",
+        "frontier_revision": 2,
+        "frontier_selection": "selected",
+        "reentry": reentry,
+        "evaluation_provenance": "not_established",
+    }
+    blocked = RunCandidateSimulationAcquisitionHistoryEntryV5.model_validate(row)
+    assert blocked.selected_evaluation is None and blocked.selected_n5_observation is None
+    for field in (
+        "route_receipt_ref",
+        "candidate_action_ref",
+        "candidate_source_ref",
+        "reentry_receipt_ref",
+    ):
+        altered = deepcopy(reentry)
+        altered[field]["manifest_profile_sha256"] = f"sha256:{'e' * 64}"
+        with pytest.raises(ValidationError):
+            RunCandidateSimulationAcquisitionHistoryEntryV5.model_validate(
+                {**row, "reentry": altered}
+            )
+    for change in (
+        {
+            "selected_evaluation_witness_ref": _ref(
+                "runtime_quality.candidate_source_reentry_receipt", "9"
+            )
+        },
+        {"route_id": f"sha256:{'9' * 64}"},
+        {"publication_authority": True},
+        {"selected_basis_provenance": "recomputed"},
+        {"comparison_reason_codes": []},
+        {
+            "comparison_result": "equivalent",
+            "predicate_provenance": "recomputed",
+            "comparison_reason_codes": [],
+        },
+    ):
+        with pytest.raises(ValidationError):
+            RunCandidateSimulationAcquisitionHistoryEntryV5.model_validate({**row, **change})
+    prior = _wire_row()["retained_evaluation"]
+    fresh_reentry = {
+        **reentry,
+        "simulation_status": "joint_simulated",
+        **{
+            field: prior[field]
+            for field in (
+                "n4_source_ref",
+                "context_job_ref",
+                "n5_input_ref",
+                "n5_execution_ref",
+                "n5_result_ref",
+            )
+        },
+    }
+    fresh = RunCandidateSimulationAcquisitionHistoryEntryV5.model_validate(
+        {
+            **row,
+            "selected_basis_ref": prior["basis_ref"],
+            "selected_basis_role": "evaluated",
+            "selected_basis_provenance": "recomputed",
+            "selected_evaluation": prior,
+            "selected_evaluation_witness_ref": prior["n5_execution_ref"],
+            "reentry": fresh_reentry,
+            "evaluation_provenance": "new_execution",
+        }
+    )
+    assert fresh.comparison_result == "not_established"
+    assert fresh.evaluation_provenance == "new_execution"
+
+
+def test_v5_retention_requires_equivalence_and_original_occurrence() -> None:
+    from polisyos.core.contracts.runtime import RunCandidateSimulationAcquisitionHistoryEntryV5
+
+    prior = _wire_row()["retained_evaluation"]
+    row = {
+        "route_receipt_ref": _ref("runtime_quality.acquisition_route_loop_receipt", "1"),
+        "route_id": f"sha256:{'2' * 64}",
+        "action_generation": 2,
+        "terminal_outcome": "candidate_evaluation_retained",
+        "candidate_action_ref": _ref("runtime_quality.acquisition_candidate_action_receipt", "3"),
+        "candidate_source_ref": _ref("runtime.quality.candidate_acquisition_source", "4"),
+        "evaluation_decision_ref": _ref("runtime_quality.acquisition_evaluation_decision", "5"),
+        "current_basis_ref": _ref("runtime_quality.acquisition_evaluation_basis", "6"),
+        "selected_basis_ref": prior["basis_ref"],
+        "selected_evaluation_witness_ref": prior["n5_execution_ref"],
+        "comparison_result": "equivalent",
+        "predicate_provenance": "recomputed",
+        "selected_basis_role": "evaluated",
+        "current_basis_provenance": "recomputed",
+        "selected_basis_provenance": "recomputed",
+        "current_basis_limitations": ["candidate_only"],
+        "selected_basis_limitations": ["candidate_only"],
+        "frontier_ref": f"sha256:{'7' * 64}",
+        "frontier_revision": 1,
+        "frontier_selection": "selected",
+        "selected_evaluation": prior,
+        "current_continuation_ref": _ref(
+            "runtime_quality.candidate_acquisition_retained_continuation", "8"
+        ),
+        "current_cheap_consequences": _cheap_consequences(),
+        "evaluation_provenance": "retained_prior",
+    }
+    retained = RunCandidateSimulationAcquisitionHistoryEntryV5.model_validate(row)
+    assert retained.selected_evaluation is not None
+    assert retained.selected_evaluation.evaluation_job_id == "job-original"
+    assert retained.current_cheap_consequences is not None
+    assert retained.current_cheap_consequences.value_status == "value_blocked"
+    for change in (
+        {"comparison_result": "not_established", "predicate_provenance": "not_established"},
+        {"current_continuation_ref": None},
+        {"comparison_reason_codes": ["invented"]},
+        {
+            "selected_evaluation_witness_ref": _ref(
+                "runtime.quality.candidate_simulation_execution", "9"
+            )
+        },
+        {"current_cheap_consequences": {**_cheap_consequences(), "candidate_id": "foreign"}},
+    ):
+        with pytest.raises(ValidationError):
+            RunCandidateSimulationAcquisitionHistoryEntryV5.model_validate({**row, **change})

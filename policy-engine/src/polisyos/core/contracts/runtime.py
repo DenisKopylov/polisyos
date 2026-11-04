@@ -2830,10 +2830,19 @@ class RunCandidateSimulationN5Observation(BaseModel):
             != "authored_candidate_coupling_not_established"
             or self.n8_child_to_parent_refinement_limitation_code
             != "child_to_parent_refinement_rule_not_established"
-            or self.n8_candidate_derived_atom_ids != self.atom_ids
             or len(self.atom_ids) < 2
+            or len(self.n8_candidate_derived_atom_ids) != len(self.atom_ids)
+            or len(set(self.n8_candidate_derived_atom_ids)) != len(self.atom_ids)
             or len(self.n8_candidate_derived_atom_content_hashes) != len(self.atom_ids)
             or len(set(self.n8_candidate_derived_atom_content_hashes)) != len(self.atom_ids)
+            or any(
+                atom_id != f"atom_{content_hash.removeprefix('sha256:')[:16]}"
+                for atom_id, content_hash in zip(
+                    self.n8_candidate_derived_atom_ids,
+                    self.n8_candidate_derived_atom_content_hashes,
+                    strict=True,
+                )
+            )
             or any(
                 previous == derived
                 for previous, derived in zip(
@@ -3922,6 +3931,182 @@ class RunCandidateSimulationAcquisitionHistoryEntryV4(BaseModel):
         return self
 
 
+class RunCandidateSimulationAcquisitionHistoryEntryV5(BaseModel):
+    """Verified candidate terminal and historical frontier, without admission authority."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal["policyos.runtime.run_candidate_simulation_acquisition_history.v5"] = (
+        "policyos.runtime.run_candidate_simulation_acquisition_history.v5"
+    )
+    route_receipt_ref: ArtifactRef
+    route_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    action_generation: int = Field(ge=1)
+    terminal_outcome: Literal["candidate_reentry_completed", "candidate_evaluation_retained"]
+    candidate_action_ref: ArtifactRef
+    candidate_source_ref: ArtifactRef
+    evaluation_decision_ref: ArtifactRef
+    current_basis_ref: ArtifactRef
+    selected_basis_ref: ArtifactRef
+    selected_evaluation_witness_ref: ArtifactRef
+    comparison_result: Literal["equivalent", "different", "not_established"]
+    predicate_provenance: Literal["recomputed", "not_established"]
+    comparison_reason_codes: tuple[str, ...] = ()
+    selected_basis_role: Literal["evaluated", "blocked"]
+    current_basis_provenance: Literal["recomputed", "not_established"]
+    selected_basis_provenance: Literal["recomputed", "not_established"]
+    current_basis_limitations: tuple[str, ...] = Field(min_length=1)
+    selected_basis_limitations: tuple[str, ...] = Field(min_length=1)
+    frontier_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    frontier_revision: int = Field(ge=1)
+    frontier_selection: Literal["selected", "superseded"]
+    selected_evaluation: RunCandidateSimulationRetainedEvaluation | None = None
+    selected_n5_observation: RunCandidateSimulationN5Observation | None = None
+    reentry: RunCandidateSimulationAcquisitionHistoryEntryV4 | None = None
+    current_continuation_ref: ArtifactRef | None = None
+    current_cheap_consequences: RunCandidateSimulationCheapConsequences | None = None
+    evaluation_provenance: Literal["new_execution", "retained_prior", "not_established"]
+    observed_admission: Literal[False] = False
+    currentness_status: Literal["not_established"] = "not_established"
+    authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
+    publication_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _bind_candidate_terminal(self) -> RunCandidateSimulationAcquisitionHistoryEntryV5:
+        for ref, kind in (
+            (self.route_receipt_ref, "runtime_quality.acquisition_route_loop_receipt"),
+            (self.candidate_action_ref, "runtime_quality.acquisition_candidate_action_receipt"),
+            (self.candidate_source_ref, "runtime.quality.candidate_acquisition_source"),
+            (self.evaluation_decision_ref, "runtime_quality.acquisition_evaluation_decision"),
+            (self.current_basis_ref, "runtime_quality.acquisition_evaluation_basis"),
+            (self.selected_basis_ref, "runtime_quality.acquisition_evaluation_basis"),
+            (
+                self.current_continuation_ref,
+                "runtime_quality.candidate_acquisition_retained_continuation",
+            ),
+        ):
+            if ref is not None and (
+                ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("candidate_acquisition_v5_selected_ref_invalid")
+        witness_kind = (
+            "runtime.quality.candidate_simulation_execution"
+            if self.selected_evaluation is not None
+            else "runtime_quality.candidate_source_reentry_receipt"
+        )
+        if (
+            self.selected_evaluation_witness_ref.kind != witness_kind
+            or self.selected_evaluation_witness_ref.media_type != "application/json"
+            or self.selected_evaluation_witness_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("candidate_acquisition_v5_witness_invalid")
+        if (self.comparison_result == "not_established") != (
+            self.predicate_provenance == "not_established"
+        ) or (self.predicate_provenance == "recomputed") == bool(self.comparison_reason_codes):
+            raise ValueError("candidate_acquisition_v5_comparison_invalid")
+        if (self.selected_evaluation is None) != (self.selected_basis_role == "blocked") or (
+            self.selected_basis_role == "blocked"
+            and self.selected_basis_provenance != "not_established"
+        ):
+            raise ValueError("candidate_acquisition_v5_basis_invalid")
+        observation = self.selected_n5_observation
+        selected = self.selected_evaluation
+        if observation is not None and (
+            selected is None
+            or observation.status != "joint_simulated"
+            or observation.result_body_status != "resolved"
+            or observation.result_body is None
+            or observation.candidate_id != selected.candidate_id
+            or observation.cycle_index != selected.cycle_index
+            or any(
+                getattr(observation, observed_name) is None
+                or artifact_ref_identity_key(getattr(observation, observed_name))
+                != artifact_ref_identity_key(getattr(selected, selected_name))
+                for observed_name, selected_name in (
+                    ("n4_source_ref", "n4_source_ref"),
+                    ("context_job_ref", "context_job_ref"),
+                    ("n5_input_ref", "n5_input_ref"),
+                    ("n5_execution_ref", "n5_execution_ref"),
+                    ("simulation_result_ref", "n5_result_ref"),
+                )
+            )
+        ):
+            raise ValueError("candidate_acquisition_v5_observation_invalid")
+        if self.current_cheap_consequences is not None and (
+            selected is None
+            or self.current_cheap_consequences.source_cycle_index != selected.cycle_index
+            or self.current_cheap_consequences.candidate_id != selected.candidate_id
+            or self.current_cheap_consequences.candidate_content_hash
+            != selected.candidate_content_hash
+        ):
+            raise ValueError("candidate_acquisition_v5_cheap_subject_invalid")
+        if self.selected_evaluation is None:
+            if (
+                self.selected_n5_observation is not None
+                or self.evaluation_provenance != "not_established"
+            ):
+                raise ValueError("candidate_acquisition_v5_blocked_result_invalid")
+        elif artifact_ref_identity_key(
+            self.selected_evaluation.basis_ref
+        ) != artifact_ref_identity_key(self.selected_basis_ref) or artifact_ref_identity_key(
+            self.selected_evaluation.n5_execution_ref
+        ) != artifact_ref_identity_key(self.selected_evaluation_witness_ref):
+            raise ValueError("candidate_acquisition_v5_evaluation_invalid")
+        if self.terminal_outcome == "candidate_evaluation_retained":
+            if (
+                self.reentry is not None
+                or self.current_continuation_ref is None
+                or self.current_cheap_consequences is None
+                or self.selected_evaluation is None
+                or self.evaluation_provenance != "retained_prior"
+                or self.comparison_result != "equivalent"
+                or self.predicate_provenance != "recomputed"
+            ):
+                raise ValueError("candidate_acquisition_v5_retention_invalid")
+        elif (
+            self.reentry is None
+            or self.comparison_result == "equivalent"
+            or self.current_continuation_ref is not None
+            or self.current_cheap_consequences is not None
+            or self.evaluation_provenance
+            != ("new_execution" if self.selected_evaluation else "not_established")
+            or artifact_ref_identity_key(self.reentry.route_receipt_ref)
+            != artifact_ref_identity_key(self.route_receipt_ref)
+            or artifact_ref_identity_key(self.reentry.candidate_action_ref)
+            != artifact_ref_identity_key(self.candidate_action_ref)
+            or artifact_ref_identity_key(self.reentry.candidate_source_ref)
+            != artifact_ref_identity_key(self.candidate_source_ref)
+            or self.reentry.route_id != self.route_id
+            or self.reentry.action_generation != self.action_generation
+            or (self.reentry.simulation_status == "joint_simulated")
+            != (self.selected_evaluation is not None)
+            or (
+                self.selected_evaluation is None
+                and artifact_ref_identity_key(self.reentry.reentry_receipt_ref)
+                != artifact_ref_identity_key(self.selected_evaluation_witness_ref)
+            )
+            or (
+                self.selected_evaluation is not None
+                and any(
+                    getattr(self.reentry, entry_field) is None
+                    or artifact_ref_identity_key(getattr(self.reentry, entry_field))
+                    != artifact_ref_identity_key(getattr(self.selected_evaluation, selected_field))
+                    for entry_field, selected_field in (
+                        ("n4_source_ref", "n4_source_ref"),
+                        ("context_job_ref", "context_job_ref"),
+                        ("n5_input_ref", "n5_input_ref"),
+                        ("n5_execution_ref", "n5_execution_ref"),
+                        ("n5_result_ref", "n5_result_ref"),
+                    )
+                )
+            )
+        ):
+            raise ValueError("candidate_acquisition_v5_reentry_invalid")
+        return self
+
+
 class RunCandidateEvaluationAttemptProjection(BaseModel):
     """One owner-history-replayed local refusal, not a numerical verification."""
 
@@ -4067,7 +4252,8 @@ class RunCandidateSimulationProjection(BaseModel):
     acquisition_history: tuple[
         RunCandidateSimulationAcquisitionHistoryEntry
         | RunCandidateSimulationAcquisitionHistoryEntryV3
-        | RunCandidateSimulationAcquisitionHistoryEntryV4,
+        | RunCandidateSimulationAcquisitionHistoryEntryV4
+        | RunCandidateSimulationAcquisitionHistoryEntryV5,
         ...,
     ] = ()
     acquisition_history_limitation_code: (

@@ -5,7 +5,6 @@ from __future__ import annotations
 import ast
 import hashlib
 from collections.abc import Callable, Mapping
-from contextlib import nullcontext
 from contextvars import ContextVar
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
@@ -42,6 +41,7 @@ from polisyos.runtime.quality.candidate_simulation import (
 from polisyos.runtime.quality.cycle_substrate import (
     ConfiguredCandidateSimulationContextAdmissionOwner,
     CycleSubstrateContextArtifactOwner,
+    VerifiedNLJobBudgetScope,
     VerifiedNLJobScope,
 )
 from polisyos.runtime.quality.design_axes.coupling_composition import (
@@ -63,7 +63,7 @@ from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleError,
     GenerationCycleRun,
     N4GenerationPort,
-    _bind_selected_n5_invocation_policy,
+    _bind_scoped_n5_invocation_policy,
     generation_cycle_terminal_state,
     load_joint_simulation_result,
     persist_joint_simulation_result,
@@ -107,11 +107,11 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
     from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
     from polisyos.scientist import BudgetState
-    from polisyos.scientist.orchestration.engine.budget_ledger import (
+    from polisyos.scientist.orchestration.engine import (
         BudgetInvocationQuotaPolicy,
         BudgetLedgerProducerRunBinding,
+        BudgetMiddleware,
     )
-    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 
 RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.recursive_generation_cycle.v1"
 RECURSIVE_GENERATION_CYCLE_PARTIAL_V2_SCHEMA_VERSION = (
@@ -193,6 +193,8 @@ def _joint_simulation_is_unsupported(result: JointSimulationResult) -> bool:
         result.receipt.calibration_status in {"unsupported_coupling_gated", "no_run"}
         or not result.trajectories
         or not any(decision.decision == "selected" for decision in result.engine_decisions)
+        or result.diagnostics.get("physical_work_interruption")
+        == "n5_physical_budget_scope_lost_after_work"
     )
 
 
@@ -2737,7 +2739,7 @@ class RecursiveGenerationCycleRun(_StrictModel):
                     certificate=node.composition_certificate,
                 )
             elif node.joint_simulation is not None:
-                expected_terminal = _blocked_parent_terminal("unsupported_coupling_gated")
+                expected_terminal = _fold_uncertified_joint_terminal(node)
             else:
                 expected_terminal = _fold_uncomposed_parent_terminal(node.terminal)
             if node.terminal != expected_terminal:
@@ -2909,7 +2911,7 @@ def _validate_recursive_partial_graph(
                 certificate=node.composition_certificate,
             )
         elif node.joint_simulation is not None:
-            expected_terminal = _blocked_parent_terminal("unsupported_coupling_gated")
+            expected_terminal = _fold_uncertified_joint_terminal(node)
         else:
             expected_terminal = _fold_uncomposed_parent_terminal(node.terminal)
         if node.terminal != expected_terminal:
@@ -3982,19 +3984,67 @@ def _blocked_parent_terminal(reason: str) -> SearchTerminalState:
     )
 
 
-_UNCOMPOSED_PARENT_DIAGNOSTIC_CODES = frozenset(
+def _fold_uncertified_joint_terminal(node: RecursiveCycleNode) -> SearchTerminalState:
+    """Preserve the correct blocked reason for a joint result without a certificate."""
+    simulation = node.joint_simulation
+    if simulation is None or node.composition_certificate is not None:
+        raise ValueError("recursive_uncertified_joint_not_established")
+    if _joint_simulation_is_unsupported(simulation):
+        return _blocked_parent_terminal("unsupported_coupling_gated")
+    if node.joint_candidate_selection is not None:
+        return _blocked_parent_terminal("observed_coupling_evidence_missing")
+    # Preserve the prior blocked fold for a legacy uncomposed shape; the
+    # node's validator rejects a supported result without a selection or certificate.
+    return _blocked_parent_terminal("unsupported_coupling_gated")
+
+
+_RECURSIVE_N5_PARENT_REFUSAL_CODES = frozenset(
     {
-        "observed_coupling_evidence_missing",
-        "subdesign_contract_denominator_missing",
-        "recursive_coupling_design_ref_mismatch",
-        "recursive_coupling_child_denominator_mismatch",
-        "recursive_coupling_edge_unresolved",
-        "recursive_subdesign_denominator_mismatch",
-        "recursive_subdesign_terminal_binding_mismatch",
-        "recursive_n5_atom_problem_binding_mismatch",
-        "recursive_n5_outcome_problem_binding_mismatch",
+        "recursive_n5_invocation_selection_not_established",
+        "n5_physical_budget_scope_not_established",
+        "n5_physical_budget_scope_binding_mismatch",
+        "n5_physical_usd_reservation_not_established",
+        "n5_physical_budget_cap_mismatch",
+        "n5_invocation_quota_owner_not_established",
+        "n5_invocation_quota_settlement_owner_mismatch",
+        "n5_invocation_quota_run_binding_mismatch",
+        "n5_invocation_selected_profile_not_established",
+        "n5_invocation_quota_profile_not_established",
+        "n5_invocation_quota_selection_mismatch",
+        "n5_invocation_quota_capacity_not_established",
+        "n5_invocation_quota_exhausted",
+        "n5_invocation_selection_conflict",
+        "n5_invocation_selection_failed",
+        "n5_invocation_selection_not_established",
+        "n5_protected_purpose_not_established",
     }
 )
+
+
+_UNCOMPOSED_PARENT_DIAGNOSTIC_CODES = (
+    frozenset(
+        {
+            "observed_coupling_evidence_missing",
+            "subdesign_contract_denominator_missing",
+            "recursive_coupling_design_ref_mismatch",
+            "recursive_coupling_child_denominator_mismatch",
+            "recursive_coupling_edge_unresolved",
+            "recursive_subdesign_denominator_mismatch",
+            "recursive_subdesign_terminal_binding_mismatch",
+            "recursive_n5_atom_problem_binding_mismatch",
+            "recursive_n5_outcome_problem_binding_mismatch",
+        }
+    )
+    | _RECURSIVE_N5_PARENT_REFUSAL_CODES
+)
+
+
+def _recursive_n5_parent_refusal(exc: Exception) -> str:
+    """Preserve known refusal categories without admitting arbitrary diagnostics."""
+    code = str(exc)
+    if isinstance(exc, ProducerBudgetSourceError) and code in _RECURSIVE_N5_PARENT_REFUSAL_CODES:
+        return code
+    return "recursive_n5_invocation_selection_not_established"
 
 
 def _fold_uncomposed_parent_terminal(
@@ -4098,6 +4148,7 @@ def build_default_recursive_generation_cycle_controller(
     model_id: str | None = None,
     catalog_run_profile: CatalogRunProfile | None = None,
     catalog_serving_source: CatalogServingSourcePaths | None = None,
+    capability_resolver: core_contracts.CapabilityResolverPort | None = None,
     measurement_root_execution_binding: MeasurementRootExecutionBinding | None = None,
 ) -> RecursiveGenerationCycleController:
     """Build the production router from one container-owned promotion runtime."""
@@ -4107,6 +4158,7 @@ def build_default_recursive_generation_cycle_controller(
         model_id=model_id,
         catalog_run_profile=catalog_run_profile,
         catalog_serving_source=catalog_serving_source,
+        capability_resolver=capability_resolver,
         measurement_root_execution_binding=measurement_root_execution_binding,
         promotion_runtime=promotion_runtime,
         eval_safety_verifier=eval_safety_verifier,
@@ -4123,6 +4175,7 @@ class RecursiveGenerationCycleController:
         model_id: str | None = None,
         catalog_run_profile: CatalogRunProfile | None = None,
         catalog_serving_source: CatalogServingSourcePaths | None = None,
+        capability_resolver: core_contracts.CapabilityResolverPort | None = None,
         measurement_root_execution_binding: MeasurementRootExecutionBinding | None = None,
         promotion_runtime: PromotionRuntime | None = None,
         artifact_store: ArtifactStore | None = None,
@@ -4131,6 +4184,12 @@ class RecursiveGenerationCycleController:
         epoch_validity_gate: core_contracts.EpochValidityAuthorityGate | None = None,
         epoch_n9_evidence_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
     ) -> None:
+        if capability_resolver is not None:
+            from polisyos.core.artifacts import matches_runtime_protocol
+            from polisyos.core.contracts import CapabilityResolverPort
+
+            if not matches_runtime_protocol(capability_resolver, CapabilityResolverPort):
+                raise TypeError("recursive_capability_resolver_invalid")
         if promotion_runtime is not None and any(
             dependency is not None
             for dependency in (
@@ -4148,6 +4207,7 @@ class RecursiveGenerationCycleController:
         self._leaf_model_id = model_id
         self._catalog_run_profile = catalog_run_profile
         self._catalog_serving_source = catalog_serving_source
+        self._capability_resolver = capability_resolver
         self._measurement_root_execution_binding = measurement_root_execution_binding
         self._promotion_runtime = promotion_runtime
         self._artifact_store = artifact_store
@@ -4187,6 +4247,7 @@ class RecursiveGenerationCycleController:
         problems_by_node: Mapping[str, DesignProblem],
         budget_state: BudgetState,
         _producer_budget_reconciler: Callable[[BudgetState], None] | None = None,
+        physical_n5_budget_scope: VerifiedNLJobBudgetScope | None = None,
         recursive_budget: RecursiveCycleBudget,
         joint_simulation_requests_by_node: Mapping[str, JointSimulationRequest] | None = None,
         joint_candidate_selections_by_node: Mapping[
@@ -4221,6 +4282,22 @@ class RecursiveGenerationCycleController:
     ):
         """Run N6 leaves and preserve typed checkpoints for stops or sibling failures."""
 
+        if physical_n5_budget_scope is not None:
+            if type(physical_n5_budget_scope) is not VerifiedNLJobBudgetScope or not (
+                physical_n5_budget_scope._was_issued_by_verified_nl_budget_owner
+            ):
+                raise RecursiveGenerationCycleError("n5_physical_budget_scope_not_established")
+            intent_scope = (
+                leaf_context_owner._verified_nl_job_scope
+                if leaf_context_owner is not None
+                else None
+            )
+            if intent_scope is not None and any(
+                getattr(intent_scope, name) != getattr(physical_n5_budget_scope, name)
+                for name in ("job_id", "run_id", "tenant_id", "cell_id", "worker_id", "attempt")
+            ):
+                raise RecursiveGenerationCycleError("n5_physical_budget_scope_job_mismatch")
+
         # The reusable parent controller must not retain another run's budget owner.
         invocation_joint_controller = self._joint_simulation_controller
         if type(_producer_budget_reconciler) is ProducerBudgetObserver:
@@ -4238,6 +4315,7 @@ class RecursiveGenerationCycleController:
                 method_registry=invocation_joint_controller._registry,
                 policy=invocation_joint_controller.policy,
                 producer_budget_observer=_producer_budget_reconciler,
+                physical_n5_budget_scope=physical_n5_budget_scope,
             )
 
         if _producer_budget_reconciler is not None:
@@ -4728,6 +4806,7 @@ class RecursiveGenerationCycleController:
                         model_id=self._leaf_model_id,
                         catalog_run_profile=self._catalog_run_profile,
                         catalog_serving_source=self._catalog_serving_source,
+                        capability_resolver=self._capability_resolver,
                         measurement_root_execution_binding=self._measurement_root_execution_binding,
                         cycle_substrate_context=context,
                         candidate_cycle_context_artifact_owner=(
@@ -4740,6 +4819,7 @@ class RecursiveGenerationCycleController:
                             if leaf_context_owner is not None
                             else None
                         ),
+                        physical_n5_budget_scope=physical_n5_budget_scope,
                         candidate_simulation_context_admission_owner=(
                             leaf_context_owner._admission_owner
                             if leaf_context_owner is not None
@@ -5076,17 +5156,17 @@ class RecursiveGenerationCycleController:
                         "recursive_n5_runtime_store_not_established",
                         "The parent N5 run cannot start without its runtime-owned result store.",
                     )
-                invocation_scope = nullcontext()
-                if (
-                    candidate_selection is not None
-                    and generic_parent_handoff is not None
-                    and leaf_context_owner is not None
-                    and leaf_context_owner._generic_admission_owner is not None
-                ):
-                    # Reopen the owner-selected profile; a request or candidate
-                    # label cannot select a physical-work allocation.
-                    owner = leaf_context_owner._generic_admission_owner
-                    try:
+                selected_parent_n5_profile = None
+                try:
+                    if (
+                        candidate_selection is not None
+                        and generic_parent_handoff is not None
+                        and leaf_context_owner is not None
+                        and leaf_context_owner._generic_admission_owner is not None
+                    ):
+                        # Reopen the owner-selected profile; a request or candidate
+                        # label cannot select a physical-work allocation.
+                        owner = leaf_context_owner._generic_admission_owner
                         selected_profile = owner.resolve_profile(
                             generic_parent_handoff.profile_ref,
                             expected_profile=generic_parent_handoff.profile,
@@ -5095,37 +5175,41 @@ class RecursiveGenerationCycleController:
                             tenant_id=generic_parent_handoff.tenant_id,
                             cell_id=generic_parent_handoff.cell_id,
                         )
-                        invocation_scope = _bind_selected_n5_invocation_policy(
-                            invocation_joint_controller._producer_budget_observer,
-                            n5_profile=selected_profile.n5,
-                        )
-                    except (OSError, RuntimeError, TypeError, ValueError) as exc:
-                        code = (
-                            str(exc)
-                            if isinstance(exc, ProducerBudgetSourceError)
-                            else "recursive_n5_invocation_selection_not_established"
-                        )
-                        result = RecursiveCycleNode(
-                            node_ref=node_ref,
-                            parent_ref=parent_by_node.get(node_ref),
-                            depth=depths[node_ref],
-                            child_refs=child_refs,
-                            design_problem_ref=problem_ref,
-                            terminal=_blocked_parent_terminal(code),
-                        )
-                        node_results[node_ref] = result
-                        return result
-                try:
-                    with invocation_scope:
-                        joint_simulation = invocation_joint_controller.run(request)
-                except ProducerBudgetSourceError as exc:
+                        selected_parent_n5_profile = selected_profile.n5
+                    invocation_scope = _bind_scoped_n5_invocation_policy(
+                        invocation_joint_controller._producer_budget_observer,
+                        n5_profile=selected_parent_n5_profile,
+                        physical_n5_budget_scope=physical_n5_budget_scope,
+                    )
+                except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                    from polisyos.core.artifacts import raise_artifact_read_access_error
+
+                    raise_artifact_read_access_error(exc)
+                    code = _recursive_n5_parent_refusal(exc)
                     result = RecursiveCycleNode(
                         node_ref=node_ref,
                         parent_ref=parent_by_node.get(node_ref),
                         depth=depths[node_ref],
                         child_refs=child_refs,
                         design_problem_ref=problem_ref,
-                        terminal=_blocked_parent_terminal(str(exc)),
+                        terminal=_blocked_parent_terminal(code),
+                    )
+                    node_results[node_ref] = result
+                    return result
+                try:
+                    with invocation_scope:
+                        joint_simulation = invocation_joint_controller.run(request)
+                except ProducerBudgetSourceError as exc:
+                    from polisyos.core.artifacts import raise_artifact_read_access_error
+
+                    raise_artifact_read_access_error(exc)
+                    result = RecursiveCycleNode(
+                        node_ref=node_ref,
+                        parent_ref=parent_by_node.get(node_ref),
+                        depth=depths[node_ref],
+                        child_refs=child_refs,
+                        design_problem_ref=problem_ref,
+                        terminal=_blocked_parent_terminal(_recursive_n5_parent_refusal(exc)),
                     )
                     node_results[node_ref] = result
                     return result

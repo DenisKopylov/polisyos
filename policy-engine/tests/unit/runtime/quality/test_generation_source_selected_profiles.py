@@ -22,12 +22,14 @@ async def test_generic_n4_source_returns_selected_profile_and_preserves_parent_i
         artifact_manifest_profile_sha256,
         input_ref_from_artifact_ref,
     )
+    from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
     from polisyos.runtime.quality.generation_source import (
         SOURCE_KIND,
         SOURCE_SCHEMA,
         GenerationSourceRepository,
         _candidate_simulation_write_options,
+        _generation_source_read_result,
     )
     from tests.unit.runtime.quality.test_cycle_substrate import (
         _authenticated_tenant_scope,
@@ -111,6 +113,24 @@ async def test_generic_n4_source_returns_selected_profile_and_preserves_parent_i
         assert source.problem == case["problem"]
         assert source.cycle_substrate_context == handoff.context
         assert source.generation_result == case["organ"].result
+        # The actual repository attaches reader-only provenance outside the
+        # persisted model fields. It must not make the same owner value unequal.
+        provenance = _generation_source_read_result(source)
+        assert provenance is not None
+        assert provenance.provenance.selected_artifact_id == str(source_ref.artifact_id)
+        assert (
+            provenance.provenance.selected_manifest_profile_sha256
+            == source_ref.manifest_profile_sha256
+        )
+        assert _candidate_model_values_same(source, source)
+        source_without_reader_marker = type(source).model_validate(source.model_dump(mode="python"))
+        assert _candidate_model_values_same(source, source_without_reader_marker)
+        unknown = source_without_reader_marker.model_copy(deep=True)
+        object.__setattr__(unknown, "_unknown_semantic_state", "not part of the owner record")
+        assert not _candidate_model_values_same(source, unknown)
+        forged_marker = source_without_reader_marker.model_copy(deep=True)
+        object.__setattr__(forged_marker, "_generation_source_read_provenance", object())
+        assert not _candidate_model_values_same(source, forged_marker)
 
         # A second valid CAS manifest for the same bytes but a different
         # writer profile must not be accepted as the configured producer.

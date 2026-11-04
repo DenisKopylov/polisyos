@@ -976,6 +976,24 @@ def _build_connector_provenance_graph(
     transform_lineage_graphs: list[ProvenanceCoreGraph] | None = None,
     execution_context: IngestionExecutionContext | None = None,
 ) -> ProvenanceCoreGraph:
+    """Build provenance for the supplied connector operations.
+
+    This records declared operations and execution context; it does not verify
+    source authority, currency, licensing entitlement or scientific validity.
+
+    Args:
+        datasets: Declared fetched datasets and their content bindings.
+        source: Declared connector source label.
+        license_name: Reported license label, not an entitlement decision.
+        started_at: Operation start time.
+        ended_at: Operation completion time.
+        manifest_hash: Content identity of the connector manifest.
+        transform_lineage_graphs: Existing lineage graphs to retain.
+        execution_context: Optional captured execution and selected replay view.
+
+    Returns:
+        Provenance graph over these declared operations and inputs.
+    """
     graph = ProvenanceCoreGraph(
         graph_id=f"connector_ingestion_{started_at.strftime('%Y%m%dT%H%M%S')}",
         created_at=started_at,

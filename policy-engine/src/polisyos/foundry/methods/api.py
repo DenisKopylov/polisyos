@@ -12,6 +12,10 @@ from importlib import import_module
 from typing import Any
 
 _EXPORTS: dict[str, tuple[str, str]] = {
+    "StockFlowSystemDynamicsEstimator": (
+        "polisyos.foundry.methods.catalog.simulation.dynamics",
+        "StockFlowSystemDynamicsEstimator",
+    ),
     "UnboundFoundryDiscoveryInputError": (
         "polisyos.foundry.extensions.registry",
         "UnboundFoundryDiscoveryInputError",

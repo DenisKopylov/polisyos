@@ -341,11 +341,12 @@ def test_v5_body_keeps_its_exact_selected_artifact_epoch(candidate: bool) -> Non
 def _authored_joint_projection_payload() -> dict[str, object]:
     """A display contract fixture; the served route verifies actual owner bytes."""
     derived_ids = ("atom_8888888888888888", "atom_9999999999999999")
+    intervention_ids = ("industrial_retention_tax_credit", "procurement_distress_backstop")
     result_ref = _artifact_ref("polisyos.runtime.joint_simulation_result", "d")
     return {
         "node_ref": "joint-parent",
         "design_problem_ref": _WORLD_HASH,
-        "atom_ids": derived_ids,
+        "atom_ids": intervention_ids,
         "selected_outcomes": _OUTCOMES,
         "executed_steps": (0,),
         "replication_seeds": (41, 42),
@@ -358,7 +359,7 @@ def _authored_joint_projection_payload() -> dict[str, object]:
             "interaction_sampling_status": "estimated",
             "interaction_terms": (
                 {
-                    "atom_ids": derived_ids,
+                    "atom_ids": intervention_ids,
                     "outcome": _OUTCOMES[0],
                     "by_step": {0: 0.0},
                     "replication_sampling_by_step": {
@@ -392,11 +393,11 @@ def _authored_joint_projection_payload() -> dict[str, object]:
         "n8_joint_scope_limitation_code": "parent_joint_coupling_evidence_not_established",
         "n8_candidate_joint_selection_status": "resolved",
         "n8_candidate_joint_selection_content_hash": _REQUEST_HASH,
-        "n8_candidate_parent_atom_ids": ("atom_1111111111111111", "atom_2222222222222222"),
+        "n8_candidate_parent_atom_ids": ("atom_4444444444444444", "atom_5555555555555555"),
         "n8_candidate_parent_atom_content_hashes": ("sha256:" + "4" * 64, "sha256:" + "5" * 64),
         "n8_candidate_derived_atom_ids": derived_ids,
         "n8_candidate_derived_atom_content_hashes": ("sha256:" + "8" * 64, "sha256:" + "9" * 64),
-        "n8_candidate_parent_intervention_ids": derived_ids,
+        "n8_candidate_parent_intervention_ids": intervention_ids,
         "n8_candidate_parent_child_refs": ("child-a", "child-b"),
         "n8_candidate_member_basis": "authored_materialized_n4_source_members",
         "n8_source_candidate_relationship": "alternatives",
@@ -421,7 +422,8 @@ def test_authored_joint_projection_distinguishes_source_and_materialized_members
     assert observation.n8_source_candidate_relationship == "alternatives"
     assert observation.n8_selected_member_relationship == "joint_components"
     assert observation.n8_candidate_parent_atom_ids != observation.n8_candidate_derived_atom_ids
-    assert observation.n8_candidate_derived_atom_ids == observation.atom_ids
+    assert observation.n8_candidate_parent_intervention_ids == observation.atom_ids
+    assert observation.n8_candidate_derived_atom_ids != observation.atom_ids
     assert observation.n8_status == "value_conditional"
     assert observation.n8_joint_scope_status == "not_established"
     assert observation.currentness_status == "not_established"
@@ -438,6 +440,22 @@ def test_authored_joint_projection_distinguishes_source_and_materialized_members
         {"n8_authored_joint_request_payload_ref": None},
         {"n8_authored_joint_intent_digest": None},
         {"n8_candidate_derived_atom_ids": ("atom_aaaaaaaaaaaaaaaa", "atom_9999999999999999")},
+        {"n8_candidate_derived_atom_content_hashes": ("sha256:" + "a" * 64, "sha256:" + "9" * 64)},
+        {"n8_candidate_derived_atom_ids": ("atom_9999999999999999", "atom_8888888888888888")},
+        {"n8_candidate_derived_atom_ids": ("atom_8888888888888888", "atom_8888888888888888")},
+        {
+            "n8_candidate_parent_intervention_ids": (
+                "procurement_distress_backstop",
+                "industrial_retention_tax_credit",
+            )
+        },
+        {
+            "n8_candidate_derived_atom_ids": ("atom_4444444444444444", "atom_9999999999999999"),
+            "n8_candidate_derived_atom_content_hashes": (
+                "sha256:" + "4" * 64,
+                "sha256:" + "9" * 64,
+            ),
+        },
         {"n8_policy_composition_status": "not_established"},
         {"n8_joint_scope_status": "resolved"},
     ],

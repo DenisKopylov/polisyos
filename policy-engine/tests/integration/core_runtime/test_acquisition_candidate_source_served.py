@@ -922,3 +922,687 @@ def test_genuine_cov_seed_only_retains_actual_candidate_source(
             run_budget_usd=5.0,
         )
     assert result is not None and observed == [result["run_id"]]
+
+
+def test_synthetic_labor_recording_preserves_parent_and_consistent_stages(tmp_path: Path) -> None:
+    """Validate the synthetic derivative without claiming a runtime N4 result."""
+    from polisyos.ir.trinity import TrinityBundle
+    from polisyos.pdc import gy_content_hash
+    from polisyos.scientist.agent.drafter_models import _ConsolidationPayload, _CritiquePayload
+    from polisyos.scientist.agent.formalizer import (
+        _normalize_formalizer_payload_for_validation,
+        build_production_metric_taxonomy,
+    )
+    from tests._helpers import acquisition_chain
+    from tests._helpers.controlled_candidate_profile import _current_compiler_problem
+    from tests._helpers.lane01_candidate_problem import (
+        LABOR_SCOPE_SOURCE,
+        served_labor_candidate_problem,
+    )
+
+    original = acquisition_chain.load_served_wdi_generation_recording()
+    original_bytes = json.dumps(original, sort_keys=True)
+    fiscal = acquisition_chain.controlled_served_wdi_problem(
+        _current_compiler_problem(original), raw_request=acquisition_chain.SERVED_WDI_FISCAL_REQUEST
+    )
+    problem = served_labor_candidate_problem(
+        fiscal,
+        raw_request=f"{LABOR_SCOPE_SOURCE} {acquisition_chain.SERVED_WDI_CANDIDATE_ONLY_SOURCE}",
+    )
+    legacy = acquisition_chain.controlled_served_wdi_generation_recording(
+        original, outcome_variable="global.tax_rate"
+    )
+    assert legacy == acquisition_chain.controlled_served_wdi_generation_recording(
+        original, outcome_variable="global.tax_rate", labor_problem=None
+    )
+    profile = acquisition_chain.synthetic_served_wdi_provider_profile(
+        original, problem=problem, evidence_root=tmp_path, labor_scope=True
+    )
+    controlled = acquisition_chain.controlled_served_wdi_generation_recording(
+        original, outcome_variable="global.unemployment_rate", labor_problem=problem
+    )
+    assert controlled["derived_from_content_hash"] == original["recording_content_hash"]
+    assert profile.controlled_recording_content_hash == controlled["recording_content_hash"]
+    rows = {stage: json.loads(row) for stage, row in profile.response_rows}
+    assert set(rows) == {
+        "draft",
+        "drafter_multipass",
+        "drafter_consolidation",
+        "formalizer",
+        "critic",
+    }
+    for row in rows.values():
+        assert row["raw_response_hash"] == gy_content_hash(row["raw_response"])
+        assert row["parent_response_hash"].startswith("sha256:")
+        matches = [
+            derived
+            for parent, derived in zip(original["responses"], controlled["responses"], strict=True)
+            if parent.get("role") == row["parent_role"]
+            and parent.get("raw_response_hash") == row["parent_response_hash"]
+        ]
+        assert len(matches) == 1
+        assert matches[0]["raw_response"] == row["raw_response"]
+        assert matches[0]["raw_response_hash"] == row["raw_response_hash"]
+        assert not any(
+            word in row["raw_response"].lower() for word in ("ukrain", "tax_credit", "guarantee")
+        )
+        assert all(
+            word in row["raw_response"].lower()
+            for word in ("usa", "2024", "total_labor_force", "unemployment")
+        )
+    draft = _ConsolidationPayload.model_validate(json.loads(rows["draft"]["raw_response"]))
+    _CritiquePayload.model_validate(json.loads(rows["drafter_multipass"]["raw_response"]))
+    assert len(draft.interventions) == 1
+    formalizer, _events = _normalize_formalizer_payload_for_validation(
+        json.loads(rows["formalizer"]["raw_response"]),
+        taxonomy=build_production_metric_taxonomy(),
+        fail_unknown_metrics=False,
+        schema_healing_mode="audit",
+        draft_id="synthetic_usa_labor_candidate_draft",
+    )
+    bundle = TrinityBundle.model_validate(formalizer)
+    assert bundle.problem_frame.domain == "social"
+    assert bundle.problem_frame.objectives[0].metric_id == "unemployment_rate"
+    assert bundle.problem_frame.objectives[0].direction == "minimize"
+    assert len(bundle.policy_spec.interventions) == len(bundle.policy_spec.parameters) == 1
+    assert bundle.policy_spec.interventions[0].kind == "budget_allocation_multiplier"
+    assert bundle.policy_spec.parameters[0].param_path == "multiplier"
+    critic = json.loads(rows["critic"]["raw_response"])
+    assert critic["verdict"] == "NEEDS_REVISION" and critic["issues"]
+    assert critic["ir_ref"] == gy_content_hash(json.loads(rows["formalizer"]["raw_response"]))
+    assert json.dumps(original, sort_keys=True) == original_bytes
+    assert profile.source_recording_content_hash == original["recording_content_hash"]
+
+
+def test_genuine_labor_candidate_seed_reopens_selected_n4_and_cycle(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, served_recorded_candidate_gateway
+) -> None:
+    """Exercise the declared labor request through the actual N4 and cycle owners."""
+    import hashlib
+    from contextlib import contextmanager
+    from dataclasses import replace
+
+    from polisyos.data_requirement import (
+        DataRequirementCompilationReport,
+        compiled_requirements_for_world_slot,
+    )
+    from polisyos.fabric.data_plane import build_live_execution_authorization
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        CompiledRecursiveGenerationCycleRun,
+    )
+    from polisyos.runtime.quality.acquisition_planner import (
+        _n7_verify_configured_candidate_report_cycle,
+        validate_persisted_data_requirement_compilation_report,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
+    from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+        CandidateUnpricedPolicyBinding,
+        CandidateUnpricedPolicyScope,
+        issue_candidate_unpriced_experiment_policy,
+        persist_candidate_unpriced_policy,
+    )
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationExecutionV5,
+        CandidateSimulationN5InputV5,
+    )
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
+    from tests._helpers import acquisition_served_history as fixture
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+        complete_candidate_cycle_catalog_source,
+    )
+    from tests.unit.fabric.data_plane.test_evidence_journal import (
+        _authorization_request,
+        _harness_receipt,
+        _source_profile,
+    )
+
+    source = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "labor-source", include_owner_slot_manifest=True
+    )
+    observed = []
+    quota = BudgetInvocationQuotaPolicy(
+        allocation_id="labor-experiment-route", total_units=3, protected_units=1
+    )
+
+    def observe(**values) -> None:
+        control, job, run_id = values["control"], values["job"], values["run_id"]
+        terminal = control.resolve_completed_control_job_core_run_source(
+            job, expected_control_run_id=run_id, tenant_id=fixture.TENANT, cell_id=fixture.CELL
+        )
+        selected = artifacts.ArtifactRef.model_validate(
+            job.progress["compiled_recursive_generation_cycle_artifact_ref"]
+        )
+        assert any(
+            artifacts.artifact_ref_identity_key(ref)
+            == artifacts.artifact_ref_identity_key(selected)
+            for ref in terminal.manifest.outputs
+        )
+        store = artifacts.FileSystemCAS.open_existing_read_only(values["cas_root"])
+        payload = artifacts.load_core_json_artifact(store, job.payload_ref)
+        assert payload["run_id"] == run_id
+        assert Decimal(str(payload["run_budget_usd"])) == Decimal("5")
+        compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+            artifacts.load_core_json_artifact(store, selected)
+        )
+        problem = compiled.design_problem
+        assert problem.jurisdiction_time.region == "USA"
+        assert problem.outcome_of_interest.target_variable == "global.unemployment_rate"
+        assert problem.candidate_lever_space.allowed_operator_kinds == [
+            "budget_allocation_multiplier"
+        ]
+        occurrences = [
+            (leaf.cycle_run, cycle)
+            for leaf in compiled.recursive_run.leaf_nodes
+            if leaf.cycle_run is not None
+            for cycle in leaf.cycle_run.cycles
+        ]
+        assert len(occurrences) == 1
+        generation, cycle = occurrences[0]
+        (tmp_path / "actual-labor-candidate-cycle.json").write_text(
+            json.dumps(
+                {
+                    "cycles": [cycle.model_dump(mode="json")],
+                    "limitations": ["synthetic_scope_not_empirical"],
+                },
+                indent=2,
+                default=str,
+            )
+            + "\n"
+        )
+        simulation = cycle.simulation
+        assert simulation.status == "joint_simulated"
+        assert cycle.value_port.status == "value_pending_n8"
+        assert "candidate_scenario_n5_only" in cycle.value_port.authority_blockers
+        assert simulation.candidate_simulation_n4_source_ref is not None
+        assert simulation.candidate_simulation_context_job_ref is not None
+        assert simulation.candidate_simulation_n5_input_ref is not None
+        assert simulation.simulation_result_ref is not None
+        for ref in (
+            simulation.candidate_simulation_n4_source_ref,
+            simulation.candidate_simulation_context_job_ref,
+            simulation.candidate_simulation_n5_input_ref,
+            simulation.simulation_result_ref,
+        ):
+            assert ref.manifest_profile_sha256
+        execution_ref = artifacts.ArtifactRef.model_validate(
+            simulation.diagnostics["candidate_simulation_execution_selected_ref"]
+        )
+        assert execution_ref.manifest_profile_sha256
+        execution = CandidateSimulationExecutionV5.model_validate(
+            artifacts.load_core_json_artifact(store, execution_ref)
+        )
+        assert execution.n5_input_ref == simulation.candidate_simulation_n5_input_ref
+        assert execution.n5_result_ref == simulation.simulation_result_ref
+        assert execution.run_id == run_id and execution.job_id == job.job_id
+        artifacts.load_core_json_artifact(store, simulation.simulation_result_ref)
+        n5_input = CandidateSimulationN5InputV5.model_validate(
+            artifacts.load_core_json_artifact(store, simulation.candidate_simulation_n5_input_ref)
+        )
+        world = n5_input.profile.context_inputs.world_model_record
+        assert world.authority_status == "limited"
+        assert {
+            "source_time_not_established",
+            "source_to_target_measurement_contract_not_established",
+            "causal_coupling_not_established",
+        }.issubset(world.limitations.admissibility_blockers)
+        assert n5_input.context_job_ref == simulation.candidate_simulation_context_job_ref
+        assert n5_input.n4_source_ref == simulation.candidate_simulation_n4_source_ref
+        n4 = GenerationSourceRepository(store).load_candidate_scenario_source_for_n5(
+            n5_input.n4_source_ref,
+            expected_run_id=run_id,
+            expected_job_id=job.job_id,
+            expected_tenant_id=fixture.TENANT,
+            expected_cell_id=fixture.CELL,
+        )
+        assert n4.stable_subject_ref == compiled.design_problem_ref
+        assert n4.candidate.candidate_id == cycle.selected_candidate_ref
+        assert n5_input.profile.profile_selection_ref == n4.profile_selection_ref
+        atom = n4.candidate.atom
+        assert atom.direct_effect_bundle.mechanism_id == "budget_allocation_multiplier"
+        assert atom.direct_effect_bundle.params == {"multiplier": 2}
+        assert atom.causal_do_expr.write_variables == ("government.balance",)
+        parameters = [
+            parameter
+            for parameter in n4.proposal.trinity_bundle.policy_spec.parameters
+            if parameter.intervention_id == n4.candidate.intervention_id
+        ]
+        assert len(parameters) == 1
+        parameter = parameters[0]
+        assert parameter.param_path == "multiplier"
+        assert Decimal(str(parameter.default_value)) == Decimal("2")
+        assert Decimal(str(parameter.min_value)) == Decimal("1")
+        assert Decimal(str(parameter.max_value)) == Decimal("2")
+        report = cycle.acquisition_routing_report
+        assert report is not None and report.requirement_basis_binding is not None
+        binding = report.requirement_basis_binding
+        assert not validate_persisted_data_requirement_compilation_report(
+            store, binding, require_selected_writer_profile=True
+        )
+        compilation = DataRequirementCompilationReport.model_validate(
+            artifacts.load_core_json_artifact(store, binding.compiler_report_ref)
+        )
+        matches = compiled_requirements_for_world_slot(
+            world_slot="global.unemployment_rate",
+            specs=compilation.specs,
+            capability_resolutions=compilation.capability_requirement_resolutions,
+        )
+        assert len(matches) == 1
+        resolutions = [
+            row
+            for row in compilation.capability_requirement_resolutions or ()
+            if row.query.construct_id == "labor.unemployment_rate"
+            and row.candidate_discovery is not None
+        ]
+        assert len(resolutions) == 1
+        resolution = resolutions[0]
+        assert resolution.query.geography == "USA"
+        assert resolution.query.population_filter == {"type": "total_labor_force"}
+        assert resolution.query.time_window.start == "2024-01-01"
+        assert resolution.query.time_window.end == "2024-12-31"
+        candidates = [
+            candidate
+            for candidate in resolution.candidate_discovery.candidates
+            if any(
+                asset.get("metadata", {}).get("catalog_fetch_binding", {}).get("dataset_id")
+                == "SL.UEM.TOTL.ZS"
+                and asset.get("metadata", {}).get("target_world_slot") == "global.unemployment_rate"
+                for asset in candidate.source_assets
+            )
+        ]
+        assert len(candidates) == 1 and candidates[0].limitations
+        assert candidates[0].descriptor["identification_mode"] == "candidate_unverified"
+        assert candidates[0].descriptor["rights_envelope"]["claim_evidence_use_allowed"] is False
+        from tests._helpers.acquisition_served_history import REPO_ROOT
+
+        rows_path = (
+            REPO_ROOT / "architecture/policy_design_case/layer2_s3_governed_capability_rows.json"
+        )
+        (tmp_path / "labor-selected-descriptor.json").write_text(
+            json.dumps(
+                {
+                    "governed_rows_path": str(rows_path),
+                    "governed_rows_sha256": hashlib.sha256(rows_path.read_bytes()).hexdigest(),
+                    "compiler_report_ref": binding.compiler_report_ref.model_dump(mode="json"),
+                    "capability_index_ref": resolution.candidate_discovery.capability_index_ref,
+                    "requested_scope": problem.runtime_hints["n7_scope_profile"],
+                    "selected_requirement": matches[0].model_dump(mode="json"),
+                    "query": resolution.query.model_dump(mode="json"),
+                    "candidate": candidates[0].model_dump(mode="json"),
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n"
+        )
+        assert report.candidate_lineage is not None
+        assert cycle.acquisition_routing_report_ref is not None
+        assert cycle.grounding.acquisition_requirement is not None
+        join = {
+            "artifact_store": store,
+            "control_store": control._control_store,
+            "report": report,
+            "report_ref": cycle.acquisition_routing_report_ref,
+            "generation_run": generation,
+            "source_cycle": cycle,
+            "tenant_id": fixture.TENANT,
+            "cell_id": fixture.CELL,
+            "run_id": run_id,
+            "source_job_id": job.job_id,
+            "design_problem_ref": compiled.design_problem_ref,
+        }
+        selected_source = _n7_verify_configured_candidate_report_cycle(**join)
+        without_cov = cycle.model_copy(
+            update={
+                "grounding": cycle.grounding.model_copy(update={"acquisition_requirement": None})
+            }
+        )
+        with pytest.raises(ValueError):
+            _n7_verify_configured_candidate_report_cycle(**{**join, "source_cycle": without_cov})
+        without_cov_run = generation.model_copy(
+            update={
+                "cycles": tuple(
+                    without_cov if item.cycle_index == cycle.cycle_index else item
+                    for item in generation.cycles
+                )
+            }
+        )
+        with pytest.raises(ValueError, match="n7_candidate_report_source_owner_mismatch"):
+            _n7_verify_configured_candidate_report_cycle(
+                **{**join, "generation_run": without_cov_run, "source_cycle": without_cov}
+            )
+        foreign_input = simulation.candidate_simulation_n5_input_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+        )
+        assert foreign_input.manifest_profile_sha256 != (
+            simulation.candidate_simulation_n5_input_ref.manifest_profile_sha256
+        )
+        substituted = cycle.model_copy(
+            update={
+                "simulation": simulation.model_copy(
+                    update={"candidate_simulation_n5_input_ref": foreign_input}
+                )
+            }
+        )
+        with pytest.raises((OSError, ValueError)):
+            _n7_verify_configured_candidate_report_cycle(**{**join, "source_cycle": substituted})
+        substituted_run = generation.model_copy(
+            update={
+                "cycles": tuple(
+                    substituted if item.cycle_index == cycle.cycle_index else item
+                    for item in generation.cycles
+                )
+            }
+        )
+        with pytest.raises((OSError, ValueError)):
+            _n7_verify_configured_candidate_report_cycle(
+                **{**join, "generation_run": substituted_run, "source_cycle": substituted}
+            )
+        route = AcquisitionRouteLoop(
+            control_store=control._control_store,
+            artifact_store=control._artifact_store,
+            event_log=control._diagnostic_event_log,
+            core_source_resolver=control.resolve_completed_control_job_core_run_source,
+            tenant_id=fixture.TENANT,
+            cell_id=fixture.CELL,
+        )
+        with pytest.raises(
+            acquisition_route_loop.AcquisitionRouteClosureError, match="costed_route_not_unique"
+        ):
+            route.resolve_current_route(run_id=run_id)
+        closure = SimpleNamespace(
+            tenant_id=fixture.TENANT,
+            cell_id=fixture.CELL,
+            run_id=run_id,
+            source_job_id=job.job_id,
+            source_payload_ref=job.payload_ref,
+            capability_manifest_ref=job.capability_manifest_ref,
+        )
+        evidence = control.verify_candidate_experiment_intent(closure=closure)
+        foreign_closure = SimpleNamespace(**{**vars(closure), "tenant_id": "foreign-tenant"})
+        with pytest.raises(ValueError):
+            control.verify_candidate_experiment_intent(closure=foreign_closure)
+        snapshot = control._llm_producer_settlement_store.snapshot_safe()
+        selected_quota = snapshot.invocation_profiles[run_id]
+        assert selected_quota.allocation_id == quota.allocation_id
+        assert any(
+            item.run_id == run_id
+            and item.profile_digest == selected_quota.profile_digest
+            and item.purpose == "standard"
+            and item.status == "completed"
+            for item in snapshot.invocation_reservations.values()
+        )
+        policy_scope = CandidateUnpricedPolicyScope(
+            tenant_id=fixture.TENANT,
+            cell_id=fixture.CELL,
+            run_id=run_id,
+            source_job_id=job.job_id,
+            design_problem_ref=compiled.design_problem_ref,
+            design_problem_basis_ref=selected_source.design_problem_basis_ref,
+            source_cycle_index=cycle.cycle_index,
+            candidate_id=cycle.selected_candidate_ref,
+            candidate_content_hash=cycle.selected_candidate_content_hash,
+            requirement_id=resolution.query.requirement_id,
+            compiled_requirement_ref=matches[0].requirement_id,
+            candidate_digest=candidates[0].content_digest,
+            planner_report_hash=agent_action_content_hash(report),
+            compiled_ref=selected,
+            planner_report_ref=cycle.acquisition_routing_report_ref,
+            compiler_report_ref=binding.compiler_report_ref,
+            configured_port_source_ref=report.candidate_lineage.port_source_ref,
+        )
+        # Controlled harness evidence names the same labor dataset; live fetch
+        # authorization is independently rederived by the executor, not here.
+        authorization_request = _authorization_request()
+        authorization_request["request_dataset_id"] = "SL.UEM.TOTL.ZS"
+        authorization_request["variable_id"] = "global.unemployment_rate"
+        harness = _harness_receipt()
+        harness["dry_run_attempts"] = tuple(
+            {**attempt, "request_dataset_id": "SL.UEM.TOTL.ZS"}
+            for attempt in harness["dry_run_attempts"]
+        )
+        authorization = build_live_execution_authorization(
+            attempt_id="n13b-worldbank-cpi-001",
+            connector_id="worldbank.wdi",
+            request_dataset_id="SL.UEM.TOTL.ZS",
+            request=authorization_request,
+            schema_contract=authorization_request["schema_contract"],
+            source_profile=_source_profile(),
+            baseline_sha256="sha256:" + "f" * 64,
+            family_receipt=harness,
+            max_response_bytes=65_536,
+            max_decompressed_bytes=65_536,
+        )
+        policy = issue_candidate_unpriced_experiment_policy(
+            scope=policy_scope,
+            live_authorization=authorization,
+            n5_quota_profile=selected_quota,
+            source_payload_ref=evidence.source_payload_ref,
+            request_content_hash=evidence.request_content_hash,
+            original_metered_budget_usd=evidence.run_budget_usd,
+            limitations=(
+                "acquisition_monetary_cost_not_established",
+                "n5_monetary_cost_not_established",
+                "per_call_usd_reservation_not_established",
+                "candidate_only_no_publication_authority",
+                "candidate_experiment_voi_not_established",
+                "controlled_synthetic_harness_not_live_authority",
+            ),
+        )
+        policy_ref = persist_candidate_unpriced_policy(
+            store=control._artifact_store, event_log=control._diagnostic_event_log, policy=policy
+        )
+        original_providers = control._registry_providers
+        control._registry_providers = replace(
+            original_providers,
+            candidate_unpriced_policy_bindings=(
+                CandidateUnpricedPolicyBinding(scope=policy_scope, policy_ref=policy_ref),
+            ),
+        )
+        experiment = route.resolve_candidate_experiment_origin(run_id=run_id)
+        assert experiment.policy_ref == policy_ref
+        assert experiment.monetary_cost == experiment.action_authority == "not_established"
+        assert cycle.voi_decision.scheduler_action == "reject"
+        assert cycle.voi_decision.scheduler_reason == "roi_below_threshold"
+        assert experiment.source_cycle.voi_decision == cycle.voi_decision
+        action_service = values["action_service"]
+        assert action_service is not None
+        projection = action_service.get_candidate_experiment_route(
+            tenant_id=fixture.TENANT, cell_id=fixture.CELL, run_id=run_id
+        )
+        assert projection.route_id == experiment.route_id
+        assert projection.replay_pins.policy_ref == policy_ref
+        assert projection.replay_pins.request_content_hash == evidence.request_content_hash
+        assert projection.scheduler_action == "reject"
+        assert projection.scheduler_reason == "roi_below_threshold"
+        assert projection.action_authority == projection.monetary_cost == "not_established"
+        assert projection.publication_authority is False
+        from pydantic import ValidationError
+
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            AcquisitionActionServiceError,
+            CandidateExperimentRouteMutationRequest,
+            CandidateExperimentRouteReplayPins,
+        )
+
+        request = CandidateExperimentRouteMutationRequest(
+            route_id=projection.route_id,
+            replay_pins=projection.replay_pins,
+            idempotency_key="controlled-experiment-probe",
+        )
+        assert (
+            action_service._validate_candidate_experiment_request(
+                tenant_id=fixture.TENANT, cell_id=fixture.CELL, run_id=run_id, request=request
+            )
+            == projection
+        )
+        foreign_policy_view = policy_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+        )
+        foreign_request = request.model_copy(
+            update={
+                "replay_pins": request.replay_pins.model_copy(
+                    update={"policy_ref": foreign_policy_view}
+                )
+            }
+        )
+        with pytest.raises(
+            AcquisitionActionServiceError, match="candidate_experiment_route_revalidation_required"
+        ):
+            action_service._validate_candidate_experiment_request(
+                tenant_id=fixture.TENANT,
+                cell_id=fixture.CELL,
+                run_id=run_id,
+                request=foreign_request,
+            )
+
+        malformed_pins = projection.replay_pins.model_dump(mode="json")
+        malformed_pins["policy_ref"]["kind"] = "fabric.data_snapshot"
+        with pytest.raises(ValidationError, match="candidate_experiment_selected_profile_required"):
+            CandidateExperimentRouteReplayPins.model_validate(malformed_pins)
+
+        class SameSelectedView(artifacts.ArtifactRef):
+            pass
+
+        class ExtendedSelectedView(artifacts.ArtifactRef):
+            extra_semantics: str = "foreign"
+
+        pin_values = {
+            name: getattr(projection.replay_pins, name)
+            for name in CandidateExperimentRouteReplayPins.model_fields
+        }
+        same_view = SameSelectedView.model_validate(policy_ref.model_dump(mode="python"))
+        assert (
+            CandidateExperimentRouteReplayPins.model_validate(
+                {**pin_values, "policy_ref": same_view}
+            ).policy_ref.manifest_profile_sha256
+            == policy_ref.manifest_profile_sha256
+        )
+        extended_view = ExtendedSelectedView.model_validate(policy_ref.model_dump(mode="python"))
+        with pytest.raises(ValidationError, match="candidate_experiment_selected_profile_required"):
+            CandidateExperimentRouteReplayPins.model_validate(
+                {**pin_values, "policy_ref": extended_view}
+            )
+        for payload_ref, request_hash, cap in (
+            ("sha256:" + "e" * 64, evidence.request_content_hash, evidence.run_budget_usd),
+            (evidence.source_payload_ref, "sha256:" + "e" * 64, evidence.run_budget_usd),
+            (evidence.source_payload_ref, evidence.request_content_hash, Decimal("6")),
+        ):
+            foreign_policy = issue_candidate_unpriced_experiment_policy(
+                scope=policy_scope,
+                live_authorization=authorization,
+                n5_quota_profile=selected_quota,
+                source_payload_ref=payload_ref,
+                request_content_hash=request_hash,
+                original_metered_budget_usd=cap,
+                limitations=policy.limitations,
+            )
+            foreign_ref = persist_candidate_unpriced_policy(
+                store=control._artifact_store,
+                event_log=control._diagnostic_event_log,
+                policy=foreign_policy,
+            )
+            control._registry_providers = replace(
+                original_providers,
+                candidate_unpriced_policy_bindings=(
+                    CandidateUnpricedPolicyBinding(scope=policy_scope, policy_ref=foreign_ref),
+                ),
+            )
+            with pytest.raises(
+                acquisition_route_loop.AcquisitionRouteClosureError,
+                match="candidate_experiment_intent_not_established",
+            ):
+                route.resolve_candidate_experiment_origin(run_id=run_id)
+        control._registry_providers = original_providers
+        with pytest.raises(
+            acquisition_route_loop.AcquisitionRouteClosureError,
+            match="candidate_experiment_policy_not_unique",
+        ):
+            route.resolve_candidate_experiment_origin(run_id=run_id)
+        control._registry_providers = replace(
+            original_providers,
+            candidate_unpriced_policy_bindings=(
+                CandidateUnpricedPolicyBinding(scope=policy_scope, policy_ref=policy_ref),
+            ),
+        )
+
+        @contextmanager
+        def block_selected_manifest(artifact_id, profile):
+            owner = control._artifact_store
+            original_path = owner._manifest_path_for_ref(artifact_id, profile)
+            assert original_path.is_file() and not original_path.is_symlink()
+            hits = []
+            if values.get("retained_no_mutation") is True:
+                # Consume-only replay: deny the exact read path without moving
+                # or altering the retained producer's original manifest.
+                original_resolver = owner._manifest_path_for_ref
+                with monkeypatch.context() as patcher:
+
+                    def denied_path(aid, selected_profile):
+                        if str(aid) == str(artifact_id) and selected_profile == profile:
+                            hits.append(True)
+                            return tmp_path / "controlled-missing-manifest"
+                        return original_resolver(aid, selected_profile)
+
+                    patcher.setattr(owner, "_manifest_path_for_ref", denied_path)
+                    yield hits
+                return
+            withheld = original_path.with_name(original_path.name + ".labor-test-withheld")
+            assert not withheld.exists()
+            original_path.rename(withheld)
+            try:
+                assert not original_path.exists()
+                yield hits
+            finally:
+                withheld.rename(original_path)
+
+        with (
+            block_selected_manifest(
+                artifacts.ArtifactID.model_validate(job.payload_ref), None
+            ) as denied_payload,
+            pytest.raises((OSError, ValueError)),
+        ):
+            route.resolve_candidate_experiment_origin(run_id=run_id)
+        if values.get("retained_no_mutation") is True:
+            assert denied_payload
+        source_ref = report.candidate_lineage.port_source_ref
+        with (
+            block_selected_manifest(
+                source_ref.artifact_id, source_ref.manifest_profile_sha256
+            ) as denied_source,
+            pytest.raises(acquisition_route_loop.AcquisitionRouteClosureError),
+        ):
+            route.resolve_candidate_experiment_origin(run_id=run_id)
+        if values.get("retained_no_mutation") is True:
+            assert denied_source
+        route.resolve_candidate_experiment_origin(run_id=run_id)
+        assert control._llm_producer_settlement_store.snapshot_safe() == snapshot
+        control._registry_providers = original_providers
+        observed.append(run_id)
+
+    with complete_candidate_cycle_catalog_source(
+        source.root, monkeypatch, synthetic_usa_labor_scope=True
+    ) as prepared:
+        entries = prepared[2].resolve(family_id="macro_state")
+        assert entries
+        assert all(
+            entry.schema_regime.schema_regime_id.startswith("synthetic_usa_labor_")
+            for entry in entries
+        )
+        assert all(entry.identification_mode == "bounds_only" for entry in entries)
+        result = fixture._produce_served_acquisition_history(
+            tmp_path,
+            monkeypatch,
+            served_recorded_candidate_gateway,
+            source_owner_root=source.root,
+            prepared_catalog=prepared,
+            provider_mode="synthetic_settled_candidate",
+            seed_only_observer=observe,
+            run_budget_usd=5.0,
+            run_budget_scope="metered_paid_producers_and_bounded_candidate",
+            candidate_acquisition_intent="bounded_experiment_voi_unknown",
+            invocation_quota_policy=quota,
+            labor_seed=True,
+        )
+    assert result is not None and observed == [result["run_id"]]

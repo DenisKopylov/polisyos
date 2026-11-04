@@ -20,7 +20,7 @@ from decimal import Decimal, InvalidOperation
 from fractions import Fraction
 from statistics import pstdev
 from time import perf_counter
-from typing import Any, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 from uuid import uuid4
 
 import numpy as np
@@ -53,7 +53,7 @@ from polisyos.foundry.methods.catalog.simulation import (
 )
 from polisyos.foundry.methods.exceptions import MethodExecutionAbortError
 from polisyos.foundry.methods.selection.registry import MethodRegistry
-from polisyos.ir.analytics.interventions import ProofKernelInterventionType
+from polisyos.ir.analytics import ProofKernelInterventionType
 from polisyos.ir.analytics.ncm import NCMSpec  # Pydantic validates at runtime.
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_axes.coupling_composition import (
@@ -70,12 +70,15 @@ from polisyos.runtime.quality.world_model_record import (
     consume_world_model_record_for_simulation,
     resolve_intervention_atom_world_binding,
 )
-from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError
-from polisyos.scientist.orchestration.engine.producer_budget import (
+from polisyos.scientist.orchestration.engine import (
+    BudgetExhaustedError,
     ProducerBudgetObservation,
     ProducerBudgetObserver,
     ProducerBudgetSourceError,
 )
+
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.cycle_substrate import VerifiedNLJobBudgetScope
 
 JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION = "policyos.runtime.joint_simulation_horizon.v1"
 JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION = (
@@ -1108,7 +1111,7 @@ def _ncm_numeric_contract_from_binding(binding: Mapping[str, Any]) -> dict[str, 
         or len(outcomes) != 1
     ):
         unsupported()
-    from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
+    from polisyos.foundry.methods.causal import NCMEngineMethod
 
     if binding.get("method_fqn") != NCMEngineMethod.signature.fqn:
         unsupported()
@@ -1747,6 +1750,72 @@ class _PhysicalWorkInterruptedError(JointSimulationControllerError):
         self.completed_physical_observation: PhysicalSimulationWorkObservation | None = None
 
 
+def _require_nl_physical_budget_scope(
+    scope: VerifiedNLJobBudgetScope | None,
+    observer: ProducerBudgetObserver | None,
+    *,
+    require_selected_quota: bool,
+) -> Literal["unscoped", "legacy_omitted", "metered_paid_producers_and_bounded_candidate"]:
+    """Reopen an issued NL scope; a scope classification is never a reservation."""
+    if type(observer) is ProducerBudgetObserver:
+        try:
+            bound_scope = ProducerBudgetObserver.invocation_guard_binding.fget(observer)
+        except (AttributeError, RuntimeError, TypeError, ValueError) as exc:
+            raise ProducerBudgetSourceError("n5_physical_budget_scope_not_established") from exc
+        if bound_scope is not scope:
+            raise ProducerBudgetSourceError("n5_physical_budget_scope_binding_mismatch")
+    if scope is None:
+        return "unscoped"
+    from polisyos.runtime.quality.cycle_substrate import VerifiedNLJobBudgetScope
+
+    if type(scope) is not VerifiedNLJobBudgetScope or not (
+        scope._was_issued_by_verified_nl_budget_owner
+    ):
+        raise ProducerBudgetSourceError("n5_physical_budget_scope_not_established")
+    # Issuance already binds the omitted field to the signed original request.
+    # Preserve the existing legacy path without imposing a new quota on it.
+    if scope.run_budget_scope_present is False:
+        return "legacy_omitted"
+    try:
+        mode = VerifiedNLJobBudgetScope.require_current_physical_budget_scope(scope)
+    except (OSError, RuntimeError, TypeError, ValueError, AttributeError) as exc:
+        from polisyos.core.artifacts import raise_artifact_read_access_error
+
+        raise_artifact_read_access_error(exc)
+        raise ProducerBudgetSourceError("n5_physical_budget_scope_not_established") from exc
+    if mode in {"hard_total_usd", "explicit_null"}:
+        raise ProducerBudgetSourceError("n5_physical_usd_reservation_not_established")
+    if mode != "metered_paid_producers_and_bounded_candidate":
+        raise ProducerBudgetSourceError("n5_physical_budget_scope_not_established")
+    if type(observer) is not ProducerBudgetObserver:
+        raise ProducerBudgetSourceError("n5_invocation_quota_owner_not_established")
+    if scope.run_budget_usd is None or observer.configured_limit_usd != scope.run_budget_usd:
+        raise ProducerBudgetSourceError("n5_physical_budget_cap_mismatch")
+    if getattr(scope._budget_scope_owner, "_llm_producer_settlement_store", None) is not (
+        observer._store
+    ):
+        raise ProducerBudgetSourceError("n5_invocation_quota_settlement_owner_mismatch")
+    binding = observer._binding
+    if (
+        binding.run_id != scope.run_id
+        or binding.control_job_id != scope.job_id
+        or binding.tenant_id != scope.tenant_id
+        or binding.cell_id != scope.cell_id
+        or binding.profile_id != scope.effective_execution_profile
+    ):
+        raise ProducerBudgetSourceError("n5_invocation_quota_run_binding_mismatch")
+    if require_selected_quota:
+        profile = observer.invocation_quota_profile
+        if (
+            profile is None
+            or profile.run_binding != binding
+            or profile.total_units <= profile.protected_units
+            or observer.invocation_purpose != "standard"
+        ):
+            raise ProducerBudgetSourceError("n5_invocation_quota_profile_not_established")
+    return mode
+
+
 def _run_cached_replicates(
     request: JointSimulationRequest,
     plan: EnginePlan,
@@ -1754,6 +1823,7 @@ def _run_cached_replicates(
     run_once: Callable[[RunLevel, tuple[InterventionAtomBinding, ...], int], SimulationTrajectory],
     *,
     producer_budget_observer: ProducerBudgetObserver | None = None,
+    physical_n5_budget_scope: VerifiedNLJobBudgetScope | None = None,
     comparator_once: Callable[[int], Mapping[str, float]] | None = None,
     comparator_samples: list[dict[str, Any]] | None = None,
 ) -> list[SimulationTrajectory]:
@@ -1782,6 +1852,24 @@ def _run_cached_replicates(
         seed: int, physical_ref: str, operation: Callable[[], Any]
     ) -> tuple[Any, PhysicalSimulationWorkObservation]:
         budget_observation = None
+        try:
+            _require_nl_physical_budget_scope(
+                physical_n5_budget_scope,
+                producer_budget_observer,
+                require_selected_quota=True,
+            )
+        except ProducerBudgetSourceError as exc:
+            raise _PhysicalWorkInterruptedError(
+                str(exc),
+                output,
+                observations,
+                tuple(budget_bases.values()),
+                budget_refusal_basis={
+                    "status": "not_established",
+                    "work_unit": "physical_simulation_invocation",
+                    "price_origin": "unknown",
+                },
+            ) from exc
         if producer_budget_observer is not None:
             try:
                 budget_observation = producer_budget_observer.admit()
@@ -1848,6 +1936,28 @@ def _run_cached_replicates(
                         "purpose": producer_budget_observer.invocation_purpose,
                         "price_origin": "unknown",
                     },
+                ) from exc
+        if quota_reservation is not None and physical_n5_budget_scope is not None:
+            try:
+                _require_nl_physical_budget_scope(
+                    physical_n5_budget_scope,
+                    producer_budget_observer,
+                    require_selected_quota=True,
+                )
+            except ProducerBudgetSourceError as exc:
+                # No physical operation has run; keep the reservation as a
+                # failed, consumed attempt rather than silently releasing it.
+                try:
+                    if producer_budget_observer is not None:
+                        producer_budget_observer.finish_invocation(
+                            operation_id, request_digest, "failed"
+                        )
+                except (OSError, RuntimeError, TypeError, ValueError) as finish_error:
+                    # The durable pending reservation remains fail-closed, but
+                    # a real owner denial must remain visible to the caller.
+                    raise_artifact_read_access_error(finish_error)
+                raise _PhysicalWorkInterruptedError(
+                    str(exc), output, observations, tuple(budget_bases.values())
                 ) from exc
         started_monotonic = perf_counter()
         started_at = datetime.now(UTC)
@@ -1925,6 +2035,25 @@ def _run_cached_replicates(
             raise _PhysicalWorkInterruptedError(
                 "n5_physical_work_failed", output, observations, tuple(budget_bases.values())
             ) from error
+        if quota_reservation is not None and physical_n5_budget_scope is not None:
+            try:
+                _require_nl_physical_budget_scope(
+                    physical_n5_budget_scope,
+                    producer_budget_observer,
+                    require_selected_quota=True,
+                )
+            except ProducerBudgetSourceError as exc:
+                # The numerical call and its consumed reservation remain real
+                # audit facts, but a stale worker cannot advance their result.
+                interrupted = _PhysicalWorkInterruptedError(
+                    "n5_physical_budget_scope_lost_after_work",
+                    output,
+                    observations,
+                    tuple(budget_bases.values()),
+                )
+                interrupted.completed_physical_value = value
+                interrupted.completed_physical_observation = work
+                raise interrupted from exc
         return value, work
 
     if comparator_once is not None:
@@ -2793,6 +2922,7 @@ class JointSimulationHorizonController:
         method_registry: MethodRegistry | None = None,
         policy: JointSimulationControllerPolicy | None = None,
         producer_budget_observer: ProducerBudgetObserver | None = None,
+        physical_n5_budget_scope: VerifiedNLJobBudgetScope | None = None,
         _prepared_configuration: PreparedJointSimulationConfiguration | None = None,
     ) -> None:
         if policy is not None and not isinstance(policy, JointSimulationControllerPolicy):
@@ -2814,6 +2944,7 @@ class JointSimulationHorizonController:
         ):
             raise TypeError("n5_budget_observer_not_canonical")
         self._producer_budget_observer = producer_budget_observer
+        self._physical_n5_budget_scope = physical_n5_budget_scope
         self._settings = prepared.runtime_settings
         self._last_n5_implementation_capture: object | None = None
 
@@ -2869,7 +3000,7 @@ class JointSimulationHorizonController:
             raise JointSimulationControllerError("ncm_comparator_engine_mismatch")
         numeric_contract: dict[str, Any] | None = None
         if request.comparator_profile is not None and decision.decision == "selected":
-            from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
+            from polisyos.foundry.methods.causal import NCMEngineMethod
             from polisyos.runtime.quality.ncm_numeric_profile import (
                 NCMNumericProfileUnsupportedError,
             )
@@ -4010,6 +4141,7 @@ class JointSimulationHorizonController:
             decision,
             run_once,
             producer_budget_observer=self._producer_budget_observer,
+            physical_n5_budget_scope=self._physical_n5_budget_scope,
         )
 
     def _run_ncm_horizon(
@@ -4128,6 +4260,7 @@ class JointSimulationHorizonController:
                     decision,
                     run_once,
                     producer_budget_observer=self._producer_budget_observer,
+                    physical_n5_budget_scope=self._physical_n5_budget_scope,
                     comparator_once=comparator_once if comparator_query is not None else None,
                     comparator_samples=comparator_samples if comparator_query is not None else None,
                 )
@@ -4312,6 +4445,7 @@ class JointSimulationHorizonController:
             decision,
             run_once,
             producer_budget_observer=self._producer_budget_observer,
+            physical_n5_budget_scope=self._physical_n5_budget_scope,
         )
 
     def _run_system_dynamics_horizon(
@@ -4462,6 +4596,7 @@ class JointSimulationHorizonController:
             decision,
             run_once,
             producer_budget_observer=self._producer_budget_observer,
+            physical_n5_budget_scope=self._physical_n5_budget_scope,
         )
 
     def _run_registry_method_horizon(
@@ -4609,6 +4744,7 @@ class JointSimulationHorizonController:
             decision,
             run_once,
             producer_budget_observer=self._producer_budget_observer,
+            physical_n5_budget_scope=self._physical_n5_budget_scope,
         )
 
 
@@ -5289,9 +5425,7 @@ def _trajectory_row_profile(
     error_prefix: str,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """Qualify the real stock-flow initial/prefix contract without claiming physical time."""
-    from polisyos.foundry.methods.catalog.simulation.dynamics import (
-        StockFlowSystemDynamicsEstimator,
-    )
+    from polisyos.foundry.methods import StockFlowSystemDynamicsEstimator
 
     source_count = len(trajectory)
     retained = min(source_count, requested_count)

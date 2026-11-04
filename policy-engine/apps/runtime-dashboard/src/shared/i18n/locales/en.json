@@ -455,6 +455,21 @@
       },
       "maxIterations": "Max iterations",
       "maxParallelModels": "Max parallel models",
+      "candidateExperiment": {
+        "label": "Request a bounded candidate acquisition experiment",
+        "description": "Information value is unknown. This request does not change a prior ROI rejection or establish a positive return. It grants no publication authority; the server must separately authorize physical work.",
+        "requirements": "Select the metered paid producers and bounded candidate scope and enter an explicit finite run budget in USD first."
+      },
+      "runBudgetScope": {
+        "label": "Run budget scope",
+        "unspecified": "Use existing behavior (scope not specified)",
+        "hard": "Require an enforceable total USD ceiling",
+        "limited": "Metered paid producers and bounded candidate work",
+        "unspecifiedDescription": "No budget scope is sent with this request.",
+        "hardDescription": "The total USD ceiling must be enforceable for work to proceed. Selecting this scope does not grant permission to run.",
+        "limitedBudgetRequired": "Enter an explicit finite, non-negative run budget in USD for this scope.",
+        "limitedDescription": "The USD budget covers metered paid producers only. Candidate work requires separate authorization and physical limits. Total USD cost is not established; selecting this scope does not grant permission to run."
+      },
       "runBudgetUsd": "Run budget (USD)",
       "perModelBudgetUsd": "Per-model budget (USD)",
       "addCustomModel": "Add custom model",
@@ -851,6 +866,11 @@
         "intent": "Intent: {intent}"
       },
       "candidateSimulation": {
+        "candidateHistoryBasis": "Basis provenance: current {current}; selected {selected}.",
+        "candidateHistoryFrontier": "Evaluation frontier: {status} (revision {revision}); deployment currentness is not established.",
+        "candidateHistoryComparison": "Basis comparison: {result}; predicate: {provenance}.",
+        "candidateHistoryProvenance": "N5 provenance: {provenance}.",
+        "candidateHistoryCheap": "Fresh candidate reaction: grounding {grounding}; value {value}; next action {action}.",
         "candidateHistoryScope": "Candidate source continuation only; no observed admission or publication authority.",
         "candidateHistorySimulation": "N5 status: {{status}}",
         "candidateCurrentTitle": "Current candidate-basis view",

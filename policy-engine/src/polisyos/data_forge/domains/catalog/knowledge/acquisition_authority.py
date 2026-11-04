@@ -28,9 +28,8 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from polisyos.core import artifacts, canon, contracts
 from polisyos.fabric import connectors as fabric_connectors
 from polisyos.fabric import data_plane as fabric_data_plane
-from polisyos.fabric import evidence as fabric_evidence
-from polisyos.fabric.connectors.cache import verify_selected_cache_payload_ref
-from polisyos.fabric.data_plane.temporal import parse_datetime_utc
+from polisyos.fabric.connectors import verify_selected_cache_payload_ref
+from polisyos.fabric.data_plane import parse_datetime_utc
 
 from .overlay import (
     AcquisitionDatasetRegistration,
@@ -1542,7 +1541,9 @@ class CanonicalAcquisitionAuthority:
         if not cache_ok:
             raise AcquisitionAuthorityError("live_normalized_profile_drift")
         try:
-            fabric_evidence.verify_live_ingestion_evidence_profile(
+            from polisyos.fabric.ingestion import verify_live_ingestion_evidence_profile
+
+            verify_live_ingestion_evidence_profile(
                 artifact_store, proof.evidence_bundle_ref, bundle
             )
         except Exception as exc:

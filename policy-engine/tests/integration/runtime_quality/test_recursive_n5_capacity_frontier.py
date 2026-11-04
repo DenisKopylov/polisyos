@@ -116,16 +116,17 @@ class _ProfilelessSelectedRefStore:
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capacity(
+async def test_original_two_child_run_stops_after_first_child_on_standard_n5_capacity(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     controlled_candidate_gateway: Any,
 ) -> None:
-    """Persist child one's actual N5, then keep child two pending at the owner cap."""
+    """Keep both source-derived children while standard N5 quota stops after the first."""
 
     pytest.importorskip("fastapi.testclient")
     from fastapi.testclient import TestClient
 
+    from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.security import build_fixture_identity_claims
     from polisyos.runtime.http.services.control import generation_cycle as cycle_service
@@ -133,13 +134,30 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
     )
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from tests._helpers.control_worker import dispatch_one_control_job
-    from tests._helpers.generic_n4_served_replay import prepare_generic_n4_served_replay
+    from tests._helpers.generic_n4_served_replay import (
+        _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH,
+        _ORIGINAL_SECOND_CAPTURE_RECORDING_ID,
+        _assert_original_second_capture_child_semantic_join,
+        _assert_original_second_capture_generation_result,
+        prepare_generic_n4_served_replay,
+    )
     from tests.unit.runtime.http.test_nl_pipeline_materialization import (
         _DeterministicSpanSupportClient,
     )
 
     identity = build_fixture_identity_claims()
+    from decimal import Decimal
+
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5RequestProfileV3,
+    )
+
+    def owner_call(operation: Any, *args: Any, **kwargs: Any) -> Any:
+        """Run one direct persisted-owner operation under the fixture principal."""
+        with tenant_scope(None, tenant_id=identity.tenant_id, cell_id=identity.cell_id):
+            return operation(*args, **kwargs)
 
     prepared = await prepare_generic_n4_served_replay(
         tmp_path=tmp_path,
@@ -151,22 +169,129 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
         recording_mode="original_second_capture",
         materialize_source_parameters=True,
         synthetic_settled_provider=True,
+        condition_synthetic_provider_on_child_sources=True,
     )
-    assert len(prepared.children) == 2
+    assert prepared.source_recording_id == _ORIGINAL_SECOND_CAPTURE_RECORDING_ID
+    assert prepared.source_recording_content_hash == _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH
+    assert prepared.recording["recording_id"] == _ORIGINAL_SECOND_CAPTURE_RECORDING_ID
+    assert prepared.recording["recording_content_hash"] == _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH
+    from tools.quality.validation import (
+        check_layer3_gy_design_generation_contract as n4_contract,
+    )
 
+    source_recording = next(
+        item
+        for item in n4_contract._load_recordings(Path(__file__).resolve().parents[3])
+        if item.get("recording_id") == _ORIGINAL_SECOND_CAPTURE_RECORDING_ID
+    )
+    assert prepared.recording == source_recording
+    assert len(prepared.children) == 2
+    assert len(prepared.generic_child_profiles) == 2
+    assert prepared.source_root is not None
+    assert prepared.source_root.is_relative_to(tmp_path)
+
+    from polisyos.runtime.quality.cycle_substrate import (
+        cycle_job_design_problem_ref,
+        cycle_job_profile_selection_ref,
+        generic_n4_child_profile_selection_ref,
+    )
+
+    source_result = prepared.organ_run.result
+    prepared_problem_ref = cycle_job_design_problem_ref(prepared.recorded_problem)
+    child_selection_by_problem_ref = {
+        cycle_job_design_problem_ref(child.problem): generic_n4_child_profile_selection_ref(
+            child.problem,
+            parent_problem_ref=prepared_problem_ref,
+            source_result_ref=child.source_result_ref,
+            source_atom_refs=child.source_atom_refs,
+            semantic_ref=child.semantic_ref,
+        )
+        for child in prepared.children
+    }
+    assert len(set(child_selection_by_problem_ref.values())) == len(prepared.children)
+    candidate_semantics = _assert_original_second_capture_generation_result(
+        source_result,
+        design_problem_ref=prepared_problem_ref,
+        recording_id=prepared.source_recording_id,
+        recording_content_hash=prepared.source_recording_content_hash,
+    )
+    expected_child_atoms_by_group = _assert_original_second_capture_child_semantic_join(
+        prepared.children,
+        candidate_semantics,
+    )
+    assert source_result.grounding_disposition_summary.total_candidates == 3
+    assert source_result.grounding_disposition_summary.shadow_bound == 2
+    assert source_result.grounding_disposition_summary.abstain_or_blocked == 1
+    assert {
+        row.proposal_id: getattr(row.disposition, "value", row.disposition)
+        for row in source_result.grounding_dispositions
+    } == {
+        "gy_n4.industrial_retention_tax_credit": "shadow_bound",
+        "gy_n4.procurement_distress_backstop": "shadow_bound",
+        "gy_n4.msme_working_capital_guarantee": "unknown_blocked",
+    }
+    assert len(expected_child_atoms_by_group) == 2
+
+    bundle = prepared.organ_run.trinity_bundle
+    assert bundle is not None
+    assert isinstance(prepared.root_profile.n5, GenericCycleN5RequestProfileV3)
+    assert all(
+        isinstance(profile.n5, GenericCycleN5RequestProfileV3)
+        for profile in prepared.generic_child_profiles
+    )
+    component_rules = tuple(
+        rule for profile in prepared.generic_child_profiles for rule in profile.n5.component_rules
+    )
+    assert len(component_rules) == 2
+    assert prepared.root_profile.n5.component_rules == component_rules
+    assert len({rule.target_world_slot for rule in component_rules}) == 2
+    for child, profile in zip(prepared.children, prepared.generic_child_profiles, strict=True):
+        (rule,) = profile.n5.component_rules
+        (lever,) = child.problem.candidate_lever_space.candidate_levers
+        candidates = tuple(
+            row
+            for row in prepared.organ_run.result.candidates
+            if row.atom.content_hash in child.source_atom_refs
+        )
+        assert len(candidates) == 1
+        intervention_id = candidates[0].atom.intervention_id
+        (parameter,) = tuple(
+            row for row in bundle.policy_spec.parameters if row.intervention_id == intervention_id
+        )
+        (intervention,) = tuple(
+            row
+            for row in bundle.policy_spec.interventions
+            if row.intervention_id == intervention_id
+        )
+        assert rule.operator_kind == lever.operator_kind
+        assert rule.target_world_slot == lever.target_slot
+        assert rule.parameter_id == parameter.param_path.removeprefix("params.")
+        assert rule.minimum == Decimal(str(parameter.min_value))
+        assert rule.maximum == Decimal(str(parameter.max_value))
+        assert rule.parameter_context == {
+            key: value for key, value in intervention.params.items() if key != rule.parameter_id
+        }
+        assert profile.selected_ncm_ref.manifest_profile_sha256 is not None
+
+    child_replication_counts = {
+        profile.n5.replications for profile in prepared.generic_child_profiles
+    }
+    assert len(child_replication_counts) == 1
     first_child_n5 = prepared.generic_child_profiles[0].n5
     # The selected singleton request reuses its physical N5 work between the
     # individual and joint views. Cap the exact per-replication work, not the
     # number of semantic scopes, so the next leaf is genuinely denied.
     standard_limit = first_child_n5.replications
     policy = BudgetInvocationQuotaPolicy(
-        allocation_id=f"cyc05-two-child-{uuid.uuid4().hex}",
+        allocation_id=f"cyc05-original-two-child-{uuid.uuid4().hex}",
         total_units=standard_limit,
         protected_units=0,
     )
     configured_profiles = tuple(
         _selected_quota_profile(profile, policy) for profile in prepared.generic_profiles
     )
+    assert all(profile.n5.invocation_quota_policy == policy for profile in configured_profiles)
+    assert all(profile.n5.invocation_purpose == "standard" for profile in configured_profiles)
     prepared.app_kwargs["generic_cycle_simulation_profiles"] = configured_profiles
 
     original_compiler = cycle_service.build_design_problem_from_nl_request
@@ -183,6 +308,19 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
         "build_design_problem_from_nl_request",
         run_deterministic_compiler,
     )
+    original_persist_ref = GenerationSourceRepository.persist_ref
+    served_parent_results: list[Any] = []
+
+    def capture_served_parent_result(repository: Any, **kwargs: Any) -> Any:
+        if cycle_job_design_problem_ref(kwargs["problem"]) == prepared_problem_ref:
+            served_parent_results.append(kwargs["organ"].result)
+        return original_persist_ref(repository, **kwargs)
+
+    monkeypatch.setattr(
+        GenerationSourceRepository,
+        "persist_ref",
+        capture_served_parent_result,
+    )
 
     observed_budget_owners: list[Any] = []
     original_budget_owner_builder = run_lifecycle._build_control_nl_producer_budget_reconciler
@@ -198,10 +336,10 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
         capture_budget_owner,
     )
 
-    request_json = {
-        **prepared.request_json,
-        "joint_interaction_candidate_intent": "authored_joint_components.v1",
-    }
+    # Serve the unchanged original capture through the selected synthetic stage
+    # profile; the stage profile declares new usage and does not reprice failed
+    # historical calls or alter the captured source bytes.
+    request_json = {**prepared.request_json, "max_iterations": 1}
     app = create_runtime_api_app(**prepared.app_kwargs)
     with TestClient(app) as client:
         response = client.post(
@@ -219,6 +357,10 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
         accepted = response.json()
         assert accepted["status"] == "accepted"
         service = app.state._control_service
+        producer_artifact_store = service._artifact_store
+        producer_control_store = service._control_store
+        producer_ledger_store = owner_call(lambda: service._llm_producer_settlement_store)
+        assert producer_ledger_store is not None
         dispatched = dispatch_one_control_job(
             store=service._control_store,
             handler=service._process_control_job,
@@ -227,6 +369,14 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
         assert dispatched == accepted["job_id"]
         job = service._control_store.get_job(accepted["job_id"])
         assert job is not None and job.state == "completed"
+        assert len(served_parent_results) == 1
+        served_candidate_semantics = _assert_original_second_capture_generation_result(
+            served_parent_results[0],
+            design_problem_ref=prepared_problem_ref,
+            recording_id=prepared.source_recording_id,
+            recording_content_hash=prepared.source_recording_content_hash,
+        )
+        assert served_candidate_semantics == candidate_semantics
         run_id = str(job.progress["core_run_id"])
         response_before = client.get(f"/api/v1/runs/{run_id}")
         assert response_before.status_code == 200, response_before.text
@@ -237,14 +387,225 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
         assert len(observed_budget_owners) == 1
         compiled_ref = ArtifactRef.model_validate(projection["source_ref"])
         compiled = CompiledRecursiveGenerationCycleRun.model_validate(
-            read_core_json_artifact(service._artifact_store, compiled_ref).value
+            owner_call(read_core_json_artifact, service._artifact_store, compiled_ref).value
         )
         control_run_id = str(job.run_id)
         assert compiled.n4_recursive_source_run_id == control_run_id
         assert compiled.generic_cycle_simulation_handoff is not None
         assert compiled.generic_cycle_simulation_handoff.run_id == control_run_id
         assert control_run_id != run_id
+
+        from polisyos.scientist.orchestration.engine.budget_ledger import (
+            BudgetLedgerProducerRunBinding,
+        )
+
+        producer_binding = BudgetLedgerProducerRunBinding(
+            run_id=control_run_id,
+            tenant_id=identity.tenant_id,
+            cell_id=identity.cell_id,
+            profile_id=job.effective_execution_profile,
+            control_job_id=accepted["job_id"],
+        )
+        producer_events = owner_call(
+            producer_ledger_store.list_producer_events_for_run_safe,
+            producer_binding,
+        )
+        assert producer_events
+        assert len({event.event_id for event in producer_events}) == len(producer_events)
+        assert all(event.run_binding == producer_binding for event in producer_events)
+        assert all(
+            event.status == "committed"
+            and event.amount is not None
+            and event.amount >= 0
+            and event.cost_origin in {"reported", "estimated", "reuse"}
+            for event in producer_events
+        )
+
         partial = compiled.recursive_run
+        by_ref = {node.node_ref: node for node in partial.nodes}
+        root = by_ref[partial.root_node_ref]
+        first = by_ref[root.child_refs[0]]
+        second = by_ref[root.child_refs[1]]
+        provider_receipts = tuple(
+            sorted((tmp_path / "synthetic-stage-exchanges").glob("*/receipt.json"))
+        )
+        assert provider_receipts
+        receipt_rows = tuple(
+            json.loads(receipt_path.read_text(encoding="utf-8"))
+            for receipt_path in provider_receipts
+        )
+        root_profile_selection_ref = cycle_job_profile_selection_ref(prepared.recorded_problem)
+        first_child_problem_ref = next(
+            problem_ref
+            for problem_ref in child_selection_by_problem_ref
+            if "design-problem://" + problem_ref.removeprefix("sha256:") == first.node_ref
+        )
+        second_child_problem_ref = next(
+            problem_ref
+            for problem_ref in child_selection_by_problem_ref
+            if "design-problem://" + problem_ref.removeprefix("sha256:") == second.node_ref
+        )
+        first_child_selection_ref = child_selection_by_problem_ref[first_child_problem_ref]
+        first_child_receipts = tuple(
+            row
+            for row in receipt_rows
+            if row["producer_context"]["subject_ref"] == first_child_problem_ref
+        )
+        second_child_receipts = tuple(
+            row
+            for row in receipt_rows
+            if row["producer_context"]["subject_ref"] == second_child_problem_ref
+        )
+        expected_provider_stages = {
+            "draft",
+            "drafter_multipass",
+            "drafter_consolidation",
+            "formalizer",
+            "critic",
+        }
+        root_receipts = tuple(
+            row
+            for row in receipt_rows
+            if row["producer_context"]["subject_ref"] == prepared_problem_ref
+        )
+        assert {row["producer_context"]["stage"] for row in root_receipts} >= (
+            expected_provider_stages
+        )
+        assert {row["producer_context"]["stage"] for row in first_child_receipts} >= (
+            expected_provider_stages
+        )
+        assert not second_child_receipts
+        assert all(
+            row["profile"]["profile_selection_ref"] == root_profile_selection_ref
+            for row in root_receipts
+        )
+        assert all(
+            row["profile"]["profile_selection_ref"] == first_child_selection_ref
+            for row in first_child_receipts
+        )
+
+        for child in prepared.children:
+            child_problem_ref = cycle_job_design_problem_ref(child.problem)
+            child_selection_ref = child_selection_by_problem_ref[child_problem_ref]
+            projection_path = (
+                tmp_path
+                / "synthetic-stage-exchanges"
+                / "child-projections"
+                / f"{child_selection_ref.removeprefix('sha256:')}.json"
+            )
+            projected_recording = json.loads(projection_path.read_text(encoding="utf-8"))
+            assert projected_recording["recording_source"] == (
+                "synthetic_child_conditioned_stage_projection"
+            )
+            assert projected_recording["derived_from_recording_id"] == (
+                _ORIGINAL_SECOND_CAPTURE_RECORDING_ID
+            )
+            assert projected_recording["derived_from_content_hash"] == (
+                _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH
+            )
+            assert projected_recording["parent_synthetic_recording_id"]
+            assert projected_recording["parent_synthetic_recording_content_hash"]
+            assert projected_recording["child_profile_selection_ref"] == child_selection_ref
+            assert projected_recording["child_source_result_ref"] == child.source_result_ref
+            assert projected_recording["child_source_atom_refs"] == list(child.source_atom_refs)
+            (child_lever,) = child.problem.candidate_lever_space.candidate_levers
+            projected_draft = json.loads(projected_recording["responses"][0]["raw_response"])
+            assert len(projected_draft["interventions"]) == 1
+            projected_draft_intervention = projected_draft["interventions"][0]
+            assert projected_draft_intervention["mechanism_type"] == child_lever.operator_kind
+            assert projected_draft["problem_frame_ref"] == str(child.problem.design_problem_id)
+            assert (
+                projected_draft_intervention["parameters"]["target_world_slot"]
+                == child_lever.target_slot
+            )
+            projected_formalizer = json.loads(projected_recording["responses"][8]["raw_response"])
+            assert len(projected_formalizer["policy_spec"]["interventions"]) == 1
+            assert len(projected_formalizer["policy_spec"]["parameters"]) == 1
+            (projected_intervention,) = projected_formalizer["policy_spec"]["interventions"]
+            (projected_parameter,) = projected_formalizer["policy_spec"]["parameters"]
+            original_formalizer = json.loads(source_recording["responses"][8]["raw_response"])
+            original_interventions = tuple(
+                row
+                for row in original_formalizer["policy_spec"]["interventions"]
+                if row["intervention_id"] == projected_recording["child_intervention_id"]
+            )
+            original_parameters = tuple(
+                row
+                for row in original_formalizer["policy_spec"]["parameters"]
+                if row["intervention_id"] == projected_recording["child_intervention_id"]
+            )
+            assert len(original_interventions) == len(original_parameters) == 1
+            assert projected_intervention == original_interventions[0]
+            assert projected_parameter == original_parameters[0]
+            assert (
+                projected_intervention
+                == projected_recording["child_original_formalizer_intervention"]
+            )
+            assert projected_parameter == projected_recording["child_original_formalizer_parameter"]
+            assert projected_intervention["kind"] == child_lever.operator_kind
+            assert projected_intervention["params"]["target_world_slot"] == child_lever.target_slot
+            assert projected_formalizer["problem_frame"]["problem_id"] == str(
+                child.problem.design_problem_id
+            )
+            projected_multipass = json.loads(projected_recording["responses"][1]["raw_response"])
+            assert all(
+                finding["anchor"] == "intervention:0"
+                and finding["affected_intervention"] == projected_draft_intervention["name"]
+                for finding in projected_multipass["findings"]
+            )
+            projected_critic = json.loads(projected_recording["responses"][9]["raw_response"])
+            assert projected_critic["problem_frame_ref"] == str(child.problem.design_problem_id)
+            assert projected_critic["ir_ref"] == gy_content_hash(projected_formalizer)
+            assert all(
+                issue["issue_id"].startswith("child_")
+                and (
+                    issue["location"].startswith("model_spec.")
+                    or issue["location"] == "policy_spec.interventions[0]"
+                    or issue["location"].startswith("policy_spec.interventions[0].")
+                )
+                for issue in projected_critic["issues"]
+            )
+
+        first_projection_path = (
+            tmp_path
+            / "synthetic-stage-exchanges"
+            / "child-projections"
+            / f"{first_child_selection_ref.removeprefix('sha256:')}.json"
+        )
+        first_projected_recording = json.loads(first_projection_path.read_text(encoding="utf-8"))
+        first_projected_hashes = first_projected_recording["child_projected_response_hashes"]
+        source_parent_hashes = {
+            "draft": source_recording["responses"][0]["raw_response_hash"],
+            "drafter_multipass": source_recording["responses"][1]["raw_response_hash"],
+            "drafter_consolidation": source_recording["responses"][0]["raw_response_hash"],
+            "formalizer": source_recording["responses"][8]["raw_response_hash"],
+            "critic": source_recording["responses"][9]["raw_response_hash"],
+        }
+        for receipt in first_child_receipts:
+            stage = receipt["producer_context"]["stage"]
+            assert (
+                receipt["source_response"]["parent_response_hash"] == (source_parent_hashes[stage])
+            )
+            assert (
+                receipt["source_response"]["controlled_response_hash"]
+                == (first_projected_hashes[stage])
+            )
+
+        for receipt in receipt_rows:
+            provider_basis = receipt["profile"]
+            assert provider_basis["source_recording_id"] == _ORIGINAL_SECOND_CAPTURE_RECORDING_ID
+            assert (
+                provider_basis["source_recording_content_hash"]
+                == _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH
+            )
+            assert provider_basis["usage_basis"] == (
+                "explicit_new_synthetic_values_from_source_counters_not_measured_usage"
+            )
+            assert provider_basis["cost_scope"] == (
+                "current_configured_model_estimate_not_historical_billing"
+            )
+            assert provider_basis["authority"] == "candidate_only_not_external_evidence"
+
         assert type(partial) is RecursiveGenerationCyclePartialRunV4
         assert partial.traversal_status == "capacity_stopped"
         assert partial.traversal_stop_reason == "standard_n5_invocation_capacity_exhausted"
@@ -256,18 +617,39 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
         assert checkpoint["capacity_pending_child_node_ref"] == partial.pending_child_node_ref
         assert checkpoint["capacity_pending_child_index"] == partial.pending_child_index
 
-        by_ref = {node.node_ref: node for node in partial.nodes}
-        root = by_ref[partial.root_node_ref]
         assert isinstance(root, RecursiveCyclePendingNode)
         assert len(root.child_refs) == 2
+
+        expected_child_refs = {
+            "design-problem://"
+            + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
+            for child in prepared.children
+        }
+        assert len(expected_child_refs) == 2
+        assert set(root.child_refs) == expected_child_refs
+        assert set(by_ref) == {root.node_ref, *root.child_refs}
+        configured_child_profiles = configured_profiles[1:]
+        child_profile_by_node_ref = {
+            "design-problem://"
+            + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:"): profile
+            for child, profile in zip(
+                prepared.children,
+                configured_child_profiles,
+                strict=True,
+            )
+        }
+        assert set(child_profile_by_node_ref) == expected_child_refs
         assert partial.stop_parent_node_ref == partial.root_node_ref
         assert partial.pending_child_index == 1
         assert partial.pending_child_node_ref == root.child_refs[1]
-        assert partial.frontier_node_refs == (root.child_refs[1],)
-        first = by_ref[root.child_refs[0]]
-        second = by_ref[root.child_refs[1]]
+        assert partial.frontier_node_refs == root.child_refs[1:]
+        assert checkpoint["pending_frontier"] == list(root.child_refs[1:])
         assert isinstance(first, RecursiveCycleNode)
         assert isinstance(second, RecursiveCyclePendingNode)
+        assert set(partial.pending_node_refs) == {
+            root.node_ref,
+            root.child_refs[1],
+        }
         assert first.cycle_run is not None
         assert first.leaf_context_ref is not None
         assert first.leaf_context_ref.manifest_profile_sha256 is not None
@@ -280,9 +662,15 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
             and cycle.simulation.simulation_result_ref is not None
             for cycle in first.cycle_run.cycles
         )
-        assert len(partial.invocation_exhaustion_witness.terminal_witnesses) == standard_limit
+        witness = partial.invocation_exhaustion_witness
+        assert witness.standard_limit_units == standard_limit
+        assert witness.standard_limit_units == policy.total_units - policy.protected_units
+        assert witness.run_binding == producer_binding
+        assert witness.not_a_permit is True
+        assert len(witness.terminal_witnesses) == standard_limit
         assert (
-            service.verify_completed_recursive_capacity_partial(
+            owner_call(
+                service.verify_completed_recursive_capacity_partial,
                 source_job_id=accepted["job_id"],
                 run_id=control_run_id,
                 tenant_id=identity.tenant_id,
@@ -295,7 +683,6 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
         from polisyos.runtime.quality.cycle_substrate import (
             CycleSubstrateContextArtifactOwner,
         )
-        from polisyos.runtime.quality.generation_source import GenerationSourceRepository
         from polisyos.runtime.quality.generic_simulation_admission import (
             GenericCycleSimulationAdmissionOwner,
         )
@@ -312,7 +699,8 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
                 profiles=(), store=service._artifact_store
             ),
         )
-        root_family = capsule_owner.load_n4_child_profile_set(
+        root_family = owner_call(
+            capsule_owner.load_n4_child_profile_set,
             compiled.n4_child_profile_set_ref,
             expected_job_id=compiled.generic_cycle_simulation_handoff.job_id,
             expected_run_id=compiled.generic_cycle_simulation_handoff.run_id,
@@ -321,9 +709,12 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
             expected_parent_handoff=compiled.generic_cycle_simulation_handoff,
             source_repository=source_repository,
         )
+        assert len(root_family.children) == 2
+        assert {row.node_ref for row in root_family.children} == expected_child_refs
         family_rows = tuple(row for row in root_family.children if row.node_ref == first.node_ref)
         assert len(family_rows) == 1
-        capsule = capsule_owner.resolve_generic_capsule_historical(
+        capsule = owner_call(
+            capsule_owner.resolve_generic_capsule_historical,
             first.leaf_context_ref,
             expected_node_ref=first.node_ref,
             expected_parent_ref=first.parent_ref,
@@ -337,7 +728,8 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
             ValueError,
             match="recursive_generic_capsule_historical_inputs_invalid",
         ):
-            capsule_owner.resolve_generic_capsule_historical(
+            owner_call(
+                capsule_owner.resolve_generic_capsule_historical,
                 first.leaf_context_ref.model_copy(update={"manifest_profile_sha256": None}),
                 expected_node_ref=first.node_ref,
                 expected_parent_ref=first.parent_ref,
@@ -368,7 +760,8 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
             ValueError,
             match="recursive_generic_capsule_selected_ref_not_returned",
         ):
-            profileless_owner.persist_generic_capsule(
+            owner_call(
+                profileless_owner.persist_generic_capsule,
                 capsule,
                 parent_handoff=compiled.generic_cycle_simulation_handoff,
                 source_repository=GenerationSourceRepository(profileless_store),
@@ -376,7 +769,8 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
 
         observer = observed_budget_owners[0]
         assert (
-            verify_recursive_standard_n5_capacity_partial_run(
+            owner_call(
+                verify_recursive_standard_n5_capacity_partial_run,
                 partial,
                 observer=observer,
                 store=service._artifact_store,
@@ -385,7 +779,8 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
         )
         tampered_cap = _self_bound_capacity_variant(partial)
         with pytest.raises(ValueError, match="recursive_capacity_partial_owner"):
-            verify_recursive_standard_n5_capacity_partial_run(
+            owner_call(
+                verify_recursive_standard_n5_capacity_partial_run,
                 tampered_cap,
                 observer=observer,
                 store=service._artifact_store,
@@ -395,16 +790,14 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
             resolve_generic_n5_historical_cycle_join,
             verify_recursive_standard_n5_capacity_partial_run_historical,
         )
-        from polisyos.scientist.orchestration.engine.budget_ledger import (
-            BudgetLedgerProducerRunBinding,
-        )
 
         first_simulated_cycle = next(
             cycle
             for cycle in first.cycle_run.cycles
             if cycle.simulation.simulation_result_ref is not None
         )
-        selected_join = resolve_generic_n5_historical_cycle_join(
+        selected_join = owner_call(
+            resolve_generic_n5_historical_cycle_join,
             artifact_store=service._artifact_store,
             cycle_run=first.cycle_run,
             cycle_index=first_simulated_cycle.cycle_index,
@@ -421,8 +814,14 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
         )
         assert selected_join.status == "resolved"
         assert selected_join.input_record is not None
+        selected_first_profile = child_profile_by_node_ref[first.node_ref]
+        assert selected_join.input_record.profile == selected_first_profile
+        assert type(selected_join.input_record.profile.n5) is GenericCycleN5RequestProfileV3
+        assert selected_join.input_record.profile.n5.replications == standard_limit
         selected_policy = selected_join.input_record.profile.n5.invocation_quota_policy
         assert selected_policy == policy
+        assert selected_join.input_record.profile.n5.invocation_purpose == "standard"
+        producer_ledger_path = owner_call(lambda: producer_ledger_store._ledger._path)
         historical_binding = BudgetLedgerProducerRunBinding(
             run_id=control_run_id,
             tenant_id=identity.tenant_id,
@@ -431,7 +830,8 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
             control_job_id=accepted["job_id"],
         )
         with pytest.raises(ValueError, match="recursive_capacity_partial_owner_not_established"):
-            verify_recursive_standard_n5_capacity_partial_run_historical(
+            owner_call(
+                verify_recursive_standard_n5_capacity_partial_run_historical,
                 tampered_cap,
                 settlement_store=service._llm_producer_settlement_store,
                 expected_run_binding=historical_binding,
@@ -465,7 +865,6 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
     from polisyos.core.artifacts.manifest import ProducerInfo
     from polisyos.core.registry import build_default_registry_bundle
     from polisyos.core.run.context import RunContext
-    from polisyos.core.security.tenant_context import tenant_scope
 
     foreign_public_run_id = f"R-cyc05-foreign-{uuid.uuid4().hex}"
     with tenant_scope(None, tenant_id=identity.tenant_id, cell_id=identity.cell_id):
@@ -488,7 +887,7 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
         )
         foreign_public_run.add_output(compiled_ref)
         foreign_public_run.finalize(status="completed")
-    reader_context.run_index.refresh(force=True)
+    owner_call(reader_context.run_index.refresh, force=True)
 
     from dataclasses import replace
 
@@ -510,8 +909,8 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
     with TestClient(create_runtime_api_app(**reader_kwargs)) as reader:
         reader_service = reader.app.state._control_service
         assert reader_service is not service
-        assert reader_service._artifact_store is not service._artifact_store
-        assert reader_service._control_store is not service._control_store
+        assert reader_service._artifact_store is not producer_artifact_store
+        assert reader_service._control_store is not producer_control_store
 
         fresh_projection = get_projection(reader, run_id)
         assert fresh_projection["artifact_status"] == "resolved"
@@ -553,32 +952,37 @@ async def test_real_two_child_run_stops_before_second_child_on_standard_n5_capac
 
         def assert_missing_artifact_refusal(blob_path: Path, name: str) -> None:
             hidden_path = blob_path.with_name(f"{blob_path.name}.cyc05-held-{name}")
-            assert blob_path.is_file()
-            assert not hidden_path.exists()
-            blob_path.rename(hidden_path)
+
+            def hide_artifact() -> None:
+                assert blob_path.is_file()
+                assert not hidden_path.exists()
+                blob_path.rename(hidden_path)
+
+            owner_call(hide_artifact)
             try:
                 assert_historical_refusal(get_projection(reader, run_id))
             finally:
-                hidden_path.rename(blob_path)
-            assert blob_path.is_file()
+                owner_call(hidden_path.rename, blob_path)
+            assert owner_call(blob_path.is_file)
             assert get_projection(reader, run_id)["artifact_status"] == "resolved"
 
-        capsule_blob, _capsule_manifest = service._artifact_store._paths(
-            first.leaf_context_ref.artifact_id
+        capsule_blob, _capsule_manifest = owner_call(
+            reader_service._artifact_store._paths,
+            first.leaf_context_ref.artifact_id,
         )
         assert_missing_artifact_refusal(capsule_blob, "capsule")
 
         selected_result_ref = first_simulated_cycle.simulation.simulation_result_ref
         assert selected_result_ref is not None
         assert selected_result_ref.manifest_profile_sha256 is not None
-        result_blob, _result_manifest = service._artifact_store._paths(
-            selected_result_ref.artifact_id
+        result_blob, _result_manifest = owner_call(
+            reader_service._artifact_store._paths,
+            selected_result_ref.artifact_id,
         )
         assert_missing_artifact_refusal(result_blob, "result")
 
         ledger_store = reader_service._llm_producer_settlement_store
-        producer_ledger_store = service._llm_producer_settlement_store
         assert ledger_store is not producer_ledger_store
-        ledger_path = ledger_store._ledger._path
-        assert ledger_path == producer_ledger_store._ledger._path
+        ledger_path = owner_call(lambda: ledger_store._ledger._path)
+        assert ledger_path == producer_ledger_path
         assert_missing_artifact_refusal(ledger_path, "ledger")

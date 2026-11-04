@@ -601,11 +601,10 @@ function authoredJointParentObservation() {
   // A display-contract fixture; the served test verifies the request and CAS relation.
   const original = c41JointParentObservation();
   const derivedIds = [
-    "atom_4444444444444444",
-    "atom_5555555555555555",
-    "atom_6666666666666666",
+    "atom_aaaaaaaaaaaaaaaa",
+    "atom_bbbbbbbbbbbbbbbb",
+    "atom_cccccccccccccccc",
   ];
-  const sourceIds = original.atom_ids ?? [];
   const ref = (kind: string, digit: string) => ({
     artifact_id: "sha256:" + digit.repeat(64),
     kind,
@@ -615,14 +614,9 @@ function authoredJointParentObservation() {
   const evidence = original.n5_interaction_evidence!;
   return {
     ...original,
-    atom_ids: [...derivedIds],
     n5_interaction_evidence: {
       ...evidence,
       schema_version: "policyos.runtime.joint_simulation_horizon.v5",
-      interaction_terms: evidence.interaction_terms!.map((term) => ({
-        ...term,
-        atom_ids: term.atom_ids.map((id) => derivedIds[sourceIds.indexOf(id)]!),
-      })),
     },
     n8_candidate_member_basis: "authored_materialized_n4_source_members",
     n8_selected_member_relationship: "joint_components",
@@ -630,7 +624,7 @@ function authoredJointParentObservation() {
     n8_candidate_derived_atom_content_hashes: ["a", "b", "c"].map(
       (digit) => "sha256:" + digit.repeat(64),
     ),
-    n8_candidate_parent_intervention_ids: [...derivedIds],
+    n8_candidate_parent_intervention_ids: [...original.atom_ids],
     n8_policy_composition_status: "authored_candidate",
     n8_policy_composition_limitation_code:
       "authored_candidate_coupling_not_established",
@@ -1678,7 +1672,7 @@ describe("OverviewTab", () => {
     expect(authored).toHaveTextContent("child refinement: not_established");
     expect(authored).toHaveTextContent("Original N4 source atoms:");
     expect(authored).toHaveTextContent(
-      "Materialized N5 component atoms: atom_4444444444444444",
+      "Materialized N5 component atoms: atom_aaaaaaaaaaaaaaaa",
     );
     expect(authored).toHaveTextContent(
       "authored_candidate_coupling_not_established",
@@ -1707,7 +1701,7 @@ describe("OverviewTab", () => {
     if (mutation === "missing_relation")
       Reflect.set(parent, "n8_authored_joint_relation_ref", null);
     if (mutation === "wrong_derived_atom")
-      parent.n8_candidate_derived_atom_ids[0] = "atom_aaaaaaaaaaaaaaaa";
+      parent.n8_candidate_derived_atom_ids[0] = "atom_eeeeeeeeeeeeeeee";
     if (mutation === "unbound_request")
       Reflect.set(
         parent.n8_authored_joint_request_payload_ref,
@@ -2687,5 +2681,102 @@ describe("verified recursive capacity checkpoint", () => {
     expect(view).toHaveTextContent(
       "physical need for the pending child is not established",
     );
+  });
+});
+
+describe("candidate frontier history", () => {
+  it("renders a blocked latest candidate without a borrowed numeric result", () => {
+    const ref = (kind: string) => ({
+      artifact_id: "sha256:" + "1".repeat(64),
+      kind,
+      media_type: "application/json",
+      manifest_profile_sha256: "sha256:" + "f".repeat(64),
+    });
+    const route = ref("runtime_quality.acquisition_route_loop_receipt");
+    const action = ref("runtime_quality.acquisition_candidate_action_receipt");
+    const source = ref("runtime.quality.candidate_acquisition_source");
+    const failure = ref("runtime_quality.candidate_source_reentry_receipt");
+    const reentry = {
+      schema_version:
+        "policyos.runtime.run_candidate_simulation_acquisition_history.v4",
+      route_receipt_ref: route,
+      reentry_receipt_ref: failure,
+      route_id: "sha256:" + "2".repeat(64),
+      action_generation: 2,
+      terminal_outcome: "candidate_reentry_completed",
+      candidate_action_ref: action,
+      candidate_source_ref: source,
+      data_snapshot_ref: ref("fabric.data_snapshot"),
+      world_model_ref: ref("runtime.quality.world_model_record"),
+      context_job_ref: ref("runtime.quality.cycle_substrate_context_job"),
+      model_declaration_ref: ref(
+        "runtime.quality.candidate_simulation_model_declaration",
+      ),
+      ncm_ref: ref("ir.ncm_spec"),
+      n4_source_ref: null,
+      n5_input_ref: null,
+      n5_execution_ref: null,
+      n5_result_ref: null,
+      simulation_status: "simulation_blocked",
+      simulation_authority_blockers: ["n5_blocked"],
+      source_cycle_index: 0,
+      continued_cycle_index: 1,
+      source_generation_run_content_hash: "sha256:" + "3".repeat(64),
+      continued_generation_run_content_hash: "sha256:" + "4".repeat(64),
+      basis_transition_content_hash: "sha256:" + "5".repeat(64),
+      limitations: ["candidate_only"],
+      observed_admission: false,
+      currentness_status: "not_established",
+      authority_purpose: "candidate_observation_only",
+      publication_authority: false,
+    };
+    const candidate = {
+      schema_version:
+        "policyos.runtime.run_candidate_simulation_acquisition_history.v5",
+      route_receipt_ref: route,
+      route_id: reentry.route_id,
+      action_generation: 2,
+      terminal_outcome: "candidate_reentry_completed",
+      candidate_action_ref: action,
+      candidate_source_ref: source,
+      evaluation_decision_ref: ref(
+        "runtime_quality.acquisition_evaluation_decision",
+      ),
+      current_basis_ref: ref("runtime_quality.acquisition_evaluation_basis"),
+      selected_basis_ref: ref("runtime_quality.acquisition_evaluation_basis"),
+      selected_evaluation_witness_ref: failure,
+      comparison_result: "not_established",
+      predicate_provenance: "not_established",
+      comparison_reason_codes: ["prior_comparison_unavailable"],
+      selected_basis_role: "blocked",
+      current_basis_provenance: "not_established",
+      selected_basis_provenance: "not_established",
+      current_basis_limitations: ["candidate_only"],
+      selected_basis_limitations: ["candidate_only"],
+      frontier_ref: "sha256:" + "6".repeat(64),
+      frontier_revision: 2,
+      frontier_selection: "selected",
+      selected_evaluation: null,
+      selected_n5_observation: null,
+      reentry,
+      current_continuation_ref: null,
+      current_cheap_consequences: null,
+      evaluation_provenance: "not_established",
+      observed_admission: false,
+      currentness_status: "not_established",
+      authority_purpose: "candidate_observation_only",
+      publication_authority: false,
+    };
+    const projection = sameCandidateAcquisitionHistoryProjection();
+    Reflect.set(projection, "acquisition_history", [candidate]);
+    overviewState.run = parsedRun(projection);
+    renderWithProviders(<OverviewTab />);
+    const row = screen.getByTestId("overview-acquisition-history-candidate-v5");
+    expect(row).toHaveTextContent("simulation_blocked");
+    expect(row).toHaveTextContent("prior_comparison_unavailable");
+    expect(row).toHaveTextContent("N5 provenance: not_established");
+    expect(
+      within(row).queryByTestId("overview-candidate-v5-n5"),
+    ).not.toBeInTheDocument();
   });
 });

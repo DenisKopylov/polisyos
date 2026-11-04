@@ -5,11 +5,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts import load_core_json_artifact
-from polisyos.core.contracts.fabric import EvidenceBundle
+from polisyos.core.contracts import EvidenceBundle
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactStore
     from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, SchemaInfo
-    from polisyos.core.artifacts.protocol import ArtifactStore
 
 
 def require_source_evidence_schema(manifest: ArtifactManifest) -> SchemaInfo:

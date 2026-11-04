@@ -205,7 +205,7 @@ def _world_and_profile(
 ) -> tuple[
     WorldModelRecord, CandidateSimulationScenarioProfile, AcquiredCandidateContextPreparation
 ]:
-    from polisyos.core.contracts.fabric import (
+    from polisyos.core.contracts import (
         CandidateAcquisitionSourceDataSnapshotLineage,
         DataSnapshot,
     )

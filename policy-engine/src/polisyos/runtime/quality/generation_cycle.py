@@ -114,10 +114,17 @@ if TYPE_CHECKING:
         MethodRegistry,
         MethodSelectionReceipt,
     )
+    from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+        CandidateAcquisitionEvaluationCurrentOwner,
+        _CandidateRetainedBudgetFence,
+    )
     from polisyos.runtime.quality.acquisition_retained_continuation import (
         AcquisitionRetainedPlannerInputs,
     )
-    from polisyos.runtime.quality.cycle_substrate import VerifiedNLJobScope
+    from polisyos.runtime.quality.cycle_substrate import (
+        VerifiedNLJobBudgetScope,
+        VerifiedNLJobScope,
+    )
     from polisyos.runtime.quality.generation_source import _GenerationSourceReadExpectations
 else:
     from polisyos.foundry.methods.selection import MethodSelectionReceipt
@@ -158,12 +165,15 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionWorldSnapshot,
     RealAcquisitionOwnerGateway,
     RequirementGapFamily,
+    _n7_bind_configured_candidate_report,
     _n7_candidate_n5_l1_obligation_gaps,
     _n7_candidate_n5_l1_planner_records_match,
     _n7_candidate_source_selection,
     _n7_exact_wire,
     _n7_planner_join_records_match,
     _n7_put_candidate_source,
+    _n7_put_configured_candidate_port_source,
+    _n7_require_current_report_input_provenance,
     _n7_requirement_family,
     _n7_route_compiler_gaps,
     _n7_source_semantic_planning_gaps,
@@ -171,6 +181,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     _N7CandidateCurrentSelection,
     _N7CandidateCycleCheckpoint,
     _N7CandidatePortSource,
+    _N7ConfiguredCandidatePortSource,
     acquisition_planner_report_matches_context,
     acquisition_receipt_has_verified_emission,
     bind_acquisition_planner_report,
@@ -239,6 +250,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     PreparedJointSimulationConfiguration,
     ProofReceiptError,
     WorldStateConsumptionRecord,
+    _require_nl_physical_budget_scope,
     bind_world_state_consumption,
     build_content_bound_simulation_receipt,
     require_prepared_joint_simulation_configuration,
@@ -581,6 +593,29 @@ class GenerationCycleError(ValueError):
         self.code = code
         self.source_refusal_code = source_refusal_code
         super().__init__(f"{code}: {message or code}")
+
+
+def _n7_planner_persistence_refusal(exc: Exception) -> GenerationCycleError:
+    """Keep a safe failure category while preserving the original exception chain."""
+    if isinstance(exc, ArtifactOwnershipError):
+        category = "artifact_ownership_refused"
+    elif isinstance(exc, ArtifactIntegrityError):
+        category = "artifact_integrity_refused"
+    elif isinstance(exc, FileNotFoundError):
+        category = "artifact_not_found"
+    elif isinstance(exc, TypeError):
+        category = "invalid_type"
+    elif isinstance(exc, ValueError):
+        category = "invalid_value"
+    elif isinstance(exc, OSError):
+        category = "storage_io_refused"
+    else:
+        category = "runtime_failure"
+    return GenerationCycleError(
+        "n7_planner_report_persistence_refused",
+        category,
+        source_refusal_code=category,
+    )
 
 
 class _JointSimulationBindingMismatchError(GenerationCycleError):
@@ -1413,6 +1448,8 @@ def _joint_simulation_port_outcome(
     unsupported = (
         result.receipt.calibration_status in {"unsupported_coupling_gated", "no_run"}
         or not result.trajectories
+        or result.diagnostics.get("physical_work_interruption")
+        == "n5_physical_budget_scope_lost_after_work"
     )
     if not unsupported:
         try:
@@ -5160,6 +5197,58 @@ def _bind_selected_n5_invocation_policy(
     return observer.invocation_purpose_scope_from_selected_owner(policy, purpose=purpose)
 
 
+def _bind_scoped_n5_invocation_policy(
+    observer: ProducerBudgetObserver | None,
+    *,
+    n5_profile: object | None,
+    physical_n5_budget_scope: VerifiedNLJobBudgetScope | None,
+) -> AbstractContextManager[None]:
+    """Join the original NL budget choice to this selected N5 allocation.
+
+    A current capacity observation is advisory; the Horizon owner still
+    reserves every physical invocation against the same durable quota.
+    """
+    mode = _require_nl_physical_budget_scope(
+        physical_n5_budget_scope, observer, require_selected_quota=False
+    )
+    if mode != "metered_paid_producers_and_bounded_candidate":
+        return (
+            nullcontext()
+            if n5_profile is None
+            else _bind_selected_n5_invocation_policy(observer, n5_profile=n5_profile)
+        )
+    from polisyos.runtime.quality.candidate_simulation import CandidateScenarioN5Config
+    from polisyos.runtime.quality.generic_simulation_admission import GenericCycleN5RequestProfileV3
+    from polisyos.scientist.orchestration.engine import BudgetLedgerInvocationProfile
+
+    if type(n5_profile) not in {CandidateScenarioN5Config, GenericCycleN5RequestProfileV3}:
+        raise ProducerBudgetSourceError("n5_invocation_selected_profile_not_established")
+    selected = type(n5_profile).model_validate(n5_profile.model_dump(mode="python"))
+    if selected.invocation_quota_policy is None or selected.invocation_purpose != "standard":
+        raise ProducerBudgetSourceError("n5_invocation_quota_profile_not_established")
+    if type(observer) is not ProducerBudgetObserver:
+        raise ProducerBudgetSourceError("n5_invocation_quota_owner_not_established")
+    invocation_scope = _bind_selected_n5_invocation_policy(observer, n5_profile=selected)
+    profile = observer.invocation_quota_profile
+    expected = BudgetLedgerInvocationProfile.from_policy(
+        observer._binding, selected.invocation_quota_policy
+    )
+    if profile != expected:
+        raise ProducerBudgetSourceError("n5_invocation_quota_selection_mismatch")
+    capacity = ProducerBudgetObserver.observe_standard_invocation_capacity(observer)
+    if (
+        capacity.status != "available"
+        or capacity.run_binding != observer._binding
+        or capacity.profile_digest != expected.profile_digest
+    ):
+        raise ProducerBudgetSourceError(
+            "n5_invocation_quota_exhausted"
+            if capacity.status == "exhausted"
+            else "n5_invocation_quota_capacity_not_established"
+        )
+    return invocation_scope
+
+
 class JointSimulationPort:
     """Default N5 port assembling and calling the canonical joint controller."""
 
@@ -5170,6 +5259,7 @@ class JointSimulationPort:
         _prepared_n5_configuration: PreparedJointSimulationConfiguration | None = None,
         repo_root: Path | None = None,
         producer_budget_observer: ProducerBudgetObserver | None = None,
+        physical_n5_budget_scope: VerifiedNLJobBudgetScope | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
         artifact_store: ArtifactStore | None = None,
         candidate_simulation_handoff: CandidateSimulationContextHandoff | None = None,
@@ -5192,10 +5282,16 @@ class JointSimulationPort:
             and (controller._producer_budget_observer is not producer_budget_observer)
         ):
             raise ValueError("generation_cycle_n5_budget_owner_mismatch")
+        if controller is not None and (
+            controller._physical_n5_budget_scope is not physical_n5_budget_scope
+        ):
+            raise ValueError("generation_cycle_n5_budget_scope_mismatch")
         self._controller = controller or JointSimulationHorizonController(
             producer_budget_observer=producer_budget_observer,
+            physical_n5_budget_scope=physical_n5_budget_scope,
             _prepared_configuration=_prepared_n5_configuration,
         )
+        self._physical_n5_budget_scope = physical_n5_budget_scope
         if _prepared_n5_configuration is not None:
             require_prepared_joint_simulation_configuration(
                 self._controller,
@@ -5300,6 +5396,19 @@ class JointSimulationPort:
             )
 
         candidate_id = _candidate_id(candidate)
+        if self._physical_n5_budget_scope is not None and (
+            type(self._controller) is not JointSimulationHorizonController
+            or self._controller._physical_n5_budget_scope is not self._physical_n5_budget_scope
+        ):
+            return produced(
+                candidate_id=candidate_id,
+                status="simulation_blocked",
+                authority_blockers=("n5_physical_budget_scope_controller_mismatch",),
+                diagnostics={
+                    "port": "N5",
+                    "reason": "n5_physical_budget_scope_controller_mismatch",
+                },
+            )
         request = None
         if generic_cycle_simulation_input is not None:
             if candidate_simulation_input is not None:
@@ -5645,28 +5754,30 @@ class JointSimulationPort:
                     k_world_ref_after=request.world_model_record.content_hash,
                     world_model_record=request.world_model_record,
                 )
-        invocation_scope: AbstractContextManager[None] = nullcontext()
-        if selected_n5_profile is not None:
-            try:
-                invocation_scope = _bind_selected_n5_invocation_policy(
-                    self._controller._producer_budget_observer,
-                    n5_profile=selected_n5_profile,
-                )
-            except (ProducerBudgetSourceError, TypeError, ValueError) as exc:
-                code = (
-                    str(exc)
-                    if isinstance(exc, ProducerBudgetSourceError)
-                    else "n5_invocation_selected_profile_invalid"
-                )
-                return produced(
-                    candidate_id=candidate_id,
-                    status="simulation_blocked",
-                    authority_blockers=(code,),
-                    diagnostics={"port": "N5", "reason": code},
-                    k_world_ref_before=request.world_model_record.content_hash,
-                    k_world_ref_after=request.world_model_record.content_hash,
-                    world_model_record=request.world_model_record,
-                )
+        try:
+            invocation_scope = _bind_scoped_n5_invocation_policy(
+                self._controller._producer_budget_observer,
+                n5_profile=selected_n5_profile,
+                physical_n5_budget_scope=self._physical_n5_budget_scope,
+            )
+        except (ProducerBudgetSourceError, TypeError, ValueError) as exc:
+            from polisyos.core.artifacts import raise_artifact_read_access_error
+
+            raise_artifact_read_access_error(exc)
+            code = (
+                str(exc)
+                if isinstance(exc, ProducerBudgetSourceError)
+                else "n5_invocation_selected_profile_invalid"
+            )
+            return produced(
+                candidate_id=candidate_id,
+                status="simulation_blocked",
+                authority_blockers=(code,),
+                diagnostics={"port": "N5", "reason": code},
+                k_world_ref_before=request.world_model_record.content_hash,
+                k_world_ref_after=request.world_model_record.content_hash,
+                world_model_record=request.world_model_record,
+            )
         try:
             with invocation_scope:
                 if (
@@ -9874,6 +9985,8 @@ class _RetainedCheapProjection:
     search_iteration: SearchIteration
     revision_request: DesignRevisionRequest
     current_route: _N7PlannedRoute | None
+    retained_port_capture_ref: CASArtifactRef | None = None
+    retained_budget_fence: _CandidateRetainedBudgetFence | None = None
 
 
 def _scheduler_allows_candidate_n5(schedule: SchedulingDecision, *, configured: bool) -> bool:
@@ -10011,6 +10124,7 @@ class GenerationCycleController:
         cycle_substrate_context: CycleSubstrateContext | None = None,
         candidate_cycle_context_artifact_owner: CycleSubstrateContextArtifactOwner | None = None,
         candidate_cycle_verified_nl_job_scope: VerifiedNLJobScope | None = None,
+        physical_n5_budget_scope: VerifiedNLJobBudgetScope | None = None,
         promotion_runtime: PromotionRuntime | None = None,
         measurement_root_execution_binding: MeasurementRootExecutionBinding | None = None,
         artifact_store: ArtifactStore | None = None,
@@ -10034,6 +10148,13 @@ class GenerationCycleController:
         high_proxy_threshold: float = 0.8,
         low_grounding_threshold: float = 0.5,
     ) -> None:
+        if capability_resolver is not None:
+            from polisyos.core.artifacts import matches_runtime_protocol
+
+            if not matches_runtime_protocol(
+                capability_resolver, core_contracts.CapabilityResolverPort
+            ):
+                raise TypeError("generation_cycle_capability_resolver_invalid")
         if promotion_runtime is not None:
             if artifact_store is not None and artifact_store is not promotion_runtime.store:
                 raise ValueError("generation_cycle_artifact_store_owner_mismatch")
@@ -10066,6 +10187,7 @@ class GenerationCycleController:
                 if type(_producer_budget_reconciler) is ProducerBudgetObserver
                 else None
             ),
+            physical_n5_budget_scope=physical_n5_budget_scope,
             cycle_substrate_context=cycle_substrate_context,
             artifact_store=artifact_store,
             candidate_simulation_handoff=candidate_simulation_handoff,
@@ -10074,6 +10196,19 @@ class GenerationCycleController:
             generic_cycle_simulation_child_selection=(generic_cycle_simulation_child_selection),
             generic_n4_child_profile_set_ref=generic_n4_child_profile_set_ref,
         )
+        self._physical_n5_budget_scope = physical_n5_budget_scope
+        if physical_n5_budget_scope is not None:
+            from polisyos.runtime.quality.cycle_substrate import VerifiedNLJobBudgetScope
+
+            if type(physical_n5_budget_scope) is not VerifiedNLJobBudgetScope or not (
+                physical_n5_budget_scope._was_issued_by_verified_nl_budget_owner
+            ):
+                raise GenerationCycleError("n5_physical_budget_scope_not_established")
+            if (
+                type(self._simulation_port) is JointSimulationPort
+                and self._simulation_port._physical_n5_budget_scope is not physical_n5_budget_scope
+            ):
+                raise GenerationCycleError("n5_physical_budget_scope_port_mismatch")
         budget_issue = _canonical_n5_budget_binding_issue(
             self._simulation_port,
             expected_observer=(
@@ -10291,6 +10426,7 @@ class GenerationCycleController:
         self._n7_candidate_bindings: dict[tuple[str, str], object] = {}
         self._n7_candidate_checkpoint_refs: dict[int, CASArtifactRef] = {}
         self._n7_candidate_selections: dict[int, _N7CandidateCurrentSelection] = {}
+        self._n7_configured_candidate_port_refs: dict[int, CASArtifactRef] = {}
         self._engine = SimpleLoopEngine(
             [
                 ("generate", self._generate_node),
@@ -10329,6 +10465,7 @@ class GenerationCycleController:
         self._n7_candidate_bindings = {}
         self._n7_candidate_checkpoint_refs = {}
         self._n7_candidate_selections = {}
+        self._n7_configured_candidate_port_refs = {}
         try:
             store = self._artifact_store
             if store is None and self._authority_scope == "contract_testing":
@@ -11971,6 +12108,26 @@ class GenerationCycleController:
             if type(cycle) is GenerationCycleRecord
             else None
         )
+        if (
+            (
+                self._authority_scope != "contract_testing"
+                or self._candidate_simulation_handoff is not None
+            )
+            and isinstance(cycle_request, Mapping)
+            and cycle_request.get("n7_source_join_rule") == _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE
+        ):
+            try:
+                self._n7_configured_candidate_port_refs[cycle_index] = (
+                    self._capture_n7_configured_candidate_port_source(finished, cycle=cycle)
+                )
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                # Planning must refuse a nonempty mixed route when this selected
+                # owner capture cannot be replayed; a missing capture is not an
+                # indication that either obligation disappeared.
+                self._n7_configured_candidate_port_refs.pop(cycle_index, None)
+                from polisyos.core.artifacts import raise_artifact_read_access_error
+
+                raise_artifact_read_access_error(exc)
         source_semantic = _N7_SOURCE_SEMANTIC_EMISSION_ENABLED or (
             isinstance(cycle_request, Mapping)
             and cycle_request.get("n7_source_join_rule")
@@ -12164,7 +12321,17 @@ class GenerationCycleController:
         ):
             raise GenerationCycleError("retained_planner_current_owner_not_established")
         owner.revalidate()
-        return self._plan_n7_requirement_gap_if_requested(problem, cycle=cycle)
+        route = self._plan_n7_requirement_gap_if_requested(problem, cycle=cycle)
+        if route is not None:
+            try:
+                _n7_require_current_report_input_provenance(route.report)
+            except (TypeError, ValueError) as exc:
+                raise GenerationCycleError("n7_planner_report_binding_refused", str(exc)) from exc
+            if route.report.candidate_lineage is not None:
+                # This observed-retention path has no selected candidate-cycle
+                # verifier. A V2 candidate source cannot be promoted here.
+                raise GenerationCycleError("n7_candidate_source_not_established")
+        return route
 
     def _plan_n7_requirement_gap_if_requested(
         self,
@@ -12238,11 +12405,17 @@ class GenerationCycleController:
                 expected_scenario_id=problem.design_problem_id,
             )
         except (OSError, RuntimeError) as exc:
+            from polisyos.core.artifacts import raise_artifact_read_access_error
+
+            raise_artifact_read_access_error(exc)
             raise GenerationCycleError(
                 "n7_compiler_report_persistence_refused",
                 str(exc),
             ) from exc
         except (TypeError, ValueError) as exc:
+            from polisyos.core.artifacts import raise_artifact_read_access_error
+
+            raise_artifact_read_access_error(exc)
             error_code = (
                 "n7_compiler_report_binding_refused"
                 if "subject" in str(exc) or "binding" in str(exc) or "untyped" in str(exc)
@@ -12379,6 +12552,28 @@ class GenerationCycleController:
                 if str(exc) == "n7_blocked_candidate_reader_rollout_not_admitted":
                     raise GenerationCycleError("n7_planner_reader_rollout_not_admitted") from exc
                 raise
+        if (
+            candidate_l1_join
+            and (
+                self._authority_scope != "contract_testing"
+                or self._candidate_simulation_handoff is not None
+            )
+            and report.acquisition_records
+        ):
+            source_ref = self._n7_configured_candidate_port_refs.get(cycle.cycle_index)
+            if source_ref is None:
+                raise GenerationCycleError("n7_candidate_source_not_established")
+            try:
+                report = _n7_bind_configured_candidate_report(
+                    store=artifact_store,
+                    report=report,
+                    port_source_ref=source_ref,
+                )
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                from polisyos.core.artifacts import raise_artifact_read_access_error
+
+                raise_artifact_read_access_error(exc)
+                raise GenerationCycleError("n7_candidate_source_not_established", str(exc)) from exc
         report = bind_acquisition_planner_report(report, planning_context_hash=context_hash)
         route_ref = (
             basis.routed_source_gap.requirement_gap_id
@@ -12410,10 +12605,7 @@ class GenerationCycleController:
                 report,
             )
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
-            raise GenerationCycleError(
-                "n7_planner_report_persistence_refused",
-                str(exc),
-            ) from exc
+            raise _n7_planner_persistence_refusal(exc) from exc
         return _N7PlannedRoute(
             acquisition_request=normalized_request,
             basis=basis,
@@ -12748,9 +12940,12 @@ class GenerationCycleController:
         receipt from an unestablished resolver.
         """
 
+        # The composition owner is independent of caller-carried hints. Do not
+        # even inspect those hints when the trusted dependency was supplied.
+        if self._capability_resolver is not None:
+            return self._capability_resolver
         candidates = (
             problem.runtime_hints.get("n7_capability_resolver"),
-            self._capability_resolver,
             getattr(
                 problem.runtime_hints.get("n7_owner_gateway"),
                 "capability_resolver",
@@ -12815,11 +13010,20 @@ class GenerationCycleController:
     ) -> AcquisitionWorldSnapshot:
         hinted = problem.runtime_hints.get("n7_world_snapshot")
         if hinted is not None:
-            return (
+            snapshot = (
                 hinted
                 if isinstance(hinted, AcquisitionWorldSnapshot)
                 else AcquisitionWorldSnapshot.model_validate(hinted)
             )
+            current_owner = getattr(self, "_acquisition_retention_current_owner", None)
+            if current_owner is not None:
+                from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+                    CandidateAcquisitionEvaluationCurrentOwner,
+                )
+
+                if type(current_owner) is CandidateAcquisitionEvaluationCurrentOwner:
+                    return current_owner.planner_snapshot(snapshot)
+            return snapshot
         families = _n7_required_families_from_specs(specs) or _n7_required_data_families(
             problem,
             acquisition_request,
@@ -12861,9 +13065,13 @@ class GenerationCycleController:
         if current_owner is not None:
             from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
                 AcquisitionEvaluationCurrentOwner,
+                CandidateAcquisitionEvaluationCurrentOwner,
             )
 
-            if type(current_owner) is not AcquisitionEvaluationCurrentOwner:
+            if type(current_owner) not in {
+                AcquisitionEvaluationCurrentOwner,
+                CandidateAcquisitionEvaluationCurrentOwner,
+            }:
                 raise GenerationCycleError("retained_planner_current_owner_not_established")
             snapshot = current_owner.planner_snapshot(snapshot)
         return snapshot
@@ -15868,6 +16076,90 @@ class GenerationCycleController:
             "selected_candidate": selected,
         }
 
+    def _candidate_retained_configured_cheap_continuation(
+        self, *, owner: CandidateAcquisitionEvaluationCurrentOwner
+    ) -> _RetainedCheapProjection | _RetainedCheapNonReceipt:
+        """Re-run local ports for one owner-revalidated retained candidate."""
+        from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+            CandidateAcquisitionEvaluationCurrentOwner,
+            _candidate_evaluation_artifact_for_recovery,
+        )
+        from polisyos.runtime.quality.acquisition_retained_continuation import (
+            CandidateAcquisitionRetainedContinuation,
+        )
+        from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+
+        if type(owner) is not CandidateAcquisitionEvaluationCurrentOwner:
+            raise GenerationCycleError("candidate_retained_current_owner_not_established")
+        resolver = self._candidate_simulation_currentness_resolver
+        selected = owner.prior.selected
+        source_cycle = owner.closure.source_cycle
+        original_run = owner.closure.generation_run
+        service = owner.bridge._source_control_service
+        if (
+            self._source_run_id is not None
+            or self._source_repository is not None
+            or getattr(self, "_acquisition_retention_current_owner", None) is not None
+            or self._artifact_store is not owner.bridge.artifact_store
+            or service is None
+            or self._catalog_serving_source is not service.catalog_serving_source
+            or getattr(resolver, "__self__", None) is not owner
+            or getattr(resolver, "__func__", None)
+            is not CandidateAcquisitionEvaluationCurrentOwner.currentness_resolver
+            or original_run.run_id != selected.generation_run_id
+            or source_cycle.cycle_index != selected.cycle_index
+            or exact_n5_content_bytes(self._candidate_simulation_handoff)
+            != exact_n5_content_bytes(owner.prior.handoff)
+        ):
+            raise GenerationCycleError("candidate_retained_current_owner_not_established")
+        owner.revalidate()
+        saved = _candidate_evaluation_artifact_for_recovery(
+            bridge=owner.bridge,
+            closure=owner.closure,
+            candidate_action_ref=owner.candidate_action_ref,
+            role="retained_continuation",
+        )
+        prior_generated_at = self._generated_at
+        if saved is not None:
+            previous = saved[1]
+            if (
+                type(previous) is not CandidateAcquisitionRetainedContinuation
+                or artifact_ref_identity_key(previous.evaluation_decision_ref)
+                != artifact_ref_identity_key(owner.decision_ref)
+                or artifact_ref_identity_key(previous.current_basis_ref)
+                != artifact_ref_identity_key(owner.current_basis_ref)
+                or previous.current_projection.current_planner_inputs is None
+                or previous.current_projection.current_planner_report is None
+                or previous.current_projection.current_planner_inputs.generated_at
+                != previous.current_projection.current_planner_report.generated_at
+            ):
+                raise GenerationCycleError("candidate_retained_recovery_not_established")
+            # This is the selected prior report's real time, not a newly
+            # asserted observation time. The dispatcher later compares the
+            # complete replay before it can repair a pointer or terminal.
+            self._generated_at = previous.current_projection.current_planner_report.generated_at
+        try:
+            fence = owner.begin_retained_port_capture()
+            self._begin_source_run(original_run.run_id)
+            self._acquisition_retention_current_owner = owner
+            return self._retained_configured_cheap_continuation(
+                original_run=original_run,
+                source_cycle=source_cycle,
+                problem=owner.closure.design_problem_basis,
+                budget_state=fence.budget_state,
+                current_basis_ref=owner.current_basis_ref,
+                admitted_source_ref=None,
+                growth_ref=None,
+                _candidate_owner=owner,
+                _candidate_fence=fence,
+            )
+        finally:
+            self._generated_at = prior_generated_at
+            self._acquisition_retention_current_owner = None
+            self._source_repository = None
+            self._source_run_id = None
+            self._n7_configured_candidate_port_refs.clear()
+
     def _retained_configured_cheap_continuation(
         self,
         *,
@@ -15876,8 +16168,10 @@ class GenerationCycleController:
         problem: DesignProblem,
         budget_state: BudgetState,
         current_basis_ref: CASArtifactRef,
-        admitted_source_ref: CASArtifactRef,
-        growth_ref: CASArtifactRef,
+        admitted_source_ref: CASArtifactRef | None,
+        growth_ref: CASArtifactRef | None,
+        _candidate_owner: CandidateAcquisitionEvaluationCurrentOwner | None = None,
+        _candidate_fence: _CandidateRetainedBudgetFence | None = None,
     ) -> _RetainedCheapProjection | _RetainedCheapNonReceipt:
         from dataclasses import fields
 
@@ -15893,7 +16187,27 @@ class GenerationCycleController:
         def unknown(reason: str) -> _RetainedCheapNonReceipt:
             return _RetainedCheapNonReceipt(status="not_established", reason_code=reason)
 
-        if source_cycle.value_port.candidate_n5_l1_routing is not None:
+        if _candidate_owner is None:
+            if _candidate_fence is not None or admitted_source_ref is None or growth_ref is None:
+                return unknown("retained_cheap_current_owner_not_established")
+        else:
+            from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+                CandidateAcquisitionEvaluationCurrentOwner,
+                _CandidateRetainedBudgetFence,
+            )
+
+            if (
+                type(_candidate_owner) is not CandidateAcquisitionEvaluationCurrentOwner
+                or type(_candidate_fence) is not _CandidateRetainedBudgetFence
+                or _candidate_fence.owner is not _candidate_owner
+                or _candidate_fence.budget_state is not budget_state
+                or getattr(self, "_acquisition_retention_current_owner", None)
+                is not _candidate_owner
+            ):
+                return unknown("candidate_retained_current_owner_not_established")
+            _candidate_owner.revalidate()
+
+        if source_cycle.value_port.candidate_n5_l1_routing is not None and _candidate_owner is None:
             # This older cheap path reconstructs a pending value observation.
             # It cannot silently discard a separately produced L1 obligation;
             # a current owner must reconcile that obligation before retention.
@@ -16005,7 +16319,10 @@ class GenerationCycleController:
                 expected_world_content_hash=prior_world.content_hash,
                 expected_context_job_ref=context_ref,
             )
-        except OSError, RuntimeError, TypeError, ValueError:
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            from polisyos.core.artifacts import raise_artifact_read_access_error
+
+            raise_artifact_read_access_error(exc)
             return unknown("retained_cheap_prior_source_unresolved")
 
         source_v1 = source.source_record.source_record
@@ -16063,7 +16380,20 @@ class GenerationCycleController:
             value = _configured_candidate_value_observation(
                 _candidate_id(selected), current_simulation
             )
+            if _candidate_owner is not None:
+                # This is a fresh local read against the current catalog, not
+                # a copied absence or a second use of the historical N5.
+                routing = self._observe_candidate_n5_l1_routing(
+                    candidate=selected, problem=problem, simulation=current_simulation
+                )
+                if routing is None:
+                    return unknown("candidate_retained_l1_observation_not_established")
+                value = ValuePortObservation.model_validate(
+                    {**value.model_dump(mode="python"), "candidate_n5_l1_routing": routing}
+                )
         else:
+            if _candidate_owner is not None:
+                return unknown("candidate_retained_schedule_not_established")
             current_simulation, value = _scheduler_blocked_observations(
                 _candidate_id(selected), schedule
             )
@@ -16074,17 +16404,57 @@ class GenerationCycleController:
         # evaluation occurrence. This cycle is only the existing owner adapter;
         # it is never appended or persisted as another evaluated cycle.
 
+        capture_ref = None
+        source_ref = None
+        if _candidate_owner is not None:
+            if computed.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
+                return unknown("candidate_retained_acquisition_not_established")
+            try:
+                source = self._build_n7_configured_candidate_port_source(
+                    state, cycle=computed, retained_owner=_candidate_owner
+                )
+                source_ref, capture_ref = _candidate_owner.capture_retained_port_source(
+                    source, fence=_candidate_fence
+                )
+                self._n7_configured_candidate_port_refs[source_cycle.cycle_index] = source_ref
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                from polisyos.core.artifacts import raise_artifact_read_access_error
+
+                raise_artifact_read_access_error(exc)
+                return _RetainedCheapNonReceipt(
+                    status="not_established",
+                    reason_code="candidate_retained_port_capture_not_established",
+                    grounding=state["selected_grounding"],
+                    value_port=value,
+                    execution_schedule=schedule,
+                )
+
         # The same actual planner reopens the current source/basis owner and
         # keeps its retained evaluation world separate from the new admission.
         try:
-            route = self._plan_n7_requirement_gap_for_verified_retention(
-                problem,
-                cycle=computed,
-                current_basis_ref=current_basis_ref,
-                admitted_source_ref=admitted_source_ref,
-                growth_ref=growth_ref,
-            )
+            if _candidate_owner is None:
+                route = self._plan_n7_requirement_gap_for_verified_retention(
+                    problem,
+                    cycle=computed,
+                    current_basis_ref=current_basis_ref,
+                    admitted_source_ref=admitted_source_ref,
+                    growth_ref=growth_ref,
+                )
+            else:
+                _candidate_owner.revalidate()
+                route = self._plan_n7_requirement_gap_if_requested(problem, cycle=computed)
+                if (
+                    route is None
+                    or route.report.candidate_lineage is None
+                    or source_ref is None
+                    or artifact_ref_identity_key(route.report.candidate_lineage.port_source_ref)
+                    != artifact_ref_identity_key(source_ref)
+                ):
+                    return unknown("candidate_retained_planner_source_not_established")
         except GenerationCycleError as exc:
+            from polisyos.core.artifacts import raise_artifact_read_access_error
+
+            raise_artifact_read_access_error(exc)
             if exc.code not in _N7_ROUTING_FAILURE_CODES:
                 raise
             return _RetainedCheapNonReceipt(
@@ -16108,6 +16478,20 @@ class GenerationCycleController:
                 value_port=value,
                 execution_schedule=schedule,
             )
+        if _candidate_owner is not None:
+            from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+
+            checked_state, observation = _candidate_owner.current_budget_snapshot(
+                budget_state=_candidate_fence.budget_state
+            )
+            if (
+                checked_state is not _candidate_fence.budget_state
+                or exact_n5_content_bytes(checked_state) != _candidate_fence.state_bytes
+                or observation != _candidate_fence.observation
+                or capture_ref is None
+            ):
+                return unknown("candidate_retained_budget_changed")
+            _candidate_owner.revalidate()
         return _RetainedCheapProjection(
             source_cycle_index=source_cycle.cycle_index,
             selected_candidate_id=_candidate_id(selected),
@@ -16122,6 +16506,8 @@ class GenerationCycleController:
             search_iteration=computed.search_iteration,
             revision_request=computed.revision_request,
             current_route=route,
+            retained_port_capture_ref=capture_ref,
+            retained_budget_fence=_candidate_fence,
         )
 
     def _ground_node(self, state: dict[str, Any]) -> dict[str, Any]:
@@ -16394,6 +16780,225 @@ class GenerationCycleController:
             "_n7_candidate_port_source_wire": source_wire,
         }
 
+    def _build_n7_configured_candidate_port_source(
+        self,
+        result: Mapping[str, Any],
+        *,
+        cycle: GenerationCycleRecord,
+        retained_owner: CandidateAcquisitionEvaluationCurrentOwner | None = None,
+    ) -> _N7ConfiguredCandidatePortSource:
+        """Build replayed N4/N5 port facts for a candidate-only mixed route."""
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextHandoff,
+        )
+        from polisyos.runtime.quality.design_generation import N4CandidateScenarioProposalCandidate
+        from polisyos.runtime.quality.generation_source import N4CandidateScenarioSourceRecordV3
+
+        problem = result.get("problem")
+        candidate = result.get("selected_candidate")
+        generation = result.get("generation_result")
+        handoff = self._candidate_simulation_handoff
+        repository = self._source_repository
+        value = cycle.value_port
+        routing = value.candidate_n5_l1_routing
+        request = cycle.revision_request.strategy_payload.get("acquisition_request")
+        if (
+            type(problem) is not DesignProblem
+            or type(handoff) is not CandidateSimulationContextHandoff
+            or type(generation) is not _N4CandidateScenarioGenerationResult
+            or generation.status != "generated"
+            or len(generation.candidates) != 1
+            or type(candidate) is not N4CandidateScenarioProposalCandidate
+            or type(generation.candidates[0]) is not N4CandidateScenarioProposalCandidate
+            or routing is None
+            or not isinstance(request, Mapping)
+            or self._source_run_id is None
+            or repository is None
+            or repository.store is not self._artifact_store
+            or type(self._grounding_port) is not PolicyGroundingPort
+            or handoff.model_declaration_ref is None
+            or handoff.ncm_ref is None
+            or handoff.context_job_ref.manifest_profile_sha256 is None
+            or handoff.model_declaration_ref.manifest_profile_sha256 is None
+            or handoff.ncm_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("n7_configured_candidate_port_owner_not_established")
+        if retained_owner is None:
+            if not self._resolve_candidate_simulation_context_handoff(problem):
+                raise ValueError("n7_configured_candidate_port_owner_not_established")
+        else:
+            from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+                CandidateAcquisitionEvaluationCurrentOwner,
+            )
+            from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+
+            if (
+                type(retained_owner) is not CandidateAcquisitionEvaluationCurrentOwner
+                or getattr(self, "_acquisition_retention_current_owner", None) is not retained_owner
+                or exact_n5_content_bytes(handoff)
+                != exact_n5_content_bytes(retained_owner.prior.handoff)
+                or self._candidate_simulation_currentness_resolver is None
+                or self._candidate_simulation_currentness_resolver() is not True
+            ):
+                raise ValueError("n7_configured_candidate_port_owner_not_established")
+            retained_owner.revalidate()
+        selected_id = _candidate_id(candidate)
+        selected_hash = _candidate_content_hash(candidate)
+        problem_ref = _problem_ref(problem)
+        gap, refusal = _n7_cycle_source_gap(problem, cycle=cycle, acquisition_request=request)
+        if (
+            refusal is not None
+            or gap is None
+            or _n7_exact_wire(gap.model_dump(mode="json"))
+            != _n7_exact_wire(routing.requirement_gap.model_dump(mode="json"))
+            or generation.source_ref is None
+            or artifact_ref_identity_key(generation.source_ref)
+            != artifact_ref_identity_key(routing.source_ref)
+            or _candidate_id(generation.candidates[0]) != selected_id
+            or _candidate_content_hash(generation.candidates[0]) != selected_hash
+            or _n7_exact_wire(generation.candidates[0].model_dump(mode="json"))
+            != _n7_exact_wire(candidate.model_dump(mode="json"))
+            or cycle.selected_candidate_ref != selected_id
+            or cycle.selected_candidate_content_hash != selected_hash
+            or (cycle.design_problem_basis_ref or cycle.design_problem_ref) != problem_ref
+            or type(result.get("simulation")) is not SimulationPortObservation
+            or type(result.get("value_port")) is not ValuePortObservation
+            or _n7_exact_wire(result["simulation"].model_dump(mode="json"))
+            != _n7_exact_wire(cycle.simulation.model_dump(mode="json"))
+            or _n7_exact_wire(result["value_port"].model_dump(mode="json"))
+            != _n7_exact_wire(value.model_dump(mode="json"))
+        ):
+            raise ValueError("n7_configured_candidate_port_subject_mismatch")
+        numerical = repository._read_candidate_simulation_v5_numerical_output(
+            ref=routing.n5_execution_ref,
+            expected_run_id=handoff.run_id,
+            expected_job_id=handoff.job_id,
+            expected_tenant_id=handoff.tenant_id,
+            expected_cell_id=handoff.cell_id,
+        )
+        execution = numerical.execution
+        if (
+            type(numerical.source) is not N4CandidateScenarioSourceRecordV3
+            or execution.original_candidate_id != selected_id
+            or execution.original_candidate_hash != selected_hash
+            or execution.problem_ref != problem_ref
+            or execution.profile_config_ref != handoff.profile_config_ref
+            or numerical.source.stable_subject_ref != cycle.design_problem_ref
+            or numerical.source.cycle_problem_ref != problem_ref
+            or numerical.source.profile_config_ref != handoff.profile_config_ref
+            or numerical.input_record.profile_config_ref != handoff.profile_config_ref
+            or _n7_exact_wire(numerical.input_record.profile.model_dump(mode="json"))
+            != _n7_exact_wire(handoff.profile.model_dump(mode="json"))
+            or _n7_exact_wire(numerical.source.profile.model_dump(mode="json"))
+            != _n7_exact_wire(handoff.profile.model_dump(mode="json"))
+            or numerical.source.context_hash != handoff.context.content_hash
+            or numerical.input_record.materialization.context_hash != handoff.context.content_hash
+            or numerical.source.world_model_record_hash
+            != handoff.context.world_model_record.content_hash
+            or numerical.input_record.materialization.world_model_record_hash
+            != handoff.context.world_model_record.content_hash
+            or numerical.source.candidate.candidate_id != selected_id
+            or numerical.source.candidate.atom.content_hash != selected_hash
+            or _n7_exact_wire(numerical.source.candidate.model_dump(mode="json"))
+            != _n7_exact_wire(candidate.model_dump(mode="json"))
+            or _n7_exact_wire(numerical.source.problem.model_dump(mode="json"))
+            != _n7_exact_wire(problem.model_dump(mode="json"))
+            or cycle.simulation.world_model_record is None
+            or cycle.simulation.world_model_record.content_hash != execution.world_model_record_hash
+            or any(
+                artifact_ref_identity_key(actual) != artifact_ref_identity_key(expected)
+                for actual, expected in (
+                    (execution.n4_source_ref, routing.source_ref),
+                    (execution.context_job_ref, routing.context_job_ref),
+                    (execution.context_job_ref, handoff.context_job_ref),
+                    (execution.model_declaration_ref, handoff.model_declaration_ref),
+                    (execution.ncm_ref, handoff.ncm_ref),
+                    (execution.n5_input_ref, routing.n5_input_ref),
+                    (execution.n5_result_ref, routing.n5_result_ref),
+                )
+            )
+        ):
+            raise ValueError("n7_configured_candidate_port_n5_binding_mismatch")
+        grounding = PolicyGroundingPort.__call__(
+            self._grounding_port,
+            candidate=candidate,
+            problem=problem,
+            cycle_index=cycle.cycle_index,
+            generation_result=generation,
+        )
+        if _n7_exact_wire(grounding.model_dump(mode="json")) != _n7_exact_wire(
+            cycle.grounding.model_dump(mode="json")
+        ):
+            raise ValueError("n7_configured_candidate_port_grounding_replay_mismatch")
+        if grounding.report_ref is None:
+            digest_payload = None
+        elif grounding.grounding_source == "grounding_unavailable":
+            digest_payload = {
+                "candidate_id": selected_id,
+                "issue_codes": grounding.issue_codes,
+                "source": "grounding_unavailable",
+            }
+        else:
+            disposition = _grounding_disposition_for_candidate(
+                candidate, generation_result=generation
+            )
+            if disposition is None:
+                raise ValueError("n7_configured_candidate_port_disposition_missing")
+            digest_payload = {
+                "candidate_id": selected_id,
+                "disposition": _json_ready(disposition),
+                "source": "cgf_firewall",
+            }
+        if digest_payload is not None and gy_content_hash(digest_payload) != grounding.report_ref:
+            raise ValueError("n7_configured_candidate_port_grounding_digest_mismatch")
+        companions = (
+            (grounding.acquisition_requirement,)
+            if grounding.acquisition_requirement is not None
+            else ()
+        )
+        source = _N7ConfiguredCandidatePortSource(
+            tenant_id=handoff.tenant_id,
+            cell_id=handoff.cell_id,
+            run_id=handoff.run_id,
+            source_job_id=handoff.job_id,
+            source_generation_run_id=self._source_run_id,
+            cycle_index=cycle.cycle_index,
+            candidate_id=selected_id,
+            candidate_content_hash=selected_hash,
+            design_problem_basis_ref=problem_ref,
+            n4_source_ref=routing.source_ref,
+            context_job_ref=routing.context_job_ref,
+            n5_input_ref=routing.n5_input_ref,
+            n5_execution_ref=routing.n5_execution_ref,
+            n5_result_ref=routing.n5_result_ref,
+            grounding_observation=grounding.model_dump(mode="json"),
+            value_observation=value.model_dump(mode="json"),
+            grounding_digest_payload=digest_payload,
+            source_gap=gap,
+            accompanying_requirement_gaps=companions,
+        )
+        if retained_owner is not None:
+            retained_owner.revalidate()
+        return source
+
+    def _capture_n7_configured_candidate_port_source(
+        self,
+        result: Mapping[str, Any],
+        *,
+        cycle: GenerationCycleRecord,
+    ) -> CASArtifactRef:
+        """Persist replayed N4/N5 port facts for a current candidate cycle."""
+        source = self._build_n7_configured_candidate_port_source(result, cycle=cycle)
+        if self._source_repository is None:
+            raise ValueError("n7_configured_candidate_port_owner_not_established")
+        selected = _n7_put_configured_candidate_port_source(self._source_repository.store, source)
+        problem = result.get("problem")
+        if type(problem) is not DesignProblem:
+            raise ValueError("n7_configured_candidate_port_owner_not_established")
+        if not self._resolve_candidate_simulation_context_handoff(problem):
+            raise ValueError("n7_configured_candidate_port_currentness_changed")
+        return selected
+
     def _capture_completed_candidate_n5(
         self,
         state: Mapping[str, Any],
@@ -16536,6 +17141,12 @@ class GenerationCycleController:
         cycle_index = int(state["cycle_index"])
         candidate_id = _candidate_id(candidate)
         candidate_hash = _candidate_content_hash(candidate)
+        if (
+            self._physical_n5_budget_scope is not None
+            and self._physical_n5_budget_scope.run_budget_scope_present
+            and type(self._simulation_port) is not JointSimulationPort
+        ):
+            raise GenerationCycleError("n5_physical_budget_scope_port_mismatch")
         self._n7_candidate_bindings[(candidate_id, candidate_hash)] = candidate
         proxy_score, voi_estimate = state["rankings"].get(candidate_id, (0.0, 0.0))
         schedule = self._schedule_candidate_for_execution(

@@ -16,9 +16,15 @@ from polisyos.core.artifacts import ArtifactRef, artifact_ref_identity_key
 from polisyos.runtime.quality.acquisition_evaluation import (
     AcquisitionEvaluationBasis,
     AcquisitionEvaluationDecision,
+    CandidateAcquisitionEvaluationBasis,
+    CandidateAcquisitionEvaluationDecision,
+    CandidateEvaluationTerminalHistory,
+    _candidate_model_values_same,
+    _candidate_ref_same,
     _declaration_meaning,
     read_acquisition_evaluation_artifact,
     replay_acquisition_basis_for_history,
+    replay_candidate_acquisition_basis_for_history,
     resolve_selected_acquisition_evaluation_parts,
 )
 from polisyos.runtime.quality.n5_execution_basis import (
@@ -29,9 +35,18 @@ from polisyos.runtime.quality.n5_execution_basis import (
 if TYPE_CHECKING:
     from polisyos.core.artifacts import CoreJSONArtifactStore
     from polisyos.foundry.execute import StateSnapshotValueLeaf
+    from polisyos.ir import NCMSpec
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
     from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.quality.acquisition_evaluation import ResolvedAcquisitionEvaluation
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateRouteLoopReceipt,
+        VerifiedAcquisitionRouteClosure,
+    )
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationScenarioProfile
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
     from polisyos.runtime.quality.generation_cycle import GenerationCycleRecord, GenerationCycleRun
+    from polisyos.runtime.quality.n5_execution_basis import N5ExecutionImplementationWitness
 
 
 @dataclass(frozen=True, slots=True)
@@ -67,7 +82,135 @@ class AcquiredOutcomeRevision:
     authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
 
 
-def _native_facets(basis: AcquisitionEvaluationBasis) -> dict[str, object]:
+@dataclass(frozen=True, slots=True)
+class _CandidateModelSelection:
+    """Select one existing declaration/NCM owner view without asserting an N5 result."""
+
+    profile: CandidateSimulationScenarioProfile
+    declaration_ref: ArtifactRef
+    ncm_ref: ArtifactRef
+    job_id: str
+
+
+def _read_selected_candidate_coefficient_pair(
+    *,
+    artifact_store: CoreJSONArtifactStore,
+    previous: _CandidateModelSelection,
+    selected: _CandidateModelSelection,
+    run_id: str,
+    tenant_id: str,
+    cell_id: str,
+) -> tuple[NCMSpec, NCMSpec]:
+    """Reopen selected model owners and allow only their coefficient to change.
+
+    This component does not establish a route, source action or completed N5.
+    Those owners must independently reconcile these same selected references.
+    """
+    from polisyos.ir import prepare_ncm_spec_selected_values
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    repository = GenerationSourceRepository(artifact_store)
+    meanings = []
+    ncms = []
+    for selection in (previous, selected):
+        if type(selection) is not _CandidateModelSelection or any(
+            not _candidate_ref_same(ref, ref)
+            or ref.kind != kind
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            for ref, kind in (
+                (
+                    selection.declaration_ref,
+                    "runtime.quality.candidate_simulation_model_declaration",
+                ),
+                (selection.ncm_ref, "ir.ncm_spec"),
+            )
+        ):
+            raise ValueError("candidate_source_model_revision_selected_model_ref_required")
+        declaration, ncm = repository.load_candidate_declared_ncm(
+            declaration_ref=selection.declaration_ref,
+            ncm_ref=selection.ncm_ref,
+            expected_profile=selection.profile,
+            expected_run_id=run_id,
+            expected_job_id=selection.job_id,
+            expected_tenant_id=tenant_id,
+            expected_cell_id=cell_id,
+        )
+        meanings.append(_declaration_meaning(declaration, selection.profile))
+        ncms.append(ncm)
+    old_value = meanings[0].pop("outcome_per_target_unit")
+    new_value = meanings[1].pop("outcome_per_target_unit")
+    if (
+        exact_n5_content_bytes(meanings[0]) != exact_n5_content_bytes(meanings[1])
+        or exact_n5_content_bytes(old_value) == exact_n5_content_bytes(new_value)
+        or prepare_ncm_spec_selected_values(ncms[0]).value_bytes
+        == prepare_ncm_spec_selected_values(ncms[1]).value_bytes
+        or _candidate_ref_same(previous.declaration_ref, selected.declaration_ref)
+        or _candidate_ref_same(previous.ncm_ref, selected.ncm_ref)
+    ):
+        raise ValueError("candidate_source_model_revision_coefficient_mismatch")
+    return ncms[0], ncms[1]
+
+
+def _read_completed_candidate_n5_witness(
+    *,
+    artifact_store: CoreJSONArtifactStore,
+    evaluation: ResolvedAcquisitionEvaluation,
+    run_id: str,
+    tenant_id: str,
+    cell_id: str,
+) -> N5ExecutionImplementationWitness:
+    """Require the actual numerical owner's completion before reading its witness."""
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    refs = (
+        evaluation.selected.n4_source_ref,
+        evaluation.selected.context_job_ref,
+        evaluation.selected.n5_input_ref,
+        evaluation.selected.n5_execution_ref,
+        evaluation.selected.n5_result_ref,
+        evaluation.input_record.model_declaration_ref,
+        evaluation.input_record.ncm_ref,
+    )
+    if any(
+        not _candidate_ref_same(ref, ref) or ref.manifest_profile_sha256 is None for ref in refs
+    ):
+        raise ValueError("candidate_source_model_revision_selected_n5_view_required")
+    actual = GenerationSourceRepository(
+        artifact_store
+    )._read_candidate_simulation_v5_numerical_output(
+        ref=evaluation.selected.n5_execution_ref,
+        expected_run_id=run_id,
+        expected_job_id=evaluation.source.job_id,
+        expected_tenant_id=tenant_id,
+        expected_cell_id=cell_id,
+    )
+    for observed, expected in (
+        (actual.source, evaluation.source),
+        (actual.input_record, evaluation.input_record),
+        (actual.execution, evaluation.execution),
+    ):
+        # The source reader keeps non-persisted read provenance beside these
+        # fields. Compare the complete persisted quantity, preserving all refs.
+        if type(observed) is not type(expected) or exact_n5_content_bytes(
+            observed.model_dump(mode="python")
+        ) != exact_n5_content_bytes(expected.model_dump(mode="python")):
+            raise ValueError("candidate_source_model_revision_completed_n5_mismatch")
+    if exact_n5_content_bytes(actual.result.content_bound_payload()) != exact_n5_content_bytes(
+        evaluation.result.content_bound_payload()
+    ):
+        raise ValueError("candidate_source_model_revision_completed_n5_mismatch")
+    witness = read_n5_execution_implementation_witness(
+        actual.result, input_ref=evaluation.selected.n5_input_ref
+    )
+    if witness.predicate_provenance != "recomputed" or witness.reason_codes:
+        raise ValueError("candidate_source_model_revision_implementation_not_established")
+    return witness
+
+
+def _native_facets(
+    basis: AcquisitionEvaluationBasis | CandidateAcquisitionEvaluationBasis,
+) -> dict[str, object]:
     """Read exact native facet encodings, rejecting malformed or duplicate keys."""
 
     try:
@@ -108,7 +251,8 @@ def _native_tuple(encoded: object) -> list[object]:
 
 
 def is_prospective_candidate_model_revision(
-    previous: AcquisitionEvaluationBasis, prospective: AcquisitionEvaluationBasis
+    previous: AcquisitionEvaluationBasis | CandidateAcquisitionEvaluationBasis,
+    prospective: AcquisitionEvaluationBasis | CandidateAcquisitionEvaluationBasis,
 ) -> bool:
     """Recognize a coefficient-only prospective change, without certifying its result.
 
@@ -117,16 +261,19 @@ def is_prospective_candidate_model_revision(
     Other differences remain on the ordinary acquisition evaluation path.
     """
     if (
-        type(previous) is not AcquisitionEvaluationBasis
-        or type(prospective) is not AcquisitionEvaluationBasis
+        type(previous) not in {AcquisitionEvaluationBasis, CandidateAcquisitionEvaluationBasis}
+        or type(prospective) is not type(previous)
         or previous.predicate_provenance != "recomputed"
         or prospective.predicate_provenance != "recomputed"
         or previous.reason_codes
         or prospective.reason_codes
     ):
         return False
-    old = _native_facets(previous)
-    new = _native_facets(prospective)
+    return _is_coefficient_only_native_change(_native_facets(previous), _native_facets(prospective))
+
+
+def _is_coefficient_only_native_change(old: dict[str, object], new: dict[str, object]) -> bool:
+    """Classify complete owner values without inventing an evaluation envelope."""
     model_fields = {"declared_model", "selected_native_ncm"}
     if (
         set(old) != set(new)
@@ -178,9 +325,9 @@ def _implementation_without_reconciled_ncm(
 
 
 def _require_model_revision_facets(
-    previous: AcquisitionEvaluationBasis,
-    prospective: AcquisitionEvaluationBasis,
-    selected: AcquisitionEvaluationBasis,
+    previous: AcquisitionEvaluationBasis | CandidateAcquisitionEvaluationBasis,
+    prospective: AcquisitionEvaluationBasis | CandidateAcquisitionEvaluationBasis,
+    selected: AcquisitionEvaluationBasis | CandidateAcquisitionEvaluationBasis,
     *,
     previous_implementation: dict[str, object],
     selected_implementation: dict[str, object],
@@ -189,6 +336,16 @@ def _require_model_revision_facets(
 ) -> None:
     """Compare complete replayed facets, reconciling only the owned model change."""
 
+    if (
+        type(previous)
+        not in {
+            AcquisitionEvaluationBasis,
+            CandidateAcquisitionEvaluationBasis,
+        }
+        or type(prospective) is not type(previous)
+        or type(selected) is not type(previous)
+    ):
+        raise ValueError("candidate_model_revision_basis_type_mismatch")
     old = _native_facets(previous)
     pending = _native_facets(prospective)
     new = _native_facets(selected)
@@ -725,6 +882,427 @@ def resolve_candidate_model_revision(
     if type(result) is not CandidateModelRevision:
         raise RuntimeError("candidate_model_revision_result_untyped")
     return result
+
+
+def resolve_candidate_source_model_revision(
+    *,
+    artifact_store: CoreJSONArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    control_store: ControlPlaneStore,
+    control_service: ControlPlaneService,
+    terminal: AcquisitionCandidateRouteLoopReceipt,
+    prior_closure: VerifiedAcquisitionRouteClosure,
+) -> CandidateModelRevision:
+    """Replay the bounded coefficient-only revision for a candidate-source route.
+
+    The route sink must independently bind this terminal to its actual action
+    transaction. This read-only verifier checks the previous, prospective and
+    selected source/model/N5 owners; it does not admit data or certify a new
+    empirical observation.
+    """
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        AcquisitionRouteLoopAuthoritySink,
+        ControlPlaneService,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateRouteLoopReceipt,
+        VerifiedAcquisitionRouteClosure,
+    )
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        CandidateAcquisitionWorldCheckpoint,
+        CandidateAcquisitionWorldIntent,
+    )
+    from polisyos.runtime.quality.candidate_source_basis import (
+        _candidate_source_predecessors_for_verified_closure,
+    )
+    from polisyos.runtime.quality.candidate_source_reentry_history import (
+        _read_historical_action,
+        verify_candidate_source_reentry_history,
+    )
+    from polisyos.runtime.quality.data_state_substrate import CandidateAcquisitionSourceSlotBinding
+    from polisyos.runtime.quality.generation_cycle import validate_candidate_source_continuation
+
+    if (
+        type(control_service) is not ControlPlaneService
+        or control_service._artifact_store is not artifact_store
+        or control_service._control_store is not control_store
+        or control_service._diagnostic_event_log is not event_log
+        or type(terminal) is not AcquisitionCandidateRouteLoopReceipt
+        or type(prior_closure) is not VerifiedAcquisitionRouteClosure
+        or terminal.terminal_outcome != "candidate_reentry_completed"
+        or terminal.candidate_reentry_ref is None
+        or terminal.selected_evaluation is None
+        or type(control_service.acquisition_route_sink) is not AcquisitionRouteLoopAuthoritySink
+    ):
+        raise ValueError("candidate_source_model_revision_owner_not_established")
+    sink = control_service.acquisition_route_sink
+    if (
+        sink._artifact_store is not artifact_store
+        or sink._control_store is not control_store
+        or sink._event_log is not event_log
+        or getattr(sink._core_source_resolver, "__self__", None) is not control_service
+        or sink._candidate_prior_closure(terminal) != prior_closure
+    ):
+        raise ValueError("candidate_source_model_revision_prior_route_changed")
+    reentry = verify_candidate_source_reentry_history(
+        artifact_store=artifact_store,
+        event_log=event_log,
+        control_store=control_store,
+        receipt_ref=terminal.candidate_reentry_ref,
+        expected_tenant_id=terminal.tenant_id,
+        expected_cell_id=terminal.cell_id,
+        expected_run_id=terminal.run_id,
+        expected_source_job_id=terminal.source_job_id,
+        expected_action_job_id=terminal.job_id,
+        expected_route_id=terminal.route_id,
+        expected_action_generation=terminal.action_generation,
+        expected_selected_action_ref=terminal.candidate_action_ref,
+    )
+    validate_candidate_source_continuation(prior_closure.generation_run, reentry)
+    decision = read_acquisition_evaluation_artifact(
+        store=artifact_store,
+        event_log=event_log,
+        ref=terminal.evaluation_decision_ref,
+        record_type=CandidateAcquisitionEvaluationDecision,
+    )
+    if (
+        type(decision) is not CandidateAcquisitionEvaluationDecision
+        or decision.comparison_result != "different"
+        or decision.predicate_provenance != "recomputed"
+        or decision.reason_codes
+        or decision.prior_basis_ref is None
+        or decision.prior_evaluation is None
+        or not _candidate_ref_same(decision.candidate_action_ref, terminal.candidate_action_ref)
+        or not _candidate_ref_same(decision.candidate_source_ref, reentry.candidate_source_ref)
+        or not _candidate_ref_same(
+            decision.candidate_world_intent_ref, reentry.candidate_world_intent_ref
+        )
+        or (decision.tenant_id, decision.cell_id, decision.run_id, decision.source_job_id)
+        != (terminal.tenant_id, terminal.cell_id, terminal.run_id, terminal.source_job_id)
+        or decision.action_job_id != terminal.job_id
+        or decision.action_generation != terminal.action_generation
+        or decision.route_id != terminal.route_id
+        or decision.compiled_ref != terminal.compiled_ref
+        or decision.design_problem_ref != prior_closure.design_problem_ref
+        or decision.design_problem_basis_ref != prior_closure.design_problem_basis_ref
+        or decision.candidate_id != prior_closure.source_cycle.selected_candidate_ref
+        or decision.source_candidate_content_hash
+        != prior_closure.source_cycle.selected_candidate_content_hash
+    ):
+        raise ValueError("candidate_source_model_revision_decision_mismatch")
+    prior = resolve_selected_acquisition_evaluation_parts(
+        artifact_store=artifact_store,
+        control_store=control_store,
+        tenant_id=prior_closure.tenant_id,
+        cell_id=prior_closure.cell_id,
+        run_id=prior_closure.run_id,
+        generation_run=prior_closure.generation_run,
+        source_cycle=prior_closure.source_cycle,
+        design_problem_ref=prior_closure.design_problem_ref,
+    )
+    selected = resolve_selected_acquisition_evaluation_parts(
+        artifact_store=artifact_store,
+        control_store=control_store,
+        tenant_id=terminal.tenant_id,
+        cell_id=terminal.cell_id,
+        run_id=terminal.run_id,
+        generation_run=reentry.continued_generation_run,
+        source_cycle=reentry.new_cycle,
+        design_problem_ref=prior_closure.design_problem_ref,
+    )
+    previous_origin = prior.source.origin_source_ref or prior.selected.n4_source_ref
+    if (
+        not _candidate_model_values_same(
+            decision.prior_evaluation,
+            prior.selected.model_copy(update={"basis_ref": decision.prior_basis_ref}),
+        )
+        or not _candidate_model_values_same(
+            terminal.selected_evaluation,
+            selected.selected.model_copy(update={"basis_ref": terminal.selected_basis_ref}),
+        )
+        or not _candidate_ref_same(
+            terminal.selected_evaluation_witness_ref, selected.selected.n5_execution_ref
+        )
+        or prior.source.stable_subject_ref != selected.source.stable_subject_ref
+        or prior.source.semantic_identity_hash != selected.source.semantic_identity_hash
+        or prior.source.problem != selected.source.problem
+        or selected.source.origin_source_ref is None
+        or artifact_ref_identity_key(previous_origin)
+        != artifact_ref_identity_key(selected.source.origin_source_ref)
+        or reentry.new_cycle.cycle_index != prior_closure.source_cycle.cycle_index + 1
+        or selected.source.job_id != terminal.job_id
+    ):
+        raise ValueError("candidate_source_model_revision_selected_n5_mismatch")
+    previous_basis = read_acquisition_evaluation_artifact(
+        store=artifact_store,
+        event_log=event_log,
+        ref=decision.prior_basis_ref,
+        record_type=CandidateAcquisitionEvaluationBasis,
+    )
+    prospective_basis = read_acquisition_evaluation_artifact(
+        store=artifact_store,
+        event_log=event_log,
+        ref=decision.current_basis_ref,
+        record_type=CandidateAcquisitionEvaluationBasis,
+    )
+    selected_basis = read_acquisition_evaluation_artifact(
+        store=artifact_store,
+        event_log=event_log,
+        ref=terminal.selected_basis_ref,
+        record_type=CandidateAcquisitionEvaluationBasis,
+    )
+    if (
+        any(
+            type(basis) is not CandidateAcquisitionEvaluationBasis
+            for basis in (previous_basis, prospective_basis, selected_basis)
+        )
+        or not prior_closure.candidate_basis_transitions
+    ):
+        raise ValueError("candidate_source_model_revision_basis_not_established")
+    previous_receipt = prior_closure.candidate_basis_transitions[-1]
+    predecessors = _candidate_source_predecessors_for_verified_closure(
+        store=artifact_store, closure=prior_closure
+    )
+    if (
+        not predecessors
+        or previous_basis.basis_role != "evaluated"
+        or not _candidate_model_values_same(previous_basis.evaluation, prior.selected)
+        or not _candidate_ref_same(
+            previous_basis.candidate_action_ref, previous_receipt.candidate_action_ref
+        )
+        or not _candidate_ref_same(
+            previous_basis.candidate_world_intent_ref, previous_receipt.candidate_world_intent_ref
+        )
+        or not _candidate_ref_same(
+            previous_basis.candidate_source_ref, previous_receipt.candidate_source_ref
+        )
+        or not _candidate_ref_same(
+            previous_basis.selected_data_snapshot_ref, previous_receipt.data_snapshot_ref
+        )
+        or not _candidate_ref_same(
+            previous_basis.selected_world_model_ref, previous_receipt.world_model_ref
+        )
+        or not _candidate_model_values_same(
+            previous_basis.preparation_inputs, predecessors[-1].inputs
+        )
+        or prospective_basis.basis_role != "prospective"
+        or prospective_basis.evaluation is not None
+        or selected_basis.basis_role != "evaluated"
+        or not _candidate_model_values_same(selected_basis.evaluation, selected.selected)
+        or not _candidate_model_values_same(
+            prospective_basis.preparation_inputs, selected_basis.preparation_inputs
+        )
+        or prospective_basis.prepared_n5_configuration != selected_basis.prepared_n5_configuration
+        or not _candidate_ref_same(
+            prospective_basis.candidate_action_ref, terminal.candidate_action_ref
+        )
+        or not _candidate_ref_same(
+            selected_basis.candidate_action_ref, terminal.candidate_action_ref
+        )
+        or not _candidate_ref_same(
+            prospective_basis.candidate_source_ref, reentry.candidate_source_ref
+        )
+        or not _candidate_ref_same(
+            selected_basis.candidate_source_ref, reentry.candidate_source_ref
+        )
+        or not _candidate_ref_same(
+            prospective_basis.candidate_world_intent_ref, reentry.candidate_world_intent_ref
+        )
+        or not _candidate_ref_same(
+            selected_basis.candidate_world_intent_ref, reentry.candidate_world_intent_ref
+        )
+        or not _candidate_ref_same(
+            selected_basis.selected_data_snapshot_ref, reentry.data_snapshot_ref
+        )
+        or not _candidate_ref_same(selected_basis.selected_world_model_ref, reentry.world_model_ref)
+        or not set(previous_basis.limitations).issubset(prospective_basis.limitations)
+        or not (set(prospective_basis.limitations) | set(reentry.limitations)).issubset(
+            selected_basis.limitations
+        )
+    ):
+        raise ValueError("candidate_source_model_revision_basis_binding_mismatch")
+    for basis in (previous_basis, prospective_basis, selected_basis):
+        if (
+            (basis.tenant_id, basis.cell_id, basis.run_id, basis.source_job_id)
+            != (terminal.tenant_id, terminal.cell_id, terminal.run_id, terminal.source_job_id)
+            or basis.route_id != terminal.route_id
+            or basis.candidate_id != decision.candidate_id
+            or basis.design_problem_ref != decision.design_problem_ref
+            or basis.design_problem_basis_ref != decision.design_problem_basis_ref
+            or basis.predicate_provenance != "recomputed"
+            or basis.reason_codes
+        ):
+            raise ValueError("candidate_source_model_revision_basis_scope_mismatch")
+    for basis in (prospective_basis, selected_basis):
+        if (
+            basis.action_job_id != terminal.job_id
+            or basis.action_generation != terminal.action_generation
+            or basis.source_candidate_content_hash != decision.source_candidate_content_hash
+        ):
+            raise ValueError("candidate_source_model_revision_action_scope_mismatch")
+    histories = getattr(prior_closure, "candidate_terminal_history", None)
+    if (
+        type(histories) is not tuple
+        or not histories
+        or any(type(item) is not CandidateEvaluationTerminalHistory for item in histories)
+    ):
+        raise ValueError("candidate_source_model_revision_frontier_not_established")
+    latest = histories[-1]
+    if (
+        not _candidate_ref_same(latest.terminal.selected_basis_ref, decision.prior_basis_ref)
+        or not _candidate_model_values_same(latest.selected_basis, previous_basis)
+        or not _candidate_model_values_same(latest.evaluation, prior)
+        or not _candidate_model_values_same(
+            latest.terminal.selected_evaluation, decision.prior_evaluation
+        )
+        or latest.frontier.frontier_ref != decision.expected_frontier_ref
+        or latest.frontier.revision != decision.expected_frontier_revision
+        or latest.frontier.basis_ref != str(decision.prior_basis_ref.artifact_id)
+        or latest.frontier.basis_content_hash != previous_basis.content_hash
+        or latest.frontier.selected_evaluation_witness_ref
+        != str(prior.selected.n5_execution_ref.artifact_id)
+        or latest.frontier.selected_evaluation_content_hash != prior.execution.content_hash
+    ):
+        raise ValueError("candidate_source_model_revision_frontier_mismatch")
+    inherited_limitations = set(previous_basis.limitations)
+    retained = tuple(
+        history
+        for history in histories
+        if history.head.action_generation > previous_receipt.action_generation
+    )
+    if tuple(history.head.action_generation for history in retained) != tuple(
+        range(previous_receipt.action_generation + 1, terminal.action_generation)
+    ):
+        raise ValueError("candidate_source_model_revision_limitations_not_established")
+    for history in retained:
+        if (
+            history.continuation is None
+            or history.terminal.terminal_outcome != "candidate_evaluation_retained"
+            or not _candidate_ref_same(
+                history.terminal.selected_basis_ref, decision.prior_basis_ref
+            )
+            or not _candidate_model_values_same(history.selected_basis, previous_basis)
+            or not _candidate_model_values_same(history.evaluation, prior)
+            or not (inherited_limitations | set(history.current_basis.limitations)).issubset(
+                history.continuation.limitations
+            )
+        ):
+            raise ValueError("candidate_source_model_revision_limitations_not_established")
+        inherited_limitations.update(history.continuation.limitations)
+    if not inherited_limitations.issubset(prospective_basis.limitations):
+        raise ValueError("candidate_source_model_revision_limitations_not_established")
+    previous_action, _ = _read_historical_action(
+        store=artifact_store,
+        event_log=event_log,
+        action_ref=previous_receipt.candidate_action_ref,
+    )
+    current_action, _ = _read_historical_action(
+        store=artifact_store, event_log=event_log, action_ref=terminal.candidate_action_ref
+    )
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    # The re-entry history verifier above has already checked the exact
+    # selected intent/checkpoint profiles, owner events and their parent links.
+    # Reopen those same selected views to bind every prospective basis input.
+    intent = CandidateAcquisitionWorldIntent.model_validate(
+        load_core_json_artifact(artifact_store, reentry.candidate_world_intent_ref)
+    )
+    checkpoint = CandidateAcquisitionWorldCheckpoint.model_validate(
+        load_core_json_artifact(artifact_store, reentry.candidate_world_checkpoint_ref)
+    )
+    inputs = prospective_basis.preparation_inputs
+    expected_slot = CandidateAcquisitionSourceSlotBinding(
+        profile_selection_ref=current_action.profile_selection_ref,
+        candidate_digest=current_action.candidate_digest,
+        canonical_variable_id=current_action.canonical_variable_id,
+        target_slot_id=current_action.target_slot_id,
+    )
+    if (
+        not _candidate_model_values_same(inputs.configured_profile, intent.configured_profile)
+        or not _candidate_model_values_same(
+            inputs.original_model_declaration, intent.original_model_declaration
+        )
+        or inputs.transaction_time != intent.transaction_time
+        or not _candidate_ref_same(inputs.base_data_snapshot_ref, checkpoint.base_data_snapshot_ref)
+        or not _candidate_ref_same(inputs.base_world_model_ref, predecessors[-1].world_model_ref)
+        or not _candidate_ref_same(inputs.candidate_source_ref, current_action.candidate_source_ref)
+        or not _candidate_model_values_same(inputs.slot_binding, expected_slot)
+    ):
+        raise ValueError("candidate_source_model_revision_preparation_owner_mismatch")
+    control_service.verify_candidate_source_budget_window_historical(
+        closure=prior_closure, action=previous_action
+    )
+    control_service.verify_candidate_source_budget_window_historical(
+        closure=prior_closure, action=current_action
+    )
+    global_limit = control_service.acquisition_source_global_budget_usd(closure=prior_closure)
+    for basis, evaluation, preceding, fresh_limit in (
+        (previous_basis, prior, predecessors[:-1], previous_action.selection.reentry_budget_usd),
+        (prospective_basis, prior, predecessors, current_action.selection.reentry_budget_usd),
+        (selected_basis, selected, predecessors, current_action.selection.reentry_budget_usd),
+    ):
+        replay_candidate_acquisition_basis_for_history(
+            artifact_store=artifact_store,
+            problem=prior_closure.design_problem_basis,
+            basis=basis,
+            predecessors=preceding,
+            selected_evaluation=evaluation,
+            fresh_limit_usd=fresh_limit,
+            global_limit_usd=global_limit,
+        )
+    if not is_prospective_candidate_model_revision(previous_basis, prospective_basis):
+        raise ValueError("candidate_source_model_revision_not_coefficient_only")
+    ncms = _read_selected_candidate_coefficient_pair(
+        artifact_store=artifact_store,
+        previous=_CandidateModelSelection(
+            prior.input_record.profile,
+            prior.input_record.model_declaration_ref,
+            prior.input_record.ncm_ref,
+            prior.source.job_id,
+        ),
+        selected=_CandidateModelSelection(
+            selected.input_record.profile,
+            selected.input_record.model_declaration_ref,
+            selected.input_record.ncm_ref,
+            selected.source.job_id,
+        ),
+        run_id=terminal.run_id,
+        tenant_id=terminal.tenant_id,
+        cell_id=terminal.cell_id,
+    )
+    old_witness = _read_completed_candidate_n5_witness(
+        artifact_store=artifact_store,
+        evaluation=prior,
+        run_id=terminal.run_id,
+        tenant_id=terminal.tenant_id,
+        cell_id=terminal.cell_id,
+    )
+    new_witness = _read_completed_candidate_n5_witness(
+        artifact_store=artifact_store,
+        evaluation=selected,
+        run_id=terminal.run_id,
+        tenant_id=terminal.tenant_id,
+        cell_id=terminal.cell_id,
+    )
+    _require_model_revision_facets(
+        previous_basis,
+        prospective_basis,
+        selected_basis,
+        previous_implementation=old_witness.implementation,
+        selected_implementation=new_witness.implementation,
+        previous_ncm=ncms[0],
+        selected_ncm=ncms[1],
+    )
+    return CandidateModelRevision(
+        previous_input_ref=prior.selected.n5_input_ref,
+        selected_input_ref=selected.selected.n5_input_ref,
+        previous_declaration_ref=prior.input_record.model_declaration_ref,
+        selected_declaration_ref=selected.input_record.model_declaration_ref,
+        previous_ncm_ref=prior.input_record.ncm_ref,
+        selected_ncm_ref=selected.input_record.ncm_ref,
+        previous_basis_ref=decision.prior_basis_ref,
+        selected_basis_ref=terminal.selected_basis_ref,
+    )
 
 
 def resolve_acquired_outcome_revision(

@@ -1133,6 +1133,51 @@ def _n7_candidate_basis_limitation(
     return None
 
 
+class _N7CandidateReportInputBinding(BaseModel):
+    """One named report-reference occurrence and its established source role."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    acquisition_id: str = Field(min_length=1)
+    role: Literal["voi_ranking", "producer_output", "calibration_feedback"]
+    value: str = Field(min_length=1)
+    source_kind: Literal[
+        "grounding_digest",
+        "l1_coverage_locator",
+        "compiler_declared_locator",
+        "planner_generated_locator",
+        "selected_artifact",
+    ]
+    selected_artifact_ref: artifacts.ArtifactRef | None = None
+
+    @model_validator(mode="after")
+    def _bind_selected_artifact(self) -> _N7CandidateReportInputBinding:
+        ref = self.selected_artifact_ref
+        if self.source_kind == "selected_artifact":
+            if (
+                type(ref) is not artifacts.ArtifactRef
+                or ref.manifest_profile_sha256 is None
+                or str(ref.artifact_id) != _artifact_id(self.value)
+            ):
+                raise ValueError("n7_candidate_report_selected_input_invalid")
+        elif ref is not None:
+            raise ValueError("n7_candidate_report_unexpected_selected_input")
+        return self
+
+
+class _N7CandidateReportLineage(BaseModel):
+    """Complete, ordered reference denominator for one configured candidate plan."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    schema_version: Literal["policyos.runtime.n7_candidate_report_lineage.v1"] = (
+        "policyos.runtime.n7_candidate_report_lineage.v1"
+    )
+    port_source_ref: artifacts.ArtifactRef
+    bindings: tuple[_N7CandidateReportInputBinding, ...]
+
+
+_N7_CONFIGURED_REPORT_SCHEMA = "policyos.runtime.acquisition_planner.v2"
+
+
 class AcquisitionPlannerReport(BaseModel):
     """Run-level acquisition planner report."""
 
@@ -1169,6 +1214,9 @@ class AcquisitionPlannerReport(BaseModel):
         | None
     ) = None
     cost_estimation_status: Literal["not_estimated"] | None = None
+    candidate_lineage: _N7CandidateReportLineage | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     # Omit additive fields on historical reports that predate this binding.
     @model_serializer(mode="wrap")
@@ -1187,6 +1235,35 @@ class AcquisitionPlannerReport(BaseModel):
         record_ids = [record.acquisition_id for record in self.acquisition_records]
         if len(record_ids) != len(set(record_ids)):
             raise ValueError("acquisition_id values must be unique")
+        if (self.schema_version == _N7_CONFIGURED_REPORT_SCHEMA) != (
+            self.candidate_lineage is not None
+        ):
+            raise ValueError("n7_candidate_report_lineage_version_mismatch")
+        if self.candidate_lineage is not None:
+            source = self.candidate_lineage.port_source_ref
+            if (
+                type(source) is not artifacts.ArtifactRef
+                or source.kind != "runtime.quality.n7_configured_candidate_port_source"
+                or source.media_type != "application/json"
+                or source.manifest_profile_sha256 is None
+            ):
+                raise ValueError("n7_candidate_report_port_source_ref_invalid")
+            expected = tuple(
+                (record.acquisition_id, role, value)
+                for record in self.acquisition_records
+                for role, value in (
+                    ("voi_ranking", record.voi_ranking_ref),
+                    ("producer_output", record.producer_output_ref),
+                    ("calibration_feedback", record.calibration_feedback_ref),
+                )
+                if value
+            )
+            actual = tuple(
+                (binding.acquisition_id, binding.role, binding.value)
+                for binding in self.candidate_lineage.bindings
+            )
+            if actual != expected:
+                raise ValueError("n7_candidate_report_input_denominator_mismatch")
         if (self.planning_context_hash is None) != (self.planning_binding_hash is None):
             raise ValueError("acquisition_planner_report_binding_pair_mismatch")
         if self.basis_limitation_code is not None:
@@ -1475,6 +1552,21 @@ class AcquisitionWorldSnapshot(BaseModel):
         default=None,
         exclude_if=lambda value: value is None,
     )
+    # Candidate sources are not observed admissions. Their separate relation
+    # retains the old numerical evaluation world and needs the candidate owner
+    # to replay all three exact selected inputs before use.
+    current_candidate_basis_ref: artifacts.ArtifactRef | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    current_candidate_action_ref: artifacts.ArtifactRef | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    current_candidate_source_ref: artifacts.ArtifactRef | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
 
     @model_validator(mode="after")
     def _current_source_relation_shape(self) -> AcquisitionWorldSnapshot:
@@ -1483,6 +1575,13 @@ class AcquisitionWorldSnapshot(BaseModel):
             self.current_acquisition_growth_ref,
             self.current_acquisition_source_ref,
         )
+        candidate_refs = (
+            self.current_candidate_basis_ref,
+            self.current_candidate_action_ref,
+            self.current_candidate_source_ref,
+        )
+        if any(ref is not None for ref in refs) and any(ref is not None for ref in candidate_refs):
+            raise ValueError("acquisition_planner_source_relation_ambiguous")
         if any(ref is not None for ref in refs):
             if any(ref is None or ref.manifest_profile_sha256 is None for ref in refs):
                 raise ValueError("acquisition_planner_current_basis_relation_incomplete")
@@ -1498,6 +1597,25 @@ class AcquisitionWorldSnapshot(BaseModel):
                 != "runtime_quality.acquisition_world_growth_receipt"
             ):
                 raise ValueError("acquisition_planner_current_growth_kind_invalid")
+        if any(ref is not None for ref in candidate_refs):
+            expected = (
+                (self.current_candidate_basis_ref, "runtime_quality.acquisition_evaluation_basis"),
+                (
+                    self.current_candidate_action_ref,
+                    "runtime_quality.acquisition_candidate_action_receipt",
+                ),
+                (self.current_candidate_source_ref, "runtime.quality.candidate_acquisition_source"),
+            )
+            if any(
+                ref is None
+                or ref.manifest_profile_sha256 is None
+                or ref.kind != kind
+                or ref.media_type != "application/json"
+                for ref, kind in expected
+            ):
+                raise ValueError("acquisition_planner_candidate_source_relation_incomplete")
+            if self.world_model_record_ref is None or self.world_ref != self.world_model_record_ref:
+                raise ValueError("acquisition_planner_retained_world_role_mismatch")
         return self
 
     @field_validator("known_slots", mode="before")
@@ -2757,6 +2875,7 @@ def run_acquisition_closed_loop(
             planning_context_hash=(planning_context_hash if artifact_store is not None else None),
             requirement_basis_binding=requirement_basis_binding,
         )
+        _n7_require_current_report_input_provenance(planner_report)
         if artifact_store is not None:
             try:
                 normalized_planner_ref = persist_and_verify_acquisition_planner_report(
@@ -2768,6 +2887,11 @@ def run_acquisition_closed_loop(
                     f"acquisition_planner_report_persistence_refused:{exc}"
                 ) from exc
     else:
+        _n7_require_current_report_input_provenance(planner_report)
+        if planner_report.schema_version == _N7_CONFIGURED_REPORT_SCHEMA:
+            # The standalone loop has no selected configured-source/cycle
+            # owner. V2 is consumed only by the separately verified route.
+            raise AcquisitionPlannerBindingError("n7_configured_candidate_dispatch_not_established")
         if (
             planner_report.run_id != run_id
             or planner_report.requirement_basis_binding != requirement_basis_binding
@@ -4335,6 +4459,9 @@ def _validate_persisted_planner_report(
     try:
         if ref.kind != ACQUISITION_PLANNER_KIND or ref.media_type != "application/json":
             return ({"code": "acquisition_planner_report_ref_profile_mismatch"},)
+        configured_candidate = report.schema_version == _N7_CONFIGURED_REPORT_SCHEMA
+        if configured_candidate and ref.manifest_profile_sha256 is None:
+            return ({"code": "n7_candidate_report_selected_profile_missing"},)
         manifest = store.get_manifest(ref)
         schema = manifest.artifact_schema
         if (
@@ -4342,9 +4469,27 @@ def _validate_persisted_planner_report(
             or manifest.media_type != "application/json"
             or schema is None
             or schema.name != ACQUISITION_PLANNER_SCHEMA_NAME
-            or schema.version != ACQUISITION_PLANNER_SCHEMA_VERSION_SHORT
+            or schema.version
+            != ("2.0" if configured_candidate else ACQUISITION_PLANNER_SCHEMA_VERSION_SHORT)
         ):
             return ({"code": "acquisition_planner_report_manifest_profile_mismatch"},)
+        if configured_candidate:
+            options, spec = _n7_configured_candidate_report_write_profile(report)
+            expected = artifacts.expected_artifact_manifest_for_write(
+                artifact_id=ref.artifact_id,
+                data=canon.to_canonical_bytes(report, spec),
+                opts=options,
+                created_at=manifest.created_at,
+            )
+            if (
+                artifacts.artifact_manifest_profile_projection(manifest)
+                != artifacts.artifact_manifest_profile_projection(expected)
+                or ref.manifest_profile_sha256
+                != artifacts.artifact_manifest_profile_sha256(expected)
+                or not store.verify(ref).ok
+            ):
+                return ({"code": "n7_candidate_report_selected_writer_profile_mismatch"},)
+            _n7_validate_configured_candidate_report_source(store=store, report=report)
         persisted = load_acquisition_planner_report(store, ref)
     except Exception as exc:
         return (
@@ -5198,6 +5343,16 @@ def _n7_candidate_n5_l1_planner_records_match(
             generated_at=report.generated_at,
             requirement_basis_binding=report.requirement_basis_binding,
         )
+        if report.schema_version == _N7_CONFIGURED_REPORT_SCHEMA:
+            if report.candidate_lineage is None:
+                return False
+            expected = AcquisitionPlannerReport.model_validate(
+                {
+                    **expected.model_dump(mode="python"),
+                    "schema_version": _N7_CONFIGURED_REPORT_SCHEMA,
+                    "candidate_lineage": report.candidate_lineage,
+                }
+            )
         excluded_bindings = {"planning_context_hash", "planning_binding_hash"}
         return _n7_exact_wire(expected.model_dump(mode="json", exclude=excluded_bindings)) == (
             _n7_exact_wire(report.model_dump(mode="json", exclude=excluded_bindings))
@@ -5263,6 +5418,506 @@ class _N7CandidatePortSource(BaseModel):
     grounding_observation: dict[str, Any]
     value_observation: dict[str, Any]
     source_gap: AcquisitionRequirementGap
+
+
+class _N7ConfiguredCandidatePortSource(BaseModel):
+    """Actual configured N4/N5 routing observations, without admission authority.
+
+    The caller must independently replay the producing ports and selected
+    source owners. The artifact is not proof of present catalog absence or of
+    grounding and cannot authorize acquisition or publication by itself.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    schema_version: Literal["policyos.runtime.n7_configured_candidate_port_source.v1"] = (
+        "policyos.runtime.n7_configured_candidate_port_source.v1"
+    )
+    authority_purpose: Literal["recorded_candidate_routing_only"] = (
+        "recorded_candidate_routing_only"
+    )
+    execution_scope: Literal["configured_candidate"] = "configured_candidate"
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    source_job_id: str = Field(min_length=1)
+    source_generation_run_id: str = Field(min_length=1)
+    cycle_index: int = Field(ge=0)
+    candidate_id: str = Field(min_length=1)
+    candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    design_problem_basis_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    n4_source_ref: artifacts.ArtifactRef
+    context_job_ref: artifacts.ArtifactRef
+    n5_input_ref: artifacts.ArtifactRef
+    n5_execution_ref: artifacts.ArtifactRef
+    n5_result_ref: artifacts.ArtifactRef
+    grounding_observation: dict[str, Any]
+    value_observation: dict[str, Any]
+    grounding_digest_payload: dict[str, Any] | None
+    source_gap: AcquisitionRequirementGap
+    accompanying_requirement_gaps: tuple[AcquisitionRequirementGap, ...] = ()
+    observed_admission: Literal[False] = False
+    publication_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _bind_port_source(self) -> _N7ConfiguredCandidatePortSource:
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.quality.generation_cycle import (
+            CandidateGroundingObservation,
+            ValuePortObservation,
+        )
+
+        refs = (
+            (self.n4_source_ref, "runtime.quality.n4_candidate_scenario_source"),
+            (self.context_job_ref, "runtime.quality.cycle_substrate_context_job"),
+            (self.n5_input_ref, "runtime.quality.candidate_simulation_n5_input"),
+            (self.n5_execution_ref, "runtime.quality.candidate_simulation_execution"),
+            (self.n5_result_ref, "polisyos.runtime.joint_simulation_result"),
+        )
+        if any(
+            type(ref) is not artifacts.ArtifactRef
+            or ref.kind != kind
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            for ref, kind in refs
+        ):
+            raise ValueError("n7_configured_port_source_selected_ref_invalid")
+        grounding = CandidateGroundingObservation.model_validate(self.grounding_observation)
+        value = ValuePortObservation.model_validate(self.value_observation)
+        routing = value.candidate_n5_l1_routing
+        if (
+            grounding.candidate_id != self.candidate_id
+            or value.candidate_id != self.candidate_id
+            or routing is None
+            or _n7_exact_wire(routing.requirement_gap.model_dump(mode="json"))
+            != _n7_exact_wire(self.source_gap.model_dump(mode="json"))
+            or any(
+                artifacts.artifact_ref_identity_key(actual)
+                != artifacts.artifact_ref_identity_key(expected)
+                for actual, expected in (
+                    (routing.source_ref, self.n4_source_ref),
+                    (routing.context_job_ref, self.context_job_ref),
+                    (routing.n5_input_ref, self.n5_input_ref),
+                    (routing.n5_execution_ref, self.n5_execution_ref),
+                    (routing.n5_result_ref, self.n5_result_ref),
+                )
+            )
+        ):
+            raise ValueError("n7_configured_port_source_routing_mismatch")
+        expected_companions = (
+            (grounding.acquisition_requirement,)
+            if grounding.acquisition_requirement is not None
+            else ()
+        )
+        if _n7_exact_wire([gap.model_dump(mode="json") for gap in expected_companions]) != (
+            _n7_exact_wire(
+                [gap.model_dump(mode="json") for gap in self.accompanying_requirement_gaps]
+            )
+        ):
+            raise ValueError("n7_configured_port_source_companions_mismatch")
+        binding = self.source_gap.metadata.get("candidate_binding")
+        if binding != {
+            "candidate_id": self.candidate_id,
+            "candidate_content_hash": self.candidate_content_hash,
+            "design_problem_ref": self.design_problem_basis_ref,
+        }:
+            raise ValueError("n7_configured_port_source_subject_mismatch")
+        payload = self.grounding_digest_payload
+        if grounding.report_ref is None:
+            if payload is not None:
+                raise ValueError("n7_configured_port_source_grounding_digest_mismatch")
+        elif (
+            not isinstance(payload, dict)
+            or payload.get("candidate_id") != self.candidate_id
+            or payload.get("source") != grounding.grounding_source
+            or gy_content_hash(payload) != grounding.report_ref
+            or (
+                grounding.grounding_source == "grounding_unavailable"
+                and _n7_exact_wire(payload)
+                != _n7_exact_wire(
+                    {
+                        "candidate_id": self.candidate_id,
+                        "issue_codes": grounding.issue_codes,
+                        "source": "grounding_unavailable",
+                    }
+                )
+            )
+            or (
+                grounding.grounding_source == "cgf_firewall"
+                and set(payload) != {"candidate_id", "disposition", "source"}
+            )
+        ):
+            raise ValueError("n7_configured_port_source_grounding_digest_mismatch")
+        return self
+
+
+_N7_CONFIGURED_PORT_KIND = "runtime.quality.n7_configured_candidate_port_source"
+_N7_CONFIGURED_PORT_SCHEMA = "polisyos.runtime.N7ConfiguredCandidatePortSource"
+
+
+def _n7_configured_port_inputs(
+    source: _N7ConfiguredCandidatePortSource,
+) -> list[artifacts.InputRef]:
+    return [
+        artifacts.input_ref_from_artifact_ref(ref, role=role)
+        for role, ref in (
+            ("n4_candidate_source", source.n4_source_ref),
+            ("cycle_context", source.context_job_ref),
+            ("n5_input", source.n5_input_ref),
+            ("n5_execution", source.n5_execution_ref),
+            ("n5_result", source.n5_result_ref),
+        )
+    ]
+
+
+def _n7_configured_port_write_profile(
+    source: _N7ConfiguredCandidatePortSource,
+) -> tuple[artifacts.PutOptions, canon.CanonSpec]:
+    spec = canon.CanonSpec(forbid_floats=False, forbid_nan_inf=True)
+    return (
+        artifacts.PutOptions(
+            kind=_N7_CONFIGURED_PORT_KIND,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(name=_N7_CONFIGURED_PORT_SCHEMA, version="1.0"),
+            producer=artifacts.ProducerInfo(
+                component="polisyos.runtime.quality.generation_cycle", version="1.0"
+            ),
+            canon=artifacts.CanonInfo.from_spec(spec),
+            inputs=_n7_configured_port_inputs(source),
+        ),
+        spec,
+    )
+
+
+def _n7_put_configured_candidate_port_source(
+    store: ArtifactStore, source: _N7ConfiguredCandidatePortSource
+) -> artifacts.ArtifactRef:
+    """Persist a producer-replayed configured port capture under the actual CAS scope."""
+    if type(source) is not _N7ConfiguredCandidatePortSource:
+        raise TypeError("n7_configured_port_source_untyped")
+    options, spec = _n7_configured_port_write_profile(source)
+    selected = store.put_json(source, options, canon_spec=spec, return_selected_profile=True)
+    loaded = _n7_load_configured_candidate_port_source(store, selected)
+    if _n7_exact_wire(loaded.model_dump(mode="json")) != _n7_exact_wire(
+        source.model_dump(mode="json")
+    ):
+        raise ValueError("n7_configured_port_source_write_readback_mismatch")
+    return selected
+
+
+def _n7_load_configured_candidate_port_source(
+    store: ArtifactStore, ref: artifacts.ArtifactRef
+) -> _N7ConfiguredCandidatePortSource:
+    """Reopen the exact selected port capture and its complete manifest inputs."""
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    if (
+        type(ref) is not artifacts.ArtifactRef
+        or ref.kind != _N7_CONFIGURED_PORT_KIND
+        or ref.media_type != "application/json"
+        or ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("n7_configured_port_source_ref_invalid")
+    manifest = store.get_manifest(ref)
+    if (
+        artifacts.artifact_ref_identity_key(artifacts.artifact_ref_for_manifest(manifest))
+        != artifacts.artifact_ref_identity_key(ref)
+        or manifest.kind != _N7_CONFIGURED_PORT_KIND
+        or manifest.media_type != "application/json"
+        or manifest.artifact_schema
+        != artifacts.SchemaInfo(name=_N7_CONFIGURED_PORT_SCHEMA, version="1.0")
+        or manifest.producer
+        != artifacts.ProducerInfo(
+            component="polisyos.runtime.quality.generation_cycle", version="1.0"
+        )
+        or not store.verify(ref).ok
+    ):
+        raise ValueError("n7_configured_port_source_profile_unverified")
+    source = _N7ConfiguredCandidatePortSource.model_validate(load_core_json_artifact(store, ref))
+    options, spec = _n7_configured_port_write_profile(source)
+    expected = artifacts.expected_artifact_manifest_for_write(
+        artifact_id=ref.artifact_id,
+        data=canon.to_canonical_bytes(source, spec),
+        opts=options,
+        created_at=manifest.created_at,
+    )
+    if artifacts.artifact_manifest_profile_projection(
+        manifest
+    ) != artifacts.artifact_manifest_profile_projection(
+        expected
+    ) or ref.manifest_profile_sha256 != artifacts.artifact_manifest_profile_sha256(expected):
+        raise ValueError("n7_configured_port_source_input_lineage_mismatch")
+    return source
+
+
+def _n7_configured_candidate_input_bindings(
+    *,
+    report: AcquisitionPlannerReport,
+    source: _N7ConfiguredCandidatePortSource,
+    specs: Sequence[DataRequirementSpec],
+) -> tuple[_N7CandidateReportInputBinding, ...]:
+    """Classify every report reference occurrence from its actual typed source.
+
+    A hash-shaped text is never enough to select a CAS artifact. Additional
+    compiler-declared locators remain declarations; unclassified hashes and
+    unsupported VOI inputs refuse until their producer supplies selected views.
+    """
+    if type(source) is not _N7ConfiguredCandidatePortSource:
+        raise ValueError("n7_candidate_report_source_untyped")
+    bindings: list[_N7CandidateReportInputBinding] = []
+    for record in report.acquisition_records:
+        for role, value in (
+            ("voi_ranking", record.voi_ranking_ref),
+            ("producer_output", record.producer_output_ref),
+            ("calibration_feedback", record.calibration_feedback_ref),
+        ):
+            if not value:
+                continue
+            source_kind: str | None = None
+            if role == "producer_output":
+                if (
+                    record.requirement_gap_ref == source.source_gap.requirement_gap_id
+                    and value == source.source_gap.producer_output_ref
+                ):
+                    source_kind = "l1_coverage_locator"
+                elif any(
+                    record.requirement_gap_ref == gap.requirement_gap_id
+                    and value == gap.producer_output_ref
+                    for gap in source.accompanying_requirement_gaps
+                ):
+                    source_kind = "grounding_digest"
+            if (
+                source_kind is None
+                and role == "calibration_feedback"
+                and value == f"calibration_feedback:{record.gap_id}"
+            ):
+                source_kind = "planner_generated_locator"
+            if source_kind is None and role in {"producer_output", "calibration_feedback"}:
+                matching_specs = tuple(
+                    spec for spec in specs if spec.requirement_id == record.compiled_requirement_ref
+                )
+                field = (
+                    "producer_output_ref"
+                    if role == "producer_output"
+                    else "calibration_feedback_ref"
+                )
+                if (
+                    len(matching_specs) == 1
+                    and _metadata(_spec_payload(matching_specs[0])).get(field) == value
+                    and _artifact_id(value) is None
+                ):
+                    source_kind = "compiler_declared_locator"
+            if source_kind is None:
+                raise ValueError("n7_candidate_report_input_source_not_established")
+            bindings.append(
+                _N7CandidateReportInputBinding(
+                    acquisition_id=record.acquisition_id,
+                    role=role,
+                    value=value,
+                    source_kind=source_kind,
+                )
+            )
+    return tuple(bindings)
+
+
+def _n7_bind_configured_candidate_report(
+    *,
+    store: ArtifactStore,
+    report: AcquisitionPlannerReport,
+    port_source_ref: artifacts.ArtifactRef,
+) -> AcquisitionPlannerReport:
+    """Bind a mixed plan to selected port/compiler inputs before its CAS write."""
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    if (
+        type(report) is not AcquisitionPlannerReport
+        or report.schema_version != ACQUISITION_PLANNER_SCHEMA_VERSION
+        or report.candidate_lineage is not None
+        or report.requirement_basis_binding is None
+        or report.planning_context_hash is not None
+        or report.planning_binding_hash is not None
+    ):
+        raise ValueError("n7_candidate_report_binding_input_invalid")
+    source = _n7_load_configured_candidate_port_source(store, port_source_ref)
+    basis = report.requirement_basis_binding
+    if _validate_persisted_data_requirement_compilation_report(
+        store=store, binding=basis, require_selected_writer_profile=True
+    ):
+        raise ValueError("n7_candidate_report_compiler_not_established")
+    compilation = DataRequirementCompilationReport.model_validate(
+        load_core_json_artifact(store, basis.compiler_report_ref)
+    )
+    if not _n7_candidate_n5_l1_planner_records_match(
+        source_gap=source.source_gap,
+        accompanying_requirement_gaps=source.accompanying_requirement_gaps,
+        specs=compilation.specs,
+        capability_resolutions=compilation.capability_requirement_resolutions,
+        report=report,
+    ):
+        raise ValueError("n7_candidate_report_producer_replay_mismatch")
+    lineage = _N7CandidateReportLineage(
+        port_source_ref=port_source_ref,
+        bindings=_n7_configured_candidate_input_bindings(
+            report=report, source=source, specs=compilation.specs
+        ),
+    )
+    return AcquisitionPlannerReport.model_validate(
+        {
+            **report.model_dump(mode="python"),
+            "schema_version": _N7_CONFIGURED_REPORT_SCHEMA,
+            "candidate_lineage": lineage,
+        }
+    )
+
+
+def _n7_validate_configured_candidate_report_source(
+    *, store: ArtifactStore, report: AcquisitionPlannerReport
+) -> None:
+    """Replay the complete configured-source and compiler report input map."""
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    lineage = report.candidate_lineage
+    basis = report.requirement_basis_binding
+    if (
+        type(report) is not AcquisitionPlannerReport
+        or report.schema_version != _N7_CONFIGURED_REPORT_SCHEMA
+        or lineage is None
+        or basis is None
+        or _validate_persisted_data_requirement_compilation_report(
+            store=store, binding=basis, require_selected_writer_profile=True
+        )
+    ):
+        raise ValueError("n7_candidate_report_source_not_established")
+    source = _n7_load_configured_candidate_port_source(store, lineage.port_source_ref)
+    compilation = DataRequirementCompilationReport.model_validate(
+        load_core_json_artifact(store, basis.compiler_report_ref)
+    )
+    if report.run_id != f"n7-cycle:{basis.scenario_id}:{source.cycle_index}":
+        raise ValueError("n7_candidate_report_source_scope_mismatch")
+    legacy_projection = AcquisitionPlannerReport.model_validate(
+        {
+            **report.model_dump(mode="python", exclude={"candidate_lineage"}),
+            "schema_version": ACQUISITION_PLANNER_SCHEMA_VERSION,
+        }
+    )
+    if not _n7_candidate_n5_l1_planner_records_match(
+        source_gap=source.source_gap,
+        accompanying_requirement_gaps=source.accompanying_requirement_gaps,
+        specs=compilation.specs,
+        capability_resolutions=compilation.capability_requirement_resolutions,
+        report=legacy_projection,
+    ) or lineage.bindings != _n7_configured_candidate_input_bindings(
+        report=legacy_projection, source=source, specs=compilation.specs
+    ):
+        raise ValueError("n7_candidate_report_source_replay_mismatch")
+
+
+def _n7_verify_configured_candidate_report_cycle(
+    *,
+    artifact_store: ArtifactStore,
+    control_store: object,
+    report: AcquisitionPlannerReport,
+    report_ref: artifacts.ArtifactRef,
+    generation_run: object,
+    source_cycle: object,
+    tenant_id: str,
+    cell_id: str,
+    run_id: str,
+    source_job_id: str,
+    design_problem_ref: str,
+) -> _N7ConfiguredCandidatePortSource:
+    """Join a selected report to its independently reopened candidate N4/N5 cycle.
+
+    The caller must first establish the selected run/action owner. This read-only
+    join does not establish present catalog currentness, absence or admission.
+    """
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        resolve_selected_acquisition_evaluation_parts,
+    )
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleRecord, GenerationCycleRun
+
+    if (
+        type(generation_run) is not GenerationCycleRun
+        or type(source_cycle) is not GenerationCycleRecord
+        or report.candidate_lineage is None
+        or source_cycle.acquisition_routing_report is None
+        or source_cycle.acquisition_routing_report_ref is None
+        or artifacts.artifact_ref_identity_key(source_cycle.acquisition_routing_report_ref)
+        != artifacts.artifact_ref_identity_key(report_ref)
+        or _canonical_model_bytes(source_cycle.acquisition_routing_report)
+        != _canonical_model_bytes(report)
+        or _validate_persisted_planner_report(store=artifact_store, ref=report_ref, report=report)
+    ):
+        raise ValueError("n7_candidate_report_selected_cycle_mismatch")
+    selected_cycles = tuple(
+        cycle for cycle in generation_run.cycles if cycle.cycle_index == source_cycle.cycle_index
+    )
+    if len(selected_cycles) != 1 or _n7_exact_wire(
+        selected_cycles[0].model_dump(mode="json")
+    ) != _n7_exact_wire(source_cycle.model_dump(mode="json")):
+        raise ValueError("n7_candidate_report_cycle_not_selected_in_run")
+    source = _n7_load_configured_candidate_port_source(
+        artifact_store, report.candidate_lineage.port_source_ref
+    )
+    actual = resolve_selected_acquisition_evaluation_parts(
+        artifact_store=artifact_store,
+        control_store=control_store,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        run_id=run_id,
+        generation_run=generation_run,
+        source_cycle=source_cycle,
+        design_problem_ref=design_problem_ref,
+    )
+    if (
+        (source.tenant_id, source.cell_id, source.run_id, source.source_job_id)
+        != (tenant_id, cell_id, run_id, source_job_id)
+        or source.source_job_id != actual.source.job_id
+        or source.source_generation_run_id != generation_run.run_id
+        or source.cycle_index != source_cycle.cycle_index
+        or source.candidate_id != source_cycle.selected_candidate_ref
+        or source.candidate_content_hash != source_cycle.selected_candidate_content_hash
+        or source.design_problem_basis_ref
+        != (source_cycle.design_problem_basis_ref or source_cycle.design_problem_ref)
+        or _n7_exact_wire(source.grounding_observation)
+        != _n7_exact_wire(source_cycle.grounding.model_dump(mode="json"))
+        or _n7_exact_wire(source.value_observation)
+        != _n7_exact_wire(source_cycle.value_port.model_dump(mode="json"))
+        or any(
+            artifacts.artifact_ref_identity_key(left) != artifacts.artifact_ref_identity_key(right)
+            for left, right in (
+                (source.n4_source_ref, actual.selected.n4_source_ref),
+                (source.context_job_ref, actual.selected.context_job_ref),
+                (source.n5_input_ref, actual.selected.n5_input_ref),
+                (source.n5_execution_ref, actual.selected.n5_execution_ref),
+                (source.n5_result_ref, actual.selected.n5_result_ref),
+            )
+        )
+    ):
+        raise ValueError("n7_candidate_report_source_owner_mismatch")
+    if source.grounding_observation.get("grounding_source") == "cgf_firewall":
+        # The configured N4/V5 reader does not yet retain the actual full CGF
+        # disposition input. A self-consistent preimage is not its owner proof.
+        raise ValueError("n7_candidate_report_cgf_source_not_established")
+    return source
+
+
+def _n7_configured_candidate_report_write_profile(
+    report: AcquisitionPlannerReport,
+) -> tuple[artifacts.PutOptions, canon.CanonSpec]:
+    spec = canon.CanonSpec(forbid_floats=False, exclude_none=False)
+    return (
+        artifacts.PutOptions(
+            kind=ACQUISITION_PLANNER_KIND,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(name=ACQUISITION_PLANNER_SCHEMA_NAME, version="2.0"),
+            producer=artifacts.ProducerInfo(
+                component="polisyos.runtime.quality.acquisition_planner", version="2.0"
+            ),
+            canon=artifacts.CanonInfo.from_spec(spec),
+            inputs=acquisition_report_inputs(report),
+        ),
+        spec,
+    )
 
 
 class _N7CandidateCycleCheckpoint(BaseModel):
@@ -6178,6 +6833,29 @@ def acquisition_report_inputs(
 ) -> list[artifacts.InputRef]:
     """Build manifest lineage inputs for a persisted acquisition planner report."""
 
+    if report.candidate_lineage is not None:
+        basis = report.requirement_basis_binding
+        if basis is None or basis.compiler_report_ref.manifest_profile_sha256 is None:
+            raise ValueError("n7_candidate_report_compiler_not_established")
+        inputs = [
+            artifacts.input_ref_from_artifact_ref(
+                report.candidate_lineage.port_source_ref, role="configured_candidate_port_source"
+            ),
+            artifacts.input_ref_from_artifact_ref(
+                basis.compiler_report_ref, role="data_requirement_compiler_report"
+            ),
+        ]
+        for index, binding in enumerate(report.candidate_lineage.bindings):
+            if binding.source_kind == "selected_artifact":
+                if binding.selected_artifact_ref is None:
+                    raise ValueError("n7_candidate_report_selected_input_invalid")
+                inputs.append(
+                    artifacts.input_ref_from_artifact_ref(
+                        binding.selected_artifact_ref, role=f"n7_input.{index}.{binding.role}"
+                    )
+                )
+        return inputs
+
     inputs: list[artifacts.InputRef] = []
     seen: set[str] = set()
     for record in report.acquisition_records:
@@ -6206,6 +6884,40 @@ def acquisition_report_inputs(
     return inputs
 
 
+def _n7_require_current_report_input_provenance(report: AcquisitionPlannerReport) -> None:
+    """Refuse ambiguous legacy inputs at a current-use boundary.
+
+    A V1 report has no selected producer view for its SHA-shaped reference
+    strings. Their shape, or the existence of a same-ID CAS object, does not
+    establish the semantic source for any of the three recorded roles. Other
+    locators remain declarations, not evidence of authority. V2 callers must
+    separately reopen and reconcile their selected source and report owners;
+    passing this guard does not perform that verification.
+
+    Historical V1 reads deliberately do not call this current-use guard.
+    """
+
+    if report.schema_version == _N7_CONFIGURED_REPORT_SCHEMA:
+        if report.candidate_lineage is None:
+            raise AcquisitionPlannerBindingError("n7_candidate_report_lineage_not_established")
+        return
+    if (
+        report.schema_version != ACQUISITION_PLANNER_SCHEMA_VERSION
+        or report.candidate_lineage is not None
+    ):
+        raise AcquisitionPlannerBindingError("n7_current_report_version_not_established")
+    for record in report.acquisition_records:
+        for ref in (
+            record.voi_ranking_ref,
+            record.producer_output_ref,
+            record.calibration_feedback_ref,
+        ):
+            if ref and _artifact_id(ref) is not None:
+                raise AcquisitionPlannerBindingError(
+                    "n7_legacy_current_input_provenance_not_established"
+                )
+
+
 def persist_acquisition_planner_report(
     store: ArtifactStore,
     report: AcquisitionPlannerReport,
@@ -6214,12 +6926,22 @@ def persist_acquisition_planner_report(
 ) -> artifacts.ArtifactRef:
     """Persist an acquisition planner report as a first-class CAS artifact."""
 
+    if (report.schema_version == _N7_CONFIGURED_REPORT_SCHEMA) != (
+        report.candidate_lineage is not None
+    ):
+        raise ValueError("n7_candidate_report_lineage_version_mismatch")
     if (
         not _N7_BLOCKED_CANDIDATE_REPORT_EMISSION_ENABLED
         and report.status == "blocked"
         and report.basis_limitation_code in _N7_CANDIDATE_BASIS_LIMITATION_CODES
     ):
         raise AcquisitionPlannerBindingError("n7_blocked_candidate_reader_rollout_not_admitted")
+    if report.candidate_lineage is not None:
+        if inputs is not None:
+            raise ValueError("n7_candidate_report_input_override_forbidden")
+        _n7_validate_configured_candidate_report_source(store=store, report=report)
+        options, spec = _n7_configured_candidate_report_write_profile(report)
+        return store.put_json(report, options, canon_spec=spec, return_selected_profile=True)
     return store.put_json(
         report,
         artifacts.PutOptions(

@@ -28,7 +28,7 @@ from polisyos.core.artifacts import (
     read_core_json_artifact_bounded,
 )
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
-from polisyos.core.contracts.fabric import (
+from polisyos.core.contracts import (
     DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,
     AcquiredObservationDataSnapshotLineage,
     CandidateAcquisitionSourceDataSnapshotLineage,
@@ -43,7 +43,7 @@ from polisyos.core.contracts.fabric import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import CoreJSONArtifactBoundedMemberReader
+    from polisyos.core.artifacts import CoreJSONArtifactBoundedMemberReader
 
 
 class DataSnapshotLineageError(ValueError):
@@ -308,7 +308,7 @@ def _legacy_owner_lineage(
             payload_manifest.inputs,
             "data_view_request_ref",
         )
-        from polisyos.core.contracts.fabric import DataViewRequestRef
+        from polisyos.core.contracts import DataViewRequestRef
 
         return FabricBridgeDataSnapshotLineage(
             data_view_request_ref=DataViewRequestRef.model_validate(
@@ -585,7 +585,7 @@ def _verify_measurement_root_owner(
     snapshot: DataSnapshot,
     lineage: MeasurementRootDataSnapshotLineage,
 ) -> None:
-    from polisyos.fabric.retrieval.custody import FabricFetchReceipt
+    from polisyos.fabric import FabricFetchReceipt
     from polisyos.runtime.quality.data_forge_binding import (
         FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION,
         FabricMeasurementRootPayload,
@@ -797,11 +797,11 @@ def _verify_acquired_observation_owner(
         expected=_acquired_observation_payload_requirements(snapshot, lineage),
     )
     from polisyos.core.artifacts import validate_core_model_json_artifact
-    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+    from polisyos.data_forge.read_api.catalog import (
         OverlayAdmissionReceipt,
-        content_sha256,
         validate_overlay_admission_receipt,
     )
+    from polisyos.fabric.data_plane import content_sha256
     from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
 
     try:

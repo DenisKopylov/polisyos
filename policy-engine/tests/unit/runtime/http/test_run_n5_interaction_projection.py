@@ -227,3 +227,108 @@ def test_candidate_history_second_fold_invalidates_stale_current_view() -> None:
     assert changed is not None and changed.status == "not_established"
     assert changed.issues == ("candidate_source_current_between_read_snapshot_mismatch",)
     assert changed.fronts is None and not changed.occurrences
+
+
+def test_failed_stage_requires_selected_terminal_manifest(monkeypatch: pytest.MonkeyPatch) -> None:
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.runtime.http.routes.runs import _failed_candidate_stage_from_terminal
+    from polisyos.runtime.http.services.adapters import core_run
+
+    refs = tuple(
+        ArtifactRef(
+            artifact_id="sha256:" + str(i) * 64,
+            kind=f"test.{i}",
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "a" * 64,
+        )
+        for i in range(1, 5)
+    )
+    manifest = SimpleNamespace(
+        run_id="core",
+        control_job_id="job",
+        tenant_id="tenant",
+        cell_id="cell",
+        status="error",
+        outputs=list(refs),
+        errors=[{"stage": "value_projection"}],
+    )
+    terminal = SimpleNamespace(run_id="core", tenant_id="tenant", cell_id="cell", manifest=manifest)
+    monkeypatch.setattr(core_run, "load_terminal_core_run_source", lambda **_: terminal)
+
+    def read() -> str | None:
+        return _failed_candidate_stage_from_terminal(
+            run_id="core",
+            control_job_id="job",
+            tenant_id="tenant",
+            cell_id="cell",
+            required_roots=refs,
+            store=object(),
+            control_service=SimpleNamespace(_core_runs_root=object()),
+        )
+
+    assert read() == "value_projection"
+    manifest.errors = [{"stage": "revision"}]
+    assert read() == "revision"
+    manifest.errors = [{}]
+    assert read() is None
+    manifest.errors = [{"stage": "revision"}, {"stage": "value_projection"}]
+    assert read() is None
+    manifest.errors = [{"stage": "value_projection"}]
+    manifest.control_job_id = "other"
+    assert read() is None
+    manifest.control_job_id = "job"
+    manifest.outputs[0] = refs[0].model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "b" * 64}
+    )
+    assert read() is None
+    manifest.outputs = list(refs)
+    terminal.cell_id = "other"
+    assert read() is None
+
+
+def test_failed_stage_preserves_canonical_profile_refusal(monkeypatch: pytest.MonkeyPatch) -> None:
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.runtime.http.routes.runs import _failed_candidate_stage_from_terminal
+    from polisyos.runtime.http.services.adapters import core_run
+
+    def refuse(**_: object) -> None:
+        raise CanonicalProfileRefusalError("refused")
+
+    monkeypatch.setattr(core_run, "load_terminal_core_run_source", refuse)
+    with pytest.raises(CanonicalProfileRefusalError):
+        _failed_candidate_stage_from_terminal(
+            run_id="core",
+            control_job_id="job",
+            tenant_id="tenant",
+            cell_id="cell",
+            required_roots=(),
+            store=object(),
+            control_service=SimpleNamespace(_core_runs_root=object()),
+        )
+
+
+@pytest.mark.parametrize("wrapped", [False, True])
+def test_failed_stage_preserves_owner_access_refusal(
+    monkeypatch: pytest.MonkeyPatch, wrapped: bool
+) -> None:
+    from polisyos.core.artifacts import ArtifactOwnershipError
+    from polisyos.runtime.http.routes.runs import _failed_candidate_stage_from_terminal
+    from polisyos.runtime.http.services.adapters import core_run
+
+    def refuse(**_: object) -> None:
+        denial = ArtifactOwnershipError("different scope")
+        if wrapped:
+            raise ValueError("reader failed") from denial
+        raise denial
+
+    monkeypatch.setattr(core_run, "load_terminal_core_run_source", refuse)
+    with pytest.raises(ArtifactOwnershipError):
+        _failed_candidate_stage_from_terminal(
+            run_id="core",
+            control_job_id="job",
+            tenant_id="tenant",
+            cell_id="cell",
+            required_roots=(),
+            store=object(),
+            control_service=SimpleNamespace(_core_runs_root=object()),
+        )

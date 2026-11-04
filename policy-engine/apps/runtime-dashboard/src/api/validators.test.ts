@@ -719,7 +719,105 @@ function c41V5Payload() {
   return payload;
 }
 
+function authoredJointV5Payload() {
+  const payload = c41V5Payload();
+  const projection = mutableRecord(
+    mutableRecord(payload.run).generic_cycle_simulation,
+  );
+  const observation = firstMutableRecord(
+    projection.joint_parent_observations,
+    "joint_parent_observations",
+  );
+  const evidence = mutableRecord(observation.n5_interaction_evidence);
+  evidence.schema_version = "policyos.runtime.joint_simulation_horizon.v5";
+  const ref = (kind: string, digit: string) => ({
+    artifact_id: `sha256:${digit.repeat(64)}`,
+    kind,
+    media_type: "application/json",
+    manifest_profile_sha256: `sha256:${"f".repeat(64)}`,
+  });
+  Object.assign(observation, {
+    n8_candidate_member_basis: "authored_materialized_n4_source_members",
+    n8_selected_member_relationship: "joint_components",
+    n8_candidate_derived_atom_ids: [
+      "atom_aaaaaaaaaaaaaaaa",
+      "atom_bbbbbbbbbbbbbbbb",
+      "atom_cccccccccccccccc",
+    ],
+    n8_candidate_derived_atom_content_hashes: ["a", "b", "c"].map(
+      (digit) => `sha256:${digit.repeat(64)}`,
+    ),
+    n8_policy_composition_status: "authored_candidate",
+    n8_policy_composition_limitation_code:
+      "authored_candidate_coupling_not_established",
+    n8_authored_joint_relation_ref: ref(
+      "runtime.quality.recursive_authored_joint_relation",
+      "7",
+    ),
+    n8_authored_joint_request_payload_ref: ref(
+      "runtime.control_job_payload.natural_language_run",
+      "8",
+    ),
+    n8_authored_joint_intent_digest: `sha256:${"9".repeat(64)}`,
+    n8_authority_blockers: [
+      "n5_execution_request_provenance_not_established",
+      "authored_candidate_coupling_not_established",
+      "child_to_parent_refinement_rule_not_established",
+      "parent_joint_coupling_evidence_not_established",
+    ],
+  });
+  return { payload, observation };
+}
+
 describe("runtime API validators", () => {
+  it("preserves distinct intervention and hash-bound derived atom identities", () => {
+    const { payload } = authoredJointV5Payload();
+    const observation =
+      runDetailsSchema.parse(payload).run.generic_cycle_simulation
+        ?.joint_parent_observations?.[0];
+    expect(observation?.atom_ids).toEqual(["atom-a", "atom-b", "atom-c"]);
+    expect(observation?.n8_candidate_parent_intervention_ids).toEqual(
+      observation?.atom_ids,
+    );
+    expect(observation?.n8_candidate_derived_atom_ids).toEqual([
+      "atom_aaaaaaaaaaaaaaaa",
+      "atom_bbbbbbbbbbbbbbbb",
+      "atom_cccccccccccccccc",
+    ]);
+  });
+
+  it.each([
+    "wrong_id",
+    "wrong_hash",
+    "permuted_ids",
+    "duplicate_id",
+    "intervention_order",
+    "reused_source",
+  ] as const)("refuses an authored identity binding with %s", (variant) => {
+    const { payload, observation } = authoredJointV5Payload();
+    const ids = [...(observation.n8_candidate_derived_atom_ids as string[])];
+    const hashes = [
+      ...(observation.n8_candidate_derived_atom_content_hashes as string[]),
+    ];
+    if (variant === "wrong_id") ids[0] = "atom_eeeeeeeeeeeeeeee";
+    if (variant === "wrong_hash") hashes[0] = `sha256:${"e".repeat(64)}`;
+    if (variant === "permuted_ids") ids.reverse();
+    if (variant === "duplicate_id") ids[1] = ids[0]!;
+    if (variant === "intervention_order")
+      observation.n8_candidate_parent_intervention_ids = [
+        "atom-b",
+        "atom-a",
+        "atom-c",
+      ];
+    if (variant === "reused_source") {
+      ids[0] = "atom_4444444444444444";
+      hashes[0] = `sha256:${"4".repeat(64)}`;
+    }
+    observation.n8_candidate_derived_atom_ids = ids;
+    observation.n8_candidate_derived_atom_content_hashes = hashes;
+    expect(runDetailsSchema.safeParse(payload).success).toBe(false);
+  });
+
   it("parses a v5 parent assessment separately from mixed child owner outcomes", () => {
     const parsed = runDetailsSchema.parse(c41V5Payload());
     const projection = parsed.run.generic_cycle_simulation;

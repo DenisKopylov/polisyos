@@ -13,7 +13,7 @@ from polisyos.data_requirement import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.contracts.control import FetchPlan
+    from polisyos.core.contracts import FetchPlan
 
 FABRIC_DATA_REQUIREMENT_BINDINGS_SCHEMA_VERSION = "policyos.fabric.data_requirement_bindings.v1"
 CATALOG_DATA_NEED_PROJECTION_SCHEMA_VERSION = "policyos.fabric.catalog_data_need_projection.v1"

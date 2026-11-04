@@ -20,6 +20,8 @@ export function buildClerkFormDefaults(
     selectedLlmModels: defaultModelId ? [defaultModelId] : [],
     maxParallelModels: 1,
     runBudgetUsd: "",
+    runBudgetScope: "",
+    boundedCandidateExperiment: false,
     perModelBudgetUsd: "",
     maxIterations: 3,
     checkpointPolicy: "strict",

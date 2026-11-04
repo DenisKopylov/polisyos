@@ -14038,6 +14038,11 @@ export interface components {
         NaturalLanguageRunRequest: {
             calibration_rule_ref?: components["schemas"]["ArtifactRef-Input"] | null;
             /**
+             * Candidate Acquisition Intent
+             * @description Explicit opt-in for a separately authorized bounded candidate data-acquisition experiment with information value not established. Requires the limited metered budget scope, an explicit finite USD cap and independent physical authorizations before execution. Does not override an ROI rejection or grant publication authority. Omission or null does not authorize this experiment.
+             */
+            candidate_acquisition_intent?: "bounded_experiment_voi_unknown" | null;
+            /**
              * Checkpoint Policy
              * @default strict
              * @enum {string}
@@ -14089,6 +14094,11 @@ export interface components {
             policy_spec_ref?: components["schemas"]["ArtifactRef-Input"] | null;
             /** Request */
             request: string;
+            /**
+             * Run Budget Scope
+             * @description Explicit budget scope for this new request. hard_total_usd requires an enforceable total USD ceiling. metered_paid_producers_and_bounded_candidate limits metered paid producers in USD and requires separately authorized physical candidate-work limits; total USD cost remains not established. This choice grants no execution permission. Omission or null does not authorize unpriced candidate acquisition.
+             */
+            run_budget_scope?: ("hard_total_usd" | "metered_paid_producers_and_bounded_candidate") | null;
             /** Run Budget Usd */
             run_budget_usd?: number | null;
             /** Stop Criteria */
@@ -17330,6 +17340,111 @@ export interface components {
             world_model_ref: components["schemas"]["ArtifactRef-Output"];
         };
         /**
+         * RunCandidateSimulationAcquisitionHistoryEntryV5
+         * @description Verified candidate terminal and historical frontier, without admission authority.
+         */
+        RunCandidateSimulationAcquisitionHistoryEntryV5: {
+            /** Action Generation */
+            action_generation: number;
+            /**
+             * Authority Purpose
+             * @default candidate_observation_only
+             * @constant
+             */
+            authority_purpose: "candidate_observation_only";
+            candidate_action_ref: components["schemas"]["ArtifactRef-Output"];
+            candidate_source_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Comparison Reason Codes
+             * @default []
+             */
+            comparison_reason_codes: string[];
+            /**
+             * Comparison Result
+             * @enum {string}
+             */
+            comparison_result: "equivalent" | "different" | "not_established";
+            /** Current Basis Limitations */
+            current_basis_limitations: string[];
+            /**
+             * Current Basis Provenance
+             * @enum {string}
+             */
+            current_basis_provenance: "recomputed" | "not_established";
+            current_basis_ref: components["schemas"]["ArtifactRef-Output"];
+            current_cheap_consequences?: components["schemas"]["RunCandidateSimulationCheapConsequences"] | null;
+            current_continuation_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Currentness Status
+             * @default not_established
+             * @constant
+             */
+            currentness_status: "not_established";
+            evaluation_decision_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Evaluation Provenance
+             * @enum {string}
+             */
+            evaluation_provenance: "new_execution" | "retained_prior" | "not_established";
+            /** Frontier Ref */
+            frontier_ref: string;
+            /** Frontier Revision */
+            frontier_revision: number;
+            /**
+             * Frontier Selection
+             * @enum {string}
+             */
+            frontier_selection: "selected" | "superseded";
+            /**
+             * Observed Admission
+             * @default false
+             * @constant
+             */
+            observed_admission: false;
+            /**
+             * Predicate Provenance
+             * @enum {string}
+             */
+            predicate_provenance: "recomputed" | "not_established";
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            reentry?: components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"] | null;
+            /** Route Id */
+            route_id: string;
+            route_receipt_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Schema Version
+             * @default policyos.runtime.run_candidate_simulation_acquisition_history.v5
+             * @constant
+             */
+            schema_version: "policyos.runtime.run_candidate_simulation_acquisition_history.v5";
+            /** Selected Basis Limitations */
+            selected_basis_limitations: string[];
+            /**
+             * Selected Basis Provenance
+             * @enum {string}
+             */
+            selected_basis_provenance: "recomputed" | "not_established";
+            selected_basis_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Selected Basis Role
+             * @enum {string}
+             */
+            selected_basis_role: "evaluated" | "blocked";
+            selected_evaluation?: components["schemas"]["RunCandidateSimulationRetainedEvaluation"] | null;
+            selected_evaluation_witness_ref: components["schemas"]["ArtifactRef-Output"];
+            selected_n5_observation?: components["schemas"]["RunCandidateSimulationN5Observation"] | null;
+            /**
+             * Terminal Outcome
+             * @enum {string}
+             */
+            terminal_outcome: "candidate_reentry_completed" | "candidate_evaluation_retained";
+        };
+        /**
          * RunCandidateSimulationCheapConsequences
          * @description Verified cheap reactions at a recorded action, without a new N5 occurrence.
          */
@@ -17853,7 +17968,7 @@ export interface components {
              * Acquisition History
              * @default []
              */
-            acquisition_history: (components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"])[];
+            acquisition_history: (components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV5"])[];
             /** Acquisition History Limitation Code */
             acquisition_history_limitation_code?: ("acquisition_n4_source_not_established" | "acquisition_action_history_not_observed" | "acquisition_action_history_incomplete" | "acquisition_action_history_integrity_not_established" | "acquisition_reentry_source_not_established") | null;
             /**

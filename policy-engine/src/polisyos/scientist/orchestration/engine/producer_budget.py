@@ -502,6 +502,7 @@ class ProducerBudgetObserver:
         invocation_purpose: Literal["standard", "diagnostic", "counterevidence"] = "standard",
         invocation_selection_pending: bool = False,
         reentry_budget_scope: BudgetLedgerReentryBudgetScope | None = None,
+        invocation_guard_binding: object | None = None,
     ) -> None:
         if type(settlement_store) is not BudgetMiddleware:
             raise TypeError("control_nl_budget_settlement_store_invalid")
@@ -534,6 +535,12 @@ class ProducerBudgetObserver:
         self._store = settlement_store
         self._binding = producer_run_binding
         self._state = budget_state
+        # This opaque composition binding is not a permit. A higher-layer
+        # consumer must independently validate the owner and current scope.
+        self._invocation_guard_binding = invocation_guard_binding
+        self._invocation_guard_binding_id = (
+            id(invocation_guard_binding) if invocation_guard_binding is not None else None
+        )
         self._limit = self._current_limit().model_copy(deep=True)
         self._owner, resource = settlement_store._bind_live_producer_resource()
         self._reentry_window: BudgetLedgerReentryBudgetWindow | None = None
@@ -570,6 +577,14 @@ class ProducerBudgetObserver:
         ] = ContextVar("n5_invocation_purpose", default=None)
         self._invocation_selection_pending = invocation_selection_pending
         self._invocation_selection_bound = invocation_quota_profile is not None
+
+    @property
+    def invocation_guard_binding(self) -> object | None:
+        """Return the original opaque physical-invocation composition binding."""
+        binding = self._invocation_guard_binding
+        if (id(binding) if binding is not None else None) != self._invocation_guard_binding_id:
+            raise ProducerBudgetSourceError("invocation_guard_binding_changed")
+        return binding
 
     @property
     def reentry_budget_window(self) -> BudgetLedgerReentryBudgetWindow | None:

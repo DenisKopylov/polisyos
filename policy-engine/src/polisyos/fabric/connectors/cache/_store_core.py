@@ -31,7 +31,7 @@ from polisyos.core.artifacts import (
     load_core_json_artifact,
 )
 from polisyos.core.canon import CanonSpec, fingerprint
-from polisyos.core.contracts.fabric import IngestionExecutionContext
+from polisyos.core.contracts import IngestionExecutionContext
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.security import (
@@ -71,7 +71,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
     from types import TracebackType
 
-    from polisyos.core.artifacts.manifest import ArtifactGovernanceInfo, InputRef
+    from polisyos.core.artifacts import ArtifactGovernanceInfo, InputRef
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors.base import (
         ConnectionConfig,

@@ -215,11 +215,19 @@ def test_data_resolve_uses_server_profile_and_refuses_conflict(tmp_path) -> None
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("has_resolver", [False, True])
 async def test_control_service_forwards_catalog_profile_to_recursive_http_bridge(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
+    has_resolver: bool,
 ) -> None:
+    from dataclasses import replace
+
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
     service = _build_control_service(tmp_path, catalog_run_profile="prod_full")
+    selected = RequirementToCapabilityResolver.governed_fixture() if has_resolver else None
+    service._registry_providers = replace(service._registry_providers, capability_resolver=selected)
     observed: dict[str, object] = {}
 
     async def record_bridge_arguments(**kwargs: object) -> object:
@@ -247,6 +255,7 @@ async def test_control_service_forwards_catalog_profile_to_recursive_http_bridge
         )
 
         assert observed["catalog_run_profile"] == "prod_full"
+        assert observed["capability_resolver"] is selected
         assert result is not None
     finally:
         service.close()
@@ -2071,6 +2080,8 @@ async def _run_controlled_simulate_only_job_fixture(
     l6_source_owner_root: Path | None = None,
     same_leaf_failure_stage: Literal["value_projection", "revision"] | None = None,
     remove_same_leaf_preservation_bridge: bool = False,
+    hard_total_budget: bool = False,
+    budget_scope_value: str | None = "hard_total_usd",
     tenant_id: str = "tenant-fixture",
     cell_id: str = "cell-fixture",
 ) -> SimpleNamespace:
@@ -2548,10 +2559,35 @@ async def _run_controlled_simulate_only_job_fixture(
     original_persist = CycleSubstrateContextArtifactOwner.persist_for_current_job
     original_resolve = CycleSubstrateContextArtifactOwner.resolve_for_current_job
 
-    def record_persist(owner, context, *, problem, verified_nl_job_scope=None):
+    def record_persist(
+        owner,
+        context,
+        *,
+        problem,
+        repo_root=None,
+        verified_nl_job_scope=None,
+        return_selected_profile=False,
+    ):
         assert owner._store is service._artifact_store
         assert verified_nl_job_scope is not None
         assert get_current_access_scope_or_none() is None
+        budget_scope = service._current_verified_nl_budget_scope()
+        assert budget_scope.require_current_physical_budget_scope() == "legacy_omitted"
+        for altered in (
+            budget_scope.model_copy(update={"tenant_id": "foreign-tenant"}),
+            budget_scope.model_copy(update={"attempt": budget_scope.attempt + 1}),
+            budget_scope.model_copy(update={"actor_subject": "foreign-actor"}),
+            budget_scope.model_copy(update={"source_payload_ref": "sha256:" + "f" * 64}),
+            budget_scope.model_copy(
+                update={
+                    "run_budget_scope_present": True,
+                    "run_budget_scope": "metered_paid_producers_and_bounded_candidate",
+                }
+            ),
+        ):
+            assert not altered._was_issued_by_verified_nl_budget_owner
+            with pytest.raises(ValueError, match="nl_physical_budget_scope_owner_not_established"):
+                altered.require_current_physical_budget_scope()
         for changed_scope in (
             verified_nl_job_scope.model_copy(update={"tenant_id": "foreign-tenant"}),
             verified_nl_job_scope.model_copy(update={"attempt": verified_nl_job_scope.attempt + 1}),
@@ -2566,14 +2602,18 @@ async def _run_controlled_simulate_only_job_fixture(
                     owner,
                     context,
                     problem=problem,
+                    repo_root=repo_root,
                     verified_nl_job_scope=changed_scope,
+                    return_selected_profile=return_selected_profile,
                 )
         verified_scope_observations.append(verified_nl_job_scope)
         ref = original_persist(
             owner,
             context,
             problem=problem,
+            repo_root=repo_root,
             verified_nl_job_scope=verified_nl_job_scope,
+            return_selected_profile=return_selected_profile,
         )
         owner_refs.append(ref)
         return ref
@@ -2928,6 +2968,14 @@ async def _run_controlled_simulate_only_job_fixture(
             llm_model=str(recording["model_id"]),
             context=context_payload,
             max_iterations=1,
+            **(
+                {
+                    "run_budget_usd": 5.0,
+                    "run_budget_scope": budget_scope_value,
+                }
+                if hard_total_budget
+                else {}
+            ),
         )
         claims = _fixture_claims(tenant_id=tenant_id, cell_id=cell_id)
         launch = await service.launch_nl_run(
@@ -2992,6 +3040,31 @@ async def _run_controlled_simulate_only_job_fixture(
                 "controlled_simulate_only_fixture %s",
                 json.dumps(fixture_diagnostic, sort_keys=True),
             )
+        if hard_total_budget:
+            assert completed is not None and completed.state == "failed", fixture_diagnostic
+            assert completed.error_message is not None
+            expected_code = (
+                "candidate_physical_quota_not_established"
+                if budget_scope_value == "metered_paid_producers_and_bounded_candidate"
+                else "candidate_physical_usd_reservation_not_established"
+            )
+            assert expected_code in completed.error_message
+            assert admission_observations, fixture_diagnostic
+            assert n5_port_observations == n5_engine_requests == []
+            from polisyos.core.artifacts import load_core_json_artifact
+
+            assert completed.payload_ref is not None
+            source_payload = load_core_json_artifact(store, completed.payload_ref)
+            assert source_payload["run_budget_scope"] == budget_scope_value
+            assert source_payload["run_budget_usd"] == 5.0
+            from polisyos.runtime.http.services.control.job_attempt_publication import (
+                _validate_nl_request_snapshot,
+            )
+
+            _validate_nl_request_snapshot(
+                source_payload, source_payload["nl_authorization_receipt"]
+            )
+            return SimpleNamespace(job=completed, n5_engine_requests=())
         if same_leaf_failure_stage is not None:
             assert completed is not None and completed.state == "failed", {
                 "boundary": "controlled_same_leaf_failure_after_real_n5",
@@ -3608,6 +3681,22 @@ async def test_served_simulate_only_replays_source_bound_n4_candidate_into_joint
     assert fixture.n5_port_observations
     assert fixture.n5_port_observations[0].observation.simulation_result_ref is not None
     fixture.service.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "budget_scope_value",
+    ["hard_total_usd", None, "metered_paid_producers_and_bounded_candidate"],
+    ids=("hard-total", "explicit-null", "limited-without-quota"),
+)
+async def test_explicit_hard_usd_candidate_refuses_before_physical_n5(
+    monkeypatch: pytest.MonkeyPatch, tmp_path, budget_scope_value: str | None
+) -> None:
+    """The admitted candidate owner refuses until its physical budget is established."""
+    result = await _run_controlled_simulate_only_job_fixture(
+        monkeypatch, tmp_path, hard_total_budget=True, budget_scope_value=budget_scope_value
+    )
+    assert result.n5_engine_requests == ()
 
 
 def test_n5_run_projection_preserves_actual_shared_seed_pair_and_residual_samples(

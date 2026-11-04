@@ -44,6 +44,21 @@ from tests._helpers.semantic_epoch_native import (
 )
 
 _SERVED_WDI_N4_RECORDING_ID = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
+_SERVED_WDI_STAGE_PARENTS = {
+    "draft": ("draft", "sha256:9911e5fdbaa75b9bc23bd4ef978b66c55b95b233058ff06cc97393e2083a9293"),
+    "drafter_multipass": (
+        "drafter_multipass",
+        "sha256:89a34fcd666092f58acbcd12c2b96322f80d50f59321e71aca203b0c0e4b602c",
+    ),
+    "formalizer": (
+        "formalizer",
+        "sha256:d4a1bcdcbcd4ab0a8fd9a0aa78ad8e1d35fa05846f493b3a3b5adbaa0d06456e",
+    ),
+    "critic": ("critic", "sha256:97f5f0145850de2269c1fd8232a98787a8d748ec887d9e4c12c7188955eb84e2"),
+}
+_SERVED_WDI_FIRST_FORMALIZER_HASH = (
+    "sha256:5290085c97f3bbb3a6c612ce244a0ed21acadf74f8732a099397487068520e37"
+)
 SERVED_WDI_FISCAL_SCOPE_SOURCE = (
     "For Ukraine (UKR) and a 2024 policy time, use 2024 data as of 2024-12-31. "
     "Assess a fiscal candidate in which a budget-allocation multiplier increases "
@@ -73,7 +88,7 @@ def load_served_wdi_generation_recording(
 
 
 def controlled_served_wdi_generation_recording(
-    recording: dict[str, Any], *, outcome_variable: str
+    recording: dict[str, Any], *, outcome_variable: str, labor_problem: Any | None = None
 ) -> dict[str, Any]:
     """Build the exact content-identified candidate recording used by seed and re-entry."""
     import copy
@@ -90,8 +105,8 @@ def controlled_served_wdi_generation_recording(
     if not isinstance(responses, list):
         raise ValueError("controlled_candidate_recording_responses_missing")
     selected_parent_hashes = {
-        "sha256:5290085c97f3bbb3a6c612ce244a0ed21acadf74f8732a099397487068520e37",
-        "sha256:d4a1bcdcbcd4ab0a8fd9a0aa78ad8e1d35fa05846f493b3a3b5adbaa0d06456e",
+        _SERVED_WDI_FIRST_FORMALIZER_HASH,
+        _SERVED_WDI_STAGE_PARENTS["formalizer"][1],
     }
     selected = [
         response
@@ -99,15 +114,42 @@ def controlled_served_wdi_generation_recording(
         if isinstance(response, dict)
         and response.get("raw_response_hash") in selected_parent_hashes
     ]
-    if len(selected) != len(selected_parent_hashes):
+    if (
+        len(selected) != len(selected_parent_hashes)
+        or {response.get("raw_response_hash") for response in selected} != selected_parent_hashes
+    ):
         raise ValueError("controlled_candidate_recording_parent_response_set_mismatch")
+    primary = next(
+        response
+        for response in selected
+        if response.get("raw_response_hash") == _SERVED_WDI_STAGE_PARENTS["formalizer"][1]
+    )
     for response in selected:
         if response.get("status") != "success" or response.get("role") != "formalizer":
             raise ValueError("controlled_candidate_recording_parent_contract_mismatch")
         response["raw_response"] = _controlled_wdi_trinity_response(
-            response["raw_response"], outcome_variable=outcome_variable
+            response["raw_response"], outcome_variable=outcome_variable, labor_problem=labor_problem
         )
         response["raw_response_hash"] = gy_content_hash(response["raw_response"])
+
+    if labor_problem is not None:
+        labor_ir_ref = gy_content_hash(json.loads(primary["raw_response"]))
+        for stage in ("draft", "drafter_multipass", "critic"):
+            role, parent_hash = _SERVED_WDI_STAGE_PARENTS[stage]
+            matches = [
+                row
+                for row in responses
+                if isinstance(row, dict)
+                and row.get("role") == role
+                and row.get("raw_response_hash") == parent_hash
+            ]
+            if len(matches) != 1 or gy_content_hash(matches[0]["raw_response"]) != parent_hash:
+                raise ValueError("controlled_labor_stage_parent_identity_unresolved")
+            response = matches[0]
+            response["raw_response"] = _controlled_labor_stage_response(
+                response["raw_response"], role=role, problem=labor_problem, ir_ref=labor_ir_ref
+            )
+            response["raw_response_hash"] = gy_content_hash(response["raw_response"])
 
     identity_seed = gy_content_hash(
         {
@@ -132,7 +174,9 @@ def controlled_served_wdi_generation_recording(
     return controlled
 
 
-def _controlled_wdi_trinity_response(raw: str, *, outcome_variable: str) -> str:
+def _controlled_wdi_trinity_response(
+    raw: str, *, outcome_variable: str, labor_problem: Any | None = None
+) -> str:
     """Extend the existing candidate overlay through one semantic transformation."""
     from polisyos.common.serialization import extract_llm_json_object
 
@@ -167,11 +211,121 @@ def _controlled_wdi_trinity_response(raw: str, *, outcome_variable: str) -> str:
         f"outcome={outcome_variable} "
         f"effect_path=government.balance,{outcome_variable}"
     ]
+    if labor_problem is not None:
+        if outcome_variable != "global.unemployment_rate":
+            raise ValueError("controlled_labor_recording_outcome_mismatch")
+        intervention["intervention_id"] = "labor_budget_multiplier"
+        parameter_specs[0]["intervention_id"] = "labor_budget_multiplier"
+        parameter_specs[0]["param_id"] = "labor_multiplier"
+        trinity["policy_spec"].update(
+            policy_id="synthetic_usa_labor_candidate_policy",
+            description="Synthetic USA 2024 total_labor_force unemployment candidate multiplier.",
+            labels=["synthetic", "candidate_only", "usa_labor", "total_labor_force", "2024"],
+            interventions=[intervention],
+            parameters=parameter_specs,
+        )
+        frame = trinity["problem_frame"]
+        frame.update(
+            problem_id=labor_problem.design_problem_id,
+            domain=labor_problem.domain,
+            narrative=labor_problem.nl_provenance.raw_request,
+            labels=["synthetic", "candidate_only", "usa_labor", "total_labor_force", "2024"],
+        )
+        frame["objectives"] = [
+            {
+                **frame["objectives"][0],
+                "objective_id": "unemployment",
+                "metric_id": "unemployment_rate",
+                "direction": "minimize",
+            }
+        ]
+        model = trinity["model_spec"]
+        model.update(
+            model_id="synthetic_usa_labor_candidate_model",
+            labels=["synthetic", "candidate_only", "usa_labor", "total_labor_force", "2024"],
+            assumptions=[],
+            notes=["synthetic_candidate_model_not_empirically_grounded"],
+        )
     return json.dumps(trinity, sort_keys=True, separators=(",", ":"))
 
 
+def _controlled_labor_stage_response(raw: str, *, role: str, problem: Any, ir_ref: str) -> str:
+    """Create explicit synthetic labor stages without inheriting foreign claims."""
+    from polisyos.common.serialization import extract_llm_json_object
+
+    payload = extract_llm_json_object(raw)
+    warning = (
+        "For USA 2024 total_labor_force unemployment minimization, the scenario coupling "
+        "is synthetic and empirical grounding is not established."
+    )
+    if role == "draft":
+        payload.update(
+            draft_id="synthetic_usa_labor_candidate_draft",
+            problem_frame_ref=problem.design_problem_id,
+            narrative=(
+                "Candidate USA 2024 total_labor_force unemployment minimization with a "
+                "government-balance budget multiplier."
+            ),
+            rationale=warning,
+            confidence=0.0,
+            alternatives_considered=[],
+            interventions=[
+                {
+                    "name": "Candidate labor budget multiplier",
+                    "description": "Synthetic candidate for the declared USA labor outcome.",
+                    "mechanism_type": "budget_allocation_multiplier",
+                    "target_population": "total_labor_force",
+                    "parameters": {
+                        "multiplier": 2,
+                        "target_world_slot": "government.balance",
+                        "outcome_slots": ["global.unemployment_rate"],
+                        "effect_path": ["government.balance", "global.unemployment_rate"],
+                        "sign": "increase",
+                        "estimand": "candidate_scenario_comparison",
+                    },
+                    "rationale": warning,
+                }
+            ],
+        )
+    elif role == "drafter_multipass":
+        payload["confidence_adjustment"] = 0.0
+        payload["findings"] = [
+            {
+                "category": "side_effect",
+                "severity": "medium",
+                "description": warning,
+                "suggested_fix": "Establish independent causal and measurement evidence.",
+                "affected_intervention": "Candidate labor budget multiplier",
+                "anchor": "intervention:0",
+            }
+        ]
+    elif role == "critic":
+        payload.update(
+            problem_frame_ref=problem.design_problem_id,
+            ir_ref=ir_ref,
+            verdict="NEEDS_REVISION",
+            alignment_score=0.0,
+            completeness_score=0.0,
+            overall_quality=0.0,
+            issues=[
+                {
+                    "issue_id": "SYNTHETIC-GROUNDING-001",
+                    "category": "ALIGNMENT",
+                    "severity": "WARNING",
+                    "message": warning,
+                    "location": "model_spec.assumptions",
+                    "suggestion": "Establish independent causal and measurement evidence.",
+                }
+            ],
+            reflexion_hint=warning,
+        )
+    else:
+        raise ValueError("controlled_labor_recording_role_invalid")
+    return json.dumps(payload, sort_keys=True, separators=(",", ":"))
+
+
 def synthetic_served_wdi_provider_profile(
-    recording: dict[str, Any], *, problem: Any, evidence_root: Path
+    recording: dict[str, Any], *, problem: Any, evidence_root: Path, labor_scope: bool = False
 ):
     """Declare an error-free synthetic software-property profile from retained inputs.
 
@@ -184,31 +338,34 @@ def synthetic_served_wdi_provider_profile(
     from tests._helpers.controlled_candidate_profile import SyntheticCandidateProviderProfile
 
     controlled = controlled_served_wdi_generation_recording(
-        recording, outcome_variable=problem.outcome_of_interest.target_variable
+        recording,
+        outcome_variable=problem.outcome_of_interest.target_variable,
+        labor_problem=problem if labor_scope else None,
     )
     parent_keys = {
-        "draft": (
-            "draft",
-            "sha256:9911e5fdbaa75b9bc23bd4ef978b66c55b95b233058ff06cc97393e2083a9293",
-        ),
-        "drafter_multipass": (
-            "drafter_multipass",
-            "sha256:89a34fcd666092f58acbcd12c2b96322f80d50f59321e71aca203b0c0e4b602c",
-        ),
-        "drafter_consolidation": (
-            "draft",
-            "sha256:9911e5fdbaa75b9bc23bd4ef978b66c55b95b233058ff06cc97393e2083a9293",
-        ),
-        "formalizer": (
-            "formalizer",
-            "sha256:d4a1bcdcbcd4ab0a8fd9a0aa78ad8e1d35fa05846f493b3a3b5adbaa0d06456e",
-        ),
-        "critic": (
-            "critic",
-            "sha256:97f5f0145850de2269c1fd8232a98787a8d748ec887d9e4c12c7188955eb84e2",
-        ),
+        "draft": _SERVED_WDI_STAGE_PARENTS["draft"],
+        "drafter_multipass": _SERVED_WDI_STAGE_PARENTS["drafter_multipass"],
+        "drafter_consolidation": _SERVED_WDI_STAGE_PARENTS["draft"],
+        "formalizer": _SERVED_WDI_STAGE_PARENTS["formalizer"],
+        "critic": _SERVED_WDI_STAGE_PARENTS["critic"],
     }
     rows = []
+    labor_ir_ref = None
+    if labor_scope:
+        formalizer = next(
+            row
+            for row in recording["responses"]
+            if row.get("raw_response_hash") == parent_keys["formalizer"][1]
+        )
+        labor_ir_ref = gy_content_hash(
+            json.loads(
+                _controlled_wdi_trinity_response(
+                    formalizer["raw_response"],
+                    outcome_variable=problem.outcome_of_interest.target_variable,
+                    labor_problem=problem,
+                )
+            )
+        )
     for stage, (role, response_hash) in parent_keys.items():
         matches = [
             row
@@ -223,7 +380,14 @@ def synthetic_served_wdi_provider_profile(
             raise ValueError("synthetic_provider_parent_response_content_mismatch")
         if stage == "formalizer":
             body = _controlled_wdi_trinity_response(
-                body, outcome_variable=problem.outcome_of_interest.target_variable
+                body,
+                outcome_variable=problem.outcome_of_interest.target_variable,
+                labor_problem=problem if labor_scope else None,
+            )
+        elif labor_scope:
+            assert labor_ir_ref is not None
+            body = _controlled_labor_stage_response(
+                body, role=role, problem=problem, ir_ref=labor_ir_ref
             )
         raw_usage = source.get("usage")
         if not isinstance(raw_usage, dict):

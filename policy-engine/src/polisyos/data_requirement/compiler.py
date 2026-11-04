@@ -12,7 +12,7 @@ from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any, get_args
 
 from polisyos.core import contracts
-from polisyos.core.contracts.capability_resolution import (
+from polisyos.core.contracts import (
     CapabilitySourceDiscoveryResult,
     CapabilitySourceDiscoveryUnavailableError,
     candidate_source_time_coverage,

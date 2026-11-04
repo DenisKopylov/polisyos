@@ -21,12 +21,10 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from polisyos.core import contracts as core_contracts
 from polisyos.core.contracts import (
     CapabilityExecutionPostureResult,
-    CapabilityTimeSemantics,
-    ExecutionProfile,
-)
-from polisyos.core.contracts.capability_resolution import (
     CapabilitySourceCandidate,
     CapabilitySourceDiscoveryResult,
+    CapabilityTimeSemantics,
+    ExecutionProfile,
     candidate_source_time_coverage,
 )
 from polisyos.runtime.http.execution_policy import (

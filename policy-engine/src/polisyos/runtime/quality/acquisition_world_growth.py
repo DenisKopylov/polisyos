@@ -93,7 +93,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
     from polisyos.runtime.quality.world_model_record import WorldModelRecord
-    from polisyos.scientist.orchestration.engine.budget_ledger import (
+    from polisyos.scientist.orchestration.engine import (
         BudgetLedgerReentryBudgetScope,
         BudgetLedgerReentryBudgetWindow,
     )
@@ -828,11 +828,11 @@ class AcquisitionWorldGrowthBridge:
         from polisyos.runtime.quality.cycle_substrate import (
             ConfiguredCandidateSimulationContextAdmissionOwner,
         )
-        from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError
-        from polisyos.scientist.orchestration.engine.budget_ledger import (
+        from polisyos.scientist.orchestration.engine import (
+            BudgetExhaustedError,
             BudgetLedgerReentryBudgetScope,
+            ProducerBudgetObserver,
         )
-        from polisyos.scientist.orchestration.engine.producer_budget import ProducerBudgetObserver
 
         if (budget_state is None) != (reentry_budget_scope is None):
             raise ValueError("candidate_source_reentry_budget_scope_incomplete")
@@ -850,11 +850,50 @@ class AcquisitionWorldGrowthBridge:
             or self.promotion_runtime.store is not self.artifact_store
         ):
             raise ValueError("candidate_source_reentry_owner_not_established")
+        # An explicitly selected all-in USD ceiling cannot authorize an
+        # unpriced live fetch or N5 call. Omitted historical requests retain
+        # their prior behavior; a new limited scope must be owner-verified.
+        from polisyos.runtime.http.services.control.run_lifecycle import (
+            ControlPlaneService,
+            OriginalRunBudgetScopeEvidence,
+        )
+
+        if (
+            type(service) is not ControlPlaneService
+            or service._artifact_store is not self.artifact_store
+            or service._control_store is not self.control_store
+            or service._diagnostic_event_log is not self.event_log
+            or service.acquisition_route_sink is not self.action_head_sink
+        ):
+            raise ValueError("candidate_source_reentry_budget_scope_not_established")
+        try:
+            budget_scope = service.read_original_run_budget_scope(closure=closure)
+        except (OSError, RuntimeError, TypeError, ValueError, AttributeError) as exc:
+            raise ValueError("candidate_source_reentry_budget_scope_not_established") from exc
+        if type(budget_scope) is not OriginalRunBudgetScopeEvidence:
+            raise ValueError("candidate_source_reentry_budget_scope_not_established")
+        if budget_scope.scope_explicit:
+            if budget_scope.run_budget_scope == "hard_total_usd":
+                raise ValueError("candidate_source_reentry_hard_total_usd_not_established")
+            if budget_scope.run_budget_scope != "metered_paid_producers_and_bounded_candidate":
+                raise ValueError("candidate_source_reentry_budget_scope_not_established")
+            if service.verify_candidate_unpriced_budget_scope(closure=closure) != budget_scope:
+                raise ValueError("candidate_source_reentry_budget_scope_changed")
+            # This legacy costed-route port does not yet carry the selected
+            # experiment policy and current action owner to the live executor.
+            # Its displayed estimate is not a reservation for the unpriced
+            # source or N5 call; the new budget scope alone grants neither.
+            raise ValueError("candidate_source_reentry_unpriced_authority_not_established")
         try:
             # Verify the selected compiler query and descriptor before a
             # one-shot source is reserved or fetched.
             _compiler_binding(self, closure, selected)
-            self._candidate_source_prior_owner(closure=closure)
+            profile, _, _ = self._candidate_source_prior_owner(closure=closure)
+            if budget_scope.scope_explicit and (
+                profile.n5.invocation_quota_policy is None
+                or profile.n5.invocation_purpose != "standard"
+            ):
+                raise ValueError("candidate_source_reentry_n5_quota_not_established")
             models = load_core_json_artifact(self.artifact_store, closure.source_payload_ref).get(
                 "llm_models"
             )
@@ -882,10 +921,25 @@ class AcquisitionWorldGrowthBridge:
                 if type(observer) is not ProducerBudgetObserver:
                     raise ValueError("candidate_source_budget_observer_untyped")
                 observer.admit()
+                if budget_scope.scope_explicit:
+                    selected_quota = observer.bind_invocation_policy_from_selected_owner(
+                        profile.n5.invocation_quota_policy, purpose="standard"
+                    )
+                    capacity = observer.observe_standard_invocation_capacity()
+                    if (
+                        selected_quota is None
+                        or capacity.status != "available"
+                        or capacity.profile_digest != selected_quota.profile_digest
+                    ):
+                        raise ValueError("candidate_source_reentry_n5_quota_not_established")
                 return observer
         except BudgetExhaustedError as exc:
             raise ValueError("candidate_source_reentry_budget_exhausted") from exc
-        except (OSError, RuntimeError, TypeError, ValueError, AttributeError) as exc:
+        except ValueError as exc:
+            if str(exc) == "candidate_source_reentry_n5_quota_not_established":
+                raise
+            raise ValueError("candidate_source_reentry_preflight_not_established") from exc
+        except (OSError, RuntimeError, TypeError, AttributeError) as exc:
             raise ValueError("candidate_source_reentry_preflight_not_established") from exc
         return None
 
@@ -1288,11 +1342,11 @@ class AcquisitionWorldGrowthBridge:
     ) -> BudgetLedgerReentryBudgetWindow:
         """Select one source-ledger window under the actual action and worker fence."""
         from polisyos.runtime.quality.candidate_acquisition_action import _current_action
-        from polisyos.scientist.orchestration.engine.budget_ledger import (
+        from polisyos.scientist.orchestration.engine import (
             BudgetLedgerReentryBudgetScope,
             BudgetLedgerReentryBudgetWindow,
+            BudgetMiddleware,
         )
-        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 
         selected, phase, admission = _current_action(self, closure, action_phase_ref)
         service = self._source_control_service
@@ -1898,6 +1952,10 @@ class AcquisitionWorldGrowthBridge:
         version: str,
         record_type: type[RecordT],
         verify: Callable[[artifacts.ArtifactRef], RecordT],
+        producer_component: Literal[
+            "polisyos.runtime.acquisition_world_growth",
+            "polisyos.runtime.acquisition_evaluation",
+        ] = "polisyos.runtime.acquisition_world_growth",
     ) -> tuple[artifacts.ArtifactRef, RecordT]:
         """Find one owner-replayed selected view without trusting the CAS default.
 
@@ -1907,6 +1965,11 @@ class AcquisitionWorldGrowthBridge:
         """
         from polisyos.core.artifacts import raise_artifact_read_access_error
 
+        if producer_component not in {
+            "polisyos.runtime.acquisition_world_growth",
+            "polisyos.runtime.acquisition_evaluation",
+        }:
+            raise ValueError("candidate_source_reentry_profile_producer_invalid")
         inventory_reader = getattr(self.artifact_store, "inventory_snapshot", None)
         if not callable(inventory_reader):
             raise ValueError("candidate_source_reentry_profile_inventory_unavailable")
@@ -1922,9 +1985,7 @@ class AcquisitionWorldGrowthBridge:
                 or manifest.media_type != "application/json"
                 or manifest.artifact_schema != artifacts.SchemaInfo(name=schema, version=version)
                 or manifest.producer
-                != artifacts.ProducerInfo(
-                    component="polisyos.runtime.acquisition_world_growth", version="1.0"
-                )
+                != artifacts.ProducerInfo(component=producer_component, version="1.0")
                 or manifest.authority is None
             ):
                 continue
@@ -4025,7 +4086,8 @@ class AcquisitionWorldGrowthBridge:
                     and current_offer.model_declaration_ref == handoff.model_declaration_ref
                     and current_offer.ncm_ref == handoff.ncm_ref
                 )
-            except Exception:
+            except Exception as exc:
+                artifacts.raise_artifact_read_access_error(exc)
                 return False
 
         return offer.context, handoff, currentness_resolver
@@ -4054,7 +4116,7 @@ class AcquisitionWorldGrowthBridge:
     ) -> CandidateSourceWorldHandoff:
         """Compose a new handoff or reopen its existing selected owner inputs."""
         from polisyos.core.artifacts import load_core_json_artifact
-        from polisyos.core.contracts.fabric import (
+        from polisyos.core.contracts import (
             CandidateAcquisitionSourceDataSnapshotLineage,
             DataSnapshot,
         )
@@ -4254,7 +4316,7 @@ class AcquisitionWorldGrowthBridge:
                 registry_bundle_ref=views.registry_bundle_ref,
                 substrate_registry=configured.context_inputs.substrate_registry,
             )
-            from polisyos.ir.model_layer.model_spec import ModelSpec
+            from polisyos.ir.trinity import ModelSpec
 
             actual_model = ModelSpec.model_validate(
                 load_core_json_artifact(self.artifact_store, actual_views.model_spec_ref)
@@ -4443,7 +4505,8 @@ class AcquisitionWorldGrowthBridge:
                     additional_authority_denials=denials,
                 )
                 return replayed.context == handoff.context and current_offer == offer
-            except (OSError, RuntimeError, TypeError, ValueError):
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                artifacts.raise_artifact_read_access_error(exc)
                 return False
 
         if not currentness_resolver():
@@ -4529,6 +4592,7 @@ class AcquisitionWorldGrowthBridge:
         *,
         closure: VerifiedAcquisitionRouteClosure,
         candidate_action_ref: artifacts.ArtifactRef,
+        prepared_n5_configuration: PreparedJointSimulationConfiguration | None = None,
     ) -> tuple[artifacts.ArtifactRef, CandidateSourceReentryReceipt]:
         """Recover one selected result or fence exactly one physical N6/N5 attempt.
 
@@ -4543,8 +4607,15 @@ class AcquisitionWorldGrowthBridge:
             CandidateSourceReentryReceipt,
             validate_candidate_source_continuation,
         )
-        from polisyos.scientist.orchestration.engine.producer_budget import ProducerBudgetObserver
+        from polisyos.runtime.quality.joint_simulation_horizon import (
+            PreparedJointSimulationConfiguration,
+        )
+        from polisyos.scientist.orchestration.engine import ProducerBudgetObserver
 
+        if prepared_n5_configuration is not None and type(prepared_n5_configuration) is not (
+            PreparedJointSimulationConfiguration
+        ):
+            raise TypeError("candidate_source_reentry_prepared_n5_configuration_untyped")
         action = self._require_selected_candidate_action(
             closure=closure, candidate_action_ref=candidate_action_ref
         )
@@ -4561,7 +4632,7 @@ class AcquisitionWorldGrowthBridge:
         fence = pointer.with_suffix(".started")
 
         def read_selected(ref: artifacts.ArtifactRef) -> CandidateSourceReentryReceipt:
-            return verify_candidate_source_reentry_history(
+            result = verify_candidate_source_reentry_history(
                 artifact_store=self.artifact_store,
                 event_log=self.event_log,
                 control_store=self.control_store,
@@ -4575,6 +4646,13 @@ class AcquisitionWorldGrowthBridge:
                 expected_action_generation=action.action_generation,
                 expected_selected_action_ref=candidate_action_ref,
             )
+            if prepared_n5_configuration is not None and result.n5_execution_ref is not None:
+                self._verify_candidate_reentry_prepared_configuration(
+                    closure=closure,
+                    receipt=result,
+                    prepared_n5_configuration=prepared_n5_configuration,
+                )
+            return result
 
         with data_forge_read_api.catalog.acquisition_overlay_admission_fence(operation):
             events = self.event_log.list_events(event_id=event_id, limit=2)
@@ -4653,6 +4731,11 @@ class AcquisitionWorldGrowthBridge:
                 candidate_simulation_handoff=selected_world.handoff,
                 candidate_simulation_currentness_resolver=selected_world.currentness_resolver,
                 _producer_budget_reconciler=observer,
+                **(
+                    {"_prepared_n5_configuration": prepared_n5_configuration}
+                    if prepared_n5_configuration is not None
+                    else {}
+                ),
             )
             with fence.open("x") as stream:
                 stream.write(candidate_action_ref.model_dump_json() + "\n")
@@ -4702,6 +4785,51 @@ class AcquisitionWorldGrowthBridge:
                 raise ValueError("candidate_source_reentry_readback_changed")
             return selected_ref, verified
 
+    def _verify_candidate_reentry_prepared_configuration(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        receipt: CandidateSourceReentryReceipt,
+        prepared_n5_configuration: PreparedJointSimulationConfiguration,
+    ) -> None:
+        """Reopen an actual N5 result and compare its consumed configuration."""
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            _candidate_ref_same,
+            resolve_selected_acquisition_evaluation,
+        )
+        from polisyos.runtime.quality.joint_simulation_horizon import (
+            PreparedJointSimulationConfiguration,
+        )
+        from polisyos.runtime.quality.n5_execution_basis import (
+            _exact_native_content,
+            exact_n5_content_bytes,
+            read_n5_execution_implementation_witness,
+        )
+
+        if type(prepared_n5_configuration) is not PreparedJointSimulationConfiguration:
+            raise TypeError("candidate_source_reentry_prepared_n5_configuration_untyped")
+        after = closure.model_copy(
+            update={
+                "generation_run": receipt.continued_generation_run,
+                "source_cycle": receipt.new_cycle,
+                "candidate_basis_transitions": (*closure.candidate_basis_transitions, receipt),
+            }
+        )
+        selected = resolve_selected_acquisition_evaluation(bridge=self, closure=after)
+        if (
+            not _candidate_ref_same(selected.selected.n5_input_ref, receipt.n5_input_ref)
+            or not _candidate_ref_same(selected.selected.n5_execution_ref, receipt.n5_execution_ref)
+            or not _candidate_ref_same(selected.selected.n5_result_ref, receipt.n5_result_ref)
+        ):
+            raise ValueError("candidate_source_reentry_configuration_witness_mismatch")
+        witness = read_n5_execution_implementation_witness(
+            selected.result, input_ref=selected.selected.n5_input_ref
+        )
+        if witness.predicate_provenance != "recomputed" or exact_n5_content_bytes(
+            witness.consumed_configuration_values
+        ) != exact_n5_content_bytes(_exact_native_content(prepared_n5_configuration)):
+            raise ValueError("candidate_source_reentry_configuration_not_consumed")
+
     def _complete_candidate_source_reentry(
         self, closure: VerifiedAcquisitionRouteClosure
     ) -> AcquisitionActionHeadRecord:
@@ -4710,9 +4838,17 @@ class AcquisitionWorldGrowthBridge:
         The public execution route remains closed until the producer, historical
         replay, and actual protected-route checks are qualified together.
         """
-        # A previously evaluated candidate requires the full effective-basis
-        # comparison before any physical N5. This narrow producer only handles
-        # an owner-reconciled scheduler stop before that candidate's first N5.
+        # A previously evaluated candidate enters the candidate-only comparison
+        # owner before any physical N5. That owner independently checks its
+        # still-closed terminal readiness gate and all live source/budget facts.
+        if closure.source_cycle.simulation.status == "joint_simulated":
+            from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+                dispatch_candidate_acquisition_evaluation,
+            )
+
+            return dispatch_candidate_acquisition_evaluation(self, closure)
+        # Preserve the existing first-N5 @1.1 branch for an owner-reconciled
+        # scheduler stop before any selected N5 result.
         self._candidate_source_first_prior(closure=closure)
         sink = self.action_head_sink
         if sink is None:

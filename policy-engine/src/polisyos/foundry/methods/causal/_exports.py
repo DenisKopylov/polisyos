@@ -1,6 +1,7 @@
 """Canonical export names for the flat causal methods facade."""
 
 CAUSAL_METHOD_EXPORTS = (
+    "NCMEngineMethod",
     "AIPWEstimator",
     "BalkePearlBoundsEstimator",
     "BipartiteInterferenceEstimator",

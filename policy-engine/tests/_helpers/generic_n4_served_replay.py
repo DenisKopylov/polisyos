@@ -782,6 +782,400 @@ def _source_component_rule_spec(organ_run: Any, child: Any) -> dict[str, Any]:
     }
 
 
+def _replace_recording_response_payload(
+    recording: dict[str, Any],
+    *,
+    response_index: int,
+    payload: dict[str, Any],
+) -> str:
+    """Replace one synthetic response and return its recomputed content hash."""
+    responses = recording.get("responses")
+    if not isinstance(responses, list) or not 0 <= response_index < len(responses):
+        raise ValueError("child_provider_response_index_not_established")
+    response = responses[response_index]
+    if not isinstance(response, dict) or response.get("status") != "success":
+        raise ValueError("child_provider_source_response_not_successful")
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    response["raw_response"] = encoded
+    response["raw_llm_response"] = copy.deepcopy(payload)
+    response_hash = gy_content_hash(encoded)
+    response["raw_response_hash"] = response_hash
+    return response_hash
+
+
+def _child_conditioned_synthetic_provider_profile(
+    *,
+    source_recording: dict[str, Any],
+    base_controlled_recording: dict[str, Any],
+    organ_run: Any,
+    parent_problem: Any,
+    child: Any,
+    child_profile_selection_ref: str,
+    evidence_root: Path,
+):
+    """Build a source-atom-bound synthetic N4 profile for one admitted child.
+
+    The immutable recorded capture remains the parent. This fixture derives new
+    stage responses from its exact candidate atom and original intervention and
+    parameter specification; the derived responses are candidate-only inputs.
+    """
+    from polisyos.runtime.quality.cycle_substrate import (
+        cycle_job_design_problem_ref,
+        generic_n4_child_profile_selection_ref,
+    )
+    from polisyos.runtime.quality.design_generation import GenerationUnderAResult
+
+    if (
+        type(organ_run.result) is not GenerationUnderAResult
+        or organ_run.trinity_bundle is None
+        or type(child.source_atom_refs) is not tuple
+        or len(child.source_atom_refs) != 1
+        or not isinstance(child_profile_selection_ref, str)
+        or not child_profile_selection_ref.startswith("sha256:")
+    ):
+        raise ValueError("child_provider_source_atom_join_not_established")
+    source_result = organ_run.result
+    source_result_ref = gy_content_hash(source_result.model_dump(mode="json"))
+    parent_problem_ref = cycle_job_design_problem_ref(parent_problem)
+    if (
+        source_result.design_problem_ref != parent_problem_ref
+        or child.source_result_ref != source_result_ref
+        or generic_n4_child_profile_selection_ref(
+            child.problem,
+            parent_problem_ref=parent_problem_ref,
+            source_result_ref=child.source_result_ref,
+            source_atom_refs=child.source_atom_refs,
+            semantic_ref=child.semantic_ref,
+        )
+        != child_profile_selection_ref
+    ):
+        raise ValueError("child_provider_source_result_ref_mismatch")
+    source_atom_refs = tuple(sorted(str(ref) for ref in child.source_atom_refs))
+    if len(source_atom_refs) != 1:
+        raise ValueError("child_provider_source_atom_ref_not_unique")
+    candidates = tuple(
+        row for row in source_result.candidates if row.atom.content_hash in source_atom_refs
+    )
+    if len(candidates) != 1:
+        raise ValueError("child_provider_source_atom_candidate_not_unique")
+    candidate = candidates[0]
+    atom = candidate.atom
+    operator_kind = str(
+        getattr(atom.operator_kind.trinity_kind, "value", atom.operator_kind.trinity_kind)
+    )
+    target_slots = tuple(sorted(str(slot) for slot in atom.target_world_slots))
+    child_levers = tuple(child.problem.candidate_lever_space.candidate_levers)
+    if len(child_levers) != 1:
+        raise ValueError("child_provider_child_lever_not_unique")
+    (lever,) = child_levers
+    if lever.operator_kind != operator_kind or target_slots != (lever.target_slot,):
+        raise ValueError("child_provider_child_lever_atom_mismatch")
+
+    bundle = organ_run.trinity_bundle
+    intervention_id = str(atom.intervention_id)
+    interventions = tuple(
+        row for row in bundle.policy_spec.interventions if row.intervention_id == intervention_id
+    )
+    parameters = tuple(
+        row for row in bundle.policy_spec.parameters if row.intervention_id == intervention_id
+    )
+    if len(interventions) != 1 or len(parameters) != 1:
+        raise ValueError("child_provider_original_intervention_parameter_not_unique")
+    intervention = interventions[0]
+    parameter = parameters[0]
+    if (
+        str(getattr(intervention.kind, "value", intervention.kind)) != operator_kind
+        or parameter.param_path.startswith("params.")
+        or "." in parameter.param_path
+        or parameter.min_value is None
+        or parameter.max_value is None
+    ):
+        raise ValueError("child_provider_original_component_spec_not_atomic")
+    atom_params = dict(atom.direct_effect_bundle.params)
+    intervention_params = dict(intervention.params)
+    if atom_params != intervention_params:
+        raise ValueError("child_provider_atom_original_intervention_params_mismatch")
+
+    source_formalizer = source_recording["responses"][8]
+    source_draft = source_recording["responses"][0]
+    source_multipass = source_recording["responses"][1]
+    source_critic = source_recording["responses"][9]
+    if any(
+        not isinstance(row, dict) or row.get("status") != "success"
+        for row in (source_formalizer, source_draft, source_multipass, source_critic)
+    ):
+        raise ValueError("child_provider_parent_stage_response_not_successful")
+    formalizer_payload = json.loads(source_formalizer["raw_response"])
+    policy_payload = formalizer_payload.get("policy_spec")
+    if not isinstance(policy_payload, dict):
+        raise ValueError("child_provider_original_policy_spec_not_established")
+    raw_interventions = policy_payload.get("interventions")
+    raw_parameters = policy_payload.get("parameters")
+    if not isinstance(raw_interventions, list) or not isinstance(raw_parameters, list):
+        raise ValueError("child_provider_original_policy_members_not_established")
+    raw_intervention_rows = tuple(
+        row
+        for row in raw_interventions
+        if isinstance(row, dict) and row.get("intervention_id") == intervention_id
+    )
+    raw_parameter_rows = tuple(
+        row
+        for row in raw_parameters
+        if isinstance(row, dict) and row.get("intervention_id") == intervention_id
+    )
+    if len(raw_intervention_rows) != 1 or len(raw_parameter_rows) != 1:
+        raise ValueError("child_provider_original_wire_member_not_unique")
+    raw_intervention = raw_intervention_rows[0]
+    raw_parameter = raw_parameter_rows[0]
+    if (
+        raw_intervention.get("kind") != operator_kind
+        or raw_intervention.get("params") != intervention_params
+        or raw_intervention.get("params", {}).get("target_world_slot") != lever.target_slot
+        or raw_parameter.get("param_id") != parameter.param_id
+        or raw_parameter.get("param_path") != parameter.param_path
+        or Decimal(str(raw_parameter.get("default_value"))) != Decimal(str(parameter.default_value))
+        or Decimal(str(raw_parameter.get("min_value"))) != Decimal(str(parameter.min_value))
+        or Decimal(str(raw_parameter.get("max_value"))) != Decimal(str(parameter.max_value))
+    ):
+        raise ValueError("child_provider_original_wire_semantics_mismatch")
+
+    draft_payload = json.loads(source_draft["raw_response"])
+    draft_interventions = draft_payload.get("interventions")
+    if not isinstance(draft_interventions, list):
+        raise ValueError("child_provider_original_draft_interventions_missing")
+    parameter_name = parameter.param_path
+    draft_matches = tuple(
+        (index, row)
+        for index, row in enumerate(draft_interventions)
+        if isinstance(row, dict)
+        and row.get("mechanism_type") == operator_kind
+        and isinstance(row.get("parameters"), dict)
+        and row["parameters"].get("target_world_slot") == lever.target_slot
+        and Decimal(str(row["parameters"].get(parameter_name)))
+        == Decimal(str(parameter.default_value))
+    )
+    if len(draft_matches) != 1:
+        raise ValueError("child_provider_original_draft_candidate_not_unique")
+    source_draft_index, selected_draft = draft_matches[0]
+    draft_name = selected_draft.get("name")
+    if not isinstance(draft_name, str) or not draft_name:
+        raise ValueError("child_provider_original_draft_candidate_name_missing")
+
+    child_problem = child.problem
+    child_problem_ref = gy_content_hash(child_problem.model_dump(mode="json"))
+    child_frame_id = str(child_problem.design_problem_id)
+    formalizer_index = raw_interventions.index(raw_intervention)
+
+    child_recording = copy.deepcopy(base_controlled_recording)
+    source_response_hashes = {
+        "draft": source_draft["raw_response_hash"],
+        "drafter_multipass": source_multipass["raw_response_hash"],
+        "drafter_consolidation": source_draft["raw_response_hash"],
+        "formalizer": source_formalizer["raw_response_hash"],
+        "critic": source_critic["raw_response_hash"],
+    }
+    source_stage_indexes = (
+        (0, source_draft["raw_response_hash"]),
+        (1, source_multipass["raw_response_hash"]),
+        (8, source_formalizer["raw_response_hash"]),
+        (9, source_critic["raw_response_hash"]),
+    )
+    if any(
+        child_recording["responses"][index]["raw_response_hash"] != source_hash
+        for index, source_hash in source_stage_indexes
+    ):
+        raise ValueError("child_provider_base_stage_not_source_identical")
+
+    draft_payload["draft_id"] = (
+        "synthetic_child_" + child_profile_selection_ref.removeprefix("sha256:")[:16]
+    )
+    draft_payload["problem_frame_ref"] = child_frame_id
+    draft_payload["narrative"] = str(selected_draft.get("description") or draft_name)
+    draft_payload["rationale"] = (
+        str(selected_draft.get("rationale") or "")
+        + " Synthetic child response derived from the exact parent source atom; "
+        "effect and authority remain unestablished."
+    ).strip()
+    draft_payload["interventions"] = [copy.deepcopy(selected_draft)]
+    draft_payload["alternatives_considered"] = []
+    draft_payload.pop("confidence", None)
+    draft_hash = _replace_recording_response_payload(
+        child_recording,
+        response_index=0,
+        payload=draft_payload,
+    )
+
+    multipass_payload = json.loads(source_multipass["raw_response"])
+    findings = multipass_payload.get("findings")
+    if not isinstance(findings, list):
+        raise ValueError("child_provider_original_multipass_findings_missing")
+    sibling_names = {
+        str(row.get("name"))
+        for row in draft_interventions
+        if isinstance(row, dict) and row.get("name") and row.get("name") != draft_name
+    }
+    selected_findings = []
+    for finding in findings:
+        if (
+            not isinstance(finding, dict)
+            or finding.get("affected_intervention") != draft_name
+            or finding.get("anchor") != f"intervention:{source_draft_index}"
+        ):
+            continue
+        description = str(finding.get("description") or "")
+        suggestion = str(finding.get("suggested_fix") or "")
+        if any(name.lower() in f"{description} {suggestion}".lower() for name in sibling_names):
+            continue
+        selected = copy.deepcopy(finding)
+        selected["anchor"] = "intervention:0"
+        selected_findings.append(selected)
+    multipass_payload["findings"] = selected_findings
+    multipass_payload.pop("confidence_adjustment", None)
+    multipass_hash = _replace_recording_response_payload(
+        child_recording,
+        response_index=1,
+        payload=multipass_payload,
+    )
+
+    formalizer_payload["problem_frame"]["problem_id"] = child_frame_id
+    formalizer_payload["problem_frame"]["domain"] = child_problem.domain
+    formalizer_payload["problem_frame"]["narrative"] = child_problem.problem_statement
+    policy_payload["interventions"] = [copy.deepcopy(raw_intervention)]
+    policy_payload["parameters"] = [copy.deepcopy(raw_parameter)]
+    policy_payload["description"] = str(selected_draft.get("description") or draft_name)
+    if "problem_frame_ref" in policy_payload:
+        policy_payload["problem_frame_ref"] = child_frame_id
+    model_payload = formalizer_payload.get("model_spec")
+    if not isinstance(model_payload, dict):
+        raise ValueError("child_provider_model_spec_not_established")
+    # Parent-level assumptions are not projected to the child candidate.
+    model_payload["assumptions"] = []
+    formalizer_hash = _replace_recording_response_payload(
+        child_recording,
+        response_index=8,
+        payload=formalizer_payload,
+    )
+
+    critic_payload = json.loads(source_critic["raw_response"])
+    issues = critic_payload.get("issues")
+    if not isinstance(issues, list):
+        raise ValueError("child_provider_original_critic_issues_missing")
+    projected_issues = []
+    sibling_ids = {
+        str(row.get("intervention_id"))
+        for row in raw_interventions
+        if isinstance(row, dict) and row.get("intervention_id") != intervention_id
+    }
+    sibling_names_lower = {name.lower() for name in sibling_names}
+    for issue in issues:
+        if not isinstance(issue, dict):
+            continue
+        location = str(issue.get("location") or "")
+        selected_path = f"policy_spec.interventions[{formalizer_index}]"
+        is_child_issue = location == selected_path or location.startswith(selected_path + ".")
+        is_shared_model_issue = location.startswith("model_spec.")
+        if not (is_child_issue or is_shared_model_issue):
+            continue
+        text = " ".join(
+            str(issue.get(key) or "") for key in ("message", "suggestion", "location")
+        ).lower()
+        if any(sibling_id.lower() in text for sibling_id in sibling_ids) or any(
+            sibling_name in text for sibling_name in sibling_names_lower
+        ):
+            continue
+        selected_issue = copy.deepcopy(issue)
+        selected_issue["issue_id"] = (
+            "child_"
+            + child_profile_selection_ref.removeprefix("sha256:")[:10]
+            + "_"
+            + str(issue.get("issue_id") or "issue")
+        )
+        if is_child_issue:
+            selected_issue["location"] = (
+                "policy_spec.interventions[0]" + location[len(selected_path) :]
+            )
+        projected_issues.append(selected_issue)
+    critic_payload["issues"] = projected_issues
+    critic_payload["report_id"] = (
+        "synthetic-child-critic-" + child_profile_selection_ref.removeprefix("sha256:")[:16]
+    )
+    critic_payload["problem_frame_ref"] = child_frame_id
+    critic_payload["ir_ref"] = gy_content_hash(formalizer_payload)
+    critic_payload["reflexion_hint"] = (
+        "Synthetic child critique projection: sibling-specific findings and parent-wide "
+        "scores are not carried into this child view."
+    )
+    for score_name in ("alignment_score", "completeness_score", "overall_quality"):
+        critic_payload.pop(score_name, None)
+    critic_hash = _replace_recording_response_payload(
+        child_recording,
+        response_index=9,
+        payload=critic_payload,
+    )
+
+    child_fixture_id = (
+        "synthetic_n4_child_" + child_profile_selection_ref.removeprefix("sha256:")[:20]
+    )
+    child_recording.update(
+        {
+            "fixture_id": child_fixture_id,
+            "recording_id": child_fixture_id,
+            "recording_source": "synthetic_child_conditioned_stage_projection",
+            "derived_from_recording_id": source_recording["recording_id"],
+            "derived_from_content_hash": source_recording["recording_content_hash"],
+            "parent_synthetic_recording_id": base_controlled_recording.get("recording_id"),
+            "parent_synthetic_recording_content_hash": base_controlled_recording.get(
+                "recording_content_hash"
+            ),
+            "child_problem_ref": child_problem_ref,
+            "child_profile_selection_ref": child_profile_selection_ref,
+            "child_source_result_ref": source_result_ref,
+            "child_source_atom_refs": list(source_atom_refs),
+            "child_intervention_id": intervention_id,
+            "child_parameter_spec": parameter.model_dump(mode="json"),
+            "child_original_formalizer_intervention": copy.deepcopy(raw_intervention),
+            "child_original_formalizer_parameter": copy.deepcopy(raw_parameter),
+            "child_parent_response_hashes": source_response_hashes,
+            "child_projected_response_hashes": {
+                "draft": draft_hash,
+                "drafter_multipass": multipass_hash,
+                "drafter_consolidation": draft_hash,
+                "formalizer": formalizer_hash,
+                "critic": critic_hash,
+            },
+            "child_projection_basis": (
+                "exact_owner_child_source_atom_to_original_intervention_and_parameter_spec"
+            ),
+            "authority": "candidate_only_not_external_evidence",
+        }
+    )
+    child_recording["recording_content_hash"] = gy_content_hash(
+        {key: value for key, value in child_recording.items() if key != "recording_content_hash"}
+    )
+    n4_contract._validate_recording_fixture(child_recording)  # type: ignore[arg-type]
+
+    provider_profile = synthetic_controlled_candidate_provider_profile(
+        source_recording,
+        child_recording,
+        problem=child_problem,
+        evidence_root=evidence_root,
+    )
+    provider_profile = dataclasses.replace(
+        provider_profile,
+        profile_selection_ref=child_profile_selection_ref,
+    )
+    projection_root = evidence_root / "child-projections"
+    projection_root.mkdir(parents=True, exist_ok=True)
+    projection_path = projection_root / (
+        child_profile_selection_ref.removeprefix("sha256:") + ".json"
+    )
+    with projection_path.open("x", encoding="utf-8") as stream:
+        stream.write(json.dumps(child_recording, sort_keys=True, indent=2) + "\n")
+    if cycle_job_design_problem_ref(child_problem) != child_problem_ref:
+        raise ValueError("child_provider_problem_ref_projection_mismatch")
+    return provider_profile
+
+
 def _generic_profile_for_selection(
     *,
     tmp_path: Path,
@@ -1291,6 +1685,7 @@ async def prepare_generic_n4_served_replay(
     include_cyclic_ncm_alternative: bool = False,
     materialize_source_parameters: bool = False,
     synthetic_settled_provider: bool = False,
+    condition_synthetic_provider_on_child_sources: bool = False,
 ) -> PreparedGenericN4ServedReplay:
     """Derive a source-bound N4 child family and all typed profiles for a served app.
 
@@ -1344,9 +1739,17 @@ async def prepare_generic_n4_served_replay(
             include_cyclic_ncm_alternative,
             materialize_source_parameters,
             synthetic_settled_provider,
+            condition_synthetic_provider_on_child_sources,
         )
     ):
         raise TypeError("controlled_generic_ncm_profile_selector_invalid")
+    if condition_synthetic_provider_on_child_sources and (
+        recording_mode != "original_second_capture"
+        or child_count != 2
+        or not materialize_source_parameters
+        or not synthetic_settled_provider
+    ):
+        raise ValueError("child_conditioned_synthetic_provider_scope_invalid")
     if materialize_source_parameters and source_root is None:
         # Choose and produce the admitted tiny input root before seeding any
         # selected source. The opt-in must not silently read the production
@@ -1517,6 +1920,7 @@ async def prepare_generic_n4_served_replay(
             recorded_problem.model_dump(mode="python")
         )
     provider_profile = None
+    declared_recording: dict[str, Any] | None = None
     if synthetic_settled_provider:
         declared_recording = copy.deepcopy(recording)
         if recording_mode in {"original_second_capture", "served_tax_global_scalar"}:
@@ -1916,6 +2320,72 @@ async def prepare_generic_n4_served_replay(
             source_result_ref=children[0].source_result_ref,
             source_atom_refs=("sha256:" + "f" * 64,),
             semantic_ref=children[0].semantic_ref,
+        )
+
+    if condition_synthetic_provider_on_child_sources:
+        from polisyos.scientist.orchestration.llm._n4_request import _read_payload
+        from tests._helpers.controlled_candidate_profile import (
+            SyntheticCandidateProviderProfile,
+        )
+
+        if (
+            type(provider_profile) is not SyntheticCandidateProviderProfile
+            or declared_recording is None
+        ):
+            raise AssertionError("child_conditioned_synthetic_provider_profile_missing")
+        child_profiles_by_problem_ref = {}
+        for child, child_key in zip(children, child_keys, strict=True):
+            child_problem_ref = gy_content_hash(child.problem.model_dump(mode="json"))
+            if child_problem_ref in child_profiles_by_problem_ref:
+                raise AssertionError("child_conditioned_provider_problem_ref_not_unique")
+            child_profile = _child_conditioned_synthetic_provider_profile(
+                source_recording=source_recording,
+                base_controlled_recording=declared_recording,
+                organ_run=organ_run,
+                parent_problem=recorded_problem,
+                child=child,
+                child_profile_selection_ref=child_key,
+                evidence_root=tmp_path / "synthetic-stage-exchanges",
+            )
+            if child_profile.profile_selection_ref != child_key:
+                raise AssertionError("child_conditioned_provider_selection_ref_mismatch")
+            child_profiles_by_problem_ref[child_problem_ref] = (child_key, child_profile)
+
+        parent_completion = provider_profile.completion
+
+        def complete_for_exact_child_source(
+            request: dict[str, Any],
+            *,
+            raw_request: bytes,
+            compiled_problem_ref: str | None,
+        ) -> dict[str, Any]:
+            request_context = _read_payload(request)
+            if request_context["subject_ref"] != compiled_problem_ref:
+                raise ValueError("child_conditioned_provider_subject_not_admitted")
+            child_entry = child_profiles_by_problem_ref.get(request_context["subject_ref"])
+            if child_entry is None:
+                return parent_completion(
+                    request,
+                    raw_request=raw_request,
+                    compiled_problem_ref=compiled_problem_ref,
+                )
+            child_key, child_profile = child_entry
+            if child_key not in set(child_keys) or child_profile.profile_selection_ref != child_key:
+                raise ValueError("child_conditioned_provider_selection_not_admitted")
+            return child_profile.completion(
+                request,
+                raw_request=raw_request,
+                compiled_problem_ref=compiled_problem_ref,
+            )
+
+        # Keep the root provider's normal behavior while routing only an
+        # already-admitted child subject to its derived source profile.
+        provider_profile = dataclasses.replace(provider_profile)
+        object.__setattr__(provider_profile, "completion", complete_for_exact_child_source)
+        controlled_candidate_gateway.set_fixture(
+            copy.deepcopy(recording),
+            problem=recorded_problem,
+            provider_profile=provider_profile,
         )
 
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):

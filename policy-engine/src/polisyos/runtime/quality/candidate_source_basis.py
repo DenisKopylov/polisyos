@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Literal
 from pydantic import AwareDatetime, BaseModel, ConfigDict, model_validator
 
 from polisyos.core import artifacts, canon
-from polisyos.core.contracts.fabric import (
+from polisyos.core.contracts import (
     CandidateAcquisitionSourceDataSnapshotLineage,
     DataSnapshot,
     RetrievalSummary,
@@ -32,7 +32,7 @@ from polisyos.runtime.quality.data_state_substrate import CandidateAcquisitionSo
 if TYPE_CHECKING:
     from typing import Any
 
-    from polisyos.core.contracts.foundry import FoundryInputBindingRule
+    from polisyos.core.contracts import FoundryInputBindingRule
     from polisyos.foundry.data_plane import InputBindingValuesPreparation
     from polisyos.ir.connectors import FetchResult
     from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
@@ -233,13 +233,17 @@ def _source_ingestion_values(
     result: FetchResult[Any],
 ) -> dict[str, object]:
     """Resolve full evidence/graph values, normalizing only verified writer clocks."""
-    from polisyos.core.contracts.provenance import ProvenanceCoreRef
-    from polisyos.fabric.evidence import load_provenance_graph
-    from polisyos.fabric.evidence.evidence import verify_live_ingestion_evidence_profile
-    from polisyos.fabric.ingestion._source_evidence_schema import load_source_evidence_bundle
-    from polisyos.fabric.ingestion.ingestion import (
-        _build_connector_provenance_graph,
-        _canon_scalar,
+    from polisyos.core.contracts import ProvenanceCoreRef
+    from polisyos.fabric.ingestion import (
+        build_connector_provenance_graph as _build_connector_provenance_graph,
+    )
+    from polisyos.fabric.ingestion import (
+        canonicalize_ingestion_scalar as _canon_scalar,
+    )
+    from polisyos.fabric.ingestion import (
+        load_provenance_graph,
+        load_source_evidence_bundle,
+        verify_live_ingestion_evidence_profile,
     )
 
     snapshot = DataSnapshot.model_validate(
@@ -947,14 +951,14 @@ def prepare_candidate_source_basis_values(
     )
 
 
-def _live_candidate_source_predecessors(
-    *, bridge: AcquisitionWorldGrowthBridge, closure: VerifiedAcquisitionRouteClosure
+def _candidate_source_predecessors_for_verified_closure(
+    *, store: artifacts.ArtifactStore, closure: VerifiedAcquisitionRouteClosure
 ) -> tuple[CandidateSourceBasisPredecessor, ...]:
-    """Reopen only this route's already verified candidate transition prefix.
+    """Reopen only an owner-verified route's candidate transition prefix.
 
-    The caller must first re-resolve the live selected action and its complete
-    route closure through the control owner. That fold independently verifies
-    each receipt, action, intent, checkpoint, event, and continued run. The
+    The caller must first resolve the complete bounded route through the control
+    owner. That fold independently verifies each receipt, action, intent,
+    checkpoint, event, and continued run. This helper is not route authority. The
     first embedded world remains the selected prior owner's exact hypothesis;
     no candidate ancestry before this route is inferred or removed.
     """
@@ -973,21 +977,21 @@ def _live_candidate_source_predecessors(
     for receipt in closure.candidate_basis_transitions:
         action = CandidateAcquisitionActionReceipt.model_validate(
             _selected_json(
-                bridge.artifact_store,
+                store,
                 receipt.candidate_action_ref,
                 "runtime_quality.acquisition_candidate_action_receipt",
             )
         )
         intent = CandidateAcquisitionWorldIntent.model_validate(
             _selected_json(
-                bridge.artifact_store,
+                store,
                 receipt.candidate_world_intent_ref,
                 "runtime_quality.acquisition_candidate_world_intent",
             )
         )
         checkpoint = CandidateAcquisitionWorldCheckpoint.model_validate(
             _selected_json(
-                bridge.artifact_store,
+                store,
                 receipt.candidate_world_checkpoint_ref,
                 "runtime_quality.acquisition_candidate_world_checkpoint",
             )
@@ -1008,29 +1012,15 @@ def _live_candidate_source_predecessors(
             or checkpoint.action_phase_ref != action.action_phase_ref
             or intent.transaction_time != checkpoint.transaction_time
             or intent.configured_profile.profile_selection_ref != action.profile_selection_ref
+            or not _same_view(store, intent.candidate_action_ref, receipt.candidate_action_ref)
+            or not _same_view(store, checkpoint.candidate_action_ref, receipt.candidate_action_ref)
+            or not _same_view(store, checkpoint.intent_ref, receipt.candidate_world_intent_ref)
+            or not _same_view(store, action.candidate_source_ref, receipt.candidate_source_ref)
+            or not _same_view(store, checkpoint.candidate_source_ref, receipt.candidate_source_ref)
+            or not _same_view(store, checkpoint.data_snapshot_ref, receipt.data_snapshot_ref)
+            or not _same_view(store, checkpoint.world_model_ref, receipt.world_model_ref)
             or not _same_view(
-                bridge.artifact_store, intent.candidate_action_ref, receipt.candidate_action_ref
-            )
-            or not _same_view(
-                bridge.artifact_store, checkpoint.candidate_action_ref, receipt.candidate_action_ref
-            )
-            or not _same_view(
-                bridge.artifact_store, checkpoint.intent_ref, receipt.candidate_world_intent_ref
-            )
-            or not _same_view(
-                bridge.artifact_store, action.candidate_source_ref, receipt.candidate_source_ref
-            )
-            or not _same_view(
-                bridge.artifact_store, checkpoint.candidate_source_ref, receipt.candidate_source_ref
-            )
-            or not _same_view(
-                bridge.artifact_store, checkpoint.data_snapshot_ref, receipt.data_snapshot_ref
-            )
-            or not _same_view(
-                bridge.artifact_store, checkpoint.world_model_ref, receipt.world_model_ref
-            )
-            or not _same_view(
-                bridge.artifact_store,
+                store,
                 checkpoint.base_data_snapshot_ref,
                 world_model_artifact_views(
                     intent.configured_profile.context_inputs.world_model_record
@@ -1060,6 +1050,15 @@ def _live_candidate_source_predecessors(
         )
         preceding_world_ref = receipt.world_model_ref
     return tuple(rows)
+
+
+def _live_candidate_source_predecessors(
+    *, bridge: AcquisitionWorldGrowthBridge, closure: VerifiedAcquisitionRouteClosure
+) -> tuple[CandidateSourceBasisPredecessor, ...]:
+    """Apply the same predecessor replay after the live action owner is checked."""
+    return _candidate_source_predecessors_for_verified_closure(
+        store=bridge.artifact_store, closure=closure
+    )
 
 
 def prepare_live_candidate_source_basis_values(

@@ -20,7 +20,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.canon import CanonSpec
 
@@ -76,7 +76,7 @@ class ReplayStore:
         """Persist a RecordSession to CAS as a JSON artifact."""
         from polisyos.core.artifacts import input_ref_from_artifact_ref, load_core_json_artifact
         from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-        from polisyos.core.contracts.fabric import EvidenceBundle
+        from polisyos.core.contracts import EvidenceBundle
 
         if evidence_ref is not None:
             if (

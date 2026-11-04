@@ -333,3 +333,13 @@ profile matrix covers these distinctions, JSON/YAML registered CLI conversion
 and fresh-process registry reads; it does not certify external historical datasets,
 raw contents, license authority, or scientific reuse eligibility. No stricter
 validation mode or new validator is needed by this format-only CLI contract.
+
+## Selected ingestion evidence readers
+
+The ingestion facade exposes the existing selected readers and provenance builder:
+`load_source_evidence_bundle`, `load_provenance_graph`,
+`verify_live_ingestion_evidence_profile`, `build_connector_provenance_graph` and
+`canonicalize_ingestion_scalar`. These are aliases to their canonical owners.
+The graph records declared operations; construction does not verify rights, source
+currency or scientific validity. Consumers still verify the complete selected
+manifest and producer bindings before using an evidence profile.

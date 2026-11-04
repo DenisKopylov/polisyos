@@ -325,6 +325,48 @@ def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
             # template candidate reaches selected-profile verification.
             assert inventory_calls == [ref.artifact_id]
 
+            # A tenant-scoped owner can deny the bare-ID default payload view
+            # while allowing its exact selected manifest view. Exercise that
+            # boundary without replacing inventory or the selected-ref reader.
+            policy_artifact_ids = {legacy_ref.artifact_id.root, ref.artifact_id.root}
+            original_get_bytes = cas.get_bytes
+            denied_default_reads: list[artifacts.ArtifactID] = []
+            selected_profile_reads: list[artifacts.ArtifactRef] = []
+
+            def deny_unowned_default_payload(selector: Any) -> bytes:
+                if (
+                    isinstance(selector, artifacts.ArtifactID)
+                    and selector.root in policy_artifact_ids
+                ):
+                    denied_default_reads.append(selector)
+                    raise artifacts.ArtifactOwnershipError(
+                        "fixture denies unowned bare-ID policy payload access"
+                    )
+                if (
+                    isinstance(selector, artifacts.ArtifactRef)
+                    and selector.artifact_id.root in policy_artifact_ids
+                ):
+                    selected_profile_reads.append(selector)
+                return original_get_bytes(selector)
+
+            inventory_calls.clear()
+            with monkeypatch.context() as patch:
+                patch.setattr(cas, "get_bytes", deny_unowned_default_payload)
+                patch.setattr(cas, "inventory_snapshot", track_inventory)
+                ownership_fallback_bindings = current_bindings()
+            assert ownership_fallback_bindings == (
+                CandidateUnpricedPolicyBinding(scope=scope, policy_ref=ref),
+            )
+            assert len(denied_default_reads) == 2
+            assert {item.root for item in denied_default_reads} == policy_artifact_ids
+            assert {item.root for item in inventory_calls} == policy_artifact_ids
+            assert len(inventory_calls) == 2
+            assert {
+                selected.artifact_id.root
+                for selected in selected_profile_reads
+                if selected.manifest_profile_sha256 is not None
+            } == policy_artifact_ids
+
             inventory_calls.clear()
             with monkeypatch.context() as patch:
                 patch.setattr(cas, "inventory_snapshot", track_inventory)

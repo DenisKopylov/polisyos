@@ -771,43 +771,54 @@ def list_current_candidate_unpriced_policy_bindings(
         if not event.payload_ref:
             raise ValueError("candidate_unpriced_policy_event_payload_missing")
         artifact_id = artifacts.ArtifactID.model_validate(event.payload_ref)
-        raw_payload = store.get_bytes(artifact_id)
         payload_ref = str(artifact_id)
-        if type(raw_payload) is not bytes or payload_ref != event.payload_ref:
-            raise ValueError("candidate_unpriced_policy_event_payload_identity_mismatch")
-        if "sha256:" + hashlib.sha256(raw_payload).hexdigest() != payload_ref:
-            raise ValueError("candidate_unpriced_policy_event_payload_identity_mismatch")
-        policy_payload = CandidateUnpricedAcquisitionPolicy.model_validate(
-            canon.from_canonical_bytes(
-                raw_payload,
-                version=canon.CanonSpec(forbid_floats=False).version,
+        raw_payload_accessible = True
+        try:
+            raw_payload = store.get_bytes(artifact_id)
+        except artifacts.ArtifactOwnershipError:
+            # The bare-ID default view may be outside this tenant's readable
+            # ownership while an exact selected manifest view remains owned.
+            # Do not widen scope or retry the payload through another selector;
+            # let the existing inventory and selected-ref reader decide.
+            raw_payload_accessible = False
+        if raw_payload_accessible:
+            if type(raw_payload) is not bytes or payload_ref != event.payload_ref:
+                raise ValueError("candidate_unpriced_policy_event_payload_identity_mismatch")
+            if "sha256:" + hashlib.sha256(raw_payload).hexdigest() != payload_ref:
+                raise ValueError("candidate_unpriced_policy_event_payload_identity_mismatch")
+            policy_payload = CandidateUnpricedAcquisitionPolicy.model_validate(
+                canon.from_canonical_bytes(
+                    raw_payload,
+                    version=canon.CanonSpec(forbid_floats=False).version,
+                )
             )
-        )
-        if (
-            policy_payload.configured_template is None
-            or policy_payload.configured_template not in templates
-        ):
-            # Keep the negative shortcut inside Core's existing selected
-            # profile boundary. Raw decoding above is useful for cheaply
-            # recognizing an inactive template, but it cannot bypass a
-            # declared-profile refusal that the prior full reader would make.
-            # If the default manifest/profile path cannot establish the same
-            # typed policy, fall through to the unchanged full inventory and
-            # reader path so that path remains authoritative.
-            try:
-                selected_manifest = store.get_manifest(artifact_id)
-                selected_ref = artifacts.artifact_ref_for_manifest(selected_manifest)
-                selected_payload = artifacts.load_core_json_artifact(
-                    store, selected_ref, raw_payload_bytes=raw_payload
-                )
-                selected_policy = CandidateUnpricedAcquisitionPolicy.model_validate(
-                    selected_payload
-                )
-            except (OSError, TypeError, ValueError):
-                pass
-            else:
-                if selected_policy == policy_payload:
-                    continue
+            if (
+                policy_payload.configured_template is None
+                or policy_payload.configured_template not in templates
+            ):
+                # Keep the negative shortcut inside Core's existing selected
+                # profile boundary. Raw decoding above is useful for cheaply
+                # recognizing an inactive template, but it cannot bypass a
+                # declared-profile refusal that the prior full reader would make.
+                # If the default manifest/profile path cannot establish the same
+                # typed policy, fall through to the unchanged full inventory and
+                # reader path so that path remains authoritative.
+                try:
+                    selected_manifest = store.get_manifest(artifact_id)
+                    selected_ref = artifacts.artifact_ref_for_manifest(selected_manifest)
+                    selected_payload = artifacts.load_core_json_artifact(
+                        store, selected_ref, raw_payload_bytes=raw_payload
+                    )
+                    selected_policy = CandidateUnpricedAcquisitionPolicy.model_validate(
+                        selected_payload
+                    )
+                except artifacts.ArtifactOwnershipError:
+                    pass
+                except (OSError, TypeError, ValueError):
+                    pass
+                else:
+                    if selected_policy == policy_payload:
+                        continue
         snapshot = inventory(artifact_id=artifact_id)
         if snapshot.verdict != "pass":
             raise ValueError("candidate_unpriced_policy_inventory_unverified")

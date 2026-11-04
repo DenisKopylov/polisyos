@@ -10296,13 +10296,42 @@
           "test_sha256": "82eca91c75d23769a366bbddd093563322f826195a87aaee08358651075262f3",
           "scope": "One complete component property test: actual selected CAS/Core profile, inactive-template inventory reduction, stable V1 bytes; bad identity/hash/schema/noncanonical bytes, current event/provider/source changes, absent selected manifests and second valid profile refusal with restored positives. Raw bytes/default manifest never grant authority.",
           "independent_review": "luna_prefilter_review final source/material GO; Root final valid duplicate-profile adversary/output review.",
-          "earlier_failures": "r1 event snapshot did not change; r2 patched other Control service log; r3 exact repeated write was idempotent. Kept, not product FAIL attribution or hidden green."
+          "earlier_failures": "r1 event snapshot did not change; r2 patched other Control service log; r3 exact repeated write was idempotent. Kept, not product FAIL attribution or hidden green.",
+          "follow_on_owned_selected_profile": {
+            "output": "policy-engine/_cache/e02/lane01-policy-prefilter-r5/",
+            "observed": {
+              "PASS": 1,
+              "FAIL": 0,
+              "ERROR": 0,
+              "SKIP": 0
+            },
+            "seconds": 32.59115174994804,
+            "peak_rss_bytes": 1279508480,
+            "named_inputs": 2,
+            "inputs_unchanged_during_run": true,
+            "source_sha256": "9c6ade67d2196474cfe23e351733baaa03a7f3100d22357cac50ac41e5fc5f50",
+            "test_sha256": "2f5866f8d9033d20be841fb0ebb18b663d9b8d9e483dff22ef9919538f651b7f",
+            "scope": "Bare default-view ownership refusal falls back to existing actual inventory/selected-ref owner; real-reader test adapter reproduces R14 denial without scope widening. All previous canonical-profile/selection/uniqueness controls still pass. Actual retained-source replay remains next.",
+            "independent_review": "luna_prefilter_review final bounded ownership/default-view material GO."
+          }
         },
         "candidate_signed_action_replay": {
           "source": "tests/integration/core_runtime/test_candidate_experiment_action_served.py + tests/_helpers/acquisition_served_history.py",
           "output": "policy-engine/_cache/e02/lane01-candidate-action-retained-r13-supervised/",
           "status": "FAIL at authorization_binding_run_unresolved after actual signed PA2 refusals, mandate and DS9 support preparation; preserved source CAS/SQL/ledger, no N5.",
-          "next": "Rerun retained read/allow/removal oracle on composed alias+policy source; source relation is present, so missing external Core owner is not the blocker. Full native test and executed source/N5 terminal remain separate UNRUN."
+          "next": "Rerun retained read/allow/removal oracle on composed alias+policy source; source relation is present, so missing external Core owner is not the blocker. Full native test and executed source/N5 terminal remain separate UNRUN.",
+          "follow_on_r14": {
+            "output": "policy-engine/_cache/e02/lane01-candidate-action-retained-r14/",
+            "source_commit": "580acbbca4149198231d85a76f4fb2a532fd4294",
+            "source_tree": "14f1d98ac96b9833237e61b26e260fef587b1eb1",
+            "status": "FAIL before PA2: new cheap policy bare-ID read denied although selected profile is owned. Internal availability regression, not missing external input.",
+            "seconds": 28.920009625027888,
+            "peak_rss_bytes": 1469022208,
+            "named_inputs": 18,
+            "inputs_unchanged_during_run": true,
+            "preserved": "549 original blob/manifest files,49 original SQL rows and ledger unchanged; N5 sentinel never invoked.",
+            "repair": "r5 source/test-qualified fallback on ArtifactOwnershipError; actual R15 replay next."
+          }
         }
       },
       "independent_component_reviews": {

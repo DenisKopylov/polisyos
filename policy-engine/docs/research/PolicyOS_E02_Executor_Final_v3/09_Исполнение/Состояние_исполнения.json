@@ -10278,7 +10278,24 @@
           "observed": "r1:25PASS/1FAIL/2ERROR of28; r2:24PASS/1 new fixture FAIL of25; r3:both corrected owned-profile default/secondary negative cases PASS (separate policy fixture failed). No combined green cohort fabricated.",
           "scope": "Complete stable kind-specific CAS metadata census; full selected profile dedup/readback; actual signed-orphan recovery tolerates unrelated profileless JSON, but profileless owned records refuse even behind foreign default. Old mutation5 controls unchanged/PASS in r1. API2 errors corrected through declared source_owner_root forwarding.",
           "remaining": "Full protected candidate action/DS9 allow/terminal still needs genuine retained source replay. No missing Core relation: R13 was a software alias bridge defect.",
-          "independent_review": "Root source review and actual complete outputs; no weakening Core canonical reader or fixture authority."
+          "independent_review": "Root source review and actual complete outputs; no weakening Core canonical reader or fixture authority.",
+          "selected_signature_follow_on": {
+            "output": "policy-engine/_cache/e02/lane01-ds9-selected-signature-r2/",
+            "observed": {
+              "PASS": 7,
+              "FAIL": 0,
+              "ERROR": 0,
+              "SKIP": 0
+            },
+            "seconds": 45.24154112499673,
+            "peak_rss_bytes": 1519321088,
+            "named_inputs": 3,
+            "inputs_unchanged_during_run": true,
+            "source_sha256": "e84019d8b10376d694548bc0be70ffccf3ed5a2ae3b04e5d3f1211ce5478a8c5",
+            "test_sha256": "729f21902b897f86fb3ae0b80324d56143c326d9f53eb1a5bdc501fd156d27c9",
+            "scope": "Selected ref across signature/authority/diagnostic reads; actual default-only alias accepted only when identical raw manifests and captured signature verifies selected bytes. Trusted/wrong-key/unsigned selected A versus trusted foreign B; profileless owned views refused. Reconciled-orphan still cannot approve.",
+            "independent_review": "gen1_cross_contract final material source GO; Root actual7-case JUnit readback."
+          }
         },
         "candidate_policy_inactive_template_prefilter": {
           "output": "policy-engine/_cache/e02/lane01-policy-prefilter-r4/",
@@ -10332,6 +10349,26 @@
             "preserved": "549 original blob/manifest files,49 original SQL rows and ledger unchanged; N5 sentinel never invoked.",
             "repair": "r5 source/test-qualified fallback on ArtifactOwnershipError; actual R15 replay next."
           }
+        },
+        "candidate_execution_author_assembly": {
+          "commit": "851e219ba6de02045413bd1169eab948cf455c8d",
+          "tree": "20f606dca59f6161fa4c0f21bb43f3f1adb07566",
+          "ref": "refs/heads/codex/e02-lane01-job-publication",
+          "published_and_commit_readback": true,
+          "footprint": 38,
+          "scope": "Strict experiment execute, atomic publication, real worker/source/N5/terminal owners and selected current-action API; gen2 entry stays gated. Test-owned port helper is preparation. Full execution semantic test remains to be wired/run.",
+          "component_outputs": {
+            "base": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/",
+            "component_r1": "lane01-experiment-component-r1:83PASS/2fixtureFAIL of85,28 stable inputs",
+            "legacy_r4": "lane01-experiment-legacy-consumers-r4:actual N7 catalog preflight and repaired2PASS,97.139s/1516863488bytes,28 stable inputs",
+            "sql_r4": "lane01-experiment-sql-final-r4:4PASS,25.468s/1396834304bytes,3stableinputs",
+            "api_r2": "lane01-current-api-parity-r2:OpenAPI/hardening passed; clienttypes stale FAIL, retained",
+            "client_r3": "lane01-current-client-parity-r3:normal client phase PASS after regeneration,4.856s/402014208bytes,6stableinputs",
+            "sdk": "lane01-current-api-generation-r2:4 transport PASS and SDK typecheck PASS; final example metadata only affects generated TSDoc"
+          },
+          "independent_review": "Sol gen1 owner graph final source GO; Luna current projection/material GO; Root direct output/JUnit/source readback.",
+          "resource_admission": "R8 historical profile total3/protected1 has2 completed standard reservations and no remaining standard unit. Keep for read/permission replay; fresh producer must declare sufficient finite profile before work. No original ledger or signed request mutation.",
+          "remaining": "Compose Main alias/policy/DS9 fixes, then actual fresh quota source→WDI→DataSnapshot/WMR→N5→terminal→fresh GET and crash/removal controls; gen2/retained producer thereafter. No G acceptance."
         }
       },
       "independent_component_reviews": {
@@ -10346,7 +10383,8 @@
         "budget_di_current": "Luna action_contract GO: real owner/lease/observer/ledger+recording callable only; no numerical or fullHTTP claim.5PASS on13stable inputs.",
         "scorecard_fixture_current": "Root GO on actual selected CAS fixtures/component expectations;29PASS. General authority closure producer still missing, not repaired by fixture success.",
         "capacity_frontier_current": "Luna physical_fixture GO on nativeR8 output and actual selected-child request/context WMR binding, test SHA1c622e... .274stableinputs/native1PASS. Original failures kept; Gseparate.",
-        "candidate_control_alias": "luna_pa2_review final material GO; actual owner probe and19 boundary controls PASS. Strong post-OPA current unique-owner check; G separate."
+        "candidate_control_alias": "luna_pa2_review final material GO; actual owner probe and19 boundary controls PASS. Strong post-OPA current unique-owner check; G separate.",
+        "candidate_execution_assembly": "Source GO for851e219 owner graph and current projection, bounded component/SQL/API/SDK results; full genuine protected execution remains verification_missing, no G closure."
       }
     },
     {

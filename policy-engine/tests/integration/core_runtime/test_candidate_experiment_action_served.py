@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -255,6 +256,7 @@ def run_candidate_experiment_action_oracle(
     values: dict[str, object],
     policy_ref,
     monkeypatch: pytest.MonkeyPatch,
+    after_replay: Callable[..., object] | None = None,
 ) -> dict[str, str]:
     """Run the fresh HTTP/PA2/DS9 consumer against an already-served source.
 
@@ -539,6 +541,14 @@ def run_candidate_experiment_action_oracle(
                 effect_handler=lambda call: effects.append(call),
             )
     assert effects == []
+    if after_replay is not None:
+        after_replay(
+            values=values,
+            origin=origin,
+            request=request,
+            decision_ref=decision_ref,
+            policy_ref=policy_ref,
+        )
     return {
         "run_id": run_id,
         "policy_ref": str(policy_ref.artifact_id),
@@ -861,9 +871,17 @@ def test_genuine_labor_policy_gets_signed_candidate_decision_and_fresh_replay(
     source = build_candidate_cycle_substrate_route_inputs(
         tmp_path / "labor-source", include_owner_slot_manifest=True
     )
-    quota = BudgetInvocationQuotaPolicy(
-        allocation_id="served-labor-candidate-experiment", total_units=3, protected_units=1
-    )
+
+    def _candidate_experiment_invocation_quota(
+        *, total_units: int = 3
+    ) -> BudgetInvocationQuotaPolicy:
+        return BudgetInvocationQuotaPolicy(
+            allocation_id="served-labor-candidate-experiment",
+            total_units=total_units,
+            protected_units=1,
+        )
+
+    quota = _candidate_experiment_invocation_quota()
     observed: dict[str, object] = {}
 
     def serve_action(**values) -> None:

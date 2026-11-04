@@ -2161,7 +2161,10 @@ if TYPE_CHECKING:
     from .capability_discovery import CapabilityDiscoveryService
 
     class _HumanDecisionSignedArtifactStore(Protocol):
-        def get_manifest_bytes(self, artifact_id: artifacts.ArtifactID | str) -> bytes: ...
+        def get_manifest_bytes(
+            self,
+            artifact_id: artifacts.ArtifactID | artifacts.ArtifactRef | str,
+        ) -> bytes: ...
 
         def get_signature(
             self, artifact_id: artifacts.ArtifactID | str
@@ -2177,7 +2180,7 @@ if TYPE_CHECKING:
 
         def verify_signature(
             self,
-            artifact_id: artifacts.ArtifactID,
+            artifact_id: artifacts.ArtifactID | artifacts.ArtifactRef | str,
             verifier: artifacts.Ed25519Verifier,
             *,
             strict_identity: bool | None = None,
@@ -4761,9 +4764,8 @@ class HumanDecisionAuthoritySink:
                 reservation_id=reservation_id,
                 reservation_version=reservation_version,
             ) as fence:
-                matches: list[tuple[str, ArtifactManifest, Mapping[str, Any]]] = []
+                matches: list[tuple[ArtifactRef, ArtifactManifest, Mapping[str, Any]]] = []
                 for selected_ref, manifest in self._human_decision_record_manifest_views():
-                    record_ref = str(selected_ref.artifact_id)
                     try:
                         payload = read_core_json_artifact(self._artifact_store, selected_ref).value
                     except CanonicalProfileRefusalError:
@@ -4776,10 +4778,11 @@ class HumanDecisionAuthoritySink:
                         payload.get("reservation_id") == reservation_id
                         and payload.get("reservation_version") == reservation_version
                     ):
-                        matches.append((record_ref, manifest, payload))
+                        matches.append((selected_ref, manifest, payload))
                 if len(matches) != 1:
                     raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
-                record_ref, manifest, payload = matches[0]
+                selected_ref, manifest, payload = matches[0]
+                record_ref = str(selected_ref.artifact_id)
                 schema = manifest.artifact_schema
                 if (
                     schema is None
@@ -4806,7 +4809,7 @@ class HumanDecisionAuthoritySink:
                 ):
                     raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
                 signature = self.verify_artifact_signature(
-                    record_ref,
+                    selected_ref,
                     verifier,
                     strict_identity=True,
                 )
@@ -4851,7 +4854,7 @@ class HumanDecisionAuthoritySink:
                     payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True),
                 )
                 report = self.reconcile_authority_artifact(
-                    record_ref,
+                    selected_ref,
                     expected_tenant_id=tenant_id,
                     expected_cell_id=expected_cell_id,
                     expected_run_id=expected_run_id,
@@ -4954,7 +4957,7 @@ class HumanDecisionAuthoritySink:
 
     def reconcile_authority_artifact(
         self,
-        artifact_ref: str,
+        artifact_ref: str | ArtifactRef,
         *,
         expected_tenant_id: str | None,
         expected_cell_id: str | None,
@@ -4972,8 +4975,12 @@ class HumanDecisionAuthoritySink:
             expected_run_id=expected_run_id,
             expected_job_id=expected_job_id,
         )
-        artifact_id = artifacts.ArtifactID.model_validate(artifact_ref)
-        manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
+        record_ref = (
+            str(artifact_ref.artifact_id)
+            if isinstance(artifact_ref, ArtifactRef)
+            else str(artifacts.ArtifactID.model_validate(artifact_ref))
+        )
+        manifest = read_core_manifest_profile(self._artifact_store, artifact_ref)[0]
         authority = manifest.authority
         if authority is None:
             raise ValueError("human-decision authority manifest linkage is absent")
@@ -4998,7 +5005,7 @@ class HumanDecisionAuthoritySink:
         )
         if (
             report.durable_event_id != event.event_id
-            or event.payload_ref != artifact_ref
+            or event.payload_ref != record_ref
             or not any(getattr(record, "event", None) == event for record in durable_records)
         ):
             raise ValueError("human-decision diagnostic event binding changed")
@@ -5059,16 +5066,43 @@ class HumanDecisionAuthoritySink:
 
     def verify_artifact_signature(
         self,
-        artifact_ref: str,
+        artifact_ref: str | ArtifactRef,
         verifier: artifacts.Ed25519Verifier,
         *,
         strict_identity: bool = True,
     ) -> artifacts.SignatureVerificationResult:
-        """Verify exact bytes, manifest, key trust, and signer identity."""
-
-        return self._signed_artifact_store().verify_signature(
-            artifacts.ArtifactID.model_validate(artifact_ref),
+        """Verify the selected view; reuse a default signature only for identical manifest bytes."""
+        store = self._signed_artifact_store()
+        verification = store.verify_signature(
+            artifact_ref,
             verifier,
+            strict_identity=strict_identity,
+        )
+        if (
+            verification.status != artifacts.SignatureVerificationStatus.UNSIGNED
+            or not isinstance(artifact_ref, ArtifactRef)
+            or artifact_ref.manifest_profile_sha256 is None
+            or type(verifier) is not artifacts.Ed25519Verifier
+        ):
+            return verification
+
+        try:
+            selected_manifest_bytes = store.get_manifest_bytes(artifact_ref)
+            default_manifest_bytes = store.get_manifest_bytes(artifact_ref.artifact_id)
+            if selected_manifest_bytes != default_manifest_bytes:
+                return verification
+            default_signature = store.get_signature(artifact_ref.artifact_id)
+            if type(default_signature) is not artifacts.DetachedSignature:
+                return verification
+            selected_payload_bytes = self._artifact_store.get_bytes(artifact_ref)
+        except Exception:
+            return verification
+
+        return verifier.verify(
+            artifact_ref.artifact_id,
+            selected_payload_bytes,
+            selected_manifest_bytes,
+            default_signature,
             strict_identity=strict_identity,
         )
 

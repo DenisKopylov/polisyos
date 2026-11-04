@@ -10248,6 +10248,37 @@
           "scope": "Actual native producer; first-child2successful standard observations + exact canonical ledger operation/revision set, child2unvisited, persisted capacity partial, distinctfreshAPIcontext GET, cross-run/profileless/missing capsule/result/ledger refusals and restoration.",
           "independent_review": "luna_physical_fixture finalGO, root read result/JUnit1/0/0/0 and full sourcequalifiers.",
           "limitations": "Candidate-only named syntheticprofile, no freshOSprocess/scientific/G/wholepacket closure. EarlierR5-R7 and retained-reader attempts preserved as failures; maintained retained-loader WIP not partofthisPASS."
+        },
+        "candidate_control_alias_owner": {
+          "output": "policy-engine/_cache/e02/lane01-control-alias-owner-r2/",
+          "observed": {
+            "PASS": 19,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 28.50994291692041,
+          "peak_rss_bytes": 1534345216,
+          "named_inputs": 5,
+          "inputs_unchanged_during_run": true,
+          "scope": "Boundary unit tests plus genuine retained owner/binder/sealed Core reopen probe; no JWT/OPA/DS9 creation claim. Original958 CAS files,5 Core files and5 SQL tables unchanged.",
+          "source": {
+            "resource_binding_sha256": "c90e9647507488b92cfcecb8bd52c96adda5f537c196c17f3c1499807b183404",
+            "human_decisions_sha256": "24bea6da0e08940cf40321ccec56f13638656c4acee484758d4012489c786fef"
+          },
+          "independent_review": "luna_pa2_review final source/material GO; Root actual result/JUnit/stdout readback. Test-only lint formatting and constant SQL query spelling afterward;19 unchanged boundary cases requalified in consumer r2."
+        },
+        "human_decision_scoped_manifest_recovery": {
+          "outputs": [
+            "policy-engine/_cache/e02/lane01-human-decision-consumers-r1/",
+            "policy-engine/_cache/e02/lane01-human-decision-consumers-r2/",
+            "policy-engine/_cache/e02/lane01-policy-custody-controls-r3/"
+          ],
+          "source_sha256": "eed1a1d76d13abd621ababa4fce4dd05842289e715cca8c76434bb0d2ccc2fe1",
+          "observed": "r1:25PASS/1FAIL/2ERROR of28; r2:24PASS/1 new fixture FAIL of25; r3:both corrected owned-profile default/secondary negative cases PASS (separate policy fixture failed). No combined green cohort fabricated.",
+          "scope": "Complete stable kind-specific CAS metadata census; full selected profile dedup/readback; actual signed-orphan recovery tolerates unrelated profileless JSON, but profileless owned records refuse even behind foreign default. Old mutation5 controls unchanged/PASS in r1. API2 errors corrected through declared source_owner_root forwarding.",
+          "remaining": "Full protected candidate action/DS9 allow/terminal still needs genuine retained source replay. No missing Core relation: R13 was a software alias bridge defect.",
+          "independent_review": "Root source review and actual complete outputs; no weakening Core canonical reader or fixture authority."
         }
       },
       "independent_component_reviews": {
@@ -10257,11 +10288,12 @@
         "budget": "Independent owner review GO; 15 window/393 ledger-LLM and separate 13 native N5 quota PASS on named frozen inputs. Five Cycle-importing cases and actual served lifecycle remain pending.",
         "candidate_experiment_read_surface": "Luna independent GO on scoped API and typed example; actual HTTP3, OpenAPI/client drift and focused SDK outputs retained. Protected-action composition separate.",
         "candidate_source_second_domain": "Luna bridge_review GO except optional-denominator consumer typing companion; companion fixed with focused native1PASS, root source review and AST-preserving formatting.",
-        "verified_child_n4_diversity": "Luna child_n4 GO on canonical full child-family admission and narrow floor predicate; complete-atom oracle independently GO, but full runtime r4 remains FAIL on actual basis differences.",
+        "verified_child_n4_diversity": "Canonical child-family floor/source review GO; earlier r4 failure retained. Complete native frontier r8 now PASS on274 stable inputs, independently reviewed selected-child WMR join.",
         "candidate_pa2_phase": "Luna PA2 review GO for signed-history/current-permit separation and owner read/write source; phase remains implemented_but_not_orchestrated/producer_missing until atomic job/phase producer and true positive. Current decision preparation only.",
         "budget_di_current": "Luna action_contract GO: real owner/lease/observer/ledger+recording callable only; no numerical or fullHTTP claim.5PASS on13stable inputs.",
         "scorecard_fixture_current": "Root GO on actual selected CAS fixtures/component expectations;29PASS. General authority closure producer still missing, not repaired by fixture success.",
-        "capacity_frontier_current": "Luna physical_fixture GO on nativeR8 output and actual selected-child request/context WMR binding, test SHA1c622e... .274stableinputs/native1PASS. Original failures kept; Gseparate."
+        "capacity_frontier_current": "Luna physical_fixture GO on nativeR8 output and actual selected-child request/context WMR binding, test SHA1c622e... .274stableinputs/native1PASS. Original failures kept; Gseparate.",
+        "candidate_control_alias": "luna_pa2_review final material GO; actual owner probe and19 boundary controls PASS. Strong post-OPA current unique-owner check; G separate."
       }
     },
     {

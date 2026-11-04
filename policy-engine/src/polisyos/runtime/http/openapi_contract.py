@@ -2534,6 +2534,9 @@ def _success_example_response_models() -> dict[str, Any]:
         LineageResponse,
         PredictiveCoverageDiagnosticPreview,
     )
+    from polisyos.runtime.http.services.acquisition_action_service import (
+        CandidateExperimentRouteProjection,
+    )
     from polisyos.runtime.http.services.candidate_hte_packet_projection import (
         CandidateDecisionPacketHTEProjection,
     )
@@ -2563,6 +2566,7 @@ def _success_example_response_models() -> dict[str, Any]:
         "admit_registered_sql_materialization": RegisteredSQLMaterializationResponse,
         "withdraw_registered_sql_materialization": RegisteredSQLWithdrawalResponse,
         "get_run_candidate_hte_packet": CandidateDecisionPacketHTEProjection,
+        "get_run_candidate_acquisition_experiment": CandidateExperimentRouteProjection,
         "get_control_pre_admission_attempt_by_idempotency_key": (
             ControlPreAdmissionAttemptResponse
         ),
@@ -2923,6 +2927,66 @@ def _run_candidate_hte_packet_success_examples() -> dict[str, Any]:
 
 _SUCCESS_EXAMPLE_SETS_BY_OPERATION["get_run_candidate_hte_packet"] = (
     _run_candidate_hte_packet_success_examples
+)
+
+
+def _candidate_acquisition_experiment_success_examples() -> dict[str, Any]:
+    """Render a typed documentation fixture without claiming source or action authority."""
+    from polisyos.runtime.http.services.acquisition_action_service import (
+        CandidateExperimentRouteProjection,
+    )
+
+    selected_refs = {
+        role: {
+            "artifact_id": "sha256:" + token * 64,
+            "kind": kind,
+            "media_type": "application/json",
+            "manifest_profile_sha256": "sha256:" + "f" * 64,
+        }
+        for role, kind, token in (
+            ("compiled_ref", "runtime.compiled_recursive_generation_cycle", "1"),
+            ("planner_report_ref", "runtime.acquisition_planner_report", "2"),
+            ("compiler_report_ref", "runtime.data_requirement_compilation_report", "3"),
+            (
+                "configured_port_source_ref",
+                "runtime.quality.n7_configured_candidate_port_source",
+                "4",
+            ),
+            ("policy_ref", "runtime_quality.candidate_unpriced_acquisition_policy", "5"),
+        )
+    }
+    projection = CandidateExperimentRouteProjection.model_validate(
+        {
+            "tenant_id": "example-tenant",
+            "cell_id": "example-cell",
+            "run_id": "example-candidate-run",
+            "route_id": _ARTIFACT_ID_SAMPLE,
+            "replay_pins": {
+                "source_job_id": "example-completed-source-job",
+                "source_payload_ref": "sha256:" + "6" * 64,
+                "request_content_hash": "sha256:" + "7" * 64,
+                "candidate_digest": "sha256:" + "8" * 64,
+                **selected_refs,
+            },
+            "scheduler_action": "reject",
+            "scheduler_reason": "roi_below_threshold",
+        }
+    )
+    return {
+        "candidate_policy_documentation_fixture": {
+            "summary": "Candidate policy with unestablished cost and information value",
+            "description": (
+                "Documentation-only selected-ref fixture; these illustrative hashes are not "
+                "verified source evidence or a permission. The live reader reopens the signed "
+                "completed source and selected policy. No action or publication is authorized."
+            ),
+            "value": projection.model_dump(mode="json"),
+        }
+    }
+
+
+_SUCCESS_EXAMPLE_SETS_BY_OPERATION["get_run_candidate_acquisition_experiment"] = (
+    _candidate_acquisition_experiment_success_examples
 )
 
 

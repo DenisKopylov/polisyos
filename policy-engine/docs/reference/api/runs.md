@@ -43,6 +43,7 @@ for the complete schema-described and route-only surfaces.
 | `GET`  | `/api/v1/runs/{run_id}/evidence-context`       | `RunEvidenceContextResponse`    | Evidence bundle and context resolution                                 |
 | `GET`  | `/api/v1/runs/{run_id}/paper`                  | `RunPaperPacket`                | Replay-pinned run paper and selected artifact refs                     |
 | `GET`  | `/api/v1/runs/{run_id}/workflow`               | `RunWorkflowResponse`           | Workflow/DAG view                                                      |
+| `GET`  | `/api/v1/runs/{run_id}/candidate-acquisition-experiment` | `CandidateExperimentRouteProjection` | Selected candidate policy and replay pins; no execution permission |
 | `POST` | `/api/v1/runs/{run_id}/predictive-calibration` | `PredictiveCalibrationResponse` | Run-bound candidate diagnostic; appends a selected CAS ref event       |
 | `GET`  | `/api/v1/runs/{run_id}/predictive-calibration` | `PredictiveCalibrationResponse` | Reopens the latest appended diagnostic and recomputes S10              |
 | `GET`  | `/api/v1/runs/live`                            | `text/event-stream`             | Route-only, schema-hidden global live stream                           |
@@ -60,6 +61,25 @@ Validation anchors:
 - `tests/unit/runtime/http/test_lineage_routes.py`
 - `tests/unit/runtime/http/test_temporal_routes.py`
 - `tests/property/runtime/http/test_access_invariants_properties.py`
+
+## `GET /api/v1/runs/{run_id}/candidate-acquisition-experiment`
+
+Read the current bounded candidate-experiment route with `RUNS_REVIEW` in the
+authenticated tenant/cell scope. The source reader reopens the completed signed
+request, compiler-selected source and selected policy; stale or unavailable
+sources refuse rather than returning a fabricated route. This experimental
+surface is read-only and does not fetch data or enqueue work.
+
+The response carries the source request hash, candidate digest and complete
+selected artifact refs needed by a subsequent action request. Monetary cost,
+information value and action authority remain `not_established`, and
+`publication_authority` remains false. The original scheduler rejection remains
+visible; choosing a bounded experiment does not establish positive VOI.
+
+Transport permission/refusal tests, the typed OpenAPI success example, generated
+client drift and the SDK transport control are qualified in LANE-01's existing
+working state. Transport fixtures alone do not prove the completed-source reader
+or a protected action end to end.
 
 ## `GET /api/v1/runs`
 

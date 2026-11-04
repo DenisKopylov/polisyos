@@ -27,6 +27,7 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionRouteListResponse,
     AcquisitionRouteMutationRequest,
     AcquisitionRouteProjection,
+    CandidateExperimentRouteProjection,
 )
 from polisyos.runtime.http.step_up import StepUpClass, require_step_up
 
@@ -159,6 +160,29 @@ def get_run_acquisition_route(
             cell_id=cell_id,
             run_id=run_id,
             route_id=route_id,
+        )
+    except AcquisitionActionServiceError as exc:
+        _raise_service_error(exc)
+
+
+@router.get(
+    "/{run_id}/candidate-acquisition-experiment",
+    response_model=CandidateExperimentRouteProjection,
+    operation_id="get_run_candidate_acquisition_experiment",
+    dependencies=[Depends(_GET_AUTHZ)],
+)
+def get_run_candidate_acquisition_experiment(
+    run_id: str,
+    request: Request,
+    service: _Service,
+) -> CandidateExperimentRouteProjection:
+    tenant_id, cell_id, _ = _scope(request)
+    set_authz_resource(request, tenant_id=tenant_id, kind="runtime.acquisition_route")
+    try:
+        return service.get_candidate_experiment_route(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
         )
     except AcquisitionActionServiceError as exc:
         _raise_service_error(exc)

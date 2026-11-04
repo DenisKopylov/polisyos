@@ -290,6 +290,12 @@ export type CacheStatusResponse =
 export type CandidateDecisionPacketHTEProjection =
   RuntimeApiComponents["schemas"]["CandidateDecisionPacketHTEProjection"];
 
+export type CandidateExperimentRouteProjection =
+  RuntimeApiComponents["schemas"]["CandidateExperimentRouteProjection"];
+
+export type CandidateExperimentRouteReplayPins =
+  RuntimeApiComponents["schemas"]["CandidateExperimentRouteReplayPins"];
+
 export type CandidateLever = RuntimeApiComponents["schemas"]["CandidateLever"];
 
 export type CandidateLeverSpace =
@@ -3385,6 +3391,20 @@ export class RuntimeApiClient {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/authority-values`;
     const query = undefined;
     return this.request<RunAuthorityProjection>(
+      "GET",
+      path,
+      query,
+      undefined,
+      undefined,
+    );
+  }
+
+  async getRunCandidateAcquisitionExperiment(params: {
+    run_id: string;
+  }): Promise<CandidateExperimentRouteProjection> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/candidate-acquisition-experiment`;
+    const query = undefined;
+    return this.request<CandidateExperimentRouteProjection>(
       "GET",
       path,
       query,

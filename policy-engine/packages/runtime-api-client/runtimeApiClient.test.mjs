@@ -18,6 +18,65 @@ function createClient(calls, payload = { ok: true }) {
   });
 }
 
+test("candidate acquisition experiment GET preserves unknown authority and replay pins", async () => {
+  // Transport fixture only; these refs do not establish a verified source permit.
+  const payload = {
+    monetary_cost: "not_established",
+    information_value: "not_established",
+    action_authority: "not_established",
+    publication_authority: false,
+    replay_pins: {
+      candidate_digest: "sha256:candidate",
+      compiled_ref: { artifact_id: "sha256:compiled" },
+      compiler_report_ref: { artifact_id: "sha256:compiler" },
+      configured_port_source_ref: { artifact_id: "sha256:port-source" },
+      planner_report_ref: { artifact_id: "sha256:planner" },
+      policy_ref: { artifact_id: "sha256:policy" },
+      request_content_hash: "sha256:request",
+    },
+  };
+  const calls = [];
+  const client = createClient(calls, payload);
+
+  const response = await client.getRunCandidateAcquisitionExperiment({
+    run_id: "run/with space",
+  });
+
+  assert.deepEqual(response, payload);
+  assert.equal(calls.length, 1);
+  assert.equal(
+    calls[0].url,
+    "https://runtime.test/api/v1/runs/run%2Fwith%20space/candidate-acquisition-experiment",
+  );
+  assert.equal(calls[0].init.method, "GET");
+  assert.equal(calls[0].init.body, undefined);
+  assert.deepEqual(response.replay_pins, payload.replay_pins);
+
+  let deniedCalls = 0;
+  const deniedClient = new RuntimeApiClient({
+    baseUrl: "https://runtime.test",
+    fetchImpl: async () => {
+      deniedCalls += 1;
+      return new Response('{"code":"forbidden"}', {
+        status: 403,
+        statusText: "Forbidden",
+        headers: { "Content-Type": "application/problem+json" },
+      });
+    },
+  });
+  await assert.rejects(
+    () =>
+      deniedClient.getRunCandidateAcquisitionExperiment({
+        run_id: "run/with space",
+      }),
+    {
+      name: "Error",
+      message: 'Runtime API request failed: 403 Forbidden {"code":"forbidden"}',
+    },
+  );
+  assert.equal(deniedCalls, 1);
+});
+
 test("normative evidence submission forwards the source head and signed refs", async () => {
   const calls = [];
   const payload = { status: "admitted", head_ref: "sha256:admitted" };

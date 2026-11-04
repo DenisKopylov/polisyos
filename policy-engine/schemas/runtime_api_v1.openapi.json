@@ -6286,6 +6286,140 @@
         "title": "CandidateDecisionPacketHTEProjection",
         "type": "object"
       },
+      "CandidateExperimentRouteProjection": {
+        "additionalProperties": false,
+        "description": "Read-only experiment proposal with unknown cost and no action authority.",
+        "properties": {
+          "action_authority": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Action Authority",
+            "type": "string"
+          },
+          "cell_id": {
+            "minLength": 1,
+            "title": "Cell Id",
+            "type": "string"
+          },
+          "information_value": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Information Value",
+            "type": "string"
+          },
+          "monetary_cost": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Monetary Cost",
+            "type": "string"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "replay_pins": {
+            "$ref": "#/components/schemas/CandidateExperimentRouteReplayPins"
+          },
+          "route_id": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Route Id",
+            "type": "string"
+          },
+          "run_id": {
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "scheduler_action": {
+            "minLength": 1,
+            "title": "Scheduler Action",
+            "type": "string"
+          },
+          "scheduler_reason": {
+            "minLength": 1,
+            "title": "Scheduler Reason",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "CandidateExperimentRouteProjection@1.0",
+            "default": "CandidateExperimentRouteProjection@1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "tenant_id": {
+            "minLength": 1,
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "cell_id",
+          "run_id",
+          "route_id",
+          "replay_pins",
+          "scheduler_action",
+          "scheduler_reason"
+        ],
+        "title": "CandidateExperimentRouteProjection",
+        "type": "object"
+      },
+      "CandidateExperimentRouteReplayPins": {
+        "additionalProperties": false,
+        "description": "Exact selected source and policy views for an unknown-cost experiment.",
+        "properties": {
+          "candidate_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Candidate Digest",
+            "type": "string"
+          },
+          "compiled_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "compiler_report_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "configured_port_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "planner_report_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "policy_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "request_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Request Content Hash",
+            "type": "string"
+          },
+          "source_job_id": {
+            "minLength": 1,
+            "title": "Source Job Id",
+            "type": "string"
+          },
+          "source_payload_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Source Payload Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_job_id",
+          "source_payload_ref",
+          "request_content_hash",
+          "compiled_ref",
+          "planner_report_ref",
+          "compiler_report_ref",
+          "configured_port_source_ref",
+          "policy_ref",
+          "candidate_digest"
+        ],
+        "title": "CandidateExperimentRouteReplayPins",
+        "type": "object"
+      },
       "CandidateLever": {
         "additionalProperties": false,
         "description": "Represent one candidate operator/instrument slot for atom binding.",
@@ -84658,6 +84792,286 @@
         "tags": [
           "runtime-runs"
         ]
+      }
+    },
+    "/api/v1/runs/{run_id}/candidate-acquisition-experiment": {
+      "get": {
+        "operationId": "get_run_candidate_acquisition_experiment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "candidate_policy_documentation_fixture": {
+                    "description": "Documentation-only selected-ref fixture; these illustrative hashes are not verified source evidence or a permission. The live reader reopens the signed completed source and selected policy. No action or publication is authorized.",
+                    "summary": "Candidate policy with unestablished cost and information value",
+                    "value": {
+                      "action_authority": "not_established",
+                      "cell_id": "example-cell",
+                      "information_value": "not_established",
+                      "monetary_cost": "not_established",
+                      "publication_authority": false,
+                      "replay_pins": {
+                        "candidate_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+                        "compiled_ref": {
+                          "artifact_id": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                          "kind": "runtime.compiled_recursive_generation_cycle",
+                          "manifest_profile_sha256": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                          "media_type": "application/json"
+                        },
+                        "compiler_report_ref": {
+                          "artifact_id": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+                          "kind": "runtime.data_requirement_compilation_report",
+                          "manifest_profile_sha256": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                          "media_type": "application/json"
+                        },
+                        "configured_port_source_ref": {
+                          "artifact_id": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+                          "kind": "runtime.quality.n7_configured_candidate_port_source",
+                          "manifest_profile_sha256": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                          "media_type": "application/json"
+                        },
+                        "planner_report_ref": {
+                          "artifact_id": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+                          "kind": "runtime.acquisition_planner_report",
+                          "manifest_profile_sha256": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                          "media_type": "application/json"
+                        },
+                        "policy_ref": {
+                          "artifact_id": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+                          "kind": "runtime_quality.candidate_unpriced_acquisition_policy",
+                          "manifest_profile_sha256": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                          "media_type": "application/json"
+                        },
+                        "request_content_hash": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+                        "source_job_id": "example-completed-source-job",
+                        "source_payload_ref": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+                      },
+                      "route_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "run_id": "example-candidate-run",
+                      "scheduler_action": "reject",
+                      "scheduler_reason": "roi_below_threshold",
+                      "schema_version": "CandidateExperimentRouteProjection@1.0",
+                      "tenant_id": "example-tenant"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateExperimentRouteProjection"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Run Candidate Acquisition Experiment",
+        "tags": [
+          "runtime-acquisition-routes"
+        ],
+        "x-polisyos-action-permission": "runs.review",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "resource_kind": "runtime.acquisition_route",
+          "source": "tenant_collection"
+        }
       }
     },
     "/api/v1/runs/{run_id}/case-inspection": {

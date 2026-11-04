@@ -9893,7 +9893,7 @@
           "peak_rss_bytes": 1423327232,
           "wheel_bytes": 19322754,
           "wheel_sha256": "2706a1e3f0e47595f7eb850933ac48d65a414f24bf78ad9bc21b895510df1664",
-          "scope": "One offline wheel built using retained Python3.14/Hatchling1.27.0; fresh minimal prefix, no dependency copy/install, outside-checkout -S probe verifies installed origins and active compiler/retirement/missing-family controls. No source fallback. Original r1 isolated offline backend cache error retained; r2 environment selection PASS precedes explicit r3 harness fix. Full first-party census and DA06/LANE12 remain separate."
+          "scope": "One offline wheel built using retained Python3.14/Hatchling1.27.0; fresh minimal prefix, no dependency copy/install, outside-checkout -S probe verifies installed origins and active compiler/retirement/missing-family controls. No source fallback. Original r1 isolated offline backend cache error retained; r2 environment selection PASS precedes explicit r3 harness fix. Separate finite TEST06 first-party census now qualified at dc90; DA06/LANE12 remains separate."
         },
         "frontier_current_r2": {
           "output": "policy-engine/_cache/e02/lane01-frontier-current-r2",
@@ -9924,13 +9924,81 @@
           "seconds": 19.663,
           "peak_rss_bytes": 1813331968,
           "scope": "All three dashboard TypeScript configurations on their recorded inputs; later identity repair requalification is pending."
+        },
+        "compiler_retirement_test06_finite": {
+          "source_commit": "dc90eec15c7ed472f6ab0172d98d182308021b96",
+          "output": "policy-engine/_cache/e02/lane01-installed-req01-r3/test06-finite-evidence.json",
+          "sha256": "bce2057be6931fa41dfb3341e479978b06b1909bdf64674ab7323f0ac8c64b8d",
+          "status": "QUALIFIED_FINITE_FIRST_PARTY_AND_INSTALLED_SCOPE",
+          "maintained_python_paths": 7084,
+          "broader_tracked_inventory_paths": 8168,
+          "scope": "Exact eight retired compiler names, maintained AST census0parse errors/retired active uses; existing broader inventories/exports, installed wheel and legacy flag refusal. Archived snippets excluded explicitly. Missing general public_surface package row is not an artificial TEST06 dependency. No universal external/dynamic census or full REQ01 closure."
+        },
+        "candidate_experiment_http_transport": {
+          "output": "policy-engine/_cache/e02/lane01-policy-surface-http-r1",
+          "observed": {
+            "PASS": 3,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 4,
+          "seconds": 44.352,
+          "scope": "Real RUNS_REVIEW middleware, scoped GET, strict projection and stale-source mapping with explicit transport service fixture; not completed-source HTTP E2E.",
+          "peak_rss_bytes": 1692434432
+        },
+        "candidate_experiment_api_contract": {
+          "output": "policy-engine/_cache/e02/lane01-policy-surface-contract-r2",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 9,
+          "seconds": 20.697,
+          "scope": "Actual OpenAPI hardening and canonical generated client byte drift; r1 failed missing success example before typed documentation-only repair.",
+          "peak_rss_bytes": 1537818624
+        },
+        "candidate_experiment_sdk_transport": {
+          "output": "policy-engine/_cache/e02/lane01-policy-surface-sdk-r1",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 2,
+          "seconds": 0.549,
+          "scope": "Encoded GET path, full replay pins, unknown authority and403/no retry. Full53 SDK tests streamed PASS by author; durable run covers new case only; short RSS sampling is not a measured Node profile."
+        },
+        "frontier_current_r3": {
+          "output": "policy-engine/_cache/e02/lane01-frontier-current-r3",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 1,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 273,
+          "seconds": 32.522,
+          "scope": "Stops at prepared/current atom hash equality; actual current custody differs. Both genuine child source handoffs have generation_unavailable/diversity1<3 and zero candidates. No N5 input/execution/quota receipt or actual quota frontier established. Preserve r1/r2/r3 FAIL."
         }
       },
       "independent_component_reviews": {
         "selection": "lane01_inputs_review GO on source/outputs; shared N8 consumer separate",
         "numerics": "lane01_sim_review GO on 89-case outputs/current13inputs and actual quantile removal; Runtime separate",
         "requirements": "GO on actual261 composed compiler/calendar/slot/planner/profile cases. Later readiness inspector delta excluded; actual served/installed remain separate.",
-        "budget": "Independent owner review GO; 15 window/393 ledger-LLM and separate 13 native N5 quota PASS on named frozen inputs. Five Cycle-importing cases and actual served lifecycle remain pending."
+        "budget": "Independent owner review GO; 15 window/393 ledger-LLM and separate 13 native N5 quota PASS on named frozen inputs. Five Cycle-importing cases and actual served lifecycle remain pending.",
+        "candidate_experiment_read_surface": "Luna independent GO on scoped API and typed example; actual HTTP3, OpenAPI/client drift and focused SDK outputs retained. Protected-action composition separate."
       }
     },
     {

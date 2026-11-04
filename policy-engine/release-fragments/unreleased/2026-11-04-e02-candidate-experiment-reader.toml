@@ -1,0 +1,29 @@
+id = "2026-11-04-e02-candidate-experiment-reader"
+title = "Expose the selected bounded candidate experiment for review"
+type = "added"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Add a scoped read-only route for the current candidate experiment policy and complete replay pins, preserving unknown cost, information value and execution authority."
+evidence = ["tests/unit/runtime/http/test_acquisition_routes_api.py", "packages/runtime-api-client/runtimeApiClient.test.mjs"]
+compatibility = "Additive GET and generated client method; existing acquisition endpoints retain their contracts."
+change_class = "schema-openapi-abi"
+surface_classification = "public_experimental: GET /api/v1/runs/{run_id}/candidate-acquisition-experiment"
+migration = "Regenerate the Runtime OpenAPI, canonical SDK and dashboard API types together. No stored data migration is required."
+api = "CandidateExperimentRouteProjection with source request hash, selected artifact profiles and candidate digest. RUNS_REVIEW and authenticated tenant/cell scope are required."
+limitations = "Reading the policy does not grant execution or publication authority, price an unpriced source, or reverse the original ROI rejection. Full protected action/reentry remains separate."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/reference/api/runs.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "candidate-experiment-reader-v1"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "api: GET /api/v1/runs/{run_id}/candidate-acquisition-experiment"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Review a bounded candidate policy through a scoped read-only API; unknown authority and original scheduler disposition remain explicit."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/reference/api/runs.md"]
+runbook_docs = []

@@ -1640,6 +1640,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/runs/{run_id}/candidate-acquisition-experiment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run Candidate Acquisition Experiment */
+        get: operations["get_run_candidate_acquisition_experiment"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/runs/{run_id}/case-inspection": {
         parameters: {
             query?: never;
@@ -4652,6 +4669,74 @@ export interface components {
              */
             schema_version: "1";
             source?: components["schemas"]["CompletedMethodHTESource"] | null;
+        };
+        /**
+         * CandidateExperimentRouteProjection
+         * @description Read-only experiment proposal with unknown cost and no action authority.
+         */
+        CandidateExperimentRouteProjection: {
+            /**
+             * Action Authority
+             * @default not_established
+             * @constant
+             */
+            action_authority: "not_established";
+            /** Cell Id */
+            cell_id: string;
+            /**
+             * Information Value
+             * @default not_established
+             * @constant
+             */
+            information_value: "not_established";
+            /**
+             * Monetary Cost
+             * @default not_established
+             * @constant
+             */
+            monetary_cost: "not_established";
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            replay_pins: components["schemas"]["CandidateExperimentRouteReplayPins"];
+            /** Route Id */
+            route_id: string;
+            /** Run Id */
+            run_id: string;
+            /** Scheduler Action */
+            scheduler_action: string;
+            /** Scheduler Reason */
+            scheduler_reason: string;
+            /**
+             * Schema Version
+             * @default CandidateExperimentRouteProjection@1.0
+             * @constant
+             */
+            schema_version: "CandidateExperimentRouteProjection@1.0";
+            /** Tenant Id */
+            tenant_id: string;
+        };
+        /**
+         * CandidateExperimentRouteReplayPins
+         * @description Exact selected source and policy views for an unknown-cost experiment.
+         */
+        CandidateExperimentRouteReplayPins: {
+            /** Candidate Digest */
+            candidate_digest: string;
+            compiled_ref: components["schemas"]["ArtifactRef-Output"];
+            compiler_report_ref: components["schemas"]["ArtifactRef-Output"];
+            configured_port_source_ref: components["schemas"]["ArtifactRef-Output"];
+            planner_report_ref: components["schemas"]["ArtifactRef-Output"];
+            policy_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Request Content Hash */
+            request_content_hash: string;
+            /** Source Job Id */
+            source_job_id: string;
+            /** Source Payload Ref */
+            source_payload_ref: string;
         };
         /**
          * CandidateLever
@@ -30706,6 +30791,92 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RunAuthorityProjection"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_candidate_acquisition_experiment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CandidateExperimentRouteProjection"];
                 };
             };
             /** @description Malformed request payload or parameters. */

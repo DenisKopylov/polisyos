@@ -14,6 +14,7 @@ import hashlib
 import importlib.machinery
 import inspect
 import json
+import re
 import sys
 import threading
 import types
@@ -117,6 +118,44 @@ _DIAGNOSTIC_KEY = "n5_execution_implementation_witness"
 _ACTIVE_INPUT: ContextVar[_VerifiedExecutionInput | None] = ContextVar(
     "policyos_candidate_n5_implementation_input", default=None
 )
+
+
+def _implementation_failure_reasons(exc: Exception) -> tuple[str, ...]:
+    """Retain bounded source locators without persisting free-form error detail."""
+    from polisyos.runtime.quality.confidence_ledger import ConfidenceLedgerError
+
+    reason = str(getattr(exc, "code", None) or exc)
+    reasons = [reason]
+    if type(exc) is not ConfidenceLedgerError:
+        return tuple(reasons)
+    # These are diagnostics only. The original refusal remains load-bearing;
+    # neither a traceback locator nor an error's target establishes a binding.
+    traceback = exc.__traceback__
+    site = None
+    while traceback is not None:
+        code = traceback.tb_frame.f_code
+        module = traceback.tb_frame.f_globals.get("__name__")
+        if (
+            type(module) is str
+            and len(module) <= 256
+            and re.fullmatch(r"polisyos(?:\.[A-Za-z_][A-Za-z_0-9]*)+", module)
+            and len(code.co_qualname) <= 256
+            and re.fullmatch(
+                r"[A-Za-z_][A-Za-z_0-9]*(?:\.[A-Za-z_][A-Za-z_0-9]*)*", code.co_qualname
+            )
+        ):
+            site = (
+                f"n5_implementation_failure_site:{module}.{code.co_qualname}:{traceback.tb_lineno}"
+            )
+        traceback = traceback.tb_next
+    if site is not None:
+        reasons.append(site)
+    detail = exc.detail
+    if type(detail) is str and len(detail) <= 512:
+        _, separator, target = detail.rpartition(": ")
+        if separator and re.fullmatch(r"polisyos(?:\.[A-Za-z_][A-Za-z_0-9]*)+", target):
+            reasons.append(f"n5_implementation_failure_target:{target}")
+    return tuple(reasons)
 
 
 @dataclass(frozen=True)
@@ -608,7 +647,7 @@ class N5ImplementationCapture:
             self._observer.suspended = True
             self._initial = self._current_implementation()
         except (OSError, TypeError, ValueError, RuntimeError) as exc:
-            self._reasons.append(str(getattr(exc, "code", None) or exc))
+            self._reasons.extend(_implementation_failure_reasons(exc))
         finally:
             self._observer.suspended = False
         return self
@@ -946,7 +985,7 @@ class N5ImplementationCapture:
                     if implementation[key] != self._initial[key]:
                         reasons.append("n5_implementation_changed_during_execution")
         except (OSError, TypeError, ValueError, RuntimeError) as exc:
-            reasons.append(str(getattr(exc, "code", None) or exc))
+            reasons.extend(_implementation_failure_reasons(exc))
         consumed_configuration = None
         try:
             from polisyos.runtime.quality.joint_simulation_horizon import (

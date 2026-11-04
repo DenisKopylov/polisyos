@@ -9397,6 +9397,110 @@
           },
           "named_inputs": 7,
           "scope": "Normal guardrail check with generated checks explicitly omitted. Deep-import baseline and new edges unresolved; no baseline waiver, inherited attribution or full freshness/main promotion."
+        },
+        "resolver_ownership_bridge": {
+          "output": "policy-engine/_cache/e02/lane01-cycle/resolver-bridge-r1",
+          "observed": {
+            "PASS": 15,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 266,
+          "seconds": 19.47,
+          "peak_rss_bytes": 1497186304,
+          "scope": "Actual registry/HTTP/lifecycle/Recursive/Generation resolver identity and real compiler controls; controlled leaf interception, not completed ordinary NL/N5."
+        },
+        "n7_selected_lineage_current": {
+          "output": "policy-engine/_cache/e02/lane01-n7-lineage-current/r1",
+          "observed": {
+            "PASS": 9,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 273,
+          "seconds": 17.93,
+          "peak_rss_bytes": 1287880704,
+          "scope": "Actual selected CAS source/report and V1 current-use/removal plus NonData bridge; N4/N5 parents are fixture artifacts, not the served configured producer."
+        },
+        "terminal_selected_profile_store": {
+          "output": "policy-engine/_cache/e02/lane01-store-profile-r2",
+          "observed": {
+            "PASS": 40,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 2
+          },
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 25,
+          "seconds": 17.159,
+          "peak_rss_bytes": 1529397248,
+          "scope": "SQLite selected-profile persistence, conflicts/rollback/corrupt-read controls; native PostgreSQL unrun without configured DSN. CAS identity remains the lifecycle producer responsibility."
+        },
+        "labor_seed_r3": {
+          "output": "policy-engine/_cache/e02/lane01-candidate-labor-seed-r3",
+          "observed": {
+            "FAIL": 1
+          },
+          "inputs_unchanged_during_run": false,
+          "named_inputs": 266,
+          "seconds": 81.346,
+          "peak_rss_bytes": 1615511552,
+          "scope": "FAIL and source-input drift: Store changed during the command. Reached N4/N5 is not a qualified positive. Exact read-only follow-up identified inline grounding digest being treated as a CAS input; selected-port source lineage repair is in progress."
+        },
+        "frontier_v4_r2": {
+          "output": "policy-engine/_cache/e02/lane01-cycle/recursive-n5-capacity-frontier-v4-r2",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 267,
+          "seconds": 44.889,
+          "peak_rss_bytes": 1663156224,
+          "scope": "FAIL: actual first child stopped at generic_component_rule_not_unique before N5, not quota exhaustion. Next complete three-child oracle must use an actual compatible first-child profile and preserve the entire frontier."
+        },
+        "public_import_alias_identity": {
+          "output": "policy-engine/_cache/e02/lane01-public-imports/root-identity-r1",
+          "observed": {
+            "PASS": 1
+          },
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 9,
+          "seconds": 4.404,
+          "peak_rss_bytes": 600031232,
+          "scope": "13 exact canonical object identities; independent source/consumer review GO. Full inventory/static architecture checks on the final composition remain pending.",
+          "identity_links": 13
+        },
+        "route_mixed_composed_r1": {
+          "output": "policy-engine/_cache/e02/lane01-route-mixed-composed-r1",
+          "observed": {
+            "FAIL": 1
+          },
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 273,
+          "seconds": 48.892,
+          "peak_rss_bytes": 1588396032,
+          "scope": "FAIL at earlier sealed historical-projection admission after post-production fixture mutation. Only the first route selector executed; independent mixed modules were not run. Repair actual test producer, preserve guard."
+        },
+        "candidate_reader_mixed_diagnostic_r1": {
+          "output": "policy-engine/_cache/e02/lane01-candidate-reader-mixed/r1",
+          "observed": {
+            "PASS": 22,
+            "FAIL": 0,
+            "ERROR": 9,
+            "SKIP": 0
+          },
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 279,
+          "seconds": 27.805,
+          "peak_rss_bytes": 1562984448,
+          "scope": "Overall ERROR:9 recovery cases stop in shared setup because evaluation.v1 event type is not registered. Actual per-module results are selected-reader1PASS, L1 routing4PASS, mixed obligations8PASS and N5 diagnostic9PASS. No recovery-property or native N5 implementation-witness success is inferred; registry producer/configuration cause is under investigation."
         }
       },
       "independent_component_reviews": {
@@ -30413,6 +30517,18 @@
       "commit": "47e76a61612b633c1b83c5eee2e0e61d05b751e6",
       "base_commit": "80c02dd673f3d2f0b39c6ffc6b28013dfceb46f7",
       "result": "Historical quota witness and scoped N9 verifier component; published author ref readback matches commit/tree, Main unchanged."
+    },
+    {
+      "lane": "LANE-01",
+      "commit": "f4ca630a12c76040dbb4a7ceb2023d5e35a3cc51",
+      "base_commit": "47e76a61612b633c1b83c5eee2e0e61d05b751e6",
+      "result": "174 explicit source/test/API/client/docs paths; normal hooks and author-topic remote readback passed. Runtime candidate @3 still unfinished/fail-closed; no Main/G acceptance."
+    },
+    {
+      "lane": "LANE-01",
+      "commit": "23561701dd742785800f00bb59d889156e385f4f",
+      "base_commit": "f4ca630a12c76040dbb4a7ceb2023d5e35a3cc51",
+      "result": "Selected terminal-profile store and mirrored tests;40PASS/2nativePostgreSQLSKIP, independent GO. All4 committed paths and author-topic identity read back; lifecycle composition remains pending."
     }
   ],
   "open_remainders_index": "E02-WORK-PLAN.md#open-remainders-across-completed-lanes"

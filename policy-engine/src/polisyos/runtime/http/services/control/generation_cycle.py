@@ -2655,6 +2655,12 @@ async def compile_and_run_recursive_generation_cycle(
                 problems_by_node[node_ref] = child.problem
                 contexts_by_node[node_ref] = handoff.context
                 generic_handoffs_by_node[node_ref] = handoff
+                min_diverse_candidates = (
+                    1
+                    if len(child.problem.candidate_lever_space.candidate_levers) == 1
+                    and len(row.source_atom_refs) == 1
+                    else 3
+                )
                 generation_ports_by_node[node_ref] = N4GenerationPort(
                     model_id=model_name,
                     repo_root=repo_root,
@@ -2662,6 +2668,7 @@ async def compile_and_run_recursive_generation_cycle(
                     producer_run_id=producer_run_id,
                     producer_settlement_store=producer_settlement_store,
                     call_observer=_observe_n4_call,
+                    min_diverse_candidates=min_diverse_candidates,
                 )
         else:
             if cycle_substrate_context_resolver is None:

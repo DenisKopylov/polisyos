@@ -102,6 +102,7 @@ async def test_default_n4_port_preserves_actual_organ_bundle(monkeypatch):
     async def produce(_problem, **kwargs):
         assert _problem is problem
         assert kwargs["cycle_substrate_context"] is incoming_context
+        assert kwargs["min_diverse_candidates"] == 3
         return organ
 
     monkeypatch.setattr(n4, "generate_design_candidate_bundle_under_a", produce)
@@ -111,6 +112,38 @@ async def test_default_n4_port_preserves_actual_organ_bundle(monkeypatch):
 
     assert observed is organ
     assert observed.trinity_bundle is organ.trinity_bundle
+
+
+@pytest.mark.asyncio
+async def test_n4_port_forwards_selected_diversity_floor(monkeypatch):
+    """The verified child port's selected floor reaches the canonical N4 owner."""
+    problem = _test_design_problem()
+    incoming_context = object()
+    captured: dict[str, object] = {}
+
+    async def produce(_problem, **kwargs):
+        assert _problem is problem
+        captured.update(kwargs)
+        return object()
+
+    monkeypatch.setattr(n4, "generate_design_candidate_bundle_under_a", produce)
+    port = N4GenerationPort(
+        model_id="synthetic-c2",
+        cycle_substrate_context=incoming_context,
+        min_diverse_candidates=1,
+    )
+
+    observed = await port(problem, cycle_index=0)
+
+    assert type(observed) is object
+    assert captured["min_diverse_candidates"] == 1
+    assert captured["cycle_substrate_context"] is incoming_context
+
+
+@pytest.mark.parametrize("value", [0, -1, True, 1.0])
+def test_n4_port_rejects_non_positive_or_non_integer_diversity_floor(value):
+    with pytest.raises(ValueError, match="n4_min_diverse_candidates_invalid"):
+        N4GenerationPort(model_id="synthetic-c2", min_diverse_candidates=value)
 
 
 def test_n4_source_canonical_identity_reaches_terminal_consumer(tmp_path):

@@ -10018,6 +10018,36 @@
           "seconds": 19,
           "peak_rss_bytes": 1689583616,
           "scope": "Actual world-scope consumer accepts unconstrained None and rejects share None with exact candidate_source_world_scope_mismatch. Mandatory optional-denominator annotation corrected; no N5."
+        },
+        "verified_child_n4_diversity_floor": {
+          "output": "policy-engine/_cache/e02/lane01-n4-floor-contract-r1",
+          "observed": {
+            "PASS": 6,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 4,
+          "seconds": 20.753,
+          "peak_rss_bytes": 1336098816,
+          "scope": "Canonical N4 port default3/selected1 forwarding and strict positive integer controls; factory chooses1 only for one-lever/one-source-atom child in the fully verified family. Independent source GO. Port tests use a declared transport callback; actual frontier qualification separate."
+        },
+        "frontier_current_r4": {
+          "output": "policy-engine/_cache/e02/lane01-frontier-current-r4",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 1,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 274,
+          "seconds": 43.392,
+          "peak_rss_bytes": 1886978048,
+          "scope": "Full current run FAIL at complete canonical atom comparison: world_model_record_ref and corresponding causal assumptions/direct-effect notes differ. All274 inputs stable; inspect retained producer before another N5. Does not establish quota frontier or fresh GET."
         }
       },
       "independent_component_reviews": {
@@ -10026,7 +10056,8 @@
         "requirements": "GO on actual261 composed compiler/calendar/slot/planner/profile cases. Later readiness inspector delta excluded; actual served/installed remain separate.",
         "budget": "Independent owner review GO; 15 window/393 ledger-LLM and separate 13 native N5 quota PASS on named frozen inputs. Five Cycle-importing cases and actual served lifecycle remain pending.",
         "candidate_experiment_read_surface": "Luna independent GO on scoped API and typed example; actual HTTP3, OpenAPI/client drift and focused SDK outputs retained. Protected-action composition separate.",
-        "candidate_source_second_domain": "Luna bridge_review GO except optional-denominator consumer typing companion; companion fixed with focused native1PASS, root source review and AST-preserving formatting."
+        "candidate_source_second_domain": "Luna bridge_review GO except optional-denominator consumer typing companion; companion fixed with focused native1PASS, root source review and AST-preserving formatting.",
+        "verified_child_n4_diversity": "Luna child_n4 GO on canonical full child-family admission and narrow floor predicate; complete-atom oracle independently GO, but full runtime r4 remains FAIL on actual basis differences."
       }
     },
     {

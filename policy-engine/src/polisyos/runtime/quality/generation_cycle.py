@@ -4900,7 +4900,10 @@ class N4GenerationPort:
         producer_settlement_store: BudgetMiddleware | None = None,
         call_observer: Callable[[dict[str, Any]], None] | None = None,
         prefetched_organ_run: object | None = None,
+        min_diverse_candidates: int = 3,
     ) -> None:
+        if type(min_diverse_candidates) is not int or min_diverse_candidates < 1:
+            raise ValueError("n4_min_diverse_candidates_invalid")
         self._model_id = model_id
         self._llm_client = llm_client
         self._repo_root = repo_root
@@ -4910,6 +4913,7 @@ class N4GenerationPort:
         self._producer_settlement_store = producer_settlement_store
         self._call_observer = call_observer
         self._prefetched_organ_run = prefetched_organ_run
+        self._min_diverse_candidates = min_diverse_candidates
         self._grounding_run_budget = None
 
     def bind_grounding_run_budget(self, budget: object) -> None:
@@ -4980,6 +4984,7 @@ class N4GenerationPort:
             producer_run_id=producer_run_id,
             producer_settlement_store=self._producer_settlement_store,
             call_observer=self._call_observer,
+            min_diverse_candidates=self._min_diverse_candidates,
         )
         return organ_run
 

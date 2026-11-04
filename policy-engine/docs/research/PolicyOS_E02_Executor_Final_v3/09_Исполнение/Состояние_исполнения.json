@@ -9139,9 +9139,10 @@
         "surface": "lane01_surface: core/contracts/runtime.py,HTTP runs projections,dashboard validators/Overview/locales+mirroredtests",
         "offpilot": "lane01_offpilot: scalar slots,catalog unit/provenance/passport/governed descriptors+actual compact WDI profiles",
         "candidate_adapter": "lane01_candidate_adapter: actual Fabric data_requirement adapter+mirroredtests",
-        "candidate_action": "luna_action_contract: PA2/admission/provider/shared history reader; luna_policy_surface: protected routes/HTTP; luna_phase_history: sink/registry then job-publication design; luna_reentry_budget: current origin/selection/live lease helper. Root owns generation/index/composition; next producer implementation requires explicit owner handoff.",
+        "candidate_action": "Main frozen readers: luna_continuation_oracle protected PA2 and luna_frontier retained capacity consumer. Isolated e02-lane01-job-publication: luna_phase_history action service/lifecycle/store/job diagnostics; luna_reentry_budget source/window/world/reentry/candidate basis dispatch; luna_second_domain route/terminal history; luna_retained_owner existing retained-continuation owner. Root alone indexes/refs/generated/composition.",
         "quota_ledger": "lane09_spend_gate reused canonical FileBudgetLedger/Middleware/Observer owner; Horizon owns actual physical-call admission",
-        "frontier": "luna_source_handoff: N4 port + verified child factory; luna_frontier: complete actual custody/atom/frontier oracle; independent Luna child_n4 review; root deciding runtime."
+        "frontier": "luna_source_handoff: N4 port + verified child factory; luna_frontier: complete actual custody/atom/frontier oracle; independent Luna child_n4 review; root deciding runtime.",
+        "test_repairs": "luna_budget_di: control_service_di tests only; luna_scorecard_fixture: scorecard tests only. Source/import work waits for actual resource admission, not for other independent authors."
       },
       "evidence_catalog": {
         "numeric_native": {
@@ -10140,6 +10141,93 @@
           "seconds": 11.277,
           "peak_rss_bytes": 1376960512,
           "scope": "Fresh read-only actual R2 compiled/relation/source selection, member/materialization/request atom alignment and rehashed permutation refusal; no N5 or CAS writes, no HTTP/GET or causal chronology claim. Original failed R2 pytest and r1-r3 pre-child PATH/supervisor errors preserved."
+        },
+        "frontier_current_r5": {
+          "source_commit": "1909be0c19ee88c15de3309d5ad580fab23da88e",
+          "source_tree": "305dcc1a3eb292a32892fd79bbb21e77c9aa1dae",
+          "output": "policy-engine/_cache/e02/lane01-frontier-current-r5/",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "named_inputs": 274,
+          "inputs_unchanged_during_run": true,
+          "seconds": 45.03644733398687,
+          "peak_rss_bytes": 1900265472,
+          "producer_result": "Completed job77b9870346554658b4cb439489def396; compiled sha256:a1b27b27fc561c19671621237c9df5db5c1be20653afc649cb257ebfdfad867d. Capacity partial stops before child2; selected first-child result has exactly2 completed standard observations and no errors.",
+          "limitation": "Original pytest FAIL at later context.assumptions dict-access oracle. Fresh retained same-consumer/ledger/GET/removal controls are still being qualified; no full TEST-CYC-05-02 claim."
+        },
+        "candidate_action_sql_publication": {
+          "checkout": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos",
+          "source_commit": "2cb4d3972748f0b5b28deff70f8f3f82d662434b",
+          "source_tree": "3664d09b21cbe59d4c9a7c5b50b960f99ec8fe89",
+          "output": "policy-engine/_cache/e02-candidate-action-sql-r2/",
+          "observed": {
+            "PASS": 2,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "scope": "Independent second SQLite connection cannot observe/lease an inserted job before atomic requested-head publication; failed publication rolls back job/head/outbox. Root normal hooks/readback, scoped independent review GO.",
+          "limitation": "No complete worker or JobDiagnostics lost-ack authority-positive yet; uncommitted source/reentry/terminal companions remain visible in this isolated checkout."
+        },
+        "candidate_policy_cas_read_diagnostic": {
+          "output": "policy-engine/_cache/e02/lane01-cas-inventory-diagnostic-r3/",
+          "scope": "Six distinct policy event refs,507CAS files/5433995bytes; raw reads0.412-0.420s, guarded default1.5s read0.420s; each selected inventory does2 complete member-name scans.",
+          "limitation": "R8 actual served consumer timed out before PA2. Diagnostic does not establish its cause or a served PASS; default timeout unchanged, original failure preserved."
+        },
+        "n5_budget_di_current": {
+          "output": "policy-engine/_cache/e02/lane01-n5-di-budget-r3/",
+          "observed": {
+            "PASS": 5,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "named_inputs": 13,
+          "inputs_unchanged_during_run": true,
+          "seconds": 18.48,
+          "peak_rss_bytes": 1353646080,
+          "scope": "Control-owner-issued financial scope/active authenticated worker lease, actual ProducerBudgetObserver and ledger, unchanged physical guard;3 physical recorder calls/3 completed units/4 logical roles, exhausted retry/scope-removal refusal and legacy omitted scope.",
+          "limitation": "Recording callable/synthetic trajectories; identity and route proof test-built. No numerical N5 or complete signed HTTP/JWT claim. Earlier r1/r2 fixture failures retained.",
+          "independent_review": "luna_action_contract GO at test SHA5d15c6e8663f3ef922ec0cc4f95b1be3eb8ffcbc5e21f3a6bedd22f7b1ccfbc4"
+        },
+        "sim03_native_current": {
+          "output": "policy-engine/_cache/e02/lane01-sim03-native-current-r1/",
+          "observed": {
+            "PASS": 4,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "named_inputs": 14,
+          "inputs_unchanged_during_run": true,
+          "seconds": 21.57,
+          "peak_rss_bytes": 1295712256,
+          "controls": [
+            "policy-engine/_cache/e02/lane01-sim03-native-first-seed-removal-r1/",
+            "policy-engine/_cache/e02/lane01-sim03-native-replay-removal-r1/",
+            "policy-engine/_cache/e02/lane01-sim03-native-pairing-removal-r1/"
+          ],
+          "control_result": "Each process-local mutation rc1 at exact native seed/draw/pairing semantic assertion; pins unchanged. Root read full results/stdout; no JUnit generated.",
+          "scope": "REQ-SIM-03-03 / TEST-SIM-03-03 current software seed/interruption/CAS property, no statistical coverage or scientific authority claim."
+        },
+        "scorecard_actual_report_owner_current": {
+          "output": "policy-engine/_cache/e02/lane01-scorecard-owner-r4/",
+          "observed": {
+            "PASS": 29,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 15.722,
+          "peak_rss_bytes": 1362706432,
+          "inputs_unchanged_during_run": true,
+          "scope": "Six scorecard selectors plus actual report-owner module. Real writer/typed selected CAS/profile/event/publication for role/domain controls; general same-input producer owner remains unestablished and refuses. Lower-level aggregation/override/domain grouping exercised without fabricating whole authority positive.",
+          "independent_review": "Root source review + actual JUnit29/0/0/0 readback; source only tests/helper defaults unchanged.",
+          "earlier_failures": "r1-r3 fixtures under same cache prefix retained, not called product regressions or inherited."
         }
       },
       "independent_component_reviews": {
@@ -10150,7 +10238,9 @@
         "candidate_experiment_read_surface": "Luna independent GO on scoped API and typed example; actual HTTP3, OpenAPI/client drift and focused SDK outputs retained. Protected-action composition separate.",
         "candidate_source_second_domain": "Luna bridge_review GO except optional-denominator consumer typing companion; companion fixed with focused native1PASS, root source review and AST-preserving formatting.",
         "verified_child_n4_diversity": "Luna child_n4 GO on canonical full child-family admission and narrow floor predicate; complete-atom oracle independently GO, but full runtime r4 remains FAIL on actual basis differences.",
-        "candidate_pa2_phase": "Luna PA2 review GO for signed-history/current-permit separation and owner read/write source; phase remains implemented_but_not_orchestrated/producer_missing until atomic job/phase producer and true positive. Current decision preparation only."
+        "candidate_pa2_phase": "Luna PA2 review GO for signed-history/current-permit separation and owner read/write source; phase remains implemented_but_not_orchestrated/producer_missing until atomic job/phase producer and true positive. Current decision preparation only.",
+        "budget_di_current": "Luna action_contract GO: real owner/lease/observer/ledger+recording callable only; no numerical or fullHTTP claim.5PASS on13stable inputs.",
+        "scorecard_fixture_current": "Root GO on actual selected CAS fixtures/component expectations;29PASS. General authority closure producer still missing, not repaired by fixture success."
       }
     },
     {

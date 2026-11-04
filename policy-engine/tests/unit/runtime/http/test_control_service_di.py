@@ -3711,19 +3711,314 @@ async def test_served_simulate_only_replays_source_bound_n4_candidate_into_joint
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "budget_scope_value",
-    ["hard_total_usd", None, "metered_paid_producers_and_bounded_candidate"],
-    ids=("hard-total", "explicit-null", "limited-without-quota"),
-)
-async def test_explicit_hard_usd_candidate_refuses_before_physical_n5(
-    monkeypatch: pytest.MonkeyPatch, tmp_path, budget_scope_value: str | None
-) -> None:
-    """The admitted candidate owner refuses until its physical budget is established."""
-    result = await _run_controlled_simulate_only_job_fixture(
-        monkeypatch, tmp_path, hard_total_budget=True, budget_scope_value=budget_scope_value
+async def _run_controlled_n5_budget_boundary(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+    *,
+    budget_scope_value: str | None,
+    candidate_experiment_intent: bool = False,
+    selected_quota_units: int | None = None,
+    bind_selected_no_quota_policy: bool = False,
+    record_test_settlement: bool = False,
+    retry_after_completion: bool = False,
+    remove_scope_after_completion: bool = False,
+) -> dict[str, Any]:
+    """Reach the N5 call guard from a real signed NL request and active worker lease.
+
+    The recorder stands in for the numerical callable only. It proves that the
+    owner guard admitted and accounted for a physical invocation; it does not
+    establish an actual numerical N5 result or candidate-acquisition authority.
+    """
+    import hashlib
+    from decimal import Decimal
+
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationControllerError,
+        JointSimulationHorizonController,
+        SimulationTrajectory,
+        TrajectoryPoint,
+        _run_cached_replicates,
     )
-    assert result.n5_engine_requests == ()
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetInvocationQuotaPolicy,
+        FileBudgetLedger,
+    )
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from tests.unit.runtime.quality.test_joint_simulation_horizon import _request as n5_request
+
+    service = _build_control_service(tmp_path)
+    settlement_store = BudgetMiddleware(
+        BudgetState(), ledger=FileBudgetLedger(tmp_path / "n5-budget-boundary-ledger.json")
+    )
+    service.bind_llm_producer_settlement_store(settlement_store)
+    request_values: dict[str, object] = {
+        "request": "Explore a policy option as a candidate.",
+        "llm_model": "simulated-qwen",
+        "run_budget_usd": 5.0,
+    }
+    if budget_scope_value != "omitted":
+        request_values["run_budget_scope"] = budget_scope_value
+    if candidate_experiment_intent:
+        request_values["candidate_acquisition_intent"] = "bounded_experiment_voi_unknown"
+    request = NaturalLanguageRunRequest.model_validate(request_values)
+    claims = _fixture_claims()
+    launch = await service.launch_nl_run(
+        request,
+        principal=RuntimePrincipal.from_user_claims(claims),
+        authorization_proof=bound_nl_authorization_proof(claims, request),
+    )
+
+    boundary: dict[str, Any] = {}
+    physical_calls: list[tuple[str, tuple[str, ...], int]] = []
+
+    def run_once(run_level, subset, seed):
+        physical_calls.append((run_level, tuple(atom.intervention_id for atom in subset), seed))
+        return SimulationTrajectory(
+            run_level=run_level,
+            atom_ids=tuple(atom.intervention_id for atom in subset),
+            engine_kind=boundary["selected"].decision.engine_kind,
+            method_fqn=boundary["selected"].decision.method_fqn or "test.n5.selected-method",
+            objective_ref=boundary["selected"].plan.objective_ref,
+            points=(
+                TrajectoryPoint(
+                    step=0,
+                    outcomes={"firm_survival": 1.0},
+                    effect={"firm_survival": 0.0},
+                    engine_state={"recorded_test_seed": seed},
+                ),
+            ),
+        )
+
+    def consume_physical_boundary(scope, observer):
+        # Keep the complete owner fixture: its selected NCM structural model
+        # requires both intervention atoms. It is a static engine, so constrain
+        # the horizon to one step just like its existing selected-engine tests.
+        base_request = n5_request()
+        selected_request = base_request.model_copy(
+            update={
+                "horizon": type(base_request.horizon)(start=0, end=0, step=1),
+            }
+        )
+        selector = JointSimulationHorizonController()
+        selected = selector._select_engine(selected_request)
+        assert selected.decision.decision == "selected"
+        boundary["selected"] = selected
+        boundary["request"] = selected_request
+
+        if selected_quota_units is not None:
+            assert observer is not None
+            observer.bind_invocation_policy_from_selected_owner(
+                BudgetInvocationQuotaPolicy(
+                    allocation_id="control-di-bounded-n5-boundary",
+                    total_units=selected_quota_units,
+                    protected_units=0,
+                ),
+                purpose="standard",
+            )
+        elif bind_selected_no_quota_policy:
+            assert observer is not None
+            assert budget_scope_value == "omitted"
+            observer.bind_invocation_policy_from_selected_owner(None, purpose="standard")
+            assert observer.invocation_quota_profile is None
+
+        if record_test_settlement:
+            binding = observer._binding
+            with settlement_store.producer_run_binding_scope(
+                binding, control_job_attempt=scope.attempt
+            ):
+                record = settlement_store.settle_producer_event_safe(
+                    uuid4().hex,
+                    hashlib.sha256(b"control-di-n5-budget-request").hexdigest(),
+                    hashlib.sha256(b"control-di-n5-budget-response").hexdigest(),
+                    key=f"nl-run:{binding.run_id}",
+                    model="test-metered-producer",
+                    provider="controlled-test-fixture",
+                    amount=Decimal("0.01"),
+                    cost_origin="estimated",
+                )
+            boundary["test_settlement"] = record
+
+        def execute(*, physical_scope=scope):
+            return _run_cached_replicates(
+                selected_request,
+                selected.plan,
+                selected.decision,
+                run_once,
+                producer_budget_observer=observer,
+                physical_n5_budget_scope=physical_scope,
+            )
+
+        try:
+            first = execute()
+        except JointSimulationControllerError as exc:
+            boundary["first"] = exc
+        else:
+            boundary["first"] = first
+
+        if retry_after_completion:
+            try:
+                execute()
+            except JointSimulationControllerError as exc:
+                boundary["retry"] = exc
+            else:
+                raise AssertionError("bounded_n5_retry_was_not_refused")
+        if remove_scope_after_completion:
+            try:
+                execute(physical_scope=None)
+            except JointSimulationControllerError as exc:
+                boundary["scope_removal"] = exc
+            else:
+                raise AssertionError("removed_n5_scope_was_not_refused")
+        boundary["physical_calls"] = tuple(physical_calls)
+        if selected_quota_units is not None:
+            snapshot = settlement_store.snapshot_safe()
+            boundary["quota_records"] = tuple(
+                record
+                for record in snapshot.invocation_reservations.values()
+                if record.run_id == observer._binding.run_id
+            )
+
+    original_compile = service.compile_and_run_recursive_generation_cycle
+
+    async def enter_actual_control_bridge(**kwargs: object) -> object:
+        return await original_compile(**kwargs)
+
+    async def inspect_n5_budget_boundary(**kwargs: object) -> object:
+        scope = kwargs["physical_n5_budget_scope"]
+        observer = kwargs["_producer_budget_reconciler"]
+        boundary["scope"] = scope
+        assert scope is not None
+        assert scope._was_issued_by_verified_nl_budget_owner
+        assert scope._budget_scope_owner is service
+        assert scope.require_current_physical_budget_scope() == (
+            "legacy_omitted"
+            if "run_budget_scope" not in request.model_fields_set
+            else "explicit_null"
+            if budget_scope_value is None
+            else budget_scope_value
+        )
+        assert observer is not None
+        assert observer.invocation_guard_binding is scope
+        assert observer._store is settlement_store
+        assert observer._binding.run_id == scope.run_id
+        assert observer._binding.control_job_id == scope.job_id
+        assert observer._binding.tenant_id == scope.tenant_id
+        assert observer._binding.cell_id == scope.cell_id
+        assert observer._binding.profile_id == scope.effective_execution_profile
+        lease = service._control_store.current_execution_job_admission().job
+        assert lease.job_id == scope.job_id and lease.lease_owner is not None
+        consume_physical_boundary(scope, observer)
+        raise RuntimeError("n5_budget_boundary_probe_complete")
+
+    monkeypatch.setattr(
+        service, "compile_and_run_recursive_generation_cycle", enter_actual_control_bridge
+    )
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "compile_and_run_recursive_generation_cycle",
+        inspect_n5_budget_boundary,
+    )
+    try:
+        dispatch_one_control_job(
+            store=service._control_store,
+            handler=service._process_control_job,
+            expected_job_id=launch.job_id,
+        )
+        job = service._control_store.get_job(launch.job_id)
+        assert job is not None and "n5_budget_boundary_probe_complete" in (job.error_message or "")
+    finally:
+        service.close()
+    boundary["request_intent"] = request.candidate_acquisition_intent
+    return boundary
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("budget_scope_value", "expected_code", "candidate_experiment_intent"),
+    [
+        ("hard_total_usd", "n5_physical_usd_reservation_not_established", False),
+        (None, "n5_physical_usd_reservation_not_established", False),
+        (
+            "metered_paid_producers_and_bounded_candidate",
+            "n5_invocation_quota_profile_not_established",
+            True,
+        ),
+    ],
+    ids=("hard-total", "explicit-null", "bounded-without-quota"),
+)
+async def test_explicit_budget_scopes_refuse_before_the_n5_physical_callable(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+    budget_scope_value: str | None,
+    expected_code: str,
+    candidate_experiment_intent: bool,
+) -> None:
+    boundary = await _run_controlled_n5_budget_boundary(
+        monkeypatch,
+        tmp_path,
+        budget_scope_value=budget_scope_value,
+        candidate_experiment_intent=candidate_experiment_intent,
+    )
+    refusal = boundary["first"]
+    assert getattr(refusal, "code", None) == expected_code
+    assert boundary["physical_calls"] == ()
+
+
+@pytest.mark.asyncio
+async def test_metered_bounded_scope_consumes_selected_physical_units_and_refuses_retry(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    boundary = await _run_controlled_n5_budget_boundary(
+        monkeypatch,
+        tmp_path,
+        budget_scope_value="metered_paid_producers_and_bounded_candidate",
+        candidate_experiment_intent=True,
+        selected_quota_units=3,
+        record_test_settlement=True,
+        retry_after_completion=True,
+        remove_scope_after_completion=True,
+    )
+    first = boundary["first"]
+    assert len(first) == 4
+    assert sorted(item.run_level for item in first) == [
+        "individual",
+        "individual",
+        "joint",
+        "pairwise",
+    ]
+    assert len({item.diagnostics["physical_run_ref"] for item in first}) == 3
+    assert len(first.observations) == 3
+    assert all(item.status == "completed" for item in first.observations)
+    assert all(item.invocation_quota_status == "completed" for item in first.observations)
+    assert len(boundary["quota_records"]) == 3
+    assert all(record.status == "completed" for record in boundary["quota_records"])
+    assert all(record.units == 1 for record in boundary["quota_records"])
+    assert boundary["retry"].code == "n5_invocation_quota_exhausted"
+    assert boundary["scope_removal"].code == "n5_physical_budget_scope_binding_mismatch"
+    assert len(boundary["physical_calls"]) == 3
+    assert str(boundary["test_settlement"].amount) == "0.01"
+    assert boundary["request_intent"] == "bounded_experiment_voi_unknown"
+
+
+@pytest.mark.asyncio
+async def test_legacy_omitted_scope_keeps_existing_n5_callable_path(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    boundary = await _run_controlled_n5_budget_boundary(
+        monkeypatch,
+        tmp_path,
+        budget_scope_value="omitted",
+        bind_selected_no_quota_policy=True,
+        record_test_settlement=True,
+    )
+    assert len(boundary["first"]) == 4
+    assert len(boundary["first"].observations) == 3
+    assert boundary["first"].observations[0].invocation_quota_operation_id is None
+    assert len(boundary["physical_calls"]) == 3
+    assert boundary["request_intent"] is None
 
 
 def test_n5_run_projection_preserves_actual_shared_seed_pair_and_residual_samples(

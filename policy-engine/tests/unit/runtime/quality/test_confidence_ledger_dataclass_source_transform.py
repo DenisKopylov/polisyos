@@ -527,3 +527,233 @@ def test_cyclic_consumed_provider_global_is_rejected(
     with pytest.raises(candidate_ledger.ConfidenceLedgerError):
         candidate_ledger._python_dataclass_transform_source_projection()
     assert not _supports_source_dataclass(candidate_ledger, MethodMetadata)
+
+
+def _source_alias_route(
+    ledger: types.ModuleType,
+    root: Path,
+    module: str,
+    name: str,
+) -> tuple[str, str, str | None] | None:
+    return ledger._source_module_import_route(
+        root,
+        module,
+        name,
+        directory_entries={},
+        source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+    )
+
+
+def test_real_selected_profile_public_alias_resolves_its_source_owner(
+    candidate_ledger: types.ModuleType,
+) -> None:
+    from polisyos.core.artifacts import require_return_selected_profile_writer
+    from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
+
+    assert require_return_selected_profile_writer is _require_return_selected_profile_writer
+    root = Path(__file__).resolve().parents[4]
+    assert _source_alias_route(
+        candidate_ledger,
+        root,
+        "polisyos.core.artifacts.protocol",
+        "require_return_selected_profile_writer",
+    ) == ("symbol", "polisyos.core.artifacts.protocol", "_require_return_selected_profile_writer")
+
+
+def test_source_alias_chain_follows_the_original_live_callable(
+    candidate_ledger: types.ModuleType,
+    tmp_path: Path,
+) -> None:
+    package = tmp_path / "src" / "polisyos"
+    package.mkdir(parents=True)
+    source = package / "alias_owner.py"
+    source.write_text(
+        "from __future__ import annotations\n"
+        "def _original():\n    return 42\n"
+        "first = _original\n"
+        "public: object = first\n",
+        encoding="utf-8",
+    )
+    loaded = _load_source_module(source, "n11_source_alias_owner")
+    assert loaded.public is loaded.first is loaded._original
+    assert loaded.public() == 42
+    assert _source_alias_route(candidate_ledger, tmp_path, "polisyos.alias_owner", "public") == (
+        "symbol",
+        "polisyos.alias_owner",
+        "_original",
+    )
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        "public = _original\ndef _original(): return 42\n",
+        "def _original(): return 42\npublic = _original\ndef _original(): return -1\n",
+        "def _original(): return 42\npublic = _original\nif unknown: _original = None\n",
+        "def _original(): return 42\npublic = _original\npublic = None\n",
+        "def _original(): return 42\nfirst = _original\npublic = first\nfirst = None\n",
+        "def _original(): return 42\npublic = _original()\n",
+        "def _original(): return 42\npublic, other = _original, 1\n",
+        "def _original(): return 42\npublic: computed_annotation() = _original\n",
+        "from math import sqrt as _original\npublic = _original\n",
+        "public = second\nsecond = public\n",
+    ],
+    ids=[
+        "forward-name",
+        "later-rebinding",
+        "conditional-rebinding",
+        "export-rebinding",
+        "chain-rebinding",
+        "call",
+        "destructuring",
+        "evaluated-annotation",
+        "external-provider",
+        "cycle",
+    ],
+)
+def test_source_alias_route_refuses_ambiguous_or_effectful_bindings(
+    candidate_ledger: types.ModuleType,
+    tmp_path: Path,
+    source: str,
+) -> None:
+    package = tmp_path / "src" / "polisyos"
+    package.mkdir(parents=True)
+    (package / "alias_owner.py").write_text(source, encoding="utf-8")
+    with pytest.raises(candidate_ledger.ConfidenceLedgerError) as error:
+        _source_alias_route(candidate_ledger, tmp_path, "polisyos.alias_owner", "public")
+    assert error.value.code == "canonical_loaded_runtime_mismatch"
+
+
+def test_selected_source_alias_rejects_a_rebound_live_consumer(
+    candidate_ledger: types.ModuleType,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Source discovery alone cannot admit a different imported callable."""
+    import polisyos
+
+    root = tmp_path / "repo"
+    base = root / "src" / "polisyos"
+    package_name = "_n11_same_module_alias_runtime"
+    package = base / package_name
+    package.mkdir(parents=True)
+    (base / "__init__.py").write_text("", encoding="utf-8")
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    (package / "owner.py").write_text(
+        "def _original(): return 42\ndef _foreign(): return 99\npublic = _original\n",
+        encoding="utf-8",
+    )
+    (package / "consumer.py").write_text(
+        f"from polisyos.{package_name}.owner import public\ndef selected(): return public()\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(polisyos, "__path__", [*polisyos.__path__, str(base)])
+    consumer_name = f"polisyos.{package_name}.consumer"
+    owner_name = f"polisyos.{package_name}.owner"
+    try:
+        consumer = importlib.import_module(consumer_name)
+        owner = importlib.import_module(owner_name)
+        closure = candidate_ledger._resolve_authority_import_closure(root, consumer_name)
+        assert consumer.selected() == 42
+        candidate_ledger._source_facade_runtime_projection(root, closure)
+
+        monkeypatch.setattr(owner, "public", owner._foreign)
+        monkeypatch.setattr(consumer, "public", owner._foreign)
+        assert consumer.selected() == 99
+        with pytest.raises(candidate_ledger.ConfidenceLedgerError) as error:
+            candidate_ledger._source_facade_runtime_projection(root, closure)
+        assert error.value.code == "canonical_loaded_runtime_mismatch"
+    finally:
+        for name in (consumer_name, owner_name, f"polisyos.{package_name}"):
+            sys.modules.pop(name, None)
+
+
+def test_real_signing_dataclass_static_methods_match_source_replay(
+    candidate_ledger: types.ModuleType,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.core.artifacts.signing import KeyPair
+
+    assert type(vars(KeyPair)["generate"]) is staticmethod
+    assert type(vars(KeyPair)["from_private_pem"]) is staticmethod
+    assert _supports_source_dataclass(candidate_ledger, KeyPair)
+    assert _direct_source_route(candidate_ledger, KeyPair) == (
+        "symbol",
+        KeyPair.__module__,
+        "KeyPair",
+    )
+    monkeypatch.setattr(KeyPair, "generate", staticmethod(lambda: "not-a-key"))
+    assert KeyPair.generate() == "not-a-key"
+    assert not _supports_source_dataclass(candidate_ledger, KeyPair)
+
+
+def _source_descriptor_dataclass(tmp_path: Path) -> types.ModuleType:
+    source = tmp_path / "descriptor_dataclass.py"
+    source.write_text(
+        "from __future__ import annotations\n"
+        "from dataclasses import dataclass\n"
+        "@dataclass(frozen=True)\n"
+        "class Owner:\n"
+        "    value: int\n"
+        "    @staticmethod\n"
+        "    def create(value: int = 7) -> Owner:\n"
+        "        return Owner(value)\n"
+        "    @classmethod\n"
+        "    def replace(cls, value: int = 8) -> Owner:\n"
+        "        return cls(value)\n"
+        "    @classmethod\n"
+        "    def class_cell(cls):\n"
+        "        return __class__\n",
+        encoding="utf-8",
+    )
+    return _load_source_module(source, "n11_source_descriptor_owner")
+
+
+def test_source_dataclass_static_and_class_methods_replay_exactly(
+    candidate_ledger: types.ModuleType,
+    tmp_path: Path,
+) -> None:
+    module = _source_descriptor_dataclass(tmp_path)
+    owner = module.Owner
+    assert owner.create().value == 7
+    assert owner.replace().value == 8
+    assert owner.class_cell() is owner
+    assert _supports_source_dataclass(candidate_ledger, owner, owner_module=module)
+
+
+@pytest.mark.parametrize("descriptor_name", ["create", "replace"])
+@pytest.mark.parametrize("change", ["kind", "callable", "defaults", "metadata"])
+def test_source_dataclass_rejects_changed_method_descriptor(
+    candidate_ledger: types.ModuleType,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    descriptor_name: str,
+    change: str,
+) -> None:
+    module = _source_descriptor_dataclass(tmp_path)
+    owner = module.Owner
+    descriptor = vars(owner)[descriptor_name]
+    assert _supports_source_dataclass(candidate_ledger, owner, owner_module=module)
+    if change == "kind":
+        replacement = classmethod if type(descriptor) is staticmethod else staticmethod
+        monkeypatch.setattr(owner, descriptor_name, replacement(descriptor.__func__))
+    elif change == "callable":
+        monkeypatch.setattr(owner, descriptor_name, type(descriptor)(lambda *_args: "foreign"))
+    elif change == "defaults":
+        monkeypatch.setattr(descriptor.__func__, "__defaults__", (999,))
+    else:
+        monkeypatch.setitem(vars(descriptor), "forged", "value")
+    assert not _supports_source_dataclass(candidate_ledger, owner, owner_module=module)
+
+
+@pytest.mark.parametrize("builtin_name", ["staticmethod", "classmethod"])
+def test_source_dataclass_rejects_shadowed_descriptor_builtin(
+    candidate_ledger: types.ModuleType,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    builtin_name: str,
+) -> None:
+    module = _source_descriptor_dataclass(tmp_path)
+    assert _supports_source_dataclass(candidate_ledger, module.Owner, owner_module=module)
+    monkeypatch.setattr(module, builtin_name, lambda value: value, raising=False)
+    assert not _supports_source_dataclass(candidate_ledger, module.Owner, owner_module=module)

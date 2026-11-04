@@ -13373,6 +13373,9 @@ def _source_dataclass_fields_match(
 def _source_dataclass_function_globals_match(
     actual: types.FunctionType,
     expected: types.FunctionType,
+    *,
+    actual_class: type[object],
+    expected_class: type[object],
 ) -> bool:
     """Bind only names executed by a generated function, without recursive global traversal."""
 
@@ -13416,6 +13419,8 @@ def _source_dataclass_function_globals_match(
             actual_binding = actual_builtins_namespace[name]
             expected_binding = expected_builtins_namespace[name]
         if actual_binding is expected_binding:
+            continue
+        if actual_binding is actual_class and expected_binding is expected_class:
             continue
         if (
             type(actual_binding) is type(expected_binding)
@@ -13590,6 +13595,23 @@ def _source_dataclass_runtime_output_matches(
             source_method_names=source_method_names,
             source_method_function_ids=source_method_function_ids,
         )
+    if type(actual) in {staticmethod, classmethod}:
+        return all(
+            _source_dataclass_runtime_output_matches(
+                actual_value,
+                expected_value,
+                actual_class=actual_class,
+                expected_class=expected_class,
+                depth=depth + 1,
+                class_pairs=pairs,
+                source_method_names=source_method_names,
+                source_method_function_ids=source_method_function_ids,
+            )
+            for actual_value, expected_value in (
+                (actual.__func__, expected.__func__),
+                (vars(actual), vars(expected)),
+            )
+        )
     if type(actual) is property:
         if type(expected) is not property:
             return False
@@ -13640,7 +13662,9 @@ def _source_dataclass_runtime_output_matches(
             actual.__code__
         ) != _normalize_code_object(expected.__code__):
             return False
-        if not _source_dataclass_function_globals_match(actual, expected):
+        if not _source_dataclass_function_globals_match(
+            actual, expected, actual_class=actual_class, expected_class=expected_class
+        ):
             return False
         if any(
             getattr(actual, name, _SOURCE_DERIVATION_FAILED)
@@ -13776,6 +13800,7 @@ def _source_python_dataclass_binding_supported(
     declared: list[tuple[str, ast.expr]] = []
     source_methods: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
     source_properties: set[str] = set()
+    source_method_descriptors: dict[str, type] = {}
     source_defaults: dict[str, object] = {}
     for index, member in enumerate(statement.body):
         if (
@@ -13815,20 +13840,31 @@ def _source_python_dataclass_binding_supported(
             if member.name in {item.name for item in source_methods}:
                 return False
             if member.decorator_list:
-                if not (
-                    len(member.decorator_list) == 1
-                    and isinstance(member.decorator_list[0], ast.Name)
-                    and member.decorator_list[0].id == "property"
-                    and _source_import_binding(
-                        "property",
+                if len(member.decorator_list) != 1 or not isinstance(
+                    member.decorator_list[0], ast.Name
+                ):
+                    return False
+                decorator = member.decorator_list[0].id
+                builtin_descriptor = {
+                    "property": property,
+                    "staticmethod": staticmethod,
+                    "classmethod": classmethod,
+                }.get(decorator)
+                if (
+                    builtin_descriptor is None
+                    or _source_import_binding(
+                        decorator,
                         tree=tree,
                         module=source_module,
                         module_name=module_name,
                     )
-                    is property
+                    is not builtin_descriptor
                 ):
                     return False
-                source_properties.add(member.name)
+                if builtin_descriptor is property:
+                    source_properties.add(member.name)
+                else:
+                    source_method_descriptors[member.name] = builtin_descriptor
             source_methods.append(member)
             continue
         return False
@@ -13927,6 +13963,12 @@ def _source_python_dataclass_binding_supported(
             ):
                 return False
             actual_method = actual_member.fget
+        elif member.name in source_method_descriptors:
+            if type(actual_member) is not source_method_descriptors[member.name]:
+                return False
+            actual_method = actual_member.__func__
+            if type(actual_method) is not types.FunctionType:
+                return False
         else:
             if type(actual_member) is not types.FunctionType:
                 return False
@@ -15051,6 +15093,46 @@ def _source_module_direct_binding_route(
         return "symbol", module_name, export_name
     if binding_kind == "assignment" and isinstance(statement, (ast.Assign, ast.AnnAssign)):
         value = statement.value
+        # A plain name assignment preserves the object selected at assignment
+        # time. Resolve its source only when the RHS has one prior, unambiguous
+        # module binding; following a later or rebound name would describe a
+        # different object. Runtime callers still reconcile live identities.
+        simple_target = (
+            len(statement.targets) == 1
+            and isinstance(statement.targets[0], ast.Name)
+            and statement.targets[0].id == export_name
+            if isinstance(statement, ast.Assign)
+            else (
+                isinstance(statement.target, ast.Name)
+                and statement.target.id == export_name
+                and statement.simple == 1
+                and _source_future_annotations_enabled(tree)
+            )
+        )
+        if simple_target and isinstance(value, ast.Name):
+            source_sites = _module_scope_direct_binding_sites(tree, value.id)
+            if len(source_sites) != 1 or (
+                source_sites[0][1].lineno,
+                source_sites[0][1].col_offset,
+            ) >= (statement.lineno, statement.col_offset):
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"source alias binding is not established: {module_name}.{export_name}",
+                )
+            target = _source_module_import_route(
+                repo_root,
+                module_name,
+                value.id,
+                directory_entries=directory_entries,
+                source_index=source_index,
+                visited=visited,
+            )
+            if target is None or target[0] == "external":
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"source alias provider is unavailable: {module_name}.{export_name}",
+                )
+            return target
         try:
             if value is None:
                 raise ValueError("annotation-only binding")

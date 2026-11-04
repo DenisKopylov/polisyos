@@ -9501,6 +9501,96 @@
           "seconds": 27.805,
           "peak_rss_bytes": 1562984448,
           "scope": "Overall ERROR:9 recovery cases stop in shared setup because evaluation.v1 event type is not registered. Actual per-module results are selected-reader1PASS, L1 routing4PASS, mixed obligations8PASS and N5 diagnostic9PASS. No recovery-property or native N5 implementation-witness success is inferred; registry producer/configuration cause is under investigation."
+        },
+        "source_replay_budget_contract_final": {
+          "output": "policy-engine/_cache/e02/lane01-ledger-budget-final-r1",
+          "observed": {
+            "PASS": 51,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 54,
+          "seconds": 15.159,
+          "peak_rss_bytes": 1360134144,
+          "scope": "Full source dataclass/alias behavior, exact descriptor mutation controls and new request-scope presence/legacy contracts. No fresh native N5 implementation-witness promotion."
+        },
+        "configured_n5_fresh_conditional_consumer": {
+          "output": "policy-engine/_cache/e02/lane01-cyc02-fresh-ncm-r4-consumer",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 293,
+          "seconds": 26.441,
+          "peak_rss_bytes": 2908520448,
+          "scope": "Separate fresh process consumes exact retained completed procurement N5 via empty-config API and canonical conditional value port; 0.5 independent oracle and wrong model/tenant/corruption/missing-manifest controls, exact restoration. Original producer pytest remains FAIL at post-producer harness decode; not a new N8 job, late-failure result, or publication."
+        },
+        "candidate_v5_core_surface": {
+          "output": "policy-engine/_cache/e02/lane01-surface/candidate-v5-core-r2",
+          "observed": {
+            "PASS": 36,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 2,
+          "seconds": 2.135,
+          "peak_rss_bytes": 234045440,
+          "scope": "V5 Core contracts only, not actual @3 producer-to-GET."
+        },
+        "candidate_v5_frontend_surface": {
+          "output": "policy-engine/_cache/e02/lane01-surface/candidate-v5-frontend-r2",
+          "observed": {
+            "PASS": 119,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 5,
+          "seconds": 7.041,
+          "peak_rss_bytes": 688472064,
+          "scope": "V5 Zod and Overview behavior only; exact profile identity, blockers and limits, not live owner qualification."
+        },
+        "policy_event_r2": {
+          "output": "policy-engine/_cache/e02/lane01-policy-event-r2",
+          "observed": {
+            "PASS": 66,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 1,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 301,
+          "seconds": 21.042,
+          "peak_rss_bytes": 1618575360,
+          "scope": "Overall FAIL: scorecard same-SHA role laundering red retained; new role-bound fix undergoing affected checks."
+        },
+        "diagnostic_scorecard_role_r1": {
+          "output": "policy-engine/_cache/e02/lane01-scorecard-role-r1",
+          "observed": {
+            "PASS": 108,
+            "FAIL": 7,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 1,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 309,
+          "seconds": 22.7,
+          "peak_rss_bytes": 1374748672,
+          "scope": "Overall FAIL: one new test fixture replaced required defaults (subsequently repaired); six full scorecard authority/approval expectations differ, attribution UNKNOWN and under investigation. No inherited or all-green claim."
         }
       },
       "independent_component_reviews": {

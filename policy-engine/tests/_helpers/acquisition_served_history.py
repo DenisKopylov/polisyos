@@ -852,6 +852,7 @@ def _produce_served_acquisition_history(
     sequential_oracle=None,
     provider_mode: str = "recorded_capture",
     seed_only_observer: Callable[..., None] | None = None,
+    seed_only_context_observer: Callable[..., None] | None = None,
     run_budget_usd: float | None = None,
     run_budget_scope: RunBudgetScope | None = None,
     candidate_acquisition_intent: Literal["bounded_experiment_voi_unknown"] | None = None,
@@ -920,7 +921,7 @@ def _produce_served_acquisition_history(
     fiscal_nl_request = acquisition_chain.SERVED_WDI_FISCAL_REQUEST
     fiscal_scope_source = acquisition_chain.SERVED_WDI_FISCAL_SCOPE_SOURCE
     candidate_only_source = acquisition_chain.SERVED_WDI_CANDIDATE_ONLY_SOURCE
-    if labor_seed and seed_only_observer is None:
+    if labor_seed and seed_only_observer is None and seed_only_context_observer is None:
         raise ValueError("served_labor_fixture_requires_seed_observer")
 
     monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
@@ -1554,18 +1555,29 @@ def _produce_served_acquisition_history(
                 _within_fixture_owner(control._artifact_store.get_bytes, job.payload_ref)
             )
             assert persisted_job_payload["llm_models"] == [served_n4_model_id]
-            if seed_only_observer is not None:
+            if seed_only_observer is not None or seed_only_context_observer is not None:
                 # This explicit test hook observes the real completed NL/N5
                 # producer before the existing WDI-only route continuation.
-                _within_fixture_owner(
-                    seed_only_observer,
-                    control=control,
-                    action_service=client.app.state.runtime_container.acquisition_action_service,
-                    job=job,
-                    run_id=run_id,
-                    cas_root=cas_root,
-                    profile_selection_ref=profile.profile_selection_ref,
-                )
+                observer_values = {
+                    "control": control,
+                    "action_service": client.app.state.runtime_container.acquisition_action_service,
+                    "job": job,
+                    "run_id": run_id,
+                    "cas_root": cas_root,
+                    "profile_selection_ref": profile.profile_selection_ref,
+                }
+                if seed_only_observer is not None:
+                    _within_fixture_owner(seed_only_observer, **observer_values)
+                if seed_only_context_observer is not None:
+                    _within_fixture_owner(
+                        seed_only_context_observer,
+                        **observer_values,
+                        client=client,
+                        trust=trust,
+                        signers=signers,
+                        identities=identities,
+                        key_root=tmp_path,
+                    )
                 return {"run_id": run_id, "job_id": seed_job_id}
             closure, request = _within_fixture_owner(
                 resolve_completed_wdi_route,

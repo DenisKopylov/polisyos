@@ -2176,7 +2176,10 @@ if TYPE_CHECKING:
     from .capability_discovery import CapabilityDiscoveryService
 
     class _HumanDecisionSignedArtifactStore(Protocol):
-        def get_manifest_bytes(self, artifact_id: artifacts.ArtifactID | str) -> bytes: ...
+        def get_manifest_bytes(
+            self,
+            artifact_id: artifacts.ArtifactID | artifacts.ArtifactRef | str,
+        ) -> bytes: ...
 
         def get_signature(
             self, artifact_id: artifacts.ArtifactID | str
@@ -2192,7 +2195,7 @@ if TYPE_CHECKING:
 
         def verify_signature(
             self,
-            artifact_id: artifacts.ArtifactID,
+            artifact_id: artifacts.ArtifactID | artifacts.ArtifactRef | str,
             verifier: artifacts.Ed25519Verifier,
             *,
             strict_identity: bool | None = None,
@@ -5555,6 +5558,91 @@ class HumanDecisionAuthoritySink:
             reservation_version=reservation_version,
         )
 
+    def _human_decision_record_manifest_views(
+        self,
+    ) -> tuple[tuple[ArtifactRef, ArtifactManifest], ...]:
+        """Select complete, stable human-decision CAS manifest views before Core reads."""
+        from polisyos.core.artifacts.store import (
+            CASManifestInventoryEntry,
+            CASManifestInventorySnapshot,
+        )
+
+        kind = "runtime_quality.agent_action_human_decision"
+        inventory = getattr(self._artifact_store, "manifest_inventory_snapshot", None)
+        if not callable(inventory):
+            raise RuntimeError("human-decision reconciliation CAS manifest inventory unavailable")
+        snapshot = inventory(kind=kind)
+        if type(snapshot) is not CASManifestInventorySnapshot:
+            raise RuntimeError("human-decision reconciliation CAS manifest inventory untyped")
+        if snapshot.verdict != "pass":
+            raise RuntimeError(
+                "human-decision reconciliation CAS manifest scan failed"
+                + (f": {snapshot.reason}" if snapshot.reason else "")
+            )
+
+        selected: dict[
+            tuple[str, str, str, str | None],
+            tuple[ArtifactRef, ArtifactManifest, str, int],
+        ] = {}
+        for entry in snapshot.entries:
+            if type(entry) is not CASManifestInventoryEntry:
+                raise RuntimeError("human-decision reconciliation CAS manifest entry untyped")
+            manifest = entry.manifest
+            if manifest.kind != kind:
+                raise RuntimeError("human-decision reconciliation CAS manifest kind changed")
+            selected_ref = artifact_ref_for_manifest(manifest)
+            selected_identity = artifact_ref_identity_key(selected_ref)
+            if (
+                selected_ref.manifest_profile_sha256 != entry.manifest_profile_sha256
+                or (
+                    entry.artifact_ref.artifact_id
+                    if isinstance(entry.artifact_ref, ArtifactRef)
+                    else entry.artifact_ref
+                )
+                != selected_ref.artifact_id
+                or (
+                    isinstance(entry.artifact_ref, ArtifactRef)
+                    and artifact_ref_identity_key(entry.artifact_ref) != selected_identity
+                )
+            ):
+                raise RuntimeError("human-decision reconciliation CAS manifest identity changed")
+            observed = (
+                selected_ref,
+                manifest,
+                entry.manifest_sha256,
+                entry.manifest_byte_size,
+            )
+            existing = selected.get(selected_identity)
+            if existing is not None:
+                if existing != observed:
+                    raise RuntimeError(
+                        "human-decision reconciliation CAS manifest identity conflict"
+                    )
+                continue
+            selected[selected_identity] = observed
+
+        views: list[tuple[ArtifactRef, ArtifactManifest]] = []
+        for identity, (selected_ref, expected_manifest, _sha256, _size) in selected.items():
+            try:
+                actual_manifest, _declaration = read_core_manifest_profile(
+                    self._artifact_store,
+                    selected_ref,
+                    manifest_profile_sha256=selected_ref.manifest_profile_sha256,
+                )
+            except CanonicalProfileRefusalError:
+                raise
+            except Exception as exc:
+                raise RuntimeError(
+                    "human-decision reconciliation selected manifest read failed"
+                ) from exc
+            if (
+                artifact_ref_identity_key(artifact_ref_for_manifest(actual_manifest)) != identity
+                or actual_manifest != expected_manifest
+            ):
+                raise RuntimeError("human-decision reconciliation selected manifest changed")
+            views.append((selected_ref, actual_manifest))
+        return tuple(views)
+
     def hold_write_fence(
         self,
         *,
@@ -5738,20 +5826,10 @@ class HumanDecisionAuthoritySink:
                 reservation_id=reservation_id,
                 reservation_version=reservation_version,
             ) as fence:
-                matches: list[tuple[str, ArtifactManifest, Mapping[str, Any]]] = []
-                for artifact_id in self._artifact_store.iter_artifact_ids():
+                matches: list[tuple[ArtifactRef, ArtifactManifest, Mapping[str, Any]]] = []
+                for selected_ref, manifest in self._human_decision_record_manifest_views():
                     try:
-                        manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
-                    except CanonicalProfileRefusalError:
-                        raise
-                    except Exception as exc:
-                        raise RuntimeError(
-                            "human-decision recovery CAS manifest scan failed"
-                        ) from exc
-                    if manifest.kind != "runtime_quality.agent_action_human_decision":
-                        continue
-                    try:
-                        payload = read_core_json_artifact(self._artifact_store, artifact_id).value
+                        payload = read_core_json_artifact(self._artifact_store, selected_ref).value
                     except CanonicalProfileRefusalError:
                         raise
                     except Exception as exc:
@@ -5762,10 +5840,11 @@ class HumanDecisionAuthoritySink:
                         payload.get("reservation_id") == reservation_id
                         and payload.get("reservation_version") == reservation_version
                     ):
-                        matches.append((str(artifact_id), manifest, payload))
+                        matches.append((selected_ref, manifest, payload))
                 if len(matches) != 1:
                     raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
-                record_ref, manifest, payload = matches[0]
+                selected_ref, manifest, payload = matches[0]
+                record_ref = str(selected_ref.artifact_id)
                 schema = manifest.artifact_schema
                 if (
                     schema is None
@@ -5792,7 +5871,7 @@ class HumanDecisionAuthoritySink:
                 ):
                     raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
                 signature = self.verify_artifact_signature(
-                    record_ref,
+                    selected_ref,
                     verifier,
                     strict_identity=True,
                 )
@@ -5837,7 +5916,7 @@ class HumanDecisionAuthoritySink:
                     payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True),
                 )
                 report = self.reconcile_authority_artifact(
-                    record_ref,
+                    selected_ref,
                     expected_tenant_id=tenant_id,
                     expected_cell_id=expected_cell_id,
                     expected_run_id=expected_run_id,
@@ -5879,17 +5958,9 @@ class HumanDecisionAuthoritySink:
             or reservation.durable_event_id is not None
         ):
             raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
-        for artifact_id in self._artifact_store.iter_artifact_ids():
+        for selected_ref, _manifest in self._human_decision_record_manifest_views():
             try:
-                manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
-            except CanonicalProfileRefusalError:
-                raise
-            except Exception as exc:
-                raise RuntimeError("human-decision reconciliation CAS scan failed") from exc
-            if manifest.kind != "runtime_quality.agent_action_human_decision":
-                continue
-            try:
-                payload = read_core_json_artifact(self._artifact_store, artifact_id).value
+                payload = read_core_json_artifact(self._artifact_store, selected_ref).value
             except CanonicalProfileRefusalError:
                 raise
             except Exception as exc:
@@ -5948,7 +6019,7 @@ class HumanDecisionAuthoritySink:
 
     def reconcile_authority_artifact(
         self,
-        artifact_ref: str,
+        artifact_ref: str | ArtifactRef,
         *,
         expected_tenant_id: str | None,
         expected_cell_id: str | None,
@@ -5966,8 +6037,12 @@ class HumanDecisionAuthoritySink:
             expected_run_id=expected_run_id,
             expected_job_id=expected_job_id,
         )
-        artifact_id = artifacts.ArtifactID.model_validate(artifact_ref)
-        manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
+        record_ref = (
+            str(artifact_ref.artifact_id)
+            if isinstance(artifact_ref, ArtifactRef)
+            else str(artifacts.ArtifactID.model_validate(artifact_ref))
+        )
+        manifest = read_core_manifest_profile(self._artifact_store, artifact_ref)[0]
         authority = manifest.authority
         if authority is None:
             raise ValueError("human-decision authority manifest linkage is absent")
@@ -5992,7 +6067,7 @@ class HumanDecisionAuthoritySink:
         )
         if (
             report.durable_event_id != event.event_id
-            or event.payload_ref != artifact_ref
+            or event.payload_ref != record_ref
             or not any(getattr(record, "event", None) == event for record in durable_records)
         ):
             raise ValueError("human-decision diagnostic event binding changed")
@@ -6053,16 +6128,43 @@ class HumanDecisionAuthoritySink:
 
     def verify_artifact_signature(
         self,
-        artifact_ref: str,
+        artifact_ref: str | ArtifactRef,
         verifier: artifacts.Ed25519Verifier,
         *,
         strict_identity: bool = True,
     ) -> artifacts.SignatureVerificationResult:
-        """Verify exact bytes, manifest, key trust, and signer identity."""
-
-        return self._signed_artifact_store().verify_signature(
-            artifacts.ArtifactID.model_validate(artifact_ref),
+        """Verify the selected view; reuse a default signature only for identical manifest bytes."""
+        store = self._signed_artifact_store()
+        verification = store.verify_signature(
+            artifact_ref,
             verifier,
+            strict_identity=strict_identity,
+        )
+        if (
+            verification.status != artifacts.SignatureVerificationStatus.UNSIGNED
+            or not isinstance(artifact_ref, ArtifactRef)
+            or artifact_ref.manifest_profile_sha256 is None
+            or type(verifier) is not artifacts.Ed25519Verifier
+        ):
+            return verification
+
+        try:
+            selected_manifest_bytes = store.get_manifest_bytes(artifact_ref)
+            default_manifest_bytes = store.get_manifest_bytes(artifact_ref.artifact_id)
+            if selected_manifest_bytes != default_manifest_bytes:
+                return verification
+            default_signature = store.get_signature(artifact_ref.artifact_id)
+            if type(default_signature) is not artifacts.DetachedSignature:
+                return verification
+            selected_payload_bytes = self._artifact_store.get_bytes(artifact_ref)
+        except Exception:
+            return verification
+
+        return verifier.verify(
+            artifact_ref.artifact_id,
+            selected_payload_bytes,
+            selected_manifest_bytes,
+            default_signature,
             strict_identity=strict_identity,
         )
 

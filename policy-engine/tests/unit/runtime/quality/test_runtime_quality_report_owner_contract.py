@@ -26,6 +26,8 @@ from polisyos.runtime.http.services.control.artifacts import (
 )
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.quality.authority import (
+    AuthorityRole,
+    EvidenceClass,
     GovernanceMetadata,
     runtime_quality_report_cas_admission_issues,
 )
@@ -71,7 +73,8 @@ def _persist_report(
     derive_closure: bool = False,
     closure_inputs: list[InputRef] | None = None,
     closure_refs: dict[str, str] | None = None,
-    authority_role: Literal["runtime_blocker", "producer_authority"] = "runtime_blocker",
+    authority_role: AuthorityRole = "runtime_blocker",
+    evidence_class: EvidenceClass = "authority_bearing",
 ) -> tuple[FileSystemCAS, Any, dict[str, Any], dict[str, Any]]:
     """Persist real CAS ownership as blocked evidence by default.
 
@@ -130,7 +133,7 @@ def _persist_report(
             inputs=write_inputs,
         ),
         evidence_id=f"runtime_quality_ref#{ref_key}",
-        evidence_class="authority_bearing",
+        evidence_class=evidence_class,
         authority_role=authority_role,
         provenance_kind="runtime_emitted"
         if authority_role == "producer_authority"

@@ -36,6 +36,9 @@ def test_installed_wheel_keeps_active_compiler_and_retires_legacy_helpers(
             uv_executable,
             "--offline",
             "build",
+            "--no-build-isolation",
+            "--python",
+            sys.executable,
             "--wheel",
             "--out-dir",
             str(wheelhouse),
@@ -48,7 +51,10 @@ def test_installed_wheel_keeps_active_compiler_and_retires_legacy_helpers(
         timeout=600,
     )
     record_property("req01_wheel_build_wall_seconds", round(time.monotonic() - started, 3))
-    record_property("req01_wheel_build_command", "uv --offline build --wheel --out-dir <tmp>")
+    record_property(
+        "req01_wheel_build_command",
+        "uv --offline build --no-build-isolation --python <current-test-interpreter> --wheel --out-dir <tmp>",
+    )
     assert build_result.returncode == 0, build_result.stdout + "\n" + build_result.stderr
 
     wheels = tuple(sorted(wheelhouse.glob("*.whl")))

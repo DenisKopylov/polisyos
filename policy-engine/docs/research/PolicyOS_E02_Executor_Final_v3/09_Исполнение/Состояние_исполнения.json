@@ -9855,6 +9855,61 @@
           "status": "ERROR_RESOURCE_LIMIT_SEMANTIC_UNRUN",
           "scope": "Early runs expose stale signed-scope assertion and context observer signature; repaired. Subsequent cap aborts are resource outcomes. Latest3.5GiB cap sampled4067393536bytes before test output, not OOM/product FAIL. Three blanket-admission expectations remain WIP; no larger automatic run."
         },
+        "labor_completed_source_issuer_r8": {
+          "output": "policy-engine/_cache/e02/lane01-labor-issuer-retained-r8",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 292,
+          "seconds": 71.54,
+          "peak_rss_bytes": 1562050560,
+          "scope": "Actual retained completed signed V5 NL/Core/N4/N5/N7/compiler source and existing quota -> real issuer -> selected CAS/event policy -> current route reader. Canonical WDI authority/receipt are test-owned; builtin source profile real. Repeat idempotence, template removal/restoration, no HTTP/N5/lease/quota mutation;219 prior CAS files,22 SQL tuples and ledger preserved. Protected action/phase/fold/reentry and production provenance remain separate."
+        },
+        "labor_issuer_missing_profile_r7": {
+          "output": "policy-engine/_cache/e02/lane01-labor-issuer-retained-r7",
+          "classification": "HARNESS_CONFIGURATION_ERROR",
+          "return_code": 1,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 61,
+          "scope": "Fixture registry lacks worldbank_wdi. Refuses before new policy write; no product FAIL or unavailable production-source inference. Preservation passes. r8 supplies actual builtin registry and the complete prior input union."
+        },
+        "installed_req01_r3": {
+          "output": "policy-engine/_cache/e02/lane01-installed-req01-r3",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 8,
+          "seconds": 15.732,
+          "peak_rss_bytes": 1423327232,
+          "wheel_bytes": 19322754,
+          "wheel_sha256": "2706a1e3f0e47595f7eb850933ac48d65a414f24bf78ad9bc21b895510df1664",
+          "scope": "One offline wheel built using retained Python3.14/Hatchling1.27.0; fresh minimal prefix, no dependency copy/install, outside-checkout -S probe verifies installed origins and active compiler/retirement/missing-family controls. No source fallback. Original r1 isolated offline backend cache error retained; r2 environment selection PASS precedes explicit r3 harness fix. Full first-party census and DA06/LANE12 remain separate."
+        },
+        "frontier_current_r2": {
+          "output": "policy-engine/_cache/e02/lane01-frontier-current-r2",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 1,
+          "inputs_unchanged_during_run": true,
+          "named_inputs": 272,
+          "seconds": 39.528,
+          "peak_rss_bytes": 1725546496,
+          "scope": "Current-job root full problem ref differs from prepared fixture only through four server source_context values; configured profile selector remains equal. Earlier spy used wrong full-ref filter. Exact selected compiled f26ccb02024447f1713ff96796ba9a00647a0f26e4fbd88bd5cb0f59b921b62e, job1700c3fea86f43f7b50eb0a855fbe035. First child source establishment still fails before N5; no quota frontier positive. Preserve r1/r2 failures; do not relax source, quota or fresh-reader assertions."
+        },
         "experiment_dashboard_types": {
           "output": "policy-engine/_cache/e02/lane01-shared-generated/experiment-dashboard-typecheck-r1",
           "observed": {
@@ -25564,7 +25619,8 @@
         "TEST-REQ-01-08"
       ],
       "evidence": [
-        "LANE-01.evidence_catalog.compiler_slot_calendar_planner"
+        "LANE-01.evidence_catalog.compiler_slot_calendar_planner",
+        "LANE-01.evidence_catalog.installed_req01_r3"
       ],
       "blockers": [],
       "deferred_ids": []

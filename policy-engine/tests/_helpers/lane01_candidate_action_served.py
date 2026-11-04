@@ -94,6 +94,7 @@ def build_candidate_port_owners(tmp_path: Path) -> SimpleNamespace:
         repo_root=authority.repo_root,
         baseline_path=authority.baseline_path,
     )
+
     registry = catalog.AcquisitionAuthorityRegistry.model_validate_json(
         authority.registry_path.read_bytes()
     )
@@ -122,6 +123,29 @@ def build_candidate_port_owners(tmp_path: Path) -> SimpleNamespace:
         runtime_root=runtime_root,
         bridge=bridge,
     )
+
+
+def build_candidate_experiment_issuer_port(
+    *, tmp_path: Path, artifact_store: artifacts.ArtifactStore
+) -> SimpleNamespace:
+    """Build test-owned canonical Labor WDI authority and its actual execution port.
+
+    The authority and receipt are generated fixture inputs. They validate the
+    issuer's typed joins and Fabric authorization, not empirical provenance.
+    """
+    authority, entry = build_fixture_wdi_authority(tmp_path / "repo", UNEMPLOYMENT_PROFILE)
+    registry = catalog.AcquisitionAuthorityRegistry.model_validate_json(
+        authority.registry_path.read_bytes()
+    )
+    port = acquisition_surface_execution.WorldBankWDIAcquisitionExecutionPort(
+        authority=authority,
+        registry=registry,
+        provision=authority.provision,
+        provision_content_sha256=authority.provision_content_sha256,
+        runtime_state_root=tmp_path / "runtime",
+        artifact_store=artifact_store,
+    )
+    return SimpleNamespace(authority=authority, entry=entry, registry=registry, port=port)
 
 
 class _LaborGap:

@@ -1026,6 +1026,7 @@ def test_genuine_labor_candidate_seed_reopens_selected_n4_and_cycle(
         DataRequirementCompilationReport,
         compiled_requirements_for_world_slot,
     )
+    from polisyos.fabric.connectors.profiles import SourceProfileRegistry
     from polisyos.fabric.data_plane import build_live_execution_authorization
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
@@ -1036,10 +1037,16 @@ def test_genuine_labor_candidate_seed_reopens_selected_n4_and_cycle(
     )
     from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
     from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+        CandidateUnpricedExperimentPolicyTemplate,
         CandidateUnpricedPolicyBinding,
         CandidateUnpricedPolicyScope,
         issue_candidate_unpriced_experiment_policy,
         persist_candidate_unpriced_policy,
+        read_candidate_unpriced_policy,
+        resolve_current_candidate_unpriced_policy,
+    )
+    from polisyos.runtime.quality.candidate_experiment_policy_issuer import (
+        prepare_candidate_experiment_policies_for_completed_job,
     )
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationExecutionV5,
@@ -1051,6 +1058,9 @@ def test_genuine_labor_candidate_seed_reopens_selected_n4_and_cycle(
     from tests._helpers.candidate_cycle_source_profile import (
         build_candidate_cycle_substrate_route_inputs,
         complete_candidate_cycle_catalog_source,
+    )
+    from tests._helpers.lane01_candidate_action_served import (
+        build_candidate_experiment_issuer_port,
     )
     from tests.unit.fabric.data_plane.test_evidence_journal import (
         _authorization_request,
@@ -1579,6 +1589,154 @@ def test_genuine_labor_candidate_seed_reopens_selected_n4_and_cycle(
         route.resolve_candidate_experiment_origin(run_id=run_id)
         assert control._llm_producer_settlement_store.snapshot_safe() == snapshot
         control._registry_providers = original_providers
+
+        # Exercise the completed-source issuer using the actual durable V5
+        # request, N7 compiler lineage, N5 quota, and a canonical test-owned
+        # WDI authority. The fixture authority is not production provenance.
+        issuer_owners = build_candidate_experiment_issuer_port(
+            tmp_path=tmp_path / "candidate-experiment-issuer",
+            artifact_store=control._artifact_store,
+        )
+        issuer_port = issuer_owners.port
+        issuer_quota = snapshot.invocation_profiles[run_id]
+        issuer_template = CandidateUnpricedExperimentPolicyTemplate(
+            tenant_id=fixture.TENANT,
+            cell_id=fixture.CELL,
+            authority_entry_id=issuer_owners.entry.entry_id,
+            authority_registry_sha256=issuer_owners.registry.content_sha256,
+            authority_provision_sha256=issuer_owners.authority.provision_content_sha256,
+            attempt_id=issuer_port._provision.live_harness_receipts[0].attempt_id,
+            max_http_response_bytes=65_536,
+            max_http_decompressed_bytes=65_536,
+            max_http_timeout_seconds=15.0,
+            max_standard_n5_invocations=(issuer_quota.total_units - issuer_quota.protected_units),
+            max_metered_reentry_usd=Decimal("1.00"),
+        )
+        issuer_providers = replace(
+            original_providers,
+            source_profiles=SourceProfileRegistry.get_instance(),
+            candidate_unpriced_policy_bindings=(),
+            candidate_unpriced_policy_templates=(issuer_template,),
+        )
+        control._registry_providers = issuer_providers
+        from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+            POLICY_EVENT,
+        )
+
+        policy_events_before = control._diagnostic_event_log.list_events(
+            run_id=run_id, job_id=job.job_id, limit=500
+        )
+        event_count_before = sum(
+            row.event.event_type == POLICY_EVENT for row in policy_events_before
+        )
+        quota_before_issuer = control._llm_producer_settlement_store.snapshot_safe()
+        import polisyos.runtime.http.services.acquisition_surface_execution as acquisition_surface
+
+        with monkeypatch.context() as issuer_patch:
+            issuer_patch.setattr(
+                acquisition_surface,
+                "build_production_world_bank_wdi_execution_port",
+                lambda *, control_service: issuer_port
+                if control_service is control
+                else pytest.fail("issuer requested a port for a different control owner"),
+            )
+            issued_refs = prepare_candidate_experiment_policies_for_completed_job(
+                control_service=control,
+                source_job_id=job.job_id,
+            )
+            assert len(issued_refs) == 1
+            issued_ref = issued_refs[0]
+            selected_ref, issued = resolve_current_candidate_unpriced_policy(
+                control_service=control,
+                scope=read_candidate_unpriced_policy(
+                    store=control._artifact_store,
+                    event_log=control._diagnostic_event_log,
+                    ref=issued_ref,
+                ).scope,
+            )
+            assert artifacts.artifact_ref_identity_key(selected_ref) == (
+                artifacts.artifact_ref_identity_key(issued_ref)
+            )
+            assert issued.scope.tenant_id == fixture.TENANT
+            assert issued.scope.cell_id == fixture.CELL
+            assert issued.scope.run_id == run_id
+            assert issued.scope.source_job_id == job.job_id
+            assert issued.scope.design_problem_ref == compiled.design_problem_ref
+            assert issued.scope.design_problem_basis_ref == selected_source.design_problem_basis_ref
+            assert issued.scope.source_cycle_index == cycle.cycle_index
+            assert issued.scope.candidate_id == cycle.selected_candidate_ref
+            assert issued.scope.candidate_content_hash == cycle.selected_candidate_content_hash
+            assert issued.scope.requirement_id == resolution.query.requirement_id
+            assert issued.scope.compiled_requirement_ref == matches[0].requirement_id
+            assert issued.scope.candidate_digest == candidates[0].content_digest
+            assert issued.scope.planner_report_hash == agent_action_content_hash(report)
+            assert issued.scope.compiled_ref == selected
+            assert issued.scope.planner_report_ref == cycle.acquisition_routing_report_ref
+            assert issued.scope.compiler_report_ref == binding.compiler_report_ref
+            assert (
+                issued.scope.configured_port_source_ref == report.candidate_lineage.port_source_ref
+            )
+            assert issued.source_payload_ref == evidence.source_payload_ref
+            assert issued.request_content_hash == evidence.request_content_hash
+            assert issued.original_metered_budget_usd == evidence.run_budget_usd
+            assert issued.live_authorization.authorized is True
+            assert issued.live_authorization.attempt_id == issuer_template.attempt_id
+            assert issued.purpose == "bounded_candidate_experiment_voi_unknown"
+            assert issued.information_value == "not_established"
+            assert issued.monetary_cost == "not_established"
+            assert issued.hard_usd_reservation is False
+            assert issued.observed_admission is False
+            assert issued.publication_authority is False
+            issued_origin = route.resolve_candidate_experiment_origin(run_id=run_id)
+            assert issued_origin.policy_ref == issued_ref
+            assert (
+                issued_origin.monetary_cost == issued_origin.action_authority == "not_established"
+            )
+            policy_events_after_issue = control._diagnostic_event_log.list_events(
+                run_id=run_id, job_id=job.job_id, limit=500
+            )
+            event_count_after_issue = sum(
+                row.event.event_type == POLICY_EVENT for row in policy_events_after_issue
+            )
+            assert event_count_after_issue == event_count_before + 1
+            assert control._llm_producer_settlement_store.snapshot_safe() == quota_before_issuer
+            assert not issuer_port._runtime_state_root.exists()
+
+            repeated_refs = prepare_candidate_experiment_policies_for_completed_job(
+                control_service=control,
+                source_job_id=job.job_id,
+            )
+            assert len(repeated_refs) == 1
+            assert artifacts.artifact_ref_identity_key(repeated_refs[0]) == (
+                artifacts.artifact_ref_identity_key(issued_ref)
+            )
+            policy_events_after_repeat = control._diagnostic_event_log.list_events(
+                run_id=run_id, job_id=job.job_id, limit=500
+            )
+            assert (
+                sum(row.event.event_type == POLICY_EVENT for row in policy_events_after_repeat)
+                == event_count_after_issue
+            )
+            assert control._llm_producer_settlement_store.snapshot_safe() == quota_before_issuer
+            assert not issuer_port._runtime_state_root.exists()
+
+            control._registry_providers = replace(
+                issuer_providers, candidate_unpriced_policy_templates=()
+            )
+            with pytest.raises(ValueError, match="candidate_unpriced_policy_not_selected"):
+                resolve_current_candidate_unpriced_policy(
+                    control_service=control, scope=issued.scope
+                )
+            control._registry_providers = issuer_providers
+            restored_ref, restored_policy = resolve_current_candidate_unpriced_policy(
+                control_service=control, scope=issued.scope
+            )
+            assert artifacts.artifact_ref_identity_key(restored_ref) == (
+                artifacts.artifact_ref_identity_key(issued_ref)
+            )
+            assert restored_policy == issued
+            assert control._llm_producer_settlement_store.snapshot_safe() == quota_before_issuer
+
         observed.append(run_id)
 
     with complete_candidate_cycle_catalog_source(

@@ -163,7 +163,13 @@ async def test_authored_compound_runs_real_joint_ncm_and_fresh_selected_reader(
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
     )
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        ParentJointCandidateSelectionV3,
+    )
     from tests._helpers import generic_n4_served_replay
+    from tests._helpers.authored_joint_relationship_order import (
+        verify_authored_joint_relationship_order_consumer,
+    )
 
     authored_inputs: list[dict[str, Any]] = []
     writes: list[tuple[Any, Any, Any]] = []
@@ -245,6 +251,20 @@ async def test_authored_compound_runs_real_joint_ncm_and_fresh_selected_reader(
     run = compiled.recursive_run
     parent_node = next(node for node in run.nodes if node.joint_candidate_selection is not None)
     assert parent_node.node_ref == run.root_node_ref
+    parent_selection = parent_node.joint_candidate_selection
+    parent_request = parent_node.joint_simulation_request
+    handoff = compiled.generic_cycle_simulation_handoff
+    assert type(parent_selection) is ParentJointCandidateSelectionV3
+    assert parent_request is not None and handoff is not None
+    verify_authored_joint_relationship_order_consumer(
+        store=reader,
+        relation_ref=parent_selection.relation_ref,
+        request=parent_request,
+        parent_handoff=handoff,
+        selection=parent_selection,
+        tenant_id=claims.tenant_id,
+        cell_id=claims.cell_id,
+    )
     assert "observed_coupling_evidence_missing" in parent_node.terminal.blocking_obligations
     wrong_terminal = recursive_cycle._blocked_parent_terminal("unsupported_coupling_gated")
     wrong_parent = parent_node.model_copy(update={"terminal": wrong_terminal})

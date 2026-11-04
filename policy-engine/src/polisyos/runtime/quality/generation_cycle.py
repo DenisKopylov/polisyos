@@ -325,7 +325,10 @@ if TYPE_CHECKING:
         N9PromotionEvidenceBridgeRepository,
     )
     from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
-    from polisyos.scientist.orchestration.engine import BudgetMiddleware
+    from polisyos.scientist.orchestration.engine import (
+        BudgetLedgerReentryBudgetScope,
+        BudgetMiddleware,
+    )
     from polisyos.scientist.orchestration.engine.budget import BudgetState
 
 _GENERATION_CYCLE_V3_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v3"
@@ -11455,10 +11458,12 @@ class GenerationCycleController:
         self,
         *,
         bridge: object,
-        closure: object,
+        closure: object | None = None,
+        origin: object | None = None,
         candidate_action_ref: CASArtifactRef,
         source_world_handoff: object,
         budget_state: BudgetState,
+        reentry_budget_scope: BudgetLedgerReentryBudgetScope | None = None,
     ) -> CandidateSourceReentryReceipt:
         """Append one limited N6 occurrence from an owner-verified candidate source.
 
@@ -11467,6 +11472,7 @@ class GenerationCycleController:
         """
         from polisyos.runtime.quality.acquisition_route_loop import (
             VerifiedAcquisitionRouteClosure,
+            VerifiedCandidateExperimentOrigin,
         )
         from polisyos.runtime.quality.acquisition_world_growth import (
             AcquisitionWorldGrowthBridge,
@@ -11479,9 +11485,12 @@ class GenerationCycleController:
             N4CandidateScenarioSourceRecordV3,
         )
 
+        experiment = type(origin) is VerifiedCandidateExperimentOrigin
         if (
             type(bridge) is not AcquisitionWorldGrowthBridge
-            or type(closure) is not VerifiedAcquisitionRouteClosure
+            or (experiment and closure is not None)
+            or (not experiment and type(closure) is not VerifiedAcquisitionRouteClosure)
+            or (origin is not None and not experiment)
             or type(source_world_handoff) is not CandidateSourceWorldHandoff
             or type(candidate_action_ref) is not CASArtifactRef
             or self._artifact_store is None
@@ -11489,23 +11498,56 @@ class GenerationCycleController:
             or type(self._simulation_port) is not JointSimulationPort
         ):
             raise GenerationCycleError("candidate_source_reentry_owner_not_established")
+        identity = origin if experiment else closure
+        if identity is None:
+            raise GenerationCycleError("candidate_source_reentry_identity_missing")
         try:
-            action = bridge._require_selected_candidate_action(
-                closure=closure, candidate_action_ref=candidate_action_ref
-            )
-            selected = bridge.verify_candidate_source_context_handoff(
-                closure=closure,
-                candidate_action_ref=candidate_action_ref,
-                handoff=source_world_handoff,
-            )
+            if experiment:
+                from polisyos.runtime.quality.candidate_acquisition_action import (
+                    read_candidate_experiment_acquisition_action,
+                )
+
+                if reentry_budget_scope is None:
+                    raise ValueError("candidate_experiment_reentry_budget_scope_missing")
+                action = read_candidate_experiment_acquisition_action(
+                    bridge=bridge,
+                    origin=origin,
+                    receipt_ref=candidate_action_ref,
+                    require_current_action=False,
+                )
+                selected = bridge.verify_candidate_source_context_handoff(
+                    origin=origin,
+                    candidate_action_ref=candidate_action_ref,
+                    handoff=source_world_handoff,
+                    budget_state=budget_state,
+                    reentry_budget_scope=reentry_budget_scope,
+                )
+            else:
+                action = bridge._require_selected_candidate_action(
+                    closure=closure, candidate_action_ref=candidate_action_ref
+                )
+                selected = bridge.verify_candidate_source_context_handoff(
+                    closure=closure,
+                    candidate_action_ref=candidate_action_ref,
+                    handoff=source_world_handoff,
+                )
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
             from polisyos.core.artifacts import raise_artifact_read_access_error
 
             raise_artifact_read_access_error(exc)
             raise GenerationCycleError("candidate_source_reentry_owner_not_current") from exc
-        original_run = closure.generation_run
-        source_cycle = closure.source_cycle
-        problem = closure.design_problem_basis
+        # The signed experiment origin and its policy scope stay bound to the
+        # immutable source root.  The physical generation step, however, must
+        # continue from the latest owner-replayed terminal edge when one
+        # exists.  In the initial generation these effective values are the
+        # root pair, preserving the original behavior.
+        if experiment:
+            original_run = origin.effective_generation_run
+            source_cycle = origin.effective_source_cycle
+        else:
+            original_run = closure.generation_run
+            source_cycle = closure.source_cycle
+        problem = identity.design_problem_basis
         if original_run.fronts.decision.candidate_ids or any(
             summary.front == "decision"
             or summary.certified_by_n9
@@ -11551,9 +11593,9 @@ class GenerationCycleController:
         try:
             prior_source = repository.load_candidate_scenario_source_in_owner_scope(
                 prior_source_ref,
-                expected_run_id=closure.run_id,
-                expected_tenant_id=closure.tenant_id,
-                expected_cell_id=closure.cell_id,
+                expected_run_id=identity.run_id,
+                expected_tenant_id=identity.tenant_id,
+                expected_cell_id=identity.cell_id,
             )
             if type(prior_source) is not N4CandidateScenarioSourceRecordV3:
                 raise ValueError("candidate_source_reentry_prior_source_version_unsupported")
@@ -11562,7 +11604,23 @@ class GenerationCycleController:
             if prior_input_ref is None:
                 if not candidate_source_first_n5_deferred(source_cycle):
                     raise ValueError("candidate_source_reentry_prior_n5_outcome_not_established")
-                owner_first_source = bridge._candidate_source_first_prior(closure=closure)
+                if experiment:
+                    from polisyos.runtime.quality.acquisition_world_growth import (
+                        resolve_first_candidate_n4_prior,
+                    )
+
+                    owner_first_source = resolve_first_candidate_n4_prior(
+                        artifact_store=self._artifact_store,
+                        source_cycle=source_cycle,
+                        problem=problem,
+                        tenant_id=identity.tenant_id,
+                        cell_id=identity.cell_id,
+                        run_id=identity.run_id,
+                        source_job_id=identity.source_job_id,
+                        design_problem_ref=identity.policy_scope.design_problem_ref,
+                    )
+                else:
+                    owner_first_source = bridge._candidate_source_first_prior(closure=closure)
                 if type(owner_first_source) is not N4CandidateScenarioSourceRecordV3 or (
                     owner_first_source != prior_source
                 ):
@@ -11571,10 +11629,10 @@ class GenerationCycleController:
             else:
                 prior_input = repository.resolve_candidate_simulation_v5(
                     ref=prior_input_ref,
-                    expected_run_id=closure.run_id,
+                    expected_run_id=identity.run_id,
                     expected_job_id=prior_source.job_id,
-                    expected_tenant_id=closure.tenant_id,
-                    expected_cell_id=closure.cell_id,
+                    expected_tenant_id=identity.tenant_id,
+                    expected_cell_id=identity.cell_id,
                 )
                 if (
                     type(prior_input) is not CandidateSimulationN5InputV5
@@ -11597,9 +11655,9 @@ class GenerationCycleController:
                 raise ValueError("candidate_source_reentry_legacy_context_limitation_missing")
             prior_source = repository.load_candidate_scenario_source_for_reissue(
                 prior_source_ref,
-                expected_run_id=closure.run_id,
-                expected_tenant_id=closure.tenant_id,
-                expected_cell_id=closure.cell_id,
+                expected_run_id=identity.run_id,
+                expected_tenant_id=identity.tenant_id,
+                expected_cell_id=identity.cell_id,
                 expected_candidate_id=source_cycle.selected_candidate_ref,
                 expected_candidate_content_hash=source_cycle.selected_candidate_content_hash,
                 expected_world_content_hash=prior_world_hash,
@@ -11653,14 +11711,29 @@ class GenerationCycleController:
             )
             if selected.currentness_resolver() is not True:
                 raise GenerationCycleError("candidate_source_reentry_owner_changed")
-            fresh_action = bridge._require_selected_candidate_action(
-                closure=closure, candidate_action_ref=candidate_action_ref
-            )
-            fresh_handoff = bridge.verify_candidate_source_context_handoff(
-                closure=closure,
-                candidate_action_ref=candidate_action_ref,
-                handoff=selected,
-            )
+            if experiment:
+                fresh_action = read_candidate_experiment_acquisition_action(
+                    bridge=bridge,
+                    origin=origin,
+                    receipt_ref=candidate_action_ref,
+                    require_current_action=False,
+                )
+                fresh_handoff = bridge.verify_candidate_source_context_handoff(
+                    origin=origin,
+                    candidate_action_ref=candidate_action_ref,
+                    handoff=selected,
+                    budget_state=budget_state,
+                    reentry_budget_scope=reentry_budget_scope,
+                )
+            else:
+                fresh_action = bridge._require_selected_candidate_action(
+                    closure=closure, candidate_action_ref=candidate_action_ref
+                )
+                fresh_handoff = bridge.verify_candidate_source_context_handoff(
+                    closure=closure,
+                    candidate_action_ref=candidate_action_ref,
+                    handoff=selected,
+                )
             if fresh_action != action or fresh_handoff.currentness_resolver() is not True:
                 raise GenerationCycleError("candidate_source_reentry_owner_changed")
             if new_cycle.selected_candidate_ref != source_cycle.selected_candidate_ref:
@@ -11716,11 +11789,11 @@ class GenerationCycleController:
                 new_cycle.simulation
             )
             transition = CandidateSourceBasisTransition.issue(
-                tenant_id=closure.tenant_id,
-                cell_id=closure.cell_id,
-                run_id=closure.run_id,
+                tenant_id=identity.tenant_id,
+                cell_id=identity.cell_id,
+                run_id=identity.run_id,
                 action_job_id=action.action_job_id,
-                route_id=closure.route_id,
+                route_id=identity.route_id,
                 from_cycle_index=source_cycle.cycle_index,
                 to_cycle_index=new_cycle.cycle_index,
                 source_generation_run_content_hash=generation_cycle_run_content_hash(original_run),
@@ -11769,14 +11842,14 @@ class GenerationCycleController:
             if continuation_currentness != source_currentness:
                 raise GenerationCycleError("candidate_source_reentry_deployment_changed")
             receipt = CandidateSourceReentryReceipt.issue(
-                tenant_id=closure.tenant_id,
-                cell_id=closure.cell_id,
-                run_id=closure.run_id,
+                tenant_id=identity.tenant_id,
+                cell_id=identity.cell_id,
+                run_id=identity.run_id,
                 source_generation_run_id=original_run.run_id,
-                source_job_id=closure.source_job_id,
+                source_job_id=identity.source_job_id,
                 action_job_id=action.action_job_id,
                 action_generation=action.action_generation,
-                route_id=closure.route_id,
+                route_id=identity.route_id,
                 design_problem_ref=original_run.design_problem_ref,
                 design_problem_basis_ref=_problem_ref(problem),
                 source_cycle_index=source_cycle.cycle_index,
@@ -11818,8 +11891,17 @@ class GenerationCycleController:
                 )
             if (
                 selected.currentness_resolver() is not True
-                or bridge._require_selected_candidate_action(
-                    closure=closure, candidate_action_ref=candidate_action_ref
+                or (
+                    read_candidate_experiment_acquisition_action(
+                        bridge=bridge,
+                        origin=origin,
+                        receipt_ref=candidate_action_ref,
+                        require_current_action=False,
+                    )
+                    if experiment
+                    else bridge._require_selected_candidate_action(
+                        closure=closure, candidate_action_ref=candidate_action_ref
+                    )
                 )
                 != action
             ):

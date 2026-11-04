@@ -29,8 +29,15 @@ if TYPE_CHECKING:
         AcquisitionOwnerExecutionResult,
     )
     from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
-    from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
+    from polisyos.runtime.quality.acquisition_executor import (
+        _PreparedLiveCatalogAuthorization,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        VerifiedAcquisitionRouteClosure,
+        VerifiedCandidateExperimentOrigin,
+    )
     from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionCandidateSourceRoute,
         AcquisitionWorldGrowthBridge,
         AcquisitionWorldGrowthConfig,
         AcquisitionWorldGrowthReceipt,
@@ -618,6 +625,315 @@ class WorldBankWDIAcquisitionExecutionPort:
         return self._admission_result(
             closure, owner_receipt_refs, growth, action_phase_ref=action_phase_ref
         )
+
+    def preflight_candidate_experiment(
+        self,
+        *,
+        origin: VerifiedCandidateExperimentOrigin,
+    ) -> AcquisitionCandidateSourceRoute:
+        """Reopen current source/template owners without a job, lease, or source request."""
+        from polisyos.runtime.quality.acquisition_route_loop import (
+            VerifiedCandidateExperimentOrigin,
+        )
+        from polisyos.runtime.quality.candidate_acquisition_action import (
+            _candidate_experiment_source_selection,
+        )
+
+        bridge = self._world_growth_bridge
+        if type(origin) is not VerifiedCandidateExperimentOrigin or bridge is None:
+            raise LiveAcquisitionExecutionError("candidate_experiment_source_owner_missing")
+        try:
+            selected = _candidate_experiment_source_selection(bridge, origin)
+            self._candidate_experiment_binding(origin=origin, selection=selected)
+            evaluation_preflight = bridge.preflight_candidate_experiment_evaluation(
+                origin=origin,
+                selection=selected,
+            )
+            from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+                CandidateExperimentEvaluationPreflight,
+            )
+
+            if (
+                type(evaluation_preflight) is not CandidateExperimentEvaluationPreflight
+                or evaluation_preflight.origin != origin
+                or evaluation_preflight.selection != selected
+                or evaluation_preflight.policy_ref != origin.policy_ref
+                or evaluation_preflight.continuation_kind != "candidate_source_reentry_n5"
+            ):
+                raise ValueError("candidate_experiment_evaluation_preflight_mismatch")
+            if not callable(getattr(bridge, "admit_candidate_experiment", None)):
+                raise ValueError("candidate_experiment_action_writer_missing")
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise LiveAcquisitionExecutionError(
+                "candidate_experiment_preflight_not_established", type(exc).__name__
+            ) from exc
+        return selected
+
+    def execute_candidate_experiment(
+        self,
+        *,
+        origin: VerifiedCandidateExperimentOrigin,
+        action_phase_ref: str,
+    ) -> AcquisitionOwnerExecutionResult:
+        """Acquire one selected candidate source under current USD, quota and lease owners."""
+        from polisyos.runtime.quality.acquisition_route_loop import (
+            VerifiedCandidateExperimentOrigin,
+        )
+        from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+            CandidateUnpricedLiveContext,
+        )
+        from polisyos.runtime.quality.candidate_acquisition_action import (
+            _current_candidate_experiment_action,
+        )
+        from polisyos.scientist import BudgetState
+
+        bridge = self._world_growth_bridge
+        if type(origin) is not VerifiedCandidateExperimentOrigin or bridge is None:
+            raise LiveAcquisitionExecutionError("candidate_experiment_source_owner_missing")
+        if self._executor is not None:
+            raise LiveAcquisitionExecutionError("candidate_experiment_canonical_executor_required")
+        try:
+            selection = self.preflight_candidate_experiment(origin=origin)
+            selected, phase, _admission = _current_candidate_experiment_action(
+                bridge, origin, action_phase_ref
+            )
+            if selected != selection or phase.receipt_phase != "executing":
+                raise ValueError("candidate_experiment_action_changed")
+            window = bridge.prepare_candidate_experiment_source_budget_window(
+                origin=origin, action_phase_ref=action_phase_ref
+            )
+            budget_state = BudgetState.model_validate(
+                {"limits": {"run": {"key": "run", "max_usd": window.effective_limit_usd}}}
+            )
+            service = bridge._source_control_service
+            if service is None:
+                raise ValueError("candidate_experiment_budget_owner_missing")
+            budget_observer = service.build_candidate_experiment_source_budget_observer(
+                origin=origin,
+                budget_state=budget_state,
+                reentry_budget_scope=window.scope,
+            )
+            from polisyos.scientist.orchestration.engine import ProducerBudgetObserver
+
+            if type(budget_observer) is not ProducerBudgetObserver:
+                raise ValueError("candidate_experiment_budget_observer_untyped")
+            context = CandidateUnpricedLiveContext(
+                control_service=service,
+                scope=origin.policy_scope,
+                policy_ref=origin.policy_ref,
+                action_phase_ref=action_phase_ref,
+                budget_observer=budget_observer,
+                budget_state=budget_state,
+                experiment_origin=origin,
+            )
+            binding, prepared = self._candidate_experiment_binding(
+                origin=origin, selection=selection, control_service=service
+            )
+            if prepared.authorization != self._current_candidate_experiment_authorization(
+                service=service, origin=origin, binding=binding
+            ):
+                raise ValueError("candidate_experiment_live_authorization_changed")
+            # Admission is read-only and happens before the transport reservation.
+            from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+                reconcile_candidate_unpriced_work,
+            )
+
+            reconcile_candidate_unpriced_work(
+                control_service=service,
+                scope=origin.policy_scope,
+                policy_ref=origin.policy_ref,
+                action_phase_ref=action_phase_ref,
+                live_authorization=prepared.authorization,
+                budget_observer=budget_observer,
+                budget_state=budget_state,
+                experiment_origin=origin,
+            )
+            cas_root = self._runtime_artifact_store_root()
+            if self._reserve_first_fresh((binding,)) != binding:
+                raise ValueError("candidate_experiment_attempt_reservation_changed")
+            self._claim_reserved_binding(binding)
+            evidence = execute_live_catalog_acquisition(
+                authority=self._authority,
+                entry_id=binding.authority_entry_id,
+                attempt_id=binding.attempt_id,
+                constraints=binding.constraints,
+                journal_path=self._governed_journal_path(binding),
+                cas_root=cas_root,
+                artifact_store=self._artifact_store,
+                cache_namespace=_connector_cache_namespace(binding),
+                registry_providers=service._registry_providers,
+                candidate_unpriced_context=context,
+            )
+            candidate_ref, _receipt = bridge.admit_candidate_experiment(
+                origin=origin,
+                binding=binding,
+                evidence=evidence,
+                action_phase_ref=action_phase_ref,
+            )
+            return self._candidate_result(
+                candidate_ref,
+                (
+                    str(evidence.raw_artifact_id),
+                    str(evidence.evidence_bundle_ref.artifact_id),
+                    str(evidence.data_snapshot_ref.artifact_id),
+                    str(evidence.normalized_data_artifact_id),
+                ),
+                action_phase_ref=action_phase_ref,
+            )
+        except LiveAcquisitionExecutionError:
+            raise
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise LiveAcquisitionExecutionError(
+                "candidate_experiment_execution_not_established", type(exc).__name__
+            ) from exc
+
+    def _candidate_experiment_binding(
+        self,
+        *,
+        origin: VerifiedCandidateExperimentOrigin,
+        selection: AcquisitionCandidateSourceRoute,
+        control_service: ControlPlaneService | None = None,
+    ) -> tuple[WorldBankWDIRouteExecutionBinding, _PreparedLiveCatalogAuthorization]:
+        """Bind the current configured attempt and its bounded live authorization."""
+        from polisyos.runtime.http.services.acquisition_surface_execution import (
+            _resolve_world_bank_wdi_source_attempts,
+        )
+        from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+        from polisyos.runtime.quality.acquisition_executor import (
+            _prepare_live_catalog_authorization,
+        )
+        from polisyos.runtime.quality.acquisition_route_loop import (
+            VerifiedCandidateExperimentOrigin,
+            _CandidateExperimentSourceIdentity,
+        )
+        from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+            resolve_current_candidate_unpriced_policy,
+            verify_candidate_unpriced_experiment_policy_intent,
+        )
+
+        service = control_service
+        if service is None and self._world_growth_bridge is not None:
+            service = self._world_growth_bridge._source_control_service
+        if (
+            type(origin) is not VerifiedCandidateExperimentOrigin
+            or type(service) is not ControlPlaneService
+            or self._world_growth_bridge is None
+        ):
+            raise ValueError("candidate_experiment_source_owner_missing")
+        policy_ref, policy = resolve_current_candidate_unpriced_policy(
+            control_service=service, scope=origin.policy_scope
+        )
+        evidence = verify_candidate_unpriced_experiment_policy_intent(
+            control_service=service,
+            closure=_CandidateExperimentSourceIdentity(
+                tenant_id=origin.tenant_id,
+                cell_id=origin.cell_id,
+                run_id=origin.run_id,
+                source_job_id=origin.source_job_id,
+                source_payload_ref=origin.source_payload_ref,
+                capability_manifest_ref=origin.capability_manifest_ref,
+            ),
+            scope=origin.policy_scope,
+            policy_ref=origin.policy_ref,
+        )
+        template = policy.configured_template
+        if (
+            policy_ref != origin.policy_ref
+            or template is None
+            or policy.source_payload_ref != origin.source_payload_ref
+            or policy.request_content_hash != origin.request_content_hash
+            or evidence.run_budget_usd != policy.original_metered_budget_usd
+        ):
+            raise ValueError("candidate_experiment_source_policy_changed")
+        variable_id, entry_id, constraints, attempts = _resolve_world_bank_wdi_source_attempts(
+            source=origin,
+            authority=self._authority,
+            registry=self._registry,
+            provision=self._provision,
+            provision_content_sha256=self._provision_content_sha256,
+        )
+        matching = tuple(
+            (attempt, receipt)
+            for attempt, receipt in attempts
+            if attempt.attempt_id == template.attempt_id
+        )
+        if len(matching) != 1 or variable_id != selection.canonical_variable_id:
+            raise ValueError("candidate_experiment_source_attempt_not_unique")
+        attempt, harness = matching[0]
+        bounded = LiveCatalogExecutionConstraints.model_validate(
+            {
+                **constraints.model_dump(),
+                "max_response_bytes": min(
+                    constraints.max_response_bytes, template.max_http_response_bytes
+                ),
+                "max_decompressed_bytes": min(
+                    constraints.max_decompressed_bytes, template.max_http_decompressed_bytes
+                ),
+                "timeout_cap_seconds": min(
+                    constraints.timeout_cap_seconds, template.max_http_timeout_seconds
+                ),
+            }
+        )
+        prepared = _prepare_live_catalog_authorization(
+            authority=self._authority,
+            entry_id=entry_id,
+            attempt_id=attempt.attempt_id,
+            constraints=bounded,
+            registry_providers=service._registry_providers,
+        )
+        if prepared.authorization != policy.live_authorization:
+            raise ValueError("candidate_experiment_live_authorization_changed")
+        payload = {
+            "schema_version": WORLD_BANK_WDI_ROUTE_BINDING_SCHEMA_VERSION,
+            "tenant_id": origin.tenant_id,
+            "cell_id": origin.cell_id,
+            "run_id": origin.run_id,
+            "route_id": origin.route_id,
+            "target_variable": variable_id,
+            "authority_entry_id": entry_id,
+            "authority_provision_id": self._provision.provision_id,
+            "authority_provision_content_sha256": self._provision_content_sha256,
+            "authority_registry_content_sha256": self._registry.content_sha256,
+            "connector_id": WORLD_BANK_WDI_CONNECTOR_ID,
+            "attempt_id": attempt.attempt_id,
+            "harness_receipt_content_sha256": harness.receipt_content_sha256,
+            "carrier_receipt_sha256": harness.carrier_receipt_sha256,
+            "constraints": bounded.model_dump(mode="json"),
+        }
+        binding = WorldBankWDIRouteExecutionBinding(
+            **payload,
+            binding_id="acquisition-route-binding:" + fabric_data_plane.content_sha256(payload),
+        )
+        resolved = self._authority.resolve(entry_id)
+        if (
+            binding.route_id != selection.route_id
+            or binding.target_variable != selection.target_slot_id
+            or binding.constraints.country_code != selection.country_code
+            or binding.constraints.start_year != selection.year
+            or binding.constraints.end_year != selection.year
+            or resolved.entry.entry_id != entry_id
+        ):
+            raise ValueError("candidate_experiment_route_binding_mismatch")
+        return binding, prepared
+
+    def _current_candidate_experiment_authorization(
+        self,
+        *,
+        service: ControlPlaneService,
+        origin: VerifiedCandidateExperimentOrigin,
+        binding: WorldBankWDIRouteExecutionBinding,
+    ) -> fabric_data_plane.LiveExecutionAuthorization:
+        from polisyos.runtime.quality.acquisition_executor import (
+            _prepare_live_catalog_authorization,
+        )
+
+        return _prepare_live_catalog_authorization(
+            authority=self._authority,
+            entry_id=binding.authority_entry_id,
+            attempt_id=binding.attempt_id,
+            constraints=binding.constraints,
+            registry_providers=service._registry_providers,
+        ).authorization
 
     @staticmethod
     def _candidate_result(

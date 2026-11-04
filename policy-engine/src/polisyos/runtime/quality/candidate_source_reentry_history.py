@@ -23,8 +23,11 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
-    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRoutePhaseReceipt
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        VerifiedCandidateExperimentOrigin,
+    )
     from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthBridge,
         CandidateAcquisitionWorldCheckpoint,
         CandidateAcquisitionWorldIntent,
     )
@@ -90,12 +93,19 @@ def _owner_record[RecordT: BaseModel](
     inputs: Sequence[artifacts.InputRef],
     compiled_ref: str,
     scope: _Scope,
+    policy_ref: artifacts.ArtifactRef | None = None,
 ) -> RecordT:
     record = record_type.model_validate(_selected_payload(store, ref, kind=kind))
     manifest = store.get_manifest(ref)
     closure = manifest.same_input_closure
     expected_refs = tuple(
-        dict.fromkeys((compiled_ref, *(str(item.artifact_id) for item in inputs)))
+        dict.fromkeys(
+            (
+                *((str(policy_ref.artifact_id),) if policy_ref is not None else ()),
+                compiled_ref,
+                *(str(item.artifact_id) for item in inputs),
+            )
+        )
     )
     if (
         manifest.artifact_schema != artifacts.SchemaInfo(name=schema, version=version)
@@ -528,7 +538,42 @@ def _read_historical_action(
     store: artifacts.ArtifactStore,
     event_log: RuntimeDiagnosticEventLog,
     action_ref: artifacts.ArtifactRef,
-) -> tuple[CandidateAcquisitionActionReceipt, AcquisitionRoutePhaseReceipt]:
+    origin: VerifiedCandidateExperimentOrigin | None = None,
+    bridge: AcquisitionWorldGrowthBridge | None = None,
+) -> tuple[CandidateAcquisitionActionReceipt, object]:
+    if (origin is None) != (bridge is None):
+        raise ValueError("candidate_reentry_history_experiment_owner_incomplete")
+    if origin is not None:
+        if bridge is None:
+            raise ValueError("candidate_reentry_history_experiment_bridge_missing")
+        from polisyos.runtime.quality.acquisition_route_loop import (
+            AcquisitionCandidateExperimentPhaseReceipt,
+        )
+        from polisyos.runtime.quality.candidate_acquisition_action import (
+            CandidateAcquisitionActionReceipt,
+            read_candidate_experiment_acquisition_action_historical,
+        )
+
+        selected = CandidateAcquisitionActionReceipt.model_validate(
+            _selected_payload(
+                store, action_ref, kind="runtime_quality.acquisition_candidate_action_receipt"
+            )
+        )
+        phase = AcquisitionCandidateExperimentPhaseReceipt.model_validate(
+            _selected_payload(
+                store,
+                selected.selected_action_phase_ref,
+                kind="runtime_quality.acquisition_candidate_experiment_phase_receipt",
+            )
+        )
+        action, _source, _window = read_candidate_experiment_acquisition_action_historical(
+            bridge=bridge,
+            origin=origin,
+            receipt_ref=action_ref,
+            executing_phase=phase,
+            executing_phase_ref=str(selected.selected_action_phase_ref.artifact_id),
+        )
+        return action, phase
     from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRoutePhaseReceipt
     from polisyos.runtime.quality.candidate_acquisition_action import (
         CandidateAcquisitionActionReceipt,
@@ -666,6 +711,8 @@ def verify_candidate_source_basis_transition_historical(
     source_cycle: GenerationCycleRecord,
     target_cycle: GenerationCycleRecord,
     problem: DesignProblem,
+    origin: VerifiedCandidateExperimentOrigin | None = None,
+    bridge: AcquisitionWorldGrowthBridge | None = None,
 ) -> None:
     """Reopen the selected owner basis of one declared candidate-only edge.
 
@@ -729,7 +776,11 @@ def verify_candidate_source_basis_transition_historical(
     ) or transition.design_problem_basis_ref != gy_content_hash(problem.model_dump(mode="json")):
         raise ValueError("candidate_reentry_history_cycle_pair_mismatch")
     action, executing = _read_historical_action(
-        store=store, event_log=event_log, action_ref=transition.candidate_action_ref
+        store=store,
+        event_log=event_log,
+        action_ref=transition.candidate_action_ref,
+        origin=origin,
+        bridge=bridge,
     )
     scope = _scope_from_action(action)
     if action.candidate_source_ref != transition.candidate_source_ref or any(
@@ -757,6 +808,7 @@ def verify_candidate_source_basis_transition_historical(
         ),
         compiled_ref=executing.compiled_ref,
         scope=scope,
+        policy_ref=origin.policy_ref if origin is not None else None,
     )
     raw_checkpoint = CandidateAcquisitionWorldCheckpoint.model_validate(
         _selected_payload(store, transition.candidate_world_checkpoint_ref, kind=_CHECKPOINT_KIND)
@@ -774,6 +826,7 @@ def verify_candidate_source_basis_transition_historical(
         inputs=AcquisitionWorldGrowthBridge._candidate_world_checkpoint_inputs(raw_checkpoint),
         compiled_ref=executing.compiled_ref,
         scope=scope,
+        policy_ref=origin.policy_ref if origin is not None else None,
     )
     for record in (intent, checkpoint):
         if (
@@ -1002,5 +1055,114 @@ def verify_candidate_source_reentry_history(
         source_cycle=cycles[receipt.source_cycle_index],
         target_cycle=receipt.new_cycle,
         problem=context_job.problem,
+    )
+    return receipt
+
+
+def verify_candidate_experiment_source_reentry_history(
+    *,
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    receipt_ref: artifacts.ArtifactRef,
+    expected_selected_action_ref: artifacts.ArtifactRef,
+) -> CandidateSourceReentryReceipt:
+    """Replay an experiment source reentry without widening it to a costed closure."""
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        VerifiedCandidateExperimentOrigin,
+    )
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthBridge,
+        candidate_source_reentry_inputs,
+    )
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
+    from polisyos.runtime.quality.generation_cycle import (
+        CandidateSourceReentryReceipt,
+        generation_cycle_run_content_hash,
+        validate_generation_cycle_run_history,
+    )
+
+    if (
+        type(bridge) is not AcquisitionWorldGrowthBridge
+        or type(origin) is not VerifiedCandidateExperimentOrigin
+        or bridge.control_store is None
+        or expected_selected_action_ref.kind
+        != "runtime_quality.acquisition_candidate_action_receipt"
+    ):
+        raise TypeError("candidate_experiment_reentry_history_owner_untyped")
+    action, _executing = _read_historical_action(
+        store=bridge.artifact_store,
+        event_log=bridge.event_log,
+        action_ref=expected_selected_action_ref,
+        origin=origin,
+        bridge=bridge,
+    )
+    scope = _scope_from_action(action)
+    if (scope.tenant_id, scope.cell_id, scope.run_id, scope.source_job_id, scope.route_id) != (
+        origin.tenant_id,
+        origin.cell_id,
+        origin.run_id,
+        origin.source_job_id,
+        origin.route_id,
+    ):
+        raise ValueError("candidate_experiment_reentry_history_action_scope_mismatch")
+    receipt = CandidateSourceReentryReceipt.model_validate(
+        _selected_payload(bridge.artifact_store, receipt_ref, kind=_REENTRY_KIND)
+    )
+    if (
+        receipt.candidate_action_ref != expected_selected_action_ref
+        or any(
+            getattr(receipt, name) != getattr(scope, name) for name in _Scope.__dataclass_fields__
+        )
+        or receipt.candidate_source_ref != action.candidate_source_ref
+        or receipt.source_generation_run_content_hash
+        != generation_cycle_run_content_hash(origin.effective_generation_run)
+        or receipt.design_problem_basis_ref != origin.policy_scope.design_problem_basis_ref
+    ):
+        raise ValueError("candidate_experiment_reentry_history_action_mismatch")
+    identity = hashlib.sha256(
+        canon.to_canonical_bytes(expected_selected_action_ref.model_dump(mode="json"))
+    ).hexdigest()
+    receipt = _owner_record(
+        store=bridge.artifact_store,
+        events=bridge.event_log,
+        ref=receipt_ref,
+        record_type=CandidateSourceReentryReceipt,
+        kind=_REENTRY_KIND,
+        schema="polisyos.runtime.CandidateSourceReentryReceipt",
+        version="1.0",
+        phase="candidate_source_reentry_terminal",
+        event_id="evt_candidate_source_reentry_" + identity,
+        inputs=candidate_source_reentry_inputs(receipt),
+        compiled_ref=str(origin.policy_scope.compiled_ref.artifact_id),
+        policy_ref=origin.policy_ref,
+        scope=scope,
+    )
+    if validate_generation_cycle_run_history(
+        receipt.continued_generation_run.model_dump(mode="json")
+    ):
+        raise ValueError("candidate_experiment_reentry_history_continuation_intrinsic_invalid")
+    context_job = CycleSubstrateContextArtifactOwner(
+        store=bridge.artifact_store, control_store=bridge.control_store
+    ).resolve_historical_job_artifact(
+        receipt.context_job_ref,
+        expected_design_problem_ref=receipt.design_problem_basis_ref,
+        expected_job_id=scope.action_job_id,
+        expected_run_id=scope.run_id,
+        expected_tenant_id=scope.tenant_id,
+        expected_cell_id=scope.cell_id,
+    )
+    cycles = receipt.continued_generation_run.cycles
+    if receipt.source_cycle_index >= len(cycles):
+        raise ValueError("candidate_experiment_reentry_history_source_cycle_missing")
+    verify_candidate_source_basis_transition_historical(
+        store=bridge.artifact_store,
+        event_log=bridge.event_log,
+        control_store=bridge.control_store,
+        transition=receipt.basis_transition,
+        source_cycle=cycles[receipt.source_cycle_index],
+        target_cycle=receipt.new_cycle,
+        problem=context_job.problem,
+        origin=origin,
+        bridge=bridge,
     )
     return receipt

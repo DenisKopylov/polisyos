@@ -45,6 +45,7 @@ for the complete schema-described and route-only surfaces.
 | `GET`  | `/api/v1/runs/{run_id}/workflow`               | `RunWorkflowResponse`           | Workflow/DAG view                                                      |
 | `GET`  | `/api/v1/runs/{run_id}/candidate-acquisition-experiment` | `CandidateExperimentRouteProjection` | Selected candidate policy and replay pins; no execution permission |
 | `POST` | `/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request` | `AcquisitionDecisionRequestResponse` | Prepare a signed decision; does not enqueue or execute |
+| `POST` | `/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute` | `AcquisitionExecutionResponse` | Queue an exact protected request, or read back its verified completed job |
 | `POST` | `/api/v1/runs/{run_id}/predictive-calibration` | `PredictiveCalibrationResponse` | Run-bound candidate diagnostic; appends a selected CAS ref event       |
 | `GET`  | `/api/v1/runs/{run_id}/predictive-calibration` | `PredictiveCalibrationResponse` | Reopens the latest appended diagnostic and recomputes S10              |
 | `GET`  | `/api/v1/runs/live`                            | `text/event-stream`             | Route-only, schema-hidden global live stream                           |
@@ -77,6 +78,14 @@ information value and action authority remain `not_established`, and
 `publication_authority` remains false. The original scheduler rejection remains
 visible; choosing a bounded experiment does not establish positive VOI.
 
+`current_action` projects the owner-verified current head, acquisition job state
+and full selected receipt reference. It defaults to `unknown` when no action is
+established. A terminal contributes `new`, `retained` or `blocked` evaluation
+disposition only while its history head equals the current head. A newer pending
+action cannot borrow a prior terminal or evaluation; a blocked terminal exposes
+its blocker and no selected evaluation. Receipt completion and job state remain
+separate facts. Regenerate strict clients together with this additive response.
+
 Transport permission/refusal tests, the typed OpenAPI success example, generated
 client drift and the SDK transport control are qualified in LANE-01's existing
 working state. Transport fixtures alone do not prove the completed-source reader
@@ -104,6 +113,28 @@ revalidate its current permission, selected phase and active lease before an
 effect. Authenticating a historical signed decision establishes its recorded
 verdict, not a current permit. Neither outcome prices an unpriced source,
 establishes VOI, admits observed data or authorizes publication.
+
+## `POST /api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute`
+
+Queue the selected bounded experiment using `CandidateExperimentRouteExecutionRequest`:
+`{"request": <the unchanged CandidateExperimentRouteMutationRequest>, "decision_ref": "sha256:…"}`.
+The HTTP authorization binds both outer fields under `EVIDENCE_ACQUIRE` and
+`ACQUISITION_APPROVAL` step-up. This transport proof is distinct from the original
+PA2/DS9 decision, which remains bound to the unchanged inner request. The caller's
+subject and tenant/cell must match that decision's authenticated scope.
+
+A new job and requested action head are published atomically. `accepted` pairs
+with `requested`; an exact retry may return `completed` with `terminal` only after
+the existing job, request and terminal history are verified. Failed or unresolved
+effects are not repeated. The worker reopens current authority, phase, source and
+lease before effects and independently checks finite physical quota and the
+original metered USD cap. Exhausting the last legitimate unit does not require a
+second unit to finalize the completed result.
+
+The endpoint provides no publication authority, observed-data admission, positive
+VOI or total-cost estimate. A transport test or queue response does not establish
+the full source→N5→terminal capability; current qualification and remaining
+producer/history work are recorded in the existing E02 working state.
 
 ## `GET /api/v1/runs`
 

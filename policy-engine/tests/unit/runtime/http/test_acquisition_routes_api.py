@@ -17,6 +17,8 @@ from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionActionServiceError,
     AcquisitionDecisionRequestResponse,
+    AcquisitionExecutionResponse,
+    CandidateExperimentRouteExecutionRequest,
     CandidateExperimentRouteMutationRequest,
     CandidateExperimentRouteProjection,
     CandidateExperimentRouteReplayPins,
@@ -38,6 +40,10 @@ _ROUTES = {
     (
         "POST",
         "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request",
+    ),
+    (
+        "POST",
+        "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute",
     ),
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request"),
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"),
@@ -96,6 +102,42 @@ def test_candidate_experiment_decision_route_has_exact_binding_and_step_up(
         for name, field in CandidateExperimentRouteMutationRequest.model_fields.items()
         if field.is_required()
     )
+    step_up = get_route_step_up_dependency(route, action_dependency=dependency)
+    assert step_up is not None
+    assert step_up.requirement.step_up_class is StepUpClass.ACQUISITION_APPROVAL
+
+
+def test_candidate_experiment_execute_route_has_exact_binding_and_step_up(
+    runtime_openapi_app,
+) -> None:
+    route = _route(
+        runtime_openapi_app,
+        "POST",
+        "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute",
+    )
+    assert route.operation_id == "execute_run_candidate_acquisition_experiment"
+    response_example = runtime_openapi_app.openapi()["paths"][route.path]["post"]["responses"][
+        "200"
+    ]["content"]["application/json"]["example"]
+    assert response_example == AcquisitionExecutionResponse(
+        run_id="run-example",
+        route_id="sha256:" + "a" * 64,
+        job_id="candidate-experiment-job-example",
+        authority_decision_ref="sha256:" + "b" * 64,
+    ).model_dump(mode="json")
+    dependency = get_route_action_permission_dependency(route)
+    assert dependency.requirement.permission is RuntimePermission.EVIDENCE_ACQUIRE
+    binding = dependency.requirement.resource_binding
+    assert binding.source is ResourceBindingSource.REQUEST_COMPOSITE
+    assert binding.resource_kind == "runtime.evidence.acquisition.candidate_experiment"
+    assert binding.selector_fields == tuple(CandidateExperimentRouteExecutionRequest.model_fields)
+    assert binding.selector_fields == ("request", "decision_ref")
+    assert binding.required_selector_fields == tuple(
+        name
+        for name, field in CandidateExperimentRouteExecutionRequest.model_fields.items()
+        if field.is_required()
+    )
+    assert binding.required_selector_fields == ("request", "decision_ref")
     step_up = get_route_step_up_dependency(route, action_dependency=dependency)
     assert step_up is not None
     assert step_up.requirement.step_up_class is StepUpClass.ACQUISITION_APPROVAL
@@ -258,6 +300,159 @@ def test_candidate_experiment_decision_transport_uses_bound_proof_and_step_up(
         bound_permission.verification.requirement.resource_binding.resource_kind
         == "runtime.evidence.acquisition.candidate_experiment"
     )
+
+
+def test_candidate_experiment_execute_transport_is_scoped_and_step_up_protected(
+    runtime_api_env,
+) -> None:
+    """Exercise HTTP/auth transport only; service authority remains separately verified."""
+    original_request = _candidate_experiment_request()
+    decision_ref = "sha256:" + "e" * 64
+    body = CandidateExperimentRouteExecutionRequest(
+        request=original_request,
+        decision_ref=decision_ref,
+    )
+    path = (
+        "/api/v1/runs/run-candidate-experiment/candidate-acquisition-experiment/"
+        f"{original_request.route_id}/execute"
+    )
+    calls: list[dict[str, object]] = []
+    completed_retry = False
+
+    def execute_candidate_experiment(
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        route_id: str,
+        request: CandidateExperimentRouteMutationRequest,
+        decision_ref: str,
+        request_id: str | None,
+        principal: object,
+    ) -> AcquisitionExecutionResponse:
+        status = "completed" if completed_retry else "accepted"
+        receipt_phase = "terminal" if completed_retry else "requested"
+        calls.append(
+            {
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
+                "run_id": run_id,
+                "route_id": route_id,
+                "request": request,
+                "decision_ref": decision_ref,
+                "request_id": request_id,
+                "principal": principal,
+            }
+        )
+        return AcquisitionExecutionResponse(
+            run_id=run_id,
+            route_id=route_id,
+            job_id="job-candidate-experiment",
+            authority_decision_ref=decision_ref,
+            status=status,
+            receipt_phase=receipt_phase,
+        )
+
+    service = SimpleNamespace(execute_candidate_experiment=execute_candidate_experiment)
+
+    permissionless_client, permissionless_token = _build_permissionless_client(runtime_api_env)
+    permissionless_client.app.dependency_overrides[get_acquisition_action_service] = lambda: (
+        service
+    )
+    try:
+        denied = permissionless_client.post(
+            path,
+            headers={
+                "Authorization": f"Bearer {permissionless_token}",
+                "X-Tenant-ID": runtime_api_env["tenant_a"],
+            },
+            json=body.model_dump(mode="json"),
+        )
+    finally:
+        permissionless_client.close()
+    assert denied.status_code == 403, denied.text
+    assert denied.json()["code"] == "action_permission_denied"
+    assert calls == []
+
+    secure_client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    bearer = _fixture_bearer("candidate-experiment-execute-step-up")
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-candidate-experiment-execute-step-up",
+            roles=frozenset({PolicyOSRole.ANALYST}),
+        ),
+    )
+    secure_client.app.dependency_overrides[get_acquisition_action_service] = lambda: service
+    headers = {
+        "Authorization": f"Bearer {bearer}",
+        "X-Tenant-ID": runtime_api_env["tenant_a"],
+    }
+    try:
+        missing_step_up = secure_client.post(
+            path,
+            headers=headers,
+            json=body.model_dump(mode="json"),
+        )
+        assert missing_step_up.status_code == 403, missing_step_up.text
+        assert missing_step_up.json()["code"] == "step_up_required"
+        assert calls == []
+
+        step_up = _install_bound_test_step_up(secure_client)
+        accepted = secure_client.post(
+            path,
+            headers={**headers, "X-PolicyOS-Step-Up": step_up},
+            json=body.model_dump(mode="json"),
+        )
+        completed_retry = True
+        retry_step_up = _install_bound_test_step_up(secure_client)
+        retry = secure_client.post(
+            path,
+            headers={**headers, "X-PolicyOS-Step-Up": retry_step_up},
+            json=body.model_dump(mode="json"),
+        )
+    finally:
+        secure_client.close()
+
+    assert accepted.status_code == 200, accepted.text
+    assert accepted.json() == {
+        "run_id": "run-candidate-experiment",
+        "route_id": original_request.route_id,
+        "job_id": "job-candidate-experiment",
+        "authority_decision_ref": decision_ref,
+        "status": "accepted",
+        "receipt_phase": "requested",
+        "world_growth": "not_established",
+    }
+    assert len(calls) == 2
+    call = calls[0]
+    assert call["tenant_id"] == runtime_api_env["tenant_a"]
+    assert call["cell_id"] == cell.cell_id
+    assert call["run_id"] == "run-candidate-experiment"
+    assert call["route_id"] == original_request.route_id
+    assert call["request"] == original_request
+    assert call["decision_ref"] == decision_ref
+    assert isinstance(call["request_id"], str) and call["request_id"]
+    principal = call["principal"]
+    assert principal.tenant_id == runtime_api_env["tenant_a"]
+    assert principal.cell_id == cell.cell_id
+    assert principal.authenticated is True
+    retry_call = calls[1]
+    assert retry_call["request"] == original_request
+    assert retry_call["decision_ref"] == decision_ref
+    assert retry_call["route_id"] == original_request.route_id
+
+    assert retry.status_code == 200, retry.text
+    assert retry.json()["status"] == "completed"
+    assert retry.json()["receipt_phase"] == "terminal"
+    assert retry.json()["world_growth"] == "not_established"
 
 
 def test_candidate_experiment_route_projects_candidate_and_fails_closed(

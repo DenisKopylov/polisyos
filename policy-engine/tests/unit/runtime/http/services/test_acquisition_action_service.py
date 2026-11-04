@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import hashlib
 from contextlib import asynccontextmanager
 from dataclasses import replace
+from datetime import UTC, datetime
+from pathlib import Path
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any
 
@@ -17,11 +20,18 @@ from polisyos.runtime.http.services import (
 from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionActionService,
     AcquisitionActionServiceError,
+    AcquisitionExecutionResponse,
     AcquisitionRouteMutationRequest,
+    CandidateExperimentCurrentActionProjection,
+    CandidateExperimentRouteExecutionRequest,
     CandidateExperimentRouteMutationRequest,
     CandidateExperimentRouteReplayPins,
 )
-from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionScope
+from polisyos.runtime.http.services.control_plane_store import (
+    AcquisitionActionHeadRecord,
+    ControlJobExecutionScope,
+)
+from polisyos.runtime.quality.acquisition_evaluation import AcquisitionSelectedEvaluation
 from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
     CandidateUnpricedPolicyScope,
 )
@@ -32,9 +42,12 @@ from polisyos.runtime.quality.agent_action_authority import (
     agent_action_content_hash,
 )
 from tests._helpers.acquisition_production import (
+    _baseline,
+    bind_fixture_l1_catalog_source,
     install_fixture_wdi_cost_basis,
     persist_wdi_route,
 )
+from tests.unit.runtime.quality.test_substrate_registry import _write_substrate_catalog_fixture
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -66,6 +79,7 @@ class _NeverAuthorityProvider:
 async def test_replayed_terminal_job_reads_cas_head_without_repeating_authority_or_effect(
     runtime_api_env,
     monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
 ) -> None:
     install_fixture_wdi_cost_basis(monkeypatch)
     with runtime_api_env["client"]:
@@ -78,12 +92,14 @@ async def test_replayed_terminal_job_reads_cas_head_without_repeating_authority_
         tenant_id = str(runtime_api_env["tenant_a"])
         cell_id = str(runtime_api_env["cell_a"])
         run_id = "run-dx0-terminal-replay"
+        fixture_repo_root = _prepare_native_n7_catalog_root(tmp_path / "native-n7-fixture-repo")
 
         async with _fixture_route(
             control,
             tenant_id=tenant_id,
             cell_id=cell_id,
             run_id=run_id,
+            generation_cycle_repo_root=fixture_repo_root,
         ) as closure:
             projection = service._projection(closure)
             request = AcquisitionRouteMutationRequest(
@@ -190,6 +206,7 @@ async def _fixture_route(
     tenant_id: str,
     cell_id: str,
     run_id: str,
+    generation_cycle_repo_root: Path,
 ) -> AsyncIterator[Any]:
     closure, _source = await persist_wdi_route(
         control,
@@ -197,8 +214,33 @@ async def _fixture_route(
         cell_id=cell_id,
         run_id=run_id,
         job_id="job-dx0-terminal-replay-source",
+        generation_cycle_repo_root=generation_cycle_repo_root,
     )
     yield closure
+
+
+def _prepare_native_n7_catalog_root(repo_root: Path) -> Path:
+    """Compose the existing bound L1 fixture and complete N7 catalog metadata."""
+    from polisyos.runtime.quality.substrate_registry import (
+        build_substrate_registry_from_existing_catalogs,
+        default_substrate_catalog_paths,
+    )
+
+    baseline = _baseline(repo_root)
+    baseline_digest = hashlib.sha256(baseline.read_bytes()).hexdigest()
+    bind_fixture_l1_catalog_source(
+        repo_root,
+        baseline,
+        include_n7_dataset_bundle=True,
+    )
+    _write_substrate_catalog_fixture(repo_root, include_graphs=False)
+    if hashlib.sha256(baseline.read_bytes()).hexdigest() != baseline_digest:
+        raise AssertionError("native_n7_fixture_catalog_metadata_replaced_owner_l1")
+    paths = default_substrate_catalog_paths(repo_root)
+    if paths.l1_dcat_path.resolve(strict=True) != baseline.resolve(strict=True):
+        raise AssertionError("native_n7_fixture_catalog_source_binding_mismatch")
+    build_substrate_registry_from_existing_catalogs(repo_root)
+    return repo_root
 
 
 def _candidate_experiment_action_fixture(
@@ -319,6 +361,289 @@ def test_candidate_experiment_action_tuple_binds_unpriced_source_and_decision_re
     assert agent_action_content_hash(policy_tuple[1]) != agent_action_content_hash(invocation)
 
 
+def test_candidate_experiment_worker_payload_is_not_coerced_to_costed_request() -> None:
+    """The explicit candidate discriminator reaches its strict owner-scope guard."""
+    _, request = _candidate_experiment_action_fixture()
+    service = object.__new__(AcquisitionActionService)
+    payload = {
+        "action_kind": CANDIDATE_EXPERIMENT_ACTION_KIND,
+        "tenant_id": "tenant-foreign",
+        "cell_id": "cell-action-test",
+        "run_id": "run-action-test",
+        "route_id": request.route_id,
+        "decision_ref": "sha256:" + "e" * 64,
+        "request": request.model_dump(mode="json"),
+    }
+    job = SimpleNamespace(kind="acquisition", run_id="run-action-test", state="running")
+    scope = ControlJobExecutionScope(
+        status="established",
+        tenant_id="tenant-action-test",
+        cell_id="cell-action-test",
+        actor_subject="candidate-worker-test",
+        actor_authenticated=True,
+        actor_roles=("analyst",),
+    )
+
+    payload["unbound_extra"] = "must not be accepted"
+    with pytest.raises(AcquisitionActionServiceError) as extra_field:
+        service.handle_job(job, payload, scope)
+    assert extra_field.value.code == "candidate_experiment_job_payload_fields_invalid"
+
+    del payload["unbound_extra"]
+    with pytest.raises(AcquisitionActionServiceError) as rejected:
+        service.handle_job(job, payload, scope)
+    assert rejected.value.code == "candidate_experiment_job_payload_scope_mismatch"
+
+
+def _candidate_selected_evaluation() -> AcquisitionSelectedEvaluation:
+    def ref(kind: str, digit: str) -> artifacts.ArtifactRef:
+        digest = "sha256:" + digit * 64
+        return artifacts.ArtifactRef(
+            artifact_id=digest,
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "f" * 64,
+        )
+
+    return AcquisitionSelectedEvaluation(
+        candidate_id="candidate-current-action",
+        candidate_content_hash="sha256:" + "1" * 64,
+        design_problem_ref="sha256:" + "2" * 64,
+        world_model_record_hash="sha256:" + "3" * 64,
+        evaluation_job_id="job-evaluation-current-action",
+        evaluation_run_id="run-current-action",
+        generation_run_id="generation-current-action",
+        cycle_index=0,
+        n4_source_ref=ref("runtime.quality.n4_candidate_scenario_source", "4"),
+        context_job_ref=ref("runtime.quality.cycle_substrate_context_job", "5"),
+        n5_input_ref=ref("runtime.quality.candidate_simulation_n5_input", "6"),
+        n5_execution_ref=ref("runtime.quality.candidate_simulation_execution", "7"),
+        n5_result_ref=ref("polisyos.runtime.joint_simulation_result", "8"),
+    )
+
+
+def _candidate_current_action_head(
+    *,
+    generation: int = 1,
+    receipt_phase: str = "candidate_input_reentry_pending",
+    coarse_phase: str = "candidate_input_prepared",
+    recovery_state: str = "reentry_recovery_required",
+) -> AcquisitionActionHeadRecord:
+    receipt_ref = "sha256:" + str(generation % 10) * 64
+    return AcquisitionActionHeadRecord(
+        tenant_id="tenant-current-action",
+        cell_id="cell-current-action",
+        run_id="run-current-action",
+        source_job_id="source-current-action",
+        route_id="sha256:" + "a" * 64,
+        action_generation=generation,
+        head_generation=generation,
+        receipt_ref=receipt_ref,
+        receipt_sha256=receipt_ref,
+        durable_event_id=f"event-current-action-{generation}",
+        coarse_phase=coarse_phase,
+        receipt_phase=receipt_phase,
+        recovery_state=recovery_state,
+        job_id=f"job-current-action-{generation}",
+        predecessor_receipt_ref=("sha256:" + "b" * 64) if generation > 1 else None,
+        created_at=datetime(2026, 11, 4, tzinfo=UTC),
+        receipt_manifest_profile_sha256="sha256:" + "f" * 64,
+    )
+
+
+def test_candidate_current_action_formatter_does_not_carry_forward_prior_terminal() -> None:
+    """Formatter only: an owner-adapted newer head cannot inherit prior evaluation status."""
+    current_head = _candidate_current_action_head(generation=2)
+    old_evaluation = _candidate_selected_evaluation()
+    selected_receipt_ref = artifacts.ArtifactRef(
+        artifact_id=current_head.receipt_ref,
+        kind="runtime_quality.acquisition_candidate_experiment_phase_receipt",
+        media_type="application/json",
+        manifest_profile_sha256=current_head.receipt_manifest_profile_sha256,
+    )
+
+    projected = AcquisitionActionService._format_candidate_experiment_current_action(
+        head=current_head,
+        job_state="running",
+        selected_receipt_ref=selected_receipt_ref,
+        current_terminal_head=_candidate_current_action_head(generation=1),
+        terminal_outcome="candidate_evaluation_retained",
+        selected_evaluation=old_evaluation,
+        blocker_reason="stale blocker must not survive",
+    )
+
+    assert projected.status == "in_progress"
+    assert projected.action_generation == 2
+    assert projected.receipt_phase == "candidate_input_reentry_pending"
+    assert projected.job_state == "running"
+    assert projected.terminal_outcome is None
+    assert projected.evaluation_disposition == "unknown"
+    assert projected.selected_evaluation is None
+    assert projected.blocker_reason is None
+
+
+@pytest.mark.parametrize(
+    ("terminal_outcome", "evaluation_disposition"),
+    [
+        ("candidate_reentry_completed", "new"),
+        ("candidate_evaluation_retained", "retained"),
+    ],
+)
+def test_candidate_current_action_formatter_projects_current_selected_evaluation(
+    terminal_outcome: str,
+    evaluation_disposition: str,
+) -> None:
+    """Formatter seam only: owner-selected terminal outcomes retain their declared relation."""
+    terminal_head = _candidate_current_action_head(
+        receipt_phase="terminal",
+        coarse_phase="terminal",
+        recovery_state="complete",
+    )
+    selected_receipt_ref = artifacts.ArtifactRef(
+        artifact_id=terminal_head.receipt_ref,
+        kind="runtime_quality.acquisition_route_loop_receipt",
+        media_type="application/json",
+        manifest_profile_sha256=terminal_head.receipt_manifest_profile_sha256,
+    )
+    selected_evaluation = _candidate_selected_evaluation()
+
+    projected = AcquisitionActionService._format_candidate_experiment_current_action(
+        head=terminal_head,
+        job_state="completed",
+        selected_receipt_ref=selected_receipt_ref,
+        current_terminal_head=terminal_head,
+        terminal_outcome=terminal_outcome,
+        selected_evaluation=selected_evaluation,
+    )
+
+    assert projected.status == "completed"
+    assert projected.terminal_outcome == terminal_outcome
+    assert projected.evaluation_disposition == evaluation_disposition
+    assert projected.selected_evaluation == selected_evaluation
+
+
+def test_candidate_current_action_formatter_keeps_blocked_terminal_unpriced_and_unselected() -> (
+    None
+):
+    """Formatter only: a current blocked terminal cannot publish a previous evaluation."""
+    terminal_head = _candidate_current_action_head(
+        receipt_phase="terminal",
+        coarse_phase="terminal",
+        recovery_state="complete",
+    )
+    selected_receipt_ref = artifacts.ArtifactRef(
+        artifact_id=terminal_head.receipt_ref,
+        kind="runtime_quality.acquisition_route_loop_receipt",
+        media_type="application/json",
+        manifest_profile_sha256=terminal_head.receipt_manifest_profile_sha256,
+    )
+
+    projected = AcquisitionActionService._format_candidate_experiment_current_action(
+        head=terminal_head,
+        job_state="completed",
+        selected_receipt_ref=selected_receipt_ref,
+        current_terminal_head=terminal_head,
+        terminal_outcome="candidate_blocked",
+        selected_evaluation=_candidate_selected_evaluation(),
+        blocker_reason="required prior evaluation is unavailable",
+    )
+
+    assert projected.status == "blocked"
+    assert projected.terminal_outcome == "candidate_blocked"
+    assert projected.evaluation_disposition == "blocked"
+    assert projected.selected_evaluation is None
+    assert projected.blocker_reason == "required prior evaluation is unavailable"
+
+
+def test_candidate_current_action_projection_keeps_absence_unknown_and_requires_profile() -> None:
+    absent = CandidateExperimentCurrentActionProjection()
+    assert absent.status == "unknown"
+    assert absent.evaluation_disposition == "unknown"
+    assert absent.action_generation is None
+
+    head = _candidate_current_action_head()
+    with pytest.raises(
+        ValueError,
+        match="candidate_experiment_current_projection_identity_missing",
+    ):
+        CandidateExperimentCurrentActionProjection(
+            action_generation=head.action_generation,
+            job_id=head.job_id,
+            job_state="running",
+            coarse_phase=head.coarse_phase,
+            receipt_phase=head.receipt_phase,
+            recovery_state=head.recovery_state,
+            selected_receipt_ref=artifacts.ArtifactRef(
+                artifact_id=head.receipt_ref,
+                kind="runtime_quality.acquisition_candidate_experiment_phase_receipt",
+                media_type="application/json",
+            ),
+        )
+
+    with pytest.raises(
+        ValueError,
+        match="candidate_experiment_completed_projection_missing_evaluation",
+    ):
+        CandidateExperimentCurrentActionProjection(
+            status="completed",
+            action_generation=1,
+            job_id="job-current-action-1",
+            job_state="completed",
+            coarse_phase="terminal",
+            receipt_phase="terminal",
+            recovery_state="complete",
+            selected_receipt_ref=artifacts.ArtifactRef(
+                artifact_id="sha256:" + "1" * 64,
+                kind="runtime_quality.acquisition_route_loop_receipt",
+                media_type="application/json",
+                manifest_profile_sha256="sha256:" + "f" * 64,
+            ),
+            terminal_outcome="candidate_reentry_completed",
+        )
+
+
+def test_candidate_experiment_execution_envelope_is_strict_and_preserves_decision_ref() -> None:
+    _, request = _candidate_experiment_action_fixture()
+    decision_ref = "sha256:" + "e" * 64
+    envelope = CandidateExperimentRouteExecutionRequest(
+        request=request,
+        decision_ref=decision_ref,
+    )
+    assert envelope.request is request
+    assert envelope.decision_ref == decision_ref
+    with pytest.raises(ValueError):
+        CandidateExperimentRouteExecutionRequest.model_validate(
+            {
+                **envelope.model_dump(mode="json"),
+                "execution_authority": "allowed",
+            }
+        )
+
+
+def test_completed_candidate_retry_response_preserves_terminal_status() -> None:
+    decision_ref = "sha256:" + "e" * 64
+    common = {
+        "run_id": "run-action-test",
+        "route_id": "sha256:" + "a" * 64,
+        "job_id": "candidate-action-test",
+        "authority_decision_ref": decision_ref,
+    }
+    accepted = AcquisitionExecutionResponse(**common)
+    completed = AcquisitionExecutionResponse(
+        **common,
+        status="completed",
+        receipt_phase="terminal",
+    )
+    assert (accepted.status, accepted.receipt_phase) == ("accepted", "requested")
+    assert (completed.status, completed.receipt_phase) == ("completed", "terminal")
+    for values in (
+        {**common, "status": "completed", "receipt_phase": "requested"},
+        {**common, "status": "accepted", "receipt_phase": "terminal"},
+    ):
+        with pytest.raises(ValueError, match="acquisition_execution_status_phase_mismatch"):
+            AcquisitionExecutionResponse(**values)
+
+
 @pytest.mark.asyncio
 async def test_execute_retries_bound_requested_and_terminal_action_identity(
     runtime_api_env,
@@ -345,6 +670,7 @@ async def test_execute_retries_bound_requested_and_terminal_action_identity(
         tenant_id = str(runtime_api_env["tenant_a"])
         cell_id = str(runtime_api_env["cell_a"])
         run_id = "run-dx0-requested-retry"
+        fixture_repo_root = _prepare_native_n7_catalog_root(tmp_path / "native-n7-fixture-repo")
 
         class _ControlledAuthorityProvider:
             def for_request(
@@ -400,6 +726,7 @@ async def test_execute_retries_bound_requested_and_terminal_action_identity(
             tenant_id=tenant_id,
             cell_id=cell_id,
             run_id=run_id,
+            generation_cycle_repo_root=fixture_repo_root,
         ) as closure:
             projection = service._projection(closure)
             request = AcquisitionRouteMutationRequest(

@@ -61,9 +61,11 @@ if TYPE_CHECKING:
         ResolvedAcquisitionEvaluation,
     )
     from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentTerminalReceipt,
         AcquisitionCandidateRouteLoopReceipt,
         AcquisitionRouteLoopReceiptV2,
         VerifiedAcquisitionRouteClosure,
+        VerifiedCandidateExperimentOrigin,
     )
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 
@@ -457,14 +459,17 @@ def read_candidate_acquisition_retained_continuation(
     control_store: ControlPlaneStore,
     ref: ArtifactRef,
     decision: CandidateAcquisitionEvaluationDecision,
-    terminal: AcquisitionCandidateRouteLoopReceipt,
-    prior_closure: VerifiedAcquisitionRouteClosure,
+    terminal: AcquisitionCandidateRouteLoopReceipt | AcquisitionCandidateExperimentTerminalReceipt,
+    prior_closure: VerifiedAcquisitionRouteClosure | None = None,
+    prior_experiment_origin: VerifiedCandidateExperimentOrigin | None = None,
 ) -> tuple[CandidateAcquisitionRetainedContinuation, ResolvedAcquisitionEvaluation]:
     """Replay one candidate-only continuation against its selected prior owner.
 
-    The caller must independently verify the terminal head, bounded prior route,
-    both basis comparisons, ledger window and commit. This reader neither opens
-    a live lease nor establishes historical catalog absence or currentness.
+    The caller supplies either the existing costed source closure or the
+    separately typed candidate-experiment origin. The caller must independently
+    verify the terminal head, selected owner-history chain, both basis comparisons,
+    ledger window and commit. This reader neither opens a live lease nor establishes
+    historical catalog absence or currentness.
     """
     from polisyos.runtime.quality.acquisition_evaluation import (
         CandidateAcquisitionEvaluationDecision,
@@ -479,8 +484,10 @@ def read_candidate_acquisition_retained_continuation(
         produce_acquisition_cost_basis_record,
     )
     from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentTerminalReceipt,
         AcquisitionCandidateRouteLoopReceipt,
         VerifiedAcquisitionRouteClosure,
+        VerifiedCandidateExperimentOrigin,
     )
     from polisyos.runtime.quality.generation_cycle import (
         _counterexample_record,
@@ -490,16 +497,147 @@ def read_candidate_acquisition_retained_continuation(
         _search_iteration,
     )
 
+    source_count = int(prior_closure is not None) + int(prior_experiment_origin is not None)
     if (
         type(decision) is not CandidateAcquisitionEvaluationDecision
-        or type(terminal) is not AcquisitionCandidateRouteLoopReceipt
-        or type(prior_closure) is not VerifiedAcquisitionRouteClosure
+        or type(terminal)
+        not in {AcquisitionCandidateRouteLoopReceipt, AcquisitionCandidateExperimentTerminalReceipt}
+        or source_count != 1
+        or (
+            prior_closure is not None and type(prior_closure) is not VerifiedAcquisitionRouteClosure
+        )
+        or (
+            prior_experiment_origin is not None
+            and type(prior_experiment_origin) is not VerifiedCandidateExperimentOrigin
+        )
+        or (
+            prior_closure is not None and type(terminal) is not AcquisitionCandidateRouteLoopReceipt
+        )
+        or (
+            prior_experiment_origin is not None
+            and type(terminal) is not AcquisitionCandidateExperimentTerminalReceipt
+        )
         or decision.comparison_result != "equivalent"
         or decision.predicate_provenance != "recomputed"
         or terminal.terminal_outcome != "candidate_evaluation_retained"
         or not _candidate_ref_same(terminal.current_continuation_ref, ref)
+        or (
+            type(terminal) is AcquisitionCandidateExperimentTerminalReceipt
+            and terminal.candidate_reentry_ref is not None
+        )
     ):
         raise ValueError("candidate_retained_owner_scope_not_established")
+    if prior_closure is not None:
+        prior_tenant_id = prior_closure.tenant_id
+        prior_cell_id = prior_closure.cell_id
+        prior_run_id = prior_closure.run_id
+        prior_source_job_id = prior_closure.source_job_id
+        prior_route_id = prior_closure.route_id
+        prior_compiled_ref = prior_closure.compiled_ref
+        prior_design_problem_ref = prior_closure.design_problem_ref
+        prior_design_problem_basis_ref = prior_closure.design_problem_basis_ref
+        prior_generation_run = prior_closure.generation_run
+        prior_source_cycle = prior_closure.source_cycle
+        prior_design_problem_basis = prior_closure.design_problem_basis
+    else:
+        if prior_experiment_origin is None:
+            raise ValueError("candidate_retained_experiment_source_not_established")
+        if type(terminal) is not AcquisitionCandidateExperimentTerminalReceipt:
+            raise ValueError("candidate_retained_experiment_source_not_established")
+        experiment_terminal = terminal
+        scope = prior_experiment_origin.policy_scope
+        root_source_cycle = prior_experiment_origin.source_cycle
+        root_generation_run = prior_experiment_origin.generation_run
+        from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+            CandidateUnpricedPolicyScope,
+        )
+        from polisyos.runtime.quality.generation_cycle import (
+            GenerationCycleRecord,
+            GenerationCycleRun,
+            _problem_ref,
+        )
+
+        if (
+            type(root_source_cycle) is not GenerationCycleRecord
+            or type(root_generation_run) is not GenerationCycleRun
+            or type(scope) is not CandidateUnpricedPolicyScope
+            or type(prior_experiment_origin.design_problem_basis) is not DesignProblem
+            or root_generation_run.run_id != prior_experiment_origin.run_id
+            or root_generation_run.design_problem_ref != scope.design_problem_ref
+            or tuple(
+                cycle
+                for cycle in root_generation_run.cycles
+                if cycle.cycle_index == root_source_cycle.cycle_index
+            )
+            != (root_source_cycle,)
+            or prior_experiment_origin.schema_version
+            != "polisyos.runtime.candidate_experiment_origin.v1"
+            or prior_experiment_origin.monetary_cost != "not_established"
+            or prior_experiment_origin.action_authority != "not_established"
+            or scope.source_cycle_index != root_source_cycle.cycle_index
+            or scope.source_job_id != prior_experiment_origin.source_job_id
+            or scope.tenant_id != prior_experiment_origin.tenant_id
+            or scope.cell_id != prior_experiment_origin.cell_id
+            or scope.run_id != prior_experiment_origin.run_id
+            or scope.candidate_id != root_source_cycle.selected_candidate_ref
+            or scope.candidate_content_hash != root_source_cycle.selected_candidate_content_hash
+            or not _candidate_ref_same(scope.compiled_ref, scope.compiled_ref)
+            or _problem_ref(prior_experiment_origin.design_problem_basis)
+            != scope.design_problem_basis_ref
+            or str(scope.compiled_ref.artifact_id) != decision.compiled_ref
+            or scope.design_problem_ref != decision.design_problem_ref
+            or scope.design_problem_basis_ref != decision.design_problem_basis_ref
+            or prior_experiment_origin.route_id != decision.route_id
+        ):
+            raise ValueError("candidate_retained_experiment_source_not_established")
+        effective_source_cycle = prior_experiment_origin.effective_source_cycle
+        effective_generation_run = prior_experiment_origin.effective_generation_run
+        if (
+            type(effective_source_cycle) is not GenerationCycleRecord
+            or type(effective_generation_run) is not GenerationCycleRun
+            or effective_generation_run.run_id != root_generation_run.run_id
+            or effective_generation_run.design_problem_ref != root_generation_run.design_problem_ref
+            or not effective_generation_run.cycles
+            or effective_generation_run.cycles[-1] != effective_source_cycle
+            or tuple(
+                cycle
+                for cycle in effective_generation_run.cycles
+                if cycle.cycle_index == effective_source_cycle.cycle_index
+            )
+            != (effective_source_cycle,)
+            or effective_source_cycle.cycle_index < root_source_cycle.cycle_index
+            or scope.candidate_id != effective_source_cycle.selected_candidate_ref
+            or scope.candidate_id != decision.candidate_id
+            or effective_source_cycle.selected_candidate_content_hash
+            != decision.source_candidate_content_hash
+        ):
+            raise ValueError("candidate_retained_experiment_source_not_established")
+        prior_tenant_id = prior_experiment_origin.tenant_id
+        prior_cell_id = prior_experiment_origin.cell_id
+        prior_run_id = prior_experiment_origin.run_id
+        prior_source_job_id = prior_experiment_origin.source_job_id
+        prior_route_id = prior_experiment_origin.route_id
+        prior_compiled_ref = str(scope.compiled_ref.artifact_id)
+        prior_design_problem_ref = scope.design_problem_ref
+        prior_design_problem_basis_ref = scope.design_problem_basis_ref
+        prior_generation_run = effective_generation_run
+        prior_source_cycle = effective_source_cycle
+        prior_design_problem_basis = prior_experiment_origin.design_problem_basis
+        if (
+            not _candidate_model_values_same(experiment_terminal.policy_scope, scope)
+            or not _candidate_ref_same(
+                experiment_terminal.policy_ref, prior_experiment_origin.policy_ref
+            )
+            or experiment_terminal.source_payload_ref != prior_experiment_origin.source_payload_ref
+            or experiment_terminal.capability_manifest_ref
+            != prior_experiment_origin.capability_manifest_ref
+            or experiment_terminal.request_content_hash
+            != prior_experiment_origin.request_content_hash
+            or not _candidate_model_values_same(
+                experiment_terminal.voi_decision, root_source_cycle.voi_decision
+            )
+        ):
+            raise ValueError("candidate_retained_experiment_source_not_established")
     record = read_acquisition_evaluation_artifact(
         store=store,
         event_log=event_log,
@@ -534,9 +672,10 @@ def read_candidate_acquisition_retained_continuation(
         or record.action_job_id != terminal.job_id
         or record.action_generation != terminal.action_generation
         or record.compiled_ref != terminal.compiled_ref
-        or record.design_problem_ref != prior_closure.design_problem_ref
+        or record.compiled_ref != prior_compiled_ref
+        or record.design_problem_ref != prior_design_problem_ref
         or record.design_problem_basis_ref != decision.design_problem_basis_ref
-        or record.design_problem_basis_ref != prior_closure.design_problem_basis_ref
+        or record.design_problem_basis_ref != prior_design_problem_basis_ref
         or not _candidate_ref_same(record.candidate_action_ref, decision.candidate_action_ref)
         or not _candidate_ref_same(record.candidate_action_ref, terminal.candidate_action_ref)
         or not _candidate_ref_same(
@@ -557,35 +696,32 @@ def read_candidate_acquisition_retained_continuation(
         )
         or (record.tenant_id, record.cell_id, record.run_id, record.source_job_id, record.route_id)
         != (
-            prior_closure.tenant_id,
-            prior_closure.cell_id,
-            prior_closure.run_id,
-            prior_closure.source_job_id,
-            prior_closure.route_id,
+            prior_tenant_id,
+            prior_cell_id,
+            prior_run_id,
+            prior_source_job_id,
+            prior_route_id,
         )
     ):
         raise ValueError("candidate_retained_selected_join_mismatch")
     prior = resolve_selected_acquisition_evaluation_parts(
         artifact_store=store,
         control_store=control_store,
-        tenant_id=prior_closure.tenant_id,
-        cell_id=prior_closure.cell_id,
-        run_id=prior_closure.run_id,
-        generation_run=prior_closure.generation_run,
-        source_cycle=prior_closure.source_cycle,
-        design_problem_ref=prior_closure.design_problem_ref,
+        tenant_id=prior_tenant_id,
+        cell_id=prior_cell_id,
+        run_id=prior_run_id,
+        generation_run=prior_generation_run,
+        source_cycle=prior_source_cycle,
+        design_problem_ref=prior_design_problem_ref,
     )
-    if (
-        prior.source.problem != prior_closure.design_problem_basis
-        or not _candidate_model_values_same(
-            prior.selected.model_copy(update={"basis_ref": record.retained_evaluation.basis_ref}),
-            record.retained_evaluation,
-        )
+    if prior.source.problem != prior_design_problem_basis or not _candidate_model_values_same(
+        prior.selected.model_copy(update={"basis_ref": record.retained_evaluation.basis_ref}),
+        record.retained_evaluation,
     ):
         raise ValueError("candidate_retained_prior_evaluation_mismatch")
     projection = record.current_projection
     routing = projection.value_port.candidate_n5_l1_routing
-    previous_routing = prior_closure.source_cycle.value_port.candidate_n5_l1_routing
+    previous_routing = prior_source_cycle.value_port.candidate_n5_l1_routing
     if routing is None or (
         previous_routing is not None and routing.requirement_gap != previous_routing.requirement_gap
     ):

@@ -1674,6 +1674,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Execute Run Candidate Acquisition Experiment
+     * @description Queue a candidate experiment from its exact request and PA2 decision ref.
+     */
+    post: operations["execute_run_candidate_acquisition_experiment"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/runs/{run_id}/case-inspection": {
     parameters: {
       query?: never;
@@ -2291,9 +2311,9 @@ export interface components {
       /**
        * Receipt Phase
        * @default requested
-       * @constant
+       * @enum {string}
        */
-      receipt_phase: "requested";
+      receipt_phase: "requested" | "terminal";
       /** Route Id */
       route_id: string;
       /** Run Id */
@@ -2301,9 +2321,9 @@ export interface components {
       /**
        * Status
        * @default accepted
-       * @constant
+       * @enum {string}
        */
-      status: "accepted";
+      status: "accepted" | "completed";
       /**
        * World Growth
        * @default not_established
@@ -2603,6 +2623,34 @@ export interface components {
       recorded_rederive_inputs: {
         [key: string]: components["schemas"]["ProjectionJsonValue"];
       };
+    };
+    /**
+     * AcquisitionSelectedEvaluation
+     * @description Exact evaluation occurrence selected by the verified route accumulator.
+     */
+    AcquisitionSelectedEvaluation: {
+      basis_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /** Candidate Content Hash */
+      candidate_content_hash: string;
+      /** Candidate Id */
+      candidate_id: string;
+      context_job_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Cycle Index */
+      cycle_index: number;
+      /** Design Problem Ref */
+      design_problem_ref: string;
+      /** Evaluation Job Id */
+      evaluation_job_id: string;
+      /** Evaluation Run Id */
+      evaluation_run_id: string;
+      /** Generation Run Id */
+      generation_run_id: string;
+      n4_source_ref: components["schemas"]["ArtifactRef-Output"];
+      n5_execution_ref: components["schemas"]["ArtifactRef-Output"];
+      n5_input_ref: components["schemas"]["ArtifactRef-Output"];
+      n5_result_ref: components["schemas"]["ArtifactRef-Output"];
+      /** World Model Record Hash */
+      world_model_record_hash: string;
     };
     /**
      * AgentPipelineAttempt
@@ -4831,6 +4879,73 @@ export interface components {
       source?: components["schemas"]["CompletedMethodHTESource"] | null;
     };
     /**
+     * CandidateExperimentCurrentActionProjection
+     * @description Read-only status of the current verified candidate-experiment action.
+     */
+    CandidateExperimentCurrentActionProjection: {
+      /** Action Generation */
+      action_generation?: number | null;
+      /** Blocker Reason */
+      blocker_reason?: string | null;
+      /** Coarse Phase */
+      coarse_phase?:
+        | ("requested" | "executing" | "candidate_input_prepared" | "terminal")
+        | null;
+      /**
+       * Evaluation Disposition
+       * @default unknown
+       * @enum {string}
+       */
+      evaluation_disposition: "unknown" | "new" | "retained" | "blocked";
+      /** Job Id */
+      job_id?: string | null;
+      /** Job State */
+      job_state?:
+        | ("pending" | "running" | "completed" | "failed" | "cancelled")
+        | null;
+      /** Receipt Phase */
+      receipt_phase?:
+        | (
+            | "requested"
+            | "executing"
+            | "outcome_selected"
+            | "candidate_input_reentry_pending"
+            | "terminal"
+          )
+        | null;
+      /** Recovery State */
+      recovery_state?:
+        | ("none" | "reentry_recovery_required" | "complete")
+        | null;
+      selected_evaluation?:
+        | components["schemas"]["AcquisitionSelectedEvaluation"]
+        | null;
+      selected_receipt_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /**
+       * Status
+       * @default unknown
+       * @enum {string}
+       */
+      status: "unknown" | "in_progress" | "completed" | "blocked";
+      /** Terminal Outcome */
+      terminal_outcome?:
+        | (
+            | "candidate_reentry_completed"
+            | "candidate_evaluation_retained"
+            | "candidate_blocked"
+          )
+        | null;
+    };
+    /**
+     * CandidateExperimentRouteExecutionRequest
+     * @description Exact persisted decision selected for one candidate-experiment execution.
+     */
+    CandidateExperimentRouteExecutionRequest: {
+      /** Decision Ref */
+      decision_ref: string;
+      request: components["schemas"]["CandidateExperimentRouteMutationRequest"];
+    };
+    /**
      * CandidateExperimentRouteMutationRequest
      * @description Optimistic pins only; permission and live action owners remain separate.
      */
@@ -4856,6 +4971,7 @@ export interface components {
       action_authority: "not_established";
       /** Cell Id */
       cell_id: string;
+      current_action?: components["schemas"]["CandidateExperimentCurrentActionProjection"];
       /**
        * Information Value
        * @default not_established
@@ -32785,6 +32901,108 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["AcquisitionDecisionRequestResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  execute_run_candidate_acquisition_experiment: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+        route_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CandidateExperimentRouteExecutionRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "authority_decision_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+           *       "job_id": "candidate-experiment-job-example",
+           *       "receipt_phase": "requested",
+           *       "route_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+           *       "run_id": "run-example",
+           *       "status": "accepted",
+           *       "world_growth": "not_established"
+           *     }
+           */
+          "application/json": components["schemas"]["AcquisitionExecutionResponse"];
         };
       };
       /** @description Malformed request payload or parameters. */

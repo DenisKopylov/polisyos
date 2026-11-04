@@ -66,6 +66,22 @@ class _EventSpec:
 
 _SPECS = (
     _EventSpec(
+        "candidate_experiment_terminal.v1",
+        _ROUTE_SOURCE,
+        _ROUTE_PRODUCER,
+        _ROUTE_VERSION,
+        "acquisition_route_loop",
+        "acquisition_candidate_experiment_terminal",
+    ),
+    _EventSpec(
+        "candidate_experiment_phase.v1",
+        _ROUTE_SOURCE,
+        _ROUTE_PRODUCER,
+        _ROUTE_VERSION,
+        "acquisition_route_loop",
+        "acquisition_candidate_experiment_phase",
+    ),
+    _EventSpec(
         "route_loop.v2",
         _ROUTE_SOURCE,
         _ROUTE_PRODUCER,

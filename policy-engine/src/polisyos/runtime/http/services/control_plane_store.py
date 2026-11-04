@@ -1497,8 +1497,6 @@ def _validate_acquisition_evaluation_frontier_cas(
         _validate_acquisition_evaluation_frontier_value(frontier_cas.replacement)
     elif require_replacement:
         raise ValueError("acquisition_evaluation_frontier_replacement_required")
-    elif frontier_cas.expected_revision == 0:
-        raise ValueError("acquisition_evaluation_frontier_not_established")
 
 
 def _acquisition_evaluation_frontier_ref(
@@ -4712,7 +4710,7 @@ class ControlPlaneStore:
         frontier_cas: AcquisitionEvaluationFrontierCAS,
         *,
         require_replacement: bool = False,
-    ) -> AcquisitionEvaluationFrontierRecord:
+    ) -> AcquisitionEvaluationFrontierRecord | None:
         """Compare and append one selected evaluation under the owning SQL transaction."""
 
         _validate_acquisition_evaluation_frontier_cas(
@@ -4760,8 +4758,10 @@ class ControlPlaneStore:
         ):
             raise ValueError("acquisition_evaluation_frontier_conflict")
         if frontier_cas.replacement is None:
+            if current_revision == 0 and current_ref is None:
+                return None
             if current_revision < 1 or current_ref is None:
-                raise ValueError("acquisition_evaluation_frontier_not_established")
+                raise ValueError("acquisition_evaluation_frontier_head_corrupt")
             record = self.get_acquisition_evaluation_frontier_by_ref(current_ref)
             if record is None or record.key != key or record.revision != current_revision:
                 raise RuntimeError("acquisition_evaluation_frontier_head_history_mismatch")
@@ -5298,6 +5298,8 @@ class ControlPlaneStore:
         """Append an action head and condition the shared evaluation frontier atomically."""
 
         _validate_acquisition_evaluation_frontier_cas(frontier_cas)
+        if frontier_cas.replacement is None and frontier_cas.expected_revision == 0:
+            raise ValueError("acquisition_evaluation_frontier_check_only_requires_action_head")
         head = self.advance_acquisition_action_head(
             tenant_id=tenant_id,
             cell_id=cell_id,

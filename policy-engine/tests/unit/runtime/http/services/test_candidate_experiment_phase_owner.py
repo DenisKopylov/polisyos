@@ -89,7 +89,7 @@ def _phase() -> AcquisitionCandidateExperimentPhaseReceipt:
     )
 
 
-def test_empty_experiment_history_is_empty_and_uncomposed_writer_fails_closed(
+def test_empty_experiment_history_is_empty_and_requested_phase_requires_atomic_publish(
     tmp_path: Path,
 ) -> None:
     """A typed phase cannot become a head without the real source and PA2 owners."""
@@ -113,7 +113,9 @@ def test_empty_experiment_history_is_empty_and_uncomposed_writer_fails_closed(
         )
         == ()
     )
-    with pytest.raises(ValueError, match="candidate_experiment_source_not_current"):
+    with pytest.raises(
+        ValueError, match="candidate_experiment_requested_phase_requires_atomic_job_publish"
+    ):
         sink.persist_experiment_phase(phase)
     assert sink.get_head(phase) is None
     assert event_log.list_events(run_id=phase.run_id, job_id=phase.job_id, limit=10) == []

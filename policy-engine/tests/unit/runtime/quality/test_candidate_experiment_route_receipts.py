@@ -301,6 +301,14 @@ def test_retained_terminal_binds_selected_basis_and_execution_view() -> None:
     }
     terminal = AcquisitionCandidateExperimentTerminalReceipt.model_validate(data)
     assert terminal.selected_evaluation == selected
+    advanced_selected = selected.model_copy(
+        update={"candidate_content_hash": _hash("b"), "cycle_index": 1}
+    )
+    advanced_terminal = AcquisitionCandidateExperimentTerminalReceipt.model_validate(
+        {**data, "selected_evaluation": advanced_selected}
+    )
+    assert advanced_terminal.selected_evaluation == advanced_selected
+    assert advanced_terminal.publication_authority is False
     changed_view = execution.model_copy(update={"manifest_profile_sha256": _hash("e")})
     with pytest.raises(ValidationError, match="candidate_experiment_terminal_evaluation_mismatch"):
         AcquisitionCandidateExperimentTerminalReceipt.model_validate(
@@ -308,7 +316,6 @@ def test_retained_terminal_binds_selected_basis_and_execution_view() -> None:
         )
     for foreign in (
         {"candidate_id": "candidate-b"},
-        {"candidate_content_hash": _hash("b")},
         {"design_problem_ref": _hash("1")},
         {"evaluation_run_id": "foreign-run"},
     ):

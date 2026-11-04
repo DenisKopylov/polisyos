@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionWorldGrowthBridge,
     )
+    from polisyos.scientist.orchestration.engine import BudgetLedgerReentryBudgetWindow
 
 CANDIDATE_ACTION_KIND = "runtime_quality.acquisition_candidate_action_receipt"
 CANDIDATE_ACTION_SCHEMA = "polisyos.runtime.CandidateAcquisitionActionReceipt"
@@ -222,6 +223,8 @@ def _candidate_experiment_source_selection(
         or policy.request_content_hash != origin.request_content_hash
         or policy.original_metered_budget_usd != experiment_evidence.run_budget_usd
         or experiment_evidence.request_content_hash != origin.request_content_hash
+        or experiment_evidence.run_budget_usd is None
+        or experiment_evidence.run_budget_usd <= 0
     ):
         raise ValueError("candidate_experiment_source_policy_changed")
 
@@ -348,7 +351,10 @@ def _candidate_experiment_source_selection(
         country_code=constraints.country_code,
         year=constraints.start_year,
         population=spec.scope.population,
-        reentry_budget_usd=policy.configured_template.max_metered_reentry_usd,
+        reentry_budget_usd=min(
+            policy.configured_template.max_metered_reentry_usd,
+            experiment_evidence.run_budget_usd,
+        ),
     )
 
 
@@ -367,16 +373,43 @@ def _same_candidate_experiment_origin_source(
     )
 
 
+def _selected_candidate_experiment_phase_ref(
+    bridge: AcquisitionWorldGrowthBridge,
+    phase: AcquisitionCandidateExperimentPhaseReceipt,
+    phase_ref: str,
+) -> artifacts.ArtifactRef:
+    """Resolve the selected full CAS view for one exact typed experiment phase."""
+    from polisyos.core.artifacts import artifact_ref_for_manifest
+
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}", phase_ref):
+        raise ValueError("candidate_experiment_phase_ref_invalid")
+    manifest = bridge.artifact_store.get_manifest(phase_ref)
+    selected_ref = artifact_ref_for_manifest(manifest)
+    if (
+        str(selected_ref.artifact_id) != phase_ref
+        or selected_ref.manifest_profile_sha256 is None
+        or manifest.kind != "runtime_quality.acquisition_candidate_experiment_phase_receipt"
+        or artifacts.load_core_json_artifact(bridge.artifact_store, selected_ref)
+        != phase.model_dump(mode="json")
+    ):
+        raise ValueError("candidate_experiment_phase_profile_unselected")
+    return selected_ref
+
+
 def _current_candidate_experiment_action(
     bridge: AcquisitionWorldGrowthBridge,
     origin: VerifiedCandidateExperimentOrigin,
     action_phase_ref: str,
+    *,
+    required_phase: Literal["executing", "candidate_input_reentry_pending"] = "executing",
+    candidate_action_ref: artifacts.ArtifactRef | None = None,
 ) -> tuple[
     AcquisitionCandidateSourceRoute,
     AcquisitionCandidateExperimentPhaseReceipt,
     ControlJobExecutionAdmission,
 ]:
     """Resolve the exact current experiment phase and separate live acquisition lease."""
+    from polisyos.core.artifacts import artifact_ref_for_manifest
     from polisyos.runtime.http.services.control.run_lifecycle import (
         VerifiedAcquisitionActionOutcome,
     )
@@ -442,9 +475,24 @@ def _current_candidate_experiment_action(
     if (
         phase_record.receipt_ref != action_phase_ref
         or phase_record.receipt != phase
-        or phase.receipt_phase != "executing"
-        or outcome.executing_phase_ref != action_phase_ref
-        or outcome.executing_phase != phase
+        or phase.receipt_phase != required_phase
+        or (
+            required_phase == "executing"
+            and (
+                outcome.executing_phase_ref != action_phase_ref
+                or outcome.executing_phase != phase
+                or candidate_action_ref is not None
+            )
+        )
+        or (
+            required_phase == "candidate_input_reentry_pending"
+            and (
+                candidate_action_ref is None
+                or phase.candidate_receipt_ref != candidate_action_ref
+                or candidate_action_ref.kind != CANDIDATE_ACTION_KIND
+                or candidate_action_ref.manifest_profile_sha256 is None
+            )
+        )
         or phase.tenant_id != origin.tenant_id
         or phase.cell_id != origin.cell_id
         or phase.run_id != origin.run_id
@@ -459,6 +507,34 @@ def _current_candidate_experiment_action(
         or phase.job_id != head.job_id
     ):
         raise ValueError("candidate_experiment_action_phase_binding_mismatch")
+
+    if required_phase == "candidate_input_reentry_pending":
+        if candidate_action_ref is None:
+            raise ValueError("candidate_experiment_reentry_action_missing")
+        payload = artifacts.load_core_json_artifact(bridge.artifact_store, candidate_action_ref)
+        receipt = CandidateAcquisitionActionReceipt.model_validate(payload)
+        executing_records = tuple(
+            record
+            for record in outcome.phase_chain
+            if getattr(record, "receipt_ref", None) == receipt.action_phase_ref
+        )
+        if len(executing_records) != 1:
+            raise ValueError("candidate_experiment_reentry_executing_phase_missing")
+        executing_phase = getattr(executing_records[0], "receipt", None)
+        if type(executing_phase) is not AcquisitionCandidateExperimentPhaseReceipt:
+            raise ValueError("candidate_experiment_reentry_executing_phase_untyped")
+        selected_phase_ref = artifact_ref_for_manifest(
+            bridge.artifact_store.get_manifest(receipt.action_phase_ref)
+        )
+        if str(selected_phase_ref.artifact_id) != receipt.action_phase_ref:
+            raise ValueError("candidate_experiment_reentry_phase_profile_missing")
+        read_candidate_experiment_acquisition_action_historical(
+            bridge=bridge,
+            origin=current_origin,
+            receipt_ref=candidate_action_ref,
+            executing_phase=executing_phase,
+            executing_phase_ref=receipt.action_phase_ref,
+        )
 
     admission = bridge.control_store.current_execution_job_admission()
     job = admission.job
@@ -487,10 +563,73 @@ def _current_candidate_experiment_action(
     if (
         current_head != head
         or after != admission
+        or service.acquisition_route_sink.experiment_action_outcomes(
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            run_id=origin.run_id,
+            source_job_id=origin.source_job_id,
+            route_id=origin.route_id,
+        )
+        != outcomes
         or _candidate_experiment_source_selection(bridge, current_origin) != selected
     ):
         raise ValueError("candidate_experiment_action_live_owner_changed")
     return selected, phase, admission
+
+
+def _current_candidate_experiment_reentry_action(
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    pending_phase_ref: str,
+    candidate_action_ref: artifacts.ArtifactRef,
+) -> tuple[
+    AcquisitionCandidateSourceRoute,
+    AcquisitionCandidateExperimentPhaseReceipt,
+    ControlJobExecutionAdmission,
+    CandidateAcquisitionActionReceipt,
+]:
+    """Resolve a pending reentry phase, its selected action, and current live lease."""
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentPhaseReceipt,
+    )
+
+    selection, phase, admission = _current_candidate_experiment_action(
+        bridge,
+        origin,
+        pending_phase_ref,
+        required_phase="candidate_input_reentry_pending",
+        candidate_action_ref=candidate_action_ref,
+    )
+    if type(phase) is not AcquisitionCandidateExperimentPhaseReceipt:
+        raise ValueError("candidate_experiment_reentry_phase_untyped")
+    payload = artifacts.load_core_json_artifact(bridge.artifact_store, candidate_action_ref)
+    receipt = CandidateAcquisitionActionReceipt.model_validate(payload)
+    outcomes = bridge.action_head_sink.experiment_action_outcomes(
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        run_id=origin.run_id,
+        source_job_id=origin.source_job_id,
+        route_id=origin.route_id,
+    )
+    if len(outcomes) != 1:
+        raise ValueError("candidate_experiment_reentry_history_not_unique")
+    executing_refs = tuple(
+        record
+        for record in outcomes[0].phase_chain
+        if getattr(record, "receipt_ref", None) == receipt.action_phase_ref
+    )
+    if len(executing_refs) != 1 or getattr(executing_refs[0], "receipt", None) is None:
+        raise ValueError("candidate_experiment_reentry_executing_phase_missing")
+    verified_receipt, _source, _window = read_candidate_experiment_acquisition_action_historical(
+        bridge=bridge,
+        origin=origin,
+        receipt_ref=candidate_action_ref,
+        executing_phase=executing_refs[0].receipt,
+        executing_phase_ref=receipt.action_phase_ref,
+    )
+    if verified_receipt != receipt or receipt.selection != selection:
+        raise ValueError("candidate_experiment_reentry_action_changed")
+    return selection, phase, admission, receipt
 
 
 def _compiler_binding(
@@ -699,6 +838,477 @@ def persist_candidate_acquisition_action(
         bridge=bridge, closure=closure, receipt_ref=selected_ref, require_current_action=True
     )
     return selected_ref, receipt
+
+
+def persist_candidate_experiment_acquisition_action(
+    *,
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    binding: WorldBankWDIRouteExecutionBinding,
+    evidence: LiveSourceExecutionEvidence,
+    action_phase_ref: str,
+) -> tuple[artifacts.ArtifactRef, CandidateAcquisitionActionReceipt]:
+    """Persist a candidate source under the exact experiment phase and live lease."""
+    from polisyos.runtime.http.services.acquisition_surface_execution import (
+        WorldBankWDIRouteExecutionBinding,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentPhaseReceipt,
+    )
+    from polisyos.runtime.quality.agent_action_authority import reconcile_authority_ref
+    from polisyos.runtime.quality.candidate_acquisition_source import (
+        validate_candidate_acquisition_selection,
+    )
+
+    if type(binding) is not WorldBankWDIRouteExecutionBinding:
+        raise TypeError("candidate_experiment_route_binding_untyped")
+    selection, phase, admission = _current_candidate_experiment_action(
+        bridge, origin, action_phase_ref
+    )
+    if type(phase) is not AcquisitionCandidateExperimentPhaseReceipt:
+        raise ValueError("candidate_experiment_phase_untyped")
+    _pointer, selector = bridge._load_action_selector(selection, action_phase_ref)
+    if (
+        selector is None
+        or selector.state != "executing"
+        or selector.candidate_budget_window_id is None
+        or selector.candidate_budget_window_digest is None
+    ):
+        raise ValueError("candidate_experiment_budget_window_missing")
+    if (
+        binding.tenant_id != origin.tenant_id
+        or binding.cell_id != origin.cell_id
+        or binding.run_id != origin.run_id
+        or binding.route_id != origin.route_id
+        or binding.target_variable != selection.target_slot_id
+        or binding.constraints.country_code != selection.country_code
+        or binding.constraints.start_year != selection.year
+        or binding.constraints.end_year != selection.year
+        or evidence.authorization.attempt_id != binding.attempt_id
+    ):
+        raise ValueError("candidate_experiment_execution_binding_mismatch")
+    basis = origin.planner_report.requirement_basis_binding
+    if basis is None:
+        raise ValueError("candidate_experiment_compiler_basis_missing")
+    candidate, resolved_source = validate_candidate_acquisition_selection(
+        bridge.artifact_store,
+        requirement_basis_binding=basis,
+        compiled_requirement_ref=selection.compiled_requirement_ref,
+        requirement_id=selection.requirement_id,
+        candidate_digest=selection.candidate_digest,
+        authority=bridge.authority,
+        entry_id=binding.authority_entry_id,
+        target_slot_id=selection.target_slot_id,
+        country_code=selection.country_code,
+        year=selection.year,
+        population=selection.population,
+    )
+    if candidate.content_digest != selection.candidate_digest:
+        raise ValueError("candidate_experiment_compiler_candidate_changed")
+    if binding.authority_entry_id != resolved_source.entry.entry_id:
+        raise ValueError("candidate_experiment_execution_entry_changed")
+    source_ref = persist_candidate_acquisition_source(
+        bridge.artifact_store,
+        authority=bridge.authority,
+        entry_id=binding.authority_entry_id,
+        live_source_execution=evidence,
+        requirement_basis_binding=basis,
+        requirement_id=selection.requirement_id,
+        candidate_digest=selection.candidate_digest,
+        target_slot_id=selection.target_slot_id,
+        country_code=selection.country_code,
+        year=selection.year,
+        population=selection.population,
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        run_id=origin.run_id,
+        job_id=phase.job_id,
+        route_id=origin.route_id,
+    )
+    source = read_candidate_acquisition_source(
+        bridge.artifact_store, source_ref=source_ref, authority=bridge.authority
+    )
+    if source.resolved_source != resolved_source:
+        raise ValueError("candidate_experiment_source_entry_changed")
+    phase_ref = artifacts.artifact_ref_for_manifest(
+        bridge.artifact_store.get_manifest(action_phase_ref)
+    )
+    if (
+        str(phase_ref.artifact_id) != action_phase_ref
+        or phase_ref.manifest_profile_sha256 is None
+        or artifacts.load_core_json_artifact(bridge.artifact_store, phase_ref)
+        != phase.model_dump(mode="json")
+        or reconcile_authority_ref(
+            artifact_store=bridge.artifact_store,
+            event_log=bridge.event_log,
+            cas_ref=phase_ref,
+            expected_tenant_id=origin.tenant_id,
+            expected_cell_id=origin.cell_id,
+            expected_run_id=origin.run_id,
+            expected_job_id=phase.job_id,
+        ).durable_event_id
+        is None
+    ):
+        raise ValueError("candidate_experiment_phase_profile_unselected")
+    receipt = CandidateAcquisitionActionReceipt(
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        run_id=origin.run_id,
+        source_job_id=origin.source_job_id,
+        action_job_id=phase.job_id,
+        action_generation=phase.action_generation,
+        action_attempt=admission.attempt,
+        selection=selection,
+        candidate_budget_window_id=selector.candidate_budget_window_id,
+        candidate_budget_window_digest=selector.candidate_budget_window_digest,
+        route_id=origin.route_id,
+        action_phase_ref=action_phase_ref,
+        selected_action_phase_ref=phase_ref,
+        decision_ref=str(phase.authority_decision_ref.artifact_id),
+        route_binding_id=binding.binding_id,
+        route_binding=binding.model_dump(mode="json"),
+        attempt_id=binding.attempt_id,
+        compiled_requirement_ref=selection.compiled_requirement_ref,
+        requirement_id=selection.requirement_id,
+        candidate_digest=selection.candidate_digest,
+        profile_selection_ref=selection.profile_selection_ref,
+        canonical_variable_id=selection.canonical_variable_id,
+        target_slot_id=selection.target_slot_id,
+        candidate_source_ref=source_ref,
+        compiler_report_ref=source.compiler_report_ref,
+        limitations=source.limitations,
+    )
+    selected_ref = bridge._persist_candidate_experiment_receipt(
+        origin=origin,
+        payload=receipt.model_dump(mode="json"),
+        kind=CANDIDATE_ACTION_KIND,
+        schema=CANDIDATE_ACTION_SCHEMA,
+        phase="candidate_input_prepared",
+        artifact_inputs=receipt_inputs(receipt),
+    )
+    read_candidate_experiment_acquisition_action(
+        bridge=bridge,
+        origin=origin,
+        receipt_ref=selected_ref,
+        require_current_action=True,
+    )
+    selection_after, phase_after, admission_after = _current_candidate_experiment_action(
+        bridge, origin, action_phase_ref
+    )
+    _pointer_after, selector_after = bridge._load_action_selector(selection_after, action_phase_ref)
+    if (
+        selection_after != selection
+        or phase_after != phase
+        or admission_after.job.job_id != admission.job.job_id
+        or admission_after.job.lease_owner != admission.job.lease_owner
+        or admission_after.attempt != admission.attempt
+        or admission_after.scope != admission.scope
+        or selector_after != selector
+    ):
+        raise ValueError("candidate_experiment_execution_lease_changed")
+    return selected_ref, receipt
+
+
+def read_candidate_experiment_acquisition_action(
+    *,
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    receipt_ref: artifacts.ArtifactRef,
+    require_current_action: bool,
+) -> CandidateAcquisitionActionReceipt:
+    """Reopen the exact experiment action, source and phase parents."""
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        VerifiedAcquisitionActionOutcome,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentPhaseReceipt,
+        VerifiedCandidateExperimentOrigin,
+    )
+    from polisyos.runtime.quality.agent_action_authority import reconcile_authority_ref
+
+    if (
+        type(origin) is not VerifiedCandidateExperimentOrigin
+        or receipt_ref.kind != CANDIDATE_ACTION_KIND
+        or receipt_ref.media_type != "application/json"
+        or receipt_ref.manifest_profile_sha256 is None
+        or artifacts.profile_bound_ref(bridge.artifact_store, receipt_ref) != receipt_ref
+    ):
+        raise ValueError("candidate_experiment_action_profile_unselected")
+    payload = artifacts.load_core_json_artifact(bridge.artifact_store, receipt_ref)
+    receipt = CandidateAcquisitionActionReceipt.model_validate(payload)
+    expected = receipt_inputs(receipt)
+    manifest = bridge.artifact_store.get_manifest(receipt_ref)
+    if (
+        manifest.inputs != list(expected)
+        or bridge._read(receipt_ref, CANDIDATE_ACTION_KIND, expected_inputs=expected) != payload
+        or (
+            receipt.tenant_id,
+            receipt.cell_id,
+            receipt.run_id,
+            receipt.source_job_id,
+            receipt.route_id,
+        )
+        != (
+            origin.tenant_id,
+            origin.cell_id,
+            origin.run_id,
+            origin.source_job_id,
+            origin.route_id,
+        )
+        or str(receipt.selected_action_phase_ref.artifact_id) != receipt.action_phase_ref
+    ):
+        raise ValueError("candidate_experiment_action_parent_mismatch")
+    event = reconcile_authority_ref(
+        artifact_store=bridge.artifact_store,
+        event_log=bridge.event_log,
+        cas_ref=receipt_ref,
+        expected_tenant_id=origin.tenant_id,
+        expected_cell_id=origin.cell_id,
+        expected_run_id=origin.run_id,
+        expected_job_id=origin.source_job_id,
+    )
+    if event.durable_event_id is None:
+        raise ValueError("candidate_experiment_action_event_missing")
+    outcomes = bridge.action_head_sink.experiment_action_outcomes(
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        run_id=origin.run_id,
+        source_job_id=origin.source_job_id,
+        route_id=origin.route_id,
+    )
+    if (
+        not isinstance(outcomes, tuple)
+        or len(outcomes) != 1
+        or type(outcomes[0]) is not VerifiedAcquisitionActionOutcome
+    ):
+        raise ValueError("candidate_experiment_action_history_not_verified")
+    matching = tuple(
+        record
+        for record in outcomes[0].phase_chain
+        if getattr(record, "receipt_ref", None) == receipt.action_phase_ref
+    )
+    if len(matching) != 1:
+        raise ValueError("candidate_experiment_action_phase_missing")
+    phase = getattr(matching[0], "receipt", None)
+    if (
+        type(phase) is not AcquisitionCandidateExperimentPhaseReceipt
+        or phase.receipt_phase != "executing"
+        or phase.tenant_id != receipt.tenant_id
+        or phase.cell_id != receipt.cell_id
+        or phase.run_id != receipt.run_id
+        or phase.source_job_id != receipt.source_job_id
+        or phase.job_id != receipt.action_job_id
+        or phase.action_generation != receipt.action_generation
+        or str(phase.authority_decision_ref.artifact_id) != receipt.decision_ref
+        or phase.policy_ref != origin.policy_ref
+        or phase.policy_scope != origin.policy_scope
+    ):
+        raise ValueError("candidate_experiment_action_phase_binding_mismatch")
+    source: CandidateAcquisitionSource = read_candidate_acquisition_source(
+        bridge.artifact_store,
+        source_ref=receipt.candidate_source_ref,
+        authority=bridge.authority if require_current_action else None,
+    )
+    validate_candidate_action_source_binding(bridge.artifact_store, receipt, source)
+    if (
+        receipt.selection.compiled_requirement_ref != origin.policy_scope.compiled_requirement_ref
+        or receipt.selection.requirement_id != origin.policy_scope.requirement_id
+        or receipt.selection.candidate_digest != origin.policy_scope.candidate_digest
+        or receipt.selection.design_problem_ref != origin.policy_scope.design_problem_ref
+        or receipt.selection.profile_selection_ref != receipt.profile_selection_ref
+        or receipt.candidate_source_ref.kind != "runtime_quality.candidate_acquisition_source"
+    ):
+        raise ValueError("candidate_experiment_action_source_binding_mismatch")
+    if require_current_action:
+        selection, current_phase, admission = _current_candidate_experiment_action(
+            bridge, origin, receipt.action_phase_ref
+        )
+        _pointer, selector = bridge._load_action_selector(selection, receipt.action_phase_ref)
+        if (
+            selection != receipt.selection
+            or current_phase != phase
+            or admission.job.job_id != receipt.action_job_id
+            or admission.attempt < receipt.action_attempt
+            or selector is None
+            or selector.candidate_budget_window_id != receipt.candidate_budget_window_id
+            or selector.candidate_budget_window_digest != receipt.candidate_budget_window_digest
+        ):
+            raise ValueError("candidate_experiment_action_current_owner_mismatch")
+    return receipt
+
+
+def read_candidate_experiment_acquisition_action_historical(
+    *,
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    receipt_ref: artifacts.ArtifactRef,
+    executing_phase: AcquisitionCandidateExperimentPhaseReceipt,
+    executing_phase_ref: str,
+) -> tuple[
+    CandidateAcquisitionActionReceipt,
+    CandidateAcquisitionSource,
+    BudgetLedgerReentryBudgetWindow,
+]:
+    """Reopen a historical experiment action and source without a live lease."""
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentPhaseReceipt,
+        VerifiedCandidateExperimentOrigin,
+    )
+    from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+        resolve_current_candidate_unpriced_policy,
+        verify_candidate_unpriced_experiment_policy_intent,
+    )
+    from polisyos.runtime.quality.agent_action_authority import reconcile_authority_ref
+    from polisyos.scientist.orchestration.engine import (
+        BudgetLedgerReentryBudgetScope,
+        BudgetLedgerReentryBudgetWindow,
+        BudgetMiddleware,
+    )
+
+    if (
+        type(origin) is not VerifiedCandidateExperimentOrigin
+        or type(executing_phase) is not AcquisitionCandidateExperimentPhaseReceipt
+    ):
+        raise ValueError("candidate_experiment_action_historical_profile_invalid")
+    phase_ref = _selected_candidate_experiment_phase_ref(
+        bridge, executing_phase, executing_phase_ref
+    )
+    if (
+        executing_phase.receipt_phase != "executing"
+        or receipt_ref.kind != CANDIDATE_ACTION_KIND
+        or receipt_ref.media_type != "application/json"
+        or receipt_ref.manifest_profile_sha256 is None
+        or artifacts.profile_bound_ref(bridge.artifact_store, receipt_ref) != receipt_ref
+    ):
+        raise ValueError("candidate_experiment_action_historical_profile_invalid")
+    payload = artifacts.load_core_json_artifact(bridge.artifact_store, receipt_ref)
+    receipt = CandidateAcquisitionActionReceipt.model_validate(payload)
+    manifest = bridge.artifact_store.get_manifest(receipt_ref)
+    if (
+        manifest.artifact_schema is None
+        or manifest.artifact_schema
+        != artifacts.SchemaInfo(name=CANDIDATE_ACTION_SCHEMA, version="1.1")
+        or manifest.producer is None
+        or manifest.producer.component != "polisyos.runtime.acquisition_world_growth"
+        or manifest.inputs != list(receipt_inputs(receipt))
+        or manifest.tenant_context is None
+        or manifest.tenant_context.tenant_id != origin.tenant_id
+        or manifest.tenant_context.cell_id != origin.cell_id
+        or phase_ref != receipt.selected_action_phase_ref
+        or str(phase_ref.artifact_id) != executing_phase_ref
+        or artifacts.load_core_json_artifact(bridge.artifact_store, phase_ref)
+        != executing_phase.model_dump(mode="json")
+        or (
+            receipt.tenant_id,
+            receipt.cell_id,
+            receipt.run_id,
+            receipt.source_job_id,
+            receipt.action_job_id,
+            receipt.action_generation,
+            receipt.route_id,
+            receipt.action_phase_ref,
+            receipt.decision_ref,
+        )
+        != (
+            origin.tenant_id,
+            origin.cell_id,
+            origin.run_id,
+            origin.source_job_id,
+            executing_phase.job_id,
+            executing_phase.action_generation,
+            origin.route_id,
+            executing_phase_ref,
+            str(executing_phase.authority_decision_ref.artifact_id),
+        )
+        or executing_phase.policy_ref != origin.policy_ref
+        or executing_phase.policy_scope != origin.policy_scope
+        or receipt.selection.compiled_requirement_ref
+        != origin.policy_scope.compiled_requirement_ref
+        or receipt.selection.requirement_id != origin.policy_scope.requirement_id
+        or receipt.selection.candidate_digest != origin.policy_scope.candidate_digest
+        or receipt.selection.design_problem_ref != origin.policy_scope.design_problem_ref
+        or receipt.profile_selection_ref != receipt.selection.profile_selection_ref
+    ):
+        raise ValueError("candidate_experiment_action_historical_binding_mismatch")
+    reconciliation = reconcile_authority_ref(
+        artifact_store=bridge.artifact_store,
+        event_log=bridge.event_log,
+        cas_ref=receipt_ref,
+        expected_tenant_id=origin.tenant_id,
+        expected_cell_id=origin.cell_id,
+        expected_run_id=origin.run_id,
+        expected_job_id=origin.source_job_id,
+    )
+    if reconciliation.durable_event_id is None:
+        raise ValueError("candidate_experiment_action_historical_event_missing")
+    phase_event = reconcile_authority_ref(
+        artifact_store=bridge.artifact_store,
+        event_log=bridge.event_log,
+        cas_ref=phase_ref,
+        expected_tenant_id=origin.tenant_id,
+        expected_cell_id=origin.cell_id,
+        expected_run_id=origin.run_id,
+        expected_job_id=executing_phase.job_id,
+    )
+    if phase_event.durable_event_id is None:
+        raise ValueError("candidate_experiment_phase_historical_event_missing")
+    source = read_candidate_acquisition_source(
+        bridge.artifact_store,
+        source_ref=receipt.candidate_source_ref,
+        authority=None,
+    )
+    validate_candidate_action_source_binding(bridge.artifact_store, receipt, source)
+    if (
+        source.tenant_id != origin.tenant_id
+        or source.cell_id != origin.cell_id
+        or source.run_id != origin.run_id
+        or source.job_id != executing_phase.job_id
+        or source.route_id != origin.route_id
+    ):
+        raise ValueError("candidate_experiment_source_historical_scope_mismatch")
+    service = bridge._source_control_service
+    if service is None or type(service._llm_producer_settlement_store) is not BudgetMiddleware:
+        raise ValueError("candidate_experiment_budget_historical_owner_missing")
+    policy_ref, policy = resolve_current_candidate_unpriced_policy(
+        control_service=service, scope=origin.policy_scope
+    )
+    evidence = verify_candidate_unpriced_experiment_policy_intent(
+        control_service=service,
+        closure=origin,
+        scope=origin.policy_scope,
+        policy_ref=origin.policy_ref,
+    )
+    template = policy.configured_template
+    if (
+        policy_ref != origin.policy_ref
+        or template is None
+        or evidence.run_budget_usd is None
+        or evidence.run_budget_usd <= 0
+        or policy.original_metered_budget_usd != evidence.run_budget_usd
+    ):
+        raise ValueError("candidate_experiment_budget_historical_policy_changed")
+    budget_scope = BudgetLedgerReentryBudgetScope(
+        run_binding=service.verify_acquisition_source_budget_owner(closure=origin),
+        action_job_id=executing_phase.job_id,
+        route_id=origin.route_id,
+        action_generation=executing_phase.action_generation,
+        action_phase_ref=executing_phase_ref,
+        source_payload_ref=origin.source_payload_ref,
+        profile_selection_ref=receipt.profile_selection_ref,
+    )
+    window = service._llm_producer_settlement_store.resolve_reentry_budget_window_safe(budget_scope)
+    fresh_limit = min(template.max_metered_reentry_usd, evidence.run_budget_usd)
+    if (
+        type(window) is not BudgetLedgerReentryBudgetWindow
+        or window.scope != budget_scope
+        or window.window_id != receipt.candidate_budget_window_id
+        or window.record_digest != receipt.candidate_budget_window_digest
+        or window.fresh_limit_usd != fresh_limit
+        or window.global_limit_usd != evidence.run_budget_usd
+        or receipt.selection.reentry_budget_usd != fresh_limit
+    ):
+        raise ValueError("candidate_experiment_budget_historical_window_mismatch")
+    return receipt, source, window
 
 
 def validate_candidate_action_source_binding(
@@ -968,7 +1578,10 @@ __all__ = [
     "CANDIDATE_ACTION_SCHEMA",
     "CandidateAcquisitionActionReceipt",
     "persist_candidate_acquisition_action",
+    "persist_candidate_experiment_acquisition_action",
     "read_candidate_acquisition_action",
+    "read_candidate_experiment_acquisition_action",
+    "read_candidate_experiment_acquisition_action_historical",
     "receipt_inputs",
     "validate_candidate_action_source_binding",
 ]

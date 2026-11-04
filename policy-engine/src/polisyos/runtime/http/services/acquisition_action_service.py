@@ -14,11 +14,15 @@ from polisyos.core import artifacts
 from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.pdc import OperationClass, OperationContract, OperationInvocationRecord
 from polisyos.runtime.quality.acquisition_route_loop import (
+    AcquisitionCandidateExperimentPhaseReceipt,
+    AcquisitionCandidateExperimentTerminalReceipt,
     AcquisitionRouteClosureError,
     AcquisitionRouteLoop,
     AcquisitionRouteLoopReceipt,
     AcquisitionRoutePhaseReceipt,
     AcquisitionRouteRecoveryRequired,
+    AcquisitionSelectedEvaluation,
+    CandidateExperimentTerminalHistory,
     VerifiedAcquisitionRouteClosure,
     VerifiedCandidateExperimentOrigin,
     persist_world_commit_and_reenter,
@@ -45,6 +49,9 @@ if TYPE_CHECKING:
 
     from polisyos.runtime.http.authorization import BoundActionPermissionVerification
     from polisyos.runtime.http.execution_policy import RuntimePrincipal
+    from polisyos.runtime.http.services.acquisition_surface_execution import (
+        WorldBankWDIAcquisitionExecutionPort,
+    )
     from polisyos.runtime.quality.acquisition_movement import AcquisitionMovementService
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionWorldGrowthConfig,
@@ -143,6 +150,124 @@ class CandidateExperimentRouteMutationRequest(BaseModel):
     human_decision_record_ref: str | None = Field(default=None, pattern=_SHA256_PATTERN)
 
 
+class CandidateExperimentRouteExecutionRequest(BaseModel):
+    """Exact persisted decision selected for one candidate-experiment execution."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    request: CandidateExperimentRouteMutationRequest
+    decision_ref: str = Field(pattern=_SHA256_PATTERN)
+
+
+class CandidateExperimentCurrentActionProjection(BaseModel):
+    """Read-only status of the current verified candidate-experiment action."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: Literal["unknown", "in_progress", "completed", "blocked"] = "unknown"
+    action_generation: int | None = Field(default=None, ge=1)
+    job_id: str | None = Field(default=None, min_length=1)
+    job_state: Literal["pending", "running", "completed", "failed", "cancelled"] | None = None
+    coarse_phase: (
+        Literal["requested", "executing", "candidate_input_prepared", "terminal"] | None
+    ) = None
+    receipt_phase: (
+        Literal[
+            "requested",
+            "executing",
+            "outcome_selected",
+            "candidate_input_reentry_pending",
+            "terminal",
+        ]
+        | None
+    ) = None
+    recovery_state: Literal["none", "reentry_recovery_required", "complete"] | None = None
+    selected_receipt_ref: artifacts.ArtifactRef | None = None
+    terminal_outcome: (
+        Literal["candidate_reentry_completed", "candidate_evaluation_retained", "candidate_blocked"]
+        | None
+    ) = None
+    evaluation_disposition: Literal["unknown", "new", "retained", "blocked"] = "unknown"
+    selected_evaluation: AcquisitionSelectedEvaluation | None = None
+    blocker_reason: str | None = Field(default=None, min_length=1)
+
+    @model_validator(mode="after")
+    def _projection_matches_verified_terminal(self) -> CandidateExperimentCurrentActionProjection:
+        if self.action_generation is None:
+            if (
+                any(
+                    value is not None
+                    for value in (
+                        self.job_id,
+                        self.job_state,
+                        self.coarse_phase,
+                        self.receipt_phase,
+                        self.recovery_state,
+                        self.selected_receipt_ref,
+                        self.terminal_outcome,
+                        self.selected_evaluation,
+                        self.blocker_reason,
+                    )
+                )
+                or self.status != "unknown"
+                or self.evaluation_disposition != "unknown"
+            ):
+                raise ValueError("candidate_experiment_unknown_projection_has_action_fields")
+            return self
+        if (
+            self.job_id is None
+            or self.coarse_phase is None
+            or self.receipt_phase is None
+            or self.recovery_state is None
+            or self.selected_receipt_ref is None
+            or self.selected_receipt_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("candidate_experiment_current_projection_identity_missing")
+        if self.status in {"unknown", "in_progress"}:
+            if (
+                self.terminal_outcome is not None
+                or self.evaluation_disposition != "unknown"
+                or self.selected_evaluation is not None
+                or self.blocker_reason is not None
+            ):
+                raise ValueError("candidate_experiment_nonterminal_projection_has_outcome")
+            return self
+        if self.status == "blocked":
+            if (
+                self.terminal_outcome != "candidate_blocked"
+                or self.evaluation_disposition != "blocked"
+                or self.selected_evaluation is not None
+                or self.blocker_reason is None
+                or self.receipt_phase != "terminal"
+            ):
+                raise ValueError("candidate_experiment_blocked_projection_mismatch")
+            return self
+        if (
+            self.terminal_outcome
+            not in {
+                "candidate_reentry_completed",
+                "candidate_evaluation_retained",
+            }
+            or self.receipt_phase != "terminal"
+        ):
+            raise ValueError("candidate_experiment_completed_projection_missing_terminal")
+        if self.evaluation_disposition not in {"new", "retained"}:
+            raise ValueError("candidate_experiment_completed_projection_missing_evaluation")
+        if self.evaluation_disposition == "new" and (
+            self.terminal_outcome != "candidate_reentry_completed"
+            or self.selected_evaluation is None
+        ):
+            raise ValueError("candidate_experiment_new_evaluation_projection_mismatch")
+        if self.evaluation_disposition == "retained" and (
+            self.terminal_outcome != "candidate_evaluation_retained"
+            or self.selected_evaluation is None
+        ):
+            raise ValueError("candidate_experiment_retained_evaluation_projection_mismatch")
+        if self.evaluation_disposition == "blocked" or self.blocker_reason is not None:
+            raise ValueError("candidate_experiment_completed_projection_has_blocker")
+        return self
+
+
 class CandidateExperimentRouteProjection(BaseModel):
     """Read-only experiment proposal with unknown cost and no action authority."""
 
@@ -158,6 +283,9 @@ class CandidateExperimentRouteProjection(BaseModel):
     replay_pins: CandidateExperimentRouteReplayPins
     scheduler_action: str = Field(min_length=1)
     scheduler_reason: str = Field(min_length=1)
+    current_action: CandidateExperimentCurrentActionProjection = Field(
+        default_factory=CandidateExperimentCurrentActionProjection
+    )
     monetary_cost: Literal["not_established"] = "not_established"
     information_value: Literal["not_established"] = "not_established"
     action_authority: Literal["not_established"] = "not_established"
@@ -263,9 +391,15 @@ class AcquisitionExecutionResponse(BaseModel):
     route_id: str = Field(pattern=_SHA256_PATTERN)
     job_id: str
     authority_decision_ref: str = Field(pattern=_SHA256_PATTERN)
-    status: Literal["accepted"] = "accepted"
-    receipt_phase: Literal["requested"] = "requested"
+    status: Literal["accepted", "completed"] = "accepted"
+    receipt_phase: Literal["requested", "terminal"] = "requested"
     world_growth: Literal["not_established"] = "not_established"
+
+    @model_validator(mode="after")
+    def _status_matches_receipt_phase(self) -> AcquisitionExecutionResponse:
+        if (self.status == "completed") != (self.receipt_phase == "terminal"):
+            raise ValueError("acquisition_execution_status_phase_mismatch")
+        return self
 
 
 @dataclass(frozen=True, slots=True)
@@ -667,6 +801,9 @@ class AcquisitionActionService:
     ) -> dict[str, Any]:
         """Run only with the tenant/cell admission attached to the live job lease."""
 
+        if payload.get("action_kind") == CANDIDATE_EXPERIMENT_ACTION_KIND:
+            return self._handle_candidate_experiment_job(job, payload, execution_scope)
+
         if job.kind != "acquisition" or job.run_id is None:
             raise AcquisitionActionServiceError("acquisition_job_kind_mismatch")
         if (
@@ -1041,15 +1178,21 @@ class AcquisitionActionService:
     def get_candidate_experiment_route(
         self, *, tenant_id: str, cell_id: str, run_id: str
     ) -> CandidateExperimentRouteProjection:
-        """Reopen a source-bound experiment projection without authorizing an action."""
+        """Reopen the candidate source and verified current action without granting authority."""
         if not tenant_id or not cell_id or not run_id:
             raise AcquisitionActionServiceError("acquisition_actor_scope_missing")
-        origin = self._resolve_candidate_experiment_origin(
+        loop = self._candidate_experiment_loop(
             tenant_id=tenant_id,
             cell_id=cell_id,
             run_id=run_id,
         )
-        return self._candidate_experiment_projection(origin)
+        try:
+            origin = loop.resolve_current_candidate_experiment(run_id=run_id)
+        except AcquisitionRouteClosureError as exc:
+            raise AcquisitionActionServiceError(exc.code) from exc
+        projection = self._candidate_experiment_projection(origin)
+        current_action = self._candidate_experiment_current_action_projection(origin)
+        return projection.model_copy(update={"current_action": current_action})
 
     @staticmethod
     def _candidate_experiment_projection(
@@ -1075,6 +1218,163 @@ class AcquisitionActionService:
             ),
             scheduler_action=origin.source_cycle.voi_decision.scheduler_action,
             scheduler_reason=origin.source_cycle.voi_decision.scheduler_reason,
+        )
+
+    def _candidate_experiment_current_action_projection(
+        self, origin: VerifiedCandidateExperimentOrigin
+    ) -> CandidateExperimentCurrentActionProjection:
+        """Project the exact current head; a prior terminal never fills a newer phase."""
+        from polisyos.runtime.http.services.control_plane_store import (
+            AcquisitionActionHeadRecord,
+            ControlJobRecord,
+        )
+
+        head = origin.current_action_head
+        if head is None:
+            return CandidateExperimentCurrentActionProjection()
+        if (
+            type(head) is not AcquisitionActionHeadRecord
+            or (head.tenant_id, head.cell_id, head.run_id, head.source_job_id, head.route_id)
+            != (
+                origin.tenant_id,
+                origin.cell_id,
+                origin.run_id,
+                origin.source_job_id,
+                origin.route_id,
+            )
+            or head.receipt_ref != head.receipt_sha256
+        ):
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_current_action_identity_not_established"
+            )
+
+        job = self.control_service._control_store.get_job(head.job_id)
+        job_state: Literal["pending", "running", "completed", "failed", "cancelled"] | None = None
+        if job is not None:
+            if (
+                type(job) is not ControlJobRecord
+                or job.job_id != head.job_id
+                or job.kind != "acquisition"
+                or job.run_id != origin.run_id
+            ):
+                raise AcquisitionActionServiceError(
+                    "candidate_experiment_current_job_identity_not_established"
+                )
+            job_state = job.state
+
+        terminal_history = origin.current_terminal_history
+        if (
+            terminal_history is not None
+            and type(terminal_history) is not CandidateExperimentTerminalHistory
+        ):
+            raise AcquisitionActionServiceError("candidate_experiment_terminal_history_not_typed")
+        current_terminal = (
+            terminal_history
+            if terminal_history is not None and terminal_history.head == head
+            else None
+        )
+
+        receipt_kind = (
+            "runtime_quality.acquisition_route_loop_receipt"
+            if head.receipt_phase == "terminal"
+            else "runtime_quality.acquisition_candidate_experiment_phase_receipt"
+        )
+        if head.receipt_manifest_profile_sha256 is None:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_current_receipt_profile_not_established"
+            )
+        try:
+            selected_receipt_ref = artifacts.profile_bound_ref(
+                self.control_service._artifact_store,
+                artifacts.ArtifactRef(
+                    artifact_id=artifacts.ArtifactID.model_validate(head.receipt_ref),
+                    kind=receipt_kind,
+                    media_type="application/json",
+                    manifest_profile_sha256=head.receipt_manifest_profile_sha256,
+                ),
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_current_receipt_profile_not_established"
+            ) from exc
+
+        if current_terminal is not None and (
+            type(current_terminal.terminal) is not AcquisitionCandidateExperimentTerminalReceipt
+            or current_terminal.terminal_ref != selected_receipt_ref
+        ):
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_terminal_receipt_profile_mismatch"
+            )
+        terminal = current_terminal.terminal if current_terminal is not None else None
+        return self._format_candidate_experiment_current_action(
+            head=head,
+            job_state=job_state,
+            selected_receipt_ref=selected_receipt_ref,
+            current_terminal_head=None if current_terminal is None else current_terminal.head,
+            terminal_outcome=None if terminal is None else terminal.terminal_outcome,
+            selected_evaluation=None if terminal is None else terminal.selected_evaluation,
+            blocker_reason=None if terminal is None else terminal.blocker_reason,
+        )
+
+    @staticmethod
+    def _format_candidate_experiment_current_action(
+        *,
+        head: AcquisitionActionHeadRecord | None,
+        job_state: Literal["pending", "running", "completed", "failed", "cancelled"] | None,
+        selected_receipt_ref: artifacts.ArtifactRef | None,
+        current_terminal_head: AcquisitionActionHeadRecord | None,
+        terminal_outcome: Literal[
+            "candidate_reentry_completed", "candidate_evaluation_retained", "candidate_blocked"
+        ]
+        | None = None,
+        selected_evaluation: AcquisitionSelectedEvaluation | None = None,
+        blocker_reason: str | None = None,
+    ) -> CandidateExperimentCurrentActionProjection:
+        """Format an owner-adapted snapshot; this helper does not verify its inputs."""
+        if head is None:
+            return CandidateExperimentCurrentActionProjection()
+
+        terminal_is_current = current_terminal_head == head
+        status: Literal["unknown", "in_progress", "completed", "blocked"] = "unknown"
+        evaluation_disposition: Literal["unknown", "new", "retained", "blocked"] = "unknown"
+        if terminal_is_current:
+            if terminal_outcome == "candidate_blocked":
+                status = "blocked"
+                evaluation_disposition = "blocked"
+                selected_evaluation = None
+            elif terminal_outcome in {
+                "candidate_reentry_completed",
+                "candidate_evaluation_retained",
+            }:
+                status = "completed"
+                if terminal_outcome == "candidate_evaluation_retained":
+                    evaluation_disposition = "retained"
+                elif selected_evaluation is not None:
+                    evaluation_disposition = "new"
+            else:
+                raise AcquisitionActionServiceError(
+                    "candidate_experiment_current_terminal_outcome_not_established"
+                )
+        elif job_state in {"pending", "running"} and head.receipt_phase != "terminal":
+            status = "in_progress"
+
+        if not terminal_is_current:
+            terminal_outcome = None
+            selected_evaluation = None
+            blocker_reason = None
+        return CandidateExperimentCurrentActionProjection(
+            status=status,
+            action_generation=head.action_generation,
+            job_id=head.job_id,
+            job_state=job_state,
+            coarse_phase=head.coarse_phase,
+            receipt_phase=head.receipt_phase,
+            recovery_state=head.recovery_state,
+            selected_receipt_ref=selected_receipt_ref,
+            terminal_outcome=terminal_outcome,
+            evaluation_disposition=evaluation_disposition,
+            selected_evaluation=selected_evaluation,
+            blocker_reason=blocker_reason,
         )
 
     def _resolve_candidate_experiment_origin(
@@ -1280,6 +1580,661 @@ class AcquisitionActionService:
                 else None
             ),
         )
+
+    def execute_candidate_experiment(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        route_id: str,
+        request: CandidateExperimentRouteMutationRequest,
+        decision_ref: str,
+        request_id: str | None,
+        principal: RuntimePrincipal | None,
+    ) -> AcquisitionExecutionResponse:
+        """Queue one candidate experiment without exposing an effect at the HTTP layer."""
+        if type(request) is not CandidateExperimentRouteMutationRequest:
+            raise AcquisitionActionServiceError("candidate_experiment_request_untyped")
+        loop = self._candidate_experiment_loop(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+        )
+        try:
+            origin = loop._resolve_candidate_experiment_source(run_id=run_id)
+        except AcquisitionRouteClosureError as exc:
+            raise AcquisitionActionServiceError(exc.code) from exc
+        projection = self._candidate_experiment_projection(origin)
+        from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
+
+        if (
+            route_id != projection.route_id
+            or request.route_id != projection.route_id
+            or not _candidate_model_values_same(request.replay_pins, projection.replay_pins)
+        ):
+            raise AcquisitionActionServiceError("candidate_experiment_route_revalidation_required")
+        job_id = self._candidate_experiment_job_id(origin, request)
+
+        phase_owner = self.control_service.acquisition_route_sink
+        existing_heads = (
+            self.control_service._control_store.list_acquisition_action_heads_for_source(
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                run_id=run_id,
+                source_job_id=origin.source_job_id,
+            )
+        )
+        existing_requested = None
+        if existing_heads:
+            try:
+                current_origin = loop.resolve_current_candidate_experiment(
+                    run_id=run_id,
+                    action_job_id=job_id,
+                )
+                outcomes = phase_owner.experiment_action_outcomes(
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    run_id=run_id,
+                    source_job_id=origin.source_job_id,
+                    route_id=origin.route_id,
+                )
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                raise AcquisitionActionServiceError(
+                    "candidate_experiment_requested_phase_recovery_not_established"
+                ) from exc
+            if (
+                current_origin.route_id != origin.route_id
+                or not outcomes
+                or outcomes[-1].head.job_id != job_id
+            ):
+                raise AcquisitionActionServiceError("candidate_experiment_action_history_conflict")
+            outcome = outcomes[-1]
+            if (
+                outcome.head.job_id != job_id
+                or not outcome.phase_chain
+                or type(outcome.phase_chain[0].receipt)
+                is not AcquisitionCandidateExperimentPhaseReceipt
+            ):
+                raise AcquisitionActionServiceError("candidate_experiment_action_history_conflict")
+            existing_requested = outcome.phase_chain[0]
+            requested_phase = existing_requested.receipt
+            if (
+                requested_phase.receipt_phase != "requested"
+                or requested_phase.job_id != job_id
+                or str(requested_phase.authority_decision_ref.artifact_id) != decision_ref
+            ):
+                raise AcquisitionActionServiceError("candidate_experiment_action_history_conflict")
+            existing_job = self.control_service._control_store.get_job(job_id)
+            if existing_job is not None and existing_job.state == "completed":
+                expected_payload = {
+                    "action_kind": CANDIDATE_EXPERIMENT_ACTION_KIND,
+                    "tenant_id": tenant_id,
+                    "cell_id": cell_id,
+                    "run_id": run_id,
+                    "route_id": route_id,
+                    "request": request.model_dump(mode="json"),
+                    "decision_ref": decision_ref,
+                }
+                if (
+                    existing_job.kind != "acquisition"
+                    or existing_job.run_id != run_id
+                    or existing_job.submitted_by is None
+                    or principal is None
+                    or not principal.authenticated
+                    or principal.subject != existing_job.submitted_by
+                    or principal.tenant_id != tenant_id
+                    or principal.cell_id != cell_id
+                    or existing_job.payload_ref is None
+                ):
+                    raise AcquisitionActionServiceError(
+                        "candidate_experiment_completed_retry_scope_conflict"
+                    )
+                stored_payload = read_core_json_artifact(
+                    self.control_service._artifact_store, existing_job.payload_ref
+                ).value
+                if not isinstance(stored_payload, dict) or any(
+                    stored_payload.get(name) != value for name, value in expected_payload.items()
+                ):
+                    raise AcquisitionActionServiceError(
+                        "candidate_experiment_completed_retry_payload_conflict"
+                    )
+                from polisyos.runtime.quality.acquisition_evaluation import (
+                    CandidateExperimentTerminalHistory,
+                )
+                from polisyos.runtime.quality.acquisition_route_loop import (
+                    AcquisitionCandidateExperimentTerminalReceipt,
+                )
+
+                terminal_history = outcome.candidate_experiment_terminal_history
+                if (
+                    outcome.head.receipt_phase != "terminal"
+                    or outcome.head.job_id != job_id
+                    or type(outcome.latest_receipt)
+                    is not AcquisitionCandidateExperimentTerminalReceipt
+                    or type(terminal_history) is not CandidateExperimentTerminalHistory
+                    or terminal_history.head != outcome.head
+                    or terminal_history.terminal != outcome.latest_receipt
+                    or str(terminal_history.terminal_ref.artifact_id) != outcome.head.receipt_ref
+                ):
+                    raise AcquisitionActionServiceError(
+                        "candidate_experiment_completed_terminal_history_not_established"
+                    )
+                try:
+                    history = self.load_candidate_experiment_decision_history(
+                        tenant_id=tenant_id,
+                        cell_id=cell_id,
+                        run_id=run_id,
+                        route_id=route_id,
+                        request=request,
+                        job_id=job_id,
+                        decision_ref=decision_ref,
+                    )
+                except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                    raise AcquisitionActionServiceError(
+                        "candidate_experiment_completed_decision_history_not_established"
+                    ) from exc
+                permission = history.decision.permission_snapshot
+                if (
+                    history.current_authority != "not_revalidated"
+                    or history.decision_ref != decision_ref
+                    or decision_ref != f"sha256:{history.payload_sha256}"
+                    or history.decision.outcome != "allowed"
+                    or permission is None
+                    or permission.subject != principal.subject
+                    or permission.tenant_id != tenant_id
+                ):
+                    raise AcquisitionActionServiceError(
+                        "candidate_experiment_completed_retry_authority_conflict"
+                    )
+                return AcquisitionExecutionResponse(
+                    run_id=run_id,
+                    route_id=route_id,
+                    job_id=job_id,
+                    authority_decision_ref=decision_ref,
+                    status="completed",
+                    receipt_phase="terminal",
+                )
+        else:
+            current_origin = origin
+        port = self._require_candidate_experiment_execution_port()
+        bridge = getattr(port, "_world_growth_bridge", None)
+        preflight = getattr(port, "preflight_candidate_experiment", None)
+        continuation_preflight = getattr(bridge, "preflight_candidate_experiment_evaluation", None)
+        if bridge is None or not callable(preflight) or not callable(continuation_preflight):
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_full_continuation_preflight_not_established"
+            )
+        try:
+            selection = preflight(origin=current_origin)
+            continuation = continuation_preflight(origin=current_origin, selection=selection)
+            from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+                CandidateExperimentEvaluationPreflight,
+            )
+
+            if (
+                type(continuation) is not CandidateExperimentEvaluationPreflight
+                or continuation.origin != current_origin
+                or continuation.selection != selection
+                or continuation.policy_ref != current_origin.policy_ref
+                or continuation.continuation_kind != "candidate_source_reentry_n5"
+            ):
+                raise ValueError("candidate_experiment_full_continuation_preflight_mismatch")
+            history = self.load_candidate_experiment_decision_history(
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                run_id=run_id,
+                route_id=route_id,
+                request=request,
+                job_id=job_id,
+                decision_ref=decision_ref,
+            )
+            if (
+                type(history) is not AuthenticatedAgentActionDecisionHistory
+                or history.current_authority != "not_revalidated"
+                or history.decision_ref != decision_ref
+                or decision_ref != f"sha256:{history.payload_sha256}"
+                or history.decision.outcome != "allowed"
+            ):
+                raise ValueError("candidate_experiment_pa2_decision_not_allowed")
+            permission = history.decision.permission_snapshot
+            if (
+                principal is None
+                or not principal.authenticated
+                or permission is None
+                or principal.subject != permission.subject
+                or principal.tenant_id != tenant_id
+                or principal.cell_id != cell_id
+                or permission.subject != principal.subject
+                or permission.tenant_id != tenant_id
+                or origin.tenant_id != tenant_id
+                or origin.cell_id != cell_id
+            ):
+                raise ValueError("candidate_experiment_decision_subject_scope_mismatch")
+
+            def _no_effect(_invocation: OperationInvocationRecord) -> object:
+                raise RuntimeError("candidate experiment enqueue cannot execute an effect")
+
+            gateway = self.replay_candidate_experiment_authority(
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                run_id=run_id,
+                route_id=route_id,
+                request=request,
+                job_id=job_id,
+                decision_ref=decision_ref,
+                effect_handler=_no_effect,
+            )
+            persisted = gateway.load_persisted_decision(decision_ref)
+            if persisted.decision != history.decision:
+                raise ValueError("candidate_experiment_current_pa2_changed")
+            if existing_requested is not None:
+                phase = existing_requested.receipt
+                prepared = phase_owner._prepared_experiment_phase_publication(
+                    phase,
+                    request,
+                    receipt_ref=existing_requested.receipt_ref,
+                    durable_event_id=existing_requested.durable_event_id,
+                )
+            else:
+                phase = AcquisitionCandidateExperimentPhaseReceipt(
+                    receipt_id=f"{job_id}.candidate-experiment.requested",
+                    tenant_id=origin.tenant_id,
+                    cell_id=origin.cell_id,
+                    run_id=origin.run_id,
+                    source_job_id=origin.source_job_id,
+                    route_id=origin.route_id,
+                    action_generation=1,
+                    job_id=job_id,
+                    source_payload_ref=origin.source_payload_ref,
+                    capability_manifest_ref=origin.capability_manifest_ref,
+                    request_content_hash=origin.request_content_hash,
+                    policy_scope=origin.policy_scope,
+                    policy_ref=origin.policy_ref,
+                    authority_decision_ref=artifacts.profile_bound_ref(
+                        self.control_service._artifact_store,
+                        artifacts.ArtifactRef(
+                            artifact_id=artifacts.ArtifactID.model_validate(decision_ref),
+                            kind="runtime_quality.agent_action_authority_decision",
+                            media_type="application/json",
+                        ),
+                    ),
+                    voi_decision=origin.source_cycle.voi_decision,
+                    coarse_phase="requested",
+                    receipt_phase="requested",
+                    recovery_state="none",
+                    predecessor_receipt_ref=None,
+                    owner_receipt_refs=(),
+                    generated_at=datetime.now(UTC),
+                )
+                prepared = phase_owner.prepare_experiment_phase_publication(phase, request)
+            payload = {
+                "action_kind": CANDIDATE_EXPERIMENT_ACTION_KIND,
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
+                "run_id": run_id,
+                "route_id": route_id,
+                "request": request.model_dump(mode="json"),
+                "decision_ref": decision_ref,
+            }
+            self.control_service.enqueue_acquisition_job(
+                job_id=job_id,
+                run_id=run_id,
+                payload=payload,
+                request_id=request_id,
+                principal=principal,
+                prepared_acquisition_action_head=prepared,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            code = str(getattr(exc, "code", "") or exc)
+            raise AcquisitionActionServiceError(
+                code
+                if code.startswith("candidate_experiment_")
+                else "candidate_experiment_enqueue_not_established"
+            ) from exc
+        return AcquisitionExecutionResponse(
+            run_id=run_id,
+            route_id=route_id,
+            job_id=job_id,
+            authority_decision_ref=decision_ref,
+        )
+
+    def _handle_candidate_experiment_job(
+        self,
+        job: ControlJobRecord,
+        payload: dict[str, Any],
+        execution_scope: ControlJobExecutionScope,
+    ) -> dict[str, Any]:
+        """Execute or recover one candidate source under the exact running job lease."""
+        from polisyos.runtime.http.services.acquisition_surface_execution import (
+            WorldBankWDIAcquisitionExecutionPort,
+        )
+        from polisyos.runtime.quality.acquisition_route_loop import (
+            AcquisitionCandidateExperimentTerminalReceipt,
+        )
+        from polisyos.runtime.quality.acquisition_world_growth import (
+            AcquisitionWorldGrowthBridge,
+        )
+
+        if (
+            job.kind != "acquisition"
+            or job.run_id is None
+            or job.state != "running"
+            or execution_scope.status != "established"
+            or not execution_scope.actor_authenticated
+            or not execution_scope.tenant_id
+            or not execution_scope.cell_id
+        ):
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_running_lease_not_established"
+            )
+        tenant_id = execution_scope.tenant_id
+        cell_id = execution_scope.cell_id
+        run_id = job.run_id
+        from polisyos.runtime.http.services.control.job_attempt_publication import (
+            _EXECUTION_INTENT_BINDING_KEY,
+        )
+
+        allowed_payload_keys = {
+            "action_kind",
+            "tenant_id",
+            "cell_id",
+            "run_id",
+            "route_id",
+            "request",
+            "decision_ref",
+            _EXECUTION_INTENT_BINDING_KEY,
+        }
+        if set(payload) - allowed_payload_keys:
+            raise AcquisitionActionServiceError("candidate_experiment_job_payload_fields_invalid")
+        request = CandidateExperimentRouteMutationRequest.model_validate(payload.get("request"))
+        route_id = str(payload.get("route_id") or "")
+        decision_ref = str(payload.get("decision_ref") or "")
+        if (
+            payload.get("tenant_id") != tenant_id
+            or payload.get("cell_id") != cell_id
+            or payload.get("run_id") != run_id
+            or payload.get("action_kind") != CANDIDATE_EXPERIMENT_ACTION_KIND
+            or not decision_ref.startswith("sha256:")
+            or route_id != request.route_id
+        ):
+            raise AcquisitionActionServiceError("candidate_experiment_job_payload_scope_mismatch")
+        admission = self.control_service._control_store.current_execution_job_admission()
+        if (
+            admission.job != job
+            or admission.job.state != "running"
+            or admission.scope != execution_scope
+        ):
+            raise AcquisitionActionServiceError("candidate_experiment_running_lease_changed")
+        loop = self._candidate_experiment_loop(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+        )
+        try:
+            origin = loop.resolve_current_candidate_experiment(
+                run_id=run_id,
+                action_job_id=job.job_id,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionRouteRecoveryRequired(
+                "candidate_experiment_action_history_not_current"
+            ) from exc
+        if route_id != origin.route_id or job.job_id != self._candidate_experiment_job_id(
+            origin, request
+        ):
+            raise AcquisitionActionServiceError("candidate_experiment_job_identity_mismatch")
+        sink = self.control_service.acquisition_route_sink
+        outcomes = sink.experiment_action_outcomes(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            source_job_id=origin.source_job_id,
+            route_id=origin.route_id,
+        )
+        if not outcomes or outcomes[-1].head.job_id != job.job_id:
+            raise AcquisitionRouteRecoveryRequired("candidate_experiment_action_head_missing")
+        outcome = outcomes[-1]
+        head = outcome.head
+        if head.job_id != job.job_id:
+            raise AcquisitionActionServiceError("candidate_experiment_action_head_job_mismatch")
+        if type(outcome.latest_receipt) is AcquisitionCandidateExperimentTerminalReceipt:
+            return self._candidate_experiment_terminal_progress(outcome)
+        phase_chain = outcome.phase_chain
+        if not phase_chain:
+            raise AcquisitionRouteRecoveryRequired("candidate_experiment_phase_history_missing")
+        latest = phase_chain[-1]
+        phase = latest.receipt
+        if type(phase) is not AcquisitionCandidateExperimentPhaseReceipt:
+            raise AcquisitionRouteRecoveryRequired("candidate_experiment_phase_history_untyped")
+        if phase.receipt_phase == "requested":
+            try:
+                decision_history = self.load_candidate_experiment_decision_history(
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    run_id=run_id,
+                    route_id=route_id,
+                    request=request,
+                    job_id=job.job_id,
+                    decision_ref=decision_ref,
+                )
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                raise AcquisitionActionServiceError(
+                    "candidate_experiment_worker_decision_history_not_established"
+                ) from exc
+            permission = decision_history.decision.permission_snapshot
+            if (
+                decision_history.current_authority != "not_revalidated"
+                or decision_history.decision_ref != decision_ref
+                or decision_ref != f"sha256:{decision_history.payload_sha256}"
+                or decision_history.decision.outcome != "allowed"
+                or permission is None
+                or permission.subject != job.submitted_by
+                or permission.subject != execution_scope.actor_subject
+                or permission.tenant_id != tenant_id
+                or phase.authority_decision_ref.artifact_id
+                != artifacts.ArtifactID.model_validate(decision_ref)
+            ):
+                raise AcquisitionActionServiceError(
+                    "candidate_experiment_worker_decision_scope_mismatch"
+                )
+            port = self._require_candidate_experiment_execution_port()
+            if (
+                type(port) is not WorldBankWDIAcquisitionExecutionPort
+                or type(port._world_growth_bridge) is not AcquisitionWorldGrowthBridge
+            ):
+                raise AcquisitionActionServiceError("candidate_experiment_execution_owner_missing")
+            operation, invocation, intent = self._candidate_experiment_action_tuple(origin, request)
+
+            def _no_effect(_invocation: OperationInvocationRecord) -> object:
+                raise RuntimeError("candidate-experiment readiness replay cannot invoke an effect")
+
+            readiness_gateway = self.replay_candidate_experiment_authority(
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                run_id=run_id,
+                route_id=route_id,
+                request=request,
+                job_id=job.job_id,
+                decision_ref=decision_ref,
+                effect_handler=_no_effect,
+            )
+            readiness_decision = readiness_gateway.load_persisted_decision(decision_ref)
+            if readiness_decision.decision != decision_history.decision:
+                raise AcquisitionActionServiceError("candidate_experiment_current_pa2_changed")
+            executing = phase.model_copy(
+                update={
+                    "receipt_id": f"{job.job_id}.candidate-experiment.executing",
+                    "coarse_phase": "executing",
+                    "receipt_phase": "executing",
+                    "recovery_state": "none",
+                    "predecessor_receipt_ref": latest.receipt_ref,
+                    "generated_at": datetime.now(UTC),
+                }
+            )
+            executing_head = sink.persist_experiment_phase(executing)
+            if executing_head.receipt_phase != "executing":
+                raise AcquisitionRouteRecoveryRequired(
+                    "candidate_experiment_executing_head_not_established"
+                )
+            action_phase_ref = executing_head.receipt_ref
+
+            def _effect(_invocation: OperationInvocationRecord) -> object:
+                return port.execute_candidate_experiment(
+                    origin=origin,
+                    action_phase_ref=action_phase_ref,
+                )
+
+            gateway = self.replay_candidate_experiment_authority(
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                run_id=run_id,
+                route_id=route_id,
+                request=request,
+                job_id=job.job_id,
+                decision_ref=decision_ref,
+                effect_handler=_effect,
+            )
+            persisted = gateway.load_persisted_decision(decision_ref)
+            if persisted.decision.outcome != "allowed":
+                raise AcquisitionActionServiceError("candidate_experiment_pa2_decision_not_allowed")
+            result = gateway.execute_bound_effect(
+                operation=operation,
+                invocation=invocation,
+                intent=intent,
+                persisted=persisted,
+            )
+            selected_ref = getattr(result, "candidate_action_ref", None)
+            if (
+                type(result) is not AcquisitionOwnerExecutionResult
+                or result.disposition != "candidate_input_prepared"
+                or result.action_phase_ref != action_phase_ref
+                or selected_ref is None
+            ):
+                raise AcquisitionRouteRecoveryRequired(
+                    "candidate_experiment_source_action_not_selected"
+                )
+            phase = executing
+            phase_ref = action_phase_ref
+        elif phase.receipt_phase == "executing":
+            port = self._require_candidate_experiment_execution_port()
+            bridge = getattr(port, "_world_growth_bridge", None)
+            if type(port) is not WorldBankWDIAcquisitionExecutionPort or bridge is None:
+                raise AcquisitionActionServiceError("candidate_experiment_execution_owner_missing")
+            recovered = bridge.recover_candidate_experiment_action(
+                origin=origin,
+                action_phase_ref=latest.receipt_ref,
+            )
+            if recovered is None:
+                raise AcquisitionRouteRecoveryRequired(
+                    "candidate_experiment_effect_outcome_unresolved"
+                )
+            selected_ref, _action = recovered
+            phase = phase_chain[-1].receipt
+            phase_ref = latest.receipt_ref
+        elif phase.receipt_phase in {"outcome_selected", "candidate_input_reentry_pending"}:
+            phase_ref = latest.receipt_ref
+            selected_ref = phase.candidate_receipt_ref
+        else:
+            raise AcquisitionRouteRecoveryRequired("candidate_experiment_phase_not_recoverable")
+        if phase.receipt_phase in {"executing", "outcome_selected"}:
+            predecessor_ref = (
+                phase_ref if phase.receipt_phase == "executing" else latest.receipt_ref
+            )
+            selected = phase.model_copy(
+                update={
+                    "receipt_id": (
+                        f"{job.job_id}.candidate-experiment.outcome-selected"
+                        if phase.receipt_phase == "executing"
+                        else phase.receipt_id
+                    ),
+                    "receipt_phase": "outcome_selected",
+                    "candidate_receipt_ref": selected_ref,
+                    "owner_receipt_refs": (str(selected_ref.artifact_id),),
+                    "predecessor_receipt_ref": predecessor_ref,
+                    "generated_at": (
+                        datetime.now(UTC)
+                        if phase.receipt_phase == "executing"
+                        else phase.generated_at
+                    ),
+                }
+            )
+            selected_head = (
+                sink.persist_experiment_phase(selected)
+                if phase.receipt_phase == "executing"
+                else head
+            )
+            if selected_head.receipt_phase != "outcome_selected":
+                raise AcquisitionRouteRecoveryRequired(
+                    "candidate_experiment_outcome_head_not_established"
+                )
+            pending = selected.model_copy(
+                update={
+                    "receipt_id": f"{job.job_id}.candidate-experiment.reentry-pending",
+                    "coarse_phase": "candidate_input_prepared",
+                    "receipt_phase": "candidate_input_reentry_pending",
+                    "recovery_state": "reentry_recovery_required",
+                    "predecessor_receipt_ref": selected_head.receipt_ref,
+                    "generated_at": datetime.now(UTC),
+                }
+            )
+            pending_head = sink.persist_experiment_phase(pending)
+            if pending_head.receipt_phase != "candidate_input_reentry_pending":
+                raise AcquisitionRouteRecoveryRequired(
+                    "candidate_experiment_reentry_head_not_established"
+                )
+            phase = pending
+        if phase.receipt_phase != "candidate_input_reentry_pending" or selected_ref is None:
+            raise AcquisitionRouteRecoveryRequired("candidate_experiment_reentry_pending_missing")
+        admission = self.control_service._control_store.current_execution_job_admission()
+        if admission.job != job or admission.scope != execution_scope:
+            raise AcquisitionActionServiceError("candidate_experiment_running_lease_changed")
+        try:
+            from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+                dispatch_candidate_experiment_evaluation,
+            )
+
+            terminal_head = dispatch_candidate_experiment_evaluation(
+                bridge=port._world_growth_bridge,
+                origin=origin,
+            )
+        except (ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionRouteRecoveryRequired(
+                "candidate_experiment_evaluation_recovery_required"
+            ) from exc
+        final = sink.verify_action_head(terminal_head)
+        return self._candidate_experiment_terminal_progress(final)
+
+    @staticmethod
+    def _candidate_experiment_terminal_progress(
+        outcome: object,
+    ) -> dict[str, Any]:
+        """Project only a verified experiment terminal to generic job completion."""
+        from polisyos.runtime.http.services.control.run_lifecycle import (
+            VerifiedAcquisitionActionOutcome,
+        )
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            CandidateExperimentTerminalHistory,
+        )
+        from polisyos.runtime.quality.acquisition_route_loop import (
+            AcquisitionCandidateExperimentTerminalReceipt,
+        )
+
+        if (
+            type(outcome) is not VerifiedAcquisitionActionOutcome
+            or type(outcome.latest_receipt) is not AcquisitionCandidateExperimentTerminalReceipt
+            or type(outcome.candidate_experiment_terminal_history)
+            is not CandidateExperimentTerminalHistory
+            or outcome.candidate_experiment_terminal_history.head != outcome.head
+        ):
+            raise AcquisitionRouteRecoveryRequired("candidate_experiment_terminal_not_verified")
+        return {
+            "state": "completed",
+            "phase": "candidate_experiment",
+            "receipt_phase": "terminal",
+            "terminal_outcome": outcome.latest_receipt.terminal_outcome,
+            "terminal_receipt_ref": outcome.head.receipt_ref,
+        }
 
     @staticmethod
     def _candidate_experiment_action_tuple(
@@ -1810,6 +2765,22 @@ class AcquisitionActionService:
             raise AcquisitionActionServiceError("acquisition_execution_bridge_missing")
         return self._execution_port
 
+    def _require_candidate_experiment_execution_port(
+        self,
+    ) -> WorldBankWDIAcquisitionExecutionPort:
+        """Return the installed production owner for candidate-experiment effects."""
+        from .acquisition_surface_execution import WorldBankWDIAcquisitionExecutionPort
+
+        port = getattr(self, "_production_execution_port", None)
+        if (
+            type(port) is not WorldBankWDIAcquisitionExecutionPort
+            or self._execution_port is not port
+        ):
+            raise AcquisitionActionServiceError("candidate_experiment_execution_owner_missing")
+        if not callable(getattr(port, "execute_candidate_experiment", None)):
+            raise AcquisitionActionServiceError("candidate_experiment_execution_owner_missing")
+        return port
+
 
 __all__ = [
     "AcquisitionActionService",
@@ -1823,6 +2794,8 @@ __all__ = [
     "AcquisitionRouteMutationRequest",
     "AcquisitionRouteProjection",
     "AcquisitionRouteReplayPins",
+    "CandidateExperimentCurrentActionProjection",
+    "CandidateExperimentRouteExecutionRequest",
     "CandidateExperimentRouteMutationRequest",
     "CandidateExperimentRouteProjection",
     "CandidateExperimentRouteReplayPins",

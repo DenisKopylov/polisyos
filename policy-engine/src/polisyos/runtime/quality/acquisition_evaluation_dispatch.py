@@ -10,12 +10,13 @@ from __future__ import annotations
 
 from contextlib import contextmanager, suppress
 from contextvars import ContextVar
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Literal
 
 from polisyos.core import contracts
 from polisyos.data_forge import read_api as data_forge_read_api
+from polisyos.runtime.http.services.control_plane_store import AcquisitionActionHeadRecord
 from polisyos.runtime.quality.acquisition_evaluation import (
     AcquisitionEvaluationBasis,
     AcquisitionEvaluationDecision,
@@ -36,12 +37,15 @@ from polisyos.runtime.quality.acquisition_evaluation import (
     selected_artifact_ref,
 )
 from polisyos.runtime.quality.acquisition_route_loop import (
+    AcquisitionCandidateExperimentTerminalReceipt,
     AcquisitionRouteLoop,
     AcquisitionRouteLoopReceiptV2,
     AcquisitionRoutePhaseReceipt,
+    VerifiedCandidateExperimentOrigin,
 )
 from polisyos.runtime.quality.acquisition_world_growth import (
     AcquisitionCandidatePreparation,
+    AcquisitionCandidateSourceRoute,
     AcquisitionWorldGrowthBridge,
     AcquisitionWorldGrowthReceipt,
 )
@@ -60,7 +64,6 @@ if TYPE_CHECKING:
         VerifiedAcquisitionActionOutcome,
     )
     from polisyos.runtime.http.services.control_plane_store import (
-        AcquisitionActionHeadRecord,
         AcquisitionEvaluationFrontierCAS,
         AcquisitionEvaluationFrontierRecord,
     )
@@ -76,11 +79,16 @@ if TYPE_CHECKING:
         AcquisitionCandidateRouteLoopReceipt,
         VerifiedAcquisitionRouteClosure,
     )
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationScenarioProfile,
+        CandidateSimulationSyntheticModelDeclarationV1,
+    )
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
     from polisyos.runtime.quality.joint_simulation_horizon import (
         PreparedJointSimulationConfiguration,
     )
     from polisyos.scientist.orchestration.engine import (
+        BudgetLedgerReentryBudgetScope,
         BudgetLedgerReentryBudgetWindow,
         BudgetState,
         ProducerBudgetObservation,
@@ -107,6 +115,131 @@ class _CurrentSelection:
     overlay: object
     prepared: AcquisitionCandidatePreparation
     admitted_source_ref: ArtifactRef
+
+
+@dataclass(frozen=True)
+class CandidateExperimentEvaluationPreflight:
+    """Read-only selected owners for the experiment-native N5 continuation path.
+
+    This result proves composition of the source/template/profile and actual
+    continuation owners before enqueue. It intentionally carries no live job,
+    lease, budget observation, or effect permission; those are reopened at the
+    executing and pending-reentry phases.
+    """
+
+    origin: VerifiedCandidateExperimentOrigin
+    selection: AcquisitionCandidateSourceRoute
+    policy_ref: ArtifactRef
+    configured_profile: CandidateSimulationScenarioProfile
+    original_model_declaration: CandidateSimulationSyntheticModelDeclarationV1
+    continuation_kind: Literal["candidate_source_reentry_n5"]
+
+
+def preflight_candidate_experiment_evaluation(
+    *,
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    selection: AcquisitionCandidateSourceRoute,
+) -> CandidateExperimentEvaluationPreflight:
+    """Reopen current experiment source and downstream N5/terminal owners prequeue."""
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.quality.acquisition_evaluation_history import (
+        verify_candidate_experiment_terminal_history,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import VerifiedCandidateExperimentOrigin
+    from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+        resolve_current_candidate_unpriced_policy,
+    )
+    from polisyos.runtime.quality.candidate_acquisition_action import (
+        _candidate_experiment_source_selection,
+    )
+    from polisyos.runtime.quality.candidate_source_reentry_history import (
+        verify_candidate_experiment_source_reentry_history,
+    )
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+
+    service = bridge._source_control_service
+    sink = bridge.action_head_sink
+    if (
+        type(bridge) is not AcquisitionWorldGrowthBridge
+        or type(origin) is not VerifiedCandidateExperimentOrigin
+        or type(selection) is not AcquisitionCandidateSourceRoute
+        or type(service) is not ControlPlaneService
+        or service._artifact_store is not bridge.artifact_store
+        or service._control_store is not bridge.control_store
+        or service.acquisition_route_sink is not sink
+        or sink is None
+    ):
+        raise ValueError("candidate_experiment_evaluation_preflight_owner_missing")
+    if origin.candidate_terminal_history_chain:
+        raise ValueError("candidate_experiment_later_generation_not_supported")
+    from polisyos.runtime.http.services.control_plane_store import (
+        AcquisitionEvaluationFrontierKey,
+    )
+
+    frontier_key = AcquisitionEvaluationFrontierKey(
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        source_job_id=origin.source_job_id,
+        design_problem_ref=origin.policy_scope.design_problem_ref,
+        candidate_id=origin.policy_scope.candidate_id,
+    )
+    if bridge.control_store.read_acquisition_evaluation_frontier(frontier_key) is not None:
+        raise ValueError("candidate_experiment_existing_frontier_not_supported")
+    selected = _candidate_experiment_source_selection(bridge, origin)
+    if selected != selection:
+        raise ValueError("candidate_experiment_evaluation_preflight_selection_changed")
+    prior_owner = bridge._candidate_experiment_prior_owner(
+        origin=origin,
+        selection=selected,
+    )
+    profile = prior_owner.profile
+    declaration = prior_owner.model_declaration
+    binding = service.verify_acquisition_source_budget_owner(closure=origin)
+    budget_scope = service.verify_candidate_unpriced_budget_scope(closure=origin)
+    global_limit = service.acquisition_source_global_budget_usd(closure=origin)
+    current_policy_ref, current_policy = resolve_current_candidate_unpriced_policy(
+        control_service=service,
+        scope=origin.policy_scope,
+    )
+    quota = profile.n5.invocation_quota_policy
+    template = current_policy.configured_template
+    if (
+        binding.run_id != origin.run_id
+        or binding.tenant_id != origin.tenant_id
+        or binding.cell_id != origin.cell_id
+        or budget_scope.run_budget_usd is None
+        or budget_scope.run_budget_usd <= 0
+        or global_limit <= 0
+        or current_policy_ref != origin.policy_ref
+        or template is None
+        or template.max_metered_reentry_usd <= 0
+        or quota is None
+        or profile.n5.invocation_purpose != "standard"
+    ):
+        raise ValueError("candidate_experiment_evaluation_preflight_budget_not_established")
+    required_callables = (
+        getattr(bridge, "resolve_candidate_experiment_reentry_budget_window", None),
+        getattr(bridge, "prepare_candidate_experiment_source_reentry", None),
+        getattr(service, "build_candidate_experiment_source_budget_observer", None),
+        getattr(service, "build_candidate_experiment_reentry_budget_observer", None),
+        getattr(sink, "experiment_action_outcomes", None),
+        getattr(sink, "recover_candidate_experiment_terminal", None),
+        getattr(sink, "persist_terminal", None),
+        getattr(GenerationCycleController, "reenter_after_candidate_acquisition_source", None),
+        verify_candidate_experiment_source_reentry_history,
+        verify_candidate_experiment_terminal_history,
+    )
+    if any(not callable(item) for item in required_callables):
+        raise ValueError("candidate_experiment_evaluation_preflight_continuation_missing")
+    return CandidateExperimentEvaluationPreflight(
+        origin=origin,
+        selection=selected,
+        policy_ref=origin.policy_ref,
+        configured_profile=profile,
+        original_model_declaration=declaration,
+        continuation_kind="candidate_source_reentry_n5",
+    )
 
 
 def _current_selection(bridge: AcquisitionWorldGrowthBridge) -> _CurrentSelection:
@@ -1838,6 +1971,454 @@ _CANDIDATE_TERMINAL_SCOPE: ContextVar[_CandidateTerminalScope | None] = ContextV
 )
 
 
+@dataclass(frozen=True)
+class CandidateExperimentReentryOwner:
+    """Live current owner pinned to one prepared experiment terminal."""
+
+    bridge: AcquisitionWorldGrowthBridge
+    origin: VerifiedCandidateExperimentOrigin
+    terminal: AcquisitionCandidateExperimentTerminalReceipt
+    predecessor_head: AcquisitionActionHeadRecord
+    candidate_action_ref: ArtifactRef
+    action_phase_ref: str
+    budget_state: BudgetState
+    reentry_budget_scope: BudgetLedgerReentryBudgetScope
+    budget_window: BudgetLedgerReentryBudgetWindow
+
+
+@dataclass(frozen=True)
+class _CandidateExperimentReentryScope:
+    owner: CandidateExperimentReentryOwner
+    terminal: AcquisitionCandidateExperimentTerminalReceipt
+    predecessor_head: AcquisitionActionHeadRecord
+
+
+_CANDIDATE_EXPERIMENT_REENTRY_SCOPE: ContextVar[_CandidateExperimentReentryScope | None] = (
+    ContextVar("polisyos_candidate_experiment_reentry_scope", default=None)
+)
+
+
+def prepare_candidate_experiment_reentry_owner(
+    *,
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    terminal: AcquisitionCandidateExperimentTerminalReceipt,
+    predecessor_head: AcquisitionActionHeadRecord,
+    candidate_action_ref: ArtifactRef,
+    action_phase_ref: str,
+    budget_state: BudgetState,
+    reentry_budget_scope: BudgetLedgerReentryBudgetScope,
+    budget_window: BudgetLedgerReentryBudgetWindow,
+) -> CandidateExperimentReentryOwner:
+    """Create the terminal owner only from the exact current pending action and lease."""
+    owner = CandidateExperimentReentryOwner(
+        bridge=bridge,
+        origin=origin,
+        terminal=terminal,
+        predecessor_head=predecessor_head,
+        candidate_action_ref=candidate_action_ref,
+        action_phase_ref=action_phase_ref,
+        budget_state=budget_state,
+        reentry_budget_scope=reentry_budget_scope,
+        budget_window=budget_window,
+    )
+    _revalidate_candidate_experiment_reentry_owner(owner)
+    return owner
+
+
+@contextmanager
+def candidate_experiment_reentry_fence(
+    owner: CandidateExperimentReentryOwner,
+) -> Iterator[None]:
+    """Bind actual source, live lease, budget window and terminal before persistence."""
+    if type(owner) is not CandidateExperimentReentryOwner:
+        raise TypeError("candidate_experiment_reentry_owner_untyped")
+    _revalidate_candidate_experiment_reentry_owner(owner)
+    scope = _CandidateExperimentReentryScope(
+        owner=owner,
+        terminal=owner.terminal,
+        predecessor_head=owner.predecessor_head,
+    )
+    token = _CANDIDATE_EXPERIMENT_REENTRY_SCOPE.set(scope)
+    try:
+        yield
+    finally:
+        _CANDIDATE_EXPERIMENT_REENTRY_SCOPE.reset(token)
+
+
+def _revalidate_candidate_experiment_reentry_owner(
+    owner: CandidateExperimentReentryOwner,
+) -> None:
+    """Replay selected action, pending phase, authenticated lease and USD owner."""
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.quality.candidate_acquisition_action import (
+        _current_candidate_experiment_reentry_action,
+    )
+    from polisyos.runtime.quality.candidate_source_reentry_history import (
+        verify_candidate_experiment_source_reentry_history,
+    )
+    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationResult
+    from polisyos.scientist.orchestration.engine import (
+        BudgetInvocationCapacityObservation,
+        ProducerBudgetObservation,
+        ProducerBudgetObserver,
+    )
+
+    bridge = owner.bridge
+    origin = owner.origin
+    service = bridge._source_control_service
+    terminal = owner.terminal
+    if (
+        type(bridge) is not AcquisitionWorldGrowthBridge
+        or type(origin) is not VerifiedCandidateExperimentOrigin
+        or type(service) is not ControlPlaneService
+        or service._artifact_store is not bridge.artifact_store
+        or service._control_store is not bridge.control_store
+        or terminal.terminal_outcome != "candidate_reentry_completed"
+        or terminal.candidate_reentry_ref is None
+        or terminal.current_continuation_ref is not None
+        or terminal.predecessor_receipt_ref != owner.predecessor_head.receipt_ref
+        or terminal.candidate_action_ref != owner.candidate_action_ref
+        or terminal.action_generation != owner.predecessor_head.action_generation
+        or terminal.receipt_phase != "terminal"
+    ):
+        raise ValueError("candidate_experiment_reentry_owner_binding_mismatch")
+    if service.acquisition_route_sink.get_head(terminal) != owner.predecessor_head:
+        raise ValueError("candidate_experiment_reentry_predecessor_changed")
+    try:
+        selection, phase, admission, action = _current_candidate_experiment_reentry_action(
+            bridge,
+            origin,
+            owner.predecessor_head.receipt_ref,
+            candidate_action_ref=owner.candidate_action_ref,
+        )
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise ValueError("candidate_experiment_reentry_live_owner_not_current") from exc
+    if (
+        phase.receipt_phase != "candidate_input_reentry_pending"
+        or action.action_phase_ref != owner.action_phase_ref
+        or action.action_job_id != terminal.job_id
+        or action.action_generation != terminal.action_generation
+        or action.selection != selection
+        or admission.job.job_id != terminal.job_id
+        or admission.job.state != "running"
+        or (terminal.tenant_id, terminal.cell_id, terminal.run_id, terminal.source_job_id)
+        != (origin.tenant_id, origin.cell_id, origin.run_id, origin.source_job_id)
+        or terminal.route_id != origin.route_id
+        or terminal.compiled_ref != origin.policy_scope.compiled_ref
+    ):
+        raise ValueError("candidate_experiment_reentry_live_owner_changed")
+    window = bridge.resolve_candidate_experiment_reentry_budget_window(
+        origin=origin,
+        candidate_action_ref=owner.candidate_action_ref,
+    )
+    if window != owner.budget_window or window.scope != owner.reentry_budget_scope:
+        raise ValueError("candidate_experiment_reentry_budget_window_changed")
+    try:
+        reentry = verify_candidate_experiment_source_reentry_history(
+            bridge=bridge,
+            origin=origin,
+            receipt_ref=terminal.candidate_reentry_ref,
+            expected_selected_action_ref=owner.candidate_action_ref,
+        )
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise ValueError("candidate_experiment_reentry_receipt_not_selected") from exc
+    if (
+        reentry.candidate_action_ref != owner.candidate_action_ref
+        or reentry.source_job_id != origin.source_job_id
+        or reentry.run_id != origin.run_id
+        or reentry.route_id != origin.route_id
+        or reentry.action_generation != terminal.action_generation
+        or reentry.action_job_id != terminal.job_id
+        or reentry.n5_result_ref is None
+        or not reentry.continued_generation_run.cycles
+        or reentry.new_cycle != reentry.continued_generation_run.cycles[-1]
+    ):
+        raise ValueError("candidate_experiment_reentry_receipt_binding_mismatch")
+    try:
+        observer = service.build_candidate_experiment_reentry_budget_observer(
+            origin=origin,
+            candidate_action_ref=owner.candidate_action_ref,
+            budget_state=owner.budget_state,
+            reentry_budget_scope=owner.reentry_budget_scope,
+        )
+        observation = observer.observe()
+        capacity = observer.observe_standard_invocation_capacity()
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise ValueError("candidate_experiment_reentry_budget_not_reconciled") from exc
+    if (
+        type(observer) is not ProducerBudgetObserver
+        or type(observation) is not ProducerBudgetObservation
+        or type(capacity) is not BudgetInvocationCapacityObservation
+    ):
+        raise ValueError("candidate_experiment_reentry_budget_owner_untyped")
+    simulation = reentry.new_cycle.simulation
+    if (
+        simulation.simulation_result_ref != reentry.n5_result_ref
+        or simulation.simulation_ref is None
+    ):
+        raise ValueError("candidate_experiment_reentry_n5_result_not_in_run")
+    current_result = load_joint_simulation_result(
+        reentry.n5_result_ref,
+        store=bridge.artifact_store,
+        expected_world_model_record_content_hash=simulation.k_world_ref_after,
+        expected_receipt_payload_hash=simulation.simulation_ref,
+    )
+    if type(current_result) is not JointSimulationResult:
+        raise ValueError("candidate_experiment_reentry_n5_result_untyped")
+    current_event_ids = tuple(item.event_id for item in current_result.physical_work_observations)
+    expected_event_ids = tuple(
+        event_id
+        for trajectory in current_result.trajectories
+        for event_id in trajectory.diagnostics.get("physical_work_event_ids", ())
+    )
+    current_event_capture_valid = (
+        current_result.diagnostics.get("physical_work_capture_status") == "observed"
+        and bool(current_event_ids)
+        and len(current_event_ids) == len(set(current_event_ids))
+        and len(expected_event_ids) == len(set(expected_event_ids))
+        and current_event_ids
+        and set(current_event_ids) == set(expected_event_ids)
+    )
+    current_operations = current_result.physical_work_observations
+    current_operation_ids = tuple(
+        item.invocation_quota_operation_id
+        for item in current_operations
+        if item.invocation_quota_operation_id is not None
+    )
+    witness_ids = tuple(item[0] for item in capacity.terminal_witnesses)
+    current_operation_bindings_valid = (
+        bool(current_operations)
+        and len(current_operation_ids) == len(current_operations)
+        and len(current_operation_ids) == len(set(current_operation_ids))
+        and all(
+            item.invocation_quota_profile_digest == capacity.profile_digest
+            and item.invocation_quota_purpose == "standard"
+            and item.invocation_quota_status == item.status
+            and item.status in {"completed", "failed"}
+            for item in current_operations
+        )
+    )
+    exhaustion_replayed = False
+    if capacity.status == "exhausted":
+        witness = capacity.exhaustion_witness
+        try:
+            from polisyos.scientist.orchestration.engine import BudgetInvocationExhaustionWitness
+
+            exhaustion_replayed = (
+                type(witness) is BudgetInvocationExhaustionWitness
+                and ProducerBudgetObserver.verify_standard_invocation_exhaustion(observer, witness)
+                is True
+            )
+        except (OSError, RuntimeError, TypeError, ValueError):
+            exhaustion_replayed = False
+    if (
+        observation.predicate_basis != "independently_reconciled"
+        or observation.remaining_usd < 0
+        or observation.run_binding != owner.reentry_budget_scope.run_binding
+        or capacity.run_binding != owner.reentry_budget_scope.run_binding
+        or observation.settlement_owner != capacity.settlement_owner
+        or capacity.predicate_basis != "independently_reconciled"
+        or capacity.status not in {"available", "exhausted"}
+        or capacity.profile_digest is None
+        or capacity.standard_limit_units is None
+        or capacity.standard_remaining_units is None
+        or (capacity.status == "available" and capacity.standard_remaining_units <= 0)
+        or (capacity.status == "exhausted" and capacity.standard_remaining_units != 0)
+        or not current_event_capture_valid
+        or not current_operation_bindings_valid
+        or not set(current_operation_ids).issubset(witness_ids)
+        or (capacity.status == "exhausted" and not exhaustion_replayed)
+    ):
+        raise ValueError("candidate_experiment_reentry_budget_conservation_not_established")
+
+
+def require_candidate_experiment_reentry_fence(
+    terminal: AcquisitionCandidateExperimentTerminalReceipt,
+    *,
+    predecessor_head: AcquisitionActionHeadRecord,
+) -> None:
+    """Require the exact live owner before the sink writes terminal bytes or event."""
+    scope = _CANDIDATE_EXPERIMENT_REENTRY_SCOPE.get()
+    if (
+        type(terminal) is not AcquisitionCandidateExperimentTerminalReceipt
+        or type(predecessor_head) is not AcquisitionActionHeadRecord
+        or type(scope) is not _CandidateExperimentReentryScope
+        or scope.terminal != terminal
+        or scope.predecessor_head != predecessor_head
+        or scope.owner.terminal != terminal
+        or scope.owner.predecessor_head != predecessor_head
+    ):
+        raise ValueError("candidate_experiment_reentry_fence_not_established")
+    _revalidate_candidate_experiment_reentry_owner(scope.owner)
+
+
+def candidate_experiment_terminal_frontier_cas(
+    terminal: AcquisitionCandidateExperimentTerminalReceipt,
+    *,
+    terminal_ref: ArtifactRef,
+    artifact_store: object,
+    control_store: object,
+) -> AcquisitionEvaluationFrontierCAS:
+    """Replay precommit experiment history and derive the atomic frontier CAS."""
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.http.services.control_plane_store import (
+        AcquisitionEvaluationFrontierCAS,
+        AcquisitionEvaluationFrontierKey,
+        AcquisitionEvaluationFrontierValue,
+    )
+    from polisyos.runtime.quality.acquisition_evaluation_history import (
+        verify_candidate_experiment_terminal_history,
+    )
+
+    scope = _CANDIDATE_EXPERIMENT_REENTRY_SCOPE.get()
+    if (
+        type(scope) is not _CandidateExperimentReentryScope
+        or type(terminal) is not AcquisitionCandidateExperimentTerminalReceipt
+        or scope.terminal != terminal
+        or scope.owner.bridge.artifact_store is not artifact_store
+        or scope.owner.bridge.control_store is not control_store
+        or terminal_ref.kind != "runtime_quality.acquisition_route_loop_receipt"
+        or terminal_ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("candidate_experiment_reentry_frontier_fence_not_established")
+    require_candidate_experiment_reentry_fence(terminal, predecessor_head=scope.predecessor_head)
+    service = scope.owner.bridge._source_control_service
+    if type(service) is not ControlPlaneService:
+        raise ValueError("candidate_experiment_reentry_history_owner_missing")
+    history = verify_candidate_experiment_terminal_history(
+        control_service=service,
+        head=scope.predecessor_head,
+        terminal_ref=terminal_ref,
+    )
+    if (
+        history.head != scope.predecessor_head
+        or history.terminal_ref != terminal_ref
+        or history.terminal != terminal
+        or replace(history.origin, current_action_head=None, current_terminal_history=None)
+        != replace(scope.owner.origin, current_action_head=None, current_terminal_history=None)
+        or history.frontier_after is not None
+        or history.action.action_phase_ref != scope.owner.action_phase_ref
+        or history.budget_window != scope.owner.budget_window
+        or history.reentry is None
+        or terminal.candidate_reentry_ref is None
+        or history.current_basis is None
+        or history.selected_basis is None
+        or history.decision is None
+        or terminal.evaluation_decision_ref is None
+        or terminal.selected_basis_ref is None
+        or terminal.selected_evaluation_witness_ref is None
+    ):
+        raise ValueError("candidate_experiment_terminal_history_not_established")
+    decision = history.decision
+    first_generation_unknown = (
+        not history.origin.candidate_terminal_history_chain
+        and history.frontier_before is None
+        and decision.comparison_result == "not_established"
+        and decision.predicate_provenance == "not_established"
+        and decision.prior_basis_ref is None
+        and decision.prior_evaluation is None
+        and decision.expected_frontier_revision == 0
+        and decision.expected_frontier_ref is None
+        and "candidate_evaluation_prior_basis_not_established" in decision.reason_codes
+    )
+    if (
+        decision is None
+        or not (decision.predicate_provenance == "recomputed" or first_generation_unknown)
+        or not _candidate_ref_same(
+            terminal.evaluation_decision_ref, history.terminal.evaluation_decision_ref
+        )
+        or not _candidate_ref_same(terminal.selected_basis_ref, history.terminal.selected_basis_ref)
+        or not _candidate_ref_same(
+            terminal.selected_evaluation_witness_ref,
+            history.terminal.selected_evaluation_witness_ref,
+        )
+        or not _candidate_model_values_same(
+            terminal.selected_evaluation, history.terminal.selected_evaluation
+        )
+    ):
+        raise ValueError("candidate_experiment_terminal_selected_evaluation_changed")
+    key = AcquisitionEvaluationFrontierKey(
+        tenant_id=scope.owner.origin.tenant_id,
+        cell_id=scope.owner.origin.cell_id,
+        source_job_id=scope.owner.origin.source_job_id,
+        design_problem_ref=scope.owner.origin.policy_scope.design_problem_ref,
+        candidate_id=scope.owner.origin.policy_scope.candidate_id,
+    )
+    frontier_before = scope.owner.bridge.control_store.read_acquisition_evaluation_frontier(key)
+    if frontier_before != history.frontier_before:
+        raise ValueError("candidate_experiment_terminal_frontier_changed")
+    expected_revision = frontier_before.revision if frontier_before is not None else 0
+    expected_frontier_ref = frontier_before.frontier_ref if frontier_before is not None else None
+    if history.current_basis.basis_role != "prospective" or not _candidate_ref_same(
+        history.current_basis.candidate_action_ref, scope.owner.candidate_action_ref
+    ):
+        raise ValueError("candidate_experiment_terminal_current_basis_not_established")
+    _revalidate_candidate_experiment_reentry_owner(scope.owner)
+    if (
+        scope.owner.bridge.control_store.read_acquisition_evaluation_frontier(key)
+        != frontier_before
+    ):
+        raise ValueError("candidate_experiment_terminal_frontier_changed")
+    if terminal.selected_evaluation is None:
+        if (
+            history.evaluation is not None
+            or history.selected_basis.basis_role != "blocked"
+            or history.selected_basis.predicate_provenance != "not_established"
+            or history.selected_basis.evaluation is not None
+            or terminal.selected_basis_ref != history.terminal.selected_basis_ref
+            or terminal.selected_evaluation_witness_ref != terminal.candidate_reentry_ref
+            or not _candidate_ref_same(
+                terminal.selected_evaluation_witness_ref, terminal.candidate_reentry_ref
+            )
+            or history.frontier_after is not None
+        ):
+            raise ValueError("candidate_experiment_terminal_blocked_basis_not_established")
+        return AcquisitionEvaluationFrontierCAS(
+            key=key,
+            expected_revision=expected_revision,
+            expected_frontier_ref=expected_frontier_ref,
+            replacement=None,
+        )
+    if (
+        history.evaluation is None
+        or history.selected_basis.basis_role != "evaluated"
+        or history.selected_basis.predicate_provenance != "recomputed"
+        or history.selected_basis.evaluation is None
+        or not _candidate_model_values_same(
+            history.selected_basis.evaluation, history.evaluation.selected
+        )
+        or not _candidate_model_values_same(
+            terminal.selected_evaluation, history.terminal.selected_evaluation
+        )
+        or not _candidate_ref_same(
+            history.evaluation.selected.n5_execution_ref,
+            terminal.selected_evaluation_witness_ref,
+        )
+        or not _candidate_ref_same(
+            terminal.selected_evaluation.basis_ref, terminal.selected_basis_ref
+        )
+        or history.frontier_after is not None
+    ):
+        raise ValueError("candidate_experiment_terminal_basis_not_recomputed")
+    witness_hash = history.evaluation.execution.content_hash
+    return AcquisitionEvaluationFrontierCAS(
+        key=key,
+        expected_revision=expected_revision,
+        expected_frontier_ref=expected_frontier_ref,
+        replacement=AcquisitionEvaluationFrontierValue(
+            selected_evaluation_witness_ref=str(
+                terminal.selected_evaluation_witness_ref.artifact_id
+            ),
+            selected_evaluation_content_hash=witness_hash,
+            basis_ref=str(terminal.selected_basis_ref.artifact_id),
+            basis_content_hash=history.selected_basis.content_hash,
+            decision_ref=str(terminal.evaluation_decision_ref.artifact_id),
+        ),
+    )
+
+
 @contextmanager
 def _candidate_terminal_scope(scope: _CandidateTerminalScope) -> Iterator[None]:
     """Carry the real candidate owner only while its caller holds the native fence."""
@@ -2752,6 +3333,784 @@ def dispatch_candidate_acquisition_evaluation(
         )
         with _candidate_terminal_scope(_CandidateTerminalScope(owner, terminal)):
             return sink.persist_terminal(terminal)
+
+
+def _require_candidate_experiment_evaluation_record_scope(
+    *,
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    pending_phase_ref: str,
+    candidate_action_ref: ArtifactRef,
+    record: CandidateAcquisitionEvaluationBasis | CandidateAcquisitionEvaluationDecision,
+    selected_reentry_ref: ArtifactRef | None = None,
+) -> object:
+    """Bind one candidate basis/decision to the current typed experiment action."""
+    from polisyos.runtime.quality.candidate_acquisition_action import (
+        _candidate_experiment_source_selection,
+        _current_candidate_experiment_reentry_action,
+        read_candidate_experiment_acquisition_action,
+    )
+
+    if type(record) not in {
+        CandidateAcquisitionEvaluationBasis,
+        CandidateAcquisitionEvaluationDecision,
+    }:
+        raise TypeError("candidate_experiment_evaluation_record_untyped")
+    selection, _phase, _admission, action = _current_candidate_experiment_reentry_action(
+        bridge,
+        origin,
+        pending_phase_ref,
+        candidate_action_ref,
+    )
+    current_action = read_candidate_experiment_acquisition_action(
+        bridge=bridge,
+        origin=origin,
+        receipt_ref=candidate_action_ref,
+        require_current_action=False,
+    )
+    if (
+        current_action != action
+        or action.selection != selection
+        or _candidate_experiment_source_selection(bridge, origin) != selection
+    ):
+        raise ValueError("candidate_experiment_evaluation_action_not_current")
+    identity = (
+        record.tenant_id,
+        record.cell_id,
+        record.run_id,
+        record.source_job_id,
+        record.action_job_id,
+        record.action_generation,
+        record.route_id,
+        record.design_problem_ref,
+        record.design_problem_basis_ref,
+        record.candidate_id,
+        record.source_candidate_content_hash,
+    )
+    effective_cycle = origin.effective_source_cycle
+    expected_candidate_id = effective_cycle.selected_candidate_ref
+    expected_candidate_hash = effective_cycle.selected_candidate_content_hash
+    selected_reentry = None
+    if (
+        type(record) is CandidateAcquisitionEvaluationBasis
+        and record.basis_role
+        in {
+            "evaluated",
+            "blocked",
+        }
+        and (
+            record.selected_data_snapshot_ref is not None
+            or record.selected_world_model_ref is not None
+        )
+    ):
+        if selected_reentry_ref is None:
+            raise ValueError("candidate_experiment_selected_reentry_not_established")
+        selected_reentry = _read_candidate_experiment_selected_reentry(
+            bridge=bridge,
+            origin=origin,
+            candidate_action_ref=candidate_action_ref,
+            receipt_ref=selected_reentry_ref,
+        )
+        if record.basis_role == "evaluated":
+            evaluation = record.evaluation
+            if (
+                evaluation is None
+                or evaluation.candidate_id != selected_reentry.new_cycle.selected_candidate_ref
+                or evaluation.candidate_content_hash
+                != selected_reentry.new_cycle.selected_candidate_content_hash
+            ):
+                raise ValueError("candidate_experiment_selected_basis_evaluation_changed")
+        elif record.evaluation is not None:
+            raise ValueError("candidate_experiment_blocked_basis_evaluation_not_absent")
+    expected = (
+        origin.tenant_id,
+        origin.cell_id,
+        origin.run_id,
+        origin.source_job_id,
+        action.action_job_id,
+        action.action_generation,
+        origin.route_id,
+        origin.policy_scope.design_problem_ref,
+        origin.policy_scope.design_problem_basis_ref,
+        expected_candidate_id,
+        expected_candidate_hash,
+    )
+    if (
+        identity != expected
+        or (
+            type(record) is CandidateAcquisitionEvaluationDecision
+            and record.compiled_ref != str(origin.policy_scope.compiled_ref.artifact_id)
+        )
+        or record.candidate_action_ref != candidate_action_ref
+        or record.candidate_source_ref != action.candidate_source_ref
+    ):
+        raise ValueError("candidate_experiment_evaluation_record_scope_mismatch")
+    prior_owner = bridge._candidate_experiment_prior_owner(
+        origin=origin,
+        selection=selection,
+    )
+    profile = prior_owner.profile
+    declaration = prior_owner.model_declaration
+    intent_ref, intent = bridge._candidate_world_materialization_intent(
+        origin=origin,
+        candidate_action_ref=candidate_action_ref,
+        configured_profile=profile,
+        original_model_declaration=declaration,
+        create=False,
+    )
+    if type(record) is CandidateAcquisitionEvaluationBasis:
+        basis = record
+    else:
+        basis_ref = record.current_basis_ref
+        basis = read_acquisition_evaluation_artifact(
+            store=bridge.artifact_store,
+            event_log=bridge.event_log,
+            ref=basis_ref,
+            record_type=CandidateAcquisitionEvaluationBasis,
+        )
+        if (
+            type(basis) is not CandidateAcquisitionEvaluationBasis
+            or basis.basis_role != "prospective"
+            or not _candidate_ref_same(basis.candidate_action_ref, candidate_action_ref)
+            or not _candidate_ref_same(basis.candidate_source_ref, action.candidate_source_ref)
+            or not _candidate_ref_same(
+                basis.candidate_world_intent_ref, record.candidate_world_intent_ref
+            )
+        ):
+            raise ValueError("candidate_experiment_decision_current_basis_not_established")
+        _require_candidate_experiment_evaluation_record_scope(
+            bridge=bridge,
+            origin=origin,
+            pending_phase_ref=pending_phase_ref,
+            candidate_action_ref=candidate_action_ref,
+            record=basis,
+        )
+    if (
+        not _candidate_ref_same(record.candidate_world_intent_ref, intent_ref)
+        or basis.preparation_inputs.configured_profile != profile
+        or basis.preparation_inputs.original_model_declaration != declaration
+        or basis.preparation_inputs.transaction_time != intent.transaction_time
+    ):
+        raise ValueError("candidate_experiment_evaluation_record_intent_mismatch")
+    return action
+
+
+def _read_candidate_experiment_selected_reentry(
+    *,
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    candidate_action_ref: ArtifactRef,
+    receipt_ref: ArtifactRef,
+) -> object:
+    """Replay the selected reentry artifact under its action-derived event owner."""
+    import hashlib
+
+    from polisyos.core import canon
+    from polisyos.runtime.quality.candidate_source_reentry_history import (
+        verify_candidate_experiment_source_reentry_history,
+    )
+
+    identity = hashlib.sha256(
+        canon.to_canonical_bytes(candidate_action_ref.model_dump(mode="json"))
+    ).hexdigest()
+    events = bridge.event_log.list_events(
+        event_id="evt_candidate_source_reentry_" + identity,
+        limit=2,
+    )
+    if (
+        receipt_ref.kind != "runtime_quality.candidate_source_reentry_receipt"
+        or len(events) != 1
+        or tuple(events[0].event.artifact_refs) != (str(receipt_ref.artifact_id),)
+    ):
+        raise ValueError("candidate_experiment_selected_reentry_event_not_established")
+    return verify_candidate_experiment_source_reentry_history(
+        bridge=bridge,
+        origin=origin,
+        receipt_ref=receipt_ref,
+        expected_selected_action_ref=candidate_action_ref,
+    )
+
+
+def _candidate_experiment_decision_for_recovery(
+    *,
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    pending_phase_ref: str,
+    candidate_action_ref: ArtifactRef,
+) -> tuple[ArtifactRef, CandidateAcquisitionEvaluationDecision] | None:
+    """Read one saved decision through its action-scoped event and pointer owner."""
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        PRODUCER,
+        _candidate_evaluation_role_event_id,
+    )
+    from polisyos.runtime.quality.candidate_acquisition_action import (
+        _candidate_experiment_source_selection,
+    )
+
+    event_id = _candidate_evaluation_role_event_id(candidate_action_ref, "decision")
+    selection = _candidate_experiment_source_selection(bridge, origin)
+    overlay_path, _ = bridge._paths(selection, create=False)
+    pointer = overlay_path.parent / (event_id + ".selected.json")
+    operation = overlay_path.parent / (event_id + ".lock-target")
+
+    def read_selected(ref: ArtifactRef) -> CandidateAcquisitionEvaluationDecision:
+        value = read_acquisition_evaluation_artifact(
+            store=bridge.artifact_store,
+            event_log=bridge.event_log,
+            ref=ref,
+            record_type=CandidateAcquisitionEvaluationDecision,
+        )
+        if (
+            type(value) is not CandidateAcquisitionEvaluationDecision
+            or _candidate_evaluation_role_event_id(value.candidate_action_ref, "decision")
+            != event_id
+        ):
+            raise ValueError("candidate_experiment_decision_recovery_record_mismatch")
+        _require_candidate_experiment_evaluation_record_scope(
+            bridge=bridge,
+            origin=origin,
+            pending_phase_ref=pending_phase_ref,
+            candidate_action_ref=candidate_action_ref,
+            record=value,
+        )
+        return value
+
+    with data_forge_read_api.catalog.acquisition_overlay_admission_fence(operation):
+        events = bridge.event_log.list_events(event_id=event_id, limit=2)
+        if len(events) > 1:
+            raise ValueError("candidate_experiment_decision_recovery_ambiguous")
+        if not events:
+            if pointer.exists():
+                raise ValueError("candidate_experiment_decision_recovery_event_missing")
+            return None
+        refs = tuple(events[0].event.artifact_refs)
+        if len(refs) != 1:
+            raise ValueError("candidate_experiment_decision_recovery_ref_unresolved")
+        if pointer.exists():
+            selected = bridge._read_candidate_world_pointer(
+                pointer,
+                candidate_action_ref=candidate_action_ref,
+                expected_kind=CandidateAcquisitionEvaluationDecision.ARTIFACT_KIND,
+            )
+            if str(selected.artifact_id) != refs[0]:
+                raise ValueError("candidate_experiment_decision_recovery_pointer_mismatch")
+            value = read_selected(selected)
+        else:
+            selected, value = bridge._recover_unique_candidate_owner_view(
+                artifact_ref=refs[0],
+                kind=CandidateAcquisitionEvaluationDecision.ARTIFACT_KIND,
+                schema=CandidateAcquisitionEvaluationDecision.ARTIFACT_SCHEMA_NAME,
+                version="1.0",
+                record_type=CandidateAcquisitionEvaluationDecision,
+                verify=read_selected,
+                producer_component=PRODUCER,
+            )
+        return selected, value
+
+
+def _select_candidate_experiment_evaluation_artifact(
+    *,
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    pending_phase_ref: str,
+    candidate_action_ref: ArtifactRef,
+    record: CandidateAcquisitionEvaluationBasis | CandidateAcquisitionEvaluationDecision,
+    selected_reentry_ref: ArtifactRef | None = None,
+) -> ArtifactRef:
+    """Persist or recover one experiment basis/decision under its actual action owner."""
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        PRODUCER,
+        _candidate_evaluation_event_id,
+    )
+    from polisyos.runtime.quality.candidate_acquisition_action import (
+        _candidate_experiment_source_selection,
+    )
+
+    action = _require_candidate_experiment_evaluation_record_scope(
+        bridge=bridge,
+        origin=origin,
+        pending_phase_ref=pending_phase_ref,
+        candidate_action_ref=candidate_action_ref,
+        record=record,
+        selected_reentry_ref=selected_reentry_ref,
+    )
+    selection = _candidate_experiment_source_selection(bridge, origin)
+    overlay_path, _ = bridge._paths(selection, create=False)
+    event_id = _candidate_evaluation_event_id(record)
+    pointer = overlay_path.parent / (event_id + ".selected.json")
+    operation = overlay_path.parent / (event_id + ".lock-target")
+
+    def read_selected(ref: ArtifactRef) -> object:
+        value = read_acquisition_evaluation_artifact(
+            store=bridge.artifact_store,
+            event_log=bridge.event_log,
+            ref=ref,
+            record_type=type(record),
+        )
+        if type(value) is not type(record) or exact_n5_content_bytes(value) != (
+            exact_n5_content_bytes(record)
+        ):
+            raise ValueError("candidate_experiment_evaluation_selected_record_changed")
+        _require_candidate_experiment_evaluation_record_scope(
+            bridge=bridge,
+            origin=origin,
+            pending_phase_ref=pending_phase_ref,
+            candidate_action_ref=candidate_action_ref,
+            record=value,
+            selected_reentry_ref=selected_reentry_ref,
+        )
+        return value
+
+    with data_forge_read_api.catalog.acquisition_overlay_admission_fence(operation):
+        events = bridge.event_log.list_events(event_id=event_id, limit=2)
+        pointer_write_required = False
+        if len(events) > 1:
+            raise ValueError("candidate_experiment_evaluation_event_ambiguous")
+        if events:
+            refs = tuple(events[0].event.artifact_refs)
+            if len(refs) != 1:
+                raise ValueError("candidate_experiment_evaluation_event_unresolved")
+            if pointer.exists():
+                selected = bridge._read_candidate_world_pointer(
+                    pointer,
+                    candidate_action_ref=candidate_action_ref,
+                    expected_kind=record.ARTIFACT_KIND,
+                )
+                if str(selected.artifact_id) != refs[0]:
+                    raise ValueError("candidate_experiment_evaluation_pointer_event_mismatch")
+                read_selected(selected)
+            else:
+                selected, _ = bridge._recover_unique_candidate_owner_view(
+                    artifact_ref=refs[0],
+                    kind=record.ARTIFACT_KIND,
+                    schema=record.ARTIFACT_SCHEMA_NAME,
+                    version="1.0",
+                    record_type=type(record),
+                    verify=read_selected,
+                    producer_component=PRODUCER,
+                )
+                pointer_write_required = True
+        else:
+            if pointer.exists():
+                raise ValueError("candidate_experiment_evaluation_event_missing")
+            selected = persist_acquisition_evaluation_artifact(
+                store=bridge.artifact_store,
+                event_log=bridge.event_log,
+                record=record,
+            )
+            pointer_write_required = True
+        if pointer_write_required:
+            if (
+                _require_candidate_experiment_evaluation_record_scope(
+                    bridge=bridge,
+                    origin=origin,
+                    pending_phase_ref=pending_phase_ref,
+                    candidate_action_ref=candidate_action_ref,
+                    record=record,
+                    selected_reentry_ref=selected_reentry_ref,
+                )
+                != action
+            ):
+                raise ValueError("candidate_experiment_evaluation_action_changed")
+            bridge._write_candidate_world_pointer(
+                pointer,
+                candidate_action_ref=candidate_action_ref,
+                selected_ref=selected,
+            )
+        read_selected(selected)
+        return selected
+
+
+def dispatch_candidate_experiment_evaluation(
+    *,
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+) -> AcquisitionActionHeadRecord:
+    """Run one current first-N5 candidate experiment through its actual terminal.
+
+    This is the unpriced, candidate-only counterpart to the costed dispatcher.
+    It shares the same basis comparator and issuers, while keeping experiment
+    phase, source, budget, and terminal ownership explicitly typed.
+    """
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        ControlPlaneService,
+        VerifiedAcquisitionActionOutcome,
+    )
+    from polisyos.runtime.http.services.control_plane_store import (
+        AcquisitionEvaluationFrontierKey,
+    )
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        issue_candidate_acquisition_evaluation_basis,
+        issue_candidate_acquisition_evaluation_decision,
+        resolve_selected_acquisition_evaluation_parts,
+    )
+    from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+        candidate_experiment_reentry_fence,
+        prepare_candidate_experiment_reentry_owner,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentPhaseReceipt,
+        AcquisitionCandidateExperimentTerminalReceipt,
+        VerifiedCandidateExperimentOrigin,
+    )
+    from polisyos.runtime.quality.candidate_acquisition_action import (
+        _current_candidate_experiment_reentry_action,
+    )
+    from polisyos.runtime.quality.candidate_source_basis import (
+        prepare_live_candidate_experiment_source_basis_values,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        prepare_joint_simulation_configuration,
+    )
+    from polisyos.scientist import BudgetState
+
+    sink = bridge.action_head_sink
+    service = bridge._source_control_service
+    if (
+        type(bridge) is not AcquisitionWorldGrowthBridge
+        or type(origin) is not VerifiedCandidateExperimentOrigin
+        or sink is None
+        or type(service) is not ControlPlaneService
+        or service._artifact_store is not bridge.artifact_store
+        or service._control_store is not bridge.control_store
+    ):
+        raise ValueError("candidate_experiment_evaluation_owner_not_composed")
+    outcomes = sink.experiment_action_outcomes(
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        run_id=origin.run_id,
+        source_job_id=origin.source_job_id,
+        route_id=origin.route_id,
+    )
+    if (
+        type(outcomes) is not tuple
+        or len(outcomes) != 1
+        or type(outcomes[0]) is not VerifiedAcquisitionActionOutcome
+        or type(outcomes[0].latest_receipt) is not AcquisitionCandidateExperimentPhaseReceipt
+        or outcomes[0].latest_receipt.receipt_phase != "candidate_input_reentry_pending"
+        or outcomes[0].head.receipt_phase != "candidate_input_reentry_pending"
+    ):
+        raise ValueError("candidate_experiment_evaluation_pending_action_not_established")
+    snapshot = outcomes[0]
+    pending = snapshot.latest_receipt
+    pending_phase_ref = snapshot.head.receipt_ref
+    action_ref = pending.candidate_receipt_ref
+    if action_ref is None:
+        raise ValueError("candidate_experiment_evaluation_action_missing")
+    selection, _phase, _admission, action = _current_candidate_experiment_reentry_action(
+        bridge,
+        origin,
+        pending_phase_ref,
+        action_ref,
+    )
+    prior_owner = bridge._candidate_experiment_prior_owner(origin=origin, selection=selection)
+
+    prepared, intent_ref, intent = prepare_live_candidate_experiment_source_basis_values(
+        bridge=bridge,
+        origin=origin,
+        candidate_action_ref=action_ref,
+        pending_phase_ref=pending_phase_ref,
+    )
+    if (
+        prepared.predicate_provenance != "recomputed"
+        or prepared.reason_codes
+        or prepared.inputs is None
+        or intent_ref is None
+        or intent is None
+    ):
+        raise ValueError("candidate_experiment_evaluation_preparation_not_established")
+    window = bridge.resolve_candidate_experiment_reentry_budget_window(
+        origin=origin,
+        candidate_action_ref=action_ref,
+    )
+    configuration = prepare_joint_simulation_configuration()
+    frontier_key = AcquisitionEvaluationFrontierKey(
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        source_job_id=origin.source_job_id,
+        design_problem_ref=origin.policy_scope.design_problem_ref,
+        candidate_id=origin.policy_scope.candidate_id,
+    )
+    frontier = bridge.control_store.read_acquisition_evaluation_frontier(frontier_key)
+    if frontier is not None:
+        # The source may have a real selected N5, but no experiment basis is
+        # selected until an owner-verified terminal establishes its frontier.
+        raise ValueError("candidate_experiment_prior_frontier_not_established")
+    prior = prior_owner.selected_evaluation
+    values, reasons = recompute_candidate_acquisition_basis_values(
+        artifact_store=bridge.artifact_store,
+        problem=origin.design_problem_basis,
+        preparation_inputs=prepared.inputs,
+        predecessors=(),
+        prior=prior,
+        prepared_n5_configuration=configuration,
+        fresh_limit_usd=window.fresh_limit_usd,
+        global_limit_usd=window.global_limit_usd,
+    )
+    profile = prepared.inputs.configured_profile
+    limitations = tuple(dict.fromkeys((*action.limitations, *profile.limitations)))
+    if not limitations:
+        raise ValueError("candidate_experiment_evaluation_limitations_not_established")
+    common = {
+        "tenant_id": origin.tenant_id,
+        "cell_id": origin.cell_id,
+        "run_id": origin.run_id,
+        "source_job_id": origin.source_job_id,
+        "action_job_id": action.action_job_id,
+        "action_generation": action.action_generation,
+        "route_id": origin.route_id,
+        "design_problem_ref": origin.policy_scope.design_problem_ref,
+        "design_problem_basis_ref": origin.policy_scope.design_problem_basis_ref,
+        "candidate_id": origin.effective_source_cycle.selected_candidate_ref,
+        "source_candidate_content_hash": (
+            origin.effective_source_cycle.selected_candidate_content_hash
+        ),
+        "candidate_action_ref": action_ref,
+        "candidate_world_intent_ref": intent_ref,
+        "candidate_source_ref": action.candidate_source_ref,
+        "preparation_inputs": prepared.inputs,
+        "prepared_n5_configuration": configuration,
+    }
+    current = issue_candidate_acquisition_evaluation_basis(
+        **common,
+        basis_role="prospective",
+        values=values,
+        predicate_provenance="not_established" if reasons else "recomputed",
+        reason_codes=reasons,
+        limitations=limitations,
+    )
+    current_ref = _select_candidate_experiment_evaluation_artifact(
+        bridge=bridge,
+        origin=origin,
+        pending_phase_ref=pending_phase_ref,
+        candidate_action_ref=action_ref,
+        record=current,
+    )
+    comparison_reasons = tuple(
+        dict.fromkeys(("candidate_evaluation_prior_basis_not_established", *reasons))
+    )
+    saved_decision_selection = _candidate_experiment_decision_for_recovery(
+        bridge=bridge,
+        origin=origin,
+        pending_phase_ref=pending_phase_ref,
+        candidate_action_ref=action_ref,
+    )
+    saved_decision = saved_decision_selection[1] if saved_decision_selection else None
+    decision = issue_candidate_acquisition_evaluation_decision(
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        run_id=origin.run_id,
+        source_job_id=origin.source_job_id,
+        action_job_id=action.action_job_id,
+        action_generation=action.action_generation,
+        route_id=origin.route_id,
+        compiled_ref=str(origin.policy_scope.compiled_ref.artifact_id),
+        design_problem_ref=origin.policy_scope.design_problem_ref,
+        design_problem_basis_ref=origin.policy_scope.design_problem_basis_ref,
+        candidate_id=origin.effective_source_cycle.selected_candidate_ref,
+        source_candidate_content_hash=(
+            origin.effective_source_cycle.selected_candidate_content_hash
+        ),
+        candidate_action_ref=action_ref,
+        candidate_world_intent_ref=intent_ref,
+        candidate_source_ref=action.candidate_source_ref,
+        current_basis_ref=current_ref,
+        prior_basis_ref=None,
+        prior_evaluation=None,
+        comparison_result="not_established",
+        predicate_provenance="not_established",
+        reason_codes=comparison_reasons,
+        expected_frontier_revision=0,
+        expected_frontier_ref=None,
+        generated_at=(
+            saved_decision.generated_at
+            if saved_decision is not None
+            else datetime.now(UTC).isoformat()
+        ),
+    )
+    if saved_decision is not None and not _candidate_model_values_same(saved_decision, decision):
+        raise ValueError("candidate_experiment_decision_recovery_changed")
+    decision_ref = _select_candidate_experiment_evaluation_artifact(
+        bridge=bridge,
+        origin=origin,
+        pending_phase_ref=pending_phase_ref,
+        candidate_action_ref=action_ref,
+        record=decision,
+    )
+
+    # This bridge owns physical N5 reentry. It independently repeats the
+    # current action/source/budget checks and persists a selected receipt.
+    reentry_ref, reentry = bridge.prepare_candidate_experiment_source_reentry(
+        origin=origin,
+        candidate_action_ref=action_ref,
+        prepared_n5_configuration=configuration,
+    )
+    evaluation = (
+        resolve_selected_acquisition_evaluation_parts(
+            artifact_store=bridge.artifact_store,
+            control_store=bridge.control_store,
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            run_id=origin.run_id,
+            generation_run=reentry.continued_generation_run,
+            source_cycle=reentry.new_cycle,
+            design_problem_ref=origin.policy_scope.design_problem_ref,
+        )
+        if reentry.new_cycle.simulation.status == "joint_simulated"
+        else None
+    )
+    selected_values, selected_reasons = recompute_candidate_acquisition_basis_values(
+        artifact_store=bridge.artifact_store,
+        problem=origin.design_problem_basis,
+        preparation_inputs=prepared.inputs,
+        predecessors=(),
+        prior=evaluation,
+        prepared_n5_configuration=configuration,
+        fresh_limit_usd=window.fresh_limit_usd,
+        global_limit_usd=window.global_limit_usd,
+        selected_data_snapshot_ref=reentry.data_snapshot_ref,
+        selected_world_model_ref=reentry.world_model_ref,
+    )
+    selected_basis_is_evaluated = evaluation is not None and not selected_reasons
+    actual_basis = issue_candidate_acquisition_evaluation_basis(
+        **common,
+        basis_role="evaluated" if selected_basis_is_evaluated else "blocked",
+        values=selected_values,
+        predicate_provenance=("recomputed" if selected_basis_is_evaluated else "not_established"),
+        reason_codes=(
+            selected_reasons
+            if selected_reasons
+            else (() if selected_basis_is_evaluated else ("candidate_reentry_n5_not_established",))
+        ),
+        limitations=tuple(dict.fromkeys((*current.limitations, *reentry.limitations))),
+        selected_data_snapshot_ref=reentry.data_snapshot_ref,
+        selected_world_model_ref=reentry.world_model_ref,
+        evaluation=evaluation.selected if selected_basis_is_evaluated and evaluation else None,
+    )
+    actual_ref = _select_candidate_experiment_evaluation_artifact(
+        bridge=bridge,
+        origin=origin,
+        pending_phase_ref=pending_phase_ref,
+        candidate_action_ref=action_ref,
+        record=actual_basis,
+        selected_reentry_ref=reentry_ref,
+    )
+    selected_evaluation = (
+        evaluation.selected.model_copy(update={"basis_ref": actual_ref})
+        if selected_basis_is_evaluated and evaluation
+        else None
+    )
+    witness = (
+        evaluation.selected.n5_execution_ref
+        if selected_basis_is_evaluated and evaluation
+        else reentry_ref
+    )
+    terminal = AcquisitionCandidateExperimentTerminalReceipt(
+        receipt_id=pending.job_id + ".candidate-experiment.terminal",
+        tenant_id=pending.tenant_id,
+        cell_id=pending.cell_id,
+        run_id=pending.run_id,
+        source_job_id=pending.source_job_id,
+        route_id=pending.route_id,
+        action_generation=pending.action_generation,
+        job_id=pending.job_id,
+        source_payload_ref=pending.source_payload_ref,
+        capability_manifest_ref=pending.capability_manifest_ref,
+        request_content_hash=pending.request_content_hash,
+        policy_scope=pending.policy_scope,
+        policy_ref=pending.policy_ref,
+        authority_decision_ref=pending.authority_decision_ref,
+        voi_decision=pending.voi_decision,
+        monetary_cost="not_established",
+        information_value="not_established",
+        observed_data_authority=False,
+        publication_authority=False,
+        predecessor_receipt_ref=pending_phase_ref,
+        owner_receipt_refs=tuple(
+            sorted({str(action_ref.artifact_id), str(decision_ref.artifact_id)})
+        ),
+        terminal_outcome="candidate_reentry_completed",
+        candidate_action_ref=action_ref,
+        candidate_reentry_ref=reentry_ref,
+        evaluation_decision_ref=decision_ref,
+        selected_basis_ref=actual_ref,
+        selected_evaluation_witness_ref=witness,
+        selected_evaluation=selected_evaluation,
+        current_continuation_ref=None,
+        blocker_ref=None,
+        blocker_reason=None,
+        generated_at=datetime.now(UTC),
+    )
+    if (
+        sink.get_head(terminal) != snapshot.head
+        or sink.current_action_outcome(
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            run_id=origin.run_id,
+            source_job_id=origin.source_job_id,
+            route_id=origin.route_id,
+        )
+        != snapshot
+    ):
+        raise ValueError("candidate_experiment_evaluation_pending_head_changed")
+    budget_state = BudgetState.model_validate(
+        {"limits": {"run": {"key": "run", "max_usd": window.effective_limit_usd}}}
+    )
+    owner = prepare_candidate_experiment_reentry_owner(
+        bridge=bridge,
+        origin=origin,
+        terminal=terminal,
+        predecessor_head=snapshot.head,
+        candidate_action_ref=action_ref,
+        action_phase_ref=action.action_phase_ref,
+        budget_state=budget_state,
+        reentry_budget_scope=window.scope,
+        budget_window=window,
+    )
+    if owner.budget_window != window:
+        raise ValueError("candidate_experiment_evaluation_owner_changed")
+    recovered_terminal = sink.recover_candidate_experiment_terminal(
+        terminal,
+        predecessor_head=snapshot.head,
+        owner=owner,
+    )
+    if recovered_terminal is not None:
+        from polisyos.core.artifacts import ArtifactRef
+
+        if (
+            type(recovered_terminal) is not tuple
+            or len(recovered_terminal) != 2
+            or type(recovered_terminal[0]) is not AcquisitionCandidateExperimentTerminalReceipt
+            or type(recovered_terminal[1]) is not ArtifactRef
+            or terminal.model_copy(update={"generated_at": recovered_terminal[0].generated_at})
+            != recovered_terminal[0]
+        ):
+            raise ValueError("candidate_experiment_terminal_recovery_changed")
+        terminal = recovered_terminal[0]
+        owner = prepare_candidate_experiment_reentry_owner(
+            bridge=bridge,
+            origin=origin,
+            terminal=terminal,
+            predecessor_head=snapshot.head,
+            candidate_action_ref=action_ref,
+            action_phase_ref=action.action_phase_ref,
+            budget_state=budget_state,
+            reentry_budget_scope=window.scope,
+            budget_window=window,
+        )
+        if owner.terminal != terminal or owner.budget_window != window:
+            raise ValueError("candidate_experiment_terminal_recovery_owner_changed")
+    with candidate_experiment_reentry_fence(owner):
+        latest = sink.current_action_outcome(
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            run_id=origin.run_id,
+            source_job_id=origin.source_job_id,
+            route_id=origin.route_id,
+        )
+        if latest != snapshot:
+            raise ValueError("candidate_experiment_evaluation_pending_changed")
+        return sink.persist_terminal(terminal)
 
 
 def _terminal_record(

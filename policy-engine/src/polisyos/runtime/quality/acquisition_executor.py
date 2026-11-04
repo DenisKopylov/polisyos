@@ -894,11 +894,13 @@ def execute_live_catalog_acquisition(
             live_authorization=authorization,
             budget_observer=candidate_unpriced_context.budget_observer,
             budget_state=candidate_unpriced_context.budget_state,
+            experiment_origin=candidate_unpriced_context.experiment_origin,
         )
-        # The original source-run USD contract has no currently wired owner
-        # establishing whether unpriced work is outside a hard all-in cap.
-        # Do not let a candidate policy silently change that contract.
-        raise LiveAcquisitionExecutionError("candidate_unpriced_budget_scope_not_established")
+        # Legacy unpriced contexts remain closed. The explicit V5 experiment
+        # path is admitted only when its typed current origin was independently
+        # reconciled above; this does not establish a per-call USD reservation.
+        if candidate_unpriced_context.experiment_origin is None:
+            raise LiveAcquisitionExecutionError("candidate_unpriced_budget_scope_not_established")
     if artifact_store is None:
         raise LiveAcquisitionExecutionError("live_runtime_artifact_store_required")
     journal = fabric_data_plane.AppendOnlyEvidenceJournal(journal_path)

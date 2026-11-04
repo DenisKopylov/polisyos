@@ -54,6 +54,18 @@ allowed_event_sources = ["polisyos.runtime"]
 payload_ref_policy = "optional"
 
 [[event_types]]
+name = "polisyos.runtime.acquisition.candidate_experiment_terminal.v1"
+category = "acquisition_candidate_experiment_terminal"
+description = "A fully owner-replayed candidate experiment terminal closed its in-flight action generation under the shared action head."
+owner = "team-runtime-quality"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime.quality.acquisition_route_loop"]
+payload_ref_policy = "cas_required"
+
+[[event_types]]
 name = "polisyos.runtime.acquisition.candidate_experiment_phase.v1"
 category = "acquisition_candidate_experiment_phase"
 description = "A content-bound, source-replayed candidate experiment advanced one in-flight phase under the shared action head."

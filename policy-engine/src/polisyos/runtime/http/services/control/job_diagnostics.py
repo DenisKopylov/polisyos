@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import time
 import uuid
 from collections.abc import Iterator, Mapping
@@ -46,6 +47,7 @@ from ..control_plane_store import (
     ControlJobLeaseLostError,
     ControlJobRecord,
     _ControlJobExecutionLifecycleProof,
+    _PreparedAcquisitionActionHeadPublication,
 )
 from .job_attempt_publication import (
     _EXECUTION_INTENT_BINDING_KEY,
@@ -731,6 +733,7 @@ class ControlJobDiagnosticsMixin:
         policy: ResolvedExecutionPolicy,
         request_id: str | None = None,
         pre_admission_attempt_id: str | None = None,
+        prepared_acquisition_action_head: _PreparedAcquisitionActionHeadPublication | None = None,
     ) -> ControlJobRecord:
         started = time.perf_counter()
         execution_scope = self._execution_scope_for_policy(policy)
@@ -738,6 +741,25 @@ class ControlJobDiagnosticsMixin:
         submitted_by = execution_scope.actor_subject or "anonymous"
         payload = self._attach_job_actor_scope(payload, policy=policy)
         payload = self._enrich_job_payload(payload, request_id=request_id)
+        if prepared_acquisition_action_head is not None:
+            publication = prepared_acquisition_action_head
+            request_value = payload.get("request")
+            if (
+                type(publication) is not _PreparedAcquisitionActionHeadPublication
+                or job_kind != "acquisition"
+                or publication.job_id != job_id
+                or publication.run_id != run_id
+                or payload.get("action_kind") != publication.action_kind
+                or payload.get("tenant_id") != publication.tenant_id
+                or payload.get("cell_id") != publication.cell_id
+                or payload.get("run_id") != publication.run_id
+                or payload.get("route_id") != publication.route_id
+                or payload.get("decision_ref") != publication.decision_ref
+                or not isinstance(request_value, dict)
+                or json.dumps(request_value, sort_keys=True, separators=(",", ":"))
+                != publication.request_json
+            ):
+                raise ValueError("prepared_acquisition_action_payload_mismatch")
         initially_refused = False
         if job_kind == "natural_language_run":
             payload[_EXECUTION_INTENT_BINDING_KEY] = _build_control_execution_intent_binding(
@@ -765,6 +787,10 @@ class ControlJobDiagnosticsMixin:
                 payload_ref = str(selected_nl_payload_ref.artifact_id)
             else:
                 payload_ref = self._persist_job_payload(job_kind=job_kind, payload=payload)
+            if prepared_acquisition_action_head is not None:
+                prepared_acquisition_action_head = replace(
+                    prepared_acquisition_action_head, payload_ref=payload_ref
+                )
             capability_manifest_ref = self._persist_capability_manifest(
                 policy=policy,
                 job_id=job_id,
@@ -924,45 +950,71 @@ class ControlJobDiagnosticsMixin:
                     # event ID is advertised; the limitation is initial progress.
                     preparation_failed = True
                     logger.debug("Admission diagnostic preparation failed for %s: %s", job_id, exc)
-            record = self._control_store.create_job(
-                job_id=job_id,
-                kind=_coerce_control_job_kind(job_kind),
-                run_id=run_id,
-                pipeline_id=pipeline_id,
-                requested_execution_profile=policy.requested_profile,
-                effective_execution_profile=policy.effective_profile,
-                policy_flags=policy.policy_flags.model_dump(mode="json"),
-                capability_manifest_ref=capability_manifest_ref,
-                payload_ref=payload_ref,
-                submitted_by=submitted_by,
-                creation_event_payload=creation_event_payload,
-                initial_state="failed" if initially_refused else "pending",
-                initial_error_message=(
-                    "nl_job_execution_intent_not_established" if initially_refused else None
-                ),
-                initial_progress={
-                    "state": "failed" if initially_refused else "pending",
-                    "phase": "job_admission",
-                    **(
-                        {
-                            "status": "not_established",
-                            "failure_code": "nl_job_execution_intent_not_established",
-                            "execution_intent_binding": payload[_EXECUTION_INTENT_BINDING_KEY],
-                        }
-                        if initially_refused
-                        else {}
+            try:
+                record = self._control_store.create_job(
+                    job_id=job_id,
+                    kind=_coerce_control_job_kind(job_kind),
+                    run_id=run_id,
+                    pipeline_id=pipeline_id,
+                    requested_execution_profile=policy.requested_profile,
+                    effective_execution_profile=policy.effective_profile,
+                    policy_flags=policy.policy_flags.model_dump(mode="json"),
+                    capability_manifest_ref=capability_manifest_ref,
+                    payload_ref=payload_ref,
+                    submitted_by=submitted_by,
+                    creation_event_payload=creation_event_payload,
+                    initial_state="failed" if initially_refused else "pending",
+                    initial_error_message=(
+                        "nl_job_execution_intent_not_established" if initially_refused else None
                     ),
-                },
-                creation_basis=creation_basis,
-                prepared_admission_diagnostics=tuple(prepared_diagnostics),
-                diagnostic_preparation_failed=preparation_failed,
-                pre_admission_attempt_id=pre_admission_attempt_id,
-                pre_admission_outcome=(
-                    ("refused" if initially_refused else "admitted")
-                    if pre_admission_attempt_id is not None
-                    else None
-                ),
-            )
+                    initial_progress={
+                        "state": "failed" if initially_refused else "pending",
+                        "phase": "job_admission",
+                        **(
+                            {
+                                "status": "not_established",
+                                "failure_code": "nl_job_execution_intent_not_established",
+                                "execution_intent_binding": payload[_EXECUTION_INTENT_BINDING_KEY],
+                            }
+                            if initially_refused
+                            else {}
+                        ),
+                    },
+                    creation_basis=creation_basis,
+                    prepared_admission_diagnostics=tuple(prepared_diagnostics),
+                    diagnostic_preparation_failed=preparation_failed,
+                    pre_admission_attempt_id=pre_admission_attempt_id,
+                    pre_admission_outcome=(
+                        ("refused" if initially_refused else "admitted")
+                        if pre_admission_attempt_id is not None
+                        else None
+                    ),
+                    prepared_acquisition_action_head=prepared_acquisition_action_head,
+                )
+            except Exception:
+                if prepared_acquisition_action_head is None:
+                    raise
+                recovered = self._control_store.get_job(job_id)
+                if (
+                    recovered is None
+                    or recovered.kind != "acquisition"
+                    or recovered.run_id != run_id
+                    or recovered.payload_ref != payload_ref
+                    or recovered.state not in {"pending", "running", "completed"}
+                ):
+                    raise
+                try:
+                    self._control_store._reconcile_control_job_creation_envelope(recovered)
+                    sink = getattr(self, "acquisition_route_sink", None)
+                    if sink is None:
+                        raise RuntimeError("candidate_experiment_publication_owner_missing")
+                    sink.verify_prepared_experiment_requested_phase(
+                        replace(prepared_acquisition_action_head, payload_ref=payload_ref),
+                        allow_terminal=recovered.state == "completed",
+                    )
+                except (OSError, RuntimeError, TypeError, ValueError):
+                    raise
+                record = recovered
             if self._worker is not None:
                 self._worker.wake()
         except Exception:

@@ -696,6 +696,12 @@ export class RuntimeApiClient {
     return this.request("POST", path, query, params?.body, undefined);
   }
 
+  async executeRunCandidateAcquisitionExperiment(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/candidate-acquisition-experiment/${encodeURIComponent(String(params.route_id))}/execute`;
+    const query = undefined;
+    return this.request("POST", path, query, params?.body, undefined);
+  }
+
   async getCaseInspection(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/case-inspection`;
     const query = this.buildQuery({

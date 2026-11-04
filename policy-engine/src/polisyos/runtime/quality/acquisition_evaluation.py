@@ -45,6 +45,7 @@ from polisyos.runtime.quality.n5_execution_basis import (
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import CoreJSONArtifactStore
+    from polisyos.runtime.http.services.control.run_lifecycle import VerifiedAcquisitionActionPhase
     from polisyos.runtime.http.services.control_plane_store import (
         AcquisitionActionHeadRecord,
         AcquisitionEvaluationFrontierRecord,
@@ -56,14 +57,17 @@ if TYPE_CHECKING:
         CandidateRetainedPortCapture,
     )
     from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentTerminalReceipt,
         AcquisitionCandidateRouteLoopReceipt,
         AcquisitionRouteLoopReceiptV2,
         VerifiedAcquisitionRouteClosure,
+        VerifiedCandidateExperimentOrigin,
     )
     from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
     from polisyos.runtime.quality.candidate_acquisition_action import (
         CandidateAcquisitionActionReceipt,
     )
+    from polisyos.runtime.quality.candidate_acquisition_source import CandidateAcquisitionSource
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationContextHandoff,
         CandidateSimulationExecutionV5,
@@ -79,6 +83,9 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.generation_source import N4CandidateScenarioSourceRecordV3
     from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationResult
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerReentryBudgetWindow,
+    )
 
 _HASH = r"^sha256:[0-9a-f]{64}$"
 BASIS_KIND = "runtime_quality.acquisition_evaluation_basis"
@@ -792,6 +799,35 @@ class CandidateEvaluationTerminalHistory:
     frontier: AcquisitionEvaluationFrontierRecord
 
 
+@dataclass(frozen=True, slots=True)
+class CandidateExperimentTerminalHistory:
+    """Replayed candidate-experiment terminal, never a current permission.
+
+    This view binds a terminal to its original candidate source, signed PA2
+    history, action receipt, source re-entry or retained continuation, and the
+    exact SQL evaluation frontier. ``phase_chain`` ends with the selected
+    terminal. Consumers must obtain live permission and lease independently
+    before any further effect.
+    """
+
+    head: AcquisitionActionHeadRecord
+    terminal_ref: ArtifactRef
+    terminal: AcquisitionCandidateExperimentTerminalReceipt
+    origin: VerifiedCandidateExperimentOrigin
+    phase_chain: tuple[VerifiedAcquisitionActionPhase, ...]
+    action: CandidateAcquisitionActionReceipt
+    source: CandidateAcquisitionSource
+    budget_window: BudgetLedgerReentryBudgetWindow
+    decision: CandidateAcquisitionEvaluationDecision | None
+    current_basis: CandidateAcquisitionEvaluationBasis | None
+    selected_basis: CandidateAcquisitionEvaluationBasis | None
+    evaluation: ResolvedAcquisitionEvaluation | None
+    reentry: CandidateSourceReentryReceipt | None
+    continuation: CandidateAcquisitionRetainedContinuation | None
+    frontier_before: AcquisitionEvaluationFrontierRecord | None
+    frontier_after: AcquisitionEvaluationFrontierRecord | None
+
+
 def resolve_selected_acquisition_evaluation(
     *,
     bridge: AcquisitionWorldGrowthBridge,
@@ -1430,7 +1466,9 @@ def replay_candidate_acquisition_basis_for_history(
     The caller must first independently resolve the bounded route, action,
     ledger and predecessor chain. Historical N5 provenance is reopened through
     its own selected witness; this does not admit another execution or establish
-    the present catalog, lease or loaded implementation.
+    the present catalog, lease or loaded implementation. A blocked basis may
+    replay against an actual historical N5 result while retaining no selected
+    evaluation claim on the basis itself.
     """
     if type(basis) is not CandidateAcquisitionEvaluationBasis:
         raise TypeError("candidate_evaluation_history_basis_untyped")
@@ -1441,8 +1479,8 @@ def replay_candidate_acquisition_basis_for_history(
             basis.evaluation, selected_evaluation.selected
         ):
             raise ValueError("candidate_evaluation_history_selected_n5_mismatch")
-    elif basis.basis_role == "blocked" and selected_evaluation is not None:
-        raise ValueError("candidate_evaluation_history_blocked_has_n5")
+    elif basis.basis_role == "blocked" and basis.evaluation is not None:
+        raise ValueError("candidate_evaluation_history_blocked_has_selected_n5")
     values, reasons = recompute_candidate_acquisition_basis_values(
         artifact_store=artifact_store,
         problem=problem,

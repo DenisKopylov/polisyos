@@ -21,6 +21,7 @@ from polisyos.data_requirement import DataRequirementCompilationReport
 from polisyos.runtime.quality.acquisition_evaluation import (
     AcquisitionSelectedEvaluation,
     CandidateEvaluationTerminalHistory,
+    CandidateExperimentTerminalHistory,
     _candidate_model_values_same,
     _candidate_ref_same,
 )
@@ -530,6 +531,9 @@ class AcquisitionCandidateRouteLoopReceipt(BaseModel):
             raise ValueError("candidate_terminal_action_owner_missing")
         if str(self.evaluation_decision_ref.artifact_id) not in self.owner_receipt_refs:
             raise ValueError("candidate_terminal_decision_owner_missing")
+        # The selected evaluation may describe an owner-derived later cycle
+        # for the same rooted candidate. Its effective content hash is bound
+        # by historical replay, not inferred from this immutable policy scope.
         if self.selected_evaluation is not None and (
             identity(self.selected_evaluation.basis_ref) != identity(self.selected_basis_ref)
             or identity(self.selected_evaluation.n5_execution_ref)
@@ -783,8 +787,6 @@ class AcquisitionCandidateExperimentTerminalReceipt(_CandidateExperimentActionId
             raise ValueError("candidate_experiment_terminal_decision_owner_missing")
         if self.selected_evaluation is not None and (
             self.selected_evaluation.candidate_id != self.policy_scope.candidate_id
-            or self.selected_evaluation.candidate_content_hash
-            != self.policy_scope.candidate_content_hash
             or self.selected_evaluation.design_problem_ref
             != self.policy_scope.design_problem_basis_ref
             or self.selected_evaluation.evaluation_run_id != self.run_id
@@ -1072,6 +1074,96 @@ class VerifiedCandidateExperimentOrigin:
     action_authority: Literal["not_established"] = "not_established"
     # Transport only: a mutation must reopen the owner, source and live lease.
     current_action_head: AcquisitionActionHeadRecord | None = None
+    current_terminal_history: CandidateExperimentTerminalHistory | None = None
+    candidate_terminal_history_chain: tuple[CandidateExperimentTerminalHistory, ...] = ()
+
+    @property
+    def effective_generation_run(self) -> GenerationCycleRun:
+        """Return the current run derived from the complete verified terminal chain."""
+        return _candidate_experiment_effective_source(self)[0]
+
+    @property
+    def effective_source_cycle(self) -> GenerationCycleRecord:
+        """Return the current cycle derived from the complete verified terminal chain."""
+        return _candidate_experiment_effective_source(self)[1]
+
+
+def _candidate_experiment_effective_source(
+    origin: VerifiedCandidateExperimentOrigin,
+) -> tuple[GenerationCycleRun, GenerationCycleRecord]:
+    """Fold only owner-replayed terminal reentries over the immutable source root.
+
+    This is a typed projection, not an authorization or source-read shortcut.
+    Every terminal in the chain must be replayed by its historical owner before
+    a consumer uses either effective value.
+    """
+    from dataclasses import replace
+
+    from polisyos.runtime.quality.generation_cycle import (
+        candidate_source_basis_cycle_pair_matches,
+        generation_cycle_run_content_hash,
+        validate_candidate_source_continuation,
+    )
+
+    generation_run = origin.generation_run
+    source_cycle = origin.source_cycle
+    prefix: list[CandidateExperimentTerminalHistory] = []
+    for generation, history in enumerate(origin.candidate_terminal_history_chain, start=1):
+        if (
+            type(history) is not CandidateExperimentTerminalHistory
+            or history.head.action_generation != generation
+            or history.terminal.action_generation != generation
+            or not _candidate_model_values_same(
+                replace(
+                    history.origin,
+                    current_action_head=None,
+                    current_terminal_history=None,
+                    candidate_terminal_history_chain=(),
+                ),
+                replace(
+                    origin,
+                    current_action_head=None,
+                    current_terminal_history=None,
+                    candidate_terminal_history_chain=(),
+                ),
+            )
+            or history.origin.candidate_terminal_history_chain != tuple(prefix)
+            or not generation_run.cycles
+            or generation_run.cycles[-1] != source_cycle
+        ):
+            raise ValueError("candidate_experiment_effective_source_history_mismatch")
+        if history.terminal.terminal_outcome == "candidate_reentry_completed":
+            reentry = history.reentry
+            if (
+                reentry is None
+                or reentry.source_cycle_index != source_cycle.cycle_index
+                or reentry.source_generation_run_content_hash
+                != generation_cycle_run_content_hash(generation_run)
+                or reentry.basis_transition.from_cycle_index != source_cycle.cycle_index
+                or reentry.basis_transition.to_cycle_index != source_cycle.cycle_index + 1
+                or not candidate_source_basis_cycle_pair_matches(
+                    transition=reentry.basis_transition,
+                    source_cycle=source_cycle,
+                    target_cycle=reentry.new_cycle,
+                )
+            ):
+                raise ValueError("candidate_experiment_effective_source_transition_mismatch")
+            validate_candidate_source_continuation(generation_run, reentry)
+            generation_run = reentry.continued_generation_run
+            source_cycle = reentry.new_cycle
+        elif history.terminal.terminal_outcome == "candidate_evaluation_retained":
+            if (
+                history.continuation is None
+                or history.reentry is not None
+                or history.evaluation is None
+            ):
+                raise ValueError("candidate_experiment_effective_source_retention_mismatch")
+        else:
+            raise ValueError("candidate_experiment_effective_source_outcome_unsupported")
+        prefix.append(history)
+    if not generation_run.cycles or generation_run.cycles[-1] != source_cycle:
+        raise ValueError("candidate_experiment_effective_source_cycle_not_current")
+    return generation_run, source_cycle
 
 
 @dataclass(frozen=True)
@@ -1558,9 +1650,10 @@ class AcquisitionRouteLoop:
     ) -> VerifiedCandidateExperimentOrigin:
         """Replay the live experiment source and owner-verified action head.
 
-        Only an empty history or this action's in-flight phase is supported.
-        Experiment terminal accumulation stays closed until an experiment-aware
-        terminal/frontier verifier is composed; the costed verifier is not one.
+        Each terminal generation is accepted only after its experiment-aware
+        historical owner replays the selected profile, PA2 history, action,
+        source, evaluation, and atomic frontier. This result is still not a live
+        lease or effect permit.
         """
         from dataclasses import replace
 
@@ -1625,20 +1718,100 @@ class AcquisitionRouteLoop:
         ):
             raise AcquisitionRouteClosureError("candidate_experiment_action_history_not_verified")
 
-        if len(outcomes) > 1:
-            raise AcquisitionRouteClosureError(
-                "candidate_experiment_terminal_history_not_established"
-            )
+        if tuple(item.head.action_generation for item in outcomes) != tuple(
+            range(1, len(outcomes) + 1)
+        ):
+            raise AcquisitionRouteClosureError("candidate_experiment_action_history_not_contiguous")
         current_head = None
-        if outcomes:
-            outcome = outcomes[0]
+        current_terminal_history = None
+        previous_terminal_history: CandidateExperimentTerminalHistory | None = None
+        terminal_history_chain: list[CandidateExperimentTerminalHistory] = []
+        for index, outcome in enumerate(outcomes):
             head = outcome.head
             receipt = outcome.latest_receipt
-            if type(receipt) is AcquisitionCandidateExperimentTerminalReceipt:
-                raise AcquisitionRouteClosureError(
-                    "candidate_experiment_terminal_history_not_established"
-                )
-            if type(receipt) is not AcquisitionCandidateExperimentPhaseReceipt:
+            is_terminal = type(receipt) is AcquisitionCandidateExperimentTerminalReceipt
+            if is_terminal:
+                history = outcome.candidate_experiment_terminal_history
+                if (
+                    type(history) is not CandidateExperimentTerminalHistory
+                    or history.head != head
+                    or history.terminal != receipt
+                    or history.terminal_ref.artifact_id
+                    != ArtifactID.model_validate(head.receipt_ref)
+                    or history.origin.candidate_terminal_history_chain
+                    != tuple(terminal_history_chain)
+                ):
+                    raise AcquisitionRouteClosureError(
+                        "candidate_experiment_terminal_history_not_verified"
+                    )
+                decision = history.decision
+                if decision is None or history.selected_basis is None:
+                    raise AcquisitionRouteClosureError(
+                        "candidate_experiment_terminal_evaluation_history_not_established"
+                    )
+                if previous_terminal_history is None:
+                    if (
+                        decision.prior_basis_ref is not None
+                        or decision.prior_evaluation is not None
+                        or decision.expected_frontier_revision != 0
+                        or decision.expected_frontier_ref is not None
+                    ):
+                        raise AcquisitionRouteClosureError(
+                            "candidate_experiment_prior_frontier_history_not_established"
+                        )
+                else:
+                    previous = previous_terminal_history
+                    if (
+                        previous.selected_basis is None
+                        or previous.frontier_after is None
+                        or not _candidate_ref_same(
+                            decision.prior_basis_ref,
+                            previous.terminal.selected_basis_ref,
+                        )
+                        or decision.expected_frontier_ref != previous.frontier_after.frontier_ref
+                        or decision.expected_frontier_revision != previous.frontier_after.revision
+                        or previous.evaluation is None
+                        or decision.prior_evaluation is None
+                        or not _candidate_model_values_same(
+                            decision.prior_evaluation,
+                            previous.evaluation.selected.model_copy(
+                                update={"basis_ref": previous.terminal.selected_basis_ref}
+                            ),
+                        )
+                    ):
+                        raise AcquisitionRouteClosureError(
+                            "candidate_experiment_terminal_generation_fold_mismatch"
+                        )
+                if receipt.terminal_outcome == "candidate_evaluation_retained":
+                    previous = previous_terminal_history
+                    continuation = history.continuation
+                    current_basis = history.current_basis
+                    if (
+                        previous is None
+                        or previous.selected_basis is None
+                        or continuation is None
+                        or current_basis is None
+                        or not _candidate_model_values_same(
+                            history.selected_basis, previous.selected_basis
+                        )
+                        or not _candidate_model_values_same(history.evaluation, previous.evaluation)
+                        or not (
+                            set(previous.selected_basis.limitations)
+                            | set(current_basis.limitations)
+                            | (
+                                set(previous.continuation.limitations)
+                                if previous.continuation is not None
+                                else set()
+                            )
+                        ).issubset(continuation.limitations)
+                    ):
+                        raise AcquisitionRouteClosureError(
+                            "candidate_experiment_retained_limitations_not_established"
+                        )
+                current_terminal_history = history
+                previous_terminal_history = history
+                terminal_history_chain.append(history)
+            elif type(receipt) is not AcquisitionCandidateExperimentPhaseReceipt:
                 raise AcquisitionRouteClosureError("candidate_experiment_action_receipt_untyped")
             if (
                 (receipt.tenant_id, receipt.cell_id, receipt.run_id, receipt.source_job_id)
@@ -1661,8 +1834,16 @@ class AcquisitionRouteLoop:
                 or head.receipt_ref != head.receipt_sha256
             ):
                 raise AcquisitionRouteClosureError("candidate_experiment_action_identity_mismatch")
-            if action_job_id is not None and action_job_id != head.job_id:
+            if (
+                index == len(outcomes) - 1
+                and action_job_id is not None
+                and action_job_id != head.job_id
+            ):
                 raise AcquisitionRouteClosureError("candidate_experiment_action_pending")
+            if index < len(outcomes) - 1 and not is_terminal:
+                raise AcquisitionRouteClosureError(
+                    "candidate_experiment_action_generation_predecessor_not_terminal"
+                )
             current_head = head
 
         refreshed_origin = self._resolve_candidate_experiment_source(run_id=run_id)
@@ -1670,7 +1851,12 @@ class AcquisitionRouteLoop:
             raise AcquisitionRouteClosureError("candidate_experiment_source_changed")
         if self._control_store.list_acquisition_action_heads_for_source(**scope) != heads:
             raise AcquisitionRouteClosureError("candidate_experiment_action_history_changed")
-        return replace(refreshed_origin, current_action_head=current_head)
+        return replace(
+            refreshed_origin,
+            current_action_head=current_head,
+            current_terminal_history=current_terminal_history,
+            candidate_terminal_history_chain=tuple(terminal_history_chain),
+        )
 
     def resolve_current_route(
         self,

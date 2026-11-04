@@ -35,8 +35,14 @@ if TYPE_CHECKING:
     from polisyos.core.contracts import FoundryInputBindingRule
     from polisyos.foundry.data_plane import InputBindingValuesPreparation
     from polisyos.ir.connectors import FetchResult
-    from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
-    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        VerifiedAcquisitionRouteClosure,
+        VerifiedCandidateExperimentOrigin,
+    )
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthBridge,
+        CandidateAcquisitionWorldIntent,
+    )
     from polisyos.runtime.quality.candidate_acquisition_source import CandidateAcquisitionSource
     from polisyos.runtime.quality.cycle_substrate import AcquiredCandidateModelValues
     from polisyos.runtime.quality.data_state_substrate import AcquiredObservationWorldPreparation
@@ -1143,4 +1149,164 @@ def prepare_live_candidate_source_basis_values(
     except (OSError, RuntimeError, TypeError, ValueError, KeyError, AttributeError) as exc:
         return CandidateSourceBasisValues(
             "not_established", (str(getattr(exc, "code", None) or exc),)
+        )
+
+
+def prepare_live_candidate_experiment_source_basis_values(
+    *,
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    candidate_action_ref: artifacts.ArtifactRef,
+    pending_phase_ref: str,
+) -> tuple[
+    CandidateSourceBasisValues,
+    artifacts.ArtifactRef | None,
+    CandidateAcquisitionWorldIntent | None,
+]:
+    """Prepare the actual selected source basis for a live experiment action.
+
+    The origin branch has its own current-phase/source owners and deliberately
+    supplies an empty predecessor chain: its verifier requires the first-N5
+    acquisition-required source cycle with no prior basis transition. It does
+    not route through or coerce the costed closure path.
+    """
+    from polisyos.runtime.quality.acquisition_route_loop import VerifiedCandidateExperimentOrigin
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+    from polisyos.runtime.quality.candidate_acquisition_action import (
+        _candidate_experiment_source_selection,
+        _current_candidate_experiment_reentry_action,
+        read_candidate_experiment_acquisition_action,
+    )
+    from polisyos.runtime.quality.candidate_acquisition_source import (
+        read_candidate_acquisition_source,
+    )
+    from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+
+    if (
+        type(bridge) is not AcquisitionWorldGrowthBridge
+        or type(origin) is not VerifiedCandidateExperimentOrigin
+    ):
+        raise TypeError("candidate_experiment_source_basis_live_owner_untyped")
+    try:
+        selection, _phase, _admission, action = _current_candidate_experiment_reentry_action(
+            bridge,
+            origin,
+            pending_phase_ref,
+            candidate_action_ref,
+        )
+        current_action = read_candidate_experiment_acquisition_action(
+            bridge=bridge,
+            origin=origin,
+            receipt_ref=candidate_action_ref,
+            require_current_action=False,
+        )
+        if current_action != action or action.selection != selection:
+            raise ValueError("candidate_experiment_source_basis_action_changed")
+        selected = _candidate_experiment_source_selection(bridge, origin)
+        if selected != selection:
+            raise ValueError("candidate_experiment_source_basis_selection_changed")
+        source = read_candidate_acquisition_source(
+            bridge.artifact_store,
+            source_ref=action.candidate_source_ref,
+            authority=bridge.authority,
+        )
+        if (
+            source.tenant_id != origin.tenant_id
+            or source.cell_id != origin.cell_id
+            or source.run_id != origin.run_id
+            or source.job_id != action.action_job_id
+            or source.route_id != origin.route_id
+            or source.candidate_digest != selection.candidate_digest
+            or action.profile_selection_ref != selection.profile_selection_ref
+            or action.canonical_variable_id != selection.canonical_variable_id
+            or action.target_slot_id != selection.target_slot_id
+        ):
+            raise ValueError("candidate_experiment_source_basis_source_scope_mismatch")
+        prior_owner = bridge._candidate_experiment_prior_owner(
+            origin=origin,
+            selection=selection,
+        )
+        profile = prior_owner.profile
+        declaration = prior_owner.model_declaration
+        if prior_owner.selected_evaluation is not None and (
+            prior_owner.selected_evaluation.selected.candidate_id
+            != prior_owner.source_cycle.selected_candidate_ref
+            or prior_owner.selected_evaluation.selected.candidate_content_hash
+            != prior_owner.source_cycle.selected_candidate_content_hash
+            or profile.context_inputs.world_model_record.content_hash
+            != prior_owner.selected_evaluation.selected.world_model_record_hash
+        ):
+            raise ValueError("candidate_experiment_source_basis_prior_n5_changed")
+        intent_ref, intent = bridge._candidate_world_materialization_intent(
+            origin=origin,
+            candidate_action_ref=candidate_action_ref,
+            configured_profile=profile,
+            original_model_declaration=declaration,
+        )
+        if intent.action_phase_ref != action.action_phase_ref:
+            raise ValueError("candidate_experiment_source_basis_intent_phase_mismatch")
+        inputs = CandidateSourceBasisInputs(
+            configured_profile=profile,
+            original_model_declaration=declaration,
+            base_data_snapshot_ref=world_model_artifact_views(
+                profile.context_inputs.world_model_record
+            ).data_snapshot_ref,
+            candidate_source_ref=action.candidate_source_ref,
+            slot_binding=CandidateAcquisitionSourceSlotBinding(
+                profile_selection_ref=selection.profile_selection_ref,
+                candidate_digest=selection.candidate_digest,
+                canonical_variable_id=selection.canonical_variable_id,
+                target_slot_id=selection.target_slot_id,
+            ),
+            transaction_time=intent.transaction_time,
+        )
+        prepared = prepare_candidate_source_basis_values(
+            store=bridge.artifact_store,
+            problem=origin.design_problem_basis,
+            inputs=inputs,
+            predecessors=(),
+        )
+        # Preparation can be lengthy; replay both the live phase/action and
+        # policy-derived selection before exposing the values to the evaluator.
+        fresh_selection, _fresh_phase, _fresh_admission, fresh_action = (
+            _current_candidate_experiment_reentry_action(
+                bridge,
+                origin,
+                pending_phase_ref,
+                candidate_action_ref,
+            )
+        )
+        fresh_prior_owner = bridge._candidate_experiment_prior_owner(
+            origin=origin, selection=fresh_selection
+        )
+        fresh_profile = fresh_prior_owner.profile
+        fresh_declaration = fresh_prior_owner.model_declaration
+        fresh_intent_ref, fresh_intent = bridge._candidate_world_materialization_intent(
+            origin=origin,
+            candidate_action_ref=candidate_action_ref,
+            configured_profile=fresh_profile,
+            original_model_declaration=fresh_declaration,
+            create=False,
+        )
+        if (
+            fresh_action != action
+            or fresh_selection != selection
+            or fresh_profile != profile
+            or fresh_declaration != declaration
+            or fresh_prior_owner.generation_run != prior_owner.generation_run
+            or fresh_prior_owner.source_cycle != prior_owner.source_cycle
+            or fresh_prior_owner.selected_evaluation != prior_owner.selected_evaluation
+            or fresh_prior_owner.first_n4_source != prior_owner.first_n4_source
+            or fresh_intent_ref != intent_ref
+            or fresh_intent != intent
+        ):
+            raise ValueError("candidate_experiment_source_basis_owner_changed")
+        return prepared, intent_ref, intent
+    except (OSError, RuntimeError, TypeError, ValueError, KeyError, AttributeError) as exc:
+        return (
+            CandidateSourceBasisValues(
+                "not_established", (str(getattr(exc, "code", None) or exc),)
+            ),
+            None,
+            None,
         )

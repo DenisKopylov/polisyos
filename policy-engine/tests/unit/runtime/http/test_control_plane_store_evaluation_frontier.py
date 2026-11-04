@@ -221,6 +221,179 @@ def test_frontier_bootstrap_is_owner_fenced_and_history_is_immutable(tmp_path: P
     )
 
 
+def test_absent_frontier_check_only_commits_action_head_without_advancing_frontier(
+    tmp_path: Path,
+) -> None:
+    """A blocked terminal can atomically attest an empty frontier preimage."""
+    _, _, cas_type = _types()
+    path = tmp_path / "absent-check-only.sqlite3"
+    writer = ControlPlaneStore(backend="sqlite", sqlite_path=path)
+    reader = ControlPlaneStore(backend="sqlite", sqlite_path=path)
+    key = _key("source-blocked")
+    source_job = _create_job(
+        writer, job_id=key.source_job_id, kind="natural_language_run", run_id="run-a"
+    )
+    source_worker, source_attempt = _lease_job(writer, source_job, "worker-source-blocked")
+    with writer.job_execution_fence(
+        job_id=source_job.job_id, worker_id=source_worker, attempt=source_attempt
+    ):
+        writer.complete_job(
+            job_id=source_job.job_id,
+            run_id="run-a",
+            progress={
+                "compiled_recursive_generation_cycle_ref": _sha("blocked-source-output"),
+                "compiled_recursive_generation_cycle_artifact_ref": {
+                    "artifact_id": _sha("blocked-source-output"),
+                    "kind": "runtime.compiled_recursive_generation_cycle",
+                    "media_type": "application/json",
+                },
+            },
+        )
+    job, worker, attempt = _create_action_job(writer, job_id="action-blocked")
+    route_id = _sha("blocked-route")
+    pending_ref = _sha("pending-phase")
+    with writer.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
+        pending = writer.advance_acquisition_action_head(
+            tenant_id=key.tenant_id,
+            cell_id=key.cell_id,
+            run_id="run-a",
+            source_job_id=key.source_job_id,
+            route_id=route_id,
+            action_generation=1,
+            expected_head_generation=0,
+            receipt_ref=pending_ref,
+            receipt_sha256=pending_ref,
+            durable_event_id="event-pending",
+            coarse_phase="candidate_input_reentry_pending",
+            receipt_phase="candidate_input_reentry_pending",
+            recovery_state="none",
+            job_id=job.job_id,
+            predecessor_receipt_ref=None,
+        )
+    cas = cas_type(
+        key=key,
+        expected_revision=0,
+        expected_frontier_ref=None,
+        replacement=None,
+    )
+    receipt_ref = _sha("blocked-terminal")
+    with writer.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
+        head = writer.advance_acquisition_action_head(
+            tenant_id=key.tenant_id,
+            cell_id=key.cell_id,
+            run_id="run-a",
+            source_job_id=key.source_job_id,
+            route_id=route_id,
+            action_generation=1,
+            expected_head_generation=pending.head_generation,
+            receipt_ref=receipt_ref,
+            receipt_sha256=receipt_ref,
+            durable_event_id="event-blocked-terminal",
+            coarse_phase="terminal",
+            receipt_phase="terminal",
+            recovery_state="complete",
+            job_id=job.job_id,
+            predecessor_receipt_ref=pending.receipt_ref,
+            frontier_cas=cas,
+        )
+
+    assert head.evaluation_frontier_before_ref is None
+    assert head.evaluation_frontier_ref is None
+    assert reader.read_acquisition_evaluation_frontier(key) is None
+    assert (
+        reader.get_acquisition_action_head(
+            tenant_id=key.tenant_id,
+            cell_id=key.cell_id,
+            run_id="run-a",
+            source_job_id=key.source_job_id,
+            route_id=route_id,
+            action_generation=1,
+        )
+        == head
+    )
+
+
+def test_absent_frontier_check_only_conflict_rolls_back_action_head(tmp_path: Path) -> None:
+    """An absent-preimage check fails if another connection selected a frontier."""
+    _, _, cas_type = _types()
+    path = tmp_path / "absent-check-conflict.sqlite3"
+    writer = ControlPlaneStore(backend="sqlite", sqlite_path=path)
+    reader = ControlPlaneStore(backend="sqlite", sqlite_path=path)
+    key = _key("source-check-conflict")
+    source_job = _create_job(
+        writer, job_id="source-check-conflict", kind="natural_language_run", run_id="run-a"
+    )
+    source_worker, source_attempt = _lease_job(writer, source_job, "worker-source-check-conflict")
+    value = _value()
+    output_ref = value.selected_evaluation_witness_ref
+    cas_initial = cas_type(
+        key=key,
+        expected_revision=0,
+        expected_frontier_ref=None,
+        replacement=value,
+    )
+    with writer.job_execution_fence(
+        job_id=source_job.job_id, worker_id=source_worker, attempt=source_attempt
+    ):
+        selected = writer.complete_job(
+            job_id=source_job.job_id,
+            run_id="run-a",
+            progress={
+                "compiled_recursive_generation_cycle_ref": output_ref,
+                "compiled_recursive_generation_cycle_artifact_ref": {
+                    "artifact_id": output_ref,
+                    "kind": "runtime.compiled_recursive_generation_cycle",
+                    "media_type": "application/json",
+                },
+            },
+            selected_evaluation_frontier_cas=cas_initial,
+        )
+    assert selected is not None
+    blocked_job, worker, attempt = _create_action_job(reader, job_id="action-absent-conflict")
+    blocked = cas_type(
+        key=key,
+        expected_revision=0,
+        expected_frontier_ref=None,
+        replacement=None,
+    )
+    receipt_ref = _sha("must-rollback-blocked-terminal")
+    with (
+        reader.job_execution_fence(job_id=blocked_job.job_id, worker_id=worker, attempt=attempt),
+        pytest.raises(ValueError, match="frontier_conflict"),
+    ):
+        reader.advance_acquisition_action_head(
+            tenant_id=key.tenant_id,
+            cell_id=key.cell_id,
+            run_id="run-a",
+            source_job_id=key.source_job_id,
+            route_id=_sha("blocked-conflict-route"),
+            action_generation=1,
+            expected_head_generation=0,
+            receipt_ref=receipt_ref,
+            receipt_sha256=receipt_ref,
+            durable_event_id="event-absent-conflict",
+            coarse_phase="terminal",
+            receipt_phase="terminal",
+            recovery_state="complete",
+            job_id=blocked_job.job_id,
+            predecessor_receipt_ref=_sha("pending-phase"),
+            frontier_cas=blocked,
+        )
+
+    assert writer.read_acquisition_evaluation_frontier(key) == selected
+    assert (
+        reader.get_acquisition_action_head(
+            tenant_id=key.tenant_id,
+            cell_id=key.cell_id,
+            run_id="run-a",
+            source_job_id=key.source_job_id,
+            route_id=_sha("blocked-conflict-route"),
+            action_generation=1,
+        )
+        is None
+    )
+
+
 def test_bootstrap_rolls_back_when_witness_is_not_the_completed_output(tmp_path: Path) -> None:
     _, _, cas_type = _types()
     store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "bad-output.sqlite3")

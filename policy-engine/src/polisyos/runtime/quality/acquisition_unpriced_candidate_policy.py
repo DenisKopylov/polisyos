@@ -32,6 +32,9 @@ if TYPE_CHECKING:
         ControlPlaneService,
         OriginalRunBudgetScopeEvidence,
     )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        VerifiedCandidateExperimentOrigin,
+    )
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
     from polisyos.scientist.orchestration.engine import (
         BudgetInvocationCapacityObservation,
@@ -279,6 +282,7 @@ class CandidateUnpricedLiveContext:
     action_phase_ref: str
     budget_observer: ProducerBudgetObserver
     budget_state: BudgetState
+    experiment_origin: VerifiedCandidateExperimentOrigin | None = None
 
 
 def _content_hash(payload: object) -> str:
@@ -934,6 +938,7 @@ def reconcile_candidate_unpriced_work(
     budget_observer: ProducerBudgetObserver,
     budget_state: BudgetState,
     experiment_source_closure: object | None = None,
+    experiment_origin: VerifiedCandidateExperimentOrigin | None = None,
 ) -> tuple[ProducerBudgetObservation, BudgetInvocationCapacityObservation]:
     """Reconcile actual owners before a candidate call; reserve no USD or N5 unit.
 
@@ -941,7 +946,11 @@ def reconcile_candidate_unpriced_work(
     from its source/harness and enforce its own journal permit. The numerical
     producer must still reserve each physical invocation through its owner.
     """
-    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRoutePhaseReceipt
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentPhaseReceipt,
+        AcquisitionRoutePhaseReceipt,
+        VerifiedCandidateExperimentOrigin,
+    )
     from polisyos.scientist.orchestration.engine import (
         BudgetState,
         ProducerBudgetObserver,
@@ -952,15 +961,20 @@ def reconcile_candidate_unpriced_work(
     )
     experiment_evidence = None
     if policy.schema_version == _POLICY_V2:
-        if experiment_source_closure is None:
+        if (
+            type(experiment_origin) is not VerifiedCandidateExperimentOrigin
+            or experiment_source_closure is not None
+            or experiment_origin.policy_scope != scope
+            or experiment_origin.policy_ref != policy_ref
+        ):
             raise ValueError("candidate_experiment_policy_intent_not_established")
         experiment_evidence = verify_candidate_unpriced_experiment_policy_intent(
             control_service=control_service,
-            closure=experiment_source_closure,
+            closure=experiment_origin,
             scope=scope,
             policy_ref=policy_ref,
         )
-    elif experiment_source_closure is not None:
+    elif experiment_source_closure is not None or experiment_origin is not None:
         raise ValueError("candidate_experiment_policy_version_not_established")
     if (
         not _selected_ref(policy_ref, POLICY_KIND)
@@ -991,38 +1005,79 @@ def reconcile_candidate_unpriced_work(
     ):
         raise ValueError("candidate_unpriced_policy_live_job_not_admitted")
     sink = control_service.acquisition_route_sink
-    phase = sink._read_verified_action_phase(action_phase_ref).receipt
-    if (
-        type(phase) is not AcquisitionRoutePhaseReceipt
-        or phase.receipt_phase != "executing"
-        or phase.tenant_id != scope.tenant_id
-        or phase.cell_id != scope.cell_id
-        or phase.run_id != scope.run_id
-        or phase.source_job_id != scope.source_job_id
-        or phase.job_id != admission.job.job_id
-        or phase.compiled_ref != str(scope.compiled_ref.artifact_id)
-        or phase.planner_report_hash != scope.planner_report_hash
-    ):
-        raise ValueError("candidate_unpriced_policy_action_scope_mismatch")
-    action = sink.current_action_outcome(
-        tenant_id=scope.tenant_id,
-        cell_id=scope.cell_id,
-        run_id=scope.run_id,
-        source_job_id=scope.source_job_id,
-        route_id=phase.route_id,
-    )
-    if (
-        action is None
-        or action.head.receipt_ref != action_phase_ref
-        or action.head.job_id != admission.job.job_id
-        or action.latest_receipt != phase
-    ):
-        raise ValueError("candidate_unpriced_policy_action_not_current")
+    experiment_snapshot: tuple[object, object, object] | None = None
+    if experiment_origin is not None:
+        handler = getattr(control_service, "_acquisition_job_handler", None)
+        action_service = getattr(handler, "__self__", None)
+        production_port = getattr(action_service, "_production_execution_port", None)
+        bridge = getattr(production_port, "_world_growth_bridge", None)
+        try:
+            from polisyos.runtime.quality.candidate_acquisition_action import (
+                _current_candidate_experiment_action,
+            )
+
+            selected, phase, live_admission = _current_candidate_experiment_action(
+                bridge, experiment_origin, action_phase_ref
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("candidate_experiment_action_not_current") from exc
+        if (
+            type(phase) is not AcquisitionCandidateExperimentPhaseReceipt
+            or phase.receipt_phase != "executing"
+            or phase.policy_scope != scope
+            or phase.policy_ref != policy_ref
+            or phase.request_content_hash != experiment_origin.request_content_hash
+            or phase.compiled_ref != str(scope.compiled_ref.artifact_id)
+            or phase.planner_report_hash != scope.planner_report_hash
+            or live_admission != admission
+        ):
+            raise ValueError("candidate_experiment_action_scope_mismatch")
+        outcome = sink.experiment_action_outcomes(
+            tenant_id=scope.tenant_id,
+            cell_id=scope.cell_id,
+            run_id=scope.run_id,
+            source_job_id=scope.source_job_id,
+            route_id=phase.route_id,
+        )
+        if len(outcome) != 1 or outcome[0].latest_receipt != phase:
+            raise ValueError("candidate_experiment_action_not_current")
+        action: object = outcome[0]
+        experiment_snapshot = (selected, phase, live_admission)
+    else:
+        phase = sink._read_verified_action_phase(action_phase_ref).receipt
+        if (
+            type(phase) is not AcquisitionRoutePhaseReceipt
+            or phase.receipt_phase != "executing"
+            or phase.tenant_id != scope.tenant_id
+            or phase.cell_id != scope.cell_id
+            or phase.run_id != scope.run_id
+            or phase.source_job_id != scope.source_job_id
+            or phase.job_id != admission.job.job_id
+            or phase.compiled_ref != str(scope.compiled_ref.artifact_id)
+            or phase.planner_report_hash != scope.planner_report_hash
+        ):
+            raise ValueError("candidate_unpriced_policy_action_scope_mismatch")
+        action = sink.current_action_outcome(
+            tenant_id=scope.tenant_id,
+            cell_id=scope.cell_id,
+            run_id=scope.run_id,
+            source_job_id=scope.source_job_id,
+            route_id=phase.route_id,
+        )
+        if (
+            action is None
+            or action.head.receipt_ref != action_phase_ref
+            or action.head.job_id != admission.job.job_id
+            or action.latest_receipt != phase
+        ):
+            raise ValueError("candidate_unpriced_policy_action_not_current")
     ProducerBudgetObserver.require_bound_state(budget_observer, budget_state)
     budget = ProducerBudgetObserver.admit(budget_observer)
     capacity = ProducerBudgetObserver.observe_standard_invocation_capacity(budget_observer)
     if (
-        capacity.status != "available"
+        budget.predicate_basis != "independently_reconciled"
+        or budget.remaining_usd <= Decimal(0)
+        or capacity.status != "available"
         or capacity.profile_digest != policy.n5_quota_profile.profile_digest
     ):
         raise ValueError("candidate_unpriced_policy_n5_capacity_not_established")
@@ -1035,26 +1090,46 @@ def reconcile_candidate_unpriced_work(
         raise ValueError("candidate_unpriced_policy_selection_changed")
     if control_service._control_store.current_execution_job_admission() != admission:
         raise ValueError("candidate_unpriced_policy_live_job_changed")
-    if (
-        sink.current_action_outcome(
+    if experiment_origin is None:
+        if (
+            sink.current_action_outcome(
+                tenant_id=scope.tenant_id,
+                cell_id=scope.cell_id,
+                run_id=scope.run_id,
+                source_job_id=scope.source_job_id,
+                route_id=phase.route_id,
+            )
+            != action
+        ):
+            raise ValueError("candidate_unpriced_policy_action_changed")
+    else:
+        current_outcomes = sink.experiment_action_outcomes(
             tenant_id=scope.tenant_id,
             cell_id=scope.cell_id,
             run_id=scope.run_id,
             source_job_id=scope.source_job_id,
             route_id=phase.route_id,
         )
-        != action
-    ):
-        raise ValueError("candidate_unpriced_policy_action_changed")
+        if current_outcomes != (action,):
+            raise ValueError("candidate_experiment_action_changed")
     if (
         experiment_evidence is not None
         and verify_candidate_unpriced_experiment_policy_intent(
             control_service=control_service,
-            closure=experiment_source_closure,
+            closure=experiment_origin,
             scope=scope,
             policy_ref=policy_ref,
         )
         != experiment_evidence
     ):
         raise ValueError("candidate_experiment_policy_intent_changed")
+    if experiment_origin is not None:
+        try:
+            selected_after, phase_after, admission_after = _current_candidate_experiment_action(
+                bridge, experiment_origin, action_phase_ref
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("candidate_experiment_action_changed") from exc
+        if (selected_after, phase_after, admission_after) != experiment_snapshot:
+            raise ValueError("candidate_experiment_action_changed")
     return budget, capacity

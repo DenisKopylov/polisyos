@@ -10348,6 +10348,22 @@
             "inputs_unchanged_during_run": true,
             "preserved": "549 original blob/manifest files,49 original SQL rows and ledger unchanged; N5 sentinel never invoked.",
             "repair": "r5 source/test-qualified fallback on ArtifactOwnershipError; actual R15 replay next."
+          },
+          "follow_on_r15": {
+            "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-candidate-action-retained-r15/",
+            "source_commit": "ee411a848944940fd6776f2136b20c2126364a8b",
+            "source_tree": "8948ced543f70592ddd77e588b0541a2711999ea",
+            "status": "RESOURCE_LIMIT_ABORT / allow and reentry unqualified",
+            "return_code": -15,
+            "reason": "overall_wall_cap",
+            "seconds": 295.37178354209755,
+            "peak_rss_bytes": 1405140992,
+            "named_inputs": 43,
+            "inputs_unchanged_during_run": true,
+            "process_group_gone": true,
+            "observed_progress": "Canonical current policy selected uniquely: templates1/configured bindings0, canonical before1/after1, policy events6 unchanged. No completed allow assertion. One captured90s stack is in repeated policy inventory/CAS ownership reads; this alone is not a complete latency diagnosis.",
+            "limitations": "Final preservation block did not execute after termination; no full CAS/SQL after-run equality claim. No OOM diagnosis. Do not repeat full native computation or this same timeout loop blindly.",
+            "next": "Measure/reuse complete owned manifest selection without weakening active profile/provenance checks; complete fresh initially funded execution fixture and its full consumer oracle."
           }
         },
         "candidate_execution_author_assembly": {
@@ -10368,7 +10384,12 @@
           },
           "independent_review": "Sol gen1 owner graph final source GO; Luna current projection/material GO; Root direct output/JUnit/source readback.",
           "resource_admission": "R8 historical profile total3/protected1 has2 completed standard reservations and no remaining standard unit. Keep for read/permission replay; fresh producer must declare sufficient finite profile before work. No original ledger or signed request mutation.",
-          "remaining": "Compose Main alias/policy/DS9 fixes, then actual fresh quota source→WDI→DataSnapshot/WMR→N5→terminal→fresh GET and crash/removal controls; gen2/retained producer thereafter. No G acceptance."
+          "remaining": "Compose Main alias/policy/DS9 fixes, then actual fresh quota source→WDI→DataSnapshot/WMR→N5→terminal→fresh GET and crash/removal controls; gen2/retained producer thereafter. No G acceptance.",
+          "composed_source": {
+            "commit": "ee411a848944940fd6776f2136b20c2126364a8b",
+            "tree": "8948ced543f70592ddd77e588b0541a2711999ea",
+            "composition": "Ordinary merge of Main e999e2f9f into author851e219; both original histories preserved. Main policy-selection and selected-signature recovery function ASTs compared exactly after merge. No source changes at day-end."
+          }
         }
       },
       "independent_component_reviews": {
@@ -31121,7 +31142,7 @@
     "archive_integrity": "PASS_DOCUMENT_INTEGRITY before working-state edit; product checks NOT_RUN",
     "python_lock_sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
     "resource_profile": "macOS arm64; existing Python 3.14 environment; at most two qualified light test jobs, unknown native job alone; about 10 GiB free; no reinstall or environment copies",
-    "authorization": "User authorizes sequential lanes, parallel work within active lane, ordinary main composition and retirement after actual content/protection/worktree checks. No cloud tasks or production-data export.",
+    "authorization": "User authorizes sequential lanes, parallel work within active lane, ordinary main composition and retirement after actual content/protection/worktree checks. No cloud tasks or production-data export. Execution paused at the user request on 2026-11-04; no workers/jobs remain running.",
     "node_version": "22.22.2",
     "filesystem_profile": "Measured APFS disk3s5 /System/Volumes/Data; native software qualification only, no power-loss/NFS/Linux guarantee"
   },

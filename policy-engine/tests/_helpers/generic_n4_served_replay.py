@@ -119,6 +119,52 @@ def _validated_candidate_scm_overrides_by_child(
     return result
 
 
+def _selected_child_n5_baseline(
+    baseline_state: Mapping[str, float],
+    *,
+    target_world_slot: str,
+    outcome_variable: str,
+    overrides: Mapping[str, float],
+) -> dict[str, float]:
+    """Build one synthetic child baseline from its declared target and outcome."""
+    selected_variables = {target_world_slot, outcome_variable}
+    selected = {
+        name: float(value) for name, value in baseline_state.items() if name in selected_variables
+    }
+    selected.setdefault(target_world_slot, 0.0)
+    selected.setdefault(outcome_variable, 0.0)
+    if "target_baseline" in overrides:
+        selected[target_world_slot] = overrides["target_baseline"]
+    if "outcome_baseline" in overrides:
+        selected[outcome_variable] = overrides["outcome_baseline"]
+    return selected
+
+
+def _ncm_declared_variables(ncm_spec: Any) -> set[str]:
+    """Match NCMQueryData's model-variable set for this selected test NCM."""
+    known = set(ncm_spec.endogenous_vars)
+    if ncm_spec.scm_spec is not None:
+        known.update(ncm_spec.scm_spec.graph.nodes)
+    if not known:
+        for equation in ncm_spec.structural_equations:
+            known.add(equation.variable)
+            known.update(equation.parents)
+    if not known:
+        raise ValueError("controlled_n4_selected_ncm_declared_variables_missing")
+    return known
+
+
+def _require_child_ncm_scope(
+    ncm_spec: Any,
+    *,
+    target_world_slot: str,
+    outcome_variable: str,
+) -> None:
+    """Refuse fixture drift beyond this declaration's exact two-node NCM."""
+    if _ncm_declared_variables(ncm_spec) != {target_world_slot, outcome_variable}:
+        raise ValueError("controlled_n4_selected_ncm_model_scope_unexpected")
+
+
 def _source_recorded_n4_retry_inputs(recording: dict[str, Any]) -> dict[str, int]:
     """Read the retry settings needed to align the recorded N4 response window."""
     capture_summary = recording.get("capture_summary")
@@ -803,6 +849,19 @@ def _replace_recording_response_payload(
     return response_hash
 
 
+def _bind_child_formalizer_frame(
+    formalizer_payload: dict[str, Any],
+    *,
+    child_problem: Any,
+) -> None:
+    """Bind child identity and narrative while preserving the typed source domain."""
+    problem_frame = formalizer_payload.get("problem_frame")
+    if not isinstance(problem_frame, dict):
+        raise ValueError("child_provider_problem_frame_not_established")
+    problem_frame["problem_id"] = str(child_problem.design_problem_id)
+    problem_frame["narrative"] = child_problem.problem_statement
+
+
 def _child_conditioned_synthetic_provider_profile(
     *,
     source_recording: dict[str, Any],
@@ -1037,9 +1096,7 @@ def _child_conditioned_synthetic_provider_profile(
         payload=multipass_payload,
     )
 
-    formalizer_payload["problem_frame"]["problem_id"] = child_frame_id
-    formalizer_payload["problem_frame"]["domain"] = child_problem.domain
-    formalizer_payload["problem_frame"]["narrative"] = child_problem.problem_statement
+    _bind_child_formalizer_frame(formalizer_payload, child_problem=child_problem)
     policy_payload["interventions"] = [copy.deepcopy(raw_intervention)]
     policy_payload["parameters"] = [copy.deepcopy(raw_parameter)]
     policy_payload["description"] = str(selected_draft.get("description") or draft_name)
@@ -1291,13 +1348,12 @@ def _generic_profile_for_selection(
         else _validated_candidate_scm_overrides(candidate_scm_overrides)
     )
     outcome_variable = base_declaration.outcome_variable
-    baseline_state = {key: float(value) for key, value in base_profile.n5.baseline_state.items()}
-    baseline_state.setdefault(target_world_slot, 0.0)
-    baseline_state.setdefault(outcome_variable, 0.0)
-    if "target_baseline" in overrides:
-        baseline_state[target_world_slot] = overrides["target_baseline"]
-    if "outcome_baseline" in overrides:
-        baseline_state[outcome_variable] = overrides["outcome_baseline"]
+    baseline_state = _selected_child_n5_baseline(
+        base_profile.n5.baseline_state,
+        target_world_slot=target_world_slot,
+        outcome_variable=outcome_variable,
+        overrides=overrides,
+    )
     selected_target = next(
         (
             slot
@@ -1356,6 +1412,11 @@ def _generic_profile_for_selection(
         hash_fn=gy_content_hash,
     )
     ncm = candidate_ncm_spec_from_declaration(declaration)
+    _require_child_ncm_scope(
+        ncm,
+        target_world_slot=target_world_slot,
+        outcome_variable=outcome_variable,
+    )
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         ncm_ref = persist_ncm_spec(ensure_ir_artifact_store(store), ncm)
         ncm_ref = ArtifactRef.model_validate(ncm_ref.model_dump(mode="python"))

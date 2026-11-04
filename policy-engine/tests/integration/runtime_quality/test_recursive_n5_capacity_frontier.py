@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import copy
 import hashlib
+import inspect
 import json
+import traceback
 import uuid
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 
@@ -58,6 +62,306 @@ def _selected_quota_profile(profile: Any, policy: BudgetInvocationQuotaPolicy) -
     profile_fields = profile.model_dump(mode="python", exclude={"content_hash"})
     profile_fields["n5"] = selected_n5
     return _hashed_model(type(profile), profile_fields, hash_fn=gy_content_hash)
+
+
+def _assert_prepared_atoms_rebound_to_actual_problem(
+    prepared_candidates: Any,
+    actual_candidates: Any,
+    *,
+    prepared_problem_ref: str,
+    actual_problem_ref: str,
+    actual_candidate_sources: Any,
+    actual_world_model_record: Any,
+) -> None:
+    """Compare full atom semantics and bind current-context fields to their owners."""
+    from polisyos.common.serialization import artifact_self_identity_projection
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        intervention_atom_content_hash,
+    )
+
+    def by_semantic_group(candidates: Any) -> dict[tuple[str, tuple[str, ...]], Any]:
+        grouped: dict[tuple[str, tuple[str, ...]], Any] = {}
+        for candidate in candidates:
+            atom = candidate.atom
+            operator_kind = atom.operator_kind.trinity_kind
+            if hasattr(operator_kind, "value"):
+                operator_kind = operator_kind.value
+            group = (
+                str(operator_kind),
+                tuple(sorted(str(slot) for slot in atom.target_world_slots)),
+            )
+            if not group[1] or group in grouped:
+                raise AssertionError("original_second_capture_atom_semantic_group_not_unique")
+            grouped[group] = atom
+        return grouped
+
+    prepared_by_group = by_semantic_group(prepared_candidates)
+    actual_by_group = by_semantic_group(actual_candidates)
+    source_by_candidate = {item.candidate_id: item for item in actual_candidate_sources}
+    if set(prepared_by_group) != set(actual_by_group):
+        raise AssertionError("original_second_capture_actual_atom_groups_changed")
+
+    def canonical_payload(atom: Any) -> dict[str, Any]:
+        payload = artifact_self_identity_projection(atom)
+        # These are exactly the non-content fields omitted by the canonical
+        # InterventionAtomBinding hash; retain every other semantic field.
+        for field in ("atom_id", "producer_ref", "provenance_refs", "status"):
+            payload.pop(field)
+        if payload.get("normalized_from") is None:
+            payload.pop("normalized_from")
+        return payload
+
+    for group in sorted(prepared_by_group):
+        prepared_atom = prepared_by_group[group]
+        actual_candidate = next(
+            candidate for candidate in actual_candidates if candidate.atom is actual_by_group[group]
+        )
+        actual_atom = actual_candidate.atom
+        if prepared_atom.problem_frame_ref != prepared_problem_ref:
+            raise AssertionError("original_second_capture_prepared_atom_problem_ref_mismatch")
+        if actual_atom.problem_frame_ref != actual_problem_ref:
+            raise AssertionError("original_second_capture_actual_atom_problem_ref_mismatch")
+
+        prepared_payload = canonical_payload(prepared_atom)
+        actual_payload = canonical_payload(actual_atom)
+        prepared_hash = gy_content_hash(prepared_payload)
+        actual_hash = intervention_atom_content_hash(actual_atom)
+        if prepared_hash != prepared_atom.content_hash:
+            raise AssertionError("original_second_capture_prepared_atom_hash_invalid")
+        if actual_hash != actual_atom.content_hash:
+            raise AssertionError("original_second_capture_actual_atom_hash_invalid")
+        if actual_atom.atom_id != f"atom_{actual_hash.removeprefix('sha256:')[:16]}":
+            raise AssertionError("original_second_capture_actual_atom_id_hash_mismatch")
+
+        source = source_by_candidate.get(actual_candidate.candidate_id)
+        if source is None:
+            raise AssertionError("original_second_capture_actual_candidate_source_missing")
+        cg1 = source.grounding_relation_certificate
+        cg2 = source.grounding_decision_certificate
+        parsed = actual_candidate.provenance.parsed_candidate
+        from polisyos.runtime.quality.design_generation import _selected_atom_id_from_cg1
+
+        selected_cg0_atom_id = _selected_atom_id_from_cg1(cg1)
+        if cg2.cg1_certificate_id != cg1.certificate_id or cg2.cg1_content_hash != cg1.content_hash:
+            raise AssertionError("original_second_capture_actual_cg1_cg2_chain_mismatch")
+        if (
+            parsed.get("grounding_relation_certificate_id") != cg1.certificate_id
+            or parsed.get("grounding_relation_content_hash") != cg1.content_hash
+            or parsed.get("grounding_decision_certificate_id") != cg2.certificate_id
+            or parsed.get("grounding_decision_content_hash") != cg2.content_hash
+        ):
+            raise AssertionError(
+                "original_second_capture_actual_source_certificate_binding_mismatch"
+            )
+        if not cg1.shadow_only or not cg1.no_bind_admit_promote:
+            raise AssertionError("original_second_capture_actual_cg1_authority_boundary_changed")
+        if cg2.production_promotable or cg2.cg3_handoff:
+            raise AssertionError("original_second_capture_actual_cg2_authority_boundary_changed")
+        cg0_atom_id = parsed.get("identified_cg0_atom_id")
+        if (
+            not isinstance(cg0_atom_id, str)
+            or not cg0_atom_id
+            or cg0_atom_id != selected_cg0_atom_id
+        ):
+            raise AssertionError("original_second_capture_actual_cg0_binding_missing")
+        expected_assumptions = (
+            "llm_candidate_shadow_only",
+            "target_selector_content_bound",
+            f"grounding_relation_certificate_id:{cg1.certificate_id}",
+            f"grounding_relation_content_hash:{cg1.content_hash}",
+            f"grounding_decision_certificate_id:{cg2.certificate_id}",
+            f"grounding_decision_content_hash:{cg2.content_hash}",
+            f"identified_cg0_atom:{cg0_atom_id}",
+        )
+        expected_notes = (
+            prepared_atom.direct_effect_bundle.notes[0],
+            f"cg1_certificate:{cg1.certificate_id}",
+            f"cg1_hash:{cg1.content_hash}",
+            f"cg2_certificate:{cg2.certificate_id}",
+            f"cg2_hash:{cg2.content_hash}",
+            f"identified_atom:{cg0_atom_id}",
+        )
+        assumptions = tuple(actual_atom.causal_do_expr.context.assumptions)
+        notes = tuple(actual_atom.direct_effect_bundle.notes)
+        if assumptions != expected_assumptions:
+            raise AssertionError(
+                "original_second_capture_actual_cg_certificate_assumptions_mismatch"
+            )
+        if notes != expected_notes:
+            raise AssertionError("original_second_capture_actual_cg_certificate_notes_mismatch")
+        if actual_atom.world_model_record_ref != actual_world_model_record.world_model_record_id:
+            raise AssertionError("original_second_capture_actual_world_model_binding_mismatch")
+        if actual_atom.provenance_refs.count(cg1.content_hash) != 1:
+            raise AssertionError("original_second_capture_actual_cg1_provenance_missing")
+        if actual_atom.provenance_refs.count(cg2.content_hash) != 1:
+            raise AssertionError("original_second_capture_actual_cg2_provenance_missing")
+        if actual_candidate.provenance.generator_path != "model_generated":
+            raise AssertionError("original_second_capture_actual_candidate_authority_changed")
+        if (
+            actual_candidate.status != "candidate_unverified"
+            or actual_atom.status != "candidate_unverified"
+        ):
+            raise AssertionError("original_second_capture_actual_candidate_promoted")
+
+        # These context-dependent bindings are checked above against the actual
+        # selected WMR and the actual source certificates. Normalize only those
+        # exact typed values before comparing every other canonical field.
+        prepared_payload["world_model_record_ref"] = actual_payload["world_model_record_ref"]
+        prepared_payload["causal_do_expr"]["context"]["assumptions"] = list(expected_assumptions)
+        prepared_payload["direct_effect_bundle"]["notes"] = list(expected_notes)
+        prepared_payload["problem_frame_ref"] = actual_problem_ref
+        if prepared_payload != actual_payload:
+            raise AssertionError(
+                "original_second_capture_atom_payload_changed_after_problem_rebind:"
+                f"group={group!r};paths="
+                f"{_payload_difference_paths(prepared_payload, actual_payload)!r}"
+            )
+        rebound_prepared_hash = gy_content_hash(prepared_payload)
+        if rebound_prepared_hash != actual_hash:
+            raise AssertionError("original_second_capture_atom_rebound_hash_mismatch")
+
+
+def _payload_difference_paths(left: Any, right: Any, path: str = "") -> tuple[str, ...]:
+    """Return concise nested field paths that differ between JSON payloads."""
+    if isinstance(left, dict) and isinstance(right, dict):
+        differences: list[str] = []
+        for key in sorted(set(left) | set(right)):
+            child_path = f"{path}.{key}" if path else key
+            if key not in left or key not in right:
+                differences.append(child_path)
+            else:
+                differences.extend(_payload_difference_paths(left[key], right[key], child_path))
+        return tuple(differences)
+    if isinstance(left, list) and isinstance(right, list):
+        if len(left) != len(right):
+            return (path,)
+        return tuple(
+            difference
+            for index, (left_item, right_item) in enumerate(zip(left, right, strict=True))
+            for difference in _payload_difference_paths(left_item, right_item, f"{path}[{index}]")
+        )
+    return () if left == right else (path,)
+
+
+def _rehash_atom_with_payload_updates(atom: Any, updates: dict[str, Any]) -> Any:
+    """Build a locally rehashed typed atom for a negative oracle control."""
+    from polisyos.common.serialization import artifact_self_identity_projection
+
+    fields = atom.model_dump(mode="python")
+    for dotted_path, value in updates.items():
+        path = dotted_path.split(".")
+        target = fields
+        for key in path[:-1]:
+            target = target[key]
+        target[path[-1]] = value
+    draft = type(atom).model_construct(**fields)
+    payload = artifact_self_identity_projection(draft)
+    for field in ("atom_id", "producer_ref", "provenance_refs", "status"):
+        payload.pop(field)
+    if payload.get("normalized_from") is None:
+        payload.pop("normalized_from")
+    content_hash = gy_content_hash(payload)
+    fields["content_hash"] = content_hash
+    fields["atom_id"] = f"atom_{content_hash.removeprefix('sha256:')[:16]}"
+    return type(atom).model_validate(fields)
+
+
+def _assert_actual_atom_oracle_rejects_rebound_mutations(
+    prepared_candidates: Any,
+    actual_candidates: Any,
+    *,
+    prepared_problem_ref: str,
+    actual_problem_ref: str,
+    actual_candidate_sources: Any,
+    actual_world_model_record: Any,
+) -> None:
+    """Prove context and semantic drift remain rejected after valid rehashing."""
+
+    from polisyos.common.serialization import artifact_self_identity_projection
+
+    def reject(original_candidate: Any, mutated_atom: Any, *, expected_error: str) -> None:
+        mutated_candidates = [
+            candidate.model_copy(update={"atom": mutated_atom})
+            if candidate.candidate_id == original_candidate.candidate_id
+            else candidate
+            for candidate in actual_candidates
+        ]
+        with pytest.raises(AssertionError, match=expected_error):
+            _assert_prepared_atoms_rebound_to_actual_problem(
+                prepared_candidates,
+                mutated_candidates,
+                prepared_problem_ref=prepared_problem_ref,
+                actual_problem_ref=actual_problem_ref,
+                actual_candidate_sources=actual_candidate_sources,
+                actual_world_model_record=actual_world_model_record,
+            )
+
+    for actual_candidate in actual_candidates:
+        atom = actual_candidate.atom
+        atom_payload = artifact_self_identity_projection(atom)
+        if "world_model_record_ref" not in atom_payload:
+            raise AssertionError("oracle_falsifier_atom_world_model_ref_missing")
+        forged_wmr = _rehash_atom_with_payload_updates(
+            atom,
+            {"world_model_record_ref": "world_model_record_" + "0" * 16},
+        )
+        reject(
+            actual_candidate,
+            forged_wmr,
+            expected_error="original_second_capture_actual_world_model_binding_mismatch",
+        )
+
+        assumptions = list(atom.causal_do_expr.context.assumptions)
+        notes = list(atom.direct_effect_bundle.notes)
+        provenance_refs = list(atom.provenance_refs)
+        source = next(
+            item
+            for item in actual_candidate_sources
+            if item.candidate_id == actual_candidate.candidate_id
+        )
+        cg1 = source.grounding_relation_certificate
+        assumptions[2] = "grounding_relation_certificate_id:cg1_cert_0000000000000000"
+        notes[1] = "cg1_certificate:cg1_cert_0000000000000000"
+        notes[2] = "cg1_hash:sha256:" + "0" * 64
+        provenance_refs = [
+            "sha256:" + "0" * 64 if value == cg1.content_hash else value
+            for value in provenance_refs
+        ]
+        forged_certificate = _rehash_atom_with_payload_updates(
+            atom,
+            {
+                "causal_do_expr.context.assumptions": assumptions,
+                "direct_effect_bundle.notes": notes,
+                "provenance_refs": provenance_refs,
+            },
+        )
+        reject(
+            actual_candidate,
+            forged_certificate,
+            expected_error="original_second_capture_actual_cg_certificate_assumptions_mismatch",
+        )
+
+        params = dict(atom.direct_effect_bundle.params)
+        numeric_parameter = None
+        for key, value in params.items():
+            try:
+                Decimal(str(value))
+            except (InvalidOperation, ValueError):
+                continue
+            numeric_parameter = key
+            break
+        if numeric_parameter is None:
+            raise AssertionError("oracle_falsifier_numeric_parameter_missing")
+        params[numeric_parameter] = str(Decimal(str(params[numeric_parameter])) + Decimal("0.01"))
+        forged_parameter = _rehash_atom_with_payload_updates(
+            atom,
+            {"direct_effect_bundle.params": params},
+        )
+        reject(
+            actual_candidate,
+            forged_parameter,
+            expected_error="original_second_capture_atom_payload_changed_after_problem_rebind",
+        )
 
 
 def _self_bound_capacity_variant(
@@ -308,6 +612,75 @@ async def test_original_two_child_run_stops_after_first_child_on_standard_n5_cap
         "build_design_problem_from_nl_request",
         run_deterministic_compiler,
     )
+    from pydantic import ValidationError as PydanticValidationError
+
+    from polisyos.runtime.quality import joint_simulation_horizon
+
+    physical_validation_records: list[dict[str, Any]] = []
+    original_safe_work_cause = joint_simulation_horizon._safe_work_cause
+    physical_validation_path = tmp_path / "physical-validation-causes.json"
+    physical_validation_capture_error_path = tmp_path / "physical-validation-capture-error.json"
+
+    def capture_physical_validation_cause(
+        error: Exception | None,
+    ) -> tuple[str | None, dict[str, str] | None]:
+        if isinstance(error, PydanticValidationError) and len(physical_validation_records) < 8:
+            call_frame = inspect.currentframe().f_back
+            caller_locals = call_frame.f_locals if call_frame is not None else {}
+            try:
+                record = {
+                    "errors": error.errors(
+                        include_input=False,
+                        include_url=False,
+                        include_context=False,
+                    ),
+                    "traceback": "".join(traceback.format_exception(error)),
+                    "invocation_id": caller_locals.get("invocation_id"),
+                    "effective_seed": caller_locals.get("seed"),
+                    "physical_spec_ref": caller_locals.get("physical_spec_ref"),
+                    "physical_ref": caller_locals.get("physical_ref"),
+                }
+                operation = caller_locals.get("operation")
+                if callable(operation):
+                    record["operation"] = {
+                        "module": getattr(operation, "__module__", None),
+                        "qualname": getattr(
+                            operation, "__qualname__", type(operation).__qualname__
+                        ),
+                    }
+                physical_validation_records.append(record)
+                physical_validation_path.write_text(
+                    json.dumps(physical_validation_records, indent=2, default=str) + "\n",
+                    encoding="utf-8",
+                )
+            except Exception as observer_error:
+                # The observer must not alter the existing error or owner flow.
+                capture_error = {
+                    "diagnostic_capture_error": type(observer_error).__name__,
+                }
+                physical_validation_records.append(capture_error)
+                try:
+                    physical_validation_capture_error_path.write_text(
+                        json.dumps(capture_error, indent=2) + "\n",
+                        encoding="utf-8",
+                    )
+                except Exception as fallback_error:
+                    # Preserve the original work cause even if both diagnostic
+                    # destinations are unavailable.
+                    physical_validation_records.append(
+                        {
+                            "diagnostic_capture_error_artifact_write_error": type(
+                                fallback_error
+                            ).__name__
+                        }
+                    )
+        return original_safe_work_cause(error)
+
+    monkeypatch.setattr(
+        joint_simulation_horizon,
+        "_safe_work_cause",
+        capture_physical_validation_cause,
+    )
     observed_budget_owners: list[Any] = []
     original_budget_owner_builder = run_lifecycle._build_control_nl_producer_budget_reconciler
 
@@ -321,6 +694,30 @@ async def test_original_two_child_run_stops_after_first_child_on_standard_n5_cap
         "_build_control_nl_producer_budget_reconciler",
         capture_budget_owner,
     )
+    from polisyos.scientist.agent._drafter_orchestrator import MultiPassLLMDrafter
+
+    drafter_pass_plans: dict[str, tuple[tuple[str, int, bool, str], ...]] = {}
+    original_drafter_finalize = MultiPassLLMDrafter._finalize
+
+    def capture_drafter_pass_plan(
+        drafter: Any,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Any:
+        problem_frame = kwargs["problem_frame"]
+        pass_results = kwargs["pass_results"]
+        drafter_pass_plans[str(problem_frame.frame_id)] = tuple(
+            (
+                str(item.pass_name),
+                int(item.pass_number),
+                bool(item.executed),
+                str(item.skip_reason),
+            )
+            for item in pass_results
+        )
+        return original_drafter_finalize(drafter, *args, **kwargs)
+
+    monkeypatch.setattr(MultiPassLLMDrafter, "_finalize", capture_drafter_pass_plan)
 
     # Serve the unchanged original capture through the selected synthetic stage
     # profile; the stage profile declares new usage and does not reprice failed
@@ -370,8 +767,22 @@ async def test_original_two_child_run_stops_after_first_child_on_standard_n5_cap
         control_run_id = str(job.run_id)
         handoff = compiled.generic_cycle_simulation_handoff
         assert handoff is not None
-        assert compiled.design_problem_ref == prepared_problem_ref
-        assert cycle_job_design_problem_ref(compiled.design_problem) == prepared_problem_ref
+        actual_problem_ref = cycle_job_design_problem_ref(compiled.design_problem)
+        assert compiled.design_problem_ref == actual_problem_ref
+        prepared_problem_payload = prepared.recorded_problem.model_dump(mode="json")
+        actual_problem_payload = compiled.design_problem.model_dump(mode="json")
+        prepared_source_context = prepared_problem_payload["nl_provenance"]["source_context"]
+        actual_source_context = actual_problem_payload["nl_provenance"]["source_context"]
+        assert actual_source_context == {
+            **prepared_source_context,
+            "tenant_id": identity.tenant_id,
+            "cell_id": identity.cell_id,
+            "job_id": accepted["job_id"],
+            "run_id": control_run_id,
+        }
+        comparable_problem_payload = copy.deepcopy(actual_problem_payload)
+        comparable_problem_payload["nl_provenance"]["source_context"] = prepared_source_context
+        assert comparable_problem_payload == prepared_problem_payload
         assert compiled.n4_recursive_source_ref is not None
         assert compiled.n4_recursive_source_job_id == accepted["job_id"] == handoff.job_id
         assert compiled.n4_recursive_source_run_id == control_run_id == handoff.run_id
@@ -400,14 +811,39 @@ async def test_original_two_child_run_stops_after_first_child_on_standard_n5_cap
             profile_ref=handoff.profile_ref,
             n4_child_profile_family_ref=handoff.n4_child_profile_family_ref,
         )
-        assert cycle_job_design_problem_ref(served_source.problem) == prepared_problem_ref
+        assert cycle_job_design_problem_ref(served_source.problem) == actual_problem_ref
+        served_problem_payload = served_source.problem.model_dump(mode="json")
+        assert served_problem_payload == actual_problem_payload
         served_candidate_semantics = _assert_original_second_capture_generation_result(
             served_source.generation_result,
-            design_problem_ref=prepared_problem_ref,
+            design_problem_ref=actual_problem_ref,
             recording_id=prepared.source_recording_id,
             recording_content_hash=prepared.source_recording_content_hash,
         )
-        assert served_candidate_semantics == candidate_semantics
+        from polisyos.runtime.quality.world_model_record import load_world_model_record
+
+        current_world_model_record = owner_call(
+            load_world_model_record,
+            service._artifact_store,
+            handoff.profile.world_model_record_ref,
+        )
+        assert current_world_model_record == handoff.profile.context_inputs.world_model_record
+        _assert_prepared_atoms_rebound_to_actual_problem(
+            source_result.candidates,
+            served_source.generation_result.candidates,
+            prepared_problem_ref=prepared_problem_ref,
+            actual_problem_ref=actual_problem_ref,
+            actual_candidate_sources=served_source.candidate_sources,
+            actual_world_model_record=current_world_model_record,
+        )
+        _assert_actual_atom_oracle_rejects_rebound_mutations(
+            source_result.candidates,
+            served_source.generation_result.candidates,
+            prepared_problem_ref=prepared_problem_ref,
+            actual_problem_ref=actual_problem_ref,
+            actual_candidate_sources=served_source.candidate_sources,
+            actual_world_model_record=current_world_model_record,
+        )
         assert control_run_id != run_id
 
         from polisyos.scientist.orchestration.engine.budget_ledger import (
@@ -441,6 +877,53 @@ async def test_original_two_child_run_stops_after_first_child_on_standard_n5_cap
         root = by_ref[partial.root_node_ref]
         first = by_ref[root.child_refs[0]]
         second = by_ref[root.child_refs[1]]
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+        )
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleSimulationAdmissionOwner,
+        )
+        from polisyos.runtime.quality.recursive_generation_cycle import (
+            RecursiveLeafContextOwner,
+        )
+
+        assert compiled.n4_child_profile_set_ref is not None
+        source_repository = GenerationSourceRepository(service._artifact_store)
+        capsule_owner = RecursiveLeafContextOwner(
+            store=service._artifact_store,
+            context_owner=CycleSubstrateContextArtifactOwner(store=service._artifact_store),
+            admission_owner=None,
+            generic_admission_owner=GenericCycleSimulationAdmissionOwner(
+                profiles=(), store=service._artifact_store
+            ),
+        )
+        root_family = owner_call(
+            capsule_owner.load_n4_child_profile_set,
+            compiled.n4_child_profile_set_ref,
+            expected_job_id=handoff.job_id,
+            expected_run_id=handoff.run_id,
+            expected_tenant_id=handoff.tenant_id,
+            expected_cell_id=handoff.cell_id,
+            expected_parent_handoff=handoff,
+            source_repository=source_repository,
+        )
+        actual_child_rows_by_node_ref = {row.node_ref: row for row in root_family.children}
+        assert len(actual_child_rows_by_node_ref) == len(root_family.children) == 2
+        actual_child_refs = set(actual_child_rows_by_node_ref)
+        actual_child_problem_refs = {
+            node_ref: cycle_job_design_problem_ref(row.problem)
+            for node_ref, row in actual_child_rows_by_node_ref.items()
+        }
+        actual_child_profile_selection_refs = {
+            node_ref: row.selection.profile_selection_ref
+            for node_ref, row in actual_child_rows_by_node_ref.items()
+        }
+        assert set(root.child_refs) == actual_child_refs
+        actual_candidate_semantics = _assert_original_second_capture_child_semantic_join(
+            tuple(actual_child_rows_by_node_ref.values()),
+            served_candidate_semantics,
+        )
+        assert set(actual_candidate_semantics) == set(expected_child_atoms_by_group)
         provider_receipts = tuple(
             sorted((tmp_path / "synthetic-stage-exchanges").glob("*/receipt.json"))
         )
@@ -449,18 +932,10 @@ async def test_original_two_child_run_stops_after_first_child_on_standard_n5_cap
             json.loads(receipt_path.read_text(encoding="utf-8"))
             for receipt_path in provider_receipts
         )
-        root_profile_selection_ref = cycle_job_profile_selection_ref(prepared.recorded_problem)
-        first_child_problem_ref = next(
-            problem_ref
-            for problem_ref in child_selection_by_problem_ref
-            if "design-problem://" + problem_ref.removeprefix("sha256:") == first.node_ref
-        )
-        second_child_problem_ref = next(
-            problem_ref
-            for problem_ref in child_selection_by_problem_ref
-            if "design-problem://" + problem_ref.removeprefix("sha256:") == second.node_ref
-        )
-        first_child_selection_ref = child_selection_by_problem_ref[first_child_problem_ref]
+        root_profile_selection_ref = handoff.profile.profile_selection_ref
+        first_child_problem_ref = actual_child_problem_refs[first.node_ref]
+        second_child_problem_ref = actual_child_problem_refs[second.node_ref]
+        first_child_selection_ref = actual_child_profile_selection_refs[first.node_ref]
         first_child_receipts = tuple(
             row
             for row in receipt_rows
@@ -471,24 +946,18 @@ async def test_original_two_child_run_stops_after_first_child_on_standard_n5_cap
             for row in receipt_rows
             if row["producer_context"]["subject_ref"] == second_child_problem_ref
         )
-        expected_provider_stages = {
-            "draft",
-            "drafter_multipass",
-            "drafter_consolidation",
-            "formalizer",
-            "critic",
-        }
         root_receipts = tuple(
             row
             for row in receipt_rows
-            if row["producer_context"]["subject_ref"] == prepared_problem_ref
+            if row["producer_context"]["subject_ref"] == actual_problem_ref
         )
-        assert {row["producer_context"]["stage"] for row in root_receipts} >= (
-            expected_provider_stages
-        )
-        assert {row["producer_context"]["stage"] for row in first_child_receipts} >= (
-            expected_provider_stages
-        )
+        required_provider_stages = {"draft", "formalizer", "critic"}
+        assert required_provider_stages <= {
+            row["producer_context"]["stage"] for row in root_receipts
+        }
+        assert required_provider_stages <= {
+            row["producer_context"]["stage"] for row in first_child_receipts
+        }
         assert not second_child_receipts
         assert all(
             row["profile"]["profile_selection_ref"] == root_profile_selection_ref
@@ -497,6 +966,51 @@ async def test_original_two_child_run_stops_after_first_child_on_standard_n5_cap
         assert all(
             row["profile"]["profile_selection_ref"] == first_child_selection_ref
             for row in first_child_receipts
+        )
+
+        pass_stage_by_name = {
+            "side_effects_check": ("drafter_multipass", "side_effects_check"),
+            "constraint_verify": ("drafter_multipass", "constraint_verify"),
+            "consolidation": ("drafter_consolidation", "consolidation"),
+        }
+
+        def assert_drafter_receipts_match_plan(
+            *,
+            frame_id: str,
+            subject_ref: str,
+            receipts: tuple[dict[str, Any], ...],
+        ) -> None:
+            assert frame_id in drafter_pass_plans
+            observed_instances = {
+                (row["producer_context"]["stage"], row["producer_context"]["instance"])
+                for row in receipts
+                if row["producer_context"]["stage"]
+                in {
+                    "drafter_multipass",
+                    "drafter_consolidation",
+                }
+            }
+            for pass_name, _pass_number, executed, skip_reason in drafter_pass_plans[frame_id]:
+                expected_instance = pass_stage_by_name.get(pass_name)
+                if expected_instance is None:
+                    continue
+                present = expected_instance in observed_instances
+                if executed:
+                    assert present, (subject_ref, pass_name, "executed_pass_receipt_missing")
+                else:
+                    assert skip_reason, (subject_ref, pass_name, "skip_reason_missing")
+                    assert not present, (subject_ref, pass_name, "skipped_pass_has_receipt")
+
+        first_family_row = actual_child_rows_by_node_ref[first.node_ref]
+        assert_drafter_receipts_match_plan(
+            frame_id=str(compiled.design_problem.design_problem_id),
+            subject_ref=actual_problem_ref,
+            receipts=root_receipts,
+        )
+        assert_drafter_receipts_match_plan(
+            frame_id=str(first_family_row.problem.design_problem_id),
+            subject_ref=first_child_problem_ref,
+            receipts=first_child_receipts,
         )
 
         for child in prepared.children:
@@ -635,23 +1149,16 @@ async def test_original_two_child_run_stops_after_first_child_on_standard_n5_cap
         assert isinstance(root, RecursiveCyclePendingNode)
         assert len(root.child_refs) == 2
 
-        expected_child_refs = {
-            "design-problem://"
-            + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
-            for child in prepared.children
-        }
+        expected_child_refs = actual_child_refs
         assert len(expected_child_refs) == 2
         assert set(root.child_refs) == expected_child_refs
         assert set(by_ref) == {root.node_ref, *root.child_refs}
-        configured_child_profiles = configured_profiles[1:]
+        configured_child_profile_by_selection_ref = {
+            profile.profile_selection_ref: profile for profile in configured_profiles[1:]
+        }
         child_profile_by_node_ref = {
-            "design-problem://"
-            + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:"): profile
-            for child, profile in zip(
-                prepared.children,
-                configured_child_profiles,
-                strict=True,
-            )
+            node_ref: configured_child_profile_by_selection_ref[selection_ref]
+            for node_ref, selection_ref in actual_child_profile_selection_refs.items()
         }
         assert set(child_profile_by_node_ref) == expected_child_refs
         assert partial.stop_parent_node_ref == partial.root_node_ref
@@ -695,38 +1202,7 @@ async def test_original_two_child_run_stops_after_first_child_on_standard_n5_cap
             is True
         )
 
-        from polisyos.runtime.quality.cycle_substrate import (
-            CycleSubstrateContextArtifactOwner,
-        )
-        from polisyos.runtime.quality.generic_simulation_admission import (
-            GenericCycleSimulationAdmissionOwner,
-        )
-        from polisyos.runtime.quality.recursive_generation_cycle import (
-            RecursiveLeafContextOwner,
-        )
-
-        source_repository = GenerationSourceRepository(service._artifact_store)
-        capsule_owner = RecursiveLeafContextOwner(
-            store=service._artifact_store,
-            context_owner=CycleSubstrateContextArtifactOwner(store=service._artifact_store),
-            admission_owner=None,
-            generic_admission_owner=GenericCycleSimulationAdmissionOwner(
-                profiles=(), store=service._artifact_store
-            ),
-        )
-        root_family = owner_call(
-            capsule_owner.load_n4_child_profile_set,
-            compiled.n4_child_profile_set_ref,
-            expected_job_id=compiled.generic_cycle_simulation_handoff.job_id,
-            expected_run_id=compiled.generic_cycle_simulation_handoff.run_id,
-            expected_tenant_id=compiled.generic_cycle_simulation_handoff.tenant_id,
-            expected_cell_id=compiled.generic_cycle_simulation_handoff.cell_id,
-            expected_parent_handoff=compiled.generic_cycle_simulation_handoff,
-            source_repository=source_repository,
-        )
-        assert len(root_family.children) == 2
-        assert {row.node_ref for row in root_family.children} == expected_child_refs
-        family_rows = tuple(row for row in root_family.children if row.node_ref == first.node_ref)
+        family_rows = (actual_child_rows_by_node_ref[first.node_ref],)
         assert len(family_rows) == 1
         capsule = owner_call(
             capsule_owner.resolve_generic_capsule_historical,
@@ -836,6 +1312,76 @@ async def test_original_two_child_run_stops_after_first_child_on_standard_n5_cap
         selected_policy = selected_join.input_record.profile.n5.invocation_quota_policy
         assert selected_policy == policy
         assert selected_join.input_record.profile.n5.invocation_purpose == "standard"
+        if physical_validation_records or physical_validation_capture_error_path.exists():
+            raise AssertionError(
+                "first_child_selected_n5_validation_diagnostic_present:"
+                f"records={physical_validation_records!r};"
+                f"capture_error_exists={physical_validation_capture_error_path.exists()}"
+            )
+
+        from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+        from polisyos.scientist.orchestration.engine.budget_ledger import (
+            BudgetLedgerInvocationProfile,
+        )
+
+        selected_execution = selected_join.execution
+        assert selected_execution is not None and selected_execution.request_binding is not None
+        selected_request = selected_execution.request_binding.request
+        selected_n5_profile = selected_join.input_record.n5
+        assert selected_n5_profile.replications == standard_limit
+        assert selected_request.replications == standard_limit
+        assert selected_request.seed == selected_n5_profile.seed
+        expected_standard_seeds = tuple(
+            range(selected_n5_profile.seed, selected_n5_profile.seed + standard_limit)
+        )
+        selected_n5_result = owner_call(
+            load_joint_simulation_result,
+            first_simulated_cycle.simulation.simulation_result_ref,
+            store=service._artifact_store,
+            expected_world_model_record_content_hash=current_world_model_record.content_hash,
+            expected_receipt_payload_hash=first_simulated_cycle.simulation.simulation_ref,
+            expected_request=selected_request,
+        )
+        selected_work_observations = selected_n5_result.physical_work_observations
+        assert len(selected_work_observations) == standard_limit
+        assert tuple(item.effective_seed for item in selected_work_observations) == (
+            expected_standard_seeds
+        )
+        assert all(
+            item.status == "completed"
+            and item.invocation_quota_status == "completed"
+            and item.invocation_quota_purpose == "standard"
+            and item.invocation_quota_profile_digest is not None
+            and item.invocation_quota_operation_id is not None
+            and item.invocation_quota_request_digest is not None
+            for item in selected_work_observations
+        )
+        selected_ledger_profile = BudgetLedgerInvocationProfile.from_policy(
+            producer_binding,
+            selected_policy,
+        )
+        assert selected_ledger_profile.profile_digest == witness.profile_digest
+        assert all(
+            item.invocation_quota_profile_digest == selected_ledger_profile.profile_digest
+            for item in selected_work_observations
+        )
+        ledger_terminal_witnesses = []
+        for work_item in selected_work_observations:
+            reservation = owner_call(
+                producer_ledger_store._ledger.resolve_invocation,
+                work_item.invocation_quota_operation_id,
+                profile=selected_ledger_profile,
+            )
+            assert reservation is not None
+            assert reservation.operation_id == work_item.invocation_quota_operation_id
+            assert reservation.request_digest == work_item.invocation_quota_request_digest
+            assert reservation.run_id == producer_binding.run_id
+            assert reservation.profile_digest == selected_ledger_profile.profile_digest
+            assert reservation.purpose == "standard"
+            assert reservation.units == 1
+            assert reservation.status == "completed"
+            ledger_terminal_witnesses.append((reservation.operation_id, reservation.revision))
+        assert tuple(sorted(ledger_terminal_witnesses)) == witness.terminal_witnesses
         producer_ledger_path = owner_call(lambda: producer_ledger_store._ledger._path)
         historical_binding = BudgetLedgerProducerRunBinding(
             run_id=control_run_id,

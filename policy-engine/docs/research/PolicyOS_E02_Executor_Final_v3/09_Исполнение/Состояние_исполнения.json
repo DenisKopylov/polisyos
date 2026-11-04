@@ -10228,6 +10228,26 @@
           "scope": "Six scorecard selectors plus actual report-owner module. Real writer/typed selected CAS/profile/event/publication for role/domain controls; general same-input producer owner remains unestablished and refuses. Lower-level aggregation/override/domain grouping exercised without fabricating whole authority positive.",
           "independent_review": "Root source review + actual JUnit29/0/0/0 readback; source only tests/helper defaults unchanged.",
           "earlier_failures": "r1-r3 fixtures under same cache prefix retained, not called product regressions or inherited."
+        },
+        "frontier_current_r8": {
+          "output": "policy-engine/_cache/e02/lane01-frontier-current-r8/",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "criterion": "TEST-CYC-05-02",
+          "named_inputs": 274,
+          "inputs_unchanged_during_run": true,
+          "seconds": 72.14448562497273,
+          "peak_rss_bytes": 1743437824,
+          "minimum_disk_free_bytes": 7930740736,
+          "source_base": "393f704aecb38b8cb92ecbe274d5c2e662f000a8",
+          "test_sha256": "1c622e389ba2be31407399439942ecf53cf9d021a07594aa2209b2e4c37ad353",
+          "scope": "Actual native producer; first-child2successful standard observations + exact canonical ledger operation/revision set, child2unvisited, persisted capacity partial, distinctfreshAPIcontext GET, cross-run/profileless/missing capsule/result/ledger refusals and restoration.",
+          "independent_review": "luna_physical_fixture finalGO, root read result/JUnit1/0/0/0 and full sourcequalifiers.",
+          "limitations": "Candidate-only named syntheticprofile, no freshOSprocess/scientific/G/wholepacket closure. EarlierR5-R7 and retained-reader attempts preserved as failures; maintained retained-loader WIP not partofthisPASS."
         }
       },
       "independent_component_reviews": {
@@ -10240,7 +10260,8 @@
         "verified_child_n4_diversity": "Luna child_n4 GO on canonical full child-family admission and narrow floor predicate; complete-atom oracle independently GO, but full runtime r4 remains FAIL on actual basis differences.",
         "candidate_pa2_phase": "Luna PA2 review GO for signed-history/current-permit separation and owner read/write source; phase remains implemented_but_not_orchestrated/producer_missing until atomic job/phase producer and true positive. Current decision preparation only.",
         "budget_di_current": "Luna action_contract GO: real owner/lease/observer/ledger+recording callable only; no numerical or fullHTTP claim.5PASS on13stable inputs.",
-        "scorecard_fixture_current": "Root GO on actual selected CAS fixtures/component expectations;29PASS. General authority closure producer still missing, not repaired by fixture success."
+        "scorecard_fixture_current": "Root GO on actual selected CAS fixtures/component expectations;29PASS. General authority closure producer still missing, not repaired by fixture success.",
+        "capacity_frontier_current": "Luna physical_fixture GO on nativeR8 output and actual selected-child request/context WMR binding, test SHA1c622e... .274stableinputs/native1PASS. Original failures kept; Gseparate."
       }
     },
     {
@@ -26126,7 +26147,8 @@
       "evidence": [
         "LANE-01.evidence_catalog.quota_historical_owner",
         "LANE-01.evidence_catalog.quota_historical_affected",
-        "LANE-01.evidence_catalog.mixed_focused_r4"
+        "LANE-01.evidence_catalog.mixed_focused_r4",
+        "LANE-01.evidence_catalog.frontier_current_r8"
       ],
       "blockers": [],
       "deferred_ids": [

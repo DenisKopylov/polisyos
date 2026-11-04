@@ -1349,6 +1349,36 @@ class AcquisitionActionHeadRecord:
 
 
 @dataclass(frozen=True)
+class _PreparedAcquisitionActionHeadPublication:
+    """SQL-ready publication for a verified requested acquisition phase.
+
+    The phase artifact and event are prepared and reconciled before job creation.
+    This value carries only the checked pointers and request binding needed to
+    advance the existing action head in the same SQL transaction as the job.
+    """
+
+    tenant_id: str
+    cell_id: str
+    run_id: str
+    source_job_id: str
+    route_id: str
+    action_generation: int
+    job_id: str
+    action_kind: Literal["runtime.evidence.acquisition.candidate_experiment.execute"]
+    request_json: str
+    decision_ref: str
+    payload_ref: str | None
+    receipt_ref: str
+    receipt_sha256: str
+    durable_event_id: str
+    coarse_phase: str
+    receipt_phase: Literal["requested"]
+    recovery_state: str
+    predecessor_receipt_ref: str | None
+    expected_head_generation: int = 0
+
+
+@dataclass(frozen=True)
 class AcquisitionEvaluationFrontierKey:
     """Owner-resolved identity for one candidate/task evaluation selector."""
 
@@ -4178,6 +4208,7 @@ class ControlPlaneStore:
         pre_admission_producer_event_observation: ProducerCallState | None = None,
         pre_admission_no_call_reason: NoCallReason | None = None,
         pre_admission_failure_code: str | None = None,
+        prepared_acquisition_action_head: _PreparedAcquisitionActionHeadPublication | None = None,
     ) -> ControlJobRecord:
         """Publish one job and prepared admission diagnostics atomically with SQL only.
 
@@ -4192,6 +4223,58 @@ class ControlPlaneStore:
             raise ValueError("control_job_initial_failure_missing")
         if initial_state == "pending" and initial_error_message is not None:
             raise ValueError("control_job_pending_has_initial_failure")
+        if prepared_acquisition_action_head is not None:
+            publication = prepared_acquisition_action_head
+            if (
+                type(publication) is not _PreparedAcquisitionActionHeadPublication
+                or kind != "acquisition"
+                or initial_state != "pending"
+                or publication.job_id != job_id
+                or publication.action_kind
+                != "runtime.evidence.acquisition.candidate_experiment.execute"
+                or publication.run_id != run_id
+                or publication.payload_ref != payload_ref
+                or type(publication.action_generation) is not int
+                or publication.action_generation != 1
+                or type(publication.expected_head_generation) is not int
+                or publication.expected_head_generation != 0
+                or publication.receipt_phase != "requested"
+                or publication.coarse_phase != "requested"
+                or publication.recovery_state != "none"
+                or publication.predecessor_receipt_ref is not None
+                or not all(
+                    type(value) is str and bool(value)
+                    for value in (
+                        publication.tenant_id,
+                        publication.cell_id,
+                        publication.run_id,
+                        publication.source_job_id,
+                        publication.route_id,
+                        publication.job_id,
+                        publication.request_json,
+                        publication.durable_event_id,
+                        publication.coarse_phase,
+                        publication.recovery_state,
+                    )
+                )
+                or not _is_sha256_ref(publication.decision_ref)
+                or not _is_sha256_ref(publication.receipt_ref)
+                or publication.receipt_ref != publication.receipt_sha256
+                or not _is_sha256_ref(publication.route_id)
+                or publication.payload_ref is None
+                or not _is_sha256_ref(publication.payload_ref)
+            ):
+                raise ValueError("prepared_acquisition_action_publication_invalid")
+            try:
+                request_value = json.loads(publication.request_json)
+            except (TypeError, json.JSONDecodeError) as exc:
+                raise ValueError("prepared_acquisition_action_request_invalid") from exc
+            if (
+                not isinstance(request_value, dict)
+                or json.dumps(request_value, sort_keys=True, separators=(",", ":"))
+                != publication.request_json
+            ):
+                raise ValueError("prepared_acquisition_action_request_invalid")
         if (pre_admission_attempt_id is None) != (pre_admission_outcome is None):
             raise ValueError("control_job_pre_admission_link_incomplete")
         if pre_admission_attempt_id is not None and (
@@ -4291,6 +4374,31 @@ class ControlPlaneStore:
                 event_type="job_created",
                 payload=created_event_payload,
             )
+            if prepared_acquisition_action_head is not None:
+                publication = prepared_acquisition_action_head
+                head = self.advance_acquisition_action_head(
+                    tenant_id=publication.tenant_id,
+                    cell_id=publication.cell_id,
+                    run_id=publication.run_id,
+                    source_job_id=publication.source_job_id,
+                    route_id=publication.route_id,
+                    action_generation=publication.action_generation,
+                    expected_head_generation=publication.expected_head_generation,
+                    receipt_ref=publication.receipt_ref,
+                    receipt_sha256=publication.receipt_sha256,
+                    durable_event_id=publication.durable_event_id,
+                    coarse_phase=publication.coarse_phase,
+                    receipt_phase=publication.receipt_phase,
+                    recovery_state=publication.recovery_state,
+                    job_id=publication.job_id,
+                    predecessor_receipt_ref=publication.predecessor_receipt_ref,
+                )
+                if (
+                    head.head_generation != 1
+                    or head.receipt_ref != publication.receipt_ref
+                    or head.job_id != publication.job_id
+                ):
+                    raise RuntimeError("prepared_acquisition_action_head_readback_failed")
             if creation_basis is not None:
                 source = self._get_job_created_source_event_record(job_id)
                 if source.payload_sha256 != creation_basis.source_payload_sha256:

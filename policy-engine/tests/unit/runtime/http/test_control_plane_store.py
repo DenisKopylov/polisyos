@@ -49,6 +49,7 @@ from polisyos.runtime.http.services.control_plane_store import (
     ControlJobRecord,
     ControlPlaneStore,
     ControlPreAdmissionIdempotencyConflictError,
+    _PreparedAcquisitionActionHeadPublication,
 )
 from polisyos.runtime.http.services.control_worker import ControlWorker
 from polisyos.runtime.http.services.run_operation_idempotency import (
@@ -909,6 +910,140 @@ def test_acquisition_action_head_requires_exact_predecessor(tmp_path) -> None:
             job_id="job-acquisition",
             predecessor_receipt_ref="sha256:" + "d" * 64,
         )
+
+
+def _prepared_candidate_action_head(
+    *, job_id: str = "candidate-action-job", receipt_digit: str = "b"
+) -> _PreparedAcquisitionActionHeadPublication:
+    return _PreparedAcquisitionActionHeadPublication(
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        run_id="run-a",
+        source_job_id="source-job",
+        route_id="sha256:" + "a" * 64,
+        action_generation=1,
+        job_id=job_id,
+        action_kind="runtime.evidence.acquisition.candidate_experiment.execute",
+        request_json='{"idempotency_key":"candidate-1"}',
+        decision_ref="sha256:" + "c" * 64,
+        payload_ref="sha256:" + "d" * 64,
+        receipt_ref="sha256:" + receipt_digit * 64,
+        receipt_sha256="sha256:" + receipt_digit * 64,
+        durable_event_id="evt-candidate-requested",
+        coarse_phase="requested",
+        receipt_phase="requested",
+        recovery_state="none",
+        predecessor_receipt_ref=None,
+    )
+
+
+def _create_candidate_action_job(
+    store: ControlPlaneStore,
+    publication: _PreparedAcquisitionActionHeadPublication,
+) -> ControlJobRecord:
+    return store.create_job(
+        job_id=publication.job_id,
+        kind="acquisition",
+        run_id=publication.run_id,
+        pipeline_id=None,
+        requested_execution_profile=None,
+        effective_execution_profile="dev",
+        policy_flags={},
+        capability_manifest_ref=None,
+        payload_ref=publication.payload_ref,
+        submitted_by="test-mechanics-only",
+        prepared_acquisition_action_head=publication,
+    )
+
+
+def test_candidate_action_job_and_requested_head_commit_before_worker_can_claim(
+    tmp_path, monkeypatch
+) -> None:
+    """Exercise SQL visibility only; the prepared record is not source/PA2 authority."""
+    store = _make_store(tmp_path)
+    observer = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control-plane.sqlite3")
+    publication = _prepared_candidate_action_head()
+    inserted = threading.Event()
+    allow_head = threading.Event()
+    original_advance = store.advance_acquisition_action_head
+
+    def pause_before_head(**kwargs):
+        inserted.set()
+        assert allow_head.wait(timeout=5)
+        return original_advance(**kwargs)
+
+    monkeypatch.setattr(store, "advance_acquisition_action_head", pause_before_head)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        creation = executor.submit(_create_candidate_action_job, store, publication)
+        assert inserted.wait(timeout=5)
+        assert observer.get_job(publication.job_id) is None
+        assert (
+            observer.get_acquisition_action_head(
+                tenant_id=publication.tenant_id,
+                cell_id=publication.cell_id,
+                run_id=publication.run_id,
+                source_job_id=publication.source_job_id,
+                route_id=publication.route_id,
+                action_generation=publication.action_generation,
+            )
+            is None
+        )
+        lease = executor.submit(observer.lease_next_job, worker_id="worker-a", lease_seconds=30)
+        assert not lease.done()
+        allow_head.set()
+        created = creation.result(timeout=5)
+        leased = lease.result(timeout=5)
+
+    head = observer.get_acquisition_action_head(
+        tenant_id=publication.tenant_id,
+        cell_id=publication.cell_id,
+        run_id=publication.run_id,
+        source_job_id=publication.source_job_id,
+        route_id=publication.route_id,
+        action_generation=publication.action_generation,
+    )
+    assert created.state == "pending"
+    assert leased is not None and leased.job_id == publication.job_id
+    assert head is not None
+    assert head.receipt_ref == publication.receipt_ref
+    assert head.head_generation == 1
+    assert head.receipt_phase == "requested"
+    lifecycle_events = store._fetchall(
+        "SELECT event_type FROM control_job_events WHERE job_id = ? ORDER BY event_id",
+        (publication.job_id,),
+    )
+    assert [row["event_type"] for row in lifecycle_events] == ["job_created", "job_running"]
+    observer.close()
+
+
+def test_candidate_action_publication_failure_rolls_back_job_head_and_outbox(
+    tmp_path, monkeypatch
+) -> None:
+    """A SQL publication failure leaves no worker-visible partial job state."""
+    store = _make_store(tmp_path)
+    publication = _prepared_candidate_action_head()
+
+    def fail_head(**_kwargs):
+        raise ValueError("controlled head conflict")
+
+    monkeypatch.setattr(store, "advance_acquisition_action_head", fail_head)
+    with pytest.raises(ValueError, match="controlled head conflict"):
+        _create_candidate_action_job(store, publication)
+
+    assert store.get_job(publication.job_id) is None
+    assert (
+        store.get_acquisition_action_head(
+            tenant_id=publication.tenant_id,
+            cell_id=publication.cell_id,
+            run_id=publication.run_id,
+            source_job_id=publication.source_job_id,
+            route_id=publication.route_id,
+            action_generation=publication.action_generation,
+        )
+        is None
+    )
+    assert store.list_outbox_events(state=None, limit=500) == []
+    assert store.lease_next_job(worker_id="worker-after-failure", lease_seconds=30) is None
 
 
 def test_control_plane_store_tracks_worker_leases_and_outbox(tmp_path) -> None:

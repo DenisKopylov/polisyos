@@ -6,15 +6,17 @@ not establish a signed request, protected route, source rights, or fetch permit.
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import replace
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any
 
 import pytest
 
-from polisyos.core import artifacts
+from polisyos.core import artifacts, canon
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
@@ -23,13 +25,16 @@ from polisyos.runtime.http.services.control_registry_providers import (
 )
 from polisyos.runtime.quality import acquisition_planner as planner
 from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+    POLICY_EVENT,
     POLICY_KIND,
+    POLICY_PRODUCER,
     POLICY_SCHEMA,
     CandidateUnpricedAcquisitionPolicy,
     CandidateUnpricedExperimentPolicyTemplate,
     CandidateUnpricedPolicyBinding,
     _persist_owned_candidate_unpriced_policy,
     issue_candidate_unpriced_experiment_policy,
+    list_current_candidate_unpriced_policy_bindings,
     persist_candidate_unpriced_policy,
     read_candidate_unpriced_policy,
     reconcile_candidate_unpriced_work,
@@ -171,6 +176,7 @@ def _selected_mixed_report(cas, scope):
 
 def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """A configured V2 is a candidate declaration, with no inferred permit or VOI."""
     cas = artifacts.FileSystemCAS(tmp_path / "cas")
@@ -279,6 +285,7 @@ def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
                 candidate_unpriced_policy_bindings=(
                     CandidateUnpricedPolicyBinding(scope=scope, policy_ref=ref),
                 ),
+                candidate_unpriced_policy_templates=(configured_template,),
             )
             bound = ControlPlaneService(
                 cas_root=tmp_path / "cas",
@@ -288,6 +295,190 @@ def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
                 registry_providers=providers,
                 policy_resolver=base._policy_resolver,
             )
+            assert bound is not None
+
+            def current_bindings() -> tuple[CandidateUnpricedPolicyBinding, ...]:
+                return list_current_candidate_unpriced_policy_bindings(
+                    control_service=bound,
+                    tenant_id=scope.tenant_id,
+                    cell_id=scope.cell_id,
+                    run_id=scope.run_id,
+                    source_job_id=scope.source_job_id,
+                    candidate_id=scope.candidate_id,
+                )
+
+            inventory_calls: list[artifacts.ArtifactID] = []
+            original_inventory = cas.inventory_snapshot
+
+            def track_inventory(*, artifact_id: artifacts.ArtifactID) -> Any:
+                inventory_calls.append(artifact_id)
+                return original_inventory(artifact_id=artifact_id)
+
+            with monkeypatch.context() as patch:
+                patch.setattr(cas, "inventory_snapshot", track_inventory)
+                selected_bindings = current_bindings()
+            assert selected_bindings == (
+                CandidateUnpricedPolicyBinding(scope=scope, policy_ref=ref),
+            )
+            # The valid historical V1 event is decoded and self-hash checked,
+            # but does not trigger a full CAS inventory; only the current V2
+            # template candidate reaches selected-profile verification.
+            assert inventory_calls == [ref.artifact_id]
+
+            inventory_calls.clear()
+            with monkeypatch.context() as patch:
+                patch.setattr(cas, "inventory_snapshot", track_inventory)
+                patch.setattr(cas, "get_bytes", lambda _artifact_id: b"corrupt")
+                with pytest.raises(
+                    ValueError,
+                    match="candidate_unpriced_policy_event_payload_identity_mismatch",
+                ):
+                    current_bindings()
+            assert inventory_calls == []
+
+            source_rows = base._diagnostic_event_log.list_events(
+                run_id=scope.run_id, job_id=scope.source_job_id, limit=500
+            )
+            source_event = next(
+                row.event for row in source_rows if row.event.event_type == POLICY_EVENT
+            )
+            malformed_payload = b"{}"
+            malformed_ref = "sha256:" + hashlib.sha256(malformed_payload).hexdigest()
+            malformed_event = source_event.model_copy(
+                update={"payload_ref": malformed_ref, "artifact_refs": (malformed_ref,)}
+            )
+
+            def malformed_event_rows(**_kwargs: object) -> list[SimpleNamespace]:
+                return [SimpleNamespace(event=malformed_event)]
+
+            inventory_calls.clear()
+            with monkeypatch.context() as patch:
+                patch.setattr(bound._diagnostic_event_log, "list_events", malformed_event_rows)
+                patch.setattr(cas, "get_bytes", lambda _artifact_id: malformed_payload)
+                patch.setattr(cas, "inventory_snapshot", track_inventory)
+                with pytest.raises(ValueError):
+                    current_bindings()
+            assert inventory_calls == []
+
+            # A hash-correct but noncanonical inactive payload still reaches
+            # the old Core declared-profile refusal. The raw typed decoder
+            # accepts the whitespace-only variation, so it cannot authorize
+            # skipping the selected manifest reader.
+            legacy_manifest = cas.get_manifest(legacy_ref)
+            noncanonical_payload = b" \n" + cas.get_bytes(legacy_ref)
+            # Preserve the legacy manifest's typed/schema/lineage companions;
+            # do not rebind its authority to these changed bytes.
+            noncanonical_ref = cas.put_bytes(
+                noncanonical_payload,
+                artifacts.ArtifactWriteOptions(
+                    kind=POLICY_KIND,
+                    media_type="application/json",
+                    schema=legacy_manifest.artifact_schema,
+                    producer=legacy_manifest.producer,
+                    env=legacy_manifest.env,
+                    inputs=legacy_manifest.inputs,
+                    canon=legacy_manifest.canon,
+                    governance=legacy_manifest.governance,
+                    tenant_context=legacy_manifest.tenant_context,
+                    same_input_closure=legacy_manifest.same_input_closure,
+                    warnings=legacy_manifest.warnings,
+                ),
+                return_selected_profile=True,
+            )
+            assert str(noncanonical_ref.artifact_id) == (
+                "sha256:" + hashlib.sha256(noncanonical_payload).hexdigest()
+            )
+            assert (
+                CandidateUnpricedAcquisitionPolicy.model_validate(
+                    canon.from_canonical_bytes(
+                        noncanonical_payload,
+                        version=canon.CanonSpec(forbid_floats=False).version,
+                    )
+                )
+                == legacy
+            )
+            default_manifest = cas.get_manifest(noncanonical_ref.artifact_id)
+            default_ref = artifacts.artifact_ref_for_manifest(default_manifest)
+            assert default_ref == noncanonical_ref
+            with pytest.raises(ValueError, match="canon_profile_payload_nonconformant"):
+                artifacts.load_core_json_artifact(
+                    cas, default_ref, raw_payload_bytes=noncanonical_payload
+                )
+            noncanonical_event = source_event.model_copy(
+                update={
+                    "payload_ref": str(noncanonical_ref.artifact_id),
+                    "artifact_refs": (str(noncanonical_ref.artifact_id),),
+                }
+            )
+
+            def noncanonical_event_rows(**_kwargs: object) -> list[SimpleNamespace]:
+                return [SimpleNamespace(event=noncanonical_event)]
+
+            core_reader_refusals: list[str] = []
+            original_core_reader = artifacts.load_core_json_artifact
+
+            def observe_core_reader(store: Any, selector: Any, **kwargs: Any) -> Any:
+                try:
+                    return original_core_reader(store, selector, **kwargs)
+                except ValueError as exc:
+                    if (
+                        isinstance(selector, artifacts.ArtifactRef)
+                        and selector.artifact_id == noncanonical_ref.artifact_id
+                    ):
+                        core_reader_refusals.append(str(exc))
+                    raise
+
+            inventory_calls.clear()
+            with monkeypatch.context() as patch:
+                patch.setattr(bound._diagnostic_event_log, "list_events", noncanonical_event_rows)
+                patch.setattr(artifacts, "load_core_json_artifact", observe_core_reader)
+                patch.setattr(cas, "inventory_snapshot", track_inventory)
+                with pytest.raises(ValueError, match="canon_profile_payload_nonconformant"):
+                    current_bindings()
+            assert inventory_calls == [noncanonical_ref.artifact_id]
+            assert len(core_reader_refusals) == 2
+            assert all(
+                "canon_profile_payload_nonconformant" in refusal for refusal in core_reader_refusals
+            )
+            assert current_bindings() == (
+                CandidateUnpricedPolicyBinding(scope=scope, policy_ref=ref),
+            )
+
+            original_list_events = bound._diagnostic_event_log.list_events
+            selection_query_count = 0
+
+            def changed_event_rows(**kwargs: Any) -> list[Any]:
+                nonlocal selection_query_count
+                rows = original_list_events(**kwargs)
+                if (
+                    kwargs.get("run_id") == scope.run_id
+                    and kwargs.get("job_id") == scope.source_job_id
+                ):
+                    selection_query_count += 1
+                    if selection_query_count == 2:
+                        return [*rows, rows[0]]
+                return rows
+
+            with monkeypatch.context() as patch:
+                patch.setattr(bound._diagnostic_event_log, "list_events", changed_event_rows)
+                with pytest.raises(ValueError, match="candidate_unpriced_policy_selection_changed"):
+                    current_bindings()
+            assert selection_query_count == 2
+
+            def changed_provider_rows(**kwargs: Any) -> list[Any]:
+                rows = original_list_events(**kwargs)
+                if (
+                    kwargs.get("run_id") == scope.run_id
+                    and kwargs.get("job_id") == scope.source_job_id
+                ):
+                    bound._registry_providers = replace(providers)
+                return rows
+
+            with monkeypatch.context() as patch:
+                patch.setattr(bound, "_registry_providers", providers)
+                patch.setattr(bound._diagnostic_event_log, "list_events", changed_provider_rows)
+                with pytest.raises(ValueError, match="candidate_unpriced_policy_selection_changed"):
+                    current_bindings()
             assert resolve_current_candidate_unpriced_policy(
                 control_service=bound, scope=scope
             ) == (
@@ -404,6 +595,42 @@ def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
             )
             assert foreign.artifact_id == ref.artifact_id
             assert foreign.manifest_profile_sha256 != ref.manifest_profile_sha256
+
+            # A content-valid eligible blob cannot become a selected policy
+            # without a valid selected manifest and the existing server binding.
+            unbound_providers = replace(providers, candidate_unpriced_policy_bindings=())
+            unbound = ControlPlaneService(
+                cas_root=tmp_path / "cas",
+                core_runs_root=tmp_path / "control" / "runs",
+                artifact_store=cas,
+                control_store=base._control_store,
+                registry_providers=unbound_providers,
+                policy_resolver=base._policy_resolver,
+            )
+            views = cas.inventory_snapshot(artifact_id=ref.artifact_id)
+            eligible_manifest_paths = {
+                cas._manifest_path_for_ref(
+                    ref.artifact_id,
+                    artifacts.artifact_manifest_profile_sha256(entry.manifest),
+                )
+                for entry in views.entries
+                if entry.manifest.kind == POLICY_KIND
+                and entry.manifest.producer
+                == artifacts.ProducerInfo(component=POLICY_PRODUCER, version="1.0")
+            }
+            assert eligible_manifest_paths
+            held_paths: list[tuple[Path, Path]] = []
+            try:
+                for eligible_path in eligible_manifest_paths:
+                    held_path = eligible_path.with_name(eligible_path.name + ".held")
+                    eligible_path.rename(held_path)
+                    held_paths.append((held_path, eligible_path))
+                with pytest.raises((FileNotFoundError, ValueError)):
+                    resolve_current_candidate_unpriced_policy(control_service=unbound, scope=scope)
+            finally:
+                for held_path, eligible_path in held_paths:
+                    held_path.rename(eligible_path)
+
             with pytest.raises(ValueError, match="candidate_unpriced_policy_owner_mismatch"):
                 read_candidate_unpriced_policy(
                     store=cas, event_log=base._diagnostic_event_log, ref=foreign
@@ -426,6 +653,8 @@ def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
                     read_candidate_unpriced_policy(
                         store=cold, event_log=base._diagnostic_event_log, ref=ref
                     )
+                with pytest.raises((FileNotFoundError, ValueError)):
+                    resolve_current_candidate_unpriced_policy(control_service=bound, scope=scope)
             finally:
                 held.rename(manifest_path)
             assert (
@@ -434,6 +663,43 @@ def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
                 )
                 == policy
             )
+
+            duplicate = cas.put_bytes(
+                cas.get_bytes(ref),
+                artifacts.ArtifactWriteOptions(
+                    kind=manifest.kind,
+                    media_type=manifest.media_type,
+                    schema=manifest.artifact_schema,
+                    producer=manifest.producer,
+                    env=manifest.env,
+                    inputs=manifest.inputs,
+                    canon=manifest.canon,
+                    governance=manifest.governance,
+                    tenant_context=manifest.tenant_context,
+                    same_input_closure=manifest.same_input_closure,
+                    authority=manifest.authority,
+                    warnings=[
+                        *manifest.warnings,
+                        artifacts.WarningRecord(
+                            code="test_duplicate_manifest_profile",
+                            msg="Exercise duplicate valid selected views without changing payload semantics.",
+                        ),
+                    ],
+                ),
+                return_selected_profile=True,
+            )
+            assert duplicate.artifact_id == ref.artifact_id
+            assert duplicate.manifest_profile_sha256 != ref.manifest_profile_sha256
+            assert (
+                read_candidate_unpriced_policy(
+                    store=cas,
+                    event_log=base._diagnostic_event_log,
+                    ref=duplicate,
+                )
+                == policy
+            )
+            with pytest.raises(ValueError, match="candidate_unpriced_policy_profile_not_unique"):
+                current_bindings()
     finally:
         if bound is not None:
             bound._control_store.close()

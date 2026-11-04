@@ -10279,6 +10279,30 @@
           "scope": "Complete stable kind-specific CAS metadata census; full selected profile dedup/readback; actual signed-orphan recovery tolerates unrelated profileless JSON, but profileless owned records refuse even behind foreign default. Old mutation5 controls unchanged/PASS in r1. API2 errors corrected through declared source_owner_root forwarding.",
           "remaining": "Full protected candidate action/DS9 allow/terminal still needs genuine retained source replay. No missing Core relation: R13 was a software alias bridge defect.",
           "independent_review": "Root source review and actual complete outputs; no weakening Core canonical reader or fixture authority."
+        },
+        "candidate_policy_inactive_template_prefilter": {
+          "output": "policy-engine/_cache/e02/lane01-policy-prefilter-r4/",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 30.080175582901575,
+          "peak_rss_bytes": 1474412544,
+          "named_inputs": 2,
+          "inputs_unchanged_during_run": true,
+          "source_sha256": "d3b1b26a607ebda61395572dd6abc9954b4ebe2e3782451c0a53312c106c72a1",
+          "test_sha256": "82eca91c75d23769a366bbddd093563322f826195a87aaee08358651075262f3",
+          "scope": "One complete component property test: actual selected CAS/Core profile, inactive-template inventory reduction, stable V1 bytes; bad identity/hash/schema/noncanonical bytes, current event/provider/source changes, absent selected manifests and second valid profile refusal with restored positives. Raw bytes/default manifest never grant authority.",
+          "independent_review": "luna_prefilter_review final source/material GO; Root final valid duplicate-profile adversary/output review.",
+          "earlier_failures": "r1 event snapshot did not change; r2 patched other Control service log; r3 exact repeated write was idempotent. Kept, not product FAIL attribution or hidden green."
+        },
+        "candidate_signed_action_replay": {
+          "source": "tests/integration/core_runtime/test_candidate_experiment_action_served.py + tests/_helpers/acquisition_served_history.py",
+          "output": "policy-engine/_cache/e02/lane01-candidate-action-retained-r13-supervised/",
+          "status": "FAIL at authorization_binding_run_unresolved after actual signed PA2 refusals, mandate and DS9 support preparation; preserved source CAS/SQL/ledger, no N5.",
+          "next": "Rerun retained read/allow/removal oracle on composed alias+policy source; source relation is present, so missing external Core owner is not the blocker. Full native test and executed source/N5 terminal remain separate UNRUN."
         }
       },
       "independent_component_reviews": {

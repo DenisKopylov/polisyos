@@ -10618,7 +10618,19 @@
             "policy-engine/_cache/e02/lane01-sim-consumer-cubic-route-r3/"
           ],
           "full_route_result": "Three actual FAILs before N5: first two fixture tenant mismatch, third N4 recording lacks formalizer stage. Canonical fixture identity is aligned; existing source-derived synthetic-settled multi-stage provider is now explicitly selected for this test only. Latest full route remains UNRUN.",
-          "independent_review": "CYC04 Luna source/owner/span review GO; Root owns checkpoint, not a new numerical PASS."
+          "independent_review": "CYC04 Luna source/owner/span review GO; Root owns checkpoint, not a new numerical PASS.",
+          "latest_output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cubic-served-native-r7/",
+          "latest_observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "latest_seconds": 79.278313,
+          "latest_peak_rss_bytes": 2006335488,
+          "latest_named_inputs": 46,
+          "latest_inputs_unchanged": true,
+          "latest_state": "Three actual served children complete N5; full test FAIL because oracle used preflight node IDs. Oracle now binds the fresh GET persisted three distinct child_profile_bindings, exact selected keys and resolved N5 joins. Parent missing-coupling authority block preserved. Independent material review GO; corrected whole route UNRUN. Numerical kernel is controlled in this orchestration fixture; independent native cubic test remains separate."
         },
         "annual_gdp_holdout_current_preparation": {
           "files": [
@@ -10630,8 +10642,19 @@
             "policy-engine/_cache/e02/lane01-gdp-current-native-r2/"
           ],
           "observed": "Two initial FAIL/FAIL invocations stop on import/fixture-schema and oracle-shape mistakes before positive N5. Wrong-year production refusal was correct in r2; test now asserts its exact code.",
-          "latest_state": "Prepared, numerical verification UNRUN. Reuses current v3 DesignProblem owner and actual import owners; physical WMR baselines, independent $250B synthetic effect/sample/SE oracle, declared float32 spacing and annual USD/time limitations are explicit.",
-          "independent_review": "Luna numerical/state/precision reviews and Sol import/constructor audit; corrected latest fixture has not run."
+          "latest_state": "Source join now admitted; negative unprepared execution reaches actual WDI consumer and refuses legacy route shape. Fixture now enables existing source-semantic emission before persist_wdi_route, producing the existing typed L1 availability-gap contract. No product exception or authority change; corrected whole route UNRUN.",
+          "independent_review": "Luna numerical/state/precision reviews and Sol import/constructor audit; corrected latest fixture has not run.",
+          "latest_output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-gdp-resource-native-r8/",
+          "latest_observed": {
+            "PASS": 1,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "latest_seconds": 49.71443,
+          "latest_peak_rss_bytes": 1696514048,
+          "latest_named_inputs": 39,
+          "latest_inputs_unchanged": true
         },
         "candidate_experiment_generations_composed_api": {
           "scope": "Verified predecessor-prefix admission, effective source cycle, historical PA2 replay, exact old-action retry, atomic source-wide head comparison and selected-profile terminal. Canonical worker telemetry projected before strict business payload validation; raw omitted/null pin forms preserve request-bound serialization.",
@@ -10821,6 +10844,21 @@
           "independent_review": "Terra R2 GO after material ambiguity finding; Root source/complete supervised result/stdout read. Earlier4PASS R1 is not accepted for the faulty ambiguity semantics.",
           "limitations": "No JUnit requested in actual command; complete stdout/stderr and supervisor metadata retained. Full annualGDP producer→newworld→N5→freshreader still pending.",
           "format_reconciliation": "Root normal Ruff formatting afterR2 preserves complete parsed generation-cycle module AST exactly; original deciding12pins/output retained."
+        },
+        "root_only_surface_companions": {
+          "python_output": "policy-engine/_cache/e02/lane01-surface-rootonly-python-r1/",
+          "python_PASS": 3,
+          "vitest_output": "policy-engine/_cache/e02/lane01-surface-rootonly-vitest-r2/",
+          "vitest_PASS": 270,
+          "scope": "Synthetic C41 DTO and Zod/Overview fixtures: root selected/N5 join remains visible without child family; pending N8/value refs/body unavailable and first candidate-local refusal remain explicit. Shape/render coverage only, not producer provenance.",
+          "independent_review": "Luna material re-review GO after correcting TS pending-N8 mismatch. Root read actual JUnit0fail/0error.",
+          "limitations": "Initial Python fixture-failure bytes were overwritten by its author in the same output directory; only final deciding output remains. No actual served root producer PASS yet."
+        },
+        "installed_runtime_probe_preparation": {
+          "file": "tests/unit/remediation/test_req_01_installed.py",
+          "status": "PREPARED_UNRUN",
+          "scope": "Extend maintained offline no-deps outside-checkout -S wheel probe with12 actual runtime imports and shared fallback predicate identity; retain retired-name, no-source-origin and missing-family controls. Reuse existing dependencies; no LANE12/DA06 claim.",
+          "independent_review": "Luna GO; no build/install/runtime performed. Run once after relevant source freeze."
         }
       },
       "independent_component_reviews": {
@@ -10838,6 +10876,20 @@
         "candidate_control_alias": "luna_pa2_review final material GO; actual owner probe and19 boundary controls PASS. Strong post-OPA current unique-owner check; G separate.",
         "candidate_execution_assembly": "Source GO for851e219 owner graph and current projection, bounded component/SQL/API/SDK results; full genuine protected execution remains verification_missing, no G closure.",
         "candidate_generations_api": "Terra coherent/material GO including PostgreSQL source lock, canonical telemetry and omitted/null raw pin preservation. Luna API/SDK/docs GO; full served multigeneration execution remains unqualified."
+      },
+      "resource_admission_current": {
+        "disk_stop_floor_GiB": 3,
+        "free_disk_GiB_at_check": 7.639,
+        "policy": "Local only; existing environments/data; <=8GiB measured aggregate process-tree RSS and <=6 numerical CPU threads. New expensive profiles start alone.",
+        "trash_move": {
+          "directory": "/Users/deniskopylov/.Trash/PolicyOS-obsolete-test-scratch-20261105T132841Z",
+          "scratch_roots_observed_after_move": 25,
+          "size_KiB": 2122648,
+          "preserved": "Complete deciding logs/result metadata, latest replacement scratch, current AUTHOR acquisition R6, code/docs/environments/production inputs.",
+          "deleted_by_executor": false,
+          "trash_emptied_by_executor": false,
+          "later_observation": "Trash folder subsequently absent; free disk approximately8GiB. Do not infer block release from move alone."
+        }
       }
     },
     {

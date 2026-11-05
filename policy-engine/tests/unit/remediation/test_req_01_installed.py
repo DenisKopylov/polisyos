@@ -185,6 +185,38 @@ product_root = Path(os.environ["REQ01_PRODUCT_ROOT"]).resolve()
 package_root = (site_packages / "polisyos").resolve()
 assert Path(importlib.import_module("polisyos").__file__).resolve().parent == package_root
 
+runtime_module_names = (
+    "polisyos.runtime.http.routes.acquisitions",
+    "polisyos.runtime.http.routes.runs",
+    "polisyos.runtime.http.services.acquisition_action_service",
+    "polisyos.runtime.http.services.control.generation_cycle",
+    "polisyos.runtime.http.services.control.run_lifecycle",
+    "polisyos.runtime.http.services.control_plane_store",
+    "polisyos.runtime.quality.acquisition_evaluation_dispatch",
+    "polisyos.runtime.quality.acquisition_evaluation_history",
+    "polisyos.runtime.quality.acquisition_route_loop",
+    "polisyos.runtime.quality.candidate_source_basis",
+    "polisyos.runtime.quality.generation_cycle",
+    "polisyos.runtime.quality.recursive_generation_cycle",
+)
+runtime_modules = {
+    module_name: importlib.import_module(module_name) for module_name in runtime_module_names
+}
+for module_name, module in runtime_modules.items():
+    origin = getattr(getattr(module, "__spec__", None), "origin", None)
+    assert origin is not None and Path(origin).resolve().is_relative_to(package_root), (
+        module_name,
+        origin,
+        package_root,
+    )
+
+route_loop_module = runtime_modules["polisyos.runtime.quality.acquisition_route_loop"]
+generation_cycle_module = runtime_modules["polisyos.runtime.quality.generation_cycle"]
+assert (
+    route_loop_module._n7_generic_fallback_source_record_matches
+    is generation_cycle_module._n7_generic_fallback_source_record_matches
+)
+
 compiler_module_name = "polisyos.data_requirement.compiler"
 compiler_module = importlib.import_module(compiler_module_name)
 package_facade = importlib.import_module("polisyos.data_requirement")
@@ -452,7 +484,7 @@ assert unknown_report.specs == ()
 for module_name, module in tuple(sys.modules.items()):
     if module_name == "polisyos" or module_name.startswith("polisyos."):
         origin = getattr(getattr(module, "__spec__", None), "origin", None)
-        if origin and origin.endswith(".py"):
+        if origin and origin not in {"built-in", "frozen"}:
             assert Path(origin).resolve().is_relative_to(package_root), (module_name, origin)
 for entry in sys.path:
     if not entry:
@@ -475,6 +507,7 @@ print(
             ),
             "report_schema": parsed_report.schema_version,
             "report_sha256": hashlib.sha256(persisted_bytes).hexdigest(),
+            "runtime_modules": sorted(runtime_modules),
             "wheel_package_root": str(package_root),
         },
         sort_keys=True,

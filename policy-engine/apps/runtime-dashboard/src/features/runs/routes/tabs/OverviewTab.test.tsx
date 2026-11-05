@@ -496,6 +496,59 @@ function genericCycleSimulationProjection(
   };
 }
 
+function genericRootOnlyCycleSimulationProjection(runId: string) {
+  const projection = genericCycleSimulationProjection(runId);
+  const rootObservation = {
+    ...projection.n5_observations[0]!,
+    child_profile_family_ref: null,
+    child_profile_set_ref: null,
+    n5_owner_join_status: "resolved",
+    n5_owner_join_limitation_code: null,
+    simulation_result_body: null,
+    simulation_result_body_status: "not_established",
+    simulation_result_body_limitation_code:
+      "generic_n5_result_body_request_binding_not_established",
+    n8_status: "value_pending_n8",
+    n8_lineage_status: "not_established",
+    n8_value_ref: null,
+    n8_limitation_code: "value_gate_pending_n8",
+    n8_authority_blockers: ["value_gate_pending_n8"],
+    n5_interaction_evidence: null,
+    n8_numeric_interaction: null,
+    n8_numeric_interaction_basis: null,
+    n8_interaction_sampling_status: null,
+  };
+  Object.assign(projection, {
+    schema_version:
+      "policyos.runtime.run_generic_cycle_simulation_projection.v5",
+    child_profile_family_ref: null,
+    child_profile_set_ref: null,
+    child_profile_status: "not_established",
+    child_profile_limitation_code:
+      "generic_n4_child_profile_family_not_established",
+    child_profile_bindings: [],
+    n5_observations: [rootObservation],
+    n5_limitation_code: null,
+    limitation_code: null,
+    recursive_cycle_checkpoint: null,
+    candidate_evaluation_attempts: [
+      {
+        node_ref: rootObservation.node_ref,
+        candidate_id: "first-local-failure",
+        candidate_content_hash: "sha256:" + "a".repeat(64),
+        cycle_index: 0,
+        problem_ref: rootObservation.design_problem_ref,
+        attempt_ref: "sha256:" + "b".repeat(64),
+        failure_stage: "n5",
+        failure_scope: "candidate_local",
+        simulation_status: "simulation_blocked",
+        value_status: "value_pending_n8",
+      },
+    ],
+  });
+  return projection;
+}
+
 function selectedNumericalAcquisitionProjection() {
   // Display-only composition; the served backend test qualifies owner replay.
   const projection = sameCandidateAcquisitionHistoryProjection();
@@ -1340,6 +1393,67 @@ describe("OverviewTab", () => {
       expect(panel).not.toHaveTextContent("publication_ready");
     },
   );
+
+  it("renders a resolved root N5 owner join with an unavailable body, child-profile limitation and local failure", () => {
+    const projection = genericRootOnlyCycleSimulationProjection("run-1");
+    const { run } = runDetailsSchema.parse({
+      meta: {
+        request_id: "req-root-only-cycle",
+        generated_at: "2026-10-12T10:00:00Z",
+        source_kinds: ["core_run"],
+      },
+      run: {
+        run_id: "run-1",
+        source_kind: "core_run",
+        status: "failed",
+        generic_cycle_simulation: projection,
+      },
+      temporal_scope: null,
+    });
+    overviewState.run = { ...run };
+
+    expect(run.generic_cycle_simulation?.n5_observations[0]).toMatchObject({
+      n8_status: "value_pending_n8",
+      n8_lineage_status: "not_established",
+      n8_value_ref: null,
+      n8_limitation_code: "value_gate_pending_n8",
+      n8_authority_blockers: ["value_gate_pending_n8"],
+      n5_interaction_evidence: null,
+      simulation_result_body: null,
+      simulation_result_body_status: "not_established",
+    });
+
+    renderWithProviders(<OverviewTab />);
+
+    const panel = screen.getByTestId("overview-generic-cycle-simulation");
+    expect(
+      screen.getByTestId("overview-generic-cycle-simulation-status"),
+    ).toHaveTextContent("not_established");
+    expect(
+      screen.getByTestId(
+        "overview-generic-cycle-simulation-profile-limitation",
+      ),
+    ).toHaveTextContent("generic_n4_child_profile_family_not_established");
+    expect(
+      screen.queryByTestId("overview-generic-cycle-profile-bindings"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByTestId("overview-generic-cycle-n5-owner-join"),
+    ).toHaveTextContent("resolved");
+    const n5Row = screen.getByTestId("overview-generic-cycle-n5-row");
+    expect(n5Row).toHaveTextContent("value_pending_n8");
+    expect(n5Row).toHaveTextContent("value_gate_pending_n8");
+    expect(
+      screen.getByTestId("overview-generic-cycle-n5-result-body-limited"),
+    ).toHaveTextContent(
+      "The numerical result is unavailable or did not pass verification.",
+    );
+    const attempts = screen.getByTestId("overview-candidate-attempt-history");
+    expect(attempts).toHaveTextContent("first-local-failure");
+    expect(attempts).toHaveTextContent("cycle 0: local n5 refusal");
+    expect(attempts).toHaveTextContent("simulation_blocked");
+    expect(panel).not.toHaveTextContent("publication_ready");
+  });
 
   it("keeps normal, resource and abstention stops distinct in the visible cycle history", () => {
     const run = parsedRunWithGenericCycleSimulation("run-1", undefined, true);

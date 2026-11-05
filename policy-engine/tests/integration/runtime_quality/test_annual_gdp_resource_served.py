@@ -208,7 +208,7 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     from polisyos.ir.model_layer.model_spec import ModelSpec
     from polisyos.ir.model_layer.types import TimeFrequency
     from polisyos.pdc import gy_content_hash
-    from polisyos.runtime.quality import acquisition_planner
+    from polisyos.runtime.quality import acquisition_planner, generation_cycle
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionCandidateWorldRefresh,
     )
@@ -751,6 +751,10 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         "_controlled_wdi_trinity_response",
         large_action_candidate_response,
     )
+    # Select the canonical typed L1 source-gap route before N7 compiles the
+    # requirement; the legacy scenario-family route is not an executable WDI
+    # variable route.
+    monkeypatch.setattr(generation_cycle, "_N7_SOURCE_SEMANTIC_EMISSION_ENABLED", True)
     closure, _request = await await_under_catalog_source(
         acquisition_production.persist_wdi_route,
         control,

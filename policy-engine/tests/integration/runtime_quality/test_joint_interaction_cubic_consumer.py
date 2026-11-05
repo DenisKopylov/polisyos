@@ -417,14 +417,19 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
         fresh_run = fresh_response.json()["run"]
         projection = fresh_run["generic_cycle_simulation"]
         candidate_before = projection["n5_observations"]
-        child_node_refs = {
-            "design-problem://"
-            + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
-            for child in prepared.children
-        }
+        served_child_bindings = projection["child_profile_bindings"]
+        assert len(served_child_bindings) == 3
+        assert len({binding["node_ref"] for binding in served_child_bindings}) == 3
+        assert {binding["profile_selection_ref"] for binding in served_child_bindings} == set(
+            prepared.child_keys
+        )
+        child_node_refs = {binding["node_ref"] for binding in served_child_bindings}
         child_rows_before = [row for row in candidate_before if row["node_ref"] in child_node_refs]
         assert len(child_rows_before) == 3
         assert {row["node_ref"] for row in child_rows_before} == child_node_refs
+        assert {row["profile_selection_ref"] for row in child_rows_before} == set(
+            prepared.child_keys
+        )
         assert all(row["n5_owner_join_status"] == "resolved" for row in child_rows_before)
         source_leaf = next(
             row

@@ -568,6 +568,60 @@ function genericCycleSimulationProjection(
     source_ref: sourceRef,
   };
 }
+
+function genericRootOnlySimulationProjection(runId: string) {
+  const projection = mutableRecord(genericCycleSimulationProjection(runId));
+  const rootObservation = {
+    ...firstMutableRecord(projection.n5_observations, "n5_observations"),
+    child_profile_family_ref: null,
+    child_profile_set_ref: null,
+    n5_owner_join_status: "resolved",
+    n5_owner_join_limitation_code: null,
+    simulation_result_body: null,
+    simulation_result_body_status: "not_established",
+    simulation_result_body_limitation_code:
+      "generic_n5_result_body_request_binding_not_established",
+    n8_status: "value_pending_n8",
+    n8_lineage_status: "not_established",
+    n8_value_ref: null,
+    n8_limitation_code: "value_gate_pending_n8",
+    n8_authority_blockers: ["value_gate_pending_n8"],
+    n5_interaction_evidence: null,
+    n8_numeric_interaction: null,
+    n8_numeric_interaction_basis: null,
+    n8_interaction_sampling_status: null,
+  };
+  Object.assign(projection, {
+    schema_version:
+      "policyos.runtime.run_generic_cycle_simulation_projection.v5",
+    child_profile_family_ref: null,
+    child_profile_set_ref: null,
+    child_profile_status: "not_established",
+    child_profile_limitation_code:
+      "generic_n4_child_profile_family_not_established",
+    child_profile_bindings: [],
+    n5_observations: [rootObservation],
+    n5_limitation_code: null,
+    limitation_code: null,
+    recursive_cycle_checkpoint: null,
+    candidate_evaluation_attempts: [
+      {
+        node_ref: rootObservation.node_ref,
+        candidate_id: "first-local-failure",
+        candidate_content_hash: `sha256:${"a".repeat(64)}`,
+        cycle_index: 0,
+        problem_ref: rootObservation.design_problem_ref,
+        attempt_ref: `sha256:${"b".repeat(64)}`,
+        failure_stage: "n5",
+        failure_scope: "candidate_local",
+        simulation_status: "simulation_blocked",
+        value_status: "value_pending_n8",
+      },
+    ],
+  });
+  return projection;
+}
+
 function genericCycleCredalProjection(runId: string) {
   const projection = mutableRecord(genericCycleSimulationProjection(runId));
   projection.schema_version =
@@ -906,6 +960,77 @@ describe("runtime API validators", () => {
     );
     expect(parsed?.n5_observations[0]?.n5_owner_join_status).toBe("resolved");
     expect(parsed?.joint_parent_status).toBeUndefined();
+  });
+
+  it("decodes a resolved root N5 row while the child profile family remains unavailable", () => {
+    const payload = runDetailsPayload("root-only generic cycle");
+    const projection = genericRootOnlySimulationProjection(
+      "run-projection-mask",
+    );
+    mutableRecord(payload.run).generic_cycle_simulation = projection;
+
+    const parsed = runDetailsSchema.parse(payload).run.generic_cycle_simulation;
+    expect(parsed?.schema_version).toBe(
+      "policyos.runtime.run_generic_cycle_simulation_projection.v5",
+    );
+    expect(parsed?.child_profile_status).toBe("not_established");
+    expect(parsed?.child_profile_limitation_code).toBe(
+      "generic_n4_child_profile_family_not_established",
+    );
+    expect(parsed?.child_profile_family_ref).toBeNull();
+    expect(parsed?.child_profile_set_ref).toBeNull();
+    expect(parsed?.child_profile_bindings).toEqual([]);
+    expect(parsed?.n5_observations).toHaveLength(1);
+    expect(parsed?.n5_observations[0]).toMatchObject({
+      child_profile_family_ref: null,
+      child_profile_set_ref: null,
+      n5_owner_join_status: "resolved",
+      n5_request_binding_status: "resolved",
+      simulation_result_body: null,
+      simulation_result_body_status: "not_established",
+      n8_status: "value_pending_n8",
+      n8_lineage_status: "not_established",
+      n8_value_ref: null,
+      n8_limitation_code: "value_gate_pending_n8",
+      n8_authority_blockers: ["value_gate_pending_n8"],
+      n5_interaction_evidence: null,
+    });
+    expect(parsed?.n5_observations[0]?.n4_source_ref).toEqual(
+      parsed?.n4_source_ref,
+    );
+    expect(parsed?.n5_observations[0]?.context_job_ref).toEqual(
+      parsed?.parent_context_job_ref,
+    );
+    expect(parsed?.n5_observations[0]?.profile_ref).toEqual(
+      parsed?.parent_profile_ref,
+    );
+    expect(parsed?.candidate_evaluation_attempts?.[0]).toMatchObject({
+      candidate_id: "first-local-failure",
+      failure_scope: "candidate_local",
+      failure_stage: "n5",
+      simulation_status: "simulation_blocked",
+      node_ref: parsed?.n5_observations[0]?.node_ref,
+      cycle_index: parsed?.n5_observations[0]?.cycle_index,
+    });
+  });
+
+  it("refuses a root N5 row with only one child-family binding ref", () => {
+    const payload = runDetailsPayload("root-only generic cycle");
+    const projection = genericRootOnlySimulationProjection(
+      "run-projection-mask",
+    );
+    const rootObservation = firstMutableRecord(
+      projection.n5_observations,
+      "n5_observations",
+    );
+    rootObservation.child_profile_family_ref = {
+      artifact_id: `sha256:${"c".repeat(64)}`,
+      kind: "runtime.quality.generic_cycle_simulation_child_profile_family",
+      media_type: "application/json",
+    };
+    mutableRecord(payload.run).generic_cycle_simulation = projection;
+
+    expect(runDetailsSchema.safeParse(payload).success).toBe(false);
   });
 
   it.each([

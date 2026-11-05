@@ -11825,6 +11825,68 @@
             "SKIP": 0
           },
           "scope": "Canonical runtime protocol matching on exact guarded handle; actual raw+normalized carrier reopen and verify, missing capability refusal, PermissionError/OSError causes preserved. Root independent source/test review GO. Native R12 remains UNRUN."
+        },
+        "ordinary_half_gain_resource_measurement": {
+          "source_commit": "a43be60414022b689b3cf54cb7a3c84a968f6cd5",
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-configured-half-gain-served-r2",
+          "status": "RESOURCE_LIMIT_ABORT",
+          "cause": "disk_floor",
+          "wall_seconds": 145.48141912498977,
+          "peak_sampled_RSS_bytes": 3847946240,
+          "minimum_sampled_disk_free_bytes": 2617069568,
+          "named_inputs": 38,
+          "inputs_unchanged": true,
+          "semantic_result": "UNRUN; prior r1 RSS-cap abort also not a semantic verdict"
+        },
+        "candidate_method_current_partial": {
+          "output": "policy-engine/_cache/e02/lane01-candidate-value-method-r1",
+          "observed": {
+            "PASS": 12,
+            "FAIL": 2
+          },
+          "wall_seconds": 118.33,
+          "peak_RSS_GB": 1.881,
+          "named_inputs": 32,
+          "inputs_unchanged": true,
+          "remaining": "Later2legacy fixture fixes, Core canonical width/roundtrip, real N4 conditioning/unit and NL compiler companions UNRUN; N4 extension material review pending. New method-record positive and ordinary POST not qualified. API validator230PASS separately, not Runtime integration."
+        },
+        "gdp_candidate_fixture_current": {
+          "output": "policy-engine/_cache/e02/annual-gdp/source-2",
+          "observed": {
+            "PASS": 2,
+            "FAIL": 0
+          },
+          "scope": "Two source/connector prerequisites only; independent5-path source review GO after synthetic64/32/96 counters replace historical usage. Full native GDP UNRUN pending shared candidate action-kind fix and resources; legacy epochR13 remainsFAIL."
+        },
+        "hypothetical_retained_fresh_suffix": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-hypothetical-fresh-suffix-r2",
+          "status": "PASS",
+          "wall_seconds": 20.226,
+          "peak_RSS_bytes": 1669283840,
+          "named_inputs": 20,
+          "inputs_unchanged": true,
+          "scope": "Fresh GET/source/profile/typed samples and SE; no N4/N5. Original in-memory query/counter comparisons not replayed. WholeR2FAIL/full correctedR3UNRUN. First suffix attempt wronglocatorHARNESS_ERROR, original Catalog bytes retained."
+        },
+        "cubic_retained_fresh_suffix": {
+          "output": "policy-engine/_cache/e02/lane01-cubic-r1-freshreader-suffix-r1",
+          "status": "PASS",
+          "wall_seconds": 24.114,
+          "peak_RSS_bytes": 1660796928,
+          "named_inputs": 36,
+          "inputs_unchanged": true,
+          "scope": "Actual persisted cubic v5 result,16 completedunits,pairs0/SE0,third residual1/SE0,freshGET and selectedtypedread; no N4/N5. Current reader inputs differ from original prefix and are separately pinned; whole originalR1FAIL/full correctedcase pending."
+        },
+        "candidate_experiment_native_execute_r12": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-candidate-execution-native-r12",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1
+          },
+          "wall_seconds": 397.44755683408584,
+          "peak_RSS_bytes": 1415823360,
+          "named_inputs": 83,
+          "inputs_unchanged": true,
+          "cause": "Actual fetch+raw/normalized verification succeeds; source/action receipt persists, then wrong runtime_quality.candidate_acquisition_source literal rejects canonical runtime.quality.candidate_acquisition_source. Canonical-constant source fix saved, unit/native replay UNRUN; no acquisition N5/terminal PASS."
         }
       },
       "independent_component_reviews": {
@@ -11848,7 +11910,7 @@
       },
       "resource_admission_current": {
         "disk_stop_floor_GiB": 3,
-        "free_disk_GiB_at_check": 4.765,
+        "free_disk_GiB_at_check": 5.237,
         "policy": "Local only; existing environments/data; <=8GiB measured aggregate process-tree RSS and <=6 numerical CPU threads. New expensive profiles start alone.",
         "trash_move": {
           "directory": "/Users/deniskopylov/.Trash/PolicyOS-obsolete-test-scratch-20261105T132841Z",
@@ -11874,7 +11936,17 @@
           "basis": "Synthetic/reproducible older scratch replaced by newer named PASS; parent deciding logs/results and current native/production inputs preserved.",
           "trash_emptied_by_executor": false,
           "deleted_by_executor": false
-        }
+        },
+        "hold": {
+          "status": "RESOLVED_BY_USER_RESUME_AND_FRESH_MEASUREMENT",
+          "free_disk_GiB_observed": 2.2,
+          "minimum_floor_GiB": 3,
+          "swap_used_MiB_observed": 2835.81,
+          "authors": "All active writers acknowledged stop; only atomic stop bookkeeping completed. No active authorized numerical jobs remain.",
+          "trash_emptied_by_executor": false,
+          "resume": "User frees disk, then Root measures actual disk/RAM/swap/processes before any E02 work. No automatic replays or next lane."
+        },
+        "resumed_admission": "Mac16GiB8CPU;5.2GiBfree;memory_pressure85%free;swap425MiB;no retained numerical processes. Existing profiles/environments preserved;3GiB disk floor remains."
       }
     },
     {

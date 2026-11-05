@@ -56,6 +56,7 @@ from tests._helpers.lane01_candidate_problem import (
 )
 from tests._helpers.lane01_wdi_profiles import (
     UNEMPLOYMENT_PROFILE,
+    CandidateWDIProfile,
     build_fixture_wdi_authority,
     fixture_wdi_response,
 )
@@ -126,14 +127,17 @@ def build_candidate_port_owners(tmp_path: Path) -> SimpleNamespace:
 
 
 def build_candidate_experiment_issuer_port(
-    *, tmp_path: Path, artifact_store: artifacts.ArtifactStore
+    *,
+    tmp_path: Path,
+    artifact_store: artifacts.ArtifactStore,
+    source_profile: CandidateWDIProfile = UNEMPLOYMENT_PROFILE,
 ) -> SimpleNamespace:
-    """Build test-owned canonical Labor WDI authority and its actual execution port.
+    """Build a test-owned canonical WDI source and its actual execution port.
 
     The authority and receipt are generated fixture inputs. They validate the
     issuer's typed joins and Fabric authorization, not empirical provenance.
     """
-    authority, entry = build_fixture_wdi_authority(tmp_path / "repo", UNEMPLOYMENT_PROFILE)
+    authority, entry = build_fixture_wdi_authority(tmp_path / "repo", source_profile)
     registry = catalog.AcquisitionAuthorityRegistry.model_validate_json(
         authority.registry_path.read_bytes()
     )
@@ -220,7 +224,16 @@ def candidate_route_for_closure(control: Any, closure: Any) -> AcquisitionCandid
     )
 
 
-def _transport(monkeypatch: pytest.MonkeyPatch) -> list[tuple[str, str, dict[str, str]]]:
+def _transport(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    source_profile: CandidateWDIProfile = UNEMPLOYMENT_PROFILE,
+    response_body: bytes | None = None,
+) -> list[tuple[str, str, dict[str, str]]]:
+    if type(source_profile) is not CandidateWDIProfile:
+        raise TypeError("candidate_test_transport_profile_untyped")
+    if response_body is not None and type(response_body) is not bytes:
+        raise TypeError("candidate_test_transport_response_not_bytes")
     original_request = aiohttp.ClientSession._request
     original_connect = socket.socket.connect
     original_connect_ex = socket.socket.connect_ex
@@ -238,7 +251,9 @@ def _transport(monkeypatch: pytest.MonkeyPatch) -> list[tuple[str, str, dict[str
             del args
 
         async def read(self) -> bytes:
-            return fixture_wdi_response(UNEMPLOYMENT_PROFILE)
+            return (
+                response_body if response_body is not None else fixture_wdi_response(source_profile)
+            )
 
         def release(self) -> None:
             pass
@@ -253,7 +268,9 @@ def _transport(monkeypatch: pytest.MonkeyPatch) -> list[tuple[str, str, dict[str
         if urlsplit(str(url)).hostname in loopback:
             return await original_request(session, method, url, **kwargs)
         assert method == "GET"
-        assert str(url).endswith("/country/USA/indicator/SL.UEM.TOTL.ZS")
+        assert str(url).endswith(
+            f"/country/{source_profile.country_code}/indicator/{source_profile.indicator_id}"
+        )
         params = kwargs["params"]
         assert isinstance(params, Mapping)
         calls.append((method, str(url), {str(k): str(v) for k, v in params.items()}))

@@ -37,8 +37,16 @@ from polisyos.runtime.quality import substrate_registry
 from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoopReceipt
 
 if TYPE_CHECKING:
-    from polisyos.runtime.quality.candidate_simulation import CandidateScenarioSetToRule
+    from typing import Any
+
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioSetToRule,
+        CandidateSimulationScenarioProfile,
+        CandidateSimulationSyntheticModelDeclarationV1,
+    )
+    from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
+    from tests._helpers.controlled_candidate_profile import SyntheticCandidateProviderProfile
 from polisyos.runtime.quality.agent_action_authority import (
     ACQUISITION_ACTION_KIND,
     AGENT_ACTION_AUTHORITY_RULE_VERSION,
@@ -873,6 +881,16 @@ def _produce_served_acquisition_history(
     candidate_acquisition_intent: Literal["bounded_experiment_voi_unknown"] | None = None,
     invocation_quota_policy: BudgetInvocationQuotaPolicy | None = None,
     labor_seed: bool = False,
+    seed_problem: DesignProblem | None = None,
+    candidate_profile_builder: Callable[
+        ...,
+        tuple[CandidateSimulationScenarioProfile, CandidateSimulationSyntheticModelDeclarationV1],
+    ]
+    | None = None,
+    candidate_provider_builder: Callable[
+        ..., tuple[dict[str, Any], SyntheticCandidateProviderProfile]
+    ]
+    | None = None,
     prepared_catalog: tuple[
         substrate_registry.CatalogServingSourceSelection,
         substrate_registry.CatalogServingSourcePaths,
@@ -900,6 +918,7 @@ def _produce_served_acquisition_history(
         CandidateSimulationN5InputV5,
     )
     from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
+    from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.generation_cycle import (
         AcquisitionOverlayReentryReceipt,
     )
@@ -931,6 +950,17 @@ def _produce_served_acquisition_history(
 
     if provider_mode not in {"recorded_capture", "synthetic_settled_candidate"}:
         raise ValueError("served_acquisition_provider_mode_unknown")
+    if seed_problem is not None:
+        if type(seed_problem) is not DesignProblem:
+            raise TypeError("served_candidate_seed_problem_untyped")
+        if labor_seed or provider_mode != "synthetic_settled_candidate":
+            raise ValueError("served_candidate_seed_profile_ambiguous")
+        if candidate_profile_builder is None or candidate_provider_builder is None:
+            raise ValueError("served_candidate_seed_producers_missing")
+        if seed_only_observer is None and seed_only_context_observer is None:
+            raise ValueError("served_candidate_seed_observer_missing")
+    elif candidate_profile_builder is not None or candidate_provider_builder is not None:
+        raise ValueError("served_candidate_seed_problem_missing")
     served_n4_recording = acquisition_chain.load_served_wdi_generation_recording()
     served_n4_model_id = str(served_n4_recording["model_id"])
     fiscal_nl_request = acquisition_chain.SERVED_WDI_FISCAL_REQUEST
@@ -1045,7 +1075,7 @@ def _produce_served_acquisition_history(
 
     def app():
         container_overrides = None
-        if labor_seed:
+        if labor_seed or seed_problem is not None:
             from polisyos.runtime.http.container import RuntimeContainerOverrides
             from polisyos.runtime.http.services.control_registry_providers import (
                 resolve_control_registry_providers,
@@ -1097,27 +1127,34 @@ def _produce_served_acquisition_history(
         recorded_problem = served_labor_candidate_problem(
             recorded_problem, raw_request=fiscal_nl_request
         )
-    controlled_recording = acquisition_chain.controlled_served_wdi_generation_recording(
-        served_n4_recording,
-        outcome_variable=recorded_problem.outcome_of_interest.target_variable,
-        labor_problem=recorded_problem if labor_seed else None,
-    )
-    provider_profile = (
-        acquisition_chain.synthetic_served_wdi_provider_profile(
+    if seed_problem is not None:
+        recorded_problem = DesignProblem.model_validate(seed_problem.model_dump(mode="json"))
+        fiscal_nl_request = recorded_problem.nl_provenance.raw_request
+        if candidate_only_source not in fiscal_nl_request:
+            raise ValueError("served_candidate_seed_limitation_missing")
+    else:
+        controlled_recording = acquisition_chain.controlled_served_wdi_generation_recording(
             served_n4_recording,
-            problem=recorded_problem,
-            evidence_root=tmp_path / "synthetic-provider-exchanges",
-            labor_scope=labor_seed,
+            outcome_variable=recorded_problem.outcome_of_interest.target_variable,
+            labor_problem=recorded_problem if labor_seed else None,
         )
-        if provider_mode == "synthetic_settled_candidate"
-        else None
-    )
-    served_recorded_candidate_gateway.set_fixture(
-        controlled_recording, problem=recorded_problem, provider_profile=provider_profile
-    )
+        provider_profile = (
+            acquisition_chain.synthetic_served_wdi_provider_profile(
+                served_n4_recording,
+                problem=recorded_problem,
+                evidence_root=tmp_path / "synthetic-provider-exchanges",
+                labor_scope=labor_seed,
+            )
+            if provider_mode == "synthetic_settled_candidate"
+            else None
+        )
+        served_recorded_candidate_gateway.set_fixture(
+            controlled_recording, problem=recorded_problem, provider_profile=provider_profile
+        )
+    profile_builder = candidate_profile_builder or _served_wdi_candidate_profile
     if catalog_serving_source is None:
         profile, model_declaration = _within_fixture_owner(
-            _served_wdi_candidate_profile,
+            profile_builder,
             tmp_path=tmp_path / "served-candidate-profile",
             store=artifacts.FileSystemCAS(cas_root, ownership_enforced=True),
             problem=recorded_problem,
@@ -1133,7 +1170,7 @@ def _produce_served_acquisition_history(
     else:
         with substrate_registry.catalog_serving_source_scope(catalog_serving_source):
             profile, model_declaration = _within_fixture_owner(
-                _served_wdi_candidate_profile,
+                profile_builder,
                 tmp_path=tmp_path / "served-candidate-profile",
                 store=artifacts.FileSystemCAS(cas_root, ownership_enforced=True),
                 problem=recorded_problem,
@@ -1150,6 +1187,18 @@ def _produce_served_acquisition_history(
                     else {}
                 ),
             )
+    if seed_problem is not None:
+        controlled_recording, provider_profile = _within_fixture_owner(
+            candidate_provider_builder,
+            served_n4_recording,
+            problem=recorded_problem,
+            profile=profile,
+            store=artifacts.FileSystemCAS(cas_root, ownership_enforced=True),
+            evidence_root=tmp_path / "synthetic-provider-exchanges",
+        )
+        served_recorded_candidate_gateway.set_fixture(
+            controlled_recording, problem=recorded_problem, provider_profile=provider_profile
+        )
     source_root_witness_json = None
     actual_kref_witnesses = []
     if selected_source_root is not None:
@@ -1338,7 +1387,11 @@ def _produce_served_acquisition_history(
             )
         )
     assert mismatched_request.value.code == "design_problem_admissibility_unverified"
-    expected_scope_id = "labor_request_scope" if labor_seed else "fiscal_request_scope"
+    expected_scope_id = (
+        recorded_problem.constraints[0].constraint_id
+        if seed_problem is not None
+        else ("labor_request_scope" if labor_seed else "fiscal_request_scope")
+    )
     assert f"{expected_scope_id}:source_span_unbound:request_text" in str(mismatched_request.value)
     assert cycle_job_profile_selection_ref(recorded_problem) == profile.profile_selection_ref
 
@@ -1540,30 +1593,43 @@ def _produce_served_acquisition_history(
             for compiled in compiled_problems:
                 assert compiled.nl_provenance.raw_request == fiscal_nl_request
                 assert compiled.nl_provenance.source_surface == "runtime.control.nl_request"
-                assert compiled.domain == ("social" if labor_seed else "fiscal")
-                assert compiled.jurisdiction_time.region == ("USA" if labor_seed else "UKR")
-                assert compiled.jurisdiction_time.valid_time == "2024"
-                assert compiled.jurisdiction_time.as_of == "2024-12-31"
-                assert compiled.jurisdiction_time.policy_time == "2024"
-                assert compiled.jurisdiction_time.data_time == "2024"
-                expected_metric = "unemployment_rate" if labor_seed else "tax_rate"
-                assert compiled.objectives[0].metric_id == expected_metric
-                assert compiled.outcome_of_interest.target_variable == f"global.{expected_metric}"
-                assert compiled.outcome_of_interest.metric_id == expected_metric
-                assert compiled.candidate_lever_space.allowed_operator_kinds == [
-                    "budget_allocation_multiplier"
-                ]
-                assert compiled.candidate_lever_space.candidate_levers[0].target_slot == (
-                    "government.balance"
-                )
                 constraint_sources = {
                     constraint.constraint_id: constraint.source_text
                     for constraint in compiled.constraints
                 }
-                if labor_seed:
-                    assert constraint_sources["labor_request_scope"] == LABOR_SCOPE_SOURCE
+                if seed_problem is not None:
+                    assert compiled.domain == recorded_problem.domain
+                    assert compiled.jurisdiction_time == recorded_problem.jurisdiction_time
+                    assert compiled.objectives == recorded_problem.objectives
+                    assert compiled.outcome_of_interest == recorded_problem.outcome_of_interest
+                    assert compiled.candidate_lever_space == recorded_problem.candidate_lever_space
+                    assert constraint_sources == {
+                        constraint.constraint_id: constraint.source_text
+                        for constraint in recorded_problem.constraints
+                    }
                 else:
-                    assert constraint_sources["fiscal_request_scope"] == fiscal_scope_source
+                    assert compiled.domain == ("social" if labor_seed else "fiscal")
+                    assert compiled.jurisdiction_time.region == ("USA" if labor_seed else "UKR")
+                    assert compiled.jurisdiction_time.valid_time == "2024"
+                    assert compiled.jurisdiction_time.as_of == "2024-12-31"
+                    assert compiled.jurisdiction_time.policy_time == "2024"
+                    assert compiled.jurisdiction_time.data_time == "2024"
+                    expected_metric = "unemployment_rate" if labor_seed else "tax_rate"
+                    assert compiled.objectives[0].metric_id == expected_metric
+                    assert (
+                        compiled.outcome_of_interest.target_variable == f"global.{expected_metric}"
+                    )
+                    assert compiled.outcome_of_interest.metric_id == expected_metric
+                    assert compiled.candidate_lever_space.allowed_operator_kinds == [
+                        "budget_allocation_multiplier"
+                    ]
+                    assert compiled.candidate_lever_space.candidate_levers[0].target_slot == (
+                        "government.balance"
+                    )
+                    if labor_seed:
+                        assert constraint_sources["labor_request_scope"] == LABOR_SCOPE_SOURCE
+                    else:
+                        assert constraint_sources["fiscal_request_scope"] == fiscal_scope_source
                 assert constraint_sources["no_authority_without_a"] == candidate_only_source
                 assert cycle_job_profile_selection_ref(compiled) == profile.profile_selection_ref
             persisted_job_payload = canon.from_canonical_bytes(

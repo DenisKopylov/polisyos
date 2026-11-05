@@ -17,6 +17,7 @@ from polisyos.core import artifacts
 from polisyos.data_requirement import DataRequirementCompilationReport
 from polisyos.runtime.quality.acquisition_world_growth import AcquisitionCandidateSourceRoute
 from polisyos.runtime.quality.candidate_acquisition_source import (
+    CANDIDATE_ACQUISITION_SOURCE_KIND,
     CandidateAcquisitionSource,
     persist_candidate_acquisition_source,
     read_candidate_acquisition_source,
@@ -1202,7 +1203,7 @@ def read_candidate_experiment_acquisition_action(
         or receipt.selection.candidate_digest != origin.policy_scope.candidate_digest
         or receipt.selection.design_problem_ref != origin.policy_scope.design_problem_ref
         or receipt.selection.profile_selection_ref != receipt.profile_selection_ref
-        or receipt.candidate_source_ref.kind != "runtime_quality.candidate_acquisition_source"
+        or receipt.candidate_source_ref.kind != CANDIDATE_ACQUISITION_SOURCE_KIND
     ):
         raise ValueError("candidate_experiment_action_source_binding_mismatch")
     if require_current_action:

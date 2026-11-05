@@ -42,6 +42,7 @@ if TYPE_CHECKING:
         AcquisitionCandidateSourceRoute,
         AcquisitionWorldGrowthBridge,
     )
+    from tests._helpers.lane01_wdi_profiles import CandidateWDIProfile
 
 
 @dataclass(frozen=True)
@@ -403,6 +404,7 @@ def _read_candidate_experiment_with_reopened_owner(
     terminal_head: AcquisitionActionHeadRecord,
     terminal_history: CandidateExperimentTerminalHistory,
     monkeypatch: pytest.MonkeyPatch,
+    fresh_reader_observer: Callable[..., None] | None = None,
 ) -> CandidateExperimentCurrentActionProjection:
     """Replay terminal action state through an independent app and storage owner."""
     import sqlite3
@@ -578,6 +580,15 @@ def _read_candidate_experiment_with_reopened_owner(
                 ):
                     raise AssertionError("candidate experiment independent terminal GET mismatch")
 
+                if fresh_reader_observer is not None:
+                    fresh_reader_observer(
+                        client=reader,
+                        control=reader_control,
+                        history=reopened_history,
+                        origin=origin,
+                        headers=headers,
+                    )
+
                 wrong_profile = "sha256:" + "0" * 64
                 wrong_profile_head = phase_heads[-2][1]
                 selected_profile = wrong_profile_head.receipt_manifest_profile_sha256
@@ -683,6 +694,9 @@ def run_candidate_experiment_served_execution(
     | None = None,
     recover_worker_crash: bool = False,
     wdi_response_value: float | None = None,
+    source_profile: CandidateWDIProfile | None = None,
+    wdi_response_bytes: bytes | None = None,
+    fresh_reader_observer: Callable[..., None] | None = None,
 ) -> CandidateExperimentServedExecutionResult:
     """Execute a replayed candidate action through HTTP, the real worker and fresh GET.
 
@@ -744,6 +758,8 @@ def run_candidate_experiment_served_execution(
         policy_owner=policy_owner,
         monkeypatch=monkeypatch,
         wdi_response_value=wdi_response_value,
+        source_profile=source_profile,
+        wdi_response_bytes=wdi_response_bytes,
     ) as execution_owner:
         response, response_digest = trust.post(
             client,
@@ -1143,6 +1159,7 @@ def run_candidate_experiment_served_execution(
             terminal_head=final_outcome.head,
             terminal_history=terminal_history,
             monkeypatch=monkeypatch,
+            fresh_reader_observer=fresh_reader_observer,
         )
         units_after = _standard_invocation_units(control=control, run_id=origin.run_id)
         if recover_worker_crash and units_after != interrupted_units:
@@ -1189,6 +1206,8 @@ def candidate_experiment_served_execution_owner(
     policy_owner: object,
     monkeypatch: pytest.MonkeyPatch,
     wdi_response_value: float | None = None,
+    source_profile: CandidateWDIProfile | None = None,
+    wdi_response_bytes: bytes | None = None,
 ) -> Iterator[CandidateExperimentServedExecutionOwner]:
     """Install a real WDI port and exact source route for one served experiment.
 
@@ -1283,6 +1302,8 @@ def candidate_experiment_served_execution_owner(
     previous_production_port = action_service._production_execution_port
 
     with monkeypatch.context() as scoped:
+        if wdi_response_value is not None and wdi_response_bytes is not None:
+            raise ValueError("candidate_test_transport_response_inputs_ambiguous")
         if wdi_response_value is not None:
             original_fixture_response = lane01_candidate_action_served.fixture_wdi_response
             scoped.setattr(
@@ -1301,7 +1322,11 @@ def candidate_experiment_served_execution_owner(
             "build_production_world_bank_wdi_execution_port",
             build_current_test_port,
         )
-        transport_calls = _transport(scoped)
+        transport_calls = _transport(
+            scoped,
+            source_profile=source_profile or lane01_candidate_action_served.UNEMPLOYMENT_PROFILE,
+            response_body=wdi_response_bytes,
+        )
         try:
             action_service._execution_port = port
             action_service._production_execution_port = port

@@ -27,19 +27,28 @@ from tests._helpers.candidate_holdout_resource import (
     wdi_response_for_year,
 )
 
+pytest_plugins = ("tests._helpers.acquisition_served_history",)
+
 
 @pytest.mark.integration
 def test_annual_gdp_source_persists_public_rows_and_refuses_provenance_relabel(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The real compiler and WDI owner retain annual USD, then fail closed at the source bridge."""
+    """The real source owner preserves observed provenance with candidate-only authority."""
+    from polisyos.core import canon
     from polisyos.core.artifacts import FileSystemCAS, load_core_json_artifact
     from polisyos.core.contracts.fabric import DataSnapshot
+    from polisyos.data_forge.read_api import catalog
     from polisyos.fabric.connectors.cache import ResultSerializer
     from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY, SlotKind
     from polisyos.ir.kernel.time_semantics import TimeSemantics
     from polisyos.ir.model_layer.types import TimeFrequency
+    from polisyos.runtime.quality.candidate_acquisition_source import (
+        CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V3,
+        _write_options,
+        read_candidate_acquisition_source,
+    )
     from tests._helpers import lane01_candidate_source as source_helper
     from tests._helpers.lane01_candidate_source import (
         GDP_COMPILER_INPUT,
@@ -111,15 +120,33 @@ def test_annual_gdp_source_persists_public_rows_and_refuses_provenance_relabel(
         "persist_candidate_acquisition_source",
         capture_source_execution,
     )
-    with pytest.raises(ValueError, match=r"^candidate_source_owner_scope_mismatch$"):
-        build_lane01_candidate_source(
-            tmp_path / "actual-wdi-source",
-            monkeypatch,
-            store=store,
-            profile=GDP_PROFILE,
-            compiler_input=GDP_COMPILER_INPUT,
-            response_body=wdi_response_for_year(2024),
-        )
+    fixture = build_lane01_candidate_source(
+        tmp_path / "actual-wdi-source",
+        monkeypatch,
+        store=store,
+        profile=GDP_PROFILE,
+        compiler_input=GDP_COMPILER_INPUT,
+        response_body=wdi_response_for_year(2024),
+    )
+    source = fixture.source
+    assert source.schema_version == CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V3
+    assert source.observation_class is catalog.ObservationProvenanceClass.OBSERVED
+    assert source.status == "candidate_only"
+    assert source.source_currentness == "source_currentness_not_established"
+    assert source.observation == observations[2024].value_usd
+    fresh = FileSystemCAS(store.root)
+    assert read_candidate_acquisition_source(fresh, source_ref=fixture.source_ref) == source
+    forged = source.model_copy(
+        update={"observation_class": catalog.ObservationProvenanceClass.MODEL_OUTPUT}
+    )
+    forged_ref = store.put_json(
+        forged,
+        _write_options(forged),
+        canon_spec=canon.CanonSpec(forbid_floats=False, exclude_none=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(ValueError, match="candidate_source_provenance_mismatch"):
+        read_candidate_acquisition_source(fresh, source_ref=forged_ref)
 
     assert len(executions) == 1
     captured_store, source_execution = executions[0]
@@ -1511,5 +1538,332 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
             assert sampling.effects_standard_error[declaration.outcome_variable] == pytest.approx(
                 expected_effect_se, rel=1e-12, abs=1e-12
             )
+    assert SOFTWARE_FIXTURE_BOUNDARY["source_rights"] == "not_established"
+    assert SOFTWARE_FIXTURE_BOUNDARY["source_currentness"] == "not_established"
+
+
+@pytest.mark.integration
+def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    served_recorded_candidate_gateway,
+) -> None:
+    """Consume one captured annual observation through the bounded candidate action route."""
+    from dataclasses import replace
+    from decimal import Decimal
+    from types import SimpleNamespace
+
+    import numpy as np
+
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.contracts import DataSnapshot
+    from polisyos.core.contracts.fabric import CandidateAcquisitionSourceDataSnapshotLineage
+    from polisyos.core.contracts.runtime import (
+        RunCandidateSimulationAcquisitionHistoryEntryV5,
+        RunDetailsResponse,
+    )
+    from polisyos.fabric.connectors.profiles import SourceProfileRegistry
+    from polisyos.foundry.execute.executor import load_state_snapshot
+    from polisyos.runtime.http.services import acquisition_surface_execution
+    from polisyos.runtime.quality import acquisition_planner, generation_cycle
+    from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+        CandidateUnpricedExperimentPolicyTemplate,
+        read_candidate_unpriced_policy,
+        resolve_current_candidate_unpriced_policy,
+    )
+    from polisyos.runtime.quality.candidate_acquisition_source import (
+        CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V3,
+    )
+    from polisyos.runtime.quality.candidate_experiment_policy_issuer import (
+        prepare_candidate_experiment_policies_for_completed_job,
+    )
+    from polisyos.runtime.quality.data_snapshot_lineage import (
+        DataSnapshotSourceRowNotEstablishedError,
+        validate_data_snapshot_owner_lineage,
+    )
+    from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+    from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
+    from tests._helpers import acquisition_served_history as served
+    from tests._helpers import world_model_record as wmr_fixture
+    from tests._helpers.annual_gdp_candidate import (
+        ANNUAL_GDP_VALUE_USD,
+        ANNUAL_GDP_WDI_PROFILE,
+        annual_gdp_candidate_problem,
+        annual_gdp_catalog_source,
+        build_annual_gdp_candidate_profile,
+        build_annual_gdp_candidate_provider,
+    )
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+    )
+    from tests._helpers.candidate_experiment_served_execution import (
+        run_candidate_experiment_served_execution,
+    )
+    from tests._helpers.lane01_candidate_action_served import build_candidate_experiment_issuer_port
+    from tests.integration.core_runtime.test_candidate_experiment_action_served import (
+        run_candidate_experiment_action_oracle,
+    )
+
+    # Declared scenario baselines are test inputs, never inferred measurements.
+    base_payload = dict(wmr_fixture.FABRIC_PAYLOAD)
+    base_payload.update(gdp=0.0, tax_rate=0.5)
+    monkeypatch.setattr(wmr_fixture, "FABRIC_PAYLOAD", base_payload)
+    monkeypatch.setattr(generation_cycle, "_N7_SOURCE_SEMANTIC_EMISSION_ENABLED", True)
+    monkeypatch.setitem(
+        acquisition_planner._ACQUISITION_GAP_BASIS,
+        "global.gdp",
+        {
+            "basis_ref": "fixture-only:hypothetical-gdp-acquisition-input:v1",
+            "collection_mode": "fixture-only annual source routing input",
+            "expert_hours": 1,
+            "calendar_days": 1,
+        },
+    )
+    source_inputs = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "annual-gdp-source",
+        outcome_variable="global.gdp",
+        include_owner_slot_manifest=True,
+    )
+    problem = annual_gdp_candidate_problem()
+    quota = BudgetInvocationQuotaPolicy(
+        allocation_id="annual-gdp-candidate-experiment",
+        total_units=5,
+        protected_units=1,
+    )
+    capture = wdi_response_for_year(2024)
+    observed: dict[str, Any] = {}
+
+    def serve_action(**values: Any) -> None:
+        control = values["control"]
+        run_id = str(values["run_id"])
+        assert values["job"].kind == "natural_language_run"
+        assert values["job"].state == "completed"
+        issuer = build_candidate_experiment_issuer_port(
+            tmp_path=tmp_path / "annual-gdp-issuer",
+            artifact_store=control._artifact_store,
+            source_profile=ANNUAL_GDP_WDI_PROFILE,
+        )
+        quota_profile = control._llm_producer_settlement_store.snapshot_safe().invocation_profiles[
+            run_id
+        ]
+        template = CandidateUnpricedExperimentPolicyTemplate(
+            tenant_id=served.TENANT,
+            cell_id=served.CELL,
+            authority_entry_id=issuer.entry.entry_id,
+            authority_registry_sha256=issuer.registry.content_sha256,
+            authority_provision_sha256=issuer.authority.provision_content_sha256,
+            attempt_id=issuer.port._provision.live_harness_receipts[0].attempt_id,
+            max_http_response_bytes=65_536,
+            max_http_decompressed_bytes=65_536,
+            max_http_timeout_seconds=15.0,
+            max_standard_n5_invocations=quota_profile.total_units - quota_profile.protected_units,
+            max_metered_reentry_usd=Decimal("1.00"),
+        )
+        policy_owner = SimpleNamespace(
+            issuer=issuer,
+            template=template,
+            source_profiles=SourceProfileRegistry.get_instance(),
+        )
+        original_providers = control._registry_providers
+        control._registry_providers = replace(
+            original_providers,
+            source_profiles=policy_owner.source_profiles,
+            candidate_unpriced_policy_bindings=(),
+            candidate_unpriced_policy_templates=(template,),
+        )
+        try:
+            with monkeypatch.context() as scoped:
+
+                def current_issuer(*, control_service: Any) -> Any:
+                    assert control_service is control
+                    return issuer.port
+
+                scoped.setattr(
+                    acquisition_surface_execution,
+                    "build_production_world_bank_wdi_execution_port",
+                    current_issuer,
+                )
+                refs = prepare_candidate_experiment_policies_for_completed_job(
+                    control_service=control,
+                    source_job_id=values["job"].job_id,
+                )
+                assert len(refs) == 1
+                policy_ref, policy = resolve_current_candidate_unpriced_policy(
+                    control_service=control,
+                    scope=read_candidate_unpriced_policy(
+                        store=control._artifact_store,
+                        event_log=control._diagnostic_event_log,
+                        ref=refs[0],
+                    ).scope,
+                )
+                assert policy.observed_admission is False
+                assert policy.publication_authority is False
+                assert policy.information_value == policy.monetary_cost == "not_established"
+
+                def fresh_numeric_reader(**reader_values: Any) -> None:
+                    reader_control = reader_values["control"]
+                    history = reader_values["history"]
+                    assert reader_control is not control
+                    assert reader_control._artifact_store is not control._artifact_store
+                    evaluation = history.evaluation
+                    assert evaluation is not None
+                    selected = evaluation.selected
+                    n5_input = evaluation.input_record
+                    world = n5_input.profile.context_inputs.world_model_record
+                    views = world_model_artifact_views(world)
+                    assert views.bound_state_snapshot_ref is not None
+                    state = load_state_snapshot(
+                        reader_control._artifact_store,
+                        snapshot_ref=views.bound_state_snapshot_ref,
+                    )
+                    assert float(state.gdp) == pytest.approx(ANNUAL_GDP_VALUE_USD, rel=2e-7)
+                    assert float(state.tax_rate) == 0.5
+                    assert n5_input.n5.baseline_state["global.gdp"] == float(state.gdp)
+                    assert n5_input.n5.baseline_state["global.tax_rate"] == 0.5
+                    assert n5_input.materialization.value == 0.0
+                    source_job = reader_control._control_store.get_job(history.origin.source_job_id)
+                    assert source_job is not None
+                    response = reader_values["client"].get(
+                        f"/api/v1/runs/{source_job.progress['core_run_id']}",
+                        headers=reader_values["headers"],
+                    )
+                    assert response.status_code == 200, response.text
+                    projection = RunDetailsResponse.model_validate(
+                        response.json()
+                    ).run.candidate_simulation
+                    assert projection is not None and projection.artifact_status == "resolved"
+                    assert projection.publication_authority is False
+                    entries = tuple(
+                        row
+                        for row in projection.acquisition_history
+                        if type(row) is RunCandidateSimulationAcquisitionHistoryEntryV5
+                        and row.candidate_source_ref == history.action.candidate_source_ref
+                        and row.selected_evaluation is not None
+                        and row.selected_evaluation.n5_result_ref == selected.n5_result_ref
+                    )
+                    assert len(entries) == 1
+                    entry = entries[0]
+                    assert entry.observed_admission is False
+                    assert entry.publication_authority is False
+                    observation = entry.selected_n5_observation
+                    assert observation is not None and observation.result_body_status == "resolved"
+                    body = observation.result_body
+                    assert body is not None and body.artifact_ref == selected.n5_result_ref
+                    assert body.outcome_units == {"global.gdp": "usd"}
+                    assert body.unit_provenance == "declared_candidate_model"
+                    assert body.publication_authority is False
+                    assert body.candidate_status == "candidate_unverified"
+                    # Independent arithmetic on the physical pre-action state.
+                    expected_effect = -500_000_000_000.0 * (0.0 - 0.5)
+                    assert expected_effect == 250_000_000_000.0
+                    expected_outcome = np.float32(float(state.gdp) + expected_effect)
+                    tolerance = 2.0 * float(np.spacing(expected_outcome))
+                    assert expected_effect > 100 * tolerance
+                    assert np.float32(state.gdp) != expected_outcome
+                    assert any(row.run_level == "joint" for row in body.trajectories)
+                    for trajectory in body.trajectories:
+                        assert len(trajectory.points) == 1
+                        point = trajectory.points[0]
+                        assert point.step == 0
+                        assert point.outcomes["global.gdp"] == pytest.approx(
+                            float(expected_outcome), rel=0.0, abs=tolerance
+                        )
+                        assert point.effects["global.gdp"] == pytest.approx(
+                            expected_effect, rel=0.0, abs=tolerance
+                        )
+                    observed["fresh_numeric_body"] = body
+
+                def execute_after_replay(**execution_values: Any) -> None:
+                    execution = run_candidate_experiment_served_execution(
+                        values=execution_values["values"],
+                        origin=execution_values["origin"],
+                        request=execution_values["request"],
+                        decision_ref=execution_values["decision_ref"],
+                        policy_owner=policy_owner,
+                        monkeypatch=scoped,
+                        source_profile=ANNUAL_GDP_WDI_PROFILE,
+                        wdi_response_bytes=capture,
+                        fresh_reader_observer=fresh_numeric_reader,
+                    )
+                    history = execution.terminal_history
+                    assert history.terminal.terminal_outcome == "candidate_reentry_completed"
+                    assert execution.current_action.status == "completed"
+                    assert execution.current_action.evaluation_disposition == "new"
+                    assert history.action.admitted_observation_delta == 0
+                    assert history.action.observed_admission is False
+                    assert history.action.publication_authority is False
+                    source = history.source
+                    assert source.schema_version == CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V3
+                    assert source.observation_class == "observed"
+                    assert source.observation == ANNUAL_GDP_VALUE_USD
+                    assert source.year == 2024 and source.canonical_unit == "usd"
+                    assert control._artifact_store.get_bytes(source.raw_source_ref) == capture
+                    assert history.evaluation is not None
+                    n5_input = history.evaluation.input_record
+                    views = world_model_artifact_views(
+                        n5_input.profile.context_inputs.world_model_record
+                    )
+                    snapshot = DataSnapshot.model_validate(
+                        load_core_json_artifact(control._artifact_store, views.data_snapshot_ref)
+                    )
+                    assert (
+                        type(snapshot.source_lineage)
+                        is CandidateAcquisitionSourceDataSnapshotLineage
+                    )
+                    payload = load_core_json_artifact(control._artifact_store, snapshot.data_ref)
+                    assert payload["_policyos_candidate_acquisition"]["schema_version"] == (
+                        "policyos.runtime.candidate_acquisition_data_state.v2"
+                    )
+                    assert payload["acquisition"]["selected"]["provenance_class"] == "observed"
+                    with pytest.raises(DataSnapshotSourceRowNotEstablishedError):
+                        validate_data_snapshot_owner_lineage(
+                            control._artifact_store, views.data_snapshot_ref, snapshot
+                        )
+                    assert execution.execution_owner.transport_calls == [
+                        (
+                            "GET",
+                            "https://api.worldbank.org/v2/country/USA/indicator/NY.GDP.MKTP.CD",
+                            {
+                                "date": "2024:2024",
+                                "format": "json",
+                                "page": "1",
+                                "per_page": "1000",
+                            },
+                        )
+                    ]
+                    observed["execution"] = execution
+
+                observed.update(
+                    run_candidate_experiment_action_oracle(
+                        tmp_path=tmp_path,
+                        values=values,
+                        policy_ref=policy_ref,
+                        monkeypatch=scoped,
+                        idempotency_key="annual-gdp-candidate-experiment-authority",
+                        after_replay=execute_after_replay,
+                    )
+                )
+        finally:
+            control._registry_providers = original_providers
+
+    with annual_gdp_catalog_source(source_inputs.root, monkeypatch) as prepared:
+        result = served._produce_served_acquisition_history(
+            tmp_path,
+            monkeypatch,
+            served_recorded_candidate_gateway,
+            source_owner_root=source_inputs.root,
+            prepared_catalog=prepared,
+            provider_mode="synthetic_settled_candidate",
+            seed_only_context_observer=serve_action,
+            run_budget_usd=5.0,
+            run_budget_scope="metered_paid_producers_and_bounded_candidate",
+            candidate_acquisition_intent="bounded_experiment_voi_unknown",
+            invocation_quota_policy=quota,
+            seed_problem=problem,
+            candidate_profile_builder=build_annual_gdp_candidate_profile,
+            candidate_provider_builder=build_annual_gdp_candidate_provider,
+        )
+    assert result is not None and observed["source_status"] == "completed"
+    assert "fresh_numeric_body" in observed and "execution" in observed
     assert SOFTWARE_FIXTURE_BOUNDARY["source_rights"] == "not_established"
     assert SOFTWARE_FIXTURE_BOUNDARY["source_currentness"] == "not_established"

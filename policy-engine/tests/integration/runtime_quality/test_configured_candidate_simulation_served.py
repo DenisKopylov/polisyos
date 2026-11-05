@@ -4,6 +4,7 @@ import copy
 from collections.abc import Callable
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, get_args
 
 import pytest
@@ -747,6 +748,171 @@ def test_served_unrefreshable_profile_evidence_keeps_n4_and_blocks_n5(
         close_runtime_api_env(env)
 
 
+def _compact_configured_procurement_fixture(
+    *,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    recorded_problem: Any,
+    artifact_store: Any,
+    tenant_id: str,
+    cell_id: str,
+) -> SimpleNamespace:
+    """Bind the ordinary numeric scenario to real, fixture-owned source owners.
+
+    The source root changes this software fixture's inputs, not the declared
+    model or its numerical oracle. Its empty legal graph supplies no law, and
+    the selected synthetic academic rows confer no empirical authority.
+    """
+    from polisyos.runtime.quality import credal_reference, design_generation
+    from polisyos.runtime.quality.substrate_registry import catalog_serving_source_scope
+    from tests._helpers.candidate_cycle_source_profile import (
+        bind_candidate_cycle_kref_builder_root,
+        build_candidate_cycle_catalog_serving_source,
+        build_candidate_cycle_substrate_route_inputs,
+        install_candidate_cycle_l6_source_root_reader,
+    )
+    from tests._helpers.generic_n4_served_replay import _declared_generic_component_knobs
+
+    source_inputs = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "configured-procurement-source",
+        include_owner_slot_manifest=True,
+        owner_knob_dictionary=_declared_generic_component_knobs("controlled_overlay"),
+    )
+    source_root = source_inputs.root
+    assert source_root.is_relative_to(tmp_path.resolve())
+    assert source_root != REPO_ROOT.resolve()
+    catalog_selection, catalog_source = build_candidate_cycle_catalog_serving_source(source_root)
+    l6_reads, bind_l6_source, assert_l6_reader = install_candidate_cycle_l6_source_root_reader(
+        monkeypatch,
+        code_root=REPO_ROOT,
+        source_owner_root=source_root,
+    )
+    with catalog_serving_source_scope(catalog_source):
+        profile, declaration = _configured_procurement_profile(
+            recorded_problem=recorded_problem,
+            tmp_path=tmp_path,
+            artifact_store=artifact_store,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            source_root=source_root,
+            repo_root=source_root,
+            basis_repo_root=source_root,
+        )
+    l6_witness = bind_l6_source(profile.context_inputs.intervention_substrate)
+    actual_kref_roots: list[str] = []
+    source_bound_builder = bind_candidate_cycle_kref_builder_root(
+        credal_reference.build_credal_reference,
+        expected_repo_root=source_root,
+        observed_repo_roots=actual_kref_roots,
+        mismatch_code="configured_procurement_kref_source_root_mismatch",
+    )
+    monkeypatch.setattr(credal_reference, "build_credal_reference", source_bound_builder)
+    monkeypatch.setattr(design_generation, "build_credal_reference", source_bound_builder)
+    assert_l6_reader()
+    return SimpleNamespace(
+        source_root=source_root,
+        catalog_selection=catalog_selection,
+        catalog_source=catalog_source,
+        profile=profile,
+        declaration=declaration,
+        actual_kref_roots=actual_kref_roots,
+        l6_reads=l6_reads,
+        l6_witness=l6_witness,
+        assert_l6_reader=assert_l6_reader,
+    )
+
+
+def test_configured_procurement_profile_uses_owned_compact_source(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Run real source owners without fetching the production legal denominator."""
+    import duckdb
+
+    pytest.importorskip("fastapi.testclient")
+    from fastapi.testclient import TestClient
+
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.quality import credal_reference
+    from polisyos.runtime.quality.substrate_registry import (
+        DEFAULT_L3_LEX_KG_PATH,
+        catalog_serving_source_scope,
+    )
+
+    recording = next(
+        item
+        for item in n4_contract._load_recordings(REPO_ROOT)
+        if item.get("design_problem_id") == _RECORDING_ID
+    )
+    original_problem = _current_compiler_problem(recording)
+    controlled = _controlled_procurement_recording(
+        recording,
+        outcome_variable=original_problem.outcome_of_interest.target_variable,
+    )
+    problem = _current_compiler_problem(controlled)
+    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+    monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+    monkeypatch.setenv("POLISYOS_CONTROL_SQLITE_PATH", str(tmp_path / "control.sqlite3"))
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", str(tmp_path / "runtime-cache"))
+    runtime_context = build_runtime_api_context(cas_root=tmp_path / "cas")
+    fixture = _compact_configured_procurement_fixture(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        recorded_problem=problem,
+        artifact_store=runtime_context.store,
+        tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        cell_id="cell-a",
+    )
+    assert fixture.declaration.outcome_per_target_unit == 0.5
+    assert fixture.declaration.target_baseline == fixture.declaration.outcome_baseline == 0.0
+    assert fixture.catalog_source.repo_root == fixture.source_root
+    assert fixture.catalog_source.selection_basis == "explicit_path_candidate_only"
+    lex_path = (fixture.source_root / DEFAULT_L3_LEX_KG_PATH).resolve(strict=True)
+    assert lex_path.is_relative_to(fixture.source_root)
+    # The declared legal fixture has no input documents or references. Check
+    # its complete three-relation denominator, not a sample or arbitrary cap.
+    with duckdb.connect(str(lex_path), read_only=True) as connection:
+        counts = connection.execute(
+            """
+            SELECT (SELECT COUNT(*) FROM lex_rule_thresholds),
+                   (SELECT COUNT(*) FROM lex_amendments),
+                   (SELECT COUNT(*) FROM lex_reference_edges)
+            """
+        ).fetchone()
+        assert counts == (0, 0, 0)
+    with catalog_serving_source_scope(fixture.catalog_source):
+        reference = credal_reference.build_credal_reference(
+            fixture.source_root,
+            world_model_record=fixture.profile.context_inputs.world_model_record,
+        )
+    assert reference.essential_edges
+    assert fixture.actual_kref_roots == [str(fixture.source_root)]
+    assert not any(edge.modality.startswith("L3_") for edge in reference.essential_edges.values())
+    assert fixture.l6_reads
+    assert all(read["bundle"] == fixture.l6_witness for read in fixture.l6_reads)
+    fixture.assert_l6_reader()
+    with pytest.raises(AssertionError, match="configured_procurement_kref_source_root_mismatch"):
+        credal_reference.build_credal_reference(
+            REPO_ROOT,
+            world_model_record=fixture.profile.context_inputs.world_model_record,
+        )
+    app = create_runtime_api_app(
+        cas_root=tmp_path / "cas",
+        container_overrides=RuntimeContainerOverrides(runtime_api_context=runtime_context),
+        allow_fixture_identity=True,
+        candidate_simulation_profiles=(fixture.profile,),
+        candidate_simulation_model_declarations=(fixture.declaration,),
+        repo_root=fixture.source_root,
+        catalog_source_selection=fixture.catalog_selection,
+        catalog_run_profile=fixture.catalog_selection.catalog_run_profile,
+    )
+    with TestClient(app):
+        service = app.state._control_service
+        assert service._repo_root == fixture.source_root
+        assert service.catalog_serving_source == fixture.catalog_source
+
+
 def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -876,13 +1042,16 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         cas_root=cas_root,
         core_runs_root=cas_root / "runs",
     )
-    profile, model_declaration = _configured_procurement_profile(
+    compact_source = _compact_configured_procurement_fixture(
         recorded_problem=recorded_problem,
         tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
         artifact_store=runtime_api_context.store,
         tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
         cell_id="cell-a",
     )
+    profile = compact_source.profile
+    model_declaration = compact_source.declaration
     assert profile.profile_selection_ref == cycle_job_profile_selection_ref(recorded_problem)
 
     original_compiler = generation_cycle_service.build_design_problem_from_nl_request
@@ -983,6 +1152,9 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         allow_fixture_identity=True,
         candidate_simulation_profiles=(profile,),
         candidate_simulation_model_declarations=(model_declaration,),
+        repo_root=compact_source.source_root,
+        catalog_source_selection=compact_source.catalog_selection,
+        catalog_run_profile=compact_source.catalog_selection.catalog_run_profile,
     )
     with TestClient(app) as client:
         response = client.post(
@@ -1016,6 +1188,9 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         completed = service._control_store.get_job(accepted["job_id"])
         assert completed is not None
         assert completed.state == "completed", completed.error_message
+        assert compact_source.actual_kref_roots
+        assert set(compact_source.actual_kref_roots) == {str(compact_source.source_root)}
+        compact_source.assert_l6_reader()
         assert len(compiled_problems) == 1
         compiled_problem = compiled_problems[0]
         progress = completed.progress

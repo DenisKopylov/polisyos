@@ -21,6 +21,13 @@ _SUPPORTED_CANDIDATE_ONLY_CLAIMS = frozenset(
         "Keep the scenario candidate-only.",
     }
 )
+_CUBIC_AUTHORED_COMPOSITION_REQUEST = (
+    "Using the selected scenario and outcome, assess tax_relief_rate, "
+    "procurement_shock_intensity, and budget_allocation_multiplier together as one "
+    "hypothetical joint candidate package for simulation. This request does not establish "
+    "policy authority, adoption, verified coupling, an effect, or child-to-parent refinement. "
+    + _CANDIDATE_ONLY_SOURCE_CLAUSE
+)
 
 
 class _ExactCandidateOnlySpanSupportClient:
@@ -128,11 +135,19 @@ async def prepared_cubic_parent(
         cell_id="cell-a",
         child_count=3,
         source_root=source_inputs.root,
+        materialize_source_parameters=True,
         synthetic_settled_provider=True,
+        condition_synthetic_provider_on_child_sources=True,
+        raw_request_override=_CUBIC_AUTHORED_COMPOSITION_REQUEST,
     )
+    _assert_cubic_root_joint_profile(prepared)
     assert prepared.source_root == source_inputs.root
     assert prepared.app_kwargs["repo_root"] == source_inputs.root
     assert prepared.source_root_witness["n4_repo_root"] == str(source_inputs.root)
+    assert prepared.recorded_problem.problem_statement == _CUBIC_AUTHORED_COMPOSITION_REQUEST
+    assert prepared.recorded_problem.nl_provenance.raw_request == (
+        _CUBIC_AUTHORED_COMPOSITION_REQUEST
+    )
     raw_request = str(prepared.request_json["request"]).casefold()
     assert _CANDIDATE_ONLY_SOURCE_CLAUSE in raw_request
     candidate_only_constraint = next(
@@ -162,6 +177,23 @@ def _assert_cubic_parent_owner_grounding(generic_n4_served_replay: Any, prepared
         for child in prepared.children
     }
     assert actual_groups == expected_groups
+    assert len(prepared.generic_child_profiles) == 3
+    expected_parameters = {
+        "budget_allocation_multiplier": ("multiplier", 0.0, 2.0),
+        "procurement_shock_intensity": ("intensity", -1.0, 1.0),
+        "tax_relief_rate": ("rate", 0.1, 0.3),
+    }
+    for child, profile in zip(prepared.children, prepared.generic_child_profiles, strict=True):
+        expected_group = generic_n4_served_replay._original_second_capture_child_group(child)
+        rules = tuple(profile.n5.component_rules)
+        assert len(rules) == 1
+        (rule,) = rules
+        assert (rule.operator_kind, rule.target_world_slot) == expected_group[0]
+        assert (rule.parameter_id, float(rule.minimum), float(rule.maximum)) == (
+            expected_parameters[rule.operator_kind]
+        )
+        assert rule.minimum.is_finite() and rule.maximum.is_finite()
+        assert rule.target_world_slot in profile.n5.baseline_state
 
     generation_result = prepared.organ_run.result
     dispositions = generic_n4_served_replay._grounding_disposition_diagnostic(generation_result)
@@ -171,6 +203,23 @@ def _assert_cubic_parent_owner_grounding(generic_n4_served_replay: Any, prepared
         disposition == "shadow_bound" and relation in accepted_relations
         for _proposal_id, disposition, relation, _cg2_reason, _cg3_reason, _cause in dispositions
     ), dispositions
+
+
+def _assert_cubic_root_joint_profile(prepared: Any) -> None:
+    """Require the prepared root profile to materialize all three owner components."""
+    profile = prepared.root_profile
+    expected_components = {
+        ("budget_allocation_multiplier", "government.balance"),
+        ("procurement_shock_intensity", "cells.distress_score"),
+        ("tax_relief_rate", "global.tax_rate"),
+    }
+    rules = tuple(profile.n5.component_rules)
+    actual_components = {(rule.operator_kind, rule.target_world_slot) for rule in rules}
+    assert len(rules) == 3
+    assert actual_components == expected_components
+    assert len(profile.n5.ncm_plan_refs) == 1
+    assert profile.n5.ncm_plan_refs == (profile.selected_ncm_ref,)
+    assert {target for _operator, target in expected_components} <= set(profile.n5.baseline_state)
 
 
 @pytest.mark.asyncio
@@ -243,7 +292,7 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
     monkeypatch: pytest.MonkeyPatch,
     prepared_cubic_parent: tuple[Any, Any],
 ) -> None:
-    """A synthetic source-bound three-atom parent retains samples; N8 stays pending."""
+    """A controlled synthetic NCM kernel preserves source-bound cubic samples to N8."""
     pytest.importorskip("fastapi.testclient")
     from fastapi.testclient import TestClient
 
@@ -251,6 +300,7 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
     from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.services.control import generation_cycle as compiler_owner
+    from polisyos.runtime.quality import recursive_generation_cycle as recursive_cycle
     from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
     from tests._helpers.control_worker import dispatch_one_control_job
 
@@ -269,6 +319,21 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
         }
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(controlled_ncm_step))
+    authored_materializations: list[tuple[tuple[Any, ...], tuple[Any, ...]]] = []
+    original_persist_authored = recursive_cycle.persist_authored_joint_components
+
+    def observe_authored_materializations(**kwargs: Any) -> Any:
+        materializations = tuple(kwargs["component_materializations"])
+        members = tuple(kwargs["members"])
+        result = original_persist_authored(**kwargs)
+        authored_materializations.append((materializations, members))
+        return result
+
+    monkeypatch.setattr(
+        recursive_cycle,
+        "persist_authored_joint_components",
+        observe_authored_materializations,
+    )
     candidate_only_constraint = next(
         constraint
         for constraint in prepared.recorded_problem.constraints
@@ -288,7 +353,7 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
     )
     request_payload = {
         **prepared.request_json,
-        "joint_interaction_candidate_intent": "n4_unique_parent_source_members.v1",
+        "joint_interaction_candidate_intent": "authored_joint_components.v1",
     }
     app = create_runtime_api_app(**prepared.app_kwargs)
     with TestClient(app) as client:
@@ -318,6 +383,29 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
         assert dispatched == accepted["job_id"]
         job = service._control_store.get_job(accepted["job_id"])
         assert job is not None and job.state == "completed"
+        assert len(authored_materializations) == 1
+        materializations, source_members = authored_materializations[0]
+        assert len(materializations) == len(source_members) == 3
+        assert {item.original_atom_hash for item in materializations} == {
+            member.source_atom_content_hash for member in source_members
+        }
+        expected_materialized = {
+            "tax_relief_rate": ("global.tax_rate", 0.25),
+            "procurement_shock_intensity": ("cells.distress_score", 1.0),
+            "budget_allocation_multiplier": ("government.balance", 0.5),
+        }
+        assert {item.operator_kind for item in materializations} == set(expected_materialized)
+        for item in materializations:
+            expected_target, expected_value = expected_materialized[item.operator_kind]
+            assert item.target_world_slot == expected_target
+            assert float(item.value) == expected_value
+            assert item.native_input_value == expected_value
+            assert item.derived_n5_atom.target_world_slots == (expected_target,)
+            assert item.derived_n5_atom.causal_do_expr.write_variables == (expected_target,)
+            assignments = item.derived_n5_atom.causal_do_expr.assignments
+            assert len(assignments) == 1
+            assert assignments[0].value_expr is None
+            assert float(assignments[0].value) == expected_value
         assert len(span_support_client.observations) == 1
         observed_claim, observed_span, observed_decision = span_support_client.observations[0]
         assert observed_claim in _SUPPORTED_CANDIDATE_ONLY_CLAIMS
@@ -329,6 +417,15 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
         fresh_run = fresh_response.json()["run"]
         projection = fresh_run["generic_cycle_simulation"]
         candidate_before = projection["n5_observations"]
+        child_node_refs = {
+            "design-problem://"
+            + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
+            for child in prepared.children
+        }
+        child_rows_before = [row for row in candidate_before if row["node_ref"] in child_node_refs]
+        assert len(child_rows_before) == 3
+        assert {row["node_ref"] for row in child_rows_before} == child_node_refs
+        assert all(row["n5_owner_join_status"] == "resolved" for row in child_rows_before)
         source_leaf = next(
             row
             for row in projection["n5_observations"]
@@ -425,7 +522,7 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
         ]
         before_keys = {(row["node_ref"], row["candidate_id"]) for row in candidate_before}
         after_keys = {(row["node_ref"], row["candidate_id"]) for row in candidates_after}
-        assert len(before_keys) >= 2
+        assert len(before_keys) == 3
         assert after_keys == before_keys
         limited_leaf = next(
             row
@@ -436,9 +533,13 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
         assert limited_leaf["status"] == "joint_simulated"
         assert limited_leaf["n5_owner_join_status"] == "unavailable"
         assert limited_leaf["simulation_result_ref"] is not None
-        assert any(
-            row["node_ref"] != source_leaf["node_ref"] and row["n5_owner_join_status"] == "resolved"
-            for row in candidates_after
+        assert (
+            sum(
+                row["node_ref"] != source_leaf["node_ref"]
+                and row["n5_owner_join_status"] == "resolved"
+                for row in candidates_after
+            )
+            == 2
         )
         assert (
             "n5_execution_request_provenance_not_established" in limited_leaf["authority_blockers"]
@@ -830,11 +931,12 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
     assert len(parent["n8_candidate_parent_atom_content_hashes"]) == 3
     assert parent["n8_candidate_parent_intervention_ids"] == parent["atom_ids"]
     assert len(parent["n8_candidate_parent_child_refs"]) == 3
-    assert parent["n8_candidate_member_basis"] == ("hypothetical_all_unique_n4_source_members")
+    assert parent["n8_candidate_member_basis"] == "authored_materialized_n4_source_members"
     assert parent["n8_source_candidate_relationship"] == "alternatives"
-    assert parent["n8_policy_composition_status"] == "not_established"
+    assert parent["n8_selected_member_relationship"] == "joint_components"
+    assert parent["n8_policy_composition_status"] == "authored_candidate"
     assert parent["n8_policy_composition_limitation_code"] == (
-        "n4_source_candidates_are_alternatives_not_authored_compound_design"
+        "authored_candidate_coupling_not_established"
     )
     assert parent["n8_child_to_parent_refinement_status"] == "not_established"
     assert parent["n8_child_to_parent_refinement_limitation_code"] == (
@@ -848,9 +950,10 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
     assert parent["n8_candidate_decision_grade"] == "low"
     assert parent["n8_candidate_value_ref"] == parent["simulation_result_ref"]["artifact_id"]
     assert parent["n8_numeric_interaction_basis"] == "finite_checked_model_point_estimate_only"
+    assert "authored_candidate_coupling_not_established" in parent["n8_authority_blockers"]
     assert (
         "n4_source_candidates_are_alternatives_not_authored_compound_design"
-        in parent["n8_authority_blockers"]
+        not in parent["n8_authority_blockers"]
     )
     assert "n5_execution_request_provenance_not_established" in parent["n8_authority_blockers"]
     assert evidence["higher_order_residual_sampling_status"] == "estimated"

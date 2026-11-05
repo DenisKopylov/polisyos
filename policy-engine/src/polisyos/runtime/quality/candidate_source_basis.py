@@ -47,6 +47,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.cycle_substrate import AcquiredCandidateModelValues
     from polisyos.runtime.quality.data_state_substrate import AcquiredObservationWorldPreparation
     from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.runtime.quality.generation_cycle import CandidateSourceReentryReceipt
     from polisyos.runtime.quality.world_model_record import (
         WorldModelLimitations,
         WorldModelRecord,
@@ -957,17 +958,17 @@ def prepare_candidate_source_basis_values(
     )
 
 
-def _candidate_source_predecessors_for_verified_closure(
-    *, store: artifacts.ArtifactStore, closure: VerifiedAcquisitionRouteClosure
+def _candidate_source_predecessors_from_selected_transitions(
+    *,
+    store: artifacts.ArtifactStore,
+    tenant_id: str,
+    cell_id: str,
+    run_id: str,
+    source_job_id: str,
+    route_id: str,
+    transitions: tuple[CandidateSourceReentryReceipt, ...],
 ) -> tuple[CandidateSourceBasisPredecessor, ...]:
-    """Reopen only an owner-verified route's candidate transition prefix.
-
-    The caller must first resolve the complete bounded route through the control
-    owner. That fold independently verifies each receipt, action, intent,
-    checkpoint, event, and continued run. This helper is not route authority. The
-    first embedded world remains the selected prior owner's exact hypothesis;
-    no candidate ancestry before this route is inferred or removed.
-    """
+    """Reopen the exact selected producer artifacts of an already verified prefix."""
     from polisyos.runtime.quality.acquisition_world_growth import (
         CandidateAcquisitionWorldCheckpoint,
         CandidateAcquisitionWorldIntent,
@@ -980,7 +981,7 @@ def _candidate_source_predecessors_for_verified_closure(
 
     rows: list[CandidateSourceBasisPredecessor] = []
     preceding_world_ref: artifacts.ArtifactRef | None = None
-    for receipt in closure.candidate_basis_transitions:
+    for receipt in transitions:
         action = CandidateAcquisitionActionReceipt.model_validate(
             _selected_json(
                 store,
@@ -1002,14 +1003,14 @@ def _candidate_source_predecessors_for_verified_closure(
                 "runtime_quality.acquisition_candidate_world_checkpoint",
             )
         )
-        scope = (closure.tenant_id, closure.cell_id, closure.run_id, closure.route_id)
+        scope = (tenant_id, cell_id, run_id, route_id)
         if (
             any(
                 (item.tenant_id, item.cell_id, item.run_id, item.route_id) != scope
                 for item in (receipt, action, intent, checkpoint)
             )
-            or receipt.source_job_id != closure.source_job_id
-            or action.source_job_id != closure.source_job_id
+            or receipt.source_job_id != source_job_id
+            or action.source_job_id != source_job_id
             or action.action_job_id != receipt.action_job_id
             or action.action_generation != receipt.action_generation
             or intent.action_job_id != action.action_job_id
@@ -1056,6 +1057,96 @@ def _candidate_source_predecessors_for_verified_closure(
         )
         preceding_world_ref = receipt.world_model_ref
     return tuple(rows)
+
+
+def _candidate_source_predecessors_for_verified_closure(
+    *, store: artifacts.ArtifactStore, closure: VerifiedAcquisitionRouteClosure
+) -> tuple[CandidateSourceBasisPredecessor, ...]:
+    """Reopen only an owner-verified route's actual candidate transitions.
+
+    This adapter supplies replay inputs, not route, lease or N5 authority.
+    """
+    return _candidate_source_predecessors_from_selected_transitions(
+        store=store,
+        tenant_id=closure.tenant_id,
+        cell_id=closure.cell_id,
+        run_id=closure.run_id,
+        source_job_id=closure.source_job_id,
+        route_id=closure.route_id,
+        transitions=closure.candidate_basis_transitions,
+    )
+
+
+def _candidate_source_predecessors_for_verified_experiment_origin(
+    *,
+    store: artifacts.ArtifactStore,
+    origin: VerifiedCandidateExperimentOrigin,
+    before_action_generation: int | None = None,
+) -> tuple[CandidateSourceBasisPredecessor, ...]:
+    """Replay real producer edges from a verified experiment prefix, excluding retention.
+
+    The caller independently authenticates the complete experiment history.
+    A selected older basis uses the prefix before its own action generation;
+    cheap retained continuations never manufacture a world/source transaction.
+    """
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        VerifiedCandidateExperimentOrigin,
+        _candidate_experiment_effective_source,
+    )
+    from polisyos.runtime.quality.generation_cycle import CandidateSourceReentryReceipt
+
+    if type(origin) is not VerifiedCandidateExperimentOrigin:
+        raise TypeError("candidate_source_basis_experiment_origin_untyped")
+    # Reuse the canonical prefix/cycle projection; this does not authenticate
+    # history or grant permission. Its caller already performed owner replay.
+    _candidate_experiment_effective_source(origin)
+    chain = origin.candidate_terminal_history_chain
+    if before_action_generation is not None and (
+        type(before_action_generation) is not int
+        or before_action_generation < 1
+        or before_action_generation > len(chain) + 1
+    ):
+        raise ValueError("candidate_source_basis_experiment_cut_invalid")
+    cutoff = len(chain) if before_action_generation is None else before_action_generation - 1
+    transitions: list[CandidateSourceReentryReceipt] = []
+    scope = (origin.tenant_id, origin.cell_id, origin.run_id, origin.source_job_id, origin.route_id)
+    for generation, history in enumerate(chain[:cutoff], start=1):
+        receipt = history.reentry
+        if receipt is None:
+            if (
+                history.terminal.terminal_outcome != "candidate_evaluation_retained"
+                or history.continuation is None
+            ):
+                raise ValueError("candidate_source_basis_experiment_transition_missing")
+            continue
+        if (
+            type(receipt) is not CandidateSourceReentryReceipt
+            or history.terminal.terminal_outcome != "candidate_reentry_completed"
+            or receipt.action_generation != generation
+            or receipt.action_job_id != history.head.job_id
+            or (
+                receipt.tenant_id,
+                receipt.cell_id,
+                receipt.run_id,
+                receipt.source_job_id,
+                receipt.route_id,
+            )
+            != scope
+            or not _same_view(
+                store, history.terminal.candidate_action_ref, receipt.candidate_action_ref
+            )
+        ):
+            raise ValueError("candidate_source_basis_experiment_transition_invalid")
+        transitions.append(receipt)
+    return _candidate_source_predecessors_from_selected_transitions(
+        store=store,
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        run_id=origin.run_id,
+        source_job_id=origin.source_job_id,
+        route_id=origin.route_id,
+        transitions=tuple(transitions),
+    )
 
 
 def _live_candidate_source_predecessors(
@@ -1165,10 +1256,10 @@ def prepare_live_candidate_experiment_source_basis_values(
 ]:
     """Prepare the actual selected source basis for a live experiment action.
 
-    The origin branch has its own current-phase/source owners and deliberately
-    supplies an empty predecessor chain: its verifier requires the first-N5
-    acquisition-required source cycle with no prior basis transition. It does
-    not route through or coerce the costed closure path.
+    The current-phase/source owner verifies the complete experiment prefix.
+    Only its real reentry transactions become predecessor inputs; a retained
+    continuation contributes no new world. The original empty prefix remains
+    unchanged and is never inferred from arbitrary world ancestry.
     """
     from polisyos.runtime.quality.acquisition_route_loop import VerifiedCandidateExperimentOrigin
     from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
@@ -1245,12 +1336,16 @@ def prepare_live_candidate_experiment_source_basis_values(
         )
         if intent.action_phase_ref != action.action_phase_ref:
             raise ValueError("candidate_experiment_source_basis_intent_phase_mismatch")
+        predecessors = _candidate_source_predecessors_for_verified_experiment_origin(
+            store=bridge.artifact_store, origin=origin
+        )
         inputs = CandidateSourceBasisInputs(
             configured_profile=profile,
             original_model_declaration=declaration,
             base_data_snapshot_ref=world_model_artifact_views(
                 profile.context_inputs.world_model_record
             ).data_snapshot_ref,
+            base_world_model_ref=(predecessors[-1].world_model_ref if predecessors else None),
             candidate_source_ref=action.candidate_source_ref,
             slot_binding=CandidateAcquisitionSourceSlotBinding(
                 profile_selection_ref=selection.profile_selection_ref,
@@ -1264,7 +1359,7 @@ def prepare_live_candidate_experiment_source_basis_values(
             store=bridge.artifact_store,
             problem=origin.design_problem_basis,
             inputs=inputs,
-            predecessors=(),
+            predecessors=predecessors,
         )
         # Preparation can be lengthy; replay both the live phase/action and
         # policy-derived selection before exposing the values to the evaluator.
@@ -1299,6 +1394,10 @@ def prepare_live_candidate_experiment_source_basis_values(
             or fresh_prior_owner.first_n4_source != prior_owner.first_n4_source
             or fresh_intent_ref != intent_ref
             or fresh_intent != intent
+            or _candidate_source_predecessors_for_verified_experiment_origin(
+                store=bridge.artifact_store, origin=origin
+            )
+            != predecessors
         ):
             raise ValueError("candidate_experiment_source_basis_owner_changed")
         return prepared, intent_ref, intent

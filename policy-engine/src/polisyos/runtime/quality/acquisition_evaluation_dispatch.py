@@ -1566,6 +1566,7 @@ def _revalidate_candidate_experiment_evaluation_owner(
         _current_candidate_experiment_reentry_action,
     )
     from polisyos.runtime.quality.candidate_source_basis import (
+        _candidate_source_predecessors_for_verified_experiment_origin,
         prepare_live_candidate_experiment_source_basis_values,
     )
     from polisyos.runtime.quality.joint_simulation_horizon import (
@@ -1755,11 +1756,15 @@ def _revalidate_candidate_experiment_evaluation_owner(
 
     if owner.comparison != expected_comparison:
         raise ValueError("candidate_experiment_evaluation_comparison_changed")
+    predecessors = _candidate_source_predecessors_for_verified_experiment_origin(
+        store=bridge.artifact_store,
+        origin=owner.origin,
+    )
     values, reasons = recompute_candidate_acquisition_basis_values(
         artifact_store=bridge.artifact_store,
         problem=owner.origin.design_problem_basis,
         preparation_inputs=preparation.inputs,
-        predecessors=(),
+        predecessors=predecessors,
         prior=actual_prior,
         prepared_n5_configuration=owner.prepared_n5_configuration,
         fresh_limit_usd=window.fresh_limit_usd,
@@ -1772,7 +1777,11 @@ def _revalidate_candidate_experiment_evaluation_owner(
             artifact_store=bridge.artifact_store,
             problem=owner.origin.design_problem_basis,
             preparation_inputs=previous_basis.preparation_inputs,
-            predecessors=(),
+            predecessors=_candidate_source_predecessors_for_verified_experiment_origin(
+                store=bridge.artifact_store,
+                origin=owner.origin,
+                before_action_generation=previous_basis.action_generation,
+            ),
             prior=actual_prior,
             prepared_n5_configuration=previous_basis.prepared_n5_configuration,
             fresh_limit_usd=latest_history.budget_window.fresh_limit_usd,
@@ -4648,6 +4657,7 @@ def dispatch_candidate_experiment_evaluation(
         _select_current_candidate_experiment_outcome,
     )
     from polisyos.runtime.quality.candidate_source_basis import (
+        _candidate_source_predecessors_for_verified_experiment_origin,
         prepare_live_candidate_experiment_source_basis_values,
     )
     from polisyos.runtime.quality.joint_simulation_horizon import (
@@ -4755,11 +4765,15 @@ def dispatch_candidate_experiment_evaluation(
     expected_frontier = latest_history.frontier_after if latest_history is not None else None
     if frontier != expected_frontier:
         raise ValueError("candidate_experiment_evaluation_frontier_not_current")
+    predecessors = _candidate_source_predecessors_for_verified_experiment_origin(
+        store=bridge.artifact_store,
+        origin=origin,
+    )
     values, reasons = recompute_candidate_acquisition_basis_values(
         artifact_store=bridge.artifact_store,
         problem=origin.design_problem_basis,
         preparation_inputs=prepared.inputs,
-        predecessors=(),
+        predecessors=predecessors,
         prior=prior,
         prepared_n5_configuration=configuration,
         fresh_limit_usd=window.fresh_limit_usd,
@@ -5010,7 +5024,7 @@ def dispatch_candidate_experiment_evaluation(
             artifact_store=bridge.artifact_store,
             problem=origin.design_problem_basis,
             preparation_inputs=prepared.inputs,
-            predecessors=(),
+            predecessors=predecessors,
             prior=evaluation,
             prepared_n5_configuration=configuration,
             fresh_limit_usd=window.fresh_limit_usd,

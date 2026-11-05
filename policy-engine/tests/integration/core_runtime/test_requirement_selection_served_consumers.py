@@ -7,24 +7,48 @@ from typing import Any
 import pytest
 
 
+def _aipw_singleton_components() -> tuple[object, ...]:
+    """Return the one native AIPW method in the bounded positive scope."""
+    from polisyos.foundry.extensions.api import component_for_method
+    from polisyos.foundry.methods.catalog.causal.treatment_effects import AIPWEstimator
+
+    return (component_for_method(AIPWEstimator),)
+
+
 def test_unresolved_requirement_reaches_served_value_consumer_without_catalog_rewrite(
     monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
 ) -> None:
     """Exercise separate N7 and N8 consumers over one unchanged custom request."""
+    from fractions import Fraction
+
+    from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.core.components import DeclaredBuiltinLoader
     from polisyos.foundry.extensions import discovery
-    from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
+    from polisyos.foundry.extensions.discovery import build_foundry_method_components_index
+    from polisyos.foundry.extensions.registry import (
+        bootstrap_foundry_method_registry,
+    )
     from polisyos.foundry.methods.catalog.bayesian.gp import GaussianProcessRegressionEstimator
+    from polisyos.foundry.methods.catalog.causal.treatment_effects import AIPWEstimator
     from polisyos.foundry.methods.catalog.econometrics.advanced import EventStudyEstimator
+    from polisyos.foundry.methods.selection import MethodSelectionReceipt
     from polisyos.foundry.methods.selection import advisor as advisor_module
     from polisyos.foundry.methods.selection.history import SelectionHistoryStore
     from polisyos.foundry.methods.selection.registry import registry_scope
+    from polisyos.ir.analytics.causal import persist_causal_effect_report
     from polisyos.runtime.quality import generation_cycle as generation_cycle_module
     from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.generation_cycle import (
         FoundryValuePort,
         GenerationCycleController,
+    )
+    from polisyos.runtime.quality.substrate_registry import catalog_serving_source_scope
+    from tests.unit.runtime.quality.test_b31_owner_run_basis_v2 import _rebind_basis
+    from tests.unit.runtime.quality.test_real_source_unit_join import (
+        _reference_manski_meters,
+        _run_source_case,
     )
     from tests.unit.runtime.quality.test_value_gate import (
         _avg_income_candidate,
@@ -323,3 +347,187 @@ def test_unresolved_requirement_reaches_served_value_consumer_without_catalog_re
         assert consumer_problem.domain == raw_domain
         assert consumer_problem.problem_statement == request_text
         assert consumer_problem.nl_provenance.raw_request == request_text
+
+    # Keep the unresolved GDP requirement separate from this synthetic income
+    # method run. The latter demonstrates a selected numeric consumer; it does
+    # not satisfy or repair the N7 acquisition gap. Its owner rows are a
+    # candidate-only synthetic UA profile while the N7 request remains USA/GDP.
+
+    aipw_method = AIPWEstimator.signature.fqn
+    aipw_loader = DeclaredBuiltinLoader(
+        target=f"{__name__}:_aipw_singleton_components",
+        group=discovery.ENTRY_POINT_GROUP,
+    )
+    aipw_components, aipw_discovery = build_foundry_method_components_index(
+        include_builtins=False,
+        include_entry_points=False,
+        include_dev_scan=False,
+        builtin_loaders=(aipw_loader,),
+    )
+    assert len(aipw_components.list_all()) == 1
+    assert aipw_discovery.manifest is not None and aipw_discovery.manifest.is_bound
+    with registry_scope() as aipw_registry:
+        bridge_report = bootstrap_foundry_method_registry(
+            aipw_registry,
+            components_index=aipw_components,
+            include_builtins=False,
+            include_entry_points=False,
+            include_dev_scan=False,
+        )
+        assert bridge_report.success
+        assert bridge_report.registry_fqns == (aipw_method,)
+        aipw_registry_report = replace(
+            bridge_report,
+            discovery_errors=[
+                f"{error.source}:{error.item or '<unknown>'}: {error.message}"
+                for error in aipw_discovery.errors
+            ],
+            sources_processed=aipw_discovery.sources_processed,
+            discovery_manifest=aipw_discovery.manifest,
+        )
+        assert aipw_registry_report.success
+        assert aipw_registry_report.discovery_manifest is aipw_discovery.manifest
+
+        source_run = _run_source_case(
+            tmp_path / "_aipw_source",
+            monkeypatch,
+            FileSystemCAS(tmp_path / "_aipw_cas"),
+            problem=problem,
+            method_registry=aipw_registry,
+            method_registry_report=aipw_registry_report,
+            measurement_unit="m",
+            raw_unit="km",
+            raw_scale=0.001,
+            canonical_scale=1.0,
+        )
+
+    assert resolution.query.construct == required_construct == "economic.gdp"
+    assert resolution.candidate_discovery is not None
+    assert resolution.candidate_discovery.satisfies_claim_evidence is False
+    basis = source_run["basis"]
+    ir_store = source_run["ir_store"]
+    source_intent = generation_cycle_module.ValueOwnerMethodRunIntentV1.model_validate(
+        generation_cycle_module._value_load_ref_payload(ir_store, basis.intent_ref)
+    )
+    source_estimand = generation_cycle_module._typed_value_estimand_spec(
+        source_intent.estimand_spec_json
+    )
+    assert source_estimand.outcome == "avg_income"
+    assert source_estimand.outcome != required_construct
+    assert basis.selected_method_fqn == aipw_method
+    assignment = generation_cycle_module.ValueOwnerSourceVariableAssignmentV1.model_validate(
+        generation_cycle_module._value_load_ref_payload(ir_store, basis.assignment_ref)
+    )
+    assert assignment.authority_scope == "candidate_fixture_only"
+    assert assignment.production_value_eligible is False
+    assert assignment.source_time_status == "not_established"
+    assert assignment.outcome == source_estimand.outcome
+    assert source_run["report"].status.value == "success"
+    assert source_run["report"].method.value == "aipw"
+    assert source_run["report"].point_estimate is not None
+    assert source_run["report"].confidence_interval is not None
+    assert source_run["report"].confidence_interval[0] != pytest.approx(
+        source_run["report"].confidence_interval[1]
+    )
+    expected_lower, expected_upper = _reference_manski_meters()
+    assert (expected_lower, expected_upper) == (Fraction(-1279, 200), Fraction(1321, 200))
+    assert source_run["manski"].lower_bound == pytest.approx(float(expected_lower))
+    assert source_run["manski"].upper_bound == pytest.approx(float(expected_upper))
+
+    aipw_call = selection_calls[-1]
+    assert aipw_call["requested_method_fqn"] == aipw_method
+    assert aipw_call["result"]["status"] == "selected"
+    assert aipw_call["result"]["selected_method_fqn"] == aipw_method
+    assert aipw_call["result"]["denominator"] == (aipw_method,)
+    selected_problem = aipw_call["problem"]
+    assert selected_problem.domain == raw_domain
+    assert selected_problem.problem_statement == request_text
+    assert selected_problem.nl_provenance.raw_request == request_text
+    assert selected_problem.runtime_hints["n7_scope_profile"] == scope_profile
+
+    assert basis.runner_request_ref.manifest_profile_sha256 is not None
+    request_manifest = ir_store.get_manifest_by_profile(
+        basis.runner_request_ref.artifact_id,
+        basis.runner_request_ref.manifest_profile_sha256,
+    )
+    selection_edges = tuple(
+        edge for edge in request_manifest.inputs if edge.role == "method_selection_receipt"
+    )
+    assert len(selection_edges) == 1
+    assert selection_edges[0].manifest_profile_sha256 is not None
+    selection_ref = generation_cycle_module.ValueArtifactBindingRefV1(
+        artifact_id=str(selection_edges[0].artifact_id),
+        kind="runtime.value_owner_method_selection_receipt",
+        manifest_profile_sha256=selection_edges[0].manifest_profile_sha256,
+    )
+    selection_payload = generation_cycle_module._value_load_ref_payload(ir_store, selection_ref)
+    assert isinstance(selection_payload, dict)
+    selection_receipt = MethodSelectionReceipt.model_validate(
+        selection_payload["selection_receipt"]
+    )
+    assert selection_receipt.selected_method_fqn == aipw_method
+    assert selection_receipt.denominator == (aipw_method,)
+    assert selection_receipt.discovery_scope == "bound_discovery"
+    assert generation_cycle_module._value_manifest_has_exact_inputs(
+        ir_store, selection_ref, ((basis.profile_ref, "selected_owner_profile"),)
+    )
+    assert generation_cycle_module._value_manifest_has_exact_inputs(
+        ir_store,
+        basis.runner_request_ref,
+        (
+            (basis.intent_ref, "immutable_run_intent"),
+            (basis.profile_ref, "selected_owner_profile"),
+            (basis.assignment_ref, "owner_assignment"),
+            (basis.panel_input_ref, "exact_method_input_bytes"),
+            (selection_ref, "method_selection_receipt"),
+        ),
+    )
+    assert generation_cycle_module._value_manifest_has_exact_inputs(
+        ir_store,
+        source_run["basis_ref"],
+        (
+            (basis.intent_ref, "immutable_run_intent"),
+            (basis.profile_ref, "selected_owner_profile"),
+            (basis.assignment_ref, "owner_assignment"),
+            (basis.panel_input_ref, "exact_method_input_bytes"),
+            (basis.runner_request_ref, "selected_method_runner_request"),
+            (basis.report_ref, "native_method_report"),
+            (basis.execution_receipt_ref, "method_execution_receipt"),
+        ),
+    )
+
+    # Reuse the established report-manifest role removal control against this
+    # newly selected AIPW output; the consumer must reject the rebound basis.
+    wrong_role_report_ref = generation_cycle_module._value_artifact_ref(
+        persist_causal_effect_report(
+            ir_store,
+            source_run["report"],
+            inputs=[
+                generation_cycle_module._value_input_ref(
+                    basis.panel_input_ref, role="wrong_method_input_role"
+                ),
+                generation_cycle_module._value_input_ref(
+                    basis.runner_request_ref, role="selected_method_runner_request"
+                ),
+                generation_cycle_module._value_input_ref(
+                    source_run["bounds_ref"], role="candidate_identification_bounds"
+                ),
+            ],
+            return_selected_profile=True,
+        ),
+        expected_kind="ir.causal_effect_report",
+    )
+    assert wrong_role_report_ref.artifact_id == basis.report_ref.artifact_id
+    assert wrong_role_report_ref.manifest_profile_sha256 != basis.report_ref.manifest_profile_sha256
+    wrong_role_basis_ref = _rebind_basis(
+        ir_store,
+        basis,
+        report_ref=wrong_role_report_ref.model_dump(mode="json"),
+    )
+    with (
+        catalog_serving_source_scope(source_run["catalog_source"]),
+        pytest.raises(ValueError, match="value_owner_method_report_method_mismatch"),
+    ):
+        source_run["consumer"](
+            **{**source_run["consumer_kwargs"], "run_basis_ref": wrong_role_basis_ref}
+        )

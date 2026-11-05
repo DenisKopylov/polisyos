@@ -720,6 +720,9 @@ def verify_candidate_experiment_terminal_history(
         read_candidate_experiment_acquisition_action_historical,
     )
     from polisyos.runtime.quality.candidate_acquisition_source import CandidateAcquisitionSource
+    from polisyos.runtime.quality.candidate_source_basis import (
+        _candidate_source_predecessors_for_verified_experiment_origin,
+    )
     from polisyos.runtime.quality.candidate_source_reentry_history import (
         verify_candidate_experiment_source_reentry_history,
     )
@@ -1280,11 +1283,14 @@ def verify_candidate_experiment_terminal_history(
         if effective_source_cycle.simulation.status == "joint_simulated"
         else None
     )
+    predecessors = _candidate_source_predecessors_for_verified_experiment_origin(
+        store=store, origin=origin
+    )
     replay_candidate_acquisition_basis_for_history(
         artifact_store=store,
         problem=origin.design_problem_basis,
         basis=current_basis,
-        predecessors=(),
+        predecessors=predecessors,
         selected_evaluation=current_evaluation,
         fresh_limit_usd=budget_window.fresh_limit_usd,
         global_limit_usd=budget_window.global_limit_usd,
@@ -1294,7 +1300,7 @@ def verify_candidate_experiment_terminal_history(
             artifact_store=store,
             problem=origin.design_problem_basis,
             basis=selected_basis,
-            predecessors=(),
+            predecessors=predecessors,
             selected_evaluation=reentry_evaluation,
             fresh_limit_usd=budget_window.fresh_limit_usd,
             global_limit_usd=budget_window.global_limit_usd,

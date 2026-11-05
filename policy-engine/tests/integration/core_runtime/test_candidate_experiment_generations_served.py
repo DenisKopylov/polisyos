@@ -74,6 +74,8 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
         assert initial_basis.publication_authority is False
         assert initial_history.frontier_after is not None
         assert initial_history.reentry is not None
+        assert initial_current_basis.preparation_inputs.base_world_model_ref is None
+        assert initial_basis.preparation_inputs.base_world_model_ref is None
         root_policy_scope = origin.policy_scope
         initial_frontier = initial_history.frontier_after
         initial_selected_evaluation = initial_evaluation
@@ -239,6 +241,11 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
             assert current_origin.policy_scope == root_policy_scope
             assert current_origin.policy_ref == policy_ref
             assert current_origin.action_authority == "not_established"
+            assert execution.terminal_history.current_basis is not None
+            assert (
+                execution.terminal_history.current_basis.preparation_inputs.base_world_model_ref
+                == initial_history.reentry.world_model_ref
+            )
             assert execution.terminal_history.source.status == "candidate_only"
             assert execution.terminal_history.source.observation_class == "model_output"
             assert (

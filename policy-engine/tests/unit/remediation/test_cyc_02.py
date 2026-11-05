@@ -735,6 +735,262 @@ def test_conditional_n8_status_is_not_authority_ready(tmp_path: Path) -> None:
     assert effect == produced_trajectory.points[0].effect[outcome]
 
 
+def test_native_positive_se_interaction_stays_conditional_through_n8_and_run_projection(
+    tmp_path: Path,
+) -> None:
+    """Fresh N8 and typed run consumers retain positive-SE native NCM refusal."""
+    import copy
+
+    from polisyos.core.contracts.runtime import RunCandidateSimulationN5Observation
+    from polisyos.ir.analytics.ncm import persist_ncm_spec
+    from polisyos.runtime.http.routes.runs import (
+        _n5_interaction_evidence_projection,
+        _n5_interaction_scope_fields,
+        _n8_interaction_qualification_fields,
+    )
+    from tests.unit.remediation.test_sim_03 import _native_expression_request
+
+    expression = (
+        "1.0 + 2.0 * income_delta + 3.0 * balance_delta + 4.0 * income_delta * balance_delta + u"
+    )
+    native_request = _native_expression_request(
+        expression,
+        observed_u=1.0,
+        replications=3,
+        seed=7,
+    )
+    ncm_spec = native_request.engine_plan[0].ncm_spec
+    assert ncm_spec is not None
+
+    store_path = tmp_path / "positive-se-n5-cas"
+    store = FileSystemCAS(store_path)
+    with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+        selected_ncm_ref = persist_ncm_spec(ensure_ir_artifact_store(store), ncm_spec)
+    problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
+        CASArtifactRef.model_validate(selected_ncm_ref.model_dump(mode="python")),
+        artifact_store=store,
+        tmp_path=tmp_path,
+        runtime_hints={
+            "joint_simulation_horizon": {"start": 0, "end": 0, "step": 1},
+            "joint_simulation_seed": 7,
+            "joint_simulation_replications": 3,
+            # The outcome baseline is the only observed value. The two
+            # model roots remain native draws shared across each seed's runs.
+            "joint_simulation_baseline_state": {"firm_survival": 1.0},
+        },
+    )
+    port = JointSimulationPort(
+        controller=JointSimulationHorizonController(),
+        repo_root=tmp_path,
+        cycle_substrate_context=context,
+        artifact_store=store,
+    )
+    with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+        simulation = port(candidate=candidate, problem=problem, cycle_index=0)
+    assert simulation.status == "joint_simulated"
+    assert simulation.simulation_result_ref is not None
+    assert simulation.simulation_ref is not None
+    atom_ids = tuple(atom.intervention_id for atom in candidate.intervention_atoms)
+    assert atom_ids == ("income_subsidy", "balance_grant")
+    atom_values = tuple(
+        float(atom.causal_do_expr.assignments[0].value) for atom in candidate.intervention_atoms
+    )
+    assert atom_values == (1.0, 1.0)
+
+    reader = FileSystemCAS.open_existing_read_only(store_path)
+    with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+        reopened = load_joint_simulation_result(
+            simulation.simulation_result_ref,
+            store=reader,
+            expected_world_model_record_content_hash=context.world_model_record.content_hash,
+            expected_atom_ids=atom_ids,
+            expected_selected_outcomes=("firm_survival",),
+            expected_receipt_payload_hash=simulation.simulation_ref,
+        )
+    assert reopened.schema_version == "policyos.runtime.joint_simulation_horizon.v5"
+    assert any(
+        item.engine_kind == "ncm_parallel_worlds" and item.decision == "selected"
+        for item in reopened.engine_decisions
+    )
+    assert reopened.feedback_classification.interaction_sampling_status == "estimated"
+    assert reopened.feedback_classification.numeric_interaction == "unsupported"
+    assert "interaction_sampling_variation_observed" in (
+        reopened.feedback_classification.limitations
+    )
+    assert reopened.diagnostics["effect_basis_status"] == "not_established"
+
+    first_atom, second_atom = atom_ids
+    first_point = reopened.trajectory_for("individual", (first_atom,)).points[0]
+    second_point = reopened.trajectory_for("individual", (second_atom,)).points[0]
+    joint_point = reopened.trajectory_for("joint", atom_ids).points[0]
+    assert first_point.replication_sampling is not None
+    assert second_point.replication_sampling is not None
+    assert joint_point.replication_sampling is not None
+    first_samples = {sample.seed: sample for sample in first_point.replication_sampling.samples}
+    second_samples = {sample.seed: sample for sample in second_point.replication_sampling.samples}
+    joint_samples = {sample.seed: sample for sample in joint_point.replication_sampling.samples}
+    seeds = (7, 8, 9)
+    assert first_point.replication_sampling.seeds == seeds
+    assert second_point.replication_sampling.seeds == seeds
+    assert joint_point.replication_sampling.seeds == seeds
+
+    pair = next(term for term in reopened.interaction_terms if term.atom_ids == atom_ids)
+    pair_sampling = pair.replication_sampling_by_step[0]
+    assert pair_sampling.seeds == seeds
+    assert pair_sampling.replicate_count == 3
+    expected_interactions: list[float] = []
+    for seed in seeds:
+        first_sample = first_samples[seed]
+        second_sample = second_samples[seed]
+        joint_sample = joint_samples[seed]
+        assert first_sample.engine_state["intervention"] == {"income_delta": 1.0}
+        assert second_sample.engine_state["intervention"] == {"balance_delta": 1.0}
+        assert joint_sample.engine_state["intervention"] == {
+            "income_delta": 1.0,
+            "balance_delta": 1.0,
+        }
+        first_outcome = first_sample.outcomes["firm_survival"]
+        second_outcome = second_sample.outcomes["firm_survival"]
+        joint_outcome = joint_sample.outcomes["firm_survival"]
+        # In the declared equation, an unassigned root contributes its
+        # seed-specific draw. Recover both draws independently from the
+        # persisted individual outcomes, then evaluate the polynomial's
+        # finite-difference interaction for that same seed.
+        balance_draw = (first_outcome - 3.0) / 7.0
+        income_draw = (second_outcome - 4.0) / 6.0
+        assert joint_outcome == pytest.approx(10.0, abs=1e-12)
+        expected = 4.0 - 7.0 * balance_draw - 6.0 * income_draw
+        finite_difference = joint_outcome - first_outcome - second_outcome + 1.0
+        assert expected == pytest.approx(finite_difference, abs=1e-12)
+        expected_interactions.append(expected)
+
+    assert len(set(expected_interactions)) == 3
+    expected_mean = math.fsum(expected_interactions) / len(expected_interactions)
+    expected_se = math.sqrt(
+        math.fsum((value - expected_mean) ** 2 for value in expected_interactions)
+        / (len(expected_interactions) * (len(expected_interactions) - 1))
+    )
+    arithmetic_bound = (
+        128 * sys.float_info.epsilon * max(1.0, *(abs(value) for value in expected_interactions))
+    )
+    assert expected_se > arithmetic_bound
+    assert [sample.effects["derived_effect"] for sample in pair_sampling.samples] == pytest.approx(
+        expected_interactions,
+        rel=0,
+        abs=arithmetic_bound,
+    )
+    assert pair.by_step[0] == pytest.approx(expected_mean, rel=0, abs=arithmetic_bound)
+    assert pair_sampling.effects_standard_error["derived_effect"] == pytest.approx(
+        expected_se,
+        rel=0,
+        abs=arithmetic_bound,
+    )
+
+    with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+        value = _DefaultSimulationBoundFoundryValuePort(
+            repo_root=tmp_path,
+            cycle_substrate_context=context,
+            artifact_store=reader,
+        )(
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+            cycle_index=0,
+        )
+    assert value.status == "value_conditional"
+    assert value.decision_grade == "low"
+    assert value.numeric_interaction == "unsupported"
+    assert value.interaction_sampling_status == "estimated"
+    assert "interaction_numeric_classification_unsupported" in value.authority_blockers
+    assert value.value_receipt is None
+    assert value.method_selection_receipt is None
+
+    api_observation = RunCandidateSimulationN5Observation(
+        node_ref="node://cyc-02/native-positive-se-v5",
+        design_problem_ref=context.design_problem_ref,
+        candidate_id=simulation.candidate_id,
+        atom_ids=reopened.atom_ids,
+        selected_outcomes=reopened.selected_outcomes,
+        status=simulation.status,
+        simulation_ref=reopened.receipt.payload_hash,
+        simulation_result_ref=simulation.simulation_result_ref,
+        world_model_record_content_hash=reopened.world_model_record_content_hash,
+        authority_blockers=simulation.authority_blockers,
+        n5_interaction_evidence=_n5_interaction_evidence_projection(reopened),
+        **_n5_interaction_scope_fields(reopened),
+        **_n8_interaction_qualification_fields(value),
+    )
+    assert api_observation.n8_status == "value_conditional"
+    assert api_observation.n8_numeric_interaction == "unsupported"
+    assert api_observation.n8_interaction_sampling_status == "estimated"
+    assert "interaction_numeric_classification_unsupported" in (
+        api_observation.n8_authority_blockers
+    )
+    assert api_observation.n5_interaction_evidence is not None
+    assert api_observation.n5_interaction_evidence.numeric_interaction == "unsupported"
+    projected_pair = next(
+        term
+        for term in api_observation.n5_interaction_evidence.interaction_terms
+        if term.atom_ids == atom_ids
+    )
+    projected_sampling = projected_pair.replication_sampling_by_step[0]
+    assert projected_sampling.seeds == seeds
+    assert [sample.value for sample in projected_sampling.samples] == pytest.approx(
+        expected_interactions,
+        rel=0,
+        abs=arithmetic_bound,
+    )
+    assert projected_sampling.standard_error == pytest.approx(
+        expected_se,
+        rel=0,
+        abs=arithmetic_bound,
+    )
+
+    with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+        original_manifest = store.get_manifest(simulation.simulation_result_ref)
+        forged_payload = copy.deepcopy(reopened.content_bound_payload())
+        forged_payload["feedback_classification"]["numeric_interaction"] = "additive"
+        forged_receipt = build_content_bound_simulation_receipt(
+            engine_kind=reopened.receipt.engine_kind,
+            payload=forged_payload,
+            diagnostics=forged_payload["diagnostics"],
+        )
+        verify_simulation_receipt(forged_receipt, forged_payload)
+        assert original_manifest.artifact_schema is not None
+        forged_ref = store.put_json(
+            {**forged_payload, "receipt": forged_receipt.model_dump(mode="json")},
+            PutOptions(
+                kind=original_manifest.kind,
+                media_type=original_manifest.media_type,
+                schema=original_manifest.artifact_schema,
+                inputs=original_manifest.inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
+            return_selected_profile=True,
+        )
+    assert forged_ref.manifest_profile_sha256 is not None
+
+    forged_reader = FileSystemCAS.open_existing_read_only(store_path)
+    with (
+        tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"),
+        pytest.raises(
+            GenerationCycleError,
+            match="joint_simulation_result_integrity_invalid",
+        ) as failure,
+    ):
+        load_joint_simulation_result(
+            forged_ref,
+            store=forged_reader,
+            expected_world_model_record_content_hash=(context.world_model_record.content_hash),
+            expected_atom_ids=atom_ids,
+            expected_selected_outcomes=("firm_survival",),
+        )
+    assert failure.value.__cause__ is not None
+    assert "numeric_interaction_classification_recomputation_mismatch" in str(
+        failure.value.__cause__
+    )
+
+
 def _historical_v4_numeric_interaction(payload: dict[str, Any]) -> str:
     """Reconstruct v4's paired-sample classifier without v5 tolerance gating."""
 

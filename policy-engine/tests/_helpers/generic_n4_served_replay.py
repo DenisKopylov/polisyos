@@ -558,7 +558,7 @@ def _two_child_recording(recording: dict[str, Any], *, outcome_variable: str) ->
 
 
 def _three_child_recording(recording: dict[str, Any], *, outcome_variable: str) -> dict[str, Any]:
-    """Derive a three-child controlled recording from its selected recorded source."""
+    """Derive source-aligned three-action stages from the immutable recorded source."""
     from polisyos.pdc import gy_content_hash
 
     source_recording_id = str(recording["recording_id"])
@@ -580,6 +580,85 @@ def _three_child_recording(recording: dict[str, Any], *, outcome_variable: str) 
         "tax_relief_rate",
         "procurement_shock_intensity",
     }
+    draft_response = responses[0]
+    if not isinstance(draft_response, dict) or draft_response.get("status") != "success":
+        raise AssertionError("controlled_recording_draft_response_not_successful")
+    draft_raw = draft_response.get("raw_response")
+    if not isinstance(draft_raw, str):
+        raise AssertionError("controlled_recording_draft_response_bytes_missing")
+    draft_payload = json.loads(draft_raw)
+    draft_interventions = draft_payload.get("interventions")
+    if not isinstance(draft_interventions, list):
+        raise AssertionError("controlled_recording_draft_interventions_missing")
+    draft_procurement = [
+        row
+        for row in draft_interventions
+        if isinstance(row, dict) and row.get("mechanism_type") == "procurement_shock_intensity"
+    ]
+    draft_guarantee = [
+        row
+        for row in draft_interventions
+        if isinstance(row, dict) and row.get("mechanism_type") == "credit_guarantee"
+    ]
+    if len(draft_procurement) != 1 or len(draft_guarantee) != 1:
+        raise AssertionError("controlled_recording_draft_source_candidates_not_unique")
+    draft_procurement[0]["parameters"] = {
+        "intensity": 1,
+        "target_world_slot": "cells.distress_score",
+        "sign": "decrease",
+        "outcome_slots": ["cells.output"],
+        "effect_path": [
+            "procurement_shock_intensity",
+            "cells.distress_score",
+            "cells.output",
+        ],
+        "estimand": "average_treatment_effect",
+    }
+    draft_guarantee[0].update(
+        {
+            "name": "Tracked Budget Allocation Multiplier",
+            "description": (
+                "A candidate-only direct budget action on government.balance; its downstream "
+                "effect remains unverified."
+            ),
+            "mechanism_type": "budget_allocation_multiplier",
+            "parameters": {
+                "multiplier": 0.5,
+                "target_world_slot": "government.balance",
+                "sign": "increase",
+                "outcome_slots": ["government.balance"],
+                "effect_path": [
+                    "budget_allocation_multiplier",
+                    "government.balance",
+                    "government.balance",
+                ],
+                "estimand": "average_treatment_effect",
+            },
+            "rationale": (
+                "This is a tracked candidate action for simulation only; no causal effect or "
+                "policy authority is established."
+            ),
+        }
+    )
+    if {row.get("mechanism_type") for row in draft_interventions if isinstance(row, dict)} != (
+        expected_kinds
+    ):
+        raise AssertionError("controlled_recording_draft_three_child_interventions_changed")
+    draft_payload["narrative"] = (
+        "A candidate-only source package combines the recorded tax and procurement actions "
+        "with the tracked budget allocation multiplier. The actions are simulation inputs; "
+        "their effects, coupling, and legal authority are not established."
+    )
+    draft_payload["rationale"] = (
+        "The controlled source package preserves three separately tracked direct actions for "
+        "candidate simulation. Their target, sign, outcome, path, and estimand fields remain "
+        "candidate assertions; no downstream effect is treated as established."
+    )
+    draft_payload["alternatives_considered"] = []
+    rewritten_draft = json.dumps(draft_payload, sort_keys=True, separators=(",", ":"))
+    draft_response["raw_response"] = rewritten_draft
+    draft_response["raw_response_hash"] = gy_content_hash(rewritten_draft)
+
     for response_index in (4, 8):
         response = responses[response_index]
         if not isinstance(response, dict):
@@ -610,6 +689,19 @@ def _three_child_recording(recording: dict[str, Any], *, outcome_variable: str) 
             "sign": "decrease",
             "target_world_slot": "cells.distress_score",
         }
+        parameters = payload["policy_spec"].get("parameters")
+        if not isinstance(parameters, list):
+            raise AssertionError("controlled_recording_parameters_not_list")
+        procurement_parameters = [
+            row
+            for row in parameters
+            if isinstance(row, dict)
+            and row.get("intervention_id") == procurement[0].get("intervention_id")
+            and row.get("param_path") == "intensity"
+        ]
+        if len(procurement_parameters) != 1:
+            raise AssertionError("controlled_recording_procurement_parameter_missing")
+        procurement_parameters[0]["default_value"] = "1"
         third = [row for row in interventions if row.get("kind") == "credit_guarantee"]
         if len(third) != 1:
             raise AssertionError("controlled_recording_third_candidate_missing")
@@ -644,9 +736,6 @@ def _three_child_recording(recording: dict[str, Any], *, outcome_variable: str) 
             "Synthetic three-intervention candidate combining tax relief, procurement "
             "stabilization, and the tracked budget allocation multiplier owner action."
         )
-        parameters = payload["policy_spec"].get("parameters")
-        if not isinstance(parameters, list):
-            raise AssertionError("controlled_recording_parameters_not_list")
         if not any(
             isinstance(parameter, dict)
             and parameter.get("intervention_id") == source_intervention_id
@@ -694,6 +783,115 @@ def _three_child_recording(recording: dict[str, Any], *, outcome_variable: str) 
         response["raw_response_hash"] = gy_content_hash(rewritten)
         if {row.get("kind") for row in interventions} != expected_kinds:
             raise AssertionError("controlled_recording_three_child_interventions_changed")
+
+    critic_response = responses[9]
+    if not isinstance(critic_response, dict) or critic_response.get("status") != "success":
+        raise AssertionError("controlled_recording_critic_response_not_successful")
+    critic_raw = critic_response.get("raw_response")
+    if not isinstance(critic_raw, str):
+        raise AssertionError("controlled_recording_critic_response_bytes_missing")
+    critic_payload = json.loads(critic_raw)
+    critic_issues = critic_payload.get("issues")
+    if not isinstance(critic_issues, list):
+        raise AssertionError("controlled_recording_critic_issues_missing")
+    source_issues_by_id: dict[str, dict[str, Any]] = {}
+    for issue in critic_issues:
+        if not isinstance(issue, dict) or not isinstance(issue.get("issue_id"), str):
+            continue
+        issue_id = issue["issue_id"]
+        if issue_id in source_issues_by_id:
+            raise AssertionError("controlled_recording_critic_issue_id_not_unique:" + issue_id)
+        source_issues_by_id[issue_id] = issue
+    expected_replaced_issue_sources = {
+        "COMPLIANCE-001": (
+            "COMPLIANCE",
+            "policy_spec.interventions[2].kind",
+            (
+                "msme_working_capital_guarantee",
+                "kind='credit_guarantee'",
+                "not listed in the ProblemFrame's allowed_operator_kinds",
+            ),
+        ),
+        "ALIGNMENT-001": (
+            "ALIGNMENT",
+            "policy_spec.interventions[2].params",
+            (
+                "none of the interventions explicitly include a fiscal cap",
+                "A credit guarantee without an exposure cap directly creates unbounded contingent liability",
+            ),
+        ),
+        "FEASIBILITY-001": (
+            "FEASIBILITY",
+            "policy_spec.interventions[2].target",
+            (
+                "The credit guarantee intervention targets all agents via predicate id == all",
+                "increase fiscal exposure",
+            ),
+        ),
+        "COMPLETENESS-001": (
+            "COMPLETENESS",
+            "policy_spec.interventions",
+            ("budget_allocation_multiplier", "not utilized"),
+        ),
+    }
+    for issue_id, (category, location, message_markers) in expected_replaced_issue_sources.items():
+        issue = source_issues_by_id.get(issue_id)
+        message = issue.get("message") if issue is not None else None
+        if (
+            issue is None
+            or issue.get("category") != category
+            or issue.get("location") != location
+            or not isinstance(message, str)
+            or any(marker not in message for marker in message_markers)
+        ):
+            raise AssertionError("controlled_recording_replaced_critic_source_mismatch:" + issue_id)
+
+    formalizer_payload = json.loads(responses[8]["raw_response"])
+    formalizer_actions = formalizer_payload["policy_spec"]["interventions"]
+    budget_actions = [
+        row
+        for row in formalizer_actions
+        if isinstance(row, dict) and row.get("kind") == "budget_allocation_multiplier"
+    ]
+    budget_params = budget_actions[0].get("params") if len(budget_actions) == 1 else None
+    budget_notes = budget_actions[0].get("notes") if len(budget_actions) == 1 else None
+    if (
+        not isinstance(budget_params, dict)
+        or budget_params.get("target_world_slot") != "government.balance"
+        or budget_params.get("multiplier") != "0.5"
+        or not isinstance(budget_notes, list)
+        or not any("candidate-only" in str(note).casefold() for note in budget_notes)
+    ):
+        raise AssertionError("controlled_recording_budget_candidate_body_not_established")
+
+    alignment_issue = dict(source_issues_by_id["ALIGNMENT-001"])
+    alignment_message = str(alignment_issue["message"])
+    guarantee_liability_clause = " A credit guarantee without an exposure cap directly creates unbounded contingent liability."
+    if (
+        guarantee_liability_clause not in alignment_message
+        or "none of the interventions explicitly include a fiscal cap" not in alignment_message
+    ):
+        raise AssertionError("controlled_recording_alignment_source_clause_not_established")
+    alignment_issue["message"] = alignment_message.replace(guarantee_liability_clause, "")
+    if "credit guarantee" in str(alignment_issue["message"]).casefold():
+        raise AssertionError("controlled_recording_alignment_retained_removed_action_claim")
+    alignment_issue["location"] = "policy_spec.interventions"
+    alignment_issue["suggestion"] = (
+        "Consider an explicit fiscal cap, budget ceiling, or cost-limiting parameter for the "
+        "candidate package; this candidate-only budget action does not establish a binding cap."
+    )
+    adapted_issue_ids = {"ALIGNMENT-001"}
+    removed_issue_ids = {"COMPLIANCE-001", "FEASIBILITY-001", "COMPLETENESS-001"}
+    critic_payload["issues"] = [
+        alignment_issue
+        if isinstance(issue, dict) and issue.get("issue_id") in adapted_issue_ids
+        else issue
+        for issue in critic_issues
+        if not isinstance(issue, dict) or issue.get("issue_id") not in removed_issue_ids
+    ]
+    rewritten_critic = json.dumps(critic_payload, sort_keys=True, separators=(",", ":"))
+    critic_response["raw_response"] = rewritten_critic
+    critic_response["raw_response_hash"] = gy_content_hash(rewritten_critic)
 
     fixture_id = (
         "synthetic_three_n4_children_"
@@ -894,9 +1092,9 @@ def _child_conditioned_synthetic_provider_profile(
 ):
     """Build a source-atom-bound synthetic N4 profile for one admitted child.
 
-    The immutable recorded capture remains the parent. This fixture derives new
-    stage responses from its exact candidate atom and original intervention and
-    parameter specification; the derived responses are candidate-only inputs.
+    The immutable recorded capture remains the lineage root. This fixture derives
+    new stage responses from the exact child atom and its declared intervention
+    and parameter specification; the derived responses are candidate-only inputs.
     """
     from polisyos.runtime.quality.cycle_substrate import (
         cycle_job_design_problem_ref,
@@ -1837,6 +2035,7 @@ async def prepare_generic_n4_served_replay(
     materialize_source_parameters: bool = False,
     synthetic_settled_provider: bool = False,
     condition_synthetic_provider_on_child_sources: bool = False,
+    raw_request_override: str | None = None,
 ) -> PreparedGenericN4ServedReplay:
     """Derive a source-bound N4 child family and all typed profiles for a served app.
 
@@ -1894,13 +2093,23 @@ async def prepare_generic_n4_served_replay(
         )
     ):
         raise TypeError("controlled_generic_ncm_profile_selector_invalid")
+    child_conditioned_scope = (
+        recording_mode == "original_second_capture" and child_count == 2
+    ) or (
+        recording_mode == "controlled_overlay"
+        and child_count == 3
+        and raw_request_override is not None
+    )
     if condition_synthetic_provider_on_child_sources and (
-        recording_mode != "original_second_capture"
-        or child_count != 2
+        not child_conditioned_scope
         or not materialize_source_parameters
         or not synthetic_settled_provider
     ):
         raise ValueError("child_conditioned_synthetic_provider_scope_invalid")
+    if raw_request_override is not None and (
+        type(raw_request_override) is not str or not raw_request_override.strip()
+    ):
+        raise ValueError("controlled_n4_raw_request_override_invalid")
     if materialize_source_parameters and source_root is None:
         # Choose and produce the admitted tiny input root before seeding any
         # selected source. The opt-in must not silently read the production
@@ -2058,6 +2267,53 @@ async def prepare_generic_n4_served_replay(
     ):
         raise AssertionError("original_second_capture_recording_was_mutated")
     recorded_problem = recorded_problem_override or _current_compiler_problem(recording)
+    if raw_request_override is not None:
+        request_scope = (
+            recording_mode == "controlled_overlay"
+            and child_count == 3
+            and materialize_source_parameters
+            and synthetic_settled_provider
+            and condition_synthetic_provider_on_child_sources
+        )
+        normalized_request = raw_request_override.casefold()
+        required_request_markers = (
+            "tax_relief_rate",
+            "procurement_shock_intensity",
+            "budget_allocation_multiplier",
+            "together",
+            "joint candidate",
+            "simulation",
+            "candidate-only",
+            "does not establish policy authority",
+        )
+        candidate_only_constraints = tuple(
+            constraint
+            for constraint in recorded_problem.constraints
+            if constraint.constraint_id == "no_authority_without_a"
+        )
+        if (
+            not request_scope
+            or any(marker not in normalized_request for marker in required_request_markers)
+            or len(candidate_only_constraints) != 1
+            or not isinstance(candidate_only_constraints[0].source_text, str)
+            or candidate_only_constraints[0].source_text not in raw_request_override
+        ):
+            raise ValueError("controlled_n4_raw_request_override_scope_mismatch")
+        problem_payload = recorded_problem.model_dump(mode="python")
+        provenance_payload = recorded_problem.nl_provenance.model_dump(mode="python")
+        provenance_payload.update(
+            {
+                "raw_request": raw_request_override,
+                "source_surface": "runtime.control.nl_request",
+            }
+        )
+        problem_payload.update(
+            {
+                "problem_statement": raw_request_override,
+                "nl_provenance": provenance_payload,
+            }
+        )
+        recorded_problem = type(recorded_problem).model_validate(problem_payload)
     if runtime_hints_overlay:
         recorded_problem = recorded_problem.model_copy(
             update={
@@ -2484,10 +2740,21 @@ async def prepare_generic_n4_served_replay(
             or declared_recording is None
         ):
             raise AssertionError("child_conditioned_synthetic_provider_profile_missing")
+        child_source_recording = (
+            declared_recording
+            if recording_mode == "controlled_overlay" and child_count == 3
+            else source_recording
+        )
+        if child_source_recording is declared_recording and (
+            child_source_recording.get("derived_from_recording_id") != source_recording_id
+            or child_source_recording.get("derived_from_content_hash")
+            != source_recording_content_hash
+        ):
+            raise AssertionError("child_conditioned_overlay_lineage_not_established")
         child_profiles_by_selection_ref = {}
         for child, child_key in zip(children, child_keys, strict=True):
             child_profile = _child_conditioned_synthetic_provider_profile(
-                source_recording=source_recording,
+                source_recording=child_source_recording,
                 base_controlled_recording=declared_recording,
                 organ_run=organ_run,
                 parent_problem=recorded_problem,

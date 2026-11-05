@@ -60,6 +60,8 @@ from tests.unit.runtime.quality.test_candidate_acquisition_world import (
 )
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from polisyos.core.artifacts import ArtifactRef
     from tests.unit.runtime.quality.test_candidate_acquisition_world import _CandidateWorldCase
 
@@ -299,6 +301,16 @@ def test_candidate_source_basis_replays_actual_float32_world_without_writes(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Historical exact refs need no worker lease and agree with the real producer."""
+    from polisyos.fabric.connectors.cache.store import ConnectorCacheStore
+
+    setup_caches: list[ConnectorCacheStore] = []
+
+    def capture_cache(*args: Any, **kwargs: Any) -> ConnectorCacheStore:
+        cache = ConnectorCacheStore(*args, **kwargs)
+        setup_caches.append(cache)
+        return cache
+
+    monkeypatch.setattr("polisyos.fabric.ingestion.ingestion.ConnectorCacheStore", capture_cache)
     with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
         case = _case_with_explicit_empty_prior(tmp_path, monkeypatch)
         inputs = _inputs(case)
@@ -313,6 +325,12 @@ def test_candidate_source_basis_replays_actual_float32_world_without_writes(
             transaction_time=TRANSACTION_TIME,
             authority=case.source_case.authority,
         )
+        # Finish the actual acquisition cache's WAL lifetime before measuring
+        # replay: final connection cleanup may checkpoint/delete sidecar files.
+        assert setup_caches
+        for cache in setup_caches:
+            cache.close()
+            assert cache.closed
         before = _files(tmp_path)
         fresh = FileSystemCAS(case.store.root)
         prospective = prepare_candidate_source_basis_values(

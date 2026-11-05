@@ -2106,11 +2106,21 @@ def admit_acquisition_with_production_semantic_epoch(
     )
     from polisyos.runtime.quality.substrate_registry import (
         DEFAULT_L3_LEX_KG_PATH,
+        current_catalog_serving_source,
         default_substrate_catalog_paths,
         load_l5_catalog_authority,
     )
 
     root = repo_root.resolve()
+    # Data ownership follows the serving source; epoch registries stay code-root owned.
+    effective_source_owner_root = source_owner_root
+    active_catalog_source = current_catalog_serving_source()
+    if (
+        effective_source_owner_root is None
+        and active_catalog_source is not None
+        and active_catalog_source.repo_root == root
+    ):
+        effective_source_owner_root = active_catalog_source.source_owner_root
     boundary_path = (
         root / "architecture/policy_design_case/layer3_gy_epoch_boundary_source_registry.json"
     )
@@ -2126,10 +2136,14 @@ def admit_acquisition_with_production_semantic_epoch(
                 "resolver_unavailable",
                 "semantic facet source-binding denominator differs",
             )
+        l5_paths = default_substrate_catalog_paths(
+            root,
+            source_owner_root=effective_source_owner_root,
+        )
         l5_owner = load_l5_catalog_authority(
-            default_substrate_catalog_paths(root, source_owner_root=source_owner_root),
+            l5_paths,
             repo_root=root,
-            source_owner_root=source_owner_root,
+            source_owner_root=effective_source_owner_root,
         )
         from polisyos.lex.knowledge import LegalKnowledgeStore
 

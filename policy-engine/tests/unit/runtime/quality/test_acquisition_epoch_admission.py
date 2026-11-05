@@ -140,6 +140,176 @@ def test_cli_consumes_actual_persisted_policy_refusal(admission_request, capsys)
     _assert_owner_negative(output.out, store)
 
 
+def test_production_admission_uses_active_split_catalog_owner(
+    admission_request,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The real L5 loader uses the active data owner and rejects a foreign code root."""
+    import hashlib
+
+    from polisyos.runtime.quality import acquisition_epoch_admission as cli
+    from polisyos.runtime.quality.acquisition_executor import (
+        SemanticEpochAdmissionResolutionError,
+    )
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+        complete_candidate_cycle_catalog_source,
+    )
+
+    request_path, store = admission_request
+    request_payload = json.loads(request_path.read_text(encoding="utf-8"))
+    code_root = Path(request_payload["repo_root"]).resolve(strict=True)
+
+    source_inputs = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "split-catalog", outcome_variable="global.gdp"
+    )
+    data_root = source_inputs.root.resolve(strict=True)
+    with complete_candidate_cycle_catalog_source(
+        data_root,
+        monkeypatch,
+        synthetic_usa_labor_scope=True,
+    ) as (
+        selection,
+        _source,
+        _registry,
+    ):
+        pass
+
+    selected_source = substrate_registry.resolve_catalog_serving_source(
+        code_root,
+        selection=selection,
+        requested_profile=selection.catalog_run_profile,
+    )
+    assert selected_source.repo_root == code_root
+    assert selected_source.source_owner_root == data_root
+    assert selected_source.source_owner_root != selected_source.repo_root
+
+    split_request = cli.AcquisitionEpochAdmissionRequest.model_validate_json(
+        json.dumps(
+            {
+                **request_payload,
+                "overlay_path": str(tmp_path / "split-owner-overlay.duckdb"),
+                "epoch_history_root": str(tmp_path / "split-owner-epoch-history"),
+            }
+        )
+    )
+    assert split_request.source_owner_root is None
+    downstream_refusal: SemanticEpochAdmissionResolutionError | None = None
+    loaded_l5: list[
+        tuple[
+            substrate_registry.SubstrateCatalogPaths,
+            substrate_registry.L5CatalogAuthority,
+            Path,
+            Path | None,
+            dict[str, str],
+        ]
+    ] = []
+    load_l5_catalog_authority = substrate_registry.load_l5_catalog_authority
+
+    def record_real_l5_load(paths, *, repo_root, source_owner_root=None):
+        owner = load_l5_catalog_authority(
+            paths,
+            repo_root=repo_root,
+            source_owner_root=source_owner_root,
+        )
+        observed_hashes = {
+            "root_manifest": hashlib.sha256(paths.root_manifest_path.read_bytes()).hexdigest(),
+            "measurement_registry": hashlib.sha256(
+                paths.measurement_registry_path.read_bytes()
+            ).hexdigest(),
+            "epoch_regime_registry": hashlib.sha256(
+                paths.epoch_schema_regime_registry_path.read_bytes()
+            ).hexdigest(),
+            "epoch_scope_registry": hashlib.sha256(
+                paths.epoch_schema_regime_scope_registry_path.read_bytes()
+            ).hexdigest(),
+        }
+        loaded_l5.append(
+            (
+                paths,
+                owner,
+                Path(repo_root).resolve(strict=True),
+                Path(source_owner_root).resolve(strict=True)
+                if source_owner_root is not None
+                else None,
+                observed_hashes,
+            )
+        )
+        return owner
+
+    monkeypatch.setattr(substrate_registry, "load_l5_catalog_authority", record_real_l5_load)
+    with substrate_registry.catalog_serving_source_scope(selected_source):
+        try:
+            receipt = cli.run_admission(split_request)
+        except SemanticEpochAdmissionResolutionError as exc:
+            downstream_refusal = exc
+        else:
+            _assert_owner_negative(receipt.model_dump_json(), store)
+    if downstream_refusal is not None:
+        assert downstream_refusal.code == "scope_unresolved"
+    assert len(loaded_l5) == 1
+    loaded_paths, loaded_authority, l5_code_root, l5_data_root, source_hashes = loaded_l5[0]
+    assert l5_code_root == code_root
+    assert l5_data_root == data_root
+    assert loaded_paths.root_manifest_path.resolve(strict=True).is_relative_to(data_root)
+    assert loaded_paths.measurement_registry_path.resolve(strict=True).is_relative_to(data_root)
+    assert loaded_paths.epoch_schema_regime_registry_path.resolve(strict=True).is_relative_to(
+        code_root
+    )
+    assert loaded_paths.epoch_schema_regime_scope_registry_path.resolve(strict=True).is_relative_to(
+        code_root
+    )
+    assert isinstance(loaded_authority, substrate_registry.L5CatalogAuthority)
+    assert source_hashes == {
+        "root_manifest": hashlib.sha256(
+            (data_root / substrate_registry.DEFAULT_ROOT_MANIFEST_PATH).read_bytes()
+        ).hexdigest(),
+        "measurement_registry": hashlib.sha256(
+            (
+                data_root / substrate_registry.DEFAULT_L5_REGISTRY_DIR / "measurement_registry.json"
+            ).read_bytes()
+        ).hexdigest(),
+        "epoch_regime_registry": hashlib.sha256(
+            (code_root / substrate_registry.DEFAULT_EPOCH_L5_REGIME_REGISTRY_PATH).read_bytes()
+        ).hexdigest(),
+        "epoch_scope_registry": hashlib.sha256(
+            (code_root / substrate_registry.DEFAULT_EPOCH_L5_SCOPE_REGISTRY_PATH).read_bytes()
+        ).hexdigest(),
+    }
+    assert loaded_authority.epoch_schema_regime_registry_content_hash == (
+        "sha256:" + source_hashes["epoch_regime_registry"]
+    )
+    assert loaded_authority.epoch_schema_regime_scope_registry_content_hash == (
+        "sha256:" + source_hashes["epoch_scope_registry"]
+    )
+
+    foreign_source = substrate_registry.resolve_catalog_serving_source(
+        data_root,
+        selection=selection,
+        requested_profile=selection.catalog_run_profile,
+    )
+    foreign_request = cli.AcquisitionEpochAdmissionRequest.model_validate_json(
+        json.dumps(
+            {
+                **request_payload,
+                "overlay_path": str(tmp_path / "foreign-owner-overlay.duckdb"),
+                "epoch_history_root": str(tmp_path / "foreign-owner-epoch-history"),
+            }
+        )
+    )
+    assert foreign_request.source_owner_root is None
+    with (
+        substrate_registry.catalog_serving_source_scope(foreign_source),
+        pytest.raises(SemanticEpochAdmissionResolutionError) as refused,
+    ):
+        cli.run_admission(foreign_request)
+    assert refused.value.code == "resolver_unavailable"
+    assert isinstance(refused.value.__cause__, substrate_registry.SubstrateRegistryError)
+    assert refused.value.__cause__.code == "catalog_source_repo_root_mismatch"
+    assert len(loaded_l5) == 1
+
+
 def test_cli_refuses_missing_explicit_data_owner(admission_request, capsys) -> None:
     """The CLI must forward the selected source owner instead of guessing one."""
     from polisyos.runtime.quality import acquisition_epoch_admission as cli

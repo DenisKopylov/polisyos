@@ -5020,6 +5020,9 @@ export interface components {
       configured_port_source_ref: components["schemas"]["ArtifactRef-Input"];
       planner_report_ref: components["schemas"]["ArtifactRef-Input"];
       policy_ref: components["schemas"]["ArtifactRef-Input"];
+      predecessor_terminal_ref?:
+        | components["schemas"]["ArtifactRef-Input"]
+        | null;
       /** Request Content Hash */
       request_content_hash: string;
       /** Source Job Id */
@@ -5039,6 +5042,9 @@ export interface components {
       configured_port_source_ref: components["schemas"]["ArtifactRef-Output"];
       planner_report_ref: components["schemas"]["ArtifactRef-Output"];
       policy_ref: components["schemas"]["ArtifactRef-Output"];
+      predecessor_terminal_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
       /** Request Content Hash */
       request_content_hash: string;
       /** Source Job Id */

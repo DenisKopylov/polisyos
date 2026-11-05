@@ -825,8 +825,23 @@ def test_human_decision_fence_reuses_store_transaction_for_durable_event(
         acquired_at=started_at + timedelta(seconds=1),
         expected_record_valid_until=valid_until,
     ) as fence:
-        event_log.append(event)
-        assert len(event_log.list_events(event_id=event.event_id)) == 1
+        event_log.append(
+            event,
+            payload={
+                "binding_sha256": binding_sha256,
+                "governed_action_key": governed_action_key,
+                "reservation_id": reserved.reservation.reservation_id,
+            },
+        )
+        persisted_events = event_log.list_events(event_id=event.event_id)
+        assert len(persisted_events) == 1
+        persisted_event = persisted_events[0]
+        assert persisted_event.payload_ref is not None
+        assert persisted_event.event.payload_ref == persisted_event.payload_ref
+        payload_bytes = artifact_store.get_bytes(persisted_event.payload_ref)
+        assert "sha256:" + hashlib.sha256(payload_bytes).hexdigest() == (
+            persisted_event.payload_ref
+        )
         committed = fence.commit(
             record_ref="sha256:" + "f" * 64,
             record_sha256="sha256:" + "f" * 64,
@@ -2916,17 +2931,41 @@ def test_failed_terminal_record_refuses_foreign_or_replaced_attempt(
     tmp_path: Path,
     guarded: bool,
     mutation: str,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.runtime.http.services import control_plane_store as store_module
+
+    clock = [datetime.now(UTC).replace(microsecond=0)]
+    monkeypatch.setattr(store_module, "_utc_now", lambda: clock[0])
     raw = _make_store(tmp_path)
     admin = _make_store(tmp_path)
     store = guard_runtime_control_store(raw) if guarded else raw
     job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
     with _fence_leased_execution(store, job=job):
-        store.fail_job(
-            job_id=job.job_id,
-            error_message="controlled worker failure",
-            progress={"phase": "failed"},
-        )
+        if mutation == "restarted":
+            first = admin.get_job(job.job_id)
+            assert first is not None
+            assert first.state == "running"
+            assert first.lease_owner == "worker-execution-admission"
+            assert first.lease_expires_at is not None
+            clock[0] = first.lease_expires_at + timedelta(seconds=1)
+            replacement = admin.lease_next_job(worker_id="replacement-worker", lease_seconds=30)
+            assert replacement is not None
+            assert replacement.attempt == first.attempt + 1
+            assert replacement.lease_owner == "replacement-worker"
+
+            with pytest.raises(ControlJobLeaseLostError):
+                store.fail_job(
+                    job_id=job.job_id,
+                    error_message="controlled stale worker failure",
+                    progress={"phase": "failed"},
+                )
+        else:
+            store.fail_job(
+                job_id=job.job_id,
+                error_message="controlled worker failure",
+                progress={"phase": "failed"},
+            )
         if mutation == "foreign_owner":
             admin.append_event(
                 job_id=job.job_id,
@@ -2952,9 +2991,7 @@ def test_failed_terminal_record_refuses_foreign_or_replaced_attempt(
                 "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?",
                 (job.job_id,),
             )
-        elif mutation == "restarted":
-            admin.mark_running(job_id=job.job_id, worker_id="replacement-worker")
-        else:
+        elif mutation == "missing_event":
             admin._execute(
                 "DELETE FROM control_job_events WHERE job_id = ? AND event_type = ?",
                 (job.job_id, "job_failed"),
@@ -2962,6 +2999,12 @@ def test_failed_terminal_record_refuses_foreign_or_replaced_attempt(
 
         with pytest.raises(ControlJobLeaseLostError):
             store.current_execution_failed_job_record()
+        if mutation == "restarted":
+            current = raw.get_job(job.job_id)
+            assert current is not None
+            assert current.state == "running"
+            assert current.lease_owner == replacement.lease_owner
+            assert current.attempt == replacement.attempt
     admin.close()
     raw.close()
 
@@ -3058,69 +3101,101 @@ def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
     tmp_path: Path,
     guarded: bool,
     mutation: str,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.runtime.http.services import control_plane_store as store_module
+
+    clock = [datetime.now(UTC).replace(microsecond=0)]
+    monkeypatch.setattr(store_module, "_utc_now", lambda: clock[0])
     raw = _make_store(tmp_path)
     admin = _make_store(tmp_path)  # Independent unbound sibling/admin writer on the same DB.
     store = guard_runtime_control_store(raw) if guarded else raw
     job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
     with _fence_leased_execution(store, job=job):
-        store.complete_job(
-            job_id=job.job_id,
-            progress={"phase": "completed", "search_exit_contract": {"verified": True}},
-        )
-        completed = store.current_execution_completed_job_record()
-        if mutation == "completion_owner":
-            admin.append_event(
-                job_id=job.job_id,
-                event_type="job_completed",
-                payload={
-                    "state": "completed",
-                    "lease_owner": "foreign-worker",
-                    "attempt": completed.attempt,
-                },
-            )
-        elif mutation == "attempt":
-            admin._execute(
-                "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
-            )
-        elif mutation == "restarted":
-            admin.mark_running(job_id=job.job_id, worker_id="replacement-worker")
-        elif mutation == "lease_owner":
-            admin._execute(
-                "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
-                ("foreign-worker", job.job_id),
-            )
-        elif mutation == "lease_expiry":
-            admin._execute(
-                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
-                ((datetime.now(UTC) + timedelta(minutes=1)).isoformat(), job.job_id),
-            )
-        elif mutation == "proof_basis":
-            admin.upsert_progress(
-                job_id=job.job_id,
-                progress={**completed.progress, "search_exit_contract_ref": "replaced-source"},
-            )
-        elif mutation == "proof_basis_primitive_type":
-            admin.upsert_progress(
-                job_id=job.job_id,
-                progress={**completed.progress, "search_exit_contract": {"verified": 1}},
-            )
-        elif mutation == "proof_basis_key_presence":
-            admin.upsert_progress(
-                job_id=job.job_id,
-                progress={**completed.progress, "authority_path": None},
-            )
+        replacement = None
+        if mutation == "restarted":
+            first = admin.get_job(job.job_id)
+            assert first is not None
+            assert first.state == "running"
+            assert first.lease_owner == "worker-execution-admission"
+            assert first.lease_expires_at is not None
+            clock[0] = first.lease_expires_at + timedelta(seconds=1)
+            replacement = admin.lease_next_job(worker_id="replacement-worker", lease_seconds=30)
+            assert replacement is not None
+            assert replacement.attempt == first.attempt + 1
+            assert replacement.lease_owner == "replacement-worker"
+            before = raw.get_job(job.job_id)
+            assert before is not None
+            before_outbox = raw.list_outbox_events(state=None, limit=100)
+
+            with pytest.raises(ControlJobLeaseLostError):
+                store.complete_job(
+                    job_id=job.job_id,
+                    progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+                )
+            after_stale_completion = raw.get_job(job.job_id)
+            assert after_stale_completion == before
+            assert raw.list_outbox_events(state=None, limit=100) == before_outbox
+            expected_progress = before.progress
         else:
-            admin.append_event(
-                job_id=job.job_id, event_type="job_progress", payload={"state": "pending"}
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
             )
-        before = raw.get_job(job.job_id)
-        assert before is not None
-        before_outbox = raw.list_outbox_events(state=None, limit=100)
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+                admin.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+                )
+            elif mutation == "attempt":
+                admin._execute(
+                    "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?",
+                    (job.job_id,),
+                )
+            elif mutation == "lease_owner":
+                admin._execute(
+                    "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                    ("foreign-worker", job.job_id),
+                )
+            elif mutation == "lease_expiry":
+                admin._execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) + timedelta(minutes=1)).isoformat(), job.job_id),
+                )
+            elif mutation == "proof_basis":
+                admin.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "search_exit_contract_ref": "replaced-source"},
+                )
+            elif mutation == "proof_basis_primitive_type":
+                admin.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "search_exit_contract": {"verified": 1}},
+                )
+            elif mutation == "proof_basis_key_presence":
+                admin.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "authority_path": None},
+                )
+            else:
+                admin.append_event(
+                    job_id=job.job_id, event_type="job_progress", payload={"state": "pending"}
+                )
+            before = raw.get_job(job.job_id)
+            assert before is not None
+            before_outbox = raw.list_outbox_events(state=None, limit=100)
+            expected_progress = completed.progress
+
         with pytest.raises(ControlJobLeaseLostError):
             store.publish_completed_job_proof(
                 job_id=job.job_id,
-                expected_progress=completed.progress,
+                expected_progress=expected_progress,
                 proof_payload={
                     "job_id": job.job_id,
                     "run_id": job.run_id,
@@ -3132,6 +3207,11 @@ def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
         after = raw.get_job(job.job_id)
         assert after is not None and after.progress == before.progress
         assert raw.list_outbox_events(state=None, limit=100) == before_outbox
+        if mutation == "restarted":
+            assert after.state == "running"
+            assert replacement is not None
+            assert after.lease_owner == replacement.lease_owner
+            assert after.attempt == replacement.attempt
 
 
 def test_append_event_preserves_utc_microseconds_without_rewriting_legacy_rows(

@@ -1377,6 +1377,8 @@ class _PreparedAcquisitionActionHeadPublication:
     recovery_state: str
     predecessor_receipt_ref: str | None
     expected_head_generation: int = 0
+    expected_previous_terminal_ref: str | None = None
+    expected_previous_terminal_manifest_profile_sha256: str | None = None
 
 
 @dataclass(frozen=True)
@@ -4234,7 +4236,7 @@ class ControlPlaneStore:
                 or publication.run_id != run_id
                 or publication.payload_ref != payload_ref
                 or type(publication.action_generation) is not int
-                or publication.action_generation != 1
+                or publication.action_generation < 1
                 or type(publication.expected_head_generation) is not int
                 or publication.expected_head_generation != 0
                 or publication.receipt_phase != "requested"
@@ -4275,6 +4277,29 @@ class ControlPlaneStore:
                 != publication.request_json
             ):
                 raise ValueError("prepared_acquisition_action_request_invalid")
+            previous_ref = publication.expected_previous_terminal_ref
+            previous_profile = publication.expected_previous_terminal_manifest_profile_sha256
+            pins = request_value.get("replay_pins")
+            selected_previous = (
+                pins.get("predecessor_terminal_ref") if isinstance(pins, dict) else None
+            )
+            if publication.action_generation == 1:
+                if (
+                    previous_ref is not None
+                    or previous_profile is not None
+                    or selected_previous is not None
+                ):
+                    raise ValueError("prepared_acquisition_action_predecessor_invalid")
+            elif (
+                not _is_sha256_ref(previous_ref)
+                or not _is_sha256_ref(previous_profile)
+                or not isinstance(selected_previous, dict)
+                or selected_previous.get("artifact_id") != previous_ref
+                or selected_previous.get("manifest_profile_sha256") != previous_profile
+                or selected_previous.get("kind") != "runtime_quality.acquisition_route_loop_receipt"
+                or selected_previous.get("media_type") != "application/json"
+            ):
+                raise ValueError("prepared_acquisition_action_predecessor_invalid")
         if (pre_admission_attempt_id is None) != (pre_admission_outcome is None):
             raise ValueError("control_job_pre_admission_link_incomplete")
         if pre_admission_attempt_id is not None and (
@@ -4359,6 +4384,36 @@ class ControlPlaneStore:
         created_event_payload = dict(creation_event_payload or {})
         created_event_payload["state"] = initial_state
         with self._job_transaction():
+            if prepared_acquisition_action_head is not None:
+                publication = prepared_acquisition_action_head
+                # This comparison and requested-head insertion share the job
+                # transaction. Per-generation head CAS alone cannot prevent a
+                # stale request from skipping or borrowing another terminal.
+                if self.backend == "postgres":
+                    # The completed source job is the existing shared row even
+                    # before generation one has any head, and across route ids.
+                    self._lock_job_state(publication.source_job_id)
+                heads = self.list_acquisition_action_heads_for_source(
+                    tenant_id=publication.tenant_id,
+                    cell_id=publication.cell_id,
+                    run_id=publication.run_id,
+                    source_job_id=publication.source_job_id,
+                )
+                if any(head.route_id != publication.route_id for head in heads) or tuple(
+                    head.action_generation for head in heads
+                ) != tuple(range(1, publication.action_generation)):
+                    raise ValueError("acquisition_action_generation_predecessor_conflict")
+                previous = heads[-1] if heads else None
+                if (previous is None) != (publication.action_generation == 1) or (
+                    previous is not None
+                    and (
+                        previous.receipt_phase != "terminal"
+                        or previous.receipt_ref != publication.expected_previous_terminal_ref
+                        or previous.receipt_manifest_profile_sha256
+                        != publication.expected_previous_terminal_manifest_profile_sha256
+                    )
+                ):
+                    raise ValueError("acquisition_action_generation_predecessor_conflict")
             self._execute(sql, params)
             self.upsert_progress(job_id=job_id, progress=progress)
             self.append_event(
@@ -4392,9 +4447,7 @@ class ControlPlaneStore:
                     recovery_state=publication.recovery_state,
                     job_id=publication.job_id,
                     predecessor_receipt_ref=publication.predecessor_receipt_ref,
-                    receipt_manifest_profile_sha256=(
-                        publication.receipt_manifest_profile_sha256
-                    ),
+                    receipt_manifest_profile_sha256=(publication.receipt_manifest_profile_sha256),
                 )
                 if (
                     head.head_generation != 1

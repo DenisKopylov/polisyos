@@ -286,7 +286,7 @@ test("candidate acquisition experiment decision request POST forwards exact prep
   assert.equal(deniedCalls, 1);
 });
 
-test("candidate acquisition experiment execute POST keeps decision request nested", async () => {
+test("candidate acquisition experiment execute POST preserves nested request and selected predecessor", async () => {
   // Transport fixture only; nested refs do not assert a PA2 grant or execution result.
   const runId = "run/with space";
   const routeId = `sha256:${"7".repeat(64)}`;
@@ -328,6 +328,11 @@ test("candidate acquisition experiment execute POST keeps decision request neste
         "5",
       ),
       candidate_digest: `sha256:${"f".repeat(64)}`,
+      predecessor_terminal_ref: selectedRef(
+        `sha256:${"2".repeat(64)}`,
+        "runtime_quality.acquisition_route_loop_receipt",
+        "3",
+      ),
     },
     idempotency_key: "execute-request-fixture-1",
     human_decision_record_ref: `sha256:${"0".repeat(64)}`,

@@ -1646,6 +1646,98 @@ class AcquisitionRouteLoop:
             raise AcquisitionRouteClosureError("candidate_experiment_source_changed")
         return result
 
+    def resolve_candidate_experiment_predecessor_origin(
+        self,
+        *,
+        run_id: str,
+        predecessor_terminal_ref: ArtifactRef | None,
+        expected_action_generation: int | None = None,
+    ) -> VerifiedCandidateExperimentOrigin:
+        """Reopen exactly the historical prefix selected by one request.
+
+        This is historical evidence, not permission to act against the current
+        head. Live consumers must independently fence that head and its lease.
+        """
+        from dataclasses import replace
+
+        from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+        from polisyos.runtime.quality.acquisition_evaluation_history import (
+            verify_candidate_experiment_terminal_history,
+        )
+
+        origin = self._resolve_candidate_experiment_source(run_id=run_id)
+        if predecessor_terminal_ref is None:
+            if expected_action_generation not in {None, 1}:
+                raise AcquisitionRouteClosureError("candidate_experiment_predecessor_not_selected")
+            return origin
+        ref = predecessor_terminal_ref
+        if (
+            type(ref) is not ArtifactRef
+            or not _candidate_ref_same(ref, ref)
+            or ref.kind != "runtime_quality.acquisition_route_loop_receipt"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+            raise AcquisitionRouteClosureError("candidate_experiment_predecessor_profile_invalid")
+        service = getattr(self._core_source_resolver, "__self__", None)
+        if type(service) is not ControlPlaneService:
+            raise AcquisitionRouteClosureError("candidate_experiment_history_owner_not_composed")
+        scope = {
+            "tenant_id": origin.tenant_id,
+            "cell_id": origin.cell_id,
+            "run_id": origin.run_id,
+            "source_job_id": origin.source_job_id,
+        }
+        heads = self._control_store.list_acquisition_action_heads_for_source(**scope)
+        selected = tuple(
+            head
+            for head in heads
+            if head.route_id == origin.route_id
+            and head.receipt_ref == str(ref.artifact_id)
+            and head.receipt_manifest_profile_sha256 == ref.manifest_profile_sha256
+            and head.receipt_phase == "terminal"
+        )
+        if len(selected) != 1:
+            raise AcquisitionRouteClosureError("candidate_experiment_predecessor_not_selected")
+        head = selected[0]
+        if (
+            expected_action_generation is not None
+            and head.action_generation + 1 != expected_action_generation
+        ):
+            raise AcquisitionRouteClosureError(
+                "candidate_experiment_predecessor_generation_invalid"
+            )
+        history = verify_candidate_experiment_terminal_history(
+            control_service=service, head=head, terminal_ref=ref
+        )
+        prefix = (*history.origin.candidate_terminal_history_chain, history)
+        if (
+            len(prefix) != head.action_generation
+            or history.head != head
+            or not _candidate_model_values_same(
+                replace(
+                    history.origin,
+                    current_action_head=None,
+                    current_terminal_history=None,
+                    candidate_terminal_history_chain=(),
+                ),
+                origin,
+            )
+            or self._control_store.get_acquisition_action_head(
+                **scope, route_id=origin.route_id, action_generation=head.action_generation
+            )
+            != head
+            or not _candidate_model_values_same(
+                origin, self._resolve_candidate_experiment_source(run_id=run_id)
+            )
+        ):
+            raise AcquisitionRouteClosureError("candidate_experiment_predecessor_changed")
+        return replace(
+            origin,
+            candidate_terminal_history_chain=prefix,
+            current_terminal_history=history,
+        )
+
     def resolve_current_candidate_experiment(
         self,
         *,

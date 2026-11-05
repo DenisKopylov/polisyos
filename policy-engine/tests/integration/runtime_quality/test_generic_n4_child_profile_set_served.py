@@ -4088,11 +4088,17 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
     from polisyos.runtime.http.services.control import (
         run_lifecycle,
     )
+    from polisyos.runtime.quality.cycle_substrate import (
+        cycle_job_design_problem_ref,
+        generic_n4_child_profile_selection_ref,
+    )
+    from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
     from polisyos.runtime.quality.generation_cycle import (
         GenerationCycleError,
         load_joint_simulation_result,
         resolve_generic_n5_historical_cycle_join,
     )
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleN5RequestProfileV2,
         GenericCycleN5RequestProfileV3,
@@ -4286,6 +4292,75 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
         assert compiled.generic_cycle_simulation_handoff is not None
         assert compiled.n4_child_profile_set_ref is not None
         assert compiled.n4_recursive_source_ref is not None
+        parent_handoff = compiled.generic_cycle_simulation_handoff
+        served_source_run_id = compiled.n4_recursive_source_run_id
+        assert served_source_run_id is not None
+        assert served_source_run_id == parent_handoff.run_id
+        assert compiled.n4_recursive_source_job_id == accepted["job_id"]
+        assert compiled.n4_recursive_source_tenant_id == tenant_id
+        assert compiled.n4_recursive_source_cell_id == cell_id
+        assert compiled.n4_recursive_source_context_job_ref == parent_handoff.context_job_ref
+        assert parent_handoff.n4_child_profile_family_ref is not None
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            served_n4_source = GenerationSourceRepository(reader_context.store).load(
+                compiled.n4_recursive_source_ref,
+                run_id=served_source_run_id,
+                expected_run_id=parent_handoff.run_id,
+                expected_job_id=accepted["job_id"],
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+                context_job_ref=compiled.n4_recursive_source_context_job_ref,
+                profile_ref=parent_handoff.profile_ref,
+                n4_child_profile_family_ref=parent_handoff.n4_child_profile_family_ref,
+            )
+        assert served_n4_source.run_id == served_source_run_id
+        assert served_n4_source.problem == compiled.design_problem
+        served_children = derive_n4_candidate_child_problems(
+            served_n4_source.problem,
+            served_n4_source.generation_result,
+            model_id=served_n4_source.generation_result.model_id,
+        )
+        assert len(served_children) == child_count
+        served_parent_problem_ref = cycle_job_design_problem_ref(served_n4_source.problem)
+        served_source_result_ref = gy_content_hash(
+            served_n4_source.generation_result.model_dump(mode="json")
+        )
+        served_children_by_selection_ref: dict[str, Any] = {}
+        served_source_atom_refs = {
+            str(candidate.atom.content_hash)
+            for candidate in served_n4_source.generation_result.candidates
+        }
+        for child in served_children:
+            child_atom_refs = tuple(sorted(str(ref) for ref in child.source_atom_refs))
+            assert child.source_result_ref == served_source_result_ref
+            assert set(child_atom_refs) <= served_source_atom_refs
+            assert len(child_atom_refs) == 1
+            selection_ref = generic_n4_child_profile_selection_ref(
+                child.problem,
+                parent_problem_ref=served_parent_problem_ref,
+                source_result_ref=child.source_result_ref,
+                source_atom_refs=child_atom_refs,
+                semantic_ref=child.semantic_ref,
+            )
+            assert selection_ref not in served_children_by_selection_ref
+            served_children_by_selection_ref[selection_ref] = child
+        assert {
+            str(ref) for child in served_children for ref in child.source_atom_refs
+        } == served_source_atom_refs
+        assert len(served_source_atom_refs) == child_count
+        assert len({child.semantic_ref for child in served_children}) == child_count
+        assert set(served_children_by_selection_ref) == {
+            profile.profile_selection_ref
+            for profile in (
+                configured_profiles
+                if configured_profiles is not None
+                else prepared.generic_child_profiles
+            )
+            if profile.profile_selection_kind == "n4_candidate_child"
+        }
+        assert {_original_second_capture_child_group(child) for child in served_children} == {
+            _original_second_capture_child_group(child) for child in prepared.children
+        }
         if configured_profiles is not None:
             assert compiled.generic_cycle_simulation_handoff.profile == configured_profiles[0]
             selected_child_profiles = tuple(
@@ -4294,13 +4369,15 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
                 if profile.profile_selection_kind == "n4_candidate_child"
             )
         else:
+            assert compiled.generic_cycle_simulation_handoff.profile == prepared.root_profile
             selected_child_profiles = prepared.generic_child_profiles
         profiles_by_id = {profile.profile_id: profile for profile in selected_child_profiles}
-        child_by_profile_id = {
-            profile.profile_id: child
-            for child, profile in zip(prepared.children, selected_child_profiles, strict=True)
+        profiles_by_selection_ref = {
+            profile.profile_selection_ref: profile for profile in selected_child_profiles
         }
         assert len(profiles_by_id) == child_count
+        assert len(profiles_by_selection_ref) == child_count
+        assert set(profiles_by_selection_ref) == set(served_children_by_selection_ref)
         observed_profiles: set[str] = set()
         observed_source_atom_refs: set[str] = set()
         observed_child_semantics: set[str] = set()
@@ -4436,12 +4513,19 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
                 assert replay_historical_join().status == "resolved"
             profile = profiles_by_id[input_record.profile.profile_id]
             assert profile == input_record.profile
-            expected_child = child_by_profile_id[profile.profile_id]
             child_selection = input_record.child_selection
             assert child_selection is not None
             assert child_selection.node_ref == selected_node.node_ref
+            assert child_selection.profile_selection_ref == profile.profile_selection_ref
+            assert child_selection.n4_source_ref == compiled.n4_recursive_source_ref
+            assert child_selection.parent_problem_ref == served_parent_problem_ref
+            expected_child = served_children_by_selection_ref[child_selection.profile_selection_ref]
             assert child_selection.problem == expected_child.problem
+            assert child_selection.full_child_problem_ref == cycle_job_design_problem_ref(
+                expected_child.problem
+            )
             assert child_selection.source_result_ref == expected_child.source_result_ref
+            assert child_selection.source_result_ref == served_source_result_ref
             assert child_selection.semantic_ref == expected_child.semantic_ref
             child_atom_refs = tuple(sorted(str(ref) for ref in expected_child.source_atom_refs))
             assert child_selection.source_atom_refs == child_atom_refs
@@ -4608,9 +4692,9 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
             )
         assert observed_profiles == set(profiles_by_id)
         if recording_mode == "original_second_capture":
-            assert observed_child_semantics == {child.semantic_ref for child in prepared.children}
+            assert observed_child_semantics == {child.semantic_ref for child in served_children}
             assert observed_source_atom_refs == {
-                str(ref) for child in prepared.children for ref in child.source_atom_refs
+                str(ref) for child in served_children for ref in child.source_atom_refs
             }
             assert len(observed_child_semantics) == 2
     if recording_mode == "served_tax_global_scalar":

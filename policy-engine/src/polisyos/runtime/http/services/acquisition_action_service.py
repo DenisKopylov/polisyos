@@ -3,11 +3,18 @@
 from __future__ import annotations
 
 import hashlib
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+    model_validator,
+)
 
 from polisyos.common.canonical_profile import require_declared_profile
 from polisyos.core import artifacts
@@ -116,10 +123,25 @@ class CandidateExperimentRouteReplayPins(BaseModel):
     configured_port_source_ref: artifacts.ArtifactRef
     policy_ref: artifacts.ArtifactRef
     candidate_digest: str = Field(pattern=_SHA256_PATTERN)
+    predecessor_terminal_ref: artifacts.ArtifactRef | None = None
+
+    @model_serializer(mode="wrap")
+    def _preserve_predecessor_presence(  # type: ignore[no-untyped-def]  # noqa: ANN202
+        self, handler: SerializerFunctionWrapHandler
+    ):
+        """Keep legacy absence and explicit null distinct in request-bound selectors.
+
+        The private hook intentionally leaves its return unannotated so
+        Pydantic retains this model's typed serialization schema.
+        """
+        payload = handler(self)
+        if "predecessor_terminal_ref" not in self.model_fields_set:
+            payload.pop("predecessor_terminal_ref", None)
+        return payload
 
     @model_validator(mode="after")
     def _selected_views_required(self) -> CandidateExperimentRouteReplayPins:
-        for ref, kind in (
+        selected = (
             (self.compiled_ref, "runtime.compiled_recursive_generation_cycle"),
             (self.planner_report_ref, "runtime.acquisition_planner_report"),
             (self.compiler_report_ref, "runtime.data_requirement_compilation_report"),
@@ -128,7 +150,12 @@ class CandidateExperimentRouteReplayPins(BaseModel):
                 "runtime.quality.n7_configured_candidate_port_source",
             ),
             (self.policy_ref, "runtime_quality.candidate_unpriced_acquisition_policy"),
-        ):
+        )
+        if self.predecessor_terminal_ref is not None:
+            selected += (
+                (self.predecessor_terminal_ref, "runtime_quality.acquisition_route_loop_receipt"),
+            )
+        for ref, kind in selected:
             if (
                 set(type(ref).model_fields) != set(artifacts.ArtifactRef.model_fields)
                 or ref.kind != kind
@@ -1223,6 +1250,15 @@ class AcquisitionActionService:
                 configured_port_source_ref=scope.configured_port_source_ref,
                 policy_ref=origin.policy_ref,
                 candidate_digest=scope.candidate_digest,
+                **(
+                    {
+                        "predecessor_terminal_ref": (
+                            origin.candidate_terminal_history_chain[-1].terminal_ref
+                        )
+                    }
+                    if origin.candidate_terminal_history_chain
+                    else {}
+                ),
             ),
             scheduler_action=origin.source_cycle.voi_decision.scheduler_action,
             scheduler_reason=origin.source_cycle.voi_decision.scheduler_reason,
@@ -1417,9 +1453,82 @@ class AcquisitionActionService:
             run_id=run_id,
         )
         try:
-            return loop.resolve_candidate_experiment_origin(run_id=run_id)
+            return loop.resolve_current_candidate_experiment(run_id=run_id)
         except AcquisitionRouteClosureError as exc:
             raise AcquisitionActionServiceError(exc.code) from exc
+
+    def _candidate_experiment_origin_for_request(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        request: CandidateExperimentRouteMutationRequest,
+        require_current: bool,
+    ) -> VerifiedCandidateExperimentOrigin:
+        """Bind immutable request pins to their verified prefix and optional live head."""
+        from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
+
+        loop = self._candidate_experiment_loop(tenant_id=tenant_id, cell_id=cell_id, run_id=run_id)
+        try:
+            root = loop._resolve_candidate_experiment_source(run_id=run_id)
+            job_id = self._candidate_experiment_job_id(root, request)
+            selected_heads = (
+                self.control_service._control_store.list_acquisition_action_heads_for_source(
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    run_id=run_id,
+                    source_job_id=root.source_job_id,
+                )
+            )
+            own_heads = tuple(head for head in selected_heads if head.job_id == job_id)
+            if len(own_heads) > 1:
+                raise AcquisitionActionServiceError("candidate_experiment_job_identity_mismatch")
+            origin = loop.resolve_candidate_experiment_predecessor_origin(
+                run_id=run_id,
+                predecessor_terminal_ref=request.replay_pins.predecessor_terminal_ref,
+                expected_action_generation=(own_heads[0].action_generation if own_heads else None),
+            )
+        except AcquisitionRouteClosureError as exc:
+            raise AcquisitionActionServiceError(exc.code) from exc
+        if request.route_id != origin.route_id or not _candidate_model_values_same(
+            request.replay_pins, self._candidate_experiment_projection(origin).replay_pins
+        ):
+            raise AcquisitionActionServiceError("candidate_experiment_route_revalidation_required")
+        heads = self.control_service._control_store.list_acquisition_action_heads_for_source(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            source_job_id=origin.source_job_id,
+        )
+        if any(head.route_id != origin.route_id for head in heads) or tuple(
+            head.action_generation for head in heads
+        ) != tuple(range(1, len(heads) + 1)):
+            raise AcquisitionActionServiceError("candidate_experiment_action_history_conflict")
+        generation = len(origin.candidate_terminal_history_chain) + 1
+        job_id = self._candidate_experiment_job_id(origin, request)
+        same_job = tuple(head for head in heads if head.job_id == job_id)
+        if len(same_job) > 1 or (same_job and same_job[0].action_generation != generation):
+            raise AcquisitionActionServiceError("candidate_experiment_job_identity_mismatch")
+        if require_current:
+            latest = heads[-1] if heads else None
+            previous = (
+                origin.candidate_terminal_history_chain[-1].head
+                if origin.candidate_terminal_history_chain
+                else None
+            )
+            new_action = latest == previous
+            pending_retry = (
+                latest is not None
+                and latest.action_generation == generation
+                and latest.job_id == job_id
+                and latest.receipt_phase != "terminal"
+            )
+            if not (new_action or pending_retry):
+                raise AcquisitionActionServiceError("candidate_experiment_predecessor_not_current")
+            if pending_retry:
+                origin = replace(origin, current_action_head=latest)
+        return origin
 
     def _candidate_experiment_loop(
         self, *, tenant_id: str, cell_id: str, run_id: str
@@ -1474,15 +1583,13 @@ class AcquisitionActionService:
         """Reopen candidate source and persisted PA2/DS9 evidence for a checked worker."""
         if type(request) is not CandidateExperimentRouteMutationRequest:
             raise AcquisitionActionServiceError("candidate_experiment_request_untyped")
-        loop = self._candidate_experiment_loop(
+        origin = self._candidate_experiment_origin_for_request(
             tenant_id=tenant_id,
             cell_id=cell_id,
             run_id=run_id,
+            request=request,
+            require_current=True,
         )
-        try:
-            origin = loop._resolve_candidate_experiment_source(run_id=run_id)
-        except AcquisitionRouteClosureError as exc:
-            raise AcquisitionActionServiceError(exc.code) from exc
         if route_id != origin.route_id:
             raise AcquisitionActionServiceError("candidate_experiment_route_revalidation_required")
         expected_job_id = self._candidate_experiment_job_id(origin, request)
@@ -1520,11 +1627,13 @@ class AcquisitionActionService:
         """
         if type(request) is not CandidateExperimentRouteMutationRequest:
             raise AcquisitionActionServiceError("candidate_experiment_request_untyped")
-        loop = self._candidate_experiment_loop(tenant_id=tenant_id, cell_id=cell_id, run_id=run_id)
-        try:
-            origin = loop._resolve_candidate_experiment_source(run_id=run_id)
-        except AcquisitionRouteClosureError as exc:
-            raise AcquisitionActionServiceError(exc.code) from exc
+        origin = self._candidate_experiment_origin_for_request(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            request=request,
+            require_current=False,
+        )
         if origin.route_id != route_id:
             raise AcquisitionActionServiceError("candidate_experiment_route_revalidation_required")
         from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
@@ -1563,10 +1672,12 @@ class AcquisitionActionService:
         )
         if route_id != projection.route_id:
             raise AcquisitionActionServiceError("candidate_experiment_route_revalidation_required")
-        origin = self._resolve_candidate_experiment_origin(
+        origin = self._candidate_experiment_origin_for_request(
             tenant_id=tenant_id,
             cell_id=cell_id,
             run_id=run_id,
+            request=request,
+            require_current=True,
         )
         from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
 
@@ -1626,15 +1737,13 @@ class AcquisitionActionService:
         """Queue one candidate experiment without exposing an effect at the HTTP layer."""
         if type(request) is not CandidateExperimentRouteMutationRequest:
             raise AcquisitionActionServiceError("candidate_experiment_request_untyped")
-        loop = self._candidate_experiment_loop(
+        origin = self._candidate_experiment_origin_for_request(
             tenant_id=tenant_id,
             cell_id=cell_id,
             run_id=run_id,
+            request=request,
+            require_current=False,
         )
-        try:
-            origin = loop._resolve_candidate_experiment_source(run_id=run_id)
-        except AcquisitionRouteClosureError as exc:
-            raise AcquisitionActionServiceError(exc.code) from exc
         projection = self._candidate_experiment_projection(origin)
         from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
 
@@ -1656,32 +1765,20 @@ class AcquisitionActionService:
             )
         )
         existing_requested = None
-        if existing_heads:
+        same_job_heads = tuple(head for head in existing_heads if head.job_id == job_id)
+        if len(same_job_heads) > 1:
+            raise AcquisitionActionServiceError("candidate_experiment_action_history_conflict")
+        if same_job_heads:
             try:
-                current_origin = loop.resolve_current_candidate_experiment(
-                    run_id=run_id,
-                    action_job_id=job_id,
-                )
-                outcomes = phase_owner.experiment_action_outcomes(
-                    tenant_id=tenant_id,
-                    cell_id=cell_id,
-                    run_id=run_id,
-                    source_job_id=origin.source_job_id,
-                    route_id=origin.route_id,
-                )
+                outcome = phase_owner.verify_action_head(same_job_heads[0])
             except (OSError, RuntimeError, TypeError, ValueError) as exc:
                 raise AcquisitionActionServiceError(
                     "candidate_experiment_requested_phase_recovery_not_established"
                 ) from exc
             if (
-                current_origin.route_id != origin.route_id
-                or not outcomes
-                or outcomes[-1].head.job_id != job_id
-            ):
-                raise AcquisitionActionServiceError("candidate_experiment_action_history_conflict")
-            outcome = outcomes[-1]
-            if (
                 outcome.head.job_id != job_id
+                or outcome.head.action_generation
+                != len(origin.candidate_terminal_history_chain) + 1
                 or not outcome.phase_chain
                 or type(outcome.phase_chain[0].receipt)
                 is not AcquisitionCandidateExperimentPhaseReceipt
@@ -1785,8 +1882,13 @@ class AcquisitionActionService:
                     status="completed",
                     receipt_phase="terminal",
                 )
-        else:
-            current_origin = origin
+        current_origin = self._candidate_experiment_origin_for_request(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            request=request,
+            require_current=True,
+        )
         port = self._require_candidate_experiment_execution_port()
         bridge = getattr(port, "_world_growth_bridge", None)
         preflight = getattr(port, "preflight_candidate_experiment", None)
@@ -1860,10 +1962,26 @@ class AcquisitionActionService:
                 raise ValueError("candidate_experiment_current_pa2_changed")
             if existing_requested is not None:
                 phase = existing_requested.receipt
+                requested_head = (
+                    self.control_service._control_store.get_acquisition_action_head_by_receipt(
+                        tenant_id=tenant_id,
+                        cell_id=cell_id,
+                        run_id=run_id,
+                        source_job_id=origin.source_job_id,
+                        route_id=origin.route_id,
+                        action_generation=phase.action_generation,
+                        receipt_ref=existing_requested.receipt_ref,
+                    )
+                )
+                if requested_head is None or requested_head.receipt_manifest_profile_sha256 is None:
+                    raise ValueError("candidate_experiment_requested_profile_not_established")
                 prepared = phase_owner._prepared_experiment_phase_publication(
                     phase,
                     request,
                     receipt_ref=existing_requested.receipt_ref,
+                    receipt_manifest_profile_sha256=(
+                        requested_head.receipt_manifest_profile_sha256
+                    ),
                     durable_event_id=existing_requested.durable_event_id,
                 )
             else:
@@ -1874,7 +1992,7 @@ class AcquisitionActionService:
                     run_id=origin.run_id,
                     source_job_id=origin.source_job_id,
                     route_id=origin.route_id,
-                    action_generation=1,
+                    action_generation=len(origin.candidate_terminal_history_chain) + 1,
                     job_id=job_id,
                     source_payload_ref=origin.source_payload_ref,
                     capability_manifest_ref=origin.capability_manifest_ref,
@@ -1965,6 +2083,12 @@ class AcquisitionActionService:
             _EXECUTION_INTENT_BINDING_KEY,
         )
 
+        try:
+            payload = ControlPlaneService._job_payload_without_telemetry(payload)
+        except (TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_job_payload_telemetry_invalid"
+            ) from exc
         allowed_payload_keys = {
             "action_kind",
             "tenant_id",
@@ -2315,7 +2439,7 @@ class AcquisitionActionService:
             operation_id=operation.operation_id,
             operation_version=operation.operation_version,
             workspace_id=origin.run_id,
-            cycle_index=origin.source_cycle.cycle_index,
+            cycle_index=origin.effective_source_cycle.cycle_index,
             selected_by={"producer": "runtime.acquisition_route_loop"},
             selection_rationale_ref=origin.route_id,
             input_artifacts=[],

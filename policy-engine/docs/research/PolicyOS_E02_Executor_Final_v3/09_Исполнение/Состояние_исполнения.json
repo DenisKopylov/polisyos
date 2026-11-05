@@ -9135,7 +9135,7 @@
         "horizon": "lane01_horizon: joint_simulation_horizon.py/DTOs+SIMtests, sole common mechanism writer",
         "served": "lane01_served: HTTPcontrolgeneration/job/profile and servedtests, explicitcompanionleases",
         "readiness": "lane01_readiness: confidence_ledger existingreadiness/censusbridge+mirroredtests;actualfinalproducer afterLANE12",
-        "root": "Root owns canonical index/commits/refs/generated families and existing AUTHOR frozen runtime. Main next-generation API/history/SQL companions have one Sol writer; two Luna leaf workers own only explicit new unit files.",
+        "root": "Root alone owns canonical index/commits/refs/generated families. Current API/history writer released after coherent review; AUTHOR remains frozen at e9 until ordinary fast-forward. GDP and cubic fixtures hold disjoint test-only leases during their supervised runs.",
         "surface": "lane01_surface: core/contracts/runtime.py,HTTP runs projections,dashboard validators/Overview/locales+mirroredtests",
         "offpilot": "lane01_offpilot: scalar slots,catalog unit/provenance/passport/governed descriptors+actual compact WDI profiles",
         "candidate_adapter": "lane01_candidate_adapter: actual Fabric data_requirement adapter+mirroredtests",
@@ -10632,6 +10632,68 @@
           "observed": "Two initial FAIL/FAIL invocations stop on import/fixture-schema and oracle-shape mistakes before positive N5. Wrong-year production refusal was correct in r2; test now asserts its exact code.",
           "latest_state": "Prepared, numerical verification UNRUN. Reuses current v3 DesignProblem owner and actual import owners; physical WMR baselines, independent $250B synthetic effect/sample/SE oracle, declared float32 spacing and annual USD/time limitations are explicit.",
           "independent_review": "Luna numerical/state/precision reviews and Sol import/constructor audit; corrected latest fixture has not run."
+        },
+        "candidate_experiment_generations_composed_api": {
+          "scope": "Verified predecessor-prefix admission, effective source cycle, historical PA2 replay, exact old-action retry, atomic source-wide head comparison and selected-profile terminal. Canonical worker telemetry projected before strict business payload validation; raw omitted/null pin forms preserve request-bound serialization.",
+          "outputs": {
+            "raw_binding": "policy-engine/_cache/e02/lane01-gen2-null-pin-binding-green-r1/",
+            "raw_binding_red": "policy-engine/_cache/e02/lane01-gen2-null-pin-binding-red-r1/",
+            "service": "policy-engine/_cache/e02/lane01-gen2-service-affected-r2/",
+            "store": "policy-engine/_cache/e02/lane01-gen2-store-affected-final-r4/",
+            "store_baseline_red": "policy-engine/_cache/e02/lane01-store-baseline-reds-r1/",
+            "contract": "policy-engine/_cache/e02/lane01-gen2-api-contract-r2/",
+            "sdk": "policy-engine/_cache/e02/lane01-gen2-sdk-tests-r1/",
+            "types": "policy-engine/_cache/e02/lane01-gen2-types-r2/",
+            "generated_readback": "policy-engine/_cache/e02/lane01-gen2-openapi-generate-r2/generated-readback.json"
+          },
+          "observed": {
+            "raw_binding_PASS": 11,
+            "service_PASS": 21,
+            "store_publication_PASS": 150,
+            "sdk_PASS": 56,
+            "contract": "PASS after final nullable serializer; all6 inputs unchanged",
+            "SDK_dashboard_types": "PASS; normal post-serializer generation leaves exact SDK/dashboard bytes unchanged"
+          },
+          "resources": {
+            "store_seconds": 30.29556216695346,
+            "store_peak_rss_bytes": 3461496832,
+            "store_inputs": 9,
+            "store_inputs_unchanged": true
+          },
+          "independent_review": "Terra GO on coherent source, PostgreSQL lock/telemetry companions and final nullable serializer; Luna GO API/SDK/docs. Root directly reads complete result/JUnit. Source review is not runtime acceptance.",
+          "limitations": "SQLite tested; PostgreSQL concurrency unrun. Full protected numerical/multigeneration/crash routes still unqualified. Baseline five Store fixture failures reproduced at e9 then repaired without product weakening; cap-aborted cohorts are not PASS."
+        },
+        "cyc05_two_children_served_current": {
+          "output": "policy-engine/_cache/e02/lane01-cyc05-two-child-native-r3/",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 68.14705879,
+          "peak_rss_bytes": 1868972032,
+          "named_inputs": 16,
+          "inputs_unchanged": true,
+          "scope": "Ordinary POST/worker, actual persisted N4 source children, tax0.125 and procurement0.15, each seeds11/12/two native replications, persisted result and fresh API reader;4 standard units at total5/protected1, next standard rejected with unchanged witnesses and protected remaining1.",
+          "independent_review": "Luna material lineage review GO after exact root-profile join; Root directly reads supervisor/JUnit and persisted numerical values.",
+          "limitations": "One employment-singleton selector on declared candidate-only software profile. Earlier preflight-emission and source/control-ID oracle failures remain FAIL; no packet-wide readiness/DA06/G acceptance."
+        },
+        "candidate_experiment_native_execute_r4": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-candidate-execution-native-r4/",
+          "source_commit": "e9b69f34f9e275cec95bd89e653906ce2f5e6268",
+          "source_tree": "82b58c4b075091945e58e86f637364fdabb3a1ca",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 160.06453474995214,
+          "peak_rss_bytes": 1822031872,
+          "named_inputs": 51,
+          "inputs_unchanged": true,
+          "scope": "Real source N5 and signed controls; acquisition requested phase/worker claim reached. Worker refused canonical producer _telemetry envelope as unexpected payload; no new protected N5. Current composed canonical envelope projection fixes this boundary, positive runtime pending."
         }
       },
       "independent_component_reviews": {
@@ -10647,7 +10709,8 @@
         "scorecard_fixture_current": "Root GO on actual selected CAS fixtures/component expectations;29PASS. General authority closure producer still missing, not repaired by fixture success.",
         "capacity_frontier_current": "Luna physical_fixture GO on nativeR8 output and actual selected-child request/context WMR binding, test SHA1c622e... .274stableinputs/native1PASS. Original failures kept; Gseparate.",
         "candidate_control_alias": "luna_pa2_review final material GO; actual owner probe and19 boundary controls PASS. Strong post-OPA current unique-owner check; G separate.",
-        "candidate_execution_assembly": "Source GO for851e219 owner graph and current projection, bounded component/SQL/API/SDK results; full genuine protected execution remains verification_missing, no G closure."
+        "candidate_execution_assembly": "Source GO for851e219 owner graph and current projection, bounded component/SQL/API/SDK results; full genuine protected execution remains verification_missing, no G closure.",
+        "candidate_generations_api": "Terra coherent/material GO including PostgreSQL source lock, canonical telemetry and omitted/null raw pin preservation. Luna API/SDK/docs GO; full served multigeneration execution remains unqualified."
       }
     },
     {

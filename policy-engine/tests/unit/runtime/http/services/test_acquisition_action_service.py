@@ -296,7 +296,9 @@ def _candidate_experiment_action_fixture(
                 scheduler_reason="synthetic tuple fixture",
             ),
         ),
+        candidate_terminal_history_chain=(),
     )
+    origin.effective_source_cycle = origin.source_cycle
     request = CandidateExperimentRouteMutationRequest(
         route_id=origin.route_id,
         replay_pins=CandidateExperimentRouteReplayPins(
@@ -393,6 +395,64 @@ def test_candidate_experiment_worker_payload_is_not_coerced_to_costed_request() 
     with pytest.raises(AcquisitionActionServiceError) as rejected:
         service.handle_job(job, payload, scope)
     assert rejected.value.code == "candidate_experiment_job_payload_scope_mismatch"
+
+
+@pytest.mark.parametrize("foreign_action_field", [False, True])
+def test_candidate_worker_consumes_actual_control_telemetry_envelope(
+    foreign_action_field: bool,
+) -> None:
+    """The real payload producer's diagnostics do not become action parameters."""
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+
+    _, request = _candidate_experiment_action_fixture()
+    control = object.__new__(ControlPlaneService)
+    control._tracer = SimpleNamespace()
+    action_payload = {
+        "action_kind": CANDIDATE_EXPERIMENT_ACTION_KIND,
+        "tenant_id": "foreign-tenant",
+        "cell_id": "cell-action-test",
+        "run_id": "run-action-test",
+        "route_id": request.route_id,
+        "decision_ref": "sha256:" + "e" * 64,
+        "request": request.model_dump(mode="json"),
+    }
+    payload = control._enrich_job_payload(action_payload, request_id="actual-envelope-test")
+    assert payload["_telemetry"]["request_id"] == "actual-envelope-test"
+    assert set(payload["_telemetry"]["runtime_trace"]) == {"trace_id", "span_id", "parent_span_id"}
+    assert "_telemetry" not in action_payload
+    if foreign_action_field:
+        payload["unbound_extra"] = "must still refuse"
+    service = object.__new__(AcquisitionActionService)
+    job = SimpleNamespace(kind="acquisition", run_id="run-action-test", state="running")
+    scope = ControlJobExecutionScope(
+        status="established",
+        tenant_id="tenant-action-test",
+        cell_id="cell-action-test",
+        actor_subject="candidate-worker-test",
+        actor_authenticated=True,
+        actor_roles=("analyst",),
+    )
+    with pytest.raises(AcquisitionActionServiceError) as rejected:
+        service.handle_job(job, payload, scope)
+    expected = (
+        "candidate_experiment_job_payload_fields_invalid"
+        if foreign_action_field
+        else "candidate_experiment_job_payload_scope_mismatch"
+    )
+    assert rejected.value.code == expected
+    assert "_telemetry" in payload
+
+
+def test_candidate_worker_refuses_unknown_control_telemetry_fields() -> None:
+    """A reserved diagnostic key is not an escape from strict payload validation."""
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+
+    control = object.__new__(ControlPlaneService)
+    control._tracer = SimpleNamespace()
+    payload = control._enrich_job_payload({}, request_id="malformed-envelope-test")
+    payload["_telemetry"]["action_authority"] = "allowed"
+    with pytest.raises(ValueError, match="control_job_telemetry_invalid"):
+        ControlPlaneService._job_payload_without_telemetry(payload)
 
 
 def _candidate_selected_evaluation() -> AcquisitionSelectedEvaluation:

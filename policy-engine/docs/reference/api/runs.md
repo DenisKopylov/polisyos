@@ -78,6 +78,17 @@ information value and action authority remain `not_established`, and
 `publication_authority` remains false. The original scheduler rejection remains
 visible; choosing a bounded experiment does not establish positive VOI.
 
+For a later action, `replay_pins.predecessor_terminal_ref` carries the full selected
+reference of the preceding verified terminal. It is omitted before the first
+action, preserving existing first-action payloads and hashes. Echo the returned
+pins unchanged; stale, missing or foreign predecessor views require a fresh
+review. A new action cannot skip a generation or overtake a pending action.
+
+An exact pending or completed retry retains its original request, decision and
+receipt profile. A completed retry can return the original job after later
+actions exist; it does not acquire data or run N5 again. Historical decision
+replay alone is not a current execution permit.
+
 `current_action` projects the owner-verified current head, acquisition job state
 and full selected receipt reference. It defaults to `unknown` when no action is
 established. A terminal contributes `new`, `retained` or `blocked` evaluation

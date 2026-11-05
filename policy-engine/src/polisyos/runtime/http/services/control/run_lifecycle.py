@@ -3477,7 +3477,10 @@ class AcquisitionRouteLoopAuthoritySink:
         return chain
 
     def _verify_candidate_experiment_phase_owner(
-        self, phase: AcquisitionCandidateExperimentPhaseReceipt
+        self,
+        phase: AcquisitionCandidateExperimentPhaseReceipt,
+        *,
+        verified_origin: VerifiedCandidateExperimentOrigin | None = None,
     ) -> None:
         """Verify the current source and the original signed PA2 decision history."""
         from polisyos.runtime.quality.agent_action_authority import (
@@ -3489,15 +3492,31 @@ class AcquisitionRouteLoopAuthoritySink:
             phase
         )
         try:
-            history = action_service.load_candidate_experiment_decision_history(
-                tenant_id=phase.tenant_id,
-                cell_id=phase.cell_id,
-                run_id=phase.run_id,
-                route_id=phase.route_id,
-                request=request,
-                job_id=phase.job_id,
-                decision_ref=decision_ref,
-            )
+            if verified_origin is None:
+                history = action_service.load_candidate_experiment_decision_history(
+                    tenant_id=phase.tenant_id,
+                    cell_id=phase.cell_id,
+                    run_id=phase.run_id,
+                    route_id=phase.route_id,
+                    request=request,
+                    job_id=phase.job_id,
+                    decision_ref=decision_ref,
+                )
+            else:
+                # The terminal reader has already reopened this exact prefix.
+                # Reuse only its historical PA2 inputs, never a live permit.
+                if (
+                    phase.action_generation
+                    != len(verified_origin.candidate_terminal_history_chain) + 1
+                ):
+                    raise ValueError("candidate_experiment_phase_prefix_mismatch")
+                provider = action_service._authority_provider
+                history = provider.load_candidate_experiment_decision_history(
+                    origin=verified_origin,
+                    request=request,
+                    job_id=phase.job_id,
+                    decision_ref=decision_ref,
+                )
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
             raise ValueError("candidate_experiment_pa2_decision_not_verified") from exc
         if (
@@ -3605,10 +3624,18 @@ class AcquisitionRouteLoopAuthoritySink:
         ):
             raise ValueError("candidate_experiment_authority_owner_not_composed")
         decision_ref = str(phase.authority_decision_ref.artifact_id)
+        origin = action_service._candidate_experiment_origin_for_request(
+            tenant_id=phase.tenant_id,
+            cell_id=phase.cell_id,
+            run_id=phase.run_id,
+            request=request,
+            require_current=True,
+        )
         expected_job_id = action_service._candidate_experiment_job_id(origin, request)
         if (
             request.route_id != phase.route_id
             or phase.job_id != expected_job_id
+            or phase.action_generation != len(origin.candidate_terminal_history_chain) + 1
             or phase.authority_decision_ref.kind
             != "runtime_quality.agent_action_authority_decision"
         ):
@@ -3688,6 +3715,16 @@ class AcquisitionRouteLoopAuthoritySink:
             recovery_state=phase.recovery_state,
             predecessor_receipt_ref=phase.predecessor_receipt_ref,
             expected_head_generation=0,
+            expected_previous_terminal_ref=(
+                str(request.replay_pins.predecessor_terminal_ref.artifact_id)
+                if request.replay_pins.predecessor_terminal_ref is not None
+                else None
+            ),
+            expected_previous_terminal_manifest_profile_sha256=(
+                request.replay_pins.predecessor_terminal_ref.manifest_profile_sha256
+                if request.replay_pins.predecessor_terminal_ref is not None
+                else None
+            ),
         )
 
     def _candidate_experiment_phase_action_context(
@@ -3816,7 +3853,10 @@ class AcquisitionRouteLoopAuthoritySink:
         )._resolve_candidate_experiment_source(run_id=run_id)
 
     def _verified_candidate_experiment_phase_chain(
-        self, head: AcquisitionActionHeadRecord
+        self,
+        head: AcquisitionActionHeadRecord,
+        *,
+        verified_origin: VerifiedCandidateExperimentOrigin | None = None,
     ) -> tuple[VerifiedAcquisitionActionPhase, ...]:
         """Replay one exact in-flight experiment phase chain from its current head."""
         newest_first: list[VerifiedAcquisitionActionPhase] = []
@@ -3933,7 +3973,7 @@ class AcquisitionRouteLoopAuthoritySink:
             )
         ):
             raise ValueError("candidate_experiment_action_head_binding_mismatch")
-        self._verify_candidate_experiment_phase_owner(receipt)
+        self._verify_candidate_experiment_phase_owner(receipt, verified_origin=verified_origin)
         return chain
 
     def verify_action_head(
@@ -4458,7 +4498,7 @@ class AcquisitionRouteLoopAuthoritySink:
             type(request) is not CandidateExperimentRouteMutationRequest
             or typed.receipt_phase != "requested"
             or typed.predecessor_receipt_ref is not None
-            or typed.action_generation != 1
+            or typed.action_generation < 1
         ):
             raise ValueError("candidate_experiment_requested_phase_publication_invalid")
         self._verify_candidate_experiment_prejob_live_authority(typed, request)
@@ -8491,6 +8531,49 @@ class ControlPlaneService(
         if telemetry is not None:
             enriched_payload["_telemetry"] = telemetry
         return enriched_payload
+
+    @staticmethod
+    def _job_payload_without_telemetry(payload: dict[str, Any]) -> dict[str, Any]:
+        """Separate the canonical diagnostic envelope from a strict action payload.
+
+        Diagnostic fields cannot add action parameters or authority. Reject
+        malformed or unrecognized telemetry instead of accepting arbitrary
+        underscore-prefixed payload fields.
+        """
+        if "_telemetry" not in payload:
+            return dict(payload)
+        telemetry = payload["_telemetry"]
+        if not isinstance(telemetry, dict) or set(telemetry) - {
+            "request_id",
+            "runtime_trace",
+            "trace_context",
+        }:
+            raise ValueError("control_job_telemetry_invalid")
+        if "request_id" in telemetry and not isinstance(telemetry["request_id"], str):
+            raise ValueError("control_job_telemetry_invalid")
+        if "runtime_trace" in telemetry:
+            trace = telemetry["runtime_trace"]
+            if (
+                not isinstance(trace, dict)
+                or set(trace) != {"trace_id", "span_id", "parent_span_id"}
+                or not isinstance(trace["trace_id"], str)
+                or not trace["trace_id"]
+                or not isinstance(trace["span_id"], str)
+                or not trace["span_id"]
+                or (
+                    trace["parent_span_id"] is not None
+                    and not isinstance(trace["parent_span_id"], str)
+                )
+            ):
+                raise ValueError("control_job_telemetry_invalid")
+        if "trace_context" in telemetry:
+            carrier = telemetry["trace_context"]
+            if not isinstance(carrier, dict) or any(
+                not isinstance(key, str) or not isinstance(value, str)
+                for key, value in carrier.items()
+            ):
+                raise ValueError("control_job_telemetry_invalid")
+        return {key: value for key, value in payload.items() if key != "_telemetry"}
 
     def _job_trace_context(
         self,

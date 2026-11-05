@@ -688,8 +688,6 @@ def verify_candidate_experiment_terminal_history(
     terminal head during a fresh read. This reader authenticates historical
     PA2 bytes without treating the old decision as current permission or lease.
     """
-    from dataclasses import replace
-
     from polisyos.runtime.http.services.acquisition_action_service import (
         AcquisitionActionService,
     )
@@ -800,7 +798,35 @@ def verify_candidate_experiment_terminal_history(
         or phase_head.action_generation != terminal.action_generation
     ):
         raise ValueError("candidate_experiment_terminal_predecessor_binding_mismatch")
-    phase_chain = sink._verified_candidate_experiment_phase_chain(phase_head)
+    pending_ref = ArtifactRef(
+        artifact_id=artifacts.ArtifactID.model_validate(phase_head.receipt_ref),
+        kind="runtime_quality.acquisition_candidate_experiment_phase_receipt",
+        media_type="application/json",
+        manifest_profile_sha256=phase_head.receipt_manifest_profile_sha256,
+    )
+    pending_phase = sink._read_verified_action_phase(
+        phase_head.receipt_ref, selected_ref=pending_ref
+    ).receipt
+    if type(pending_phase) is not AcquisitionCandidateExperimentPhaseReceipt:
+        raise ValueError("candidate_experiment_terminal_pending_phase_untyped")
+    action_service, request, _decision_ref = sink._candidate_experiment_phase_action_context(
+        pending_phase
+    )
+    # Reopen only the signed request's earlier prefix. A full current fold here
+    # would call this terminal verifier recursively on its own generation.
+    origin = action_service._candidate_experiment_origin_for_request(
+        tenant_id=head.tenant_id,
+        cell_id=head.cell_id,
+        run_id=head.run_id,
+        request=request,
+        require_current=False,
+    )
+    predecessor_history_chain = origin.candidate_terminal_history_chain
+    if len(predecessor_history_chain) + 1 != head.action_generation:
+        raise ValueError("candidate_experiment_terminal_prior_generation_missing")
+    phase_chain = sink._verified_candidate_experiment_phase_chain(
+        phase_head, verified_origin=origin
+    )
     chain = (*phase_chain, terminal_verified)
     if (
         len(chain) != 5
@@ -903,50 +929,8 @@ def verify_candidate_experiment_terminal_history(
     ):
         raise ValueError("candidate_experiment_terminal_selection_mismatch")
     for row in phases:
-        sink._verify_candidate_experiment_phase_owner(row.receipt)
+        sink._verify_candidate_experiment_phase_owner(row.receipt, verified_origin=origin)
 
-    source_origin = control_service._resolve_candidate_experiment_source(
-        tenant_id=head.tenant_id,
-        cell_id=head.cell_id,
-        run_id=head.run_id,
-    )
-    predecessor_history_chain: list[CandidateExperimentTerminalHistory] = []
-    for generation in range(1, head.action_generation):
-        predecessor_head = control.get_acquisition_action_head(
-            tenant_id=head.tenant_id,
-            cell_id=head.cell_id,
-            run_id=head.run_id,
-            source_job_id=head.source_job_id,
-            route_id=head.route_id,
-            action_generation=generation,
-        )
-        if (
-            type(predecessor_head) is not AcquisitionActionHeadRecord
-            or predecessor_head.receipt_phase != "terminal"
-            or predecessor_head.receipt_manifest_profile_sha256 is None
-            or predecessor_head.action_generation != generation
-        ):
-            raise ValueError("candidate_experiment_terminal_prior_generation_missing")
-        predecessor_ref = ArtifactRef(
-            artifact_id=artifacts.ArtifactID.model_validate(predecessor_head.receipt_ref),
-            kind="runtime_quality.acquisition_route_loop_receipt",
-            media_type="application/json",
-            manifest_profile_sha256=predecessor_head.receipt_manifest_profile_sha256,
-        )
-        prior = verify_candidate_experiment_terminal_history(
-            control_service=control_service,
-            head=predecessor_head,
-            terminal_ref=predecessor_ref,
-        )
-        predecessor_history_chain.append(prior)
-    origin = replace(
-        source_origin,
-        candidate_terminal_history_chain=tuple(predecessor_history_chain),
-        current_action_head=None,
-        current_terminal_history=(
-            predecessor_history_chain[-1] if predecessor_history_chain else None
-        ),
-    )
     effective_generation_run = origin.effective_generation_run
     effective_source_cycle = origin.effective_source_cycle
     if (

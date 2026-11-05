@@ -829,6 +829,9 @@ def run_retained_r8_candidate_experiment_oracle(
     from polisyos.runtime.http import deployment_security as security
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.services import acquisition_surface_execution
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        resolve_selected_acquisition_evaluation_parts,
+    )
     from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
         POLICY_EVENT,
         list_current_candidate_unpriced_policy_bindings,
@@ -837,6 +840,9 @@ def run_retained_r8_candidate_experiment_oracle(
     )
     from polisyos.runtime.quality.candidate_experiment_policy_issuer import (
         prepare_candidate_experiment_policies_for_completed_job,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        ConfiguredCandidateSimulationContextAdmissionOwner,
     )
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationHorizonController,
@@ -916,18 +922,78 @@ def run_retained_r8_candidate_experiment_oracle(
     retained_execution: list[object] = []
     reentry_delta_verified = [False]
     try:
-        app = create_runtime_api_app(
-            cas_root=cas_root,
-            core_runs_root=cas_root / "runs",
-            deployment_security=security.build_deployment_security(
-                security.DeploymentSecurityConfig.from_mapping(trust.raw)
-            ),
-            enable_security_middlewares=True,
-            enable_csrf_protection=False,
+        deployment = security.build_deployment_security(
+            security.DeploymentSecurityConfig.from_mapping(trust.raw)
+        )
+
+        def build_app(
+            *,
+            profiles=(),
+            model_declarations=(),
+        ):
+            return create_runtime_api_app(
+                cas_root=cas_root,
+                core_runs_root=cas_root / "runs",
+                deployment_security=deployment,
+                enable_security_middlewares=True,
+                enable_csrf_protection=False,
+                candidate_simulation_profiles=profiles,
+                candidate_simulation_model_declarations=model_declarations,
+            )
+
+        # Reopen the actual source cycle once to seed the next app with the
+        # already-persisted profile and declaration. This keeps the retained
+        # path tied to its exact CAS inputs instead of supplying a test profile.
+        bootstrap_app = build_app()
+        with TestClient(bootstrap_app) as bootstrap_client:
+            bootstrap_container = bootstrap_client.app.state.runtime_container
+            bootstrap_control = bootstrap_container.control_service
+            bootstrap_job = bootstrap_control._control_store.get_job(job_id)
+            assert (
+                bootstrap_job is not None
+                and bootstrap_job.run_id == run_id
+                and bootstrap_job.state == "completed"
+            )
+            bootstrap_action_service = bootstrap_container.acquisition_action_service
+            with tenant_scope(None, tenant_id=served.TENANT, cell_id=served.CELL):
+                bootstrap_origin = bootstrap_action_service._resolve_candidate_experiment_origin(
+                    tenant_id=served.TENANT,
+                    cell_id=served.CELL,
+                    run_id=run_id,
+                )
+            persisted_prior = resolve_selected_acquisition_evaluation_parts(
+                artifact_store=bootstrap_control._artifact_store,
+                control_store=bootstrap_control._control_store,
+                tenant_id=bootstrap_origin.tenant_id,
+                cell_id=bootstrap_origin.cell_id,
+                run_id=bootstrap_origin.run_id,
+                generation_run=bootstrap_origin.effective_generation_run,
+                source_cycle=bootstrap_origin.effective_source_cycle,
+                design_problem_ref=bootstrap_origin.policy_scope.design_problem_ref,
+            )
+            source_profile = persisted_prior.input_record.profile
+            source_declaration = persisted_prior.handoff.model_declaration
+            if (
+                persisted_prior.source.profile != source_profile
+                or persisted_prior.source.model_declaration != source_declaration
+            ):
+                raise AssertionError("retained source profile was not selected by its N5 record")
+
+        app = build_app(
+            profiles=(source_profile,),
+            model_declarations=(source_declaration,),
         )
         with TestClient(app) as client:
             container = client.app.state.runtime_container
             control = container.control_service
+            context_owner = control._cycle_substrate_context_admission_owner
+            if (
+                type(context_owner) is not ConfiguredCandidateSimulationContextAdmissionOwner
+                or context_owner.store is not control._artifact_store
+                or tuple(context_owner.profiles) != (source_profile,)
+                or tuple(context_owner.model_declarations) != (source_declaration,)
+            ):
+                raise AssertionError("retained source owner was not composed over reopened CAS")
             job = control._control_store.get_job(job_id)
             assert job is not None and job.run_id == run_id and job.state == "completed"
             policy_owner = _candidate_experiment_policy_owner(
@@ -949,7 +1015,7 @@ def run_retained_r8_candidate_experiment_oracle(
                 "job": job,
                 "run_id": run_id,
                 "cas_root": cas_root,
-                "profile_selection_ref": "retained-r8",
+                "profile_selection_ref": source_profile.profile_selection_ref,
                 "client": client,
                 "trust": trust,
                 "signers": signers,

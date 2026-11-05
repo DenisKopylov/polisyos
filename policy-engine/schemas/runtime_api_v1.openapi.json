@@ -6717,6 +6717,16 @@
           "policy_ref": {
             "$ref": "#/components/schemas/ArtifactRef-Input"
           },
+          "predecessor_terminal_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "request_content_hash": {
             "pattern": "^sha256:[0-9a-f]{64}$",
             "title": "Request Content Hash",
@@ -6770,6 +6780,16 @@
           },
           "policy_ref": {
             "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "predecessor_terminal_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "request_content_hash": {
             "pattern": "^sha256:[0-9a-f]{64}$",

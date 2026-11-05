@@ -50,6 +50,8 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
     from polisyos.ir.analytics.ncm import NCMSpecRef, load_ncm_spec_default_view
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from polisyos.runtime.http.dependencies import build_runtime_api_context
     from polisyos.runtime.http.security import build_fixture_identity_claims
     from polisyos.runtime.http.services.control import (
         generation_cycle as generation_cycle_service,
@@ -799,72 +801,94 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
     assert retry_generic_projection["candidate_evaluation_attempts"][0]["failure_stage"] == "n5"
 
     counts_before_fresh_app_get = (*execution_counts(), len(root_n5_inputs))
-    fresh_app = create_runtime_api_app(**prepared.app_kwargs)
+    fresh_context = build_runtime_api_context(
+        cas_root=prepared.cas_root,
+        core_runs_root=prepared.runtime_api_context.core_runs_root,
+    )
+    assert fresh_context is not prepared.runtime_api_context
+    assert fresh_context.store is not prepared.runtime_api_context.store
+    assert fresh_context.run_index is not prepared.runtime_api_context.run_index
+    fresh_app = create_runtime_api_app(
+        **{
+            **prepared.app_kwargs,
+            "container_overrides": RuntimeContainerOverrides(runtime_api_context=fresh_context),
+            "generic_cycle_simulation_profiles": (),
+            "generic_cycle_simulation_root_profile_id": None,
+        }
+    )
     with TestClient(fresh_app) as fresh_client:
         fresh_get_response = fresh_client.get(f"/api/v1/runs/{run_id}")
         assert fresh_get_response.status_code == 200, fresh_get_response.text
         fresh_projected_run = fresh_get_response.json()["run"]
-    fresh_generic_projection = fresh_projected_run["generic_cycle_simulation"]
-    assert counts_before_fresh_app_get == (*execution_counts(), len(root_n5_inputs))
-    assert fresh_generic_projection["child_profile_status"] == "not_established"
-    assert fresh_generic_projection["child_profile_set_ref"] is None
-    assert fresh_generic_projection["child_profile_bindings"] == []
-    fresh_attempts = fresh_generic_projection["candidate_evaluation_attempts"]
-    assert len(fresh_attempts) == 1
-    assert fresh_attempts[0]["candidate_id"] == failed_attempt.candidate_id
-    assert fresh_attempts[0]["attempt_ref"] == projected_attempts[0]["attempt_ref"]
-    assert fresh_attempts[0]["failure_stage"] == "n5"
-    assert fresh_attempts[0]["simulation_status"] == "simulation_blocked"
-    fresh_n5_observations = fresh_generic_projection["n5_observations"]
-    assert len(fresh_n5_observations) == 1
-    assert fresh_n5_observations[0]["candidate_id"] == selected_candidate_id
-    assert fresh_n5_observations[0]["status"] == "joint_simulated"
-    assert fresh_n5_observations[0]["n5_input_ref"] == projected_n5_observations[0]["n5_input_ref"]
-    assert (
-        fresh_n5_observations[0]["simulation_result_ref"]
-        == (projected_n5_observations[0]["simulation_result_ref"])
-    )
-
-    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
-        # The public projection exposes the full N4 source by reference; it
-        # does not invent atom fields for non-binding CGF dispositions.
-        assert fresh_generic_projection["n4_source_status"] == "resolved"
-        projected_source_ref = ArtifactRef.model_validate(fresh_generic_projection["n4_source_ref"])
-        assert projected_source_ref == compiled.n4_recursive_source_ref
-        handoff = compiled.generic_cycle_simulation_handoff
-        assert handoff is not None
-        assert compiled.n4_recursive_source_run_id is not None
-        persisted_source = GenerationSourceRepository(service._artifact_store).load(
-            projected_source_ref,
-            run_id=compiled.n4_recursive_source_run_id,
-            expected_run_id=handoff.run_id,
-            expected_job_id=handoff.job_id,
-            expected_tenant_id=tenant_id,
-            expected_cell_id=cell_id,
-            context_job_ref=handoff.context_job_ref,
-            profile_ref=handoff.profile_ref,
-            n4_child_profile_family_ref=None,
-        )
-        assert len(persisted_source.generation_result.candidates) == 2
-        assert len(persisted_source.generation_result.grounding_dispositions) == 3
+        fresh_generic_projection = fresh_projected_run["generic_cycle_simulation"]
+        assert counts_before_fresh_app_get == (*execution_counts(), len(root_n5_inputs))
+        assert fresh_generic_projection["child_profile_status"] == "not_established"
+        assert fresh_generic_projection["child_profile_set_ref"] is None
+        assert fresh_generic_projection["child_profile_bindings"] == []
+        fresh_attempts = fresh_generic_projection["candidate_evaluation_attempts"]
+        assert len(fresh_attempts) == 1
+        assert fresh_attempts[0]["candidate_id"] == failed_attempt.candidate_id
+        assert fresh_attempts[0]["attempt_ref"] == projected_attempts[0]["attempt_ref"]
+        assert fresh_attempts[0]["failure_stage"] == "n5"
+        assert fresh_attempts[0]["simulation_status"] == "simulation_blocked"
+        fresh_n5_observations = fresh_generic_projection["n5_observations"]
+        assert len(fresh_n5_observations) == 1
+        assert fresh_n5_observations[0]["candidate_id"] == selected_candidate_id
+        assert fresh_n5_observations[0]["status"] == "joint_simulated"
         assert (
-            tuple(
-                (disposition.proposal_id, disposition.raw_candidate_hash, disposition.disposition)
-                for disposition in persisted_source.generation_result.grounding_dispositions
-                if disposition.disposition != "shadow_bound"
+            fresh_n5_observations[0]["n5_input_ref"] == projected_n5_observations[0]["n5_input_ref"]
+        )
+        assert (
+            fresh_n5_observations[0]["simulation_result_ref"]
+            == (projected_n5_observations[0]["simulation_result_ref"])
+        )
+
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            # The public projection exposes the full N4 source by reference; it
+            # does not invent atom fields for non-binding CGF dispositions.
+            assert fresh_generic_projection["n4_source_status"] == "resolved"
+            projected_source_ref = ArtifactRef.model_validate(
+                fresh_generic_projection["n4_source_ref"]
             )
-            == prepared_nonbinding_keys
-        )
-        simulation_result = load_joint_simulation_result(
-            cycle.simulation.simulation_result_ref,
-            store=service._artifact_store,
-        )
-        selected_ncm = load_ncm_spec_default_view(
-            ensure_ir_artifact_store(service._artifact_store),
-            NCMSpecRef.model_validate(
-                root_n5_input.profile.selected_ncm_ref.model_dump(mode="python")
-            ),
-        )
+            assert projected_source_ref == compiled.n4_recursive_source_ref
+            handoff = compiled.generic_cycle_simulation_handoff
+            assert handoff is not None
+            assert compiled.n4_recursive_source_run_id is not None
+            persisted_source = GenerationSourceRepository(fresh_context.store).load(
+                projected_source_ref,
+                run_id=compiled.n4_recursive_source_run_id,
+                expected_run_id=handoff.run_id,
+                expected_job_id=handoff.job_id,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+                context_job_ref=handoff.context_job_ref,
+                profile_ref=handoff.profile_ref,
+                n4_child_profile_family_ref=None,
+            )
+            assert len(persisted_source.generation_result.candidates) == 2
+            assert len(persisted_source.generation_result.grounding_dispositions) == 3
+            assert (
+                tuple(
+                    (
+                        disposition.proposal_id,
+                        disposition.raw_candidate_hash,
+                        disposition.disposition,
+                    )
+                    for disposition in persisted_source.generation_result.grounding_dispositions
+                    if disposition.disposition != "shadow_bound"
+                )
+                == prepared_nonbinding_keys
+            )
+            simulation_result = load_joint_simulation_result(
+                cycle.simulation.simulation_result_ref,
+                store=fresh_context.store,
+            )
+            selected_ncm = load_ncm_spec_default_view(
+                ensure_ir_artifact_store(fresh_context.store),
+                NCMSpecRef.model_validate(
+                    root_n5_input.profile.selected_ncm_ref.model_dump(mode="python")
+                ),
+            )
 
     profile_world_model = root_n5_input.profile.context_inputs.world_model_record
     assert simulation_result.world_model_record_content_hash == profile_world_model.content_hash

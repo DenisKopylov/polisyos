@@ -224,7 +224,7 @@ def _source_values(
         "normalized_metadata": normalized_metadata,
         "ingestion_provenance": _source_ingestion_values(store, source, result),
         "scientific_authority": {
-            "observation_class": "model_output",
+            "observation_class": source.observation_class.value,
             "source_currentness": "not_established",
             "measurement_validity": "not_established",
             "independence": "not_established",
@@ -394,6 +394,7 @@ def _binding_values(
     from polisyos.data_forge import read_api
     from polisyos.runtime.quality.data_state_substrate import (
         _DATA_FORGE_SNAPSHOT_PIPELINE,
+        _candidate_acquisition_binding_semantics,
         _cas_data_forge_ref,
         _data_forge_payload_file_bytes,
         _data_forge_snapshot_manifest_extra,
@@ -410,24 +411,17 @@ def _binding_values(
         _cas_data_forge_ref(inputs.candidate_source_ref),
         f"cas://sha256/{str(payload_hash).removeprefix('sha256:')}",
     )
+    corpus_id, claim_requirement_bindings = _candidate_acquisition_binding_semantics(
+        payload, inputs.slot_binding.canonical_variable_id
+    )
     extra = _data_forge_snapshot_manifest_extra(
-        corpus_id="candidate-acquisition-model-output",
+        corpus_id=corpus_id,
         builder_revision=(
             "polisyos.runtime.quality.data_state_substrate."
             "materialize_candidate_acquisition_snapshot"
         ),
         lineage_refs=lineage_refs,
-        claim_requirement_bindings=(
-            {
-                "claim_id": "candidate-acquired-world-state",
-                "requirement_id": (
-                    f"candidate-model-output:{inputs.slot_binding.canonical_variable_id}"
-                ),
-                "requirement_kind": "candidate_acquisition_model_output",
-                "authority_level": "candidate",
-                "time_role": "transaction_time",
-            },
-        ),
+        claim_requirement_bindings=claim_requirement_bindings,
         payload_content_hash=str(payload_hash),
     )
     artifact_meaning = {"candidate_source_data": data_values, "consumed_state": state_values}
@@ -640,7 +634,7 @@ def _prepare_candidate_source_basis_step(
     )
     from polisyos.runtime.quality.data_snapshot_lineage import (
         ACQUIRED_SOURCE_ROW_REVALIDATION_LIMITATION,
-        CANDIDATE_SOURCE_LIMITATIONS,
+        _candidate_source_limitations_for_payload_schema,
         validate_data_snapshot_owner_lineage,
     )
     from polisyos.runtime.quality.data_state_substrate import (
@@ -777,7 +771,9 @@ def _prepare_candidate_source_basis_step(
                         (
                             *plan.limitations.admissibility_blockers,
                             ACQUIRED_SOURCE_ROW_REVALIDATION_LIMITATION,
-                            *CANDIDATE_SOURCE_LIMITATIONS,
+                            *_candidate_source_limitations_for_payload_schema(
+                                payload["_policyos_candidate_acquisition"]["schema_version"]
+                            ),
                             *source.limitations,
                             *base_lineage.required_admissibility_blockers,
                         )

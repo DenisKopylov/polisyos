@@ -1015,6 +1015,40 @@ class ControlJobRecord:
     progress: dict[str, Any]
     method_execution_selection: dict[str, Any] | None = None
 
+    def same_execution_inputs(self, other: object) -> bool:
+        """Compare stable job execution inputs while excluding live telemetry.
+
+        A current manifest pointer and lease expiration can change while the
+        same admitted job is running. The creation-time manifest is compared
+        by ``ControlJobExecutionAdmission``; this method keeps the job's
+        profile, policy, payload, scope-linked identity, and fencing identity
+        stable without treating lease renewal, progress, or diagnostics as a
+        new execution.
+        """
+        if type(other) is not ControlJobRecord:
+            return False
+        return (
+            self.job_id == other.job_id
+            and self.kind == other.kind
+            and self.state == other.state
+            and self.run_id == other.run_id
+            and self.pipeline_id == other.pipeline_id
+            and self.requested_execution_profile == other.requested_execution_profile
+            and self.effective_execution_profile == other.effective_execution_profile
+            and _json_values_equal_strict(self.policy_flags, other.policy_flags)
+            and self.payload_ref == other.payload_ref
+            and self.submitted_by == other.submitted_by
+            and self.created_at == other.created_at
+            and self.started_at == other.started_at
+            and self.finished_at == other.finished_at
+            and self.lease_owner == other.lease_owner
+            and self.attempt == other.attempt
+            and _json_values_equal_strict(
+                self.method_execution_selection,
+                other.method_execution_selection,
+            )
+        )
+
     def to_response(self, *, request_id: str | None = None) -> ControlJobResponse:
         """Convert a durable row snapshot into the public `ControlJobResponse` contract."""
         manifest_ref = None
@@ -1191,6 +1225,34 @@ class ControlJobExecutionAdmission:
     admission_capability_manifest_ref: str | None
     attempt: int
     manifest_pointer_state: ManifestPointerState
+
+    def same_execution_identity(self, other: object) -> bool:
+        """Compare immutable execution identity across fresh lease reads.
+
+        Callers must obtain each admission through
+        ``current_execution_job_admission`` so the persisted SQL lease is
+        revalidated on every read. Renewable lease expiration, worker
+        progress, diagnostics, the mutable current manifest pointer, and its
+        derived pointer state are deliberately excluded. The admitted
+        creation scope and creation-time capability manifest remain bound.
+        """
+        if type(other) is not ControlJobExecutionAdmission:
+            return False
+        return (
+            self.job.same_execution_inputs(other.job)
+            and self.scope == other.scope
+            and self.attempt == self.job.attempt == other.attempt == other.job.attempt
+            and self.admission_capability_manifest_ref
+            == other.admission_capability_manifest_ref
+        )
+
+    def matches_job_record(self, other: object) -> bool:
+        """Match a worker-supplied job to this fresh creation-scoped admission."""
+        return (
+            type(other) is ControlJobRecord
+            and self.job.same_execution_inputs(other)
+            and self.attempt == self.job.attempt == other.attempt
+        )
 
 
 @dataclass(frozen=True)

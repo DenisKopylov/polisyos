@@ -62,8 +62,16 @@ from polisyos.runtime.quality.world_model_record import (
     world_model_artifact_views,
 )
 from tests._helpers.lane01_candidate_source import (
+    GDP_COMPILER_INPUT,
+    UNEMPLOYMENT_COMPILER_INPUT,
+    Lane01CandidateCompilerInput,
     Lane01CandidateSourceFixture,
     build_lane01_candidate_source,
+)
+from tests._helpers.lane01_wdi_profiles import (
+    GDP_PROFILE,
+    UNEMPLOYMENT_PROFILE,
+    CandidateWDIProfile,
 )
 from tests._helpers.world_model_record import (
     _data_snapshot_ref,
@@ -171,7 +179,14 @@ def _problem(
 
 
 def _candidate_world_case(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *, control: str | None = None
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    control: str | None = None,
+    source_profile: CandidateWDIProfile = UNEMPLOYMENT_PROFILE,
+    compiler_input: Lane01CandidateCompilerInput = UNEMPLOYMENT_COMPILER_INPUT,
+    problem_override: DesignProblem | None = None,
+    response_body: bytes | None = None,
 ) -> _CandidateWorldCase:
     """Issue all source, base-world and candidate-data artifacts through real owners."""
     store = FileSystemCAS(tmp_path / "cas")
@@ -181,8 +196,11 @@ def _candidate_world_case(
         store=store,
         tenant_id=TENANT_ID,
         cell_id=CELL_ID,
+        profile=source_profile,
+        compiler_input=compiler_input,
+        response_body=response_body,
     )
-    problem = _problem(
+    problem = problem_override or _problem(
         region="CAN" if control == "country" else "USA",
         data_year=2023 if control == "data_year" else 2024,
         outcome_slot="global.gdp" if control == "declared_slot" else "global.unemployment_rate",
@@ -238,7 +256,7 @@ def _candidate_world_case(
         registry_bundle_artifact_ref=registry_ref,
         region_or_jurisdiction=problem.jurisdiction_time.region,
         population_scope=(
-            "working_age_population" if control == "population" else "total_labor_force"
+            "working_age_population" if control == "population" else source_profile.population
         ),
         policy_domain="fiscal" if control == "domain" else problem.domain,
         valid_time_scope="2024-01-01/2024-12-31",
@@ -295,6 +313,241 @@ def _candidate_world_case(
     return _CandidateWorldCase(
         store, source_case, problem, base, substrate, substrate_ref, binding, materialization
     )
+
+
+def _observed_gdp_world_case(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> _CandidateWorldCase:
+    """Use the known captured annual input to exercise candidate provenance."""
+    from tests._helpers.candidate_holdout_resource import wdi_response_for_year
+
+    values = _problem(outcome_slot="global.gdp").model_dump(mode="json")
+    values.update(
+        design_problem_id="candidate_observed_annual_source",
+        problem_statement=GDP_COMPILER_INPUT.text,
+        domain=GDP_COMPILER_INPUT.domain,
+    )
+    values["nl_provenance"]["raw_request"] = GDP_COMPILER_INPUT.text
+    values["nl_provenance"]["source_context"] = {"fixture_scope": "captured_source_candidate_only"}
+    values["outcome_of_interest"]["metric_id"] = "gdp"
+    values["objectives"] = [
+        {
+            "objective_id": "annual_gdp",
+            "description": "Compare a declared annual GDP candidate scenario.",
+            "metric_id": "gdp",
+            "direction": "maximize",
+        }
+    ]
+    return _candidate_world_case(
+        tmp_path,
+        monkeypatch,
+        source_profile=GDP_PROFILE,
+        compiler_input=GDP_COMPILER_INPUT,
+        problem_override=DesignProblem.model_validate(values),
+        response_body=wdi_response_for_year(2024),
+    )
+
+
+def test_observed_candidate_source_reopens_state_basis_and_refuses_authority(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Source provenance survives the native candidate chain without publication authority."""
+    from polisyos.core.artifacts import input_ref_from_artifact_ref
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.contracts.fabric import data_snapshot_owner_input_requirements
+    from polisyos.runtime.quality.candidate_acquisition_source import (
+        read_candidate_acquisition_source,
+    )
+    from polisyos.runtime.quality.candidate_source_basis import (
+        prepare_candidate_source_basis_values,
+    )
+    from polisyos.runtime.quality.data_snapshot_lineage import DataSnapshotLineageError
+    from tests.unit.runtime.quality.test_candidate_data_snapshot_lineage import _retained_options
+    from tests.unit.runtime.quality.test_candidate_source_basis import (
+        _case_with_explicit_empty_prior,
+        _inputs,
+    )
+
+    with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+        case = _case_with_explicit_empty_prior(
+            tmp_path, monkeypatch, candidate_case=_observed_gdp_world_case(tmp_path, monkeypatch)
+        )
+        inputs = _inputs(case)
+        built = build_candidate_acquisition_world(
+            case.store,
+            problem=case.problem,
+            base_world_model=case.base.record,
+            substrate_registry=case.substrate_registry,
+            substrate_registry_artifact_ref=case.substrate_registry_ref,
+            materialization=case.materialization,
+            workspace_dir=tmp_path / "observed-candidate-world",
+            transaction_time=TRANSACTION_TIME,
+            authority=case.source_case.authority,
+        )
+        fresh = FileSystemCAS(case.store.root)
+        source = read_candidate_acquisition_source(fresh, source_ref=case.source_case.source_ref)
+        assert source.observation_class == "observed"
+        assert source.observation == 29_298_013_000_000
+        record = load_world_model_record(fresh, built.world_model.record_ref)
+        assert record.authority_status == "limited"
+        assert record.branch_mode is BranchMode.SCENARIO
+        views = world_model_artifact_views(record)
+        snapshot = DataSnapshot.model_validate(
+            load_core_json_artifact(fresh, views.data_snapshot_ref)
+        )
+        payload = load_core_json_artifact(fresh, snapshot.data_ref)
+        marker = payload["_policyos_candidate_acquisition"]
+        assert marker["schema_version"] == "policyos.runtime.candidate_acquisition_data_state.v2"
+        assert marker["source_provenance_class"] == "observed"
+        assert payload["acquisition"]["selected"]["provenance_class"] == "observed"
+        assert snapshot.stats["source_mode"] == "candidate_acquisition_source"
+        state = load_state_snapshot(fresh, snapshot_ref=views.bound_state_snapshot_ref)
+        assert float(state.gdp) == pytest.approx(source.observation, rel=2e-7)
+        assert float(state.market.unemployment_rate) == 0.0
+        lineage = validate_data_snapshot_owner_lineage(
+            fresh, views.data_snapshot_ref, snapshot, candidate_only=True
+        )
+        assert "candidate_source_not_observed_admission" in lineage.required_admissibility_blockers
+        assert "candidate_source_not_an_observation" not in lineage.required_admissibility_blockers
+        with pytest.raises(DataSnapshotSourceRowNotEstablishedError):
+            validate_data_snapshot_owner_lineage(fresh, views.data_snapshot_ref, snapshot)
+        basis = prepare_candidate_source_basis_values(
+            store=fresh,
+            problem=case.problem,
+            inputs=inputs,
+            data_snapshot_ref=case.materialization.data_snapshot_ref,
+            world_model_ref=built.world_model.record_ref,
+        )
+        assert basis.predicate_provenance == "recomputed", basis.reason_codes
+        source_values = basis.effective_values["candidate_source"]
+        assert source_values["scientific_authority"]["observation_class"] == "observed"
+        assert source_values["scientific_authority"]["publication_authority"] is False
+        assert source_values["scientific_authority"]["measurement_validity"] == "not_established"
+        assert basis.prospective_model.n5_config.baseline_state["global.gdp"] == float(state.gdp)
+
+        # Rehash both payload and parent with their real writer/schema/edges.
+        # The candidate marker remains, but source replay must catch relabeling.
+        payload_manifest = fresh.get_manifest(snapshot.data_ref)
+        parent_manifest = fresh.get_manifest(views.data_snapshot_ref)
+        changed = load_core_json_artifact(fresh, snapshot.data_ref)
+        changed["acquisition"]["selected"]["provenance_class"] = "model_output"
+        changed["_policyos_candidate_acquisition"]["source_provenance_class"] = "model_output"
+        changed_payload_ref = fresh.put_json(
+            changed,
+            _retained_options(payload_manifest),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        changed_snapshot = snapshot.model_copy(update={"data_ref": changed_payload_ref})
+        changed_ref = fresh.put_json(
+            changed_snapshot,
+            _retained_options(
+                parent_manifest,
+                inputs=[
+                    input_ref_from_artifact_ref(child, role=role)
+                    for child, role in data_snapshot_owner_input_requirements(changed_snapshot)
+                ],
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        with pytest.raises(
+            DataSnapshotLineageError, match="candidate_acquisition_source_owner_replay"
+        ):
+            validate_data_snapshot_owner_lineage(
+                fresh, changed_ref, changed_snapshot, candidate_only=True
+            )
+        original_get = fresh.get_bytes
+
+        def missing_raw(ref, *args, **kwargs):
+            if str(getattr(ref, "artifact_id", ref)) == str(source.raw_source_ref.artifact_id):
+                raise FileNotFoundError("selected observed source bytes removed")
+            return original_get(ref, *args, **kwargs)
+
+        with monkeypatch.context() as scoped:
+            scoped.setattr(fresh, "get_bytes", missing_raw)
+            with pytest.raises(
+                DataSnapshotLineageError, match="candidate_acquisition_source_owner_replay"
+            ):
+                validate_data_snapshot_owner_lineage(
+                    fresh, views.data_snapshot_ref, snapshot, candidate_only=True
+                )
+        assert (
+            validate_data_snapshot_owner_lineage(
+                fresh, views.data_snapshot_ref, snapshot, candidate_only=True
+            )
+            == lineage
+        )
+
+
+@pytest.mark.parametrize("source_class", ["model_output", "observed"])
+def test_candidate_state_refuses_cross_version_selected_view_with_unchanged_bytes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, source_class: str
+) -> None:
+    """A coherent selected view cannot relabel either historical or observed candidate bytes."""
+    from polisyos.core.artifacts import SchemaInfo, input_ref_from_artifact_ref
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.contracts.fabric import data_snapshot_owner_input_requirements
+    from polisyos.runtime.quality.data_snapshot_lineage import DataSnapshotLineageError
+    from tests.unit.runtime.quality.test_candidate_data_snapshot_lineage import _retained_options
+
+    with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+        case = (
+            _observed_gdp_world_case(tmp_path, monkeypatch)
+            if source_class == "observed"
+            else _candidate_world_case(tmp_path, monkeypatch)
+        )
+        fresh = FileSystemCAS(case.store.root)
+        ref = case.materialization.data_snapshot_ref
+        snapshot = DataSnapshot.model_validate(load_core_json_artifact(fresh, ref))
+        source_bytes = fresh.get_bytes(case.source_case.source.raw_source_ref)
+        assert case.source_case.source.observation_class == source_class
+        original = validate_data_snapshot_owner_lineage(fresh, ref, snapshot, candidate_only=True)
+        payload_manifest = fresh.get_manifest(snapshot.data_ref)
+        actual_version = "2" if source_class == "observed" else "1"
+        wrong_version = "1" if source_class == "observed" else "2"
+        assert payload_manifest.artifact_schema.version.endswith(".v" + actual_version)
+        aliased_payload_ref = fresh.put_bytes(
+            fresh.get_bytes(snapshot.data_ref),
+            _retained_options(
+                payload_manifest,
+                schema=SchemaInfo(
+                    name=payload_manifest.artifact_schema.name,
+                    version="policyos.runtime.candidate_acquisition_data_state.v" + wrong_version,
+                ),
+            ),
+            return_selected_profile=True,
+        )
+        assert aliased_payload_ref.artifact_id == snapshot.data_ref.artifact_id
+        assert (
+            aliased_payload_ref.manifest_profile_sha256 != snapshot.data_ref.manifest_profile_sha256
+        )
+        aliased_snapshot = snapshot.model_copy(update={"data_ref": aliased_payload_ref})
+        aliased_ref = fresh.put_json(
+            aliased_snapshot,
+            _retained_options(
+                fresh.get_manifest(ref),
+                inputs=[
+                    input_ref_from_artifact_ref(child, role=role)
+                    for child, role in data_snapshot_owner_input_requirements(aliased_snapshot)
+                ],
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        assert fresh.verify(aliased_payload_ref).ok
+        assert fresh.verify(aliased_ref).ok
+        with pytest.raises(
+            DataSnapshotLineageError, match="candidate_acquisition_source_owner_replay"
+        ):
+            validate_data_snapshot_owner_lineage(
+                fresh, aliased_ref, aliased_snapshot, candidate_only=True
+            )
+        assert fresh.get_bytes(case.source_case.source.raw_source_ref) == source_bytes
+        assert (
+            validate_data_snapshot_owner_lineage(fresh, ref, snapshot, candidate_only=True)
+            == original
+        )
 
 
 def test_candidate_acquisition_world_reopens_limited_model_output_and_actual_foundry_state(

@@ -2227,7 +2227,13 @@ def _materialized_joint_source_basis(
             variable_map=variable_map,
         ),
         baseline_state=dict(n5.baseline_state),
+        evidence_state=dict(n5.evidence_state) if n5.evidence_state is not None else None,
         comparator_refs=n5.comparator_refs,
+        comparator_profile=(
+            n5.comparator_profile.model_copy(deep=True)
+            if n5.comparator_profile is not None
+            else None
+        ),
         budget_ref=n5.budget_ref,
         seed=n5.seed,
         replications=n5.replications,

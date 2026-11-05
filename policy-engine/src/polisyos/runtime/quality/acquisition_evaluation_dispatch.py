@@ -3827,7 +3827,9 @@ def dispatch_candidate_acquisition_evaluation(
         ):
             raise ValueError("candidate_evaluation_committed_outcome_not_established")
         if (
-            bridge.control_store.current_execution_job_admission() != admission
+            not bridge.control_store.current_execution_job_admission().same_execution_identity(
+                admission
+            )
             or sink.current_action_outcome(
                 tenant_id=closure.tenant_id,
                 cell_id=closure.cell_id,

@@ -1543,7 +1543,15 @@ def _build_parent_joint_candidate_request(
         "horizon": profile.n5.horizon,
         "engine_plan": plans,
         "baseline_state": dict(profile.n5.baseline_state),
+        "evidence_state": (
+            dict(profile.n5.evidence_state) if profile.n5.evidence_state is not None else None
+        ),
         "comparator_refs": profile.n5.comparator_refs,
+        "comparator_profile": (
+            profile.n5.comparator_profile.model_copy(deep=True)
+            if profile.n5.comparator_profile is not None
+            else None
+        ),
         "budget_ref": profile.n5.budget_ref,
         "seed": profile.n5.seed,
         "replications": profile.n5.replications,

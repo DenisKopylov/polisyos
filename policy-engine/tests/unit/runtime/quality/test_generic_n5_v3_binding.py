@@ -34,7 +34,11 @@ from polisyos.runtime.quality.generic_simulation_admission import (
     _n5_typed_execution_content_hash,
     parse_generic_cycle_simulation_n5_execution,
 )
-from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationRequest
+from polisyos.runtime.quality.joint_simulation_horizon import (
+    HorizonSpec,
+    JointSimulationRequest,
+    NCMConditionalComparatorProfile,
+)
 from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
 
 _PRE_GENERIC_SCHEMAS = tuple(
@@ -48,7 +52,10 @@ _GENERIC_FIELDS = tuple(
 
 
 async def _prepare_generic_facade_owner_case(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    with_explicit_n5_profile_axes: bool = False,
 ) -> dict[str, Any]:
     """Persist bounded candidate owners for direct-port tests, without an NL grant.
 
@@ -73,6 +80,7 @@ async def _prepare_generic_facade_owner_case(
         GenericCycleSimulationN5InputV1,
         GenericCycleSimulationProfileV1,
     )
+    from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
     from polisyos.runtime.quality.world_model_record import (
         persist_world_model_record,
         world_model_artifact_views,
@@ -127,6 +135,18 @@ async def _prepare_generic_facade_owner_case(
     world = inputs.world_model_record
     views = world_model_artifact_views(world)
     assert len(views.ncm_refs) == 1 and views.substrate_registry_ref is not None
+    candidate = next(
+        item
+        for item in prepared.organ_run.result.candidates
+        if item.atom.operator_kind.trinity_kind == prepared.base_profile.rule.operator_kind
+    )
+    outcome = problem.outcome_of_interest.target_variable
+    atoms = tuple(getattr(candidate, "intervention_atoms", ()) or ()) or (candidate.atom,)
+    variable_map = JointSimulationPort._joint_simulation_variable_map(
+        atoms=atoms,
+        outcome=outcome,
+        raw_hint=None,
+    )
     job_id, run_id, source_run_id = "job-facade", "run-facade", "source-facade"
     with _authenticated_tenant_scope(tenant_id=tenant_id, cell_id=cell_id):
         # The base fixture uses persist_ncm_spec's default codec. The separate
@@ -145,20 +165,36 @@ async def _prepare_generic_facade_owner_case(
         )
         world_ref = persist_world_model_record(store, world)
         fields = prepared.root_profile.model_dump(mode="python", exclude={"content_hash"})
+        n5_fields: dict[str, Any] = {
+            "budget_ref": prepared.base_profile.n5.budget_ref,
+            "horizon": prepared.base_profile.n5.horizon,
+            "baseline_state": prepared.base_profile.n5.baseline_state,
+            "comparator_refs": prepared.base_profile.n5.comparator_refs,
+            "seed": prepared.base_profile.n5.seed,
+            "replications": prepared.base_profile.n5.replications,
+        }
+        if with_explicit_n5_profile_axes:
+            world_slots = {slot.slot_id for slot in world.policy_slot_map}
+            engine_variable_map = {
+                key: value for key, value in variable_map.items() if key in world_slots
+            }
+            if not engine_variable_map:
+                raise AssertionError("controlled generic source has no WMR-bound engine variables")
+            n5_fields.update(
+                horizon=HorizonSpec(start=0, end=0, step=1),
+                evidence_state=dict(prepared.base_profile.n5.baseline_state),
+                comparator_profile=NCMConditionalComparatorProfile(
+                    outcome_units={outcome: prepared.base_declaration.outcome_unit_id}
+                ),
+                engine_variable_map=engine_variable_map,
+            )
         fields.update(
             profile_id="generic-facade-owner-fixture",
             world_model_record_ref=world_ref,
             substrate_registry_ref=views.substrate_registry_ref,
             selected_ncm_ref=views.ncm_refs[0],
             context_inputs=inputs,
-            n5=GenericCycleN5RequestProfileV1(
-                budget_ref=prepared.base_profile.n5.budget_ref,
-                horizon=prepared.base_profile.n5.horizon,
-                baseline_state=prepared.base_profile.n5.baseline_state,
-                comparator_refs=prepared.base_profile.n5.comparator_refs,
-                seed=prepared.base_profile.n5.seed,
-                replications=prepared.base_profile.n5.replications,
-            ),
+            n5=GenericCycleN5RequestProfileV1(**n5_fields),
         )
         draft = GenericCycleSimulationProfileV1.model_construct(
             **fields, content_hash="sha256:" + "0" * 64
@@ -211,11 +247,6 @@ async def _prepare_generic_facade_owner_case(
             cell_id=cell_id,
         )
         organ = replace(prepared.organ_run, cycle_substrate_context=context)
-        candidate = next(
-            item
-            for item in organ.result.candidates
-            if item.atom.operator_kind.trinity_kind == prepared.base_profile.rule.operator_kind
-        )
         repository = GenerationSourceRepository(store)
         source_ref = repository.persist_ref(
             run_id=source_run_id,
@@ -255,6 +286,7 @@ async def _prepare_generic_facade_owner_case(
         "organ": organ,
         "candidate": candidate,
         "source_ref": source_ref,
+        "source_run_id": source_run_id,
         "input_ref": input_ref,
         "input_record": input_record,
         "tenant_id": tenant_id,
@@ -329,6 +361,115 @@ def _call_generic_facade(
             currentness if currentness is not None else lambda: True
         ),
     )
+
+
+@pytest.mark.asyncio
+async def test_generic_n5_profile_axes_reach_real_persisted_leaf_and_owner_recompute(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The selected profile axes survive the source-bound leaf and typed recompute."""
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationN5InputV1,
+        GenericCycleSimulationProfileV1,
+    )
+
+    case = await _prepare_generic_facade_owner_case(
+        tmp_path,
+        monkeypatch,
+        with_explicit_n5_profile_axes=True,
+    )
+    input_record = case["input_record"]
+    profile = input_record.profile
+    assert input_record.n5 == profile.n5
+    assert profile.n5.evidence_state == dict(profile.n5.baseline_state)
+    assert profile.n5.comparator_profile is not None
+    assert profile.n5.engine_variable_map
+
+    port = _generic_facade_port(case)
+    with tenant_scope(None, tenant_id=case["tenant_id"], cell_id=case["cell_id"]):
+        assert (
+            case["owner"].resolve_n5_input(case["input_ref"], expected=input_record) == input_record
+        )
+        source = GenerationSourceRepository(case["store"]).load(
+            case["source_ref"],
+            run_id=case["source_run_id"],
+            expected_run_id=case["handoff"].run_id,
+            expected_job_id=case["handoff"].job_id,
+            expected_tenant_id=case["tenant_id"],
+            expected_cell_id=case["cell_id"],
+            context_job_ref=case["handoff"].context_job_ref,
+            profile_ref=case["handoff"].profile_ref,
+        )
+        request = case["owner"]._recompute_n5_request(
+            input_record=input_record,
+            source=source,
+            source_candidate=case["candidate"],
+            source_context=case["context"],
+            port=port,
+        )
+        binding = GenericCycleSimulationN5RequestBindingV2.from_request(request)
+    assert request.evidence_state == profile.n5.evidence_state
+    assert request.comparator_profile == profile.n5.comparator_profile
+    assert request.engine_plan[
+        0
+    ].variable_map == JointSimulationPort._joint_simulation_variable_map(
+        atoms=tuple(getattr(case["candidate"], "intervention_atoms", ()) or ())
+        or (case["candidate"].atom,),
+        outcome=input_record.outcome_variable,
+        raw_hint=None,
+    )
+    assert binding.request_content_hash
+    assert binding.request.evidence_state == profile.n5.evidence_state
+    assert binding.request.comparator_profile == profile.n5.comparator_profile
+
+    stripped_n5 = input_record.n5.model_copy(
+        update={"evidence_state": None, "comparator_profile": None, "engine_variable_map": {}}
+    )
+    profile_fields = {
+        name: getattr(profile, name)
+        for name in type(profile).model_fields
+        if name != "content_hash"
+    }
+    profile_fields["n5"] = stripped_n5
+    stripped_profile_draft = GenericCycleSimulationProfileV1.model_construct(
+        **profile_fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    stripped_profile_body = stripped_profile_draft.model_dump(mode="json", exclude={"content_hash"})
+    stripped_profile = GenericCycleSimulationProfileV1.model_validate(
+        {
+            **stripped_profile_body,
+            "content_hash": gy_content_hash(stripped_profile_body),
+        }
+    )
+    input_fields = {
+        name: getattr(input_record, name)
+        for name in type(input_record).model_fields
+        if name != "content_hash"
+    }
+    input_fields.update(profile=stripped_profile, n5=stripped_n5)
+    stripped_input_draft = GenericCycleSimulationN5InputV1.model_construct(
+        **input_fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    stripped_input_body = stripped_input_draft.model_dump(mode="json", exclude={"content_hash"})
+    stripped_input = GenericCycleSimulationN5InputV1.model_validate(
+        {
+            **stripped_input_body,
+            "content_hash": gy_content_hash(stripped_input_body),
+        }
+    )
+    with (
+        tenant_scope(None, tenant_id=case["tenant_id"], cell_id=case["cell_id"]),
+        pytest.raises(
+            CycleSubstrateContextOwnerError,
+            match="generic_cycle_simulation_n5_input_content_mismatch",
+        ),
+    ):
+        case["owner"].resolve_n5_input(case["input_ref"], expected=stripped_input)
 
 
 @pytest.mark.asyncio
@@ -891,6 +1032,30 @@ def test_v3_binding_rejects_tampered_hash_profile_and_unknown_execution_version(
         parse_generic_cycle_simulation_n5_execution(
             {"schema_version": "policyos.runtime.generic_cycle_simulation_n5_execution.v99"}
         )
+
+
+def test_typed_request_binding_includes_explicit_ncm_optins_and_keeps_legacy_none_shape() -> None:
+    request = _request()
+    legacy_binding = GenericCycleSimulationN5RequestBindingV2.from_request(request)
+    legacy_body = request.model_dump(mode="json")
+    assert legacy_body["evidence_state"] is None
+    assert "comparator_profile" not in legacy_body
+
+    outcome = request.selected_outcomes[0]
+    opted_request = request.model_copy(
+        update={
+            "horizon": HorizonSpec(start=0, end=0, step=1),
+            "evidence_state": {outcome: request.baseline_state[outcome]},
+            "comparator_profile": NCMConditionalComparatorProfile(
+                outcome_units={outcome: "synthetic_unit"}
+            ),
+        }
+    )
+    opted_binding = GenericCycleSimulationN5RequestBindingV2.from_request(opted_request)
+    assert opted_binding.request_content_hash != legacy_binding.request_content_hash
+    assert opted_binding.request.evidence_state == {outcome: request.baseline_state[outcome]}
+    assert opted_binding.request.comparator_profile is not None
+    assert opted_binding.request.comparator_profile.outcome_units == {outcome: "synthetic_unit"}
 
 
 def test_generic_n5_rejects_instance_shadowing_of_canonical_port() -> None:

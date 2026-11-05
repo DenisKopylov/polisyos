@@ -2117,7 +2117,7 @@ class AcquisitionActionService:
             raise AcquisitionActionServiceError("candidate_experiment_job_payload_scope_mismatch")
         admission = self.control_service._control_store.current_execution_job_admission()
         if (
-            admission.job != job
+            not admission.matches_job_record(job)
             or admission.job.state != "running"
             or admission.scope != execution_scope
         ):
@@ -2343,7 +2343,7 @@ class AcquisitionActionService:
         if phase.receipt_phase != "candidate_input_reentry_pending" or selected_ref is None:
             raise AcquisitionRouteRecoveryRequired("candidate_experiment_reentry_pending_missing")
         admission = self.control_service._control_store.current_execution_job_admission()
-        if admission.job != job or admission.scope != execution_scope:
+        if not admission.matches_job_record(job) or admission.scope != execution_scope:
             raise AcquisitionActionServiceError("candidate_experiment_running_lease_changed")
         try:
             from polisyos.runtime.quality.acquisition_evaluation_dispatch import (

@@ -6,6 +6,7 @@ import json
 import sys
 from decimal import Decimal
 from pathlib import Path
+from traceback import TracebackException
 from typing import Any
 
 import pytest
@@ -55,6 +56,11 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
         ParentJointCandidateSelectionV4,
     )
     from tests._helpers.control_worker import dispatch_one_control_job
+    from tests.integration.runtime_quality.test_joint_interaction_cubic_consumer import (
+        _CANDIDATE_ONLY_SOURCE_QUOTE,
+        _SUPPORTED_CANDIDATE_ONLY_CLAIMS,
+        _ExactCandidateOnlySpanSupportClient,
+    )
 
     helper_name = "tests._helpers.generic_n4_served_replay"
     helper_path = (
@@ -82,6 +88,40 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
     assert prepared.tenant_id == fixture_identity.tenant_id
     assert prepared.cell_id == fixture_identity.cell_id
     assert len(prepared.children) == 3
+    candidate_only_constraints = tuple(
+        constraint
+        for constraint in prepared.recorded_problem.constraints
+        if constraint.constraint_id == "no_authority_without_a"
+    )
+    assert len(candidate_only_constraints) == 1
+    (candidate_only_constraint,) = candidate_only_constraints
+    assert candidate_only_constraint.source_text == _CANDIDATE_ONLY_SOURCE_QUOTE
+    assert candidate_only_constraint.source_text in prepared.request_json["request"]
+    assert candidate_only_constraint.description in _SUPPORTED_CANDIDATE_ONLY_CLAIMS
+
+    # The bounded shared fixture supports only the declared claim/quote pair;
+    # unsupported paraphrases abstain rather than bypassing grounding.
+    span_support_client = _ExactCandidateOnlySpanSupportClient()
+    compiler_exception_chains: list[str] = []
+    original_compiler = compiler_owner.build_design_problem_from_nl_request
+
+    async def compile_with_source_bound_span_support(**kwargs: Any) -> Any:
+        kwargs["span_support_client"] = span_support_client
+        try:
+            return await original_compiler(**kwargs)
+        except BaseException as exc:
+            compiler_exception_chains.append(
+                "".join(
+                    TracebackException.from_exception(exc, capture_locals=False).format(chain=True)
+                )
+            )
+            raise
+
+    monkeypatch.setattr(
+        compiler_owner,
+        "build_design_problem_from_nl_request",
+        compile_with_source_bound_span_support,
+    )
 
     ncm_step_calls = 0
     ncm_query_interventions: list[dict[str, float]] = []
@@ -134,7 +174,22 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
         )
         assert dispatched == accepted["job_id"]
         job = service._control_store.get_job(accepted["job_id"])
-        assert job is not None and job.state == "completed"
+        failure_details = (
+            f"job_id={accepted['job_id']} state={getattr(job, 'state', 'missing')} "
+            f"error_code={getattr(job, 'error_code', None)!r} "
+            f"error_type={getattr(job, 'error_type', None)!r} "
+            f"error_message={getattr(job, 'error_message', None)!r} "
+            f"error={getattr(job, 'error', None)!r}\n" + "\n".join(compiler_exception_chains)
+        )
+        assert job is not None and job.state == "completed", failure_details
+        assert not compiler_exception_chains
+        assert span_support_client.observations
+        assert all(
+            claim in _SUPPORTED_CANDIDATE_ONLY_CLAIMS
+            and span == _CANDIDATE_ONLY_SOURCE_QUOTE
+            and decision == "entails"
+            for claim, span, decision in span_support_client.observations
+        )
         ncm_step_calls_after_producer = ncm_step_calls
         assert ncm_step_calls_after_producer > 0
         ncm_queries_after_producer = len(ncm_query_interventions)

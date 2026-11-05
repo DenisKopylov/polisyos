@@ -67,10 +67,13 @@ if TYPE_CHECKING:
 
 
 def _case_with_explicit_empty_prior(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    candidate_case: _CandidateWorldCase | None = None,
 ) -> _CandidateWorldCase:
     """Retain real CAS/native owners, explicitly selecting no consumed SKG edges."""
-    case = _candidate_world_case(tmp_path, monkeypatch)
+    case = candidate_case or _candidate_world_case(tmp_path, monkeypatch)
     base = case.base.record
     views = world_model_artifact_views(base)
     owner = read_world_model_record_owner_values(
@@ -111,6 +114,7 @@ def _case_with_explicit_empty_prior(
 
 def _inputs(case: _CandidateWorldCase, *, coefficient: float = 0.5) -> CandidateSourceBasisInputs:
     base = case.base.record
+    outcome_variable = case.problem.outcome_of_interest.target_variable
     inputs = CandidateSimulationContextInputs(
         substrate_registry=case.substrate_registry,
         selected_registry_entry_hashes=tuple(
@@ -131,7 +135,7 @@ def _inputs(case: _CandidateWorldCase, *, coefficient: float = 0.5) -> Candidate
         horizon=HorizonSpec(start=0, end=0),
         baseline_state={
             "government.balance": 0.0,
-            "global.unemployment_rate": 0.0,
+            outcome_variable: 0.0,
             "global.tax_rate": 0.0,
         },
         seed=11,
@@ -163,9 +167,9 @@ def _inputs(case: _CandidateWorldCase, *, coefficient: float = 0.5) -> Candidate
         "profile_content_hash": profile.content_hash,
         "profile_selection_ref": profile.profile_selection_ref,
         "target_world_slot": rule.target_world_slot,
-        "outcome_variable": "global.unemployment_rate",
+        "outcome_variable": outcome_variable,
         "target_unit_id": rule.unit_id,
-        "outcome_unit_id": base.slot_binding("global.unemployment_rate").unit,
+        "outcome_unit_id": base.slot_binding(outcome_variable).unit,
         "target_baseline": 0.0,
         "outcome_baseline": 0.0,
         "outcome_per_target_unit": coefficient,

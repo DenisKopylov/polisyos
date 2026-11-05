@@ -50,6 +50,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     EnginePlan,
     HorizonSpec,
     JointSimulationRequest,
+    NCMConditionalComparatorProfile,
 )
 from polisyos.runtime.quality.substrate_registry import load_substrate_registry
 from polisyos.runtime.quality.world_model_record import (
@@ -107,6 +108,15 @@ class GenericCycleN5RequestProfileV1(_StrictModel):
     comparator_refs: tuple[str, ...] = ()
     seed: int = Field(default=0, strict=True)
     replications: int = Field(default=1, ge=1, strict=True)
+    evidence_state: dict[str, float] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    comparator_profile: NCMConditionalComparatorProfile | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    engine_variable_map: dict[str, str] = Field(
+        default_factory=dict, exclude_if=lambda value: not value
+    )
 
     @field_validator("baseline_state")
     @classmethod
@@ -115,12 +125,41 @@ class GenericCycleN5RequestProfileV1(_StrictModel):
             raise ValueError("generic_cycle_n5_baseline_non_finite")
         return values
 
+    @field_validator("evidence_state")
+    @classmethod
+    def _finite_evidence_state(cls, values: dict[str, float] | None) -> dict[str, float] | None:
+        if values is not None and any(not math.isfinite(value) for value in values.values()):
+            raise ValueError("generic_cycle_n5_evidence_non_finite")
+        return values
+
+    @field_validator("engine_variable_map", mode="before")
+    @classmethod
+    def _strict_engine_variable_map(cls, values: object) -> object:
+        if not isinstance(values, dict) or any(
+            type(key) is not str or type(value) is not str for key, value in values.items()
+        ):
+            raise ValueError("generic_cycle_n5_engine_variable_map_invalid")
+        return values
+
+    @field_validator("engine_variable_map")
+    @classmethod
+    def _nonblank_engine_variable_map(cls, values: dict[str, str]) -> dict[str, str]:
+        if any(not key.strip() or not value.strip() for key, value in values.items()):
+            raise ValueError("generic_cycle_n5_engine_variable_map_invalid")
+        return values
+
     @field_validator("comparator_refs")
     @classmethod
     def _unique_comparators(cls, values: tuple[str, ...]) -> tuple[str, ...]:
         if any(not value.strip() for value in values) or len(values) != len(set(values)):
             raise ValueError("generic_cycle_n5_comparator_ref_invalid")
         return values
+
+    @model_validator(mode="after")
+    def _comparator_requires_explicit_evidence(self) -> GenericCycleN5RequestProfileV1:
+        if self.comparator_profile is not None and self.evidence_state is None:
+            raise ValueError("generic_cycle_n5_comparator_evidence_state_required")
+        return self
 
 
 class GenericCycleN5RequestProfileV2(GenericCycleN5RequestProfileV1):
@@ -3130,17 +3169,43 @@ class GenericCycleSimulationAdmissionOwner:
             )
         ):
             raise CycleSubstrateContextOwnerError("generic_cycle_simulation_n5_plan_basis_mismatch")
+        merged_variable_map = dict(variable_map)
+        profile_variable_map = profile.n5.engine_variable_map
+        profile_axes_opted_in = (
+            profile.n5.evidence_state is not None
+            or profile.n5.comparator_profile is not None
+            or bool(profile_variable_map)
+        )
+        if profile_variable_map:
+            world_slots = {slot.slot_id for slot in world_record.policy_slot_map}
+            if any(key not in world_slots for key in profile_variable_map):
+                raise CycleSubstrateContextOwnerError(
+                    "generic_cycle_simulation_n5_plan_basis_mismatch"
+                )
+            for key, alias in profile_variable_map.items():
+                incoming = merged_variable_map.get(key)
+                if incoming is not None and incoming != key and incoming != alias:
+                    raise CycleSubstrateContextOwnerError(
+                        "generic_cycle_simulation_n5_plan_basis_mismatch"
+                    )
+                merged_variable_map[key] = alias
+        if profile_axes_opted_in and len(set(merged_variable_map.values())) != len(
+            merged_variable_map
+        ):
+            raise CycleSubstrateContextOwnerError("generic_cycle_simulation_n5_plan_basis_mismatch")
         plans: list[EnginePlan] = []
-        required_variables = set(variable_map.values()) | {variable_map.get(outcome, outcome)}
+        required_variables = set(merged_variable_map.values()) | {
+            merged_variable_map.get(outcome, outcome)
+        }
         ir_store = ensure_ir_artifact_store(self._store)
         for ref in _profile_ncm_plan_refs(profile):
             self._verify_json_artifact(ref, expected_kind="ir.ncm_spec")
             ncm = load_ncm_spec_default_view(
                 ir_store, NCMSpecRef.model_validate(ref.model_dump(mode="python"))
             )
-            if isinstance(profile.n5, GenericCycleN5RequestProfileV2) and not (
-                required_variables <= set(ncm.endogenous_vars)
-            ):
+            if (
+                isinstance(profile.n5, GenericCycleN5RequestProfileV2) or profile_axes_opted_in
+            ) and not (required_variables <= set(ncm.endogenous_vars)):
                 raise CycleSubstrateContextOwnerError(
                     "generic_cycle_simulation_n5_plan_estimand_mismatch"
                 )
@@ -3150,7 +3215,7 @@ class GenericCycleSimulationAdmissionOwner:
                     objective_ref=f"objective://{outcome}",
                     eligibility_conditions=("acyclic", "counterfactual_do_worlds"),
                     ncm_spec=ncm,
-                    variable_map=dict(variable_map),
+                    variable_map=dict(merged_variable_map),
                 )
             )
         return tuple(plans)
@@ -3235,7 +3300,17 @@ class GenericCycleSimulationAdmissionOwner:
             horizon=input_record.n5.horizon,
             engine_plan=plans,
             baseline_state=dict(input_record.n5.baseline_state),
+            evidence_state=(
+                dict(input_record.n5.evidence_state)
+                if input_record.n5.evidence_state is not None
+                else None
+            ),
             comparator_refs=input_record.n5.comparator_refs,
+            comparator_profile=(
+                input_record.n5.comparator_profile.model_copy(deep=True)
+                if input_record.n5.comparator_profile is not None
+                else None
+            ),
             budget_ref=input_record.n5.budget_ref,
             seed=input_record.n5.seed,
             replications=input_record.n5.replications,

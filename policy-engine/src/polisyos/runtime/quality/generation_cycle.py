@@ -6731,7 +6731,17 @@ class JointSimulationPort:
             horizon=persisted.n5.horizon,
             engine_plan=plans,
             baseline_state=dict(persisted.n5.baseline_state),
+            evidence_state=(
+                dict(persisted.n5.evidence_state)
+                if persisted.n5.evidence_state is not None
+                else None
+            ),
             comparator_refs=persisted.n5.comparator_refs,
+            comparator_profile=(
+                persisted.n5.comparator_profile.model_copy(deep=True)
+                if persisted.n5.comparator_profile is not None
+                else None
+            ),
             budget_ref=persisted.n5.budget_ref,
             seed=persisted.n5.seed,
             replications=persisted.n5.replications,

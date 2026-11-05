@@ -522,11 +522,14 @@ class WorldBankWDIAcquisitionExecutionPort:
 
         self.require_route_ready(closure)
         bridge = self._world_growth_bridge
+        candidate_selection = (
+            bridge.candidate_source_selection(closure) if bridge is not None else None
+        )
         if action_phase_ref is not None:
             if bridge is None:
                 self._raise_reentry_not_admitted()
             bridge.begin_action(closure, action_phase_ref)
-        if bridge is not None and bridge.candidate_source_selection(closure) is not None:
+        if bridge is not None and candidate_selection is not None:
             if action_phase_ref is None:
                 raise LiveAcquisitionExecutionError("candidate_action_phase_missing")
             from polisyos.scientist import BudgetState
@@ -596,7 +599,12 @@ class WorldBankWDIAcquisitionExecutionPort:
         )
         resolved = self._authority.resolve(binding.authority_entry_id)
         source_class = _CATALOG_API.resolve_source_observation_class(resolved)
-        if source_class is _CATALOG_API.ObservationProvenanceClass.MODEL_OUTPUT:
+        current_candidate_selection = (
+            bridge.candidate_source_selection(closure) if bridge is not None else None
+        )
+        if current_candidate_selection != candidate_selection:
+            self._raise_reentry_not_admitted()
+        if candidate_selection is not None:
             if bridge is None or action_phase_ref is None:
                 self._raise_reentry_not_admitted()
             candidate_ref, _receipt = bridge.admit_candidate(
@@ -608,6 +616,8 @@ class WorldBankWDIAcquisitionExecutionPort:
             return self._candidate_result(
                 candidate_ref, owner_receipt_refs, action_phase_ref=action_phase_ref
             )
+        if source_class is _CATALOG_API.ObservationProvenanceClass.MODEL_OUTPUT:
+            self._raise_reentry_not_admitted()
         growth = None
         if bridge is not None:
             try:

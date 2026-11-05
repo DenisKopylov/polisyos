@@ -8,11 +8,13 @@ import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import AbstractContextManager, contextmanager
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any, cast
 
 import pytest
 
+import polisyos.runtime.http.services.control_plane_store as control_plane_store_module
 import polisyos.runtime.http.services.control_worker as control_worker_module
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -44,6 +46,7 @@ from polisyos.runtime.http.services.control.job_attempt_publication import (
 )
 from polisyos.runtime.http.services.control.run_lifecycle import HumanDecisionAuthoritySink
 from polisyos.runtime.http.services.control_plane_store import (
+    ControlJobExecutionAdmission,
     ControlJobExecutionAdmissionError,
     ControlJobLeaseLostError,
     ControlJobRecord,
@@ -2059,6 +2062,63 @@ def _create_execution_admission_job(
     )
 
 
+def _read_execution_admission_fixture(
+    sqlite_root: Path,
+    *,
+    job_id: str = "job-execution-identity",
+    run_id: str = "run-execution-identity",
+    execution_scope: dict[str, object] | None = None,
+    pipeline_id: str | None = None,
+    requested_profile: str | None = None,
+    effective_profile: str = "dev",
+    policy_flags: dict[str, Any] | None = None,
+    capability_manifest_ref: str | None = "sha256:manifest-admission",
+    payload_ref: str | None = "sha256:payload-b",
+    submitted_by: str | None = "denis",
+) -> ControlJobExecutionAdmission:
+    """Read one real SQLite-backed execution admission for identity tests."""
+    store = _make_store(sqlite_root)
+    selected_policy_flags = {"candidate": True} if policy_flags is None else policy_flags
+    creation_event = {
+        **_job_creation_event(execution_scope=execution_scope),
+        "job_id": job_id,
+        "run_id": run_id,
+        "pipeline_id": pipeline_id,
+        "requested_execution_profile": requested_profile,
+        "effective_execution_profile": effective_profile,
+        "policy_flags": selected_policy_flags,
+        "capability_manifest_ref": capability_manifest_ref,
+        "payload_ref": payload_ref,
+        "submitted_by": submitted_by,
+    }
+    job = store.create_job(
+        job_id=job_id,
+        kind="workflow_run",
+        run_id=run_id,
+        pipeline_id=pipeline_id,
+        requested_execution_profile=requested_profile,
+        effective_execution_profile=effective_profile,
+        policy_flags=selected_policy_flags,
+        capability_manifest_ref=capability_manifest_ref,
+        payload_ref=payload_ref,
+        submitted_by=submitted_by,
+        creation_event_payload=creation_event,
+    )
+    worker_id = f"worker-{job_id}"
+    leased = store.lease_next_job(worker_id=worker_id, lease_seconds=30)
+    if leased is None:
+        raise AssertionError("execution admission fixture could not lease its job")
+    try:
+        with store.job_execution_fence(
+            job_id=job_id,
+            worker_id=worker_id,
+            attempt=leased.attempt,
+        ):
+            return store.current_execution_job_admission()
+    finally:
+        store.close()
+
+
 def _fence_leased_execution(
     store: ControlPlaneStore,
     *,
@@ -3484,6 +3544,228 @@ def test_control_job_execution_admission_uses_event_and_allows_fenced_pointer_re
 
     event = store.get_job_created_event_payload(job.job_id)
     assert event["capability_manifest_ref"] == "sha256:manifest-admission"
+
+
+def test_control_job_execution_admission_identity_survives_real_heartbeat_and_refresh(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A live heartbeat and pointer refresh preserve the admitted execution identity."""
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(
+        store,
+        execution_scope=_job_execution_scope(),
+    )
+    leased = store.lease_next_job(worker_id="worker-execution-admission", lease_seconds=30)
+    assert leased is not None
+
+    with store.job_execution_fence(
+        job_id=job.job_id,
+        worker_id="worker-execution-admission",
+        attempt=leased.attempt,
+    ):
+        before = store.current_execution_job_admission()
+        heartbeat_time = datetime.now(UTC).replace(microsecond=0) + timedelta(seconds=1)
+        monkeypatch.setattr(
+            control_plane_store_module,
+            "_utc_now",
+            lambda: heartbeat_time,
+        )
+        assert store.renew_job_lease(
+            job_id=job.job_id,
+            worker_id="worker-execution-admission",
+            lease_seconds=180,
+            expected_attempt=leased.attempt,
+        )
+        store.heartbeat_worker(
+            worker_id="worker-execution-admission",
+            state="running",
+            lease_seconds=180,
+            active_job_id=job.job_id,
+        )
+        store.upsert_progress(job_id=job.job_id, progress={"phase": "heartbeat_probe"})
+        renewed = store.current_execution_job_admission()
+
+        assert before.job.lease_expires_at != renewed.job.lease_expires_at
+        assert before.job.progress != renewed.job.progress
+        assert before != renewed
+        assert before.same_execution_identity(renewed)
+        assert renewed.matches_job_record(leased)
+
+        store.update_manifest_ref(
+            job_id=job.job_id,
+            capability_manifest_ref="sha256:manifest-refreshed",
+        )
+        refreshed = store.current_execution_job_admission()
+
+        assert refreshed.manifest_pointer_state == "refreshed_current"
+        assert refreshed.admission_capability_manifest_ref == before.admission_capability_manifest_ref
+        assert refreshed.same_execution_identity(before)
+        assert refreshed.matches_job_record(leased)
+
+
+def test_control_job_execution_admission_identity_rejects_changed_scope_and_inputs(
+    tmp_path: Path,
+) -> None:
+    """Live identity keeps full actor scope, run, manifest, profile, and job inputs bound."""
+    base_scope = _job_execution_scope()
+    baseline = _read_execution_admission_fixture(
+        tmp_path / "baseline",
+        execution_scope=base_scope,
+    )
+    changed_admissions = (
+        _read_execution_admission_fixture(
+            tmp_path / "run",
+            execution_scope=base_scope,
+            run_id="run-other",
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "profile",
+            execution_scope=base_scope,
+            effective_profile="production",
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "requested-profile",
+            execution_scope=base_scope,
+            requested_profile="research",
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "pipeline",
+            execution_scope=base_scope,
+            pipeline_id="pipeline-other",
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "policy",
+            execution_scope=base_scope,
+            policy_flags={"candidate": 1},
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "payload",
+            execution_scope=base_scope,
+            payload_ref="sha256:payload-other",
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "creation-manifest",
+            execution_scope=base_scope,
+            capability_manifest_ref="sha256:manifest-other",
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "tenant",
+            execution_scope={**base_scope, "tenant_id": "tenant-other"},
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "cell",
+            execution_scope={**base_scope, "cell_id": "cell-other"},
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "actor",
+            execution_scope={**base_scope, "actor_subject": "other-actor"},
+            submitted_by="other-actor",
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "roles",
+            execution_scope={**base_scope, "actor_roles": ["analyst"]},
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "unknown-scope",
+            execution_scope=None,
+        ),
+    )
+    assert all(not baseline.same_execution_identity(value) for value in changed_admissions)
+
+    changed_attempt = replace(
+        baseline,
+        job=replace(baseline.job, attempt=baseline.attempt + 1),
+        attempt=baseline.attempt + 1,
+    )
+    changed_owner = replace(
+        baseline,
+        job=replace(baseline.job, lease_owner="worker-other"),
+    )
+    changed_authenticated_scope = replace(
+        baseline.scope,
+        actor_authenticated=False,
+    )
+    changed_unknown_scope = replace(
+        baseline.scope,
+        status="not_established",
+        tenant_id=None,
+        cell_id=None,
+        actor_subject=None,
+        actor_authenticated=False,
+        actor_roles=(),
+    )
+    changed_diagnostic_record = replace(
+        baseline.job,
+        error_message="diagnostic-only",
+        progress={"phase": "telemetry-only"},
+    )
+    assert not baseline.same_execution_identity(changed_attempt)
+    assert not baseline.same_execution_identity(changed_owner)
+    assert not baseline.same_execution_identity(
+        replace(baseline, scope=changed_authenticated_scope)
+    )
+    assert not baseline.same_execution_identity(replace(baseline, scope=changed_unknown_scope))
+    assert baseline.job.same_execution_inputs(changed_diagnostic_record)
+    assert baseline.matches_job_record(changed_diagnostic_record)
+    assert not baseline.matches_job_record(replace(baseline.job, payload_ref="sha256:foreign"))
+    assert not baseline.matches_job_record(replace(baseline.job, submitted_by="foreign-actor"))
+
+
+def test_control_job_execution_admission_refuses_expired_and_reassigned_fences(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Semantic identity comparison never substitutes for a fresh persisted lease check."""
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(
+        store,
+        execution_scope=_job_execution_scope(),
+    )
+    store.mark_running(
+        job_id=job.job_id,
+        worker_id="worker-first",
+        lease_seconds=10,
+    )
+    first = store.get_job(job.job_id)
+    assert first is not None
+    assert first.attempt == 1 and first.lease_expires_at is not None
+    with store.job_execution_fence(
+        job_id=job.job_id,
+        worker_id="worker-first",
+        attempt=first.attempt,
+    ):
+        original_admission = store.current_execution_job_admission()
+        expired_at = first.lease_expires_at + timedelta(seconds=1)
+        monkeypatch.setattr(control_plane_store_module, "_utc_now", lambda: expired_at)
+        with pytest.raises(ControlJobLeaseLostError, match="lease is not current"):
+            store.current_execution_job_admission()
+
+    store.mark_running(
+        job_id=job.job_id,
+        worker_id="worker-reassigned",
+        lease_seconds=60,
+    )
+    reassigned = store.get_job(job.job_id)
+    assert reassigned is not None
+    assert reassigned.attempt == first.attempt + 1
+    with store.job_execution_fence(
+        job_id=job.job_id,
+        worker_id="worker-reassigned",
+        attempt=reassigned.attempt,
+    ):
+        current_admission = store.current_execution_job_admission()
+
+    assert not original_admission.same_execution_identity(current_admission)
+    with (
+        pytest.raises(ControlJobLeaseLostError, match="lease is not current"),
+        store.job_execution_fence(
+            job_id=job.job_id,
+            worker_id="worker-first",
+            attempt=first.attempt,
+        ),
+    ):
+        store.current_execution_job_admission()
 
 
 def test_control_job_execution_admission_keeps_scope_less_legacy_unknown(

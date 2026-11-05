@@ -1551,7 +1551,7 @@ class AcquisitionWorldGrowthBridge:
         if (
             fresh_selection != selection
             or fresh_phase != phase
-            or fresh_admission != admission
+            or not fresh_admission.same_execution_identity(admission)
             or fresh_action != action
         ):
             raise ValueError("candidate_experiment_reentry_owner_changed")
@@ -1609,10 +1609,13 @@ class AcquisitionWorldGrowthBridge:
             raise ValueError("candidate_source_world_prefetch_owner_not_established")
         profile, _declaration, _prior_owner = self._candidate_source_prior_owner(closure=closure)
         source_scope = resolved.entry.source_measure_scope
+        data_forge_read_api.catalog.resolve_source_observation_class(resolved)
         if (
-            resolved.entry.source_provenance_class != "model_output"
-            or source_scope.temporal_granularity != "annual"
-            or source_scope.denominator is None
+            source_scope.temporal_granularity != "annual"
+            or (
+                source_scope.quantity_kind == "share_of_denominator"
+                and source_scope.denominator is None
+            )
             or source_scope.population != selection.population
             or selection.country_code not in resolved.entry.country_codes
         ):

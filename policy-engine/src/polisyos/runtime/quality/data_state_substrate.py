@@ -96,6 +96,9 @@ ACQUIRED_DATA_STATE_SCHEMA_VERSION = "policyos.runtime.acquisition_data_state.v2
 CANDIDATE_ACQUISITION_DATA_STATE_SCHEMA_VERSION = (
     "policyos.runtime.candidate_acquisition_data_state.v1"
 )
+_CANDIDATE_ACQUISITION_DATA_STATE_SCHEMA_VERSION_V2 = (
+    "policyos.runtime.candidate_acquisition_data_state.v2"
+)
 _DATA_FORGE_SNAPSHOT_PIPELINE = "ukraine"
 ACQUIRED_DATA_STATE_LIMITATION_CODES = (
     "source_time_not_established",
@@ -1867,7 +1870,6 @@ def _candidate_acquisition_snapshot_values(
     )
     if (
         source.purpose != "candidate_simulation"
-        or source.observation_class != "model_output"
         or slot_binding.candidate_digest != source.candidate_digest
         or slot_binding.target_slot_id != source.target_slot_id
         or slot_binding.canonical_variable_id != source.resolved_source.entry.target_variable
@@ -1891,6 +1893,11 @@ def _candidate_acquisition_snapshot_values(
     if not isinstance(existing, dict):
         raise DataStateSubstrateError("acquisition_payload_owner_field_invalid")
     acquisition = dict(existing)
+    legacy_source = source.schema_version != "polisyos.runtime.candidate_acquisition_source.v3"
+    source_class = source.observation_class.value
+    source_mode = (
+        "candidate_acquisition_model_output" if legacy_source else "candidate_acquisition_source"
+    )
     acquisition["selected"] = {
         "value": source.observation,
         "canonical_variable_id": slot_binding.canonical_variable_id,
@@ -1902,31 +1909,35 @@ def _candidate_acquisition_snapshot_values(
         "population": source.population,
         "denominator": source.denominator,
         "quantity_kind": source.quantity_kind,
-        "provenance_class": "model_output",
+        "provenance_class": source_class,
         "source_time_status": "not_established",
     }
     payload["acquisition"] = acquisition
     transaction_time_text = transaction_time.astimezone(UTC).isoformat()
     payload["_policyos_candidate_acquisition"] = {
-        "schema_version": CANDIDATE_ACQUISITION_DATA_STATE_SCHEMA_VERSION,
+        "schema_version": (
+            CANDIDATE_ACQUISITION_DATA_STATE_SCHEMA_VERSION
+            if legacy_source
+            else _CANDIDATE_ACQUISITION_DATA_STATE_SCHEMA_VERSION_V2
+        ),
         "base_data_snapshot_ref": base_data_snapshot_ref.model_dump(mode="json"),
         "candidate_source_ref": candidate_source_ref.model_dump(mode="json"),
         "slot_binding": slot_binding.model_dump(mode="json"),
         "materialized_at_transaction_time": transaction_time_text,
         "purpose": "candidate_simulation",
-        "source_provenance_class": "model_output",
+        "source_provenance_class": source_class,
         "limitation_codes": list(source.limitations),
     }
     stats: dict[str, int | str] = {
         "base_snapshot_id": base_snapshot_id,
-        "source_mode": "candidate_acquisition_model_output",
+        "source_mode": source_mode,
         "candidate_source_id": str(candidate_source_ref.artifact_id),
         "candidate_digest": source.candidate_digest,
         "source_time_status": "not_established",
         "materialized_at_transaction_time": transaction_time_text,
     }
     notes = [
-        "candidate_acquisition_model_output",
+        source_mode,
         "source_time_status:not_established",
         "measurement_authority_not_established",
         "causal_coupling_not_established",
@@ -1941,7 +1952,7 @@ def _candidate_acquisition_snapshot_values(
         required=True,
         notes=[
             "candidate_only_controlled_mapping",
-            "source_provenance:model_output",
+            f"source_provenance:{source_class}",
             "source_time_not_established",
             "source_to_target_measurement_contract_not_established",
             f"profile_selection_ref:{slot_binding.profile_selection_ref}",
@@ -1950,6 +1961,35 @@ def _candidate_acquisition_snapshot_values(
         ],
     )
     return payload, stats, notes, rule
+
+
+def _candidate_acquisition_binding_semantics(
+    payload: dict[str, Any], target_slot_id: str
+) -> tuple[str, tuple[dict[str, str], ...]]:
+    """Keep legacy binding labels while versioning provenance-neutral inputs."""
+    marker = payload.get("_policyos_candidate_acquisition")
+    if not isinstance(marker, dict):
+        raise DataStateSubstrateError("candidate_source_payload_marker_missing")
+    version = marker.get("schema_version")
+    if version == CANDIDATE_ACQUISITION_DATA_STATE_SCHEMA_VERSION:
+        corpus_id = "candidate-acquisition-model-output"
+        requirement_id = f"candidate-model-output:{target_slot_id}"
+        requirement_kind = "candidate_acquisition_model_output"
+    elif version == _CANDIDATE_ACQUISITION_DATA_STATE_SCHEMA_VERSION_V2:
+        corpus_id = "candidate-acquisition-source"
+        requirement_id = f"candidate-source:{target_slot_id}"
+        requirement_kind = "candidate_acquisition_source"
+    else:
+        raise DataStateSubstrateError("candidate_source_payload_version_unsupported")
+    return corpus_id, (
+        {
+            "claim_id": "candidate-acquired-world-state",
+            "requirement_id": requirement_id,
+            "requirement_kind": requirement_kind,
+            "authority_level": "candidate",
+            "time_role": "transaction_time",
+        },
+    )
 
 
 def _candidate_acquisition_data_snapshot(
@@ -2010,6 +2050,13 @@ def verify_candidate_acquisition_snapshot_payload(
         slot_binding=binding,
         transaction_time=transaction_time,
     )
+    expected_payload_schema = SchemaInfo(
+        name="polisyos.runtime.quality.CandidateAcquisitionDataStatePayload",
+        version=expected["_policyos_candidate_acquisition"]["schema_version"],
+    )
+    _require_selected_profile(snapshot.data_ref, "candidate_source_payload_profile_unselected")
+    if store.get_manifest(snapshot.data_ref).artifact_schema != expected_payload_schema:
+        raise DataStateSubstrateError("candidate_source_payload_schema_mismatch")
     expected_snapshot = _candidate_acquisition_data_snapshot(
         payload_ref=snapshot.data_ref,
         base_data_snapshot_ref=base_data_snapshot_ref,
@@ -2049,7 +2096,7 @@ def materialize_candidate_acquisition_snapshot(
     transaction_time: datetime,
     authority: CanonicalAcquisitionAuthority,
 ) -> CandidateAcquisitionDataSnapshotResult:
-    """Persist a limited candidate-model output without admitting an observation.
+    """Persist a limited candidate source without granting observed-data admission.
 
     The live source owner is revalidated before writing. Historical verification
     reopens immutable inputs but does not assert present source authority.
@@ -2086,6 +2133,7 @@ def materialize_candidate_acquisition_snapshot(
             candidate_source_ref, role="evidence.candidate_acquisition_source"
         ),
     ]
+    payload_schema_version = payload["_policyos_candidate_acquisition"]["schema_version"]
     payload_ref = store.put_json(
         payload,
         PutOptions(
@@ -2093,7 +2141,7 @@ def materialize_candidate_acquisition_snapshot(
             media_type="application/json",
             schema=SchemaInfo(
                 name="polisyos.runtime.quality.CandidateAcquisitionDataStatePayload",
-                version=CANDIDATE_ACQUISITION_DATA_STATE_SCHEMA_VERSION,
+                version=payload_schema_version,
             ),
             inputs=inputs,
             tenant_context=source_manifest.tenant_context,
@@ -2130,13 +2178,16 @@ def materialize_candidate_acquisition_snapshot(
     validate_data_snapshot_owner_lineage(store, data_snapshot_ref, snapshot, candidate_only=True)
     workspace_dir = Path(workspace_dir)
     workspace_dir.mkdir(parents=True, exist_ok=True)
+    corpus_id, claim_requirement_bindings = _candidate_acquisition_binding_semantics(
+        payload, slot_binding.canonical_variable_id
+    )
     binding_path = _write_data_forge_snapshot_binding(
         workspace_dir=workspace_dir,
         snapshot_id=str(snapshot.stats["snapshot_id"]),
         payload=payload,
         payload_content_hash=str(payload_ref.artifact_id),
         published_at=str(stats["materialized_at_transaction_time"]),
-        corpus_id="candidate-acquisition-model-output",
+        corpus_id=corpus_id,
         builder_revision=(
             "polisyos.runtime.quality.data_state_substrate."
             "materialize_candidate_acquisition_snapshot"
@@ -2146,15 +2197,7 @@ def materialize_candidate_acquisition_snapshot(
             _cas_data_forge_ref(candidate_source_ref),
             _cas_data_forge_ref(payload_ref),
         ),
-        claim_requirement_bindings=(
-            {
-                "claim_id": "candidate-acquired-world-state",
-                "requirement_id": f"candidate-model-output:{slot_binding.canonical_variable_id}",
-                "requirement_kind": "candidate_acquisition_model_output",
-                "authority_level": "candidate",
-                "time_role": "transaction_time",
-            },
-        ),
+        claim_requirement_bindings=claim_requirement_bindings,
         confine_outputs=True,
     )
     return CandidateAcquisitionDataSnapshotResult(

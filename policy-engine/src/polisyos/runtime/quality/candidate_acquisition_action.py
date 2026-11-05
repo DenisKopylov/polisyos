@@ -645,7 +645,7 @@ def _current_candidate_experiment_action(
     after = bridge.control_store.current_execution_job_admission()
     if (
         current_head != head
-        or after != admission
+        or not after.same_execution_identity(admission)
         or service.acquisition_route_sink.experiment_action_outcomes(
             tenant_id=origin.tenant_id,
             cell_id=origin.cell_id,

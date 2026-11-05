@@ -169,3 +169,16 @@ migration = "New @3 terminal history requires its canonical owner replay; old ar
 generated_client_compatibility = "declared_compatible"
 generated_client_notes = "OpenAPI, dashboard and canonical Runtime client types are additive; V5 Core and frontend controls preserve exact profile identity and blocked/retained semantics."
 limitations = "Component contracts and UI checks do not establish a full @3 producer-to-GET execution. The unfinished producer, history and retention composition remains fail-closed; no G acceptance or closure is inferred."
+
+[[compatibility_change]]
+id = "lane01-stable-execution-and-candidate-provenance"
+change_class = "runtime-state-format"
+impact = "additive-with-writer-upgrade"
+surface = "internal selected candidate artifacts and execution admission; existing public action/status projection"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Compare immutable execution inputs and creation-scoped admission across fresh SQL lease checks, allowing valid heartbeat renewal. Preserve model-output source v1/v2 and state v1; observed candidate inputs use source v3/state v2 with exact class/schema/selection replay. Optional N5 evidence/comparator/owned aliases preserve legacy absent-field bytes and reject alias collapse before physical execution."
+migration = "Readers must understand source v3/state v2 before observed candidate writers are enabled. Historical artifacts remain unchanged. Explicit comparator inputs are declared model conditions, not empirical grounding."
+generated_client_compatibility = "not_applicable"
+limitations = "Observed provenance does not grant observed admission or publication authority. Native served acquisition, numerical cubic and fresh observed transport qualification remain separate from component checks. L5 native epoch provenance remains fail-closed."

@@ -20,6 +20,7 @@ from polisyos.runtime.quality.acquisition_planner import (
 from polisyos.runtime.quality.candidate_acquisition_source import (
     CANDIDATE_ACQUISITION_SOURCE_SCHEMA,
     CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V2,
+    CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V3,
     CandidateAcquisitionSource,
     _write_options,
     persist_candidate_acquisition_source,
@@ -28,6 +29,7 @@ from polisyos.runtime.quality.candidate_acquisition_source import (
 from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
 from tests._helpers.lane01_candidate_source import (
     GDP_COMPILER_INPUT,
+    UNEMPLOYMENT_COMPILER_INPUT,
     build_lane01_candidate_source,
     compile_lane01_candidate_report,
 )
@@ -388,6 +390,159 @@ def test_generated_gdp_candidate_source_reopens_with_independent_identity_oracle
     assert changed.source.status == "candidate_only"
 
 
+@pytest.mark.parametrize("source_class", ["model_output", "observed"])
+def test_candidate_source_refuses_cross_version_selected_view(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, source_class: str
+) -> None:
+    """Body versions bind the exact selected schema, even when source bytes are identical."""
+    from tests._helpers.candidate_holdout_resource import wdi_response_for_year
+
+    options = (
+        {
+            "profile": GDP_PROFILE,
+            "compiler_input": GDP_COMPILER_INPUT,
+            "response_body": wdi_response_for_year(2024),
+        }
+        if source_class == "observed"
+        else {}
+    )
+    fixture = build_lane01_candidate_source(tmp_path, monkeypatch, **options)
+    source = fixture.source
+    wrong_schema = (
+        CANDIDATE_ACQUISITION_SOURCE_SCHEMA
+        if source_class == "observed"
+        else CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V3
+    )
+    alias = fixture.store.put_bytes(
+        fixture.store.get_bytes(fixture.source_ref),
+        replace(
+            _write_options(source),
+            schema=artifacts.SchemaInfo(name=wrong_schema, version=wrong_schema.rsplit("v", 1)[1]),
+        ),
+        return_selected_profile=True,
+    )
+    assert alias.artifact_id == fixture.source_ref.artifact_id
+    assert alias.manifest_profile_sha256 != fixture.source_ref.manifest_profile_sha256
+    fresh = artifacts.FileSystemCAS(fixture.store.root)
+    assert fresh.verify(alias).ok
+    with pytest.raises(ValueError, match="candidate_source_manifest_binding_mismatch"):
+        read_candidate_acquisition_source(fresh, source_ref=alias)
+    assert read_candidate_acquisition_source(fresh, source_ref=fixture.source_ref) == source
+
+
+def test_observed_source_refuses_conflicting_descriptor_provenance_with_actual_capture(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Preserved candidate markers cannot substitute a model-output label for observed bytes."""
+    from tests._helpers import lane01_candidate_source as source_helper
+    from tests._helpers.candidate_holdout_resource import wdi_response_for_year
+
+    governed = RequirementToCapabilityResolver.governed_fixture()
+    capabilities = []
+    for capability in governed.capabilities:
+        if capability.construct_id == "economic.gdp":
+            (asset,) = capability.source_assets
+            capability = capability.model_copy(
+                update={
+                    "source_assets": (
+                        asset.model_copy(
+                            update={
+                                "metadata": asset.metadata
+                                | {"observation_provenance": "model_output"}
+                            }
+                        ),
+                    )
+                }
+            )
+        capabilities.append(capability)
+    resolver = RequirementToCapabilityResolver(
+        capabilities=capabilities,
+        failure_modes=governed.failure_modes,
+        acquisition_strategies=governed.acquisition_strategies,
+        conflicts=governed.conflicts,
+        capability_index_ref=governed.capability_index_ref,
+    )
+    capture = wdi_response_for_year(2024)
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    executions = []
+    actual_persist = source_helper.persist_candidate_acquisition_source
+
+    def retain_actual_execution(*args, **kwargs):
+        executions.append(kwargs["live_source_execution"])
+        return actual_persist(*args, **kwargs)
+
+    monkeypatch.setattr(
+        source_helper, "persist_candidate_acquisition_source", retain_actual_execution
+    )
+    with pytest.raises(ValueError, match="candidate_source_descriptor_scope_mismatch"):
+        build_lane01_candidate_source(
+            tmp_path,
+            monkeypatch,
+            store=store,
+            profile=GDP_PROFILE,
+            compiler_input=GDP_COMPILER_INPUT,
+            capability_resolver=resolver,
+            response_body=capture,
+        )
+    assert len(executions) == 1
+    assert store.get_bytes(executions[0].raw_artifact_ref) == capture
+
+
+@pytest.mark.parametrize(
+    ("source_class", "direct_mode"),
+    [("observed", "model_output"), ("model_output", "observed")],
+)
+def test_candidate_source_refuses_direct_descriptor_class_contradiction(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, source_class: str, direct_mode: str
+) -> None:
+    """Explicit source metadata cannot hide a conflicting direct capability declaration."""
+    from tests._helpers.candidate_holdout_resource import wdi_response_for_year
+
+    profile = GDP_PROFILE if source_class == "observed" else UNEMPLOYMENT_PROFILE
+    compiler_input = (
+        GDP_COMPILER_INPUT if source_class == "observed" else UNEMPLOYMENT_COMPILER_INPUT
+    )
+    governed = RequirementToCapabilityResolver.governed_fixture()
+    capabilities = []
+    for capability in governed.capabilities:
+        if capability.construct_id == profile.construct:
+            (asset,) = capability.source_assets
+            capability = capability.model_copy(
+                update={
+                    "evidence_mode": direct_mode,
+                    "source_assets": (
+                        asset.model_copy(
+                            update={
+                                "metadata": asset.metadata
+                                | {"observation_provenance": source_class}
+                            }
+                        ),
+                    ),
+                }
+            )
+        capabilities.append(capability)
+    resolver = RequirementToCapabilityResolver(
+        capabilities=capabilities,
+        failure_modes=governed.failure_modes,
+        acquisition_strategies=governed.acquisition_strategies,
+        conflicts=governed.conflicts,
+        capability_index_ref=governed.capability_index_ref,
+    )
+    with pytest.raises(ValueError, match="candidate_source_descriptor_scope_mismatch"):
+        build_lane01_candidate_source(
+            tmp_path,
+            monkeypatch,
+            profile=profile,
+            compiler_input=compiler_input,
+            capability_resolver=resolver,
+            response_body=(
+                wdi_response_for_year(2024)
+                if source_class == "observed"
+                else fixture_wdi_response(profile)
+            ),
+        )
+
+
 def test_candidate_source_v2_rejects_share_without_denominator(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -420,17 +575,127 @@ def test_candidate_source_v1_keeps_required_denominator_contract(
         CandidateAcquisitionSource.model_validate(payload)
 
 
-def test_governed_observed_gdp_profile_cannot_be_promoted_to_candidate_source(
+def test_governed_observed_gdp_candidate_source_reopens_with_observed_identity(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """The unchanged GDP profile lacks the model-output custody contract."""
-    with pytest.raises(ValueError, match="candidate_source_owner_scope_mismatch"):
-        build_lane01_candidate_source(
-            tmp_path,
-            monkeypatch,
-            profile=GDP_PROFILE,
-            compiler_input=GDP_COMPILER_INPUT,
+    """The real GDP owner, compiler descriptor, and derived identity remain observed."""
+    fixture = build_lane01_candidate_source(
+        tmp_path / "observed-gdp",
+        monkeypatch,
+        profile=GDP_PROFILE,
+        compiler_input=GDP_COMPILER_INPUT,
+        response_body=fixture_wdi_response(GDP_PROFILE),
+    )
+    source = fixture.source
+    assert source.observation == GDP_PROFILE.fixture_value
+    assert source.schema_version == CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V3
+    assert _write_options(source).schema.name == CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V3
+    assert _write_options(source).schema.version == "3"
+    assert source.observation_class == "observed"
+    assert source.resolved_source.entry.source_provenance_class == "observed"
+    assert source.status == "candidate_only"
+    assert source.purpose == "candidate_simulation"
+    assert source.source_currentness == "source_currentness_not_established"
+    assert {
+        "measurement_validity_not_established",
+        "causal_validity_not_established",
+        "claim_evidence_not_established",
+    }.issubset(source.limitations)
+
+    report = DataRequirementCompilationReport.model_validate(
+        artifacts.load_core_json_artifact(fixture.store, fixture.binding.compiler_report_ref)
+    )
+    (resolution,) = report.capability_requirement_resolutions or ()
+    (candidate,) = resolution.candidate_discovery.candidates
+    assert candidate.descriptor["evidence_mode"] == "observed"
+
+    # Reopen through a fresh CAS handle so the result does not rely on the
+    # in-memory object returned by the producer.
+    reopened_store = artifacts.FileSystemCAS(fixture.store.root)
+    reopened = read_candidate_acquisition_source(
+        reopened_store, source_ref=fixture.source_ref, authority=fixture.authority
+    )
+    assert reopened == source
+
+    # The source artifact's own provenance label is content-addressed but not
+    # self-authorizing; a coherently written label that contradicts the live
+    # owner's derived identity is refused on readback.
+    forged = source.model_copy(
+        update={"observation_class": catalog.ObservationProvenanceClass.MODEL_OUTPUT}
+    )
+    forged_ref = fixture.store.put_json(
+        forged,
+        _write_options(forged),
+        canon_spec=canon.CanonSpec(forbid_floats=False, exclude_none=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(ValueError, match="candidate_source_provenance_mismatch"):
+        read_candidate_acquisition_source(fixture.store, source_ref=forged_ref)
+
+    for scope_override in ({"canonical_unit": "ratio"}, {"year": source.year - 1}):
+        forged_scope = source.model_copy(update=scope_override)
+        forged_scope_ref = fixture.store.put_json(
+            forged_scope,
+            _write_options(forged_scope),
+            canon_spec=canon.CanonSpec(forbid_floats=False, exclude_none=False),
+            return_selected_profile=True,
         )
+        with pytest.raises(ValueError, match="candidate_source_owner_scope_mismatch"):
+            read_candidate_acquisition_source(fixture.store, source_ref=forged_scope_ref)
+
+    # The legacy schemas remain model-output-only even when every other field
+    # is structurally valid for that schema.
+    for legacy_schema in (
+        CANDIDATE_ACQUISITION_SOURCE_SCHEMA,
+        CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V2,
+    ):
+        legacy_payload = source.model_dump(mode="json")
+        legacy_payload["schema_version"] = legacy_schema
+        legacy_payload["denominator"] = "national_economy"
+        with pytest.raises(
+            ValidationError, match="candidate_acquisition_source_legacy_provenance_mismatch"
+        ):
+            CandidateAcquisitionSource.model_validate(legacy_payload)
+
+    missing_v3_class = source.model_dump(mode="json")
+    missing_v3_class.pop("observation_class")
+    with pytest.raises(
+        ValidationError, match="candidate_acquisition_source_v3_requires_observation_class"
+    ):
+        CandidateAcquisitionSource.model_validate(missing_v3_class)
+
+    # A wrong writer profile and removed selected owner bytes cannot be made
+    # valid merely by carrying the observed source label forward.
+    wrong_writer_options = replace(
+        _write_options(source),
+        producer=artifacts.ProducerInfo(component="test.other_writer", version="3.0"),
+    )
+    wrong_writer_ref = fixture.store.put_json(
+        source,
+        wrong_writer_options,
+        canon_spec=canon.CanonSpec(forbid_floats=False, exclude_none=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(ValueError, match="candidate_source_manifest_binding_mismatch"):
+        read_candidate_acquisition_source(fixture.store, source_ref=wrong_writer_ref)
+
+    original_get_bytes = fixture.store.get_bytes
+    for removed in (source.raw_source_ref, source.normalized_source_ref):
+
+        def get_bytes(
+            ref: object,
+            *args: object,
+            removed_id: str = str(removed.artifact_id),
+            **options: object,
+        ) -> bytes:
+            if str(getattr(ref, "artifact_id", ref)) == removed_id:
+                raise FileNotFoundError("selected observed source bytes removed")
+            return original_get_bytes(ref, *args, **options)
+
+        with monkeypatch.context() as scoped:
+            scoped.setattr(fixture.store, "get_bytes", get_bytes)
+            with pytest.raises(FileNotFoundError, match="selected observed source bytes removed"):
+                read_candidate_acquisition_source(fixture.store, source_ref=fixture.source_ref)
 
 
 def test_generated_gdp_candidate_refuses_observed_source_class(
@@ -438,7 +703,7 @@ def test_generated_gdp_candidate_refuses_observed_source_class(
 ) -> None:
     """A model-output candidate descriptor cannot admit an observed-class source owner."""
     observed_profile = replace(_generated_gdp_profile(), source_provenance_class="observed")
-    with pytest.raises(ValueError, match="candidate_source_owner_scope_mismatch"):
+    with pytest.raises(ValueError, match="candidate_source_descriptor_scope_mismatch"):
         build_lane01_candidate_source(
             tmp_path,
             monkeypatch,

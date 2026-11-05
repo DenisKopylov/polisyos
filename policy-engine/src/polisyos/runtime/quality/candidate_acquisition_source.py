@@ -35,6 +35,7 @@ if TYPE_CHECKING:
 CANDIDATE_ACQUISITION_SOURCE_KIND = "runtime.quality.candidate_acquisition_source"
 CANDIDATE_ACQUISITION_SOURCE_SCHEMA = "polisyos.runtime.candidate_acquisition_source.v1"
 CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V2 = "polisyos.runtime.candidate_acquisition_source.v2"
+CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V3 = "polisyos.runtime.candidate_acquisition_source.v3"
 _CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
 _LIMITATIONS = (
     "candidate_only",
@@ -58,10 +59,13 @@ class CandidateAcquisitionSource(BaseModel):
     schema_version: Literal[
         "polisyos.runtime.candidate_acquisition_source.v1",
         "polisyos.runtime.candidate_acquisition_source.v2",
+        "polisyos.runtime.candidate_acquisition_source.v3",
     ] = CANDIDATE_ACQUISITION_SOURCE_SCHEMA
     status: Literal["candidate_only"] = "candidate_only"
     purpose: Literal["candidate_simulation"] = "candidate_simulation"
-    observation_class: Literal["model_output"] = "model_output"
+    observation_class: catalog.ObservationProvenanceClass = (
+        catalog.ObservationProvenanceClass.MODEL_OUTPUT
+    )
     source_currentness: Literal["source_currentness_not_established"] = (
         "source_currentness_not_established"
     )
@@ -94,6 +98,14 @@ class CandidateAcquisitionSource(BaseModel):
 
     @model_validator(mode="after")
     def _denominator_matches_schema_and_quantity(self) -> CandidateAcquisitionSource:
+        if self.schema_version != CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V3 and (
+            self.observation_class is not catalog.ObservationProvenanceClass.MODEL_OUTPUT
+        ):
+            raise ValueError("candidate_acquisition_source_legacy_provenance_mismatch")
+        if self.schema_version == CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V3 and (
+            "observation_class" not in self.model_fields_set
+        ):
+            raise ValueError("candidate_acquisition_source_v3_requires_observation_class")
         if self.schema_version == CANDIDATE_ACQUISITION_SOURCE_SCHEMA and self.denominator is None:
             raise ValueError("candidate_acquisition_source_v1_requires_denominator")
         if self.quantity_kind == "share_of_denominator" and self.denominator is None:
@@ -161,12 +173,8 @@ def _source_inputs(source: CandidateAcquisitionSource) -> list[artifacts.InputRe
 
 
 def _write_options(source: CandidateAcquisitionSource) -> artifacts.ArtifactWriteOptions:
-    schema_name = (
-        CANDIDATE_ACQUISITION_SOURCE_SCHEMA
-        if source.schema_version == CANDIDATE_ACQUISITION_SOURCE_SCHEMA
-        else CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V2
-    )
-    schema_version = "1" if source.schema_version == CANDIDATE_ACQUISITION_SOURCE_SCHEMA else "2"
+    schema_name = source.schema_version
+    schema_version = schema_name.rsplit(".v", maxsplit=1)[1]
     producer_version = schema_version + ".0"
     return artifacts.ArtifactWriteOptions(
         kind=CANDIDATE_ACQUISITION_SOURCE_KIND,
@@ -322,11 +330,20 @@ def _validate_scope(
     registration = resolved.registration
     projection = resolved.upstream_catalog_projection
     measure_scope = entry.source_measure_scope
+    try:
+        observation_class = catalog.resolve_source_observation_class(resolved)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("candidate_source_owner_scope_mismatch") from exc
     descriptor = candidate.descriptor
     assets = candidate.source_assets
     if len(assets) != 1 or not isinstance(assets[0].get("metadata"), dict):
         raise ValueError("candidate_source_asset_ambiguous_or_missing")
     metadata = assets[0]["metadata"]
+    # Capability evidence categories can be broader than source provenance:
+    # the modeled labor panel is a derived capability with model_output bytes.
+    # A source-level declaration wins; a canonical category is the fallback
+    # for descriptors such as observed inputs that omit the redundant field.
+    descriptor_provenance = metadata.get("observation_provenance", descriptor.get("evidence_mode"))
     scope = candidate.scope
     fetch = metadata.get("catalog_fetch_binding")
     expected_fetch = {
@@ -338,9 +355,6 @@ def _validate_scope(
     owner_start, owner_end = catalog.resolve_live_temporal_bounds(entry)
     if (
         entry.source_lane != "live_fetch"
-        or entry.source_provenance_class != "model_output"
-        or catalog.resolve_source_observation_class(resolved)
-        is not catalog.ObservationProvenanceClass.MODEL_OUTPUT
         or measure_scope is None
         or measure_scope.population != population
         or measure_scope.denominator != denominator
@@ -391,10 +405,18 @@ def _validate_scope(
         not in {"draft", "governed", "active"}
         or fetch != expected_fetch
         or metadata.get("indicator_id") != registration.request_dataset_id
-        or metadata.get("observation_provenance") != "model_output"
+        or (
+            descriptor.get("evidence_mode")
+            in {
+                catalog.ObservationProvenanceClass.OBSERVED.value,
+                catalog.ObservationProvenanceClass.MODEL_OUTPUT.value,
+            }
+            and descriptor["evidence_mode"] != observation_class.value
+        )
+        or descriptor_provenance != observation_class.value
         or metadata.get("population_scope") != population
         or metadata.get("denominator") != denominator
-        or metadata.get("quantity_kind") != quantity_kind
+        or metadata.get("quantity_kind", "unconstrained") != quantity_kind
         or metadata.get("temporal_granularity") != "annual"
         or metadata.get("target_world_slot") != target_slot_id
         or metadata.get("canonical_unit") != entry.canonical_unit
@@ -516,6 +538,9 @@ def _replay_source(
     proof = source.live_source_execution
     resolved = source.resolved_source
     entry = resolved.entry
+    observation_class = catalog.resolve_source_observation_class(resolved)
+    if source.observation_class is not observation_class:
+        raise ValueError("candidate_source_provenance_mismatch")
     registration = resolved.registration
     request = source.request_projection
     if (
@@ -710,7 +735,7 @@ def _replay_source(
             epoch_id=0,
             source_watermark=proof.raw_body_sha256,
             dataset_version="source_release_not_established",
-            observation_class=catalog.ObservationProvenanceClass.MODEL_OUTPUT,
+            observation_class=observation_class,
         ),
         registration=registration,
     )
@@ -718,7 +743,7 @@ def _replay_source(
         derived.country_code != source.country_code
         or derived.year != source.year
         or derived.canonical_var != source.target_slot_id
-        or derived.observation_class != catalog.ObservationProvenanceClass.MODEL_OUTPUT
+        or derived.observation_class is not observation_class
     ):
         raise ValueError("candidate_source_derived_scope_mismatch")
     if source.quantity_kind == "share_of_denominator" and not 0.0 <= derived.value <= 1.0:
@@ -755,7 +780,7 @@ def persist_candidate_acquisition_source(
     job_id: str,
     route_id: str,
 ) -> artifacts.ArtifactRef:
-    """Persist a live-verified MODEL_OUTPUT source as a candidate-only CAS record."""
+    """Persist live-verified source provenance without observed-data authority."""
     if type(authority) is not catalog.CanonicalAcquisitionAuthority:
         raise TypeError("candidate_source_canonical_authority_required")
     if type(live_source_execution) is not catalog.LiveSourceExecutionEvidence:
@@ -774,6 +799,10 @@ def persist_candidate_acquisition_source(
     ):
         raise ValueError("candidate_source_raw_profile_unselected")
     resolved = authority.resolve(entry_id)
+    try:
+        observation_class = catalog.resolve_source_observation_class(resolved)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("candidate_source_owner_scope_mismatch") from exc
     if resolved.entry.source_measure_scope is None or (
         resolved.entry.source_measure_scope.quantity_kind == "share_of_denominator"
         and resolved.entry.source_measure_scope.denominator is None
@@ -789,10 +818,15 @@ def persist_candidate_acquisition_source(
     snapshot = DataSnapshot.model_validate(artifacts.load_core_json_artifact(store, snapshot_ref))
     source = CandidateAcquisitionSource(
         schema_version=(
-            CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V2
-            if resolved.entry.source_measure_scope.denominator is None
-            else CANDIDATE_ACQUISITION_SOURCE_SCHEMA
+            CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V3
+            if observation_class is not catalog.ObservationProvenanceClass.MODEL_OUTPUT
+            else (
+                CANDIDATE_ACQUISITION_SOURCE_SCHEMA_V2
+                if resolved.entry.source_measure_scope.denominator is None
+                else CANDIDATE_ACQUISITION_SOURCE_SCHEMA
+            )
         ),
+        observation_class=observation_class,
         tenant_id=tenant_id,
         cell_id=cell_id,
         run_id=run_id,

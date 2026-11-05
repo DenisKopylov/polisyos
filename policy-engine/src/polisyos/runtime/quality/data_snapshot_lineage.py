@@ -57,6 +57,23 @@ CANDIDATE_SOURCE_LIMITATIONS = (
     "measurement_authority_not_established",
     "publication_authority_not_established",
 )
+_CANDIDATE_PAYLOAD_SCHEMAS = tuple(
+    SchemaInfo(
+        name="polisyos.runtime.quality.CandidateAcquisitionDataStatePayload",
+        version=f"policyos.runtime.candidate_acquisition_data_state.v{version}",
+    )
+    for version in (1, 2)
+)
+
+
+def _candidate_source_limitations_for_payload_schema(schema_version: str) -> tuple[str, ...]:
+    """Retain legacy limitations without confusing provenance with admission."""
+    if schema_version == _CANDIDATE_PAYLOAD_SCHEMAS[0].version:
+        return CANDIDATE_SOURCE_LIMITATIONS
+    if schema_version == _CANDIDATE_PAYLOAD_SCHEMAS[1].version:
+        return ("candidate_source_not_observed_admission", *CANDIDATE_SOURCE_LIMITATIONS[1:])
+    raise DataSnapshotLineageError("candidate_acquisition_source_payload_version_unsupported")
+
 
 DATA_SNAPSHOT_OWNER_BAND_READ_LIMITS = CoreJsonReadLimits(
     max_bytes=64 * 1024 * 1024,
@@ -246,10 +263,16 @@ def validate_data_snapshot_owner_lineage(
                 )
         if not candidate_only:
             raise DataSnapshotSourceRowNotEstablishedError()
+        payload_schema = _manifest_view(store, snapshot.data_ref).artifact_schema
+        if payload_schema is None:  # pragma: no cover - verified by owner replay
+            raise DataSnapshotLineageError("candidate_acquisition_source_payload_manifest_mismatch")
+        candidate_limitations = _candidate_source_limitations_for_payload_schema(
+            payload_schema.version
+        )
         return DataSnapshotLineageResult(
             acquisition_source_row_status="not_established",
             candidate_source_limitations=tuple(
-                dict.fromkeys((*CANDIDATE_SOURCE_LIMITATIONS, *source_limitations))
+                dict.fromkeys((*candidate_limitations, *source_limitations))
             ),
         )
     else:
@@ -401,11 +424,19 @@ def _owner_family(
     if (
         kind == "runtime.quality.candidate_acquisition_source"
         or getattr(getattr(manifest, "artifact_schema", None), "name", None)
-        == "polisyos.runtime.candidate_acquisition_source.v1"
+        in {
+            "polisyos.runtime.candidate_acquisition_source.v1",
+            "polisyos.runtime.candidate_acquisition_source.v2",
+            "polisyos.runtime.candidate_acquisition_source.v3",
+        }
         or (
             isinstance(raw_payload, Mapping)
             and raw_payload.get("schema_version")
-            == "polisyos.runtime.candidate_acquisition_source.v1"
+            in {
+                "polisyos.runtime.candidate_acquisition_source.v1",
+                "polisyos.runtime.candidate_acquisition_source.v2",
+                "polisyos.runtime.candidate_acquisition_source.v3",
+            }
         )
     ):
         raise DataSnapshotLineageError("candidate_acquisition_source_lineage_missing")
@@ -414,11 +445,9 @@ def _owner_family(
         # Either genuine descendant can retain the other's historical marker.
         # Only a matching typed owner and selected payload schema chooses its
         # current family; full owner replay and base verification follow below.
-        if isinstance(
-            snapshot.source_lineage, CandidateAcquisitionSourceDataSnapshotLineage
-        ) and manifest.artifact_schema == SchemaInfo(
-            name="polisyos.runtime.quality.CandidateAcquisitionDataStatePayload",
-            version="policyos.runtime.candidate_acquisition_data_state.v1",
+        if (
+            isinstance(snapshot.source_lineage, CandidateAcquisitionSourceDataSnapshotLineage)
+            and manifest.artifact_schema in _CANDIDATE_PAYLOAD_SCHEMAS
         ):
             return "candidate_acquisition_source"
         if (
@@ -927,11 +956,7 @@ def _verify_candidate_acquisition_source_owner(
     if (
         snapshot.data_ref.kind != "fabric.production_data_state_payload"
         or snapshot.data_ref.media_type != "application/json"
-        or payload_manifest.artifact_schema
-        != SchemaInfo(
-            name="polisyos.runtime.quality.CandidateAcquisitionDataStatePayload",
-            version="policyos.runtime.candidate_acquisition_data_state.v1",
-        )
+        or payload_manifest.artifact_schema not in _CANDIDATE_PAYLOAD_SCHEMAS
         or lineage.candidate_source_ref.kind != "runtime.quality.candidate_acquisition_source"
         or lineage.candidate_source_ref.media_type != "application/json"
     ):

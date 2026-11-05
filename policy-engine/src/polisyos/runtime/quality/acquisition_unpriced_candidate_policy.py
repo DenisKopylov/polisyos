@@ -1076,7 +1076,7 @@ def reconcile_candidate_unpriced_work(
             or phase.policy_scope != scope
             or phase.policy_ref != policy_ref
             or phase.request_content_hash != experiment_origin.request_content_hash
-            or live_admission != admission
+            or not live_admission.same_execution_identity(admission)
         ):
             raise ValueError("candidate_experiment_action_scope_mismatch")
         experiment_outcomes = sink.experiment_action_outcomes(
@@ -1171,7 +1171,9 @@ def reconcile_candidate_unpriced_work(
         selected_ref
     ):
         raise ValueError("candidate_unpriced_policy_selection_changed")
-    if control_service._control_store.current_execution_job_admission() != admission:
+    if not control_service._control_store.current_execution_job_admission().same_execution_identity(
+        admission
+    ):
         raise ValueError("candidate_unpriced_policy_live_job_changed")
     if experiment_origin is None:
         if (
@@ -1222,6 +1224,11 @@ def reconcile_candidate_unpriced_work(
             )
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
             raise ValueError("candidate_experiment_action_changed") from exc
-        if (selected_after, phase_after, admission_after) != experiment_snapshot:
+        if (
+            experiment_snapshot is None
+            or selected_after != experiment_snapshot[0]
+            or phase_after != experiment_snapshot[1]
+            or not admission_after.same_execution_identity(experiment_snapshot[2])
+        ):
             raise ValueError("candidate_experiment_action_changed")
     return budget, capacity

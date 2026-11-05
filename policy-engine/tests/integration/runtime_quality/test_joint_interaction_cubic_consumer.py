@@ -4,6 +4,9 @@ import hashlib
 import importlib.util
 import json
 import sys
+from collections import Counter
+from fractions import Fraction
+from itertools import combinations
 from pathlib import Path
 from typing import Any
 
@@ -136,6 +139,7 @@ async def prepared_cubic_parent(
         child_count=3,
         source_root=source_inputs.root,
         materialize_source_parameters=True,
+        joint_numeric_model="cubic_binary64",
         synthetic_settled_provider=True,
         condition_synthetic_provider_on_child_sources=True,
         raw_request_override=_CUBIC_AUTHORED_COMPOSITION_REQUEST,
@@ -206,7 +210,7 @@ def _assert_cubic_parent_owner_grounding(generic_n4_served_replay: Any, prepared
 
 
 def _assert_cubic_root_joint_profile(prepared: Any) -> None:
-    """Require the prepared root profile to materialize all three owner components."""
+    """Require a source-configured three-slot model and conditional baseline."""
     profile = prepared.root_profile
     expected_components = {
         ("budget_allocation_multiplier", "government.balance"),
@@ -220,6 +224,32 @@ def _assert_cubic_root_joint_profile(prepared: Any) -> None:
     assert len(profile.n5.ncm_plan_refs) == 1
     assert profile.n5.ncm_plan_refs == (profile.selected_ncm_ref,)
     assert {target for _operator, target in expected_components} <= set(profile.n5.baseline_state)
+    assert len(profile.n5.horizon.steps()) == 1
+    assert profile.n5.evidence_state == profile.n5.baseline_state
+    outcome_candidates = set.intersection(
+        *(set(child.n5.baseline_state) for child in prepared.generic_child_profiles)
+    ) - {target for _operator, target in expected_components}
+    assert len(outcome_candidates) == 1
+    (outcome,) = outcome_candidates
+    assert profile.n5.engine_variable_map == {
+        **{
+            rule.target_world_slot: f"input_{index}"
+            for index, rule in enumerate(profile.n5.component_rules)
+        },
+        outcome: "response",
+    }
+    outcome_unit = next(
+        slot.unit
+        for slot in profile.context_inputs.world_model_record.policy_slot_map
+        if slot.slot_id == outcome
+    )
+    assert isinstance(outcome_unit, str) and outcome_unit.strip()
+    assert profile.n5.comparator_profile is not None
+    assert profile.n5.comparator_profile.outcome_units == {outcome: outcome_unit}
+    assert all(profile.n5.baseline_state[target] == 0.0 for _, target in expected_components)
+    assert all(child.n5.evidence_state is None for child in prepared.generic_child_profiles)
+    assert all(child.n5.comparator_profile is None for child in prepared.generic_child_profiles)
+    assert all(not child.n5.engine_variable_map for child in prepared.generic_child_profiles)
 
 
 @pytest.mark.asyncio
@@ -315,18 +345,25 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
     generic_n4_served_replay, prepared = prepared_cubic_parent
     _assert_cubic_parent_owner_grounding(generic_n4_served_replay, prepared)
 
-    def controlled_ncm_step(state: dict[str, Any], params: dict[str, Any]) -> dict[str, Any]:
-        query = state["ncm_query_data"]
-        intervention = query.interventions[0]
-        del params
-        value = 0.0
-        if len(intervention) == 3:
-            value = 1.0
-        return {
-            "counterfactual_result": {"world_summaries": [{query.query_vars[0]: {"mean": value}}]}
-        }
+    root_engine_variables = set(prepared.root_profile.n5.engine_variable_map.values())
+    assert root_engine_variables == {"input_0", "input_1", "input_2", "response"}
+    root_ncm_calls: list[dict[str, Any]] = []
+    original_ncm_step = NCMEngineMethod.pure_step
 
-    monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(controlled_ncm_step))
+    def observe_native_ncm_step(state: dict[str, Any], params: dict[str, Any]) -> dict[str, Any]:
+        query = state["ncm_query_data"]
+        if set(query.ncm_spec.endogenous_vars) == root_engine_variables:
+            root_ncm_calls.append(
+                {
+                    "evidence": dict(query.evidence),
+                    "intervention": dict(query.interventions[0]),
+                    "query_vars": tuple(query.query_vars),
+                    "seed": params.get("__seed__"),
+                }
+            )
+        return original_ncm_step(state, params)
+
+    monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(observe_native_ncm_step))
     authored_materializations: list[tuple[tuple[Any, ...], tuple[Any, ...]]] = []
     original_persist_authored = recursive_cycle.persist_authored_joint_components
 
@@ -468,6 +505,99 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
                 n4_child_profile_family_ref=parent_handoff.n4_child_profile_family_ref,
             )
         assert served_source.problem == compiled.design_problem
+        served_root_profile = parent_handoff.profile
+        assert served_root_profile.profile_id == prepared.root_profile.profile_id
+        assert served_root_profile.n5 == prepared.root_profile.n5
+        assert (
+            served_root_profile.context_inputs.world_model_record.content_hash
+            == prepared.root_profile.context_inputs.world_model_record.content_hash
+        )
+
+        # Read direct literals from the actual persisted N4 proposal and join
+        # them to the source candidates independently of N5 materialization.
+        source_bundle = served_source.trinity_bundle
+        assert source_bundle is not None
+        source_interventions = {
+            row["intervention_id"]: row
+            for row in source_bundle.model_dump(mode="json")["policy_spec"]["interventions"]
+        }
+        source_candidates = {
+            candidate.candidate_id: candidate
+            for candidate in served_source.generation_result.candidates
+        }
+        parameter_names = {
+            "tax_relief_rate": "rate",
+            "procurement_shock_intensity": "intensity",
+            "budget_allocation_multiplier": "multiplier",
+        }
+        expected_source_values = {
+            "tax_relief_rate": Fraction(1, 4),
+            "procurement_shock_intensity": Fraction(1),
+            "budget_allocation_multiplier": Fraction(1, 2),
+        }
+        expected_targets = {
+            "tax_relief_rate": "global.tax_rate",
+            "procurement_shock_intensity": "cells.distress_score",
+            "budget_allocation_multiplier": "government.balance",
+        }
+        source_values_by_operator: dict[str, Fraction] = {}
+        for materialization, member in zip(materializations, source_members, strict=True):
+            source_candidate = source_candidates[member.source_candidate_id]
+            source_intervention = source_interventions[source_candidate.atom.intervention_id]
+            operator = str(source_intervention["kind"])
+            assert operator == materialization.operator_kind
+            source_params = source_intervention["params"]
+            source_value = Fraction(str(source_params[parameter_names[operator]]))
+            assert source_value == expected_source_values[operator]
+            assert source_candidate.atom.target_world_slots == (expected_targets[operator],)
+            assert materialization.target_world_slot == expected_targets[operator]
+            assert Fraction(str(materialization.value)) == source_value
+            assert Fraction.from_float(materialization.native_input_value) == source_value
+            source_values_by_operator[operator] = source_value
+        assert source_values_by_operator == expected_source_values
+
+        outcome = compiled.design_problem.outcome_of_interest.target_variable
+        baseline = float(served_root_profile.n5.baseline_state[outcome])
+        expected_alias_values = {
+            served_root_profile.n5.engine_variable_map[expected_targets[operator]]: float(value)
+            for operator, value in source_values_by_operator.items()
+        }
+        expected_evidence = {
+            **dict.fromkeys(expected_alias_values, 0.0),
+            "response": baseline,
+        }
+        expected_seeds = [served_root_profile.n5.seed, served_root_profile.n5.seed + 1]
+        intervention_scopes: list[dict[str, float]] = []
+        aliases = tuple(expected_alias_values)
+        intervention_scopes.extend({alias: expected_alias_values[alias]} for alias in aliases)
+        intervention_scopes.extend(
+            {
+                left: expected_alias_values[left],
+                right: expected_alias_values[right],
+            }
+            for left, right in combinations(aliases, 2)
+        )
+        intervention_scopes.append(dict(expected_alias_values))
+
+        def canonical_intervention(values: dict[str, float]) -> tuple[tuple[str, float], ...]:
+            return tuple(sorted(values.items()))
+
+        expected_native_calls = Counter(
+            (canonical_intervention(scope), seed)
+            for scope in intervention_scopes
+            for seed in expected_seeds
+        )
+        # The conditional comparator is the only no-op query; ordinary
+        # trajectories cover the seven non-empty scopes below.
+        expected_native_calls.update(((), seed) for seed in expected_seeds)
+        observed_native_calls = Counter(
+            (canonical_intervention(call["intervention"]), call["seed"]) for call in root_ncm_calls
+        )
+        assert observed_native_calls == expected_native_calls
+        assert all(
+            call["evidence"] == expected_evidence and call["query_vars"] == ("response",)
+            for call in root_ncm_calls
+        )
         assert (
             compiled.design_problem.problem_statement == prepared.recorded_problem.problem_statement
         )
@@ -1107,9 +1237,9 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
     assert evidence["numeric_interaction"] == "non_additive"
     assert evidence["numeric_interaction_basis"] == "finite_checked_model_point_estimate_only"
 
-    expected_seeds = [prepared.root_profile.n5.seed, prepared.root_profile.n5.seed + 1]
+    expected_seeds = [served_root_profile.n5.seed, served_root_profile.n5.seed + 1]
     outcome = compiled.design_problem.outcome_of_interest.target_variable
-    baseline = float(prepared.root_profile.n5.baseline_state[outcome])
+    baseline = float(served_root_profile.n5.baseline_state[outcome])
     assert parent["replication_seeds"] == expected_seeds
     assert evidence["interaction_sampling_status"] == "estimated"
     expected_pair_keys = {
@@ -1127,10 +1257,10 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
         assert summary["seeds"] == expected_seeds
         assert len(summary["samples"]) == len(summary["seeds"]) == summary["replicate_count"]
         assert summary["samples"] == [
-            {"seed": expected_seeds[0], "value": baseline},
-            {"seed": expected_seeds[1], "value": baseline},
+            {"seed": expected_seeds[0], "value": 0.0},
+            {"seed": expected_seeds[1], "value": 0.0},
         ]
-        assert summary["mean"] == baseline
+        assert summary["mean"] == 0.0
         assert summary["standard_error"] == 0.0
 
     served_residual = evidence["higher_order_residual_sampling"][outcome]["0"]
@@ -1142,11 +1272,13 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
         == len(served_residual["seeds"])
         == served_residual["replicate_count"]
     )
+    independent_third_order = Fraction(8) * Fraction(1, 4) * Fraction(1) * Fraction(1, 2)
+    assert independent_third_order == Fraction(1)
     assert served_residual["samples"] == [
-        {"seed": expected_seeds[0], "value": 1.0 - baseline},
-        {"seed": expected_seeds[1], "value": 1.0 - baseline},
+        {"seed": expected_seeds[0], "value": float(independent_third_order)},
+        {"seed": expected_seeds[1], "value": float(independent_third_order)},
     ]
-    assert served_residual["mean"] == 1.0 - baseline
+    assert served_residual["mean"] == float(independent_third_order)
     assert served_residual["standard_error"] == pytest.approx(0.0)
 
     result_ref = ArtifactRef.model_validate(parent["simulation_result_ref"])
@@ -1177,3 +1309,101 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
     assert persisted_residual.effects_standard_error["derived_effect"] == pytest.approx(
         served_residual["standard_error"]
     )
+
+    comparator = persisted_result.diagnostics["ncm_conditional_comparator"]
+    tolerance = persisted_result.diagnostics["interaction_numerical_tolerance"]
+    assert tolerance["status"] == "qualified"
+    contract = tolerance["contract"]
+    assert contract["schema_version"] == "policyos.runtime.ncm_interaction_numeric_contract.v1"
+    assert contract["profile_version"] == "ncm_scalar_polynomial_binary64.v1"
+    assert contract["scope"] == "one_step_fixed_input_additive_noise_polynomial_arithmetic_only"
+    assert contract["expression"] == "u + 8 * input_0 * input_1 * input_2"
+    assert contract["outcome"] == outcome
+    outcome_unit = next(
+        slot.unit
+        for slot in served_root_profile.context_inputs.world_model_record.policy_slot_map
+        if slot.slot_id == outcome
+    )
+    assert contract["outcome_unit"] == outcome_unit
+    assert contract["outcome_units_status"] == "declared_not_independently_grounded"
+    assert contract["abduction_error_status"] == "not_established"
+    assert contract["observed_noise"] == baseline
+    assert contract["parent_names"] == ["input_0", "input_1", "input_2"]
+    assert {
+        "abduction_requires_independent_verification",
+        "external_units_not_grounded",
+        "stochastic_inference_not_established",
+    }.issubset(contract["limitations"])
+
+    comparator_request = comparator["request"]
+    assert comparator["estimand"] == "conditional_model_outcome_difference.v1"
+    assert comparator_request["method_fqn"] == NCMEngineMethod.signature.fqn
+    assert comparator_request["world_model_record_content_hash"] == (
+        served_root_profile.context_inputs.world_model_record.content_hash
+    )
+    assert comparator_request["outcome_units"] == {outcome: outcome_unit}
+    assert comparator_request["outcome_units_status"] == (
+        "declared_candidate_not_independently_grounded"
+    )
+    assert comparator_request["evidence_state"] == dict(served_root_profile.n5.evidence_state)
+    assert comparator_request["engine_plan"][0]["variable_map"] == (
+        served_root_profile.n5.engine_variable_map
+    )
+    selected_ncm = comparator_request["engine_plan"][0]["ncm_spec"]
+    assert set(selected_ncm["endogenous_vars"]) == {
+        "input_0",
+        "input_1",
+        "input_2",
+        "response",
+    }
+    selected_equations = {
+        equation["variable"]: equation for equation in selected_ncm["structural_equations"]
+    }
+    response_equation = selected_equations["response"]
+    assert response_equation["equation_type"] == "nonlinear"
+    assert response_equation["parents"] == ["input_0", "input_1", "input_2"]
+    assert response_equation["equation_params"]["noise_expression"] == (
+        "u + 8 * input_0 * input_1 * input_2"
+    )
+    assert all(
+        selected_equations[name]["equation_type"] == "linear"
+        and selected_equations[name]["parents"] == []
+        and selected_equations[name]["equation_params"] == {"intercept": 0.0, "coefficients": {}}
+        for name in ("input_0", "input_1", "input_2")
+    )
+    comparator_input = comparator["input"]
+    assert comparator_input["evidence"] == expected_evidence
+    assert comparator_input["interventions"] == [{}]
+    assert comparator_input["query_vars"] == ["response"]
+    comparator_samples = comparator["result"]["samples"]
+    assert [sample["seed"] for sample in comparator_samples] == expected_seeds
+    assert [sample["outcomes"] for sample in comparator_samples] == [
+        {outcome: baseline},
+        {outcome: baseline},
+    ]
+
+    def ideal_fraction(descriptor: dict[str, Any]) -> Fraction:
+        return Fraction(descriptor["ideal"]["numerator"], descriptor["ideal"]["denominator"])
+
+    baseline_exact = Fraction.from_float(baseline)
+    assert ideal_fraction(contract["scopes"][0]["endpoint"]) == baseline_exact
+    for scope in contract["scopes"][1:]:
+        expected_effect = independent_third_order if scope["role"] == "joint" else Fraction(0)
+        assert ideal_fraction(scope["endpoint"]) == baseline_exact + expected_effect
+        assert ideal_fraction(scope["effect"]) == expected_effect
+    pair_residuals = [item for item in contract["residuals"] if item["kind"] == "pairwise"]
+    third_order_residuals = [
+        item for item in contract["residuals"] if item["kind"] == "order_three"
+    ]
+    assert len(pair_residuals) == 3 and len(third_order_residuals) == 1
+    assert all(ideal_fraction(item) == 0 for item in pair_residuals)
+    assert ideal_fraction(third_order_residuals[0]) == independent_third_order
+
+    for trajectory in persisted_result.trajectories:
+        assert len(trajectory.points) == 1
+        sampling = trajectory.points[0].replication_sampling
+        assert sampling is not None and len(sampling.samples) == len(expected_seeds)
+        expected_effect = float(independent_third_order) if trajectory.run_level == "joint" else 0.0
+        for sample in sampling.samples:
+            assert sample.effects[outcome] == expected_effect
+            assert sample.outcomes[outcome] == baseline + expected_effect

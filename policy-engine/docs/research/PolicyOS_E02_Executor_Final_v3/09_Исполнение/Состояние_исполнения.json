@@ -11186,6 +11186,417 @@
           "real_owner_boundary": "New V4 positive, self-rehashed literal refusal, source refusal, selected reduced-rule profile and legacy controls executed before old tail failures in3 full-case attempts; those attempts remain FAIL. Final old fixture tail passed separately against retained owned artifacts, without new N5 or authority.",
           "retained_tail_output": "policy-engine/_cache/e02/lane01-hypothetical-publication-tail-r3",
           "remaining": "One final full authored/legacy/V4 case and first served3-child hypothetical case after composition; source/profile removal+restore and source-parameter/query oracle prepared."
+        },
+        "stable_execution_identity_store": {
+          "output": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane01-admission-identity-store-r4",
+          "measurement": {
+            "inputs_unchanged": true,
+            "named_input_count": 7,
+            "result": {
+              "aborted_reason": null,
+              "argv": [
+                ".venv/bin/python",
+                "-B",
+                "-m",
+                "pytest",
+                "-q",
+                "--tb=short",
+                "-x",
+                "tests/unit/runtime/http/test_control_plane_store.py::test_control_job_execution_admission_identity_survives_real_heartbeat_and_refresh",
+                "tests/unit/runtime/http/test_control_plane_store.py::test_control_job_execution_admission_identity_rejects_changed_scope_and_inputs",
+                "tests/unit/runtime/http/test_control_plane_store.py::test_control_job_execution_admission_refuses_expired_and_reassigned_fences"
+              ],
+              "complete": true,
+              "cwd": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine",
+              "disk_free_before_bytes": 6460502016,
+              "finished_at": "2026-11-05T18:20:23.098578+00:00",
+              "id": "command",
+              "max_sampled_process_tree_rss_bytes": 1555824640,
+              "minimum_sampled_disk_free_bytes": 6456557568,
+              "pid": 62969,
+              "process_group_gone": true,
+              "return_code": 0,
+              "sample_count": 27,
+              "started_at": "2026-11-05T18:20:08.372784+00:00",
+              "status": "passed",
+              "stderr_path": "command.stderr.txt",
+              "stdout_path": "command.stdout.txt",
+              "termination_signal": null,
+              "wall_seconds": 14.725745750009082,
+              "wall_total_before_seconds": 1.8333084881305695e-05
+            }
+          },
+          "scope": "3 PASS; real renewal/progress and manifest refresh retain execution identity; changed creation inputs/scope, expired/reassigned leases refuse."
+        },
+        "stable_execution_identity_consumers": {
+          "output": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane01-admission-identity-consumers-r1",
+          "measurement": {
+            "inputs_unchanged": true,
+            "named_input_count": 11,
+            "result": {
+              "aborted_reason": null,
+              "argv": [
+                ".venv/bin/python",
+                "-B",
+                "-m",
+                "pytest",
+                "-q",
+                "--tb=short",
+                "-x",
+                "tests/unit/runtime/quality/test_candidate_unpriced_experiment_policy.py",
+                "tests/unit/runtime/http/services/test_acquisition_action_service.py",
+                "tests/unit/runtime/quality/test_candidate_experiment_current_outcome.py",
+                "tests/unit/runtime/quality/test_candidate_experiment_evaluation_records.py"
+              ],
+              "complete": true,
+              "cwd": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine",
+              "disk_free_before_bytes": 5421756416,
+              "finished_at": "2026-11-05T18:25:52.951371+00:00",
+              "id": "command",
+              "max_sampled_process_tree_rss_bytes": 1561624576,
+              "minimum_sampled_disk_free_bytes": 5248761856,
+              "pid": 64083,
+              "process_group_gone": true,
+              "return_code": 0,
+              "sample_count": 167,
+              "started_at": "2026-11-05T18:24:21.068975+00:00",
+              "status": "passed",
+              "stderr_path": "command.stderr.txt",
+              "stdout_path": "command.stdout.txt",
+              "termination_signal": null,
+              "wall_seconds": 91.8822745840298,
+              "wall_total_before_seconds": 1.6000005416572094e-05
+            }
+          },
+          "scope": "37 PASS; V2 real renewal during action read and affected services/outcome/evaluation consumers."
+        },
+        "candidate_provenance_observed": {
+          "output": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/candidate-provenance/final",
+          "measurement": {
+            "inputs_unchanged": true,
+            "named_input_count": 26,
+            "result": {
+              "aborted_reason": null,
+              "argv": [
+                ".venv/bin/python",
+                "-m",
+                "pytest",
+                "tests/unit/runtime/quality/test_lane01_candidate_source.py",
+                "tests/unit/runtime/quality/test_candidate_acquisition_world.py",
+                "tests/unit/runtime/quality/test_candidate_source_basis.py",
+                "tests/unit/runtime/quality/test_candidate_acquisition_prefetch_world.py",
+                "tests/unit/runtime/quality/test_candidate_data_snapshot_lineage.py",
+                "tests/unit/runtime/quality/test_candidate_source_dispatch.py",
+                "-q",
+                "--junitxml=_cache/e02/candidate-provenance/final/junit.xml"
+              ],
+              "complete": true,
+              "cwd": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine",
+              "disk_free_before_bytes": 6457589760,
+              "finished_at": "2026-11-05T18:22:24.725428+00:00",
+              "id": "command",
+              "max_sampled_process_tree_rss_bytes": 1751531520,
+              "minimum_sampled_disk_free_bytes": 5375311872,
+              "pid": 63226,
+              "process_group_gone": true,
+              "return_code": 0,
+              "sample_count": 141,
+              "started_at": "2026-11-05T18:21:07.970659+00:00",
+              "status": "passed",
+              "stderr_path": "command.stderr.txt",
+              "stdout_path": "command.stdout.txt",
+              "termination_signal": null,
+              "wall_seconds": 76.75468187499791,
+              "wall_total_before_seconds": 1.650000922381878e-05
+            }
+          },
+          "scope": "55 PASS; actual source/state/basis replay and dispatch sentinel. Actual observed port-to-receipt/action/fresh GET remains verification_missing. Since run, only pinned generic admission opt-in injectivity guard moved: exact inverse matches recorded preimage and these six test modules/four helpers do not opt in or call engine-plan construction; recorded55 remain applicable to this provenance property, not native N5."
+        },
+        "explicit_n5_profile_axes": {
+          "output": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane01-n5-profile-axes-r2",
+          "measurement": {
+            "inputs_unchanged": true,
+            "named_input_count": 27,
+            "result": {
+              "aborted_reason": null,
+              "argv": [
+                ".venv/bin/python",
+                "-B",
+                "-m",
+                "pytest",
+                "-q",
+                "--tb=short",
+                "tests/unit/runtime/quality/test_generic_simulation_admission_alternatives.py::test_v1_n5_profile_roundtrip_does_not_invent_an_alternative_field",
+                "tests/unit/runtime/quality/test_generic_simulation_admission_alternatives.py::test_v1_n5_axes_roundtrip_change_profile_hash_without_changing_legacy_bytes",
+                "tests/unit/runtime/quality/test_generic_simulation_admission_alternatives.py::test_v1_n5_axes_reject_nonfinite_evidence_blank_aliases_and_implicit_comparator_evidence",
+                "tests/unit/runtime/quality/test_generic_simulation_admission_alternatives.py::test_profile_engine_variable_map_is_wmr_bound_and_composes_with_atom_aliases",
+                "tests/unit/runtime/quality/test_generic_n5_v3_binding.py::test_typed_request_binding_includes_explicit_ncm_optins_and_keeps_legacy_none_shape",
+                "--junitxml=_cache/e02/lane01-n5-profile-axes-r2/junit.xml",
+                "--basetemp=_cache/e02/lane01-n5-profile-axes-r2/pytest-temp"
+              ],
+              "complete": true,
+              "cwd": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine",
+              "disk_free_before_bytes": 6928396288,
+              "finished_at": "2026-11-05T17:25:38.440301+00:00",
+              "id": "command",
+              "max_sampled_process_tree_rss_bytes": 1490206720,
+              "minimum_sampled_disk_free_bytes": 6882205696,
+              "pid": 51776,
+              "process_group_gone": true,
+              "return_code": 0,
+              "sample_count": 30,
+              "started_at": "2026-11-05T17:25:22.010049+00:00",
+              "status": "passed",
+              "stderr_path": "command.stderr.txt",
+              "stdout_path": "command.stdout.txt",
+              "termination_signal": null,
+              "wall_seconds": 16.430219083093107,
+              "wall_total_before_seconds": 1.60830095410347e-05
+            }
+          },
+          "scope": "5 PASS; optional metadata, default bytes and plans."
+        },
+        "explicit_n5_profile_owner_binding": {
+          "output": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane01-n5-profile-axes-r4",
+          "measurement": {
+            "inputs_unchanged": true,
+            "named_input_count": 27,
+            "result": {
+              "aborted_reason": null,
+              "argv": [
+                ".venv/bin/python",
+                "-B",
+                "-m",
+                "pytest",
+                "-q",
+                "--tb=short",
+                "tests/unit/runtime/quality/test_generic_n5_v3_binding.py::test_generic_n5_profile_axes_reach_real_persisted_leaf_and_owner_recompute",
+                "--junitxml=_cache/e02/lane01-n5-profile-axes-r4/junit.xml",
+                "--basetemp=_cache/e02/lane01-n5-profile-axes-r4/pytest-temp"
+              ],
+              "complete": true,
+              "cwd": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine",
+              "disk_free_before_bytes": 6659706880,
+              "finished_at": "2026-11-05T17:37:59.510251+00:00",
+              "id": "command",
+              "max_sampled_process_tree_rss_bytes": 1724448768,
+              "minimum_sampled_disk_free_bytes": 6611587072,
+              "pid": 54801,
+              "process_group_gone": true,
+              "return_code": 0,
+              "sample_count": 39,
+              "started_at": "2026-11-05T17:37:38.203381+00:00",
+              "status": "passed",
+              "stderr_path": "command.stderr.txt",
+              "stdout_path": "command.stdout.txt",
+              "termination_signal": null,
+              "wall_seconds": 21.306840709061362,
+              "wall_total_before_seconds": 2.4250010028481483e-05
+            }
+          },
+          "scope": "1 PASS; actual owner reconstruction, explicit selected profile and opt-in removal refusal."
+        },
+        "explicit_n5_profile_alias_collision": {
+          "output": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane01-n5-profile-axes-r6",
+          "measurement": {
+            "inputs_unchanged": true,
+            "named_input_count": 28,
+            "result": {
+              "aborted_reason": null,
+              "argv": [
+                ".venv/bin/python",
+                "-B",
+                "-m",
+                "pytest",
+                "-q",
+                "--tb=short",
+                "tests/unit/runtime/quality/test_generic_simulation_admission_alternatives.py::test_profile_axes_reject_duplicate_incoming_aliases_with_empty_profile_map",
+                "tests/unit/runtime/quality/test_generic_simulation_admission_alternatives.py::test_legacy_empty_profile_axes_preserve_noninjective_atom_map_behavior",
+                "--junitxml=_cache/e02/lane01-n5-profile-axes-r6/junit.xml",
+                "--basetemp=_cache/e02/lane01-n5-profile-axes-r6/pytest-temp"
+              ],
+              "complete": true,
+              "cwd": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine",
+              "disk_free_before_bytes": 5191745536,
+              "finished_at": "2026-11-05T18:28:44.802477+00:00",
+              "id": "command",
+              "max_sampled_process_tree_rss_bytes": 1489289216,
+              "minimum_sampled_disk_free_bytes": 5122166784,
+              "pid": 65572,
+              "process_group_gone": true,
+              "return_code": 0,
+              "sample_count": 32,
+              "started_at": "2026-11-05T18:28:27.348656+00:00",
+              "status": "passed",
+              "stderr_path": "command.stderr.txt",
+              "stdout_path": "command.stdout.txt",
+              "termination_signal": null,
+              "wall_seconds": 17.45378591690678,
+              "wall_total_before_seconds": 1.4291028492152691e-05
+            }
+          },
+          "scope": "3 PASS; collision refusal for evidence-only and comparator opt-in, legacy behavior retained."
+        },
+        "candidate_experiment_native_execute_r10": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-candidate-execution-native-r10",
+          "measurement": {
+            "inputs_unchanged": true,
+            "named_input_count": 82,
+            "result": {
+              "aborted_reason": null,
+              "argv": [
+                "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/.venv/bin/python",
+                "-B",
+                "-m",
+                "pytest",
+                "-x",
+                "-q",
+                "--tb=short",
+                "-o",
+                "faulthandler_timeout=90",
+                "--junitxml=_cache/e02/lane01-candidate-execution-native-r10/junit.xml",
+                "--basetemp=_cache/e02/lane01-candidate-execution-native-r10/pytest-temp",
+                "tests/integration/core_runtime/test_candidate_experiment_action_served.py::test_genuine_labor_policy_gets_signed_candidate_decision_and_fresh_replay"
+              ],
+              "complete": true,
+              "cwd": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine",
+              "disk_free_before_bytes": 6610751488,
+              "finished_at": "2026-11-05T17:43:25.409673+00:00",
+              "id": "command",
+              "max_sampled_process_tree_rss_bytes": 1930297344,
+              "minimum_sampled_disk_free_bytes": 6508367872,
+              "pid": 55051,
+              "process_group_gone": true,
+              "return_code": 1,
+              "sample_count": 555,
+              "started_at": "2026-11-05T17:38:23.496264+00:00",
+              "status": "command_failed",
+              "stderr_path": "command.stderr.txt",
+              "stdout_path": "command.stdout.txt",
+              "termination_signal": null,
+              "wall_seconds": 301.91296220803633,
+              "wall_total_before_seconds": 1.9666971638798714e-05
+            }
+          },
+          "scope": "FAIL before transport/N5 after normal heartbeat changes full record equality; stable identity repair source-reviewed and unit-qualified, native rerun UNRUN."
+        },
+        "cyc04_distinct_fresh_http_retained": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cyc04-retained-fresh-http-r1",
+          "measurement": {
+            "inputs_unchanged": true,
+            "named_input_count": 41,
+            "result": {
+              "aborted_reason": null,
+              "argv": [
+                ".venv/bin/python",
+                "-B",
+                "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane01-cyc04-retained-fresh-http-r1/preflight.py"
+              ],
+              "complete": true,
+              "cwd": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine",
+              "disk_free_before_bytes": 6509047808,
+              "finished_at": "2026-11-05T17:43:24.883932+00:00",
+              "id": "command",
+              "max_sampled_process_tree_rss_bytes": 1525465088,
+              "minimum_sampled_disk_free_bytes": 6508367872,
+              "pid": 56588,
+              "process_group_gone": true,
+              "return_code": 0,
+              "sample_count": 28,
+              "started_at": "2026-11-05T17:43:09.506836+00:00",
+              "status": "passed",
+              "stderr_path": "command.stderr.txt",
+              "stdout_path": "command.stdout.txt",
+              "termination_signal": null,
+              "wall_seconds": 15.377067083958536,
+              "wall_total_before_seconds": 1.9125058315694332e-05
+            }
+          },
+          "scope": "PASS distinct context GET on retained R6 artifacts;0.125/historical joins, old closed store refusal, N4/N5 traps untouched. Whole R6 remains FAIL; live observer whole replay pending."
+        },
+        "hypothetical_full_owner_replay": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-hypothetical-owner-replay-r4",
+          "measurement": {
+            "inputs_unchanged": true,
+            "named_input_count": 21,
+            "result": {
+              "aborted_reason": null,
+              "argv": [
+                ".venv/bin/python",
+                "-B",
+                "-m",
+                "pytest",
+                "-q",
+                "-x",
+                "--tb=short",
+                "-o",
+                "faulthandler_timeout=90",
+                "tests/unit/remediation/test_cyc05_authored_relation.py::test_authored_joint_relation_replays_real_source_request_and_selected_cas",
+                "--junitxml=_cache/e02/lane01-hypothetical-owner-replay-r4/junit.xml",
+                "--basetemp=_cache/e02/lane01-hypothetical-owner-replay-r4/pytest-temp"
+              ],
+              "complete": true,
+              "cwd": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine",
+              "disk_free_before_bytes": 7094980608,
+              "finished_at": "2026-11-05T17:22:37.435155+00:00",
+              "id": "command",
+              "max_sampled_process_tree_rss_bytes": 1750089728,
+              "minimum_sampled_disk_free_bytes": 6929608704,
+              "pid": 50807,
+              "process_group_gone": true,
+              "return_code": 0,
+              "sample_count": 128,
+              "started_at": "2026-11-05T17:21:26.856311+00:00",
+              "status": "passed",
+              "stderr_path": "command.stderr.txt",
+              "stdout_path": "command.stdout.txt",
+              "termination_signal": null,
+              "wall_seconds": 70.57874487503432,
+              "wall_total_before_seconds": 2.0041014067828655e-05
+            }
+          },
+          "scope": "PASS full authored/V4/legacy actual owner controls. Controlled kernel, not native numerical proof."
+        },
+        "hypothetical_sibling_exact_quote": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-hypothetical-exact-span-support-r1",
+          "measurement": {
+            "inputs_unchanged": true,
+            "named_input_count": 5,
+            "result": {
+              "aborted_reason": null,
+              "argv": [
+                ".venv/bin/python",
+                "-B",
+                "-m",
+                "pytest",
+                "-q",
+                "-x",
+                "--tb=short",
+                "tests/integration/runtime_quality/test_joint_interaction_cubic_consumer.py::test_candidate_only_span_support_requires_the_exact_declared_quote",
+                "--junitxml=_cache/e02/lane01-hypothetical-exact-span-support-r1/junit.xml",
+                "--basetemp=_cache/e02/lane01-hypothetical-exact-span-support-r1/pytest-temp"
+              ],
+              "complete": true,
+              "cwd": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine",
+              "disk_free_before_bytes": 6511194112,
+              "finished_at": "2026-11-05T17:41:46.546627+00:00",
+              "id": "command",
+              "max_sampled_process_tree_rss_bytes": 1492746240,
+              "minimum_sampled_disk_free_bytes": 6510960640,
+              "pid": 56106,
+              "process_group_gone": true,
+              "return_code": 0,
+              "sample_count": 30,
+              "started_at": "2026-11-05T17:41:30.174495+00:00",
+              "status": "passed",
+              "stderr_path": "command.stderr.txt",
+              "stdout_path": "command.stdout.txt",
+              "termination_signal": null,
+              "wall_seconds": 16.37210420903284,
+              "wall_total_before_seconds": 1.4999997802078724e-05
+            }
+          },
+          "scope": "1 PASS exact quote support only; served sibling execution remains UNRUN after repair."
         }
       },
       "independent_component_reviews": {
@@ -11202,11 +11613,14 @@
         "capacity_frontier_current": "Luna physical_fixture GO on nativeR8 output and actual selected-child request/context WMR binding, test SHA1c622e... .274stableinputs/native1PASS. Original failures kept; Gseparate.",
         "candidate_control_alias": "luna_pa2_review final material GO; actual owner probe and19 boundary controls PASS. Strong post-OPA current unique-owner check; G separate.",
         "candidate_execution_assembly": "Source GO for851e219 owner graph and current projection, bounded component/SQL/API/SDK results; full genuine protected execution remains verification_missing, no G closure.",
-        "candidate_generations_api": "Terra coherent/material GO including PostgreSQL source lock, canonical telemetry and omitted/null raw pin preservation. Luna API/SDK/docs GO; full served multigeneration execution remains unqualified."
+        "candidate_generations_api": "Terra coherent/material GO including PostgreSQL source lock, canonical telemetry and omitted/null raw pin preservation. Luna API/SDK/docs GO; full served multigeneration execution remains unqualified.",
+        "stable_execution_identity": "Root independent source GO; exact creation-time inputs/scope/manifest and fresh SQL fencing remain load-bearing.",
+        "candidate_provenance": "Independent Terra material-delta GO; recorded55 applicable as scoped above; served observed transport verification remains open.",
+        "explicit_n5_profile_axes": "Terra full four-source and material alias-fix GO; native cubic UNRUN."
       },
       "resource_admission_current": {
         "disk_stop_floor_GiB": 3,
-        "free_disk_GiB_at_check": 6.676,
+        "free_disk_GiB_at_check": 4.765,
         "policy": "Local only; existing environments/data; <=8GiB measured aggregate process-tree RSS and <=6 numerical CPU threads. New expensive profiles start alone.",
         "trash_move": {
           "directory": "/Users/deniskopylov/.Trash/PolicyOS-obsolete-test-scratch-20261105T132841Z",

@@ -63,6 +63,7 @@ from tests.unit.runtime.quality.test_candidate_acquisition_world import (
     CELL_ID,
     TENANT_ID,
     _candidate_world_case,
+    _observed_gdp_world_case,
 )
 from tests.unit.runtime.quality.test_candidate_source_basis import _inputs
 from tests.unit.runtime.quality.test_lane01_candidate_prefetch import (
@@ -223,7 +224,7 @@ def _world_adapter(
         "target_slot_id": case.binding.target_slot_id,
         "country_code": "USA",
         "year": 2024,
-        "population": "total_labor_force",
+        "population": case.source_case.source.population,
         "reentry_budget_usd": Decimal("1.00"),
         **(selection_updates or {}),
     }
@@ -252,7 +253,7 @@ def _world_arguments(
     resolved: catalog.ResolvedAcquisitionAuthority,
 ) -> dict[str, object]:
     scope = resolved.entry.source_measure_scope
-    assert scope is not None and scope.denominator is not None
+    assert scope is not None
     return {
         "problem": case.problem,
         "base": case.base.record,
@@ -349,6 +350,46 @@ def test_candidate_prefetch_world_accepts_real_candidate_scope_before_fetch(
         assert bridge.world_checks == boundary.calls == 1
         assert {str(item) for item in case.store.iter_artifact_ids()} == before
         assert "measurement_validity_not_established" in case.source_case.source.limitations
+
+
+def test_candidate_prefetch_reopens_observed_unconstrained_source_without_authority(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The real selector and prefetch owner accept observed provenance as candidate input."""
+    with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+        case = _observed_gdp_world_case(tmp_path, monkeypatch)
+        case = replace(case, store=FileSystemCAS(case.store.root))
+        prefetch = _prefetch_fixture(case)
+        bridge, closure, selection = _world_adapter(case, prefetch)
+        assert prefetch.resolved.entry.source_provenance_class == "observed"
+        assert prefetch.resolved.entry.source_measure_scope.denominator is None
+        _guard_fetch(monkeypatch)
+        boundary = _FetchBoundary()
+        _before_fetch(
+            bridge=bridge,
+            closure=closure,
+            prefetch=prefetch,
+            selection=selection,
+            boundary=boundary,
+            entry_id=prefetch.entry_id,
+        )
+        assert bridge.world_checks == boundary.calls == 1
+        assert selection.target_slot_id == "global.gdp"
+        for updates in ({"year": 2023}, {"population": "total_labor_force"}):
+            foreign, foreign_closure, foreign_selection = _world_adapter(
+                case, prefetch, selection_updates=updates
+            )
+            denied_boundary = _FetchBoundary()
+            with pytest.raises(ValueError, match="candidate_source_compiler_relation_mismatch"):
+                _before_fetch(
+                    bridge=foreign,
+                    closure=foreign_closure,
+                    prefetch=prefetch,
+                    selection=foreign_selection,
+                    boundary=denied_boundary,
+                    entry_id=prefetch.entry_id,
+                )
+            assert denied_boundary.calls == 0
 
 
 @pytest.mark.parametrize(

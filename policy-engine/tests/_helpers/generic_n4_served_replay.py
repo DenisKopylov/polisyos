@@ -1772,12 +1772,14 @@ def _declared_additive_joint_root_fields(
     source_root: Path | None,
     tenant_id: str,
     cell_id: str,
+    numeric_model: Literal["additive", "cubic_binary64"] = "additive",
 ) -> dict[str, Any]:
-    """Declare one additive candidate fixture SCM over the exact component slots.
+    """Declare one controlled candidate fixture SCM over the exact component slots.
 
-    Coefficient 0.5 for each target and zero target baselines are explicit toy
-    model assumptions. No child effect estimate, empirical source, coupling or
-    child-to-parent refinement is inferred by this fixture producer.
+    The default additive mode retains the existing fixture equation. The
+    opt-in cubic mode uses the exact three configured source parameters and an
+    explicitly synthetic polynomial; neither mode infers child effects,
+    empirical calibration, coupling, or child-to-parent refinement.
     """
     from polisyos.core.artifacts import ArtifactRef, ensure_ir_artifact_store
     from polisyos.ir.analytics.ncm import (
@@ -1787,13 +1789,22 @@ def _declared_additive_joint_root_fields(
         persist_ncm_spec,
     )
     from polisyos.runtime.quality.generic_simulation_admission import GenericCycleN5RequestProfileV3
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        NCMConditionalComparatorProfile,
+    )
     from polisyos.runtime.quality.world_model_record import world_model_artifact_views
 
+    if numeric_model not in {"additive", "cubic_binary64"}:
+        raise ValueError("controlled_joint_numeric_model_invalid")
     first = child_profiles[0]
     rules = tuple(rule for profile in child_profiles for rule in profile.n5.component_rules)
     targets = tuple(rule.target_world_slot for rule in rules)
     if len(targets) != len(set(targets)):
         raise ValueError("controlled_joint_target_not_unique")
+    if numeric_model == "cubic_binary64" and (
+        len(rules) != 3 or len(targets) != 3 or len(first.n5.horizon.steps()) != 1
+    ):
+        raise ValueError("controlled_joint_cubic_profile_requires_three_one_step_components")
     source_model = first.context_inputs.world_model_record
     # Child profiles retain the original candidate baseline plus their own target.
     # The declared model outcome is the common variable selected in every child.
@@ -1807,39 +1818,58 @@ def _declared_additive_joint_root_fields(
     outcome = next(iter(outcome_candidates))
     baseline = dict.fromkeys(targets, 0.0)
     baseline[outcome] = float(first.n5.baseline_state[outcome])
+    engine_variable_map: dict[str, str] = {}
+    model_targets = targets
+    model_outcome = outcome
+    if numeric_model == "cubic_binary64":
+        engine_variable_map = {target: f"input_{index}" for index, target in enumerate(targets)}
+        engine_variable_map[outcome] = "response"
+        model_targets = tuple(engine_variable_map[target] for target in targets)
+        model_outcome = "response"
     ncm = NCMSpec(
-        endogenous_vars=[*targets, outcome],
+        endogenous_vars=[*model_targets, model_outcome],
         exogenous_specs=[
             ExogenousSpec(
                 variable=f"U_{variable}",
                 associated_endogenous=variable,
-                distribution_params={"mean": 0.0, "std": 0.01 if variable == outcome else 0.0},
+                distribution_params={
+                    "mean": 0.0,
+                    "std": 0.01 if variable == model_outcome else 0.0,
+                },
             )
-            for variable in (*targets, outcome)
+            for variable in (*model_targets, model_outcome)
         ],
         structural_equations=[
             StructuralEquation(
-                variable=target,
-                exogenous=f"U_{target}",
+                variable=variable,
+                exogenous=f"U_{variable}",
                 equation_type="linear",
                 equation_params={"intercept": 0.0, "coefficients": {}},
             )
-            for target in targets
+            for variable in model_targets
         ]
         + [
             StructuralEquation(
-                variable=outcome,
-                parents=list(targets),
-                exogenous=f"U_{outcome}",
-                equation_type="linear",
-                equation_params={
-                    "intercept": baseline[outcome],
-                    "coefficients": dict.fromkeys(targets, 0.5),
-                },
+                variable=model_outcome,
+                parents=list(model_targets),
+                exogenous=f"U_{model_outcome}",
+                equation_type=("nonlinear" if numeric_model == "cubic_binary64" else "linear"),
+                equation_params=(
+                    {"noise_expression": "u + 8 * input_0 * input_1 * input_2"}
+                    if numeric_model == "cubic_binary64"
+                    else {
+                        "intercept": baseline[outcome],
+                        "coefficients": dict.fromkeys(targets, 0.5),
+                    }
+                ),
             )
         ],
         is_acyclic=True,
-        fit_method="declared_additive_joint_candidate_fixture_not_empirical",
+        fit_method=(
+            "declared_cubic_joint_candidate_fixture_not_empirical"
+            if numeric_model == "cubic_binary64"
+            else "declared_additive_joint_candidate_fixture_not_empirical"
+        ),
     )
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         ncm_ref = ArtifactRef.model_validate(
@@ -1849,6 +1879,10 @@ def _declared_additive_joint_root_fields(
     units = {slot.slot_id: slot.unit for slot in source_model.policy_slot_map}
     declared_units = {rule.target_world_slot: rule.unit_id for rule in rules}
     declared_units[outcome] = units[outcome]
+    if numeric_model == "cubic_binary64" and (
+        not isinstance(units[outcome], str) or not units[outcome].strip()
+    ):
+        raise ValueError("controlled_joint_cubic_outcome_unit_missing")
     built = _materialize_controlled_world_model_build(
         source_world_model_record=source_model,
         artifact_store=store,
@@ -1874,6 +1908,16 @@ def _declared_additive_joint_root_fields(
         mode="python", exclude={"schema_version", "component_rules", "ncm_plan_refs"}
     )
     n5_fields["baseline_state"] = baseline
+    if numeric_model == "cubic_binary64":
+        n5_fields.update(
+            {
+                "evidence_state": dict(baseline),
+                "comparator_profile": NCMConditionalComparatorProfile(
+                    outcome_units={outcome: units[outcome]}
+                ),
+                "engine_variable_map": engine_variable_map,
+            }
+        )
     return {
         **root_fields,
         "world_model_record_ref": built.record_ref,
@@ -2033,6 +2077,7 @@ async def prepare_generic_n4_served_replay(
     source_root: Path | None = None,
     include_cyclic_ncm_alternative: bool = False,
     materialize_source_parameters: bool = False,
+    joint_numeric_model: Literal["additive", "cubic_binary64"] = "additive",
     synthetic_settled_provider: bool = False,
     condition_synthetic_provider_on_child_sources: bool = False,
     raw_request_override: str | None = None,
@@ -2093,6 +2138,15 @@ async def prepare_generic_n4_served_replay(
         )
     ):
         raise TypeError("controlled_generic_ncm_profile_selector_invalid")
+    if type(joint_numeric_model) is not str or joint_numeric_model not in {
+        "additive",
+        "cubic_binary64",
+    }:
+        raise TypeError("controlled_generic_joint_numeric_model_invalid")
+    if joint_numeric_model == "cubic_binary64" and (
+        not materialize_source_parameters or child_count != 3
+    ):
+        raise ValueError("controlled_generic_cubic_model_requires_three_materialized_children")
     child_conditioned_scope = (
         recording_mode == "original_second_capture" and child_count == 2
     ) or (recording_mode == "controlled_overlay" and child_count == 3)
@@ -2865,6 +2919,7 @@ async def prepare_generic_n4_served_replay(
             source_root=selected_source_root,
             tenant_id=tenant_id,
             cell_id=cell_id,
+            numeric_model=joint_numeric_model,
         )
     root_profile = _hashed_model(
         type(generic_child_profiles[0]),

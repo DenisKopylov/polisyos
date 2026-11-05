@@ -278,9 +278,35 @@ def _assert_v2_reconcile_accepts_exact_selected_compiled_ref(
     action_outcomes = (selected_outcome,)
     active_phase = [source_phase]
     policy_evidence = object()
+    renewed_during_action_read = False
 
     def current_action(*_args: object, **_kwargs: object):
-        return selected_action, active_phase[0], admission
+        nonlocal renewed_during_action_read
+        store = control_service._control_store
+        live_admission = store.current_execution_job_admission()
+        if active_phase[0] is source_phase and not renewed_during_action_read:
+            assert store.renew_job_lease(
+                job_id=lease.job_id,
+                worker_id="candidate-experiment-worker",
+                lease_seconds=180,
+                expected_attempt=lease.attempt,
+            )
+            store.heartbeat_worker(
+                worker_id="candidate-experiment-worker",
+                state="running",
+                lease_seconds=180,
+                active_job_id=lease.job_id,
+            )
+            store.upsert_progress(
+                job_id=lease.job_id,
+                progress={"phase": "admission_identity_heartbeat"},
+            )
+            renewed_admission = store.current_execution_job_admission()
+            assert live_admission != renewed_admission
+            assert live_admission.same_execution_identity(renewed_admission)
+            renewed_during_action_read = True
+            live_admission = renewed_admission
+        return selected_action, active_phase[0], live_admission
 
     def reconcile():
         return reconcile_candidate_unpriced_work(
@@ -346,6 +372,7 @@ def _assert_v2_reconcile_accepts_exact_selected_compiled_ref(
 
         active_phase[0] = source_phase
         budget, capacity = reconcile()
+        assert renewed_during_action_read is True
     assert budget.predicate_basis == "independently_reconciled"
     assert capacity.status == "available" and capacity.not_a_permit is True
     assert capacity.standard_remaining_units == profile.total_units - profile.protected_units

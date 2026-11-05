@@ -1423,7 +1423,9 @@ class CanonicalAcquisitionAuthority:
                 or proof.raw_artifact_ref is None
             ):
                 raise AcquisitionAuthorityError("live_source_selected_profile_required")
-            if not isinstance(artifact_store, artifacts.VerifiableArtifactReader):
+            if not artifacts.matches_runtime_protocol(
+                artifact_store, artifacts.VerifiableArtifactReader
+            ):
                 raise AcquisitionAuthorityError("live_artifact_verification_unavailable")
             resolved = self.resolve(entry_id)
             if resolved.entry.source_lane != "live_fetch":

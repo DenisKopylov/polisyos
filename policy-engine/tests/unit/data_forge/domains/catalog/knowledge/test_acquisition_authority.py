@@ -901,6 +901,105 @@ def test_live_execution_evidence_reopens_raw_and_normalized_carriers(
     assert evidence.page_count == 1
 
 
+def test_live_execution_reopens_carriers_through_guarded_verifiable_store(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.core.artifacts.backends.config import (
+        with_ambient_ownership_enforcement_if_supported,
+    )
+    from polisyos.runtime.http.resilience import guard_runtime_cas
+
+    resolver, entry, store, evidence, _, expected = _live_execution_fixture(tmp_path)
+    ambient_store = with_ambient_ownership_enforcement_if_supported(store)
+    original_verify = ambient_store.verify
+    verified_refs: list[object] = []
+
+    def verify_selected(ref: object):
+        verified_refs.append(ref)
+        return original_verify(ref)
+
+    monkeypatch.setattr(ambient_store, "verify", verify_selected)
+    guarded_store = guard_runtime_cas(ambient_store)
+    try:
+        report = guarded_store.verify(evidence.raw_artifact_ref)
+        assert report.ok is True
+        assert verified_refs == [evidence.raw_artifact_ref]
+
+        resolved_result = resolver.resolve_live_source_execution(
+            entry.entry_id,
+            evidence,
+            artifact_store=guarded_store,
+        )
+    finally:
+        guarded_store.close()
+
+    assert resolved_result.version.content_hash == evidence.raw_body_sha256
+    assert resolved_result.data.equals(expected.data)
+    assert evidence.call_count == 1
+    assert evidence.variable_count == 1
+    assert evidence.page_count == 1
+
+
+def test_live_execution_refuses_reader_without_verification_capability(tmp_path: Path) -> None:
+    resolver, entry, store, evidence, _, _ = _live_execution_fixture(tmp_path)
+
+    class ReaderWithoutVerify:
+        def __init__(self, target: object) -> None:
+            self._target = target
+
+        def __getattr__(self, name: str) -> object:
+            if name == "verify":
+                raise AttributeError(name)
+            return getattr(self._target, name)
+
+    with pytest.raises(
+        AcquisitionAuthorityError,
+        match="live_artifact_verification_unavailable",
+    ):
+        resolver.resolve_live_source_execution(
+            entry.entry_id,
+            evidence,
+            artifact_store=ReaderWithoutVerify(store),
+        )
+
+
+@pytest.mark.parametrize("error_type", [PermissionError, OSError])
+def test_live_execution_does_not_hide_operational_verifier_denials(
+    tmp_path: Path,
+    error_type: type[OSError],
+) -> None:
+    from polisyos.runtime.http.resilience import guard_runtime_cas
+
+    resolver, entry, store, evidence, _, _ = _live_execution_fixture(tmp_path)
+    denial = error_type("verification capability lookup denied")
+
+    class ReaderWithDeniedVerify:
+        def __init__(self, target: object, error: OSError) -> None:
+            self._target = target
+            self._error = error
+
+        def __getattr__(self, name: str) -> object:
+            if name == "verify":
+                raise self._error
+            return getattr(self._target, name)
+
+    guarded_store = guard_runtime_cas(ReaderWithDeniedVerify(store, denial))
+    try:
+        with pytest.raises(
+            AcquisitionAuthorityError,
+            match="live_source_execution_invalid",
+        ) as exc_info:
+            resolver.resolve_live_source_execution(
+                entry.entry_id,
+                evidence,
+                artifact_store=guarded_store,
+            )
+        assert exc_info.value.__cause__ is denial
+    finally:
+        guarded_store.close()
+
+
 def test_live_harness_receipt_resolves_exact_owner_bytes(tmp_path: Path) -> None:
     resolver, entry, _, evidence, family_receipt, _ = _live_execution_fixture(tmp_path)
 

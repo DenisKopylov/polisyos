@@ -11778,6 +11778,53 @@
           "scope": "1 FAIL; worker, nonzero controlled kernel and firstGET/source-withhold/restore pass; post-client closed store atline341 stops remaining numeric/source oracle. Controlled kernel is not native numerical proof.",
           "source_commit": "4947d7db74d4caf58c3a18d20e9f5c208393d9d7",
           "source_tree": "024a11e6c001a59b23ea0fe0ee67b1e4d7d264d6"
+        },
+        "guarded_live_reader_capability": {
+          "output": "policy-engine/_cache/e02/lane01-r11-verifiable-reader-focused-r2",
+          "measurement": {
+            "inputs_unchanged": true,
+            "named_input_count": 7,
+            "result": {
+              "aborted_reason": null,
+              "argv": [
+                ".venv/bin/python",
+                "-B",
+                "-m",
+                "pytest",
+                "-q",
+                "--tb=short",
+                "tests/unit/data_forge/domains/catalog/knowledge/test_acquisition_authority.py::test_live_execution_evidence_reopens_raw_and_normalized_carriers",
+                "tests/unit/data_forge/domains/catalog/knowledge/test_acquisition_authority.py::test_live_execution_reopens_carriers_through_guarded_verifiable_store",
+                "tests/unit/data_forge/domains/catalog/knowledge/test_acquisition_authority.py::test_live_execution_refuses_reader_without_verification_capability",
+                "tests/unit/data_forge/domains/catalog/knowledge/test_acquisition_authority.py::test_live_execution_does_not_hide_operational_verifier_denials"
+              ],
+              "complete": true,
+              "cwd": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine",
+              "disk_free_before_bytes": 4760223744,
+              "finished_at": "2026-11-05T19:00:32.254987+00:00",
+              "id": "command",
+              "max_sampled_process_tree_rss_bytes": 1400848384,
+              "minimum_sampled_disk_free_bytes": 4703961088,
+              "pid": 76393,
+              "process_group_gone": true,
+              "return_code": 0,
+              "sample_count": 38,
+              "started_at": "2026-11-05T19:00:11.194428+00:00",
+              "status": "passed",
+              "stderr_path": "command.stderr.txt",
+              "stdout_path": "command.stdout.txt",
+              "termination_signal": null,
+              "wall_seconds": 21.060517207952216,
+              "wall_total_before_seconds": 1.5249941498041153e-05
+            }
+          },
+          "observed": {
+            "PASS": 5,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "scope": "Canonical runtime protocol matching on exact guarded handle; actual raw+normalized carrier reopen and verify, missing capability refusal, PermissionError/OSError causes preserved. Root independent source/test review GO. Native R12 remains UNRUN."
         }
       },
       "independent_component_reviews": {

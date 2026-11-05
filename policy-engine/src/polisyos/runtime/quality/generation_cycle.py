@@ -155,6 +155,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     _N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE,
     _N7_SOURCE_DESCRIPTOR_JOIN_RULE,
     _N7_SOURCE_JOIN_RULE,
+    AcquisitionActionRecord,
     AcquisitionCostBasisRecord,
     AcquisitionGap,
     AcquisitionGroundingRederivation,
@@ -2740,6 +2741,24 @@ def _cycle_acquisition_requirement(
     return grounding.acquisition_requirement or value_port.acquisition_requirement
 
 
+def _n7_generic_fallback_source_record_matches(
+    requirement: AcquisitionRequirementGap,
+    record: AcquisitionActionRecord,
+) -> bool:
+    """Check the legacy scenario-reference route join for one planner row."""
+
+    family = _n7_requirement_family(requirement)
+    return (
+        family is not None
+        and requirement.requirement_gap_id in record.scenario_requirement_refs
+        and record.requirement_family == RequirementGapFamily.DATA.value
+        and record.compiled_requirement_ref is not None
+        and record.compiled_requirement_ref in record.scenario_requirement_refs
+        and family in record.scenario_requirement_refs
+        and f"required_data_family:{family}" in record.missing_requirement_fields
+    )
+
+
 def _requirement_missing_distributions(
     requirement: AcquisitionRequirementGap,
 ) -> tuple[str, ...]:
@@ -3266,16 +3285,8 @@ class GenerationCycleRecord(_StrictModel):
             if record != expected:
                 raise ValueError("acquisition_route_requirement_mismatch")
         else:
-            family = _n7_requirement_family(requirement)
-            if (
-                len(routed_matches) != 1
-                or family is None
-                or routed_matches[0].requirement_family != RequirementGapFamily.DATA.value
-                or routed_matches[0].compiled_requirement_ref
-                not in routed_matches[0].scenario_requirement_refs
-                or family not in routed_matches[0].scenario_requirement_refs
-                or f"required_data_family:{family}"
-                not in routed_matches[0].missing_requirement_fields
+            if len(routed_matches) != 1 or not _n7_generic_fallback_source_record_matches(
+                requirement, routed_matches[0]
             ):
                 raise ValueError("acquisition_route_requirement_mismatch")
             record = routed_matches[0]
@@ -16222,8 +16233,7 @@ class GenerationCycleController:
             or service is None
             or self._catalog_serving_source is not service.catalog_serving_source
             or getattr(resolver, "__self__", None) is not owner
-            or getattr(resolver, "__func__", None)
-            is not type(owner).currentness_resolver
+            or getattr(resolver, "__func__", None) is not type(owner).currentness_resolver
             or original_run.run_id != selected.generation_run_id
             or source_cycle.cycle_index != selected.cycle_index
             or exact_n5_content_bytes(self._candidate_simulation_handoff)

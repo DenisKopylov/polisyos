@@ -11402,7 +11402,10 @@ async def test_n7_unscheduled_source_gap_stays_uncosted_candidate(
     n7_complete_catalog_source: tuple[Path, Any],
 ) -> None:
     """An unscheduled source gap remains a candidate, without a fabricated cost."""
-    from polisyos.runtime.quality.acquisition_planner import load_acquisition_planner_report
+    from polisyos.runtime.quality.acquisition_planner import (
+        bind_acquisition_planner_report,
+        load_acquisition_planner_report,
+    )
 
     source_root, catalog_source = n7_complete_catalog_source
     controller = GenerationCycleController(
@@ -11436,6 +11439,57 @@ async def test_n7_unscheduled_source_gap_stays_uncosted_candidate(
     )
     assert len(report.acquisition_records) == 1
     assert source_gap.requirement_gap_id in report.acquisition_records[0].scenario_requirement_refs
+    assert generation_cycle_module._n7_generic_fallback_source_record_matches(
+        source_gap, report.acquisition_records[0]
+    )
+    assert report.planning_context_hash is not None
+    valid_record = report.acquisition_records[0]
+    malformed_duplicates = (
+        valid_record.model_copy(
+            update={
+                "acquisition_id": valid_record.acquisition_id + ":wrong-data-family",
+                "requirement_family": "policy_requirement",
+            }
+        ),
+        valid_record.model_copy(
+            update={
+                "acquisition_id": valid_record.acquisition_id + ":missing-compiled-ref",
+                "compiled_requirement_ref": None,
+            }
+        ),
+        valid_record.model_copy(
+            update={
+                "acquisition_id": valid_record.acquisition_id + ":missing-family-ref",
+                "missing_requirement_fields": tuple(
+                    field
+                    for field in valid_record.missing_requirement_fields
+                    if field != "required_data_family:firm_survival"
+                ),
+            }
+        ),
+    )
+    for malformed in malformed_duplicates:
+        assert source_gap.requirement_gap_id in malformed.scenario_requirement_refs
+        assert not generation_cycle_module._n7_generic_fallback_source_record_matches(
+            source_gap, malformed
+        )
+        malformed_report = report.model_copy(
+            update={
+                "acquisition_records": (*report.acquisition_records, malformed),
+                "planning_context_hash": None,
+                "planning_binding_hash": None,
+            }
+        )
+        malformed_report = bind_acquisition_planner_report(
+            malformed_report,
+            planning_context_hash=report.planning_context_hash,
+        )
+        malformed_cycle_payload = cycle.model_dump(mode="json")
+        malformed_cycle_payload["acquisition_routing_report"] = malformed_report.model_dump(
+            mode="json"
+        )
+        with pytest.raises(ValueError, match="acquisition_route_requirement_mismatch"):
+            generation_cycle_module.GenerationCycleRecord.model_validate(malformed_cycle_payload)
     assert cycle.counterexample.diagnostic.code == (
         "n6.acquisition.n7_execution_scope_not_established"
     )

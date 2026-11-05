@@ -10804,6 +10804,23 @@
           "inputs_unchanged": true,
           "scope": "Source run R_1c3d5eaddb85d6a6 completed; action reached requested/executing only before wall stop. Exact5/1 ledger retains only2 completed original standard units; no third/fourth reservation or persisted new DataSnapshot/WMR/N5. Actual WDI call count not durably established. No terminal/frontier and no firstB PASS.",
           "next": "Bounded read-only existing-owner profile of current/source/head/policy verification before any repeat source or protected calculation; do not infer OOM or raise timeout blindly."
+        },
+        "generic_source_planner_join_current": {
+          "output": "policy-engine/_cache/e02/lane01-generic-source-planner-join-r2/",
+          "observed": {
+            "PASS": 4,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 47.63346916704904,
+          "peak_rss_bytes": 1672642560,
+          "named_inputs": 12,
+          "inputs_unchanged": true,
+          "scope": "Canonical producer and fresh-route consumer share the existing generic scenario-source predicate. Every source-gap-bearing row is counted before validating the sole row. Exact joined precedence retained; valid+malformed duplicate family/ref/required-field controls refuse on producer and consumer. Actual GDP R7 produced this valid2recordshape but consumer previously refused.",
+          "independent_review": "Terra R2 GO after material ambiguity finding; Root source/complete supervised result/stdout read. Earlier4PASS R1 is not accepted for the faulty ambiguity semantics.",
+          "limitations": "No JUnit requested in actual command; complete stdout/stderr and supervisor metadata retained. Full annualGDP producer→newworld→N5→freshreader still pending.",
+          "format_reconciliation": "Root normal Ruff formatting afterR2 preserves complete parsed generation-cycle module AST exactly; original deciding12pins/output retained."
         }
       },
       "independent_component_reviews": {

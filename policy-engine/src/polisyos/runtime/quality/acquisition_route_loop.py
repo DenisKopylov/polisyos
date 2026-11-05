@@ -55,6 +55,7 @@ from polisyos.runtime.quality.generation_cycle import (
     _cycle_acquisition_requirement,
     _cycle_basis_ref,
     _n7_cycle_source_gap,
+    _n7_generic_fallback_source_record_matches,
     _n7_joined_planner_records_match,
     _problem_ref,
     generation_cycle_run_content_hash,
@@ -112,7 +113,7 @@ def _select_source_planner_record(
     report: AcquisitionPlannerReport,
     source: AcquisitionRequirementGap | None,
 ) -> AcquisitionActionRecord:
-    """Select one joined source action without dropping other compiler gaps."""
+    """Select one source action without dropping other compiler gaps."""
     records = report.acquisition_records
     if len(records) == 1:
         return records[0]
@@ -126,9 +127,20 @@ def _select_source_planner_record(
         and record.gap_type == source.gap_type
         and record.compiled_requirement_ref != source.compiled_requirement_ref
     )
-    if len(selected) != 1:
+    if selected:
+        if len(selected) != 1:
+            raise AcquisitionRouteClosureError("costed_route_not_unique")
+        return selected[0]
+    fallback_candidates = tuple(
+        record
+        for record in records
+        if source.requirement_gap_id in record.scenario_requirement_refs
+    )
+    if len(fallback_candidates) != 1 or not _n7_generic_fallback_source_record_matches(
+        source, fallback_candidates[0]
+    ):
         raise AcquisitionRouteClosureError("costed_route_not_unique")
-    return selected[0]
+    return fallback_candidates[0]
 
 
 class AcquisitionRouteRecoveryRequired(RuntimeError):  # noqa: N818 - exact lifecycle signal

@@ -3593,11 +3593,13 @@ class AcquisitionRouteLoopAuthoritySink:
             )
         ):
             raise ValueError("candidate_experiment_phase_source_identity_mismatch")
-        handler = getattr(self, "_acquisition_job_handler", None)
+        control_service = getattr(self._core_source_resolver, "__self__", None)
+        handler = getattr(control_service, "_acquisition_job_handler", None)
         action_service = getattr(handler, "__self__", None)
         if (
-            type(action_service) is not AcquisitionActionService
-            or action_service.control_service is not self
+            type(control_service) is not ControlPlaneService
+            or type(action_service) is not AcquisitionActionService
+            or action_service.control_service is not control_service
             or type(action_service._authority_provider)
             is not ProductionAcquisitionAuthorityProvider
         ):
@@ -4484,8 +4486,7 @@ class AcquisitionRouteLoopAuthoritySink:
                 head.job_id != typed.job_id
                 or head.receipt_ref != recovered.receipt_ref
                 or head.durable_event_id != recovered.durable_event_id
-                or head.receipt_manifest_profile_sha256
-                != recovered.receipt_manifest_profile_sha256
+                or head.receipt_manifest_profile_sha256 != recovered.receipt_manifest_profile_sha256
                 or head.receipt_phase != "requested"
                 or head.head_generation != 1
             ):
@@ -5372,9 +5373,7 @@ class AcquisitionRouteLoopAuthoritySink:
             else None
         )
         selected_experiment_phase = (
-            result.cas_ref
-            if type(typed) is AcquisitionCandidateExperimentPhaseReceipt
-            else None
+            result.cas_ref if type(typed) is AcquisitionCandidateExperimentPhaseReceipt else None
         )
         selected_action_ref = selected_receipt or selected_experiment_phase
         if selected_receipt is not None and (

@@ -10,6 +10,69 @@ from typing import Any
 import pytest
 
 PHYSICAL_POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[3]
+_CANDIDATE_ONLY_SOURCE_CLAUSE = (
+    "all proposals remain candidate-only and must assert target slot, sign, outcome slots, "
+    "effect path, and estimand when known."
+)
+_CANDIDATE_ONLY_SOURCE_QUOTE = "all proposals remain candidate-only"
+_SUPPORTED_CANDIDATE_ONLY_CLAIMS = frozenset(
+    {
+        "All proposals remain candidate-only.",
+        "Keep the scenario candidate-only.",
+    }
+)
+
+
+class _ExactCandidateOnlySpanSupportClient:
+    """Support only fixed candidate-only paraphrases from the exact source quote."""
+
+    def __init__(self) -> None:
+        self.observations: list[tuple[str, str, str]] = []
+
+    async def generate(
+        self,
+        *,
+        messages: list[dict[str, object]],
+        tools: list[dict[str, object]],
+        temperature: float | None = None,
+        seed: int | None = None,
+    ) -> Any:
+        user_content = next(
+            (
+                message.get("content")
+                for message in messages
+                if isinstance(message, dict) and message.get("role") == "user"
+            ),
+            None,
+        )
+        try:
+            payload = json.loads(user_content) if isinstance(user_content, str) else {}
+        except json.JSONDecodeError:
+            payload = {}
+        if not isinstance(payload, dict):
+            payload = {}
+        claim_text = str(payload.get("claim_text") or "")
+        span_text = str(payload.get("span_text") or "")
+        exact_source_bound_claim = (
+            claim_text in _SUPPORTED_CANDIDATE_ONLY_CLAIMS
+            and span_text == _CANDIDATE_ONLY_SOURCE_QUOTE
+        )
+        decision = "entails" if exact_source_bound_claim else "abstain"
+        confidence = 0.93 if exact_source_bound_claim else 0.0
+        self.observations.append((claim_text, span_text, decision))
+
+        from tests._helpers.runtime_http import _DeterministicSpanSupportClient
+
+        fixture = _DeterministicSpanSupportClient(
+            decision=decision,
+            confidence=confidence,
+        )
+        return await fixture.generate(
+            messages=messages,
+            tools=tools,
+            temperature=temperature,
+            seed=seed,
+        )
 
 
 @pytest.fixture
@@ -28,25 +91,13 @@ def controlled_candidate_gateway(monkeypatch: pytest.MonkeyPatch):
         yield gateway
 
 
-@pytest.mark.asyncio
-async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
+@pytest.fixture
+async def prepared_cubic_parent(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     controlled_candidate_gateway: Any,
-) -> None:
-    """A synthetic source-bound three-atom parent retains samples; N8 stays pending."""
-    pytest.importorskip("fastapi.testclient")
-    from fastapi.testclient import TestClient
-
-    from polisyos.core.artifacts.manifest import ArtifactRef
-    from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
-    from polisyos.runtime.http.app import create_runtime_api_app
-    from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
-    from tests._helpers.candidate_cycle_source_profile import (
-        build_candidate_cycle_substrate_route_inputs,
-    )
-    from tests._helpers.control_worker import dispatch_one_control_job
-
+) -> tuple[Any, Any]:
+    """Prepare the source-bound three-child parent without serving or running N5."""
     helper_name = "tests._helpers.generic_n4_served_replay"
     helper_path = (
         Path(__file__).resolve().parents[3] / "tests" / "_helpers" / "generic_n4_served_replay.py"
@@ -57,22 +108,154 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
     sys.modules[helper_name] = generic_n4_served_replay
     helper_spec.loader.exec_module(generic_n4_served_replay)
     generic_n4_served_replay.REPO_ROOT = PHYSICAL_POLICY_ENGINE_ROOT
+
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+    )
+
     source_inputs = build_candidate_cycle_substrate_route_inputs(
-        tmp_path / "n4-candidate-source-root"
+        tmp_path / "n4-candidate-source-root",
+        include_owner_slot_manifest=True,
+        owner_knob_dictionary=generic_n4_served_replay._declared_generic_component_knobs(
+            "controlled_overlay"
+        ),
     )
     prepared = await generic_n4_served_replay.prepare_generic_n4_served_replay(
         tmp_path=tmp_path,
         controlled_candidate_gateway=controlled_candidate_gateway,
         monkeypatch=monkeypatch,
-        tenant_id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
-        cell_id="cell-b26-joint-candidate",
+        tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        cell_id="cell-a",
         child_count=3,
         source_root=source_inputs.root,
+        synthetic_settled_provider=True,
     )
     assert prepared.source_root == source_inputs.root
     assert prepared.app_kwargs["repo_root"] == source_inputs.root
     assert prepared.source_root_witness["n4_repo_root"] == str(source_inputs.root)
+    raw_request = str(prepared.request_json["request"]).casefold()
+    assert _CANDIDATE_ONLY_SOURCE_CLAUSE in raw_request
+    candidate_only_constraint = next(
+        constraint
+        for constraint in prepared.recorded_problem.constraints
+        if constraint.constraint_id == "no_authority_without_a"
+    )
+    assert candidate_only_constraint.source_text == _CANDIDATE_ONLY_SOURCE_QUOTE
+    assert candidate_only_constraint.source_text in raw_request
+    assert candidate_only_constraint.description in _SUPPORTED_CANDIDATE_ONLY_CLAIMS
+    return generic_n4_served_replay, prepared
+
+
+def _assert_cubic_parent_owner_grounding(generic_n4_served_replay: Any, prepared: Any) -> None:
+    """Require three source-bound owner relations before any runtime consumer call."""
     assert len(prepared.children) == 3
+    actual_kref_roots = prepared.source_root_witness["actual_kref_build_repo_roots"]
+    assert actual_kref_roots
+    assert set(actual_kref_roots) == {str(prepared.source_root)}
+    expected_groups = {
+        (("budget_allocation_multiplier", "government.balance"),),
+        (("procurement_shock_intensity", "cells.distress_score"),),
+        (("tax_relief_rate", "global.tax_rate"),),
+    }
+    actual_groups = {
+        generic_n4_served_replay._original_second_capture_child_group(child)
+        for child in prepared.children
+    }
+    assert actual_groups == expected_groups
+
+    generation_result = prepared.organ_run.result
+    dispositions = generic_n4_served_replay._grounding_disposition_diagnostic(generation_result)
+    accepted_relations = {"exact", "certified-specialization"}
+    assert len(dispositions) == 3, dispositions
+    assert all(
+        disposition == "shadow_bound" and relation in accepted_relations
+        for _proposal_id, disposition, relation, _cg2_reason, _cg3_reason, _cause in dispositions
+    ), dispositions
+
+
+@pytest.mark.asyncio
+async def test_candidate_only_span_support_requires_the_exact_declared_quote() -> None:
+    """The test verifier supports one literal limitation and abstains on mutations."""
+    client = _ExactCandidateOnlySpanSupportClient()
+    tool = {
+        "type": "function",
+        "function": {"name": "layer3_gy_record_span_support_judgment"},
+    }
+
+    async def decide(claim_text: str, span_text: str) -> str:
+        response = await client.generate(
+            messages=[
+                {"role": "system", "content": "test-only source-span judge"},
+                {
+                    "role": "user",
+                    "content": json.dumps(
+                        {
+                            "claim_text": claim_text,
+                            "span_text": span_text,
+                        },
+                        sort_keys=True,
+                    ),
+                },
+            ],
+            tools=[tool],
+        )
+        return str(response.tool_calls[0].arguments["decision"])
+
+    assert await decide("All proposals remain candidate-only.", _CANDIDATE_ONLY_SOURCE_QUOTE) == (
+        "entails"
+    )
+    assert await decide("Keep the scenario candidate-only.", _CANDIDATE_ONLY_SOURCE_QUOTE) == (
+        "entails"
+    )
+    assert await decide("Publication is authorized.", _CANDIDATE_ONLY_SOURCE_QUOTE) == "abstain"
+    assert (
+        await decide(
+            "All proposals remain candidate-only.",
+            _CANDIDATE_ONLY_SOURCE_QUOTE + " unless approved.",
+        )
+        == "abstain"
+    )
+    assert await decide("All proposals remain candidate-only.", "") == "abstain"
+    assert client.observations == [
+        ("All proposals remain candidate-only.", _CANDIDATE_ONLY_SOURCE_QUOTE, "entails"),
+        ("Keep the scenario candidate-only.", _CANDIDATE_ONLY_SOURCE_QUOTE, "entails"),
+        ("Publication is authorized.", _CANDIDATE_ONLY_SOURCE_QUOTE, "abstain"),
+        (
+            "All proposals remain candidate-only.",
+            _CANDIDATE_ONLY_SOURCE_QUOTE + " unless approved.",
+            "abstain",
+        ),
+        ("All proposals remain candidate-only.", "", "abstain"),
+    ]
+
+
+@pytest.mark.asyncio
+async def test_cubic_parent_has_three_tracked_owner_relations(
+    prepared_cubic_parent: tuple[Any, Any],
+) -> None:
+    """N4 binds each distinct child to an actual tracked owner mechanism."""
+    generic_n4_served_replay, prepared = prepared_cubic_parent
+    _assert_cubic_parent_owner_grounding(generic_n4_served_replay, prepared)
+
+
+@pytest.mark.asyncio
+async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
+    monkeypatch: pytest.MonkeyPatch,
+    prepared_cubic_parent: tuple[Any, Any],
+) -> None:
+    """A synthetic source-bound three-atom parent retains samples; N8 stays pending."""
+    pytest.importorskip("fastapi.testclient")
+    from fastapi.testclient import TestClient
+
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.services.control import generation_cycle as compiler_owner
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+    from tests._helpers.control_worker import dispatch_one_control_job
+
+    generic_n4_served_replay, prepared = prepared_cubic_parent
+    _assert_cubic_parent_owner_grounding(generic_n4_served_replay, prepared)
 
     def controlled_ncm_step(state: dict[str, Any], params: dict[str, Any]) -> dict[str, Any]:
         query = state["ncm_query_data"]
@@ -86,6 +269,23 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
         }
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(controlled_ncm_step))
+    candidate_only_constraint = next(
+        constraint
+        for constraint in prepared.recorded_problem.constraints
+        if constraint.constraint_id == "no_authority_without_a"
+    )
+    span_support_client = _ExactCandidateOnlySpanSupportClient()
+    original_compiler = compiler_owner.build_design_problem_from_nl_request
+
+    async def compile_with_source_bound_span_support(**kwargs: Any) -> Any:
+        kwargs["span_support_client"] = span_support_client
+        return await original_compiler(**kwargs)
+
+    monkeypatch.setattr(
+        compiler_owner,
+        "build_design_problem_from_nl_request",
+        compile_with_source_bound_span_support,
+    )
     request_payload = {
         **prepared.request_json,
         "joint_interaction_candidate_intent": "n4_unique_parent_source_members.v1",
@@ -118,6 +318,11 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
         assert dispatched == accepted["job_id"]
         job = service._control_store.get_job(accepted["job_id"])
         assert job is not None and job.state == "completed"
+        assert len(span_support_client.observations) == 1
+        observed_claim, observed_span, observed_decision = span_support_client.observations[0]
+        assert observed_claim in _SUPPORTED_CANDIDATE_ONLY_CLAIMS
+        assert observed_span == _CANDIDATE_ONLY_SOURCE_QUOTE
+        assert observed_decision == "entails"
         run_id = str(job.progress["core_run_id"])
         fresh_response = client.get(f"/api/v1/runs/{run_id}")
         assert fresh_response.status_code == 200, fresh_response.text

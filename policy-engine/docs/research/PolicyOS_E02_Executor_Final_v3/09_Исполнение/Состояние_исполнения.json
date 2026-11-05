@@ -9135,7 +9135,7 @@
         "horizon": "lane01_horizon: joint_simulation_horizon.py/DTOs+SIMtests, sole common mechanism writer",
         "served": "lane01_served: HTTPcontrolgeneration/job/profile and servedtests, explicitcompanionleases",
         "readiness": "lane01_readiness: confidence_ledger existingreadiness/censusbridge+mirroredtests;actualfinalproducer afterLANE12",
-        "root": "index/HEAD/refs,sharedfacades/generatedfamilies,normalrelease/WorkPlan/fillablestate;independentreview andcomposition",
+        "root": "Root owns canonical index/commits/refs/generated families and existing AUTHOR frozen runtime. Main next-generation API/history/SQL companions have one Sol writer; two Luna leaf workers own only explicit new unit files.",
         "surface": "lane01_surface: core/contracts/runtime.py,HTTP runs projections,dashboard validators/Overview/locales+mirroredtests",
         "offpilot": "lane01_offpilot: scalar slots,catalog unit/provenance/passport/governed descriptors+actual compact WDI profiles",
         "candidate_adapter": "lane01_candidate_adapter: actual Fabric data_requirement adapter+mirroredtests",
@@ -10565,6 +10565,73 @@
           "inputs_unchanged_during_run": true,
           "scope": "Canonical experiment origin wraps known configured-policy lookup failures as scoped typed refusal with exact original cause. Unit isolates already-verified origin, checks four exception classes, unchanged action-head/events and unexpected interrupt propagation. Genuine retained R2 control is next; no source N5 rerun claimed.",
           "independent_review": "Root production/test source GO and actual supervised result/stdout readback."
+        },
+        "human_signed_reader_read_time_disappearance": {
+          "output": "policy-engine/_cache/e02/lane01-human-decision-signed-reader-fnf-r4/",
+          "observed": {
+            "PASS": 8,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 27.421237166039646,
+          "peak_rss_bytes": 1551482880,
+          "named_inputs": 2,
+          "inputs_unchanged_during_run": true,
+          "scope": "One shared signed-model boundary converts only FileNotFoundError at manifest/signature/reconciliation/JSON reads into DS9-DECISION-ARTIFACT-MISSING with the original cause. Actual signed-record tests retain records/effects; RuntimeError, TimeoutError and KeyboardInterrupt propagate unchanged.",
+          "independent_review": "Root source/test review; Sol independently identified the later prejob owner defect. Final checkpoint Ruff formatting preserves complete ASTs of deciding tests."
+        },
+        "candidate_experiment_native_execute_r3": {
+          "output": "policy-engine/_cache/e02/lane01-candidate-execution-native-r3/",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 129.94997533294372,
+          "peak_rss_bytes": 1951121408,
+          "named_inputs": 51,
+          "inputs_unchanged_during_run": true,
+          "scope": "Genuine live source N5, DS9/PA2 and removal controls pass; execute preflight passes, but requested-phase publication refuses candidate_experiment_authority_owner_not_composed before the new N5. Original whole invocation remains FAIL.",
+          "diagnosis_and_delta": "Prejob verifier is an authority sink but read its own nonexistent job handler and compared the service owner to the sink. Root fixes it to the bound canonical ControlPlaneService, retaining exact owner/provider checks. Positive requested-phase/full N5 qualification remains pending.",
+          "independent_review": "Root and Sol independently confirmed the same concrete owner-object error."
+        },
+        "retained_r2_followup_boundary": {
+          "guard_output": "policy-engine/_cache/e02/lane01-candidate-execution-retained-r2-guards-r2/",
+          "guard_result": "FAIL at missing-human raw FileNotFoundError; common signed-reader fix independently qualifies eight focused cases, full guard not yet replayed. Earlier relative-path attempt reached no source.",
+          "positive_output": "policy-engine/_cache/e02/lane01-candidate-execution-retained-r2-positive-r1/",
+          "diagnostic_output": "policy-engine/_cache/e02/lane01-candidate-execution-retained-r2-preflight-cause-r2/",
+          "positive_result": "FAIL before enqueue/new N5: candidate_experiment_prior_source_not_established. Retained app omitted the persisted configured context profiles/declarations; live R3 gets through this preflight. Adapter bootstrap must consume actual selected source V5 profile/declaration.",
+          "source_run": "R_3f306eee34809ce3",
+          "source_work": "Original completed source retained; standard quota remains2, no new numerical work in these follow-ups. Policy/authority preparation appends its own events; original source CAS/SQL rows stay intact."
+        },
+        "cubic_joint_consumer_current_preparation": {
+          "parent_output": "policy-engine/_cache/e02/lane01-sim-consumer-owner-parent-r6/",
+          "parent_observed": {
+            "PASS": 2
+          },
+          "scope": "Three source-derived children bind to tracked tax/procurement/budget owners; exact-source span oracle accepts two independently fixed candidate-only claims and refuses publication/altered/missing spans.",
+          "full_route_outputs": [
+            "policy-engine/_cache/e02/lane01-sim-consumer-cubic-route-r1/",
+            "policy-engine/_cache/e02/lane01-sim-consumer-cubic-route-r2/",
+            "policy-engine/_cache/e02/lane01-sim-consumer-cubic-route-r3/"
+          ],
+          "full_route_result": "Three actual FAILs before N5: first two fixture tenant mismatch, third N4 recording lacks formalizer stage. Canonical fixture identity is aligned; existing source-derived synthetic-settled multi-stage provider is now explicitly selected for this test only. Latest full route remains UNRUN.",
+          "independent_review": "CYC04 Luna source/owner/span review GO; Root owns checkpoint, not a new numerical PASS."
+        },
+        "annual_gdp_holdout_current_preparation": {
+          "files": [
+            "tests/_helpers/candidate_holdout_resource.py",
+            "tests/integration/runtime_quality/test_annual_gdp_resource_served.py"
+          ],
+          "prior_outputs": [
+            "policy-engine/_cache/e02/lane01-gdp-current-native-r1/",
+            "policy-engine/_cache/e02/lane01-gdp-current-native-r2/"
+          ],
+          "observed": "Two initial FAIL/FAIL invocations stop on import/fixture-schema and oracle-shape mistakes before positive N5. Wrong-year production refusal was correct in r2; test now asserts its exact code.",
+          "latest_state": "Prepared, numerical verification UNRUN. Reuses current v3 DesignProblem owner and actual import owners; physical WMR baselines, independent $250B synthetic effect/sample/SE oracle, declared float32 spacing and annual USD/time limitations are explicit.",
+          "independent_review": "Luna numerical/state/precision reviews and Sol import/constructor audit; corrected latest fixture has not run."
         }
       },
       "independent_component_reviews": {

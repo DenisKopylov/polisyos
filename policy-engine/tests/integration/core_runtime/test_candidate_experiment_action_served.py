@@ -1,4 +1,4 @@
-"""The served candidate policy reaches a signed, replayed decision without effect."""
+"""The served candidate policy reaches a signed, replayed candidate-only reentry."""
 
 from __future__ import annotations
 
@@ -256,6 +256,8 @@ def run_candidate_experiment_action_oracle(
     values: dict[str, object],
     policy_ref,
     monkeypatch: pytest.MonkeyPatch,
+    idempotency_key: str = "served-labor-candidate-experiment-authority",
+    exercise_controls: bool = True,
     after_replay: Callable[..., object] | None = None,
 ) -> dict[str, str]:
     """Run the fresh HTTP/PA2/DS9 consumer against an already-served source.
@@ -304,7 +306,7 @@ def run_candidate_experiment_action_oracle(
     request = CandidateExperimentRouteMutationRequest(
         route_id=projection.route_id,
         replay_pins=projection.replay_pins,
-        idempotency_key="served-labor-candidate-experiment-authority",
+        idempotency_key=idempotency_key,
     )
     path = (
         f"/api/v1/runs/{run_id}/candidate-acquisition-experiment/"
@@ -453,94 +455,97 @@ def run_candidate_experiment_action_oracle(
     assert history.decision == loaded.decision
     assert history.current_authority == "not_revalidated"
 
-    store = control._artifact_store
-    original_get_bytes = store.get_bytes
-    policy_id = str(policy_ref.artifact_id)
-    with monkeypatch.context() as blocked_policy:
+    if exercise_controls:
+        store = control._artifact_store
+        original_get_bytes = store.get_bytes
+        policy_id = str(policy_ref.artifact_id)
+        with monkeypatch.context() as blocked_policy:
 
-        def deny_policy(ref, *args, **kwargs):
-            if str(getattr(ref, "artifact_id", ref)) == policy_id:
-                raise FileNotFoundError("candidate policy removed")
-            return original_get_bytes(ref, *args, **kwargs)
+            def deny_policy(ref, *args, **kwargs):
+                if str(getattr(ref, "artifact_id", ref)) == policy_id:
+                    raise FileNotFoundError("candidate policy removed")
+                return original_get_bytes(ref, *args, **kwargs)
 
-        blocked_policy.setattr(store, "get_bytes", deny_policy)
+            blocked_policy.setattr(store, "get_bytes", deny_policy)
+            with pytest.raises(AcquisitionActionServiceError):
+                action_service.replay_candidate_experiment_authority(
+                    tenant_id=served.TENANT,
+                    cell_id=served.CELL,
+                    run_id=run_id,
+                    route_id=projection.route_id,
+                    request=request,
+                    job_id=job_id,
+                    decision_ref=decision_ref,
+                    effect_handler=lambda call: effects.append(call),
+                )
+        with pytest.raises(AcquisitionActionServiceError):
+            action_service.replay_candidate_experiment_authority(
+                tenant_id=served.TENANT,
+                cell_id="foreign-cell",
+                run_id=run_id,
+                route_id=projection.route_id,
+                request=request,
+                job_id=job_id,
+                decision_ref=decision_ref,
+                effect_handler=lambda call: effects.append(call),
+            )
+        changed_request = request.model_copy(
+            update={"idempotency_key": "served-labor-candidate-experiment-changed"}
+        )
         with pytest.raises(AcquisitionActionServiceError):
             action_service.replay_candidate_experiment_authority(
                 tenant_id=served.TENANT,
                 cell_id=served.CELL,
                 run_id=run_id,
                 route_id=projection.route_id,
-                request=request,
+                request=changed_request,
                 job_id=job_id,
                 decision_ref=decision_ref,
                 effect_handler=lambda call: effects.append(call),
             )
-    with pytest.raises(AcquisitionActionServiceError):
-        action_service.replay_candidate_experiment_authority(
-            tenant_id=served.TENANT,
-            cell_id="foreign-cell",
-            run_id=run_id,
-            route_id=projection.route_id,
-            request=request,
-            job_id=job_id,
-            decision_ref=decision_ref,
-            effect_handler=lambda call: effects.append(call),
-        )
-    changed_request = request.model_copy(
-        update={"idempotency_key": "served-labor-candidate-experiment-changed"}
-    )
-    with pytest.raises(AcquisitionActionServiceError):
-        action_service.replay_candidate_experiment_authority(
-            tenant_id=served.TENANT,
-            cell_id=served.CELL,
-            run_id=run_id,
-            route_id=projection.route_id,
-            request=changed_request,
-            job_id=job_id,
-            decision_ref=decision_ref,
-            effect_handler=lambda call: effects.append(call),
-        )
-    human_id = str(human_ref)
-    with monkeypatch.context() as blocked_human:
+        human_id = str(human_ref)
+        with monkeypatch.context() as blocked_human:
 
-        def deny_human(ref, *args, **kwargs):
-            if str(getattr(ref, "artifact_id", ref)) == human_id:
-                raise FileNotFoundError("signed DS9 record removed")
-            return original_get_bytes(ref, *args, **kwargs)
+            def deny_human(ref, *args, **kwargs):
+                if str(getattr(ref, "artifact_id", ref)) == human_id:
+                    raise FileNotFoundError("signed DS9 record removed")
+                return original_get_bytes(ref, *args, **kwargs)
 
-        blocked_human.setattr(store, "get_bytes", deny_human)
-        with pytest.raises(HumanDecisionOperationalResolutionError):
-            action_service.replay_candidate_experiment_authority(
-                tenant_id=served.TENANT,
-                cell_id=served.CELL,
-                run_id=run_id,
-                route_id=projection.route_id,
-                request=request,
-                job_id=job_id,
-                decision_ref=decision_ref,
-                effect_handler=lambda call: effects.append(call),
-            )
-    decision_id = str(decision_ref)
-    with monkeypatch.context() as blocked_decision:
+            blocked_human.setattr(store, "get_bytes", deny_human)
+            with pytest.raises(HumanDecisionOperationalResolutionError):
+                action_service.replay_candidate_experiment_authority(
+                    tenant_id=served.TENANT,
+                    cell_id=served.CELL,
+                    run_id=run_id,
+                    route_id=projection.route_id,
+                    request=request,
+                    job_id=job_id,
+                    decision_ref=decision_ref,
+                    effect_handler=lambda call: effects.append(call),
+                )
+        decision_id = str(decision_ref)
+        with monkeypatch.context() as blocked_decision:
 
-        def deny_decision(ref, *args, **kwargs):
-            if str(getattr(ref, "artifact_id", ref)) == decision_id:
-                raise FileNotFoundError("persisted PA2 decision removed")
-            return original_get_bytes(ref, *args, **kwargs)
+            def deny_decision(ref, *args, **kwargs):
+                if str(getattr(ref, "artifact_id", ref)) == decision_id:
+                    raise FileNotFoundError("persisted PA2 decision removed")
+                return original_get_bytes(ref, *args, **kwargs)
 
-        blocked_decision.setattr(store, "get_bytes", deny_decision)
-        with pytest.raises(FileNotFoundError):
-            action_service.replay_candidate_experiment_authority(
-                tenant_id=served.TENANT,
-                cell_id=served.CELL,
-                run_id=run_id,
-                route_id=projection.route_id,
-                request=request,
-                job_id=job_id,
-                decision_ref=decision_ref,
-                effect_handler=lambda call: effects.append(call),
-            )
-    assert effects == []
+            blocked_decision.setattr(store, "get_bytes", deny_decision)
+            with pytest.raises(FileNotFoundError):
+                action_service.replay_candidate_experiment_authority(
+                    tenant_id=served.TENANT,
+                    cell_id=served.CELL,
+                    run_id=run_id,
+                    route_id=projection.route_id,
+                    request=request,
+                    job_id=job_id,
+                    decision_ref=decision_ref,
+                    effect_handler=lambda call: effects.append(call),
+                )
+        assert effects == []
+    else:
+        assert effects == []
     if after_replay is not None:
         after_replay(
             values=values,
@@ -563,6 +568,239 @@ def run_candidate_experiment_action_oracle(
     }
 
 
+def _assert_candidate_experiment_n5_uses_current_wmr(*, control, origin, execution) -> None:
+    """Recompute the selected N5 result from its new WMR-bound physical snapshot."""
+    import numpy as np
+
+    from polisyos.core import artifacts
+    from polisyos.core.contracts import DataSnapshot, StateSnapshot
+    from polisyos.foundry.execute.executor import get_state_path, load_state_snapshot
+    from polisyos.runtime.quality.candidate_acquisition_source import (
+        CandidateAcquisitionSource,
+    )
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationExecutionV5,
+        CandidateSimulationN5InputV5,
+        CandidateSimulationSyntheticModelDeclarationV1,
+    )
+    from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+
+    history = execution.terminal_history
+    evaluation = history.evaluation
+    if evaluation is None:
+        raise AssertionError("candidate experiment terminal omitted its selected N5 evaluation")
+    source = history.source
+    if type(source) is not CandidateAcquisitionSource:
+        raise AssertionError(
+            "candidate experiment terminal omitted its persisted acquisition source"
+        )
+    selected = evaluation.selected
+    n5_input = evaluation.input_record
+    n5_result = evaluation.result
+    store = control._artifact_store
+
+    assert history.terminal.terminal_outcome == "candidate_reentry_completed"
+    assert selected.evaluation_job_id == n5_input.job_id
+    assert selected.n5_input_ref == evaluation.execution.n5_input_ref
+    assert selected.n5_result_ref == evaluation.execution.n5_result_ref
+    persisted_input = CandidateSimulationN5InputV5.model_validate(
+        canon.from_canonical_bytes(store.get_bytes(selected.n5_input_ref))
+    )
+    persisted_execution = CandidateSimulationExecutionV5.model_validate(
+        canon.from_canonical_bytes(store.get_bytes(selected.n5_execution_ref))
+    )
+    assert persisted_input == n5_input
+    assert persisted_execution == evaluation.execution
+    assert n5_input.authority_purpose == "candidate_scenario_n5_only"
+    assert evaluation.execution.authority_purpose == "candidate_scenario_n5_only"
+    assert selected.n4_source_ref == n5_input.n4_source_ref
+    assert selected.context_job_ref == n5_input.context_job_ref
+    assert selected.n5_input_ref == evaluation.execution.n5_input_ref
+    assert selected.n5_execution_ref.kind == "runtime.quality.candidate_simulation_execution"
+    assert selected.n5_result_ref == persisted_execution.n5_result_ref
+    assert persisted_execution.n4_source_ref == n5_input.n4_source_ref
+    assert persisted_execution.context_job_ref == n5_input.context_job_ref
+    assert persisted_execution.model_declaration_ref == n5_input.model_declaration_ref
+    assert persisted_execution.ncm_ref == n5_input.ncm_ref
+    assert persisted_execution.n5_input_ref == selected.n5_input_ref
+    assert persisted_execution.n5_result_ref == selected.n5_result_ref
+    assert persisted_execution.n5_result_content_hash == n5_result.receipt.payload_hash
+    assert selected.world_model_record_hash == n5_input.materialization.world_model_record_hash
+    assert (
+        persisted_execution.world_model_record_hash
+        == n5_input.materialization.world_model_record_hash
+    )
+    assert (
+        n5_result.world_model_record_content_hash
+        == n5_input.materialization.world_model_record_hash
+    )
+    assert n5_input.run_id == origin.run_id
+    assert n5_input.job_id != origin.source_job_id
+    assert selected.generation_run_id == origin.generation_run.run_id
+    assert selected.cycle_index == origin.source_cycle.cycle_index + 1
+    assert execution.job_id != origin.source_job_id
+
+    old_simulation = origin.source_cycle.simulation
+    old_n5_input_ref = old_simulation.candidate_simulation_n5_input_ref
+    old_result_ref = old_simulation.simulation_result_ref
+    old_n4_ref = old_simulation.candidate_simulation_n4_source_ref
+    old_context_ref = old_simulation.candidate_simulation_context_job_ref
+    old_execution_ref = artifacts.ArtifactRef.model_validate(
+        old_simulation.diagnostics["candidate_simulation_execution_selected_ref"]
+    )
+    new_selected_refs = (
+        (selected.n4_source_ref, old_n4_ref),
+        (selected.context_job_ref, old_context_ref),
+        (selected.n5_input_ref, old_n5_input_ref),
+        (selected.n5_execution_ref, old_execution_ref),
+        (selected.n5_result_ref, old_result_ref),
+    )
+    for new_ref, old_ref in new_selected_refs:
+        assert new_ref is not None and old_ref is not None
+        assert artifacts.artifact_ref_identity_key(new_ref) != (
+            artifacts.artifact_ref_identity_key(old_ref)
+        )
+        assert str(new_ref.artifact_id) != str(old_ref.artifact_id)
+
+    acquired_world = n5_input.profile.context_inputs.world_model_record
+    views = world_model_artifact_views(acquired_world)
+    data_snapshot_ref = views.data_snapshot_ref
+    bound_state_ref = views.bound_state_snapshot_ref
+    assert data_snapshot_ref.manifest_profile_sha256 is not None
+    assert bound_state_ref is not None and bound_state_ref.manifest_profile_sha256 is not None
+    assert (
+        str(data_snapshot_ref.artifact_id) == acquired_world.simulation_model_ref.data_snapshot_ref
+    )
+
+    data_snapshot = DataSnapshot.model_validate(
+        canon.from_canonical_bytes(store.get_bytes(data_snapshot_ref))
+    )
+    selected_observation = canon.from_canonical_bytes(store.get_bytes(data_snapshot.data_ref))[
+        "acquisition"
+    ]["selected"]
+    assert selected_observation["source_time_status"] == "not_established"
+    assert source.status == "candidate_only"
+    assert source.observation_class == "model_output"
+    assert source.target_slot_id == "global.unemployment_rate"
+    assert (
+        source.country_code,
+        source.year,
+        source.population,
+        source.canonical_unit,
+    ) == ("USA", 2024, "total_labor_force", "ratio")
+    assert selected_observation["value"] == source.observation
+    assert acquired_world.authority_status == "limited"
+    assert {
+        "source_time_not_established",
+        "source_to_target_measurement_contract_not_established",
+        "causal_coupling_not_established",
+    }.issubset(acquired_world.limitations.admissibility_blockers)
+
+    state_verification = store.verify(bound_state_ref)
+    assert state_verification.ok, state_verification.error
+    state_manifest = store.get_manifest(bound_state_ref)
+    bound_state_snapshot = StateSnapshot.model_validate(
+        canon.from_canonical_bytes(store.get_bytes(bound_state_ref))
+    )
+    assert state_manifest.inputs == bound_state_snapshot.lineage_inputs
+    assert (
+        artifacts.input_ref_from_artifact_ref(data_snapshot_ref, role="input.data_snapshot_ref")
+        in bound_state_snapshot.lineage_inputs
+    )
+    bound_state = load_state_snapshot(store, snapshot_ref=bound_state_ref)
+
+    wmr_baseline: dict[str, float] = {}
+    for slot_id in sorted(n5_input.n5.baseline_state):
+        binding = acquired_world.slot_binding(slot_id)
+        assert binding is not None and binding.state_path
+        value = np.asarray(get_state_path(bound_state, binding.state_path))
+        assert value.size == 1
+        wmr_baseline[slot_id] = float(value.item())
+    assert n5_input.n5.baseline_state == wmr_baseline
+
+    declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+        canon.from_canonical_bytes(store.get_bytes(n5_input.model_declaration_ref))
+    )
+    assert declaration.target_world_slot in wmr_baseline
+    assert declaration.outcome_variable in wmr_baseline
+    assert declaration.target_world_slot == "government.balance"
+    assert declaration.outcome_variable == "global.unemployment_rate"
+    assert declaration.target_baseline == wmr_baseline[declaration.target_world_slot]
+    assert declaration.outcome_baseline == wmr_baseline[declaration.outcome_variable]
+    assert declaration.outcome_variable == source.target_slot_id
+    assert declaration.outcome_baseline == pytest.approx(source.observation, abs=1e-7)
+    target_binding = acquired_world.slot_binding(declaration.target_world_slot)
+    outcome_binding = acquired_world.slot_binding(declaration.outcome_variable)
+    assert target_binding is not None and target_binding.unit == declaration.target_unit_id == "USD"
+    assert (
+        outcome_binding is not None
+        and outcome_binding.unit == declaration.outcome_unit_id == "ratio"
+    )
+    assert declaration.outcome_per_target_unit == pytest.approx(0.001)
+    assert declaration.outcome_noise_stddev == 0.0
+    assert n5_input.n5.horizon.start == n5_input.n5.horizon.end == 0
+    assert n5_input.n5.horizon.step == 1
+    assert n5_input.n5.seed == 17
+    assert n5_input.n5.replications == 2
+
+    old_n5_input = CandidateSimulationN5InputV5.model_validate(
+        canon.from_canonical_bytes(store.get_bytes(old_n5_input_ref))
+    )
+    assert n5_input.job_id != old_n5_input.job_id
+    old_outcome_baseline = old_n5_input.n5.baseline_state[declaration.outcome_variable]
+    assert declaration.outcome_baseline != pytest.approx(old_outcome_baseline)
+    old_world = old_n5_input.profile.context_inputs.world_model_record
+    old_bound_state_ref = world_model_artifact_views(old_world).bound_state_snapshot_ref
+    assert old_bound_state_ref is not None
+    assert artifacts.artifact_ref_identity_key(bound_state_ref) != (
+        artifacts.artifact_ref_identity_key(old_bound_state_ref)
+    )
+
+    selected_decisions = tuple(
+        item for item in n5_result.engine_decisions if item.decision == "selected"
+    )
+    assert len(selected_decisions) == 1
+    assert (
+        n5_result.selected_outcomes and declaration.outcome_variable in n5_result.selected_outcomes
+    )
+    joint_atom_ids = (n5_input.materialization.derived_n5_atom.intervention_id,)
+    joint_trajectories = tuple(
+        item
+        for item in n5_result.trajectories
+        if item.run_level == "joint" and item.atom_ids == joint_atom_ids
+    )
+    assert len(joint_trajectories) == 1
+    target_value = float(n5_input.materialization.value)
+    assert target_value == pytest.approx(2.0)
+    expected_effect = declaration.outcome_per_target_unit * (
+        target_value - wmr_baseline[declaration.target_world_slot]
+    )
+    expected_outcome = wmr_baseline[declaration.outcome_variable] + expected_effect
+    for trajectory in joint_trajectories:
+        assert trajectory.engine_kind == selected_decisions[0].engine_kind
+        assert trajectory.diagnostics["actual_replications"] == n5_input.n5.replications == 2
+        assert trajectory.diagnostics["replication_seeds"] == [17, 18]
+        for point in trajectory.points:
+            assert point.effect[declaration.outcome_variable] == pytest.approx(
+                expected_effect, abs=1e-9
+            )
+            assert point.outcomes[declaration.outcome_variable] == pytest.approx(
+                expected_outcome, abs=1e-9
+            )
+            assert point.replication_sampling is not None
+            assert point.replication_sampling.replicate_count == 2
+            for sample in point.replication_sampling.samples:
+                assert sample.effects[declaration.outcome_variable] == pytest.approx(
+                    expected_effect, abs=1e-9
+                )
+                assert sample.outcomes[declaration.outcome_variable] == pytest.approx(
+                    expected_outcome, abs=1e-9
+                )
+
+    assert execution.terminal_ref == history.terminal_ref
+    assert history.frontier_after is not None
+
+
 def run_retained_r8_candidate_experiment_oracle(
     *,
     fixture_root: Path,
@@ -570,12 +808,15 @@ def run_retained_r8_candidate_experiment_oracle(
     sqlite_path: Path,
     run_id: str,
     job_id: str,
+    continue_with_reentry: bool = False,
+    idempotency_key: str = "served-labor-candidate-experiment-authority",
 ) -> dict[str, str]:
-    """Reopen the retained R8 source in a fresh authenticated runtime and consume it.
+    """Reopen a retained source in a fresh authenticated runtime and consume it.
 
-    This is an explicit retained-input runner entrypoint. It does not create a
-    source, copy CAS/SQLite, or call the N5 simulation kernel. The app rebuilds
-    its guarded runtime context and control owner over the supplied paths.
+    The default mode is a no-N5 authority guard. Continuation mode skips only
+    the separate negative controls and permits one served reentry callback to
+    reach the real N5 producer; all other N5 calls remain forbidden. Neither
+    mode creates a source or copies CAS/SQLite.
     """
     import sqlite3
     import sys
@@ -660,12 +901,20 @@ def run_retained_r8_candidate_experiment_oracle(
     signers, identities = served._key_config(key_root, trust)
     _validate_candidate_experiment_fixture_owners(key_root=key_root)
     original_n5_run = JointSimulationHorizonController.run
+    callback_active = False
+    n5_calls = 0
 
-    def forbid_n5(*args, **kwargs):
-        raise AssertionError("retained-source consumer attempted N5")
+    def guarded_n5(*args, **kwargs):
+        nonlocal n5_calls
+        if not continue_with_reentry or not callback_active:
+            raise AssertionError("retained-source consumer attempted N5 outside served reentry")
+        n5_calls += 1
+        return original_n5_run(*args, **kwargs)
 
-    monkeypatch.setattr(JointSimulationHorizonController, "run", forbid_n5)
+    monkeypatch.setattr(JointSimulationHorizonController, "run", guarded_n5)
     result: dict[str, str] | None = None
+    retained_execution: list[object] = []
+    reentry_delta_verified = [False]
     try:
         app = create_runtime_api_app(
             cas_root=cas_root,
@@ -799,11 +1048,54 @@ def run_retained_r8_candidate_experiment_oracle(
                         f"policy_events_before={policy_events_before} "
                         f"policy_events_after={policy_events_after}"
                     )
+                    if continue_with_reentry:
+                        from tests._helpers.candidate_experiment_served_execution import (
+                            _standard_invocation_units,
+                            run_candidate_experiment_served_execution,
+                        )
+
+                        standard_units_before = _standard_invocation_units(
+                            control=control,
+                            run_id=run_id,
+                        )
+
+                        def execute_retained_reentry(**execution_values):
+                            nonlocal callback_active
+                            callback_active = True
+                            try:
+                                execution = run_candidate_experiment_served_execution(
+                                    values=execution_values["values"],
+                                    origin=execution_values["origin"],
+                                    request=execution_values["request"],
+                                    decision_ref=execution_values["decision_ref"],
+                                    policy_owner=policy_owner,
+                                    monkeypatch=monkeypatch,
+                                )
+                            finally:
+                                callback_active = False
+                            if execution.current_action.evaluation_disposition != "new":
+                                raise AssertionError(
+                                    "retained R2 candidate reentry did not select a new N5 result"
+                                )
+                            _assert_candidate_experiment_n5_uses_current_wmr(
+                                control=control,
+                                origin=execution_values["origin"],
+                                execution=execution,
+                            )
+                            retained_execution.append(execution)
+
+                        reentry_callback = execute_retained_reentry
+                    else:
+                        standard_units_before = None
+                        reentry_callback = None
                     result = run_candidate_experiment_action_oracle(
                         tmp_path=fixture_root / "candidate-oracle",
                         values=values,
                         policy_ref=selected_ref,
                         monkeypatch=monkeypatch,
+                        idempotency_key=idempotency_key,
+                        exercise_controls=not continue_with_reentry,
+                        after_replay=reentry_callback,
                     )
                     result["canonical_policy_binding_count"] = str(len(selected_bindings))
                     result["configured_template_count"] = str(template_count)
@@ -819,6 +1111,30 @@ def run_retained_r8_candidate_experiment_oracle(
                     )
                     result["policy_events_before"] = str(policy_events_before)
                     result["policy_events_after"] = str(policy_events_after)
+                    if continue_with_reentry:
+                        if len(retained_execution) != 1 or standard_units_before is None:
+                            raise AssertionError("retained R2 served reentry did not complete once")
+                        execution = retained_execution[0]
+                        standard_units_after = _standard_invocation_units(
+                            control=control,
+                            run_id=run_id,
+                        )
+                        if (
+                            execution.standard_invocation_units_before != standard_units_before
+                            or execution.standard_invocation_units_after
+                            != standard_units_before + 2
+                            or standard_units_after != standard_units_before + 2
+                            or n5_calls < 1
+                        ):
+                            raise AssertionError(
+                                "retained R2 reentry did not consume exactly two standard units"
+                            )
+                        reentry_delta_verified[0] = True
+                        result["standard_units_before"] = str(standard_units_before)
+                        result["standard_units_after"] = str(standard_units_after)
+                        result["reentry_job_id"] = execution.job_id
+                        result["terminal_ref"] = str(execution.terminal_ref.artifact_id)
+                        result["n5_controller_calls"] = str(n5_calls)
             finally:
                 control._registry_providers = original_providers
     finally:
@@ -832,24 +1148,39 @@ def run_retained_r8_candidate_experiment_oracle(
             if not path.is_file() or digest(path) != expected
         ]
         assert not changed, f"retained source CAS inputs changed: {changed[:5]}"
-        if ledger_digest is not None:
+        if ledger_digest is not None and not continue_with_reentry:
             assert digest(ledger_path) == ledger_digest, "retained N5 ledger changed"
         assert JointSimulationHorizonController.run is original_n5_run
+        mode_label = "retained_r2_served_reentry" if continue_with_reentry else "retained_r2_guard"
+        ledger_label = (
+            "expected_reentry_delta_verified"
+            if reentry_delta_verified[0]
+            else "unchanged"
+            if ledger_digest is not None and not continue_with_reentry
+            else "absent"
+            if ledger_digest is None and not continue_with_reentry
+            else "reentry_delta_unverified"
+        )
         print(
-            "retained_r8_preservation "
+            f"{mode_label}_source_preservation "
             f"cas_artifact_files={len(original_artifacts)} "
             f"sql_rows={sum(sum(rows.values()) for rows in original_rows.values())} "
-            f"ledger={'unchanged' if ledger_digest is not None else 'absent'} "
+            f"ledger={ledger_label} "
             "n5_guard=restored"
         )
     assert result is not None
     return result
 
 
-def test_genuine_labor_policy_gets_signed_candidate_decision_and_fresh_replay(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, served_recorded_candidate_gateway
-) -> None:
-    """Join genuine completed Labor/N5 source, current policy, HTTP PA2, and DS9 replay."""
+def run_genuine_candidate_experiment_scenario(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    gateway,
+    *,
+    total_units: int = 5,
+    after_execution: Callable[..., object] | None = None,
+) -> dict[str, object]:
+    """Serve the genuine source and first candidate action; optionally continue inline."""
     from dataclasses import replace
 
     from polisyos.runtime.http.services import acquisition_surface_execution
@@ -873,7 +1204,7 @@ def test_genuine_labor_policy_gets_signed_candidate_decision_and_fresh_replay(
     )
 
     def _candidate_experiment_invocation_quota(
-        *, total_units: int = 3
+        *, total_units: int = 5
     ) -> BudgetInvocationQuotaPolicy:
         return BudgetInvocationQuotaPolicy(
             allocation_id="served-labor-candidate-experiment",
@@ -881,8 +1212,9 @@ def test_genuine_labor_policy_gets_signed_candidate_decision_and_fresh_replay(
             protected_units=1,
         )
 
-    quota = _candidate_experiment_invocation_quota()
+    quota = _candidate_experiment_invocation_quota(total_units=total_units)
     observed: dict[str, object] = {}
+    scenario_context: dict[str, object] = {}
 
     def serve_action(**values) -> None:
         control = values["control"]
@@ -933,6 +1265,73 @@ def test_genuine_labor_policy_gets_signed_candidate_decision_and_fresh_replay(
             assert policy.scope.cell_id == served.CELL
             assert policy.scope.run_id == run_id
             assert policy.scope.source_job_id == values["job"].job_id
+            scenario_context.update(
+                control=control,
+                action_service=action_service,
+                values=values,
+                policy_owner=policy_owner,
+                policy=policy,
+                policy_ref=policy_ref,
+                quota=quota,
+            )
+
+            def execute_after_replay(**execution_values) -> None:
+                from tests._helpers.candidate_experiment_served_execution import (
+                    run_candidate_experiment_served_execution,
+                )
+
+                execution = run_candidate_experiment_served_execution(
+                    values=execution_values["values"],
+                    origin=execution_values["origin"],
+                    request=execution_values["request"],
+                    decision_ref=execution_values["decision_ref"],
+                    policy_owner=policy_owner,
+                    monkeypatch=monkeypatch,
+                )
+                assert execution.standard_invocation_units_before == 2
+                assert execution.standard_invocation_units_after == 4
+                assert execution.current_action.evaluation_disposition == "new"
+                assert execution.terminal_history.frontier_after is not None
+                assert policy_owner.template.max_standard_n5_invocations == total_units - 1
+                assert execution.execution_owner.transport_calls == [
+                    (
+                        "GET",
+                        "https://api.worldbank.org/v2/country/USA/indicator/SL.UEM.TOTL.ZS",
+                        {
+                            "date": "2024:2024",
+                            "format": "json",
+                            "page": "1",
+                            "per_page": "1000",
+                        },
+                    )
+                ]
+                _assert_candidate_experiment_n5_uses_current_wmr(
+                    control=control,
+                    origin=execution_values["origin"],
+                    execution=execution,
+                )
+                observed["execution"] = execution
+                scenario_context.update(
+                    origin=execution_values["origin"],
+                    request=execution_values["request"],
+                    decision_ref=execution_values["decision_ref"],
+                )
+                if after_execution is not None:
+                    scenario_context["after_execution_result"] = after_execution(
+                        execution=execution,
+                        values=execution_values["values"],
+                        policy_ref=execution_values["policy_ref"],
+                        policy_owner=policy_owner,
+                        policy=policy,
+                        origin=execution_values["origin"],
+                        quota=quota,
+                        request=execution_values["request"],
+                        decision_ref=execution_values["decision_ref"],
+                        control=control,
+                        action_service=action_service,
+                        source_owner_root=source.root,
+                        prepared_catalog=prepared,
+                    )
 
             observed.update(
                 run_candidate_experiment_action_oracle(
@@ -940,6 +1339,7 @@ def test_genuine_labor_policy_gets_signed_candidate_decision_and_fresh_replay(
                     values=values,
                     policy_ref=policy_ref,
                     monkeypatch=monkeypatch,
+                    after_replay=execute_after_replay,
                 )
             )
         finally:
@@ -952,7 +1352,7 @@ def test_genuine_labor_policy_gets_signed_candidate_decision_and_fresh_replay(
         result = served._produce_served_acquisition_history(
             tmp_path,
             monkeypatch,
-            served_recorded_candidate_gateway,
+            gateway,
             source_owner_root=source.root,
             prepared_catalog=prepared,
             provider_mode="synthetic_settled_candidate",
@@ -964,3 +1364,24 @@ def test_genuine_labor_policy_gets_signed_candidate_decision_and_fresh_replay(
             labor_seed=True,
         )
     assert result is not None and observed["source_status"] == "completed"
+    return {
+        "source_result": result,
+        "source_status": observed["source_status"],
+        "execution": observed["execution"],
+        "observed": observed,
+        "quota": quota,
+        "source_owner_root": source.root,
+        **scenario_context,
+    }
+
+
+def test_genuine_labor_policy_gets_signed_candidate_decision_and_fresh_replay(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, served_recorded_candidate_gateway
+) -> None:
+    """Join served Labor source, HTTP PA2/DS9, candidate WDI, WMR, N5, and terminal GET."""
+    run_genuine_candidate_experiment_scenario(
+        tmp_path,
+        monkeypatch,
+        served_recorded_candidate_gateway,
+        total_units=5,
+    )

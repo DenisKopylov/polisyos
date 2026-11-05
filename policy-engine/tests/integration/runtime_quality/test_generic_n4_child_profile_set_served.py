@@ -22,6 +22,7 @@ from tests._helpers.generic_n4_served_replay import (
     _ORIGINAL_SECOND_CAPTURE_RECORDING_ID,
     _assert_original_second_capture_child_semantic_join,
     _assert_original_second_capture_generation_result,
+    _hashed_model,
     _original_second_capture_child_group,
     _seed_controlled_selected_skg_source,
     prepare_generic_n4_served_replay,
@@ -4076,11 +4077,17 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
         read_core_json_artifact,
     )
     from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.container import RuntimeContainerOverrides
     from polisyos.runtime.http.dependencies import build_runtime_api_context
     from polisyos.runtime.http.security import build_fixture_identity_claims
-    from polisyos.runtime.http.services.control import generation_cycle as service_owner
+    from polisyos.runtime.http.services.control import (
+        generation_cycle as service_owner,
+    )
+    from polisyos.runtime.http.services.control import (
+        run_lifecycle,
+    )
     from polisyos.runtime.quality.generation_cycle import (
         GenerationCycleError,
         load_joint_simulation_result,
@@ -4088,12 +4095,17 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
     )
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleN5RequestProfileV2,
+        GenericCycleN5RequestProfileV3,
         GenericCycleSimulationN5InputV1,
     )
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationHorizonController,
     )
     from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleNode
+    from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetInvocationQuotaPolicy,
+    )
     from tests._helpers.control_worker import dispatch_one_control_job
     from tests.unit.runtime.http.test_nl_pipeline_materialization import (
         _DeterministicSpanSupportClient,
@@ -4114,7 +4126,74 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
         include_cyclic_ncm_alternative=ordered_alternatives,
         materialize_source_parameters=True,
         synthetic_settled_provider=True,
+        condition_synthetic_provider_on_child_sources=(recording_mode == "original_second_capture"),
     )
+    quota_policy: BudgetInvocationQuotaPolicy | None = None
+    expected_standard_units = 0
+    expected_protected_units = 0
+    configured_profiles: tuple[Any, ...] | None = None
+    if recording_mode == "original_second_capture":
+        assert child_count == 2 and not ordered_alternatives
+        assert all(
+            type(profile.n5) is GenericCycleN5RequestProfileV3
+            for profile in prepared.generic_profiles
+        )
+        child_replications = tuple(
+            profile.n5.replications for profile in prepared.generic_child_profiles
+        )
+        assert child_replications == (2, 2)
+        assert all(child.source_atom_refs for child in prepared.children)
+        assert len({child.semantic_ref for child in prepared.children}) == 2
+        expected_standard_units = sum(child_replications)
+        # Reserve one physical-call unit for protected work; this fixture runs
+        # standard child calls only, so the reserve must remain unused.
+        expected_protected_units = 1
+        quota_policy = BudgetInvocationQuotaPolicy(
+            allocation_id=f"cyc05-complete-two-child-{uuid.uuid4().hex}",
+            total_units=expected_standard_units + expected_protected_units,
+            protected_units=expected_protected_units,
+        )
+        assert quota_policy.work_unit == "n5_physical_invocation"
+        assert quota_policy.price_origin == "unknown"
+        selected_profiles: list[Any] = []
+        for profile in prepared.generic_profiles:
+            n5_fields = profile.n5.model_dump(mode="python")
+            n5_fields.update(
+                invocation_quota_policy=quota_policy,
+                invocation_purpose="standard",
+            )
+            selected_n5 = GenericCycleN5RequestProfileV3.model_validate(n5_fields)
+            profile_fields = profile.model_dump(mode="python", exclude={"content_hash"})
+            profile_fields["n5"] = selected_n5
+            selected_profiles.append(
+                _hashed_model(type(profile), profile_fields, hash_fn=gy_content_hash)
+            )
+        configured_profiles = tuple(selected_profiles)
+        assert all(
+            configured.content_hash != source.content_hash
+            for configured, source in zip(
+                configured_profiles,
+                prepared.generic_profiles,
+                strict=True,
+            )
+        )
+        assert tuple(profile.profile_selection_ref for profile in configured_profiles) == tuple(
+            profile.profile_selection_ref for profile in prepared.generic_profiles
+        )
+        assert all(
+            profile.n5.invocation_quota_policy == quota_policy
+            and profile.n5.invocation_purpose == "standard"
+            for profile in configured_profiles
+        )
+        assert (
+            sum(
+                profile.n5.replications
+                for profile in configured_profiles
+                if profile.profile_selection_kind == "n4_candidate_child"
+            )
+            == expected_standard_units
+        )
+        prepared.app_kwargs["generic_cycle_simulation_profiles"] = configured_profiles
     original_compiler = service_owner.build_design_problem_from_nl_request
 
     async def run_real_compiler(**kwargs: Any) -> Any:
@@ -4130,6 +4209,20 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
         return original_run(controller, request)
 
     monkeypatch.setattr(JointSimulationHorizonController, "run", observe_actual_run)
+    observed_budget_owners: list[Any] = []
+    if quota_policy is not None:
+        original_budget_owner_builder = run_lifecycle._build_control_nl_producer_budget_reconciler
+
+        def capture_budget_owner(**kwargs: Any) -> Any:
+            observer = original_budget_owner_builder(**kwargs)
+            observed_budget_owners.append(observer)
+            return observer
+
+        monkeypatch.setattr(
+            run_lifecycle,
+            "_build_control_nl_producer_budget_reconciler",
+            capture_budget_owner,
+        )
     app = create_runtime_api_app(**prepared.app_kwargs)
     with TestClient(app) as client:
         response = client.post(
@@ -4193,11 +4286,25 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
         assert compiled.generic_cycle_simulation_handoff is not None
         assert compiled.n4_child_profile_set_ref is not None
         assert compiled.n4_recursive_source_ref is not None
-        profiles_by_id = {
-            profile.profile_id: profile for profile in prepared.generic_child_profiles
+        if configured_profiles is not None:
+            assert compiled.generic_cycle_simulation_handoff.profile == configured_profiles[0]
+            selected_child_profiles = tuple(
+                profile
+                for profile in configured_profiles
+                if profile.profile_selection_kind == "n4_candidate_child"
+            )
+        else:
+            selected_child_profiles = prepared.generic_child_profiles
+        profiles_by_id = {profile.profile_id: profile for profile in selected_child_profiles}
+        child_by_profile_id = {
+            profile.profile_id: child
+            for child, profile in zip(prepared.children, selected_child_profiles, strict=True)
         }
         assert len(profiles_by_id) == child_count
         observed_profiles: set[str] = set()
+        observed_source_atom_refs: set[str] = set()
+        observed_child_semantics: set[str] = set()
+        observed_quota_operation_ids: set[str] = set()
         numerical_witnesses: list[dict[str, Any]] = []
         for observation in observations:
             with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
@@ -4329,6 +4436,18 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
                 assert replay_historical_join().status == "resolved"
             profile = profiles_by_id[input_record.profile.profile_id]
             assert profile == input_record.profile
+            expected_child = child_by_profile_id[profile.profile_id]
+            child_selection = input_record.child_selection
+            assert child_selection is not None
+            assert child_selection.node_ref == selected_node.node_ref
+            assert child_selection.problem == expected_child.problem
+            assert child_selection.source_result_ref == expected_child.source_result_ref
+            assert child_selection.semantic_ref == expected_child.semantic_ref
+            child_atom_refs = tuple(sorted(str(ref) for ref in expected_child.source_atom_refs))
+            assert child_selection.source_atom_refs == child_atom_refs
+            assert not (observed_source_atom_refs & set(child_atom_refs))
+            observed_source_atom_refs.update(child_atom_refs)
+            observed_child_semantics.add(child_selection.semantic_ref)
             observed_profiles.add(profile.profile_id)
             requests = tuple(
                 request
@@ -4385,6 +4504,23 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
             assert sampling.replicate_count == profile.n5.replications
             assert sampling.seeds == expected_seeds
             assert tuple(sample.seed for sample in sampling.samples) == expected_seeds
+            if quota_policy is not None:
+                physical_work = tuple(result.physical_work_observations)
+                assert len(physical_work) == profile.n5.replications
+                assert tuple(item.effective_seed for item in physical_work) == expected_seeds
+                assert all(
+                    item.status == "completed"
+                    and item.invocation_quota_status == "completed"
+                    and item.invocation_quota_purpose == "standard"
+                    and item.invocation_quota_profile_digest is not None
+                    and item.invocation_quota_operation_id is not None
+                    and item.invocation_quota_request_digest is not None
+                    for item in physical_work
+                )
+                operation_ids = {item.invocation_quota_operation_id for item in physical_work}
+                assert len(operation_ids) == profile.n5.replications
+                assert not (observed_quota_operation_ids & operation_ids)
+                observed_quota_operation_ids.update(operation_ids)
             effects = [sample.effects[outcome] for sample in sampling.samples]
             assert len(effects) == profile.n5.replications
             if recording_mode == "served_tax_global_scalar":
@@ -4471,11 +4607,58 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
                 }
             )
         assert observed_profiles == set(profiles_by_id)
+        if recording_mode == "original_second_capture":
+            assert observed_child_semantics == {child.semantic_ref for child in prepared.children}
+            assert observed_source_atom_refs == {
+                str(ref) for child in prepared.children for ref in child.source_atom_refs
+            }
+            assert len(observed_child_semantics) == 2
     if recording_mode == "served_tax_global_scalar":
         assert prepared.recorded_problem.domain == "fiscal"
         assert prepared.recorded_problem.outcome_of_interest.target_variable == "government.balance"
         assert units["government.balance"] == "usd"
         assert units["global.tax_rate"] == "ratio"
+    if quota_policy is not None:
+        assert len(observed_budget_owners) == 1
+        budget_owner = observed_budget_owners[0]
+        bound_quota = budget_owner.invocation_quota_profile
+        assert bound_quota is not None
+        assert bound_quota.model_dump(mode="python", exclude={"run_binding"}) == (
+            quota_policy.model_dump(mode="python")
+        )
+        assert budget_owner.invocation_purpose == "standard"
+        assert budget_owner.invocation_guarantee == "protected_invocations"
+        capacity = budget_owner.observe_standard_invocation_capacity()
+        assert capacity.status == "exhausted"
+        assert capacity.predicate_basis == "independently_reconciled"
+        assert capacity.standard_limit_units == expected_standard_units
+        assert capacity.standard_remaining_units == 0
+        assert capacity.protected_limit_units == expected_protected_units
+        assert capacity.protected_remaining_units == expected_protected_units
+        assert len(capacity.terminal_witnesses) == expected_standard_units
+        assert len(observed_quota_operation_ids) == expected_standard_units
+        assert observed_quota_operation_ids == {
+            operation_id for operation_id, _ in capacity.terminal_witnesses
+        }
+        probe_identity = uuid.uuid4().hex.encode("ascii")
+        with (
+            budget_owner.invocation_purpose_scope_from_selected_owner(
+                quota_policy,
+                purpose="standard",
+            ),
+            pytest.raises(
+                BudgetExhaustedError,
+                match="configured N5 invocation allocation exhausted",
+            ),
+        ):
+            budget_owner.reserve_invocation(
+                hashlib.sha256(b"cyc05-standard-capacity-probe:" + probe_identity).hexdigest(),
+                hashlib.sha256(b"cyc05-standard-capacity-request:" + probe_identity).hexdigest(),
+            )
+        capacity_after_probe = budget_owner.observe_standard_invocation_capacity()
+        assert capacity_after_probe.standard_remaining_units == 0
+        assert capacity_after_probe.protected_remaining_units == expected_protected_units
+        assert capacity_after_probe.terminal_witnesses == capacity.terminal_witnesses
     record_property(
         "ordinary_generic_question_witness",
         json.dumps(

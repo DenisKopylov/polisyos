@@ -2985,6 +2985,87 @@ def test_human_decision_read_normalizes_missing_artifact_to_public_resolution_er
     assert caught.value.code
 
 
+@pytest.mark.parametrize(
+    ("read_stage", "exception_type", "expect_missing"),
+    [
+        ("get_artifact_manifest", FileNotFoundError, True),
+        ("verify_artifact_signature", FileNotFoundError, True),
+        ("reconcile_authority_artifact", FileNotFoundError, True),
+        ("get_artifact_json", FileNotFoundError, True),
+        ("get_artifact_json", RuntimeError, False),
+        ("get_artifact_json", TimeoutError, False),
+        ("get_artifact_json", KeyboardInterrupt, False),
+    ],
+)
+def test_human_decision_read_normalizes_artifact_disappearance_at_each_signed_read_stage(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    read_stage: str,
+    exception_type: type[BaseException],
+    expect_missing: bool,
+) -> None:
+    """Only file disappearance becomes absence; other signed-read failures stay distinct."""
+    stage_name = read_stage
+    fixture = _signed_current_gate_fixture(tmp_path)
+    contracts = _contracts()
+    created = _create_record_with_bound_mutation(
+        fixture.service,
+        contracts.HumanDecisionCreateCommand(
+            gate_input=fixture.adapter_input,
+            decision_action="approve",
+            decision_mode="ordinary",
+            accountability_statement="I accept accountability for this bounded action.",
+            dissent_statement="Disconfirming evidence was reviewed and retained.",
+            override_reason=None,
+            blocking_reason=None,
+        ),
+        bound_permission=fixture.bound_permission,
+        write_context=fixture.write_context,
+    )
+    record_ref = created.record_ref
+    assert fixture.service._sink.has_artifact(record_ref)
+    record_ids_before = _human_decision_record_ids(fixture.store)
+    effects_before = tuple(fixture.effects)
+    sink = fixture.service._sink
+    sink_type = type(sink)
+    original_read = getattr(sink_type, stage_name)
+    injected_error = exception_type(f"selected artifact failure during {stage_name}")
+
+    def disappear_after_presence(
+        selected_sink: Any, artifact_ref: str, *args: Any, **kwargs: Any
+    ) -> Any:
+        if selected_sink is sink and artifact_ref == record_ref:
+            assert selected_sink.has_artifact(record_ref)
+            raise injected_error
+        return original_read(selected_sink, artifact_ref, *args, **kwargs)
+
+    with monkeypatch.context() as stage_patch:
+        stage_patch.setattr(sink_type, stage_name, disappear_after_presence)
+        if expect_missing:
+            with pytest.raises(_service_module().HumanDecisionOperationalResolutionError) as caught:
+                fixture.service.read_record(
+                    record_ref,
+                    tenant_id="tenant-a",
+                    run_id="run-gy-pa2",
+                )
+            assert caught.value.code == "DS9-DECISION-ARTIFACT-MISSING"
+            resolution_issue = caught.value.__cause__
+            assert type(resolution_issue) is _service_module()._ResolutionIssueError
+            assert resolution_issue.reason.code == "DS9-DECISION-ARTIFACT-MISSING"
+            assert resolution_issue.__cause__ is injected_error
+        else:
+            with pytest.raises(exception_type) as caught:
+                fixture.service.read_record(
+                    record_ref,
+                    tenant_id="tenant-a",
+                    run_id="run-gy-pa2",
+                )
+            assert caught.value is injected_error
+
+    assert _human_decision_record_ids(fixture.store) == record_ids_before
+    assert tuple(fixture.effects) == effects_before
+
+
 def test_human_decision_record_model_rejects_actor_custody_key_alias(
     tmp_path: Path,
 ) -> None:

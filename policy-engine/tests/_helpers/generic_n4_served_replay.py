@@ -363,10 +363,17 @@ def _original_second_capture_candidate_semantics(
 
 def _grounding_disposition_diagnostic(
     result: Any,
-) -> tuple[tuple[str, str, str | None, str | None], ...]:
+) -> tuple[tuple[str, str, str, str | None, str | None, dict[str, Any] | None], ...]:
     """Keep exact fixture refusals visible without dumping generated payloads."""
     return tuple(
-        (row.proposal_id, str(row.disposition), row.cg2_reason, row.cg3_reason)
+        (
+            row.proposal_id,
+            str(row.disposition),
+            row.selected_relation,
+            row.cg2_reason,
+            row.cg3_reason,
+            row.rejected_cause,
+        )
         for row in result.grounding_dispositions
     )
 
@@ -556,20 +563,20 @@ def _three_child_recording(recording: dict[str, Any], *, outcome_variable: str) 
 
     source_recording_id = str(recording["recording_id"])
     source_recording_content_hash = str(recording["recording_content_hash"])
+    del outcome_variable
     controlled = _controlled_procurement_recording(
         recording,
-        outcome_variable=outcome_variable,
+        outcome_variable="cells.output",
     )
     responses = controlled["responses"]
     if not isinstance(responses, list):
         raise AssertionError("controlled_recording_responses_not_list")
-    # The source problem declares labor_market on agents_is_employed, but it
-    # does not declare credit_guarantee. Adapt the recorded third proposal into
-    # a synthetic candidate for the existing lever so this fixture exercises
-    # the complete source-bound child path without adding a lever or claiming
-    # evidence.
+    # The source recording proposes credit_guarantee, which is not in the
+    # tracked L6 owner. Adapt that third proposal into a candidate-only budget
+    # action using the existing owner binding. This fixture asserts no law
+    # authority or empirical downstream effect.
     expected_kinds = {
-        "labor_market",
+        "budget_allocation_multiplier",
         "tax_relief_rate",
         "procurement_shock_intensity",
     }
@@ -582,45 +589,60 @@ def _three_child_recording(recording: dict[str, Any], *, outcome_variable: str) 
             raise AssertionError("controlled_recording_response_bytes_missing")
         payload = json.loads(raw)
         interventions = payload["policy_spec"]["interventions"]
+        procurement = [
+            row for row in interventions if row.get("kind") == "procurement_shock_intensity"
+        ]
+        if len(procurement) != 1:
+            raise AssertionError("controlled_recording_procurement_candidate_missing")
+        procurement[0]["notes"] = [
+            "Candidate-only direct procurement shock on cells.distress_score; cells.output "
+            "is a candidate outcome path, not empirical effect evidence."
+        ]
+        procurement[0]["params"] = {
+            "effect_path": [
+                "procurement_shock_intensity",
+                "cells.distress_score",
+                "cells.output",
+            ],
+            "estimand": "average_treatment_effect",
+            "intensity": "1",
+            "outcome_slots": ["cells.output"],
+            "sign": "decrease",
+            "target_world_slot": "cells.distress_score",
+        }
         third = [row for row in interventions if row.get("kind") == "credit_guarantee"]
         if len(third) != 1:
             raise AssertionError("controlled_recording_third_candidate_missing")
         source_intervention_id = third[0].get("intervention_id")
-        synthetic_intervention_id = f"synthetic_labor_market_retention_{response_index}"
+        synthetic_intervention_id = f"synthetic_budget_allocation_{response_index}"
         if not isinstance(source_intervention_id, str) or not source_intervention_id:
             raise AssertionError("controlled_recording_third_candidate_identity_missing")
         third[0].update(
             {
-                "description": (
-                    "A synthetic labor-market retention candidate adapted to the "
-                    "parent's already-declared lever."
-                ),
                 "intervention_id": synthetic_intervention_id,
-                "kind": "labor_market",
-                "name": "Synthetic labor-market employment-retention candidate",
+                "kind": "budget_allocation_multiplier",
                 "notes": [
-                    "Synthetic candidate adapted to the already-declared labor_market "
-                    "lever; no empirical effect or authority is asserted."
+                    "Candidate-only budget action bound to the tracked owner mechanism "
+                    "and direct government.balance slot. The downstream effect remains "
+                    "unverified; no law authority or empirical effect is asserted."
                 ],
                 "params": {
-                    "effect_path": ["agents.is_employed", "employment_retention"],
+                    "effect_path": [
+                        "budget_allocation_multiplier",
+                        "government.balance",
+                        "government.balance",
+                    ],
                     "estimand": "average_treatment_effect",
-                    "employment_threshold": "0.5",
-                    "outcome_slots": ["employment_retention"],
+                    "multiplier": "0.5",
+                    "outcome_slots": ["government.balance"],
                     "sign": "increase",
-                    "target_world_slot": "agents.is_employed",
+                    "target_world_slot": "government.balance",
                 },
-                "rationale": (
-                    "This controlled candidate exercises the declared labor-market "
-                    "lever in a synthetic replay. It does not assert an empirical "
-                    "effect, source evidence, or authority."
-                ),
-                "target_population": "Synthetic industrial MSME test population",
             }
         )
         payload["policy_spec"]["description"] = (
             "Synthetic three-intervention candidate combining tax relief, procurement "
-            "stabilization, and the already-declared labor-market retention lever."
+            "stabilization, and the tracked budget allocation multiplier owner action."
         )
         parameters = payload["policy_spec"].get("parameters")
         if not isinstance(parameters, list):
@@ -643,10 +665,10 @@ def _three_child_recording(recording: dict[str, Any], *, outcome_variable: str) 
             {
                 "default_value": "0.5",
                 "intervention_id": synthetic_intervention_id,
-                "max_value": "1.0",
+                "max_value": "2.0",
                 "min_value": "0.0",
-                "param_id": "employment_threshold",
-                "param_path": "employment_threshold",
+                "param_id": "multiplier",
+                "param_path": "multiplier",
             }
         )
         model_spec = payload.get("model_spec")
@@ -659,13 +681,11 @@ def _three_child_recording(recording: dict[str, Any], *, outcome_variable: str) 
                     if "credit_guarantee" in str(assumption.get("assumption_id", "")):
                         assumption.update(
                             {
-                                "assumption_id": (
-                                    f"synthetic_labor_market_candidate_{response_index}"
-                                ),
+                                "assumption_id": f"synthetic_budget_candidate_{response_index}",
                                 "description": (
-                                    "The labor-market candidate is a synthetic test input "
-                                    "adapted to an existing declared lever; no empirical "
-                                    "effect or authority is asserted."
+                                    "The budget candidate is a synthetic test input bound "
+                                    "to the tracked L6 owner action. Its downstream effect "
+                                    "is unverified, and no law authority is asserted."
                                 ),
                             }
                         )
@@ -1683,6 +1703,14 @@ def _declared_generic_component_knobs(recording_mode: str) -> dict[str, dict[str
             }
         }
     knobs = {
+        "budget_allocation_multiplier": {
+            "default": 1.0,
+            "type": "float",
+            "min": 0.0,
+            "max": 2.0,
+            "mechanism_id": "budget_allocation_multiplier",
+            "param_path": "params.multiplier",
+        },
         "tax_relief_rate": {
             "default": 0.1,
             "type": "float",

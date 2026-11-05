@@ -427,15 +427,21 @@ def test_candidate_experiment_policy_lookup_refusal_preserves_cause_and_issues_n
             assert refusal.value.code == "candidate_experiment_policy_binding_unavailable"
             assert refusal.value.__cause__ is failure
 
-            assert service._diagnostic_event_log.list_events(
-                run_id=run_id, job_id=source_job_id, limit=500
-            ) == events_before
-            assert service._control_store.list_acquisition_action_heads_for_source(
-                tenant_id="tenant-a",
-                cell_id="cell-a",
-                run_id=run_id,
-                source_job_id=source_job_id,
-            ) == heads_before
+            assert (
+                service._diagnostic_event_log.list_events(
+                    run_id=run_id, job_id=source_job_id, limit=500
+                )
+                == events_before
+            )
+            assert (
+                service._control_store.list_acquisition_action_heads_for_source(
+                    tenant_id="tenant-a",
+                    cell_id="cell-a",
+                    run_id=run_id,
+                    source_job_id=source_job_id,
+                )
+                == heads_before
+            )
 
         unexpected = KeyboardInterrupt("unexpected control-flow exception")
         failure = unexpected

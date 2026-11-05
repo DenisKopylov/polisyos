@@ -3485,6 +3485,38 @@ class HumanDecisionService:
         expected_tenant_id: str | None,
         expected_run_id: str | None,
     ) -> _ResolvedSignedArtifact:
+        """Resolve one signed artifact and normalize a read-time disappearance."""
+        try:
+            return self._read_signed_model_checked(
+                ref,
+                expected_kind=expected_kind,
+                expected_schema_name=expected_schema_name,
+                expected_schema_version=expected_schema_version,
+                model_type=model_type,
+                expected_tenant_id=expected_tenant_id,
+                expected_run_id=expected_run_id,
+            )
+        except FileNotFoundError as exc:
+            raise _ResolutionIssueError(
+                _reason(
+                    "DS9-DECISION-ARTIFACT-MISSING",
+                    "A supplied exact artifact disappeared during signed resolution.",
+                    "artifact_missing",
+                )
+            ) from exc
+
+    def _read_signed_model_checked(
+        self,
+        ref: str,
+        *,
+        expected_kind: str,
+        expected_schema_name: str,
+        expected_schema_version: str,
+        model_type: type[_TModel],
+        expected_tenant_id: str | None,
+        expected_run_id: str | None,
+    ) -> _ResolvedSignedArtifact:
+        """Verify the signed model without converting other failures to absence."""
         if not self._sink.has_artifact(ref):
             raise _ResolutionIssueError(
                 _reason(

@@ -1076,8 +1076,6 @@ def reconcile_candidate_unpriced_work(
             or phase.policy_scope != scope
             or phase.policy_ref != policy_ref
             or phase.request_content_hash != experiment_origin.request_content_hash
-            or phase.compiled_ref != str(scope.compiled_ref.artifact_id)
-            or phase.planner_report_hash != scope.planner_report_hash
             or live_admission != admission
         ):
             raise ValueError("candidate_experiment_action_scope_mismatch")

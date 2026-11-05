@@ -24,6 +24,12 @@ from polisyos.runtime.http.services.control_registry_providers import (
     resolve_control_registry_providers,
 )
 from polisyos.runtime.quality import acquisition_planner as planner
+from polisyos.runtime.quality import acquisition_unpriced_candidate_policy as candidate_policy
+from polisyos.runtime.quality import candidate_acquisition_action as candidate_actions
+from polisyos.runtime.quality.acquisition_route_loop import (
+    AcquisitionCandidateExperimentPhaseReceipt,
+    VerifiedCandidateExperimentOrigin,
+)
 from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
     POLICY_EVENT,
     POLICY_KIND,
@@ -32,6 +38,7 @@ from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
     CandidateUnpricedAcquisitionPolicy,
     CandidateUnpricedExperimentPolicyTemplate,
     CandidateUnpricedPolicyBinding,
+    CandidateUnpricedPolicyScope,
     _persist_owned_candidate_unpriced_policy,
     issue_candidate_unpriced_experiment_policy,
     list_current_candidate_unpriced_policy_bindings,
@@ -48,10 +55,19 @@ from polisyos.runtime.quality.generation_cycle import (
     _CandidateN5L1RoutingObservation,
     _grounding_unavailable,
 )
+from polisyos.scientist.orchestration.engine import ProducerBudgetObserver
 from tests._helpers.runtime_http import _build_control_service
-from tests.unit.runtime.quality.test_candidate_unpriced_policy import _component_policy, _parent
+from tests.unit.runtime.quality.test_candidate_experiment_terminal_history import (
+    _requested_phase,
+)
+from tests.unit.runtime.quality.test_candidate_unpriced_policy import (
+    _component_policy,
+    _job,
+    _parent,
+)
 from tests.unit.runtime.quality.test_n7_descriptor_source_join import _compilation
 from tests.unit.scientist.orchestration.engine.test_invocation_capacity_observation import _owner
+from tests.unit.scientist.orchestration.engine.test_producer_budget_c49 import _settle
 
 
 class _PlannerReportRef(artifacts.ArtifactRef):
@@ -174,6 +190,171 @@ def _selected_mixed_report(cas, scope):
     ), report
 
 
+def _assert_v2_reconcile_accepts_exact_selected_compiled_ref(
+    *,
+    cas: artifacts.FileSystemCAS,
+    control_service: ControlPlaneService,
+    ledger: Any,
+    middleware: Any,
+    configured_observer: ProducerBudgetObserver,
+    scope: CandidateUnpricedPolicyScope,
+    policy: CandidateUnpricedAcquisitionPolicy,
+    policy_ref: artifacts.ArtifactRef,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Exercise V2 reconciliation against exact selected source-view identity.
+
+    The source-history and action-head adapters are replaced at their verifier
+    boundary. Policy resolution, live job admission, and quota binding remain
+    real; this isolates the V2 phase-scope comparison and confirms it spends no
+    invocation unit.
+    """
+    profile = policy.n5_quota_profile
+    _settle(middleware, profile.run_binding, "candidate-experiment-paid", "0.20")
+    budget_observer = ProducerBudgetObserver(
+        settlement_store=middleware,
+        producer_run_binding=profile.run_binding,
+        budget_state=configured_observer._state,
+        invocation_selection_pending=True,
+    )
+    ledger_before = ledger.snapshot()
+
+    _job(control_service._control_store, job_id="candidate-action-v2")
+    lease = control_service._control_store.lease_next_job(
+        worker_id="candidate-experiment-worker", lease_seconds=30
+    )
+    assert lease is not None
+    action_phase_ref = "sha256:" + "d" * 64
+    requested = _requested_phase()
+
+    def executing_phase(selected_scope: CandidateUnpricedPolicyScope):
+        return AcquisitionCandidateExperimentPhaseReceipt.model_validate(
+            {
+                **requested.model_dump(mode="python"),
+                "receipt_id": "candidate-experiment-v2-executing",
+                "tenant_id": selected_scope.tenant_id,
+                "cell_id": selected_scope.cell_id,
+                "run_id": selected_scope.run_id,
+                "source_job_id": selected_scope.source_job_id,
+                "action_generation": 1,
+                "job_id": "candidate-action-v2",
+                "source_payload_ref": policy.source_payload_ref,
+                "request_content_hash": policy.request_content_hash,
+                "policy_scope": selected_scope,
+                "policy_ref": policy_ref,
+                "voi_decision": requested.voi_decision.model_copy(
+                    update={"candidate_id": selected_scope.candidate_id}
+                ),
+                "coarse_phase": "executing",
+                "receipt_phase": "executing",
+                "recovery_state": "none",
+                "predecessor_receipt_ref": "sha256:" + "e" * 64,
+            }
+        )
+
+    source_phase = executing_phase(scope)
+    route_id = source_phase.route_id
+    capability_manifest_ref = source_phase.capability_manifest_ref
+    origin = VerifiedCandidateExperimentOrigin(
+        schema_version="polisyos.runtime.candidate_experiment_origin.v1",
+        tenant_id=scope.tenant_id,
+        cell_id=scope.cell_id,
+        run_id=scope.run_id,
+        source_job_id=scope.source_job_id,
+        source_payload_ref=policy.source_payload_ref,
+        capability_manifest_ref=capability_manifest_ref,
+        request_content_hash=policy.request_content_hash,
+        route_id=route_id,
+        policy_ref=policy_ref,
+        policy_scope=scope,
+        generation_run=SimpleNamespace(),
+        source_cycle=SimpleNamespace(),
+        design_problem_basis=SimpleNamespace(),
+        planner_report=SimpleNamespace(),
+        planner_record=SimpleNamespace(),
+    )
+    selected_action = object()
+    selected_outcome = SimpleNamespace(latest_receipt=source_phase)
+    action_outcomes = (selected_outcome,)
+    active_phase = [source_phase]
+    policy_evidence = object()
+
+    def current_action(*_args: object, **_kwargs: object):
+        return selected_action, active_phase[0], admission
+
+    def reconcile():
+        return reconcile_candidate_unpriced_work(
+            control_service=control_service,
+            scope=scope,
+            policy_ref=policy_ref,
+            action_phase_ref=action_phase_ref,
+            live_authorization=policy.live_authorization,
+            budget_observer=budget_observer,
+            budget_state=budget_observer._state,
+            experiment_origin=origin,
+        )
+
+    with control_service._control_store.job_execution_fence(
+        job_id="candidate-action-v2",
+        worker_id="candidate-experiment-worker",
+        attempt=lease.attempt,
+    ):
+        admission = control_service._control_store.current_execution_job_admission()
+        monkeypatch.setattr(
+            candidate_policy,
+            "verify_candidate_unpriced_experiment_policy_intent",
+            lambda **_kwargs: policy_evidence,
+        )
+        monkeypatch.setattr(
+            candidate_actions, "_current_candidate_experiment_action", current_action
+        )
+        monkeypatch.setattr(
+            candidate_actions,
+            "_select_current_candidate_experiment_outcome",
+            lambda _outcomes, **_kwargs: selected_outcome,
+        )
+        monkeypatch.setattr(
+            type(control_service.acquisition_route_sink),
+            "experiment_action_outcomes",
+            lambda _self, **_kwargs: action_outcomes,
+        )
+
+        compiled_manifest = cas.get_manifest(scope.compiled_ref)
+        alternate_compiled_ref = cas.put_bytes(
+            cas.get_bytes(scope.compiled_ref),
+            artifacts.ArtifactWriteOptions(
+                kind=compiled_manifest.kind,
+                media_type=compiled_manifest.media_type,
+                schema=compiled_manifest.artifact_schema,
+                producer=artifacts.ProducerInfo(
+                    component="foreign.test.candidate_compiled", version="1"
+                ),
+            ),
+            return_selected_profile=True,
+        )
+        assert alternate_compiled_ref.artifact_id == scope.compiled_ref.artifact_id
+        assert (
+            alternate_compiled_ref.manifest_profile_sha256
+            != scope.compiled_ref.manifest_profile_sha256
+        )
+        wrong_scope = scope.model_copy(update={"compiled_ref": alternate_compiled_ref})
+        active_phase[0] = executing_phase(wrong_scope)
+        with pytest.raises(ValueError, match="candidate_experiment_action_scope_mismatch"):
+            reconcile()
+        assert budget_observer.invocation_quota_profile is None
+        assert ledger.snapshot() == ledger_before
+
+        active_phase[0] = source_phase
+        budget, capacity = reconcile()
+    assert budget.predicate_basis == "independently_reconciled"
+    assert capacity.status == "available" and capacity.not_a_permit is True
+    assert capacity.standard_remaining_units == profile.total_units - profile.protected_units
+    assert budget_observer.invocation_quota_profile == profile
+    assert budget_observer.invocation_purpose == "standard"
+    assert not ledger.snapshot().invocation_reservations
+    assert ledger.snapshot() == ledger_before
+
+
 def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -181,7 +362,7 @@ def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
     """A configured V2 is a candidate declaration, with no inferred permit or VOI."""
     cas = artifacts.FileSystemCAS(tmp_path / "cas")
     base = _build_control_service(tmp_path / "control", artifact_store=cas)
-    ledger, _, observer = _owner(tmp_path / "quota-ledger.json", total=2, protected=1)
+    ledger, middleware, observer = _owner(tmp_path / "quota-ledger.json", total=2, protected=1)
     profile = observer.invocation_quota_profile
     assert profile is not None
     bound: ControlPlaneService | None = None
@@ -296,6 +477,17 @@ def test_selected_experiment_policy_preserves_v1_and_reopens_its_exact_v2_view(
                 policy_resolver=base._policy_resolver,
             )
             assert bound is not None
+            _assert_v2_reconcile_accepts_exact_selected_compiled_ref(
+                cas=cas,
+                control_service=bound,
+                ledger=ledger,
+                middleware=middleware,
+                configured_observer=observer,
+                scope=scope,
+                policy=policy,
+                policy_ref=ref,
+                monkeypatch=monkeypatch,
+            )
 
             def current_bindings() -> tuple[CandidateUnpricedPolicyBinding, ...]:
                 return list_current_candidate_unpriced_policy_bindings(

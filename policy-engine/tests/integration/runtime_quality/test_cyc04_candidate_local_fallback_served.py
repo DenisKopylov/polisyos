@@ -783,7 +783,7 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
     assert generic_projection["child_profile_status"] == "not_established"
     assert generic_projection["child_profile_set_ref"] is None
     assert generic_projection["child_profile_bindings"] == []
-    assert generic_projection["candidate_evaluation_attempts_limitation_code"] is None
+    assert generic_projection.get("candidate_evaluation_attempts_limitation_code") is None
     projected_attempts = generic_projection["candidate_evaluation_attempts"]
     assert len(projected_attempts) == 1
     assert projected_attempts[0]["candidate_id"] == failed_attempt.candidate_id

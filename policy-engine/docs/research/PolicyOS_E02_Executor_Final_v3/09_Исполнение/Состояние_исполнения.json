@@ -10390,6 +10390,22 @@
             "tree": "8948ced543f70592ddd77e588b0541a2711999ea",
             "composition": "Ordinary merge of Main e999e2f9f into author851e219; both original histories preserved. Main policy-selection and selected-signature recovery function ASTs compared exactly after merge. No source changes at day-end."
           }
+        },
+        "cyc04_grounded_fallback_current": {
+          "output": "policy-engine/_cache/e02/lane01-cyc04-current-r1",
+          "source_base": "a7b4552a91da9857d322feb067b3b3107c0ed7bb",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 21.237665458000265,
+          "peak_rss_bytes": 1503215616,
+          "named_inputs": 3,
+          "inputs_unchanged_during_run": true,
+          "scope": "Real N6 candidate-local fallback: one generation, second candidate invokes real owner N5 exactly once, persisted selected-result readback, strict public GenerationCycleRun DTO/history roundtrip; shared-currentness, stripped marker and budget stop suppress fallback. No HTTP consumer or whole-packet claim.",
+          "independent_review": "Luna surface reviewer material-delta GO; Root read stdout/JUnit/pins."
         }
       },
       "independent_component_reviews": {
@@ -31142,7 +31158,7 @@
     "archive_integrity": "PASS_DOCUMENT_INTEGRITY before working-state edit; product checks NOT_RUN",
     "python_lock_sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
     "resource_profile": "macOS arm64; existing Python 3.14 environment; at most two qualified light test jobs, unknown native job alone; about 10 GiB free; no reinstall or environment copies",
-    "authorization": "User authorizes sequential lanes, parallel work within active lane, ordinary main composition and retirement after actual content/protection/worktree checks. No cloud tasks or production-data export. Execution paused at the user request on 2026-11-04; no workers/jobs remain running.",
+    "authorization": "User authorizes sequential lanes, parallel work within active lane, ordinary main composition and retirement after actual content/protection/worktree checks. No cloud tasks or production-data export. Execution resumed by the user on 2026-11-05 under the approved LANE-01 completion plan; Root coordinates bounded local jobs and named Luna owners.",
     "node_version": "22.22.2",
     "filesystem_profile": "Measured APFS disk3s5 /System/Volumes/Data; native software qualification only, no power-loss/NFS/Linux guarantee"
   },

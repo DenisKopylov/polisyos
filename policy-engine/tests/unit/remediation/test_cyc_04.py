@@ -300,8 +300,11 @@ async def test_candidate_local_refusal_retries_existing_grounded_candidate_with_
     second_id = str(witness.candidate.candidate_id)
     first_id = first.candidate_id
 
-    async def run_case_async(mode: str) -> tuple[Any, tuple[str, ...], int]:
+    async def run_case_async(
+        mode: str,
+    ) -> tuple[Any, tuple[str, ...], tuple[str, ...], int]:
         simulation_calls: list[str] = []
+        owner_n5_calls: list[str] = []
         generation_calls: list[int] = []
 
         class _WitnessTwoCandidateGenerator:
@@ -364,6 +367,7 @@ async def test_candidate_local_refusal_retries_existing_grounded_candidate_with_
                                 "candidate_scenario_value_outside_profile_domain"
                             ),
                         )
+                    owner_n5_calls.append(candidate_id)
                     return witness.port(
                         candidate=candidate,
                         problem=witness.problem,
@@ -407,13 +411,16 @@ async def test_candidate_local_refusal_retries_existing_grounded_candidate_with_
                 min_cycles=1,
                 max_cycles=1,
             )
-        return run, tuple(simulation_calls), len(generation_calls)
+        return run, tuple(simulation_calls), tuple(owner_n5_calls), len(generation_calls)
 
     try:
-        local_result, local_calls, local_generation_count = await run_case_async("local")
+        local_result, local_calls, local_owner_n5_calls, local_generation_count = (
+            await run_case_async("local")
+        )
 
         assert local_generation_count == 1
         assert local_calls == (first_id, second_id)
+        assert local_owner_n5_calls == (second_id,)
         assert local_result.cycles[0].selected_candidate_ref == second_id
         assert local_result.cycles[0].simulation.candidate_id == second_id
         assert local_result.cycles[0].simulation.status == "joint_simulated"
@@ -448,6 +455,31 @@ async def test_candidate_local_refusal_retries_existing_grounded_candidate_with_
 
         valid_wire = local_result.model_dump(mode="json")
         assert validate_generation_cycle_run_history(valid_wire) == ()
+        served_run = type(local_result).model_validate(valid_wire)
+        expected_candidate_occurrences = (first_id, second_id)
+        assert served_run.cycles[0].candidate_ids == expected_candidate_occurrences
+        assert tuple(
+            summary.candidate_id for summary in served_run.candidate_summaries
+        ) == expected_candidate_occurrences
+        assert served_run.cycles[0].selected_candidate_ref == second_id
+        served_first = next(
+            summary
+            for summary in served_run.candidate_summaries
+            if summary.candidate_id == first_id
+        )
+        served_second = next(
+            summary
+            for summary in served_run.candidate_summaries
+            if summary.candidate_id == second_id
+        )
+        assert served_first.evaluation_attempt == failed_first.evaluation_attempt
+        assert served_first.evaluation_attempt is not None
+        assert served_first.evaluation_attempt.failure_stage == "n5"
+        assert served_first.evaluation_attempt.simulation.authority_blockers == (
+            "candidate_scenario_value_outside_profile_domain",
+        )
+        assert served_second.evaluation_attempt is None
+        assert served_run.cycles[0].simulation.simulation_result_ref is not None
         failed_index = next(
             index
             for index, summary in enumerate(local_result.candidate_summaries)
@@ -503,36 +535,61 @@ async def test_candidate_local_refusal_retries_existing_grounded_candidate_with_
 
         # Shared/unknown admission and removal of the issued marker are controls:
         # neither may queue the otherwise grounded second candidate.
-        shared_result, shared_calls, shared_generation_count = await run_case_async("shared")
-        stripped_result, stripped_calls, stripped_generation_count = await run_case_async(
-            "stripped_marker"
-        )
-        for result, calls, generation_count, expected_blocker in (
+        (
+            shared_result,
+            shared_calls,
+            shared_owner_n5_calls,
+            shared_generation_count,
+        ) = await run_case_async("shared")
+        (
+            stripped_result,
+            stripped_calls,
+            stripped_owner_n5_calls,
+            stripped_generation_count,
+        ) = await run_case_async("stripped_marker")
+        for result, calls, owner_n5_calls, generation_count, expected_blocker in (
             (
                 shared_result,
                 shared_calls,
+                shared_owner_n5_calls,
                 shared_generation_count,
                 "shared_context_currentness_unknown",
             ),
             (
                 stripped_result,
                 stripped_calls,
+                stripped_owner_n5_calls,
                 stripped_generation_count,
                 "candidate_scenario_value_outside_profile_domain",
             ),
         ):
             assert generation_count == 1
             assert calls == (first_id,)
+            assert owner_n5_calls == ()
             assert result.cycles[0].selected_candidate_ref == first_id
             assert result.cycles[0].simulation.status == "simulation_blocked"
             assert result.cycles[0].simulation.authority_blockers == (expected_blocker,)
             assert all(summary.evaluation_attempt is None for summary in result.candidate_summaries)
+            refusal_wire = result.model_dump(mode="json")
+            assert validate_generation_cycle_run_history(refusal_wire) == ()
+            served_refusal = type(result).model_validate(refusal_wire)
+            assert served_refusal.cycles[0].candidate_ids == expected_candidate_occurrences
+            assert tuple(
+                summary.candidate_id for summary in served_refusal.candidate_summaries
+            ) == expected_candidate_occurrences
+            assert served_refusal.cycles[0].selected_candidate_ref == first_id
 
         # A real shared scheduler stop must suppress both the simulation call
         # and any candidate-local sibling retry.
-        budget_result, budget_calls, budget_generation_count = await run_case_async("shared_budget")
+        (
+            budget_result,
+            budget_calls,
+            budget_owner_n5_calls,
+            budget_generation_count,
+        ) = await run_case_async("shared_budget")
         assert budget_generation_count == 1
         assert budget_calls == ()
+        assert budget_owner_n5_calls == ()
         assert budget_result.cycles[0].selected_candidate_ref == first_id
         assert budget_result.cycles[0].simulation.status == "simulation_blocked"
         assert "budget_exhausted_for_next_level" in (
@@ -541,15 +598,27 @@ async def test_candidate_local_refusal_retries_existing_grounded_candidate_with_
         assert all(
             summary.evaluation_attempt is None for summary in budget_result.candidate_summaries
         )
+        budget_wire = budget_result.model_dump(mode="json")
+        assert validate_generation_cycle_run_history(budget_wire) == ()
+        served_budget_refusal = type(budget_result).model_validate(budget_wire)
+        assert served_budget_refusal.cycles[0].candidate_ids == expected_candidate_occurrences
+        assert tuple(
+            summary.candidate_id for summary in served_budget_refusal.candidate_summaries
+        ) == expected_candidate_occurrences
+        assert served_budget_refusal.cycles[0].selected_candidate_ref == first_id
 
         # This all-local control uses the owner classifier on a controlled
         # second refusal. It bounds the queue loop; it is not evidence of a
         # second persisted configured-N4 materialization.
-        all_local_result, all_local_calls, all_local_generation_count = await run_case_async(
-            "all_local_refusals"
-        )
+        (
+            all_local_result,
+            all_local_calls,
+            all_local_owner_n5_calls,
+            all_local_generation_count,
+        ) = await run_case_async("all_local_refusals")
         assert all_local_generation_count == 1
         assert all_local_calls == (first_id, second_id)
+        assert all_local_owner_n5_calls == ()
         assert len(all_local_result.cycles) == 1
         assert all_local_result.cycles[0].selected_candidate_ref == second_id
         assert all_local_result.cycles[0].simulation.status == "simulation_blocked"

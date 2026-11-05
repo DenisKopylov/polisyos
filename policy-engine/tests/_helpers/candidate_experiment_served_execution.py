@@ -95,14 +95,215 @@ def _standard_invocation_units(*, control: ControlPlaneService, run_id: str) -> 
 def _experiment_outcomes(
     *, control: ControlPlaneService, origin: VerifiedCandidateExperimentOrigin
 ) -> tuple[VerifiedAcquisitionActionOutcome, ...]:
-    """Read current action heads only through the installed lifecycle owner."""
+    """Read current action heads through the lifecycle owner and this verified source read."""
     return control.acquisition_route_sink.experiment_action_outcomes(
         tenant_id=origin.tenant_id,
         cell_id=origin.cell_id,
         run_id=origin.run_id,
         source_job_id=origin.source_job_id,
         route_id=origin.route_id,
+        verified_origin=origin,
     )
+
+
+def _assert_candidate_experiment_phase_reuse_controls(
+    *,
+    control: ControlPlaneService,
+    action_service: AcquisitionActionService,
+    origin: VerifiedCandidateExperimentOrigin,
+    outcome: VerifiedAcquisitionActionOutcome,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Exercise fail-closed phase reuse controls against live fixture owners."""
+    from dataclasses import replace
+
+    import pytest
+
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentPhaseReceipt,
+    )
+
+    sink = control.acquisition_route_sink
+    head = outcome.head
+    phase = outcome.latest_receipt
+    if type(phase) is not AcquisitionCandidateExperimentPhaseReceipt:
+        raise AssertionError("candidate experiment requested phase was not typed")
+
+    with pytest.raises(ValueError, match="candidate_experiment_action_source_scope_mismatch"):
+        sink.experiment_action_outcomes(
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            run_id=origin.run_id,
+            source_job_id=origin.source_job_id,
+            route_id=origin.route_id,
+            verified_origin=replace(origin, cell_id=origin.cell_id + "-foreign"),
+        )
+
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
+
+    original_resolve_source = AcquisitionRouteLoop._resolve_candidate_experiment_source
+    source_reads: list[str] = []
+    with monkeypatch.context() as changed_source:
+
+        def return_changed_source(self, *, run_id: str):
+            current = original_resolve_source(self, run_id=run_id)
+            source_reads.append(run_id)
+            changed_hash = "sha256:" + "0" * 64
+            if current.request_content_hash == changed_hash:
+                changed_hash = "sha256:" + "1" * 64
+            return replace(current, request_content_hash=changed_hash)
+
+        changed_source.setattr(
+            AcquisitionRouteLoop, "_resolve_candidate_experiment_source", return_changed_source
+        )
+        with pytest.raises(ValueError, match="candidate_experiment_source_changed"):
+            _experiment_outcomes(control=control, origin=origin)
+    if source_reads != [origin.run_id]:
+        raise AssertionError("candidate experiment lifecycle source fence did not run exactly once")
+
+    store = control._control_store
+    with monkeypatch.context() as changed_head:
+
+        def missing_current_head(*args, **kwargs):
+            return None
+
+        changed_head.setattr(store, "get_acquisition_action_head", missing_current_head)
+        with pytest.raises(ValueError, match="acquisition_action_generation_head_changed"):
+            _experiment_outcomes(control=control, origin=origin)
+
+    original_get_by_receipt = store.get_acquisition_action_head_by_receipt
+    wrong_profiles: list[str] = []
+    with monkeypatch.context() as wrong_selected_profile:
+
+        def select_wrong_ancestor_profile(*args, **kwargs):
+            row = original_get_by_receipt(*args, **kwargs)
+            if row is None or row.receipt_ref != head.receipt_ref:
+                return row
+            wrong = "sha256:" + "0" * 64
+            if row.receipt_manifest_profile_sha256 == wrong:
+                wrong = "sha256:" + "1" * 64
+            wrong_profiles.append(wrong)
+            return replace(row, receipt_manifest_profile_sha256=wrong)
+
+        wrong_selected_profile.setattr(
+            store, "get_acquisition_action_head_by_receipt", select_wrong_ancestor_profile
+        )
+        with pytest.raises(ArtifactOwnershipError):
+            _experiment_outcomes(control=control, origin=origin)
+    if len(wrong_profiles) != 1 or wrong_profiles[0] == head.receipt_manifest_profile_sha256:
+        raise AssertionError("candidate experiment wrong selected profile was not exercised")
+
+    artifact_store = control._artifact_store
+    decision_id = str(phase.authority_decision_ref.artifact_id)
+    original_get_manifest = artifact_store.get_manifest
+    removed_manifest_reads: list[str] = []
+    with monkeypatch.context() as removed_decision:
+
+        def deny_decision_manifest(ref, *args, **kwargs):
+            if str(getattr(ref, "artifact_id", ref)) == decision_id:
+                removed_manifest_reads.append(decision_id)
+                raise FileNotFoundError("signed PA2 decision removed")
+            return original_get_manifest(ref, *args, **kwargs)
+
+        removed_decision.setattr(artifact_store, "get_manifest", deny_decision_manifest)
+        with pytest.raises(FileNotFoundError, match="signed PA2 decision removed"):
+            _experiment_outcomes(control=control, origin=origin)
+    if removed_manifest_reads != [decision_id]:
+        raise AssertionError("candidate experiment signed PA2 removal control missed its reader")
+
+    signature = artifact_store.get_signature(decision_id)
+    provider = action_service._authority_provider
+    verifier = provider._deployment.acquisition_authority.verifier
+    revoked_key_ids = verifier._revoked_key_ids
+    if signature is None or type(revoked_key_ids) is not set or signature.key_id in revoked_key_ids:
+        raise AssertionError("candidate experiment PA2 verifier inputs were not established")
+    revoked_key_ids.add(signature.key_id)
+    try:
+        with pytest.raises(ValueError, match="candidate_experiment_pa2_decision_not_verified"):
+            _experiment_outcomes(control=control, origin=origin)
+    finally:
+        revoked_key_ids.remove(signature.key_id)
+
+
+def _assert_candidate_experiment_prefix_controls(
+    *,
+    control: ControlPlaneService,
+    origin: VerifiedCandidateExperimentOrigin,
+    outcome: VerifiedAcquisitionActionOutcome,
+) -> None:
+    """Prove an in-flight action consumes exactly its verified terminal prefix."""
+    from dataclasses import replace
+
+    import pytest
+
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentPhaseReceipt,
+    )
+
+    if not origin.candidate_terminal_history_chain:
+        raise AssertionError("candidate experiment prefix control requires a prior terminal")
+    if outcome.head.action_generation != len(origin.candidate_terminal_history_chain) + 1:
+        raise AssertionError("candidate experiment in-flight generation lost its selected prefix")
+    if type(outcome.latest_receipt) is not AcquisitionCandidateExperimentPhaseReceipt:
+        raise AssertionError("candidate experiment prefixed action is not an in-flight phase")
+    assert outcome.phase_chain
+
+    previous_prefix = origin.candidate_terminal_history_chain[:-1]
+    wrong_previous = origin.candidate_terminal_history_chain[-1]
+    selected_ref = wrong_previous.terminal_ref
+    wrong_profile = "sha256:" + "0" * 64
+    if selected_ref.manifest_profile_sha256 == wrong_profile:
+        wrong_profile = "sha256:" + "1" * 64
+    wrong_previous = replace(
+        wrong_previous,
+        terminal_ref=selected_ref.model_copy(update={"manifest_profile_sha256": wrong_profile}),
+    )
+    previous_prefix = (*previous_prefix, wrong_previous)
+    wrong_origin = replace(
+        origin,
+        current_terminal_history=wrong_previous,
+        candidate_terminal_history_chain=previous_prefix,
+    )
+    with pytest.raises(ValueError, match="candidate_experiment_action_prefix_mismatch"):
+        control.acquisition_route_sink.experiment_action_outcomes(
+            tenant_id=wrong_origin.tenant_id,
+            cell_id=wrong_origin.cell_id,
+            run_id=wrong_origin.run_id,
+            source_job_id=wrong_origin.source_job_id,
+            route_id=wrong_origin.route_id,
+            verified_origin=wrong_origin,
+        )
+
+
+def _assert_public_terminal_reader_reopens_source(
+    *,
+    control: ControlPlaneService,
+    origin: VerifiedCandidateExperimentOrigin,
+    head: AcquisitionActionHeadRecord,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Keep the standalone terminal reader fail closed when its source disappears."""
+    import pytest
+
+    store = control._artifact_store
+    source_id = origin.source_payload_ref
+    original_get_bytes = store.get_bytes
+    source_reads: list[str] = []
+
+    with monkeypatch.context() as removed_source:
+
+        def deny_source(ref, *args, **kwargs):
+            if str(getattr(ref, "artifact_id", ref)) == source_id:
+                source_reads.append(source_id)
+                raise FileNotFoundError("selected candidate source removed")
+            return original_get_bytes(ref, *args, **kwargs)
+
+        removed_source.setattr(store, "get_bytes", deny_source)
+        with pytest.raises(ValueError, match="candidate_experiment_source_not_current"):
+            control.acquisition_route_sink.verify_action_head(head)
+    if source_reads != [source_id]:
+        raise AssertionError("standalone terminal history did not reopen its selected source")
 
 
 def _terminal_projection_expectations(
@@ -542,11 +743,47 @@ def run_candidate_experiment_served_execution(
         if job_id != expected_job_id or response_body.get("authority_decision_ref") != decision_ref:
             raise AssertionError("candidate experiment execute response identity mismatch")
 
-        request_outcomes = _experiment_outcomes(control=control, origin=origin)
+        if not origin.candidate_terminal_history_chain:
+            from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
+
+            source_reads: list[str] = []
+            original_resolve_source = AcquisitionRouteLoop._resolve_candidate_experiment_source
+            with monkeypatch.context() as measured_source_reads:
+
+                def count_source_reads(self, *, run_id: str):
+                    source_reads.append(run_id)
+                    return original_resolve_source(self, run_id=run_id)
+
+                measured_source_reads.setattr(
+                    AcquisitionRouteLoop,
+                    "_resolve_candidate_experiment_source",
+                    count_source_reads,
+                )
+                request_outcomes = _experiment_outcomes(control=control, origin=origin)
+            if source_reads != [origin.run_id]:
+                raise AssertionError(
+                    "candidate experiment phase history repeated its same-read source proof"
+                )
+        else:
+            request_outcomes = _experiment_outcomes(control=control, origin=origin)
         if not request_outcomes or request_outcomes[-1].head.job_id != job_id:
             raise AssertionError("candidate experiment requested head not published")
         request_outcome = request_outcomes[-1]
         request_head = request_outcome.head
+        if request_head.action_generation == 1 and not origin.candidate_terminal_history_chain:
+            _assert_candidate_experiment_phase_reuse_controls(
+                control=control,
+                action_service=action_service,
+                origin=origin,
+                outcome=request_outcome,
+                monkeypatch=monkeypatch,
+            )
+        elif origin.candidate_terminal_history_chain:
+            _assert_candidate_experiment_prefix_controls(
+                control=control,
+                origin=origin,
+                outcome=request_outcome,
+            )
         if (
             request_head.receipt_phase != "requested"
             or not request_head.receipt_manifest_profile_sha256
@@ -654,6 +891,12 @@ def run_candidate_experiment_served_execution(
             or terminal_history.terminal != final_outcome.latest_receipt
         ):
             raise AssertionError("candidate experiment terminal history not established")
+        _assert_public_terminal_reader_reopens_source(
+            control=control,
+            origin=origin,
+            head=final_outcome.head,
+            monkeypatch=monkeypatch,
+        )
 
         after_response = client.get(get_path, headers=read_headers)
         if after_response.status_code != 200:

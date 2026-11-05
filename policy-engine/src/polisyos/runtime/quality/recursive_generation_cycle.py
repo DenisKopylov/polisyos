@@ -1579,6 +1579,48 @@ class RecursiveLeafContextOwner:
             )
         return capsule
 
+    def generic_root_currentness_resolver(
+        self,
+        *,
+        handoff: GenericCycleSimulationContextHandoffV1,
+        problem: DesignProblem,
+        currentness: Callable[[], bool],
+    ) -> Callable[[], bool]:
+        """Bind an exact generic root/parent handoff to its live lease and family."""
+        if (
+            self._generic_admission_owner is None
+            or self._verified_nl_job_scope is None
+            or type(handoff) is not GenericCycleSimulationContextHandoffV1
+            or handoff.profile.profile_selection_kind != "problem"
+            or not callable(currentness)
+        ):
+            raise RecursiveGenerationCycleError("recursive_generic_root_owner_incomplete")
+
+        def require_current() -> bool:
+            if currentness() is not True:
+                raise RecursiveGenerationCycleError("recursive_generic_root_lease_not_current")
+            resolved = self._generic_admission_owner.resolve_handoff(
+                handoff=handoff,
+                problem=problem,
+                verified_nl_job_scope=self._verified_nl_job_scope,
+                context_owner=self._context_owner,
+                repo_root=self._repo_root,
+            )
+            if handoff.n4_child_profile_family_ref is not None:
+                self._generic_admission_owner.resolve_child_profile_family(
+                    handoff.n4_child_profile_family_ref,
+                    parent_handoff=handoff,
+                    parent_problem=problem,
+                    verified_nl_job_scope=self._verified_nl_job_scope,
+                    context_owner=self._context_owner,
+                    repo_root=self._repo_root,
+                )
+            if resolved != handoff or currentness() is not True:
+                raise RecursiveGenerationCycleError("recursive_generic_root_handoff_not_current")
+            return True
+
+        return require_current
+
     def generic_currentness_resolver(
         self,
         capsule_ref: CASArtifactRef,
@@ -4267,6 +4309,8 @@ class RecursiveGenerationCycleController:
         | None = None,
         generic_simulation_handoffs_by_node: Mapping[str, GenericCycleSimulationContextHandoffV1]
         | None = None,
+        generic_simulation_currentness_resolvers_by_node: Mapping[str, Callable[[], bool]]
+        | None = None,
         generic_n4_child_profile_set_ref: CASArtifactRef | None = None,
         generic_n4_source_repository: GenerationSourceRepository | None = None,
         generic_parent_handoff: GenericCycleSimulationContextHandoffV1 | None = None,
@@ -4461,7 +4505,41 @@ class RecursiveGenerationCycleController:
         generic_child_selections: dict[str, GenericCycleSimulationChildSelectionV1] = {}
         generic_currentness_resolvers: dict[str, Callable[[], bool]] = {}
         generic_leaf_capsule_refs: dict[str, CASArtifactRef] = {}
-        if generic_handoffs:
+        root_generic_refs = set(generic_handoffs) & {recursive_graph.root_design_ref}
+        if set(generic_simulation_currentness_resolvers_by_node or {}) != root_generic_refs:
+            raise RecursiveGenerationCycleError(
+                "recursive_generic_root_currentness_denominator_mismatch"
+            )
+        if root_generic_refs:
+            root_ref = recursive_graph.root_design_ref
+            if (
+                leaf_refs != {root_ref}
+                or set(generic_handoffs) != {root_ref}
+                or handoff_refs
+                or type(generic_handoffs[root_ref]) is not GenericCycleSimulationContextHandoffV1
+                or generic_handoffs[root_ref].n4_child_profile_family_ref is not None
+                or type(leaf_context_owner) is not RecursiveLeafContextOwner
+                or generic_n4_child_profile_set_ref is not None
+                or generic_n4_source_repository is not None
+                or generic_parent_handoff is not None
+                or (cycle_substrate_contexts_by_node or {}).get(root_ref)
+                != generic_handoffs[root_ref].context
+                or (execution_intents_by_node or {}).get(root_ref) != "simulate_only"
+            ):
+                raise RecursiveGenerationCycleError("recursive_generic_root_binding_mismatch")
+            require_root_current = leaf_context_owner.generic_root_currentness_resolver(
+                handoff=generic_handoffs[root_ref],
+                problem=problems_by_node[root_ref],
+                currentness=generic_simulation_currentness_resolvers_by_node[root_ref],
+            )
+            require_root_current()
+            # The fixed selected handoff was verified above. The leaf controller
+            # reopens its current handoff after reissue; retain the independent
+            # upstream lease/config predicate rather than the old-ref closure.
+            generic_currentness_resolvers[root_ref] = (
+                generic_simulation_currentness_resolvers_by_node[root_ref]
+            )
+        elif generic_handoffs:
             if handoff_refs:
                 raise RecursiveGenerationCycleError(
                     "recursive_candidate_and_generic_child_profiles_conflict"
@@ -4914,8 +4992,12 @@ class RecursiveGenerationCycleController:
                         expected_cell_id=handoff.cell_id,
                     )
                 generic_capsule_ref = generic_leaf_capsule_refs.get(node_ref)
-                if generic_capsule_ref is not None:
-                    require_generic_current = generic_currentness_resolvers.get(node_ref)
+                if generic_capsule_ref is not None or node_ref in root_generic_refs:
+                    require_generic_current = (
+                        controller._generic_cycle_simulation_currentness_resolver
+                        if node_ref in root_generic_refs
+                        else generic_currentness_resolvers.get(node_ref)
+                    )
                     if require_generic_current is None:
                         raise RecursiveGenerationCycleError(
                             "recursive_generic_currentness_callback_missing"

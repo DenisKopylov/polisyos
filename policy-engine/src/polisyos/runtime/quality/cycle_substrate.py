@@ -2786,6 +2786,27 @@ class CycleSubstrateContextArtifactOwner:
             return admission.job, admission
         return self._control_store.current_execution_job_record(), None
 
+    def require_current_job_scope(self, *, verified_nl_job_scope: VerifiedNLJobScope) -> None:
+        """Require the issued scope's live worker lease without admitting a context.
+
+        Selected-context integrity, profile binding and temporal admission are
+        checked separately by ``resolve_for_current_job`` for the actual ref.
+        """
+        if type(verified_nl_job_scope) is not VerifiedNLJobScope or not (
+            verified_nl_job_scope._was_issued_by_verified_nl_execution_owner
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_verified_scope_mismatch"
+            )
+        current_job, execution_admission = self._current_job_execution_binding(
+            verified_nl_job_scope=verified_nl_job_scope
+        )
+        _current_job_scope(
+            current_job=current_job,
+            verified_nl_job_scope=verified_nl_job_scope,
+            execution_admission=execution_admission,
+        )
+
     def persist_for_current_job(
         self,
         context: CycleSubstrateContext,

@@ -1815,7 +1815,12 @@ class AcquisitionRouteLoop:
         ):
             raise AcquisitionRouteClosureError("candidate_experiment_history_owner_not_composed")
         try:
-            outcomes = owner_reader(reader, **scope, route_id=origin.route_id)
+            outcomes = owner_reader(
+                reader,
+                **scope,
+                route_id=origin.route_id,
+                verified_origin=origin,
+            )
         except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
             raise AcquisitionRouteClosureError(
                 "candidate_experiment_action_history_not_verified"

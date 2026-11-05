@@ -296,12 +296,20 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
     pytest.importorskip("fastapi.testclient")
     from fastapi.testclient import TestClient
 
+    from polisyos.core.artifacts import read_core_json_artifact
     from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
+    from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.services.control import generation_cycle as compiler_owner
     from polisyos.runtime.quality import recursive_generation_cycle as recursive_cycle
-    from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+    from polisyos.runtime.quality.cycle_substrate import (
+        cycle_job_design_problem_ref,
+        generic_n4_child_profile_selection_ref,
+    )
+    from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from tests._helpers.control_worker import dispatch_one_control_job
 
     generic_n4_served_replay, prepared = prepared_cubic_parent
@@ -416,14 +424,147 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
         assert fresh_response.status_code == 200, fresh_response.text
         fresh_run = fresh_response.json()["run"]
         projection = fresh_run["generic_cycle_simulation"]
+
+        # Bind every served node to the compiled artifact and N4 source that
+        # this request actually persisted. The prepared objects are independent
+        # semantic controls, not identities for the later served run.
+        served_compiled_ref = ArtifactRef.model_validate(projection["source_ref"])
+        assert served_compiled_ref == ArtifactRef.model_validate(
+            job.progress["compiled_recursive_generation_cycle_artifact_ref"]
+        )
+        assert (
+            str(served_compiled_ref.artifact_id)
+            == job.progress["compiled_recursive_generation_cycle_ref"]
+        )
+        assert served_compiled_ref.manifest_profile_sha256 is not None
+        store = service._artifact_store
+        with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
+            assert store.verify(served_compiled_ref).ok
+            compiled = compiler_owner.CompiledRecursiveGenerationCycleRun.model_validate(
+                read_core_json_artifact(store, served_compiled_ref).value
+            )
+        assert compiled.generic_cycle_simulation_handoff is not None
+        assert compiled.n4_child_profile_set_ref is not None
+        assert compiled.n4_recursive_source_ref is not None
+        parent_handoff = compiled.generic_cycle_simulation_handoff
+        served_source_run_id = compiled.n4_recursive_source_run_id
+        assert served_source_run_id is not None
+        assert served_source_run_id == parent_handoff.run_id
+        assert compiled.n4_recursive_source_job_id == job.job_id
+        assert compiled.n4_recursive_source_tenant_id == prepared.tenant_id
+        assert compiled.n4_recursive_source_cell_id == prepared.cell_id
+        assert compiled.n4_recursive_source_context_job_ref == parent_handoff.context_job_ref
+        assert parent_handoff.n4_child_profile_family_ref is not None
+        with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
+            served_source = GenerationSourceRepository(store).load(
+                compiled.n4_recursive_source_ref,
+                run_id=served_source_run_id,
+                expected_run_id=parent_handoff.run_id,
+                expected_job_id=job.job_id,
+                expected_tenant_id=prepared.tenant_id,
+                expected_cell_id=prepared.cell_id,
+                context_job_ref=compiled.n4_recursive_source_context_job_ref,
+                profile_ref=parent_handoff.profile_ref,
+                n4_child_profile_family_ref=parent_handoff.n4_child_profile_family_ref,
+            )
+        assert served_source.problem == compiled.design_problem
+        assert (
+            compiled.design_problem.problem_statement == prepared.recorded_problem.problem_statement
+        )
+        assert (
+            compiled.design_problem.nl_provenance.raw_request
+            == prepared.recorded_problem.nl_provenance.raw_request
+            == _CUBIC_AUTHORED_COMPOSITION_REQUEST
+        )
+        assert (
+            compiled.design_problem.outcome_of_interest.target_variable
+            == prepared.recorded_problem.outcome_of_interest.target_variable
+        )
+        served_root_node_ref = "design-problem://" + cycle_job_design_problem_ref(
+            compiled.design_problem
+        ).removeprefix("sha256:")
+        assert compiled.recursive_run.root_node_ref == served_root_node_ref
+
+        served_children = tuple(
+            derive_n4_candidate_child_problems(
+                served_source.problem,
+                served_source.generation_result,
+                model_id=served_source.generation_result.model_id,
+            )
+        )
+        assert len(served_children) == 3
+        served_source_result_ref = gy_content_hash(
+            served_source.generation_result.model_dump(mode="json")
+        )
+        served_source_atom_refs = {
+            str(candidate.atom.content_hash)
+            for candidate in served_source.generation_result.candidates
+        }
+        assert len(served_source_atom_refs) == 3
+        served_children_by_selection_ref: dict[str, Any] = {}
+        for child in served_children:
+            child_atom_refs = tuple(sorted(str(ref) for ref in child.source_atom_refs))
+            assert child.source_result_ref == served_source_result_ref
+            assert set(child_atom_refs) <= served_source_atom_refs
+            assert len(child_atom_refs) == 1
+            selection_ref = generic_n4_child_profile_selection_ref(
+                child.problem,
+                parent_problem_ref=cycle_job_design_problem_ref(served_source.problem),
+                source_result_ref=child.source_result_ref,
+                source_atom_refs=child_atom_refs,
+                semantic_ref=child.semantic_ref,
+            )
+            assert selection_ref not in served_children_by_selection_ref
+            served_children_by_selection_ref[selection_ref] = child
+        assert {
+            str(ref) for child in served_children for ref in child.source_atom_refs
+        } == served_source_atom_refs
+        assert len({child.semantic_ref for child in served_children}) == 3
+
         candidate_before = projection["n5_observations"]
         served_child_bindings = projection["child_profile_bindings"]
         assert len(served_child_bindings) == 3
-        assert len({binding["node_ref"] for binding in served_child_bindings}) == 3
-        assert {binding["profile_selection_ref"] for binding in served_child_bindings} == set(
-            prepared.child_keys
-        )
-        child_node_refs = {binding["node_ref"] for binding in served_child_bindings}
+        bindings_by_selection_ref = {
+            binding["profile_selection_ref"]: binding for binding in served_child_bindings
+        }
+        prepared_profiles_by_selection_ref = {
+            profile.profile_selection_ref: profile for profile in prepared.generic_child_profiles
+        }
+        prepared_groups_by_selection_ref = {
+            profile.profile_selection_ref: generic_n4_served_replay._original_second_capture_child_group(
+                child
+            )
+            for child, profile in zip(
+                prepared.children, prepared.generic_child_profiles, strict=True
+            )
+        }
+        assert len(bindings_by_selection_ref) == 3
+        assert set(bindings_by_selection_ref) == set(prepared.child_keys)
+        assert set(bindings_by_selection_ref) == set(prepared_profiles_by_selection_ref)
+        assert set(bindings_by_selection_ref) == set(served_children_by_selection_ref)
+        for selection_ref, child in served_children_by_selection_ref.items():
+            binding = bindings_by_selection_ref[selection_ref]
+            child_problem_ref = cycle_job_design_problem_ref(child.problem)
+            child_node_ref = "design-problem://" + child_problem_ref.removeprefix("sha256:")
+            assert binding["node_ref"] == child_node_ref
+            assert binding["design_problem_ref"] == child_problem_ref
+            assert binding["source_result_ref"] == child.source_result_ref
+            assert binding["source_atom_refs"] == sorted(str(ref) for ref in child.source_atom_refs)
+            assert binding["semantic_ref"] == child.semantic_ref
+            assert (
+                binding["profile_id"]
+                == prepared_profiles_by_selection_ref[selection_ref].profile_id
+            )
+            assert (
+                generic_n4_served_replay._original_second_capture_child_group(child)
+                == prepared_groups_by_selection_ref[selection_ref]
+            )
+        child_node_refs = {
+            "design-problem://"
+            + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
+            for child in served_children_by_selection_ref.values()
+        }
+        assert len(child_node_refs) == 3
         child_rows_before = [row for row in candidate_before if row["node_ref"] in child_node_refs]
         assert len(child_rows_before) == 3
         assert {row["node_ref"] for row in child_rows_before} == child_node_refs
@@ -440,7 +581,6 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
         owner_artifact_id = str(source_leaf["n5_execution_ref"]["artifact_id"])
         store = service._artifact_store
         original_raw_manifest = store.get_raw_manifest_bytes
-        from polisyos.core.security.tenant_context import tenant_scope
         from polisyos.runtime.http.routes import runs as runs_route
         from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
 
@@ -917,15 +1057,18 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
         )
         assert not missing_owner_calls
 
-    root_ref = "design-problem://" + cycle_job_design_problem_ref(
-        prepared.recorded_problem
-    ).removeprefix("sha256:")
     assert projection["joint_parent_status"] == "resolved"
-    parent_rows = [
-        row for row in projection["joint_parent_observations"] if row["node_ref"] == root_ref
-    ]
+    parent_rows = projection["joint_parent_observations"]
     assert len(parent_rows) == 1
     parent = parent_rows[0]
+    assert parent["node_ref"] == served_root_node_ref
+    root_nodes = tuple(
+        node for node in compiled.recursive_run.nodes if node.node_ref == served_root_node_ref
+    )
+    assert len(root_nodes) == 1
+    (served_root_node,) = root_nodes
+    assert served_root_node.joint_candidate_selection is not None
+    assert set(served_root_node.joint_candidate_selection.child_node_refs) == child_node_refs
     evidence = parent["n5_interaction_evidence"]
     assert len(parent["atom_ids"]) == 3
     assert len(evidence["interaction_terms"]) == 3
@@ -966,7 +1109,7 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
     assert evidence["numeric_interaction_basis"] == "finite_checked_model_point_estimate_only"
 
     expected_seeds = [prepared.root_profile.n5.seed, prepared.root_profile.n5.seed + 1]
-    outcome = prepared.recorded_problem.outcome_of_interest.target_variable
+    outcome = compiled.design_problem.outcome_of_interest.target_variable
     baseline = float(prepared.root_profile.n5.baseline_state[outcome])
     assert parent["replication_seeds"] == expected_seeds
     assert evidence["interaction_sampling_status"] == "estimated"

@@ -10619,18 +10619,18 @@
           ],
           "full_route_result": "Three actual FAILs before N5: first two fixture tenant mismatch, third N4 recording lacks formalizer stage. Canonical fixture identity is aligned; existing source-derived synthetic-settled multi-stage provider is now explicitly selected for this test only. Latest full route remains UNRUN.",
           "independent_review": "CYC04 Luna source/owner/span review GO; Root owns checkpoint, not a new numerical PASS.",
-          "latest_output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cubic-served-native-r7/",
+          "latest_output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cubic-served-native-r8/",
           "latest_observed": {
             "PASS": 0,
             "FAIL": 1,
             "ERROR": 0,
             "SKIP": 0
           },
-          "latest_seconds": 79.278313,
-          "latest_peak_rss_bytes": 2006335488,
+          "latest_seconds": 172.377734,
+          "latest_peak_rss_bytes": 1873068032,
           "latest_named_inputs": 46,
           "latest_inputs_unchanged": true,
-          "latest_state": "Three actual served children complete N5; full test FAIL because oracle used preflight node IDs. Oracle now binds the fresh GET persisted three distinct child_profile_bindings, exact selected keys and resolved N5 joins. Parent missing-coupling authority block preserved. Independent material review GO; corrected whole route UNRUN. Numerical kernel is controlled in this orchestration fixture; independent native cubic test remains separate."
+          "latest_state": "All child/removal assertions preceding the parent check pass, actual joint_parent_status resolved; full selector FAIL on another stale preflight root ID. Class repair now independently reloads durable compiled root and persisted N4 source, derives all3 actual children and checks complete lineage/binding denominator. Independent Luna material review GO; corrected full route UNRUN. Controlled synthetic kernel and missing-coupling authority block preserved."
         },
         "annual_gdp_holdout_current_preparation": {
           "files": [
@@ -10642,17 +10642,17 @@
             "policy-engine/_cache/e02/lane01-gdp-current-native-r2/"
           ],
           "observed": "Two initial FAIL/FAIL invocations stop on import/fixture-schema and oracle-shape mistakes before positive N5. Wrong-year production refusal was correct in r2; test now asserts its exact code.",
-          "latest_state": "Source join now admitted; negative unprepared execution reaches actual WDI consumer and refuses legacy route shape. Fixture now enables existing source-semantic emission before persist_wdi_route, producing the existing typed L1 availability-gap contract. No product exception or authority change; corrected whole route UNRUN.",
+          "latest_state": "Typed L1 route now reaches real acquisition, but Catalog construction leaked fixture connector methods returning SimpleNamespace into WDI validation. Repair construction-only patch lifetime in the canonical published-Catalog test helper; no product schema/gate bypass. Corrected whole route UNRUN.",
           "independent_review": "Luna numerical/state/precision reviews and Sol import/constructor audit; corrected latest fixture has not run.",
-          "latest_output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-gdp-resource-native-r8/",
+          "latest_output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-gdp-resource-native-r9/",
           "latest_observed": {
             "PASS": 1,
             "FAIL": 1,
             "ERROR": 0,
             "SKIP": 0
           },
-          "latest_seconds": 49.71443,
-          "latest_peak_rss_bytes": 1696514048,
+          "latest_seconds": 50.481352,
+          "latest_peak_rss_bytes": 1604386816,
           "latest_named_inputs": 39,
           "latest_inputs_unchanged": true
         },
@@ -10852,13 +10852,66 @@
           "vitest_PASS": 270,
           "scope": "Synthetic C41 DTO and Zod/Overview fixtures: root selected/N5 join remains visible without child family; pending N8/value refs/body unavailable and first candidate-local refusal remain explicit. Shape/render coverage only, not producer provenance.",
           "independent_review": "Luna material re-review GO after correcting TS pending-N8 mismatch. Root read actual JUnit0fail/0error.",
-          "limitations": "Initial Python fixture-failure bytes were overwritten by its author in the same output directory; only final deciding output remains. No actual served root producer PASS yet."
+          "limitations": "Initial Python fixture-failure bytes were overwritten by its author in the same output directory; only final deciding output remains. No actual served root producer PASS yet.",
+          "typecheck": "Initial normal prepush blocked on dynamic fixture inferred keys; one annotation-only forward fix7860fe8 preserves unknown-JSON boundary. Independent Luna GO, explicit dashboard three-project TSC and normal prepush TSC PASS. Author remote ref readback equals7860fe8; no main/integration promotion."
         },
         "installed_runtime_probe_preparation": {
           "file": "tests/unit/remediation/test_req_01_installed.py",
           "status": "PREPARED_UNRUN",
           "scope": "Extend maintained offline no-deps outside-checkout -S wheel probe with12 actual runtime imports and shared fallback predicate identity; retain retired-name, no-source-origin and missing-family controls. Reuse existing dependencies; no LANE12/DA06 claim.",
           "independent_review": "Luna GO; no build/install/runtime performed. Run once after relevant source freeze."
+        },
+        "candidate_experiment_retained_get_profile_current": {
+          "source_commit": "7860fe8b5e096f597ad39cf1850b89bb56828de9",
+          "source_tree": "76faeaf7206121e7042bce342d752cdb51813812",
+          "fixture_source": "Retained R6 native source60647b70; requested/executing generation1 only.",
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-r6-readonly-get-profile-7860-r4/",
+          "classification": "COMPLETED_READ_ONLY_MEASUREMENT",
+          "semantic_result": "GET in_progress/unknown; not new acquisition/N5 or terminal qualification.",
+          "GET_wall_seconds": 25.084,
+          "wrapper_wall_seconds": 38.497,
+          "peak_rss_bytes": 1520271360,
+          "named_inputs": 12,
+          "inputs_unchanged": true,
+          "measurements": "Six actual source re-resolutions24.87s; configured report/cycle verification17.14s cumulative. Three nested reopenings inside phase-owner/history verification duplicate the same current-read origin.",
+          "guards": "Zero worker/POST/N5/network/WDI calls; CAS697file stats, SQLite main/logical rows, ledger and issuer inputs unchanged. Zero-byte WAL unchanged; SHM removed at close.",
+          "limitations": "Earlier attempts1–3 were pre-GET harness errors, not PASS. Optional policy readback after leaving access scope returned dependency-unavailable; actual GET/fold completed.",
+          "next": "Reuse the same verified origin through existing phase-owner/provider history seam; keep both final source fences, all SQL head/profile reads and fresh PA2 signer/CAS/event proof. No global authority cache."
+        },
+        "generic_root_lifecycle_current_preparation": {
+          "status": "IMPLEMENTED_SOURCE_REVIEW_GO_RUNTIME_UNRUN",
+          "base_commit": "7860fe8b5e096f597ad39cf1850b89bb56828de9",
+          "scope": "Root-only actual prefetched N4 and typed candidate-local fallback; same client on later cycles; explicit V5 source replay before root N4; reissued current context/lease checks across leaves and parent joint; complete selected-registry SKG source role distinct from readiness metadata and DataForge binding.",
+          "independent_review": "Terra GO on six canonical source owners and material issued-scope guard; no runtime PASS inferred.",
+          "prepared_checks": "40 exact unit cases plus genuine served fallback with post-N4 temporal removal and independent numerical oracle. Served test is not a unit-wave dependency.",
+          "retained_reds": "Unit R5 23PASS/2FAIL identified actual boundary producer selecting readiness manifest as SKG; canonical readonly selector probe established exact selected JSON path. Earlier Catalog DI repairs did not resolve that product cause."
+        },
+        "catalog_fixture_connector_lifetime_current": {
+          "output": "policy-engine/_cache/e02/lane01-catalog-edge-lifecycle-r2/",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 15.169453,
+          "peak_rss_bytes": 1544503296,
+          "named_inputs": 21,
+          "inputs_unchanged": true,
+          "scope": "Canonical Catalog construction temporarily patches12 class methods and one WVS facade binding, then restores every edge on success/error; profile registry lifetime remains caller-owned. Actual per-ingest connector sessions close; no retained registry instance captures fake fetches. Failure-path control establishes exact restoration.",
+          "independent_review": "Luna GO; complete actual result read by Root. R1 dynamic-facade identity failure preserved.",
+          "limitations": "GDP success path still UNRUN after repair; fixture server startup failure ordering outside the existing try remains outside this control."
+        },
+        "candidate_experiment_source_reuse_current_preparation": {
+          "status": "IMPLEMENTED_SOURCE_REVIEW_GO_RUNTIME_UNRUN",
+          "scope": "Same-read origin reuse only in private in-flight outcome fold with both final source/head fences. Public head verifier and standalone terminal-history readers still replay source; later phase prefixes derive from actual verified terminal histories. PA2 signer/CAS/event proof remains fresh.",
+          "independent_review": "Terra material GO; profile, PA2 removal and prefix error controls corrected before execution. Actual performance gain and complete worker impact not established."
+        },
+        "candidate_experiment_historical_frontier_remaining": {
+          "status": "INTERNAL_SOURCE_REPAIR_IN_PROGRESS",
+          "source": "acquisition_evaluation_history.py committed history frontier comparison; static review, not runtime-reproduced yet.",
+          "issue": "Historical committed terminal currently requires its frontier_after equal current frontier, conflicting with successful later generations including retained evaluation revision+1.",
+          "next": "Reconcile exact immutable per-head frontier before/after through verified generation chain to current selected frontier; preserve head/current-frontier concurrency fences. No production inputs missing; full multigeneration launch waits for this class repair."
         }
       },
       "independent_component_reviews": {

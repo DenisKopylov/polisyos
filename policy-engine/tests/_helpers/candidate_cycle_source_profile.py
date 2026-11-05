@@ -12,9 +12,9 @@ import hashlib
 import json
 from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import duckdb
 import pytest
@@ -86,6 +86,9 @@ from polisyos.runtime.quality.substrate_registry import (
 )
 from polisyos.runtime.quality.world_model_record import WorldModelRecord
 from polisyos.scientist.methods.autotune import ChampionRegistry
+
+if TYPE_CHECKING:
+    from polisyos.runtime.http.services.control_registry_providers import ControlRegistryProviders
 
 _PROFILE_SELECTION_KEY = "cycle_substrate_source_profile"
 _REQUIRED_N5_HINTS: dict[str, Any] = {
@@ -685,6 +688,47 @@ def build_candidate_cycle_catalog_serving_source(
     ):
         raise AssertionError("candidate_catalog_owner_selection_readback_mismatch")
     return selection, source
+
+
+@contextmanager
+def candidate_cycle_catalog_registry_providers(
+    selection: CatalogServingSourceSelection,
+    source: CatalogServingSourcePaths,
+    *,
+    providers: ControlRegistryProviders | None = None,
+) -> Iterator[ControlRegistryProviders]:
+    """Bind the actual selected Catalog graph before runtime composition.
+
+    Callers may preserve their other existing registry providers. The graph is
+    test-owned and remains open until the consuming runtime has shut down.
+    """
+    from polisyos.data_forge.read_api.catalog import DatasetCatalogGraph
+    from polisyos.runtime.http.services.control_registry_providers import (
+        resolve_control_registry_providers,
+    )
+    from polisyos.runtime.quality.substrate_registry import require_catalog_serving_graph_binding
+
+    graph = DatasetCatalogGraph(
+        source.database_path, source.index_dir, overlay_path=source.overlay_path
+    )
+    try:
+        require_catalog_serving_graph_binding(graph, source)
+        if providers is None:
+            providers = resolve_control_registry_providers(
+                gy_catalog_graph=graph,
+                catalog_source_selection=selection,
+                catalog_run_profile=selection.catalog_run_profile,
+            )
+        else:
+            providers = replace(
+                providers,
+                gy_catalog_graph=graph,
+                catalog_source_selection=selection,
+                catalog_run_profile=selection.catalog_run_profile,
+            )
+        yield providers
+    finally:
+        graph.close()
 
 
 def candidate_cycle_catalog_source_readback(database_path: Path) -> dict[str, Any]:

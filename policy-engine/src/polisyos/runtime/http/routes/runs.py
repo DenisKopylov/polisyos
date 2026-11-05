@@ -4479,7 +4479,14 @@ def _generic_cycle_simulation_projection(
                 limitation_code="recursive_capacity_historical_verification_not_established",
             )
     n6_history_fields = _generic_n6_cycle_history_fields(compiled.recursive_run)
-    if compiled.generic_n4_child_profile_status != "resolved":
+    root_only = (
+        compiled.generic_cycle_simulation_handoff is not None
+        and compiled.generic_cycle_simulation_handoff.n4_child_profile_family_ref is None
+        and compiled.n4_child_profile_set_ref is None
+        and compiled.generic_n4_child_profile_status == "not_established"
+        and compiled.n4_recursive_source_result_status == "generated"
+    )
+    if compiled.generic_n4_child_profile_status != "resolved" and not root_only:
         if compiled.n4_credal_source_attempt_ref is not None:
             attempt_ref = compiled.n4_credal_source_attempt_ref
             source_ref = compiled.n4_recursive_source_ref
@@ -4669,12 +4676,17 @@ def _generic_cycle_simulation_projection(
     source_ref = compiled.n4_recursive_source_ref
     if (
         parent_handoff is None
-        or set_ref is None
+        or (set_ref is None and not root_only)
         or source_ref is None
         or compiled.n4_recursive_source_job_id is None
         or compiled.n4_recursive_source_run_id is None
         or compiled.n4_recursive_source_tenant_id != tenant_id
         or compiled.n4_recursive_source_cell_id != cell_id
+        or parent_handoff.job_id != compiled.n4_recursive_source_job_id
+        or parent_handoff.run_id != compiled.n4_recursive_source_run_id
+        or parent_handoff.tenant_id != tenant_id
+        or parent_handoff.cell_id != cell_id
+        or parent_handoff.profile.profile_id != compiled.n4_recursive_source_profile_config_ref
         or parent_handoff.context_job_ref != compiled.n4_recursive_source_context_job_ref
         or parent_handoff.profile.profile_selection_kind != "problem"
         or parent_handoff.profile.profile_selection_ref
@@ -4715,23 +4727,6 @@ def _generic_cycle_simulation_projection(
         generic_admission_owner=generic_owner,
     )
     try:
-        family = history_owner.load_n4_child_profile_set(
-            set_ref,
-            expected_job_id=parent_handoff.job_id,
-            expected_run_id=parent_handoff.run_id,
-            expected_tenant_id=tenant_id,
-            expected_cell_id=cell_id,
-            expected_parent_handoff=parent_handoff,
-            source_repository=source_repository,
-        )
-        if (
-            family.source_ref != source_ref
-            or family.parent_problem != compiled.design_problem
-            or family.parent_problem_ref != compiled.design_problem_ref
-            or family.n4_child_profile_family_ref != parent_handoff.n4_child_profile_family_ref
-            or family.authority_purpose != "cycle_input_candidate_only"
-        ):
-            raise ValueError("generic_n4_child_profile_set_compiled_binding_mismatch")
         parent_context = context_owner.resolve_historical_job_artifact(
             parent_handoff.context_job_ref,
             problem=compiled.design_problem,
@@ -4750,62 +4745,115 @@ def _generic_cycle_simulation_projection(
             tenant_id=tenant_id,
             cell_id=cell_id,
         )
-        child_rows = {row.node_ref: row for row in family.children}
-        if len(child_rows) != len(family.children):
-            raise ValueError("generic_child_profile_set_duplicate_node")
-        source = source_repository.load(
-            family.source_ref,
-            run_id=family.source_run_id,
-            expected_run_id=family.run_id,
-            expected_job_id=family.job_id,
-            expected_tenant_id=family.tenant_id,
-            expected_cell_id=family.cell_id,
-            context_job_ref=family.parent_handoff.context_job_ref,
-            profile_ref=family.parent_handoff.profile_ref,
-            n4_child_profile_family_ref=family.n4_child_profile_family_ref,
-        )
-        derived = derive_n4_candidate_child_problems(
-            family.parent_problem,
-            source.generation_result,
-            model_id=source.generation_result.model_id,
-        )
-        # ``load_n4_child_profile_set`` already derives and replays the exact source
-        # children. This second set comparison prevents compiled graph rows from
-        # becoming the source of their own denominator.
-        expected_child_nodes = {
-            "design-problem://"
-            + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
-            for child in derived
-        }
-        root_node_ref = "design-problem://" + cycle_job_design_problem_ref(
-            compiled.design_problem
-        ).removeprefix("sha256:")
-        if set(child_rows) != expected_child_nodes:
-            raise ValueError("generic_child_profile_set_source_denominator_mismatch")
-        nodes = tuple(compiled.recursive_run.nodes)
-        if len({node.node_ref for node in nodes}) != len(nodes):
-            raise ValueError("generic_recursive_graph_duplicate_node")
-        _require_generic_recursive_root_child_denominator(
-            nodes=nodes,
-            root_node_ref=root_node_ref,
-            expected_child_nodes=expected_child_nodes,
-        )
-        resolved_child_bindings = tuple(
-            RunGenericCycleSimulationChildProfileBinding(
-                node_ref=row.node_ref,
-                design_problem_ref=cycle_job_design_problem_ref(row.problem),
-                source_ref=row.source_ref,
-                source_result_ref=row.source_result_ref,
-                source_atom_refs=row.source_atom_refs,
-                semantic_ref=row.semantic_ref,
-                context_job_ref=row.handoff.context_job_ref,
-                profile_ref=row.handoff.profile_ref,
-                profile_id=row.handoff.profile.profile_id,
-                profile_selection_ref=row.handoff.profile.profile_selection_ref,
-                historical_binding_status="resolved",
+        if root_only:
+            root_node_ref = "design-problem://" + cycle_job_design_problem_ref(
+                compiled.design_problem
+            ).removeprefix("sha256:")
+            nodes = tuple(compiled.recursive_run.nodes)
+            if (
+                len(nodes) != 1
+                or not isinstance(nodes[0], RecursiveCycleNode)
+                or nodes[0].node_ref != root_node_ref
+                or nodes[0].parent_ref is not None
+                or nodes[0].child_refs
+                or nodes[0].leaf_context_ref is not None
+            ):
+                raise ValueError("generic_root_leaf_denominator_mismatch")
+            source = source_repository.load(
+                source_ref,
+                run_id=compiled.n4_recursive_source_run_id,
+                expected_run_id=parent_handoff.run_id,
+                expected_job_id=parent_handoff.job_id,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+                context_job_ref=parent_handoff.context_job_ref,
+                profile_ref=parent_handoff.profile_ref,
+                n4_child_profile_family_ref=None,
             )
-            for row in family.children
-        )
+            if (
+                source.problem != compiled.design_problem
+                or source.cycle_index != 0
+                or source.cycle_substrate_context != parent_handoff.context
+                or source.generation_result.status != "generated"
+            ):
+                raise ValueError("generic_root_source_binding_mismatch")
+            child_rows = {}
+            expected_child_nodes = {root_node_ref}
+            resolved_child_bindings = ()
+        else:
+            family = history_owner.load_n4_child_profile_set(
+                set_ref,
+                expected_job_id=parent_handoff.job_id,
+                expected_run_id=parent_handoff.run_id,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+                expected_parent_handoff=parent_handoff,
+                source_repository=source_repository,
+            )
+            if (
+                family.source_ref != source_ref
+                or family.parent_problem != compiled.design_problem
+                or family.parent_problem_ref != compiled.design_problem_ref
+                or family.n4_child_profile_family_ref != parent_handoff.n4_child_profile_family_ref
+                or family.authority_purpose != "cycle_input_candidate_only"
+            ):
+                raise ValueError("generic_n4_child_profile_set_compiled_binding_mismatch")
+            child_rows = {row.node_ref: row for row in family.children}
+            if len(child_rows) != len(family.children):
+                raise ValueError("generic_child_profile_set_duplicate_node")
+            source = source_repository.load(
+                family.source_ref,
+                run_id=family.source_run_id,
+                expected_run_id=parent_handoff.run_id,
+                expected_job_id=parent_handoff.job_id,
+                expected_tenant_id=parent_handoff.tenant_id,
+                expected_cell_id=parent_handoff.cell_id,
+                context_job_ref=family.parent_handoff.context_job_ref,
+                profile_ref=family.parent_handoff.profile_ref,
+                n4_child_profile_family_ref=parent_handoff.n4_child_profile_family_ref,
+            )
+            derived = derive_n4_candidate_child_problems(
+                family.parent_problem,
+                source.generation_result,
+                model_id=source.generation_result.model_id,
+            )
+            # ``load_n4_child_profile_set`` already derives and replays the exact source
+            # children. This second set comparison prevents compiled graph rows from
+            # becoming the source of their own denominator.
+            expected_child_nodes = {
+                "design-problem://"
+                + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
+                for child in derived
+            }
+            root_node_ref = "design-problem://" + cycle_job_design_problem_ref(
+                compiled.design_problem
+            ).removeprefix("sha256:")
+            if set(child_rows) != expected_child_nodes:
+                raise ValueError("generic_child_profile_set_source_denominator_mismatch")
+            nodes = tuple(compiled.recursive_run.nodes)
+            if len({node.node_ref for node in nodes}) != len(nodes):
+                raise ValueError("generic_recursive_graph_duplicate_node")
+            _require_generic_recursive_root_child_denominator(
+                nodes=nodes,
+                root_node_ref=root_node_ref,
+                expected_child_nodes=expected_child_nodes,
+            )
+            resolved_child_bindings = tuple(
+                RunGenericCycleSimulationChildProfileBinding(
+                    node_ref=row.node_ref,
+                    design_problem_ref=cycle_job_design_problem_ref(row.problem),
+                    source_ref=row.source_ref,
+                    source_result_ref=row.source_result_ref,
+                    source_atom_refs=row.source_atom_refs,
+                    semantic_ref=row.semantic_ref,
+                    context_job_ref=row.handoff.context_job_ref,
+                    profile_ref=row.handoff.profile_ref,
+                    profile_id=row.handoff.profile.profile_id,
+                    profile_selection_ref=row.handoff.profile.profile_selection_ref,
+                    historical_binding_status="resolved",
+                )
+                for row in family.children
+            )
     except CanonicalProfileRefusalError:
         raise
     except (OSError, RuntimeDependencyError, RuntimeError, TypeError, ValueError) as exc:
@@ -4861,10 +4909,10 @@ def _generic_cycle_simulation_projection(
                 node.cycle_run,
                 context_owner=context_owner,
                 initial_problem=initial_problem,
-                expected_job_id=family.job_id,
-                expected_run_id=family.run_id,
-                expected_tenant_id=family.tenant_id,
-                expected_cell_id=family.cell_id,
+                expected_job_id=parent_handoff.job_id,
+                expected_run_id=parent_handoff.run_id,
+                expected_tenant_id=parent_handoff.tenant_id,
+                expected_cell_id=parent_handoff.cell_id,
             )
             context_history_by_node[node.node_ref] = history
         rows, limitation = _candidate_evaluation_attempt_projection(
@@ -4882,8 +4930,11 @@ def _generic_cycle_simulation_projection(
                 # siblings while preserving observations already replayed.
                 n5_limitation = "generic_n5_sibling_checkpoint_not_established"
                 continue
-            binding = child_rows[node_ref]
-            child_source_run_id = _generation_source_run_id(binding.problem)
+            binding = child_rows.get(node_ref)
+            binding_problem = compiled.design_problem if root_only else binding.problem
+            binding_handoff = parent_handoff if root_only else binding.handoff
+            binding_selection = None if root_only else binding.selection
+            child_source_run_id = _generation_source_run_id(binding_problem)
             if node.cycle_run.run_id != child_source_run_id:
                 raise ValueError("generic_n5_child_source_run_identity_mismatch")
             history_projection = context_history_by_node.get(node_ref)
@@ -4891,11 +4942,11 @@ def _generic_cycle_simulation_projection(
                 history_projection = resolve_generation_cycle_run_context_history(
                     node.cycle_run,
                     context_owner=context_owner,
-                    initial_problem=binding.problem,
-                    expected_job_id=family.job_id,
-                    expected_run_id=family.run_id,
-                    expected_tenant_id=family.tenant_id,
-                    expected_cell_id=family.cell_id,
+                    initial_problem=binding_problem,
+                    expected_job_id=parent_handoff.job_id,
+                    expected_run_id=parent_handoff.run_id,
+                    expected_tenant_id=parent_handoff.tenant_id,
+                    expected_cell_id=parent_handoff.cell_id,
                 )
             if history_projection.status != "resolved":
                 n5_limitation = "generation_cycle_context_history_not_established"
@@ -4916,7 +4967,12 @@ def _generic_cycle_simulation_projection(
                 if not any(value is not None for value in generic_refs):
                     n5_limitation = "generic_n5_observation_not_emitted"
                     continue
-                if any(value is None for index, value in enumerate(generic_refs) if index != 6):
+                optional_ref_indices = {6, 3, 4} if root_only else {6}
+                if any(
+                    value is None
+                    for index, value in enumerate(generic_refs)
+                    if index not in optional_ref_indices
+                ):
                     raise ValueError("generic_n5_compiled_lineage_incomplete")
                 (
                     cycle_source_ref,
@@ -4933,40 +4989,49 @@ def _generic_cycle_simulation_projection(
                     raise ValueError("generic_n5_cycle_context_history_binding_missing")
                 if cycle.cycle_index == 0 and (
                     artifact_ref_identity_key(history_binding.context_job_ref)
-                    != artifact_ref_identity_key(binding.handoff.context_job_ref)
-                    or history_binding.context.content_hash != binding.handoff.context.content_hash
+                    != artifact_ref_identity_key(binding_handoff.context_job_ref)
+                    or history_binding.context.content_hash != binding_handoff.context.content_hash
                 ):
                     raise ValueError("generic_n5_cycle_initial_context_binding_mismatch")
                 if (
-                    cycle.design_problem_ref != cycle_job_design_problem_ref(binding.problem)
+                    cycle.design_problem_ref != cycle_job_design_problem_ref(binding_problem)
                     or cycle_context_ref is None
                     or artifact_ref_identity_key(cycle_context_ref)
                     != artifact_ref_identity_key(history_binding.context_job_ref)
-                    or cycle_profile_ref != binding.handoff.profile_ref
-                    or cycle_family_ref != family.n4_child_profile_family_ref
+                    or cycle_profile_ref != binding_handoff.profile_ref
+                    or cycle_family_ref != parent_handoff.n4_child_profile_family_ref
                     or cycle_set_ref != set_ref
-                    or selection_ref != binding.selection.profile_selection_ref
+                    or selection_ref
+                    != (
+                        binding_handoff.profile.profile_selection_ref
+                        if root_only
+                        else binding_selection.profile_selection_ref
+                    )
                 ):
                     raise ValueError("generic_n5_compiled_child_binding_mismatch")
                 if cycle.design_problem_basis_ref != cycle_job_design_problem_ref(
                     history_binding.problem
                 ):
                     raise ValueError("generic_n5_cycle_problem_basis_mismatch")
-                expected_child_selection = generic_owner._rebind_child_selection_for_problem(
-                    child_selection=binding.selection,
-                    problem=history_binding.problem,
-                    profile=binding.handoff.profile,
+                expected_child_selection = (
+                    None
+                    if root_only
+                    else generic_owner._rebind_child_selection_for_problem(
+                        child_selection=binding_selection,
+                        problem=history_binding.problem,
+                        profile=binding_handoff.profile,
+                    )
                 )
                 cycle_source = source_repository.load(
                     cycle_source_ref,
                     run_id=child_source_run_id,
-                    expected_run_id=family.run_id,
-                    expected_job_id=family.job_id,
-                    expected_tenant_id=family.tenant_id,
-                    expected_cell_id=family.cell_id,
+                    expected_run_id=parent_handoff.run_id,
+                    expected_job_id=parent_handoff.job_id,
+                    expected_tenant_id=parent_handoff.tenant_id,
+                    expected_cell_id=parent_handoff.cell_id,
                     context_job_ref=history_binding.context_job_ref,
                     profile_ref=cycle_profile_ref,
-                    n4_child_profile_family_ref=family.n4_child_profile_family_ref,
+                    n4_child_profile_family_ref=parent_handoff.n4_child_profile_family_ref,
                 )
                 if (
                     cycle_source.problem != history_binding.problem
@@ -4976,11 +5041,20 @@ def _generic_cycle_simulation_projection(
                     != history_binding.context.content_hash
                     or not generic_owner.context_matches_profile(
                         history_binding.context,
-                        binding.handoff.profile,
+                        binding_handoff.profile,
                         history_binding.problem,
                     )
                 ):
                     raise ValueError("generic_n5_cycle_source_context_history_mismatch")
+                if (
+                    root_only
+                    and cycle.cycle_index == 0
+                    and (
+                        cycle_source.generation_result != source.generation_result
+                        or cycle_source.trinity_bundle != source.trinity_bundle
+                    )
+                ):
+                    raise ValueError("generic_root_prefetched_source_mismatch")
                 source_candidates = tuple(
                     candidate
                     for candidate in cycle_source.generation_result.candidates
@@ -5004,11 +5078,11 @@ def _generic_cycle_simulation_projection(
                         status=simulation.status,
                         n4_source_ref=cycle_source_ref,
                         context_job_ref=history_binding.context_job_ref,
-                        profile_ref=binding.handoff.profile_ref,
-                        child_family_ref=family.n4_child_profile_family_ref,
+                        profile_ref=binding_handoff.profile_ref,
+                        child_family_ref=parent_handoff.n4_child_profile_family_ref,
                         child_set_ref=set_ref,
                         profile_selection_ref=selection_ref,
-                        profile=binding.handoff.profile,
+                        profile=binding_handoff.profile,
                         child_selection=expected_child_selection,
                         design_problem_ref=cycle.design_problem_basis_ref,
                         outcome_variable=outcome_variable,
@@ -5018,11 +5092,11 @@ def _generic_cycle_simulation_projection(
                         world_model_record_content_hash=(
                             history_binding.context.world_model_record.content_hash
                         ),
-                        job_id=family.job_id,
-                        run_id=family.run_id,
+                        job_id=parent_handoff.job_id,
+                        run_id=parent_handoff.run_id,
                         source_run_id=child_source_run_id,
-                        tenant_id=family.tenant_id,
-                        cell_id=family.cell_id,
+                        tenant_id=parent_handoff.tenant_id,
+                        cell_id=parent_handoff.cell_id,
                     ),
                 )
                 if join.code in {
@@ -5108,8 +5182,8 @@ def _generic_cycle_simulation_projection(
                             ),
                             n4_source_ref=cycle_source_ref,
                             context_job_ref=history_binding.context_job_ref,
-                            profile_ref=binding.handoff.profile_ref,
-                            child_profile_family_ref=family.n4_child_profile_family_ref,
+                            profile_ref=binding_handoff.profile_ref,
+                            child_profile_family_ref=parent_handoff.n4_child_profile_family_ref,
                             child_profile_set_ref=set_ref,
                             n5_input_ref=input_ref,
                             n5_execution_ref=execution_ref,
@@ -5299,8 +5373,8 @@ def _generic_cycle_simulation_projection(
                         simulation_result_body_limitation_code=result_body_limitation_code,
                         n4_source_ref=cycle_source_ref,
                         context_job_ref=history_binding.context_job_ref,
-                        profile_ref=binding.handoff.profile_ref,
-                        child_profile_family_ref=family.n4_child_profile_family_ref,
+                        profile_ref=binding_handoff.profile_ref,
+                        child_profile_family_ref=parent_handoff.n4_child_profile_family_ref,
                         child_profile_set_ref=set_ref,
                         n5_input_ref=input_ref,
                         n5_execution_ref=execution_ref,
@@ -5520,9 +5594,12 @@ def _generic_cycle_simulation_projection(
         parent_context_job_ref=parent_handoff.context_job_ref,
         parent_profile_ref=parent_handoff.profile_ref,
         parent_profile_id=parent_handoff.profile.profile_id,
-        child_profile_family_ref=family.n4_child_profile_family_ref,
+        child_profile_family_ref=parent_handoff.n4_child_profile_family_ref,
         child_profile_set_ref=set_ref,
-        child_profile_status="resolved",
+        child_profile_status="not_established" if root_only else "resolved",
+        child_profile_limitation_code=(
+            compiled.generic_n4_child_profile_limitation_code if root_only else None
+        ),
         child_profile_bindings=resolved_child_bindings,
         n5_observations=tuple(observations),
         candidate_evaluation_attempts=tuple(attempt_rows),

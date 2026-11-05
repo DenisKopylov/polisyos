@@ -535,7 +535,9 @@ def _patch_connector_edges(monkeypatch: MonkeyPatch) -> None:
         }
         for country, _iso3_code in _COUNTRIES
     ]
-    monkeypatch.setattr(core_sources_ingest, "_load_wvs_bulk_rows", lambda *_a, **_k: wvs_rows)
+    monkeypatch.setitem(
+        core_sources_ingest.__dict__, "_load_wvs_bulk_rows", lambda *_a, **_k: wvs_rows
+    )
 
 
 def _record(
@@ -868,6 +870,8 @@ def build_published_catalog_fixture(
     four required seed parents. Its results establish only fixture-scoped producer
     currentness and consumer behavior; they are not empirical or production claims.
     """
+    import pytest
+
     from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
     from polisyos.data_forge.domains.catalog.batch.core_sources_ingest import (
         run_core_sources_ingest,
@@ -903,6 +907,7 @@ def build_published_catalog_fixture(
         raise AssertionError(f"fixture server returned an invalid host/port: {address!r}")
     base_url = f"http://{host}:{port}"
     completed = False
+    connector_edge_patch = pytest.MonkeyPatch()
     try:
         selected_names = _write_registry(tmp_path / "registry.yaml", base_url, source_snapshot)
         registry_payload = yaml.safe_load((tmp_path / "registry.yaml").read_text(encoding="utf-8"))
@@ -915,7 +920,7 @@ def build_published_catalog_fixture(
         profile_registry = _install_fixture_profiles(
             monkeypatch, excluded_profile_input=excluded_profile_input
         )
-        _patch_connector_edges(monkeypatch)
+        _patch_connector_edges(connector_edge_patch)
         config = DatasetBatchConfig(
             snapshot_root=tmp_path / "snapshot",
             registry_path=tmp_path / "registry.yaml",
@@ -1122,7 +1127,10 @@ def build_published_catalog_fixture(
             http_server_thread=server_thread,
         )
     finally:
-        if not completed:
-            server.shutdown()
-            server.server_close()
-            server_thread.join(timeout=2)
+        try:
+            connector_edge_patch.undo()
+        finally:
+            if not completed:
+                server.shutdown()
+                server.server_close()
+                server_thread.join(timeout=2)

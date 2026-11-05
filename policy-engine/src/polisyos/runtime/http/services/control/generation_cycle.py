@@ -1655,6 +1655,32 @@ def _build_parent_joint_candidate_request(
     return selection, request
 
 
+def _generic_root_n4_generation_port(
+    *,
+    model_id: str,
+    llm_client: object | None,
+    repo_root: Path | None,
+    cycle_substrate_context: CycleSubstrateContext,
+    producer_run_id: str | None = None,
+    producer_settlement_store: BudgetMiddleware | None = None,
+    call_observer: Callable[[dict[str, object]], None] | None = None,
+    prefetched_organ_run: DesignGenerationOrganRun | None = None,
+) -> N4GenerationPort:
+    """Keep the same configured N4 producer when reusing its cycle-zero organ."""
+    from polisyos.runtime.quality.generation_cycle import N4GenerationPort
+
+    return N4GenerationPort(
+        model_id=model_id,
+        llm_client=llm_client,
+        repo_root=repo_root,
+        cycle_substrate_context=cycle_substrate_context,
+        producer_run_id=producer_run_id,
+        producer_settlement_store=producer_settlement_store,
+        call_observer=call_observer,
+        prefetched_organ_run=prefetched_organ_run,
+    )
+
+
 async def compile_and_run_recursive_generation_cycle(
     *,
     raw_request: str,
@@ -1983,6 +2009,7 @@ async def compile_and_run_recursive_generation_cycle(
     n4_child_profile_set_ref: ArtifactRef | None = None
     n4_credal_source_attempt_ref: ArtifactRef | None = None
     generic_child_handoffs_by_node: dict[str, GenericCycleSimulationContextHandoffV1] = {}
+    prefetched_generic_root_organ: DesignGenerationOrganRun | None = None
     planned_child_handoffs: dict[str, CandidateSimulationContextHandoff] = {}
 
     def _resolve_candidate_context() -> None:
@@ -2267,7 +2294,51 @@ async def compile_and_run_recursive_generation_cycle(
             )
 
             root_handoff = generic_cycle_simulation_handoff
-            root_source_port = N4GenerationPort(
+            if candidate_source_profile_selection is not None:
+                from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+
+                preparation_controller = GenerationCycleController(
+                    generation_port=_generic_root_n4_generation_port(
+                        model_id=model_name,
+                        llm_client=root_n4_generation_client,
+                        repo_root=repo_root,
+                        cycle_substrate_context=root_handoff.context,
+                    ),
+                    model_id=model_name,
+                    repo_root=repo_root,
+                    catalog_run_profile=catalog_run_profile,
+                    catalog_serving_source=catalog_serving_source,
+                    cycle_substrate_context=root_handoff.context,
+                    candidate_cycle_context_artifact_owner=(
+                        recursive_leaf_context_owner._context_owner
+                    ),
+                    candidate_cycle_verified_nl_job_scope=verified_nl_job_scope,
+                    physical_n5_budget_scope=physical_n5_budget_scope,
+                    generic_cycle_simulation_admission_owner=(
+                        generic_cycle_simulation_admission_owner
+                    ),
+                    generic_cycle_simulation_handoff=root_handoff,
+                    generic_cycle_simulation_currentness_resolver=(
+                        generic_cycle_simulation_currentness_resolver
+                    ),
+                    promotion_runtime=promotion_runtime,
+                    artifact_store=promotion_runtime.store,
+                    eval_safety_verifier=eval_safety_verifier,
+                    _producer_budget_reconciler=_producer_budget_reconciler,
+                )
+                preparation_controller._ensure_selected_candidate_source_profile(problem)
+                generic_cycle_simulation_handoff = root_handoff = (
+                    preparation_controller._generic_cycle_simulation_handoff
+                )
+                cycle_substrate_context = root_handoff.context
+                if (
+                    preparation_controller._generic_cycle_simulation_currentness_resolver()
+                    is not True
+                ):
+                    raise DesignProblemAuthorityError(
+                        "generic_cycle_simulation_source_profile_not_current"
+                    )
+            root_source_port = _generic_root_n4_generation_port(
                 model_id=model_name,
                 llm_client=root_n4_generation_client,
                 repo_root=repo_root,
@@ -2360,6 +2431,7 @@ async def compile_and_run_recursive_generation_cycle(
                     "generic_n4_source_generation_not_complete"
                 )
             elif root_handoff.n4_child_profile_family_ref is None:
+                prefetched_generic_root_organ = root_organ
                 generic_n4_child_profile_status = "not_established"
                 generic_n4_child_profile_limitation_code = (
                     "generic_n4_child_profile_family_not_established"
@@ -2738,6 +2810,21 @@ async def compile_and_run_recursive_generation_cycle(
                 call_observer=_observe_n4_call,
             )
         }
+    if prefetched_generic_root_organ is not None:
+        # The root is a generic leaf when no child family was configured. Reuse
+        # its actual N4 organ; fallback among its members never regenerates N4.
+        generation_ports_by_node = {
+            root_ref: _generic_root_n4_generation_port(
+                model_id=model_name,
+                llm_client=root_n4_generation_client,
+                repo_root=repo_root,
+                cycle_substrate_context=cycle_substrate_context,
+                producer_run_id=producer_run_id,
+                producer_settlement_store=producer_settlement_store,
+                call_observer=_observe_n4_call,
+                prefetched_organ_run=prefetched_generic_root_organ,
+            )
+        }
     recursive_graph = derive_recursive_design_graph(
         design_ref=root_ref,
         module_refs=tuple(problems_by_node or ()),
@@ -2817,6 +2904,13 @@ async def compile_and_run_recursive_generation_cycle(
         )
         parent_joint_requests = {root_ref: request}
         parent_joint_candidate_selections = {root_ref: selection}
+        selected_parent_currentness = (
+            recursive_leaf_context_owner.generic_root_currentness_resolver(
+                handoff=generic_cycle_simulation_handoff,
+                problem=problem,
+                currentness=generic_cycle_simulation_currentness_resolver,
+            )
+        )
         if joint_interaction_candidate_intent == "authored_joint_components.v1":
             from polisyos.runtime.http.services.control.temporal_scope import (
                 read_authored_joint_request_payload,
@@ -2829,7 +2923,7 @@ async def compile_and_run_recursive_generation_cycle(
             selected_ref = joint_interaction_request_payload_ref
             selected_digest = verified_nl_job_scope.intent_digest
             source_question = problem.nl_provenance.raw_request
-            live_resolver = generic_cycle_simulation_currentness_resolver
+            live_resolver = selected_parent_currentness
 
             def authored_request_is_current() -> bool:
                 if live_resolver() is not True:
@@ -2850,9 +2944,7 @@ async def compile_and_run_recursive_generation_cycle(
 
             parent_joint_candidate_currentness = {root_ref: authored_request_is_current}
         else:
-            parent_joint_candidate_currentness = {
-                root_ref: generic_cycle_simulation_currentness_resolver
-            }
+            parent_joint_candidate_currentness = {root_ref: selected_parent_currentness}
     from polisyos.runtime.quality.generation_cycle import (
         _N4CandidateScenarioProposalOnlyError,
     )
@@ -2899,7 +2991,18 @@ async def compile_and_run_recursive_generation_cycle(
                 problems_by_node or (root_ref,), execution_intent
             ),
             leaf_context_owner=recursive_leaf_context_owner,
-            generic_simulation_handoffs_by_node=generic_handoffs_by_node,
+            generic_simulation_handoffs_by_node=generic_handoffs_by_node
+            or (
+                {root_ref: generic_cycle_simulation_handoff}
+                if prefetched_generic_root_organ is not None
+                else None
+            ),
+            generic_simulation_currentness_resolvers_by_node=(
+                {root_ref: generic_cycle_simulation_currentness_resolver}
+                if prefetched_generic_root_organ is not None
+                and generic_cycle_simulation_currentness_resolver is not None
+                else None
+            ),
             generic_n4_child_profile_set_ref=n4_child_profile_set_ref
             if generic_handoffs_by_node
             else None,

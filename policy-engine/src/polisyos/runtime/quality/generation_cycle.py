@@ -10354,9 +10354,24 @@ class GenerationCycleController:
         self._generic_cycle_simulation_admission_owner = generic_cycle_simulation_admission_owner
         self._generic_cycle_simulation_handoff = generic_cycle_simulation_handoff
         self._generic_cycle_simulation_child_selection = generic_cycle_simulation_child_selection
-        self._generic_cycle_simulation_currentness_resolver = (
+        self._generic_cycle_simulation_upstream_currentness_resolver = (
             generic_cycle_simulation_currentness_resolver
         )
+        self._generic_cycle_simulation_current_problem: DesignProblem | None = None
+        self._generic_cycle_simulation_currentness_resolver = (
+            self._require_current_generic_cycle_simulation_handoff
+            if generic_cycle_simulation_handoff is not None
+            else generic_cycle_simulation_currentness_resolver
+        )
+        if generic_cycle_simulation_handoff is not None and isinstance(
+            self._value_port, _DefaultSimulationBoundFoundryValuePort
+        ):
+            self._value_port = replace(
+                self._value_port,
+                generic_cycle_simulation_currentness_resolver=(
+                    self._generic_cycle_simulation_currentness_resolver
+                ),
+            )
         self._generic_n4_child_profile_set_ref = generic_n4_child_profile_set_ref
         if (
             candidate_simulation_handoff is not None
@@ -10636,6 +10651,7 @@ class GenerationCycleController:
             raise GenerationCycleError("generation_cycle_subject_binding_mismatch")
         run_id = _generation_source_run_id(problem)
         if self._generic_cycle_simulation_handoff is not None:
+            self._generic_cycle_simulation_current_problem = problem
             owner = self._generic_cycle_simulation_admission_owner
             handoff = self._generic_cycle_simulation_handoff
             try:
@@ -14259,6 +14275,53 @@ class GenerationCycleController:
         elif hasattr(self._value_port, "cycle_substrate_context"):
             self._set_cycle_context_consumer(self._value_port, "cycle_substrate_context", context)
 
+    def _require_current_generic_cycle_simulation_handoff(self) -> bool:
+        """Replay the current selected handoff under the original worker owner.
+
+        A root reissue replaces its selected context. Child callbacks also
+        retain their independently persisted parent-family/capsule fence.
+        """
+        handoff = self._generic_cycle_simulation_handoff
+        problem = self._generic_cycle_simulation_current_problem
+        owner = self._generic_cycle_simulation_admission_owner
+        context_owner = self._candidate_cycle_context_artifact_owner
+        scope = self._candidate_cycle_verified_nl_job_scope
+        if (
+            type(handoff) is not GenericCycleSimulationContextHandoffV1
+            or type(problem) is not DesignProblem
+            or type(owner) is not GenericCycleSimulationAdmissionOwner
+            or context_owner is None
+            or scope is None
+            or self._repo_root is None
+        ):
+            raise GenerationCycleError("generation_cycle_generic_current_binding_missing")
+        upstream = self._generic_cycle_simulation_upstream_currentness_resolver
+        if upstream is None or upstream() is not True:
+            raise GenerationCycleError("generation_cycle_generic_upstream_not_current")
+        resolved = owner.resolve_handoff(
+            handoff=handoff,
+            problem=problem,
+            verified_nl_job_scope=scope,
+            context_owner=context_owner,
+            repo_root=self._repo_root,
+            child_selection=self._generic_cycle_simulation_child_selection,
+        )
+        if (
+            handoff.profile.profile_selection_kind == "problem"
+            and handoff.n4_child_profile_family_ref is not None
+        ):
+            owner.resolve_child_profile_family(
+                handoff.n4_child_profile_family_ref,
+                parent_handoff=handoff,
+                parent_problem=problem,
+                verified_nl_job_scope=scope,
+                context_owner=context_owner,
+                repo_root=self._repo_root,
+            )
+        if resolved != handoff or upstream() is not True:
+            raise GenerationCycleError("generation_cycle_generic_handoff_not_current")
+        return True
+
     def _rebind_generic_cycle_simulation_for_problem(
         self,
         previous_problem: DesignProblem,
@@ -14313,8 +14376,11 @@ class GenerationCycleController:
                 "generation_cycle_generic_rebind_owner_refused",
                 str(getattr(exc, "code", None) or exc),
             ) from exc
-        self._generic_cycle_simulation_handoff = rebound_handoff
-        self._generic_cycle_simulation_child_selection = rebound_child_selection
+        (
+            self._generic_cycle_simulation_handoff,
+            self._generic_cycle_simulation_child_selection,
+            self._generic_cycle_simulation_current_problem,
+        ) = rebound_handoff, rebound_child_selection, problem
         if isinstance(self._value_port, _DefaultSimulationBoundFoundryValuePort):
             self._value_port = replace(
                 self._value_port,
@@ -15730,8 +15796,10 @@ class GenerationCycleController:
         from polisyos.runtime.quality.cycle_substrate import (
             CycleSubstrateContext,
             CycleSubstrateContextArtifactOwner,
+            CycleSubstrateContextJobArtifactV5,
             CycleSubstrateContextOwnerError,
             VerifiedNLJobScope,
+            candidate_cycle_substrate_source_profile_selection,
             cycle_job_design_problem_ref,
             cycle_job_profile_selection_ref,
             is_supported_cycle_substrate_context_job_artifact,
@@ -15814,6 +15882,19 @@ class GenerationCycleController:
         ):
             raise GenerationCycleError("n7_candidate_simulation_handoff_owner_readback_mismatch")
         try:
+            selected_recipe = candidate_cycle_substrate_source_profile_selection(problem)
+        except CycleSubstrateContextOwnerError as exc:
+            raise GenerationCycleError(
+                "n4_candidate_source_profile_selection_invalid", str(exc)
+            ) from exc
+        # Only the exact V5 owner read above replays the selected source recipe.
+        # A legacy artifact carrying a source_profile field is not that replay.
+        if (
+            selected_recipe is not None
+            and type(resolved_job) is not CycleSubstrateContextJobArtifactV5
+        ):
+            raise GenerationCycleError("n4_candidate_source_profile_handoff_recipe_not_established")
+        try:
             resolved_context = revalidate_cycle_substrate_context(resolved_job.context)
         except (TypeError, ValueError) as exc:
             raise GenerationCycleError(
@@ -15858,6 +15939,15 @@ class GenerationCycleController:
             revalidate_cycle_substrate_context,
         )
 
+        if (
+            self._generic_cycle_simulation_handoff is not None
+            and self._generic_cycle_simulation_current_problem is None
+        ):
+            if self._generic_cycle_simulation_handoff.context.design_problem_ref != _problem_ref(
+                problem
+            ):
+                raise GenerationCycleError("generation_cycle_generic_handoff_problem_mismatch")
+            self._generic_cycle_simulation_current_problem = problem
         try:
             selection = candidate_cycle_substrate_source_profile_selection(problem)
         except CycleSubstrateContextOwnerError as exc:
@@ -17711,6 +17801,7 @@ class GenerationCycleController:
                 candidate=candidate,
                 code=code,
                 detail=str(exc),
+                candidate_local_exception=exc,
             )
 
     def _generic_cycle_simulation_refusal(
@@ -17719,24 +17810,31 @@ class GenerationCycleController:
         candidate: object,
         code: str,
         detail: str | None = None,
+        candidate_local_exception: Exception | None = None,
     ) -> SimulationPortObservation:
         """Return a typed candidate-only N5 refusal without partial fake bindings."""
         candidate_id = _candidate_id(candidate)
         context = self._cycle_substrate_context
         world_hash = context.world_model_record.content_hash if context is not None else None
-        return SimulationPortObservation(
+        # The configured path owns the sole typed local-error whitelist and
+        # private issuer. Generic source/profile/lease failures remain shared.
+        refusal = self._candidate_scenario_refusal(
             candidate_id=candidate_id,
+            code=code,
             status="simulation_blocked",
-            authority_blockers=(code,),
-            diagnostics={
-                "port": "N5",
-                "reason": code,
-                "request_builder": "persisted_generic_cycle_profile",
-                "detail": detail,
-            },
-            k_world_ref_before=world_hash,
-            k_world_ref_after=world_hash,
-            world_model_record=(context.world_model_record if context is not None else None),
+            detail=detail,
+            candidate_local_exception=candidate_local_exception,
+        )
+        return refusal.model_copy(
+            update={
+                "diagnostics": {
+                    **refusal.diagnostics,
+                    "request_builder": "persisted_generic_cycle_profile",
+                },
+                "k_world_ref_before": world_hash,
+                "k_world_ref_after": world_hash,
+                "world_model_record": context.world_model_record if context is not None else None,
+            }
         )
 
     def _run_configured_candidate_scenario_n5(
@@ -20999,6 +21097,38 @@ def _build_boundary_world_model_record(
         ),
         f"substrate-source://{primary_entry.source_id}",
     )
+    # A root-bundle readiness registration describes inventory, not an SKG
+    # source. Prefer the actual-store registration emitted by the Catalog
+    # substrate owner, retaining explicit custom L2 priors only as candidate
+    # inputs when no actual-store registration was selected.
+    prior_entries = tuple(
+        entry
+        for entry in selected_entries
+        if entry.layer is SubstrateLayer.L2
+        and entry.coverage.coverage_kind == "l2.duckdb.real_store.table_coverage"
+    )
+    if not prior_entries:
+        prior_entries = tuple(
+            entry
+            for entry in selected_entries
+            if entry.layer is SubstrateLayer.L2
+            and entry.coverage.coverage_kind != "production_data_root_manifest.readiness"
+        )
+    if len(prior_entries) != 1:
+        raise WorldModelRecordError(
+            "boundary_skg_source_not_established"
+            if not prior_entries
+            else "boundary_skg_source_ambiguous"
+        )
+    prior_entry = prior_entries[0]
+    prior_source_ref = next(
+        (
+            str(ref)
+            for ref in (*prior_entry.provenance_refs, *prior_entry.authority_refs)
+            if str(ref).strip()
+        ),
+        f"substrate-source://{prior_entry.source_id}",
+    )
     selected_query_digest = gy_content_hash(
         {
             "registry_content_hash": registry.content_hash,
@@ -21081,9 +21211,9 @@ def _build_boundary_world_model_record(
             ),
         ),
         "skg_causal_prior_ref": SkgCausalPriorRef(
-            skg_snapshot_ref=primary_source_ref,
-            skg_version_id=primary_entry.data_version,
-            source_data_snapshot_id=primary_entry.source_snapshot_id,
+            skg_snapshot_ref=prior_source_ref,
+            skg_version_id=prior_entry.data_version,
+            source_data_snapshot_id=prior_entry.source_snapshot_id,
         ),
         "substrate_registry_ref": registry_ref,
         "policy_slot_map": slot_map,

@@ -291,6 +291,8 @@ async def test_candidate_local_refusal_retries_existing_grounded_candidate_with_
 ) -> None:
     """Controlled local refusal queues one real owner N5 candidate without regenerating."""
     from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.candidate_simulation import CandidateScenarioSetToRule
+    from polisyos.runtime.quality.intervention_substrate import candidate_scenario_set_to_value
 
     witness = _owner_program_graph_n5_witness(
         tmp_path,
@@ -373,6 +375,28 @@ async def test_candidate_local_refusal_retries_existing_grounded_candidate_with_
                         problem=witness.problem,
                         cycle_index=0,
                     )
+                if mode == "generic_local":
+                    try:
+                        candidate_scenario_set_to_value(
+                            CandidateScenarioSetToRule(
+                                operator_kind="grant",
+                                parameter_id="amount",
+                                target_world_slot="government_balance",
+                                unit_id="USD",
+                                minimum=0,
+                                maximum=1,
+                            ),
+                            operator_kind="grant",
+                            parameters={"amount": 2},
+                            linked_write_slots=("government_balance",),
+                        )
+                    except InterventionSubstrateError as exc:
+                        return controller._generic_cycle_simulation_refusal(
+                            candidate=candidate,
+                            code=exc.code,
+                            candidate_local_exception=exc,
+                        )
+                    raise AssertionError("actual domain owner unexpectedly admitted the value")
                 refusal = GenerationCycleController._candidate_scenario_refusal(
                     candidate_id=first_id,
                     code=(
@@ -414,9 +438,12 @@ async def test_candidate_local_refusal_retries_existing_grounded_candidate_with_
         return run, tuple(simulation_calls), tuple(owner_n5_calls), len(generation_calls)
 
     try:
-        local_result, local_calls, local_owner_n5_calls, local_generation_count = (
-            await run_case_async("local")
-        )
+        (
+            local_result,
+            local_calls,
+            local_owner_n5_calls,
+            local_generation_count,
+        ) = await run_case_async("local")
 
         assert local_generation_count == 1
         assert local_calls == (first_id, second_id)
@@ -458,9 +485,10 @@ async def test_candidate_local_refusal_retries_existing_grounded_candidate_with_
         served_run = type(local_result).model_validate(valid_wire)
         expected_candidate_occurrences = (first_id, second_id)
         assert served_run.cycles[0].candidate_ids == expected_candidate_occurrences
-        assert tuple(
-            summary.candidate_id for summary in served_run.candidate_summaries
-        ) == expected_candidate_occurrences
+        assert (
+            tuple(summary.candidate_id for summary in served_run.candidate_summaries)
+            == expected_candidate_occurrences
+        )
         assert served_run.cycles[0].selected_candidate_ref == second_id
         served_first = next(
             summary
@@ -533,6 +561,26 @@ async def test_candidate_local_refusal_retries_existing_grounded_candidate_with_
             for issue in inconsistent_issues
         )
 
+        generic_result, generic_calls, generic_n5_calls, generic_generations = await run_case_async(
+            "generic_local"
+        )
+        assert generic_generations == 1
+        assert generic_calls == (first_id, second_id)
+        assert generic_n5_calls == (second_id,)
+        assert generic_result.cycles[0].selected_candidate_ref == second_id
+        assert generic_result.cycles[0].simulation.status == "joint_simulated"
+        generic_failed = next(
+            summary
+            for summary in generic_result.candidate_summaries
+            if summary.candidate_id == first_id
+        )
+        assert generic_failed.evaluation_attempt is not None
+        assert generic_failed.evaluation_attempt.failure_stage == "n5"
+        assert generic_failed.evaluation_attempt.simulation.authority_blockers == (
+            "candidate_scenario_value_outside_profile_domain",
+        )
+        assert validate_generation_cycle_run_history(generic_result.model_dump(mode="json")) == ()
+
         # Shared/unknown admission and removal of the issued marker are controls:
         # neither may queue the otherwise grounded second candidate.
         (
@@ -574,9 +622,10 @@ async def test_candidate_local_refusal_retries_existing_grounded_candidate_with_
             assert validate_generation_cycle_run_history(refusal_wire) == ()
             served_refusal = type(result).model_validate(refusal_wire)
             assert served_refusal.cycles[0].candidate_ids == expected_candidate_occurrences
-            assert tuple(
-                summary.candidate_id for summary in served_refusal.candidate_summaries
-            ) == expected_candidate_occurrences
+            assert (
+                tuple(summary.candidate_id for summary in served_refusal.candidate_summaries)
+                == expected_candidate_occurrences
+            )
             assert served_refusal.cycles[0].selected_candidate_ref == first_id
 
         # A real shared scheduler stop must suppress both the simulation call
@@ -602,9 +651,10 @@ async def test_candidate_local_refusal_retries_existing_grounded_candidate_with_
         assert validate_generation_cycle_run_history(budget_wire) == ()
         served_budget_refusal = type(budget_result).model_validate(budget_wire)
         assert served_budget_refusal.cycles[0].candidate_ids == expected_candidate_occurrences
-        assert tuple(
-            summary.candidate_id for summary in served_budget_refusal.candidate_summaries
-        ) == expected_candidate_occurrences
+        assert (
+            tuple(summary.candidate_id for summary in served_budget_refusal.candidate_summaries)
+            == expected_candidate_occurrences
+        )
         assert served_budget_refusal.cycles[0].selected_candidate_ref == first_id
 
         # This all-local control uses the owner classifier on a controlled

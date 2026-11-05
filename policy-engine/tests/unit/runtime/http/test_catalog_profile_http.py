@@ -80,6 +80,63 @@ def test_fixture_source_preflight_refuses_new_required_blocker(tmp_path: Path) -
     assert not fixture_registry_path.exists()
 
 
+def test_published_fixture_connector_edges_are_scoped_to_producer_call(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+) -> None:
+    """Restore all catalog-only connector edges when a producer fails."""
+    from polisyos.data_forge.domains.catalog.batch import core_sources_ingest, pipeline
+    from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
+    from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
+    from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
+    from polisyos.fabric.connectors.sources.unpd import UNPDConnector
+    from polisyos.fabric.connectors.sources.who import WHOConnector
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+
+    connector_classes = (
+        WorldBankConnector,
+        EurostatConnector,
+        SDMXSourceConnector,
+        WHOConnector,
+        UNPDConnector,
+        UNESCOUISConnector,
+    )
+    original_edges = {
+        (connector, method): getattr(connector, method)
+        for connector in connector_classes
+        for method in ("describe_dataset", "fetch")
+    }
+    wvs_loader_name = "_load_wvs_bulk_rows"
+    original_wvs_loader_entry = core_sources_ingest.__dict__.get(wvs_loader_name)
+    wvs_loader_was_explicit = wvs_loader_name in core_sources_ingest.__dict__
+
+    def fail_after_connector_edges_are_installed(_config: object) -> None:
+        assert all(
+            getattr(connector, method) is not original
+            for (connector, method), original in original_edges.items()
+        )
+        assert wvs_loader_name in core_sources_ingest.__dict__
+        assert callable(core_sources_ingest.__dict__[wvs_loader_name])
+        assert core_sources_ingest.__dict__[wvs_loader_name] is not original_wvs_loader_entry
+        raise RuntimeError("injected producer failure after fixture edge installation")
+
+    monkeypatch.setattr(
+        pipeline, "run_dataset_pipeline_sync", fail_after_connector_edges_are_installed
+    )
+    with pytest.raises(
+        RuntimeError, match="injected producer failure after fixture edge installation"
+    ):
+        _build_complete_published_fixture(tmp_path, monkeypatch)
+
+    assert all(
+        getattr(connector, method) is original
+        for (connector, method), original in original_edges.items()
+    )
+    assert (wvs_loader_name in core_sources_ingest.__dict__) is wvs_loader_was_explicit
+    assert core_sources_ingest.__dict__.get(wvs_loader_name) is original_wvs_loader_entry
+    assert callable(core_sources_ingest._load_wvs_bulk_rows)
+
+
 try:  # pragma: no cover - optional runtime dependency
     from fastapi.testclient import TestClient
 except ModuleNotFoundError:  # pragma: no cover

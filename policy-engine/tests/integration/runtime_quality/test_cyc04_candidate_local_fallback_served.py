@@ -50,6 +50,7 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
     from polisyos.ir.analytics.ncm import NCMSpecRef, load_ncm_spec_default_view
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.security import build_fixture_identity_claims
     from polisyos.runtime.http.services.control import (
         generation_cycle as generation_cycle_service,
     )
@@ -93,8 +94,9 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
         _DeterministicSpanSupportClient,
     )
 
-    tenant_id = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
-    cell_id = "cyc04-served-candidate-local-fallback"
+    claims = build_fixture_identity_claims()
+    assert claims.cell_id is not None
+    tenant_id, cell_id = claims.tenant_id, claims.cell_id
     prepared = await prepare_generic_n4_served_replay(
         tmp_path=tmp_path,
         controlled_candidate_gateway=controlled_candidate_gateway,

@@ -571,7 +571,7 @@ function genericCycleSimulationProjection(
 
 function genericRootOnlySimulationProjection(runId: string) {
   const projection = mutableRecord(genericCycleSimulationProjection(runId));
-  const rootObservation = {
+  const rootObservation: Record<string, unknown> = {
     ...firstMutableRecord(projection.n5_observations, "n5_observations"),
     child_profile_family_ref: null,
     child_profile_set_ref: null,

@@ -2095,11 +2095,7 @@ async def prepare_generic_n4_served_replay(
         raise TypeError("controlled_generic_ncm_profile_selector_invalid")
     child_conditioned_scope = (
         recording_mode == "original_second_capture" and child_count == 2
-    ) or (
-        recording_mode == "controlled_overlay"
-        and child_count == 3
-        and raw_request_override is not None
-    )
+    ) or (recording_mode == "controlled_overlay" and child_count == 3)
     if condition_synthetic_provider_on_child_sources and (
         not child_conditioned_scope
         or not materialize_source_parameters

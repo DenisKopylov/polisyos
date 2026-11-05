@@ -2724,8 +2724,6 @@ class RunCandidateSimulationN5Observation(BaseModel):
             raise ValueError("run_n8_joint_candidate_conditional_value_missing")
         authored_fields_present = any(
             (
-                self.n8_candidate_derived_atom_ids,
-                self.n8_candidate_derived_atom_content_hashes,
                 self.n8_selected_member_relationship is not None,
                 self.n8_authored_joint_relation_ref is not None,
                 self.n8_authored_joint_request_payload_ref is not None,
@@ -2735,8 +2733,17 @@ class RunCandidateSimulationN5Observation(BaseModel):
         authored_selection = (
             self.n8_candidate_member_basis == "authored_materialized_n4_source_members"
         )
+        derived_fields_present = bool(
+            self.n8_candidate_derived_atom_ids or self.n8_candidate_derived_atom_content_hashes
+        )
+        materialized_selection = authored_selection or (
+            self.n8_candidate_member_basis == "hypothetical_all_unique_n4_source_members"
+            and derived_fields_present
+        )
         if authored_fields_present and not authored_selection:
             raise ValueError("run_n8_authored_joint_basis_missing")
+        if derived_fields_present and not materialized_selection:
+            raise ValueError("run_n8_materialized_joint_basis_missing")
         candidate_selection_fields_present = any(
             (
                 self.n8_candidate_joint_selection_status is not None,
@@ -2753,6 +2760,7 @@ class RunCandidateSimulationN5Observation(BaseModel):
                 self.n8_child_to_parent_refinement_status is not None,
                 self.n8_child_to_parent_refinement_limitation_code is not None,
                 authored_fields_present,
+                derived_fields_present,
             )
         )
         if self.n8_candidate_joint_selection_status is None:
@@ -2821,15 +2829,8 @@ class RunCandidateSimulationN5Observation(BaseModel):
             )
         ):
             raise ValueError("run_n8_candidate_joint_selection_binding_incomplete")
-        if authored_selection and (
+        if materialized_selection and (
             self.n8_candidate_joint_selection_status != "resolved"
-            or self.n8_selected_member_relationship != "joint_components"
-            or self.n8_source_candidate_relationship != "alternatives"
-            or self.n8_policy_composition_status != "authored_candidate"
-            or self.n8_policy_composition_limitation_code
-            != "authored_candidate_coupling_not_established"
-            or self.n8_child_to_parent_refinement_limitation_code
-            != "child_to_parent_refinement_rule_not_established"
             or len(self.atom_ids) < 2
             or len(self.n8_candidate_derived_atom_ids) != len(self.atom_ids)
             or len(set(self.n8_candidate_derived_atom_ids)) != len(self.atom_ids)
@@ -2851,6 +2852,21 @@ class RunCandidateSimulationN5Observation(BaseModel):
                     strict=True,
                 )
             )
+        ):
+            raise ValueError(
+                "run_n8_authored_joint_binding_incomplete"
+                if authored_selection
+                else "run_n8_materialized_joint_binding_incomplete"
+            )
+        if authored_selection and (
+            self.n8_candidate_joint_selection_status != "resolved"
+            or self.n8_selected_member_relationship != "joint_components"
+            or self.n8_source_candidate_relationship != "alternatives"
+            or self.n8_policy_composition_status != "authored_candidate"
+            or self.n8_policy_composition_limitation_code
+            != "authored_candidate_coupling_not_established"
+            or self.n8_child_to_parent_refinement_limitation_code
+            != "child_to_parent_refinement_rule_not_established"
             or self.n8_authored_joint_intent_digest is None
             or any(
                 ref is None

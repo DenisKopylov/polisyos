@@ -823,7 +823,89 @@ function authoredJointV5Payload() {
   return { payload, observation };
 }
 
+function hypotheticalMaterializedV5Payload() {
+  const { payload, observation } = authoredJointV5Payload();
+  const limitation =
+    "n4_source_candidates_are_alternatives_not_authored_compound_design";
+  Object.assign(observation, {
+    n8_candidate_member_basis: "hypothetical_all_unique_n4_source_members",
+    n8_policy_composition_status: "not_established",
+    n8_policy_composition_limitation_code: limitation,
+    n8_authority_blockers: [
+      "n5_execution_request_provenance_not_established",
+      limitation,
+      "child_to_parent_refinement_rule_not_established",
+      "parent_joint_coupling_evidence_not_established",
+    ],
+  });
+  delete observation.n8_selected_member_relationship;
+  delete observation.n8_authored_joint_relation_ref;
+  delete observation.n8_authored_joint_request_payload_ref;
+  delete observation.n8_authored_joint_intent_digest;
+  return { payload, observation };
+}
+
 describe("runtime API validators", () => {
+  it("retains hypothetical numeric members without claiming authored composition", () => {
+    const { payload } = hypotheticalMaterializedV5Payload();
+    const observation =
+      runDetailsSchema.parse(payload).run.generic_cycle_simulation
+        ?.joint_parent_observations?.[0];
+    expect(observation?.n8_candidate_derived_atom_ids).toHaveLength(3);
+    expect(observation?.n8_policy_composition_status).toBe("not_established");
+    expect(observation?.n8_source_candidate_relationship).toBe("alternatives");
+    expect(observation?.n8_authored_joint_relation_ref).toBeUndefined();
+    expect(observation?.n8_authored_joint_request_payload_ref).toBeUndefined();
+    expect(observation?.n8_authored_joint_intent_digest).toBeUndefined();
+    expect(observation?.n8_selected_member_relationship).toBeUndefined();
+  });
+
+  it.each([
+    "selected_relationship",
+    "authored_digest",
+    "authored_relation",
+    "missing_hashes",
+    "wrong_id",
+    "reused_source",
+    "authored_status",
+  ] as const)("refuses a hypothetical numeric basis with %s", (variant) => {
+    const { payload, observation } = hypotheticalMaterializedV5Payload();
+    if (variant === "selected_relationship")
+      observation.n8_selected_member_relationship = "joint_components";
+    if (variant === "authored_digest")
+      observation.n8_authored_joint_intent_digest = `sha256:${"9".repeat(64)}`;
+    if (variant === "authored_relation")
+      observation.n8_authored_joint_relation_ref = {
+        artifact_id: `sha256:${"7".repeat(64)}`,
+        kind: "runtime.quality.recursive_authored_joint_relation",
+        media_type: "application/json",
+        manifest_profile_sha256: `sha256:${"f".repeat(64)}`,
+      };
+    if (variant === "missing_hashes")
+      observation.n8_candidate_derived_atom_content_hashes = [];
+    if (variant === "wrong_id")
+      observation.n8_candidate_derived_atom_ids = [
+        "atom_eeeeeeeeeeeeeeee",
+        "atom_bbbbbbbbbbbbbbbb",
+        "atom_cccccccccccccccc",
+      ];
+    if (variant === "reused_source") {
+      observation.n8_candidate_derived_atom_ids = [
+        "atom_4444444444444444",
+        "atom_bbbbbbbbbbbbbbbb",
+        "atom_cccccccccccccccc",
+      ];
+      observation.n8_candidate_derived_atom_content_hashes = [
+        "4",
+        "b",
+        "c",
+      ].map((digit) => `sha256:${digit.repeat(64)}`);
+    }
+    if (variant === "authored_status")
+      observation.n8_policy_composition_status = "authored_candidate";
+    expect(runDetailsSchema.safeParse(payload).success).toBe(false);
+  });
+
   it("preserves distinct intervention and hash-bound derived atom identities", () => {
     const { payload } = authoredJointV5Payload();
     const observation =

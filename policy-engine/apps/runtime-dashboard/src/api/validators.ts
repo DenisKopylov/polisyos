@@ -1138,9 +1138,13 @@ const runCandidateSimulationN5ObservationSchema = z
     const derivedHashes = observation.n8_candidate_derived_atom_content_hashes;
     const authored =
       candidateMemberBasis === "authored_materialized_n4_source_members";
+    const derivedFieldsPresent =
+      derivedIds.length > 0 || derivedHashes.length > 0;
+    const materialized =
+      authored ||
+      (candidateMemberBasis === "hypothetical_all_unique_n4_source_members" &&
+        derivedFieldsPresent);
     const authoredFieldsPresent =
-      derivedIds.length > 0 ||
-      derivedHashes.length > 0 ||
       observation.n8_selected_member_relationship != null ||
       observation.n8_authored_joint_relation_ref != null ||
       observation.n8_authored_joint_request_payload_ref != null ||
@@ -1149,6 +1153,12 @@ const runCandidateSimulationN5ObservationSchema = z
       context.addIssue({
         code: "custom",
         message: "run_n8_authored_joint_basis_missing",
+      });
+    }
+    if (derivedFieldsPresent && !materialized) {
+      context.addIssue({
+        code: "custom",
+        message: "run_n8_materialized_joint_basis_missing",
       });
     }
     const candidateSelectionFieldsPresent =
@@ -1164,7 +1174,8 @@ const runCandidateSimulationN5ObservationSchema = z
       compositionLimitation != null ||
       refinementStatus != null ||
       refinementLimitation != null ||
-      authoredFieldsPresent;
+      authoredFieldsPresent ||
+      derivedFieldsPresent;
     if (candidateSelectionStatus == null) {
       if (candidateSelectionFieldsPresent) {
         context.addIssue({
@@ -1213,15 +1224,7 @@ const runCandidateSimulationN5ObservationSchema = z
           "legacy_selection_receipt_has_no_composition_basis" &&
         refinementLimitation ===
           "legacy_selection_receipt_has_no_refinement_basis";
-      const validAuthoredBasis =
-        authored &&
-        sourceCandidateRelationship === "alternatives" &&
-        observation.n8_selected_member_relationship === "joint_components" &&
-        compositionStatus === "authored_candidate" &&
-        compositionLimitation ===
-          "authored_candidate_coupling_not_established" &&
-        refinementLimitation ===
-          "child_to_parent_refinement_rule_not_established" &&
+      const validDerivedBinding =
         observation.atom_ids.length >= 2 &&
         derivedIds.length === observation.atom_ids.length &&
         unique(derivedIds) &&
@@ -1232,7 +1235,25 @@ const runCandidateSimulationN5ObservationSchema = z
         ) &&
         derivedHashes.every(
           (hash, index) => hash !== candidateAtomHashes[index],
-        ) &&
+        );
+      if (materialized && !validDerivedBinding) {
+        context.addIssue({
+          code: "custom",
+          message: authored
+            ? "run_n8_authored_joint_binding_incomplete"
+            : "run_n8_materialized_joint_binding_incomplete",
+        });
+      }
+      const validAuthoredBasis =
+        authored &&
+        sourceCandidateRelationship === "alternatives" &&
+        observation.n8_selected_member_relationship === "joint_components" &&
+        compositionStatus === "authored_candidate" &&
+        compositionLimitation ===
+          "authored_candidate_coupling_not_established" &&
+        refinementLimitation ===
+          "child_to_parent_refinement_rule_not_established" &&
+        validDerivedBinding &&
         observation.n8_authored_joint_intent_digest != null &&
         [
           [
@@ -1289,6 +1310,12 @@ const runCandidateSimulationN5ObservationSchema = z
       context.addIssue({
         code: "custom",
         message: "run_n8_authored_joint_binding_incomplete",
+      });
+    }
+    if (materialized && candidateSelectionStatus !== "resolved") {
+      context.addIssue({
+        code: "custom",
+        message: "run_n8_materialized_joint_binding_incomplete",
       });
     }
     const fields = [

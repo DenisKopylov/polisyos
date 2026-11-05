@@ -433,6 +433,81 @@ def test_authored_joint_projection_distinguishes_source_and_materialized_members
     )
 
 
+def _hypothetical_materialized_projection_payload() -> dict[str, object]:
+    payload = _authored_joint_projection_payload()
+    for name in (
+        "n8_selected_member_relationship",
+        "n8_authored_joint_relation_ref",
+        "n8_authored_joint_request_payload_ref",
+        "n8_authored_joint_intent_digest",
+    ):
+        payload.pop(name)
+    limitation = "n4_source_candidates_are_alternatives_not_authored_compound_design"
+    payload.update(
+        n8_candidate_member_basis="hypothetical_all_unique_n4_source_members",
+        n8_policy_composition_status="not_established",
+        n8_policy_composition_limitation_code=limitation,
+        n8_authority_blockers=(
+            "n5_execution_request_provenance_not_established",
+            limitation,
+            "child_to_parent_refinement_rule_not_established",
+            "parent_joint_coupling_evidence_not_established",
+            "interaction_numeric_classification_unsupported",
+        ),
+    )
+    return payload
+
+
+def test_hypothetical_numeric_projection_retains_derived_members_without_authored_claim() -> None:
+    observation = RunCandidateSimulationN5Observation.model_validate(
+        _hypothetical_materialized_projection_payload()
+    )
+    assert observation.n8_candidate_derived_atom_ids
+    assert observation.n8_candidate_parent_atom_ids != observation.n8_candidate_derived_atom_ids
+    assert observation.n8_source_candidate_relationship == "alternatives"
+    assert observation.n8_policy_composition_status == "not_established"
+    assert observation.n8_selected_member_relationship is None
+    assert observation.n8_authored_joint_relation_ref is None
+    assert observation.n8_authored_joint_request_payload_ref is None
+    assert observation.n8_authored_joint_intent_digest is None
+    assert observation.n8_joint_scope_status == "not_established"
+    assert (
+        RunCandidateSimulationN5Observation.model_validate_json(observation.model_dump_json())
+        == observation
+    )
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"n8_selected_member_relationship": "joint_components"},
+        {"n8_authored_joint_intent_digest": _REQUEST_HASH},
+        {
+            "n8_authored_joint_relation_ref": _artifact_ref(
+                "runtime.quality.recursive_authored_joint_relation", "6"
+            )
+        },
+        {"n8_candidate_derived_atom_content_hashes": ()},
+        {"n8_candidate_derived_atom_ids": ("atom_aaaaaaaaaaaaaaaa", "atom_9999999999999999")},
+        {
+            "n8_candidate_derived_atom_ids": ("atom_4444444444444444", "atom_9999999999999999"),
+            "n8_candidate_derived_atom_content_hashes": (
+                "sha256:" + "4" * 64,
+                "sha256:" + "9" * 64,
+            ),
+        },
+        {"n8_policy_composition_status": "authored_candidate"},
+    ],
+)
+def test_hypothetical_numeric_projection_refuses_authored_claim_or_lost_derivation(
+    change: dict[str, object],
+) -> None:
+    with pytest.raises(ValidationError):
+        RunCandidateSimulationN5Observation.model_validate(
+            {**_hypothetical_materialized_projection_payload(), **change}
+        )
+
+
 @pytest.mark.parametrize(
     "change",
     [

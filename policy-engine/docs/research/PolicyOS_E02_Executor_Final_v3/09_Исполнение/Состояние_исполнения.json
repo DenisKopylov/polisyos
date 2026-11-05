@@ -9127,22 +9127,12 @@
         }
       },
       "write_ownership": {
-        "requirements": "lane01_requirements: data_requirement/compiler/models+mirroredtests",
-        "selection": "lane01_selection: Foundryadvisor/receipt/currentregistryverifier+mirroredtests",
-        "cycle": "lane01_cycle: quality/generation_cycle.py and agreedrecursive/controller companions/tests; one canonical writer",
-        "acquisition": "lane01_acquisition: acquisition_world_growth/evaluation_dispatch/evaluation/history, data_forge_binding/cycle_substrate+mirroredtests",
-        "numerics": "lane01_numerics: pairedestimation, coupledmethod/preflight/SMM,NCMquantile/profile+mirroredtests",
-        "horizon": "lane01_horizon: joint_simulation_horizon.py/DTOs+SIMtests, sole common mechanism writer",
-        "served": "lane01_served: HTTPcontrolgeneration/job/profile and servedtests, explicitcompanionleases",
-        "readiness": "lane01_readiness: confidence_ledger existingreadiness/censusbridge+mirroredtests;actualfinalproducer afterLANE12",
-        "root": "Root owns MAIN index/commits/refs/generated families; AUTHOR frozen at b973a56ee for native checks. Independent MAIN writers have disjoint leases for pending quota bind, split-root epoch resolver, configured hypothetical materialization and explicit fixture companions.",
-        "surface": "lane01_surface: core/contracts/runtime.py,HTTP runs projections,dashboard validators/Overview/locales+mirroredtests",
-        "offpilot": "lane01_offpilot: scalar slots,catalog unit/provenance/passport/governed descriptors+actual compact WDI profiles",
-        "candidate_adapter": "lane01_candidate_adapter: actual Fabric data_requirement adapter+mirroredtests",
-        "candidate_action": "Main frozen readers: luna_continuation_oracle protected PA2 and luna_frontier retained capacity consumer. Isolated e02-lane01-job-publication: luna_phase_history action service/lifecycle/store/job diagnostics; luna_reentry_budget source/window/world/reentry/candidate basis dispatch; luna_second_domain route/terminal history; luna_retained_owner existing retained-continuation owner. Root alone indexes/refs/generated/composition.",
-        "quota_ledger": "lane09_spend_gate reused canonical FileBudgetLedger/Middleware/Observer owner; Horizon owns actual physical-call admission",
-        "frontier": "luna_source_handoff: N4 port + verified child factory; luna_frontier: complete actual custody/atom/frontier oracle; independent Luna child_n4 review; root deciding runtime.",
-        "test_repairs": "luna_budget_di: control_service_di tests only; luna_scorecard_fixture: scorecard tests only. Source/import work waits for actual resource admission, not for other independent authors."
+        "root": "Root owns MAIN index, ordinary commits/refs, generated families and composition. AUTHOR source changes only by Root append-only merge; deciding jobs use exact stable source/input pins.",
+        "candidate_acquisition": "One Luna owner for typed phase/quota reconciliation and its mirrored tests.",
+        "epoch_admission": "One Luna owner for split-root resolver and GDP finalization diagnosis/test-only observation.",
+        "hypothetical_materialization": "Sol mechanism and test companions released after independent Terra review; Root composes.",
+        "numerical_profile": "One Luna owner for optional profile evidence/comparator/engine aliases; Root owns request forwarding/replay and native cubic composition.",
+        "affected_fixtures": "Disjoint Luna owners for CYC04 full fixture and ACQ01/WMR consumers. No shared index/ref rights."
       },
       "evidence_catalog": {
         "numeric_native": {
@@ -11090,6 +11080,112 @@
             "SKIP": 0
           },
           "deciding_cause": "Profile-derived USA/2024/national_economy candidate_simulation scope assertions pass. Actual typed resolver_unavailable is observed before any deferral/appointment/N5. Source trace finds selected catalog paths loaded without the active split source_owner_root; canonical loader rejects paths outside the code root. Earlier R10 inner code remains unknown. Repair the existing resolver selection, not authority gates."
+        },
+        "candidate_selected_quota_binding": {
+          "output": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane01-candidate-quota-binding-r3",
+          "status": "passed",
+          "wall_seconds": 19.21479899995029,
+          "peak_rss_bytes": 1687814144,
+          "inputs_unchanged": true,
+          "named_inputs": 15,
+          "observed": {
+            "PASS": 24,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "source_commit": "726a8f2be22d8f7d23f0ceb08287fd1d68a4269b",
+          "scope": "Real pending observer binds selected quota only after current job/action, state identity and independent positive USD/run-binding proof. Foreign scope/selection/state/pending run, prebound profile and purpose refuse without quota/spend/reservation changes. No whole acquisition PASS."
+        },
+        "candidate_experiment_native_execute_r9": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-candidate-execution-native-r9",
+          "status": "command_failed",
+          "wall_seconds": 294.25106866599526,
+          "peak_rss_bytes": 1911209984,
+          "inputs_unchanged": true,
+          "named_inputs": 82,
+          "source_commit": "ea00772fe26cc74b69245477359574932984b04b",
+          "source_tree": "f160f941f46098486fea6e666498517e33f14401",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "cause": "Actual candidate_experiment_action_scope_mismatch before transport/N5. Exact persisted source scope agrees; experiment phase.compiled_ref is a selected ArtifactRef but reconciliation compares it to an artifact-ID string. Legacy phase uses a string and remains separate. Typed experiment regression and full rerun remain pending."
+        },
+        "epoch_split_catalog_owner": {
+          "source_commit": "ea00772fe26cc74b69245477359574932984b04b",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "output": "policy-engine/_cache/e02/split-root-resolver-r9-post/junit.xml",
+          "junit_sha256": "0b4e1e8312435b1e52943be3d266902c1e18abbc087791593049c957de2f8791",
+          "scope": "Actual L5 loader returns selected data-root metadata plus code-root epoch registries; foreign code root refuses. Separate downstream scope_unresolved is preserved, not admission success. Direct pytest, no resource supervisor/telemetry; stdout only in author tool transcript. Adjacent existing no-selection CLI red has UNKNOWN attribution."
+        },
+        "gdp_resource_served_r12": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-gdp-resource-native-r12",
+          "status": "command_failed",
+          "wall_seconds": 53.31056412507314,
+          "peak_rss_bytes": 1738817536,
+          "inputs_unchanged": true,
+          "named_inputs": 40,
+          "source_commit": "ea00772fe26cc74b69245477359574932984b04b",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "cause": "Resolver construction now succeeds. Persisted refusal epoch_scope_unresolved, not expected policy_admission_missing; no appointment/new N5/fresh reader. Retained preparation L5/Lex/Catalog/facet denominators resolve exact declared scope; finalization catches and collapses the later cause. Test-only exact exception observation is next; no scope or authority guess."
+        },
+        "generic_root_served_r4": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cyc04-fallback-served-native-r4",
+          "status": "command_failed",
+          "wall_seconds": 31.733789416961372,
+          "peak_rss_bytes": 1817116672,
+          "inputs_unchanged": true,
+          "named_inputs": 38,
+          "source_commit": "ea00772fe26cc74b69245477359574932984b04b",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "scope": "Worker completed; one real N4 organ, actual fallback, stale-lease refusal and idempotent POST/GET assertions passed. Whole test fails comparing native5 stage calls to historical replay10. Exact declared native role/provider assertion now replaces that invalid comparison; no whole green yet. Retained canonical reader separately verifies effect0.125 from0.25*0.5, seeds11/12/SE0, exact selected views, two completed standard units/one protected untouched. Fresh-app tail and original in-memory observer remain for final whole case.",
+          "retained_reader_output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cyc04-retained-tail-preflight-r2"
+        },
+        "configured_hypothetical_materialization": {
+          "status": "IMPLEMENTED_REVIEW_GO_PARTIAL_RUNTIME_QUALIFICATION",
+          "scope": "V4 selected-source/L6 numeric materialization, canonical pre-N5 and fresh-GET replay; V1/V2 original atoms and authoredV3 preserved. Alternatives/composition/refinement limitations remain, candidate-only value_conditional low grade is existing consumer semantics. No new authored relation or authority.",
+          "independent_review": "Terra source and final semantic-test deltas GO. Controlled stochastic integration kernel is a test double, not native numerical backend qualification.",
+          "core_contracts": {
+            "output": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane01-hypothetical-core-contract-r1",
+            "status": "passed",
+            "wall_seconds": 2.2324342909269035,
+            "peak_rss_bytes": 212402176,
+            "inputs_unchanged": true,
+            "named_inputs": 2
+          },
+          "typescript": {
+            "output": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos/policy-engine/_cache/e02/lane01-hypothetical-ts-validator-r1",
+            "status": "passed",
+            "wall_seconds": 2.7599322920432314,
+            "peak_rss_bytes": 522960896,
+            "inputs_unchanged": true,
+            "named_inputs": 5
+          },
+          "observed_component_passes": {
+            "core": 33,
+            "typescript": 212
+          },
+          "real_owner_boundary": "New V4 positive, self-rehashed literal refusal, source refusal, selected reduced-rule profile and legacy controls executed before old tail failures in3 full-case attempts; those attempts remain FAIL. Final old fixture tail passed separately against retained owned artifacts, without new N5 or authority.",
+          "retained_tail_output": "policy-engine/_cache/e02/lane01-hypothetical-publication-tail-r3",
+          "remaining": "One final full authored/legacy/V4 case and first served3-child hypothetical case after composition; source/profile removal+restore and source-parameter/query oracle prepared."
         }
       },
       "independent_component_reviews": {
@@ -11110,7 +11206,7 @@
       },
       "resource_admission_current": {
         "disk_stop_floor_GiB": 3,
-        "free_disk_GiB_at_check": 6.397,
+        "free_disk_GiB_at_check": 6.676,
         "policy": "Local only; existing environments/data; <=8GiB measured aggregate process-tree RSS and <=6 numerical CPU threads. New expensive profiles start alone.",
         "trash_move": {
           "directory": "/Users/deniskopylov/.Trash/PolicyOS-obsolete-test-scratch-20261105T132841Z",

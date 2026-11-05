@@ -189,6 +189,8 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     """Route captured annual GDP through observed admission, WMR refresh, and selected N5."""
     import asyncio
     import contextvars
+    import sys
+    import traceback
     from dataclasses import replace
     from uuid import uuid4
 
@@ -208,7 +210,7 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     from polisyos.ir.model_layer.model_spec import ModelSpec
     from polisyos.ir.model_layer.types import TimeFrequency
     from polisyos.pdc import gy_content_hash
-    from polisyos.runtime.quality import acquisition_planner, generation_cycle
+    from polisyos.runtime.quality import acquisition_planner, generation_cycle, semantic_epoch
     from polisyos.runtime.quality.acquisition_executor import (
         SemanticEpochAdmissionResolutionError,
     )
@@ -1093,17 +1095,72 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
             raise
 
     monkeypatch.setattr(case.bridge, "admit", observe_semantic_admission_code)
-    negative = under_catalog_source(case.port.execute, closure)
-    assert negative.disposition == "quarantined_no_growth"
+    finalizer_exceptions: list[str] = []
+    finalizer_code = semantic_epoch.SemanticEpochService.finalize_admitted_epoch.__code__
+    prior_trace = sys.gettrace()
+
+    def observe_finalizer_exceptions(frame, event, arg):
+        prior_local = prior_trace(frame, event, arg) if prior_trace is not None else None
+        is_finalizer = (
+            event == "call"
+            and frame.f_code is finalizer_code
+            and frame.f_code.co_filename == finalizer_code.co_filename
+            and frame.f_code.co_name == "finalize_admitted_epoch"
+        )
+        if not is_finalizer and prior_local is None:
+            return None
+
+        def observe_frame(frame, event, arg):
+            nonlocal prior_local
+            if prior_local is not None:
+                prior_local = prior_local(frame, event, arg)
+            if is_finalizer and event == "exception":
+                _exception_type, exception, _exception_traceback = arg
+                rendered = "".join(
+                    traceback.TracebackException.from_exception(
+                        exception,
+                        capture_locals=False,
+                    ).format(chain=True)
+                )
+                finalizer_exceptions.append(
+                    f"type={type(exception).__qualname__}; "
+                    f"code={getattr(exception, 'code', None)!r}\n{rendered}"
+                )
+            return observe_frame if is_finalizer or prior_local is not None else None
+
+        return observe_frame
+
+    try:
+        sys.settrace(observe_finalizer_exceptions)
+        negative = under_catalog_source(case.port.execute, closure)
+    finally:
+        sys.settrace(prior_trace)
+
+    finalizer_diagnostic = (
+        "\n".join(finalizer_exceptions) if finalizer_exceptions else "none observed"
+    )
+    assert negative.disposition == "quarantined_no_growth", (
+        f"unexpected acquisition disposition {negative.disposition!r}; "
+        f"finalize_admitted_epoch exceptions:\n{finalizer_diagnostic}"
+    )
     if case.bridge.has_deferred_admission(closure):
         _deferred_ref, deferral, _attempt = case.bridge._load_deferral(closure)
-        assert deferral.negative_receipt.failure_codes == ("policy_admission_missing",)
-        assert observed_semantic_admission_codes == []
+        assert deferral.negative_receipt.failure_codes == ("policy_admission_missing",), (
+            "unexpected persisted semantic-epoch refusal: "
+            f"{deferral.negative_receipt.failure_codes!r}; "
+            f"finalize_admitted_epoch exceptions:\n{finalizer_diagnostic}"
+        )
+        assert observed_semantic_admission_codes == [], (
+            f"unexpected bridge admission exception codes "
+            f"{observed_semantic_admission_codes!r}; "
+            f"finalize_admitted_epoch exceptions:\n{finalizer_diagnostic}"
+        )
     else:
         pytest.fail(
             "annual GDP expected a persisted policy_admission_missing deferral; "
             f"observed SemanticEpochAdmissionResolutionError.code="
-            f"{observed_semantic_admission_codes!r}"
+            f"{observed_semantic_admission_codes!r}; "
+            f"finalize_admitted_epoch exceptions:\n{finalizer_diagnostic}"
         )
     case.appoint_native_policy()
     under_catalog_source(case.port.prepare_route_execution, closure)

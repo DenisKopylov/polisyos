@@ -3864,7 +3864,9 @@ def _parent_joint_candidate_selection_projection(
     from polisyos.runtime.quality.recursive_generation_cycle import (
         ParentJointCandidateSelectionV2,
         ParentJointCandidateSelectionV3,
+        ParentJointCandidateSelectionV4,
         load_authored_joint_components,
+        replay_parent_joint_candidate_materializations,
     )
 
     selection = getattr(node, "joint_candidate_selection", None)
@@ -3880,6 +3882,7 @@ def _parent_joint_candidate_selection_projection(
     source_result = root_n4_source.generation_result
     source_result_hash = gy_content_hash(source_result.model_dump(mode="json"))
     authored_relation = None
+    hypothetical_materializations = None
     if isinstance(selection, ParentJointCandidateSelectionV3):
         from polisyos.runtime.http.services.control.temporal_scope import (
             read_authored_joint_request_payload,
@@ -3908,6 +3911,17 @@ def _parent_joint_candidate_selection_projection(
             expected_tenant_id=authored_relation.tenant_id,
             expected_cell_id=authored_relation.cell_id,
             expected_intent_digest=authored_relation.intent_digest,
+        )
+    elif isinstance(selection, ParentJointCandidateSelectionV4):
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleSimulationAdmissionOwner,
+        )
+
+        hypothetical_materializations = replay_parent_joint_candidate_materializations(
+            selection=selection,
+            request=request,
+            parent_handoff=handoff,
+            admission_owner=GenericCycleSimulationAdmissionOwner(profiles=(), store=store),
         )
     if isinstance(selection, ParentJointCandidateSelectionV2) and (
         selection.candidate_intent != "n4_unique_parent_source_members.v1"
@@ -4007,12 +4021,18 @@ def _parent_joint_candidate_selection_projection(
             or member.parent_problem_frame_ref != node.design_problem_ref
             or source_atom.problem_frame_ref != node.design_problem_ref
             or source_atom.world_model_record_ref != request.world_model_record_ref
-            or (authored_relation is None and parent_atom != source_atom)
+            or (
+                authored_relation is None
+                and hypothetical_materializations is None
+                and parent_atom != source_atom
+            )
         ):
             raise ValueError("parent_joint_candidate_source_member_binding_mismatch")
         selected_atoms.append(parent_atom)
-    if authored_relation is None and {atom.content_hash for atom in selected_atoms} != set(
-        candidates_by_atom_hash
+    if (
+        authored_relation is None
+        and hypothetical_materializations is None
+        and {atom.content_hash for atom in selected_atoms} != set(candidates_by_atom_hash)
     ):
         raise ValueError("parent_joint_candidate_source_member_denominator_mismatch")
     if tuple(atom.atom_id for atom in selected_atoms) != tuple(
@@ -4076,6 +4096,17 @@ def _parent_joint_candidate_selection_projection(
                 ),
             }
         )
+        if hypothetical_materializations is not None:
+            candidate_selection_fields.update(
+                {
+                    "n8_candidate_derived_atom_ids": tuple(
+                        item.derived_n5_atom.atom_id for item in hypothetical_materializations
+                    ),
+                    "n8_candidate_derived_atom_content_hashes": tuple(
+                        item.derived_n5_atom.content_hash for item in hypothetical_materializations
+                    ),
+                }
+            )
     else:
         # Historical v1 binds source identities only; it has no typed statement
         # that the members are a hypothetical diagnostic or an authored design.

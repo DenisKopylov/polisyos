@@ -692,7 +692,16 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
     assert len(n4_port_calls) == 2
     assert tuple(call["used_prefetched_organ"] for call in n4_port_calls) == (False, True)
     assert len(actual_n4_organs) == 1
-    assert len(actual_n4_organs[0].result.llm_calls) == len(prepared.organ_run.result.llm_calls)
+    native_n4_calls = actual_n4_organs[0].result.llm_calls
+    assert tuple(call.role_hint for call in native_n4_calls) == (
+        "draft",
+        "drafter_multipass",
+        "drafter_multipass",
+        "formalizer",
+        "critic",
+    )
+    assert all(call.status == "success" for call in native_n4_calls)
+    assert all(call.provider == "controlled_synthetic_stage_provider" for call in native_n4_calls)
     assert all(
         count == len(actual_n4_organs[0].result.llm_calls)
         for count in provider_call_counts_at_materialization

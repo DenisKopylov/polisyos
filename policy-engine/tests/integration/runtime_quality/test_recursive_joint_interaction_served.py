@@ -4,6 +4,7 @@ import hashlib
 import importlib.util
 import json
 import sys
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -34,7 +35,7 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
     monkeypatch: pytest.MonkeyPatch,
     controlled_candidate_gateway: Any,
 ) -> None:
-    """A synthetic source-bound three-atom parent retains samples; N8 stays pending."""
+    """A synthetic source-bound parent retains samples and a low-grade N8 candidate."""
     pytest.importorskip("fastapi.testclient")
     from fastapi.testclient import TestClient
 
@@ -42,11 +43,17 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
+    from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.routes import runs as runs_route
     from polisyos.runtime.http.security import build_fixture_identity_claims
     from polisyos.runtime.http.services.control import generation_cycle as compiler_owner
     from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
     from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        ParentJointCandidateSelectionV4,
+    )
     from tests._helpers.control_worker import dispatch_one_control_job
 
     helper_name = "tests._helpers.generic_n4_served_replay"
@@ -67,17 +74,28 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
         tenant_id=fixture_identity.tenant_id,
         cell_id=fixture_identity.cell_id,
         child_count=3,
+        materialize_source_parameters=True,
+        synthetic_settled_provider=True,
+        condition_synthetic_provider_on_child_sources=True,
     )
     assert prepared.app_kwargs["allow_fixture_identity"] is True
     assert prepared.tenant_id == fixture_identity.tenant_id
     assert prepared.cell_id == fixture_identity.cell_id
     assert len(prepared.children) == 3
 
+    ncm_step_calls = 0
+    ncm_query_interventions: list[dict[str, float]] = []
+
     def controlled_ncm_step(state: dict[str, Any], params: dict[str, Any]) -> dict[str, Any]:
+        nonlocal ncm_step_calls
+        ncm_step_calls += 1
         query = state["ncm_query_data"]
+        assert len(query.interventions) == 1
         intervention = query.interventions[0]
+        ncm_query_interventions.append(dict(intervention))
         seed = int(params["__seed__"])
         value = 0.0
+        # This controlled test double supplies a synthetic joint response, not empirical evidence.
         if len(intervention) == 3:
             value = 1.0 if seed == prepared.root_profile.n5.seed else -1.0
         return {
@@ -117,28 +135,263 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
         assert dispatched == accepted["job_id"]
         job = service._control_store.get_job(accepted["job_id"])
         assert job is not None and job.state == "completed"
+        ncm_step_calls_after_producer = ncm_step_calls
+        assert ncm_step_calls_after_producer > 0
+        ncm_queries_after_producer = len(ncm_query_interventions)
         run_id = str(job.progress["core_run_id"])
         fresh_response = client.get(f"/api/v1/runs/{run_id}")
         assert fresh_response.status_code == 200, fresh_response.text
         projection = fresh_response.json()["run"]["generic_cycle_simulation"]
+        served_compiled_ref = ArtifactRef.model_validate(projection["source_ref"])
+        assert served_compiled_ref == ArtifactRef.model_validate(
+            job.progress["compiled_recursive_generation_cycle_artifact_ref"]
+        )
+        assert (
+            str(served_compiled_ref.artifact_id)
+            == job.progress["compiled_recursive_generation_cycle_ref"]
+        )
+        store = service._artifact_store
+        with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
+            assert store.verify(served_compiled_ref).ok
+            compiled = compiler_owner.CompiledRecursiveGenerationCycleRun.model_validate(
+                read_core_json_artifact(store, served_compiled_ref).value
+            )
+        served_root_node_ref = "design-problem://" + cycle_job_design_problem_ref(
+            compiled.design_problem
+        ).removeprefix("sha256:")
+        root_node = next(
+            node for node in compiled.recursive_run.nodes if node.node_ref == served_root_node_ref
+        )
+        selection = root_node.joint_candidate_selection
+        assert type(selection) is ParentJointCandidateSelectionV4
+        baseline_parent = projection["joint_parent_observations"][0]
+        assert baseline_parent["n8_status"] == "value_conditional"
+        assert baseline_parent["n8_candidate_decision_grade"] == "low"
 
-    served_compiled_ref = ArtifactRef.model_validate(projection["source_ref"])
-    assert served_compiled_ref == ArtifactRef.model_validate(
-        job.progress["compiled_recursive_generation_cycle_artifact_ref"]
+        def n5_row_identity(rows: list[dict[str, Any]]) -> tuple[tuple[Any, ...], ...]:
+            return tuple(
+                (
+                    row["node_ref"],
+                    row.get("candidate_id"),
+                    (row.get("n5_execution_ref") or {}).get("artifact_id"),
+                    (row.get("simulation_result_ref") or {}).get("artifact_id"),
+                )
+                for row in rows
+            )
+
+        n5_rows_before = n5_row_identity(projection["n5_observations"])
+        selected_source_ref = selection.n4_source_ref
+        assert selected_source_ref.manifest_profile_sha256 is not None
+        original_raw_manifest = store.get_raw_manifest_bytes
+        original_selection_projection = runs_route._parent_joint_candidate_selection_projection
+        withheld_source_reads: list[str] = []
+
+        def is_selected_source_ref(ref: Any) -> bool:
+            return (
+                getattr(ref, "artifact_id", None) == selected_source_ref.artifact_id
+                and getattr(ref, "manifest_profile_sha256", None)
+                == selected_source_ref.manifest_profile_sha256
+            )
+
+        def withhold_selected_source_for_parent_replay(**kwargs: Any) -> dict[str, Any]:
+            def missing_selected_source(ref: Any, *args: Any, **read_kwargs: Any) -> bytes:
+                if is_selected_source_ref(ref):
+                    withheld_source_reads.append(str(selected_source_ref.artifact_id))
+                    raise FileNotFoundError("synthetic selected source owner withheld")
+                return original_raw_manifest(ref, *args, **read_kwargs)
+
+            with monkeypatch.context() as source_owner_withheld:
+                source_owner_withheld.setattr(
+                    store, "get_raw_manifest_bytes", missing_selected_source
+                )
+                return original_selection_projection(**kwargs)
+
+        with monkeypatch.context() as selected_source_withheld:
+            selected_source_withheld.setattr(
+                runs_route,
+                "_parent_joint_candidate_selection_projection",
+                withhold_selected_source_for_parent_replay,
+            )
+            missing_source_response = client.get(f"/api/v1/runs/{run_id}")
+        assert missing_source_response.status_code == 200, missing_source_response.text
+        assert withheld_source_reads
+        withheld_projection = missing_source_response.json()["run"]["generic_cycle_simulation"]
+        assert withheld_projection["joint_parent_status"] == "not_established"
+        assert withheld_projection["joint_parent_limitation_code"] == (
+            "generic_joint_parent_result_unavailable"
+        )
+        assert not withheld_projection.get("joint_parent_observations", [])
+        assert not any(
+            row["node_ref"] == baseline_parent["node_ref"]
+            and (
+                row.get("n8_status") == "value_conditional"
+                or row.get("n8_candidate_value_ref") == baseline_parent["n8_candidate_value_ref"]
+            )
+            for row in withheld_projection["n5_observations"]
+        )
+        assert n5_row_identity(withheld_projection["n5_observations"]) == n5_rows_before
+        assert ncm_step_calls == ncm_step_calls_after_producer
+        assert len(ncm_query_interventions) == ncm_queries_after_producer
+
+        restored_response = client.get(f"/api/v1/runs/{run_id}")
+        assert restored_response.status_code == 200, restored_response.text
+        restored_projection = restored_response.json()["run"]["generic_cycle_simulation"]
+        assert (
+            restored_projection["joint_parent_observations"]
+            == projection["joint_parent_observations"]
+        )
+        assert n5_row_identity(restored_projection["n5_observations"]) == n5_rows_before
+        assert ncm_step_calls == ncm_step_calls_after_producer
+        assert len(ncm_query_interventions) == ncm_queries_after_producer
+
+    assert compiled.recursive_run.root_node_ref == served_root_node_ref
+    assert type(selection) is ParentJointCandidateSelectionV4
+    assert selection.schema_version == (
+        "policyos.runtime.recursive_generation_cycle.parent_joint_candidate_selection.v4"
     )
-    assert (
-        str(served_compiled_ref.artifact_id)
-        == job.progress["compiled_recursive_generation_cycle_ref"]
+    assert selection.candidate_intent == "n4_unique_parent_source_members.v1"
+    assert selection.member_basis == "hypothetical_all_unique_n4_source_members"
+    assert selection.source_candidate_relationship == "alternatives"
+    assert selection.composition_status == "not_established"
+    assert selection.child_to_parent_refinement_status == "not_established"
+    selection_payload = selection.model_dump(mode="json")
+    assert not {
+        "request_payload_ref",
+        "relation_ref",
+        "relation_content_hash",
+        "intent_digest",
+    }.intersection(selection_payload)
+    physical_request = root_node.joint_simulation_request
+    assert physical_request is not None
+    assert physical_request.candidate_intent == "n4_unique_parent_source_members.v1"
+    assert physical_request.member_basis == "hypothetical_all_unique_n4_source_members"
+    assert physical_request.source_candidate_relationship == "alternatives"
+    assert physical_request.composition_status == "not_established"
+    assert len(selection.component_materializations) == 3
+    assert len(physical_request.intervention_atoms) == 3
+
+    handoff = compiled.generic_cycle_simulation_handoff
+    assert handoff is not None
+    assert compiled.n4_recursive_source_ref is not None
+    assert compiled.n4_recursive_source_run_id == handoff.run_id
+    assert compiled.n4_recursive_source_job_id == handoff.job_id == accepted["job_id"]
+    assert compiled.n4_recursive_source_tenant_id == handoff.tenant_id == prepared.tenant_id
+    assert compiled.n4_recursive_source_cell_id == handoff.cell_id == prepared.cell_id
+    assert compiled.n4_recursive_source_context_job_ref == handoff.context_job_ref
+    assert compiled.n4_recursive_source_profile_config_ref == handoff.profile.profile_id
+    assert compiled.n4_recursive_source_profile_selection_ref == (
+        handoff.profile.profile_selection_ref
     )
     with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
-        assert service._artifact_store.verify(served_compiled_ref).ok
-        compiled = compiler_owner.CompiledRecursiveGenerationCycleRun.model_validate(
-            read_core_json_artifact(service._artifact_store, served_compiled_ref).value
+        served_source = GenerationSourceRepository(service._artifact_store).load(
+            compiled.n4_recursive_source_ref,
+            run_id=handoff.run_id,
+            expected_run_id=handoff.run_id,
+            expected_job_id=handoff.job_id,
+            expected_tenant_id=handoff.tenant_id,
+            expected_cell_id=handoff.cell_id,
+            context_job_ref=handoff.context_job_ref,
+            profile_ref=handoff.profile_ref,
+            n4_child_profile_family_ref=handoff.n4_child_profile_family_ref,
         )
-    served_root_node_ref = "design-problem://" + cycle_job_design_problem_ref(
-        compiled.design_problem
-    ).removeprefix("sha256:")
-    assert compiled.recursive_run.root_node_ref == served_root_node_ref
+    assert selection.n4_source_ref == compiled.n4_recursive_source_ref
+    actual_source_result_hash = gy_content_hash(
+        served_source.generation_result.model_dump(mode="json")
+    )
+    assert selection.n4_source_result_content_hash == actual_source_result_hash
+    world_record = handoff.profile.context_inputs.world_model_record
+    assert selection.context_job_ref == handoff.context_job_ref
+    assert selection.profile_ref == handoff.profile_ref
+    assert selection.profile_selection_ref == handoff.profile.profile_selection_ref
+    assert selection.world_model_record_ref == world_record.world_model_record_id
+    assert selection.world_model_record_content_hash == world_record.content_hash
+    source_candidates_by_id = {
+        candidate.candidate_id: candidate
+        for candidate in served_source.generation_result.candidates
+    }
+    assert served_source.trinity_bundle is not None
+    source_interventions = served_source.trinity_bundle.policy_spec.interventions
+    source_interventions_by_id = {
+        intervention.intervention_id: intervention for intervention in source_interventions
+    }
+    assert len(source_interventions_by_id) == len(source_interventions)
+    assert len(source_candidates_by_id) == 3
+    assert {member.source_candidate_id for member in selection.members} == set(
+        source_candidates_by_id
+    )
+    slot_units = {slot.slot_id: slot.unit for slot in world_record.policy_slot_map}
+    target_slots: set[str] = set()
+    source_values_by_target: dict[str, Decimal] = {}
+    assignments = []
+    for member, materialization, derived_atom in zip(
+        selection.members,
+        selection.component_materializations,
+        physical_request.intervention_atoms,
+        strict=True,
+    ):
+        source_candidate = source_candidates_by_id[member.source_candidate_id]
+        source_intervention = source_interventions_by_id[source_candidate.atom.intervention_id]
+        assert source_intervention.intervention_id == derived_atom.intervention_id
+        # The member binds full candidate JSON; materialization binds provenance content.
+        assert member.source_candidate_content_hash == gy_content_hash(
+            source_candidate.model_dump(mode="json")
+        )
+        assert materialization.candidate_id == source_candidate.candidate_id
+        assert materialization.original_candidate_hash == source_candidate.provenance.content_hash
+        assert materialization.original_atom_hash == source_candidate.atom.content_hash
+        assert member.source_atom_content_hash == source_candidate.atom.content_hash
+        assert derived_atom == materialization.derived_n5_atom
+        assert derived_atom.content_hash != source_candidate.atom.content_hash
+        assert derived_atom.problem_frame_ref == selection.parent_design_problem_ref
+        assert derived_atom.world_model_record_ref == selection.world_model_record_ref
+        assert materialization.profile_hash == handoff.profile.content_hash
+        assert materialization.context_hash == handoff.context.content_hash
+        assert materialization.context_job_ref == str(handoff.context_job_ref.artifact_id)
+        assert materialization.source_handoff_ref == str(selection.n4_source_ref.artifact_id)
+        assert materialization.world_model_record_hash == world_record.content_hash
+        assert materialization.unit_id == slot_units[materialization.target_world_slot]
+        target_slots.add(materialization.target_world_slot)
+        atom_assignments = derived_atom.causal_do_expr.assignments
+        assert len(atom_assignments) == 1
+        (assignment,) = atom_assignments
+        assert assignment.variable == materialization.target_world_slot
+        assert assignment.value_expr is None
+        assert assignment.value is not None
+        assignment_value = Decimal(str(assignment.value))
+        assert assignment_value.is_finite()
+        source_parameter_value = Decimal(
+            str(source_intervention.params[materialization.parameter_id])
+        )
+        assert source_parameter_value.is_finite()
+        assert assignment_value == source_parameter_value
+        assert Decimal(str(materialization.value)) == source_parameter_value
+        assert materialization.target_world_slot not in source_values_by_target
+        source_values_by_target[materialization.target_world_slot] = source_parameter_value
+        assignments.append(assignment)
+    assert len(target_slots) == 3
+    assert len(assignments) == 3
+    assert set(source_values_by_target) == target_slots
+    expected_full_interventions = []
+    for plan in physical_request.engine_plan:
+        assert plan.ncm_spec is not None
+        assert target_slots.issubset(plan.variable_map)
+        planned_ncm_targets = {plan.variable_map[target] for target in target_slots}
+        assert planned_ncm_targets.issubset(set(plan.ncm_spec.endogenous_vars))
+        expected_intervention = {
+            plan.variable_map[target]: float(source_values_by_target[target])
+            for target in target_slots
+        }
+        assert len(expected_intervention) == 3
+        expected_full_interventions.append(expected_intervention)
+    observed_full_interventions = [
+        intervention for intervention in ncm_query_interventions if len(intervention) == 3
+    ]
+    assert observed_full_interventions
+    assert all(
+        any(intervention == expected for expected in expected_full_interventions)
+        for intervention in observed_full_interventions
+    )
+
     parent_rows = projection["joint_parent_observations"]
     assert len(parent_rows) == 1
     parent = parent_rows[0]
@@ -149,6 +402,15 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
     assert evidence["checked_interaction_orders"] == [1, 2, 3]
     assert parent["n8_candidate_joint_selection_status"] == "resolved"
     assert parent["n8_candidate_joint_selection_content_hash"].startswith("sha256:")
+    assert parent["n8_candidate_derived_atom_ids"] == [
+        item.derived_n5_atom.atom_id for item in selection.component_materializations
+    ]
+    assert parent["n8_candidate_derived_atom_content_hashes"] == [
+        item.derived_n5_atom.content_hash for item in selection.component_materializations
+    ]
+    assert parent.get("n8_authored_joint_relation_ref") is None
+    assert parent.get("n8_authored_joint_request_payload_ref") is None
+    assert parent.get("n8_authored_joint_intent_digest") is None
     assert len(parent["n8_candidate_parent_atom_ids"]) == 3
     assert len(parent["n8_candidate_parent_atom_content_hashes"]) == 3
     assert parent["n8_candidate_parent_intervention_ids"] == parent["atom_ids"]
@@ -167,7 +429,14 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
     assert parent["n8_joint_scope_limitation_code"] == (
         "parent_joint_coupling_evidence_not_established"
     )
-    assert parent["n8_status"] == "value_pending_n8"
+    assert parent["n8_status"] == "value_conditional"
+    assert parent["n8_candidate_decision_grade"] == "low"
+    assert parent["n8_candidate_value_ref"] == parent["simulation_result_ref"]["artifact_id"]
+    assert {
+        "n5_execution_request_provenance_not_established",
+        "n4_source_candidates_are_alternatives_not_authored_compound_design",
+        "child_to_parent_refinement_rule_not_established",
+    }.issubset(set(parent["n8_authority_blockers"]))
     assert parent["n8_numeric_interaction_basis"] == "finite_checked_model_point_estimate_only"
     expected_seeds = [prepared.root_profile.n5.seed, prepared.root_profile.n5.seed + 1]
     outcome = prepared.recorded_problem.outcome_of_interest.target_variable

@@ -1839,6 +1839,38 @@ class ParentJointCandidateSelectionV2(ParentJointCandidateSelectionV1):
     joint_simulation_request_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
+class ParentJointCandidateSelectionV4(ParentJointCandidateSelectionV2):
+    """Bind configured numeric projections without asserting authored composition."""
+
+    schema_version: Literal[
+        "policyos.runtime.recursive_generation_cycle.parent_joint_candidate_selection.v4"
+    ] = "policyos.runtime.recursive_generation_cycle.parent_joint_candidate_selection.v4"
+    component_materializations: tuple[
+        CandidateScenarioMaterializationV1 | CandidateScenarioNumericMaterializationV1, ...
+    ] = Field(min_length=2)
+
+    @model_validator(mode="after")
+    def _bind_materialized_source_members(self) -> ParentJointCandidateSelectionV4:
+        if len(self.members) != len(self.component_materializations) or any(
+            materialization.candidate_id != member.source_candidate_id
+            or materialization.original_atom_hash != member.source_atom_content_hash
+            or materialization.problem_ref != self.parent_design_problem_ref
+            or materialization.context_job_ref != str(self.context_job_ref.artifact_id)
+            or materialization.source_handoff_ref != str(self.n4_source_ref.artifact_id)
+            or materialization.world_model_record_hash != self.world_model_record_content_hash
+            for member, materialization in zip(
+                self.members, self.component_materializations, strict=True
+            )
+        ):
+            raise ValueError("recursive_parent_joint_materialization_member_mismatch")
+        derived_hashes = tuple(
+            item.derived_n5_atom.content_hash for item in self.component_materializations
+        )
+        if len(set(derived_hashes)) != len(derived_hashes):
+            raise ValueError("recursive_parent_joint_materialization_duplicate")
+        return self
+
+
 class ParentJointAuthoredRelationV1(_StrictModel):
     """Persist one explicit, candidate-only relation and its actual L6 projections."""
 
@@ -2079,7 +2111,7 @@ def _authored_joint_request_payload(
         raise RecursiveGenerationCycleError("recursive_authored_joint_request_binding_mismatch")
 
 
-def _authored_joint_source_basis(
+def _materialized_joint_source_basis(
     *,
     source_ref: CASArtifactRef,
     source_run_id: str,
@@ -2088,6 +2120,7 @@ def _authored_joint_source_basis(
     admission_owner: GenericCycleSimulationAdmissionOwner,
     members: tuple[ParentJointCandidateSourceMember, ...],
     request: JointSimulationRequest,
+    hypothetical_diagnostic: bool = False,
 ) -> tuple[
     object,
     tuple[CandidateScenarioMaterializationV1 | CandidateScenarioNumericMaterializationV1, ...],
@@ -2164,6 +2197,23 @@ def _authored_joint_source_basis(
         raw_hint=None,
     )
     n5 = handoff.profile.n5
+    scope_fields = (
+        {
+            "candidate_intent": "n4_unique_parent_source_members.v1",
+            "member_basis": "hypothetical_all_unique_n4_source_members",
+            "source_candidate_relationship": "alternatives",
+            "composition_status": "not_established",
+            "composition_limitation_code": (
+                "n4_source_candidates_are_alternatives_not_authored_compound_design"
+            ),
+            "child_to_parent_refinement_status": "not_established",
+            "child_to_parent_refinement_limitation_code": (
+                "child_to_parent_refinement_rule_not_established"
+            ),
+        }
+        if hypothetical_diagnostic
+        else {}
+    )
     expected_request = JointSimulationRequest(
         world_model_record_ref=world.world_model_record_id,
         world_model_record=world,
@@ -2181,6 +2231,7 @@ def _authored_joint_source_basis(
         budget_ref=n5.budget_ref,
         seed=n5.seed,
         replications=n5.replications,
+        **scope_fields,
     )
     if request.model_dump(mode="json") != expected_request.model_dump(mode="json"):
         raise RecursiveGenerationCycleError("recursive_authored_joint_request_replay_mismatch")
@@ -2228,7 +2279,7 @@ def persist_authored_joint_components(
         handoff=parent_handoff,
         intent_digest=verified_nl_job_scope.intent_digest,
     )
-    source, replayed = _authored_joint_source_basis(
+    source, replayed = _materialized_joint_source_basis(
         source_ref=source_ref,
         source_run_id=source_run_id,
         source_repository=source_repository,
@@ -2350,7 +2401,7 @@ def load_authored_joint_components(
         handoff=parent_handoff,
         intent_digest=relation.intent_digest,
     )
-    source, replayed = _authored_joint_source_basis(
+    source, replayed = _materialized_joint_source_basis(
         source_ref=relation.n4_source_ref,
         source_run_id=relation.source_run_id,
         source_repository=source_repository,
@@ -2391,6 +2442,62 @@ def load_authored_joint_components(
     return relation
 
 
+def replay_parent_joint_candidate_materializations(
+    *,
+    selection: ParentJointCandidateSelectionV4,
+    request: JointSimulationRequest,
+    parent_handoff: GenericCycleSimulationContextHandoffV1,
+    admission_owner: GenericCycleSimulationAdmissionOwner,
+) -> tuple[CandidateScenarioMaterializationV1 | CandidateScenarioNumericMaterializationV1, ...]:
+    """Recompute the selected hypothetical numeric basis from its immutable owners.
+
+    This verifies source-to-request derivation, not currentness or composition.
+    Runtime callers separately check the live context and worker lease. A fresh
+    historical reader can replay the selected profile without a configured set.
+    """
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    if (
+        type(selection) is not ParentJointCandidateSelectionV4
+        or type(parent_handoff) is not GenericCycleSimulationContextHandoffV1
+        or type(admission_owner) is not GenericCycleSimulationAdmissionOwner
+        or type(request) is not JointSimulationRequest
+    ):
+        raise RecursiveGenerationCycleError("recursive_parent_joint_materialization_owner_untyped")
+    selection = ParentJointCandidateSelectionV4.model_validate(selection.model_dump(mode="python"))
+    if (
+        selection.context_job_ref != parent_handoff.context_job_ref
+        or selection.profile_ref != parent_handoff.profile_ref
+        or selection.profile_selection_ref != parent_handoff.profile.profile_selection_ref
+        or selection.parent_design_problem_ref != parent_handoff.context.design_problem_ref
+        or selection.joint_simulation_request_content_hash
+        != gy_content_hash(request.model_dump(mode="json"))
+    ):
+        raise RecursiveGenerationCycleError("recursive_parent_joint_materialization_scope_mismatch")
+    source, replayed = _materialized_joint_source_basis(
+        source_ref=selection.n4_source_ref,
+        source_run_id=parent_handoff.run_id,
+        source_repository=GenerationSourceRepository(admission_owner.store),
+        handoff=parent_handoff,
+        admission_owner=admission_owner,
+        members=selection.members,
+        request=request,
+        hypothetical_diagnostic=True,
+    )
+    if (
+        selection.n4_source_result_content_hash
+        != gy_content_hash(source.generation_result.model_dump(mode="json"))
+        or selection.world_model_record_ref != request.world_model_record_ref
+        or selection.world_model_record_content_hash != request.world_model_record.content_hash
+        or tuple(request.selected_outcomes) != (selection.outcome_variable,)
+        or selection.component_materializations != replayed
+    ):
+        raise RecursiveGenerationCycleError(
+            "recursive_parent_joint_materialization_replay_mismatch"
+        )
+    return replayed
+
+
 class RecursiveCycleNode(_StrictModel):
     """One replay-visible node routed through existing depth owners."""
 
@@ -2411,6 +2518,7 @@ class RecursiveCycleNode(_StrictModel):
         ParentJointCandidateSelectionV1
         | ParentJointCandidateSelectionV2
         | ParentJointCandidateSelectionV3
+        | ParentJointCandidateSelectionV4
         | None
     ) = Field(
         default=None,
@@ -2543,7 +2651,15 @@ class RecursiveCycleNode(_StrictModel):
                     )
                 )
                 or (
-                    not isinstance(selection, ParentJointCandidateSelectionV3)
+                    isinstance(selection, ParentJointCandidateSelectionV4)
+                    and tuple(item.derived_n5_atom for item in selection.component_materializations)
+                    != tuple(request.intervention_atoms)
+                )
+                or (
+                    not isinstance(
+                        selection,
+                        (ParentJointCandidateSelectionV3, ParentJointCandidateSelectionV4),
+                    )
                     and (
                         tuple(member.source_atom_id for member in selection.members)
                         != tuple(atom.atom_id for atom in request.intervention_atoms)
@@ -4296,7 +4412,8 @@ class RecursiveGenerationCycleController:
             str,
             ParentJointCandidateSelectionV1
             | ParentJointCandidateSelectionV2
-            | ParentJointCandidateSelectionV3,
+            | ParentJointCandidateSelectionV3
+            | ParentJointCandidateSelectionV4,
         ]
         | None = None,
         joint_candidate_currentness_resolvers_by_node: Mapping[str, Callable[[], bool]]
@@ -5142,6 +5259,30 @@ class RecursiveGenerationCycleController:
                             except (OSError, RuntimeError, TypeError, ValueError):
                                 selection_issue = (
                                     "recursive_authored_joint_relation_replay_not_established"
+                                )
+                    elif isinstance(candidate_selection, ParentJointCandidateSelectionV4):
+                        if (
+                            generic_parent_handoff is None
+                            or leaf_context_owner is None
+                            or leaf_context_owner._generic_admission_owner is None
+                            or candidate_selection.parent_design_problem_ref != problem_ref
+                            or candidate_selection.child_node_refs != child_refs
+                            or request.coupling_graph is not None
+                        ):
+                            selection_issue = (
+                                "recursive_parent_joint_materialization_owner_not_established"
+                            )
+                        else:
+                            try:
+                                replay_parent_joint_candidate_materializations(
+                                    selection=candidate_selection,
+                                    request=request,
+                                    parent_handoff=generic_parent_handoff,
+                                    admission_owner=leaf_context_owner._generic_admission_owner,
+                                )
+                            except (OSError, RuntimeError, TypeError, ValueError):
+                                selection_issue = (
+                                    "recursive_parent_joint_materialization_replay_not_established"
                                 )
                     elif (
                         request.coupling_graph is not None

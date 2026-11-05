@@ -1402,6 +1402,7 @@ def _build_parent_joint_candidate_request(
     from polisyos.runtime.quality.recursive_generation_cycle import (
         ParentJointCandidateSelectionV2,
         ParentJointCandidateSelectionV3,
+        ParentJointCandidateSelectionV4,
         ParentJointCandidateSourceMember,
     )
 
@@ -1512,6 +1513,11 @@ def _build_parent_joint_candidate_request(
         )
         if original["request"] != problem.nl_provenance.raw_request:
             raise DesignProblemAuthorityError("recursive_authored_joint_question_mismatch")
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5RequestProfileV3,
+    )
+
+    if authored or isinstance(profile.n5, GenericCycleN5RequestProfileV3):
         materializations = admission_owner.materialize_source_atoms(
             handoff=handoff,
             source_ref=source_ref,
@@ -1589,6 +1595,9 @@ def _build_parent_joint_candidate_request(
         "members": tuple(members),
     }
     selection_type = ParentJointCandidateSelectionV2
+    if materializations and not authored:
+        selection_fields["component_materializations"] = materializations
+        selection_type = ParentJointCandidateSelectionV4
     if authored:
         from polisyos.runtime.quality.recursive_generation_cycle import (
             persist_authored_joint_components,
@@ -1639,11 +1648,15 @@ def _build_parent_joint_candidate_request(
     expected_atom_ids = (
         selection.derived_atom_ids
         if authored
+        else tuple(item.derived_n5_atom.atom_id for item in materializations)
+        if materializations
         else tuple(member.source_atom_id for member in selection.members)
     )
     expected_atom_hashes = (
         selection.derived_atom_content_hashes
         if authored
+        else tuple(item.derived_n5_atom.content_hash for item in materializations)
+        if materializations
         else tuple(member.source_atom_content_hash for member in selection.members)
     )
     if expected_atom_ids != tuple(

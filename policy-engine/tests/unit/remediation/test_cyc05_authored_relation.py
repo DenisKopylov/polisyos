@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Callable
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -60,6 +61,23 @@ def _rehashed_relation_variant(
 
     fields = relation.model_dump(mode="json", exclude={"content_hash"})
     fields.update(update)
+    if "n4_source_ref" in update and "component_materializations" not in update:
+        selected_source = ArtifactRef.model_validate(fields["n4_source_ref"])
+        materializations = []
+        for item in relation.component_materializations:
+            materialization = item.model_dump(mode="json", exclude={"content_hash"})
+            materialization["source_handoff_ref"] = str(selected_source.artifact_id)
+            materializations.append(
+                {**materialization, "content_hash": gy_content_hash(materialization)}
+            )
+        fields["component_materializations"] = materializations
+    # Caller-supplied typed companions must use the same JSON hash surface as
+    # the owner validator, including exact decimal serialization.
+    for name in ("members", "component_materializations"):
+        fields[name] = [
+            item.model_dump(mode="json") if hasattr(item, "model_dump") else item
+            for item in fields[name]
+        ]
     draft_hash = gy_content_hash(fields)
     forged = ParentJointAuthoredRelationV1.model_validate({**fields, "content_hash": draft_hash})
     return store.put_json(
@@ -83,6 +101,9 @@ async def test_authored_joint_relation_replays_real_source_request_and_selected_
     from fastapi.testclient import TestClient
 
     from polisyos.core.artifacts import ArtifactRef as CASArtifactRef
+    from polisyos.core.artifacts import input_ref_from_artifact_ref
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+    from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.security import build_fixture_identity_claims
     from polisyos.runtime.http.services.control import (
@@ -91,9 +112,15 @@ async def test_authored_joint_relation_replays_real_source_request_and_selected_
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
     )
-    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.generation_source import (
+        SOURCE_KIND,
+        SOURCE_SCHEMA,
+        GenerationSourceRepository,
+        _candidate_simulation_write_options,
+    )
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationAdmissionOwner,
+        GenericCycleSimulationProfileV1,
     )
     from tests._helpers.control_worker import dispatch_one_control_job
     from tests._helpers.generic_n4_served_replay import prepare_generic_n4_served_replay
@@ -196,7 +223,10 @@ async def test_authored_joint_relation_replays_real_source_request_and_selected_
         "joint_interaction_candidate_intent": "authored_joint_components.v1",
     }
     app = create_runtime_api_app(**prepared.app_kwargs)
-    with TestClient(app) as client:
+    with (
+        tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id),
+        TestClient(app) as client,
+    ):
         request_json = json.dumps(request_payload, sort_keys=True, separators=(",", ":"))
         idempotency_key = (
             "test-cyc05-authored-" + hashlib.sha256(request_json.encode("utf-8")).hexdigest()
@@ -252,7 +282,7 @@ async def test_authored_joint_relation_replays_real_source_request_and_selected_
         assert projection["n4_source_status"] == "resolved"
         parent_rows = [
             row
-            for row in projection["n5_observations"]
+            for row in projection["joint_parent_observations"]
             if row["node_ref"]
             == "design-problem://" + relation.parent_design_problem_ref.removeprefix("sha256:")
         ]
@@ -333,13 +363,368 @@ async def test_authored_joint_relation_replays_real_source_request_and_selected_
             == selection.derived_atom_content_hashes
         )
 
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateScenarioMaterializationV1,
+            CandidateScenarioNumericMaterializationV1,
+        )
+        from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextOwnerError
+        from polisyos.runtime.quality.intervention_atom_binding import (
+            derive_candidate_scenario_atom,
+            derive_candidate_scenario_numeric_atom,
+        )
+        from polisyos.runtime.quality.recursive_generation_cycle import (
+            ParentJointCandidateSelectionV2,
+            ParentJointCandidateSelectionV4,
+            replay_parent_joint_candidate_materializations,
+        )
+
+        hypothetical_scope = {
+            "candidate_intent": "n4_unique_parent_source_members.v1",
+            "member_basis": "hypothetical_all_unique_n4_source_members",
+            "source_candidate_relationship": "alternatives",
+            "composition_status": "not_established",
+            "composition_limitation_code": (
+                "n4_source_candidates_are_alternatives_not_authored_compound_design"
+            ),
+            "child_to_parent_refinement_status": "not_established",
+            "child_to_parent_refinement_limitation_code": (
+                "child_to_parent_refinement_rule_not_established"
+            ),
+        }
+        hypothetical_request = JointSimulationRequest.model_validate(
+            {
+                **request.model_dump(mode="json"),
+                **hypothetical_scope,
+            }
+        )
+        actual_materializations = admission_owner.materialize_source_atoms(
+            handoff=handoff,
+            source_ref=relation.n4_source_ref,
+            source_run_id=relation.source_run_id,
+            candidate_ids=tuple(member.source_candidate_id for member in relation.members),
+        )
+        assert actual_materializations == relation.component_materializations
+
+        def rehashed_materialization(materialization: Any, **updates: object) -> Any:
+            fields = materialization.model_dump(mode="json", exclude={"content_hash"})
+            fields.update(updates)
+            return type(materialization).model_validate(
+                {**fields, "content_hash": gy_content_hash(fields)}
+            )
+
+        def rehashed_selection(
+            selected: ParentJointCandidateSelectionV4,
+            **updates: object,
+        ) -> ParentJointCandidateSelectionV4:
+            fields = selected.model_dump(mode="json", exclude={"content_hash"})
+            for name, value in updates.items():
+                if name == "component_materializations":
+                    fields[name] = tuple(item.model_dump(mode="json") for item in value)
+                elif name == "n4_source_ref":
+                    fields[name] = value.model_dump(mode="json")
+                else:
+                    fields[name] = value
+            return ParentJointCandidateSelectionV4.model_validate(
+                {**fields, "content_hash": gy_content_hash(fields)}
+            )
+
+        provisional_selection = ParentJointCandidateSelectionV4.model_construct(
+            candidate_intent="n4_unique_parent_source_members.v1",
+            parent_design_problem_ref=relation.parent_design_problem_ref,
+            n4_source_ref=relation.n4_source_ref,
+            n4_source_result_content_hash=relation.n4_source_result_content_hash,
+            context_job_ref=relation.context_job_ref,
+            profile_ref=relation.profile_ref,
+            profile_selection_ref=relation.profile_selection_ref,
+            world_model_record_ref=relation.world_model_record_ref,
+            world_model_record_content_hash=relation.world_model_record_content_hash,
+            outcome_variable=relation.outcome_variable,
+            child_node_refs=tuple(member.child_node_ref for member in relation.members),
+            members=relation.members,
+            joint_simulation_request_content_hash=gy_content_hash(
+                hypothetical_request.model_dump(mode="json")
+            ),
+            component_materializations=actual_materializations,
+            content_hash="sha256:" + "0" * 64,
+        )
+        selection_fields = provisional_selection.model_dump(
+            mode="json",
+            exclude={"content_hash"},
+        )
+        hypothetical_selection = ParentJointCandidateSelectionV4.model_validate(
+            {
+                **selection_fields,
+                "content_hash": gy_content_hash(selection_fields),
+            }
+        )
+        replayed_materializations = replay_parent_joint_candidate_materializations(
+            selection=hypothetical_selection,
+            request=hypothetical_request,
+            parent_handoff=handoff,
+            admission_owner=admission_owner,
+        )
+        assert replayed_materializations == actual_materializations
+        assert tuple(item.derived_n5_atom for item in replayed_materializations) == (
+            hypothetical_request.intervention_atoms
+        )
+        assert tuple(item.candidate_id for item in replayed_materializations) == tuple(
+            member.source_candidate_id for member in hypothetical_selection.members
+        )
+        assert tuple(item.original_atom_hash for item in replayed_materializations) == tuple(
+            member.source_atom_content_hash for member in hypothetical_selection.members
+        )
+        assert all(
+            item.profile_hash == handoff.profile.content_hash
+            and item.problem_ref == relation.parent_design_problem_ref
+            and item.context_hash == handoff.context.content_hash
+            and item.context_job_ref == str(handoff.context_job_ref.artifact_id)
+            and item.source_handoff_ref == str(relation.n4_source_ref.artifact_id)
+            and item.world_model_record_hash
+            == handoff.profile.context_inputs.world_model_record.content_hash
+            for item in replayed_materializations
+        )
+
+        source_candidates = {
+            candidate.candidate_id: candidate for candidate in source.generation_result.candidates
+        }
+        original_materialization = actual_materializations[0]
+        original_candidate = source_candidates[original_materialization.candidate_id]
+        if type(original_materialization) is CandidateScenarioNumericMaterializationV1:
+            changed_value = original_materialization.value + Decimal("0.125")
+            changed_atom = derive_candidate_scenario_numeric_atom(
+                original_candidate.atom,
+                target_world_slot=original_materialization.target_world_slot,
+                value=changed_value,
+            )
+            changed_materialization = rehashed_materialization(
+                original_materialization,
+                value=changed_value,
+                native_input_value=float(changed_value),
+                derived_n5_atom=changed_atom.model_dump(mode="json"),
+            )
+        else:
+            assert type(original_materialization) is CandidateScenarioMaterializationV1
+            changed_value = original_materialization.value + 1
+            changed_atom = derive_candidate_scenario_atom(
+                original_candidate.atom,
+                target_world_slot=original_materialization.target_world_slot,
+                value=changed_value,
+            )
+            changed_materialization = rehashed_materialization(
+                original_materialization,
+                value=changed_value,
+                derived_n5_atom=changed_atom.model_dump(mode="json"),
+            )
+        changed_materializations = (
+            changed_materialization,
+            *actual_materializations[1:],
+        )
+        changed_request = JointSimulationRequest.model_validate(
+            {
+                **request.model_dump(mode="json"),
+                **hypothetical_scope,
+                "intervention_atoms": tuple(
+                    item.derived_n5_atom for item in changed_materializations
+                ),
+            }
+        )
+        changed_selection = rehashed_selection(
+            hypothetical_selection,
+            component_materializations=changed_materializations,
+            joint_simulation_request_content_hash=gy_content_hash(
+                changed_request.model_dump(mode="json")
+            ),
+        )
+        with pytest.raises(RecursiveGenerationCycleError) as changed_literal_refusal:
+            replay_parent_joint_candidate_materializations(
+                selection=changed_selection,
+                request=changed_request,
+                parent_handoff=handoff,
+                admission_owner=admission_owner,
+            )
+        assert changed_literal_refusal.value.code == (
+            "recursive_authored_joint_request_replay_mismatch"
+        )
+
+        missing_source_ref = ArtifactRef.model_validate(
+            {
+                **relation.n4_source_ref.model_dump(mode="json"),
+                "artifact_id": "sha256:" + "0" * 64,
+            }
+        )
+        missing_source_materializations = tuple(
+            rehashed_materialization(
+                item,
+                source_handoff_ref=str(missing_source_ref.artifact_id),
+            )
+            for item in actual_materializations
+        )
+        missing_source_selection = rehashed_selection(
+            hypothetical_selection,
+            n4_source_ref=missing_source_ref,
+            component_materializations=missing_source_materializations,
+        )
+        _expect_refusal(
+            lambda: replay_parent_joint_candidate_materializations(
+                selection=missing_source_selection,
+                request=hypothetical_request,
+                parent_handoff=handoff,
+                admission_owner=admission_owner,
+            )
+        )
+
+        profile_without_rule_fields = handoff.profile.model_dump(
+            mode="json",
+            exclude={"content_hash"},
+        )
+        selected_rules = profile_without_rule_fields["n5"]["component_rules"]
+        assert len(selected_rules) >= 2
+        profile_without_rule_fields["n5"]["component_rules"] = selected_rules[:-1]
+        profile_without_rule_fields["content_hash"] = gy_content_hash(profile_without_rule_fields)
+        profile_without_rule = GenericCycleSimulationProfileV1.model_validate(
+            profile_without_rule_fields
+        )
+        assert profile_without_rule.content_hash != handoff.profile.content_hash
+        profile_mismatch_handoff = handoff.model_copy(update={"profile": profile_without_rule})
+        with pytest.raises(CycleSubstrateContextOwnerError) as missing_rule_refusal:
+            replay_parent_joint_candidate_materializations(
+                selection=hypothetical_selection,
+                request=hypothetical_request,
+                parent_handoff=profile_mismatch_handoff,
+                admission_owner=admission_owner,
+            )
+        assert missing_rule_refusal.value.code == (
+            "generic_cycle_simulation_historical_profile_content_mismatch"
+        )
+
+        # Select real owner-profile views for the reduced rule set. Retaining
+        # the old profile ref above only proves mismatch; this case reaches the
+        # actual rule lookup with a correctly qualified source and profile.
+        missing_rule_owner = GenericCycleSimulationAdmissionOwner(
+            profiles=(profile_without_rule,), store=store
+        )
+        missing_rule_profile_ref = missing_rule_owner._persist_profile(
+            profile=profile_without_rule,
+            job_id=handoff.job_id,
+            run_id=handoff.run_id,
+            tenant_id=handoff.tenant_id,
+            cell_id=handoff.cell_id,
+            verified_nl_job_scope=route_inputs["verified_nl_job_scope"],
+        )
+        rebound_inputs = [
+            input_ref_from_artifact_ref(
+                handoff.context_job_ref, role="cycle_substrate_context_job"
+            ),
+            input_ref_from_artifact_ref(
+                missing_rule_profile_ref, role="generic_cycle_simulation_profile"
+            ),
+        ]
+        if handoff.n4_child_profile_family_ref is not None:
+            rebound_inputs.append(
+                input_ref_from_artifact_ref(
+                    handoff.n4_child_profile_family_ref, role="n4_child_profile_family"
+                )
+            )
+        missing_rule_source_ref = store.put_bytes(
+            store.get_bytes(relation.n4_source_ref),
+            _candidate_simulation_write_options(
+                kind=SOURCE_KIND,
+                schema_name=SOURCE_SCHEMA,
+                schema_version="1.0",
+                job_id=handoff.job_id,
+                run_id=handoff.run_id,
+                tenant_id=handoff.tenant_id,
+                cell_id=handoff.cell_id,
+                source_ref=source.content_hash,
+                input_refs=rebound_inputs,
+            ),
+            return_selected_profile=True,
+        )
+        assert missing_rule_source_ref.artifact_id == relation.n4_source_ref.artifact_id
+        assert missing_rule_source_ref != relation.n4_source_ref
+        missing_rule_handoff = handoff.model_copy(
+            update={"profile": profile_without_rule, "profile_ref": missing_rule_profile_ref}
+        )
+        assert (
+            missing_rule_owner.resolve_profile_historical(
+                missing_rule_profile_ref,
+                expected_profile=profile_without_rule,
+                job_id=handoff.job_id,
+                run_id=handoff.run_id,
+                tenant_id=handoff.tenant_id,
+                cell_id=handoff.cell_id,
+            )
+            == profile_without_rule
+        )
+        assert (
+            source_repository.load(
+                missing_rule_source_ref,
+                run_id=handoff.run_id,
+                expected_run_id=handoff.run_id,
+                expected_job_id=handoff.job_id,
+                expected_tenant_id=handoff.tenant_id,
+                expected_cell_id=handoff.cell_id,
+                context_job_ref=handoff.context_job_ref,
+                profile_ref=missing_rule_profile_ref,
+                n4_child_profile_family_ref=handoff.n4_child_profile_family_ref,
+            )
+            == source
+        )
+        with pytest.raises(CycleSubstrateContextOwnerError) as selected_rule_absence:
+            missing_rule_owner.materialize_source_atoms(
+                handoff=missing_rule_handoff,
+                source_ref=missing_rule_source_ref,
+                source_run_id=handoff.run_id,
+                candidate_ids=tuple(member.source_candidate_id for member in relation.members),
+            )
+        assert selected_rule_absence.value.code == "generic_component_rule_not_unique"
+
+        legacy_fields = hypothetical_selection.model_dump(
+            mode="json",
+            exclude={"content_hash", "component_materializations"},
+        )
+        legacy_fields["schema_version"] = (
+            "policyos.runtime.recursive_generation_cycle.parent_joint_candidate_selection.v2"
+        )
+        legacy_request = JointSimulationRequest.model_validate(
+            {
+                **request.model_dump(mode="json"),
+                **hypothetical_scope,
+                "intervention_atoms": tuple(
+                    source_candidates[member.source_candidate_id].atom
+                    for member in relation.members
+                ),
+            }
+        )
+        legacy_fields["joint_simulation_request_content_hash"] = gy_content_hash(
+            legacy_request.model_dump(mode="json")
+        )
+        legacy_fields["content_hash"] = gy_content_hash(legacy_fields)
+        legacy_selection = ParentJointCandidateSelectionV2.model_validate(legacy_fields)
+        assert (
+            ParentJointCandidateSelectionV2.model_validate(legacy_selection.model_dump(mode="json"))
+            == legacy_selection
+        )
+        assert "component_materializations" not in legacy_selection.model_dump(mode="json")
+        assert legacy_request.candidate_intent == "n4_unique_parent_source_members.v1"
+        assert legacy_request.member_basis == "hypothetical_all_unique_n4_source_members"
+        assert tuple(atom.atom_id for atom in legacy_request.intervention_atoms) == tuple(
+            member.source_atom_id for member in relation.members
+        )
+        assert tuple(atom.content_hash for atom in legacy_request.intervention_atoms) == tuple(
+            member.source_atom_content_hash for member in relation.members
+        )
+        assert legacy_selection.joint_simulation_request_content_hash == gy_content_hash(
+            legacy_request.model_dump(mode="json")
+        )
+
         missing_relation_ref = ArtifactRef.model_validate(
             {
                 **relation_ref.model_dump(mode="json"),
                 "artifact_id": "sha256:" + "0" * 64,
             }
         )
-        with pytest.raises(RecursiveGenerationCycleError) as missing_relation:
+        with pytest.raises(ArtifactOwnershipError) as missing_relation:
             load_authored_joint_components(
                 store=store,
                 relation_ref=missing_relation_ref,
@@ -349,7 +734,10 @@ async def test_authored_joint_relation_replays_real_source_request_and_selected_
                 request=request,
                 selection=selection,
             )
-        assert missing_relation.value.code == "recursive_authored_joint_relation_ref_invalid"
+        assert str(missing_relation.value) == (
+            f"Artifact {missing_relation_ref.artifact_id} payload is not readable by tenant "
+            f"{handoff.tenant_id}/{handoff.cell_id} for verify"
+        )
 
         foreign_selection = selection.model_copy(update={"relation_ref": missing_relation_ref})
         with pytest.raises(RecursiveGenerationCycleError) as wrong_selection:
@@ -370,21 +758,38 @@ async def test_authored_joint_relation_replays_real_source_request_and_selected_
                 "artifact_id": "sha256:" + "0" * 64,
             }
         )
-        missing_source_variant = _rehashed_relation_variant(
-            relation=relation,
-            store=store,
-            update={"n4_source_ref": missing_source_ref.model_dump(mode="json")},
-        )
-        _expect_refusal(
-            lambda: load_authored_joint_components(
+        with pytest.raises(ArtifactOwnershipError) as missing_source_publication:
+            _rehashed_relation_variant(
+                relation=relation,
                 store=store,
-                relation_ref=missing_source_variant,
-                source_repository=source_repository,
-                parent_handoff=handoff,
-                admission_owner=admission_owner,
-                request=request,
+                update={"n4_source_ref": missing_source_ref.model_dump(mode="json")},
             )
+        assert str(missing_source_publication.value) == (
+            f"Artifact {missing_source_ref.artifact_id} payload is not readable by tenant "
+            f"{handoff.tenant_id}/{handoff.cell_id} for write input:n4_source"
         )
+        real_source_load = source_repository.load
+        withheld_source_reads: list[ArtifactRef] = []
+
+        def withhold_selected_source(ref: Any, **kwargs: Any) -> Any:
+            if ref == relation.n4_source_ref:
+                withheld_source_reads.append(ref)
+                raise FileNotFoundError("selected authored N4 source withheld")
+            return real_source_load(ref, **kwargs)
+
+        with monkeypatch.context() as source_withheld:
+            source_withheld.setattr(source_repository, "load", withhold_selected_source)
+            with pytest.raises(FileNotFoundError, match="selected authored N4 source withheld"):
+                load_authored_joint_components(
+                    store=store,
+                    relation_ref=relation_ref,
+                    source_repository=source_repository,
+                    parent_handoff=handoff,
+                    admission_owner=admission_owner,
+                    request=request,
+                    selection=selection,
+                )
+        assert withheld_source_reads == [relation.n4_source_ref]
 
         foreign_source_ref = route_inputs["request_payload_ref"].model_copy(
             update={"kind": "runtime.generation_source_handoff"}
@@ -422,7 +827,7 @@ async def test_authored_joint_relation_replays_real_source_request_and_selected_
                 admission_owner=admission_owner,
                 request=request,
             )
-        assert wrong_request.value.code == "recursive_authored_joint_request_profile_mismatch"
+        assert wrong_request.value.code == "recursive_authored_joint_request_ref_invalid"
 
         missing_request_ref = ArtifactRef.model_validate(
             {
@@ -430,21 +835,40 @@ async def test_authored_joint_relation_replays_real_source_request_and_selected_
                 "artifact_id": "sha256:" + "0" * 64,
             }
         )
-        missing_request_variant = _rehashed_relation_variant(
-            relation=relation,
-            store=store,
-            update={"request_payload_ref": missing_request_ref.model_dump(mode="json")},
-        )
-        _expect_refusal(
-            lambda: load_authored_joint_components(
+        with pytest.raises(ArtifactOwnershipError) as missing_request_publication:
+            _rehashed_relation_variant(
+                relation=relation,
                 store=store,
-                relation_ref=missing_request_variant,
-                source_repository=source_repository,
-                parent_handoff=handoff,
-                admission_owner=admission_owner,
-                request=request,
+                update={"request_payload_ref": missing_request_ref.model_dump(mode="json")},
             )
+        assert str(missing_request_publication.value) == (
+            f"Artifact {missing_request_ref.artifact_id} payload is not readable by tenant "
+            f"{handoff.tenant_id}/{handoff.cell_id} for write input:nl_request_payload"
         )
+        real_get_bytes = store.get_bytes
+        withheld_request_reads: list[ArtifactRef] = []
+
+        def withhold_selected_request(ref: Any, *args: Any, **kwargs: Any) -> bytes:
+            if ref == relation.request_payload_ref:
+                withheld_request_reads.append(ref)
+                raise FileNotFoundError("selected authored request payload withheld")
+            return real_get_bytes(ref, *args, **kwargs)
+
+        with monkeypatch.context() as request_withheld:
+            request_withheld.setattr(store, "get_bytes", withhold_selected_request)
+            with pytest.raises(
+                FileNotFoundError, match="selected authored request payload withheld"
+            ):
+                load_authored_joint_components(
+                    store=store,
+                    relation_ref=relation_ref,
+                    source_repository=source_repository,
+                    parent_handoff=handoff,
+                    admission_owner=admission_owner,
+                    request=request,
+                    selection=selection,
+                )
+        assert withheld_request_reads == [relation.request_payload_ref]
 
         first_member = relation.members[0].model_dump(mode="json")
         first_member["source_candidate_id"] = "candidate:foreign-rehashed"
@@ -496,3 +920,24 @@ async def test_authored_joint_relation_replays_real_source_request_and_selected_
                 selection=selection,
             )
         assert wrong_request_replay.value.code == "recursive_authored_joint_relation_scope_mismatch"
+        assert (
+            load_authored_joint_components(
+                store=store,
+                relation_ref=relation_ref,
+                source_repository=source_repository,
+                parent_handoff=handoff,
+                admission_owner=admission_owner,
+                request=request,
+                selection=selection,
+            )
+            == relation
+        )
+        assert (
+            replay_parent_joint_candidate_materializations(
+                selection=hypothetical_selection,
+                request=hypothetical_request,
+                parent_handoff=handoff,
+                admission_owner=admission_owner,
+            )
+            == actual_materializations
+        )

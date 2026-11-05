@@ -1539,14 +1539,19 @@ class AcquisitionRouteLoop:
         ):
             raise AcquisitionRouteClosureError("candidate_experiment_origin_not_established")
         candidates = []
-        configured_bindings = list_current_candidate_unpriced_policy_bindings(
-            control_service=service,
-            tenant_id=self._tenant_id,
-            cell_id=self._cell_id,
-            run_id=run_id,
-            source_job_id=origin.job.job_id,
-            candidate_id=origin.source_cycle.selected_candidate_ref,
-        )
+        try:
+            configured_bindings = list_current_candidate_unpriced_policy_bindings(
+                control_service=service,
+                tenant_id=self._tenant_id,
+                cell_id=self._cell_id,
+                run_id=run_id,
+                source_job_id=origin.job.job_id,
+                candidate_id=origin.source_cycle.selected_candidate_ref,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionRouteClosureError(
+                "candidate_experiment_policy_binding_unavailable"
+            ) from exc
         for configured in configured_bindings:
             if type(configured) is not CandidateUnpricedPolicyBinding:
                 raise AcquisitionRouteClosureError("candidate_experiment_policy_untyped")

@@ -333,7 +333,9 @@ def test_current_action_reader_uses_only_current_verified_history_blocker_basis(
             selected_world_model_ref=selected_world_model_ref,
         )
 
-    with closing(ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")) as control:
+    with closing(
+        ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    ) as control:
         service = object.__new__(AcquisitionActionService)
         service.control_service = SimpleNamespace(
             _control_store=control,

@@ -236,9 +236,7 @@ def test_unresolved_requirement_reaches_served_value_consumer_without_catalog_re
     assert panel_selection["status"] == "blocked"
     assert panel_selection["selected_method_fqn"] == requested_method
     assert panel_selection["denominator"] == tuple(sorted((requested_method, panel_method)))
-    assert dispositions[requested_method]["reasons"] == (
-        "required_data_modality_missing:panel",
-    )
+    assert dispositions[requested_method]["reasons"] == ("required_data_modality_missing:panel",)
     assert dispositions[panel_method]["disposition"] == "eligible"
     assert panel_observation.authority_blockers == (
         "value_method_required_data_modality_unavailable",
@@ -325,4 +323,3 @@ def test_unresolved_requirement_reaches_served_value_consumer_without_catalog_re
         assert consumer_problem.domain == raw_domain
         assert consumer_problem.problem_statement == request_text
         assert consumer_problem.nl_provenance.raw_request == request_text
-

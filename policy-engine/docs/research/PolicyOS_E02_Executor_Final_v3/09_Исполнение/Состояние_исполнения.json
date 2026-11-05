@@ -10514,7 +10514,8 @@
             "named_inputs": 4,
             "inputs_unchanged": true
           },
-          "independent_review": "Luna production source GO; Root new unit/material review and direct complete output readback. Earlier setup errors retained under r1-r4; no fabricated historical PASS."
+          "independent_review": "Luna production source GO; Root new unit/material review and direct complete output readback. Earlier setup errors retained under r1-r4; no fabricated historical PASS.",
+          "format_reconciliation": "Root Ruff formatting of the two new consumer tests preserves complete parsed Python AST; original deciding bytes/pins retained. No numerical replay required for formatting-only delta."
         },
         "requirement_selection_consumer_current": {
           "output": "policy-engine/_cache/e02/lane01-requirement-selection-consumer-r2/",
@@ -10549,6 +10550,21 @@
           "inputs_unchanged_during_run": true,
           "scope": "Passed real DS9/PA2 positive; removal of actual policy leaked FileNotFoundError instead of typed public refusal. Acquisition execute/new N5 still unrun. Retained source is reused for short follow-up, not numerically rerun for each guard.",
           "next": "Canonical source resolver translates missing/unverified policy lookup failure into scoped AcquisitionRouteClosureError while preserving cause; no skip/partial inventory."
+        },
+        "candidate_policy_lookup_typed_refusal_current": {
+          "output": "policy-engine/_cache/e02/lane01-policy-lookup-profile-r4/",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 14.398791708052158,
+          "peak_rss_bytes": 1561018368,
+          "named_inputs": 10,
+          "inputs_unchanged_during_run": true,
+          "scope": "Canonical experiment origin wraps known configured-policy lookup failures as scoped typed refusal with exact original cause. Unit isolates already-verified origin, checks four exception classes, unchanged action-head/events and unexpected interrupt propagation. Genuine retained R2 control is next; no source N5 rerun claimed.",
+          "independent_review": "Root production/test source GO and actual supervised result/stdout readback."
         }
       },
       "independent_component_reviews": {

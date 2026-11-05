@@ -353,3 +353,101 @@ async def test_route_closure_rejects_complete_before_terminal_then_ignores_newer
     assert closure.cost_basis_record.missing_distribution == "administrative_tax_receipts"
     assert closure.cost_basis_record.record_content_hash == closure.cost_basis_hash
     assert closure.terminal_event_id == "evt-ds15-nl-terminal"
+
+
+def test_candidate_experiment_policy_lookup_refusal_preserves_cause_and_issues_no_authority(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Known configured-policy lookup failures close without issuing an action."""
+    from types import SimpleNamespace
+
+    from polisyos.runtime.quality import acquisition_unpriced_candidate_policy as policy_owner
+    from tests._helpers.runtime_http import _build_control_service
+
+    service = _build_control_service(tmp_path)
+    run_id = "candidate-run"
+    source_job_id = "candidate-source-job"
+    route = AcquisitionRouteLoop(
+        control_store=service._control_store,
+        artifact_store=service._artifact_store,
+        event_log=service._diagnostic_event_log,
+        core_source_resolver=service.resolve_completed_control_job_core_run_source,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+    )
+    origin = SimpleNamespace(
+        source_cycle=SimpleNamespace(
+            voi_decision=SimpleNamespace(
+                scheduler_action="reject", scheduler_reason="roi_below_threshold"
+            ),
+            selected_candidate_ref="candidate-a",
+            acquisition_routing_report_ref=object(),
+        ),
+        report=SimpleNamespace(
+            requirement_basis_binding=object(),
+            candidate_lineage=SimpleNamespace(port_source_ref=object()),
+        ),
+        configured_port_source=SimpleNamespace(design_problem_basis_ref=object()),
+        planner_record=SimpleNamespace(compiled_requirement_ref="compiled-requirement-a"),
+        job=SimpleNamespace(job_id=source_job_id),
+    )
+    monkeypatch.setattr(route, "_resolve_verified_origin", lambda **_kwargs: origin)
+    events_before = service._diagnostic_event_log.list_events(
+        run_id=run_id, job_id=source_job_id, limit=500
+    )
+    heads_before = service._control_store.list_acquisition_action_heads_for_source(
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        run_id=run_id,
+        source_job_id=source_job_id,
+    )
+
+    failures = (
+        FileNotFoundError("policy blob is missing"),
+        RuntimeError("policy inventory unavailable"),
+        TypeError("policy binding is malformed"),
+        ValueError("policy selection is invalid"),
+    )
+    failure: BaseException | None = None
+
+    def fail_lookup(**_kwargs: object) -> object:
+        assert failure is not None
+        raise failure
+
+    try:
+        for failure in failures:
+            with monkeypatch.context() as patch:
+                patch.setattr(
+                    policy_owner,
+                    "list_current_candidate_unpriced_policy_bindings",
+                    fail_lookup,
+                )
+                with pytest.raises(AcquisitionRouteClosureError) as refusal:
+                    route.resolve_candidate_experiment_origin(run_id=run_id)
+            assert refusal.value.code == "candidate_experiment_policy_binding_unavailable"
+            assert refusal.value.__cause__ is failure
+
+            assert service._diagnostic_event_log.list_events(
+                run_id=run_id, job_id=source_job_id, limit=500
+            ) == events_before
+            assert service._control_store.list_acquisition_action_heads_for_source(
+                tenant_id="tenant-a",
+                cell_id="cell-a",
+                run_id=run_id,
+                source_job_id=source_job_id,
+            ) == heads_before
+
+        unexpected = KeyboardInterrupt("unexpected control-flow exception")
+        failure = unexpected
+
+        with monkeypatch.context() as patch:
+            patch.setattr(
+                policy_owner,
+                "list_current_candidate_unpriced_policy_bindings",
+                fail_lookup,
+            )
+            with pytest.raises(KeyboardInterrupt) as propagated:
+                route.resolve_candidate_experiment_origin(run_id=run_id)
+        assert propagated.value is unexpected
+    finally:
+        service.close()

@@ -1001,6 +1001,7 @@ def reconcile_candidate_unpriced_work(
         VerifiedCandidateExperimentOrigin,
     )
     from polisyos.scientist.orchestration.engine import (
+        BudgetInvocationQuotaPolicy,
         BudgetState,
         ProducerBudgetObserver,
     )
@@ -1037,8 +1038,6 @@ def reconcile_candidate_unpriced_work(
             name in vars(budget_observer)
             for name in ("admit", "observe", "observe_standard_invocation_capacity")
         )
-        or budget_observer.invocation_quota_profile != policy.n5_quota_profile
-        or budget_observer.invocation_purpose != "standard"
     ):
         raise ValueError("candidate_unpriced_policy_live_owner_mismatch")
     admission = control_service._control_store.current_execution_job_admission()
@@ -1129,14 +1128,42 @@ def reconcile_candidate_unpriced_work(
             or action.latest_receipt != phase
         ):
             raise ValueError("candidate_unpriced_policy_action_not_current")
+    selected_quota_profile = policy.n5_quota_profile
+    if type(selected_quota_profile) is not BudgetLedgerInvocationProfile:
+        raise ValueError("candidate_unpriced_policy_live_owner_mismatch")
+    bound_quota_profile = budget_observer.invocation_quota_profile
+    if (
+        bound_quota_profile is not None and bound_quota_profile != selected_quota_profile
+    ) or budget_observer.invocation_purpose != "standard":
+        raise ValueError("candidate_unpriced_policy_live_owner_mismatch")
     ProducerBudgetObserver.require_bound_state(budget_observer, budget_state)
     budget = ProducerBudgetObserver.admit(budget_observer)
+    if budget.predicate_basis != "independently_reconciled" or budget.remaining_usd <= Decimal(0):
+        raise ValueError("candidate_unpriced_policy_n5_capacity_not_established")
+    if budget.run_binding != selected_quota_profile.run_binding:
+        raise ValueError("candidate_unpriced_policy_live_owner_mismatch")
+    try:
+        selected_quota = ProducerBudgetObserver.bind_invocation_policy_from_selected_owner(
+            budget_observer,
+            BudgetInvocationQuotaPolicy.model_validate(
+                selected_quota_profile.model_dump(mode="python", exclude={"run_binding"}),
+                strict=True,
+            ),
+            purpose="standard",
+        )
+    except (TypeError, ValueError) as exc:
+        raise ValueError("candidate_unpriced_policy_live_owner_mismatch") from exc
+    if (
+        type(selected_quota) is not BudgetLedgerInvocationProfile
+        or selected_quota != selected_quota_profile
+        or budget_observer.invocation_quota_profile != selected_quota_profile
+        or budget_observer.invocation_purpose != "standard"
+    ):
+        raise ValueError("candidate_unpriced_policy_live_owner_mismatch")
     capacity = ProducerBudgetObserver.observe_standard_invocation_capacity(budget_observer)
     if (
-        budget.predicate_basis != "independently_reconciled"
-        or budget.remaining_usd <= Decimal(0)
-        or capacity.status != "available"
-        or capacity.profile_digest != policy.n5_quota_profile.profile_digest
+        capacity.status != "available"
+        or capacity.profile_digest != selected_quota_profile.profile_digest
     ):
         raise ValueError("candidate_unpriced_policy_n5_capacity_not_established")
     selected_again, _ = resolve_current_candidate_unpriced_policy(

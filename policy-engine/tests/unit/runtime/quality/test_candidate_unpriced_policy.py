@@ -38,7 +38,10 @@ from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
     resolve_current_candidate_unpriced_policy,
 )
 from polisyos.runtime.quality.agent_action_authority import agent_action_content_hash
-from polisyos.scientist.orchestration.engine import ProducerBudgetSourceError
+from polisyos.scientist.orchestration.engine import (
+    ProducerBudgetObserver,
+    ProducerBudgetSourceError,
+)
 from tests._helpers.lane01_wdi_profiles import UNEMPLOYMENT_PROFILE, build_fixture_wdi_authority
 from tests._helpers.runtime_http import _build_control_service
 from tests.unit.fabric.data_plane.test_evidence_journal import (
@@ -160,14 +163,16 @@ def test_selected_unpriced_policy_requires_real_config_and_resource_owners(
     """No server selection, changed Fabric request or exhausted quota is permission."""
     cas = artifacts.FileSystemCAS(tmp_path / "cas")
     base = _build_control_service(tmp_path / "control", artifact_store=cas)
-    ledger, middleware, observer = _owner(tmp_path / "quota-ledger.json", total=2, protected=1)
-    profile = observer.invocation_quota_profile
+    ledger, middleware, configured_observer = _owner(
+        tmp_path / "quota-ledger.json", total=2, protected=1
+    )
+    profile = configured_observer.invocation_quota_profile
     assert profile is not None
     with pytest.raises(
         ProducerBudgetSourceError, match="control_nl_budget_producer_events_not_established"
     ):
-        observer.admit()
-    assert observer.last_checked is None
+        configured_observer.admit()
+    assert configured_observer.last_checked is None
     # The quota-only helper has no producer settlement. Record an explicit
     # component-fixture paid event through the real owner; this is not an N5
     # or acquisition price and does not establish a real source-run budget.
@@ -195,9 +200,16 @@ def test_selected_unpriced_policy_requires_real_config_and_resource_owners(
         max_decompressed_bytes=constraints.max_decompressed_bytes,
     )
     bound: ControlPlaneService | None = None
+    policyless: ControlPlaneService | None = None
     try:
         with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
             scope, policy, authorization = _component_policy(cas, profile, authorization)
+            observer = ProducerBudgetObserver(
+                settlement_store=middleware,
+                producer_run_binding=profile.run_binding,
+                budget_state=configured_observer._state,
+                invocation_selection_pending=True,
+            )
             ref = persist_candidate_unpriced_policy(
                 store=cas, event_log=base._diagnostic_event_log, policy=policy
             )
@@ -222,6 +234,14 @@ def test_selected_unpriced_policy_requires_real_config_and_resource_owners(
                 artifact_store=cas,
                 control_store=base._control_store,
                 registry_providers=providers,
+                policy_resolver=base._policy_resolver,
+            )
+            policyless = ControlPlaneService(
+                cas_root=tmp_path / "cas",
+                core_runs_root=tmp_path / "control" / "runs",
+                artifact_store=cas,
+                control_store=base._control_store,
+                registry_providers=replace(providers, candidate_unpriced_policy_bindings=()),
                 policy_resolver=base._policy_resolver,
             )
             selected, reopened = resolve_current_candidate_unpriced_policy(
@@ -320,7 +340,89 @@ def test_selected_unpriced_policy_requires_real_config_and_resource_owners(
                     }
                 )
                 executing_head = bound.acquisition_route_sink.persist_phase(executing)
+                foreign_binding = profile.run_binding.model_copy(
+                    update={
+                        "run_id": "foreign-run-a",
+                        "control_job_id": "job-foreign-run-a",
+                    }
+                )
+                _settle(middleware, foreign_binding, "foreign-run-paid", "0.10")
+                foreign_pending_observer = ProducerBudgetObserver(
+                    settlement_store=middleware,
+                    producer_run_binding=foreign_binding,
+                    budget_state=configured_observer._state.model_copy(deep=True),
+                    invocation_selection_pending=True,
+                )
+                wrong_state = configured_observer._state.model_copy(deep=True)
                 before = ledger.snapshot()
+
+                def reconcile_with(
+                    *,
+                    selected_scope=scope,
+                    selected_service=bound,
+                    selected_observer=observer,
+                    selected_state=None,
+                ):
+                    return reconcile_candidate_unpriced_work(
+                        control_service=selected_service,
+                        scope=selected_scope,
+                        policy_ref=ref,
+                        action_phase_ref=executing_head.receipt_ref,
+                        live_authorization=authorization,
+                        budget_observer=selected_observer,
+                        budget_state=(
+                            selected_observer._state if selected_state is None else selected_state
+                        ),
+                    )
+
+                with pytest.raises(ValueError, match="candidate_unpriced_policy_not_selected"):
+                    reconcile_with(selected_scope=foreign_scope)
+                with pytest.raises(ValueError, match="candidate_unpriced_policy_not_selected"):
+                    reconcile_with(selected_service=policyless)
+                assert observer.invocation_quota_profile is None
+                assert observer.invocation_purpose == "standard"
+                assert ledger.snapshot() == before
+
+                wrong_ledger, _wrong_middleware, wrong_profile_observer = _owner(
+                    tmp_path / "wrong-quota-ledger.json", total=3, protected=1
+                )
+                wrong_profile_before = wrong_ledger.snapshot()
+                with pytest.raises(
+                    ValueError, match="candidate_unpriced_policy_live_owner_mismatch"
+                ):
+                    reconcile_with(selected_observer=wrong_profile_observer)
+                assert wrong_ledger.snapshot() == wrong_profile_before
+                assert ledger.snapshot() == before
+
+                wrong_purpose_observer = ProducerBudgetObserver(
+                    settlement_store=middleware,
+                    producer_run_binding=profile.run_binding,
+                    budget_state=configured_observer._state,
+                    invocation_quota_profile=profile,
+                    invocation_purpose="diagnostic",
+                )
+                with pytest.raises(
+                    ValueError, match="candidate_unpriced_policy_live_owner_mismatch"
+                ):
+                    reconcile_with(selected_observer=wrong_purpose_observer)
+                assert wrong_purpose_observer.invocation_quota_profile == profile
+                assert wrong_purpose_observer.invocation_purpose == "diagnostic"
+                assert ledger.snapshot() == before
+
+                with pytest.raises(
+                    ProducerBudgetSourceError, match="control_nl_budget_state_binding_mismatch"
+                ):
+                    reconcile_with(selected_state=wrong_state)
+                assert observer.invocation_quota_profile is None
+                assert ledger.snapshot() == before
+
+                with pytest.raises(
+                    ValueError, match="candidate_unpriced_policy_live_owner_mismatch"
+                ):
+                    reconcile_with(selected_observer=foreign_pending_observer)
+                assert foreign_pending_observer.invocation_quota_profile is None
+                assert ledger.snapshot() == before
+
                 budget, capacity = reconcile_candidate_unpriced_work(
                     control_service=bound,
                     scope=scope,
@@ -334,6 +436,9 @@ def test_selected_unpriced_policy_requires_real_config_and_resource_owners(
                 assert capacity.standard_remaining_units == 1
                 assert budget.run_binding == profile.run_binding
                 assert ledger.snapshot() == before
+                assert observer.invocation_quota_profile == policy.n5_quota_profile
+                assert observer.invocation_purpose == "standard"
+                assert not ledger.snapshot().invocation_reservations
                 context = CandidateUnpricedLiveContext(
                     control_service=bound,
                     scope=scope,
@@ -420,6 +525,8 @@ def test_selected_unpriced_policy_requires_real_config_and_resource_owners(
                     budget_state=observer._state,
                 )
     finally:
+        if policyless is not None:
+            policyless.close()
         if bound is not None:
             bound.close()
         base.close()

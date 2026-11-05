@@ -235,7 +235,7 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
     original_compiler = compiler_owner.build_design_problem_from_nl_request
 
     async def compile_with_deterministic_spans(**kwargs: Any) -> Any:
-        kwargs.setdefault("span_support_client", _DeterministicSpanSupportClient())
+        kwargs["span_support_client"] = _DeterministicSpanSupportClient()
         return await original_compiler(**kwargs)
 
     monkeypatch.setattr(
@@ -563,7 +563,8 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
         )
         assert dispatched == accepted["job_id"]
         job = service._control_store.get_job(accepted["job_id"])
-        assert job is not None and job.state == "completed"
+        assert job is not None
+        assert job.state == "completed", job.error_message
 
         assert len(root_currentness_observations) == 1
         owner, handoff, problem, currentness, callback = root_currentness_observations[0]

@@ -9135,7 +9135,7 @@
         "horizon": "lane01_horizon: joint_simulation_horizon.py/DTOs+SIMtests, sole common mechanism writer",
         "served": "lane01_served: HTTPcontrolgeneration/job/profile and servedtests, explicitcompanionleases",
         "readiness": "lane01_readiness: confidence_ledger existingreadiness/censusbridge+mirroredtests;actualfinalproducer afterLANE12",
-        "root": "Root alone owns canonical index/commits/refs/generated families. Current API/history writer released after coherent review; AUTHOR remains frozen at e9 until ordinary fast-forward. GDP and cubic fixtures hold disjoint test-only leases during their supervised runs.",
+        "root": "Root owns MAIN index/commits/refs/generated families; AUTHOR frozen at b973a56ee for native checks. Independent MAIN writers have disjoint leases for pending quota bind, split-root epoch resolver, configured hypothetical materialization and explicit fixture companions.",
         "surface": "lane01_surface: core/contracts/runtime.py,HTTP runs projections,dashboard validators/Overview/locales+mirroredtests",
         "offpilot": "lane01_offpilot: scalar slots,catalog unit/provenance/passport/governed descriptors+actual compact WDI profiles",
         "candidate_adapter": "lane01_candidate_adapter: actual Fabric data_requirement adapter+mirroredtests",
@@ -11038,6 +11038,58 @@
           "resolution": "Root verified Main paths equal HEAD, copied only the two independently reviewed exact postimages atomically into Main, preserved Author bytes, and will compose with an ordinary checkpoint/fast-forward. No reset, restore, source/env/data copy, or lost author changes.",
           "timing": "Author writes15:36:52/15:39:28UTC; GDP/Cubic R10 finished15:20–15:23 and auth probe finished15:32:38 before those writes. Those actual8a runtime results are unaffected. Later read-only tail diagnosis uses unchanged selected artifact/projection owners; it does not claim native acceptance.",
           "policy": "All further source writes use explicit Main absolute paths; Root alone synchronizes the verification checkout."
+        },
+        "candidate_experiment_native_execute_r8": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-candidate-execution-native-r8",
+          "source_commit": "b973a56ee69ca53bf0605c6862fa8c4ebb6bb36b",
+          "source_tree": "20a37d4ca5749babc8e5b3eabb661e16777b59be",
+          "status": "command_failed",
+          "wall_seconds": 295.0318176250439,
+          "peak_rss_bytes": 1649786880,
+          "inputs_unchanged": true,
+          "named_inputs": 82,
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "deciding_cause": "Preserved exception chain identifies candidate_unpriced_policy_live_owner_mismatch in reconcile_candidate_unpriced_work. Source trace finds the real observer still pending quota selection while reconciliation requires an already-bound profile. No source transport/reservation or new N5 was reached. Bind the already selected owner through the existing canonical API; preserve lease/source/head/auth checks.",
+          "closure_ids": []
+        },
+        "generic_root_served_r1": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cyc04-fallback-served-native-r1",
+          "source_commit": "b973a56ee69ca53bf0605c6862fa8c4ebb6bb36b",
+          "source_tree": "20a37d4ca5749babc8e5b3eabb661e16777b59be",
+          "status": "command_failed",
+          "wall_seconds": 26.637464666971937,
+          "peak_rss_bytes": 1596276736,
+          "inputs_unchanged": true,
+          "named_inputs": 38,
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "deciding_cause": "Persisted worker diagnostic: invented_admissibility:no_authority_without_a:entailment_verifier_error before N4/N5. Test wrapper setdefault retained the canonical explicit span_support_client=None; direct injection now matches existing sibling fixtures. Root independently reviewed the two fixture-only hunks. Genuine R2 required; no fallback/runtime PASS inferred."
+        },
+        "gdp_resource_served_r11": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-gdp-resource-native-r11",
+          "source_commit": "b973a56ee69ca53bf0605c6862fa8c4ebb6bb36b",
+          "source_tree": "20a37d4ca5749babc8e5b3eabb661e16777b59be",
+          "status": "command_failed",
+          "wall_seconds": 54.84921549994033,
+          "peak_rss_bytes": 1571684352,
+          "inputs_unchanged": true,
+          "named_inputs": 40,
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "deciding_cause": "Profile-derived USA/2024/national_economy candidate_simulation scope assertions pass. Actual typed resolver_unavailable is observed before any deferral/appointment/N5. Source trace finds selected catalog paths loaded without the active split source_owner_root; canonical loader rejects paths outside the code root. Earlier R10 inner code remains unknown. Repair the existing resolver selection, not authority gates."
         }
       },
       "independent_component_reviews": {
@@ -11058,7 +11110,7 @@
       },
       "resource_admission_current": {
         "disk_stop_floor_GiB": 3,
-        "free_disk_GiB_at_check": 7.639,
+        "free_disk_GiB_at_check": 6.397,
         "policy": "Local only; existing environments/data; <=8GiB measured aggregate process-tree RSS and <=6 numerical CPU threads. New expensive profiles start alone.",
         "trash_move": {
           "directory": "/Users/deniskopylov/.Trash/PolicyOS-obsolete-test-scratch-20261105T132841Z",
@@ -11068,6 +11120,14 @@
           "deleted_by_executor": false,
           "trash_emptied_by_executor": false,
           "later_observation": "Trash folder subsequently absent; free disk approximately8GiB. Do not infer block release from move alone."
+        },
+        "additional_trash_move": {
+          "directory": "/Users/deniskopylov/.Trash/PolicyOS-superseded-test-scratch-20261105T162013Z",
+          "scratch_roots": 13,
+          "size_KiB": 875824,
+          "basis": "Completed failed scratch replaced by a successful same-family run; complete result/stdout/stderr/JUnit/pins remain in place. Current and unique fixtures, source/docs/environments/production data excluded.",
+          "deleted_by_executor": false,
+          "trash_emptied_by_executor": false
         }
       }
     },

@@ -213,11 +213,10 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         AcquisitionCandidateWorldRefresh,
     )
     from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioSetToRule,
         CandidateSimulationExecutionV5,
         CandidateSimulationN5InputV5,
-        CandidateSimulationScenarioProfile,
         CandidateSimulationSyntheticModelDeclarationV1,
-        candidate_simulation_profile_ref,
     )
     from polisyos.runtime.quality.data_state_substrate import (
         L1VariableAvailability,
@@ -292,11 +291,12 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     )
     assert observed_annual_change_usd() == EXPECTED_2023_TO_2024_CHANGE_USD
 
-    # The shared WMR fixture has no GDP state field. Add an explicit zero-valued
-    # test baseline so the typed global.gdp slot exists before the observed row
-    # is materialized; this is not an observation or an initial-value claim.
+    # The shared WMR fixture has no GDP state field. Add explicit test-owned
+    # scalar baselines so the WDI observation and registered tax-rate slot can
+    # be bound physically; neither value is an empirical or authority claim.
     base_payload = dict(wmr_fixture.FABRIC_PAYLOAD)
     base_payload["gdp"] = 0.0
+    base_payload["tax_rate"] = 0.5
     monkeypatch.setattr(wmr_fixture, "FABRIC_PAYLOAD", base_payload)
 
     source_profile = replace(
@@ -497,26 +497,22 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     )
 
     problem_seed = controlled_candidate_profile._problem("annual_gdp_usa_2024")
-    assert (
-        problem_seed.candidate_lever_space.candidate_levers[0].target_slot == "government_balance"
-    )
     problem = acquisition_chain.controlled_served_wdi_problem(
         problem_seed,
         raw_request=acquisition_chain.SERVED_WDI_FISCAL_REQUEST,
     )
     assert problem.schema_version == "policyos.runtime.design_problem.v3"
-    # The existing v3 fixture owner maps the NL-facing lever name to a
-    # registered world slot; retain the canonical physical target here.
-    assert problem.candidate_lever_space.candidate_levers[0].target_slot == "government.balance"
     problem_payload = problem.model_dump(mode="json")
     gdp_scope_request = (
         "For USA in calendar year 2024, assess annual nominal GDP in current US dollars "
-        "against a candidate budget-allocation multiplier on the government balance."
+        "and a candidate tax_relief_rate set-to on global.tax_rate from a declared 0.5 "
+        "ratio baseline to 0.0. Any USD response is a declared synthetic SCM assumption."
     )
     candidate_only_request = acquisition_chain.SERVED_WDI_CANDIDATE_ONLY_SOURCE
     problem_payload["domain"] = "economic"
     problem_payload["problem_statement"] = (
-        "Assess a candidate-only USA 2024 annual nominal GDP scenario in current US dollars."
+        "Assess a candidate-only USA 2024 annual nominal GDP scenario in current US dollars "
+        "with a registered tax-rate set-to from 0.5 to 0.0."
     )
     problem_payload["nl_provenance"]["raw_request"] = (
         f"{gdp_scope_request} {candidate_only_request}"
@@ -543,6 +539,17 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
             "direction": "maximize",
         }
     ]
+    problem_payload["candidate_lever_space"] = {
+        "allowed_operator_kinds": ["tax_relief_rate"],
+        "candidate_levers": [
+            {
+                "lever_id": "annual_gdp_tax_relief_rate",
+                "operator_kind": "tax_relief_rate",
+                "instrument": "Registered candidate tax relief rate",
+                "target_slot": "global.tax_rate",
+            }
+        ],
+    }
     problem_payload["constraints"] = [
         {
             "constraint_id": "annual_gdp_request_scope",
@@ -598,7 +605,8 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     }
     problem = controlled_candidate_profile.DesignProblem.model_validate(problem_payload)
     assert problem.schema_version == "policyos.runtime.design_problem.v3"
-    assert problem.candidate_lever_space.candidate_levers[0].target_slot == "government.balance"
+    assert problem.candidate_lever_space.allowed_operator_kinds == ["tax_relief_rate"]
+    assert problem.candidate_lever_space.candidate_levers[0].target_slot == "global.tax_rate"
     assert problem.outcome_of_interest.target_variable == "global.gdp"
 
     class AnnualGDPGap:
@@ -639,23 +647,35 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         country_code="USA",
         data_year=2024,
         population_scope="national_economy",
+        candidate_rule=CandidateScenarioSetToRule(
+            operator_kind="tax_relief_rate",
+            parameter_id="rate",
+            target_world_slot="global.tax_rate",
+            unit_id="ratio",
+            minimum=0,
+            maximum=0,
+        ),
     )
-    # Give the fixture action a deliberate, numerically resolvable USD delta.
-    # This is a declared synthetic SCM input, not an empirical spending effect.
-    action_value_usd = 1_000_000_000_000
-    profile_payload = profile.model_dump(mode="json", exclude={"content_hash"})
-    profile_payload["rule"]["maximum"] = action_value_usd
-    profile = CandidateSimulationScenarioProfile.model_validate(
-        {**profile_payload, "content_hash": gy_content_hash(profile_payload)}
-    )
+    tax_rate_action_value = 0.0
+    assert profile.rule.operator_kind == "tax_relief_rate"
+    assert profile.rule.parameter_id == "rate"
+    assert profile.rule.target_world_slot == "global.tax_rate"
+    assert profile.rule.unit_id == "ratio"
+    assert profile.rule.minimum == profile.rule.maximum == 0
+    assert profile.n5.baseline_state["global.tax_rate"] == 0.5
+    base_profile_world = profile.context_inputs.world_model_record
+    base_profile_views = world_model_artifact_views(base_profile_world)
+    base_profile_state_ref = base_profile_views.bound_state_snapshot_ref
+    assert base_profile_state_ref is not None
+    base_profile_state = load_state_snapshot(store, snapshot_ref=base_profile_state_ref)
+    base_tax_binding = base_profile_world.slot_binding("global.tax_rate")
+    assert base_tax_binding is not None and base_tax_binding.unit == "ratio"
+    base_tax_value = np.asarray(get_state_path(base_profile_state, base_tax_binding.state_path))
+    assert base_tax_value.size == 1 and float(base_tax_value.item()) == 0.5
     declaration_payload = declaration.model_dump(mode="json", exclude={"content_hash"})
     declaration_payload.update(
         {
-            "profile_config_ref": candidate_simulation_profile_ref(profile),
-            "profile_content_hash": profile.content_hash,
-            "target_baseline": profile.n5.baseline_state["government.balance"],
-            "outcome_baseline": profile.n5.baseline_state[TARGET_WORLD_SLOT],
-            "outcome_per_target_unit": 0.25,
+            "outcome_per_target_unit": -500_000_000_000.0,
         }
     )
     declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
@@ -706,50 +726,302 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
 
     recording = acquisition_chain.load_served_wdi_generation_recording()
 
-    # The existing captured N4 recording is transformed by the fixture owner.
-    # Widen only that test-local candidate parameter to match the typed profile
-    # and keep the resulting N4 recording content identified.
-    original_response_transform = acquisition_chain._controlled_wdi_trinity_response
-
-    def large_action_candidate_response(
+    # Keep the captured N4 recording as the immutable parent while binding each
+    # selected stage to the same test-only annual GDP/tax-rate candidate.
+    def annual_gdp_tax_response(
         raw: str,
         *,
         outcome_variable: str,
         labor_problem: Any | None = None,
     ) -> str:
-        transformed = original_response_transform(
-            raw,
-            outcome_variable=outcome_variable,
-            labor_problem=labor_problem,
-        )
-        payload = json.loads(transformed)
-        interventions = payload["policy_spec"]["interventions"]
-        selected_interventions = [
-            item for item in interventions if item.get("kind") == "budget_allocation_multiplier"
-        ]
-        assert len(selected_interventions) == 1
-        selected_interventions[0]["params"]["multiplier"] = action_value_usd
-        parameters = payload["policy_spec"]["parameters"]
-        selected_parameters = [
+        if outcome_variable != "global.gdp" or labor_problem is not None:
+            raise ValueError("annual_gdp_tax_fixture_transform_scope_mismatch")
+        payload = json.loads(raw)
+        policy_spec = payload["policy_spec"]
+        interventions = policy_spec["interventions"]
+        tax_actions = [item for item in interventions if item.get("kind") == "tax_relief_rate"]
+        assert len(tax_actions) == 1
+        tax_action = tax_actions[0]
+        original_intervention_id = tax_action["intervention_id"]
+        parameters = policy_spec["parameters"]
+        rate_parameters = [
             item
             for item in parameters
-            if item.get("intervention_id") == selected_interventions[0]["intervention_id"]
-            and item.get("param_path") == "multiplier"
+            if item.get("intervention_id") == original_intervention_id
+            and item.get("param_path") == "rate"
         ]
-        assert len(selected_parameters) == 1
-        selected_parameters[0].update(
+        assert len(rate_parameters) == 1
+        test_intervention_id = "annual_gdp_tax_relief_rate"
+        tax_action.update(
             {
-                "default_value": str(action_value_usd),
-                "min_value": "1",
-                "max_value": str(action_value_usd),
+                "intervention_id": test_intervention_id,
+                "schedule": {"start_step": 0, "duration_steps": 1},
+                "params": {"rate": 0},
+                "notes": [
+                    "do.target=global.tax_rate sign=decrease outcome=global.gdp "
+                    "effect_path=global.tax_rate,global.gdp; test-owned candidate set-to "
+                    "from ratio baseline 0.5 to 0 under a declared synthetic SCM"
+                ],
+            }
+        )
+        rate_parameters[0].update(
+            {
+                "intervention_id": test_intervention_id,
+                "param_id": "rate",
+                "param_path": "rate",
+                "default_value": "0",
+                "min_value": "0",
+                "max_value": "0.5",
+            }
+        )
+        policy_spec.update(
+            {
+                "policy_id": "annual_gdp_tax_rate_candidate_policy",
+                "description": (
+                    "Candidate-only software fixture: set the registered global tax-rate "
+                    "ratio from 0.5 to 0.0; the declared GDP response is synthetic."
+                ),
+                "labels": ["synthetic", "candidate_only", "usa", "annual_gdp", "2024"],
+                "interventions": [tax_action],
+                "parameters": rate_parameters,
+            }
+        )
+        frame = payload["problem_frame"]
+        frame.update(
+            {
+                "problem_id": problem.design_problem_id,
+                "domain": "economic",
+                "narrative": problem.problem_statement,
+                "labels": ["synthetic", "candidate_only", "usa", "annual_gdp", "2024"],
+                "objectives": [
+                    {
+                        "objective_id": "annual_gdp",
+                        "metric_id": "annual_gdp",
+                        "direction": "maximize",
+                        "weight": "1.0",
+                    }
+                ],
+            }
+        )
+        model_spec = payload["model_spec"]
+        model_spec.update(
+            {
+                "model_id": "annual_gdp_tax_rate_candidate_model",
+                "data_snapshot_ref": str(base_views.data_snapshot_ref.artifact_id),
+                "registry_bundle_ref": str(base_views.registry_bundle_ref.artifact_id),
+                "time_semantics": base_model.time_semantics.model_dump(mode="json"),
+                "labels": ["synthetic", "candidate_only", "usa", "annual_gdp", "2024"],
+                "assumptions": [
+                    {
+                        "assumption_id": "tax_rate_to_annual_gdp_synthetic_coefficient",
+                        "assumption_type": "structural",
+                        "description": (
+                            "Declared test-only SCM coefficient: -500,000,000,000 current "
+                            "USD per unit tax-rate ratio. It is not an empirical or "
+                            "policy-effect estimate."
+                        ),
+                        "confidence": "0.0",
+                        "sensitivity_flag": True,
+                    }
+                ],
             }
         )
         return json.dumps(payload, sort_keys=True, separators=(",", ":"))
 
+    original_controlled_recording = acquisition_chain.controlled_served_wdi_generation_recording
+
+    def _set_recording_response(response: dict[str, Any], body: dict[str, Any]) -> None:
+        raw_response = json.dumps(body, sort_keys=True, separators=(",", ":"))
+        response["raw_response"] = raw_response
+        response["raw_response_hash"] = gy_content_hash(raw_response)
+
+    def annual_gdp_tax_recording(
+        source_recording: dict[str, Any],
+        *,
+        outcome_variable: str,
+        labor_problem: Any | None = None,
+    ) -> dict[str, Any]:
+        controlled = original_controlled_recording(
+            source_recording,
+            outcome_variable=outcome_variable,
+            labor_problem=labor_problem,
+        )
+        if outcome_variable != "global.gdp" or labor_problem is not None:
+            raise ValueError("annual_gdp_tax_fixture_recording_scope_mismatch")
+        responses = controlled["responses"]
+        formalizer_parent_hashes = {
+            acquisition_chain._SERVED_WDI_FIRST_FORMALIZER_HASH,
+            acquisition_chain._SERVED_WDI_STAGE_PARENTS["formalizer"][1],
+        }
+        selected_formalizer_indexes = [
+            index
+            for index, (source_response, _) in enumerate(
+                zip(source_recording["responses"], responses, strict=True)
+            )
+            if source_response.get("role") == "formalizer"
+            and source_response.get("raw_response_hash") in formalizer_parent_hashes
+        ]
+        if len(selected_formalizer_indexes) != 2:
+            raise ValueError("annual_gdp_tax_fixture_formalizer_denominator_mismatch")
+        formalizers = [responses[index] for index in selected_formalizer_indexes]
+        selected_stage_parent_hashes = {
+            stage: acquisition_chain._SERVED_WDI_STAGE_PARENTS[stage][1]
+            for stage in ("draft", "drafter_multipass", "critic")
+        }
+        for source_response, response in zip(source_recording["responses"], responses, strict=True):
+            role = response.get("role")
+            source_hash = source_response.get("raw_response_hash")
+            if role == "draft" and source_hash == selected_stage_parent_hashes["draft"]:
+                body = json.loads(response["raw_response"])
+                body.update(
+                    {
+                        "draft_id": "annual-gdp-usa-2024-tax-rate",
+                        "problem_frame_ref": problem.design_problem_id,
+                        "narrative": problem.problem_statement,
+                        "rationale": (
+                            "This candidate-only software fixture sets global.tax_rate from "
+                            "a physically bound 0.5 ratio baseline to 0.0. The declared "
+                            "synthetic coefficient maps the change to 250 billion current "
+                            "USD; it makes no empirical or causal claim."
+                        ),
+                        "confidence": 0.0,
+                        "alternatives_considered": [
+                            "No-change baseline retained for the N5 comparison."
+                        ],
+                        "interventions": [
+                            {
+                                "name": "Annual GDP tax-rate candidate set-to",
+                                "description": (
+                                    "Set the registered global.tax_rate ratio from 0.5 to 0.0."
+                                ),
+                                "mechanism_type": "tax_relief_rate",
+                                "parameters": {
+                                    "rate": 0,
+                                    "target_world_slot": "global.tax_rate",
+                                    "sign": "decrease",
+                                    "outcome_slots": ["global.gdp"],
+                                    "effect_path": ["global.tax_rate", "global.gdp"],
+                                },
+                                "rationale": (
+                                    "A declared test-only synthetic SCM provides the USD "
+                                    "response; this is not an empirical policy effect."
+                                ),
+                                "target_population": "USA national economy",
+                            }
+                        ],
+                    }
+                )
+                _set_recording_response(response, body)
+            elif (
+                role == "drafter_multipass"
+                and source_hash == selected_stage_parent_hashes["drafter_multipass"]
+            ):
+                body = json.loads(response["raw_response"])
+                finding = dict(body["findings"][0])
+                finding.update(
+                    {
+                        "anchor": "annual_gdp_tax_rate_synthetic_coefficient",
+                        "description": (
+                            "The 250 billion USD change is computed from an explicit synthetic "
+                            "coefficient and a 0.5 ratio delta, not independent evidence."
+                        ),
+                        "affected_intervention": "annual_gdp_tax_relief_rate",
+                        "suggested_fix": (
+                            "Keep the result candidate-only until a measurement contract and "
+                            "causal coupling are independently established."
+                        ),
+                    }
+                )
+                body["findings"] = [finding]
+                _set_recording_response(response, body)
+            elif role == "critic" and source_hash == selected_stage_parent_hashes["critic"]:
+                body = json.loads(response["raw_response"])
+                issue = dict(body["issues"][0])
+                issue.update(
+                    {
+                        "issue_id": "ANNUAL-GDP-SYNTHETIC-SCM-001",
+                        "category": "ALIGNMENT",
+                        "severity": "WARNING",
+                        "message": (
+                            "The tax-rate to GDP coefficient is a declared software-fixture "
+                            "assumption, not measured or causally grounded evidence."
+                        ),
+                        "location": "model_spec.assumptions",
+                        "suggestion": (
+                            "Preserve limited candidate-only status and do not publish this "
+                            "synthetic effect as a policy estimate."
+                        ),
+                    }
+                )
+                body.update(
+                    {
+                        "verdict": "NEEDS_REVISION",
+                        "alignment_score": 0.0,
+                        "completeness_score": 0.0,
+                        "overall_quality": 0.0,
+                        "problem_frame_ref": problem.design_problem_id,
+                        "report_id": "annual_gdp_tax_rate_candidate_critic",
+                        "reflexion_hint": (
+                            "The recorded ratio action is unit-consistent, but its USD effect "
+                            "is synthetic and remains inadmissible as a causal estimate."
+                        ),
+                    }
+                )
+                body["issues"] = [issue]
+                _set_recording_response(response, body)
+        final_ir_ref = gy_content_hash(json.loads(formalizers[-1]["raw_response"]))
+        selected_critics = [
+            response
+            for source_response, response in zip(
+                source_recording["responses"], responses, strict=True
+            )
+            if source_response.get("role") == "critic"
+            and source_response.get("raw_response_hash") == selected_stage_parent_hashes["critic"]
+        ]
+        if len(selected_critics) != 1:
+            raise ValueError("annual_gdp_tax_fixture_critic_denominator_mismatch")
+        critic = selected_critics[0]
+        critic_body = json.loads(critic["raw_response"])
+        critic_body["ir_ref"] = final_ir_ref
+        _set_recording_response(critic, critic_body)
+        from tools.quality.validation import (
+            check_layer3_gy_design_generation_contract as n4_contract,
+        )
+
+        identity_seed = gy_content_hash(
+            {
+                "parent_recording_id": controlled["derived_from_recording_id"],
+                "parent_content_hash": controlled["derived_from_content_hash"],
+                "problem_id": problem.design_problem_id,
+                "response_hashes": [item.get("raw_response_hash") for item in responses],
+                "target": "global.tax_rate",
+                "outcome": "global.gdp",
+            }
+        ).removeprefix("sha256:")[:20]
+        fixture_id = f"synthetic_annual_gdp_tax_n4_{identity_seed}"
+        controlled.update(
+            {
+                "design_problem_id": problem.design_problem_id,
+                "fixture_id": fixture_id,
+                "recording_id": fixture_id,
+                "recording_source": "synthetic_annual_gdp_tax_overlay_of_recorded_capture",
+            }
+        )
+        controlled["recording_content_hash"] = gy_content_hash(
+            {key: value for key, value in controlled.items() if key != "recording_content_hash"}
+        )
+        n4_contract._validate_recording_fixture(controlled)
+        return controlled
+
     monkeypatch.setattr(
         acquisition_chain,
         "_controlled_wdi_trinity_response",
-        large_action_candidate_response,
+        annual_gdp_tax_response,
+    )
+    monkeypatch.setattr(
+        acquisition_chain,
+        "controlled_served_wdi_generation_recording",
+        annual_gdp_tax_recording,
     )
     # Select the canonical typed L1 source-gap route before N7 compiles the
     # requirement; the legacy scenario-family route is not an executable WDI
@@ -766,7 +1038,7 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         llm_model_id=str(recording["model_id"]),
         fixture_problem=problem,
         fixture_value_port=AnnualGDPGap(),
-        fixture_target_world_slots=("government.balance",),
+        fixture_target_world_slots=("global.tax_rate",),
     )
 
     refresh = AcquisitionCandidateWorldRefresh(
@@ -937,8 +1209,12 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     assert input_record.outcome_variable == "global.gdp"
     assert input_record.authority_purpose == "candidate_scenario_n5_only"
     assert execution.authority_purpose == "candidate_scenario_n5_only"
-    assert input_record.profile.rule.target_world_slot == "government.balance"
-    assert input_record.profile.rule.unit_id == "usd"
+    assert input_record.profile.rule.operator_kind == "tax_relief_rate"
+    assert input_record.profile.rule.parameter_id == "rate"
+    assert input_record.profile.rule.target_world_slot == "global.tax_rate"
+    assert input_record.profile.rule.unit_id == "ratio"
+    assert input_record.profile.rule.minimum == input_record.profile.rule.maximum == 0
+    assert input_record.profile.n5.baseline_state["global.tax_rate"] == 0.5
     assert input_record.profile.n5.baseline_state["global.gdp"] == pytest.approx(
         row_2024.value_usd,
         rel=2e-7,
@@ -971,12 +1247,12 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
         load_core_json_artifact(store, execution.model_declaration_ref)
     )
-    assert declaration.target_unit_id == "usd"
+    assert declaration.target_unit_id == "ratio"
     assert declaration.outcome_unit_id == "usd"
     assert declaration.outcome_variable == "global.gdp"
     assert declaration.assumption == "declared_candidate_scm_not_empirically_grounded"
-    assert declaration.outcome_per_target_unit == 0.25
-    assert declaration.target_world_slot == "government.balance"
+    assert declaration.outcome_per_target_unit == -500_000_000_000.0
+    assert declaration.target_world_slot == "global.tax_rate"
     assert declaration.outcome_variable == "global.gdp"
     assert (
         declaration.target_baseline
@@ -986,7 +1262,8 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         declaration.outcome_baseline
         == input_record.profile.n5.baseline_state[declaration.outcome_variable]
     )
-    assert declaration.target_unit_id == declaration.outcome_unit_id == "usd"
+    assert declaration.target_unit_id == "ratio"
+    assert declaration.outcome_unit_id == "usd"
 
     numerical = fresh_reader._read_candidate_simulation_v5_numerical_output(
         ref=execution_ref,
@@ -1041,16 +1318,17 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         row_2024.value_usd,
         rel=2e-7,
     )
+    assert physical_baseline[declaration.target_world_slot] == 0.5
     target_binding = acquired_world.slot_binding(declaration.target_world_slot)
     outcome_binding = acquired_world.slot_binding(declaration.outcome_variable)
     assert target_binding is not None and target_binding.unit == declaration.target_unit_id
     assert outcome_binding is not None and outcome_binding.unit == declaration.outcome_unit_id
 
     # Independently recompute the declared synthetic SCM from physical bX/bY
-    # and the persisted selected action. A $250B output change is far above the
-    # float32 spacing at this GDP scale, so a rounded-away effect cannot pass.
+    # and the persisted selected tax-rate action. The 250 billion USD change is
+    # far above float32 spacing at this GDP scale, so a rounded-away effect cannot pass.
     target_value = float(input_record.materialization.value)
-    assert target_value == action_value_usd
+    assert target_value == tax_rate_action_value == 0.0
     physical_target_baseline = physical_baseline[declaration.target_world_slot]
     physical_outcome_baseline = physical_baseline[declaration.outcome_variable]
     expected_effect = declaration.outcome_per_target_unit * (

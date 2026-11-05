@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -31,6 +32,10 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
     observed: dict[str, object] = {}
 
     def after_first_execution(**first_values: object) -> None:
+        from polisyos.runtime.quality.acquisition_evaluation_history import (
+            verify_candidate_experiment_terminal_history,
+        )
+
         first = first_values["execution"]
         values = first_values["values"]
         policy_ref = first_values["policy_ref"]
@@ -208,6 +213,70 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
         third = run_followup(generation=3)
         fourth = run_followup(generation=4, wdi_response_value=21.0)
         executions = (first, second, third, fourth)
+
+        # A later frontier advance must not invalidate the immutable history of
+        # an earlier committed terminal. The last terminal still has to match
+        # the live selected frontier.
+        control = first_values["control"]
+        for execution in executions:
+            reopened = verify_candidate_experiment_terminal_history(
+                control_service=control,
+                head=execution.terminal_history.head,
+                terminal_ref=execution.terminal_ref,
+            )
+            assert reopened.frontier_after == execution.terminal_history.frontier_after
+
+        latest = executions[-1]
+        latest_frontier = latest.terminal_history.frontier_after
+        assert latest_frontier is not None
+        read_frontier = control._control_store.read_acquisition_evaluation_frontier
+
+        def read_stale_frontier(key: object) -> object:
+            if key == latest_frontier.key:
+                return initial_frontier
+            return read_frontier(key)
+
+        with monkeypatch.context() as stale_current:
+            stale_current.setattr(
+                control._control_store,
+                "read_acquisition_evaluation_frontier",
+                read_stale_frontier,
+            )
+            with pytest.raises(
+                ValueError,
+                match="candidate_experiment_terminal_frontier_after_mismatch",
+            ):
+                verify_candidate_experiment_terminal_history(
+                    control_service=control,
+                    head=latest.terminal_history.head,
+                    terminal_ref=latest.terminal_ref,
+                )
+
+        foreign_frontier = replace(
+            latest_frontier,
+            key=replace(latest_frontier.key, candidate_id="foreign-candidate"),
+        )
+
+        def read_foreign_frontier(key: object) -> object:
+            if key == latest_frontier.key:
+                return foreign_frontier
+            return read_frontier(key)
+
+        with monkeypatch.context() as foreign_current:
+            foreign_current.setattr(
+                control._control_store,
+                "read_acquisition_evaluation_frontier",
+                read_foreign_frontier,
+            )
+            with pytest.raises(
+                ValueError,
+                match="candidate_experiment_terminal_frontier_after_mismatch",
+            ):
+                verify_candidate_experiment_terminal_history(
+                    control_service=control,
+                    head=latest.terminal_history.head,
+                    terminal_ref=latest.terminal_ref,
+                )
 
         assert tuple(item.terminal_history.head.action_generation for item in executions) == (
             1,
@@ -408,7 +477,6 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
         assert fourth.current_action.selected_receipt_ref == fourth.terminal_ref
         assert len(fourth.execution_owner.transport_calls) == 1
 
-        control = first_values["control"]
         snapshot = control._llm_producer_settlement_store.snapshot_safe()
         profile = snapshot.invocation_profiles[origin.run_id]
         standard_units = sum(

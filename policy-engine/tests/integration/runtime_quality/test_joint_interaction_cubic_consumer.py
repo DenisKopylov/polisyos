@@ -1104,7 +1104,6 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
         not in parent["n8_authority_blockers"]
     )
     assert "n5_execution_request_provenance_not_established" in parent["n8_authority_blockers"]
-    assert evidence["higher_order_residual_sampling_status"] == "estimated"
     assert evidence["numeric_interaction"] == "non_additive"
     assert evidence["numeric_interaction_basis"] == "finite_checked_model_point_estimate_only"
 
@@ -1124,7 +1123,9 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
     for term in served_pair_rows:
         summary = term["replication_sampling_by_step"]["0"]
         assert summary["status"] == "estimated"
+        assert summary["replicate_count"] == len(expected_seeds)
         assert summary["seeds"] == expected_seeds
+        assert len(summary["samples"]) == len(summary["seeds"]) == summary["replicate_count"]
         assert summary["samples"] == [
             {"seed": expected_seeds[0], "value": baseline},
             {"seed": expected_seeds[1], "value": baseline},
@@ -1134,7 +1135,13 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
 
     served_residual = evidence["higher_order_residual_sampling"][outcome]["0"]
     assert served_residual["status"] == "estimated"
+    assert served_residual["replicate_count"] == len(expected_seeds)
     assert served_residual["seeds"] == expected_seeds
+    assert (
+        len(served_residual["samples"])
+        == len(served_residual["seeds"])
+        == served_residual["replicate_count"]
+    )
     assert served_residual["samples"] == [
         {"seed": expected_seeds[0], "value": 1.0 - baseline},
         {"seed": expected_seeds[1], "value": 1.0 - baseline},
@@ -1148,11 +1155,24 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
     assert result_manifest.tenant_context is not None
     assert result_manifest.tenant_context.tenant_id == "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
     assert result_manifest.tenant_context.cell_id == "cell-b26-joint-candidate"
-    result = service._artifact_store.get_json(result_ref)
-    residual = result["higher_order_residual_sampling"][outcome][0]
-    assert residual["samples"] == [
-        {"seed": expected_seeds[0], "value": 1.0 - baseline},
-        {"seed": expected_seeds[1], "value": 1.0 - baseline},
+    assert parent["world_model_record_content_hash"] is not None
+    with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
+        persisted_result = load_joint_simulation_result(
+            result_ref,
+            store=service._artifact_store,
+            expected_world_model_record_content_hash=parent["world_model_record_content_hash"],
+            expected_atom_ids=tuple(parent["atom_ids"]),
+            expected_selected_outcomes=tuple(parent["selected_outcomes"]),
+        )
+    persisted_residual = persisted_result.higher_order_residual_sampling[outcome][0]
+    assert persisted_residual.status == served_residual["status"]
+    assert persisted_residual.replicate_count == len(expected_seeds)
+    assert persisted_residual.seeds == tuple(served_residual["seeds"])
+    assert [sample.seed for sample in persisted_residual.samples] == expected_seeds
+    assert [sample.effects["derived_effect"] for sample in persisted_residual.samples] == [
+        sample["value"] for sample in served_residual["samples"]
     ]
-    assert residual["mean"] == 1.0 - baseline
-    assert residual["standard_error"] == pytest.approx(0.0)
+    assert persisted_result.higher_order_residuals[outcome][0] == served_residual["mean"]
+    assert persisted_residual.effects_standard_error["derived_effect"] == pytest.approx(
+        served_residual["standard_error"]
+    )

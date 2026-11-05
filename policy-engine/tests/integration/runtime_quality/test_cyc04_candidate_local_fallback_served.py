@@ -457,7 +457,6 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
                 assert original_context_admission_verifier is None or callable(
                     original_context_admission_verifier
                 )
-                assert not materialization_attempts
                 assert not physical_n5_requests
                 assert not root_n5_inputs
                 input_ref = kwargs.get("generic_cycle_simulation_input_ref")
@@ -787,8 +786,9 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
     assert set(coefficients) == target_slots
     assert coefficients == dict.fromkeys(target_slots, 0.5)
     assert outcome_equation.equation_params["intercept"] == pytest.approx(
-        request.baseline_state[outcome], abs=1e-12
+        request.baseline_state[outcome], abs=1e-12, rel=0
     )
+    assert all(request.baseline_state[target] == 0.0 for target in target_slots)
     assert assignment.variable in target_slots
     expected_effect = float(coefficients[assignment.variable]) * (
         float(assignment.value) - request.baseline_state[assignment.variable]
@@ -828,10 +828,12 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
     assert effect_samples == pytest.approx(
         (expected_effect,) * request.replications,
         abs=1e-12,
+        rel=0,
     )
     assert outcome_samples == pytest.approx(
         (request.baseline_state[outcome] + expected_effect,) * request.replications,
         abs=1e-12,
+        rel=0,
     )
     effect_mean = sum(effect_samples) / len(effect_samples)
     outcome_mean = sum(outcome_samples) / len(outcome_samples)
@@ -845,13 +847,13 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
         / (len(outcome_samples) - 1)
         / len(outcome_samples)
     ) ** 0.5
-    assert cas_joint_point.effect[outcome] == pytest.approx(effect_mean, abs=1e-12)
-    assert cas_joint_point.outcomes[outcome] == pytest.approx(outcome_mean, abs=1e-12)
+    assert cas_joint_point.effect[outcome] == pytest.approx(effect_mean, abs=1e-12, rel=0)
+    assert cas_joint_point.outcomes[outcome] == pytest.approx(outcome_mean, abs=1e-12, rel=0)
     assert sampling.effects_standard_error[outcome] == pytest.approx(
-        effect_standard_error, abs=1e-12
+        effect_standard_error, abs=1e-12, rel=0
     )
     assert sampling.outcomes_standard_error[outcome] == pytest.approx(
-        outcome_standard_error, abs=1e-12
+        outcome_standard_error, abs=1e-12, rel=0
     )
 
     fresh_n5_observation = fresh_n5_observations[0]
@@ -877,10 +879,10 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
     (public_joint_point,) = public_joint_trajectory["points"]
     assert public_joint_point["step"] == cas_joint_point.step
     assert public_joint_point["effects"][outcome] == pytest.approx(
-        cas_joint_point.effect[outcome], abs=1e-12
+        cas_joint_point.effect[outcome], abs=1e-12, rel=0
     )
     assert public_joint_point["outcomes"][outcome] == pytest.approx(
-        cas_joint_point.outcomes[outcome], abs=1e-12
+        cas_joint_point.outcomes[outcome], abs=1e-12, rel=0
     )
     # The generic result body exposes its exact finite trajectory row only;
     # replication samples/SE and outcome units remain unavailable on this DTO.

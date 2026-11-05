@@ -10619,18 +10619,18 @@
           ],
           "full_route_result": "Three actual FAILs before N5: first two fixture tenant mismatch, third N4 recording lacks formalizer stage. Canonical fixture identity is aligned; existing source-derived synthetic-settled multi-stage provider is now explicitly selected for this test only. Latest full route remains UNRUN.",
           "independent_review": "CYC04 Luna source/owner/span review GO; Root owns checkpoint, not a new numerical PASS.",
-          "latest_output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cubic-served-native-r8/",
+          "latest_output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cubic-served-native-r9/",
           "latest_observed": {
             "PASS": 0,
             "FAIL": 1,
             "ERROR": 0,
             "SKIP": 0
           },
-          "latest_seconds": 172.377734,
-          "latest_peak_rss_bytes": 1873068032,
-          "latest_named_inputs": 46,
+          "latest_seconds": 199.441,
+          "latest_peak_rss_bytes": 1827143680,
+          "latest_named_inputs": 57,
           "latest_inputs_unchanged": true,
-          "latest_state": "All child/removal assertions preceding the parent check pass, actual joint_parent_status resolved; full selector FAIL on another stale preflight root ID. Class repair now independently reloads durable compiled root and persisted N4 source, derives all3 actual children and checks complete lineage/binding denominator. Independent Luna material review GO; corrected full route UNRUN. Controlled synthetic kernel and missing-coupling authority block preserved."
+          "latest_state": "Actual persisted root/child and removal assertions pass to the sampling tail; full selector FAIL on nonexistent API aggregate key. Complete field census repaired both test consumers to typed persisted sample/effect/SE versus API summary fields; sibling current-checkout/compiled-root/parent-layout repaired. Independently reviewed; corrected full routes UNRUN."
         },
         "annual_gdp_holdout_current_preparation": {
           "files": [
@@ -10642,7 +10642,7 @@
             "policy-engine/_cache/e02/lane01-gdp-current-native-r2/"
           ],
           "observed": "Two initial FAIL/FAIL invocations stop on import/fixture-schema and oracle-shape mistakes before positive N5. Wrong-year production refusal was correct in r2; test now asserts its exact code.",
-          "latest_state": "Typed L1 route now reaches real acquisition, but Catalog construction leaked fixture connector methods returning SimpleNamespace into WDI validation. Repair construction-only patch lifetime in the canonical published-Catalog test helper; no product schema/gate bypass. Corrected whole route UNRUN.",
+          "latest_state": "Canonical Catalog connector lifetime repair qualified separately. GDP custom fixture now uses strict integer tax rate0 in ratio units with physical baseline0.5 and declared -$500B/ratio synthetic coefficient, preserving actual acquired annual GDP baseline and independently expected+$250B. All selected N4 overlay stages and hashes consistent; default helper behavior unchanged. Independent numeric/default-path review GO, corrected whole route UNRUN.",
           "independent_review": "Luna numerical/state/precision reviews and Sol import/constructor audit; corrected latest fixture has not run.",
           "latest_output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-gdp-resource-native-r9/",
           "latest_observed": {
@@ -10903,15 +10903,77 @@
           "limitations": "GDP success path still UNRUN after repair; fixture server startup failure ordering outside the existing try remains outside this control."
         },
         "candidate_experiment_source_reuse_current_preparation": {
-          "status": "IMPLEMENTED_SOURCE_REVIEW_GO_RUNTIME_UNRUN",
+          "status": "QUALIFIED_RETAINED_READ_COMPONENT_FULL_PRODUCER_PENDING",
           "scope": "Same-read origin reuse only in private in-flight outcome fold with both final source/head fences. Public head verifier and standalone terminal-history readers still replay source; later phase prefixes derive from actual verified terminal histories. PA2 signer/CAS/event proof remains fresh.",
-          "independent_review": "Terra material GO; profile, PA2 removal and prefix error controls corrected before execution. Actual performance gain and complete worker impact not established."
+          "independent_review": "Terra material GO; profile, PA2 removal and prefix error controls corrected before execution. Actual performance gain and complete worker impact not established.",
+          "source_commit": "f6e8df4cda414dcf3fbadbad630521105e024e85",
+          "profile_output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-r6-readonly-get-profile-f6e8-r1/",
+          "controls_output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-r6-readonly-controls-f6e8-r3/",
+          "GET_wall_seconds": 14.078786,
+          "previous_GET_wall_seconds": 25.084,
+          "source_resolutions": 3,
+          "previous_source_resolutions": 6,
+          "policy_binding_enumerations": 9,
+          "previous_policy_binding_enumerations": 18,
+          "controls": "Actual retained executing phase: foreign scope, final source drift, head change, well-formed wrong selected profile, observed PA2 removal, revoked signer, and public standalone head source-removal refusal all pass.",
+          "named_inputs": 18,
+          "inputs_unchanged": true,
+          "state_preservation": "CAS697file stat delta empty; SQL rows/main DB, ledger and issuer hashes unchanged. Zero-byte WAL/SHM transiently removed on close; no worker/POST/N5/network guards fired.",
+          "limits": "This is a real read/history component, not a completed candidate action or full worker acceleration claim. Optional post-route policy read is outside its access guard and reports dependency unavailable. Exact isolated timing is14.08s; other agent summaries mixed later probes and are not used as this locator's timing."
         },
         "candidate_experiment_historical_frontier_remaining": {
-          "status": "INTERNAL_SOURCE_REPAIR_IN_PROGRESS",
+          "status": "IMPLEMENTED_FOCUSED_SQL_QUALIFIED_FULL_CHAIN_UNRUN",
           "source": "acquisition_evaluation_history.py committed history frontier comparison; static review, not runtime-reproduced yet.",
           "issue": "Historical committed terminal currently requires its frontier_after equal current frontier, conflicting with successful later generations including retained evaluation revision+1.",
-          "next": "Reconcile exact immutable per-head frontier before/after through verified generation chain to current selected frontier; preserve head/current-frontier concurrency fences. No production inputs missing; full multigeneration launch waits for this class repair."
+          "next": "Compose and qualify genuine A→B→B→B→C after first protected positive; full served chain remains unrun. Initial2PASS/2FAIL mock-keyword fixture run retained at R1; R2 preserves same source and updates only test companion signatures.",
+          "output": "policy-engine/_cache/e02/lane01-frontier-history-unit-r2/",
+          "observed": {
+            "PASS": 4,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 16.44,
+          "peak_rss_bytes": 1551695872,
+          "named_inputs": 4,
+          "inputs_unchanged": true,
+          "independent_review": "Terra source/test and standalone-vs-current caller audit GO. Historical facts do not assert current authority; current fold/next action retain latest frontier and contiguous-prefix fences.",
+          "scope": "Real SQLite immutable before/after versions; evaluated/retained revision+1, no-evaluation no-advance, absent/wrong/foreign/gap controls. The literal candidate_blocked still has no canonical blocker owner and is not qualified; actual completed/blocked basis path remains distinct."
+        },
+        "generic_root_unit_r6": {
+          "source_commit": "f6e8df4cda414dcf3fbadbad630521105e024e85",
+          "source_tree": "be122a620309777dbe8f3c8f56b7d453bf26c6ee",
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cyc04-root-fallback-unit-r6/",
+          "observed": {
+            "PASS": 36,
+            "FAIL": 4,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 131.1978,
+          "peak_rss_bytes": 1843445760,
+          "named_inputs": 15,
+          "inputs_unchanged": true,
+          "scope": "Seven selector controls, same-client factory, issued-scope refusal and existing siblings pass. PositiveV5 reached real controlled N4 with2 required owner replays; its old count assertion failed. Three actual-worker fixtures stopped at missing selected Catalog before worker execution.",
+          "next": "Reviewed test-only repairs compose actual selected Catalog before startup and assert exact two same-ref/equal-context replay phases. Run only affected4 plus2 scope companions; other34 qualifiers remain at f6 unchanged source."
+        },
+        "candidate_experiment_native_execute_r7": {
+          "source_commit": "f6e8df4cda414dcf3fbadbad630521105e024e85",
+          "source_tree": "be122a620309777dbe8f3c8f56b7d453bf26c6ee",
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-candidate-execution-native-r7/",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 301.968127,
+          "peak_rss_bytes": 1913470976,
+          "named_inputs": 78,
+          "inputs_unchanged": true,
+          "scope": "Decision POST and source read/removal controls complete; action publishes requested/executing then job_failed. Durable error candidate_experiment_execution_not_established:ValueError loses the inner cause. job_admission is diagnostic default, not proven failing stage.",
+          "work": "Exactly2 completed standard reservation rows,1unit each, both before action creation. No new selected action DataSnapshot/WMR/N5/result/terminal/frontier proof; no replayable outcome anchor. Earlier4-unit agent interpretation was corrected against actual ledger chronology. Transport call count not durably established.",
+          "next": "Bounded static/private-input diagnosis and faithful pre-effect replay if canonical scope permits; capture full deciding exception cause in the test observer before another expensive invocation. No missing external authority diagnosis inferred."
         }
       },
       "independent_component_reviews": {

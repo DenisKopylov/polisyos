@@ -34,7 +34,7 @@ def test_generic_worker_lease_helper_refuses_missing_or_unissued_scope(
 
 @pytest.mark.parametrize("case", ["current_ref", "missing_skg", "withdrawn_skg"])
 def test_generic_root_reissue_uses_current_ref_and_checks_recipe_before_n4(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, case: str
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest, case: str
 ) -> None:
     from fastapi.testclient import TestClient
 
@@ -63,6 +63,10 @@ def test_generic_root_reissue_uses_current_ref_and_checks_recipe_before_n4(
     from tests._helpers.candidate_cycle_source_profile import (
         _problem as source_problem,
     )
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_catalog_serving_source,
+        candidate_cycle_catalog_registry_providers,
+    )
     from tests._helpers.control_worker import dispatch_one_control_job
     from tests._helpers.controlled_candidate_profile import (
         _build_configured_procurement_profile,
@@ -76,6 +80,10 @@ def test_generic_root_reissue_uses_current_ref_and_checks_recipe_before_n4(
     monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
     monkeypatch.setenv("POLISYOS_CONTROL_SQLITE_PATH", str(tmp_path / "control.sqlite3"))
     monkeypatch.setenv("POLISYOS_CACHE_HOME", str(tmp_path / "cache"))
+    catalog_selection, catalog_source = build_candidate_cycle_catalog_serving_source(tmp_path)
+    provider_context = candidate_cycle_catalog_registry_providers(catalog_selection, catalog_source)
+    catalog_providers = provider_context.__enter__()
+    request.addfinalizer(lambda: provider_context.__exit__(None, None, None))
     tenant_id = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
     cell_id = "cell-a"
     problem = _problem("generic_root_reissue")
@@ -136,7 +144,11 @@ def test_generic_root_reissue_uses_current_ref_and_checks_recipe_before_n4(
         repo_root=tmp_path,
         generic_cycle_simulation_profiles=(profile,),
         generic_cycle_simulation_root_profile_id=profile.profile_id,
-        container_overrides=RuntimeContainerOverrides(runtime_api_context=api),
+        catalog_source_selection=catalog_selection,
+        catalog_run_profile=catalog_selection.catalog_run_profile,
+        container_overrides=RuntimeContainerOverrides(
+            runtime_api_context=api, control_registry_providers=catalog_providers
+        ),
         allow_fixture_identity=True,
     )
 
@@ -162,7 +174,19 @@ def test_generic_root_reissue_uses_current_ref_and_checks_recipe_before_n4(
     monkeypatch.setattr(JointSimulationPort, "__call__", forbid_n5)
     monkeypatch.setattr(JointSimulationHorizonController, "run", forbid_n5)
     with TestClient(app) as client:
+        from polisyos.runtime.quality.substrate_registry import (
+            require_catalog_serving_graph_binding,
+        )
+
         service = app.state._control_service
+        assert service._registry_providers is catalog_providers
+        require_catalog_serving_graph_binding(
+            service._registry_providers.gy_catalog_graph, service._catalog_serving_source
+        )
+        require_catalog_serving_graph_binding(
+            service._retrieval_catalog, service._catalog_serving_source
+        )
+        assert service._retrieval._dataset_catalog is service._retrieval_catalog
         original_compile = service.compile_and_run_recursive_generation_cycle
 
         async def run_owner_controls(**kwargs: Any) -> Any:

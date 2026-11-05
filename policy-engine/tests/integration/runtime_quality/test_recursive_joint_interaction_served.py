@@ -9,9 +9,7 @@ from typing import Any
 
 import pytest
 
-PHYSICAL_POLICY_ENGINE_ROOT = Path(
-    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine"
-)
+PHYSICAL_POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[3]
 
 
 @pytest.fixture
@@ -40,10 +38,14 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
     pytest.importorskip("fastapi.testclient")
     from fastapi.testclient import TestClient
 
+    from polisyos.core.artifacts import read_core_json_artifact
     from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
     from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.services.control import generation_cycle as compiler_owner
     from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
     from tests._helpers.control_worker import dispatch_one_control_job
 
     helper_name = "tests._helpers.generic_n4_served_replay"
@@ -115,12 +117,27 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
         assert fresh_response.status_code == 200, fresh_response.text
         projection = fresh_response.json()["run"]["generic_cycle_simulation"]
 
-    root_ref = "design-problem://" + cycle_job_design_problem_ref(
-        prepared.recorded_problem
+    served_compiled_ref = ArtifactRef.model_validate(projection["source_ref"])
+    assert served_compiled_ref == ArtifactRef.model_validate(
+        job.progress["compiled_recursive_generation_cycle_artifact_ref"]
+    )
+    assert (
+        str(served_compiled_ref.artifact_id)
+        == job.progress["compiled_recursive_generation_cycle_ref"]
+    )
+    with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
+        assert service._artifact_store.verify(served_compiled_ref).ok
+        compiled = compiler_owner.CompiledRecursiveGenerationCycleRun.model_validate(
+            read_core_json_artifact(service._artifact_store, served_compiled_ref).value
+        )
+    served_root_node_ref = "design-problem://" + cycle_job_design_problem_ref(
+        compiled.design_problem
     ).removeprefix("sha256:")
-    parent_rows = [row for row in projection["n5_observations"] if row["node_ref"] == root_ref]
+    assert compiled.recursive_run.root_node_ref == served_root_node_ref
+    parent_rows = projection["joint_parent_observations"]
     assert len(parent_rows) == 1
     parent = parent_rows[0]
+    assert parent["node_ref"] == served_root_node_ref
     evidence = parent["n5_interaction_evidence"]
     assert len(parent["atom_ids"]) == 3
     assert len(evidence["interaction_terms"]) == 3
@@ -147,8 +164,6 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
     )
     assert parent["n8_status"] == "value_pending_n8"
     assert parent["n8_numeric_interaction_basis"] == "finite_checked_model_point_estimate_only"
-    assert evidence["higher_order_residual_sampling_status"] == "estimated"
-
     expected_seeds = [prepared.root_profile.n5.seed, prepared.root_profile.n5.seed + 1]
     outcome = prepared.recorded_problem.outcome_of_interest.target_variable
     baseline = float(prepared.root_profile.n5.baseline_state[outcome])
@@ -165,7 +180,9 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
     for term in served_pair_rows:
         summary = term["replication_sampling_by_step"]["0"]
         assert summary["status"] == "estimated"
+        assert summary["replicate_count"] == len(expected_seeds)
         assert summary["seeds"] == expected_seeds
+        assert len(summary["samples"]) == len(summary["seeds"]) == summary["replicate_count"]
         assert summary["samples"] == [
             {"seed": expected_seeds[0], "value": baseline},
             {"seed": expected_seeds[1], "value": baseline},
@@ -175,7 +192,13 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
 
     served_residual = evidence["higher_order_residual_sampling"][outcome]["0"]
     assert served_residual["status"] == "estimated"
+    assert served_residual["replicate_count"] == len(expected_seeds)
     assert served_residual["seeds"] == expected_seeds
+    assert (
+        len(served_residual["samples"])
+        == len(served_residual["seeds"])
+        == served_residual["replicate_count"]
+    )
     assert served_residual["samples"] == [
         {"seed": expected_seeds[0], "value": 1.0 - baseline},
         {"seed": expected_seeds[1], "value": -1.0 - baseline},
@@ -184,11 +207,25 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
     assert served_residual["standard_error"] == pytest.approx(1.0)
 
     result_ref = ArtifactRef.model_validate(parent["simulation_result_ref"])
-    result = service._artifact_store.get_json(result_ref)
-    residual = result["higher_order_residual_sampling"][outcome][0]
-    assert residual["samples"] == [
-        {"seed": expected_seeds[0], "value": 1.0 - baseline},
-        {"seed": expected_seeds[1], "value": -1.0 - baseline},
+    assert result_ref.manifest_profile_sha256 is not None
+    assert parent["world_model_record_content_hash"] is not None
+    with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
+        persisted_result = load_joint_simulation_result(
+            result_ref,
+            store=service._artifact_store,
+            expected_world_model_record_content_hash=parent["world_model_record_content_hash"],
+            expected_atom_ids=tuple(parent["atom_ids"]),
+            expected_selected_outcomes=tuple(parent["selected_outcomes"]),
+        )
+    persisted_residual = persisted_result.higher_order_residual_sampling[outcome][0]
+    assert persisted_residual.status == served_residual["status"]
+    assert persisted_residual.replicate_count == len(expected_seeds)
+    assert persisted_residual.seeds == tuple(served_residual["seeds"])
+    assert [sample.seed for sample in persisted_residual.samples] == expected_seeds
+    assert [sample.effects["derived_effect"] for sample in persisted_residual.samples] == [
+        sample["value"] for sample in served_residual["samples"]
     ]
-    assert residual["mean"] == -baseline
-    assert residual["standard_error"] == pytest.approx(1.0)
+    assert persisted_result.higher_order_residuals[outcome][0] == served_residual["mean"]
+    assert persisted_residual.effects_standard_error["derived_effect"] == pytest.approx(
+        served_residual["standard_error"]
+    )

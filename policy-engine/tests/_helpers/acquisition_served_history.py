@@ -37,6 +37,7 @@ from polisyos.runtime.quality import substrate_registry
 from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoopReceipt
 
 if TYPE_CHECKING:
+    from polisyos.runtime.quality.candidate_simulation import CandidateScenarioSetToRule
     from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
 from polisyos.runtime.quality.agent_action_authority import (
     ACQUISITION_ACTION_KIND,
@@ -257,6 +258,7 @@ def _served_wdi_candidate_profile(
     data_year: int | None = None,
     population_scope: str = "served_controlled_candidate_fixture",
     invocation_quota_policy: BudgetInvocationQuotaPolicy | None = None,
+    candidate_rule: CandidateScenarioSetToRule | None = None,
 ):
     """Build one typed synthetic N5 profile over a real owner-built base WMR."""
     tmp_path.mkdir(parents=True, exist_ok=True)
@@ -314,8 +316,13 @@ def _served_wdi_candidate_profile(
         or str(data_year) != problem.jurisdiction_time.data_time
     ):
         raise ValueError("served_candidate_profile_problem_scope_mismatch")
+    if candidate_rule is not None and type(candidate_rule) is not CandidateScenarioSetToRule:
+        raise TypeError("served_candidate_profile_rule_untyped")
     outcome_variable = problem.outcome_of_interest.target_variable
-    policy_slots = tuple(dict.fromkeys(("government.balance", outcome_variable)))
+    target_world_slot = (
+        candidate_rule.target_world_slot if candidate_rule is not None else "government.balance"
+    )
+    policy_slots = tuple(dict.fromkeys((target_world_slot, outcome_variable)))
     family_id = "macro_state" if scoped_country_year else "firm_fundamentals"
     snapshot_id = "served-wdi-controlled-candidate-base"
     base_data_snapshot_ref = wmr_fixture._data_snapshot_ref(store, snapshot_id=snapshot_id)
@@ -392,7 +399,7 @@ def _served_wdi_candidate_profile(
             EstimateCandidate(
                 value=0.0,
                 pattern_name="controlled_candidate_fixture",
-                variable_hint="government.balance",
+                variable_hint=target_world_slot,
             ),
             EstimateCandidate(
                 value=0.0,
@@ -462,7 +469,13 @@ def _served_wdi_candidate_profile(
         ),
     )
     slot_units = {binding.slot_id: binding.unit for binding in base_world.record.policy_slot_map}
-    target_baseline = float(base_world.bound_global_state.government_balance)
+    target_binding = base_world.record.slot_binding(target_world_slot)
+    if target_binding is None or not target_binding.state_path:
+        raise AssertionError("served_candidate_profile_target_binding_missing")
+    target_state = base_world.bound_global_state
+    for segment in target_binding.state_path.split("."):
+        target_state = getattr(target_state, segment)
+    target_baseline = float(target_state)
     outcome_binding = base_world.record.slot_binding(outcome_variable)
     if outcome_binding is None:
         raise AssertionError("served_candidate_profile_outcome_binding_missing")
@@ -509,7 +522,7 @@ def _served_wdi_candidate_profile(
         source_pack_content_hash=context.source_pack_content_hash,
         substrate_input_content_hash=context.substrate_input_content_hash,
     )
-    rule = CandidateScenarioSetToRule(
+    rule = candidate_rule or CandidateScenarioSetToRule(
         operator_kind="budget_allocation_multiplier",
         parameter_id="multiplier",
         target_world_slot="government.balance",
@@ -517,11 +530,13 @@ def _served_wdi_candidate_profile(
         minimum=1,
         maximum=2,
     )
+    if rule.unit_id != slot_units[rule.target_world_slot]:
+        raise ValueError("served_candidate_profile_rule_unit_mismatch")
     n5 = CandidateScenarioN5Config(
         budget_ref="budget://e02r2/b09-controlled-acquisition-candidate",
         horizon=HorizonSpec(start=0, end=0, step=1),
         baseline_state={
-            "government.balance": target_baseline,
+            rule.target_world_slot: target_baseline,
             problem.outcome_of_interest.target_variable: outcome_baseline,
         },
         seed=17,

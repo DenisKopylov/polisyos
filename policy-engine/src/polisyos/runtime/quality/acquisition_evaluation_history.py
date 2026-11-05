@@ -49,6 +49,8 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.http.services.control_plane_store import (
         AcquisitionActionHeadRecord,
+        AcquisitionEvaluationFrontierKey,
+        AcquisitionEvaluationFrontierRecord,
         ControlPlaneStore,
     )
     from polisyos.runtime.quality.acquisition_evaluation import (
@@ -673,6 +675,76 @@ def verify_candidate_terminal_history(
         continuation=continuation,
         frontier=frontier,
     )
+
+
+def _candidate_experiment_frontier_transition_for_history(
+    *,
+    control_store: ControlPlaneStore,
+    key: AcquisitionEvaluationFrontierKey,
+    head: AcquisitionActionHeadRecord,
+    expected_frontier_ref: str | None,
+    expected_frontier_revision: int,
+    selected_basis_ref: str,
+    selected_basis_content_hash: str,
+    decision_ref: str,
+    selected_evaluation_witness_ref: str,
+    selected_evaluation_content_hash: str | None,
+) -> tuple[
+    AcquisitionEvaluationFrontierRecord | None,
+    AcquisitionEvaluationFrontierRecord | None,
+]:
+    """Reconstruct one committed terminal's immutable before/after frontier."""
+    from polisyos.runtime.http.services.control_plane_store import (
+        AcquisitionActionHeadRecord,
+        AcquisitionEvaluationFrontierKey,
+        ControlPlaneStore,
+    )
+
+    if (
+        type(control_store) is not ControlPlaneStore
+        or type(key) is not AcquisitionEvaluationFrontierKey
+        or type(head) is not AcquisitionActionHeadRecord
+    ):
+        raise ValueError("candidate_experiment_terminal_frontier_owner_not_established")
+    if head.evaluation_frontier_before_ref != expected_frontier_ref:
+        raise ValueError("candidate_experiment_terminal_frontier_transaction_mismatch")
+
+    frontier_before = (
+        None
+        if expected_frontier_ref is None
+        else control_store.get_acquisition_evaluation_frontier_by_ref(expected_frontier_ref)
+    )
+    if (
+        (frontier_before.revision if frontier_before is not None else 0)
+        != expected_frontier_revision
+        or (frontier_before.frontier_ref if frontier_before is not None else None)
+        != expected_frontier_ref
+        or (frontier_before is not None and frontier_before.key != key)
+    ):
+        raise ValueError("candidate_experiment_terminal_frontier_before_mismatch")
+
+    if selected_evaluation_content_hash is None:
+        if head.evaluation_frontier_ref not in {None, expected_frontier_ref}:
+            raise ValueError("candidate_experiment_terminal_blocked_frontier_mismatch")
+        return frontier_before, frontier_before
+
+    frontier_after_ref = head.evaluation_frontier_ref
+    if frontier_after_ref is None:
+        raise ValueError("candidate_experiment_terminal_frontier_missing")
+    frontier_after = control_store.get_acquisition_evaluation_frontier_by_ref(frontier_after_ref)
+    if (
+        frontier_after is None
+        or frontier_after.frontier_ref != frontier_after_ref
+        or frontier_after.key != key
+        or frontier_after.revision != expected_frontier_revision + 1
+        or frontier_after.basis_ref != selected_basis_ref
+        or frontier_after.basis_content_hash != selected_basis_content_hash
+        or frontier_after.decision_ref != decision_ref
+        or frontier_after.selected_evaluation_witness_ref != selected_evaluation_witness_ref
+        or frontier_after.selected_evaluation_content_hash != selected_evaluation_content_hash
+    ):
+        raise ValueError("candidate_experiment_terminal_frontier_after_mismatch")
+    return frontier_before, frontier_after
 
 
 def verify_candidate_experiment_terminal_history(
@@ -1314,18 +1386,41 @@ def verify_candidate_experiment_terminal_history(
         candidate_id=decision.candidate_id,
     )
     current_frontier = control.read_acquisition_evaluation_frontier(frontier_key)
+    route_scope = {
+        "tenant_id": head.tenant_id,
+        "cell_id": head.cell_id,
+        "run_id": head.run_id,
+        "source_job_id": head.source_job_id,
+        "route_id": head.route_id,
+    }
+    action_heads = control.list_acquisition_action_heads(**route_scope) if committed else ()
+    if committed and head not in action_heads:
+        raise ValueError("candidate_experiment_terminal_head_changed")
+    latest_terminal_head = next(
+        (item for item in reversed(action_heads) if item.receipt_phase == "terminal"),
+        None,
+    )
     if committed:
-        frontier_before = (
-            None
-            if decision.expected_frontier_ref is None
-            else control.get_acquisition_evaluation_frontier_by_ref(decision.expected_frontier_ref)
+        frontier_before, frontier_after = _candidate_experiment_frontier_transition_for_history(
+            control_store=control,
+            key=frontier_key,
+            head=head,
+            expected_frontier_ref=decision.expected_frontier_ref,
+            expected_frontier_revision=decision.expected_frontier_revision,
+            selected_basis_ref=str(terminal.selected_basis_ref.artifact_id),
+            selected_basis_content_hash=selected_basis.content_hash,
+            decision_ref=str(terminal.evaluation_decision_ref.artifact_id),
+            selected_evaluation_witness_ref=str(
+                terminal.selected_evaluation_witness_ref.artifact_id
+            ),
+            selected_evaluation_content_hash=(
+                evaluation.execution.content_hash if evaluation is not None else None
+            ),
         )
-        if (
-            frontier_before.revision if frontier_before else 0
-        ) != decision.expected_frontier_revision or (
-            frontier_before.frontier_ref if frontier_before else None
-        ) != decision.expected_frontier_ref:
-            raise ValueError("candidate_experiment_terminal_frontier_before_mismatch")
+        if latest_terminal_head == head and current_frontier != frontier_after:
+            if evaluation is None:
+                raise ValueError("candidate_experiment_terminal_blocked_frontier_changed")
+            raise ValueError("candidate_experiment_terminal_frontier_after_mismatch")
     else:
         frontier_before = current_frontier
         if (
@@ -1334,39 +1429,11 @@ def verify_candidate_experiment_terminal_history(
             frontier_before.frontier_ref if frontier_before else None
         ) != decision.expected_frontier_ref:
             raise ValueError("candidate_experiment_terminal_frontier_before_mismatch")
-    if committed:
-        if head.evaluation_frontier_before_ref != decision.expected_frontier_ref:
-            raise ValueError("candidate_experiment_terminal_frontier_transaction_mismatch")
-        if evaluation is None:
-            if head.evaluation_frontier_ref not in {None, decision.expected_frontier_ref}:
-                raise ValueError("candidate_experiment_terminal_blocked_frontier_mismatch")
-            frontier_after = current_frontier
-            if current_frontier != frontier_before:
-                raise ValueError("candidate_experiment_terminal_blocked_frontier_changed")
-        else:
-            if head.evaluation_frontier_ref is None:
-                raise ValueError("candidate_experiment_terminal_frontier_missing")
-            frontier_after = control.get_acquisition_evaluation_frontier_by_ref(
-                head.evaluation_frontier_ref
-            )
-            if (
-                frontier_after is None
-                or frontier_after != current_frontier
-                or frontier_after.key != frontier_key
-                or frontier_after.revision != decision.expected_frontier_revision + 1
-                or frontier_after.basis_ref != str(terminal.selected_basis_ref.artifact_id)
-                or frontier_after.basis_content_hash != selected_basis.content_hash
-                or frontier_after.decision_ref != str(terminal.evaluation_decision_ref.artifact_id)
-                or frontier_after.selected_evaluation_witness_ref
-                != str(terminal.selected_evaluation_witness_ref.artifact_id)
-                or frontier_after.selected_evaluation_content_hash
-                != evaluation.execution.content_hash
-            ):
-                raise ValueError("candidate_experiment_terminal_frontier_after_mismatch")
 
     if (
         control.get_acquisition_action_head(**scope) != head
         or control.read_acquisition_evaluation_frontier(frontier_key) != current_frontier
+        or (committed and control.list_acquisition_action_heads(**route_scope) != action_heads)
     ):
         raise ValueError("candidate_experiment_terminal_head_changed")
     return CandidateExperimentTerminalHistory(

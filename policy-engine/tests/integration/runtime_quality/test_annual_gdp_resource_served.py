@@ -184,8 +184,11 @@ def test_annual_gdp_connector_refuses_row_outside_declared_source_year(
 async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    request: pytest.FixtureRequest,
 ) -> None:
     """Route captured annual GDP through observed admission, WMR refresh, and selected N5."""
+    import asyncio
+    import contextvars
     from dataclasses import replace
     from uuid import uuid4
 
@@ -200,6 +203,7 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     from polisyos.core.contracts import StateSnapshot
     from polisyos.core.contracts.fabric import DataSnapshot
     from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.data_forge.read_api.catalog import DatasetCatalogGraph
     from polisyos.foundry.execute.executor import get_state_path, load_state_snapshot
     from polisyos.ir.model_layer.model_spec import ModelSpec
     from polisyos.ir.model_layer.types import TimeFrequency
@@ -220,15 +224,32 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     )
     from polisyos.runtime.quality.generation_cycle import ValuePortObservation
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.substrate_registry import (
+        DEFAULT_L1_DCAT_PATH,
+        DEFAULT_L2_SCHOLAR_KG_PATH,
+        DEFAULT_L3_LEX_KG_PATH,
+        DEFAULT_PRODUCTION_DATA_ROOT,
+        build_substrate_registry_from_existing_catalogs,
+        catalog_serving_source_scope,
+        require_catalog_serving_graph_binding,
+        require_catalog_source_registry_binding,
+        resolve_catalog_serving_source,
+    )
     from polisyos.runtime.quality.world_model_record import world_model_artifact_views
     from tests._helpers import (
         acquisition_chain,
         acquisition_production,
         acquisition_served_history,
         controlled_candidate_profile,
+        runtime_http,
     )
     from tests._helpers import (
         world_model_record as wmr_fixture,
+    )
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+        candidate_cycle_catalog_source_readback,
+        complete_candidate_cycle_catalog_source,
     )
     from tests._helpers.lane01_candidate_source import GDP_COMPILER_INPUT
     from tests._helpers.lane01_wdi_profiles import (
@@ -237,6 +258,9 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     )
     from tests._helpers.runtime_http import _build_control_service
     from tests.integration.core_runtime import test_acquisition_world_growth_chain as observed_chain
+    from tests.unit.runtime.quality.test_substrate_registry import (
+        _write_substrate_catalog_fixture,
+    )
 
     observations = {row.year: row for row in load_wdi_observations()}
     row_2024 = observations[2024]
@@ -282,22 +306,155 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         year=2024,
         fixture_value=float(row_2024.value_usd),
     )
-    authority_root = tmp_path / "gdp-authority-bootstrap"
-    _bootstrap_authority, gdp_entry = build_fixture_wdi_authority(
-        authority_root,
+    # The control and WDI authority use a code root distinct from the selected
+    # source owner. Epoch L5 metadata belongs to the code root; complete L1/L5
+    # source bytes and its published catalog belong to the source owner root.
+    fixture_repo_root = (tmp_path / "wdi" / "repo").resolve()
+    fixture_repo_root.mkdir(parents=True, exist_ok=True)
+    _write_substrate_catalog_fixture(fixture_repo_root, include_graphs=False)
+    catalog_inputs = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "gdp-n7-catalog",
+        outcome_variable="global.gdp",
+    )
+    catalog_owner_root = catalog_inputs.root.resolve(strict=True)
+    catalog_monkeypatch = pytest.MonkeyPatch()
+    catalog_source_context = complete_candidate_cycle_catalog_source(
+        catalog_owner_root,
+        catalog_monkeypatch,
+    )
+    catalog_context = contextvars.copy_context()
+    try:
+        catalog_selection, _same_root_source, _same_root_registry = await asyncio.to_thread(
+            catalog_context.run,
+            catalog_source_context.__enter__,
+        )
+    except BaseException:
+        catalog_monkeypatch.undo()
+        raise
+
+    def release_catalog_source() -> None:
+        try:
+            catalog_context.run(catalog_source_context.__exit__, None, None, None)
+        finally:
+            catalog_monkeypatch.undo()
+
+    request.addfinalizer(release_catalog_source)
+    assert catalog_selection.source_owner_root == catalog_owner_root
+    selected_catalog_source = resolve_catalog_serving_source(
+        fixture_repo_root,
+        selection=catalog_selection,
+        requested_profile=catalog_selection.catalog_run_profile,
+    )
+    selected_catalog_graph = DatasetCatalogGraph(
+        selected_catalog_source.database_path,
+        selected_catalog_source.index_dir,
+        overlay_path=selected_catalog_source.overlay_path,
+    )
+    request.addfinalizer(selected_catalog_graph.close)
+    require_catalog_serving_graph_binding(selected_catalog_graph, selected_catalog_source)
+    with catalog_serving_source_scope(selected_catalog_source):
+        selected_catalog_registry = build_substrate_registry_from_existing_catalogs(
+            fixture_repo_root
+        )
+        require_catalog_source_registry_binding(
+            fixture_repo_root,
+            selected_catalog_registry,
+            selected_catalog_source,
+        )
+    selected_catalog_readback = candidate_cycle_catalog_source_readback(
+        selected_catalog_source.database_path
+    )
+
+    source_paths = selected_catalog_source.substrate_paths
+    source_owner_paths = (
+        source_paths.root_manifest_path,
+        source_paths.measurement_registry_path,
+        source_paths.identification_mode_registry_path,
+        source_paths.schema_regime_registry_path,
+        source_paths.l1_dcat_path,
+        catalog_owner_root / DEFAULT_L2_SCHOLAR_KG_PATH,
+        catalog_owner_root / DEFAULT_L3_LEX_KG_PATH,
+    )
+    assert selected_catalog_source.selection_basis == "explicit_path_candidate_only"
+    assert selected_catalog_source.repo_root == fixture_repo_root
+    assert selected_catalog_source.source_owner_root == catalog_owner_root
+    assert selected_catalog_source.snapshot_root.is_relative_to(catalog_owner_root)
+    assert selected_catalog_source.database_path == source_paths.l1_dcat_path
+    assert selected_catalog_source.database_path.is_relative_to(catalog_owner_root)
+    assert selected_catalog_readback["source_database_path"] == str(
+        selected_catalog_source.database_path
+    )
+    assert selected_catalog_readback["source_database_sha256"]
+    assert any(
+        ref.startswith("catalog_read_source_content://")
+        for ref in selected_catalog_registry.source_catalog_refs
+    )
+    assert all(path.is_file() for path in source_owner_paths)
+    assert all(
+        path.resolve(strict=True).is_relative_to(catalog_owner_root) for path in source_owner_paths
+    )
+    epoch_owner_paths = (
+        source_paths.epoch_schema_regime_registry_path,
+        source_paths.epoch_schema_regime_scope_registry_path,
+    )
+    assert all(path is not None and path.is_file() for path in epoch_owner_paths)
+    assert all(
+        path is not None and path.resolve(strict=True).is_relative_to(fixture_repo_root)
+        for path in epoch_owner_paths
+    )
+    root_manifest = json.loads(source_paths.root_manifest_path.read_text(encoding="utf-8"))
+    l6_bundle_path = root_manifest["bundles"]["ukraine_simulation"]["path"]
+    l6_bundle_root = (
+        catalog_owner_root
+        / DEFAULT_PRODUCTION_DATA_ROOT
+        / l6_bundle_path
+        / "production_bundle"
+        / "bundles"
+    )
+    l6_owner_paths = (
+        l6_bundle_root / "intervention_bundle_v1/intervention_knob_dictionary.json",
+        l6_bundle_root / "intervention_bundle_v1/lex_intervention_map.json",
+        l6_bundle_root / "method_contract_bundle_v1/observation_to_contract_manifest.json",
+        l6_bundle_root / "intervention_bundle_v1/policy_scenario_templates.json",
+    )
+    assert all(path.is_file() for path in l6_owner_paths)
+    assert all(
+        path.resolve(strict=True).is_relative_to(catalog_owner_root) for path in l6_owner_paths
+    )
+
+    entry_seed_root = tmp_path / "gdp-entry-seed"
+    _entry_seed_authority, gdp_entry = build_fixture_wdi_authority(
+        entry_seed_root,
         source_profile,
         attempt_id=acquisition_chain._ATTEMPT_ID,
     )
     monkeypatch.setattr(acquisition_chain, "_entry", lambda: gdp_entry)
 
     def build_gdp_authority(repo_root: Path, **_kwargs: object):
-        return build_fixture_wdi_authority(
-            repo_root,
+        selected_root = Path(repo_root).resolve(strict=True)
+        assert selected_root == fixture_repo_root
+        authority, entry = build_fixture_wdi_authority(
+            selected_root,
             source_profile,
             attempt_id=acquisition_chain._ATTEMPT_ID,
         )
+        return authority, entry
 
     monkeypatch.setattr(acquisition_chain, "_resolver", build_gdp_authority)
+
+    registry_provider_builder = runtime_http._build_registry_providers
+
+    def build_selected_registry_providers(*, catalog_run_profile=None):
+        providers = registry_provider_builder(catalog_run_profile=catalog_run_profile)
+        return replace(
+            providers,
+            gy_catalog_graph=selected_catalog_graph,
+            catalog_source_selection=catalog_selection,
+        )
+
+    monkeypatch.setattr(
+        runtime_http, "_build_registry_providers", build_selected_registry_providers
+    )
 
     # The connector executes normally against a socket-blocked local response;
     # only its transport bytes are pinned to this captured public API row.
@@ -513,12 +670,40 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     assert profile.context_inputs.world_model_record.valid_time_scope == "2024-01-01/2024-12-31"
     assert profile.n5.baseline_state["global.gdp"] == 0.0
 
+    # Let the canonical service construct its RetrievalService over the selected
+    # source graph. The test asserts graph identity only; it makes no retrieval claim.
+    monkeypatch.setattr(
+        runtime_http,
+        "_NoOpRetrievalService",
+        lambda: None,
+    )
+
     control = _build_control_service(
         tmp_path / "control",
         artifact_store=store,
         candidate_simulation_profiles=(profile,),
         candidate_simulation_model_declarations=(declaration,),
+        repo_root=fixture_repo_root,
+        catalog_run_profile=catalog_selection.catalog_run_profile,
     )
+    control_catalog_source = control._catalog_serving_source
+    assert control._repo_root == fixture_repo_root
+    assert control_catalog_source.repo_root == selected_catalog_source.repo_root
+    assert control_catalog_source.source_owner_root == selected_catalog_source.source_owner_root
+    assert control_catalog_source.database_path == selected_catalog_source.database_path
+    assert control._retrieval_catalog is not None
+    request.addfinalizer(control._retrieval_catalog.close)
+    require_catalog_serving_graph_binding(control._retrieval_catalog, control_catalog_source)
+    assert control._retrieval._dataset_catalog is control._retrieval_catalog
+
+    def under_catalog_source(function, *args, **kwargs):
+        with catalog_serving_source_scope(control_catalog_source):
+            return function(*args, **kwargs)
+
+    async def await_under_catalog_source(function, *args, **kwargs):
+        with catalog_serving_source_scope(control_catalog_source):
+            return await function(*args, **kwargs)
+
     recording = acquisition_chain.load_served_wdi_generation_recording()
 
     # The existing captured N4 recording is transformed by the fixture owner.
@@ -566,8 +751,10 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         "_controlled_wdi_trinity_response",
         large_action_candidate_response,
     )
-    closure, _request = await acquisition_production.persist_wdi_route(
+    closure, _request = await await_under_catalog_source(
+        acquisition_production.persist_wdi_route,
         control,
+        generation_cycle_repo_root=fixture_repo_root,
         tenant_id=tenant_id,
         cell_id=cell_id,
         run_id=run_id,
@@ -587,7 +774,8 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         canonical_variable_id="global.gdp",
         target_slot_id="global.gdp",
     )
-    case = acquisition_chain.make_wdi_port_case(
+    case = under_catalog_source(
+        acquisition_chain.make_wdi_port_case,
         tmp_path / "wdi",
         monkeypatch,
         control=control,
@@ -596,18 +784,29 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         candidate_scenario_generation=True,
         candidate_generation_recording=recording,
     )
+    fixture_baseline = case.authority.baseline_path.resolve(strict=True)
+    assert case.authority.repo_root.resolve(strict=True) == fixture_repo_root
+    assert case.bridge.repo_root.resolve(strict=True) == fixture_repo_root
+    assert fixture_baseline.is_relative_to(fixture_repo_root)
+    assert case.authority.registry_path.resolve(strict=True).is_relative_to(fixture_repo_root)
+    assert (catalog_owner_root / DEFAULT_L1_DCAT_PATH).is_file()
+    assert (catalog_owner_root / DEFAULT_L1_DCAT_PATH).resolve(strict=True) != fixture_baseline
     assert case.transport_calls == []
-    negative = case.port.execute(closure)
+    negative = under_catalog_source(case.port.execute, closure)
     assert negative.disposition == "quarantined_no_growth"
     case.appoint_native_policy()
-    case.port.prepare_route_execution(closure)
+    under_catalog_source(case.port.prepare_route_execution, closure)
     action_job_id = "annual-gdp-action-" + uuid4().hex
     action = acquisition_chain.begin_current_wdi_action(
         control,
         closure,
         job_id=action_job_id,
     )
-    result = case.port.execute(closure, action_phase_ref=action.executing_head.receipt_ref)
+    result = under_catalog_source(
+        case.port.execute,
+        closure,
+        action_phase_ref=action.executing_head.receipt_ref,
+    )
     assert result.disposition == "world_committed"
     assert result.admitted_observation_delta == 1
     selected_head = acquisition_chain.select_current_wdi_action_outcome(control, action, result)
@@ -685,7 +884,7 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         ):
             admission = control._control_store.current_execution_job_admission()
             with control._install_execution_scope(admission.scope):
-                reentry_ref = case.port.reenter(closure, result)
+                reentry_ref = under_catalog_source(case.port.reenter, closure, result)
 
     from polisyos.core import canon
     from polisyos.runtime.quality.generation_cycle import AcquisitionOverlayReentryReceipt

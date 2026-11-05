@@ -1194,11 +1194,14 @@ class CandidateAcquisitionEvaluationCurrentOwner:
             current_catalog_serving_source,
         )
 
-        if type(self) not in {
-            CandidateAcquisitionEvaluationCurrentOwner,
-            CandidateExperimentEvaluationCurrentOwner,
-        } or type(source) is not _N7ConfiguredCandidatePortSource or (
-            type(fence) is not _CandidateRetainedBudgetFence or fence.owner is not self
+        if (
+            type(self)
+            not in {
+                CandidateAcquisitionEvaluationCurrentOwner,
+                CandidateExperimentEvaluationCurrentOwner,
+            }
+            or type(source) is not _N7ConfiguredCandidatePortSource
+            or (type(fence) is not _CandidateRetainedBudgetFence or fence.owner is not self)
         ):
             raise ValueError("candidate_retained_port_owner_not_established")
         current = self.revalidate()
@@ -1285,14 +1288,10 @@ class CandidateAcquisitionEvaluationCurrentOwner:
         saved = _candidate_evaluation_artifact_for_recovery(
             bridge=self.bridge,
             closure=(
-                self.closure
-                if type(self) is CandidateAcquisitionEvaluationCurrentOwner
-                else None
+                self.closure if type(self) is CandidateAcquisitionEvaluationCurrentOwner else None
             ),
             origin=(
-                self.origin
-                if type(self) is CandidateExperimentEvaluationCurrentOwner
-                else None
+                self.origin if type(self) is CandidateExperimentEvaluationCurrentOwner else None
             ),
             pending_phase_ref=(
                 self.pending_phase_ref
@@ -1351,9 +1350,7 @@ class CandidateAcquisitionEvaluationCurrentOwner:
                     else None
                 ),
                 origin=(
-                    self.origin
-                    if type(self) is CandidateExperimentEvaluationCurrentOwner
-                    else None
+                    self.origin if type(self) is CandidateExperimentEvaluationCurrentOwner else None
                 ),
                 pending_phase_ref=(
                     self.pending_phase_ref
@@ -1627,7 +1624,7 @@ def _revalidate_candidate_experiment_evaluation_owner(
         bridge=bridge,
         origin=owner.origin,
     )
-    if (latest_history is None) != (prior_owner.selected_evaluation is None):
+    if latest_history is not None and prior_owner.selected_evaluation is None:
         raise ValueError("candidate_experiment_evaluation_prior_history_mismatch")
     current_frontier = None
     previous_basis = None
@@ -2797,9 +2794,7 @@ def _revalidate_candidate_experiment_reentry_owner(
             or terminal.selected_evaluation is None
             or prior is None
             or terminal.selected_basis_ref is None
-            or not _candidate_ref_same(
-                terminal.selected_basis_ref, decision.prior_basis_ref
-            )
+            or not _candidate_ref_same(terminal.selected_basis_ref, decision.prior_basis_ref)
         ):
             raise ValueError("candidate_experiment_retained_terminal_binding_mismatch")
         if (
@@ -3146,9 +3141,7 @@ def candidate_experiment_terminal_frontier_cas(
             or not _candidate_model_values_same(
                 history.selected_basis.evaluation, history.evaluation.selected
             )
-            or not _candidate_ref_same(
-                terminal.selected_basis_ref, decision.prior_basis_ref
-            )
+            or not _candidate_ref_same(terminal.selected_basis_ref, decision.prior_basis_ref)
             or not _candidate_model_values_same(
                 terminal.selected_evaluation,
                 history.evaluation.selected.model_copy(
@@ -3159,8 +3152,7 @@ def candidate_experiment_terminal_frontier_cas(
                 terminal.selected_evaluation_witness_ref,
                 history.evaluation.selected.n5_execution_ref,
             )
-            or history.frontier_before.basis_ref
-            != str(terminal.selected_basis_ref.artifact_id)
+            or history.frontier_before.basis_ref != str(terminal.selected_basis_ref.artifact_id)
             or history.frontier_before.selected_evaluation_witness_ref
             != str(terminal.selected_evaluation_witness_ref.artifact_id)
             or history.frontier_before.selected_evaluation_content_hash
@@ -4633,7 +4625,6 @@ def dispatch_candidate_experiment_evaluation(
     """
     from polisyos.runtime.http.services.control.run_lifecycle import (
         ControlPlaneService,
-        VerifiedAcquisitionActionOutcome,
     )
     from polisyos.runtime.http.services.control_plane_store import (
         AcquisitionEvaluationFrontierKey,
@@ -4654,6 +4645,7 @@ def dispatch_candidate_experiment_evaluation(
     )
     from polisyos.runtime.quality.candidate_acquisition_action import (
         _current_candidate_experiment_reentry_action,
+        _select_current_candidate_experiment_outcome,
     )
     from polisyos.runtime.quality.candidate_source_basis import (
         prepare_live_candidate_experiment_source_basis_values,
@@ -4661,6 +4653,7 @@ def dispatch_candidate_experiment_evaluation(
     from polisyos.runtime.quality.joint_simulation_horizon import (
         prepare_joint_simulation_configuration,
     )
+
     sink = bridge.action_head_sink
     service = bridge._source_control_service
     if (
@@ -4679,16 +4672,15 @@ def dispatch_candidate_experiment_evaluation(
         source_job_id=origin.source_job_id,
         route_id=origin.route_id,
     )
-    if (
-        type(outcomes) is not tuple
-        or len(outcomes) != 1
-        or type(outcomes[0]) is not VerifiedAcquisitionActionOutcome
-        or type(outcomes[0].latest_receipt) is not AcquisitionCandidateExperimentPhaseReceipt
-        or outcomes[0].latest_receipt.receipt_phase != "candidate_input_reentry_pending"
-        or outcomes[0].head.receipt_phase != "candidate_input_reentry_pending"
-    ):
+    snapshot = _select_current_candidate_experiment_outcome(
+        outcomes,
+        origin=origin,
+        action_job_id=bridge.control_store.current_execution_job_admission().job.job_id,
+        action_generation=len(origin.candidate_terminal_history_chain) + 1,
+        required_phase="candidate_input_reentry_pending",
+    )
+    if type(snapshot.latest_receipt) is not AcquisitionCandidateExperimentPhaseReceipt:
         raise ValueError("candidate_experiment_evaluation_pending_action_not_established")
-    snapshot = outcomes[0]
     pending = snapshot.latest_receipt
     pending_phase_ref = snapshot.head.receipt_ref
     action_ref = pending.candidate_receipt_ref
@@ -4739,7 +4731,9 @@ def dispatch_candidate_experiment_evaluation(
     previous_basis = None
     previous_basis_ref = None
     if latest_history is None:
-        if prior is not None or frontier is not None:
+        # The original source may already have N5. It remains numerical input;
+        # only a committed experiment prefix can establish a retained basis.
+        if frontier is not None:
             raise ValueError("candidate_experiment_evaluation_unowned_prior_frontier")
     else:
         if (
@@ -5036,9 +5030,7 @@ def dispatch_candidate_experiment_evaluation(
                 selected_reasons
                 if selected_reasons
                 else (
-                    ()
-                    if selected_basis_is_evaluated
-                    else ("candidate_reentry_n5_not_established",)
+                    () if selected_basis_is_evaluated else ("candidate_reentry_n5_not_established",)
                 )
             ),
             limitations=tuple(dict.fromkeys((*current.limitations, *reentry.limitations))),
@@ -5131,10 +5123,7 @@ def dispatch_candidate_experiment_evaluation(
         reentry_budget_scope=window.scope,
         budget_window=window,
     )
-    if (
-        owner.budget_window != window
-        or owner.evaluation_owner is not evaluation_owner
-    ):
+    if owner.budget_window != window or owner.evaluation_owner is not evaluation_owner:
         raise ValueError("candidate_experiment_evaluation_owner_changed")
     recovered_terminal = sink.recover_candidate_experiment_terminal(
         terminal,
@@ -5598,9 +5587,7 @@ def _persist_candidate_current_continuation(
         closure=(
             owner.closure if type(owner) is CandidateAcquisitionEvaluationCurrentOwner else None
         ),
-        origin=(
-            owner.origin if type(owner) is CandidateExperimentEvaluationCurrentOwner else None
-        ),
+        origin=(owner.origin if type(owner) is CandidateExperimentEvaluationCurrentOwner else None),
         pending_phase_ref=(
             owner.pending_phase_ref
             if type(owner) is CandidateExperimentEvaluationCurrentOwner
@@ -5676,9 +5663,7 @@ def _persist_candidate_current_continuation(
         closure=(
             owner.closure if type(owner) is CandidateAcquisitionEvaluationCurrentOwner else None
         ),
-        origin=(
-            owner.origin if type(owner) is CandidateExperimentEvaluationCurrentOwner else None
-        ),
+        origin=(owner.origin if type(owner) is CandidateExperimentEvaluationCurrentOwner else None),
         pending_phase_ref=(
             owner.pending_phase_ref
             if type(owner) is CandidateExperimentEvaluationCurrentOwner

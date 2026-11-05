@@ -123,6 +123,50 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
                             crash["saved_ref"] = result.cas_ref
                             crash["saved_payload"] = copy.deepcopy(payload)
                             crash["job_id"] = job_id
+                            event_id = (
+                                "evt_acquisition_"
+                                + str(payload["action_generation"])
+                                + "_experiment_terminal_"
+                                + hashlib.sha256(str(payload["receipt_id"]).encode()).hexdigest()[
+                                    :16
+                                ]
+                            )
+                            event_rows_at_crash = control._diagnostic_event_log.list_events(
+                                event_id=event_id,
+                                run_id=str(payload["run_id"]),
+                                job_id=job_id,
+                                limit=10,
+                            )
+                            if (
+                                len(event_rows_at_crash) != 1
+                                or event_rows_at_crash[0].event.event_id != event_id
+                                or event_rows_at_crash[0].event.payload_ref
+                                != str(result.cas_ref.artifact_id)
+                            ):
+                                raise AssertionError(
+                                    "terminal diagnostic event was not durable at crash cut"
+                                )
+                            pending_outcomes = (
+                                control.acquisition_route_sink.experiment_action_outcomes(
+                                    tenant_id=str(payload["tenant_id"]),
+                                    cell_id=str(payload["cell_id"]),
+                                    run_id=str(payload["run_id"]),
+                                    source_job_id=str(payload["source_job_id"]),
+                                    route_id=str(payload["route_id"]),
+                                )
+                            )
+                            if (
+                                not pending_outcomes
+                                or pending_outcomes[-1].head.job_id != job_id
+                                or pending_outcomes[-1].head.receipt_phase
+                                != "candidate_input_reentry_pending"
+                            ):
+                                raise AssertionError(
+                                    "terminal writer changed the SQL head before terminal commit"
+                                )
+                            crash["event_id"] = event_id
+                            crash["event_rows_at_crash"] = tuple(event_rows_at_crash)
+                            crash["pending_head_at_crash"] = pending_outcomes[-1].head
                             crash["interrupted"] = True
                             raise KeyboardInterrupt("controlled terminal writer process crash")
                         if result.cas_ref != crash["saved_ref"]:
@@ -163,6 +207,7 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
                     execution.interrupted_outcome.head.receipt_phase
                     == "candidate_input_reentry_pending"
                 )
+                assert execution.interrupted_outcome.head == crash["pending_head_at_crash"]
                 assert execution.standard_invocation_units_before == 2
                 assert execution.standard_invocation_units_after_interrupted == 4
                 assert execution.standard_invocation_units_after == 4
@@ -216,7 +261,8 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
                     job_id=terminal.job_id,
                     limit=10,
                 )
-                assert len(rows) == 1
+                assert crash["event_id"] == event_id
+                assert tuple(rows) == crash["event_rows_at_crash"]
                 terminal_head = control._control_store.get_acquisition_action_head_by_receipt(
                     tenant_id=terminal.tenant_id,
                     cell_id=terminal.cell_id,

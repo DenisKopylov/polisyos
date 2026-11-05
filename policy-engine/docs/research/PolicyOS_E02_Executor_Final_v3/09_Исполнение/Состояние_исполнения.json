@@ -10694,6 +10694,57 @@
           "named_inputs": 51,
           "inputs_unchanged": true,
           "scope": "Real source N5 and signed controls; acquisition requested phase/worker claim reached. Worker refused canonical producer _telemetry envelope as unexpected payload; no new protected N5. Current composed canonical envelope projection fixes this boundary, positive runtime pending."
+        },
+        "candidate_experiment_native_execute_r5": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-candidate-execution-native-r5/",
+          "source_commit": "b3a46b20545db95569778bc5809ddcb29247a4d5",
+          "source_tree": "a8977643590e6e5b13bd3b45bd0249e7ae72b284",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 200.9347985420609,
+          "peak_rss_bytes": 1644232704,
+          "named_inputs": 51,
+          "inputs_unchanged": true,
+          "scope": "Real source, signed controls and requested publication reached worker; canonical Control scope adds job_id, which candidate strict payload rejected before new protected N5. Telemetry projection itself passed. Root reproduces with both real payload producers then fixes exact job_id binding; no absent/malformed ID admission."
+        },
+        "candidate_experiment_worker_scope_current": {
+          "red_output": "policy-engine/_cache/e02/lane01-candidate-worker-scope-payload-red-r1/",
+          "green_output": "policy-engine/_cache/e02/lane01-candidate-worker-scope-payload-green-r1/",
+          "observed": {
+            "red_FAIL": 3,
+            "red_PASS": 1,
+            "green_PASS": 25,
+            "green_FAIL": 0,
+            "green_ERROR": 0,
+            "green_SKIP": 0
+          },
+          "seconds": 79.72676783299539,
+          "peak_rss_bytes": 1736523776,
+          "named_inputs": 5,
+          "inputs_unchanged": true,
+          "scope": "Actual telemetry and scope payload producers feed strict candidate worker. Canonical job_id reaches lease check; foreign/missing ID and extra action parameters refuse before it. Full action service and prefix module pass; this is boundary-unit evidence, not protected N5 execution.",
+          "independent_review": "Luna authority review GO; Root reads supervisor and25-caseJUnit directly."
+        },
+        "candidate_experiment_current_outcome_class": {
+          "output": "policy-engine/_cache/e02/lane01-gen2-current-action-class-r1/",
+          "observed": {
+            "PASS": 30,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 27.846209833049215,
+          "peak_rss_bytes": 1712783360,
+          "named_inputs": 11,
+          "inputs_unchanged": true,
+          "scope": "One exact current outcome selector across8callers/4namedPythonowners: verified contiguous terminal prefix plus current job/generation/ref/phase, unchanged live grants/lease checks. SourceA N5 remains numerical context while empty experiment history supplies no owned prior basis/frontier; firstB must invoke fresh reentry. Generation1/2/4 and9adversarial/no-effect controls plus affected sibling units pass.",
+          "independent_review": "Terra coherent source GO and finite19caller/5module audit of liveFalse vs separate historical reader. Root direct complete result/JUnit check.",
+          "limitations": "Pure/boundary units do not establish actual authority or N5 count. Whole firstB and multigeneration positive still pending; predecessor-aware equivalence normalization is investigated before long chain.",
+          "format_reconciliation": "Root normal Ruff format after the deciding30-case wave preserves the complete parsed dispatch-module AST exactly; original deciding pins/output remain retained. No semantic or numerical change claimed."
         }
       },
       "independent_component_reviews": {

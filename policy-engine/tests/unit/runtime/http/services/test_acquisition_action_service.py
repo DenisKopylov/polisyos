@@ -455,6 +455,81 @@ def test_candidate_worker_refuses_unknown_control_telemetry_fields() -> None:
         ControlPlaneService._job_payload_without_telemetry(payload)
 
 
+@pytest.mark.parametrize("variant", ["canonical", "foreign_job", "missing_job", "extra"])
+def test_candidate_worker_consumes_canonical_execution_scope_payload(variant: str) -> None:
+    """Actual Control scope enrichment reaches the lease check, never action authority."""
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+
+    class LeaseBoundaryReachedError(Exception):
+        pass
+
+    class ObservedStore:
+        calls = 0
+
+        def current_execution_job_admission(self) -> None:
+            self.calls += 1
+            raise LeaseBoundaryReachedError
+
+    _, request = _candidate_experiment_action_fixture()
+    job = SimpleNamespace(
+        job_id="job-current-candidate",
+        kind="acquisition",
+        run_id="run-action-test",
+        state="running",
+    )
+    scope = ControlJobExecutionScope(
+        status="established",
+        tenant_id="tenant-action-test",
+        cell_id="cell-action-test",
+        actor_subject="candidate-worker-test",
+        actor_authenticated=True,
+        actor_roles=("analyst",),
+    )
+    control = object.__new__(ControlPlaneService)
+    control._tracer = SimpleNamespace()
+    original = {
+        "action_kind": CANDIDATE_EXPERIMENT_ACTION_KIND,
+        "tenant_id": scope.tenant_id,
+        "cell_id": scope.cell_id,
+        "run_id": job.run_id,
+        "route_id": request.route_id,
+        "decision_ref": "sha256:" + "e" * 64,
+        "request": request.model_dump(mode="json"),
+    }
+    # Exercise both real producers; telemetry-only coverage missed this job ID.
+    payload = control._payload_for_execution_scope(
+        control._enrich_job_payload(original, request_id="actual-execution-scope"),
+        job=job,
+        execution_scope=scope,
+    )
+    assert payload["job_id"] == job.job_id
+    assert "job_id" not in original
+    if variant == "foreign_job":
+        payload["job_id"] = "job-foreign"
+    elif variant == "missing_job":
+        del payload["job_id"]
+    elif variant == "extra":
+        payload["unbound_action_parameter"] = True
+    store = ObservedStore()
+    control._control_store = store
+    service = object.__new__(AcquisitionActionService)
+    service.control_service = control
+    if variant == "canonical":
+        with pytest.raises(LeaseBoundaryReachedError):
+            service.handle_job(job, payload, scope)
+        assert store.calls == 1
+    else:
+        with pytest.raises(AcquisitionActionServiceError) as rejected:
+            service.handle_job(job, payload, scope)
+        expected = (
+            "candidate_experiment_job_payload_fields_invalid"
+            if variant == "extra"
+            else "candidate_experiment_job_payload_scope_mismatch"
+        )
+        assert rejected.value.code == expected
+        assert store.calls == 0
+
+
 def _candidate_selected_evaluation() -> AcquisitionSelectedEvaluation:
     def ref(kind: str, digit: str) -> artifacts.ArtifactRef:
         digest = "sha256:" + digit * 64

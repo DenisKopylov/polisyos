@@ -2091,6 +2091,7 @@ class AcquisitionActionService:
             ) from exc
         allowed_payload_keys = {
             "action_kind",
+            "job_id",
             "tenant_id",
             "cell_id",
             "run_id",
@@ -2108,6 +2109,7 @@ class AcquisitionActionService:
             payload.get("tenant_id") != tenant_id
             or payload.get("cell_id") != cell_id
             or payload.get("run_id") != run_id
+            or payload.get("job_id") != job.job_id
             or payload.get("action_kind") != CANDIDATE_EXPERIMENT_ACTION_KIND
             or not decision_ref.startswith("sha256:")
             or route_id != request.route_id

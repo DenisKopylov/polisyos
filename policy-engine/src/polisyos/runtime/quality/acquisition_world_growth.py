@@ -1330,6 +1330,7 @@ class AcquisitionWorldGrowthBridge:
         """Resolve the source action's original durable window at pending reentry."""
         from polisyos.runtime.quality.candidate_acquisition_action import (
             _current_candidate_experiment_reentry_action,
+            _select_current_candidate_experiment_outcome,
             read_candidate_experiment_acquisition_action_historical,
         )
 
@@ -1343,15 +1344,20 @@ class AcquisitionWorldGrowthBridge:
             source_job_id=origin.source_job_id,
             route_id=origin.route_id,
         )
-        if len(outcomes) != 1:
-            raise ValueError("candidate_experiment_reentry_history_not_unique")
-        pending_ref = outcomes[0].head.receipt_ref
+        outcome = _select_current_candidate_experiment_outcome(
+            outcomes,
+            origin=origin,
+            action_job_id=service._control_store.current_execution_job_admission().job.job_id,
+            action_generation=len(origin.candidate_terminal_history_chain) + 1,
+            required_phase="candidate_input_reentry_pending",
+        )
+        pending_ref = outcome.head.receipt_ref
         selection, phase, _admission, action = _current_candidate_experiment_reentry_action(
             self, origin, pending_ref, candidate_action_ref
         )
         executing_records = tuple(
             record
-            for record in outcomes[0].phase_chain
+            for record in outcome.phase_chain
             if getattr(record, "receipt_ref", None) == action.action_phase_ref
         )
         if len(executing_records) != 1:
@@ -1438,6 +1444,7 @@ class AcquisitionWorldGrowthBridge:
         """
         from polisyos.runtime.quality.candidate_acquisition_action import (
             _current_candidate_experiment_reentry_action,
+            _select_current_candidate_experiment_outcome,
         )
         from polisyos.scientist.orchestration.engine import (
             BudgetInvocationCapacityObservation,
@@ -1462,9 +1469,14 @@ class AcquisitionWorldGrowthBridge:
             source_job_id=origin.source_job_id,
             route_id=origin.route_id,
         )
-        if len(outcomes) != 1 or outcomes[0].head.receipt_ref == "":
-            raise ValueError("candidate_experiment_reentry_head_not_established")
-        pending_ref = outcomes[0].head.receipt_ref
+        outcome = _select_current_candidate_experiment_outcome(
+            outcomes,
+            origin=origin,
+            action_job_id=service._control_store.current_execution_job_admission().job.job_id,
+            action_generation=len(origin.candidate_terminal_history_chain) + 1,
+            required_phase="candidate_input_reentry_pending",
+        )
+        pending_ref = outcome.head.receipt_ref
         try:
             selection, phase, admission, action = _current_candidate_experiment_reentry_action(
                 self, origin, pending_ref, candidate_action_ref

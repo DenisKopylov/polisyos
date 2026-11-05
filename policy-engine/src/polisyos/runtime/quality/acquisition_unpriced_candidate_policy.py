@@ -1063,6 +1063,7 @@ def reconcile_candidate_unpriced_work(
         try:
             from polisyos.runtime.quality.candidate_acquisition_action import (
                 _current_candidate_experiment_action,
+                _select_current_candidate_experiment_outcome,
             )
 
             selected, phase, live_admission = _current_candidate_experiment_action(
@@ -1081,16 +1082,23 @@ def reconcile_candidate_unpriced_work(
             or live_admission != admission
         ):
             raise ValueError("candidate_experiment_action_scope_mismatch")
-        outcome = sink.experiment_action_outcomes(
+        experiment_outcomes = sink.experiment_action_outcomes(
             tenant_id=scope.tenant_id,
             cell_id=scope.cell_id,
             run_id=scope.run_id,
             source_job_id=scope.source_job_id,
             route_id=phase.route_id,
         )
-        if len(outcome) != 1 or outcome[0].latest_receipt != phase:
+        action = _select_current_candidate_experiment_outcome(
+            experiment_outcomes,
+            origin=experiment_origin,
+            action_job_id=admission.job.job_id,
+            action_generation=phase.action_generation,
+            receipt_ref=action_phase_ref,
+            required_phase="executing",
+        )
+        if action.latest_receipt != phase:
             raise ValueError("candidate_experiment_action_not_current")
-        action: object = outcome[0]
         experiment_snapshot = (selected, phase, live_admission)
     else:
         phase = sink._read_verified_action_phase(action_phase_ref).receipt
@@ -1159,7 +1167,15 @@ def reconcile_candidate_unpriced_work(
             source_job_id=scope.source_job_id,
             route_id=phase.route_id,
         )
-        if current_outcomes != (action,):
+        current_action = _select_current_candidate_experiment_outcome(
+            current_outcomes,
+            origin=experiment_origin,
+            action_job_id=admission.job.job_id,
+            action_generation=phase.action_generation,
+            receipt_ref=action_phase_ref,
+            required_phase="executing",
+        )
+        if current_action != action or current_outcomes != experiment_outcomes:
             raise ValueError("candidate_experiment_action_changed")
     if (
         experiment_evidence is not None

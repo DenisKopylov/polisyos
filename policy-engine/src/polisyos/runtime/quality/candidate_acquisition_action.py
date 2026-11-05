@@ -26,7 +26,10 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.acquisition_surface_execution import (
         WorldBankWDIRouteExecutionBinding,
     )
-    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        ControlPlaneService,
+        VerifiedAcquisitionActionOutcome,
+    )
     from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionAdmission
     from polisyos.runtime.quality.acquisition_executor import LiveSourceExecutionEvidence
     from polisyos.runtime.quality.acquisition_planner import AcquisitionRequirementBasisBinding
@@ -158,6 +161,90 @@ def _require_canonical_action_bridge(
     ):
         raise TypeError("candidate_action_canonical_bridge_required")
     return service
+
+
+def _select_current_candidate_experiment_outcome(
+    outcomes: tuple[VerifiedAcquisitionActionOutcome, ...],
+    *,
+    origin: VerifiedCandidateExperimentOrigin,
+    action_job_id: str,
+    action_generation: int,
+    receipt_ref: str | None = None,
+    required_phase: str | None = None,
+) -> VerifiedAcquisitionActionOutcome:
+    """Select one exact current action from the canonical owner's verified history.
+
+    This pure projection consumes already owner-replayed outcomes and prefix;
+    it does not authenticate supplied rows, authorize effects, or replace the
+    independent live lease and source checks of its consumers.
+    """
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        VerifiedAcquisitionActionOutcome,
+    )
+    from polisyos.runtime.quality.acquisition_evaluation import CandidateExperimentTerminalHistory
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentTerminalReceipt,
+        VerifiedCandidateExperimentOrigin,
+    )
+
+    if type(origin) is not VerifiedCandidateExperimentOrigin or type(outcomes) is not tuple:
+        raise ValueError("candidate_experiment_action_history_not_verified")
+    prefix = origin.candidate_terminal_history_chain
+    if (
+        type(action_generation) is not int
+        or action_generation != len(prefix) + 1
+        or len(outcomes) != action_generation
+        or any(type(item) is not VerifiedAcquisitionActionOutcome for item in outcomes)
+        or any(
+            (
+                item.head.tenant_id,
+                item.head.cell_id,
+                item.head.run_id,
+                item.head.source_job_id,
+                item.head.route_id,
+            )
+            != (
+                origin.tenant_id,
+                origin.cell_id,
+                origin.run_id,
+                origin.source_job_id,
+                origin.route_id,
+            )
+            for item in outcomes
+        )
+        or tuple(item.head.action_generation for item in outcomes)
+        != tuple(range(1, action_generation + 1))
+    ):
+        raise ValueError("candidate_experiment_action_history_not_current")
+    for history, outcome in zip(prefix, outcomes[:-1], strict=True):
+        if (
+            type(history) is not CandidateExperimentTerminalHistory
+            or type(outcome.latest_receipt) is not AcquisitionCandidateExperimentTerminalReceipt
+            or outcome.head != history.head
+            or outcome.latest_receipt != history.terminal
+            or outcome.candidate_experiment_terminal_history != history
+        ):
+            raise ValueError("candidate_experiment_action_prefix_changed")
+    outcome = outcomes[-1]
+    head = outcome.head
+    phase = outcome.latest_receipt
+    if (
+        (head.tenant_id, head.cell_id, head.run_id, head.source_job_id, head.route_id)
+        != (origin.tenant_id, origin.cell_id, origin.run_id, origin.source_job_id, origin.route_id)
+        or head.job_id != action_job_id
+        or head.action_generation != action_generation
+        or phase.job_id != action_job_id
+        or phase.action_generation != action_generation
+        or head.receipt_ref != head.receipt_sha256
+        or (receipt_ref is not None and head.receipt_ref != receipt_ref)
+        or (required_phase is not None and head.receipt_phase != required_phase)
+        or phase.receipt_phase != head.receipt_phase
+        or not outcome.phase_chain
+        or outcome.phase_chain[-1].receipt != phase
+        or outcome.phase_chain[-1].receipt_ref != head.receipt_ref
+    ):
+        raise ValueError("candidate_experiment_action_phase_not_current")
+    return outcome
 
 
 def _candidate_experiment_source_selection(
@@ -410,9 +497,6 @@ def _current_candidate_experiment_action(
 ]:
     """Resolve the exact current experiment phase and separate live acquisition lease."""
     from polisyos.core.artifacts import artifact_ref_for_manifest
-    from polisyos.runtime.http.services.control.run_lifecycle import (
-        VerifiedAcquisitionActionOutcome,
-    )
     from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionAdmission
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionCandidateExperimentPhaseReceipt,
@@ -458,18 +542,16 @@ def _current_candidate_experiment_action(
     except (OSError, RuntimeError, TypeError, ValueError) as exc:
         raise ValueError("candidate_experiment_action_history_not_verified") from exc
     head = current_origin.current_action_head
-    if (
-        not isinstance(outcomes, tuple)
-        or len(outcomes) != 1
-        or type(outcomes[0]) is not VerifiedAcquisitionActionOutcome
-        or outcomes[0].head != head
-        or outcomes[0].head.receipt_ref != action_phase_ref
-        or outcomes[0].head.receipt_sha256 != action_phase_ref
-        or type(outcomes[0].latest_receipt) is not AcquisitionCandidateExperimentPhaseReceipt
-        or not outcomes[0].phase_chain
-    ):
+    outcome = _select_current_candidate_experiment_outcome(
+        outcomes,
+        origin=current_origin,
+        action_job_id=head.job_id,
+        action_generation=head.action_generation,
+        receipt_ref=action_phase_ref,
+        required_phase=required_phase,
+    )
+    if type(outcome.latest_receipt) is not AcquisitionCandidateExperimentPhaseReceipt:
         raise ValueError("candidate_experiment_action_phase_not_current")
-    outcome = outcomes[0]
     phase_record = outcome.phase_chain[-1]
     phase = outcome.latest_receipt
     if (
@@ -611,11 +693,17 @@ def _current_candidate_experiment_reentry_action(
         source_job_id=origin.source_job_id,
         route_id=origin.route_id,
     )
-    if len(outcomes) != 1:
-        raise ValueError("candidate_experiment_reentry_history_not_unique")
+    outcome = _select_current_candidate_experiment_outcome(
+        outcomes,
+        origin=origin,
+        action_job_id=admission.job.job_id,
+        action_generation=phase.action_generation,
+        receipt_ref=pending_phase_ref,
+        required_phase="candidate_input_reentry_pending",
+    )
     executing_refs = tuple(
         record
-        for record in outcomes[0].phase_chain
+        for record in outcome.phase_chain
         if getattr(record, "receipt_ref", None) == receipt.action_phase_ref
     )
     if len(executing_refs) != 1 or getattr(executing_refs[0], "receipt", None) is None:
@@ -1017,9 +1105,6 @@ def read_candidate_experiment_acquisition_action(
     require_current_action: bool,
 ) -> CandidateAcquisitionActionReceipt:
     """Reopen the exact experiment action, source and phase parents."""
-    from polisyos.runtime.http.services.control.run_lifecycle import (
-        VerifiedAcquisitionActionOutcome,
-    )
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionCandidateExperimentPhaseReceipt,
         VerifiedCandidateExperimentOrigin,
@@ -1076,15 +1161,15 @@ def read_candidate_experiment_acquisition_action(
         source_job_id=origin.source_job_id,
         route_id=origin.route_id,
     )
-    if (
-        not isinstance(outcomes, tuple)
-        or len(outcomes) != 1
-        or type(outcomes[0]) is not VerifiedAcquisitionActionOutcome
-    ):
-        raise ValueError("candidate_experiment_action_history_not_verified")
+    outcome = _select_current_candidate_experiment_outcome(
+        outcomes,
+        origin=origin,
+        action_job_id=receipt.action_job_id,
+        action_generation=receipt.action_generation,
+    )
     matching = tuple(
         record
-        for record in outcomes[0].phase_chain
+        for record in outcome.phase_chain
         if getattr(record, "receipt_ref", None) == receipt.action_phase_ref
     )
     if len(matching) != 1:

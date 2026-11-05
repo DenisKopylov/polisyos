@@ -199,6 +199,8 @@ ArtifactMemberKind = Literal["blob", "manifest", "signature"]
 _TransactionalParams = ParamSpec("_TransactionalParams")
 _TransactionalResult = TypeVar("_TransactionalResult")
 _READ_ONLY_READER_TOKEN = object()
+_DEFAULT_ARTIFACT_OWNERSHIP_EVIDENCE_METHOD = ArtifactOwnershipIndex.evidence
+_DEFAULT_ARTIFACT_OWNERSHIP_TOKEN_METHOD = ArtifactOwnershipIndex._current_generation_token
 
 
 class _ResolvedOwner(TypedDict):
@@ -5503,7 +5505,22 @@ class FileSystemCAS:
         return list(self._bulk_inventory_artifact_ids())
 
     def _owner_generation_token(self) -> str:
-        evidence = self._ownership_index.evidence()
+        owner_index = self._ownership_index
+        owner_methods = getattr(owner_index, "__dict__", {})
+        if (
+            type(owner_index) is ArtifactOwnershipIndex
+            and type(owner_index).evidence is _DEFAULT_ARTIFACT_OWNERSHIP_EVIDENCE_METHOD
+            and type(owner_index)._current_generation_token
+            is _DEFAULT_ARTIFACT_OWNERSHIP_TOKEN_METHOD
+            and "evidence" not in owner_methods
+            and "_current_generation_token" not in owner_methods
+        ):
+            return owner_index._current_generation_token()
+
+        # Preserve custom owner/test seams. Only the concrete stock index uses
+        # the lean token reader; replacements retain the established evidence
+        # contract, including its diagnostic history projection.
+        evidence = owner_index.evidence()
         generation = evidence.get("ownership_index_generation_sha256")
         if isinstance(generation, str):
             return generation

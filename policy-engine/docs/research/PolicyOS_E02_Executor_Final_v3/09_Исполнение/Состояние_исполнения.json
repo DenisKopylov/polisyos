@@ -10406,6 +10406,27 @@
           "inputs_unchanged_during_run": true,
           "scope": "Real N6 candidate-local fallback: one generation, second candidate invokes real owner N5 exactly once, persisted selected-result readback, strict public GenerationCycleRun DTO/history roundtrip; shared-currentness, stripped marker and budget stop suppress fallback. No HTTP consumer or whole-packet claim.",
           "independent_review": "Luna surface reviewer material-delta GO; Root read stdout/JUnit/pins."
+        },
+        "cas_owner_generation_cost_repair": {
+          "output": "policy-engine/_cache/e02/lane01-core-owner-inventory-affected-r1",
+          "observed": {
+            "PASS": 91,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 2.1321946249809116,
+          "peak_rss_bytes": 144965632,
+          "named_inputs": 4,
+          "inputs_unchanged_during_run": true,
+          "profile_output": "policy-engine/_cache/e02/lane01-policy-lookup-profile-r3/",
+          "measured_exact_inventory_seconds": {
+            "before": 1.7577356669353321,
+            "after": 0.0462
+          },
+          "scope": "Current ownership generation token validates current pointer/generation bytes and legacy signatures without rebuilding diagnostic pre-v3 ancestry. Full evidence history and custom-owner fallback preserved. Same retained artifact:574 members/two profiles. Not a whole R15 latency or full protected-route qualification.",
+          "prior_output_limit": "r1 isolated lookup measured pass then driver KeyError; original failure retained, r3 clean supervisor PASS.",
+          "independent_review": "Sol bounded source GO; Root directly verified final91case JUnit/source pins and retained r3 profile receipts."
         }
       },
       "independent_component_reviews": {

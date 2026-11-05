@@ -6,6 +6,8 @@ import hashlib
 import json
 import os
 import stat
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol
 from unittest.mock import MagicMock
@@ -23,6 +25,7 @@ from polisyos.core.artifacts.ir_adapter import CoreToIRArtifactStoreAdapter
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.artifacts.ownership import (
     ArtifactOwnershipError,
+    ArtifactOwnershipIndex,
     ArtifactPublicReadClosureUnavailableError,
     ArtifactTransactionPendingError,
 )
@@ -758,6 +761,156 @@ class TestFileSystemCASRoundTrip:
         )
         assert "canonical CAS root member names" in snapshot.inputs
         assert any(str(selected_view.artifact_id) in item for item in snapshot.inputs)
+
+    def test_owner_generation_token_preserves_custom_evidence_owners(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        payload_digest = "sha256:" + "a" * 64
+        signature_digest = "sha256:" + "b" * 64
+        evidence = {
+            "ownership_index_digest": payload_digest,
+            "ownership_index_signature_digest": signature_digest,
+        }
+        expected = (
+            "sha256:" + hashlib.sha256(f"{payload_digest}:{signature_digest}".encode()).hexdigest()
+        )
+
+        class EvidenceOverrideIndex(ArtifactOwnershipIndex):
+            def evidence(self, *, tenant_id=None, cell_id=None) -> dict[str, str]:
+                return evidence
+
+        store = FileSystemCAS(tmp_path / "cas")
+        subclass_owner = EvidenceOverrideIndex(store.root)
+        monkeypatch.setattr(store, "_ownership_index", subclass_owner)
+        assert store._owner_generation_token() == expected
+
+        instance_override_store = FileSystemCAS(tmp_path / "instance-override-cas")
+
+        def instance_evidence(*, tenant_id=None, cell_id=None) -> dict[str, str]:
+            return evidence
+
+        monkeypatch.setattr(
+            instance_override_store._ownership_index,
+            "evidence",
+            instance_evidence,
+        )
+        assert instance_override_store._owner_generation_token() == expected
+
+    def test_selected_inventory_uses_current_owner_token_without_history_walk(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        store = FileSystemCAS(
+            tmp_path / "cas",
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+        )
+        selected = store.put_bytes(
+            b"current owner inventory",
+            PutOptions(kind="inventory.owner.current", media_type="text/plain"),
+        )
+        pointer = json.loads(store._ownership_index.path.read_bytes())
+
+        def history_walk_is_not_a_generation_token(_generation_sha256: str) -> str:
+            pytest.fail("inventory stability checked full history diagnostics")
+
+        monkeypatch.setattr(
+            store._ownership_index,
+            "_pre_v3_history_status",
+            history_walk_is_not_a_generation_token,
+        )
+        snapshot = store.inventory_snapshot(artifact_id=selected.artifact_id)
+
+        assert snapshot.verdict == "pass"
+        assert snapshot.owner_generation_sha256 == pointer["generation_sha256"]
+        assert len(snapshot.entries) == 2
+        assert {
+            str(entry.artifact_ref.artifact_id)
+            if isinstance(entry.artifact_ref, ArtifactRef)
+            else str(entry.artifact_ref)
+            for entry in snapshot.entries
+        } == {str(selected.artifact_id)}
+
+    def test_selected_inventory_refuses_owner_generation_change_between_captures(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        store = FileSystemCAS(
+            tmp_path / "cas",
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+        )
+        selected = store.put_bytes(
+            b"owner generation changes without CAS member change",
+            PutOptions(kind="inventory.owner.generation", media_type="text/plain"),
+        )
+        before_names, _before_members = store._capture_inventory_member_paths()
+        generation_before = store._owner_generation_token()
+        coordinator = store._coordinator
+        original_root_exclusive = coordinator.root_exclusive
+        changed = False
+
+        @contextmanager
+        def root_exclusive() -> Iterator[None]:
+            nonlocal changed
+            with original_root_exclusive():
+                yield
+            if not changed:
+                changed = True
+                store._ownership_index.record_owner(
+                    ArtifactID.from_sha256_hex("f" * 64),
+                    tenant_id="tenant-b",
+                    cell_id="cell-b",
+                )
+
+        monkeypatch.setattr(coordinator, "root_exclusive", root_exclusive)
+        snapshot = store.inventory_snapshot(artifact_id=selected.artifact_id)
+        monkeypatch.setattr(coordinator, "root_exclusive", original_root_exclusive)
+        after_names, _after_members = store._capture_inventory_member_paths()
+
+        assert changed
+        assert before_names == after_names
+        assert snapshot.verdict == "UNRUN"
+        assert snapshot.reason == "inventory_changed_during_scan"
+        assert snapshot.owner_generation_sha256 != generation_before
+
+    def test_selected_inventory_refuses_same_size_corrupt_owner_generation(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        store = FileSystemCAS(
+            tmp_path / "cas",
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+        )
+        selected = store.put_bytes(
+            b"owner generation corruption control",
+            PutOptions(kind="inventory.owner.corrupt", media_type="text/plain"),
+        )
+        pointer = json.loads(store._ownership_index.path.read_bytes())
+        generation_path = store._ownership_index._generation_path(pointer["generation_sha256"])
+        original_bytes = generation_path.read_bytes()
+        original_stat = generation_path.stat()
+        tampered_bytes = bytearray(original_bytes)
+        tampered_bytes[0] = ord(" " if tampered_bytes[0] != ord(" ") else "{")
+        assert len(tampered_bytes) == len(original_bytes)
+        generation_path.write_bytes(tampered_bytes)
+        os.utime(
+            generation_path,
+            ns=(original_stat.st_atime_ns, original_stat.st_mtime_ns),
+        )
+
+        with pytest.raises(ValueError, match="ownership_index_generation_invalid"):
+            store._owner_generation_token()
+        snapshot = store.inventory_snapshot(artifact_id=selected.artifact_id)
+
+        assert snapshot.verdict == "UNRUN"
+        assert snapshot.reason == "inventory_capture_unavailable:ValueError"
+        assert snapshot.entries == ()
 
     def test_inventory_snapshot_hides_foreign_tenant_members_without_losing_owned_views(
         self, tmp_path: Path

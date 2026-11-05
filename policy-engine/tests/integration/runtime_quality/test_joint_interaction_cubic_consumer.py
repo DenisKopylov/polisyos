@@ -332,6 +332,8 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
     from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from polisyos.runtime.http.dependencies import build_runtime_api_context
     from polisyos.runtime.http.services.control import generation_cycle as compiler_owner
     from polisyos.runtime.quality import recursive_generation_cycle as recursive_cycle
     from polisyos.runtime.quality.cycle_substrate import (
@@ -1283,20 +1285,45 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
 
     result_ref = ArtifactRef.model_validate(parent["simulation_result_ref"])
     assert result_ref.manifest_profile_sha256 is not None
-    with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
-        result_manifest = service._artifact_store.get_manifest(result_ref)
-    assert result_manifest.tenant_context is not None
-    assert result_manifest.tenant_context.tenant_id == prepared.tenant_id
-    assert result_manifest.tenant_context.cell_id == prepared.cell_id
-    assert parent["world_model_record_content_hash"] is not None
-    with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
-        persisted_result = load_joint_simulation_result(
-            result_ref,
-            store=service._artifact_store,
-            expected_world_model_record_content_hash=parent["world_model_record_content_hash"],
-            expected_atom_ids=tuple(parent["atom_ids"]),
-            expected_selected_outcomes=tuple(parent["selected_outcomes"]),
-        )
+    fresh_context = build_runtime_api_context(
+        cas_root=prepared.cas_root,
+        core_runs_root=prepared.runtime_api_context.core_runs_root,
+    )
+    assert fresh_context is not prepared.runtime_api_context
+    assert fresh_context.store is not prepared.runtime_api_context.store
+    fresh_app = create_runtime_api_app(
+        **{
+            **prepared.app_kwargs,
+            "container_overrides": RuntimeContainerOverrides(runtime_api_context=fresh_context),
+            "generic_cycle_simulation_profiles": (),
+            "generic_cycle_simulation_root_profile_id": None,
+        }
+    )
+    with TestClient(fresh_app) as fresh_client:
+        fresh_response = fresh_client.get(f"/api/v1/runs/{run_id}")
+        assert fresh_response.status_code == 200, fresh_response.text
+        fresh_projection = fresh_response.json()["run"]["generic_cycle_simulation"]
+        fresh_parent_rows = fresh_projection["joint_parent_observations"]
+        assert fresh_projection["joint_parent_status"] == "resolved"
+        assert len(fresh_parent_rows) == 1
+        fresh_parent = fresh_parent_rows[0]
+        assert fresh_parent["simulation_result_ref"] == parent["simulation_result_ref"]
+        fresh_result_ref = ArtifactRef.model_validate(fresh_parent["simulation_result_ref"])
+        assert fresh_result_ref == result_ref
+        with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
+            result_manifest = fresh_context.store.get_manifest(fresh_result_ref)
+        assert result_manifest.tenant_context is not None
+        assert result_manifest.tenant_context.tenant_id == prepared.tenant_id
+        assert result_manifest.tenant_context.cell_id == prepared.cell_id
+        assert parent["world_model_record_content_hash"] is not None
+        with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
+            persisted_result = load_joint_simulation_result(
+                result_ref,
+                store=fresh_context.store,
+                expected_world_model_record_content_hash=parent["world_model_record_content_hash"],
+                expected_atom_ids=tuple(parent["atom_ids"]),
+                expected_selected_outcomes=tuple(parent["selected_outcomes"]),
+            )
     persisted_residual = persisted_result.higher_order_residual_sampling[outcome][0]
     assert persisted_residual.status == served_residual["status"]
     assert persisted_residual.replicate_count == len(expected_seeds)

@@ -759,6 +759,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
 
     from polisyos.core import canon
     from polisyos.core.artifacts import artifact_manifest_profile_sha256
+    from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
     from polisyos.core.artifacts.manifest import (
         ArtifactRef,
         artifact_ref_identity_key,
@@ -788,9 +789,9 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         candidate_simulation_profile_ref,
     )
     from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContextArtifactOwner,
         cycle_job_design_problem_ref,
         cycle_job_profile_selection_ref,
-        parse_cycle_substrate_context_job_artifact,
     )
     from polisyos.runtime.quality.generation_cycle import (
         FoundryValuePort,
@@ -819,6 +820,9 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
     from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
     from polisyos.scientist.orchestration.llm import factory as llm_factory
     from tests._helpers.control_worker import dispatch_one_control_job
+    from tests._helpers.controlled_candidate_profile import (
+        synthetic_controlled_candidate_provider_profile,
+    )
     from tests.unit.runtime.http.test_control_job_execution_intent import (
         _valid_intake_for_mode,
     )
@@ -848,7 +852,22 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         outcome_variable=original_problem.outcome_of_interest.target_variable,
     )
     recorded_problem = _current_compiler_problem(controlled_recording)
-    controlled_candidate_gateway.set_fixture(controlled_recording, problem=recorded_problem)
+
+    def bind_synthetic_stage_provider(problem):
+        # Declare new software-fixture usage for the actual compiler subject;
+        # retained capture counters remain unattested historical quantities.
+        provider = synthetic_controlled_candidate_provider_profile(
+            recording,
+            controlled_recording,
+            problem=problem,
+            evidence_root=tmp_path / "synthetic-provider-exchanges",
+        )
+        controlled_candidate_gateway.set_fixture(
+            controlled_recording, problem=problem, provider_profile=provider
+        )
+        controlled_candidate_gateway.admit_compiled_problem(problem)
+
+    bind_synthetic_stage_provider(recorded_problem)
     outcome_variable = recorded_problem.outcome_of_interest.target_variable
     raw_request = recorded_problem.nl_provenance.raw_request
     model_id = str(recording["model_id"])
@@ -884,6 +903,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         if alter_next_compilation[0]:
             altered_time = problem.jurisdiction_time.model_copy(update={"as_of": "2026-06-30"})
             problem = problem.model_copy(update={"jurisdiction_time": altered_time})
+        bind_synthetic_stage_provider(problem)
         compiled_problems.append(problem)
         return problem
 
@@ -994,7 +1014,8 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         )
 
         completed = service._control_store.get_job(accepted["job_id"])
-        assert completed is not None and completed.state == "completed"
+        assert completed is not None
+        assert completed.state == "completed", completed.error_message
         assert len(compiled_problems) == 1
         compiled_problem = compiled_problems[0]
         progress = completed.progress
@@ -1007,22 +1028,28 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             progress["cycle_substrate_context_job_selected_ref"]
         )
         assert str(context_job_selected_ref.artifact_id) == context_job_ref
-        assert context_job_selected_ref.manifest_profile_sha256 is None
-        context_job_bytes = read_private_artifact_in_job_scope(
-            lambda: service._artifact_store.get_bytes(context_job_selected_ref),
+        admitted_event = service._control_store.get_job_created_event_payload(completed.job_id)
+        admitted_scope = _control_job_execution_scope_from_event(admitted_event)
+        context_job = read_private_artifact_in_job_scope(
+            lambda: CycleSubstrateContextArtifactOwner(
+                store=service._artifact_store
+            ).resolve_historical_job_artifact(
+                context_job_selected_ref,
+                problem=compiled_problem,
+                expected_job_id=completed.job_id,
+                expected_run_id=str(completed.run_id),
+                expected_tenant_id=admitted_scope.tenant_id,
+                expected_cell_id=admitted_scope.cell_id,
+            ),
             job_id=completed.job_id,
             run_id=str(completed.run_id),
         )
-        context_job = parse_cycle_substrate_context_job_artifact(
-            canon.from_canonical_bytes(context_job_bytes)
-        )
+        assert context_job_selected_ref.manifest_profile_sha256 is not None
         assert context_job.problem == compiled_problem
         assert context_job.design_problem_ref == cycle_job_design_problem_ref(compiled_problem)
         assert context_job.design_problem_ref != profile.profile_selection_ref
         assert context_job.job_id == completed.job_id
         assert context_job.run_id == str(completed.run_id)
-        admitted_event = service._control_store.get_job_created_event_payload(completed.job_id)
-        admitted_scope = _control_job_execution_scope_from_event(admitted_event)
         assert context_job.tenant_id == admitted_scope.tenant_id
         assert context_job.cell_id == admitted_scope.cell_id
         assert context_job.problem.nl_provenance.source_context["job_id"] == completed.job_id
@@ -1032,14 +1059,18 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert context_job.context.world_model_record.authority_status == "limited"
         assert context_job.context.world_model_record.simulation_model_ref.calibrated is False
 
-        compiled_payload_bytes = read_private_artifact_in_job_scope(
-            lambda: service._artifact_store.get_bytes(
-                progress["compiled_recursive_generation_cycle_ref"]
-            ),
+        compiled_selected_ref = ArtifactRef.model_validate(
+            progress["compiled_recursive_generation_cycle_artifact_ref"]
+        )
+        assert (
+            str(compiled_selected_ref.artifact_id)
+            == progress["compiled_recursive_generation_cycle_ref"]
+        )
+        compiled_payload = read_private_artifact_in_job_scope(
+            lambda: read_core_json_artifact(service._artifact_store, compiled_selected_ref).value,
             job_id=completed.job_id,
             run_id=str(completed.run_id),
         )
-        compiled_payload = canon.from_canonical_bytes(compiled_payload_bytes)
         compiled_record = CompiledRecursiveGenerationCycleRun.model_validate(compiled_payload)
         assert actual_factory_clients
         assert all(type(client) is TracedLLMClient for client in actual_factory_clients)
@@ -1133,9 +1164,34 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert isinstance(input_record.ncm_ref, ArtifactRef)
         assert isinstance(port_input_ref, ArtifactRef)
         assert input_record.n4_source_ref.manifest_profile_sha256 is not None
-        assert input_record.context_job_ref.manifest_profile_sha256 is None
-        assert input_record.model_declaration_ref.manifest_profile_sha256 is None
-        assert input_record.ncm_ref.manifest_profile_sha256 is None
+        assert len(candidate_leaf_controllers) == 1
+        admitted_handoff = candidate_leaf_controllers[0]._candidate_simulation_handoff
+        assert admitted_handoff is not None
+        assert artifact_ref_identity_key(input_record.context_job_ref) == (
+            artifact_ref_identity_key(admitted_handoff.context_job_ref)
+        )
+        assert artifact_ref_identity_key(input_record.model_declaration_ref) == (
+            artifact_ref_identity_key(admitted_handoff.model_declaration_ref)
+        )
+        assert artifact_ref_identity_key(input_record.ncm_ref) == (
+            artifact_ref_identity_key(admitted_handoff.ncm_ref)
+        )
+        for selected_owner_ref in (
+            context_job_selected_ref,
+            input_record.model_declaration_ref,
+            input_record.ncm_ref,
+        ):
+            owner_manifest = read_private_artifact_in_job_scope(
+                lambda selected_owner_ref=selected_owner_ref: service._artifact_store.get_manifest(
+                    selected_owner_ref
+                ),
+                job_id=completed.job_id,
+                run_id=str(completed.run_id),
+            )
+            assert selected_owner_ref.manifest_profile_sha256 is not None
+            assert selected_owner_ref.manifest_profile_sha256 == (
+                artifact_manifest_profile_sha256(owner_manifest)
+            )
         assert port_input_ref.manifest_profile_sha256 is not None
         assert str(input_record.ncm_ref.artifact_id) in (
             context_job.context.world_model_record.simulation_model_ref.ncm_refs
@@ -1571,7 +1627,15 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert observation.k_world_ref_before == context_job.context.world_model_record.content_hash
         assert observation.simulation_result_ref is not None
         assert isinstance(observation.simulation_result_ref, ArtifactRef)
-        assert observation.simulation_result_ref.manifest_profile_sha256 is None
+        result_manifest = read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.get_manifest(observation.simulation_result_ref),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        assert observation.simulation_result_ref.manifest_profile_sha256 is not None
+        assert observation.simulation_result_ref.manifest_profile_sha256 == (
+            artifact_manifest_profile_sha256(result_manifest)
+        )
         n5_result = read_private_artifact_in_job_scope(
             lambda: load_joint_simulation_result(
                 observation.simulation_result_ref,
@@ -1696,13 +1760,19 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             "compiled_recursive_generation_cycle_ref"
         )
         assert foreign_ref_compiled_ref is not None
-        foreign_ref_compiled_bytes = read_private_artifact_in_job_scope(
-            lambda: service._artifact_store.get_bytes(foreign_ref_compiled_ref),
+        foreign_ref_compiled_selected_ref = ArtifactRef.model_validate(
+            foreign_ref_job.progress["compiled_recursive_generation_cycle_artifact_ref"]
+        )
+        assert str(foreign_ref_compiled_selected_ref.artifact_id) == foreign_ref_compiled_ref
+        foreign_ref_compiled_payload = read_private_artifact_in_job_scope(
+            lambda: read_core_json_artifact(
+                service._artifact_store, foreign_ref_compiled_selected_ref
+            ).value,
             job_id=foreign_ref_job.job_id,
             run_id=str(foreign_ref_job.run_id),
         )
         foreign_ref_compiled_record = CompiledRecursiveGenerationCycleRun.model_validate(
-            canon.from_canonical_bytes(foreign_ref_compiled_bytes)
+            foreign_ref_compiled_payload
         )
         foreign_ref_cycles = tuple(
             cycle
@@ -1815,7 +1885,10 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
                 input_ref = selected_ref
                 break
         assert input_ref is not None
-        assert input_ref.manifest_profile_sha256 is None
+        assert input_ref.manifest_profile_sha256 == port_input_ref.manifest_profile_sha256
+        assert input_ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(
+            v5_input_manifest
+        )
         assert artifact_ref_identity_key(port_input_ref) == artifact_ref_identity_key(input_ref)
         assert str(input_ref.artifact_id) in refs_named(
             compiled_payload, "candidate_simulation_n5_input_ref"
@@ -1846,7 +1919,19 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
                 break
         assert execution_ref is not None
         assert execution is not None
-        assert execution_ref.manifest_profile_sha256 is None
+        execution_manifest = read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.get_manifest(execution_ref),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        execution_read = _generation_source_read_result(execution)
+        assert execution_read is not None
+        assert execution_ref.manifest_profile_sha256 is not None
+        assert (
+            execution_ref.manifest_profile_sha256
+            == (execution_read.provenance.selected_manifest_profile_sha256)
+            == artifact_manifest_profile_sha256(execution_manifest)
+        )
         assert str(execution_ref.artifact_id) in refs_named(
             compiled_payload, "candidate_simulation_execution_ref"
         )
@@ -2344,15 +2429,22 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             artifact_ref_identity_key(zero_budget_context_job_selected_ref),
         )
 
-        zero_budget_compiled_bytes = read_private_artifact_in_job_scope(
-            lambda: service._artifact_store.get_bytes(
-                zero_budget_job.progress["compiled_recursive_generation_cycle_ref"]
-            ),
+        zero_budget_compiled_selected_ref = ArtifactRef.model_validate(
+            zero_budget_job.progress["compiled_recursive_generation_cycle_artifact_ref"]
+        )
+        assert (
+            str(zero_budget_compiled_selected_ref.artifact_id)
+            == zero_budget_job.progress["compiled_recursive_generation_cycle_ref"]
+        )
+        zero_budget_compiled_payload = read_private_artifact_in_job_scope(
+            lambda: read_core_json_artifact(
+                service._artifact_store, zero_budget_compiled_selected_ref
+            ).value,
             job_id=zero_budget_job.job_id,
             run_id=str(zero_budget_job.run_id),
         )
         zero_budget_compiled_record = CompiledRecursiveGenerationCycleRun.model_validate(
-            canon.from_canonical_bytes(zero_budget_compiled_bytes)
+            zero_budget_compiled_payload
         )
         zero_budget_leaf_nodes = zero_budget_compiled_record.recursive_run.leaf_nodes
         assert len(zero_budget_leaf_nodes) == 1

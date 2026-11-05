@@ -11597,6 +11597,187 @@
             }
           },
           "scope": "1 PASS exact quote support only; served sibling execution remains UNRUN after repair."
+        },
+        "cyc04_full_served_r7": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cyc04-fallback-served-native-r7",
+          "measurement": {
+            "inputs_unchanged": true,
+            "named_input_count": 38,
+            "result": {
+              "aborted_reason": null,
+              "argv": [
+                ".venv/bin/python",
+                "-B",
+                "-m",
+                "pytest",
+                "-q",
+                "-x",
+                "--maxfail=1",
+                "--tb=short",
+                "-o",
+                "cache_dir=_cache/e02/lane01-cyc04-fallback-served-native-r7/pytest-cache",
+                "--basetemp=_cache/e02/lane01-cyc04-fallback-served-native-r7/tmp",
+                "tests/integration/runtime_quality/test_cyc04_candidate_local_fallback_served.py::test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling",
+                "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cyc04-fallback-served-native-r7/junit.xml"
+              ],
+              "complete": true,
+              "cwd": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine",
+              "disk_free_before_bytes": 5028966400,
+              "finished_at": "2026-11-05T18:45:43.846787+00:00",
+              "id": "command",
+              "max_sampled_process_tree_rss_bytes": 1398915072,
+              "minimum_sampled_disk_free_bytes": 4867022848,
+              "pid": 69639,
+              "process_group_gone": true,
+              "return_code": 0,
+              "sample_count": 74,
+              "started_at": "2026-11-05T18:45:02.717266+00:00",
+              "status": "passed",
+              "stderr_path": "command.stderr.txt",
+              "stdout_path": "command.stdout.txt",
+              "termination_signal": null,
+              "wall_seconds": 41.12946733389981,
+              "wall_total_before_seconds": 2.5000073947012424e-05
+            }
+          },
+          "scope": "1 PASS; full ordinary fallback, selected native0.125/SE0, exact5 stage calls and2 standard units, fresh distinct HTTP context/read/source/owner/removal controls. Not complete I01-A/B or SEL method bridge.",
+          "source_commit": "4947d7db74d4caf58c3a18d20e9f5c208393d9d7",
+          "source_tree": "024a11e6c001a59b23ea0fe0ee67b1e4d7d264d6"
+        },
+        "candidate_experiment_native_execute_r11": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-candidate-execution-native-r11",
+          "measurement": {
+            "inputs_unchanged": true,
+            "named_input_count": 83,
+            "result": {
+              "aborted_reason": null,
+              "argv": [
+                "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/.venv/bin/python",
+                "-B",
+                "-m",
+                "pytest",
+                "-x",
+                "-q",
+                "--tb=short",
+                "-o",
+                "faulthandler_timeout=90",
+                "--junitxml=_cache/e02/lane01-candidate-execution-native-r11/junit.xml",
+                "--basetemp=_cache/e02/lane01-candidate-execution-native-r11/pytest-temp",
+                "tests/integration/core_runtime/test_candidate_experiment_action_served.py::test_genuine_labor_policy_gets_signed_candidate_decision_and_fresh_replay"
+              ],
+              "complete": true,
+              "cwd": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine",
+              "disk_free_before_bytes": 5028941824,
+              "finished_at": "2026-11-05T18:51:30.275048+00:00",
+              "id": "command",
+              "max_sampled_process_tree_rss_bytes": 1562591232,
+              "minimum_sampled_disk_free_bytes": 4786978816,
+              "pid": 69641,
+              "process_group_gone": true,
+              "return_code": 1,
+              "sample_count": 708,
+              "started_at": "2026-11-05T18:45:02.736693+00:00",
+              "status": "command_failed",
+              "stderr_path": "command.stderr.txt",
+              "stdout_path": "command.stdout.txt",
+              "termination_signal": null,
+              "wall_seconds": 387.5379312080331,
+              "wall_total_before_seconds": 2.8333975933492184e-05
+            }
+          },
+          "scope": "1 FAIL; original lease/scope/quota checks pass to actual live acquisition, then static runtime Protocol rejects guarded verifier: live_artifact_verification_unavailable. No acquisition N5/terminal PASS. Canonical matcher repair pending.",
+          "source_commit": "4947d7db74d4caf58c3a18d20e9f5c208393d9d7",
+          "source_tree": "024a11e6c001a59b23ea0fe0ee67b1e4d7d264d6"
+        },
+        "cubic_explicit_native_r1": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cubic-explicit-native-r1",
+          "measurement": {
+            "inputs_unchanged": true,
+            "named_input_count": 35,
+            "result": {
+              "aborted_reason": null,
+              "argv": [
+                ".venv/bin/python",
+                "-B",
+                "-m",
+                "pytest",
+                "-q",
+                "-x",
+                "--tb=short",
+                "-o",
+                "faulthandler_timeout=90",
+                "tests/integration/runtime_quality/test_joint_interaction_cubic_consumer.py::test_cubic_joint_residual_survives_persisted_fresh_get_to_n8",
+                "--junitxml=_cache/e02/lane01-cubic-explicit-native-r1/junit.xml",
+                "--basetemp=_cache/e02/lane01-cubic-explicit-native-r1/pytest-temp"
+              ],
+              "complete": true,
+              "cwd": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine",
+              "disk_free_before_bytes": 5111975936,
+              "finished_at": "2026-11-05T18:44:27.470972+00:00",
+              "id": "command",
+              "max_sampled_process_tree_rss_bytes": 1867857920,
+              "minimum_sampled_disk_free_bytes": 5027414016,
+              "pid": 67929,
+              "process_group_gone": true,
+              "return_code": 1,
+              "sample_count": 385,
+              "started_at": "2026-11-05T18:40:55.732565+00:00",
+              "status": "command_failed",
+              "stderr_path": "command.stderr.txt",
+              "stdout_path": "command.stdout.txt",
+              "termination_signal": null,
+              "wall_seconds": 211.73815266706515,
+              "wall_total_before_seconds": 2.095801755785942e-05
+            }
+          },
+          "scope": "1 FAIL; native16 parent calls, residual samples1/1 mean1 SE0, pair residual0 and served/removal controls pass before closed-store suffix atline1287. Late manifest/typed read suffix unrun in this invocation; repaired separate fresh context independently source-reviewed.",
+          "source_commit": "4947d7db74d4caf58c3a18d20e9f5c208393d9d7",
+          "source_tree": "024a11e6c001a59b23ea0fe0ee67b1e4d7d264d6"
+        },
+        "hypothetical_sibling_served_r2": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-hypothetical-sibling-served-r2",
+          "measurement": {
+            "inputs_unchanged": true,
+            "named_input_count": 35,
+            "result": {
+              "aborted_reason": null,
+              "argv": [
+                ".venv/bin/python",
+                "-B",
+                "-m",
+                "pytest",
+                "-q",
+                "-x",
+                "--tb=short",
+                "-o",
+                "faulthandler_timeout=90",
+                "tests/integration/runtime_quality/test_recursive_joint_interaction_served.py::test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty",
+                "--junitxml=_cache/e02/lane01-hypothetical-sibling-served-r2/junit.xml",
+                "--basetemp=_cache/e02/lane01-hypothetical-sibling-served-r2/pytest-temp"
+              ],
+              "complete": true,
+              "cwd": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine",
+              "disk_free_before_bytes": 5028982784,
+              "finished_at": "2026-11-05T18:47:12.898004+00:00",
+              "id": "command",
+              "max_sampled_process_tree_rss_bytes": 1486831616,
+              "minimum_sampled_disk_free_bytes": 4804186112,
+              "pid": 69637,
+              "process_group_gone": true,
+              "return_code": 1,
+              "sample_count": 236,
+              "started_at": "2026-11-05T18:45:02.706781+00:00",
+              "status": "command_failed",
+              "stderr_path": "command.stderr.txt",
+              "stdout_path": "command.stdout.txt",
+              "termination_signal": null,
+              "wall_seconds": 130.19107545900624,
+              "wall_total_before_seconds": 1.9915984012186527e-05
+            }
+          },
+          "scope": "1 FAIL; worker, nonzero controlled kernel and firstGET/source-withhold/restore pass; post-client closed store atline341 stops remaining numeric/source oracle. Controlled kernel is not native numerical proof.",
+          "source_commit": "4947d7db74d4caf58c3a18d20e9f5c208393d9d7",
+          "source_tree": "024a11e6c001a59b23ea0fe0ee67b1e4d7d264d6"
         }
       },
       "independent_component_reviews": {
@@ -11638,6 +11819,14 @@
           "basis": "Completed failed scratch replaced by a successful same-family run; complete result/stdout/stderr/JUnit/pins remain in place. Current and unique fixtures, source/docs/environments/production data excluded.",
           "deleted_by_executor": false,
           "trash_emptied_by_executor": false
+        },
+        "latest_trash_move": {
+          "directory": "/Users/deniskopylov/.Trash/PolicyOS-reproducible-scratch-20261105T184528Z",
+          "scratch_leaves": 14,
+          "size_KiB": 866828,
+          "basis": "Synthetic/reproducible older scratch replaced by newer named PASS; parent deciding logs/results and current native/production inputs preserved.",
+          "trash_emptied_by_executor": false,
+          "deleted_by_executor": false
         }
       }
     },
